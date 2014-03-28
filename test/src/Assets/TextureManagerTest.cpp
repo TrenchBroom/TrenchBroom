@@ -52,7 +52,7 @@ namespace TrenchBroom {
             InSequence forceInSequenceMockCalls;
 
             Model::MockGamePtr game = Model::MockGame::newGame();
-            TextureManager textureManager;
+            TextureManager textureManager(NULL);
             textureManager.reset(game);
             
             const TextureCollectionSpec spec("somename.wad", IO::Path("./_does_not_exist.wad"));
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             InSequence forceInSequenceMockCalls;
             
             Model::MockGamePtr game = Model::MockGame::newGame();
-            TextureManager textureManager;
+            TextureManager textureManager(NULL);
             textureManager.reset(game);
 
             TextureCollection* collection = new TextureCollection("somename.wad", TextureList());
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             InSequence forceInSequenceMockCalls;
             
             Model::MockGamePtr game = Model::MockGame::newGame();
-            TextureManager textureManager;
+            TextureManager textureManager(NULL);
             textureManager.reset(game);
             
             TextureCollectionList collections;
@@ -122,7 +122,7 @@ namespace TrenchBroom {
             InSequence forceInSequenceMockCalls;
             
             Model::MockGamePtr game = Model::MockGame::newGame();
-            TextureManager textureManager;
+            TextureManager textureManager(NULL);
             textureManager.reset(game);
             
             TextureCollectionList collections;
@@ -162,7 +162,7 @@ namespace TrenchBroom {
             const TextureCollectionSpec spec2("name2", IO::Path("fsda"));
             
             Model::MockGamePtr game = Model::MockGame::newGame();
-            TextureManager textureManager;
+            TextureManager textureManager(NULL);
             textureManager.reset(game);
             
             EXPECT_CALL(*game, doLoadTextureCollection(spec1)).WillOnce(Return(collection1));

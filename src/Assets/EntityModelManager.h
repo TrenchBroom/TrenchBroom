@@ -29,6 +29,8 @@
 #include <set>
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace Renderer {
         class MeshRenderer;
     }
@@ -44,6 +46,7 @@ namespace TrenchBroom {
             typedef std::map<Assets::ModelSpecification, Renderer::MeshRenderer*> RendererCache;
             typedef std::set<Assets::ModelSpecification> RendererMismatches;
             
+            Logger* m_logger;
             Model::GamePtr m_game;
             mutable Renderer::Vbo m_vbo;
 
@@ -53,7 +56,7 @@ namespace TrenchBroom {
             mutable RendererMismatches m_rendererMismatches;
             mutable bool m_prepared;
         public:
-            EntityModelManager();
+            EntityModelManager(Logger* logger);
             ~EntityModelManager();
             
             void clear();

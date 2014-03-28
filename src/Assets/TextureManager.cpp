@@ -21,6 +21,7 @@
 
 #include "Exceptions.h"
 #include "CollectionUtils.h"
+#include "Logger.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureCollectionSpec.h"
@@ -45,10 +46,11 @@ namespace TrenchBroom {
             }
         };
 
+        TextureManager::TextureManager(Logger* logger) :
+        m_logger(logger) {}
+
         TextureManager::~TextureManager() {
-            VectorUtils::clearAndDelete(m_builtinCollections);
-            VectorUtils::clearAndDelete(m_externalCollections);
-            MapUtils::clearAndDelete(m_toRemove);
+            clear();
         }
 
         void TextureManager::setBuiltinTextureCollections(const IO::Path::List& paths) {
@@ -127,8 +129,7 @@ namespace TrenchBroom {
         }
 
         void TextureManager::reset(Model::GamePtr game) {
-            clearBuiltinTextureCollections();
-            clearExternalTextureCollections();
+            clear();
             m_game = game;
             updateTextures();
         }
@@ -174,6 +175,9 @@ namespace TrenchBroom {
                 TextureCollection* collection = m_game->loadTextureCollection(spec);
                 collections.push_back(collection);
                 collectionsByName.insert(std::make_pair(spec.name(), collection));
+                
+                if (m_logger != NULL)
+                    m_logger->debug("Added texture collection %s", spec.name().c_str());
             }
         }
 
@@ -187,18 +191,33 @@ namespace TrenchBroom {
             
             collectionsByName.erase(it);
             toRemove.insert(TextureCollectionMapEntry(name, collection));
+            
+            if (m_logger != NULL)
+                m_logger->debug("Removed texture collection %s", name.c_str());
         }
 
+        void TextureManager::clear() {
+            VectorUtils::clearAndDelete(m_builtinCollections);
+            VectorUtils::clearAndDelete(m_externalCollections);
+            MapUtils::clearAndDelete(m_toRemove);
+        }
+        
         void TextureManager::clearBuiltinTextureCollections() {
             m_toRemove.insert(m_builtinCollectionsByName.begin(), m_builtinCollectionsByName.end());
             m_builtinCollections.clear();
             m_builtinCollectionsByName.clear();
+            
+            if (m_logger != NULL)
+                m_logger->debug("Cleared builtin texture collections");
         }
         
         void TextureManager::clearExternalTextureCollections() {
             m_toRemove.insert(m_externalCollectionsByName.begin(), m_externalCollectionsByName.end());
             m_externalCollections.clear();
             m_externalCollectionsByName.clear();
+            
+            if (m_logger != NULL)
+                m_logger->debug("Cleared builtin texture collections");
         }
 
         void TextureManager::updateTextures() {

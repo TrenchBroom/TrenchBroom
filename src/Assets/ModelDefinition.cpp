@@ -46,6 +46,12 @@ namespace TrenchBroom {
             return frameIndex < rhs.frameIndex;
         }
 
+        const String ModelSpecification::asString() const {
+            StringStream str;
+            str << path.asString() << ":" << skinIndex << ":" << frameIndex;
+            return str.str();
+        }
+
         ModelDefinition::~ModelDefinition() {}
         
         bool ModelDefinition::matches(const Model::EntityProperties& properties) const {

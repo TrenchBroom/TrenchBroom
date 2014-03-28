@@ -28,15 +28,17 @@
 #include <vector>
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace Assets {
         class TextureCollectionSpec;
         
         class TextureManager {
         public:
-            enum SortOrder {
-                Name  = 0,
-                Usage = 1
-            };
+            typedef enum {
+                Name,
+                Usage
+            } SortOrder;
             
             typedef std::pair<TextureCollection*, TextureList> Group;
             typedef std::vector<Group> GroupList;
@@ -45,6 +47,7 @@ namespace TrenchBroom {
             typedef std::pair<String, TextureCollection*> TextureCollectionMapEntry;
             typedef std::map<String, Texture*> TextureMap;
             
+            Logger* m_logger;
             Model::GamePtr m_game;
             
             TextureCollectionList m_builtinCollections;
@@ -60,6 +63,7 @@ namespace TrenchBroom {
             
             TextureMap m_texturesByName;
         public:
+            TextureManager(Logger* logger);
             ~TextureManager();
 
             void setBuiltinTextureCollections(const IO::Path::List& paths);
@@ -82,6 +86,7 @@ namespace TrenchBroom {
             
             void doRemoveTextureCollection(const String& name, TextureCollectionList& collections, TextureCollectionMap& collectionsByName, TextureCollectionMap& toRemove);
             
+            void clear();
             void clearBuiltinTextureCollections();
             void clearExternalTextureCollections();
             void updateTextures();

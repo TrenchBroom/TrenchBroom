@@ -823,6 +823,8 @@ namespace TrenchBroom {
         m_worldBounds(DefaultWorldBounds),
         m_path(""),
         m_map(NULL),
+        m_entityModelManager(this),
+        m_textureManager(this),
         m_picker(m_worldBounds),
         m_selection(m_filter),
         m_grid(5),

@@ -21,28 +21,33 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
+#include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "Model/Game.h"
 #include "Renderer/MeshRenderer.h"
 
 namespace TrenchBroom {
     namespace Assets {
-        EntityModelManager::EntityModelManager() :
+        EntityModelManager::EntityModelManager(Logger* logger) :
+        m_logger(logger),
         m_vbo(0xFFFFF),
         m_prepared(true) {}
-
+        
         EntityModelManager::~EntityModelManager() {
             clear();
         }
-
+        
         void EntityModelManager::clear() {
             MapUtils::clearAndDelete(m_renderers);
             MapUtils::clearAndDelete(m_models);
             m_rendererMismatches.clear();
             m_modelMismatches.clear();
             m_prepared = true;
+            
+            if (m_logger != NULL)
+                m_logger->debug("Cleared entity models");
         }
-
+        
         void EntityModelManager::reset(Model::GamePtr game) {
             if (m_game == game)
                 return;
@@ -57,7 +62,7 @@ namespace TrenchBroom {
             ModelCache::const_iterator it = m_models.find(path);
             if (it != m_models.end())
                 return it->second;
-
+            
             if (m_modelMismatches.count(path) > 0)
                 return NULL;
             
@@ -65,13 +70,18 @@ namespace TrenchBroom {
                 EntityModel* model = m_game->loadModel(path);
                 assert(model != NULL);
                 m_models[path] = model;
+                
+                if (m_logger != NULL)
+                    m_logger->debug("Loaded entity model %s", path.asString().c_str());
                 return model;
-            } catch (const GameException&) {
+            } catch (const GameException& e) {
                 m_modelMismatches.insert(path);
+                if (m_logger != NULL)
+                    m_logger->debug("Failed to load entity model %s: %s", path.asString().c_str(), e.what());
                 throw;
             }
         }
-
+        
         Renderer::MeshRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
             EntityModel* entityModel = model(spec.path);
             if (entityModel == NULL)
@@ -87,13 +97,19 @@ namespace TrenchBroom {
             Renderer::MeshRenderer* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
             if (renderer == NULL) {
                 m_rendererMismatches.insert(spec);
+                
+                if (m_logger != NULL)
+                    m_logger->debug("Failed to construct entity model renderer for %s", spec.asString().c_str());
             } else {
                 m_renderers[spec] = renderer;
                 m_prepared = false;
+                
+                if (m_logger != NULL)
+                    m_logger->debug("Constructed entity model renderer for %s", spec.asString().c_str());
             }
             return renderer;
         }
-
+        
         void EntityModelManager::activateVbo() {
             m_vbo.activate();
             prepareRenderers();
@@ -102,7 +118,7 @@ namespace TrenchBroom {
         void EntityModelManager::deactivateVbo() {
             m_vbo.deactivate();
         }
-
+        
         void EntityModelManager::prepareRenderers() {
             if (m_prepared)
                 return;
