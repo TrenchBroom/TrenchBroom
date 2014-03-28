@@ -25,15 +25,18 @@
 
 namespace StringUtils {
     String formatString(const char* format, va_list arguments) {
-        static char buffer[4096];
+        static const int BUFFERSIZE = 8192;
+        static char buffer[BUFFERSIZE];
         
+        const int count =
 #if defined _MSC_VER
         vsprintf_s(buffer, format, arguments);
 #else
         vsprintf(buffer, format, arguments);
 #endif
-        
-        return buffer;
+        if (count <= 0)
+            return EmptyString;
+        return String(buffer, count);
     }
     
     String trim(const String& str, const String& chars) {
