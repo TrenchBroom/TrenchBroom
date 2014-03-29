@@ -31,63 +31,70 @@
 
 namespace TrenchBroom {
     namespace View {
-        TexturingViewOffsetTool::TexturingViewOffsetTool(MapDocumentWPtr document, ControllerWPtr controller) :
+        TexturingViewOffsetTool::TexturingViewOffsetTool(MapDocumentWPtr document, ControllerWPtr controller, const TexturingViewHelper& helper) :
         ToolImpl(document, controller),
-        m_face(NULL) {}
+        m_helper(helper) {}
         
-        bool TexturingViewOffsetTool::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-            assert(m_face == NULL);
+        bool TexturingViewOffsetTool::doStartMouseDrag(const InputState& inputState) {
+            assert(m_helper.valid());
             
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
-            const Hit& hit = inputState.hits().findFirst(TexturingView::FaceHit, false);
-            if (!hit.isMatch())
-                return false;
+            const Model::BrushFace* face = m_helper.face();
+            const Plane3& boundary = face->boundary();
+            const FloatType facePointDist = boundary.intersectWithRay(inputState.pickRay());
+            const Vec3 facePoint = inputState.pickRay().pointAtDistance(facePointDist);
             
-            m_face = hit.target<Model::BrushFace*>();
-            plane = Plane3(hit.hitPoint(), m_face->boundary().normal);
-            initialPoint = hit.hitPoint();
+            const Vec2f offset(face->xOffset(), face->yOffset());
+            const Vec2f scale(face->xScale(), face->yScale());
+            const Mat4x4 toTexTransform = face->toTexCoordSystemMatrix(Vec2f::Null, scale);
 
+            const Vec3 texPoint = toTexTransform * facePoint;
+            m_lastPoint = Vec2f(texPoint);
+            
             controller()->beginUndoableGroup("Move Texture");
             return true;
         }
         
-        bool TexturingViewOffsetTool::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-            assert(m_face != NULL);
+        bool TexturingViewOffsetTool::doMouseDrag(const InputState& inputState) {
+            assert(m_helper.valid());
 
-            const Mat4x4 toTexTransform = m_face->toTexCoordSystemMatrix();
-            const Vec3 last = toTexTransform * refPoint;
-            const Vec3 cur  = toTexTransform * curPoint;
+            Model::BrushFace* face = m_helper.face();
+            const Plane3& boundary = face->boundary();
+            const FloatType facePointDist = boundary.intersectWithRay(inputState.pickRay());
+            const Vec3 facePoint = inputState.pickRay().pointAtDistance(facePointDist);
+
+            const Vec2f offset(face->xOffset(), face->yOffset());
+            const Vec2f scale(face->xScale(), face->yScale());
+            const Mat4x4 toTexTransform = face->toTexCoordSystemMatrix(Vec2f::Null, scale);
             
-            const Grid& grid = document()->grid();
-            const Vec3 offset = grid.snap(cur - last);
+            const Vec3 texPoint = toTexTransform * facePoint;
+            const Vec2f curPoint(texPoint);
             
-            if (offset.null())
+            const Vec2f delta   = curPoint - m_lastPoint;
+            const Vec2f snapped = m_helper.snapOffset(delta);
+            
+            if (snapped.null())
                 return true;
             
-            const Model::BrushFaceList applyTo(1, m_face);
-            if (offset.x() != 0.0)
-                controller()->setFaceXOffset(applyTo, -offset.x(), true);
-            if (offset.y() != 0.0)
-                controller()->setFaceYOffset(applyTo, -offset.y(), true);
+            const Model::BrushFaceList applyTo(1, face);
+            if (snapped.x() != 0.0)
+                controller()->setFaceXOffset(applyTo, offset.x() - snapped.x(), false);
+            if (snapped.y() != 0.0)
+                controller()->setFaceYOffset(applyTo, offset.y() - snapped.y(), false);
             
-            const Mat4x4 fromTexTransform = m_face->fromTexCoordSystemMatrix();
-            refPoint = fromTexTransform * (last + offset);
+            m_lastPoint += snapped;
             return true;
         }
         
-        void TexturingViewOffsetTool::doEndPlaneDrag(const InputState& inputState) {
+        void TexturingViewOffsetTool::doEndMouseDrag(const InputState& inputState) {
             controller()->closeGroup();
-            assert(m_face != NULL);
-            m_face = NULL;
         }
         
-        void TexturingViewOffsetTool::doCancelPlaneDrag(const InputState& inputState) {
-            controller()->rollbackGroup();
-            assert(m_face != NULL);
-            m_face = NULL;
+        void TexturingViewOffsetTool::doCancelMouseDrag(const InputState& inputState) {
+            controller()->closeGroup();
         }
     }
 }

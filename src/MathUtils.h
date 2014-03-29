@@ -88,6 +88,16 @@ namespace Math {
     }
     
     template <typename T>
+    T mod(const T v1, const T v2) {
+        return std::fmod(v1, v2);
+    }
+    
+    template <typename T>
+    T remainder(const T v1, const T v2) {
+        return ::remainder(v1, v2);
+    }
+    
+    template <typename T>
     T min(const T v1, const T v2) {
         return std::min(v1, v2);
     }

@@ -49,6 +49,8 @@ namespace TrenchBroom {
             Vec3 m_zAxis;
             Mat4x4 m_toFaceTransform;
             Mat4x4 m_fromFaceTransform;
+            
+            float m_cameraZoom;
         public:
             TexturingViewHelper();
             
@@ -77,6 +79,7 @@ namespace TrenchBroom {
             Hits pick(const Ray3& pickRay) const;
             
             void setFace(Model::BrushFace* face);
+            void setCameraZoom(float cameraZoom);
         private:
             void validate();
         };

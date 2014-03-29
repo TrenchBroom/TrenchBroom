@@ -216,6 +216,7 @@ namespace TrenchBroom {
             controller()->beginUndoableGroup(String("Rotate ") + String(document()->selectedObjects().size() == 1 ? "object" : "objects"));
 
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
+            _unused(hit);
             assert(hit.isMatch());
             
             assert(hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HANone &&

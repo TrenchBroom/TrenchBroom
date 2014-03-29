@@ -51,6 +51,7 @@ namespace TrenchBroom {
         m_toolBox(this, this),
         m_offsetTool(NULL),
         m_cameraTool(NULL) {
+            m_helper.setCameraZoom(m_camera.zoom().x());
             m_toolBox.setClickToActivate(false);
             createTools();
             m_toolBox.disable();
@@ -63,7 +64,7 @@ namespace TrenchBroom {
         }
 
         void TexturingView::createTools() {
-            m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller);
+            m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller, m_helper);
             m_cameraTool = new TexturingViewCameraTool(m_document, m_controller, m_camera);
             m_toolBox.addTool(m_offsetTool);
             m_toolBox.addTool(m_cameraTool);
@@ -85,6 +86,8 @@ namespace TrenchBroom {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &TexturingView::preferenceDidChange);
+            
+            m_camera.cameraDidChangeNotifier.addObserver(this, &TexturingView::cameraDidChange);
         }
         
         void TexturingView::unbindObservers() {
@@ -98,6 +101,8 @@ namespace TrenchBroom {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &TexturingView::preferenceDidChange);
+
+            m_camera.cameraDidChangeNotifier.removeObserver(this, &TexturingView::cameraDidChange);
         }
         
         void TexturingView::objectDidChange(Model::Object* object) {
@@ -131,6 +136,11 @@ namespace TrenchBroom {
         }
 
         void TexturingView::preferenceDidChange(const IO::Path& path) {
+            Refresh();
+        }
+
+        void TexturingView::cameraDidChange(const Renderer::Camera* camera) {
+            m_helper.setCameraZoom(m_camera.zoom().x());
             Refresh();
         }
 
@@ -227,8 +237,11 @@ namespace TrenchBroom {
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINE_LOOP, edgeVertices));
             edgeRenderer.setUseColor(true);
-            edgeRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 0.7f));
+            edgeRenderer.setColor(Color(1.0f, 1.0f, 1.0f, 0.8f));
+            
+            glLineWidth(2.0f);
             edgeRenderer.render(renderContext);
+            glLineWidth(1.0f);
         }
 
         void TexturingView::renderTextureSeams(Renderer::RenderContext& renderContext) {

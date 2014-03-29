@@ -80,6 +80,7 @@ namespace TrenchBroom {
             void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);
             void gridDidChange();
+            void cameraDidChange(const Renderer::Camera* camera);
             
             void preferenceDidChange(const IO::Path& path);
             

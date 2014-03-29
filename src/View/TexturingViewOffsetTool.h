@@ -30,16 +30,19 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class TexturingViewOffsetTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, PlaneDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class TexturingViewHelper;
+        
+        class TexturingViewOffsetTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
         private:
-            Model::BrushFace* m_face;
+            const TexturingViewHelper& m_helper;
+            Vec2f m_lastPoint;
         public:
-            TexturingViewOffsetTool(MapDocumentWPtr document, ControllerWPtr controller);
+            TexturingViewOffsetTool(MapDocumentWPtr document, ControllerWPtr controller, const TexturingViewHelper& helper);
         private:
-            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void doEndPlaneDrag(const InputState& inputState);
-            void doCancelPlaneDrag(const InputState& inputState);
+            bool doStartMouseDrag(const InputState& inputState);
+            bool doMouseDrag(const InputState& inputState);
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag(const InputState& inputState);
         };
     }
 }

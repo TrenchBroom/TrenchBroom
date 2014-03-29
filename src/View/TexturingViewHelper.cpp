@@ -32,7 +32,8 @@
 namespace TrenchBroom {
     namespace View {
         TexturingViewHelper::TexturingViewHelper() :
-        m_face(NULL) {}
+        m_face(NULL),
+        m_cameraZoom(1.0f) {}
         
         bool TexturingViewHelper::valid() const {
             return m_face != NULL;
@@ -94,6 +95,59 @@ namespace TrenchBroom {
             return m_face->textureCoords(Vec3(point));
         }
         
+        Vec2f computeRemainder(const Vec3& position, const Mat4x4& transform, const Assets::Texture* texture) {
+            const Vec3 texPos = transform * position;
+            
+            const FloatType width  = static_cast<FloatType>(texture->width());
+            const FloatType height = static_cast<FloatType>(texture->height());
+            const FloatType x = Math::remainder(texPos.x(), width);
+            const FloatType y = Math::remainder(texPos.y(), height);
+            
+            return Vec2f(x, y);
+        }
+        
+        Vec2f combineRemainders(const Vec2f& r1, const Vec2f& r2) {
+            Vec2f result;
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(r1[i]) < Math::abs(r2[i]))
+                    result[i] = r1[i];
+                else
+                    result[i] = r2[i];
+            }
+            return result;
+        }
+        
+        Vec2f TexturingViewHelper::snapOffset(const Vec2f& delta) const {
+            assert(valid());
+            
+            if (delta.null())
+                return delta;
+            
+            const Assets::Texture* texture = m_face->texture();
+            if (texture == NULL)
+                return delta;
+            
+            const Vec2f oldOffset(m_face->xOffset(), m_face->yOffset());
+            const Vec2f newOffset = oldOffset - delta; // I don't know why this has to be subracted, but it works :-(
+            const Vec2f scale(m_face->xScale(), m_face->yScale());
+            const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(newOffset, scale);
+            
+            const Model::BrushVertexList& vertices = m_face->vertices();
+            Vec2f remainder = computeRemainder(vertices[0]->position, worldToTex, texture);
+
+            for (size_t i = 1; i < vertices.size(); ++i)
+                remainder = combineRemainders(remainder, computeRemainder(vertices[i]->position, worldToTex, texture));
+            
+            Vec2f result;
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(remainder[i]) < 5.0f / m_cameraZoom)
+                    result[i] = delta[i] + remainder[i];
+                else
+                    result[i] = Math::round(delta[i]);
+            }
+            return result;
+        }
+
         Vec3::List TexturingViewHelper::textureSeamVertices(const Renderer::OrthographicCamera& camera) const {
             assert(valid());
             
@@ -207,6 +261,10 @@ namespace TrenchBroom {
             validate();
         }
         
+        void TexturingViewHelper::setCameraZoom(const float cameraZoom) {
+            m_cameraZoom = cameraZoom;
+        }
+
         void TexturingViewHelper::validate() {
             if (m_face != NULL) {
                 m_origin = m_face->center();
