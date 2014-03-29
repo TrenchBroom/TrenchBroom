@@ -39,6 +39,7 @@
 #include <wx/button.h>
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
+#include <wx/spinctrl.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
@@ -48,6 +49,8 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller),
         m_texturingView(NULL),
+        m_xSubDivisionEditor(NULL),
+        m_ySubDivisionEditor(NULL),
         m_xOffsetEditor(NULL),
         m_yOffsetEditor(NULL),
         m_xScaleEditor(NULL),
@@ -69,6 +72,12 @@ namespace TrenchBroom {
 
         FaceAttribsEditor::~FaceAttribsEditor() {
             unbindObservers();
+        }
+
+        void FaceAttribsEditor::OnSubDivisionChanged(wxSpinEvent& event) {
+            const int x = m_xSubDivisionEditor->GetValue();
+            const int y = m_ySubDivisionEditor->GetValue();
+            m_texturingView->setSubDivisions(Vec2i(x, y));
         }
 
         void FaceAttribsEditor::OnXOffsetChanged(SpinControlEvent& event) {
@@ -144,6 +153,12 @@ namespace TrenchBroom {
 
             m_texturingView = new TexturingView(this, m_document, m_controller, resources);
             
+            m_xSubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER);
+            m_xSubDivisionEditor->SetRange(1, 16);
+            
+            m_ySubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER);
+            m_ySubDivisionEditor->SetRange(1, 16);
+            
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
             
@@ -184,34 +199,41 @@ namespace TrenchBroom {
             m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
             
             m_faceAttribsSizer = new wxGridBagSizer(LayoutConstants::ControlVerticalMargin);
-            m_faceAttribsSizer->Add(m_texturingView,                              wxGBPosition(0,0), wxGBSpan(1, 6), wxEXPAND);
+            m_faceAttribsSizer->Add(m_texturingView,                                wxGBPosition(0,0), wxGBSpan(1, 6), wxEXPAND);
             
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X Offset"), wxGBPosition(1,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_xOffsetEditor,                              wxGBPosition(1,1), wxDefaultSpan, wxEXPAND);
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Y Offset"), wxGBPosition(1,3), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_yOffsetEditor,                              wxGBPosition(1,4), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X Division"), wxGBPosition(1,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_xSubDivisionEditor,                           wxGBPosition(1,1), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Y Division"), wxGBPosition(1,3), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_ySubDivisionEditor,                           wxGBPosition(1,4), wxDefaultSpan, wxEXPAND);
+
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X Offset"),   wxGBPosition(2,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_xOffsetEditor,                                wxGBPosition(2,1), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Y Offset"),   wxGBPosition(2,3), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_yOffsetEditor,                                wxGBPosition(2,4), wxDefaultSpan, wxEXPAND);
             
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X Scale"),  wxGBPosition(2,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_xScaleEditor,                               wxGBPosition(2,1), wxDefaultSpan, wxEXPAND | wxRIGHT, 1);
-            m_faceAttribsSizer->Add(m_flipXButton,                                wxGBPosition(2,2), wxDefaultSpan, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Y Scale"),  wxGBPosition(2,3), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_yScaleEditor,                               wxGBPosition(2,4), wxDefaultSpan, wxEXPAND | wxRIGHT, 1);
-            m_faceAttribsSizer->Add(m_flipYButton,                                wxGBPosition(2,5), wxDefaultSpan, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X Scale"),    wxGBPosition(3,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_xScaleEditor,                                 wxGBPosition(3,1), wxDefaultSpan, wxEXPAND | wxRIGHT, 1);
+            m_faceAttribsSizer->Add(m_flipXButton,                                  wxGBPosition(3,2), wxDefaultSpan, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Y Scale"),    wxGBPosition(3,3), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_yScaleEditor,                                 wxGBPosition(3,4), wxDefaultSpan, wxEXPAND | wxRIGHT, 1);
+            m_faceAttribsSizer->Add(m_flipYButton,                                  wxGBPosition(3,5), wxDefaultSpan, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL);
             
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Angle"),    wxGBPosition(3,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_rotationEditor,                             wxGBPosition(3,1), wxDefaultSpan, wxEXPAND);
-            m_faceAttribsSizer->Add(m_surfaceValueLabel,                          wxGBPosition(3,3), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_surfaceValueEditor,                         wxGBPosition(3,4), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Angle"),      wxGBPosition(4,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_rotationEditor,                               wxGBPosition(4,1), wxDefaultSpan, wxEXPAND);
+            m_faceAttribsSizer->Add(m_surfaceValueLabel,                            wxGBPosition(4,3), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_surfaceValueEditor,                           wxGBPosition(4,4), wxDefaultSpan, wxEXPAND);
             
-            m_faceAttribsSizer->Add(m_surfaceFlagsLabel,                          wxGBPosition(4,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_surfaceFlagsEditor,                         wxGBPosition(4,1), wxGBSpan(1,5), wxEXPAND);
+            m_faceAttribsSizer->Add(m_surfaceFlagsLabel,                            wxGBPosition(5,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_surfaceFlagsEditor,                           wxGBPosition(5,1), wxGBSpan(1,5), wxEXPAND);
             
-            m_faceAttribsSizer->Add(m_contentFlagsLabel,                          wxGBPosition(5,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_contentFlagsEditor,                         wxGBPosition(5,1), wxGBSpan(1,5), wxEXPAND);
+            m_faceAttribsSizer->Add(m_contentFlagsLabel,                            wxGBPosition(6,0), wxDefaultSpan, wxALIGN_LEFT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
+            m_faceAttribsSizer->Add(m_contentFlagsEditor,                           wxGBPosition(6,1), wxGBSpan(1,5), wxEXPAND);
             
             m_faceAttribsSizer->AddGrowableCol(1);
             m_faceAttribsSizer->AddGrowableCol(4);
             m_faceAttribsSizer->SetItemMinSize(m_texturingView, 160, 160);
+            m_faceAttribsSizer->SetItemMinSize(m_xSubDivisionEditor, 50, m_xSubDivisionEditor->GetSize().y);
+            m_faceAttribsSizer->SetItemMinSize(m_ySubDivisionEditor, 50, m_ySubDivisionEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_yOffsetEditor, 50, m_yOffsetEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_xScaleEditor, 50, m_xScaleEditor->GetSize().y);
@@ -223,6 +245,8 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::bindEvents() {
+            m_xSubDivisionEditor->Bind(wxEVT_SPINCTRL, &FaceAttribsEditor::OnSubDivisionChanged, this);
+            m_ySubDivisionEditor->Bind(wxEVT_SPINCTRL, &FaceAttribsEditor::OnSubDivisionChanged, this);
             m_xOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
                                   EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXOffsetChanged),
                                   this);

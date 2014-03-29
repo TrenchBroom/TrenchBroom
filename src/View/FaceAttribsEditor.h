@@ -28,6 +28,8 @@
 class wxBitmap;
 class wxButton;
 class wxGridBagSizer;
+class wxSpinCtrl;
+class wxSpinEvent;
 class wxStaticText;
 class SpinControl;
 class SpinControlEvent;
@@ -54,6 +56,8 @@ namespace TrenchBroom {
             Model::BrushFaceList m_faces;
 
             TexturingView* m_texturingView;
+            wxSpinCtrl* m_xSubDivisionEditor;
+            wxSpinCtrl* m_ySubDivisionEditor;
             
             SpinControl* m_xOffsetEditor;
             SpinControl* m_yOffsetEditor;
@@ -74,6 +78,7 @@ namespace TrenchBroom {
             FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentWPtr document, ControllerWPtr controller);
             ~FaceAttribsEditor();
             
+            void OnSubDivisionChanged(wxSpinEvent& event);
             void OnXOffsetChanged(SpinControlEvent& event);
             void OnYOffsetChanged(SpinControlEvent& event);
             void OnRotationChanged(SpinControlEvent& event);

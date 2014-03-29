@@ -33,7 +33,8 @@ namespace TrenchBroom {
     namespace View {
         TexturingViewHelper::TexturingViewHelper() :
         m_face(NULL),
-        m_cameraZoom(1.0f) {}
+        m_cameraZoom(1.0f),
+        m_subDivisions(1, 1) {}
         
         bool TexturingViewHelper::valid() const {
             return m_face != NULL;
@@ -95,11 +96,11 @@ namespace TrenchBroom {
             return m_face->textureCoords(Vec3(point));
         }
         
-        Vec2f computeRemainder(const Vec3& position, const Mat4x4& transform, const Assets::Texture* texture) {
+        Vec2f computeRemainder(const Vec3& position, const Mat4x4& transform, const Assets::Texture* texture, const Vec2i& subDivisions) {
             const Vec3 texPos = transform * position;
             
-            const FloatType width  = static_cast<FloatType>(texture->width());
-            const FloatType height = static_cast<FloatType>(texture->height());
+            const FloatType width  = static_cast<FloatType>(texture->width() / subDivisions.x());
+            const FloatType height = static_cast<FloatType>(texture->height() / subDivisions.y());
             const FloatType x = Math::remainder(texPos.x(), width);
             const FloatType y = Math::remainder(texPos.y(), height);
             
@@ -133,14 +134,14 @@ namespace TrenchBroom {
             const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(newOffset, scale);
             
             const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f remainder = computeRemainder(vertices[0]->position, worldToTex, texture);
+            Vec2f remainder = computeRemainder(vertices[0]->position, worldToTex, texture, m_subDivisions);
 
             for (size_t i = 1; i < vertices.size(); ++i)
-                remainder = combineRemainders(remainder, computeRemainder(vertices[i]->position, worldToTex, texture));
+                remainder = combineRemainders(remainder, computeRemainder(vertices[i]->position, worldToTex, texture, m_subDivisions));
             
             Vec2f result;
             for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(remainder[i]) < 5.0f / m_cameraZoom)
+                if (Math::abs(remainder[i]) < 8.0f / m_cameraZoom)
                     result[i] = delta[i] + remainder[i];
                 else
                     result[i] = Math::round(delta[i]);
@@ -263,6 +264,14 @@ namespace TrenchBroom {
         
         void TexturingViewHelper::setCameraZoom(const float cameraZoom) {
             m_cameraZoom = cameraZoom;
+        }
+
+        const Vec2i& TexturingViewHelper::subDivisions() const {
+            return m_subDivisions;
+        }
+
+        void TexturingViewHelper::setSubDivisions(const Vec2i& subDivisions) {
+            m_subDivisions = subDivisions;
         }
 
         void TexturingViewHelper::validate() {

@@ -647,13 +647,21 @@ const typename Vec<T,S>::Map Vec<T,S>::EmptyMap = Vec<T,S>::Map();
 
 typedef Vec<float,1> Vec1f;
 typedef Vec<double,1> Vec1d;
+typedef Vec<int,1> Vec1i;
+typedef Vec<long,1> Vec1l;
 typedef Vec<float,2> Vec2f;
 typedef Vec<double,2> Vec2d;
+typedef Vec<int,2> Vec2i;
+typedef Vec<long,2> Vec2l;
 typedef Vec<float,3> Vec3f;
 typedef Vec<double,3> Vec3d;
+typedef Vec<int,3> Vec3i;
+typedef Vec<long,3> Vec3l;
 typedef Vec<float,4> Vec4f;
 typedef Vec<double,4> Vec4d;
-            
+typedef Vec<int,4> Vec4i;
+typedef Vec<long,4> Vec4l;
+
 template <typename T, size_t S>
 typename Vec<T,S>::List operator+(const typename Vec<T,S>::List& left, const Vec<T,S>& right) {
     typename Vec<T,S>::List result(left.size());

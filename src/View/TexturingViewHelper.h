@@ -51,6 +51,7 @@ namespace TrenchBroom {
             Mat4x4 m_fromFaceTransform;
             
             float m_cameraZoom;
+            Vec2i m_subDivisions;
         public:
             TexturingViewHelper();
             
@@ -80,6 +81,9 @@ namespace TrenchBroom {
             
             void setFace(Model::BrushFace* face);
             void setCameraZoom(float cameraZoom);
+
+            const Vec2i& subDivisions() const;
+            void setSubDivisions(const Vec2i& subDivisions);
         private:
             void validate();
         };

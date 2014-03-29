@@ -69,6 +69,8 @@ namespace TrenchBroom {
         public:
             TexturingView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& renderResources);
             ~TexturingView();
+            
+            void setSubDivisions(const Vec2i& subDivisions);
         private:
             void createTools();
             void destroyTools();

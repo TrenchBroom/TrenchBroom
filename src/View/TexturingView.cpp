@@ -63,6 +63,11 @@ namespace TrenchBroom {
             destroyTools();
         }
 
+        void TexturingView::setSubDivisions(const Vec2i& subDivisions) {
+            m_helper.setSubDivisions(subDivisions);
+            Refresh();
+        }
+
         void TexturingView::createTools() {
             m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller, m_helper);
             m_cameraTool = new TexturingViewCameraTool(m_document, m_controller, m_camera);
@@ -213,7 +218,7 @@ namespace TrenchBroom {
             shader.set("GridColor", Color(1.0f, 1.0f, 0.0f, 1.0f));
             shader.set("GridScales", Vec2f(m_helper.face()->xScale(), m_helper.face()->yScale()));
             shader.set("GridMatrix", m_helper.worldToTexMatrix());
-            shader.set("GridDivider", Vec2f(4, 8));
+            shader.set("GridDivider", Vec2f(m_helper.subDivisions()));
             shader.set("CameraZoom", m_camera.zoom().x());
             shader.set("Texture", 0);
 
