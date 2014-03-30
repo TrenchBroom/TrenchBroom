@@ -17,32 +17,53 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexturingViewOffsetTool__
-#define __TrenchBroom__TexturingViewOffsetTool__
+#ifndef __TrenchBroom__TexturingViewScaleTool__
+#define __TrenchBroom__TexturingViewScaleTool__
 
-#include "Model/ModelTypes.h"
+#include "Hit.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class OrthographicCamera;
+        class RenderContext;
+    }
+    
     namespace View {
         class TexturingViewHelper;
         
-        class TexturingViewOffsetTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class TexturingViewScaleTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         private:
-            const TexturingViewHelper& m_helper;
+            static const Hit::HitType XHandleHit;
+            static const Hit::HitType YHandleHit;
+
+            typedef enum {
+                None,
+                Handle,
+                Scale
+            } DragMode;
+            
+            TexturingViewHelper& m_helper;
+            Renderer::OrthographicCamera& m_camera;
+            
             Vec2f m_lastPoint;
+            
+            DragMode m_dragMode;
+            Vec2f m_handleSelector;
         public:
-            TexturingViewOffsetTool(MapDocumentWPtr document, ControllerWPtr controller, const TexturingViewHelper& helper);
+            TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
         private:
+            void doPick(const InputState& inputState, Hits& hits);
+
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
             
-            Vec3 computeTexPoint(const Ray3& ray, const Model::BrushFace* face) const;
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__TexturingViewOffsetTool__) */
+#endif /* defined(__TrenchBroom__TexturingViewScaleTool__) */

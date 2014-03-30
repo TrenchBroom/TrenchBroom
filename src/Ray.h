@@ -130,8 +130,11 @@ public:
     
     struct LineDistance {
         bool parallel;
+        // the distance between the closest point on the ray and the ray origin
         T rayDistance;
+        // the smallest distance between the ray and the line
         T distance;
+        // the point on the line which has the smallest distance to the closest point on the ray
         Vec<T,S> point;
         
         static const LineDistance Parallel(const T distance) {

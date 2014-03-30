@@ -25,6 +25,9 @@
 template <typename T, size_t S>
 class Line {
 public:
+    typedef std::vector<Line<T,S> > List;
+    static const List EmptyList;
+    
     Vec<T,S> point;
     Vec<T,S> direction;
 
@@ -146,6 +149,9 @@ const TT intersectLineWithTriangle(const Line<TT,3>& L, const Vec<TT,3>& V0, con
     
     return t;
 }
+
+template <typename T, size_t S>
+const typename Line<T,S>::List Line<T,S>::EmptyList = Line<T,S>::List();
 
 typedef Line<float,3> Line3f;
 typedef Line<double,3> Line3d;

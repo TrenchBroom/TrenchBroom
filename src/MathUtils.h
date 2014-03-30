@@ -94,7 +94,8 @@ namespace Math {
     
     template <typename T>
     T remainder(const T v1, const T v2) {
-        return ::remainder(v1, v2);
+        const T n = round(v1 / v2);
+        return v1 - n * v2;
     }
     
     template <typename T>

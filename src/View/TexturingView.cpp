@@ -36,6 +36,7 @@
 #include "View/MapDocument.h"
 #include "View/TexturingViewCameraTool.h"
 #include "View/TexturingViewOffsetTool.h"
+#include "View/TexturingViewScaleTool.h"
 
 #include <cassert>
 
@@ -70,7 +71,10 @@ namespace TrenchBroom {
 
         void TexturingView::createTools() {
             m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller, m_helper);
+            m_scaleTool = new TexturingViewScaleTool(m_document, m_controller, m_helper, m_camera);
             m_cameraTool = new TexturingViewCameraTool(m_document, m_controller, m_camera);
+
+            m_toolBox.addTool(m_scaleTool);
             m_toolBox.addTool(m_offsetTool);
             m_toolBox.addTool(m_cameraTool);
         }
@@ -80,6 +84,8 @@ namespace TrenchBroom {
             m_cameraTool = NULL;
             delete m_offsetTool;
             m_offsetTool = NULL;
+            delete m_scaleTool;
+            m_scaleTool = NULL;
         }
 
         void TexturingView::bindObservers() {
@@ -111,10 +117,12 @@ namespace TrenchBroom {
         }
         
         void TexturingView::objectDidChange(Model::Object* object) {
+            m_helper.faceDidChange();
             Refresh();
         }
 
         void TexturingView::faceDidChange(Model::BrushFace* face) {
+            m_helper.faceDidChange();
             Refresh();
         }
         
@@ -167,6 +175,7 @@ namespace TrenchBroom {
                 renderTexture(renderContext);
                 renderFace(renderContext);
                 // renderTextureSeams(renderContext);
+                renderToolBox(renderContext);
             }
         }
         
@@ -265,6 +274,10 @@ namespace TrenchBroom {
             edgeRenderer.setUseColor(true);
             edgeRenderer.setColor(Color(1.0f, 1.0f, 0.0f, 0.4f));
             edgeRenderer.render(renderContext);
+        }
+
+        void TexturingView::renderToolBox(Renderer::RenderContext& renderContext) {
+            m_toolBox.renderTools(renderContext);
         }
 
         float TexturingView::computeZoomFactor() const {

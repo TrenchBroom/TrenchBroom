@@ -44,6 +44,7 @@ namespace TrenchBroom {
     
     namespace View {
         class TexturingViewOffsetTool;
+        class TexturingViewScaleTool;
         class TexturingViewCameraTool;
         
         /**
@@ -65,6 +66,7 @@ namespace TrenchBroom {
             ToolBox m_toolBox;
             
             TexturingViewOffsetTool* m_offsetTool;
+            TexturingViewScaleTool* m_scaleTool;
             TexturingViewCameraTool* m_cameraTool;
         public:
             TexturingView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& renderResources);
@@ -93,6 +95,7 @@ namespace TrenchBroom {
             void renderTexture(Renderer::RenderContext& renderContext);
             void renderFace(Renderer::RenderContext& renderContext);
             void renderTextureSeams(Renderer::RenderContext& renderContext);
+            void renderToolBox(Renderer::RenderContext& renderContext);
             
             float computeZoomFactor() const;
             Vec3f::List getTextureQuad() const;

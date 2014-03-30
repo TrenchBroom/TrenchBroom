@@ -22,7 +22,6 @@
 #include "Hit.h"
 #include "Model/BrushFace.h"
 #include "View/ControllerFacade.h"
-#include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/TexturingView.h"
@@ -42,16 +41,7 @@ namespace TrenchBroom {
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
-            const Model::BrushFace* face = m_helper.face();
-            const Plane3& boundary = face->boundary();
-            const FloatType facePointDist = boundary.intersectWithRay(inputState.pickRay());
-            const Vec3 facePoint = inputState.pickRay().pointAtDistance(facePointDist);
-            
-            const Vec2f offset(face->xOffset(), face->yOffset());
-            const Vec2f scale(face->xScale(), face->yScale());
-            const Mat4x4 toTexTransform = face->toTexCoordSystemMatrix(Vec2f::Null, scale);
-
-            const Vec3 texPoint = toTexTransform * facePoint;
+            const Vec3 texPoint = m_helper.computeTexPoint(inputState.pickRay());
             m_lastPoint = Vec2f(texPoint);
             
             controller()->beginUndoableGroup("Move Texture");
@@ -61,16 +51,7 @@ namespace TrenchBroom {
         bool TexturingViewOffsetTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
-            Model::BrushFace* face = m_helper.face();
-            const Plane3& boundary = face->boundary();
-            const FloatType facePointDist = boundary.intersectWithRay(inputState.pickRay());
-            const Vec3 facePoint = inputState.pickRay().pointAtDistance(facePointDist);
-
-            const Vec2f offset(face->xOffset(), face->yOffset());
-            const Vec2f scale(face->xScale(), face->yScale());
-            const Mat4x4 toTexTransform = face->toTexCoordSystemMatrix(Vec2f::Null, scale);
-            
-            const Vec3 texPoint = toTexTransform * facePoint;
+            const Vec3 texPoint = m_helper.computeTexPoint(inputState.pickRay());
             const Vec2f curPoint(texPoint);
             
             const Vec2f delta   = curPoint - m_lastPoint;
@@ -79,11 +60,11 @@ namespace TrenchBroom {
             if (snapped.null())
                 return true;
             
-            const Model::BrushFaceList applyTo(1, face);
+            const Model::BrushFaceList applyTo(1, m_helper.face());
             if (snapped.x() != 0.0)
-                controller()->setFaceXOffset(applyTo, offset.x() - snapped.x(), false);
+                controller()->setFaceXOffset(applyTo, -snapped.x(), true);
             if (snapped.y() != 0.0)
-                controller()->setFaceYOffset(applyTo, offset.y() - snapped.y(), false);
+                controller()->setFaceYOffset(applyTo, -snapped.y(), true);
             
             m_lastPoint += snapped;
             return true;

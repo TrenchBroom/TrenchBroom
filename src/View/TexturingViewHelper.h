@@ -52,6 +52,7 @@ namespace TrenchBroom {
             
             float m_cameraZoom;
             Vec2i m_subDivisions;
+            Vec2 m_handlePosition;
         public:
             TexturingViewHelper();
             
@@ -69,7 +70,14 @@ namespace TrenchBroom {
             Vec3 transformFromFace(const Vec3& point) const;
             Vec2f textureCoords(const Vec3f& point) const;
             
+            Vec3 computeTexPoint(const Ray3& ray) const;
+            Vec3 transformToTex(const Vec3& worldPoint) const;
+            Vec3::List transformToTex(const Vec3::List& worldPoints) const;
+
             Vec2f snapOffset(const Vec2f& delta) const;
+            
+            void computeScaleHandles(Line3& xHandle, Line3& yHandle) const;
+            void computeScaleHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
             
             Vec3::List textureSeamVertices(const Renderer::OrthographicCamera& camera) const;
             Mat4x4 worldToTexMatrix() const;
@@ -80,10 +88,14 @@ namespace TrenchBroom {
             Hits pick(const Ray3& pickRay) const;
             
             void setFace(Model::BrushFace* face);
+            void faceDidChange();
             void setCameraZoom(float cameraZoom);
 
             const Vec2i& subDivisions() const;
             void setSubDivisions(const Vec2i& subDivisions);
+            
+            const Vec2& handlePosition() const;
+            void setHandlePosition(const Vec2f& handlePosition);
         private:
             void validate();
         };
