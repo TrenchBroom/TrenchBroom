@@ -105,7 +105,7 @@ namespace TrenchBroom {
             Vec2f delta = curPoint - m_lastPoint;
             
             if (m_dragMode == Handle) {
-                delta *= m_handleSelector;
+                delta = m_helper.snapHandle(delta * m_handleSelector);
                 if (delta.null())
                     return true;
                 
@@ -132,8 +132,8 @@ namespace TrenchBroom {
             const Hit xHandleHit = hits.findFirst(XHandleHit, true);
             const Hit yHandleHit = hits.findFirst(YHandleHit, true);
             
-            const bool highlightXHandle = (m_dragMode == Handle && m_handleSelector.x() > 0.0) || xHandleHit.isMatch();
-            const bool highlightYHandle = (m_dragMode == Handle && m_handleSelector.y() > 0.0) || yHandleHit.isMatch();
+            const bool highlightXHandle = (m_dragMode == Handle && m_handleSelector.x() > 0.0) || (m_dragMode == None && xHandleHit.isMatch());
+            const bool highlightYHandle = (m_dragMode == Handle && m_handleSelector.y() > 0.0) || (m_dragMode == None && yHandleHit.isMatch());
             
             const Color xColor = highlightXHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             const Color yColor = highlightYHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);

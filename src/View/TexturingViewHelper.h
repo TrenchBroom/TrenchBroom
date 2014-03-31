@@ -75,6 +75,7 @@ namespace TrenchBroom {
             Vec3::List transformToTex(const Vec3::List& worldPoints) const;
 
             Vec2f snapOffset(const Vec2f& delta) const;
+            Vec2f snapHandle(const Vec2f& delta) const;
             
             void computeScaleHandles(Line3& xHandle, Line3& yHandle) const;
             void computeScaleHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
@@ -98,6 +99,7 @@ namespace TrenchBroom {
             void setHandlePosition(const Vec2f& handlePosition);
         private:
             void validate();
+            void resetHandlePosition();
         };
     }
 }

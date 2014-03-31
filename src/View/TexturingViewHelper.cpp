@@ -96,28 +96,6 @@ namespace TrenchBroom {
             return m_face->textureCoords(Vec3(point));
         }
         
-        Vec2f computeRemainder(const Vec3& position, const Mat4x4& transform, const Assets::Texture* texture, const Vec2i& subDivisions) {
-            const Vec3 texPos = transform * position;
-            
-            const FloatType width  = static_cast<FloatType>(texture->width() / subDivisions.x());
-            const FloatType height = static_cast<FloatType>(texture->height() / subDivisions.y());
-            const FloatType x = Math::remainder(texPos.x(), width);
-            const FloatType y = Math::remainder(texPos.y(), height);
-            
-            return Vec2f(x, y);
-        }
-        
-        Vec2f combineRemainders(const Vec2f& r1, const Vec2f& r2) {
-            Vec2f result;
-            for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(r1[i]) < Math::abs(r2[i]))
-                    result[i] = r1[i];
-                else
-                    result[i] = r2[i];
-            }
-            return result;
-        }
-        
         Vec3 TexturingViewHelper::computeTexPoint(const Ray3& ray) const {
             assert(valid());
             
@@ -141,6 +119,37 @@ namespace TrenchBroom {
             return toTexTransform * worldPoints;
         }
 
+        Vec2f computeDistance(const Vec3& position, const Assets::Texture* texture, const Vec2i& subDivisions) {
+            const FloatType width  = static_cast<FloatType>(texture->width() / subDivisions.x());
+            const FloatType height = static_cast<FloatType>(texture->height() / subDivisions.y());
+            const FloatType x = Math::remainder(position.x(), width);
+            const FloatType y = Math::remainder(position.y(), height);
+            
+            return Vec2f(x, y);
+        }
+        
+        Vec2f combineDistances(const Vec2f& r1, const Vec2f& r2) {
+            Vec2f result;
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(r1[i]) < Math::abs(r2[i]))
+                    result[i] = r1[i];
+                else
+                    result[i] = r2[i];
+            }
+            return result;
+        }
+        
+        Vec2f snap(const Vec2f& delta, const Vec2f& distance, const float cameraZoom) {
+            Vec2f result;
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(distance[i]) < 4.0f / cameraZoom)
+                    result[i] = delta[i] - distance[i];
+                else
+                    result[i] = Math::round(delta[i]);
+            }
+            return result;
+        }
+        
         Vec2f TexturingViewHelper::snapOffset(const Vec2f& delta) const {
             assert(valid());
             
@@ -157,19 +166,42 @@ namespace TrenchBroom {
             const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(newOffset, scale);
             
             const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f remainder = computeRemainder(vertices[0]->position, worldToTex, texture, m_subDivisions);
+            Vec2f distance = computeDistance(worldToTex * vertices[0]->position, texture, m_subDivisions);
 
             for (size_t i = 1; i < vertices.size(); ++i)
-                remainder = combineRemainders(remainder, computeRemainder(vertices[i]->position, worldToTex, texture, m_subDivisions));
+                distance = combineDistances(distance, computeDistance(worldToTex * vertices[i]->position, texture, m_subDivisions));
             
-            Vec2f result;
-            for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(remainder[i]) < 8.0f / m_cameraZoom)
-                    result[i] = delta[i] + remainder[i];
-                else
-                    result[i] = Math::round(delta[i]);
-            }
-            return result;
+            return snap(delta, -distance, m_cameraZoom);
+        }
+
+        Vec2f computeDistance(const Vec3& point, const Vec2f& newHandlePosition) {
+            return Vec2f(newHandlePosition.x() - point.x(),
+                         newHandlePosition.y() - point.y());
+        }
+        
+        Vec2f TexturingViewHelper::snapHandle(const Vec2f& delta) const {
+            assert(valid());
+            
+            if (delta.null())
+                return delta;
+            
+            const Vec2f newPosition = m_handlePosition + delta;
+            
+            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
+            const Vec2f scale(m_face->xScale(), m_face->yScale());
+            const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+
+            const Model::BrushVertexList& vertices = m_face->vertices();
+            Vec2f distance = computeDistance(worldToTex * vertices[0]->position, newPosition);
+            
+            for (size_t i = 1; i < vertices.size(); ++i)
+                distance = combineDistances(distance, computeDistance(worldToTex * vertices[i]->position, newPosition));
+            
+            const Assets::Texture* texture = m_face->texture();
+            if (texture != NULL)
+                distance = combineDistances(distance, computeDistance(Vec3(newPosition), texture, m_subDivisions));
+
+            return snap(delta, distance, m_cameraZoom);
         }
 
         void TexturingViewHelper::computeScaleHandles(Line3& xHandle, Line3& yHandle) const {
@@ -345,8 +377,11 @@ namespace TrenchBroom {
         }
         
         void TexturingViewHelper::setFace(Model::BrushFace* face) {
-            m_face = face;
-            validate();
+            if (face != m_face) {
+                m_face = face;
+                validate();
+                resetHandlePosition();
+            }
         }
         
         void TexturingViewHelper::faceDidChange() {
@@ -388,23 +423,25 @@ namespace TrenchBroom {
                 bool invertible = true;
                 m_toFaceTransform = invertedMatrix(m_fromFaceTransform, invertible);
                 assert(invertible);
-
-                const Model::BrushVertexList& vertices = m_face->vertices();
-                const size_t vertexCount = vertices.size();
-                
-                Vec3::List positions(vertexCount);
-                for (size_t i = 0; i < vertexCount; ++i)
-                    positions[i] = vertices[i]->position;
-                
-                const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-                const Vec2f scale(m_face->xScale(), m_face->yScale());
-                const Mat4x4 toTexTransform = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
-
-                const Vec3::List transformedPositions = toTexTransform * positions;
-                const BBox3 bounds(transformedPositions);
-                
-                m_handlePosition = Vec2(bounds.min.x(), bounds.min.y());
             }
+        }
+        
+        void TexturingViewHelper::resetHandlePosition() {
+            const Model::BrushVertexList& vertices = m_face->vertices();
+            const size_t vertexCount = vertices.size();
+            
+            Vec3::List positions(vertexCount);
+            for (size_t i = 0; i < vertexCount; ++i)
+                positions[i] = vertices[i]->position;
+            
+            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
+            const Vec2f scale(m_face->xScale(), m_face->yScale());
+            const Mat4x4 toTexTransform = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+            
+            const Vec3::List transformedPositions = toTexTransform * positions;
+            const BBox3 bounds(transformedPositions);
+            
+            m_handlePosition = Vec2(bounds.min.x(), bounds.min.y());
         }
     }
 }
