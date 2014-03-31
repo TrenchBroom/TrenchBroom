@@ -73,31 +73,37 @@ namespace TrenchBroom {
         return findFirst(TypedHitFilter(type), ignoreOccluders);
     }
 
+    const Hit& Hits::findFirst(const Hit::HitType type, const Hit::HitType ignoreOccluderMask) const {
+        return findFirst(TypedHitFilter(type), ignoreOccluderMask);
+    }
+
+    const Hit& Hits::findFirst(const Hit::HitType type, const HitFilter& ignoreFilter) const {
+        return findFirst(TypedHitFilter(type), ignoreFilter);
+    }
+
     const Hit& Hits::findFirst(const HitFilter& filter, const bool ignoreOccluders) const {
+        return findFirst(filter, ignoreOccluders ? Hit::AnyType : Hit::NoType);
+    }
+    
+    const Hit& Hits::findFirst(const HitFilter& filter, const Hit::HitType ignoreOccluderMask) const {
+        return findFirst(filter, TypedHitFilter(ignoreOccluderMask));
+    }
+
+    const Hit& Hits::findFirst(const HitFilter& filter, const HitFilter& ignoreFilter) const {
         if (!m_hits.empty()) {
             List::const_iterator it = m_hits.begin();
             List::const_iterator end = m_hits.end();
-            if (!ignoreOccluders) {
-                const Hit& first = *it;
-                if (filter.matches(first))
-                    return first;
-                
-                const FloatType closest = (it++)->distance();
-                while (it != end) {
-                    const Hit& hit = *it;
-                    if (hit.distance() > closest)
-                        break;
-                    if (filter.matches(hit))
-                        return hit;
-                    ++it;
-                }
-            } else {
-                while (it != end) {
+            
+            bool containsOccluder = false;
+            while (it != end && !containsOccluder) {
+                const FloatType distance = it->distance();
+                do {
                     const Hit& hit = *it;
                     if (filter.matches(hit))
                         return hit;
+                    containsOccluder |= !ignoreFilter.matches(hit);
                     ++it;
-                }
+                } while (it != end && it->distance() == distance);
             }
         }
         return Hit::NoHit;

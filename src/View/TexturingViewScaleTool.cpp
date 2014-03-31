@@ -18,6 +18,7 @@
  */
 
 #include "TexturingViewScaleTool.h"
+#include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Model/ModelTypes.h"
@@ -30,8 +31,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType TexturingViewScaleTool::XHandleHit = Hit::freeHitType();
-        const Hit::HitType TexturingViewScaleTool::YHandleHit = Hit::freeHitType();
+        const Hit::HitType TexturingViewScaleTool::XOriginHit = Hit::freeHitType();
+        const Hit::HitType TexturingViewScaleTool::YOriginHit = Hit::freeHitType();
+        const Hit::HitType TexturingViewScaleTool::XScaleHit = Hit::freeHitType();
+        const Hit::HitType TexturingViewScaleTool::YScaleHit = Hit::freeHitType();
+        const FloatType TexturingViewScaleTool::MaxPickDistance = 5.0;
 
         TexturingViewScaleTool::TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera) :
         ToolImpl(document, controller),
@@ -41,27 +45,64 @@ namespace TrenchBroom {
 
         void TexturingViewScaleTool::doPick(const InputState& inputState, Hits& hits) {
             if (m_helper.valid()) {
-                Line3 xHandle, yHandle;
-                m_helper.computeScaleHandles(xHandle, yHandle);
-                
                 const Ray3& pickRay = inputState.pickRay();
-                const Ray3::LineDistance xDistance2 = pickRay.distanceToLineSquared(xHandle.point, xHandle.direction);
-                const Ray3::LineDistance yDistance2 = pickRay.distanceToLineSquared(yHandle.point, yHandle.direction);
+                pickOriginHandles(pickRay, hits);
+                pickScaleHandles(pickRay, hits);
+            }
+        }
+
+        void TexturingViewScaleTool::pickOriginHandles(const Ray3& ray, Hits& hits) const {
+            Line3 xHandle, yHandle;
+            m_helper.computeScaleHandles(xHandle, yHandle);
+            
+            const Ray3::LineDistance xDistance2 = ray.distanceToLineSquared(xHandle.point, xHandle.direction);
+            const Ray3::LineDistance yDistance2 = ray.distanceToLineSquared(yHandle.point, yHandle.direction);
+            
+            assert(!xDistance2.parallel);
+            assert(!yDistance2.parallel);
+            
+            const FloatType maxDistance  = MaxPickDistance / m_camera.zoom().x();
+            const FloatType maxDistance2 = maxDistance * maxDistance;
+            
+            if (xDistance2.distance <= maxDistance2) {
+                const Vec3 hitPoint = ray.pointAtDistance(xDistance2.rayDistance);
+                hits.addHit(Hit(XOriginHit, xDistance2.rayDistance, hitPoint, xHandle));
+            }
+            
+            if (yDistance2.distance <= maxDistance2) {
+                const Vec3 hitPoint = ray.pointAtDistance(yDistance2.rayDistance);
+                hits.addHit(Hit(YOriginHit, yDistance2.rayDistance, hitPoint, yHandle));
+            }
+        }
+
+        void TexturingViewScaleTool::pickScaleHandles(const Ray3& ray, Hits& hits) const {
+            const Model::BrushFace* face = m_helper.face();
+            assert(face != NULL);
+            
+            const Assets::Texture* texture = face->texture();
+            if (texture != NULL) {
+                const Plane3& boundary = face->boundary();
+                const FloatType rayDistance = ray.intersectWithPlane(boundary.normal, boundary.anchor());
+                const Vec3 hitPoint = ray.pointAtDistance(rayDistance);
+                const Vec3 texHit = m_helper.transformToTex(hitPoint, true);
                 
-                assert(!xDistance2.parallel);
-                assert(!yDistance2.parallel);
-                
-                const FloatType maxDistance  = 5.0 / m_camera.zoom().x();
+                const FloatType maxDistance  = MaxPickDistance / m_camera.zoom().x();
                 const FloatType maxDistance2 = maxDistance * maxDistance;
                 
-                if (xDistance2.distance <= maxDistance2) {
-                    const Vec3 hitPoint = pickRay.pointAtDistance(xDistance2.rayDistance);
-                    hits.addHit(Hit(XHandleHit, xDistance2.rayDistance, hitPoint, xHandle));
+                const Vec2i& subDivisions = m_helper.subDivisions();
+                const FloatType width  = static_cast<FloatType>(texture->width() / subDivisions.x());
+                const FloatType height = static_cast<FloatType>(texture->height() / subDivisions.y());
+                const FloatType x = Math::remainder(texHit.x(), width);
+                const FloatType y = Math::remainder(texHit.y(), height);
+                
+                if (x * x < maxDistance2) {
+                    const int index = Math::round(texHit.x() / width);
+                    hits.addHit(Hit(XScaleHit, rayDistance, hitPoint, index));
                 }
                 
-                if (yDistance2.distance <= maxDistance2) {
-                    const Vec3 hitPoint = pickRay.pointAtDistance(yDistance2.rayDistance);
-                    hits.addHit(Hit(YHandleHit, yDistance2.rayDistance, hitPoint, yHandle));
+                if (y * y < maxDistance2) {
+                    const int index = Math::round(texHit.y() / width);
+                    hits.addHit(Hit(YScaleHit, rayDistance, hitPoint, index));
                 }
             }
         }
@@ -74,23 +115,41 @@ namespace TrenchBroom {
                 return false;
             
             const Hits& hits = inputState.hits();
-            const Hit xHandleHit = hits.findFirst(XHandleHit, true);
-            const Hit yHandleHit = hits.findFirst(YHandleHit, true);
+            const Hit& xOriginHit = hits.findFirst(XOriginHit, true);
+            const Hit& yOriginHit = hits.findFirst(YOriginHit, true);
+            const Hit& xScaleHit = hits.findFirst(XScaleHit, true);
+            const Hit& yScaleHit = hits.findFirst(YScaleHit, true);
 
-            if (xHandleHit.isMatch()) {
+            if (xOriginHit.isMatch()) {
                 m_dragMode = Handle;
-                m_handleSelector[0] = 1.0f;
+                m_originSelector[0] = 1.0f;
             } else {
-                m_handleSelector[0] = 0.0f;
+                m_originSelector[0] = 0.0f;
             }
             
-            if (yHandleHit.isMatch()) {
+            if (yOriginHit.isMatch()) {
                 m_dragMode = Handle;
-                m_handleSelector[1] = 1.0f;
+                m_originSelector[1] = 1.0f;
             } else {
-                m_handleSelector[1] = 0.0f;
+                m_originSelector[1] = 0.0f;
             }
 
+            if (!xOriginHit.isMatch() && !yOriginHit.isMatch()) {
+                if (xScaleHit.isMatch()) {
+                    m_dragMode = Scale;
+                    m_scaleSelector[0] = 1.0f;
+                } else {
+                    m_scaleSelector[0] = 0.0f;
+                }
+                
+                if (yScaleHit.isMatch()) {
+                    m_dragMode = Scale;
+                    m_scaleSelector[1] = 1.0f;
+                } else {
+                    m_scaleSelector[1] = 0.0f;
+                }
+            }
+            
             const Vec3 texPoint = m_helper.computeTexPoint(inputState.pickRay());
             m_lastPoint = Vec2f(texPoint);
 
@@ -105,7 +164,7 @@ namespace TrenchBroom {
             Vec2f delta = curPoint - m_lastPoint;
             
             if (m_dragMode == Handle) {
-                delta = m_helper.snapHandle(delta * m_handleSelector);
+                delta = m_helper.snapHandle(delta * m_originSelector);
                 if (delta.null())
                     return true;
                 
@@ -128,31 +187,77 @@ namespace TrenchBroom {
             if (!m_helper.valid())
                 return;
 
-            const Hits& hits = inputState.hits();
-            const Hit xHandleHit = hits.findFirst(XHandleHit, true);
-            const Hit yHandleHit = hits.findFirst(YHandleHit, true);
             
-            const bool highlightXHandle = (m_dragMode == Handle && m_handleSelector.x() > 0.0) || (m_dragMode == None && xHandleHit.isMatch());
-            const bool highlightYHandle = (m_dragMode == Handle && m_handleSelector.y() > 0.0) || (m_dragMode == None && yHandleHit.isMatch());
+            EdgeVertex::List vertices;
+            getOriginHandleVertices(inputState.hits(), vertices);
+            getScaleHandleVertices(inputState.hits(), vertices);
+            
+            glLineWidth(2.0f);
+            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
+            edgeRenderer.render(renderContext);
+            glLineWidth(1.0f);
+        }
+
+        void TexturingViewScaleTool::getOriginHandleVertices(const Hits& hits, EdgeVertex::List& vertices) const {
+            const Hit& xOriginHit = hits.findFirst(XOriginHit, true);
+            const Hit& yOriginHit = hits.findFirst(YOriginHit, true);
+            
+            const bool highlightXHandle = (m_dragMode == Handle && m_originSelector.x() > 0.0) || (m_dragMode == None && xOriginHit.isMatch());
+            const bool highlightYHandle = (m_dragMode == Handle && m_originSelector.y() > 0.0) || (m_dragMode == None && yOriginHit.isMatch());
             
             const Color xColor = highlightXHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             const Color yColor = highlightYHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             
             Vec3 x1, x2, y1, y2;
             m_helper.computeScaleHandleVertices(m_camera, x1, x2, y1, y2);
+
+            vertices.push_back(EdgeVertex(Vec3f(x1), xColor));
+            vertices.push_back(EdgeVertex(Vec3f(x2), xColor));
+            vertices.push_back(EdgeVertex(Vec3f(y1), yColor));
+            vertices.push_back(EdgeVertex(Vec3f(y2), yColor));
+        }
+
+        void TexturingViewScaleTool::getScaleHandleVertices(const Hits& hits, EdgeVertex::List& vertices) const {
+            const Hit& xOriginHit = hits.findFirst(XOriginHit, true);
+            const Hit& yOriginHit = hits.findFirst(YOriginHit, true);
+            if (xOriginHit.isMatch() || yOriginHit.isMatch())
+                return;
+
+            const Hit& xScaleHit = hits.findFirst(XScaleHit, true);
+            const Hit& yScaleHit = hits.findFirst(YScaleHit, true);
             
-            typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices(4);
+            const Color color = Color(1.0f, 1.0f, 0.0f, 1.0f);
+
+            const Model::BrushFace* face = m_helper.face();
+            assert(face != NULL);
             
-            vertices[0] = Vertex(Vec3f(x1), xColor);
-            vertices[1] = Vertex(Vec3f(x2), xColor);
-            vertices[2] = Vertex(Vec3f(y1), yColor);
-            vertices[3] = Vertex(Vec3f(y2), yColor);
+            if (xScaleHit.isMatch()) {
+                const Assets::Texture* texture = face->texture();
+                const Vec2i& subDivisions = m_helper.subDivisions();
+                const FloatType width  = static_cast<FloatType>(texture->width() / subDivisions.x());
+                
+                const int index = xScaleHit.target<int>();
+                const FloatType x = width * index;
+                
+                Vec3 v1, v2;
+                m_helper.computeVLineVertices(m_camera, x, v1, v2);
+                vertices.push_back(EdgeVertex(Vec3f(v1), color));
+                vertices.push_back(EdgeVertex(Vec3f(v2), color));
+            }
             
-            glLineWidth(2.0f);
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            edgeRenderer.render(renderContext);
-            glLineWidth(1.0f);
+            if (yScaleHit.isMatch()) {
+                const Assets::Texture* texture = face->texture();
+                const Vec2i& subDivisions = m_helper.subDivisions();
+                const FloatType height  = static_cast<FloatType>(texture->height() / subDivisions.y());
+                
+                const int index = yScaleHit.target<int>();
+                const FloatType y = height * index;
+                
+                Vec3 v1, v2;
+                m_helper.computeHLineVertices(m_camera, y, v1, v2);
+                vertices.push_back(EdgeVertex(Vec3f(v1), color));
+                vertices.push_back(EdgeVertex(Vec3f(v2), color));
+            }
         }
     }
 }

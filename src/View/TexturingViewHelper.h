@@ -71,14 +71,16 @@ namespace TrenchBroom {
             Vec2f textureCoords(const Vec3f& point) const;
             
             Vec3 computeTexPoint(const Ray3& ray) const;
-            Vec3 transformToTex(const Vec3& worldPoint) const;
-            Vec3::List transformToTex(const Vec3::List& worldPoints) const;
+            Vec3 transformToTex(const Vec3& worldPoint, bool withOffset = false) const;
+            Vec3::List transformToTex(const Vec3::List& worldPoints, bool withOffset = false) const;
 
             Vec2f snapOffset(const Vec2f& delta) const;
             Vec2f snapHandle(const Vec2f& delta) const;
             
             void computeScaleHandles(Line3& xHandle, Line3& yHandle) const;
             void computeScaleHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
+            void computeHLineVertices(const Renderer::OrthographicCamera& camera, FloatType y, Vec3& v1, Vec3& v2) const;
+            void computeVLineVertices(const Renderer::OrthographicCamera& camera, FloatType x, Vec3& v1, Vec3& v2) const;
             
             Vec3::List textureSeamVertices(const Renderer::OrthographicCamera& camera) const;
             Mat4x4 worldToTexMatrix() const;

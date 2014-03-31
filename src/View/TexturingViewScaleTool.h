@@ -21,6 +21,7 @@
 #define __TrenchBroom__TexturingViewScaleTool__
 
 #include "Hit.h"
+#include "Renderer/VertexSpec.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
@@ -35,8 +36,13 @@ namespace TrenchBroom {
         
         class TexturingViewScaleTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         private:
-            static const Hit::HitType XHandleHit;
-            static const Hit::HitType YHandleHit;
+            static const Hit::HitType XOriginHit;
+            static const Hit::HitType YOriginHit;
+            static const Hit::HitType XScaleHit;
+            static const Hit::HitType YScaleHit;
+            static const FloatType MaxPickDistance;
+            
+            typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
 
             typedef enum {
                 None,
@@ -50,11 +56,14 @@ namespace TrenchBroom {
             Vec2f m_lastPoint;
             
             DragMode m_dragMode;
-            Vec2f m_handleSelector;
+            Vec2f m_originSelector;
+            Vec2f m_scaleSelector;
         public:
             TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
         private:
             void doPick(const InputState& inputState, Hits& hits);
+            void pickOriginHandles(const Ray3& ray, Hits& hits) const;
+            void pickScaleHandles(const Ray3& ray, Hits& hits) const;
 
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
@@ -62,6 +71,8 @@ namespace TrenchBroom {
             void doCancelMouseDrag(const InputState& inputState);
             
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+            void getOriginHandleVertices(const Hits& hits, EdgeVertex::List& vertices) const;
+            void getScaleHandleVertices(const Hits& hits, EdgeVertex::List& vertices) const;
         };
     }
 }
