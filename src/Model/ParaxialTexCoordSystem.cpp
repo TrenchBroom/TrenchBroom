@@ -140,6 +140,7 @@ namespace TrenchBroom {
             // project the transformed texture axes onto the new texture projection plane
             newXAxis = project(newProjectionAxis, newXAxis);
             newYAxis = project(newProjectionAxis, newYAxis);
+            assert(!newXAxis.nan());
             
             // the new scaling factors are the lengths of the transformed texture axes
             float newXScale = static_cast<float>(newXAxis.length());
@@ -152,7 +153,9 @@ namespace TrenchBroom {
             // WARNING: the texture plane norm is not the rotation axis of the texture (it's always the absolute axis)
             
             // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
-            float radX = static_cast<float>(std::acos(newBaseXAxis.dot(newXAxis)));
+            float cosX = newBaseXAxis.dot(newXAxis);
+            assert(!Math::isnan(cosX));
+            float radX = static_cast<float>(std::acos(cosX));
             if (crossed(newBaseXAxis, newXAxis).dot(newProjectionAxis) < 0.0)
                 radX *= -1.0f;
             
@@ -197,6 +200,14 @@ namespace TrenchBroom {
             // correct rounding errors
             newXOffset = Math::correct(newXOffset);
             newYOffset = Math::correct(newYOffset);
+            
+            assert(!Math::isnan(newXOffset));
+            assert(!Math::isnan(newYOffset));
+            assert(!Math::isnan(newRotation));
+            assert(!Math::isnan(newXScale));
+            assert(!Math::isnan(newYScale));
+            assert(!Math::zero(newXScale));
+            assert(!Math::zero(newYScale));
             
             attribs.setXOffset(newXOffset);
             attribs.setYOffset(newYOffset);
