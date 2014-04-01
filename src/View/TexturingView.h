@@ -94,7 +94,6 @@ namespace TrenchBroom {
             void setupGL(Renderer::RenderContext& renderContext);
             void renderTexture(Renderer::RenderContext& renderContext);
             void renderFace(Renderer::RenderContext& renderContext);
-            void renderTextureSeams(Renderer::RenderContext& renderContext);
             void renderToolBox(Renderer::RenderContext& renderContext);
             
             float computeZoomFactor() const;

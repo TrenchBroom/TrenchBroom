@@ -103,7 +103,7 @@ namespace TrenchBroom {
                         return hit;
                     containsOccluder |= !ignoreFilter.matches(hit);
                     ++it;
-                } while (it != end && it->distance() == distance);
+                } while (it != end && Math::eq(it->distance(), distance));
             }
         }
         return Hit::NoHit;

@@ -34,11 +34,9 @@ namespace TrenchBroom {
         BrushFaceAttribs::BrushFaceAttribs(const String& textureName) :
         m_textureName(textureName),
         m_texture(NULL),
-        m_xOffset(0.0f),
-        m_yOffset(0.0f),
+        m_offset(Vec2f::Null),
+        m_scale(Vec2f(1.0f, 1.0f)),
         m_rotation(0.0f),
-        m_xScale(1.0f),
-        m_yScale(1.0f),
         m_surfaceContents(0),
         m_surfaceFlags(0),
         m_surfaceValue(0.0f) {}
@@ -50,27 +48,35 @@ namespace TrenchBroom {
         Assets::Texture* BrushFaceAttribs::texture() const {
             return m_texture;
         }
+
+        const Vec2f& BrushFaceAttribs::offset() const {
+            return m_offset;
+        }
         
         float BrushFaceAttribs::xOffset() const {
-            return m_xOffset;
+            return m_offset.x();
         }
         
         float BrushFaceAttribs::yOffset() const {
-            return m_yOffset;
+            return m_offset.y();
         }
-        
-        float BrushFaceAttribs::rotation() const {
-            return m_rotation;
+
+        const Vec2f& BrushFaceAttribs::scale() const {
+            return m_scale;
         }
         
         float BrushFaceAttribs::xScale() const {
-            return m_xScale;
+            return m_scale.x();
         }
         
         float BrushFaceAttribs::yScale() const {
-            return m_yScale;
+            return m_scale.y();
         }
-        
+
+        float BrushFaceAttribs::rotation() const {
+            return m_rotation;
+        }
+
         int BrushFaceAttribs::surfaceContents() const {
             return m_surfaceContents;
         }
@@ -92,23 +98,24 @@ namespace TrenchBroom {
         }
         
         void BrushFaceAttribs::setXOffset(const float xOffset) {
-            m_xOffset = xOffset;
+            m_offset[0] = xOffset;
         }
         
         void BrushFaceAttribs::setYOffset(const float yOffset) {
-            m_yOffset = yOffset;
+            m_offset[1] = yOffset;
+            
         }
-        
-        void BrushFaceAttribs::setRotation(const float rotation) {
-            m_rotation = rotation;
-        }
-        
+
         void BrushFaceAttribs::setXScale(const float xScale) {
-            m_xScale = xScale;
+            m_scale[0] = xScale;
         }
         
         void BrushFaceAttribs::setYScale(const float yScale) {
-            m_yScale = yScale;
+            m_scale[1] = yScale;
+        }
+
+        void BrushFaceAttribs::setRotation(const float rotation) {
+            m_rotation = rotation;
         }
         
         void BrushFaceAttribs::setSurfaceContents(const int surfaceContents) {
@@ -245,6 +252,10 @@ namespace TrenchBroom {
             return m_attribs.texture();
         }
         
+        const Vec2f& BrushFace::offset() const {
+            return m_attribs.offset();
+        }
+        
         float BrushFace::xOffset() const {
             return m_attribs.xOffset();
         }
@@ -253,8 +264,8 @@ namespace TrenchBroom {
             return m_attribs.yOffset();
         }
         
-        float BrushFace::rotation() const {
-            return m_attribs.rotation();
+        const Vec2f& BrushFace::scale() const {
+            return m_attribs.scale();
         }
         
         float BrushFace::xScale() const {
@@ -263,6 +274,10 @@ namespace TrenchBroom {
         
         float BrushFace::yScale() const {
             return m_attribs.yScale();
+        }
+        
+        float BrushFace::rotation() const {
+            return m_attribs.rotation();
         }
         
         int BrushFace::surfaceContents() const {
@@ -288,17 +303,31 @@ namespace TrenchBroom {
                 m_attribs.texture()->incUsageCount();
         }
         
-        void BrushFace::setXOffset(const float xOffset) {
-            if (xOffset == m_attribs.xOffset())
+        void BrushFace::setXOffset(const float i_xOffset) {
+            if (i_xOffset == xOffset())
                 return;
-            m_attribs.setXOffset(xOffset);
+            m_attribs.setXOffset(i_xOffset);
             invalidateVertexCache();
         }
         
-        void BrushFace::setYOffset(const float yOffset) {
-            if (yOffset == m_attribs.yOffset())
+        void BrushFace::setYOffset(const float i_yOffset) {
+            if (i_yOffset == yOffset())
                 return;
-            m_attribs.setYOffset(yOffset);
+            m_attribs.setYOffset(i_yOffset);
+            invalidateVertexCache();
+        }
+        
+        void BrushFace::setXScale(const float i_xScale) {
+            if (i_xScale == xScale())
+                return;
+            m_attribs.setXScale(i_xScale);
+            invalidateVertexCache();
+        }
+        
+        void BrushFace::setYScale(const float i_yScale) {
+            if (i_yScale == yScale())
+                return;
+            m_attribs.setYScale(i_yScale);
             invalidateVertexCache();
         }
         
@@ -309,21 +338,7 @@ namespace TrenchBroom {
             m_texCoordSystem->update(m_boundary.normal, m_attribs);
             invalidateVertexCache();
         }
-        
-        void BrushFace::setXScale(const float xScale) {
-            if (xScale == m_attribs.xScale())
-                return;
-            m_attribs.setXScale(xScale);
-            invalidateVertexCache();
-        }
-        
-        void BrushFace::setYScale(const float yScale) {
-            if (yScale == m_attribs.yScale())
-                return;
-            m_attribs.setYScale(yScale);
-            invalidateVertexCache();
-        }
-        
+
         void BrushFace::setSurfaceContents(const int surfaceContents) {
             if (surfaceContents == m_attribs.surfaceContents())
                 return;

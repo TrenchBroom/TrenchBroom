@@ -174,7 +174,6 @@ namespace TrenchBroom {
                 setupGL(renderContext);
                 renderTexture(renderContext);
                 renderFace(renderContext);
-                // renderTextureSeams(renderContext);
                 renderToolBox(renderContext);
             }
         }
@@ -225,7 +224,7 @@ namespace TrenchBroom {
             shader.set("RenderGrid", texture != NULL);
             shader.set("GridSizes", Vec2f(texture->width(), texture->height()));
             shader.set("GridColor", Color(1.0f, 1.0f, 0.0f, 1.0f));
-            shader.set("GridScales", Vec2f(m_helper.face()->xScale(), m_helper.face()->yScale()));
+            shader.set("GridScales", m_helper.face()->scale());
             shader.set("GridMatrix", m_helper.worldToTexMatrix());
             shader.set("GridDivider", Vec2f(m_helper.subDivisions()));
             shader.set("CameraZoom", m_camera.zoom().x());
@@ -256,24 +255,6 @@ namespace TrenchBroom {
             glLineWidth(2.0f);
             edgeRenderer.render(renderContext);
             glLineWidth(1.0f);
-        }
-
-        void TexturingView::renderTextureSeams(Renderer::RenderContext& renderContext) {
-            assert(m_helper.valid());
-            
-            const Vec3::List positions = m_helper.textureSeamVertices(m_camera);
-            const size_t count = positions.size();
-            
-            typedef Renderer::VertexSpecs::P3::Vertex Vertex;
-            Vertex::List vertices(count);
-            
-            for (size_t i = 0; i < count; ++i)
-                vertices[i] = Vertex(positions[i]);
-            
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            edgeRenderer.setUseColor(true);
-            edgeRenderer.setColor(Color(1.0f, 1.0f, 0.0f, 0.4f));
-            edgeRenderer.render(renderContext);
         }
 
         void TexturingView::renderToolBox(Renderer::RenderContext& renderContext) {

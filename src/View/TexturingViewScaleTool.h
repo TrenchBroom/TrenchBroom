@@ -58,6 +58,7 @@ namespace TrenchBroom {
             DragMode m_dragMode;
             Vec2f m_originSelector;
             Vec2f m_scaleSelector;
+            Vec2f m_lastScaleDistance;
         public:
             TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
         private:

@@ -162,7 +162,10 @@ namespace TrenchBroom {
         }
 
         Vec3 TexCoordSystem::project(const Plane3& plane, const Vec3& vec) const {
-            const Line3 line(vec, plane.normal);
+            const Vec3 zAxis = crossed(getXAxis(), getYAxis()).normalized();
+            if (zAxis.null())
+                return Vec3::NaN;
+            const Line3 line(vec, zAxis);
             return line.pointAtDistance(plane.intersectWithLine(line));
         }
     }

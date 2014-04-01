@@ -52,6 +52,10 @@ namespace TrenchBroom {
             
             float m_cameraZoom;
             Vec2i m_subDivisions;
+            
+            /**
+             The position of the scaling handle in texture coordinates (without offset and scaling applied).
+             */
             Vec2 m_handlePosition;
         public:
             TexturingViewHelper();
@@ -82,7 +86,6 @@ namespace TrenchBroom {
             void computeHLineVertices(const Renderer::OrthographicCamera& camera, FloatType y, Vec3& v1, Vec3& v2) const;
             void computeVLineVertices(const Renderer::OrthographicCamera& camera, FloatType x, Vec3& v1, Vec3& v2) const;
             
-            Vec3::List textureSeamVertices(const Renderer::OrthographicCamera& camera) const;
             Mat4x4 worldToTexMatrix() const;
             
             void activateTexture(Renderer::ActiveShader& shader);

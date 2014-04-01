@@ -67,6 +67,7 @@ public:
     static const Vec<T,S> NegY;
     static const Vec<T,S> NegZ;
     static const Vec<T,S> Null;
+    static const Vec<T,S> One;
     static const Vec<T,S> NaN;
     
     class LexicographicOrder {
@@ -620,21 +621,24 @@ public:
 };
             
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosX = Vec<T,S>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::PosX = Vec<T,S>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosY = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::PosY = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosZ = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+const Vec<T,S> Vec<T,S>::PosZ = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0));
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegX = Vec<T,S>(-static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::NegX = Vec<T,S>(-static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegY = Vec<T,S>( static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::NegY = Vec<T,S>( static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegZ = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0));
+const Vec<T,S> Vec<T,S>::NegZ = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0));
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::Null = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::Null = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
+template <typename T, size_t S>
+const Vec<T,S> Vec<T,S>::One  = Vec<T,S>( static_cast<T>(1.0),  static_cast<T>(1.0),  static_cast<T>(1.0),  static_cast<T>(1.0));
 template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::NaN  = Vec<T,S>(std::numeric_limits<T>::quiet_NaN(),
+                                         std::numeric_limits<T>::quiet_NaN(),
                                          std::numeric_limits<T>::quiet_NaN(),
                                          std::numeric_limits<T>::quiet_NaN());
 

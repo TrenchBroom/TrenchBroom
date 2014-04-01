@@ -45,11 +45,9 @@ namespace TrenchBroom {
             String m_textureName;
             Assets::Texture* m_texture;
             
-            float m_xOffset;
-            float m_yOffset;
+            Vec2f m_offset;
+            Vec2f m_scale;
             float m_rotation;
-            float m_xScale;
-            float m_yScale;
             
             int m_surfaceContents;
             int m_surfaceFlags;
@@ -60,11 +58,16 @@ namespace TrenchBroom {
             const String& textureName() const;
             Assets::Texture* texture() const;
 
+            const Vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
-            float rotation() const;
+            
+            const Vec2f& scale() const;
             float xScale() const;
             float yScale() const;
+            
+            float rotation() const;
+            
             int surfaceContents() const;
             int surfaceFlags() const;
             float surfaceValue() const;
@@ -72,9 +75,9 @@ namespace TrenchBroom {
             void setTexture(Assets::Texture* texture);
             void setXOffset(float xOffset);
             void setYOffset(float yOffset);
-            void setRotation(float rotation);
             void setXScale(float xScale);
             void setYScale(float yScale);
+            void setRotation(float rotation);
             void setSurfaceContents(int surfaceContents);
             void setSurfaceFlags(int surfaceFlags);
             void setSurfaceValue(float surfaceValue);
@@ -146,11 +149,13 @@ namespace TrenchBroom {
             
             const String& textureName() const;
             Assets::Texture* texture() const;
+            const Vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
-            float rotation() const;
+            const Vec2f& scale() const;
             float xScale() const;
             float yScale() const;
+            float rotation() const;
             int surfaceContents() const;
             int surfaceFlags() const;
             float surfaceValue() const;
@@ -158,9 +163,9 @@ namespace TrenchBroom {
             void setTexture(Assets::Texture* texture);
             void setXOffset(float xOffset);
             void setYOffset(float yOffset);
-            void setRotation(float rotation);
             void setXScale(float xScale);
             void setYScale(float yScale);
+            void setRotation(float rotation);
             void setSurfaceContents(int surfaceContents);
             void setSurfaceFlags(int surfaceFlags);
             void setSurfaceValue(float surfaceValue);

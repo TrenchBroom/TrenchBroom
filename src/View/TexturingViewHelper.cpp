@@ -25,6 +25,7 @@
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
+#include "Model/TexCoordSystemHelper.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/TexturingView.h"
@@ -106,19 +107,23 @@ namespace TrenchBroom {
         }
         
         Vec3 TexturingViewHelper::transformToTex(const Vec3& worldPoint, const bool withOffset) const {
-            const Vec2f offset = withOffset ? Vec2f(m_face->xOffset(), m_face->yOffset()) : Vec2f::Null;
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            const Mat4x4 toTexTransform = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+            assert(valid());
             
-            return toTexTransform * worldPoint;
+            Model::TexCoordSystemHelper helper(m_face);
+            helper.setScale();
+            helper.setTranslate(withOffset);
+            helper.setProject();
+            return helper.worldToTex(worldPoint);
         }
         
         Vec3::List TexturingViewHelper::transformToTex(const Vec3::List& worldPoints, const bool withOffset) const {
-            const Vec2f offset = withOffset ? Vec2f(m_face->xOffset(), m_face->yOffset()) : Vec2f::Null;
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            const Mat4x4 toTexTransform = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+            assert(valid());
             
-            return toTexTransform * worldPoints;
+            Model::TexCoordSystemHelper helper(m_face);
+            helper.setScale();
+            helper.setTranslate(withOffset);
+            helper.setProject();
+            return helper.worldToTex(worldPoints);
         }
         
         Vec2f computeDistance(const Vec3& position, const Assets::Texture* texture, const Vec2i& subDivisions) {
@@ -162,16 +167,16 @@ namespace TrenchBroom {
             if (texture == NULL)
                 return delta;
             
-            const Vec2f oldOffset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f newOffset = oldOffset - delta; // I don't know why this has to be subracted, but it works :-(
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(newOffset, scale);
+            Model::TexCoordSystemHelper helper(m_face);
+            helper.setOverrideTranslate(m_face->offset() - delta); // I don't know why this has to be subracted, but it works :-(
+            helper.setScale();
+            helper.setProject();
             
             const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f distance = computeDistance(worldToTex * vertices[0]->position, texture, m_subDivisions);
+            Vec2f distance = computeDistance(helper.worldToTex(vertices[0]->position), texture, m_subDivisions);
             
             for (size_t i = 1; i < vertices.size(); ++i)
-                distance = combineDistances(distance, computeDistance(worldToTex * vertices[i]->position, texture, m_subDivisions));
+                distance = combineDistances(distance, computeDistance(helper.worldToTex(vertices[i]->position), texture, m_subDivisions));
             
             return snap(delta, -distance, m_cameraZoom);
         }
@@ -189,15 +194,16 @@ namespace TrenchBroom {
             
             const Vec2f newPosition = m_handlePosition + delta;
             
-            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+            Model::TexCoordSystemHelper helper(m_face);
+            helper.setTranslate();
+            helper.setScale();
+            helper.setProject();
             
             const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f distance = computeDistance(worldToTex * vertices[0]->position, newPosition);
+            Vec2f distance = computeDistance(helper.worldToTex(vertices[0]->position), newPosition);
             
             for (size_t i = 1; i < vertices.size(); ++i)
-                distance = combineDistances(distance, computeDistance(worldToTex * vertices[i]->position, newPosition));
+                distance = combineDistances(distance, computeDistance(helper.worldToTex(vertices[i]->position), newPosition));
             
             const Assets::Texture* texture = m_face->texture();
             if (texture != NULL)
@@ -207,39 +213,30 @@ namespace TrenchBroom {
         }
         
         void TexturingViewHelper::computeScaleHandles(Line3& xHandle, Line3& yHandle) const {
-            // This matrix performs step 4:
-            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            const Mat4x4 texToWorld = m_face->fromTexCoordSystemMatrix(offset, scale);
-            
-            // This matrix performs step 7:
-            const Vec3 texZAxis = m_face->fromTexCoordSystemMatrix() * Vec3::PosZ;
-            const Plane3& boundary = m_face->boundary();
-            const Mat4x4 planeToWorld = planeProjectionMatrix(boundary.distance, boundary.normal, texZAxis);
-            
-            // This matrix performs steps 5 and 6:
-            const Mat4x4 worldToPlane = Mat4x4::ZerZ * invertedMatrix(planeToWorld);
-            
-            // This matrix performs steps 4 through 7:
-            const Mat4x4 texToWorldWithProjection = planeToWorld * worldToPlane * texToWorld;
-            
+            assert(valid());
+
+            Model::TexCoordSystemHelper helper(m_face);
+            helper.setTranslate();
+            helper.setScale();
+            helper.setProject();
+
             const Vec3 texHandlePosition(m_handlePosition, 0.0);
-            xHandle.point = yHandle.point = texToWorldWithProjection * texHandlePosition;
+            xHandle.point = yHandle.point = helper.texToWorld(texHandlePosition);
             
-            const Vec3 xHandlePoint2 = texToWorldWithProjection * (texHandlePosition + Vec3::PosY);
-            const Vec3 yHandlePoint2 = texToWorldWithProjection * (texHandlePosition + Vec3::PosX);
+            const Vec3 xHandlePoint2 = helper.texToWorld(texHandlePosition + Vec3::PosY);
+            const Vec3 yHandlePoint2 = helper.texToWorld(texHandlePosition + Vec3::PosX);
             
             xHandle.direction = (xHandlePoint2 - xHandle.point).normalized();
             yHandle.direction = (yHandlePoint2 - yHandle.point).normalized();
         }
         
         void TexturingViewHelper::computeScaleHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
-            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+            assert(valid());
             
-            const Vec3::List viewportVertices = worldToTex * camera.viewportVertices();
-            
+            Model::TexCoordSystemHelper helper(m_face);
+            helper.setProject();
+
+            const Vec3::List viewportVertices = helper.worldToTex(camera.viewportVertices());
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
@@ -250,63 +247,37 @@ namespace TrenchBroom {
             y1 = Vec3(min.x(), m_handlePosition.y(), 0.0);
             y2 = Vec3(max.x(), m_handlePosition.y(), 0.0);
             
-            const Mat4x4 texToWorld = m_face->fromTexCoordSystemMatrix(offset, scale);
-            
-            // This matrix performs step 7:
-            const Vec3 texZAxis = m_face->fromTexCoordSystemMatrix() * Vec3::PosZ;
-            const Plane3& boundary = m_face->boundary();
-            const Mat4x4 planeToWorld = planeProjectionMatrix(boundary.distance, boundary.normal, texZAxis);
-            
-            // This matrix performs steps 5 and 6:
-            const Mat4x4 worldToPlane = Mat4x4::ZerZ * invertedMatrix(planeToWorld);
-            
-            // This matrix performs steps 4 through 7:
-            const Mat4x4 texToWorldWithProjection = planeToWorld * worldToPlane * texToWorld;
-            
-            x1 = texToWorldWithProjection * x1;
-            x2 = texToWorldWithProjection * x2;
-            y1 = texToWorldWithProjection * y1;
-            y2 = texToWorldWithProjection * y2;
+            x1 = helper.texToWorld(x1);
+            x2 = helper.texToWorld(x2);
+            y1 = helper.texToWorld(y1);
+            y2 = helper.texToWorld(y2);
         }
         
         void TexturingViewHelper::computeHLineVertices(const Renderer::OrthographicCamera& camera, const FloatType y, Vec3& v1, Vec3& v2) const {
-            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
-            
-            const Vec3::List viewportVertices = worldToTex * camera.viewportVertices();
-            
+            Model::TexCoordSystemHelper helper(m_face);
+            helper.setTranslate();
+            helper.setScale();
+            helper.setProject();
+
+            const Vec3::List viewportVertices = helper.worldToTex(camera.viewportVertices());
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
             
             v1 = Vec3(min.x(), y, 0.0);
             v2 = Vec3(max.x(), y, 0.0);
-            
-            const Mat4x4 texToWorld = m_face->fromTexCoordSystemMatrix(offset, scale);
-            
-            // This matrix performs step 7:
-            const Vec3 texZAxis = m_face->fromTexCoordSystemMatrix() * Vec3::PosZ;
-            const Plane3& boundary = m_face->boundary();
-            const Mat4x4 planeToWorld = planeProjectionMatrix(boundary.distance, boundary.normal, texZAxis);
-            
-            // This matrix performs steps 5 and 6:
-            const Mat4x4 worldToPlane = Mat4x4::ZerZ * invertedMatrix(planeToWorld);
-            
-            // This matrix performs steps 4 through 7:
-            const Mat4x4 texToWorldWithProjection = planeToWorld * worldToPlane * texToWorld;
-            
-            v1 = texToWorldWithProjection * v1;
-            v2 = texToWorldWithProjection * v2;
+
+            v1 = helper.texToWorld(v1);
+            v2 = helper.texToWorld(v2);
         }
         
         void TexturingViewHelper::computeVLineVertices(const Renderer::OrthographicCamera& camera, const FloatType x, Vec3& v1, Vec3& v2) const {
-            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+            Model::TexCoordSystemHelper helper(m_face);
+            helper.setTranslate();
+            helper.setScale();
+            helper.setProject();
             
-            const Vec3::List viewportVertices = worldToTex * camera.viewportVertices();
-            
+            const Vec3::List viewportVertices = helper.worldToTex(camera.viewportVertices());
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
@@ -314,89 +285,8 @@ namespace TrenchBroom {
             v1 = Vec3(x, min.y(), 0.0);
             v2 = Vec3(x, max.y(), 0.0);
             
-            const Mat4x4 texToWorld = m_face->fromTexCoordSystemMatrix(offset, scale);
-            
-            // This matrix performs step 7:
-            const Vec3 texZAxis = m_face->fromTexCoordSystemMatrix() * Vec3::PosZ;
-            const Plane3& boundary = m_face->boundary();
-            const Mat4x4 planeToWorld = planeProjectionMatrix(boundary.distance, boundary.normal, texZAxis);
-            
-            // This matrix performs steps 5 and 6:
-            const Mat4x4 worldToPlane = Mat4x4::ZerZ * invertedMatrix(planeToWorld);
-            
-            // This matrix performs steps 4 through 7:
-            const Mat4x4 texToWorldWithProjection = planeToWorld * worldToPlane * texToWorld;
-            
-            v1 = texToWorldWithProjection * v1;
-            v2 = texToWorldWithProjection * v2;
-        }
-        
-        Vec3::List TexturingViewHelper::textureSeamVertices(const Renderer::OrthographicCamera& camera) const {
-            assert(valid());
-            
-            const Assets::Texture* texture = m_face->texture();
-            if (texture == NULL)
-                return Vec3::EmptyList;
-            
-            // We compute the texture seam lines as follows:
-            // 1. Transform the viewport vertices to the texture coordinate system.
-            // 2. Project the transformed viewport onto the XY plane (of the texture coordinate system).
-            // 3. Compute the seam vertices (by walking along the X and Y axes).
-            // 4. Transform the seam vertices to the world coordinate system.
-            // 5. Transform the seam vertices to some coordinate system on the boundary plane, but
-            //    with the Z axis parallel to the texture coordinates system Z axis (skewed).
-            // 6. Project the seam vertices onto the boundary plane in parallel to the Z axis of
-            //    the texture coordinate system.
-            // 7. Transform the seam vertices back to the world coordinate system.
-            
-            
-            // This matrix performs steps 1 and 2:
-            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            const Mat4x4 worldToTex = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
-            
-            // This matrix performs step 4:
-            const Mat4x4 texToWorld = m_face->fromTexCoordSystemMatrix(offset, scale);
-            
-            // This matrix performs step 7:
-            const Vec3 texZAxis = m_face->fromTexCoordSystemMatrix() * Vec3::PosZ;
-            const Plane3& boundary = m_face->boundary();
-            const Mat4x4 planeToWorld = planeProjectionMatrix(boundary.distance, boundary.normal, texZAxis);
-            
-            // This matrix performs steps 5 and 6:
-            const Mat4x4 worldToPlane = Mat4x4::ZerZ * invertedMatrix(planeToWorld);
-            
-            // This matrix performs steps 4 through 7:
-            const Mat4x4 texToWorldWithProjection = planeToWorld * worldToPlane * texToWorld;
-            
-            // Steps 1 and 2:
-            const Vec3::List viewportVertices = worldToTex * camera.viewportVertices();
-            
-            // Step 3: Compute the seam vertices using the bounding box of the transformed viewport.
-            const BBox3 viewportBounds(viewportVertices);
-            const Vec3& min = viewportBounds.min;
-            const Vec3& max = viewportBounds.max;
-            
-            Vec3::List seamVertices;
-            
-            const FloatType dx = min.x() / texture->width();
-            FloatType x = (dx < 0.0 ? Math::ceil(dx) : Math::floor(dx)) * texture->width();
-            while (Math::lte(x, max.x())) {
-                seamVertices.push_back(Vec3(x, min.y(), 0.0));
-                seamVertices.push_back(Vec3(x, max.y(), 0.0));
-                x += texture->width();
-            }
-            
-            const FloatType dy = min.y() / texture->height();
-            FloatType y = (dy < 0.0 ? Math::ceil(dy) : Math::floor(dy)) * texture->height();
-            while (Math::lte(y, max.y())) {
-                seamVertices.push_back(Vec3(min.x(), y, 0.0));
-                seamVertices.push_back(Vec3(max.x(), y, 0.0));
-                y += texture->height();
-            }
-            
-            // Steps 4 through 7:
-            return texToWorldWithProjection * seamVertices;
+            v1 = helper.texToWorld(v1);
+            v2 = helper.texToWorld(v2);
         }
         
         Mat4x4 TexturingViewHelper::worldToTexMatrix() const {
@@ -501,14 +391,11 @@ namespace TrenchBroom {
             for (size_t i = 0; i < vertexCount; ++i)
                 positions[i] = vertices[i]->position;
             
-            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            const Mat4x4 toTexTransform = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
-            
-            const Vec3::List transformedPositions = toTexTransform * positions;
-            const BBox3 bounds(transformedPositions);
-            
-            m_handlePosition = Vec2(bounds.min.x(), bounds.min.y());
+            Model::TexCoordSystemHelper helper(m_face);
+            helper.setProject();
+
+            const BBox3 bounds(helper.worldToTex(positions));
+            m_handlePosition = Vec2(bounds.min);
         }
     }
 }

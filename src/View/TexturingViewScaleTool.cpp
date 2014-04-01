@@ -26,6 +26,7 @@
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexSpec.h"
+#include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/TexturingViewHelper.h"
 
@@ -134,23 +135,26 @@ namespace TrenchBroom {
                 m_originSelector[1] = 0.0f;
             }
 
+            const Vec3 texPoint = m_helper.computeTexPoint(inputState.pickRay());
+            
             if (!xOriginHit.isMatch() && !yOriginHit.isMatch()) {
-                if (xScaleHit.isMatch()) {
+                if (xScaleHit.isMatch() || yScaleHit.isMatch()) {
                     m_dragMode = Scale;
-                    m_scaleSelector[0] = 1.0f;
-                } else {
-                    m_scaleSelector[0] = 0.0f;
+                    m_lastScaleDistance = texPoint - m_helper.handlePosition();
+                    controller()->beginUndoableGroup("Scale Texture");
                 }
                 
-                if (yScaleHit.isMatch()) {
-                    m_dragMode = Scale;
+                if (xScaleHit.isMatch())
+                    m_scaleSelector[0] = 1.0f;
+                else
+                    m_scaleSelector[0] = 0.0f;
+                
+                if (yScaleHit.isMatch())
                     m_scaleSelector[1] = 1.0f;
-                } else {
+                else
                     m_scaleSelector[1] = 0.0f;
-                }
             }
             
-            const Vec3 texPoint = m_helper.computeTexPoint(inputState.pickRay());
             m_lastPoint = Vec2f(texPoint);
 
             return m_dragMode != None;
@@ -162,13 +166,35 @@ namespace TrenchBroom {
             const Vec3 texPoint = m_helper.computeTexPoint(inputState.pickRay());
             const Vec2f curPoint(texPoint);
             Vec2f delta = curPoint - m_lastPoint;
-            
+
             if (m_dragMode == Handle) {
                 delta = m_helper.snapHandle(delta * m_originSelector);
                 if (delta.null())
                     return true;
                 
                 m_helper.setHandlePosition(m_helper.handlePosition() + delta);
+            } else if (m_dragMode == Scale) {
+                Model::BrushFace* face = m_helper.face();
+                const Vec2f lastScaleFactors(face->xScale(), face->yScale());
+
+                const Vec2f scaleDistance = m_scaleSelector * (curPoint - m_helper.handlePosition());
+                const Vec2f newScaleFactors = lastScaleFactors / m_lastScaleDistance * scaleDistance;
+
+                const Vec2f oldHandlePosition = m_helper.handlePosition();
+                
+                const Model::BrushFaceList applyTo(1, face);
+                if (newScaleFactors.x() != 0.0f)
+                    controller()->setFaceXScale(applyTo, newScaleFactors.x(), false);
+                if (newScaleFactors.y() != 0.0f)
+                    controller()->setFaceYScale(applyTo, newScaleFactors.y(), false);
+                
+                const Vec2f newHandlePosition = oldHandlePosition / newScaleFactors * lastScaleFactors;
+                const Vec2f handleDelta = newHandlePosition - oldHandlePosition;
+                const Vec2f offsetDelta = handleDelta / newScaleFactors;
+                controller()->setFaceXOffset(applyTo, handleDelta.x(), true);
+                controller()->setFaceYOffset(applyTo, handleDelta.y(), true);
+                
+                m_helper.setHandlePosition(newHandlePosition - offsetDelta);
             }
             
             m_lastPoint += delta;
@@ -176,10 +202,14 @@ namespace TrenchBroom {
         }
         
         void TexturingViewScaleTool::doEndMouseDrag(const InputState& inputState) {
+            if (m_dragMode == Scale)
+                controller()->closeGroup();
             m_dragMode = None;
         }
         
         void TexturingViewScaleTool::doCancelMouseDrag(const InputState& inputState) {
+            if (m_dragMode == Scale)
+                controller()->closeGroup();
             m_dragMode = None;
         }
         
