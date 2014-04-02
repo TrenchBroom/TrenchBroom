@@ -19,6 +19,7 @@
 
 #include "TexCoordSystemHelper.h"
 
+#include "CollectionUtils.h"
 #include "Model/BrushFace.h"
 
 #include <cassert>
@@ -66,6 +67,30 @@ namespace TrenchBroom {
                 m_mode &= ~mode;
         }
         
+        Vec2f TexCoordSystemHelper::worldToTex(const Vec2f& v) const {
+            return Vec2f(worldToTex(Vec3(v)));
+        }
+        
+        Vec2f::List TexCoordSystemHelper::worldToTex(const Vec2f::List& vs) const {
+            return VectorUtils::cast<Vec2f>(worldToTex(VectorUtils::cast<Vec3>(vs)));
+        }
+        
+        Vec2f TexCoordSystemHelper::texToWorld(const Vec2f& v) const {
+            return Vec2f(texToWorld(Vec3(v)));
+        }
+        
+        Vec2f::List TexCoordSystemHelper::texToWorld(const Vec2f::List& vs) const {
+            return VectorUtils::cast<Vec2f>(texToWorld(VectorUtils::cast<Vec3>(vs)));
+        }
+        
+        Vec2f TexCoordSystemHelper::texToTex(const Vec2f& v, const TexCoordSystemHelper& other) const {
+            return Vec2f(texToTex(Vec3(v), other));
+        }
+        
+        Vec2f::List TexCoordSystemHelper::texToTex(const Vec2f::List& vs, const TexCoordSystemHelper& other) const {
+            return VectorUtils::cast<Vec2f>(texToTex(VectorUtils::cast<Vec3>(vs), other));
+        }
+
         Vec3 TexCoordSystemHelper::worldToTex(const Vec3& v) const {
             return toTexMatrix(project()) * v;
         }

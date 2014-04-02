@@ -52,6 +52,15 @@ namespace TrenchBroom {
         private:
             void toggleMode(Mode mode, bool on);
         public:
+            Vec2f worldToTex(const Vec2f& v) const;
+            Vec2f::List worldToTex(const Vec2f::List& vs) const;
+            
+            Vec2f texToWorld(const Vec2f& v) const;
+            Vec2f::List texToWorld(const Vec2f::List& vs) const;
+            
+            Vec2f texToTex(const Vec2f& v, const TexCoordSystemHelper& other) const;
+            Vec2f::List texToTex(const Vec2f::List& vs, const TexCoordSystemHelper& other) const;
+
             Vec3 worldToTex(const Vec3& v) const;
             Vec3::List worldToTex(const Vec3::List& vs) const;
             

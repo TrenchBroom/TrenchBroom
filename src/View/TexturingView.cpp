@@ -37,6 +37,7 @@
 #include "View/TexturingViewCameraTool.h"
 #include "View/TexturingViewOffsetTool.h"
 #include "View/TexturingViewScaleTool.h"
+#include "View/TexturingViewScaleOriginTool.h"
 
 #include <cassert>
 
@@ -50,6 +51,8 @@ namespace TrenchBroom {
         m_controller(controller),
         m_renderResources(renderResources),
         m_toolBox(this, this),
+        m_scaleOriginTool(NULL),
+        m_scaleTool(NULL),
         m_offsetTool(NULL),
         m_cameraTool(NULL) {
             m_helper.setCameraZoom(m_camera.zoom().x());
@@ -70,10 +73,12 @@ namespace TrenchBroom {
         }
 
         void TexturingView::createTools() {
-            m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller, m_helper);
+            m_scaleOriginTool = new TexturingViewScaleOriginTool(m_document, m_controller, m_helper, m_camera);
             m_scaleTool = new TexturingViewScaleTool(m_document, m_controller, m_helper, m_camera);
+            m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller, m_helper);
             m_cameraTool = new TexturingViewCameraTool(m_document, m_controller, m_camera);
 
+            m_toolBox.addTool(m_scaleOriginTool);
             m_toolBox.addTool(m_scaleTool);
             m_toolBox.addTool(m_offsetTool);
             m_toolBox.addTool(m_cameraTool);
@@ -84,6 +89,8 @@ namespace TrenchBroom {
             m_cameraTool = NULL;
             delete m_offsetTool;
             m_offsetTool = NULL;
+            delete m_scaleOriginTool;
+            m_scaleOriginTool = NULL;
             delete m_scaleTool;
             m_scaleTool = NULL;
         }

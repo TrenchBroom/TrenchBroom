@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexturingViewScaleTool__
-#define __TrenchBroom__TexturingViewScaleTool__
+#ifndef __TrenchBroom__TexturingViewScaleOriginTool__
+#define __TrenchBroom__TexturingViewScaleOriginTool__
 
 #include "Hit.h"
 #include "Renderer/VertexSpec.h"
@@ -26,10 +26,6 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    namespace Assets {
-        class Texture;
-    }
-    
     namespace Renderer {
         class OrthographicCamera;
         class RenderContext;
@@ -38,7 +34,7 @@ namespace TrenchBroom {
     namespace View {
         class TexturingViewHelper;
         
-        class TexturingViewScaleTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class TexturingViewScaleOriginTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         public:
             static const Hit::HitType XHandleHit;
             static const Hit::HitType YHandleHit;
@@ -46,33 +42,14 @@ namespace TrenchBroom {
             static const FloatType MaxPickDistance;
             
             typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
-            
-            class ScaleHandle {
-            private:
-                Vec2i m_index;
-                Vec2f m_position;
-                bool m_dragging[2];
-            public:
-                ScaleHandle();
-                
-                void reset();
-                void setX(int index, const Assets::Texture* texture, const Vec2i& subDivisions);
-                void setY(int index, const Assets::Texture* texture, const Vec2i& subDivisions);
-            private:
-                void set(size_t coord, int index, float position);
-            public:
-                const Vec2f& position() const;
-                const Vec2f selector() const;
-            };
-            
+
             TexturingViewHelper& m_helper;
             Renderer::OrthographicCamera& m_camera;
             
-            ScaleHandle m_scaleHandle;
             Vec2f m_lastPoint;
-            Vec2f m_lastScaleDistance;
+            Vec2f m_selector;
         public:
-            TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
+            TexturingViewScaleOriginTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
         private:
             void doPick(const InputState& inputState, Hits& hits);
 
@@ -87,4 +64,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TexturingViewScaleTool__) */
+#endif /* defined(__TrenchBroom__TexturingViewScaleOriginTool__) */

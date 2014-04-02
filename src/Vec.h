@@ -60,6 +60,9 @@ private:
         return 2;
     }
 public:
+    typedef T Type;
+    static const size_t Size = S;
+    
     static const Vec<T,S> PosX;
     static const Vec<T,S> PosY;
     static const Vec<T,S> PosZ;
@@ -135,6 +138,21 @@ public:
         return axis;
     }
     
+    static Vec<T,S> fill(const T value) {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = value;
+        return result;
+    }
+    
+    static Vec<T,S> unit(const size_t index) {
+        assert(index < S);
+        
+        Vec<T,S> result;
+        result[index] = static_cast<T>(1.0);
+        return result;
+    }
+    
     T v[S];
     
     Vec() {
@@ -165,34 +183,40 @@ public:
     }
             
     Vec(const T i_x, const T i_y) {
-        if (S > 0)
+        if (S > 0) {
             v[0] = i_x;
-        if (S > 1)
-            v[1] = i_y;
+            if (S > 1)
+                v[1] = i_y;
+        }
         for (size_t i = 2; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
     
     Vec(const T i_x, const T i_y, const T i_z) {
-        if (S > 0)
+        if (S > 0) {
             v[0] = i_x;
-        if (S > 1)
-            v[1] = i_y;
-        if (S > 2)
-            v[2] = i_z;
+            if (S > 1) {
+                v[1] = i_y;
+                if (S > 2)
+                    v[2] = i_z;
+            }
+        }
         for (size_t i = 3; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
-    
+
     Vec(const T i_x, const T i_y, const T i_z, const T i_w) {
-        if (S > 0)
+        if (S > 0) {
             v[0] = i_x;
-        if (S > 1)
-            v[1] = i_y;
-        if (S > 2)
-            v[2] = i_z;
-        if (S > 3)
-            v[3] = i_w;
+            if (S > 1) {
+                v[1] = i_y;
+                if (S > 2) {
+                    v[2] = i_z;
+                    if (S > 3)
+                        v[3] = i_w;
+                }
+            }
+        }
         for (size_t i = 4; i < S; ++i)
             v[i] = static_cast<T>(0.0);
     }
@@ -621,26 +645,23 @@ public:
 };
             
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosX = Vec<T,S>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::PosX = Vec<T,S>::unit(0);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosY = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::PosY = Vec<T,S>::unit(1);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::PosZ = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::PosZ = Vec<T,S>::unit(2);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegX = Vec<T,S>(-static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::NegX = -Vec<T,S>::unit(0);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegY = Vec<T,S>( static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::NegY = -Vec<T,S>::unit(1);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NegZ = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::NegZ = -Vec<T,S>::unit(2);
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::Null = Vec<T,S>( static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0));
+const Vec<T,S> Vec<T,S>::Null = Vec<T,S>::fill(static_cast<T>(0.0));
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::One  = Vec<T,S>( static_cast<T>(1.0),  static_cast<T>(1.0),  static_cast<T>(1.0),  static_cast<T>(1.0));
+const Vec<T,S> Vec<T,S>::One  = Vec<T,S>::fill(static_cast<T>(1.0));
 template <typename T, size_t S>
-const Vec<T,S> Vec<T,S>::NaN  = Vec<T,S>(std::numeric_limits<T>::quiet_NaN(),
-                                         std::numeric_limits<T>::quiet_NaN(),
-                                         std::numeric_limits<T>::quiet_NaN(),
-                                         std::numeric_limits<T>::quiet_NaN());
+const Vec<T,S> Vec<T,S>::NaN  = Vec<T,S>::fill(std::numeric_limits<T>::quiet_NaN());
 
 template <typename T, size_t S>
 const typename Vec<T,S>::List Vec<T,S>::EmptyList = Vec<T,S>::List();

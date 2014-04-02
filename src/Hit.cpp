@@ -21,6 +21,7 @@
 #include "HitFilter.h"
 
 #include <algorithm>
+#include <limits>
 
 namespace TrenchBroom {
     Hit::HitType Hit::freeHitType() {
@@ -54,6 +55,10 @@ namespace TrenchBroom {
     
     const Vec3& Hit::hitPoint() const {
         return m_hitPoint;
+    }
+    
+    FloatType Hit::error() const {
+        return m_error;
     }
 
     bool Hits::empty() const {
@@ -93,18 +98,30 @@ namespace TrenchBroom {
         if (!m_hits.empty()) {
             List::const_iterator it = m_hits.begin();
             List::const_iterator end = m_hits.end();
+            List::const_iterator bestMatch = m_hits.end();
+            FloatType bestMatchError = std::numeric_limits<FloatType>::max();
+            FloatType bestOccluderError = std::numeric_limits<FloatType>::max();
             
             bool containsOccluder = false;
             while (it != end && !containsOccluder) {
                 const FloatType distance = it->distance();
                 do {
                     const Hit& hit = *it;
-                    if (filter.matches(hit))
-                        return hit;
-                    containsOccluder |= !ignoreFilter.matches(hit);
+                    if (filter.matches(hit)) {
+                        if (hit.error() < bestMatchError) {
+                            bestMatch = it;
+                            bestMatchError = hit.error();
+                        }
+                    } else if (!ignoreFilter.matches(hit)) {
+                        bestOccluderError = std::min(bestOccluderError, hit.error());
+                        containsOccluder = true;
+                    }
                     ++it;
                 } while (it != end && Math::eq(it->distance(), distance));
             }
+            
+            if (bestMatch != m_hits.end() && bestMatchError <= bestOccluderError)
+                return *bestMatch;
         }
         return Hit::NoHit;
     }

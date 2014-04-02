@@ -56,7 +56,7 @@ namespace TrenchBroom {
             /**
              The position of the scaling handle in texture coordinates (without offset and scaling applied).
              */
-            Vec2 m_handlePosition;
+            Vec2f m_handlePosition;
         public:
             TexturingViewHelper();
             
@@ -79,8 +79,9 @@ namespace TrenchBroom {
             Vec3::List transformToTex(const Vec3::List& worldPoints, bool withOffset = false) const;
 
             Vec2f snapOffset(const Vec2f& delta) const;
-            Vec2f snapHandle(const Vec2f& delta) const;
-            
+            Vec2f snapHandle(const Vec2f& deltaInFaceCoords) const;
+            Vec2f snapToVertices(const Vec2f& pointInTexCoords) const;
+
             void computeScaleHandles(Line3& xHandle, Line3& yHandle) const;
             void computeScaleHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
             void computeHLineVertices(const Renderer::OrthographicCamera& camera, FloatType y, Vec3& v1, Vec3& v2) const;
@@ -100,8 +101,9 @@ namespace TrenchBroom {
             const Vec2i& subDivisions() const;
             void setSubDivisions(const Vec2i& subDivisions);
             
-            const Vec2& handlePosition() const;
-            void setHandlePosition(const Vec2f& handlePosition);
+            const Vec2f handlePositionInFaceCoords() const;
+            const Vec2f handlePositionInTexCoords() const;
+            void setHandlePosition(const Vec2f& handlePositionInFaceCoords);
         private:
             void validate();
             void resetHandlePosition();

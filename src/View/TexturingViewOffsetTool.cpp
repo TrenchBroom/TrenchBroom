@@ -75,7 +75,7 @@ namespace TrenchBroom {
         }
         
         void TexturingViewOffsetTool::doCancelMouseDrag(const InputState& inputState) {
-            controller()->closeGroup();
+            controller()->rollbackGroup();
         }
     }
 }

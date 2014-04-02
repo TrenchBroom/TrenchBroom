@@ -39,13 +39,15 @@ namespace TrenchBroom {
         FloatType m_distance;
         Vec3 m_hitPoint;
         BaseHolder::Ptr m_holder;
+        FloatType m_error;
     public:
         template <typename T>
-        Hit(const HitType type, const FloatType distance, const Vec3& hitPoint, T target) :
+        Hit(const HitType type, const FloatType distance, const Vec3& hitPoint, T target, const FloatType error = 0.0) :
         m_type(type),
         m_distance(distance),
         m_hitPoint(hitPoint),
-        m_holder(Holder<T>::newHolder(target)) {}
+        m_holder(Holder<T>::newHolder(target)),
+        m_error(error) {}
         
         bool operator< (const Hit& other) const;
         
@@ -59,6 +61,7 @@ namespace TrenchBroom {
         bool hasType(const HitType typeMask) const;
         FloatType distance() const;
         const Vec3& hitPoint() const;
+        FloatType error() const;
         
         template <typename T>
         T target() const {

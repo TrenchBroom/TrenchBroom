@@ -28,6 +28,10 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 template <typename T, size_t R, size_t C>
 class Mat {
 public:
+    typedef T Type;
+    static const size_t Rows = R;
+    static const size_t Cols = C;
+    
     static const Mat<T,R,C> Null;
     static const Mat<T,R,C> Identity;
     static const Mat<T,R,C> Rot90XCW;
@@ -184,7 +188,8 @@ public:
         const Vec<T,C> t(right, static_cast<T>(1.0));
         return (*this * t).overLast();
     }
-
+    
+    // Vector list right multiplication
     const typename Vec<T,C>::List operator* (const typename Vec<T,C>::List& right) const {
         typename Vec<T,C>::List result;
         result.reserve(right.size());
@@ -204,7 +209,7 @@ public:
             result.push_back(*this * *it);
             return result;
     }
-
+    
     // indexed access, returns one column
     Vec<T,R>& operator[] (const size_t index) {
         assert(index < C);
