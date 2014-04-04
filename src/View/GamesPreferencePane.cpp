@@ -24,10 +24,11 @@
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "View/GameListBox.h"
+#include "View/GameSelectionCommand.h"
 #include "View/ViewConstants.h"
 
 #include <wx/button.h>
-#include <wx/choice.h>
 #include <wx/dirdlg.h>
 #include <wx/sizer.h>
 #include <wx/settings.h>
@@ -43,7 +44,7 @@ namespace TrenchBroom {
             updateControls();
         }
         
-        void GamesPreferencePane::OnGameSelectionChanged(wxCommandEvent& event) {
+        void GamesPreferencePane::OnGameSelectionChanged(GameSelectionCommand& event) {
             updateControls();
         }
 
@@ -51,7 +52,7 @@ namespace TrenchBroom {
             const wxString pathStr = ::wxDirSelector("Choose game directory", wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
             if (!pathStr.empty()) {
                 const IO::Path gamePath(pathStr.ToStdString());
-                const String gameName = m_gameSelectionChoice->GetString(m_gameSelectionChoice->GetSelection()).ToStdString();
+                const String gameName = m_gameListBox->selectedGameName();
                 Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 gameFactory.setGamePath(gameName, gamePath);
                 
@@ -60,46 +61,19 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::createGui() {
-            wxWindow* gameSelectionBox = createGameSelectionBox();
+            m_gameListBox = new GameListBox(this, wxBORDER_THEME);
+            m_gameListBox->selectGame(0);
+            
             wxWindow* gamePreferences = createGamePreferences();
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(gameSelectionBox, 0, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(gamePreferences, 0, wxEXPAND);
-            
-#ifdef __APPLE__
-            outerSizer->SetItemMinSize(gameSelectionBox, wxDefaultSize.x, gameSelectionBox->GetSize().y + 2);
-#endif
+            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
+            outerSizer->Add(m_gameListBox, 0, wxEXPAND);
+            outerSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            outerSizer->Add(gamePreferences, 1, wxEXPAND);
+            outerSizer->SetItemMinSize(m_gameListBox, 200, 200);
             
             SetSizer(outerSizer);
             SetMinSize(wxSize(600, 300));
-        }
-        
-        wxWindow* GamesPreferencePane::createGameSelectionBox() {
-            wxPanel* container = new wxPanel(this, wxID_ANY);
-            container->SetBackgroundColour(::wxSystemSettings::GetColour(wxSYS_COLOUR_BTNHIGHLIGHT));
-            
-            wxStaticText* gameSelectionChoiceLabel = new wxStaticText(container, wxID_ANY, "Select a game from the list: ");
-            
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-            const StringList gameList = gameFactory.gameList();
-            
-            wxArrayString wxGameList;
-            for (size_t i = 0; i < gameList.size(); ++i)
-                wxGameList.Add(wxString(gameList[i]));
-            m_gameSelectionChoice = new wxChoice(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxGameList);
-            m_gameSelectionChoice->SetSelection(0);
-            
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
-            innerSizer->Add(gameSelectionChoiceLabel, 0, wxALIGN_CENTER_VERTICAL);
-            innerSizer->Add(m_gameSelectionChoice, 0, wxALIGN_CENTER_VERTICAL);
-            
-            wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 0, wxALL, LayoutConstants::HighlightBoxMargin);
-            
-            container->SetSizerAndFit(outerSizer);
-            return container;
         }
         
         wxWindow* GamesPreferencePane::createGamePreferences() {
@@ -126,12 +100,12 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::bindEvents() {
-            m_gameSelectionChoice->Bind(wxEVT_CHOICE, &GamesPreferencePane::OnGameSelectionChanged, this);
+            m_gameListBox->Bind(EVT_GAME_SELECTION_CHANGE_EVENT, EVT_GAME_SELECTION_DBLCLICK_HANDLER(GamesPreferencePane::OnGameSelectionChanged), this);
             m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
         }
         
         void GamesPreferencePane::updateControls() {
-            const String gameName = m_gameSelectionChoice->GetString(m_gameSelectionChoice->GetSelection()).ToStdString();
+            const String gameName = m_gameListBox->selectedGameName();
             Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(gameName);
             m_gamePathValueLabel->SetLabel(gamePath.isEmpty() ? "not set" : gamePath.asString());

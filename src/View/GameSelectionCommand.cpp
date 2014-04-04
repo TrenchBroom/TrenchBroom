@@ -17,28 +17,33 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GameSelectedCommand.h"
+#include "GameSelectionCommand.h"
 
-DEFINE_EVENT_TYPE(EVT_GAME_SELECTED_EVENT)
+DEFINE_EVENT_TYPE(EVT_GAME_SELECTION_CHANGE_EVENT)
+DEFINE_EVENT_TYPE(EVT_GAME_SELECTION_DBLCLICK_EVENT)
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(GameSelectedCommand, wxNotifyEvent)
+        IMPLEMENT_DYNAMIC_CLASS(GameSelectionCommand, wxCommandEvent)
         
-        GameSelectedCommand::GameSelectedCommand() :
-        wxNotifyEvent(EVT_GAME_SELECTED_EVENT, wxID_ANY),
+        GameSelectionCommand::GameSelectionCommand() :
+        wxCommandEvent(),
         m_gameName("") {}
         
-        const String& GameSelectedCommand::gameName() const {
+        GameSelectionCommand::GameSelectionCommand(wxEventType type, const String& gameName) :
+        wxCommandEvent(type),
+        m_gameName(gameName) {}
+
+        const String& GameSelectionCommand::gameName() const {
             return m_gameName;
         }
         
-        void GameSelectedCommand::setGameName(const String& gameName) {
+        void GameSelectionCommand::setGameName(const String& gameName) {
             m_gameName = gameName;
         }
         
-        wxEvent* GameSelectedCommand::Clone() const {
-            return new GameSelectedCommand(*this);
+        wxEvent* GameSelectionCommand::Clone() const {
+            return new GameSelectionCommand(*this);
         }
         
     }

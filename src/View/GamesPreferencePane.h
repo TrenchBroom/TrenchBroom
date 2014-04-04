@@ -25,26 +25,25 @@
 #include "View/PreferencePane.h"
 
 class wxButton;
-class wxCheckBox;
-class wxChoice;
-class wxSlider;
 class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
+        class GameListBox;
+        class GameSelectionCommand;
+        
         class GamesPreferencePane : public PreferencePane {
         private:
-            wxChoice* m_gameSelectionChoice;
+            GameListBox* m_gameListBox;
             wxStaticText* m_gamePathValueLabel;
             wxButton* m_chooseGamePathButton;
         public:
             GamesPreferencePane(wxWindow* parent);
 
-            void OnGameSelectionChanged(wxCommandEvent& event);
+            void OnGameSelectionChanged(GameSelectionCommand& event);
             void OnChooseGamePathClicked(wxCommandEvent& event);
         private:
             void createGui();
-            wxWindow* createGameSelectionBox();
             wxWindow* createGamePreferences();
             
             void bindEvents();

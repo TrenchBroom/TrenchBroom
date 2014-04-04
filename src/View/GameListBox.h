@@ -39,10 +39,12 @@ namespace TrenchBroom {
             
             InfoList m_gameInfos;
         public:
-            GameListBox(wxWindow* parent);
+            GameListBox(wxWindow* parent, long style = wxBORDER_NONE);
             
-            const String selectedGameName() const;
+            String selectedGameName() const;
+            void selectGame(int index);
             
+            void OnListBoxChange(wxCommandEvent& event);
             void OnListBoxDoubleClick(wxCommandEvent& event);
             void reloadGameInfos();
         private:

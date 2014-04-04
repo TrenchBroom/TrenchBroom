@@ -27,8 +27,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        ImageListBox::ImageListBox(wxWindow* parent, const wxSize& imageSize, const wxString& emptyText) :
-        wxVListBox(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_SINGLE | wxBORDER_NONE),
+        ImageListBox::ImageListBox(wxWindow* parent, const wxSize& imageSize, const wxString& emptyText, const long style) :
+        wxVListBox(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_SINGLE | style),
         m_imageSize(imageSize),
         m_empty(true),
         m_emptyText(emptyText) {}

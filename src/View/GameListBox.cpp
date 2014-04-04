@@ -24,20 +24,21 @@
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
-#include "View/GameSelectedCommand.h"
+#include "View/GameSelectionCommand.h"
 
 #include <cassert>
 #include <wx/log.h>
 
 namespace TrenchBroom {
     namespace View {
-        GameListBox::GameListBox(wxWindow* parent) :
-        ImageListBox(parent, wxSize(32, 32), "No Games Found") {
+        GameListBox::GameListBox(wxWindow* parent, const long style) :
+        ImageListBox(parent, wxSize(32, 32), "No Games Found", style) {
             reloadGameInfos();
+            Bind(wxEVT_LISTBOX, &GameListBox::OnListBoxChange, this);
             Bind(wxEVT_LISTBOX_DCLICK, &GameListBox::OnListBoxDoubleClick, this);
         }
 
-        const String GameListBox::selectedGameName() const {
+        String GameListBox::selectedGameName() const {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const StringList& gameList = gameFactory.gameList();
             
@@ -47,9 +48,25 @@ namespace TrenchBroom {
             return gameList[index];
         }
 
+        void GameListBox::selectGame(const int index) {
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const StringList& gameList = gameFactory.gameList();
+
+            if (index < 0 || index >= gameList.size())
+                return;
+            
+            SetSelection(index);
+        }
+
+        void GameListBox::OnListBoxChange(wxCommandEvent& event) {
+            GameSelectionCommand command(EVT_GAME_SELECTION_CHANGE_EVENT, selectedGameName());
+            command.SetEventObject(this);
+            command.SetId(GetId());
+            ProcessEvent(command);
+        }
+
         void GameListBox::OnListBoxDoubleClick(wxCommandEvent& event) {
-            GameSelectedCommand command;
-            command.setGameName(selectedGameName());
+            GameSelectionCommand command(EVT_GAME_SELECTION_DBLCLICK_EVENT, selectedGameName());
             command.SetEventObject(this);
             command.SetId(GetId());
             ProcessEvent(command);

@@ -30,7 +30,7 @@ namespace TrenchBroom {
             bool m_empty;
             wxString m_emptyText;
         public:
-            ImageListBox(wxWindow* parent, const wxSize& imageSize, const wxString& emptyText);
+            ImageListBox(wxWindow* parent, const wxSize& imageSize, const wxString& emptyText, long style = wxBORDER_NONE);
             
             size_t selection() const;
             bool hasSelection() const;

@@ -1,0 +1,79 @@
+/*
+ Copyright (C) 2010-2014 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef __TrenchBroom__GameSelectionCommand__
+#define __TrenchBroom__GameSelectionCommand__
+
+#include "StringUtils.h"
+
+#include <wx/event.h>
+
+namespace TrenchBroom {
+    namespace View {
+        class GameSelectionCommand : public wxCommandEvent {
+        protected:
+            String m_gameName;
+        public:
+            GameSelectionCommand();
+            GameSelectionCommand(wxEventType type, const String& gameName = "");
+            
+            const String& gameName() const;
+            void setGameName(const String& gameName);
+            
+            virtual wxEvent* Clone() const;
+            
+            DECLARE_DYNAMIC_CLASS(GameSelectionCommand)
+        };
+    }
+}
+
+#define WXDLLIMPEXP_CUSTOM_EVENT
+
+BEGIN_DECLARE_EVENT_TYPES()
+DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_CUSTOM_EVENT, EVT_GAME_SELECTION_CHANGE_EVENT, 1)
+DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_CUSTOM_EVENT, EVT_GAME_SELECTION_DBLCLICK_EVENT, 2)
+END_DECLARE_EVENT_TYPES()
+
+typedef void (wxEvtHandler::*gameSelectionEventFunction)(TrenchBroom::View::GameSelectionCommand&);
+
+#define EVT_GAME_SELECTION_CHANGE_HANDLER(func) \
+    (wxObjectEventFunction) \
+    (gameSelectionEventFunction) & func
+
+#define EVT_GAME_SELECTION_CHANGE(id,func) \
+    DECLARE_EVENT_TABLE_ENTRY(EVT_GAME_SELECTION_CHANGE_EVENT, \
+        id, \
+        wxID_ANY, \
+        (wxObjectEventFunction) \
+        (gameSelectionEventFunction) & func, \
+        (wxObject*) NULL ),
+
+#define EVT_GAME_SELECTION_DBLCLICK_HANDLER(func) \
+    (wxObjectEventFunction) \
+    (gameSelectionEventFunction) & func
+
+#define EVT_GAME_SELECTION_DBLCLICK(id,func) \
+    DECLARE_EVENT_TABLE_ENTRY(EVT_GAME_SELECTION_DBLCLICK_EVENT, \
+        id, \
+        wxID_ANY, \
+        (wxObjectEventFunction) \
+        (gameSelectionEventFunction) & func, \
+        (wxObject*) NULL ),
+
+#endif /* defined(__TrenchBroom__GameSelectionCommand__) */

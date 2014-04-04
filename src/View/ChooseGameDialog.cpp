@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "View/GameListBox.h"
-#include "View/GameSelectedCommand.h"
+#include "View/GameSelectionCommand.h"
 #include "View/ViewConstants.h"
 #include "TrenchBroomApp.h"
 
@@ -135,7 +135,7 @@ namespace TrenchBroom {
         }
         
         void ChooseGameDialog::bindEvents() {
-            m_gameListBox->Bind(EVT_GAME_SELECTED_EVENT, EVT_GAME_SELECTED_HANDLER(ChooseGameDialog::OnGameSelected), this);
+            m_gameListBox->Bind(EVT_GAME_SELECTION_DBLCLICK_EVENT, EVT_GAME_SELECTION_DBLCLICK_HANDLER(ChooseGameDialog::OnGameSelected), this);
             m_openPreferencesButton->Bind(wxEVT_BUTTON, &ChooseGameDialog::OnOpenPreferencesClicked, this);
             FindWindow(wxID_OK)->Bind(wxEVT_UPDATE_UI, &ChooseGameDialog::OnUpdateOkButton, this);
         }
