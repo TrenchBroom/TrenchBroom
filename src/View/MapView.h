@@ -30,8 +30,8 @@
 #include "Renderer/BoundsGuideRenderer.h"
 #include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
-#include "Renderer/RenderResources.h"
 #include "Renderer/Vbo.h"
+#include "View/GLContextHolder.h"
 #include "View/MovementRestriction.h"
 #include "View/RenderView.h"
 #include "View/ToolBox.h"
@@ -90,7 +90,6 @@ namespace TrenchBroom {
             SelectionTool* m_selectionTool;
             TextureTool* m_textureTool;
 
-            Renderer::RenderResources m_renderResources;
             Renderer::MapRenderer m_renderer;
             Renderer::Compass m_compass;
             Renderer::BoundsGuideRenderer m_selectionGuide;
@@ -98,8 +97,6 @@ namespace TrenchBroom {
             MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
             ~MapView();
 
-            Renderer::RenderResources& renderResources();
-            
             void centerCameraOnSelection();
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
 
@@ -195,10 +192,10 @@ namespace TrenchBroom {
 
             void bindEvents();
 
-            static const Renderer::RenderResources::GLAttribs& attribs();
+            static const GLContextHolder::GLAttribs& attribs();
             static int depthBits();
             static bool multisample();
-            static Renderer::TextureFont& defaultFont(Renderer::RenderResources& renderResources);
+            static Renderer::TextureFont& defaultFont(Renderer::FontManager& fontManager);
         };
     }
 }

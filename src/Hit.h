@@ -52,7 +52,7 @@ namespace TrenchBroom {
         bool operator< (const Hit& other) const;
         
         template <typename T>
-        static Hit hit(const HitType type, const FloatType distance, const Vec3& hitPoint, T target) {
+        static Hit hit(const HitType type, const FloatType distance, const Vec3& hitPoint, T target, const FloatType error = 0.0) {
             return Hit(type, distance, hitPoint, target);
         }
         

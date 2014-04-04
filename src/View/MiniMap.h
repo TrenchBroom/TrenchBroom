@@ -24,6 +24,7 @@
 #include "VecMath.h"
 
 #include "Renderer/MiniMapRenderer.h"
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -34,7 +35,6 @@ class wxWindow;
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
-        class RenderResources;
     }
 
     namespace View {
@@ -47,12 +47,12 @@ namespace TrenchBroom {
             MiniMapZView* m_miniMapZView;
             MiniMapXYView* m_miniMapXYView;
         public:
-            MiniMap(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::Camera& camera);
+            MiniMap(wxWindow* parent, GLContextHolder::Ptr sharedContext, View::MapDocumentWPtr document, Renderer::Camera& camera);
             
             void OnXYMiniMapChanged(wxCommandEvent& event);
             void OnZMiniMapChanged(wxCommandEvent& event);
         private:
-            void createGui(View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::Camera& camera);
+            void createGui(GLContextHolder::Ptr sharedContext, View::MapDocumentWPtr document, Renderer::Camera& camera);
             void bindEvents();
         };
     }

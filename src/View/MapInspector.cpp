@@ -31,17 +31,17 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapInspector::MapInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources, Renderer::Camera& camera) :
+        MapInspector::MapInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
         wxPanel(parent) {
-            createGui(document, controller, resources, camera);
+            createGui(sharedContext, document, controller, camera);
         }
 
         void MapInspector::OnPaneChanged(wxCollapsiblePaneEvent& event) {
             Layout();
         }
 
-        void MapInspector::createGui(MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources, Renderer::Camera& camera) {
-            wxWindow* miniMap = createMiniMap(this, document, resources, camera);
+        void MapInspector::createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) {
+            wxWindow* miniMap = createMiniMap(this, sharedContext, document, camera);
             wxWindow* mapTree = createMapTree(this, document, controller);
             wxWindow* modEditor = createModEditor(this, document, controller);
             
@@ -56,8 +56,8 @@ namespace TrenchBroom {
             SetSizer(sizer);
         }
 
-        wxWindow* MapInspector::createMiniMap(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& resources, Renderer::Camera& camera) {
-            return new MiniMap(parent, document, resources, camera);
+        wxWindow* MapInspector::createMiniMap(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, Renderer::Camera& camera) {
+            return new MiniMap(parent, sharedContext, document, camera);
         }
 
         wxWindow* MapInspector::createMapTree(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {

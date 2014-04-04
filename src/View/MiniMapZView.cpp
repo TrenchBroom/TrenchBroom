@@ -24,7 +24,6 @@
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/MiniMapRenderer.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderResources.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
@@ -35,8 +34,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MiniMapZView::MiniMapZView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera) :
-        MiniMapBaseView(parent, document, renderResources, renderer, camera),
+        MiniMapZView::MiniMapZView(wxWindow* parent, GLContextHolder::Ptr sharedContext, View::MapDocumentWPtr document, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera) :
+        MiniMapBaseView(parent, sharedContext, document, renderer, camera),
         m_camera(new Renderer::OrthographicCamera()) {
             const BBox3& worldBounds = lock(document)->worldBounds();
             m_camera->setNearPlane(0.0f);
@@ -85,8 +84,8 @@ namespace TrenchBroom {
             bounds.max[2] = static_cast<float>(worldBounds.max.z());
         }
 
-        void MiniMapZView::doUpdateViewport(const Renderer::Camera::Viewport& viewport) {
-            m_camera->setViewport(viewport);
+        void MiniMapZView::doUpdateViewport(int x, int y, int width, int height) {
+            m_camera->setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
         
         void MiniMapZView::doPanView(const Vec3f& diff) {

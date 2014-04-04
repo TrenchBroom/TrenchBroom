@@ -17,40 +17,39 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Inspector__
-#define __TrenchBroom__Inspector__
+#ifndef __TrenchBroom__TexturingEditor__
+#define __TrenchBroom__TexturingEditor__
 
-#include "Controller/Command.h"
 #include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
-class wxNotebook;
+class wxSpinCtrl;
+class wxSpinEvent;
+class wxWindow;
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-    
     namespace View {
-        class EntityInspector;
-        class FaceInspector;
-        class MapInspector;
-        class ViewInspector;
+        class TexturingView;
         
-        class Inspector : public wxPanel {
+        class TexturingEditor : public wxPanel {
         private:
-            wxNotebook* m_notebook;
-            MapInspector* m_mapInspector;
-            EntityInspector* m_entityInspector;
-            FaceInspector* m_faceInspector;
-            ViewInspector* m_viewInspector;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
+
+            TexturingView* m_texturingView;
+            wxSpinCtrl* m_xSubDivisionEditor;
+            wxSpinCtrl* m_ySubDivisionEditor;
         public:
-            Inspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
-            void switchToPage(InspectorPage page);
+            TexturingEditor(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
+
+            void OnSubDivisionChanged(wxSpinEvent& event);
+        private:
+            void createGui(GLContextHolder::Ptr sharedContext);
+            void bindEvents();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Inspector__) */
+#endif /* defined(__TrenchBroom__TexturingEditor__) */

@@ -34,10 +34,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityBrowser::EntityBrowser(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& resources) :
+        EntityBrowser::EntityBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document) {
-            createGui(resources);
+            createGui(sharedContext);
             bindObservers();
         }
         
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             m_view->setFilterText(m_filterBox->GetValue().ToStdString());
         }
 
-        void EntityBrowser::createGui(Renderer::RenderResources& resources) {
+        void EntityBrowser::createGui(GLContextHolder::Ptr sharedContext) {
             const wxString sortOrders[2] = { "Name", "Usage" };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
@@ -99,8 +99,8 @@ namespace TrenchBroom {
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
 
             MapDocumentSPtr document = lock(m_document);
-            m_view = new EntityBrowserView(browserPanel, wxID_ANY, m_scrollBar,
-                                           resources,
+            m_view = new EntityBrowserView(browserPanel, m_scrollBar,
+                                           sharedContext,
                                            document->entityDefinitionManager(),
                                            document->entityModelManager(),
                                            *document);

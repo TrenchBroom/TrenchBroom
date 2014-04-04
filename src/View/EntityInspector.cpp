@@ -33,22 +33,22 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityInspector::EntityInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources) :
+        EntityInspector::EntityInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
-            createGui(parent, m_document, m_controller, resources);
+            createGui(parent, sharedContext, m_document, m_controller);
         }
         
         void EntityInspector::OnEntityDefinitionFileChooserPaneChanged(wxCollapsiblePaneEvent& event) {
             Layout();
         }
 
-        void EntityInspector::createGui(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources) {
+        void EntityInspector::createGui(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(createEntityBrowser(this, resources), 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->Add(createEntityBrowser(this, sharedContext), 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             outerSizer->Add(createEntityDefinitionFileChooser(this, document, controller), 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
             SetSizerAndFit(outerSizer);
@@ -59,8 +59,8 @@ namespace TrenchBroom {
             return m_propertyEditor;
         }
         
-        wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources) {
-            m_entityBrowser = new EntityBrowser(parent, m_document, resources);
+        wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext) {
+            m_entityBrowser = new EntityBrowser(parent, sharedContext, m_document);
             return m_entityBrowser;
         }
         

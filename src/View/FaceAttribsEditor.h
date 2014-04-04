@@ -21,6 +21,7 @@
 #define __TrenchBroom__FaceAttribsEditor__
 
 #include "Model/ModelTypes.h"
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -39,26 +40,19 @@ namespace TrenchBroom {
         class SelectionResult;
     }
     
-    namespace Renderer {
-        class RenderResources;
-    }
-    
     namespace View {
         class ControllerFacade;
         class FlagChangedCommand;
         class FlagsPopupEditor;
-        class TexturingView;
-        
+        class TexturingEditor;
+
         class FaceAttribsEditor : public wxPanel {
         private:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             Model::BrushFaceList m_faces;
 
-            TexturingView* m_texturingView;
-            wxSpinCtrl* m_xSubDivisionEditor;
-            wxSpinCtrl* m_ySubDivisionEditor;
-            
+            TexturingEditor* m_texturingEditor;
             SpinControl* m_xOffsetEditor;
             SpinControl* m_yOffsetEditor;
             SpinControl* m_xScaleEditor;
@@ -75,10 +69,9 @@ namespace TrenchBroom {
             wxStaticText* m_contentFlagsLabel;
             FlagsPopupEditor* m_contentFlagsEditor;
         public:
-            FaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentWPtr document, ControllerWPtr controller);
+            FaceAttribsEditor(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
             ~FaceAttribsEditor();
             
-            void OnSubDivisionChanged(wxSpinEvent& event);
             void OnXOffsetChanged(SpinControlEvent& event);
             void OnYOffsetChanged(SpinControlEvent& event);
             void OnRotationChanged(SpinControlEvent& event);
@@ -91,7 +84,7 @@ namespace TrenchBroom {
             void OnSurfaceValueChanged(SpinControlEvent& event);
             void OnIdle(wxIdleEvent& event);
         private:
-            void createGui(Renderer::RenderResources& resources);
+            void createGui(GLContextHolder::Ptr sharedContext);
             void bindEvents();
             
             void bindObservers();

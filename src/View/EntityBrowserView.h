@@ -25,6 +25,7 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexSpec.h"
 #include "View/CellView.h"
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -38,7 +39,6 @@ namespace TrenchBroom {
     namespace Renderer {
         class FontDescriptor;
         class MeshRenderer;
-        class RenderResources;
         class Transformation;
     }
     
@@ -60,7 +60,6 @@ namespace TrenchBroom {
             typedef Renderer::VertexSpecs::P2T2::Vertex StringVertex;
             typedef std::map<Renderer::FontDescriptor, StringVertex::List> StringMap;
 
-            Renderer::RenderResources& m_resources;
             Assets::EntityDefinitionManager& m_entityDefinitionManager;
             Assets::EntityModelManager& m_entityModelManager;
             Logger& m_logger;
@@ -73,9 +72,9 @@ namespace TrenchBroom {
             
             Renderer::Vbo m_vbo;
         public:
-            EntityBrowserView(wxWindow* parent, wxWindowID windowId,
+            EntityBrowserView(wxWindow* parent,
                               wxScrollBar* scrollBar,
-                              Renderer::RenderResources& resources,
+                              GLContextHolder::Ptr sharedContext,
                               Assets::EntityDefinitionManager& entityDefinitionManager,
                               Assets::EntityModelManager& entityModelManager,
                               Logger& logger);

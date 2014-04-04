@@ -35,10 +35,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureBrowser::TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentWPtr document) :
+        TextureBrowser::TextureBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document) {
-            createGui(resources);
+            createGui(sharedContext);
             bindEvents();
             bindObservers();
         }
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             ProcessEvent(event);
         }
 
-        void TextureBrowser::createGui(Renderer::RenderResources& resources) {
+        void TextureBrowser::createGui(GLContextHolder::Ptr sharedContext) {
             const wxString sortOrders[2] = { "Name", "Usage" };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
@@ -104,8 +104,8 @@ namespace TrenchBroom {
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
 
             MapDocumentSPtr document = lock(m_document);
-            m_view = new TextureBrowserView(browserPanel, wxID_ANY, m_scrollBar,
-                                            resources,
+            m_view = new TextureBrowserView(browserPanel, m_scrollBar,
+                                            sharedContext,
                                             document->textureManager());
             
             wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);

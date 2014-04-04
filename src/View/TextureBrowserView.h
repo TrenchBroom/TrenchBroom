@@ -26,6 +26,7 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
+#include "View/GLContextHolder.h"
 #include "View/CellView.h"
 
 #include <map>
@@ -36,10 +37,6 @@ namespace TrenchBroom {
     namespace Assets {
         class Texture;
         class TextureCollection;
-    }
-    
-    namespace Renderer {
-        class RenderResources;
     }
     
     namespace View {
@@ -58,7 +55,6 @@ namespace TrenchBroom {
             typedef Renderer::VertexSpecs::P2T2::Vertex StringVertex;
             typedef std::map<Renderer::FontDescriptor, StringVertex::List> StringMap;
 
-            Renderer::RenderResources& m_resources;
             Assets::TextureManager& m_textureManager;
 
             bool m_group;
@@ -69,9 +65,8 @@ namespace TrenchBroom {
             Renderer::Vbo m_vbo;
             Assets::Texture* m_selectedTexture;
         public:
-            TextureBrowserView(wxWindow* parent, wxWindowID windowId,
-                               wxScrollBar* scrollBar,
-                               Renderer::RenderResources& resources,
+            TextureBrowserView(wxWindow* parent, wxScrollBar* scrollBar,
+                               GLContextHolder::Ptr sharedContext, 
                                Assets::TextureManager& textureManager);
             ~TextureBrowserView();
 

@@ -20,24 +20,23 @@
 #ifndef TrenchBroom_CellView_h
 #define TrenchBroom_CellView_h
 
-#include "GL/glew.h"
-
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/FontDescriptor.h"
 #include "Preferences.h"
 #include "View/CellLayout.h"
 #include "View/DragAndDrop.h"
+#include "View/GLContextHolder.h"
+#include "View/RenderView.h"
 
 #include <wx/wx.h>
 #include <wx/dnd.h>
 #include <wx/event.h>
-#include <wx/glcanvas.h>
 
 namespace TrenchBroom {
     namespace View {
         template <typename CellData, typename GroupData>
-        class CellView : public wxGLCanvas {
+        class CellView : public RenderView {
         protected:
             typedef CellLayout<CellData, GroupData> Layout;
         private:
@@ -45,7 +44,6 @@ namespace TrenchBroom {
             typename Layout::Group::Row::Cell* m_selectedCell;
             bool m_layoutInitialized;
 
-            wxGLContext* m_glContext;
             wxScrollBar* m_scrollBar;
 
             void updateScrollBar() {
@@ -70,12 +68,10 @@ namespace TrenchBroom {
                 updateScrollBar();
             }
         public:
-            CellView(wxWindow* parent, wxWindowID windowId, const int* attribs, const wxGLContext* sharedContext, wxScrollBar* scrollBar = NULL) :
-            wxGLCanvas(parent, windowId, attribs, wxDefaultPosition, wxDefaultSize),
+            CellView(wxWindow* parent, GLContextHolder::Ptr sharedContext, wxScrollBar* scrollBar = NULL) :
+            RenderView(parent, sharedContext),
             m_layoutInitialized(false),
-            m_glContext(new wxGLContext(this, sharedContext)),
             m_scrollBar(scrollBar) {
-                Bind(wxEVT_PAINT, &CellView::OnPaint, this);
                 Bind(wxEVT_SIZE, &CellView::OnSize, this);
                 Bind(wxEVT_LEFT_UP, &CellView::OnMouseLeftUp, this);
                 Bind(wxEVT_MOTION, &CellView::OnMouseMove, this);
@@ -94,13 +90,6 @@ namespace TrenchBroom {
                 }
             }
 
-            virtual ~CellView() {
-                if (m_glContext != NULL) {
-                    wxDELETE(m_glContext);
-                    m_glContext = NULL;
-                }
-            }
-
             void reload() {
                 reloadLayout();
                 Refresh();
@@ -111,80 +100,29 @@ namespace TrenchBroom {
                 doClear();
             }
 
-            void OnPaint(wxPaintEvent& event) {
-                if (!IsShownOnScreen())
-                    return;
-
-                if (!m_layoutInitialized)
-                    initLayout();
-
-                PreferenceManager& prefs = PreferenceManager::instance();
-                const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
-
-                
-                wxPaintDC dc(this);
-
-#ifdef __APPLE__
-                /* This prevents a minor flickering issue when resizing the canvas on OS X. */
-                const wxColour wxBackgroundColor(static_cast<unsigned char>(backgroundColor.r() * 0xFF),
-                                                 static_cast<unsigned char>(backgroundColor.g() * 0xFF),
-                                                 static_cast<unsigned char>(backgroundColor.b() * 0xFF),
-                                                 static_cast<unsigned char>(backgroundColor.a() * 0xFF));
-
-                dc.SetPen(wxPen(wxBackgroundColor));
-                dc.SetBrush(wxBrush(wxBackgroundColor));
-                dc.DrawRectangle(GetClientRect());
-#endif
-
-                if (SetCurrent(*m_glContext)) {
-                    glEnable(GL_MULTISAMPLE);
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    glEnable(GL_CULL_FACE);
-                    glEnable(GL_DEPTH_TEST);
-                    glDepthFunc(GL_LEQUAL);
-                    glShadeModel(GL_SMOOTH);
-
-                    glClearColor(backgroundColor.x(), backgroundColor.y(), backgroundColor.z(), backgroundColor.w());
-                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-                    const int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
-                    const wxRect visibleRect = wxRect(wxPoint(0, top), GetClientSize());
-
-                    const float y = static_cast<float>(visibleRect.GetY());
-                    const float height = static_cast<float>(visibleRect.GetHeight());
-
-                    const GLint viewLeft      = static_cast<GLint>(GetClientRect().GetLeft());
-                    const GLint viewTop       = static_cast<GLint>(GetClientRect().GetBottom());
-                    const GLint viewRight     = static_cast<GLint>(GetClientRect().GetRight());
-                    const GLint viewBottom    = static_cast<GLint>(GetClientRect().GetTop());
-                    glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
-
-                    doRender(m_layout, y, height);
-
-                    SwapBuffers();
-                }
-            }
-
             void OnSize(wxSizeEvent& event) {
                 m_layout.setWidth(static_cast<float>(GetClientSize().x));
                 updateScrollBar();
+                event.Skip();
             }
 
             void OnScrollBarChange(wxScrollEvent& event) {
                 Refresh();
+                event.Skip();
             }
 
             void OnScrollBarLineUp(wxScrollEvent& event) {
                 float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, -1)));
                 Refresh();
+                event.Skip();
             }
 
             void OnScrollBarLineDown(wxScrollEvent& event) {
                 float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 1)));
                 Refresh();
+                event.Skip();
             }
 
             void OnScrollBarPageUp(wxScrollEvent& event) {
@@ -192,12 +130,14 @@ namespace TrenchBroom {
                 float height = static_cast<float>(GetClientSize().y);
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(std::max(0.0f, top - height), 0)));
                 Refresh();
+                event.Skip();
             }
 
             void OnScrollBarPageDown(wxScrollEvent& event) {
                 float top = static_cast<float>(m_scrollBar->GetThumbPosition());
                 m_scrollBar->SetThumbPosition(static_cast<int>(m_layout.rowPosition(top, 0)));
                 Refresh();
+                event.Skip();
             }
 
             void OnMouseMove(wxMouseEvent& event) {
@@ -223,6 +163,7 @@ namespace TrenchBroom {
                     else
                         SetToolTip("");
                 }
+                event.Skip();
             }
 
             void OnMouseLeftUp(wxMouseEvent& event) {
@@ -230,6 +171,7 @@ namespace TrenchBroom {
                 float x = static_cast<float>(event.GetX());
                 float y = static_cast<float>(event.GetY() + top);
                 doLeftClick(m_layout, x, y);
+                event.Skip();
             }
 
             void OnMouseWheel(wxMouseEvent& event) {
@@ -241,10 +183,37 @@ namespace TrenchBroom {
                     m_scrollBar->SetThumbPosition(static_cast<int>(newTop));
                     Refresh();
                 }
+                event.Skip();
             }
         private:
-            wxGLContext* glContext() const {
-                return m_glContext;
+            void doRender() {
+                if (!m_layoutInitialized)
+                    initLayout();
+
+                const int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
+                const wxRect visibleRect = wxRect(wxPoint(0, top), GetClientSize());
+                
+                const float y = static_cast<float>(visibleRect.GetY());
+                const float height = static_cast<float>(visibleRect.GetHeight());
+                
+                const GLint viewLeft      = static_cast<GLint>(GetClientRect().GetLeft());
+                const GLint viewTop       = static_cast<GLint>(GetClientRect().GetBottom());
+                const GLint viewRight     = static_cast<GLint>(GetClientRect().GetRight());
+                const GLint viewBottom    = static_cast<GLint>(GetClientRect().GetTop());
+                glViewport(viewLeft, viewBottom, viewRight - viewLeft, viewTop - viewBottom);
+
+                setupGL();
+                doRender(m_layout, y, height);
+            }
+            
+            void setupGL() {
+                glEnable(GL_MULTISAMPLE);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glEnable(GL_CULL_FACE);
+                glEnable(GL_DEPTH_TEST);
+                glDepthFunc(GL_LEQUAL);
+                glShadeModel(GL_SMOOTH);
             }
             
             virtual void doInitLayout(Layout& layout) = 0;

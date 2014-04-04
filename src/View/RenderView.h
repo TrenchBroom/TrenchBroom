@@ -22,8 +22,8 @@
 
 #include "Color.h"
 #include "Hit.h"
-#include "Renderer/GL.h"
 #include "Renderer/Vbo.h"
+#include "View/GLContextHolder.h"
 
 #include <wx/glcanvas.h>
 
@@ -33,27 +33,23 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        
         class RenderView : public wxGLCanvas {
-        public:
-            typedef std::vector<int> GLAttribs;
         private:
-            wxGLContext* m_glContext;
+            GLContextHolder::Ptr m_contextHolder;
             bool m_initialized;
             Color m_focusColor;
         protected:
             Renderer::Vbo m_vbo;
         protected:
-            RenderView(wxWindow* parent, const GLAttribs& attribs, const wxGLContext* sharedContext = NULL);
+            RenderView(wxWindow* parent, const GLContextHolder::GLAttribs& attribs);
+            RenderView(wxWindow* parent, GLContextHolder::Ptr sharedContext);
         public:
-            virtual ~RenderView();
-            
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
 
-            const wxGLContext* glContext() const;
+            const GLContextHolder::Ptr contextHolder() const;
         private:
             void bindEvents();
 

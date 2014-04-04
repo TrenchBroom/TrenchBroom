@@ -21,6 +21,7 @@
 #define __TrenchBroom__FaceInspector__
 
 #include "Controller/Command.h"
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -33,10 +34,6 @@ namespace TrenchBroom {
         class BrushFace;
         class Object;
         class SelectionResult;
-    }
-
-    namespace Renderer {
-        class RenderResources;
     }
     
     namespace View {
@@ -54,14 +51,15 @@ namespace TrenchBroom {
             TextureBrowser* m_textureBrowser;
             TextureCollectionEditor* m_textureCollectionEditor;
         public:
-            FaceInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
+            FaceInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
 
             void OnTextureSelected(TextureSelectedCommand& event);
             void OnTextureCollectionEditorPaneChanged(wxCollapsiblePaneEvent& event);
         private:
-            void createGui(Renderer::RenderResources& resources);
-            wxWindow* createFaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources);
-            wxWindow* createTextureBrowser(wxWindow* parent, Renderer::RenderResources& resources);
+            void createGui(GLContextHolder::Ptr sharedContext);
+            wxWindow* createFaceAttribsEditor(wxWindow* parent, GLContextHolder::Ptr sharedContext);
+            wxWindow* createTexturePanel(wxWindow* parent, GLContextHolder::Ptr sharedContext);
+            wxWindow* createTextureBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext);
             wxWindow* createTextureCollectionEditor(wxWindow* parent);
             
             void bindEvents();

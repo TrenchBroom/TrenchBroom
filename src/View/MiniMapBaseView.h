@@ -26,17 +26,17 @@
 #include "Model/ModelTypes.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/Camera.h"
+#include "View/RenderView.h"
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/event.h>
-#include <wx/glcanvas.h>
 
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
         class MiniMapRenderer;
         class RenderContext;
-        class RenderResources;
     }
     
     namespace Model {
@@ -44,13 +44,11 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class MiniMapBaseView : public wxGLCanvas {
+        class MiniMapBaseView : public RenderView {
         private:
             View::MapDocumentWPtr m_document;
-            Renderer::RenderResources& m_renderResources;
             Renderer::Camera& m_camera3D;
             
-            wxGLContext* m_glContext;
             Renderer::MiniMapRenderer& m_renderer;
             Renderer::Vbo m_auxVbo;
             
@@ -67,16 +65,12 @@ namespace TrenchBroom {
         public:
             void OnMouseWheel(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-            
-            void OnPaint(wxPaintEvent& event);
-            void OnSize(wxSizeEvent& event);
         protected:
-            MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera3D);
+            MiniMapBaseView(wxWindow* parent, GLContextHolder::Ptr sharedContext, View::MapDocumentWPtr document, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera3D);
             
             View::MapDocumentSPtr document() const;
         private:
             const Renderer::Camera& viewCamera() const;
-            void updateViewport(const Renderer::Camera::Viewport& viewport);
             void panView(const Vec3f& delta);
             void zoomView(const Vec3f& factors);
         private:
@@ -94,25 +88,26 @@ namespace TrenchBroom {
             void cameraDidChange(const Renderer::Camera* camera);
 
             void bindEvents();
-            void setupGL(Renderer::RenderContext& context);
-            void clearBackground(Renderer::RenderContext& context);
-            void renderMap(Renderer::RenderContext& context);
             
             void fireChangeEvent();
             
-            float pick3DCamera(const Ray3f& pickRay) const;
+            void doRender();
+            void setupGL(Renderer::RenderContext& context);
+            void clearBackground(Renderer::RenderContext& context);
+            void renderMap(Renderer::RenderContext& context);
             void render3DCamera(Renderer::RenderContext& context);
+
+            float pick3DCamera(const Ray3f& pickRay) const;
 
             virtual const Renderer::Camera& doGetViewCamera() const = 0;
             virtual void doComputeBounds(BBox3f& bounds) = 0;
-            virtual void doUpdateViewport(const Renderer::Camera::Viewport& viewport) = 0;
             virtual void doPanView(const Vec3f& delta) = 0;
             virtual void doZoomView(const Vec3f& factors) = 0;
 
             virtual void doShowDrag3DCameraCursor() = 0;
             virtual void doDrag3DCamera(const Vec3f& delta, Renderer::Camera& camera) = 0;
-            virtual float doPick3DCamera(const Ray3f& pickRay, const Renderer::Camera& camera) const = 0;
             virtual void doRender3DCamera(Renderer::RenderContext& renderContext, Renderer::Vbo& vbo, const Renderer::Camera& camera) = 0;
+            virtual float doPick3DCamera(const Ray3f& pickRay, const Renderer::Camera& camera) const = 0;
         };
     }
 }

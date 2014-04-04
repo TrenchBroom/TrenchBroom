@@ -24,6 +24,7 @@
 #include "VecMath.h"
 
 #include "View/MiniMapBaseView.h"
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 
@@ -31,7 +32,6 @@ namespace TrenchBroom {
     namespace Renderer {
         class MiniMapRenderer;
         class OrthographicCamera;
-        class RenderResources;
         class Vbo;
     }
     
@@ -41,7 +41,7 @@ namespace TrenchBroom {
             Renderer::OrthographicCamera* m_camera;
             BBox1f m_zRange;
         public:
-            MiniMapXYView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera);
+            MiniMapXYView(wxWindow* parent, GLContextHolder::Ptr sharedContext, View::MapDocumentWPtr document, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera);
             ~MiniMapXYView();
 
             BBox2f xyRange() const;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         private:
             const Renderer::Camera& doGetViewCamera() const;
             void doComputeBounds(BBox3f& bounds);
-            void doUpdateViewport(const Renderer::Camera::Viewport& viewport);
+            void doUpdateViewport(int x, int y, int width, int height);
             void doPanView(const Vec3f& diff);
             void doZoomView(const Vec3f& factors);
 

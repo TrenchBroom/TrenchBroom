@@ -75,10 +75,9 @@ namespace TrenchBroom {
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
         m_textureTool(NULL),
-        m_renderResources(attribs(), glContext()),
-        m_renderer(document, m_renderResources.fontManager()),
+        m_renderer(document, contextHolder()->fontManager()),
         m_compass(),
-        m_selectionGuide(defaultFont(m_renderResources)) {
+        m_selectionGuide(defaultFont(contextHolder()->fontManager())) {
             createTools();
             bindEvents();
             bindObservers();
@@ -92,10 +91,6 @@ namespace TrenchBroom {
             m_animationManager->Delete();
             m_animationManager = NULL;
             m_logger = NULL;
-        }
-
-        Renderer::RenderResources& MapView::renderResources() {
-            return m_renderResources;
         }
 
         void MapView::centerCameraOnSelection() {
@@ -728,12 +723,12 @@ namespace TrenchBroom {
         }
 
         void MapView::createTools() {
-            Renderer::TextureFont& font = defaultFont(m_renderResources);
+            Renderer::TextureFont& font = defaultFont(contextHolder()->fontManager());
 
             m_cameraTool = new CameraTool(m_document, m_controller, m_camera);
             m_clipTool = new ClipTool(m_document, m_controller, m_camera);
             m_createBrushTool = new CreateBrushTool(m_document, m_controller, m_camera, font);
-            m_createEntityTool = new CreateEntityTool(m_document, m_controller, m_camera, m_renderResources.fontManager());
+            m_createEntityTool = new CreateEntityTool(m_document, m_controller, m_camera, contextHolder()->fontManager());
             m_moveObjectsTool = new MoveObjectsTool(m_document, m_controller, m_movementRestriction);
             m_resizeBrushesTool = new ResizeBrushesTool(m_document, m_controller, m_camera);
             m_rotateObjectsTool = new RotateObjectsTool(m_document, m_controller, m_camera, m_movementRestriction, font);
@@ -793,13 +788,6 @@ namespace TrenchBroom {
             else
                 m_logger->info("Multisampling disabled");
             
-#ifndef TESTING
-            glewExperimental = GL_TRUE;
-            const GLenum glewState = glewInit();
-            if (glewState != GLEW_OK)
-                m_logger->error("Error initializing glew: %s", glewGetErrorString(glewState));
-#endif
-            
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.mapped();
             m_compass.prepare(m_vbo);
@@ -810,7 +798,7 @@ namespace TrenchBroom {
             document->commitPendingRenderStateChanges();
 
             const View::Grid& grid = document->grid();
-            Renderer::RenderContext context(m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
+            Renderer::RenderContext context(m_camera, contextHolder()->shaderManager(), grid.visible(), grid.actualSize());
             
             setupGL(context);
             setRenderOptions(context);
@@ -952,9 +940,9 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
         }
         
-        const Renderer::RenderResources::GLAttribs& MapView::attribs() {
+        const GLContextHolder::GLAttribs& MapView::attribs() {
             static bool initialized = false;
-            static Renderer::RenderResources::GLAttribs attribs;
+            static GLContextHolder::GLAttribs attribs;
             if (initialized)
                 return attribs;
 
@@ -1046,11 +1034,11 @@ namespace TrenchBroom {
             return attribs()[4] != 0;
         }
 
-        Renderer::TextureFont& MapView::defaultFont(Renderer::RenderResources& renderResources) {
+        Renderer::TextureFont& MapView::defaultFont(Renderer::FontManager& fontManager) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const String& fontName = prefs.get(Preferences::RendererFontName);
             const size_t fontSize = static_cast<size_t>(prefs.get(Preferences::RendererFontSize));
-            return renderResources.fontManager().font(Renderer::FontDescriptor(fontName, fontSize));
+            return fontManager.font(Renderer::FontDescriptor(fontName, fontSize));
         }
     }
 }

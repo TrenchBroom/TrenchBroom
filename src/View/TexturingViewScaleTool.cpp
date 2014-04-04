@@ -65,12 +65,12 @@ namespace TrenchBroom {
                     const FloatType yError = Math::abs(Math::remainder(texHit.y(), height));
                     
                     if (xError <= maxDistance) {
-                        const int index = Math::round(texHit.x() / width);
+                        const int index = static_cast<int>(Math::round(texHit.x() / width));
                         hits.addHit(Hit(XHandleHit, rayDistance, hitPoint, index, xError));
                     }
                     
                     if (yError  <= maxDistance) {
-                        const int index = Math::round(texHit.y() / height);
+                        const int index = static_cast<int>(Math::round(texHit.y() / height));
                         hits.addHit(Hit(YHandleHit, rayDistance, hitPoint, index, yError));
                     }
                 }

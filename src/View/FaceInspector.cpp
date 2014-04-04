@@ -33,14 +33,15 @@
 #include <wx/collpane.h>
 #include <wx/notebook.h>
 #include <wx/sizer.h>
+#include <wx/splitter.h>
 
 namespace TrenchBroom {
     namespace View {
-        FaceInspector::FaceInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources) :
+        FaceInspector::FaceInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_document(document),
         m_controller(controller) {
-            createGui(resources);
+            createGui(sharedContext);
             bindEvents();
         }
         
@@ -55,24 +56,41 @@ namespace TrenchBroom {
             Layout();
         }
 
-        void FaceInspector::createGui(Renderer::RenderResources& resources) {
+        void FaceInspector::createGui(GLContextHolder::Ptr sharedContext) {
+            wxSplitterWindow* splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE | wxSP_3DSASH);
+            wxWindow* faceAttribsEditor = createFaceAttribsEditor(splitter, sharedContext);
+            wxWindow* texturePanel = createTexturePanel(splitter, sharedContext);
+
+            splitter->SetSashGravity(0.0f);
+            splitter->SetMinimumPaneSize(250);
+            splitter->SplitHorizontally(faceAttribsEditor, texturePanel);
+
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(createFaceAttribsEditor(this, resources), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(createTextureBrowser(this, resources), 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(createTextureCollectionEditor(this), 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            
+            outerSizer->Add(splitter, 1, wxEXPAND);
             SetSizer(outerSizer);
         }
         
-        wxWindow* FaceInspector::createFaceAttribsEditor(wxWindow* parent, Renderer::RenderResources& resources) {
-            m_faceAttribsEditor = new FaceAttribsEditor(parent, resources, m_document, m_controller);
+        wxWindow* FaceInspector::createTexturePanel(wxWindow* parent, GLContextHolder::Ptr sharedContext) {
+            wxPanel* browserPanel = new wxPanel(parent);
+            wxWindow* textureBrowser = createTextureBrowser(browserPanel, sharedContext);
+            wxWindow* collectionEditor = createTextureCollectionEditor(browserPanel);
+            
+            wxSizer* browserPanelSizer = new wxBoxSizer(wxVERTICAL);
+            browserPanelSizer->Add(textureBrowser, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            browserPanelSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            browserPanelSizer->Add(collectionEditor, 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            browserPanel->SetSizer(browserPanelSizer);
+            
+            return browserPanel;
+        }
+
+        wxWindow* FaceInspector::createFaceAttribsEditor(wxWindow* parent, GLContextHolder::Ptr sharedContext) {
+            m_faceAttribsEditor = new FaceAttribsEditor(parent, sharedContext, m_document, m_controller);
             return m_faceAttribsEditor;
         }
         
-        wxWindow* FaceInspector::createTextureBrowser(wxWindow* parent, Renderer::RenderResources& resources) {
-            m_textureBrowser = new TextureBrowser(parent, resources, m_document);
+        wxWindow* FaceInspector::createTextureBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext) {
+            m_textureBrowser = new TextureBrowser(parent, sharedContext, m_document);
             return m_textureBrowser;
         }
         

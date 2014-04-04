@@ -24,7 +24,6 @@
 #include "Renderer/Camera.h"
 #include "Renderer/MiniMapRenderer.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderResources.h"
 #include "Renderer/Transformation.h"
 #include "View/MapDocument.h"
 
@@ -135,39 +134,10 @@ namespace TrenchBroom {
             SetCursor(wxCursor(wxCURSOR_OPEN_HAND));
         }
         
-        void MiniMapBaseView::OnPaint(wxPaintEvent& event) {
-#ifndef TESTING
-            if (!IsShownOnScreen())
-                return;
-            
-            if (SetCurrent(*m_glContext)) {
-                wxPaintDC paintDC(this);
-                
-                { // new block to make sure that the render context is destroyed before SwapBuffers is called
-                    Renderer::RenderContext context(viewCamera(), m_renderResources.shaderManager(), false, 16);
-                    setupGL(context);
-                    clearBackground(context);
-                    renderMap(context);
-                    render3DCamera(context);
-                }
-                SwapBuffers();
-            }
-#endif
-        }
-        
-        void MiniMapBaseView::OnSize(wxSizeEvent& event) {
-            const wxSize clientSize = GetClientSize();
-            const Renderer::Camera::Viewport viewport(0, 0, clientSize.x, clientSize.y);
-            updateViewport(viewport);
-            event.Skip();
-        }
-        
-        MiniMapBaseView::MiniMapBaseView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera3D) :
-        wxGLCanvas(parent, wxID_ANY, &renderResources.glAttribs().front()),
+        MiniMapBaseView::MiniMapBaseView(wxWindow* parent, GLContextHolder::Ptr sharedContext, View::MapDocumentWPtr document, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera3D) :
+        RenderView(parent, sharedContext),
         m_document(document),
-        m_renderResources(renderResources),
         m_camera3D(camera3D),
-        m_glContext(new wxGLContext(this, m_renderResources.sharedContext())),
         m_renderer(renderer),
         m_auxVbo(0xFF) {
             bindEvents();
@@ -181,10 +151,6 @@ namespace TrenchBroom {
         
         const Renderer::Camera& MiniMapBaseView::viewCamera() const {
             return doGetViewCamera();
-        }
-        
-        void MiniMapBaseView::updateViewport(const Renderer::Camera::Viewport& viewport) {
-            doUpdateViewport(viewport);
         }
         
         void MiniMapBaseView::panView(const Vec3f& delta) {
@@ -295,12 +261,20 @@ namespace TrenchBroom {
             ProcessEvent(event);
         }
         
-        float MiniMapBaseView::pick3DCamera(const Ray3f& pickRay) const {
-            return doPick3DCamera(pickRay, m_camera3D);
+        void MiniMapBaseView::doRender() {
+            Renderer::RenderContext context(viewCamera(), contextHolder()->shaderManager(), false, 16);
+            setupGL(context);
+            clearBackground(context);
+            renderMap(context);
+            render3DCamera(context);
         }
         
         void MiniMapBaseView::render3DCamera(Renderer::RenderContext& context) {
             doRender3DCamera(context, m_auxVbo, m_camera3D);
+        }
+
+        float MiniMapBaseView::pick3DCamera(const Ray3f& pickRay) const {
+            return doPick3DCamera(pickRay, m_camera3D);
         }
     }
 }

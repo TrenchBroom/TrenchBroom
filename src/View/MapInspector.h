@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapInspector__
 #define __TrenchBroom__MapInspector__
 
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -30,7 +31,6 @@ class wxWindow;
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
-        class RenderResources;
     }
     
     namespace View {
@@ -39,12 +39,12 @@ namespace TrenchBroom {
         
         class MapInspector : public wxPanel {
         public:
-            MapInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources, Renderer::Camera& camera);
+            MapInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
 
             void OnPaneChanged(wxCollapsiblePaneEvent& event);
         private:
-            void createGui(MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources, Renderer::Camera& camera);
-            wxWindow* createMiniMap(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& resources, Renderer::Camera& camera);
+            void createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
+            wxWindow* createMiniMap(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, Renderer::Camera& camera);
             wxWindow* createMapTree(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             wxWindow* createModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
         };

@@ -18,6 +18,7 @@
  */
 
 #include "RenderView.h"
+#include "Exceptions.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Transformation.h"
@@ -29,9 +30,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        RenderView::RenderView(wxWindow* parent, const GLAttribs& attribs, const wxGLContext* sharedContext) :
+        RenderView::RenderView(wxWindow* parent, const GLContextHolder::GLAttribs& attribs) :
         wxGLCanvas(parent, wxID_ANY, &attribs.front()),
-        m_glContext(new wxGLContext(this, sharedContext)),
+        m_contextHolder(new RootGLContextHolder(this, attribs)),
         m_initialized(false),
         m_vbo(0xFFF) {
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
@@ -40,15 +41,25 @@ namespace TrenchBroom {
             const float b = static_cast<float>(color.Blue()) / 0xFF;
             const float a = 1.0f;
             m_focusColor = Color(r, g, b, a);
-
+            
             bindEvents();
         }
         
-        RenderView::~RenderView() {
-            delete m_glContext;
-            m_glContext = NULL;
+        RenderView::RenderView(wxWindow* parent, GLContextHolder::Ptr sharedContext) :
+        wxGLCanvas(parent, wxID_ANY, &sharedContext->attribs().front()),
+        m_contextHolder(new SharedGLContextHolder(this, sharedContext)),
+        m_initialized(false),
+        m_vbo(0xFFF) {
+            const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+            const float r = static_cast<float>(color.Red()) / 0xFF;
+            const float g = static_cast<float>(color.Green()) / 0xFF;
+            const float b = static_cast<float>(color.Blue()) / 0xFF;
+            const float a = 1.0f;
+            m_focusColor = Color(r, g, b, a);
+            
+            bindEvents();
         }
-        
+
         void RenderView::OnPaint(wxPaintEvent& event) {
             if (!IsShownOnScreen())
                 return;
@@ -56,7 +67,7 @@ namespace TrenchBroom {
             if (!m_initialized)
                 initializeGL();
             
-            if (SetCurrent(*m_glContext)) {
+            if (m_contextHolder->setCurrent(this)) {
                 wxPaintDC paintDC(this);
                 render();
                 SwapBuffers();
@@ -78,10 +89,10 @@ namespace TrenchBroom {
             event.Skip();
         }
 
-        const wxGLContext* RenderView::glContext() const {
-            return m_glContext;
+        const GLContextHolder::Ptr RenderView::contextHolder() const {
+            return m_contextHolder;
         }
-        
+
         void RenderView::bindEvents() {
             Bind(wxEVT_PAINT, &RenderView::OnPaint, this);
             Bind(wxEVT_SIZE, &RenderView::OnSize, this);
@@ -90,8 +101,10 @@ namespace TrenchBroom {
         }
 
         void RenderView::initializeGL() {
-            if (SetCurrent(*m_glContext))
+            if (m_contextHolder->setCurrent(this)) {
+                m_contextHolder->initialize();
                 doInitializeGL();
+            }
             m_initialized = true;
         }
 
@@ -109,6 +122,7 @@ namespace TrenchBroom {
         void RenderView::clearBackground() {
             PreferenceManager& prefs = PreferenceManager::instance();
             const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
+
             glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a());
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }

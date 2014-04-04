@@ -24,15 +24,14 @@
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/MiniMapRenderer.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderResources.h"
 #include "View/MapDocument.h"
 
 #include <wx/dcclient.h>
 
 namespace TrenchBroom {
     namespace View {
-        MiniMapXYView::MiniMapXYView(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera) :
-        MiniMapBaseView(parent, document, renderResources, renderer, camera),
+        MiniMapXYView::MiniMapXYView(wxWindow* parent, GLContextHolder::Ptr sharedContext, View::MapDocumentWPtr document, Renderer::MiniMapRenderer& renderer, Renderer::Camera& camera) :
+        MiniMapBaseView(parent, sharedContext, document, renderer, camera),
         m_camera(new Renderer::OrthographicCamera()) {
             const BBox3& worldBounds = lock(document)->worldBounds();
             m_zRange = BBox1f(static_cast<float>(worldBounds.min.z()),
@@ -74,8 +73,8 @@ namespace TrenchBroom {
             bounds.max[2] = m_zRange.max[0];
         }
         
-        void MiniMapXYView::doUpdateViewport(const Renderer::Camera::Viewport& viewport) {
-            m_camera->setViewport(viewport);
+        void MiniMapXYView::doUpdateViewport(int x, int y, int width, int height) {
+            m_camera->setViewport(Renderer::Camera::Viewport(x, y, width, height));
         }
         
         void MiniMapXYView::doPanView(const Vec3f& diff) {

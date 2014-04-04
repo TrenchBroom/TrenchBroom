@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EntityInspector__
 #define __TrenchBroom__EntityInspector__
 
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -31,10 +32,6 @@ namespace TrenchBroom {
     namespace Model {
         class Object;
         class SelectionResult;
-    }
-    
-    namespace Renderer {
-        class RenderResources;
     }
     
     namespace View {
@@ -51,13 +48,13 @@ namespace TrenchBroom {
             EntityBrowser* m_entityBrowser;
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
-            EntityInspector(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
+            EntityInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
 
             void OnEntityDefinitionFileChooserPaneChanged(wxCollapsiblePaneEvent& event);
         private:
-            void createGui(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& resources);
+            void createGui(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
             wxWindow* createPropertyEditor(wxWindow* parent);
-            wxWindow* createEntityBrowser(wxWindow* parent, Renderer::RenderResources& resources);
+            wxWindow* createEntityBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext);
             wxWindow* createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
         };
     }

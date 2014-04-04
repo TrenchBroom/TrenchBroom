@@ -27,7 +27,6 @@
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderResources.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
@@ -45,11 +44,10 @@ namespace TrenchBroom {
     namespace View {
         const Hit::HitType TexturingView::FaceHit = Hit::freeHitType();
         
-        TexturingView::TexturingView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& renderResources) :
-        RenderView(parent, renderResources.glAttribs(), renderResources.sharedContext()),
+        TexturingView::TexturingView(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) :
+        RenderView(parent, sharedContext),
         m_document(document),
         m_controller(controller),
-        m_renderResources(renderResources),
         m_toolBox(this, this),
         m_scaleOriginTool(NULL),
         m_scaleTool(NULL),
@@ -176,7 +174,7 @@ namespace TrenchBroom {
                 document->commitPendingRenderStateChanges();
 
                 const View::Grid& grid = document->grid();
-                Renderer::RenderContext renderContext(m_camera, m_renderResources.shaderManager(), grid.visible(), grid.actualSize());
+                Renderer::RenderContext renderContext(m_camera, contextHolder()->shaderManager(), grid.visible(), grid.actualSize());
                 
                 setupGL(renderContext);
                 renderTexture(renderContext);

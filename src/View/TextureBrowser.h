@@ -21,6 +21,7 @@
 #define __TrenchBroom__TextureBrowser__
 
 #include "StringUtils.h"
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -39,10 +40,6 @@ namespace TrenchBroom {
         class Path;
     }
     
-    namespace Renderer {
-        class RenderResources;
-    }
-    
     namespace View {
         class TextureBrowserView;
         class TextureSelectedCommand;
@@ -57,7 +54,7 @@ namespace TrenchBroom {
             wxScrollBar* m_scrollBar;
             TextureBrowserView* m_view;
         public:
-            TextureBrowser(wxWindow* parent, Renderer::RenderResources& resources, MapDocumentWPtr document);
+            TextureBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document);
             ~TextureBrowser();
             
             Assets::Texture* selectedTexture() const;
@@ -69,7 +66,7 @@ namespace TrenchBroom {
             void OnFilterPatternChanged(wxCommandEvent& event);
             void OnTextureSelected(TextureSelectedCommand& event);
         private:
-            void createGui(Renderer::RenderResources& resources);
+            void createGui(GLContextHolder::Ptr sharedContext);
             void bindEvents();
             
             void bindObservers();

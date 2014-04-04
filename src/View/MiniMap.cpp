@@ -28,12 +28,12 @@
 
 namespace TrenchBroom {
     namespace View {
-        MiniMap::MiniMap(wxWindow* parent, View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::Camera& camera) :
+        MiniMap::MiniMap(wxWindow* parent, GLContextHolder::Ptr sharedContext, View::MapDocumentWPtr document, Renderer::Camera& camera) :
         wxPanel(parent),
         m_renderer(document),
         m_miniMapZView(NULL),
         m_miniMapXYView(NULL) {
-            createGui(document, renderResources, camera);
+            createGui(sharedContext, document, camera);
             bindEvents();
         }
 
@@ -45,9 +45,9 @@ namespace TrenchBroom {
             m_miniMapXYView->setZRange(m_miniMapZView->zRange());
         }
 
-        void MiniMap::createGui(View::MapDocumentWPtr document, Renderer::RenderResources& renderResources, Renderer::Camera& camera) {
-            m_miniMapXYView = new MiniMapXYView(this, document, renderResources, m_renderer, camera);
-            m_miniMapZView = new MiniMapZView(this, document, renderResources, m_renderer, camera);
+        void MiniMap::createGui(GLContextHolder::Ptr sharedContext, View::MapDocumentWPtr document, Renderer::Camera& camera) {
+            m_miniMapXYView = new MiniMapXYView(this, sharedContext, document, m_renderer, camera);
+            m_miniMapZView = new MiniMapZView(this, sharedContext, document, m_renderer, camera);
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_miniMapZView, 0, wxEXPAND);

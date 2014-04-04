@@ -981,7 +981,7 @@ namespace TrenchBroom {
             container->SetSizer(containerSizer);
             
             consoleSplitter->SplitHorizontally(container, m_infoPanel, -150);
-            m_inspector = new Inspector(inspectorSplitter, m_document, m_controller, m_mapView->renderResources(), m_camera3D);
+            m_inspector = new Inspector(inspectorSplitter, m_mapView->contextHolder(), m_document, m_controller, m_camera3D);
             inspectorSplitter->SplitVertically(consoleSplitter, m_inspector, -350);
 
             m_statusBar = new StatusBar(this, m_document, m_infoPanel->console());

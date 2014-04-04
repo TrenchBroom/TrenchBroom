@@ -25,6 +25,7 @@
 #include "View/RenderView.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/OrthographicCamera.h"
+#include "View/GLContextHolder.h"
 #include "View/TexturingViewHelper.h"
 #include "View/ToolBox.h"
 #include "View/ViewTypes.h"
@@ -39,7 +40,6 @@ namespace TrenchBroom {
     namespace Renderer {
         class ActiveShader;
         class RenderContext;
-        class RenderResources;
     }
     
     namespace View {
@@ -60,7 +60,6 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             
-            Renderer::RenderResources& m_renderResources;
             Renderer::OrthographicCamera m_camera;
             TexturingViewHelper m_helper;
 
@@ -71,7 +70,7 @@ namespace TrenchBroom {
             TexturingViewOffsetTool* m_offsetTool;
             TexturingViewCameraTool* m_cameraTool;
         public:
-            TexturingView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, Renderer::RenderResources& renderResources);
+            TexturingView(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
             ~TexturingView();
             
             void setSubDivisions(const Vec2i& subDivisions);

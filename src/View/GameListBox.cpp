@@ -52,7 +52,7 @@ namespace TrenchBroom {
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const StringList& gameList = gameFactory.gameList();
 
-            if (index < 0 || index >= gameList.size())
+            if (index < 0 || index >= static_cast<int>(gameList.size()))
                 return;
             
             SetSelection(index);

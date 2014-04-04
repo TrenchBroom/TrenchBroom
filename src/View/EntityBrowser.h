@@ -21,6 +21,7 @@
 #define __TrenchBroom__EntityBrowser__
 
 #include "StringUtils.h"
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -36,10 +37,6 @@ namespace TrenchBroom {
         class Path;
     }
     
-    namespace Renderer {
-        class RenderResources;
-    }
-    
     namespace View {
         class EntityBrowserView;
         
@@ -53,7 +50,7 @@ namespace TrenchBroom {
             wxScrollBar* m_scrollBar;
             EntityBrowserView* m_view;
         public:
-            EntityBrowser(wxWindow* parent, MapDocumentWPtr document, Renderer::RenderResources& resources);
+            EntityBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document);
             ~EntityBrowser();
             
             void reload();
@@ -63,7 +60,7 @@ namespace TrenchBroom {
             void OnUsedButtonToggled(wxCommandEvent& event);
             void OnFilterPatternChanged(wxCommandEvent& event);
         private:
-            void createGui(Renderer::RenderResources& resources);
+            void createGui(GLContextHolder::Ptr sharedContext);
             
             void bindObservers();
             void unbindObservers();
