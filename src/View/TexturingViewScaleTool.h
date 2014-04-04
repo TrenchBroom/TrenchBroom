@@ -47,30 +47,12 @@ namespace TrenchBroom {
             
             typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
             
-            class ScaleHandle {
-            private:
-                Vec2i m_index;
-                Vec2f m_position;
-                bool m_dragging[2];
-            public:
-                ScaleHandle();
-                
-                void reset();
-                void setX(int index, const Assets::Texture* texture, const Vec2i& subDivisions);
-                void setY(int index, const Assets::Texture* texture, const Vec2i& subDivisions);
-            private:
-                void set(size_t coord, int index, float position);
-            public:
-                const Vec2f& position() const;
-                const Vec2f selector() const;
-            };
-            
             TexturingViewHelper& m_helper;
             Renderer::OrthographicCamera& m_camera;
-            
-            ScaleHandle m_scaleHandle;
-            Vec2f m_lastPoint;
-            Vec2f m_lastScaleDistance;
+
+            Vec2b m_selector;
+            Vec2i m_handle;
+            Vec2f m_lastHitPoint; // in face coords
         public:
             TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
         private:
@@ -78,9 +60,15 @@ namespace TrenchBroom {
 
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
+            Vec2i getScaleHandle(const Hit& xHandleHit, const Hit& yHandleHit) const;
+            
+            Vec2f getHitPointInFaceCoords(const Ray3& pickRay) const;
+            Vec2f getScaleHandlePositionInTexCoords(const Vec2i& scaleHandle) const;
+            Vec2f getScaleHandlePositionInFaceCoords(const Vec2i& scaleHandle) const;
+            
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
-            
+
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             EdgeVertex::List getHandleVertices(const Hits& hits) const;
         };

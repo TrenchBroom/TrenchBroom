@@ -36,6 +36,20 @@ namespace TrenchBroom {
             assert(m_face != NULL);
         }
         
+        TexCoordSystemHelper TexCoordSystemHelper::texCoordSystem(const BrushFace* face) {
+            TexCoordSystemHelper helper(face);
+            helper.setTranslate();
+            helper.setScale();
+            helper.setProject();
+            return helper;
+        }
+        
+        TexCoordSystemHelper TexCoordSystemHelper::faceCoordSystem(const BrushFace* face) {
+            TexCoordSystemHelper helper(face);
+            helper.setProject();
+            return helper;
+        }
+
         void TexCoordSystemHelper::setScale(const bool on) {
             toggleMode(Scale, on);
         }

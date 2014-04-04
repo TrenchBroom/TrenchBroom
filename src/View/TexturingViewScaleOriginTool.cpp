@@ -47,7 +47,7 @@ namespace TrenchBroom {
                 const Ray3& pickRay = inputState.pickRay();
 
                 Line3 xHandle, yHandle;
-                m_helper.computeScaleHandles(xHandle, yHandle);
+                m_helper.computeScaleOriginHandles(xHandle, yHandle);
                 
                 const Ray3::LineDistance xDistance = pickRay.distanceToLine(xHandle.point, xHandle.direction);
                 const Ray3::LineDistance yDistance = pickRay.distanceToLine(yHandle.point, yHandle.direction);
@@ -124,11 +124,11 @@ namespace TrenchBroom {
             const Vec3 texPoint = helper.worldToTex(facePoint);
             const Vec2f curPoint(texPoint);
             
-            const Vec2f delta = m_helper.snapHandle((curPoint - m_lastPoint) * m_selector);
+            const Vec2f delta = m_helper.snapScaleOrigin((curPoint - m_lastPoint) * m_selector);
             if (delta.null())
                 return true;
             
-            m_helper.setHandlePosition(m_helper.handlePositionInFaceCoords() + delta);
+            m_helper.setScaleOrigin(m_helper.scaleOriginInFaceCoords() + delta);
             m_lastPoint += delta;
             
             return true;
@@ -160,7 +160,7 @@ namespace TrenchBroom {
             const Color yColor = highlightYHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             
             Vec3 x1, x2, y1, y2;
-            m_helper.computeScaleHandleVertices(m_camera, x1, x2, y1, y2);
+            m_helper.computeScaleOriginHandleVertices(m_camera, x1, x2, y1, y2);
 
             EdgeVertex::List vertices(4);
             vertices[0] = EdgeVertex(Vec3f(x1), xColor);

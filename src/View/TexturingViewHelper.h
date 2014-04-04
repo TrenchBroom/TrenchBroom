@@ -54,9 +54,9 @@ namespace TrenchBroom {
             Vec2i m_subDivisions;
             
             /**
-             The position of the scaling handle in texture coordinates (without offset and scaling applied).
+             The position of the scaling origin handle in texture coordinates (without offset and scaling applied).
              */
-            Vec2f m_handlePosition;
+            Vec2f m_scaleOrigin;
         public:
             TexturingViewHelper();
             
@@ -79,11 +79,11 @@ namespace TrenchBroom {
             Vec3::List transformToTex(const Vec3::List& worldPoints, bool withOffset = false) const;
 
             Vec2f snapOffset(const Vec2f& delta) const;
-            Vec2f snapHandle(const Vec2f& deltaInFaceCoords) const;
-            Vec2f snapToVertices(const Vec2f& pointInTexCoords) const;
+            Vec2f snapScaleOrigin(const Vec2f& deltaInFaceCoords) const;
+            Vec2f snapToVertices(const Vec2f& pointInFaceCoords) const;
 
-            void computeScaleHandles(Line3& xHandle, Line3& yHandle) const;
-            void computeScaleHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
+            void computeScaleOriginHandles(Line3& xHandle, Line3& yHandle) const;
+            void computeScaleOriginHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
             void computeHLineVertices(const Renderer::OrthographicCamera& camera, FloatType y, Vec3& v1, Vec3& v2) const;
             void computeVLineVertices(const Renderer::OrthographicCamera& camera, FloatType x, Vec3& v1, Vec3& v2) const;
             
@@ -101,9 +101,9 @@ namespace TrenchBroom {
             const Vec2i& subDivisions() const;
             void setSubDivisions(const Vec2i& subDivisions);
             
-            const Vec2f handlePositionInFaceCoords() const;
-            const Vec2f handlePositionInTexCoords() const;
-            void setHandlePosition(const Vec2f& handlePositionInFaceCoords);
+            const Vec2f scaleOriginInFaceCoords() const;
+            const Vec2f scaleOriginInTexCoords() const;
+            void setScaleOrigin(const Vec2f& scaleOriginInFaceCoords);
         private:
             void validate();
             void resetHandlePosition();

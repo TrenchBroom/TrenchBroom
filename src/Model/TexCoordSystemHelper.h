@@ -44,6 +44,23 @@ namespace TrenchBroom {
         public:
             TexCoordSystemHelper(const BrushFace* face);
             
+            static TexCoordSystemHelper texCoordSystem(const BrushFace* face);
+            static TexCoordSystemHelper faceCoordSystem(const BrushFace* face);
+            
+            template <typename T>
+            static T texToFace(const BrushFace* face, const T& v) {
+                const TexCoordSystemHelper t = texCoordSystem(face);
+                const TexCoordSystemHelper f = faceCoordSystem(face);
+                return t.texToTex(v, f);
+            }
+            
+            template <typename T>
+            static T faceToTex(const BrushFace* face, const T& v) {
+                const TexCoordSystemHelper t = texCoordSystem(face);
+                const TexCoordSystemHelper f = faceCoordSystem(face);
+                return f.texToTex(v, t);
+            }
+            
             void setTranslate(bool translate = true);
             void setOverrideTranslate(const Vec2f& offset);
             void setScale(bool scale = true);

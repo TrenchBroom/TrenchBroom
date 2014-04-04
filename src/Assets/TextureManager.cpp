@@ -200,6 +200,9 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_builtinCollections);
             VectorUtils::clearAndDelete(m_externalCollections);
             MapUtils::clearAndDelete(m_toRemove);
+
+            if (m_logger != NULL)
+                m_logger->debug("Cleared texture collections");
         }
         
         void TextureManager::clearBuiltinTextureCollections() {

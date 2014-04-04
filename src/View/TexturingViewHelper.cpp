@@ -186,7 +186,7 @@ namespace TrenchBroom {
                          newHandlePosition.y() - point.y());
         }
         
-        Vec2f TexturingViewHelper::snapHandle(const Vec2f& deltaInFaceCoords) const {
+        Vec2f TexturingViewHelper::snapScaleOrigin(const Vec2f& deltaInFaceCoords) const {
             assert(valid());
             
             if (deltaInFaceCoords.null())
@@ -200,50 +200,47 @@ namespace TrenchBroom {
             texCoordSystem.setScale();
             texCoordSystem.setProject();
 
-            const Vec2f newPositionInFaceCoords = m_handlePosition + deltaInFaceCoords;
-            const Vec2f newPositionInTexCoords = faceCoordSystem.texToTex(newPositionInFaceCoords, texCoordSystem);
+            const Vec2f newOriginInFaceCoords = m_scaleOrigin + deltaInFaceCoords;
+            const Vec2f newOriginInTexCoords = faceCoordSystem.texToTex(newOriginInFaceCoords, texCoordSystem);
             
             // now snap to the vertices
             const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f distanceInTexCoords = computeDistance(texCoordSystem.worldToTex(vertices[0]->position), newPositionInTexCoords);
+            Vec2f distanceInTexCoords = computeDistance(texCoordSystem.worldToTex(vertices[0]->position), newOriginInTexCoords);
             
             for (size_t i = 1; i < vertices.size(); ++i)
-                distanceInTexCoords = combineDistances(distanceInTexCoords, computeDistance(texCoordSystem.worldToTex(vertices[i]->position), newPositionInTexCoords));
+                distanceInTexCoords = combineDistances(distanceInTexCoords, computeDistance(texCoordSystem.worldToTex(vertices[i]->position), newOriginInTexCoords));
             
             // and to the texture grid
             const Assets::Texture* texture = m_face->texture();
             if (texture != NULL)
-                distanceInTexCoords = combineDistances(distanceInTexCoords, computeDistance(Vec3(newPositionInTexCoords), texture, m_subDivisions));
+                distanceInTexCoords = combineDistances(distanceInTexCoords, computeDistance(Vec3(newOriginInTexCoords), texture, m_subDivisions));
             
             // now we have a distance in the scaled and translated texture coordinate system
             // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system
             // and take the actual distance
-            const Vec2f distanceInFaceCoords = texCoordSystem.texToTex(newPositionInTexCoords + distanceInTexCoords, faceCoordSystem) - newPositionInFaceCoords;
+            const Vec2f distanceInFaceCoords = texCoordSystem.texToTex(newOriginInTexCoords + distanceInTexCoords, faceCoordSystem) - newOriginInFaceCoords;
             
             return snap(deltaInFaceCoords, distanceInFaceCoords, m_cameraZoom);
         }
         
-        Vec2f TexturingViewHelper::snapToVertices(const Vec2f& pointInTexCoords) const {
+        Vec2f TexturingViewHelper::snapToVertices(const Vec2f& pointInFaceCoords) const {
             assert(valid());
             
-            Model::TexCoordSystemHelper texCoordSystem(m_face);
-            texCoordSystem.setTranslate();
-            texCoordSystem.setScale();
-            texCoordSystem.setProject();
-
+            const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_face);
+            
             const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f distanceInTexCoords = computeDistance(texCoordSystem.worldToTex(vertices[0]->position), pointInTexCoords);
+            Vec2f distanceInFaceCoords = computeDistance(faceCoordSystem.worldToTex(vertices[0]->position), pointInFaceCoords);
             
             for (size_t i = 1; i < vertices.size(); ++i)
-                distanceInTexCoords = combineDistances(distanceInTexCoords, computeDistance(texCoordSystem.worldToTex(vertices[i]->position), pointInTexCoords));
+                distanceInFaceCoords = combineDistances(distanceInFaceCoords, computeDistance(faceCoordSystem.worldToTex(vertices[i]->position), pointInFaceCoords));
 
             for (size_t i = 0; i < 2; ++i)
-                if (Math::abs(distanceInTexCoords[i]) > 4.0f / m_cameraZoom)
-                    distanceInTexCoords[i] = 0.0f;
-            return pointInTexCoords - distanceInTexCoords;
+                if (Math::abs(distanceInFaceCoords[i]) > 4.0f / m_cameraZoom)
+                    distanceInFaceCoords[i] = 0.0f;
+            return pointInFaceCoords - distanceInFaceCoords;
         }
 
-        void TexturingViewHelper::computeScaleHandles(Line3& xHandle, Line3& yHandle) const {
+        void TexturingViewHelper::computeScaleOriginHandles(Line3& xHandle, Line3& yHandle) const {
             assert(valid());
 
             Model::TexCoordSystemHelper helper(m_face);
@@ -251,17 +248,17 @@ namespace TrenchBroom {
             // helper.setScale();
             helper.setProject();
 
-            const Vec3 texHandlePosition(m_handlePosition.x(), m_handlePosition.y(), 0.0);
-            xHandle.point = yHandle.point = helper.texToWorld(texHandlePosition);
+            const Vec3 scaleOriginInFaceCoords(m_scaleOrigin.x(), m_scaleOrigin.y(), 0.0);
+            xHandle.point = yHandle.point = helper.texToWorld(scaleOriginInFaceCoords);
             
-            const Vec3 xHandlePoint2 = helper.texToWorld(texHandlePosition + Vec3::PosY);
-            const Vec3 yHandlePoint2 = helper.texToWorld(texHandlePosition + Vec3::PosX);
+            const Vec3 xHandlePoint2 = helper.texToWorld(scaleOriginInFaceCoords + Vec3::PosY);
+            const Vec3 yHandlePoint2 = helper.texToWorld(scaleOriginInFaceCoords + Vec3::PosX);
             
             xHandle.direction = (xHandlePoint2 - xHandle.point).normalized();
             yHandle.direction = (yHandlePoint2 - yHandle.point).normalized();
         }
         
-        void TexturingViewHelper::computeScaleHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
+        void TexturingViewHelper::computeScaleOriginHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
             assert(valid());
             
             Model::TexCoordSystemHelper helper(m_face);
@@ -272,11 +269,11 @@ namespace TrenchBroom {
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
             
-            x1 = Vec3(m_handlePosition.x(), min.y(), 0.0);
-            x2 = Vec3(m_handlePosition.x(), max.y(), 0.0);
+            x1 = Vec3(m_scaleOrigin.x(), min.y(), 0.0);
+            x2 = Vec3(m_scaleOrigin.x(), max.y(), 0.0);
             
-            y1 = Vec3(min.x(), m_handlePosition.y(), 0.0);
-            y2 = Vec3(max.x(), m_handlePosition.y(), 0.0);
+            y1 = Vec3(min.x(), m_scaleOrigin.y(), 0.0);
+            y2 = Vec3(max.x(), m_scaleOrigin.y(), 0.0);
             
             x1 = helper.texToWorld(x1);
             x2 = helper.texToWorld(x2);
@@ -387,24 +384,24 @@ namespace TrenchBroom {
             m_subDivisions = subDivisions;
         }
         
-        const Vec2f TexturingViewHelper::handlePositionInFaceCoords() const {
-            return m_handlePosition;
+        const Vec2f TexturingViewHelper::scaleOriginInFaceCoords() const {
+            return m_scaleOrigin;
         }
         
-        const Vec2f TexturingViewHelper::handlePositionInTexCoords() const {
-            Model::TexCoordSystemHelper unmodifiedSystem(m_face);
-            unmodifiedSystem.setProject();
+        const Vec2f TexturingViewHelper::scaleOriginInTexCoords() const {
+            Model::TexCoordSystemHelper faceCoordSystem(m_face);
+            faceCoordSystem.setProject();
             
-            Model::TexCoordSystemHelper modifiedSystem(m_face);
-            modifiedSystem.setTranslate();
-            modifiedSystem.setScale();
-            modifiedSystem.setProject();
+            Model::TexCoordSystemHelper texCoordSystem(m_face);
+            texCoordSystem.setTranslate();
+            texCoordSystem.setScale();
+            texCoordSystem.setProject();
             
-            return unmodifiedSystem.texToTex(m_handlePosition, modifiedSystem);
+            return faceCoordSystem.texToTex(m_scaleOrigin, texCoordSystem);
         }
         
-        void TexturingViewHelper::setHandlePosition(const Vec2f& handlePosition) {
-            m_handlePosition = handlePosition;
+        void TexturingViewHelper::setScaleOrigin(const Vec2f& scaleOriginInFaceCoords) {
+            m_scaleOrigin = scaleOriginInFaceCoords;
         }
         
         void TexturingViewHelper::validate() {
@@ -438,7 +435,7 @@ namespace TrenchBroom {
             helper.setProject();
 
             const BBox3 bounds(helper.worldToTex(positions));
-            m_handlePosition = Vec2f(bounds.min);
+            m_scaleOrigin = Vec2f(bounds.min);
         }
     }
 }
