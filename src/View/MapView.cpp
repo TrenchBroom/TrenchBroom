@@ -673,7 +673,9 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapView::preferenceDidChange);
             
-            m_camera.cameraDidChangeNotifier.removeObserver(this, &MapView::cameraDidChange);
+            // Unfortunately due to the order in which objects and their fields are destroyed by the runtime system,
+            // the camera has already been destroyed at this point.
+            // m_camera.cameraDidChangeNotifier.removeObserver(this, &MapView::cameraDidChange);
         }
 
         void MapView::documentWasNewedOrLoaded() {

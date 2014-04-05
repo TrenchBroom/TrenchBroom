@@ -186,7 +186,10 @@ namespace TrenchBroom {
                 document->objectDidChangeNotifier.removeObserver(this, &MiniMapBaseView::objectDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MiniMapBaseView::selectionDidChange);
             }
-            m_camera3D.cameraDidChangeNotifier.removeObserver(this, &MiniMapBaseView::cameraDidChange);
+
+            // Unfortunately due to the order in which objects and their fields are destroyed by the runtime system,
+            // the camera has already been destroyed at this point.
+            // m_camera3D.cameraDidChangeNotifier.removeObserver(this, &MiniMapBaseView::cameraDidChange);
         }
         
         void MiniMapBaseView::documentWasCleared() {
