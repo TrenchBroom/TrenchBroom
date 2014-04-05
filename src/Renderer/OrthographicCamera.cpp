@@ -39,6 +39,8 @@ namespace TrenchBroom {
 
         void OrthographicCamera::setZoom(const Vec2f& zoom) {
             assert(zoom.x() > 0.0f && zoom.y() > 0.0f);
+            if (zoom == m_zoom)
+                return;
             m_zoom = zoom;
             m_valid = false;
             cameraDidChangeNotifier(this);
@@ -46,6 +48,8 @@ namespace TrenchBroom {
         
         void OrthographicCamera::zoom(const Vec2f& factors) {
             assert(factors.x() > 0.0f && factors.y() > 0.0f);
+            if (factors == Vec2f::One)
+                return;
             m_zoom *= factors;
             m_valid = false;
             cameraDidChangeNotifier(this);

@@ -35,6 +35,10 @@ namespace TrenchBroom {
         width(i_width),
         height(i_height) {}
 
+        bool Camera::Viewport::operator== (const Viewport& other) const {
+            return x == other.x && y == other.y && width == other.width && height == other.height;
+        }
+
         const float Camera::DefaultPointDistance = 256.0f;
         
         Camera::~Camera() {}
@@ -167,6 +171,8 @@ namespace TrenchBroom {
         
         void Camera::setNearPlane(const float nearPlane) {
             assert(nearPlane < m_farPlane);
+            if (nearPlane == m_nearPlane)
+                return;
             m_nearPlane = nearPlane;
             m_valid = false;
             cameraDidChangeNotifier(this);
@@ -174,23 +180,31 @@ namespace TrenchBroom {
         
         void Camera::setFarPlane(const float farPlane) {
             assert(farPlane > m_nearPlane);
+            if (farPlane == m_farPlane)
+                return;
             m_farPlane = farPlane;
             m_valid = false;
             cameraDidChangeNotifier(this);
         }
         
         void Camera::setViewport(const Viewport& viewport) {
+            if (viewport == m_viewport)
+                return;
             m_viewport = viewport;
             m_valid = false;
         }
 
         void Camera::moveTo(const Vec3f& position) {
+            if (position == m_position)
+                return;
             m_position = position;
             m_valid = false;
             cameraDidChangeNotifier(this);
         }
         
         void Camera::moveBy(const Vec3f& delta) {
+            if (delta.null())
+                return;
             m_position += delta;
             m_valid = false;
             cameraDidChangeNotifier(this);
@@ -201,6 +215,8 @@ namespace TrenchBroom {
         }
         
         void Camera::setDirection(const Vec3f& direction, const Vec3f& up) {
+            if (direction == m_direction && up == m_up)
+                return;
             m_direction = direction;
             m_right = crossed(m_direction, up).normalized();
             m_up = crossed(m_right, m_direction);

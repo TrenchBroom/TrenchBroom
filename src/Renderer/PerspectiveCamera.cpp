@@ -44,6 +44,8 @@ namespace TrenchBroom {
         
         void PerspectiveCamera::setFov(const float fov) {
             assert(fov > 0.0f);
+            if (fov == m_fov)
+                return;
             m_fov = fov;
             m_valid = false;
             cameraDidChangeNotifier(this);

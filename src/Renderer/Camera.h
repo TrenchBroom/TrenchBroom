@@ -38,6 +38,8 @@ namespace TrenchBroom {
 
                 Viewport();
                 Viewport(int i_x, int i_y, unsigned int i_width, unsigned int i_height);
+                
+                bool operator== (const Viewport& other) const;
             };
         private:
             static const float DefaultPointDistance;
