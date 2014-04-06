@@ -32,6 +32,7 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
+#include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/TexturingViewHelper.h"
 
@@ -101,6 +102,7 @@ namespace TrenchBroom {
                 const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
                 m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
                 m_dragMode = Angle;
+                controller()->beginUndoableGroup("Rotate Texture");
             }
             
             return true;
@@ -110,7 +112,7 @@ namespace TrenchBroom {
             assert(m_helper.valid());
             assert(m_dragMode != None);
             
-            const Model::BrushFace* face = m_helper.face();
+            Model::BrushFace* face = m_helper.face();
             const Plane3& boundary = face->boundary();
             const Ray3& pickRay = inputState.pickRay();
             const FloatType curPointDistance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
@@ -125,16 +127,30 @@ namespace TrenchBroom {
                 const Vec2f snappedPoint = m_helper.snapToPoints(curPointInFaceCoords - m_offset, snapPoints);
                 m_helper.setRotationCenter(snappedPoint);
             } else {
+                const Vec3 oldCenterInWorldCoords = faceCoordSystem.texToWorld(Vec3(m_helper.rotationCenterInFaceCoords()));
+                const float angle = m_helper.measureRotationAngle(curPointInFaceCoords - m_offset);
+                const Model::BrushFaceList applyTo(1, face);
+                controller()->setFaceRotation(applyTo, angle, false);
+
+                const Vec2f oldCenterInFaceCoords(faceCoordSystem.worldToTex(oldCenterInWorldCoords));
+                const Vec2f delta = oldCenterInFaceCoords - m_helper.rotationCenterInFaceCoords();
+                controller()->setFaceXOffset(applyTo, -delta.x(), true);
+                controller()->setFaceYOffset(applyTo, -delta.y(), true);
+                m_helper.setRotationCenter(oldCenterInFaceCoords);
             }
             
             return true;
         }
         
         void TexturingViewRotateTool::doEndMouseDrag(const InputState& inputState) {
+            if (m_dragMode == Angle)
+                controller()->closeGroup();
             m_dragMode = None;
         }
         
         void TexturingViewRotateTool::doCancelMouseDrag(const InputState& inputState) {
+            if (m_dragMode == Angle)
+                controller()->rollbackGroup();
             m_dragMode = None;
         }
 

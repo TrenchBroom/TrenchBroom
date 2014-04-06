@@ -242,6 +242,12 @@ namespace TrenchBroom {
             return pointInFaceCoords - distanceInFaceCoords;
         }
 
+        float TexturingViewHelper::measureRotationAngle(const Vec2f& pointInFaceCoords) const {
+            const Vec3 direction((pointInFaceCoords - m_rotationCenter).normalized());
+            const FloatType angleInRadians = angleBetween(direction, Vec3::PosX, Vec3::PosZ);
+            return static_cast<float>(Math::degrees(angleInRadians));
+        }
+        
         void TexturingViewHelper::computeScaleOriginHandles(Line3& xHandle, Line3& yHandle) const {
             assert(valid());
 
