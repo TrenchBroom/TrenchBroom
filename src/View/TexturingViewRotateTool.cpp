@@ -31,6 +31,7 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"
+#include "Renderer/VertexArray.h"
 #include "View/InputState.h"
 #include "View/TexturingViewHelper.h"
 
@@ -119,7 +120,10 @@ namespace TrenchBroom {
             const Vec2f curPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(curPoint));
             
             if (m_dragMode == Center) {
-                m_helper.setRotationCenter(curPointInFaceCoords - m_offset);
+                Vec3::List snapPoints = Model::vertexPositions(face->vertices());
+                snapPoints.push_back(face->center());
+                const Vec2f snappedPoint = m_helper.snapToPoints(curPointInFaceCoords - m_offset, snapPoints);
+                m_helper.setRotationCenter(snappedPoint);
             } else {
             }
             
@@ -148,32 +152,44 @@ namespace TrenchBroom {
             const PreferenceManager& prefs = PreferenceManager::instance();
             const Color& handleColor = prefs.get(Preferences::HandleColor);
             const Color& highlightColor = prefs.get(Preferences::SelectedHandleColor);
-            
-            const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_helper.face());
-            const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), faceCoordSystem.toWorldMatrix());
 
+            const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_helper.face());
             const Vec2f centerHandlePosition = m_helper.rotationCenterInFaceCoords();
             const Vec2f angleHandlePosition = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
+            const Vec2f faceCenterPosition = faceCoordSystem.worldToTex(m_helper.face()->center());
 
             const float actualRadius = HandleRadius / m_camera.zoom().x();
             
             Renderer::Vbo vbo(0xFFF);
             Renderer::SetVboState vboState(vbo);
+            Renderer::Circle center(actualRadius / 2.0f, 10, true);
             Renderer::Circle fill(actualRadius, 16, true);
             Renderer::Circle highlight(actualRadius * 2.0f, 16, false);
+            Renderer::Circle outer(HandleLength / m_camera.zoom().x(), 64, false);
 
+            typedef Renderer::VertexSpecs::P2::Vertex Vertex;
+            Vertex::List lineVertices(2);
+            lineVertices[0] = Vertex(centerHandlePosition);
+            lineVertices[1] = Vertex(angleHandlePosition);
+            Renderer::VertexArray array = Renderer::VertexArray::ref(GL_LINES, lineVertices);
+            
             vboState.mapped();
+            center.prepare(vbo);
             fill.prepare(vbo);
             highlight.prepare(vbo);
+            outer.prepare(vbo);
+            array.prepare(vbo);
             vboState.active();
 
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
+            const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), faceCoordSystem.toWorldMatrix());
             {
                 const Mat4x4 translation = translationMatrix(Vec3(centerHandlePosition));
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
                 shader.set("Color", handleColor);
                 fill.render();
-
+                outer.render();
+                
                 if (highlightCenterHandle) {
                     shader.set("Color", highlightColor);
                     highlight.render();
@@ -190,6 +206,16 @@ namespace TrenchBroom {
                     shader.set("Color", highlightColor);
                     highlight.render();
                 }
+            }
+            
+            shader.set("Color", handleColor);
+            array.render();
+
+            {
+                const Mat4x4 translation = translationMatrix(Vec3(faceCenterPosition));
+                const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
+                shader.set("Color", highlightColor);
+                center.render();
             }
         }
     }

@@ -224,11 +224,7 @@ namespace TrenchBroom {
         
         Vec3 BrushFace::center() const {
             assert(m_side != NULL);
-            assert(!m_side->vertices.empty());
-            Vec3 center = m_side->vertices[0]->position;
-            for (size_t i = 1; i < m_side->vertices.size(); ++i)
-                center += m_side->vertices[i]->position;
-            return center / static_cast<FloatType>(m_side->vertices.size());
+            return centerOfVertices(m_side->vertices);
         }
 
         const BrushFaceAttribs& BrushFace::attribs() const {

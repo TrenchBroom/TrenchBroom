@@ -81,6 +81,14 @@ namespace TrenchBroom {
                 center += vertices[i]->position;
             return center / static_cast<FloatType>(vertices.size());
         }
+        
+        Vec3::List vertexPositions(const BrushVertexList& vertices) {
+            const size_t count = vertices.size();
+            Vec3::List positions(count);
+            for (size_t i = 0; i < count; ++i)
+                positions[i] = vertices[i]->position;
+            return positions;
+        }
 
         BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position) {
             BrushVertexList::iterator it = vertices.begin();

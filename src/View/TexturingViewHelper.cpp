@@ -224,16 +224,18 @@ namespace TrenchBroom {
         }
         
         Vec2f TexturingViewHelper::snapToVertices(const Vec2f& pointInFaceCoords) const {
+            return snapToPoints(pointInFaceCoords, Model::vertexPositions(m_face->vertices()));
+        }
+
+        Vec2f TexturingViewHelper::snapToPoints(const Vec2f& pointInFaceCoords, const Vec3::List& points) const {
             assert(valid());
             
             const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_face);
+            Vec2f distanceInFaceCoords = computeDistance(faceCoordSystem.worldToTex(points[0]), pointInFaceCoords);
             
-            const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f distanceInFaceCoords = computeDistance(faceCoordSystem.worldToTex(vertices[0]->position), pointInFaceCoords);
+            for (size_t i = 1; i < points.size(); ++i)
+                distanceInFaceCoords = combineDistances(distanceInFaceCoords, computeDistance(faceCoordSystem.worldToTex(points[i]), pointInFaceCoords));
             
-            for (size_t i = 1; i < vertices.size(); ++i)
-                distanceInFaceCoords = combineDistances(distanceInFaceCoords, computeDistance(faceCoordSystem.worldToTex(vertices[i]->position), pointInFaceCoords));
-
             for (size_t i = 0; i < 2; ++i)
                 if (Math::abs(distanceInFaceCoords[i]) > 4.0f / m_cameraZoom)
                     distanceInFaceCoords[i] = 0.0f;
