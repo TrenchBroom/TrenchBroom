@@ -30,8 +30,8 @@ namespace TrenchBroom {
     class Hit {
     public:
         typedef unsigned long HitType;
-        static const HitType NoType = 0;
-        static const HitType AnyType = 0xFFFFFFFF;
+        static const HitType NoType;
+        static const HitType AnyType;
         static HitType freeHitType();
         static const Hit NoHit;
     private:

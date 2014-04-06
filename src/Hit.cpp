@@ -24,6 +24,9 @@
 #include <limits>
 
 namespace TrenchBroom {
+    const Hit::HitType Hit::NoType = 0;
+    const Hit::HitType Hit::AnyType = 0xFFFFFFFF;
+    
     Hit::HitType Hit::freeHitType() {
         static HitType currentType = 1;
         const HitType result = currentType;

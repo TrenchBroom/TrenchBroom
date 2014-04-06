@@ -174,9 +174,6 @@ namespace TrenchBroom {
                 MapDocumentSPtr document = lock(m_document);
                 document->commitPendingRenderStateChanges();
                 
-                // static int count = 1;
-                // document->info("Render texture view %d", count++);
-                
                 const View::Grid& grid = document->grid();
                 Renderer::RenderContext renderContext(m_camera, contextHolder()->shaderManager(), grid.visible(), grid.actualSize());
                 
