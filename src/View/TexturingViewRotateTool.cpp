@@ -19,63 +19,178 @@
 
 #include "TexturingViewRotateTool.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushVertex.h"
+#include "Model/TexCoordSystemHelper.h"
+#include "Renderer/Circle.h"
+#include "Renderer/OrthographicCamera.h"
+#include "Renderer/RenderContext.h"
+#include "Renderer/ShaderManager.h"
+#include "Renderer/Transformation.h"
+#include "Renderer/Vbo.h"
 #include "View/InputState.h"
 #include "View/TexturingViewHelper.h"
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType TexturingViewRotateTool::HandleHit = Hit::freeHitType();
-        const FloatType TexturingViewRotateTool::MaxPickDistance = 5.0;
+        const Hit::HitType TexturingViewRotateTool::CenterHandleHit = Hit::freeHitType();
+        const Hit::HitType TexturingViewRotateTool::AngleHandleHit = Hit::freeHitType();
+        const FloatType TexturingViewRotateTool::HandleRadius = 5.0;
+        const float TexturingViewRotateTool::HandleLength = 32.0f;
 
         TexturingViewRotateTool::TexturingViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera) :
         ToolImpl(document, controller),
         m_helper(helper),
-        m_camera(camera) {}
+        m_camera(camera),
+        m_dragMode(None) {}
         
         void TexturingViewRotateTool::doPick(const InputState& inputState, Hits& hits) {
-            if (!m_helper.valid()) {
-                const Model::BrushFace* face = m_helper.face();
-                const Model::BrushEdgeList& edges = face->edges();
-                const Ray3& pickRay = inputState.pickRay();
-                
-                Model::BrushEdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                    const Model::BrushEdge* edge = *it;
-                    const Ray3::LineDistance pickDistance = pickRay.distanceToSegment(edge->start->position, edge->end->position);
-                    assert(!pickDistance.parallel);
-                    
-                    if (Math::abs(pickDistance.distance) <= MaxPickDistance) {
-                        const FloatType hitDistance = pickDistance.rayDistance;
-                        const Vec3 hitPoint = pickRay.pointAtDistance(hitDistance);
-                        const FloatType error = pickDistance.distance;
-                        hits.addHit(Hit(HandleHit, hitDistance, hitPoint, edge->vector(), error));
-                    }
-                }
-            }
+            if (!m_helper.valid())
+                return;
+
+            const Model::BrushFace* face = m_helper.face();
+            const Plane3& boundary = face->boundary();
+            
+            const Ray3& pickRay = inputState.pickRay();
+            const FloatType distance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
+            assert(!Math::isnan(distance));
+            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            
+            Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
+            const Vec2f hitPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(hitPoint));
+            
+            const Vec2f centerHandleInFaceCoords = m_helper.rotationCenterInFaceCoords();
+            const float centerHandleError = hitPointInFaceCoords.distanceTo(centerHandleInFaceCoords);
+            if (Math::abs(centerHandleError) <= 2.0f * HandleRadius / m_camera.zoom().x())
+                hits.addHit(Hit(CenterHandleHit, distance, hitPoint, 0, centerHandleError));
+            
+            const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
+            const float angleHandleError = hitPointInFaceCoords.distanceTo(angleHandleInFaceCoords);
+            if (Math::abs(angleHandleError) <= 2.0f * HandleRadius / m_camera.zoom().x())
+                hits.addHit(Hit(AngleHandleHit, distance, hitPoint, 0, angleHandleError));
         }
         
-        bool TexturingViewRotateTool::doMouseUp(const InputState& inputState) {
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
+        bool TexturingViewRotateTool::doStartMouseDrag(const InputState& inputState) {
+            assert(m_helper.valid());
+            
+            if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
+
+            const Hits& hits = inputState.hits();
+            const Hit& centerHandleHit = hits.findFirst(CenterHandleHit, true);
+            const Hit& angleHandleHit = hits.findFirst(AngleHandleHit, true);
+
+            if (!centerHandleHit.isMatch() && !angleHandleHit.isMatch())
+                return false;
+
+            const Model::BrushFace* face = m_helper.face();
+            Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
+
+            if (centerHandleHit.isMatch()) {
+                const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(centerHandleHit.hitPoint());
+                const Vec2f centerHandleInFaceCoords = m_helper.rotationCenterInFaceCoords();
+                m_offset = hitPointInFaceCoords - centerHandleInFaceCoords;
+                m_dragMode = Center;
+            } else if (angleHandleHit.isMatch()) {
+                const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(centerHandleHit.hitPoint());
+                const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
+                m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
+                m_dragMode = Angle;
+            }
+            
+            return true;
+        }
+        
+        bool TexturingViewRotateTool::doMouseDrag(const InputState& inputState) {
+            assert(m_helper.valid());
+            assert(m_dragMode != None);
+            
+            const Model::BrushFace* face = m_helper.face();
+            const Plane3& boundary = face->boundary();
+            const Ray3& pickRay = inputState.pickRay();
+            const FloatType curPointDistance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
+            const Vec3 curPoint = pickRay.pointAtDistance(curPointDistance);
+            
+            Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
+            const Vec2f curPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(curPoint));
+            
+            if (m_dragMode == Center) {
+                m_helper.setRotationCenter(curPointInFaceCoords - m_offset);
+            } else {
+            }
+            
+            return true;
+        }
+        
+        void TexturingViewRotateTool::doEndMouseDrag(const InputState& inputState) {
+            m_dragMode = None;
+        }
+        
+        void TexturingViewRotateTool::doCancelMouseDrag(const InputState& inputState) {
+            m_dragMode = None;
+        }
+
+        void TexturingViewRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            if (!m_helper.valid())
+                return;
             
             const Hits& hits = inputState.hits();
-            const Hit& handleHit = hits.findFirst(HandleHit, true);
-            if (!handleHit.isMatch())
-                return false;
+            const Hit& centerHandleHit = hits.findFirst(CenterHandleHit, true);
+            const Hit& angleHandleHit = hits.findFirst(AngleHandleHit, true);
             
-            const Vec3 direction = handleHit.target<Vec3>();
-            return false;
-        }
-        
-        bool TexturingViewRotateTool::doMouseDoubleClick(const InputState& inputState) {
-            return false;
-        }
-        
-        void TexturingViewRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            const bool highlightCenterHandle = centerHandleHit.isMatch() || m_dragMode == Center;
+            const bool highlightAngleHandle = angleHandleHit.isMatch() || m_dragMode == Angle;
+            
+            const PreferenceManager& prefs = PreferenceManager::instance();
+            const Color& handleColor = prefs.get(Preferences::HandleColor);
+            const Color& highlightColor = prefs.get(Preferences::SelectedHandleColor);
+            
+            const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_helper.face());
+            const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), faceCoordSystem.toWorldMatrix());
+
+            const Vec2f centerHandlePosition = m_helper.rotationCenterInFaceCoords();
+            const Vec2f angleHandlePosition = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
+
+            const float actualRadius = HandleRadius / m_camera.zoom().x();
+            
+            Renderer::Vbo vbo(0xFFF);
+            Renderer::SetVboState vboState(vbo);
+            Renderer::Circle fill(actualRadius, 16, true);
+            Renderer::Circle highlight(actualRadius * 2.0f, 16, false);
+
+            vboState.mapped();
+            fill.prepare(vbo);
+            highlight.prepare(vbo);
+            vboState.active();
+
+            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
+            {
+                const Mat4x4 translation = translationMatrix(Vec3(centerHandlePosition));
+                const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
+                shader.set("Color", handleColor);
+                fill.render();
+
+                if (highlightCenterHandle) {
+                    shader.set("Color", highlightColor);
+                    highlight.render();
+                }
+            }
+            
+            {
+                const Mat4x4 translation = translationMatrix(Vec3(angleHandlePosition));
+                const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
+                shader.set("Color", handleColor);
+                fill.render();
+                
+                if (highlightAngleHandle) {
+                    shader.set("Color", highlightColor);
+                    highlight.render();
+                }
+            }
         }
     }
 }

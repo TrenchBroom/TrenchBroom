@@ -33,22 +33,35 @@ namespace TrenchBroom {
     namespace View {
         class TexturingViewHelper;
 
-        class TexturingViewRotateTool : public ToolImpl<NoActivationPolicy, PickingPolicy, MousePolicy, NoMouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class TexturingViewRotateTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         public:
-            static const Hit::HitType HandleHit;
+            static const Hit::HitType CenterHandleHit;
+            static const Hit::HitType AngleHandleHit;
         private:
-            static const FloatType MaxPickDistance;
-
+            static const FloatType HandleRadius;
+            static const float HandleLength;
+            
             TexturingViewHelper& m_helper;
             Renderer::OrthographicCamera& m_camera;
+            
+            typedef enum {
+                None,
+                Center,
+                Angle
+            } DragMode;
+            
+            DragMode m_dragMode;
+            Vec2f m_offset;
         public:
             TexturingViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
         private:
             void doPick(const InputState& inputState, Hits& hits);
             
-            bool doMouseUp(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
-            
+            bool doStartMouseDrag(const InputState& inputState);
+            bool doMouseDrag(const InputState& inputState);
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag(const InputState& inputState);
+
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
     }

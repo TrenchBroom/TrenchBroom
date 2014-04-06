@@ -43,9 +43,10 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class TexturingViewOffsetTool;
+        class TexturingViewRotateTool;
         class TexturingViewScaleOriginTool;
         class TexturingViewScaleTool;
+        class TexturingViewOffsetTool;
         class TexturingViewCameraTool;
         
         /**
@@ -65,6 +66,7 @@ namespace TrenchBroom {
 
             ToolBox m_toolBox;
             
+            TexturingViewRotateTool* m_rotateTool;
             TexturingViewScaleOriginTool* m_scaleOriginTool;
             TexturingViewScaleTool* m_scaleTool;
             TexturingViewOffsetTool* m_offsetTool;

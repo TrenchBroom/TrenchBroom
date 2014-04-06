@@ -57,6 +57,7 @@ namespace TrenchBroom {
              The position of the scaling origin handle in texture coordinates (without offset and scaling applied).
              */
             Vec2f m_scaleOrigin;
+            Vec2f m_rotationCenter;
         public:
             TexturingViewHelper();
             
@@ -104,9 +105,14 @@ namespace TrenchBroom {
             const Vec2f scaleOriginInFaceCoords() const;
             const Vec2f scaleOriginInTexCoords() const;
             void setScaleOrigin(const Vec2f& scaleOriginInFaceCoords);
+            
+            const Vec2f rotationCenterInFaceCoords() const;
+            const Vec2f angleHandleInFaceCoords(const float distance) const;
+            void setRotationCenter(const Vec2f& rotationCenterInFaceCoords);
         private:
             void validate();
-            void resetHandlePosition();
+            void resetScaleOrigin();
+            void resetRotationCenter();
         };
     }
 }

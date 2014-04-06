@@ -362,7 +362,8 @@ namespace TrenchBroom {
                 m_face = face;
                 if (m_face != NULL) {
                     validate();
-                    resetHandlePosition();
+                    resetScaleOrigin();
+                    resetRotationCenter();
                 }
             }
         }
@@ -404,6 +405,18 @@ namespace TrenchBroom {
             m_scaleOrigin = scaleOriginInFaceCoords;
         }
         
+        const Vec2f TexturingViewHelper::rotationCenterInFaceCoords() const {
+            return m_rotationCenter;
+        }
+        
+        const Vec2f TexturingViewHelper::angleHandleInFaceCoords(const float distance) const {
+            return m_rotationCenter + distance * Vec2f::PosX;
+        }
+
+        void TexturingViewHelper::setRotationCenter(const Vec2f& rotationCenterInFaceCoords) {
+            m_rotationCenter = rotationCenterInFaceCoords;
+        }
+        
         void TexturingViewHelper::validate() {
             assert(m_face != NULL);
             
@@ -422,7 +435,7 @@ namespace TrenchBroom {
             assert(invertible);
         }
         
-        void TexturingViewHelper::resetHandlePosition() {
+        void TexturingViewHelper::resetScaleOrigin() {
             assert(m_face != NULL);
             const Model::BrushVertexList& vertices = m_face->vertices();
             const size_t vertexCount = vertices.size();
@@ -436,6 +449,17 @@ namespace TrenchBroom {
 
             const BBox3 bounds(helper.worldToTex(positions));
             m_scaleOrigin = Vec2f(bounds.min);
+        }
+        
+        void TexturingViewHelper::resetRotationCenter() {
+            assert(m_face != NULL);
+            const Vec3 center = m_face->center();
+            
+            Model::TexCoordSystemHelper helper(m_face);
+            helper.setProject();
+            
+            const Vec3 centerInFaceCoords = helper.worldToTex(center);
+            m_rotationCenter = Vec2f(centerInFaceCoords);
         }
     }
 }

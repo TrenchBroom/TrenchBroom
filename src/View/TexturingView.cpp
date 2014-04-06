@@ -35,6 +35,7 @@
 #include "View/MapDocument.h"
 #include "View/TexturingViewCameraTool.h"
 #include "View/TexturingViewOffsetTool.h"
+#include "View/TexturingViewRotateTool.h"
 #include "View/TexturingViewScaleTool.h"
 #include "View/TexturingViewScaleOriginTool.h"
 
@@ -50,6 +51,7 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller),
         m_toolBox(this, this),
+        m_rotateTool(NULL),
         m_scaleOriginTool(NULL),
         m_scaleTool(NULL),
         m_offsetTool(NULL),
@@ -72,11 +74,13 @@ namespace TrenchBroom {
         }
 
         void TexturingView::createTools() {
+            m_rotateTool = new TexturingViewRotateTool(m_document, m_controller, m_helper, m_camera);
             m_scaleOriginTool = new TexturingViewScaleOriginTool(m_document, m_controller, m_helper, m_camera);
             m_scaleTool = new TexturingViewScaleTool(m_document, m_controller, m_helper, m_camera);
             m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller, m_helper);
             m_cameraTool = new TexturingViewCameraTool(m_document, m_controller, m_camera);
 
+            m_toolBox.addTool(m_rotateTool);
             m_toolBox.addTool(m_scaleOriginTool);
             m_toolBox.addTool(m_scaleTool);
             m_toolBox.addTool(m_offsetTool);
@@ -92,6 +96,8 @@ namespace TrenchBroom {
             m_scaleOriginTool = NULL;
             delete m_scaleTool;
             m_scaleTool = NULL;
+            delete m_rotateTool;
+            m_rotateTool = NULL;
         }
 
         void TexturingView::bindObservers() {
