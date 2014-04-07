@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 m_offset = hitPointInFaceCoords - centerHandleInFaceCoords;
                 m_dragMode = Center;
             } else if (angleHandleHit.isMatch()) {
-                const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(centerHandleHit.hitPoint());
+                const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(angleHandleHit.hitPoint());
                 const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
                 m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
                 m_dragMode = Angle;
@@ -129,8 +129,9 @@ namespace TrenchBroom {
             } else {
                 const Vec3 oldCenterInWorldCoords = faceCoordSystem.texToWorld(Vec3(m_helper.rotationCenterInFaceCoords()));
                 const float angle = m_helper.measureRotationAngle(curPointInFaceCoords - m_offset);
+                std::cout << angle << std::endl;
                 const Model::BrushFaceList applyTo(1, face);
-                controller()->setFaceRotation(applyTo, angle, false);
+                controller()->setFaceRotation(applyTo, angle, true);
 
                 // Correct the offsets and the position of the rotation center.	
                 const Vec2f oldCenterInFaceCoords(faceCoordSystem.worldToTex(oldCenterInWorldCoords));

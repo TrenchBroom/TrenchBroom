@@ -136,25 +136,15 @@ namespace TrenchBroom {
         }
         
         Vec2f combineDistances(const Vec2f& r1, const Vec2f& r2) {
-            Vec2f result;
-            for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(r1[i]) < Math::abs(r2[i]))
-                    result[i] = r1[i];
-                else
-                    result[i] = r2[i];
-            }
-            return result;
+            if (r1.squaredLength() < r2.squaredLength())
+                return r1;
+            return r2;
         }
         
         Vec2f snap(const Vec2f& delta, const Vec2f& distance, const float cameraZoom) {
-            Vec2f result;
-            for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(distance[i]) < 4.0f / cameraZoom)
-                    result[i] = delta[i] - distance[i];
-                else
-                    result[i] = Math::round(delta[i]);
-            }
-            return result;
+            if (distance.length() < 4.0f / cameraZoom)
+                return delta - distance;
+            return delta.rounded();
         }
         
         Vec2f TexturingViewHelper::snapOffset(const Vec2f& delta) const {
@@ -236,16 +226,15 @@ namespace TrenchBroom {
             for (size_t i = 1; i < points.size(); ++i)
                 distanceInFaceCoords = combineDistances(distanceInFaceCoords, computeDistance(faceCoordSystem.worldToTex(points[i]), pointInFaceCoords));
             
-            for (size_t i = 0; i < 2; ++i)
-                if (Math::abs(distanceInFaceCoords[i]) > 4.0f / m_cameraZoom)
-                    distanceInFaceCoords[i] = 0.0f;
+            if (distanceInFaceCoords.length() > 4.0f / m_cameraZoom)
+                distanceInFaceCoords = Vec2f::Null;
             return pointInFaceCoords - distanceInFaceCoords;
         }
 
         float TexturingViewHelper::measureRotationAngle(const Vec2f& pointInFaceCoords) const {
             const Vec3 direction((pointInFaceCoords - m_rotationCenter).normalized());
             const FloatType angleInRadians = angleBetween(direction, Vec3::PosX, Vec3::PosZ);
-            return static_cast<float>(Math::degrees(angleInRadians));
+            return static_cast<float>(Math::degrees(Math::Constants<FloatType>::TwoPi - angleInRadians));
         }
         
         void TexturingViewHelper::computeScaleOriginHandles(Line3& xHandle, Line3& yHandle) const {
@@ -377,8 +366,9 @@ namespace TrenchBroom {
         }
         
         void TexturingViewHelper::faceDidChange() {
-            if (m_face != NULL)
+            if (m_face != NULL) {
                 validate();
+            }
         }
         
         void TexturingViewHelper::setCameraZoom(const float cameraZoom) {
