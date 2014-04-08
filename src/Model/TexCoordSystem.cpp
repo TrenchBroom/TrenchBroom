@@ -150,7 +150,7 @@ namespace TrenchBroom {
         Mat4x4 TexCoordSystem::fromMatrix(const Vec2f& offset, const Vec2f& scale) const {
             const Vec3 xAxis(getXAxis() * scale.x());
             const Vec3 yAxis(getYAxis() * scale.y());
-            const Vec3 zAxis(crossed(getXAxis(), getYAxis()).normalized());
+            const Vec3 zAxis(getZAxis());
             const Vec3 origin(xAxis * -offset.x() + yAxis * -offset.y());
             
             return coordinateSystemMatrix(xAxis, yAxis, zAxis, origin);

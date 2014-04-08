@@ -32,6 +32,7 @@ namespace TrenchBroom {
         private:
             static const Vec3 BaseAxes[];
             
+            size_t m_index;
             Vec3 m_xAxis;
             Vec3 m_yAxis;
         public:
@@ -45,6 +46,8 @@ namespace TrenchBroom {
 
             const Vec3& getXAxis() const;
             const Vec3& getYAxis() const;
+            const Vec3& getZAxis() const;
+            
             bool isRotationInverted(const Vec3& normal) const;
 
             Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;

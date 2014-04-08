@@ -55,6 +55,10 @@ namespace TrenchBroom {
             return m_yAxis;
         }
         
+        const Vec3& ParallelTexCoordSystem::getZAxis() const {
+            return m_zAxis;
+        }
+        
         bool ParallelTexCoordSystem::isRotationInverted(const Vec3& normal) const {
             return false;
         }
@@ -75,6 +79,7 @@ namespace TrenchBroom {
             const Quat3 rot(normal, angle);
             m_xAxis = rot * m_initialXAxis;
             m_yAxis = rot * m_initialYAxis;
+            m_zAxis = crossed(m_xAxis, m_yAxis).normalized();
         }
         
         void ParallelTexCoordSystem::doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) {

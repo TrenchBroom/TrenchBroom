@@ -34,6 +34,7 @@ namespace TrenchBroom {
             Vec3 m_initialYAxis;
             Vec3 m_xAxis;
             Vec3 m_yAxis;
+            Vec3 m_zAxis;
         public:
             ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const Vec3& normal, float rotation);
             ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2);
@@ -42,6 +43,7 @@ namespace TrenchBroom {
             
             const Vec3& getXAxis() const;
             const Vec3& getYAxis() const;
+            const Vec3& getZAxis() const;
             bool isRotationInverted(const Vec3& normal) const;
             
             Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;

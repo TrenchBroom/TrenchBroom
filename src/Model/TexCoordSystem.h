@@ -54,6 +54,7 @@ namespace TrenchBroom {
 
             virtual const Vec3& getXAxis() const = 0;
             virtual const Vec3& getYAxis() const = 0;
+            virtual const Vec3& getZAxis() const = 0;
             virtual bool isRotationInverted(const Vec3& normal) const = 0;
             
             virtual Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const = 0;

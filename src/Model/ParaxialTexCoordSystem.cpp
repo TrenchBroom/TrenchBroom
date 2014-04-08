@@ -74,6 +74,10 @@ namespace TrenchBroom {
             return m_yAxis;
         }
         
+        const Vec3& ParaxialTexCoordSystem::getZAxis() const {
+            return BaseAxes[m_index * 3 + 0];
+        }
+        
         bool ParaxialTexCoordSystem::isRotationInverted(const Vec3& normal) const {
             const size_t index = planeNormalIndex(normal);
             switch (index) {
@@ -96,10 +100,10 @@ namespace TrenchBroom {
             const Assets::Texture* texture = attribs.texture();
             const size_t textureWidth = texture == NULL ? 1 : texture->width();
             const size_t textureHeight = texture == NULL ? 1 : texture->height();
-            const float safeXScale = attribs.xScale() == 0.0f ? 1.0f : attribs.xScale();
-            const float safeYScale = attribs.yScale() == 0.0f ? 1.0f : attribs.yScale();
-            const float x = static_cast<float>((point.dot(m_xAxis / safeXScale) + attribs.xOffset()) / textureWidth);
-            const float y = static_cast<float>((point.dot(m_yAxis / safeYScale) + attribs.yOffset()) / textureHeight);
+            const Vec3 scaledXAxis = safeScaleAxis(m_xAxis, attribs.xScale());
+            const Vec3 scaledYAxis = safeScaleAxis(m_yAxis, attribs.yScale());
+            const float x = static_cast<float>((point.dot(scaledXAxis) + attribs.xOffset()) / textureWidth);
+            const float y = static_cast<float>((point.dot(scaledYAxis) + attribs.yOffset()) / textureHeight);
             return Vec2f(x, y);
         }
         
@@ -108,9 +112,9 @@ namespace TrenchBroom {
         }
         
         void ParaxialTexCoordSystem::doUpdate(const Vec3& normal, float rotation) {
-            const size_t index = planeNormalIndex(normal);
-            axes(index, m_xAxis, m_yAxis);
-            rotateAxes(m_xAxis, m_yAxis, Math::radians(rotation), index);
+            m_index = planeNormalIndex(normal);
+            axes(m_index, m_xAxis, m_yAxis);
+            rotateAxes(m_xAxis, m_yAxis, Math::radians(rotation), m_index);
         }
         
         void ParaxialTexCoordSystem::doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
