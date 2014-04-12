@@ -59,7 +59,7 @@ namespace TrenchBroom {
         void ParaxialTexCoordSystem::axes(size_t index, Vec3& xAxis, Vec3& yAxis, Vec3& projectionAxis) {
             xAxis = BaseAxes[index * 3 + 1];
             yAxis = BaseAxes[index * 3 + 2];
-            projectionAxis = BaseAxes[index / 2 * 6];
+            projectionAxis = BaseAxes[(index / 2) * 6];
         }
         
         TexCoordSystem* ParaxialTexCoordSystem::doClone() const {
@@ -218,6 +218,13 @@ namespace TrenchBroom {
             attribs.setRotation(newRotation);
             attribs.setXScale(newXScale);
             attribs.setYScale(newYScale);
+        }
+
+        float ParaxialTexCoordSystem::doMeasureAngle(const Vec2f& center, const Vec2f& point) const {
+            const Vec3 vec(point - center);
+            const Vec3& zAxis = m_index % 2 == 0 ? Vec3::PosZ : Vec3::NegZ;
+            const FloatType angleInRadians = Math::C::TwoPi - angleBetween(vec.normalized(), Vec3::PosX, zAxis);
+            return static_cast<float>(Math::degrees(angleInRadians));
         }
 
         Vec3 ParaxialTexCoordSystem::transformAxis(const Vec3& normal, const Vec3& axis, const Mat4x4& transformation) const {

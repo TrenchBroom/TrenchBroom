@@ -108,7 +108,7 @@ namespace TrenchBroom {
             vertices.resize(4 * (3 * cornerSegments + 3));
             size_t vertexIndex = 0;
             
-            const float angle = Math::Constants<float>::PiOverTwo / cornerSegments;
+            const float angle = Math::Cf::PiOverTwo / cornerSegments;
             Vec2f center(0.0f, 0.0f);
             Vec2f translation;
             
@@ -339,7 +339,7 @@ namespace TrenchBroom {
             VertsAndNormals result(segments);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Constants<float>::Pi / static_cast<float>(segments);
+            const float d = 2.0f * Math::Cf::Pi / static_cast<float>(segments);
             for (size_t i = 0; i < segments; i++) {
                 result.vertices[i] = Vec3f(radius * std::sin(a), radius * std::cos(a), 0.0f);
                 result.normals[i] = Vec3f::PosZ;
@@ -356,7 +356,7 @@ namespace TrenchBroom {
             VertsAndNormals result(2 * (segments + 1));
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Constants<float>::Pi / static_cast<float>(segments);
+            const float d = 2.0f * Math::Cf::Pi / static_cast<float>(segments);
             for (size_t i = 0; i <= segments; ++i) {
                 const float s = std::sin(a);
                 const float c = std::cos(a);
@@ -378,10 +378,10 @@ namespace TrenchBroom {
             VertsAndNormals result(3 * (segments + 1));
             
             const float t = std::atan(length / radius);
-            const float n = std::cos(Math::Constants<float>::PiOverTwo - t);
+            const float n = std::cos(Math::Cf::PiOverTwo - t);
             
             float a = 0.0f;
-            const float d = 2.0f * Math::Constants<float>::Pi / static_cast<float>(segments);
+            const float d = 2.0f * Math::Cf::Pi / static_cast<float>(segments);
             float lastS = std::sin(a);
             float lastC = std::cos(a);
             a += d;

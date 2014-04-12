@@ -45,9 +45,9 @@ namespace TrenchBroom {
             Renderer::OrthographicCamera& m_camera;
             
             typedef enum {
-                None,
-                Center,
-                Angle
+                DragMode_None,
+                DragMode_Center,
+                DragMode_Angle
             } DragMode;
             
             DragMode m_dragMode;

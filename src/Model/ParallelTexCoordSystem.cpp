@@ -85,5 +85,11 @@ namespace TrenchBroom {
         void ParallelTexCoordSystem::doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
             // todo
         }
+
+        float ParallelTexCoordSystem::doMeasureAngle(const Vec2f& center, const Vec2f& point) const {
+            const Vec3 vec(point - center);
+            const FloatType angleInRadians = Math::C::TwoPi - angleBetween(vec.normalized(), Vec3::PosX, Vec3::PosZ);
+            return static_cast<float>(Math::degrees(angleInRadians));
+        }
     }
 }

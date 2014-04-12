@@ -68,6 +68,9 @@ namespace Math {
     template <typename T>
     const T Constants<T>:: E                   = static_cast<T>(2.718281828459045);
 
+    typedef Constants<double> Cd;
+    typedef Constants<float> Cf;
+    
     template <typename T>
     bool isnan(const T f) {
 #ifdef _MSC_VER

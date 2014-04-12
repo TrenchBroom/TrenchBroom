@@ -233,7 +233,7 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             const Grid& grid = document->grid();
             const Vec3 center = grid.referencePoint(document->selectionBounds());
-            controller->rotateObjects(objects, center, axis, Math::Constants<FloatType>::PiOverTwo, document->textureLock());
+            controller->rotateObjects(objects, center, axis, Math::C::PiOverTwo, document->textureLock());
         }
         
         void MapView::flipObjects(const Math::Direction direction) {

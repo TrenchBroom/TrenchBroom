@@ -47,7 +47,7 @@ namespace TrenchBroom {
         ToolImpl(document, controller),
         m_helper(helper),
         m_camera(camera),
-        m_dragMode(None) {}
+        m_dragMode(DragMode_None) {}
         
         void TexturingViewRotateTool::doPick(const InputState& inputState, Hits& hits) {
             if (!m_helper.valid())
@@ -96,12 +96,12 @@ namespace TrenchBroom {
                 const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(centerHandleHit.hitPoint());
                 const Vec2f centerHandleInFaceCoords = m_helper.rotationCenterInFaceCoords();
                 m_offset = hitPointInFaceCoords - centerHandleInFaceCoords;
-                m_dragMode = Center;
+                m_dragMode = DragMode_Center;
             } else if (angleHandleHit.isMatch()) {
                 const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(angleHandleHit.hitPoint());
                 const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
                 m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
-                m_dragMode = Angle;
+                m_dragMode = DragMode_Angle;
                 controller()->beginUndoableGroup("Rotate Texture");
             }
             
@@ -110,7 +110,7 @@ namespace TrenchBroom {
         
         bool TexturingViewRotateTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
-            assert(m_dragMode != None);
+            assert(m_dragMode != DragMode_None);
             
             Model::BrushFace* face = m_helper.face();
             const Plane3& boundary = face->boundary();
@@ -121,17 +121,17 @@ namespace TrenchBroom {
             Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
             const Vec2f curPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(curPoint));
             
-            if (m_dragMode == Center) {
+            if (m_dragMode == DragMode_Center) {
                 Vec3::List snapPoints = Model::vertexPositions(face->vertices());
                 snapPoints.push_back(face->center());
                 const Vec2f snappedPoint = m_helper.snapToPoints(curPointInFaceCoords - m_offset, snapPoints);
                 m_helper.setRotationCenter(snappedPoint);
             } else {
                 const Vec3 oldCenterInWorldCoords = faceCoordSystem.texToWorld(Vec3(m_helper.rotationCenterInFaceCoords()));
-                const float angle = m_helper.measureRotationAngle(curPointInFaceCoords - m_offset);
-                std::cout << angle << std::endl;
+                const float angleDelta = Math::mod(m_helper.measureRotationAngle(curPointInFaceCoords), 360.0f);
+                const float angle = Math::mod(face->rotation() + angleDelta, 360.0f);
                 const Model::BrushFaceList applyTo(1, face);
-                controller()->setFaceRotation(applyTo, angle, true);
+                controller()->setFaceRotation(applyTo, angle, false);
 
                 // Correct the offsets and the position of the rotation center.	
                 const Vec2f oldCenterInFaceCoords(faceCoordSystem.worldToTex(oldCenterInWorldCoords));
@@ -145,15 +145,15 @@ namespace TrenchBroom {
         }
         
         void TexturingViewRotateTool::doEndMouseDrag(const InputState& inputState) {
-            if (m_dragMode == Angle)
+            if (m_dragMode == DragMode_Angle)
                 controller()->closeGroup();
-            m_dragMode = None;
+            m_dragMode = DragMode_None;
         }
         
         void TexturingViewRotateTool::doCancelMouseDrag(const InputState& inputState) {
-            if (m_dragMode == Angle)
+            if (m_dragMode == DragMode_Angle)
                 controller()->rollbackGroup();
-            m_dragMode = None;
+            m_dragMode = DragMode_None;
         }
 
         void TexturingViewRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
@@ -164,8 +164,8 @@ namespace TrenchBroom {
             const Hit& centerHandleHit = hits.findFirst(CenterHandleHit, true);
             const Hit& angleHandleHit = hits.findFirst(AngleHandleHit, true);
             
-            const bool highlightCenterHandle = centerHandleHit.isMatch() || m_dragMode == Center;
-            const bool highlightAngleHandle = angleHandleHit.isMatch() || m_dragMode == Angle;
+            const bool highlightCenterHandle = centerHandleHit.isMatch() || m_dragMode == DragMode_Center;
+            const bool highlightAngleHandle = angleHandleHit.isMatch() || m_dragMode == DragMode_Angle;
             
             const PreferenceManager& prefs = PreferenceManager::instance();
             const Color& handleColor = prefs.get(Preferences::HandleColor);

@@ -40,4 +40,9 @@ namespace TrenchBroom {
     typedef Edge<FloatType, 3> Edge3;
     typedef Polygon<FloatType, 3> Polygon3;
 }
+
+namespace Math {
+    typedef Constants<FloatType> C;
+}
+
 #endif

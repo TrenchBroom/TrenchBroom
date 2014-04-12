@@ -409,7 +409,7 @@ namespace TrenchBroom {
                                        neighbour->vertices[1]->position,
                                        neighbour->vertices[2]->position);
                         
-                        if (sideBoundary.equals(neighbourBoundary, Math::Constants<FloatType>::ColinearEpsilon)) {
+                        if (sideBoundary.equals(neighbourBoundary, Math::C::ColinearEpsilon)) {
                             mergeNeighbours(geometry, side, j);
                             --i;
                             break;
@@ -503,7 +503,7 @@ namespace TrenchBroom {
                         BrushEdge* candidate = geometry.edges[j];
                         if (edge->isIncidentWith(candidate)) {
                             const Vec3 candidateVector = candidate->vector();
-                            if (edgeVector.parallelTo(candidateVector, Math::Constants<FloatType>::ColinearEpsilon)) {
+                            if (edgeVector.parallelTo(candidateVector, Math::C::ColinearEpsilon)) {
                                 if (edge->end == candidate->end)
                                     candidate->flip();
                                 if (edge->end == candidate->start &&

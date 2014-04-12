@@ -449,6 +449,10 @@ namespace TrenchBroom {
             return m_texCoordSystem->fromMatrix(offset, scale);
         }
         
+        float BrushFace::measureTextureAngle(const Vec2f& center, const Vec2f& point) const {
+            return m_texCoordSystem->measureAngle(center, point);
+        }
+
         const BrushEdgeList& BrushFace::edges() const {
             assert(m_side != NULL);
             return m_side->edges;

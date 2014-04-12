@@ -49,6 +49,8 @@ namespace TrenchBroom {
             Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;
             void doUpdate(const Vec3& normal, const BrushFaceAttribs& attribs);
             void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs);
+
+            float doMeasureAngle(const Vec2f& center, const Vec2f& point) const;
         };
     }
 }

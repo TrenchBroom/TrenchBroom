@@ -46,6 +46,7 @@ namespace TrenchBroom {
 
             Mat4x4 toMatrix(const Vec2f& offset, const Vec2f& scale) const;
             Mat4x4 fromMatrix(const Vec2f& offset, const Vec2f& scale) const;
+            float measureAngle(const Vec2f& center, const Vec2f& point) const;
         protected:
             Vec3 project(const Vec3& normal, const Vec3& vec) const;
             Vec3 project(const Plane3& plane, const Vec3& vec) const;
@@ -61,6 +62,7 @@ namespace TrenchBroom {
             virtual void doUpdate(const Vec3& normal, const BrushFaceAttribs& attribs) = 0;
             virtual void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) = 0;
 
+            virtual float doMeasureAngle(const Vec2f& center, const Vec2f& point) const = 0;
         };
     }
 }

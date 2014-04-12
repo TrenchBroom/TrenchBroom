@@ -30,7 +30,7 @@ namespace TrenchBroom {
         Circle::Circle(const float radius, const size_t segments, const bool filled) {
             assert(radius > 0.0f);
             assert(segments > 0);
-            init2D(radius, segments, filled, 0.0f, Math::Constants<float>::TwoPi);
+            init2D(radius, segments, filled, 0.0f, Math::Cf::TwoPi);
         }
         
         Circle::Circle(const float radius, const size_t segments, const bool filled, const float startAngle, const float angleLength) {
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             }
             const float minAngle = std::min(angle1, angle2);
             const float maxAngle = std::max(angle1, angle2);
-            const float startAngle = (maxAngle - minAngle <= Math::Constants<float>::Pi ? minAngle : maxAngle);
+            const float startAngle = (maxAngle - minAngle <= Math::Cf::Pi ? minAngle : maxAngle);
 
             init3D(radius, segments, filled, axis, startAngle, angleLength);
         }
