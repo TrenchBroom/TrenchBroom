@@ -500,7 +500,7 @@ namespace TrenchBroom {
                 const String name = token.data();
                 expect(QuakeMapToken::String | QuakeMapToken::Integer, token = m_tokenizer.nextToken());
                 const String value = token.data();
-                const ExtraProperty::Type type = token.type() == QuakeMapToken::String ? ExtraProperty::TString : ExtraProperty::TInteger;
+                const ExtraProperty::Type type = token.type() == QuakeMapToken::String ? ExtraProperty::Type_String : ExtraProperty::Type_Integer;
                 properties.insert(std::make_pair(name, ExtraProperty(type, name, value, token.line(), token.column())));
                 expect(QuakeMapToken::String | QuakeMapToken::Eol | QuakeMapToken::Eof, token = m_tokenizer.nextToken());
             }
@@ -511,7 +511,7 @@ namespace TrenchBroom {
             it = properties.find("hideIssues");
             if (it != properties.end()) {
                 const ExtraProperty& property = it->second;
-                property.assertType(ExtraProperty::TInteger);
+                property.assertType(ExtraProperty::Type_Integer);
                 const Model::IssueType mask = property.intValue<Model::IssueType>();
                 object->setHiddenIssues(mask);
             }

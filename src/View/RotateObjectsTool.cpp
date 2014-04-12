@@ -136,17 +136,17 @@ namespace TrenchBroom {
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             if (m_helper != NULL)
                 m_helper->render(inputState, dragging(), renderContext);
-            else if (hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HACenter)
+            else if (hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea_Center)
                 m_moveHelper.render(inputState, dragging(), renderContext);
         }
 
         RotateObjectsHandle::HitArea RotateObjectsTool::highlightHandleArea(const InputState& inputState) const {
             if (dragging() && m_helper == &m_moveHelper)
-                return RotateObjectsHandle::HACenter;
+                return RotateObjectsHandle::HitArea_Center;
 
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             if (!hit.isMatch())
-                return RotateObjectsHandle::HANone;
+                return RotateObjectsHandle::HitArea_None;
             return hit.target<RotateObjectsHandle::HitArea>();
         }
 
@@ -166,11 +166,11 @@ namespace TrenchBroom {
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             if (!hit.isMatch())
                 return false;
-            return hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HACenter;
+            return hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea_Center;
         }
         
         Vec3 RotateObjectsTool::doGetMoveOrigin(const InputState& inputState) const {
-            return m_handle.getPointHandlePosition(RotateObjectsHandle::HACenter);
+            return m_handle.getPointHandlePosition(RotateObjectsHandle::HitArea_Center);
         }
         
         bool RotateObjectsTool::doStartMove(const InputState& inputState) {
@@ -182,9 +182,9 @@ namespace TrenchBroom {
         }
         
         MoveResult RotateObjectsTool::doMove(const Vec3& delta) {
-            const Vec3 position = m_handle.getPointHandlePosition(RotateObjectsHandle::HACenter);
+            const Vec3 position = m_handle.getPointHandlePosition(RotateObjectsHandle::HitArea_Center);
             m_handle.setPosition(position + delta);
-            return Continue;
+            return MoveResult_Continue;
         }
         
         void RotateObjectsTool::doEndMove(const InputState& inputState) {}
@@ -194,18 +194,18 @@ namespace TrenchBroom {
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             if (!hit.isMatch())
                 return false;
-            return hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HACenter;
+            return hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea_Center;
         }
         
         RotateInfo RotateObjectsTool::doGetRotateInfo(const InputState& inputState) const {
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             assert(hit.isMatch());
             const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
-            assert(area != RotateObjectsHandle::HANone &&
-                   area != RotateObjectsHandle::HACenter);
+            assert(area != RotateObjectsHandle::HitArea_None &&
+                   area != RotateObjectsHandle::HitArea_Center);
             
             RotateInfo info;
-            info.center = m_handle.getPointHandlePosition(RotateObjectsHandle::HACenter);
+            info.center = m_handle.getPointHandlePosition(RotateObjectsHandle::HitArea_Center);
             info.axis = m_handle.getRotationAxis(area);
             info.origin = m_handle.getPointHandlePosition(area);
             info.plane = Plane3(info.origin, info.axis);
@@ -219,14 +219,14 @@ namespace TrenchBroom {
             _unused(hit);
             assert(hit.isMatch());
             
-            assert(hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HANone &&
-                   hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HACenter);
+            assert(hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea_None &&
+                   hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea_Center);
 
             return true;
         }
         
         FloatType RotateObjectsTool::doGetAngle(const InputState& inputState, const Vec3& handlePoint, const Vec3& curPoint, const Vec3& axis) const {
-            const Vec3 handlePos = m_handle.getPointHandlePosition(RotateObjectsHandle::HACenter);
+            const Vec3 handlePos = m_handle.getPointHandlePosition(RotateObjectsHandle::HitArea_Center);
             const Vec3 refVector = (handlePoint - handlePos).normalized();
             const Vec3 curVector = (curPoint - handlePos).normalized();
             return document()->grid().snapAngle(angleBetween(curVector, refVector, axis));

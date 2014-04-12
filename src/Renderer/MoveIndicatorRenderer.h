@@ -33,10 +33,10 @@ namespace TrenchBroom {
         class MoveIndicatorRenderer {
         public:
             typedef enum {
-                HorizontalXY,
-                HorizontalX,
-                HorizontalY,
-                Vertical
+                Direction_XY,
+                Direction_X,
+                Direction_Y,
+                Direction_Z
             } Direction;
         private:
             typedef VertexSpecs::P2::Vertex Vertex;

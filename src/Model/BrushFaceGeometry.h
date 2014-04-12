@@ -36,9 +36,9 @@ namespace TrenchBroom {
         class BrushFaceGeometry : public Allocator<BrushFaceGeometry> {
         public:
             typedef enum {
-                Keep,
-                Drop,
-                Split
+                Mark_Keep,
+                Mark_Drop,
+                Mark_Split
             } Mark;
 
             BrushVertexList vertices;

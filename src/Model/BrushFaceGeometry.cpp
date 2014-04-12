@@ -64,14 +64,14 @@ namespace TrenchBroom {
             assert(drop + keep + split + undecided == edges.size());
             assert(undecided < edges.size());
             if (keep + undecided == edges.size())
-                return Keep;
+                return Mark_Keep;
             if (drop + undecided == edges.size())
-                return Drop;
-            return Split;
+                return Mark_Drop;
+            return Mark_Split;
         }
 
         BrushEdge* BrushFaceGeometry::splitUsingEdgeMarks() {
-            assert(mark() == Split);
+            assert(mark() == Mark_Split);
             assert(!edges.empty());
 
             BrushEdgeList::iterator splitIt1 = edges.end();
@@ -102,12 +102,12 @@ namespace TrenchBroom {
                     newEdgeEnd = lastEdge->endVertex(this);
                     assert(newEdgeEnd != NULL);
                 } else if (currentMark == BrushEdge::Split && lastMark == BrushEdge::Split) {
-                    if (currentEdge->startVertex(this)->mark == BrushVertex::New) {
+                    if (currentEdge->startVertex(this)->mark == BrushVertex::Mark_New) {
                         splitIt1 = splitIt2 = it;
                         newEdgeStart = currentEdge->startVertex(this);
                         newEdgeEnd = lastEdge->endVertex(this);
                     } else {
-                        assert(currentEdge->startVertex(this)->mark == BrushVertex::Keep);
+                        assert(currentEdge->startVertex(this)->mark == BrushVertex::Mark_Keep);
                         splitIt1 = it < edges.end() - 1 ? it + 1 : edges.begin();
                         splitIt2 = it > edges.begin() ? it - 1 : edges.end() - 1;
                         newEdgeStart = lastEdge->startVertex(this);

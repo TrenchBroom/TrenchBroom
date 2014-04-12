@@ -44,10 +44,10 @@ namespace TrenchBroom {
             if (components.size() != 3)
                 return ColorPtr(new ByteColor(0, 0, 0));
             
-            ColorRange range = detectRange(components);
-            assert(range != Mixed);
+            const ColorRange range = detectRange(components);
+            assert(range != ColorRange_Mixed);
             
-            if (range == Byte) {
+            if (range == ColorRange_Byte) {
                 const int r = std::atoi(components[0].c_str());
                 const int g = std::atoi(components[1].c_str());
                 const int b = std::atoi(components[2].c_str());
@@ -66,7 +66,7 @@ namespace TrenchBroom {
         }
 
         SmartColorEditor::ColorPtr SmartColorEditor::Color::toColor(const ColorRange range) const {
-            if (range == Float)
+            if (range == ColorRange_Float)
                 return toFloatColor();
             return toByteColor();
         }
@@ -78,12 +78,12 @@ namespace TrenchBroom {
 
         SmartColorEditor::ColorRange SmartColorEditor::Color::detectRange(const StringList& components) {
             if (components.size() != 3)
-                return Byte;
+                return ColorRange_Byte;
             
-            ColorRange range = Byte;
-            for (size_t i = 0; i < 3 && range == Byte; ++i)
+            ColorRange range = ColorRange_Byte;
+            for (size_t i = 0; i < 3 && range == ColorRange_Byte; ++i)
                 if (components[i].find('.') != String::npos)
-                    range = Float;
+                    range = ColorRange_Float;
             
             return range;
         }
@@ -168,12 +168,12 @@ namespace TrenchBroom {
         SmartColorEditor::ColorRange combineColorRanges(const SmartColorEditor::ColorRange oldRange, const SmartColorEditor::ColorRange newRange) {
             if (oldRange == newRange)
                 return oldRange;
-            return SmartColorEditor::Mixed;
+            return SmartColorEditor::ColorRange_Mixed;
         }
         
         SmartColorEditor::ColorRange detectColorRange(const Model::Entity& entity, const Model::PropertyKey& key) {
             if (!entity.hasProperty(key))
-                return SmartColorEditor::Byte;
+                return SmartColorEditor::ColorRange_Byte;
             const Model::PropertyValue& value = entity.property(key);
             return SmartColorEditor::Color::detectRange(value);
         }
@@ -222,14 +222,14 @@ namespace TrenchBroom {
         void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
             controller()->beginUndoableGroup("Convert " + key() + " Range");
             const Model::EntityList& entities = SmartPropertyEditor::entities();
-            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), key(), Float), Model::MatchAll());
+            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), key(), ColorRange_Float), Model::MatchAll());
             controller()->closeGroup();
         }
         
         void SmartColorEditor::OnByteRangeRadioButton(wxCommandEvent& event) {
             controller()->beginUndoableGroup("Convert " + key() + " Range");
             const Model::EntityList& entities = SmartPropertyEditor::entities();
-            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), key(), Byte), Model::MatchAll());
+            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), key(), ColorRange_Byte), Model::MatchAll());
             controller()->closeGroup();
         }
         
@@ -331,11 +331,11 @@ namespace TrenchBroom {
         void SmartColorEditor::updateColorRange(const Model::EntityList& entities) {
             const ColorRange range = detectColorRange(entities, key());
             switch (range) {
-                case Float:
+                case ColorRange_Float:
                     m_floatRadio->SetValue(true);
                     m_byteRadio->SetValue(false);
                     break;
-                case Byte:
+                case ColorRange_Byte:
                     m_floatRadio->SetValue(false);
                     m_byteRadio->SetValue(true);
                     break;
@@ -401,7 +401,7 @@ namespace TrenchBroom {
         }
 
         void SmartColorEditor::setColor(const wxColor& wxColor) const {
-            ColorPtr color = Color::fromWxColor(wxColor, Byte);
+            ColorPtr color = Color::fromWxColor(wxColor, ColorRange_Byte);
             
             controller()->beginUndoableGroup("Set " + key());
             const Model::EntityList& entities = SmartPropertyEditor::entities();

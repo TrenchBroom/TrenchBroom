@@ -123,9 +123,9 @@ namespace TrenchBroom {
 
             struct MoveVertexResult {
                 typedef enum {
-                    VertexMoved,
-                    VertexDeleted,
-                    VertexUnchanged
+                    Type_VertexMoved,
+                    Type_VertexDeleted,
+                    Type_VertexUnchanged
                 } Type;
                 
                 const Type type;
@@ -134,7 +134,7 @@ namespace TrenchBroom {
                 MoveVertexResult(const Type i_type, BrushVertex* i_vertex = NULL) :
                 type(i_type),
                 vertex(i_vertex) {
-                    assert(type != VertexDeleted || vertex == NULL);
+                    assert(type != Type_VertexDeleted || vertex == NULL);
                 }
             };
         protected:
@@ -335,10 +335,10 @@ namespace TrenchBroom {
                     assert(geometry.sanityCheck());
                     
                     if (!VectorUtils::contains(geometry.vertices, vertex))
-                        return MoveVertexResult(MoveVertexResult::VertexDeleted);
+                        return MoveVertexResult(MoveVertexResult::Type_VertexDeleted);
                 }
                 
-                return MoveVertexResult(MoveVertexResult::VertexMoved, vertex);
+                return MoveVertexResult(MoveVertexResult::Type_VertexMoved, vertex);
             }
             
             void updateFacePoints(BrushGeometry& geometry) {
@@ -369,7 +369,7 @@ namespace TrenchBroom {
         private:
             MoveVertexResult cancel(BrushGeometry& geometry, BrushVertex* vertex) {
                 cleanup(geometry);
-                return MoveVertexResult(MoveVertexResult::VertexUnchanged, vertex);
+                return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, vertex);
             }
             
             void cleanup(BrushGeometry& geometry) {

@@ -83,7 +83,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::BrushEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_BrushEntity, definition->type());
             ASSERT_EQ(String("worldspawn"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Only used for the world entity. "
@@ -110,7 +110,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("monster_zombie"), definition->name());
             ASSERT_VEC_EQ(Color(1.0f, 0.0f, 0.0f, 1.0f), definition->color());
             ASSERT_EQ(String("If crucified, stick the bounding box 12 pixels back into a wall to look right."), definition->description());
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, properties.size()); // spawnflags
             
             const Assets::PropertyDefinitionPtr property = properties[0];
-            ASSERT_EQ(Assets::PropertyDefinition::FlagsProperty, property->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_FlagsProperty, property->type());
             
             const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != NULL);
@@ -181,7 +181,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("light"), definition->name());
             
             const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
@@ -189,11 +189,11 @@ namespace TrenchBroom {
             
             Assets::PropertyDefinitionPtr spawnflags = properties[0];
             ASSERT_EQ(Model::PropertyKeys::Spawnflags, spawnflags->name());
-            ASSERT_EQ(Assets::PropertyDefinition::FlagsProperty, spawnflags->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_FlagsProperty, spawnflags->type());
 
             Assets::PropertyDefinitionPtr style = properties[1];
             ASSERT_EQ(String("style"), style->name());
-            ASSERT_EQ(Assets::PropertyDefinition::ChoiceProperty, style->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_ChoiceProperty, style->type());
             
             const Assets::ChoicePropertyDefinition* choice = static_cast<const Assets::ChoicePropertyDefinition*>(definition->propertyDefinition("style"));
             ASSERT_EQ(12u, choice->options().size());
@@ -223,7 +223,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("item_cells"), definition->name());
             
             const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
@@ -251,7 +251,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("item_cells"), definition->name());
             
             const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();

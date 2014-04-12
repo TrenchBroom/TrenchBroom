@@ -39,17 +39,17 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<FaceAttributeCommand> Ptr;
         private:
             typedef enum {
-                ValNone,
-                ValSet,
-                ValAdd,
-                ValMul
+                ValueOp_None,
+                ValueOp_Set,
+                ValueOp_Add,
+                ValueOp_Mul
             } ValueOp;
 
             typedef enum {
-                FlagNone,
-                FlagReplace,
-                FlagSet,
-                FlagUnset
+                FlagOp_None,
+                FlagOp_Replace,
+                FlagOp_Set,
+                FlagOp_Unset
             } FlagOp;
             
             View::MapDocumentWPtr m_document;
@@ -120,11 +120,11 @@ namespace TrenchBroom {
             template <typename T>
             T evaluate(const T oldValue, const T newValue, const ValueOp op) const {
                 switch (op) {
-                    case ValSet:
+                    case ValueOp_Set:
                         return newValue;
-                    case ValAdd:
+                    case ValueOp_Add:
                         return oldValue + newValue;
-                    case ValMul:
+                    case ValueOp_Mul:
                         return oldValue * newValue;
                     default:
                         return oldValue;
@@ -134,11 +134,11 @@ namespace TrenchBroom {
             template <typename T>
             T evaluate(const T oldValue, const T newValue, const FlagOp op) const {
                 switch (op) {
-                    case FlagReplace:
+                    case FlagOp_Replace:
                         return newValue;
-                    case FlagSet:
+                    case FlagOp_Set:
                         return oldValue | newValue;
-                    case FlagUnset:
+                    case FlagOp_Unset:
                         return oldValue & ~newValue;
                     default:
                         return oldValue;

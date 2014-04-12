@@ -269,7 +269,7 @@ namespace TrenchBroom {
         }
 
         void NotifyParent::operator()(Object* object) {
-            if (object->type() == Object::OTBrush) {
+            if (object->type() == Object::Type_Brush) {
                 Model::Object* parent = static_cast<Brush*>(object)->parent();
                 if (parent != NULL && m_notified.insert(parent).second)
                     m_notifier(parent);

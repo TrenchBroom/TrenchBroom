@@ -42,8 +42,8 @@ namespace TrenchBroom {
             typedef std::vector<Ptr> List;
             
             typedef enum {
-                FlatCurve,
-                EaseInEaseOutCurve
+                Curve_Flat,
+                Curve_EaseInEaseOut
             } Curve;
             
         private:

@@ -30,19 +30,19 @@ namespace TrenchBroom {
     namespace Model {
         BrushVertex::BrushVertex(const Vec3& i_position) :
         position(i_position),
-        mark(New) {}
+        mark(Mark_New) {}
 
         void BrushVertex::updateMark(const Plane3& plane) {
             const Math::PointStatus::Type status = plane.pointStatus(position);
             switch (status) {
                 case Math::PointStatus::PSAbove:
-                    mark = Drop;
+                    mark = Mark_Drop;
                     break;
                 case Math::PointStatus::PSBelow:
-                    mark = Keep;
+                    mark = Mark_Keep;
                     break;
                 default:
-                    mark = Undecided;
+                    mark = Mark_Undecided;
                     break;
             }
         }

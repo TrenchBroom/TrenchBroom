@@ -35,10 +35,10 @@ namespace TrenchBroom {
             typedef size_t CommandType;
             
             typedef enum {
-                Default,
-                Doing,
-                Done,
-                Undoing
+                CommandState_Default,
+                CommandState_Doing,
+                CommandState_Done,
+                CommandState_Undoing
             } CommandState;
         private:
             CommandType m_type;

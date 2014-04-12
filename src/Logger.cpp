@@ -25,7 +25,7 @@ namespace TrenchBroom {
     Logger::~Logger() {}
     
     void Logger::debug(const String& message) {
-        log(LLDebug, message);
+        log(LogLevel_Debug, message);
     }
     
     void Logger::debug(const char* format, ...) {
@@ -37,7 +37,7 @@ namespace TrenchBroom {
     }
     
     void Logger::info(const String& message) {
-        log(LLInfo, message);
+        log(LogLevel_Info, message);
     }
     
     void Logger::info(const char* format, ...) {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
     }
     
     void Logger::warn(const String& message) {
-        log(LLWarn, message);
+        log(LogLevel_Warn, message);
     }
     
     void Logger::warn(const char* format, ...) {
@@ -61,7 +61,7 @@ namespace TrenchBroom {
     }
     
     void Logger::error(const String& message) {
-        log(LLError, message);
+        log(LogLevel_Error, message);
     }
     
     void Logger::error(const char* format, ...) {

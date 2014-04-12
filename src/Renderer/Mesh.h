@@ -58,11 +58,11 @@ namespace TrenchBroom {
             typedef std::map<Key, TriangleSeries> TriangleSeriesMap;
         private:
             typedef enum {
-                Set,
-                Fan,
-                Strip,
-                Unset
-            } CurrentTriangleType;
+                TriangleType_Set,
+                TriangleType_Fan,
+                TriangleType_Strip,
+                TriangleType_Unset
+            } TriangleType;
 
             typedef std::set<Key> KeySet;
             
@@ -75,14 +75,14 @@ namespace TrenchBroom {
             typename TriangleSeriesMap::iterator m_currentFan;
             typename TriangleSeriesMap::iterator m_currentStrip;
             
-            CurrentTriangleType m_currentType;
+            TriangleType m_currentType;
             size_t m_vertexCount;
         public:
             Mesh() :
             m_currentSet(m_triangleSets.end()),
             m_currentFan(m_triangleFans.end()),
             m_currentStrip(m_triangleStrips.end()),
-            m_currentType(Unset),
+            m_currentType(TriangleType_Unset),
             m_vertexCount(0) {}
             
             const size_t size() const {
@@ -90,17 +90,17 @@ namespace TrenchBroom {
             }
             
             const TriangleSetMap& triangleSets() const {
-                assert(m_currentType == Unset);
+                assert(m_currentType == TriangleType_Unset);
                 return m_triangleSets;
             }
             
             const TriangleSeriesMap& triangleFans() const {
-                assert(m_currentType == Unset);
+                assert(m_currentType == TriangleType_Unset);
                 return m_triangleFans();
             }
             
             const TriangleSeriesMap& triangleStrips() const {
-                assert(m_currentType == Unset);
+                assert(m_currentType == TriangleType_Unset);
                 return m_triangleStrips;
             }
             
@@ -141,8 +141,8 @@ namespace TrenchBroom {
             }
             
             void beginTriangleSet(Key key) {
-                assert(m_currentType == Unset);
-                m_currentType = Set;
+                assert(m_currentType == TriangleType_Unset);
+                m_currentType = TriangleType_Set;
                 
                 if (m_currentSet == m_triangleSets.end() || m_currentSet->first != key)
                     m_currentSet = MapUtils::findOrInsert(m_triangleSets, key);
@@ -152,7 +152,7 @@ namespace TrenchBroom {
             void addTriangleToSet(const typename VertexSpec::Vertex& v1,
                                          const typename VertexSpec::Vertex& v2,
                                          const typename VertexSpec::Vertex& v3) {
-                assert(m_currentType == Set);
+                assert(m_currentType == TriangleType_Set);
                 m_currentSet->second.push_back(v1);
                 m_currentSet->second.push_back(v2);
                 m_currentSet->second.push_back(v3);
@@ -160,15 +160,15 @@ namespace TrenchBroom {
             }
             
             void addTrianglesToSet(const typename VertexSpec::Vertex::List& vertices) {
-                assert(m_currentType == Set);
+                assert(m_currentType == TriangleType_Set);
                 typename VertexSpec::Vertex::List& setVertices = m_currentSet->second;
                 setVertices.insert(setVertices.end(), vertices.begin(), vertices.end());
                 m_vertexCount += vertices.size();
             }
 
             void endTriangleSet() {
-                assert(m_currentType == Set);
-                m_currentType = Unset;
+                assert(m_currentType == TriangleType_Set);
+                m_currentType = TriangleType_Unset;
             }
             
             void addTriangleFans(Key key, const TriangleSeries& fans) {
@@ -185,8 +185,8 @@ namespace TrenchBroom {
             }
             
             void beginTriangleFan(Key key) {
-                assert(m_currentType == Unset);
-                m_currentType = Fan;
+                assert(m_currentType == TriangleType_Unset);
+                m_currentType = TriangleType_Fan;
                 
                 if (m_currentFan == m_triangleFans.end() || m_currentFan->first != key)
                     m_currentFan = MapUtils::findOrInsert(m_triangleFans, key);
@@ -195,14 +195,14 @@ namespace TrenchBroom {
             }
             
             void addVertexToFan(const typename VertexSpec::Vertex& v) {
-                assert(m_currentType == Fan);
+                assert(m_currentType == TriangleType_Fan);
                 m_currentFan->second.back().push_back(v);
                 ++m_vertexCount;
             }
             
             void endTriangleFan() {
-                assert(m_currentType == Fan);
-                m_currentType = Unset;
+                assert(m_currentType == TriangleType_Fan);
+                m_currentType = TriangleType_Unset;
             }
             
             void addTriangleStrips(Key key, const TriangleSeries& strips) {
@@ -219,8 +219,8 @@ namespace TrenchBroom {
             }
             
             void beginTriangleStrip(Key key) {
-                assert(m_currentType == Unset);
-                m_currentType = Strip;
+                assert(m_currentType == TriangleType_Unset);
+                m_currentType = TriangleType_Strip;
                 
                 if (m_currentStrip == m_triangleStrips.end() || m_currentStrip->first != key)
                     m_currentStrip = MapUtils::findOrInsert(m_currentStrip, key);
@@ -229,14 +229,14 @@ namespace TrenchBroom {
             }
 
             void addVertexToStrip(const typename VertexSpec::Vertex& v) {
-                assert(m_currentType == Strip);
+                assert(m_currentType == TriangleType_Strip);
                 m_currentStrip->second.back().push_back(v);
                 ++m_vertexCount;
             }
 
             void endTriangleStrip() {
-                assert(m_currentType == Strip);
-                m_currentType = Unset;
+                assert(m_currentType == TriangleType_Strip);
+                m_currentType = TriangleType_Unset;
             }
 
         private:

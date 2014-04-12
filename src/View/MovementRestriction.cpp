@@ -24,21 +24,21 @@
 namespace TrenchBroom {
     namespace View {
         MovementRestriction::MovementRestriction() :
-        m_horizontalRestriction(ARNone),
+        m_horizontalRestriction(Restriction_None),
         m_xAxis(Vec3::PosX),
         m_yAxis(Vec3::PosY),
         m_verticalRestriction(false) {}
         
         void MovementRestriction::toggleHorizontalRestriction(const Renderer::Camera& camera) {
             switch (m_horizontalRestriction) {
-                case ARNone:
+                case Restriction_None:
                     if (camera.right().firstComponent() == Math::Axis::AX)
                         m_yAxis = Vec3::Null;
                     else
                         m_xAxis = Vec3::Null;
-                    m_horizontalRestriction = ARLeftRight;
+                    m_horizontalRestriction = Restriction_LeftRight;
                     break;
-                case ARLeftRight:
+                case Restriction_LeftRight:
                     if (m_xAxis == Vec3::Null) {
                         m_xAxis = Vec3::PosX;
                         m_yAxis = Vec3::Null;
@@ -46,12 +46,12 @@ namespace TrenchBroom {
                         m_xAxis = Vec3::Null;
                         m_yAxis = Vec3::PosY;
                     }
-                    m_horizontalRestriction = ARForwardBack;
+                    m_horizontalRestriction = Restriction_ForwardBack;
                     break;
-                case ARForwardBack:
+                case Restriction_ForwardBack:
                     m_xAxis = Vec3f::PosX;
                     m_yAxis = Vec3f::PosY;
-                    m_horizontalRestriction = ARNone;
+                    m_horizontalRestriction = Restriction_None;
                     break;
             }
         }

@@ -81,17 +81,17 @@ namespace TrenchBroom {
             const BrushVertex::Mark startMark = start->mark;
             const BrushVertex::Mark endMark = end->mark;
             
-            if (startMark == BrushVertex::Drop)
+            if (startMark == BrushVertex::Mark_Drop)
                 drop++;
-            else if (startMark == BrushVertex::Keep)
+            else if (startMark == BrushVertex::Mark_Keep)
                 keep++;
-            else if (startMark == BrushVertex::Undecided)
+            else if (startMark == BrushVertex::Mark_Undecided)
                 undecided++;
-            if (endMark == BrushVertex::Drop)
+            if (endMark == BrushVertex::Mark_Drop)
                 drop++;
-            else if (endMark == BrushVertex::Keep)
+            else if (endMark == BrushVertex::Mark_Keep)
                 keep++;
-            else if (endMark == BrushVertex::Undecided)
+            else if (endMark == BrushVertex::Mark_Undecided)
                 undecided++;
             assert(drop + keep + undecided == 2);
             
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             position.correct();
             
             BrushVertex* newVertex = new BrushVertex(position);
-            if (start->mark == BrushVertex::Drop)
+            if (start->mark == BrushVertex::Mark_Drop)
                 start = newVertex;
             else
                 end = newVertex;

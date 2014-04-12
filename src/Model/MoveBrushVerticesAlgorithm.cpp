@@ -56,7 +56,7 @@ namespace TrenchBroom {
                 const Vec3 end = start + m_delta;
                 
                 MoveVertexResult result = moveVertex(testGeometry, vertex, true, start, end);
-                canMove = result.type != MoveVertexResult::VertexUnchanged;
+                canMove = result.type != MoveVertexResult::Type_VertexUnchanged;
             }
             
             canMove &= testGeometry.sides.size() >= 3;
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 const Vec3 end = start + m_delta;
                 
                 MoveVertexResult result = moveVertex(geometry, vertex, true, start, end);
-                if (result.type == MoveVertexResult::VertexMoved)
+                if (result.type == MoveVertexResult::Type_VertexMoved)
                     movedVertices.push_back(result.vertex);
                 updateFacePoints(geometry);
             }

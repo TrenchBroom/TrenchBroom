@@ -109,6 +109,7 @@ namespace TrenchBroom {
             Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(gameName);
             m_gamePathValueLabel->SetLabel(gamePath.isEmpty() ? "not set" : gamePath.asString());
+            m_gameListBox->reloadGameInfos();
         }
         
         bool GamesPreferencePane::doValidate() {

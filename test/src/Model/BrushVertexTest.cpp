@@ -36,11 +36,11 @@ namespace TrenchBroom {
         TEST(BrushVertexTest, getMark) {
             BrushVertex v(Vec3::Null);
             v.updateMark(Plane3(-1.0, Vec3::PosZ));
-            ASSERT_EQ(BrushVertex::Drop, v.mark);
+            ASSERT_EQ(BrushVertex::Mark_Drop, v.mark);
             v.updateMark(Plane3( 0.0, Vec3::PosZ));
-            ASSERT_EQ(BrushVertex::Undecided, v.mark);
+            ASSERT_EQ(BrushVertex::Mark_Undecided, v.mark);
             v.updateMark(Plane3( 1.0, Vec3::PosZ));
-            ASSERT_EQ(BrushVertex::Keep, v.mark);
+            ASSERT_EQ(BrushVertex::Mark_Keep, v.mark);
         }
         
         TEST(BrushVertexTest, findBrushVertex) {

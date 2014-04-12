@@ -36,17 +36,17 @@ namespace TrenchBroom {
         m_vbo(0xFF) {}
 
         void MoveIndicatorRenderer::render(RenderContext& renderContext, const Vec3f& position, const Direction direction) {
-            const float offset = direction == HorizontalXY ? HalfWidth + 1.0f : 1.0f;
+            const float offset = direction == Direction_XY ? HalfWidth + 1.0f : 1.0f;
             
             Vertex::List triangleVerts;
             Vertex::List outlineVerts;
             
-            if (direction == Vertical || direction != HorizontalY) {
+            if (direction == Direction_Z || direction != Direction_Y) {
                 makeSolidYArrows(offset, triangleVerts);
                 makeOutlineYArrows(offset, outlineVerts);
             }
             
-            if (direction != Vertical && direction != HorizontalX) {
+            if (direction != Direction_Z && direction != Direction_X) {
                 makeSolidXArrows(offset, triangleVerts);
                 makeOutlineXArrows(offset, outlineVerts);
             }
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             vboState.active();
             
             Mat4x4f matrix = translationMatrix(position);
-            if (direction == Vertical)
+            if (direction == Direction_Z)
                 matrix *= renderContext.camera().verticalBillboardMatrix();
             MultiplyModelMatrix applyTransformation(renderContext.transformation(), matrix);
 

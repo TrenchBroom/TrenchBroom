@@ -76,12 +76,12 @@ namespace TrenchBroom {
             const BBox3& worldBounds = document()->worldBounds();
             const BBox3 bounds = Model::Object::bounds(document()->selectedObjects());
             if (!worldBounds.contains(bounds.translated(delta)))
-                return Deny;
+                return MoveResult_Deny;
             
             if (m_duplicateObjects) {
                 const Model::ObjectList& duplicates = controller()->duplicateObjects(document()->selectedObjects(), worldBounds);
                 if (duplicates.empty())
-                    return Conclude;
+                    return MoveResult_Conclude;
                 
                 controller()->deselectAll();
                 controller()->selectObjects(duplicates);
@@ -89,8 +89,8 @@ namespace TrenchBroom {
             }
             
             if (!controller()->moveObjects(document()->selectedObjects(), delta, document()->textureLock()))
-                return Deny;
-            return Continue;
+                return MoveResult_Deny;
+            return MoveResult_Continue;
         }
         
         void MoveObjectsTool::doEndMove(const InputState& inputState) {}

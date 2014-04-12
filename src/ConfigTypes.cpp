@@ -36,17 +36,17 @@ namespace TrenchBroom {
     }
     
     ConfigEntry::operator const ConfigValue&() const {
-        assert(m_type == TValue);
+        assert(m_type == Type_Value);
         return static_cast<const ConfigValue&>(*this);
     }
     
     ConfigEntry::operator const ConfigList&() const {
-        assert(m_type == TList);
+        assert(m_type == Type_List);
         return static_cast<const ConfigList&>(*this);
     }
     
     ConfigEntry::operator const ConfigTable&() const {
-        assert(m_type == TTable);
+        assert(m_type == Type_Table);
         return static_cast<const ConfigTable&>(*this);
     }
 
@@ -54,7 +54,7 @@ namespace TrenchBroom {
     m_type(type) {}
 
     ConfigValue::ConfigValue(const String& value) :
-    ConfigEntry(TValue),
+    ConfigEntry(Type_Value),
     m_value(value) {}
     
     ConfigValue::operator const String&() const {
@@ -62,7 +62,7 @@ namespace TrenchBroom {
     }
 
     ConfigList::ConfigList() :
-    ConfigEntry(TList) {}
+    ConfigEntry(Type_List) {}
 
     const ConfigEntry& ConfigList::operator[](const size_t index) const {
         assert(index < count());
@@ -78,7 +78,7 @@ namespace TrenchBroom {
     }
 
     ConfigTable::ConfigTable() :
-    ConfigEntry(TTable) {}
+    ConfigEntry(Type_Table) {}
 
     const StringSet& ConfigTable::keys() const {
         return m_keys;

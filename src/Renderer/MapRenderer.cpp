@@ -209,39 +209,39 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::objectWasAdded(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity) {
+            if (object->type() == Model::Object::Type_Entity) {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
                 m_unselectedEntityRenderer.addEntity(entity);
                 m_entityLinkRenderer.invalidate();
                 
                 const Model::BrushList& brushes = entity->brushes();
                 m_unselectedBrushRenderer.addBrushes(brushes.begin(), brushes.end());
-            } else if (object->type() == Model::Object::OTBrush) {
+            } else if (object->type() == Model::Object::Type_Brush) {
                 m_unselectedBrushRenderer.addBrush(static_cast<Model::Brush*>(object));
             }
         }
         
         void MapRenderer::objectWillBeRemoved(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity) {
+            if (object->type() == Model::Object::Type_Entity) {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
                 m_unselectedEntityRenderer.removeEntity(entity);
                 m_entityLinkRenderer.invalidate();
                 
                 const Model::BrushList& brushes = entity->brushes();
                 m_unselectedBrushRenderer.removeBrushes(brushes.begin(), brushes.end());
-            } else if (object->type() == Model::Object::OTBrush) {
+            } else if (object->type() == Model::Object::Type_Brush) {
                 m_unselectedBrushRenderer.removeBrush(static_cast<Model::Brush*>(object));
             }
         }
         
         void MapRenderer::objectDidChange(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity) {
+            if (object->type() == Model::Object::Type_Entity) {
                 if (object->selected())
                     m_selectedEntityRenderer.updateEntity(static_cast<Model::Entity*>(object));
                 else
                     m_unselectedEntityRenderer.updateEntity(static_cast<Model::Entity*>(object));
                 m_entityLinkRenderer.invalidate();
-            } else if (object->type() == Model::Object::OTBrush) {
+            } else if (object->type() == Model::Object::Type_Brush) {
                 if (object->selected())
                     m_selectedBrushRenderer.invalidate();
                 else

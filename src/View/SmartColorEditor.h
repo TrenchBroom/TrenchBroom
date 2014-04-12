@@ -43,9 +43,9 @@ namespace TrenchBroom {
         class SmartColorEditor : public SmartPropertyEditor {
         public:
             typedef enum {
-                Float,
-                Byte,
-                Mixed
+                ColorRange_Float,
+                ColorRange_Byte,
+                ColorRange_Mixed
             } ColorRange;
 
             class Color;

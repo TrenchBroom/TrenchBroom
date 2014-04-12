@@ -34,8 +34,8 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<FixPlanePointsCommand> Ptr;
         private:
             typedef enum {
-                SnapPoints,
-                FindPoints
+                Action_SnapPoints,
+                Action_FindPoints
             } Action;
             
             View::MapDocumentWPtr m_document;

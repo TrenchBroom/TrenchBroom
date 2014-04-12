@@ -216,13 +216,13 @@ namespace TrenchBroom {
             
             Vec3 axis;
             switch (axisSpec) {
-                case RARoll:
-                    axis = moveDirection(Math::DForward);
+                case RotationAxis_Roll:
+                    axis = moveDirection(Math::Direction_Forward);
                     break;
-                case RAPitch:
-                    axis = moveDirection(Math::DRight);
+                case RotationAxis_Pitch:
+                    axis = moveDirection(Math::Direction_Right);
                     break;
-                case RAYaw:
+                case RotationAxis_Yaw:
                     axis = Vec3::PosZ;
                     break;
             }
@@ -324,22 +324,22 @@ namespace TrenchBroom {
         void MapView::OnPopupCreatePointEntity(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
-            const Assets::EntityDefinitionGroups groups = manager.groups(Assets::EntityDefinition::PointEntity);
+            const Assets::EntityDefinitionGroups groups = manager.groups(Assets::EntityDefinition::Type_PointEntity);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestPointEntityItem);
             const Assets::EntityDefinition* definition = findEntityDefinition(groups, index);
             assert(definition != NULL);
-            assert(definition->type() == Assets::EntityDefinition::PointEntity);
+            assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
             createPointEntity(*static_cast<const Assets::PointEntityDefinition*>(definition));
         }
         
         void MapView::OnPopupCreateBrushEntity(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
-            const Assets::EntityDefinitionGroups groups = manager.groups(Assets::EntityDefinition::BrushEntity);
+            const Assets::EntityDefinitionGroups groups = manager.groups(Assets::EntityDefinition::Type_BrushEntity);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem);
             const Assets::EntityDefinition* definition = findEntityDefinition(groups, index);
             assert(definition != NULL);
-            assert(definition->type() == Assets::EntityDefinition::BrushEntity);
+            assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
             createBrushEntity(*static_cast<const Assets::BrushEntityDefinition*>(definition));
         }
 
@@ -481,7 +481,7 @@ namespace TrenchBroom {
         
         Vec3 MapView::moveDirection(const Math::Direction direction) const {
             switch (direction) {
-                case Math::DForward: {
+                case Math::Direction_Forward: {
                     Vec3 dir = m_camera.direction().firstAxis();
                     if (dir.z() < 0.0)
                         dir = m_camera.up().firstAxis();
@@ -489,19 +489,19 @@ namespace TrenchBroom {
                         dir = -m_camera.up().firstAxis();
                     return dir;
                 }
-                case Math::DBackward:
-                    return -moveDirection(Math::DForward);
-                case Math::DLeft:
-                    return -moveDirection(Math::DRight);
-                case Math::DRight: {
+                case Math::Direction_Backward:
+                    return -moveDirection(Math::Direction_Forward);
+                case Math::Direction_Left:
+                    return -moveDirection(Math::Direction_Right);
+                case Math::Direction_Right: {
                     Vec3 dir = m_camera.right().firstAxis();
-                    if (dir == moveDirection(Math::DForward))
+                    if (dir == moveDirection(Math::Direction_Forward))
                         dir = crossed(dir, Vec3::PosZ);
                     return dir;
                 }
-                case Math::DUp:
+                case Math::Direction_Up:
                     return Vec3::PosZ;
-                case Math::DDown:
+                case Math::Direction_Down:
                     return Vec3::NegZ;
                 default:
                     assert(false);
@@ -782,6 +782,11 @@ namespace TrenchBroom {
             const char* vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
             const char* renderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
             const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
+            assert(vendor != NULL);
+            assert(renderer != NULL);
+            assert(version != NULL);
+            
             m_logger->info("Renderer info: %s version %s from %s", renderer, version, vendor);
             m_logger->info("Depth buffer bits: %d", depthBits());
             
@@ -890,8 +895,8 @@ namespace TrenchBroom {
         void MapView::doShowPopupMenu() {
             MapDocumentSPtr document = lock(m_document);
             Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
-            const Assets::EntityDefinitionGroups pointGroups = manager.groups(Assets::EntityDefinition::PointEntity);
-            const Assets::EntityDefinitionGroups brushGroups = manager.groups(Assets::EntityDefinition::BrushEntity);
+            const Assets::EntityDefinitionGroups pointGroups = manager.groups(Assets::EntityDefinition::Type_PointEntity);
+            const Assets::EntityDefinitionGroups brushGroups = manager.groups(Assets::EntityDefinition::Type_BrushEntity);
             
             wxMenu menu;
             menu.SetEventHandler(this);

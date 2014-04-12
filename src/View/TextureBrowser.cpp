@@ -56,7 +56,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::OnSortOrderChanged(wxCommandEvent& event) {
-            const Assets::TextureManager::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::TextureManager::Name : Assets::TextureManager::Usage;
+            const Assets::TextureManager::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::TextureManager::SortOrder_Name : Assets::TextureManager::SortOrder_Usage;
             m_view->setSortOrder(sortOrder);
         }
         

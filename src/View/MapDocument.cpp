@@ -472,13 +472,13 @@ namespace TrenchBroom {
         void MapDocument::addObject(Model::Object* object, Model::Object* parent) {
             assert(object != NULL);
             
-            if (object->type() == Model::Object::OTEntity)
+            if (object->type() == Model::Object::Type_Entity)
                 addEntity(static_cast<Model::Entity*>(object));
-            else if (object->type() == Model::Object::OTBrush) {
+            else if (object->type() == Model::Object::Type_Brush) {
                 if (parent == NULL) {
                     addBrush(static_cast<Model::Brush*>(object), worldspawn());
                 } else {
-                    assert(parent->type() == Model::Brush::OTEntity);
+                    assert(parent->type() == Model::Brush::Type_Entity);
                     addBrush(static_cast<Model::Brush*>(object), static_cast<Model::Entity*>(parent));
                 }
             }
@@ -486,12 +486,12 @@ namespace TrenchBroom {
         
         void MapDocument::removeObject(Model::Object* object) {
             assert(object != NULL);
-            assert(object->type() == Model::Object::OTEntity ||
-                   object->type() == Model::Object::OTBrush);
+            assert(object->type() == Model::Object::Type_Entity ||
+                   object->type() == Model::Object::Type_Brush);
             
-            if (object->type() == Model::Object::OTEntity)
+            if (object->type() == Model::Object::Type_Entity)
                 removeEntity(static_cast<Model::Entity*>(object));
-            else if (object->type() == Model::Object::OTBrush) {
+            else if (object->type() == Model::Object::Type_Brush) {
                 Model::Brush* brush = static_cast<Model::Brush*>(object);
                 removeBrush(brush, brush->parent());
             }
@@ -657,7 +657,7 @@ namespace TrenchBroom {
         void MapDocument::objectWasAdded(Model::Object* object) {
             AddToPicker addToPicker(m_picker);
             
-            if (object->type() == Model::Object::OTEntity) {
+            if (object->type() == Model::Object::Type_Entity) {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
                 updateEntityDefinition(entity);
                 updateEntityModel(entity);
@@ -672,7 +672,7 @@ namespace TrenchBroom {
                             Model::BrushFacesIterator::end(entity->brushes()),
                             setTexture, Model::MatchAll());
                 updateLinkSourcesInIssueManager(entity);
-            } else if (object->type() == Model::Object::OTBrush) {
+            } else if (object->type() == Model::Object::Type_Brush) {
                 Model::Brush* brush = static_cast<Model::Brush*>(object);
                 SetTexture setTexture(m_textureManager);
                 Model::each(brush->faces().begin(),
@@ -692,7 +692,7 @@ namespace TrenchBroom {
             RemoveFromPicker removeFromPicker(m_picker);
             removeFromPicker(object);
             
-            if (object->type() == Model::Object::OTEntity) {
+            if (object->type() == Model::Object::Type_Entity) {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
                 entity->setDefinition(NULL);
                 entity->setModel(NULL);
@@ -706,7 +706,7 @@ namespace TrenchBroom {
                 Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
                             Model::BrushFacesIterator::end(entity->brushes()),
                             unsetTexture, Model::MatchAll());
-            } else if (object->type() == Model::Object::OTBrush) {
+            } else if (object->type() == Model::Object::Type_Brush) {
                 Model::Brush* brush = static_cast<Model::Brush*>(object);
                 UnsetTexture unsetTexture;
                 Model::each(brush->faces().begin(),
@@ -720,7 +720,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::objectWasRemoved(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity) {
+            if (object->type() == Model::Object::Type_Entity) {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
                 updateLinkSourcesInIssueManager(entity);
             }
@@ -733,7 +733,7 @@ namespace TrenchBroom {
         void MapDocument::objectDidChange(Model::Object* object) {
             m_picker.addObject(object);
 
-            if (object->type() == Model::Object::OTEntity) {
+            if (object->type() == Model::Object::Type_Entity) {
                 Model::Entity* entity = static_cast<Model::Entity*>(object);
                 updateEntityDefinition(entity);
                 updateEntityModel(entity);

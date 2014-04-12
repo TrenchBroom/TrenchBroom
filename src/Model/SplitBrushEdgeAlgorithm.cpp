@@ -67,7 +67,7 @@ namespace TrenchBroom {
             const Vec3 end = start + m_delta;
             const MoveVertexResult result = moveVertex(testGeometry, newVertex, false, start, end);
 
-            bool canSplit = result.type == MoveVertexResult::VertexMoved;
+            bool canSplit = result.type == MoveVertexResult::Type_VertexMoved;
             canSplit &= testGeometry.sides.size() >= 3;
             canSplit &= m_worldBounds.contains(testGeometry.bounds);
             
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             const Vec3 start = newVertex->position;
             const Vec3 end = start + m_delta;
             const MoveVertexResult result = moveVertex(geometry, newVertex, false, start, end);
-            assert(result.type == MoveVertexResult::VertexMoved);
+            assert(result.type == MoveVertexResult::Type_VertexMoved);
             
             updateNewAndDroppedFaces();
             return SplitResult(result.vertex->position, m_addedFaces, m_removedFaces);

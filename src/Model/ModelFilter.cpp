@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace Model {
         bool ModelFilter::visible(const Object* object) const {
-            if (object->type() == Object::OTEntity) {
+            if (object->type() == Object::Type_Entity) {
                 const Entity* entity = static_cast<const Entity*>(object);
                 if (entity->worldspawn())
                     return false;
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         }
         
         bool ModelFilter::pickable(const Object* object) const {
-            if (object->type() == Object::OTEntity) {
+            if (object->type() == Object::Type_Entity) {
                 const Entity* entity = static_cast<const Entity*>(object);
                 if (entity->worldspawn())
                     return false;
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         }
 
         bool ModelFilter::selectable(const Object* object) const {
-            if (object->type() == Object::OTEntity) {
+            if (object->type() == Object::Type_Entity) {
                 const Entity* entity = static_cast<const Entity*>(object);
                 if (entity->worldspawn())
                     return false;

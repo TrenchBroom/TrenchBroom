@@ -33,15 +33,15 @@ namespace TrenchBroom {
         typedef std::tr1::weak_ptr<MapDocument> MapDocumentWPtr;
         
         typedef enum {
-            RARoll,
-            RAPitch,
-            RAYaw
+            RotationAxis_Roll,
+            RotationAxis_Pitch,
+            RotationAxis_Yaw
         } RotationAxis;
 
         typedef enum {
-            MapInspectorPage = 0,
-            EntityInspectorPage = 1,
-            FaceInspectorPage = 2
+            InspectorPage_Map = 0,
+            InspectorPage_Entity = 1,
+            InspectorPage_Face = 2
         } InspectorPage;
     }
 }

@@ -414,7 +414,7 @@ namespace TrenchBroom {
                 Object* object = *it;
                 VectorUtils::setInsert(m_selectedObjects, object);
                 
-                if (object->type() == Object::OTEntity) {
+                if (object->type() == Object::Type_Entity) {
                     Entity* entity = static_cast<Entity*>(object);
                     VectorUtils::setInsert(m_selectedEntities, entity);
                 } else {
@@ -436,7 +436,7 @@ namespace TrenchBroom {
                 Object* object = *it;
                 VectorUtils::setRemove(m_selectedObjects, object);
                 
-                if (object->type() == Object::OTEntity) {
+                if (object->type() == Object::Type_Entity) {
                     Entity* entity = static_cast<Entity*>(object);
                     VectorUtils::setRemove(m_selectedEntities, entity);
                 } else {

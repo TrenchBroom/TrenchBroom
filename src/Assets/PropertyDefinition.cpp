@@ -57,13 +57,13 @@ namespace TrenchBroom {
 
         String PropertyDefinition::defaultValue(const PropertyDefinition& definition) {
             switch (definition.type()) {
-                case StringProperty: {
+                case Type_StringProperty: {
                     const StringPropertyDefinition& stringDef = static_cast<const StringPropertyDefinition&>(definition);
                     if (!stringDef.hasDefaultValue())
                         return "";
                     return stringDef.defaultValue();
                 }
-                case IntegerProperty: {
+                case Type_IntegerProperty: {
                     const IntegerPropertyDefinition& intDef = static_cast<const IntegerPropertyDefinition&>(definition);
                     if (!intDef.hasDefaultValue())
                         return "";
@@ -71,7 +71,7 @@ namespace TrenchBroom {
                     str << intDef.defaultValue();
                     return str.str();
                 }
-                case FloatProperty: {
+                case Type_FloatProperty: {
                     const FloatPropertyDefinition& floatDef = static_cast<const FloatPropertyDefinition&>(definition);
                     if (!floatDef.hasDefaultValue())
                         return "";
@@ -79,7 +79,7 @@ namespace TrenchBroom {
                     str << floatDef.defaultValue();
                     return str.str();
                 }
-                case ChoiceProperty: {
+                case Type_ChoiceProperty: {
                     const ChoicePropertyDefinition& choiceDef = static_cast<const ChoicePropertyDefinition&>(definition);
                     if (!choiceDef.hasDefaultValue())
                         return "";
@@ -87,7 +87,7 @@ namespace TrenchBroom {
                     str << choiceDef.defaultValue();
                     return str.str();
                 }
-                case FlagsProperty: {
+                case Type_FlagsProperty: {
                     const FlagsPropertyDefinition& flagsDef = static_cast<const FlagsPropertyDefinition&>(definition);
                     StringStream str;
                     str << flagsDef.defaultValue();
@@ -99,22 +99,22 @@ namespace TrenchBroom {
         }
 
         StringPropertyDefinition::StringPropertyDefinition(const String& name, const String& description, const String& defaultValue) :
-        PropertyDefinitionWithDefaultValue(name, StringProperty, description, defaultValue) {}
+        PropertyDefinitionWithDefaultValue(name, Type_StringProperty, description, defaultValue) {}
         
         StringPropertyDefinition::StringPropertyDefinition(const String& name, const String& description) :
-        PropertyDefinitionWithDefaultValue(name, StringProperty, description) {}
+        PropertyDefinitionWithDefaultValue(name, Type_StringProperty, description) {}
 
         IntegerPropertyDefinition::IntegerPropertyDefinition(const String& name, const String& description, const int defaultValue) :
-        PropertyDefinitionWithDefaultValue(name, IntegerProperty, description, defaultValue) {}
+        PropertyDefinitionWithDefaultValue(name, Type_IntegerProperty, description, defaultValue) {}
         
         IntegerPropertyDefinition::IntegerPropertyDefinition(const String& name, const String& description) :
-        PropertyDefinitionWithDefaultValue(name, IntegerProperty, description) {}
+        PropertyDefinitionWithDefaultValue(name, Type_IntegerProperty, description) {}
 
         FloatPropertyDefinition::FloatPropertyDefinition(const String& name, const String& description, const float defaultValue) :
-        PropertyDefinitionWithDefaultValue(name, FloatProperty, description, defaultValue) {}
+        PropertyDefinitionWithDefaultValue(name, Type_FloatProperty, description, defaultValue) {}
         
         FloatPropertyDefinition::FloatPropertyDefinition(const String& name, const String& description) :
-        PropertyDefinitionWithDefaultValue(name, FloatProperty, description) {}
+        PropertyDefinitionWithDefaultValue(name, Type_FloatProperty, description) {}
 
         ChoicePropertyOption::ChoicePropertyOption(const String& value, const String& description) :
         m_value(value),
@@ -133,11 +133,11 @@ namespace TrenchBroom {
         }
 
         ChoicePropertyDefinition::ChoicePropertyDefinition(const String& name, const String& description, const ChoicePropertyOption::List options, const size_t defaultValue) :
-        PropertyDefinitionWithDefaultValue(name, ChoiceProperty, description, defaultValue),
+        PropertyDefinitionWithDefaultValue(name, Type_ChoiceProperty, description, defaultValue),
         m_options(options) {}
         
         ChoicePropertyDefinition::ChoicePropertyDefinition(const String& name, const String& description, const ChoicePropertyOption::List options) :
-        PropertyDefinitionWithDefaultValue(name, ChoiceProperty, description),
+        PropertyDefinitionWithDefaultValue(name, Type_ChoiceProperty, description),
         m_options(options) {}
         
         const ChoicePropertyOption::List& ChoicePropertyDefinition::options() const {
@@ -170,10 +170,10 @@ namespace TrenchBroom {
         }
 
         FlagsPropertyDefinition::FlagsPropertyDefinition(const String& name, const String& description, const int defaultValue) :
-        PropertyDefinition(name, FlagsProperty, description) {}
+        PropertyDefinition(name, Type_FlagsProperty, description) {}
         
         FlagsPropertyDefinition::FlagsPropertyDefinition(const String& name, const String& description) :
-        PropertyDefinition(name, FlagsProperty, description) {}
+        PropertyDefinition(name, Type_FlagsProperty, description) {}
         
         int FlagsPropertyDefinition::defaultValue() const {
             int value = 0;

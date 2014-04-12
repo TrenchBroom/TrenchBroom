@@ -35,9 +35,9 @@ namespace TrenchBroom {
     class ConfigEntry {
     public:
         typedef enum {
-            TValue  = 1 << 0,
-            TList   = 1 << 1,
-            TTable  = 1 << 2
+            Type_Value  = 1 << 0,
+            Type_List   = 1 << 1,
+            Type_Table  = 1 << 2
         } Type;
         
         typedef std::tr1::shared_ptr<ConfigEntry> Ptr;

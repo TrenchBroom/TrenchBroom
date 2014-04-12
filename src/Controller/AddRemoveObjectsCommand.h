@@ -33,8 +33,8 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<AddRemoveObjectsCommand> Ptr;
         private:
             typedef enum {
-                AAdd,
-                ARemove
+                Action_Add,
+                Action_Remove
             } Action;
             
             View::MapDocumentWPtr m_document;

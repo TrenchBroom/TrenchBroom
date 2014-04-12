@@ -69,7 +69,7 @@ namespace TrenchBroom {
             assert(entity != NULL);
             if (!entity->worldspawn()) {
                 const Assets::EntityDefinition* definition = entity->definition();
-                if (definition != NULL && definition->type() == Assets::EntityDefinition::BrushEntity && entity->brushes().empty())
+                if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_BrushEntity && entity->brushes().empty())
                     return new EmptyBrushEntityIssue(entity);
             }
             return NULL;

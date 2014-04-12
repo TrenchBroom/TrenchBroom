@@ -39,29 +39,29 @@ namespace TrenchBroom {
             m_newValue = newValue;
         }
         
-        EntityPropertyCommand::EntityPropertyCommand(View::MapDocumentWPtr document, const PropertyCommand command, const Model::EntityList& entities, const bool force) :
+        EntityPropertyCommand::EntityPropertyCommand(View::MapDocumentWPtr document, const Action command, const Model::EntityList& entities, const bool force) :
         Command(Type, makeName(command), true, true),
-        m_command(command),
+        m_action(command),
         m_document(document),
         m_entities(entities),
         m_force(force) {}
 
         Command::Ptr EntityPropertyCommand::renameEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force) {
-            EntityPropertyCommand::Ptr command(new EntityPropertyCommand(document, PCRenameProperty, entities, force));
+            EntityPropertyCommand::Ptr command(new EntityPropertyCommand(document, Action_Rename, entities, force));
             command->setKey(oldKey);
             command->setNewKey(newKey);
             return command;
         }
         
         Command::Ptr EntityPropertyCommand::setEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyKey& newValue, const bool force) {
-            EntityPropertyCommand::Ptr command(new EntityPropertyCommand(document, PCSetProperty, entities, force));
+            EntityPropertyCommand::Ptr command(new EntityPropertyCommand(document, Action_Set, entities, force));
             command->setKey(key);
             command->setNewValue(newValue);
             return command;
         }
         
         Command::Ptr EntityPropertyCommand::removeEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const bool force) {
-            EntityPropertyCommand::Ptr command(new EntityPropertyCommand(document, PCRemoveProperty, entities, force));
+            EntityPropertyCommand::Ptr command(new EntityPropertyCommand(document, Action_Remove, entities, force));
             command->setKey(key);
             return command;
         }
@@ -94,13 +94,13 @@ namespace TrenchBroom {
             return m_entities;
         }
 
-        String EntityPropertyCommand::makeName(const PropertyCommand command) {
+        String EntityPropertyCommand::makeName(const Action command) {
             switch (command) {
-                case PCRenameProperty:
+                case Action_Rename:
                     return "Rename entity property";
-                case PCSetProperty:
+                case Action_Set:
                     return "Set entity property";
-                case PCRemoveProperty:
+                case Action_Remove:
                     return "Remove entity property";
                 default:
                     assert(false);
@@ -111,7 +111,7 @@ namespace TrenchBroom {
         bool EntityPropertyCommand::doPerformDo() {
             if (!m_force && affectsImmutablePropertyValue())
                 return false;
-            if (m_command == PCRenameProperty)
+            if (m_action == Action_Rename)
                 if (!canSetKey() || (!m_force && affectsImmutablePropertyKey()))
                     return false;
             
@@ -119,14 +119,14 @@ namespace TrenchBroom {
             m_snapshot.clear();
             
             document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
-            switch (m_command) {
-                case PCRenameProperty:
+            switch (m_action) {
+                case Action_Rename:
                     doRename(document);
                     break;
-                case PCSetProperty:
+                case Action_Set:
                     doSetValue(document);
                     break;
-                case PCRemoveProperty:
+                case Action_Remove:
                     doRemove(document);
                     break;
                 default:
@@ -141,14 +141,14 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             
             document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
-            switch(m_command) {
-                case PCRenameProperty:
+            switch(m_action) {
+                case Action_Rename:
                     undoRename(document);
                     break;
-                case PCSetProperty:
+                case Action_Set:
                     undoSetValue(document);
                     break;
-                case PCRemoveProperty:
+                case Action_Remove:
                     undoRemove(document);
                     break;
                 default:

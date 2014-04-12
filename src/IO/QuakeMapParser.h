@@ -89,8 +89,8 @@ namespace TrenchBroom {
             class ExtraProperty {
             public:
                 typedef enum {
-                    TString,
-                    TInteger
+                    Type_String,
+                    Type_Integer
                 } Type;
             private:
                 Type m_type;
@@ -109,7 +109,7 @@ namespace TrenchBroom {
                 
                 template <typename T>
                 T intValue() const {
-                    assert(m_type == TInteger);
+                    assert(m_type == Type_Integer);
                     return static_cast<T>(std::atoi(m_value.c_str()));
                 }
             };

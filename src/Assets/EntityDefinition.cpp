@@ -70,7 +70,7 @@ namespace TrenchBroom {
         
         struct FindSpawnflagsDefinition {
             bool operator()(const PropertyDefinitionPtr propertyDefinition) const {
-                return (propertyDefinition->type() == PropertyDefinition::FlagsProperty &&
+                return (propertyDefinition->type() == PropertyDefinition::Type_FlagsProperty &&
                         propertyDefinition->name() == Model::PropertyKeys::Spawnflags);
             }
         };
@@ -109,7 +109,7 @@ namespace TrenchBroom {
         m_modelDefinitions(modelDefinitions) {}
         
         EntityDefinition::Type PointEntityDefinition::type() const {
-            return PointEntity;
+            return Type_PointEntity;
         }
         
         const BBox3& PointEntityDefinition::bounds() const {
@@ -140,7 +140,7 @@ namespace TrenchBroom {
         EntityDefinition(name, color, description, propertyDefinitions) {}
         
         EntityDefinition::Type BrushEntityDefinition::type() const {
-            return BrushEntity;
+            return Type_BrushEntity;
         }
     }
 }

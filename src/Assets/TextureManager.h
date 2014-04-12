@@ -36,8 +36,8 @@ namespace TrenchBroom {
         class TextureManager {
         public:
             typedef enum {
-                Name,
-                Usage
+                SortOrder_Name,
+                SortOrder_Usage
             } SortOrder;
             
             typedef std::pair<TextureCollection*, TextureList> Group;

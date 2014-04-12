@@ -39,14 +39,14 @@ namespace TrenchBroom {
         m_contentFlags(0),
         m_surfaceValue(0.0f),
         m_setTexture(false),
-        m_xOffsetOp(ValNone),
-        m_yOffsetOp(ValNone),
-        m_rotationOp(ValNone),
-        m_xScaleOp(ValNone),
-        m_yScaleOp(ValNone),
-        m_surfaceFlagsOp(FlagNone),
-        m_contentFlagsOp(FlagNone),
-        m_surfaceValueOp(ValNone) {}
+        m_xOffsetOp(ValueOp_None),
+        m_yOffsetOp(ValueOp_None),
+        m_rotationOp(ValueOp_None),
+        m_xScaleOp(ValueOp_None),
+        m_yScaleOp(ValueOp_None),
+        m_surfaceFlagsOp(FlagOp_None),
+        m_contentFlagsOp(FlagOp_None),
+        m_surfaceValueOp(ValueOp_None) {}
         
         void FaceAttributeCommand::setTexture(Assets::Texture* texture) {
             m_texture = texture;
@@ -55,126 +55,126 @@ namespace TrenchBroom {
         
         void FaceAttributeCommand::setXOffset(const float xOffset) {
             m_xOffset = xOffset;
-            m_xOffsetOp = ValSet;
+            m_xOffsetOp = ValueOp_Set;
         }
         
         void FaceAttributeCommand::addXOffset(const float xOffset) {
             m_xOffset = xOffset;
-            m_xOffsetOp = ValAdd;
+            m_xOffsetOp = ValueOp_Add;
         }
         
         void FaceAttributeCommand::mulXOffset(const float xOffset) {
             m_xOffset = xOffset;
-            m_xOffsetOp = ValMul;
+            m_xOffsetOp = ValueOp_Mul;
         }
         
         void FaceAttributeCommand::setYOffset(const float yOffset) {
             m_yOffset = yOffset;
-            m_yOffsetOp = ValSet;
+            m_yOffsetOp = ValueOp_Set;
         }
         
         void FaceAttributeCommand::addYOffset(const float yOffset) {
             m_yOffset = yOffset;
-            m_yOffsetOp = ValAdd;
+            m_yOffsetOp = ValueOp_Add;
         }
         
         void FaceAttributeCommand::mulYOffset(const float yOffset) {
             m_yOffset = yOffset;
-            m_yOffsetOp = ValMul;
+            m_yOffsetOp = ValueOp_Mul;
         }
         
         void FaceAttributeCommand::setRotation(const float rotation) {
             m_rotation = rotation;
-            m_rotationOp = ValSet;
+            m_rotationOp = ValueOp_Set;
         }
         
         void FaceAttributeCommand::addRotation(const float rotation) {
             m_rotation = rotation;
-            m_rotationOp = ValAdd;
+            m_rotationOp = ValueOp_Add;
         }
         
         void FaceAttributeCommand::mulRotation(const float rotation) {
             m_rotation = rotation;
-            m_rotationOp = ValMul;
+            m_rotationOp = ValueOp_Mul;
         }
 
         void FaceAttributeCommand::setXScale(const float xScale) {
             m_xScale = xScale;
-            m_xScaleOp = ValSet;
+            m_xScaleOp = ValueOp_Set;
         }
         
         void FaceAttributeCommand::addXScale(const float xScale) {
             m_xScale = xScale;
-            m_xScaleOp = ValAdd;
+            m_xScaleOp = ValueOp_Add;
         }
         
         void FaceAttributeCommand::mulXScale(const float xScale) {
             m_xScale = xScale;
-            m_xScaleOp = ValMul;
+            m_xScaleOp = ValueOp_Mul;
         }
         
         void FaceAttributeCommand::setYScale(const float yScale) {
             m_yScale = yScale;
-            m_yScaleOp = ValSet;
+            m_yScaleOp = ValueOp_Set;
         }
         
         void FaceAttributeCommand::addYScale(const float yScale) {
             m_yScale = yScale;
-            m_yScaleOp = ValAdd;
+            m_yScaleOp = ValueOp_Add;
         }
         
         void FaceAttributeCommand::mulYScale(const float yScale) {
             m_yScale = yScale;
-            m_yScaleOp = ValMul;
+            m_yScaleOp = ValueOp_Mul;
         }
         
         void FaceAttributeCommand::replaceSurfaceFlags(const int surfaceFlags) {
             m_surfaceFlags = surfaceFlags;
-            m_surfaceFlagsOp = FlagReplace;
+            m_surfaceFlagsOp = FlagOp_Replace;
         }
         
         void FaceAttributeCommand::setSurfaceFlag(const size_t surfaceFlag) {
             assert(surfaceFlag < sizeof(int) * 8);
             m_surfaceFlags = (1 << surfaceFlag);
-            m_surfaceFlagsOp = FlagSet;
+            m_surfaceFlagsOp = FlagOp_Set;
         }
         
         void FaceAttributeCommand::unsetSurfaceFlag(const size_t surfaceFlag) {
             assert(surfaceFlag < sizeof(int) * 8);
             m_surfaceFlags = (1 << surfaceFlag);
-            m_surfaceFlagsOp = FlagUnset;
+            m_surfaceFlagsOp = FlagOp_Unset;
         }
         
         void FaceAttributeCommand::replaceContentFlags(const int contentFlags) {
             m_contentFlags = contentFlags;
-            m_contentFlagsOp = FlagReplace;
+            m_contentFlagsOp = FlagOp_Replace;
         }
         
         void FaceAttributeCommand::setContentFlag(const size_t contentFlag) {
             assert(contentFlag < sizeof(int) * 8);
             m_contentFlags = (1 << contentFlag);
-            m_contentFlagsOp = FlagSet;
+            m_contentFlagsOp = FlagOp_Set;
         }
         
         void FaceAttributeCommand::unsetContentFlag(const size_t contentFlag) {
             assert(contentFlag < sizeof(int) * 8);
             m_contentFlags = (1 << contentFlag);
-            m_contentFlagsOp = FlagUnset;
+            m_contentFlagsOp = FlagOp_Unset;
         }
         
         void FaceAttributeCommand::setSurfaceValue(const float surfaceValue) {
             m_surfaceValue = surfaceValue;
-            m_surfaceValueOp = ValSet;
+            m_surfaceValueOp = ValueOp_Set;
         }
         
         void FaceAttributeCommand::addSurfaceValue(const float surfaceValue) {
             m_surfaceValue = surfaceValue;
-            m_surfaceValueOp = ValAdd;
+            m_surfaceValueOp = ValueOp_Add;
         }
         
         void FaceAttributeCommand::mulSurfaceValue(const float surfaceValue) {
             m_surfaceValue = surfaceValue;
-            m_surfaceValueOp = ValMul;
+            m_surfaceValueOp = ValueOp_Mul;
         }
 
         void FaceAttributeCommand::setAll(const Model::BrushFace& original) {

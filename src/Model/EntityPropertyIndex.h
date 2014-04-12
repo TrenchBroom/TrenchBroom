@@ -32,10 +32,10 @@ namespace TrenchBroom {
         class EntityPropertyQuery {
         public:
             typedef enum {
-                Exact,
-                Prefix,
-                Numbered,
-                Any
+                Type_Exact,
+                Type_Prefix,
+                Type_Numbered,
+                Type_Any
             } Type;
         private:
             Type m_type;

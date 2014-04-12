@@ -61,7 +61,7 @@ namespace TrenchBroom {
                 const Vec3 end = start + m_delta;
                 
                 MoveVertexResult result = moveVertex(testGeometry, vertex, true, start, end);
-                canMove = result.type == MoveVertexResult::VertexMoved;
+                canMove = result.type == MoveVertexResult::Type_VertexMoved;
             }
             
             // try to find all faces by their positions after applying the delta
@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 
                 MoveVertexResult result = moveVertex(geometry, vertex, true, start, end);
                 _unused(result);
-                assert(result.type == MoveVertexResult::VertexMoved);
+                assert(result.type == MoveVertexResult::Type_VertexMoved);
                 updateFacePoints(geometry);
             }
             

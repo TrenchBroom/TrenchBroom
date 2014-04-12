@@ -33,11 +33,11 @@ namespace TrenchBroom {
         class PreferenceDialog : public wxDialog {
         private:
             typedef enum {
-                PP_First,
-                PPGames,
-                PPGeneral,
-                PPKeyboard,
-                PP_Last
+                PrefPane_First,
+                PrefPane_Games,
+                PrefPane_General,
+                PrefPane_Keyboard,
+                PrefPane_Last
             } PrefPane;
 
             wxToolBar* m_toolBar;

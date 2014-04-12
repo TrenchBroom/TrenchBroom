@@ -86,7 +86,7 @@ namespace TrenchBroom {
             m_comboBox->Clear();
 
             const Assets::PropertyDefinition* propDef = Model::selectPropertyDefinition(key(), entities);
-            if (propDef == NULL || propDef->type() != Assets::PropertyDefinition::ChoiceProperty) {
+            if (propDef == NULL || propDef->type() != Assets::PropertyDefinition::Type_ChoiceProperty) {
                 m_comboBox->Disable();
             } else {
                 const Assets::ChoicePropertyDefinition* choiceDef = static_cast<const Assets::ChoicePropertyDefinition*>(propDef);

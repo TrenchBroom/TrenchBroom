@@ -51,7 +51,7 @@ namespace TrenchBroom {
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
         
         Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
-        Object(OTBrush),
+        Object(Type_Brush),
         m_parent(NULL),
         m_geometry(NULL) {
             addFaces(faces);
@@ -193,8 +193,8 @@ namespace TrenchBroom {
             delete testFace;
             
             return (inWorldBounds &&
-                    result.resultCode != AddFaceResult::BrushIsNull &&
-                    result.resultCode != AddFaceResult::FaceIsRedundant &&
+                    result.resultCode != AddFaceResult::Code_BrushNull &&
+                    result.resultCode != AddFaceResult::Code_FaceRedundant &&
                     result.droppedFaces.empty());
         }
         

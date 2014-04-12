@@ -226,8 +226,8 @@ namespace TrenchBroom {
         void TextureManager::updateTextures() {
             m_allCollections = VectorUtils::concatenate(m_builtinCollections, m_externalCollections);
             m_texturesByName.clear();
-            m_sortedGroups[Name].clear();
-            m_sortedGroups[Usage].clear();
+            m_sortedGroups[SortOrder_Name].clear();
+            m_sortedGroups[SortOrder_Usage].clear();
             
             TextureCollectionList::iterator cIt, cEnd;
             for (cIt = m_allCollections.begin(), cEnd = m_allCollections.end(); cIt != cEnd; ++cIt) {
@@ -249,19 +249,19 @@ namespace TrenchBroom {
                 }
 
                 const Group group = std::make_pair(collection, textures);
-                m_sortedGroups[Name].push_back(group);
-                m_sortedGroups[Usage].push_back(group);
-                std::sort(m_sortedGroups[Name].back().second.begin(),
-                          m_sortedGroups[Name].back().second.end(),
+                m_sortedGroups[SortOrder_Name].push_back(group);
+                m_sortedGroups[SortOrder_Usage].push_back(group);
+                std::sort(m_sortedGroups[SortOrder_Name].back().second.begin(),
+                          m_sortedGroups[SortOrder_Name].back().second.end(),
                           CompareByName());
-                std::sort(m_sortedGroups[Usage].back().second.begin(),
-                          m_sortedGroups[Usage].back().second.end(),
+                std::sort(m_sortedGroups[SortOrder_Usage].back().second.begin(),
+                          m_sortedGroups[SortOrder_Usage].back().second.end(),
                           CompareByUsage());
             }
             
-            m_sortedTextures[Name] = m_sortedTextures[Usage] = textureList();
-            std::sort(m_sortedTextures[Name].begin(), m_sortedTextures[Name].end(), CompareByName());
-            std::sort(m_sortedTextures[Usage].begin(), m_sortedTextures[Usage].end(), CompareByUsage());
+            m_sortedTextures[SortOrder_Name] = m_sortedTextures[SortOrder_Usage] = textureList();
+            std::sort(m_sortedTextures[SortOrder_Name].begin(), m_sortedTextures[SortOrder_Name].end(), CompareByName());
+            std::sort(m_sortedTextures[SortOrder_Usage].begin(), m_sortedTextures[SortOrder_Usage].end(), CompareByUsage());
         }
 
         TextureList TextureManager::textureList() const {

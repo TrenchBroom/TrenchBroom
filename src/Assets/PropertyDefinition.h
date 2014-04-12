@@ -31,13 +31,13 @@ namespace TrenchBroom {
         class PropertyDefinition {
         public:
             typedef enum {
-                TargetSourceProperty,
-                TargetDestinationProperty,
-                StringProperty,
-                IntegerProperty,
-                FloatProperty,
-                ChoiceProperty,
-                FlagsProperty
+                Type_TargetSourceProperty,
+                Type_TargetDestinationProperty,
+                Type_StringProperty,
+                Type_IntegerProperty,
+                Type_FloatProperty,
+                Type_ChoiceProperty,
+                Type_FlagsProperty
             } Type;
         private:
             String m_name;

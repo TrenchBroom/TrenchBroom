@@ -100,7 +100,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::BrushEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_BrushEntity, definition->type());
             ASSERT_EQ(String("worldspawn"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("World entity"), definition->description());
@@ -129,7 +129,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
 
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
@@ -192,7 +192,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(definitions);
         }
         
-        TEST(FgdParserTest, parseTargetSourceProperty) {
+        TEST(FgdParserTest, parseType_TargetSourceProperty) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -217,7 +217,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
@@ -226,14 +226,14 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, properties.size());
             
             Assets::PropertyDefinitionPtr property = properties[0];
-            ASSERT_EQ(Assets::PropertyDefinition::TargetSourceProperty, property->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_TargetSourceProperty, property->type());
             ASSERT_EQ(String("targetname"), property->name());
             ASSERT_EQ(String("Source"), property->description());
             
             VectorUtils::clearAndDelete(definitions);
         }
 
-        TEST(FgdParserTest, parseTargetDestinationProperty) {
+        TEST(FgdParserTest, parseType_TargetDestinationProperty) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -247,7 +247,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
@@ -256,7 +256,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, properties.size());
             
             Assets::PropertyDefinitionPtr property = properties[0];
-            ASSERT_EQ(Assets::PropertyDefinition::TargetDestinationProperty, property->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_TargetDestinationProperty, property->type());
             ASSERT_EQ(String("target"), property->name());
             ASSERT_EQ(String("Target"), property->description());
             
@@ -278,7 +278,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
@@ -287,7 +287,7 @@ namespace TrenchBroom {
             
             const Assets::PropertyDefinition* property1 = definition->propertyDefinition("message");
             ASSERT_TRUE(property1 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::StringProperty, property1->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_StringProperty, property1->type());
 
             const Assets::StringPropertyDefinition* stringProperty1 = static_cast<const Assets::StringPropertyDefinition*>(property1);
             ASSERT_EQ(String("message"), stringProperty1->name());
@@ -296,7 +296,7 @@ namespace TrenchBroom {
             
             const Assets::PropertyDefinition* property2 = definition->propertyDefinition("message2");
             ASSERT_TRUE(property2 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::StringProperty, property2->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_StringProperty, property2->type());
             
             const Assets::StringPropertyDefinition* stringProperty2 = static_cast<const Assets::StringPropertyDefinition*>(property2);
             ASSERT_EQ(String("message2"), stringProperty2->name());
@@ -322,7 +322,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
@@ -331,7 +331,7 @@ namespace TrenchBroom {
             
             const Assets::PropertyDefinition* property1 = definition->propertyDefinition("sounds");
             ASSERT_TRUE(property1 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::IntegerProperty, property1->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_IntegerProperty, property1->type());
             
             const Assets::IntegerPropertyDefinition* intProperty1 = static_cast<const Assets::IntegerPropertyDefinition*>(property1);
             ASSERT_EQ(String("sounds"), intProperty1->name());
@@ -340,7 +340,7 @@ namespace TrenchBroom {
             
             const Assets::PropertyDefinition* property2 = definition->propertyDefinition("sounds2");
             ASSERT_TRUE(property2 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::IntegerProperty, property2->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_IntegerProperty, property2->type());
             
             const Assets::IntegerPropertyDefinition* intProperty2 = static_cast<const Assets::IntegerPropertyDefinition*>(property2);
             ASSERT_EQ(String("sounds2"), intProperty2->name());
@@ -366,7 +366,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
@@ -375,7 +375,7 @@ namespace TrenchBroom {
             
             const Assets::PropertyDefinition* property1 = definition->propertyDefinition("test");
             ASSERT_TRUE(property1 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::FloatProperty, property1->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_FloatProperty, property1->type());
             
             const Assets::FloatPropertyDefinition* floatProperty1 = static_cast<const Assets::FloatPropertyDefinition*>(property1);
             ASSERT_EQ(String("test"), floatProperty1->name());
@@ -384,7 +384,7 @@ namespace TrenchBroom {
             
             const Assets::PropertyDefinition* property2 = definition->propertyDefinition("test2");
             ASSERT_TRUE(property2 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::FloatProperty, property2->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_FloatProperty, property2->type());
             
             const Assets::FloatPropertyDefinition* floatProperty2 = static_cast<const Assets::FloatPropertyDefinition*>(property2);
             ASSERT_EQ(String("test2"), floatProperty2->name());
@@ -419,7 +419,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
@@ -428,7 +428,7 @@ namespace TrenchBroom {
             
             const Assets::PropertyDefinition* property1 = definition->propertyDefinition("worldtype");
             ASSERT_TRUE(property1 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::ChoiceProperty, property1->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_ChoiceProperty, property1->type());
             
             const Assets::ChoicePropertyDefinition* choiceProperty1 = static_cast<const Assets::ChoicePropertyDefinition*>(property1);
             ASSERT_EQ(String("worldtype"), choiceProperty1->name());
@@ -446,7 +446,7 @@ namespace TrenchBroom {
             
             const Assets::PropertyDefinition* property2 = definition->propertyDefinition("worldtype2");
             ASSERT_TRUE(property2 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::ChoiceProperty, property2->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_ChoiceProperty, property2->type());
             
             const Assets::ChoicePropertyDefinition* choiceProperty2 = static_cast<const Assets::ChoicePropertyDefinition*>(property2);
             ASSERT_EQ(String("worldtype2"), choiceProperty2->name());
@@ -484,7 +484,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("info_notnull"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
@@ -493,7 +493,7 @@ namespace TrenchBroom {
             
             const Assets::PropertyDefinition* property = definition->propertyDefinition("spawnflags");
             ASSERT_TRUE(property != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::FlagsProperty, property->type());
+            ASSERT_EQ(Assets::PropertyDefinition::Type_FlagsProperty, property->type());
             
             const Assets::FlagsPropertyDefinition* flagsProperty = static_cast<const Assets::FlagsPropertyDefinition*>(property);
             ASSERT_EQ(String("spawnflags"), flagsProperty->name());
@@ -533,7 +533,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("item_shells"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Shells"), definition->description());
@@ -556,7 +556,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
-            ASSERT_EQ(Assets::EntityDefinition::PointEntity, definition->type());
+            ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("item_shells"), definition->name());
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Shells"), definition->description());

@@ -51,7 +51,7 @@ namespace TrenchBroom {
             
             createGui();
             bindEvents();
-            switchToPane(PPGames);
+            switchToPane(PrefPane_Games);
             return true;
         }
 
@@ -122,9 +122,9 @@ namespace TrenchBroom {
             const wxBitmap keyboardImage = IO::loadImageResource(IO::Path("images/KeyboardPreferences.png"));
             
             m_toolBar = new wxToolBar(this, wxID_ANY);
-            m_toolBar->AddCheckTool(PPGames, "Games", gamesImage, wxNullBitmap);
-            m_toolBar->AddCheckTool(PPGeneral, "General", generalImage, wxNullBitmap);
-            m_toolBar->AddCheckTool(PPKeyboard, "Keyboard", keyboardImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PrefPane_Games, "Games", gamesImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PrefPane_General, "General", generalImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PrefPane_Keyboard, "Keyboard", keyboardImage, wxNullBitmap);
             m_toolBar->Realize();
             
             m_paneContainer = new wxPanel(this);
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnOKClicked, this, wxID_OK);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnApplyClicked, this, wxID_APPLY);
             Bind(wxEVT_BUTTON, &PreferenceDialog::OnCancelClicked, this, wxID_CANCEL);
-            Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PP_First, PP_Last);
+            Bind(wxEVT_TOOL, &PreferenceDialog::OnToolClicked, this, PrefPane_First, PrefPane_Last);
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
@@ -173,10 +173,10 @@ namespace TrenchBroom {
             toggleTools(pane);
             
             switch (pane) {
-                case PPGames:
+                case PrefPane_Games:
                     m_pane = new GamesPreferencePane(m_paneContainer);
                     break;
-                case PPKeyboard:
+                case PrefPane_Keyboard:
                     m_pane = new KeyboardPreferencePane(m_paneContainer);
                     break;
                 default:
@@ -196,14 +196,14 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::toggleTools(const PrefPane pane) {
-            for (size_t i = PP_First + 1; i < PP_Last; ++i)
+            for (size_t i = PrefPane_First + 1; i < PrefPane_Last; ++i)
                 m_toolBar->ToggleTool(i, pane == i);
         }
         
         void PreferenceDialog::updateAcceleratorTable(const PrefPane pane) {
             // allow the dialog to be closed using CMD+W
             // but only if the keyboard preference pane is not active
-            if (pane != PPKeyboard) {
+            if (pane != PrefPane_Keyboard) {
                 wxAcceleratorEntry acceleratorEntries[1];
                 acceleratorEntries[0].Set(wxACCEL_CMD, static_cast<int>('W'), wxID_CLOSE);
                 wxAcceleratorTable accceleratorTable(1, acceleratorEntries);

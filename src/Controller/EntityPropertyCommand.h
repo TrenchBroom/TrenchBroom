@@ -37,14 +37,14 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<EntityPropertyCommand> Ptr;
         private:
             typedef enum {
-                PCRenameProperty,
-                PCSetProperty,
-                PCRemoveProperty
-            } PropertyCommand;
+                Action_Rename,
+                Action_Set,
+                Action_Remove
+            } Action;
 
             typedef std::map<Model::Entity*, Model::EntityProperty> PropertySnapshot;
             
-            const PropertyCommand m_command;
+            const Action m_action;
             View::MapDocumentWPtr m_document;
             const Model::EntityList m_entities;
             bool m_force;
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             void setNewKey(const Model::PropertyKey& key);
             void setNewValue(const Model::PropertyValue& newValue);
         public:
-            EntityPropertyCommand(View::MapDocumentWPtr document, const PropertyCommand command, const Model::EntityList& entities, const bool force);
+            EntityPropertyCommand(View::MapDocumentWPtr document, const Action command, const Model::EntityList& entities, const bool force);
 
             static Command::Ptr renameEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& oldKey, const Model::PropertyKey& newKey, const bool force);
             static Command::Ptr setEntityProperty(View::MapDocumentWPtr document, const Model::EntityList& entities, const Model::PropertyKey& key, const Model::PropertyKey& newValue, const bool force);
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             bool entityAffected(const Model::Entity* entity);
             const Model::EntityList& affectedEntities() const;
         private:
-            static String makeName(const PropertyCommand command);
+            static String makeName(const Action command);
             bool doPerformDo();
             bool doPerformUndo();
             

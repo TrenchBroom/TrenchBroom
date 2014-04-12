@@ -59,7 +59,7 @@ namespace TrenchBroom {
             if (definition == NULL)
                 return false;
             
-            if (definition->type() != Assets::EntityDefinition::PointEntity)
+            if (definition->type() != Assets::EntityDefinition::Type_PointEntity)
                 return false;
             
             const Model::Map* map = document()->map();

@@ -32,7 +32,7 @@ namespace TrenchBroom {
         ObjectParentPair::ObjectParentPair(Object* i_object) :
         object(i_object),
         parent(NULL) {
-            if (object->type() == Object::OTBrush) {
+            if (object->type() == Object::Type_Brush) {
                 Model::Brush* brush = static_cast<Model::Brush*>(object);
                 parent = brush->parent();
                 assert(parent != NULL);

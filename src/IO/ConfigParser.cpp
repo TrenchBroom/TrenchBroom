@@ -98,9 +98,9 @@ namespace TrenchBroom {
             const ConfigEntry::Type entryType = detectEntryType();
             
             switch (entryType) {
-                case ConfigEntry::TValue:
+                case ConfigEntry::Type_Value:
                     return parseValue();
-                case ConfigEntry::TList:
+                case ConfigEntry::Type_List:
                     return parseList();
                 default:
                     return parseTable();
@@ -112,13 +112,13 @@ namespace TrenchBroom {
             expect(ConfigToken::String | ConfigToken::OBrace, firstToken);
             if (firstToken.type() == ConfigToken::String) {
                 m_tokenizer.pushToken(firstToken);
-                return ConfigEntry::TValue;
+                return ConfigEntry::Type_Value;
             }
             
             const Token secondToken = m_tokenizer.nextToken();
             expect(ConfigToken::Identifier | ConfigToken::String | ConfigToken::OBrace | ConfigToken::CBrace, secondToken);
 
-            const ConfigEntry::Type entryType = secondToken.type() == ConfigToken::Identifier ? ConfigEntry::TTable : ConfigEntry::TList;
+            const ConfigEntry::Type entryType = secondToken.type() == ConfigToken::Identifier ? ConfigEntry::Type_Table : ConfigEntry::Type_List;
             
             m_tokenizer.pushToken(secondToken);
             m_tokenizer.pushToken(firstToken);

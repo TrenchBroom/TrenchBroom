@@ -27,10 +27,10 @@ namespace TrenchBroom {
         class QuakeEntityRotationPolicy {
         private:
             typedef enum {
-                RTNone,
-                RTZAngle,
-                RTZAngleWithUpDown,
-                RTEulerAngles
+                RotationType_None,
+                RotationType_Angle,
+                RotationType_AngleUpDown,
+                RotationType_Euler
             } RotationType;
 
             struct RotationInfo {

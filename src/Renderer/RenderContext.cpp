@@ -30,7 +30,7 @@ namespace TrenchBroom {
         m_gridSize(gridSize),
         m_hideSelection(false),
         m_tintSelection(true),
-        m_showSelectionGuide(Hide) {}
+        m_showSelectionGuide(ShowSelectionGuide_Hide) {}
         
         const Camera& RenderContext::camera() const {
             return m_camera;
@@ -69,41 +69,41 @@ namespace TrenchBroom {
         }
         
         bool RenderContext::showSelectionGuide() const {
-            return m_showSelectionGuide == Show || m_showSelectionGuide == ForceShow;
+            return m_showSelectionGuide == ShowSelectionGuide_Show || m_showSelectionGuide == ShowSelectionGuide_ForceShow;
         }
         
         void RenderContext::setShowSelectionGuide() {
-            setShowSelectionGuide(Show);
+            setShowSelectionGuide(ShowSelectionGuide_Show);
         }
         
         void RenderContext::setHideSelectionGuide() {
-            setShowSelectionGuide(Hide);
+            setShowSelectionGuide(ShowSelectionGuide_Hide);
         }
         
         void RenderContext::setForceShowSelectionGuide() {
-            setShowSelectionGuide(ForceShow);
+            setShowSelectionGuide(ShowSelectionGuide_ForceShow);
         }
 
         void RenderContext::setForceHideSelectionGuide() {
-            setShowSelectionGuide(ForceHide);
+            setShowSelectionGuide(ShowSelectionGuide_ForceHide);
         }
         
         void RenderContext::setShowSelectionGuide(const ShowSelectionGuide showSelectionGuide) {
             switch (showSelectionGuide) {
-                case Show:
-                    if (m_showSelectionGuide == Hide)
-                        m_showSelectionGuide = Show;
+                case ShowSelectionGuide_Show:
+                    if (m_showSelectionGuide == ShowSelectionGuide_Hide)
+                        m_showSelectionGuide = ShowSelectionGuide_Show;
                     break;
-                case Hide:
-                    if (m_showSelectionGuide == Show)
-                        m_showSelectionGuide = Hide;
+                case ShowSelectionGuide_Hide:
+                    if (m_showSelectionGuide == ShowSelectionGuide_Show)
+                        m_showSelectionGuide = ShowSelectionGuide_Hide;
                     break;
-                case ForceShow:
-                    m_showSelectionGuide = ForceShow;
+                case ShowSelectionGuide_ForceShow:
+                    m_showSelectionGuide = ShowSelectionGuide_ForceShow;
                     break;
-                case ForceHide:
-                    if (m_showSelectionGuide != ForceShow)
-                        m_showSelectionGuide = ForceHide;
+                case ShowSelectionGuide_ForceHide:
+                    if (m_showSelectionGuide != ShowSelectionGuide_ForceShow)
+                        m_showSelectionGuide = ShowSelectionGuide_ForceHide;
                     break;
             }
         }

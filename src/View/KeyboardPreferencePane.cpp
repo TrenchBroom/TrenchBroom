@@ -175,18 +175,18 @@ namespace TrenchBroom {
             for (itemIt = items.begin(), itemEnd = items.end(); itemIt != itemEnd; ++itemIt) {
                 const MenuItem& item = **itemIt;
                 switch (item.type()) {
-                    case MenuItem::MITAction:
-                    case MenuItem::MITCheck: {
+                    case MenuItem::Type_Action:
+                    case MenuItem::Type_Check: {
                         const ShortcutMenuItem& shortcutItem = static_cast<const ShortcutMenuItem&>(item);
                         entries.push_back(KeyboardShortcutEntry::Ptr(new MenuKeyboardShortcutEntry(shortcutItem)));
                         break;
                     }
-                    case MenuItem::MITMenu: {
+                    case MenuItem::Type_Menu: {
                         const Menu& subMenu = static_cast<const Menu&>(item);
                         addMenu(subMenu, entries);
                         break;
                     }
-                    case MenuItem::MITMultiMenu: {
+                    case MenuItem::Type_MultiMenu: {
                         const MultiMenu& multiMenu = static_cast<const MultiMenu&>(item);
                         const MenuItem::List& multiItems = multiMenu.items();
                         MenuItem::List::const_iterator multiIt, multiEnd;

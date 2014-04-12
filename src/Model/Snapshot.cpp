@@ -29,9 +29,9 @@ namespace TrenchBroom {
             Model::ObjectList::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
                 Model::Object& object = **it;
-                if (object.type() == Model::Object::OTEntity)
+                if (object.type() == Model::Object::Type_Entity)
                     m_entitySnapshots.push_back(static_cast<Model::Entity&>(object).takeSnapshot());
-                else if (object.type() == Model::Object::OTBrush)
+                else if (object.type() == Model::Object::Type_Brush)
                     m_brushSnapshots.push_back(static_cast<Model::Brush&>(object).takeSnapshot());
             }
         }

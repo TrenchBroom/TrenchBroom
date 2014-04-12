@@ -222,7 +222,7 @@ namespace TrenchBroom {
         }
         
         void EntityPropertyGrid::objectDidChange(Model::Object* object) {
-            if (object->type() == Model::Object::OTEntity)
+            if (object->type() == Model::Object::Type_Entity)
                 updateControls();
         }
         

@@ -34,11 +34,11 @@ namespace TrenchBroom {
         class RotateObjectsHandle {
         public:
             typedef enum {
-                HACenter,
-                HAXAxis,
-                HAYAxis,
-                HAZAxis,
-                HANone
+                HitArea_None,
+                HitArea_Center,
+                HitArea_XAxis,
+                HitArea_YAxis,
+                HitArea_ZAxis
             } HitArea;
             
             class Hit {

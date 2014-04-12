@@ -33,10 +33,10 @@ namespace TrenchBroom {
         class BrushVertex : public Allocator<BrushVertex> {
         public:
             typedef enum {
-                Drop,
-                Keep,
-                Undecided,
-                New
+                Mark_Drop,
+                Mark_Keep,
+                Mark_Undecided,
+                Mark_New
             } Mark;
 
             Vec3 position;

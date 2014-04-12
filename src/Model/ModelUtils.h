@@ -170,22 +170,22 @@ namespace TrenchBroom {
         
         template <typename Iter>
         CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& cur, const Iter& end) {
-            return MakeCastIterator<Entity*>::castIterator(filterIterator(cur, end, MatchObjectByType(Object::OTEntity)));
+            return MakeCastIterator<Entity*>::castIterator(filterIterator(cur, end, MatchObjectByType(Object::Type_Entity)));
         }
 
         template <typename Iter>
         CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& end) {
-            return MakeCastIterator<Entity*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::OTEntity)));
+            return MakeCastIterator<Entity*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::Type_Entity)));
         }
 
         template <typename Iter>
         CastIterator<FilterIterator<Iter, MatchObjectByType>, Brush*> brushIterator(const Iter& cur, const Iter& end) {
-            return MakeCastIterator<Brush*>::castIterator(filterIterator(cur, end, MatchObjectByType(Object::OTBrush)));
+            return MakeCastIterator<Brush*>::castIterator(filterIterator(cur, end, MatchObjectByType(Object::Type_Brush)));
         }
         
         template <typename Iter>
         CastIterator<FilterIterator<Iter, MatchObjectByType>, Brush*> brushIterator(const Iter& end) {
-            return MakeCastIterator<Brush*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::OTBrush)));
+            return MakeCastIterator<Brush*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::Type_Brush)));
         }
     }
 }

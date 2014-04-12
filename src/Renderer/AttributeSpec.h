@@ -68,14 +68,14 @@ namespace TrenchBroom {
         };
         
         typedef enum {
-            ATUser,
-            ATPosition,
-            ATNormal,
-            ATColor,
-            ATTexCoord0,
-            ATTexCoord1,
-            ATTexCoord2,
-            ATTexCoord3
+            AttributeType_User,
+            AttributeType_Position,
+            AttributeType_Normal,
+            AttributeType_Color,
+            AttributeType_TexCoord0,
+            AttributeType_TexCoord1,
+            AttributeType_TexCoord2,
+            AttributeType_TexCoord3
         } AttributeType;
         
         template <AttributeType type, GLenum D, size_t S>
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         };
         
         template <GLenum D, size_t S>
-        class AttributeSpec<ATUser, D, S> {
+        class AttributeSpec<AttributeType_User, D, S> {
         public:
             typedef typename DataTypeTraits<D>::Type DataType;
             typedef Vec<DataType, S> ElementType;
@@ -107,7 +107,7 @@ namespace TrenchBroom {
         };
         
         template <GLenum D, size_t S>
-        class AttributeSpec<ATPosition, D, S> {
+        class AttributeSpec<AttributeType_Position, D, S> {
         public:
             typedef typename DataTypeTraits<D>::Type DataType;
             typedef Vec<DataType, S> ElementType;
@@ -124,7 +124,7 @@ namespace TrenchBroom {
         };
         
         template <GLenum D, const size_t S>
-        class AttributeSpec<ATNormal, D, S> {
+        class AttributeSpec<AttributeType_Normal, D, S> {
         public:
             typedef typename DataTypeTraits<D>::Type DataType;
             typedef Vec<DataType, S> ElementType;
@@ -142,7 +142,7 @@ namespace TrenchBroom {
         };
         
         template <GLenum D, size_t S>
-        class AttributeSpec<ATColor, D, S> {
+        class AttributeSpec<AttributeType_Color, D, S> {
         public:
             typedef typename DataTypeTraits<D>::Type DataType;
             typedef Vec<DataType, S> ElementType;
@@ -159,7 +159,7 @@ namespace TrenchBroom {
         };
         
         template <GLenum D, size_t S>
-        class AttributeSpec<ATTexCoord0, D, S> {
+        class AttributeSpec<AttributeType_TexCoord0, D, S> {
         public:
             typedef typename DataTypeTraits<D>::Type DataType;
             typedef Vec<DataType, S> ElementType;
@@ -178,7 +178,7 @@ namespace TrenchBroom {
         };
         
         template <GLenum D, size_t S>
-        class AttributeSpec<ATTexCoord1, D, S> {
+        class AttributeSpec<AttributeType_TexCoord1, D, S> {
         public:
             typedef typename DataTypeTraits<D>::Type DataType;
             typedef Vec<DataType, S> ElementType;
@@ -198,7 +198,7 @@ namespace TrenchBroom {
         };
         
         template <GLenum D, size_t S>
-        class AttributeSpec<ATTexCoord2, D, S> {
+        class AttributeSpec<AttributeType_TexCoord2, D, S> {
         public:
             typedef typename DataTypeTraits<D>::Type DataType;
             typedef Vec<DataType, S> ElementType;
@@ -218,7 +218,7 @@ namespace TrenchBroom {
         };
         
         template <GLenum D, size_t S>
-        class AttributeSpec<ATTexCoord3, D, S> {
+        class AttributeSpec<AttributeType_TexCoord3, D, S> {
         public:
             typedef typename DataTypeTraits<D>::Type DataType;
             typedef Vec<DataType, S> ElementType;
@@ -238,12 +238,12 @@ namespace TrenchBroom {
         };
         
         namespace AttributeSpecs {
-            typedef AttributeSpec<ATPosition, GL_FLOAT, 2> P2;
-            typedef AttributeSpec<ATPosition, GL_FLOAT, 3> P3;
-            typedef AttributeSpec<ATNormal, GL_FLOAT, 3> N;
-            typedef AttributeSpec<ATTexCoord0, GL_FLOAT, 2> T02;
-            typedef AttributeSpec<ATTexCoord1, GL_FLOAT, 2> T12;
-            typedef AttributeSpec<ATColor, GL_FLOAT, 4> C4;
+            typedef AttributeSpec<AttributeType_Position, GL_FLOAT, 2> P2;
+            typedef AttributeSpec<AttributeType_Position, GL_FLOAT, 3> P3;
+            typedef AttributeSpec<AttributeType_Normal, GL_FLOAT, 3> N;
+            typedef AttributeSpec<AttributeType_TexCoord0, GL_FLOAT, 2> T02;
+            typedef AttributeSpec<AttributeType_TexCoord1, GL_FLOAT, 2> T12;
+            typedef AttributeSpec<AttributeType_Color, GL_FLOAT, 4> C4;
         }
     }
 }

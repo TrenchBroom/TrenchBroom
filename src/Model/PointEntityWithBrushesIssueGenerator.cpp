@@ -68,7 +68,7 @@ namespace TrenchBroom {
         Issue* PointEntityWithBrushesIssueGenerator::generate(Entity* entity) const {
             assert(entity != NULL);
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != NULL && definition->type() == Assets::EntityDefinition::PointEntity && !entity->brushes().empty())
+            if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_PointEntity && !entity->brushes().empty())
                 return new PointEntityWithBrushesIssue(entity);
             return NULL;
         }

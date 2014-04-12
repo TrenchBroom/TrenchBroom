@@ -64,16 +64,16 @@ namespace TrenchBroom {
             StringStream buffer;
             buffer << "Move " << (faces.size() == 1 ? "Texture" : "Textures");
             switch (direction) {
-                case Math::DUp:
+                case Math::Direction_Up:
                     buffer << "Up";
                     break;
-                case Math::DDown:
+                case Math::Direction_Down:
                     buffer << "Down";
                     break;
-                case Math::DLeft:
+                case Math::Direction_Left:
                     buffer << "Left";
                     break;
-                case Math::DRight:
+                case Math::Direction_Right:
                     buffer << "Right";
                     break;
                 default:

@@ -36,9 +36,9 @@ namespace TrenchBroom {
         class MovementRestriction;
         
         typedef enum {
-            Conclude,
-            Deny,
-            Continue
+            MoveResult_Conclude,
+            MoveResult_Deny,
+            MoveResult_Continue
         } MoveResult;
         
         class MoveDelegate {

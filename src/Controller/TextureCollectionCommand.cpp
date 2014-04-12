@@ -32,28 +32,28 @@ namespace TrenchBroom {
         TextureCollectionCommand::Ptr TextureCollectionCommand::add(View::MapDocumentWPtr document, const String& name) {
             return Ptr(new TextureCollectionCommand(document,
                                                     "Add Texture Collection",
-                                                    AAdd,
+                                                    Action_Add,
                                                     StringList(1, name)));
         }
         
         TextureCollectionCommand::Ptr TextureCollectionCommand::remove(View::MapDocumentWPtr document, const StringList& names) {
             return Ptr(new TextureCollectionCommand(document,
                                                     names.size() == 1 ? "Remove Texture Collection" : "Remove Texture Collections",
-                                                    ARemove,
+                                                    Action_Remove,
                                                     names));
         }
         
         TextureCollectionCommand::Ptr TextureCollectionCommand::moveUp(View::MapDocumentWPtr document, const String& name) {
             return Ptr(new TextureCollectionCommand(document,
                                                     "Move Texture Collection Up",
-                                                    AMoveUp,
+                                                    Action_MoveUp,
                                                     StringList(1, name)));
         }
         
         TextureCollectionCommand::Ptr TextureCollectionCommand::moveDown(View::MapDocumentWPtr document, const String& name) {
             return Ptr(new TextureCollectionCommand(document,
                                                     "Move Texture Collection Down",
-                                                    AMoveDown,
+                                                    Action_MoveDown,
                                                     StringList(1, name)));
         }
 
@@ -63,12 +63,12 @@ namespace TrenchBroom {
         m_action(action),
         m_names(names) {
             switch (m_action) {
-                case AAdd:
-                case AMoveUp:
-                case AMoveDown:
+                case Action_Add:
+                case Action_MoveUp:
+                case Action_MoveDown:
                     assert(m_names.size() == 1);
                     break;
-                case ARemove:
+                case Action_Remove:
                     break;
             }
         }
@@ -78,16 +78,16 @@ namespace TrenchBroom {
             Model::Entity* worldspawn = document->worldspawn();
             
             switch (m_action) {
-                case AAdd:
+                case Action_Add:
                     document->addExternalTextureCollections(m_names);
                     break;
-                case ARemove:
+                case Action_Remove:
                     document->removeExternalTextureCollections(m_names);
                     break;
-                case AMoveUp:
+                case Action_MoveUp:
                     document->moveExternalTextureCollectionUp(m_names.front());
                     break;
-                case AMoveDown:
+                case Action_MoveDown:
                     document->moveExternalTextureCollectionDown(m_names.front());
                     break;
             }
@@ -104,16 +104,16 @@ namespace TrenchBroom {
             Model::Entity* worldspawn = document->worldspawn();
 
             switch (m_action) {
-                case AAdd:
+                case Action_Add:
                     document->removeExternalTextureCollections(m_names);
                     break;
-                case ARemove:
+                case Action_Remove:
                     document->addExternalTextureCollections(m_names);
                     break;
-                case AMoveUp:
+                case Action_MoveUp:
                     document->moveExternalTextureCollectionDown(m_names.front());
                     break;
-                case AMoveDown:
+                case Action_MoveDown:
                     document->moveExternalTextureCollectionUp(m_names.front());
                     break;
             }

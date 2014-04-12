@@ -48,7 +48,7 @@ namespace TrenchBroom {
         VertexTool::VertexTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
         MoveTool(document, controller, movementRestriction),
         m_handleManager(font),
-        m_mode(VMMove),
+        m_mode(Mode_Move),
         m_changeCount(0),
         m_ignoreObjectChangeNotifications(false) {}
 
@@ -63,11 +63,11 @@ namespace TrenchBroom {
             moveVertices(delta);
             controller()->rebuildBrushGeometry(document()->selectedBrushes());
             controller()->closeGroup();
-            m_mode = VMMove;
+            m_mode = Mode_Move;
         }
 
         bool VertexTool::canSnapVertices() const {
-            return (m_mode == VMMove &&
+            return (m_mode == Mode_Move &&
                     (m_handleManager.selectedVertexCount() > 0 ||
                      m_handleManager.selectedEdgeCount() == 0 ||
                      m_handleManager.selectedFaceCount() == 0));
@@ -85,7 +85,7 @@ namespace TrenchBroom {
         }
 
         MoveResult VertexTool::moveVertices(const Vec3& delta) {
-            if (m_mode == VMMove || m_mode == VMSnap) {
+            if (m_mode == Mode_Move || m_mode == Mode_Snap) {
                 assert((m_handleManager.selectedVertexCount() > 0) ^
                        (m_handleManager.selectedEdgeCount() > 0) ^
                        (m_handleManager.selectedFaceCount() > 0));
@@ -107,7 +107,7 @@ namespace TrenchBroom {
                     return doSplitFaces(delta);
                 }
             }
-            return Continue;
+            return MoveResult_Continue;
         }
         
         MoveResult VertexTool::doMoveVertices(const Vec3& delta) {
@@ -115,45 +115,45 @@ namespace TrenchBroom {
             const ControllerFacade::MoveVerticesResult result = controller()->moveVertices(m_handleManager.selectedVertexHandles(), delta);
             if (result.success) {
                 if (!result.hasRemainingVertices)
-                    return Conclude;
+                    return MoveResult_Conclude;
                 m_dragHandlePosition += delta;
-                return Continue;
+                return MoveResult_Continue;
             }
-            return Deny;
+            return MoveResult_Deny;
         }
         
         MoveResult VertexTool::doMoveEdges(const Vec3& delta) {
             if (controller()->moveEdges(m_handleManager.selectedEdgeHandles(), delta)) {
                 m_dragHandlePosition += delta;
-                return Continue;
+                return MoveResult_Continue;
             }
-            return Deny;
+            return MoveResult_Deny;
         }
         
         MoveResult VertexTool::doMoveFaces(const Vec3& delta) {
             if (controller()->moveFaces(m_handleManager.selectedFaceHandles(), delta)) {
                 m_dragHandlePosition += delta;
-                return Continue;
+                return MoveResult_Continue;
             }
-            return Deny;
+            return MoveResult_Deny;
         }
         
         MoveResult VertexTool::doSplitEdges(const Vec3& delta) {
             if (controller()->splitEdges(m_handleManager.selectedEdgeHandles(), delta)) {
-                m_mode = VMMove;
+                m_mode = Mode_Move;
                 m_dragHandlePosition += delta;
-                return Continue;
+                return MoveResult_Continue;
             }
-            return Deny;
+            return MoveResult_Deny;
         }
         
         MoveResult VertexTool::doSplitFaces(const Vec3& delta) {
             if (controller()->splitFaces(m_handleManager.selectedFaceHandles(), delta)) {
-                m_mode = VMMove;
+                m_mode = Mode_Move;
                 m_dragHandlePosition += delta;
-                return Continue;
+                return MoveResult_Continue;
             }
-            return Deny;
+            return MoveResult_Deny;
         }
 
         bool VertexTool::doHandleMove(const InputState& inputState) const {
@@ -175,7 +175,7 @@ namespace TrenchBroom {
         }
         
         String VertexTool::doGetActionName(const InputState& inputState) const {
-            if (m_mode == VMMove || m_mode == VMSnap) {
+            if (m_mode == Mode_Move || m_mode == Mode_Snap) {
                 assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
                        (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
@@ -206,7 +206,7 @@ namespace TrenchBroom {
         }
         
         Vec3 VertexTool::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
-            if (m_mode == VMSnap) {
+            if (m_mode == Mode_Snap) {
                 const Hit& hit = firstHit(inputState.hits());
                 if (hit.isMatch() && !m_handleManager.isVertexHandleSelected(hit.target<Vec3>()))
                     return hit.target<Vec3>() - m_dragHandlePosition;
@@ -227,7 +227,7 @@ namespace TrenchBroom {
         void VertexTool::doEndMove(const InputState& inputState) {
             controller()->rebuildBrushGeometry(document()->selectedBrushes());
             controller()->closeGroup();
-            m_mode = VMMove;
+            m_mode = Mode_Move;
         }
         
         bool VertexTool::initiallyActive() const {
@@ -235,7 +235,7 @@ namespace TrenchBroom {
         }
         
         bool VertexTool::doActivate(const InputState& inputState) {
-            m_mode = VMMove;
+            m_mode = Mode_Move;
             m_handleManager.clear();
             m_handleManager.addBrushes(document()->selectedBrushes());
             m_changeCount = 0;
@@ -282,7 +282,7 @@ namespace TrenchBroom {
         }
 
         void VertexTool::doPick(const InputState& inputState, Hits& hits) {
-            m_handleManager.pick(inputState.pickRay(), hits, m_mode == VMSplit);
+            m_handleManager.pick(inputState.pickRay(), hits, m_mode == Mode_Split);
         }
         
         bool VertexTool::doMouseDown(const InputState& inputState) {
@@ -317,7 +317,7 @@ namespace TrenchBroom {
                 return false;
             
             m_handleManager.deselectAllHandles();
-            m_mode = VMMove;
+            m_mode = Mode_Move;
             return true;
         }
 
@@ -333,15 +333,15 @@ namespace TrenchBroom {
             if (hit.type() == VertexHandleManager::VertexHandleHit) {
                 m_handleManager.deselectAllHandles();
                 m_handleManager.selectVertexHandle(hit.target<Vec3>());
-                m_mode = VMSnap;
+                m_mode = Mode_Snap;
             } else if (hit.type() == VertexHandleManager::EdgeHandleHit) {
                 m_handleManager.deselectAllHandles();
                 m_handleManager.selectEdgeHandle(hit.target<Vec3>());
-                m_mode = VMSplit;
+                m_mode = Mode_Split;
             } else {
                 m_handleManager.deselectAllHandles();
                 m_handleManager.selectFaceHandle(hit.target<Vec3>());
-                m_mode = VMSplit;
+                m_mode = Mode_Split;
             }
             
             return true;
@@ -457,7 +457,7 @@ namespace TrenchBroom {
         }
 
         void VertexTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            m_handleManager.render(renderContext, m_mode == VMSplit);
+            m_handleManager.render(renderContext, m_mode == Mode_Split);
 
             if (dragging()) {
                 m_handleManager.renderHighlight(renderContext, m_dragHandlePosition);
@@ -479,7 +479,7 @@ namespace TrenchBroom {
             const Model::ObjectSet& selectedObjects = selection.selectedObjects();
             for (it = selectedObjects.begin(), end = selectedObjects.end(); it != end; ++it) {
                 Model::Object* object = *it;
-                if (object->type() == Model::Object::OTBrush) {
+                if (object->type() == Model::Object::Type_Brush) {
                     Model::Brush* brush = static_cast<Model::Brush*>(object);
                     m_handleManager.addBrush(brush);
                 }
@@ -488,7 +488,7 @@ namespace TrenchBroom {
             const Model::ObjectSet& deselectedObjects = selection.deselectedObjects();
             for (it = deselectedObjects.begin(), end = deselectedObjects.end(); it != end; ++it) {
                 Model::Object* object = *it;
-                if (object->type() == Model::Object::OTBrush) {
+                if (object->type() == Model::Object::Type_Brush) {
                     Model::Brush* brush = static_cast<Model::Brush*>(object);
                     m_handleManager.removeBrush(brush);
                 }
@@ -497,7 +497,7 @@ namespace TrenchBroom {
 
         void VertexTool::objectWillChange(Model::Object* object) {
             if (!m_ignoreObjectChangeNotifications) {
-                if (object->type() == Model::Object::OTBrush) {
+                if (object->type() == Model::Object::Type_Brush) {
                     Model::Brush* brush = static_cast<Model::Brush*>(object);
                     m_handleManager.removeBrush(brush);
                 }
@@ -506,7 +506,7 @@ namespace TrenchBroom {
 
         void VertexTool::objectDidChange(Model::Object* object) {
             if (!m_ignoreObjectChangeNotifications) {
-                if (object->type() == Model::Object::OTBrush) {
+                if (object->type() == Model::Object::Type_Brush) {
                     Model::Brush* brush = static_cast<Model::Brush*>(object);
                     m_handleManager.addBrush(brush);
                 }

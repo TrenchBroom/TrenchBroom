@@ -117,7 +117,7 @@ namespace TrenchBroom {
         }
 
         Assets::ModelSpecification Entity::modelSpecification() const {
-            if (m_definition == NULL || m_definition->type() != Assets::EntityDefinition::PointEntity)
+            if (m_definition == NULL || m_definition->type() != Assets::EntityDefinition::Type_PointEntity)
                 return Assets::ModelSpecification();
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
             return pointDefinition->model(m_properties);
@@ -505,7 +505,7 @@ namespace TrenchBroom {
         
         void Entity::validateBounds() const {
             const Assets::EntityDefinition* def = definition();
-            if (def != NULL && def->type() == Assets::EntityDefinition::PointEntity) {
+            if (def != NULL && def->type() == Assets::EntityDefinition::Type_PointEntity) {
                 m_bounds = static_cast<const Assets::PointEntityDefinition*>(def)->bounds();
                 m_bounds.translate(origin());
             } else if (!m_brushes.empty()) {
@@ -555,7 +555,7 @@ namespace TrenchBroom {
         }
         
         Entity::Entity() :
-        Object(OTEntity),
+        Object(Type_Entity),
         m_map(NULL),
         m_definition(NULL),
         m_model(NULL),

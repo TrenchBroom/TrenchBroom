@@ -39,30 +39,30 @@ namespace TrenchBroom {
         class MenuItem {
         public:
             typedef enum {
-                MITSeparator,
-                MITAction,
-                MITCheck,
-                MITMenu,
-                MITMultiMenu
-            } MenuItemType;
+                Type_Separator,
+                Type_Action,
+                Type_Check,
+                Type_Menu,
+                Type_MultiMenu
+            } Type;
             
             typedef std::tr1::shared_ptr<MenuItem> Ptr;
             typedef std::vector<Ptr> List;
         private:
-            MenuItemType m_type;
+            Type m_type;
             MenuItemParent* m_parent;
         public:
-            MenuItem(const MenuItemType type, MenuItemParent* parent);
+            MenuItem(const Type type, MenuItemParent* parent);
             virtual ~MenuItem();
             
-            MenuItemType type() const;
+            Type type() const;
             const MenuItemParent* parent() const;
             virtual const KeyboardShortcut* shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const;
         };
 
         class TextMenuItem : public MenuItem {
         public:
-            TextMenuItem(const MenuItemType type, MenuItemParent* parent);
+            TextMenuItem(const Type type, MenuItemParent* parent);
             virtual ~TextMenuItem();
             virtual const String& text() const = 0;
         };
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             
             String path() const;
         public:
-            ShortcutMenuItem(MenuItemType type, const KeyboardShortcut& shortcut, MenuItemParent* parent);
+            ShortcutMenuItem(Type type, const KeyboardShortcut& shortcut, MenuItemParent* parent);
             virtual ~ShortcutMenuItem();
             
             const String& text() const;
@@ -98,7 +98,7 @@ namespace TrenchBroom {
             int menuId() const;
             const KeyboardShortcut* shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const;
         protected:
-            MenuItemParent(MenuItemType type, const String& text, MenuItemParent* parent, int menuId);
+            MenuItemParent(Type type, const String& text, MenuItemParent* parent, int menuId);
             virtual ~MenuItemParent();
         };
         

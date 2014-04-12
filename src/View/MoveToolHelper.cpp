@@ -85,9 +85,9 @@ namespace TrenchBroom {
                 return true;
             
             const MoveResult result = m_delegate.move(delta);
-            if (result == Conclude)
+            if (result == MoveResult_Conclude)
                 return false;
-            if (result == Continue) {
+            if (result == MoveResult_Continue) {
                 refPoint += delta;
                 addTracePoint(refPoint);
             }
@@ -156,12 +156,12 @@ namespace TrenchBroom {
 
         Renderer::MoveIndicatorRenderer::Direction MoveHelper::getDirection() const {
             if (m_movementRestriction.isRestricted(Math::Axis::AZ))
-                return Renderer::MoveIndicatorRenderer::Vertical;
+                return Renderer::MoveIndicatorRenderer::Direction_Z;
             if (m_movementRestriction.isRestricted(Math::Axis::AX))
-                return Renderer::MoveIndicatorRenderer::HorizontalX;
+                return Renderer::MoveIndicatorRenderer::Direction_X;
             if (m_movementRestriction.isRestricted(Math::Axis::AY))
-                return Renderer::MoveIndicatorRenderer::HorizontalY;
-            return Renderer::MoveIndicatorRenderer::HorizontalXY;
+                return Renderer::MoveIndicatorRenderer::Direction_Y;
+            return Renderer::MoveIndicatorRenderer::Direction_XY;
         }
         
         void MoveHelper::renderMoveTrace(Renderer::RenderContext& renderContext) {

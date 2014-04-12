@@ -28,36 +28,36 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType SelectionCommand::Type = Command::freeType();
 
-        SelectionCommand::SelectionCommand(View::MapDocumentWPtr document, const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces, const bool keepBrushSelection) :
-        Command(Type, makeName(command, objects, faces), true, false),
+        SelectionCommand::SelectionCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectList& objects, const Model::BrushFaceList& faces, const bool keepBrushSelection) :
+        Command(Type, makeName(action, objects, faces), true, false),
         m_document(document),
-        m_command(command),
+        m_action(action),
         m_objects(objects),
         m_faces(faces),
         m_keepBrushSelection(keepBrushSelection) {}
 
-        String SelectionCommand::makeName(const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces) {
+        String SelectionCommand::makeName(const Action action, const Model::ObjectList& objects, const Model::BrushFaceList& faces) {
             StringStream result;
-            switch (command) {
-                case SCSelectObjects:
+            switch (action) {
+                case Action_SelectObjects:
                     result << "Select " << objects.size() << (objects.size() == 1 ? " object" : " objects");
                     break;
-                case SCSelectFaces:
+                case Action_SelectFaces:
                     result << "Select " << faces.size() << (faces.size() == 1 ? " face" : " faces");
                     break;
-                case SCSelectAllObjects:
+                case Action_SelectAllObjects:
                     result << "Select all objects";
                     break;
-                case SCSelectAllFaces:
+                case Action_SelectAllFaces:
                     result << "Select all faces";
                     break;
-                case SCDeselectObjects:
+                case Action_DeselectObjects:
                     result << "Deselect " << objects.size() << (objects.size() == 1 ? " object" : " objects");
                     break;
-                case SCDeselectFaces:
+                case Action_DeselectFaces:
                     result << "Deselect " << faces.size() << (faces.size() == 1 ? " face" : " faces");
                     break;
-                case SCDeselectAll:
+                case Action_DeselectAll:
                     result << "Deselect all";
                     break;
             }
@@ -65,35 +65,35 @@ namespace TrenchBroom {
         }
 
         SelectionCommand::Ptr SelectionCommand::select(View::MapDocumentWPtr document, const Model::ObjectList& objects) {
-            return Ptr(new SelectionCommand(document, SCSelectObjects, objects, Model::EmptyBrushFaceList, false));
+            return Ptr(new SelectionCommand(document, Action_SelectObjects, objects, Model::EmptyBrushFaceList, false));
         }
         
         SelectionCommand::Ptr SelectionCommand::select(View::MapDocumentWPtr document, const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(document, SCSelectFaces, Model::EmptyObjectList, faces, false));
+            return Ptr(new SelectionCommand(document, Action_SelectFaces, Model::EmptyObjectList, faces, false));
         }
         
         SelectionCommand::Ptr SelectionCommand::selectAndKeepBrushes(View::MapDocumentWPtr document, const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(document, SCSelectFaces, Model::EmptyObjectList, faces, true));
+            return Ptr(new SelectionCommand(document, Action_SelectFaces, Model::EmptyObjectList, faces, true));
         }
         
         SelectionCommand::Ptr SelectionCommand::selectAllObjects(View::MapDocumentWPtr document) {
-            return Ptr(new SelectionCommand(document, SCSelectAllObjects, Model::EmptyObjectList, Model::EmptyBrushFaceList, false));
+            return Ptr(new SelectionCommand(document, Action_SelectAllObjects, Model::EmptyObjectList, Model::EmptyBrushFaceList, false));
         }
         
         SelectionCommand::Ptr SelectionCommand::selectAllFaces(View::MapDocumentWPtr document) {
-            return Ptr(new SelectionCommand(document, SCSelectAllFaces, Model::EmptyObjectList, Model::EmptyBrushFaceList, false));
+            return Ptr(new SelectionCommand(document, Action_SelectAllFaces, Model::EmptyObjectList, Model::EmptyBrushFaceList, false));
         }
         
         SelectionCommand::Ptr SelectionCommand::deselect(View::MapDocumentWPtr document, const Model::ObjectList& objects) {
-            return Ptr(new SelectionCommand(document, SCDeselectObjects, objects, Model::EmptyBrushFaceList, false));
+            return Ptr(new SelectionCommand(document, Action_DeselectObjects, objects, Model::EmptyBrushFaceList, false));
         }
         
         SelectionCommand::Ptr SelectionCommand::deselect(View::MapDocumentWPtr document, const Model::BrushFaceList& faces) {
-            return Ptr(new SelectionCommand(document, SCDeselectFaces, Model::EmptyObjectList, faces, false));
+            return Ptr(new SelectionCommand(document, Action_DeselectFaces, Model::EmptyObjectList, faces, false));
         }
         
         SelectionCommand::Ptr SelectionCommand::deselectAll(View::MapDocumentWPtr document) {
-            return Ptr(new SelectionCommand(document, SCDeselectAll, Model::EmptyObjectList, Model::EmptyBrushFaceList, false));
+            return Ptr(new SelectionCommand(document, Action_DeselectAll, Model::EmptyObjectList, Model::EmptyBrushFaceList, false));
         }
 
         const Model::SelectionResult& SelectionCommand::lastResult() const {
@@ -105,26 +105,26 @@ namespace TrenchBroom {
             m_previouslySelectedObjects = document->selectedObjects();
             m_previouslySelectedFaces = document->selectedFaces();
             
-            switch (m_command) {
-                case SCSelectObjects:
+            switch (m_action) {
+                case Action_SelectObjects:
                     m_lastResult = document->selectObjects(m_objects);
                     break;
-                case SCSelectFaces:
+                case Action_SelectFaces:
                     m_lastResult = document->selectFaces(m_faces, m_keepBrushSelection);
                     break;
-                case SCSelectAllObjects:
+                case Action_SelectAllObjects:
                     m_lastResult = document->selectAllObjects();
                     break;
-                case SCSelectAllFaces:
+                case Action_SelectAllFaces:
                     m_lastResult = document->selectAllFaces();
                     break;
-                case SCDeselectObjects:
+                case Action_DeselectObjects:
                     m_lastResult = document->deselectObjects(m_objects);
                     break;
-                case SCDeselectFaces:
+                case Action_DeselectFaces:
                     m_lastResult = document->deselectFaces(m_faces);
                     break;
-                case SCDeselectAll:
+                case Action_DeselectAll:
                     m_lastResult = document->deselectAll();
                     break;
             }

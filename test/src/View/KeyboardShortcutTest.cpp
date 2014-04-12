@@ -25,13 +25,13 @@
 namespace TrenchBroom {
     namespace View {
         TEST(KeyboardShortcutTest, contextName) {
-            ASSERT_WXSTR_EQ(wxString("Any"), KeyboardShortcut::contextName(KeyboardShortcut::SCAny));
-            ASSERT_WXSTR_EQ(wxString("Vertex Tool"), KeyboardShortcut::contextName(KeyboardShortcut::SCVertexTool));
-            ASSERT_WXSTR_EQ(wxString("Clip Tool"), KeyboardShortcut::contextName(KeyboardShortcut::SCClipTool));
-            ASSERT_WXSTR_EQ(wxString("Rotate Tool"), KeyboardShortcut::contextName(KeyboardShortcut::SCRotateTool));
-            ASSERT_WXSTR_EQ(wxString("Objects"), KeyboardShortcut::contextName(KeyboardShortcut::SCObjects));
-            ASSERT_WXSTR_EQ(wxString("Textures"), KeyboardShortcut::contextName(KeyboardShortcut::SCTextures));
-            ASSERT_WXSTR_EQ(wxString("Objects, Textures"), KeyboardShortcut::contextName(KeyboardShortcut::SCObjects | KeyboardShortcut::SCTextures));
+            ASSERT_WXSTR_EQ(wxString("Any"), KeyboardShortcut::contextName(KeyboardShortcut::Context_Any));
+            ASSERT_WXSTR_EQ(wxString("Vertex Tool"), KeyboardShortcut::contextName(KeyboardShortcut::Context_VertexTool));
+            ASSERT_WXSTR_EQ(wxString("Clip Tool"), KeyboardShortcut::contextName(KeyboardShortcut::Context_ClipTool));
+            ASSERT_WXSTR_EQ(wxString("Rotate Tool"), KeyboardShortcut::contextName(KeyboardShortcut::Context_RotateTool));
+            ASSERT_WXSTR_EQ(wxString("Objects"), KeyboardShortcut::contextName(KeyboardShortcut::Context_ObjectSelection));
+            ASSERT_WXSTR_EQ(wxString("Textures"), KeyboardShortcut::contextName(KeyboardShortcut::Context_FaceSelection));
+            ASSERT_WXSTR_EQ(wxString("Objects, Textures"), KeyboardShortcut::contextName(KeyboardShortcut::Context_ObjectSelection | KeyboardShortcut::Context_FaceSelection));
         }
         
         void assertSortModifierKeys(int key1, int key2, int key3, const int exp1, const int exp2, const int exp3) {
@@ -221,7 +221,7 @@ namespace TrenchBroom {
         
         TEST(KeyboardShortcutTest, constructWithString) {
             StringStream test;
-            test << "7:" << WXK_CONTROL << ":" << WXK_ALT << ":" << WXK_NONE << ":" << static_cast<int>('D') << ":" << KeyboardShortcut::SCObjects << ":Duplicate";
+            test << "7:" << WXK_CONTROL << ":" << WXK_ALT << ":" << WXK_NONE << ":" << static_cast<int>('D') << ":" << KeyboardShortcut::Context_ObjectSelection << ":Duplicate";
             
             const KeyboardShortcut shortcut(test.str());
             ASSERT_EQ(7, shortcut.commandId());
@@ -234,12 +234,12 @@ namespace TrenchBroom {
 #endif
             ASSERT_EQ(WXK_NONE, shortcut.modifierKey3());
             ASSERT_EQ('D', shortcut.key());
-            ASSERT_EQ(KeyboardShortcut::SCObjects, shortcut.context());
+            ASSERT_EQ(KeyboardShortcut::Context_ObjectSelection, shortcut.context());
             ASSERT_EQ(String("Duplicate"), shortcut.text());
         }
         
         TEST(KeyboardShortcutTest, matches) {
-            const KeyboardShortcut shortcut(0, WXK_CONTROL, WXK_ALT, 'D', KeyboardShortcut::SCObjects, "Test");
+            const KeyboardShortcut shortcut(0, WXK_CONTROL, WXK_ALT, 'D', KeyboardShortcut::Context_ObjectSelection, "Test");
             
             ASSERT_FALSE(shortcut.matches('S', WXK_CONTROL, WXK_ALT));
             ASSERT_FALSE(shortcut.matches('D', WXK_CONTROL, WXK_SHIFT));
@@ -252,7 +252,7 @@ namespace TrenchBroom {
         }
         
         TEST(KeyboardShortcutTest, modifierKeyMenuText) {
-            const KeyboardShortcut shortcut(0, WXK_ALT, WXK_CONTROL, 'D', KeyboardShortcut::SCObjects, "Test");
+            const KeyboardShortcut shortcut(0, WXK_ALT, WXK_CONTROL, 'D', KeyboardShortcut::Context_ObjectSelection, "Test");
 #ifdef __APPLE__
             ASSERT_WXSTR_EQ(wxString("Alt+Ctrl"), shortcut.modifierKeyMenuText());
 #else

@@ -39,9 +39,9 @@ namespace TrenchBroom {
         
         struct AddFaceResult : public BrushAlgorithmResult {
             typedef enum {
-                BrushIsSplit,
-                BrushIsNull,
-                FaceIsRedundant
+                Code_BrushSplit,
+                Code_BrushNull,
+                Code_FaceRedundant
             } Code;
 
             Code resultCode;

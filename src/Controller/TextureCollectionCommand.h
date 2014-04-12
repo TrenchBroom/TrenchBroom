@@ -36,10 +36,10 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<TextureCollectionCommand> Ptr;
         private:
             typedef enum {
-                AAdd,
-                ARemove,
-                AMoveUp,
-                AMoveDown
+                Action_Add,
+                Action_Remove,
+                Action_MoveUp,
+                Action_MoveDown
             } Action;
             
             

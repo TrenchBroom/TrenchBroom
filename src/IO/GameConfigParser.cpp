@@ -38,33 +38,33 @@ namespace TrenchBroom {
             if (root == NULL)
                 throw ParserException("Empty game config");
             
-            expectEntry(ConfigEntry::TTable, *root);
+            expectEntry(ConfigEntry::Type_Table, *root);
             const ConfigTable& rootTable = *root;
             
-            expectTableEntry("name", ConfigEntry::TValue, rootTable);
+            expectTableEntry("name", ConfigEntry::Type_Value, rootTable);
             const String name = rootTable["name"];
             
             IO::Path icon("");
             if (rootTable.contains("icon")) {
-                expectTableEntry("icon", ConfigEntry::TValue, rootTable);
+                expectTableEntry("icon", ConfigEntry::Type_Value, rootTable);
                 icon = IO::Path(rootTable["icon"]);
             }
             
-            expectTableEntry("fileformats", ConfigEntry::TList, rootTable);
+            expectTableEntry("fileformats", ConfigEntry::Type_List, rootTable);
             const StringSet fileFormats = parseSet(rootTable["fileformats"]);
             
-            expectTableEntry("filesystem", ConfigEntry::TTable, rootTable);
+            expectTableEntry("filesystem", ConfigEntry::Type_Table, rootTable);
             const GameConfig::FileSystemConfig fileSystemConfig = parseFileSystemConfig(rootTable["filesystem"]);
             
-            expectTableEntry("textures", ConfigEntry::TTable, rootTable);
+            expectTableEntry("textures", ConfigEntry::Type_Table, rootTable);
             const GameConfig::TextureConfig textureConfig = parseTextureConfig(rootTable["textures"]);
             
-            expectTableEntry("entities", ConfigEntry::TTable, rootTable);
+            expectTableEntry("entities", ConfigEntry::Type_Table, rootTable);
             const GameConfig::EntityConfig entityConfig = parseEntityConfig(rootTable["entities"]);
             
             GameConfig::FaceAttribsConfig faceAttribsConfig;
             if (rootTable.contains("faceattribs")) {
-                expectTableEntry("faceattribs", ConfigEntry::TTable, rootTable);
+                expectTableEntry("faceattribs", ConfigEntry::Type_Table, rootTable);
                 faceAttribsConfig = parseFaceAttribsConfig(rootTable["faceattribs"]);
             }
             
@@ -74,10 +74,10 @@ namespace TrenchBroom {
         Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const ConfigTable& table) const {
             using Model::GameConfig;
             
-            expectTableEntry("searchpath", ConfigEntry::TValue, table);
+            expectTableEntry("searchpath", ConfigEntry::Type_Value, table);
             const String searchPath = table["searchpath"];
             
-            expectTableEntry("packageformat", ConfigEntry::TValue, table);
+            expectTableEntry("packageformat", ConfigEntry::Type_Value, table);
             const String packageFormat = table["packageformat"];
             
             return GameConfig::FileSystemConfig(Path(searchPath), packageFormat);
@@ -86,24 +86,24 @@ namespace TrenchBroom {
         Model::GameConfig::TextureConfig GameConfigParser::parseTextureConfig(const ConfigTable& table) const {
             using Model::GameConfig;
             
-            expectTableEntry("type", ConfigEntry::TValue, table);
+            expectTableEntry("type", ConfigEntry::Type_Value, table);
             const String type = table["type"];
 
             String property("");
             if (table.contains("property")) {
-                expectTableEntry("property", ConfigEntry::TValue, table);
+                expectTableEntry("property", ConfigEntry::Type_Value, table);
                 property = table["property"];
             }
             
             IO::Path palette("");
             if (table.contains("palette")) {
-                expectTableEntry("palette", ConfigEntry::TValue, table);
+                expectTableEntry("palette", ConfigEntry::Type_Value, table);
                 palette = IO::Path(table["palette"]);
             }
             
             IO::Path builtinTexturesSearchPath("");
             if (table.contains("builtin")) {
-                expectTableEntry("builtin", ConfigEntry::TValue, table);
+                expectTableEntry("builtin", ConfigEntry::Type_Value, table);
                 builtinTexturesSearchPath = IO::Path(table["builtin"]);
             }
             
@@ -114,8 +114,8 @@ namespace TrenchBroom {
             using Model::GameConfig;
             
             Path::List defFilePaths;
-            expectTableEntry("definitions", ConfigEntry::TValue | ConfigEntry::TList, table);
-            if (table["definitions"].type() == ConfigEntry::TValue) {
+            expectTableEntry("definitions", ConfigEntry::Type_Value | ConfigEntry::Type_List, table);
+            if (table["definitions"].type() == ConfigEntry::Type_Value) {
                 const String pathStr = table["definitions"];
                 defFilePaths.push_back(Path(pathStr));
             } else {
@@ -124,10 +124,10 @@ namespace TrenchBroom {
                     defFilePaths.push_back(Path(pathStrs[i]));
             }
             
-            expectTableEntry("modelformats", ConfigEntry::TList, table);
+            expectTableEntry("modelformats", ConfigEntry::Type_List, table);
             const StringSet modelFormats = parseSet(table["modelformats"]);
             
-            expectTableEntry("defaultcolor", ConfigEntry::TValue, table);
+            expectTableEntry("defaultcolor", ConfigEntry::Type_Value, table);
             const Color defaultColor(table["defaultcolor"]);
             
             return GameConfig::EntityConfig(defFilePaths, modelFormats, defaultColor);
@@ -138,13 +138,13 @@ namespace TrenchBroom {
             
             GameConfig::FlagConfigList surfaceFlags;
             if (table.contains("surfaceflags")) {
-                expectTableEntry("surfaceflags", ConfigEntry::TList, table);
+                expectTableEntry("surfaceflags", ConfigEntry::Type_List, table);
                 surfaceFlags = parseFlagConfig(table["surfaceflags"]);
             }
             
             GameConfig::FlagConfigList contentFlags;
             if (table.contains("contentflags")) {
-                expectTableEntry("contentflags", ConfigEntry::TList, table);
+                expectTableEntry("contentflags", ConfigEntry::Type_List, table);
                 contentFlags = parseFlagConfig(table["contentflags"]);
             }
             
@@ -157,15 +157,15 @@ namespace TrenchBroom {
             GameConfig::FlagConfigList flags;
             for (size_t i = 0; i < list.count(); ++i) {
                 const ConfigEntry& entry = list[i];
-                expectEntry(ConfigEntry::TTable, entry);
+                expectEntry(ConfigEntry::Type_Table, entry);
                 const ConfigTable& table = static_cast<const ConfigTable&>(entry);
                 
-                expectTableEntry("name", ConfigEntry::TValue, table);
+                expectTableEntry("name", ConfigEntry::Type_Value, table);
                 const String name = table["name"];
                 
                 String description;
                 if (table.contains("description")) {
-                    expectTableEntry("description", ConfigEntry::TValue, table);
+                    expectTableEntry("description", ConfigEntry::Type_Value, table);
                     description = table["description"];
                 }
                 
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             StringSet result;
             for (size_t i = 0; i < list.count(); ++i) {
                 const ConfigEntry& entry = list[i];
-                expectEntry(ConfigEntry::TValue, entry);
+                expectEntry(ConfigEntry::Type_Value, entry);
                 result.insert(static_cast<const String&>(entry));
             }
             return result;
@@ -189,7 +189,7 @@ namespace TrenchBroom {
             StringList result;
             for (size_t i = 0; i < list.count(); ++i) {
                 const ConfigEntry& entry = list[i];
-                expectEntry(ConfigEntry::TValue, entry);
+                expectEntry(ConfigEntry::Type_Value, entry);
                 result.push_back(static_cast<const String&>(entry));
             }
             return result;
@@ -209,11 +209,11 @@ namespace TrenchBroom {
         
         String GameConfigParser::typeNames(const int typeMask) const {
             StringList result;
-            if ((typeMask & ConfigEntry::TValue) != 0)
+            if ((typeMask & ConfigEntry::Type_Value) != 0)
                 result.push_back("value");
-            if ((typeMask & ConfigEntry::TList) != 0)
+            if ((typeMask & ConfigEntry::Type_List) != 0)
                 result.push_back("list");
-            if ((typeMask & ConfigEntry::TTable) != 0)
+            if ((typeMask & ConfigEntry::Type_Table) != 0)
                 result.push_back("table");
             
             if (result.empty())

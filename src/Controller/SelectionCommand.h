@@ -39,17 +39,17 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<SelectionCommand> Ptr;
 
             typedef enum {
-                SCSelectObjects,
-                SCSelectFaces,
-                SCSelectAllObjects,
-                SCSelectAllFaces,
-                SCDeselectObjects,
-                SCDeselectFaces,
-                SCDeselectAll
-            } SelectCommand;
+                Action_SelectObjects,
+                Action_SelectFaces,
+                Action_SelectAllObjects,
+                Action_SelectAllFaces,
+                Action_DeselectObjects,
+                Action_DeselectFaces,
+                Action_DeselectAll
+            } Action;
         private:
             View::MapDocumentWPtr m_document;
-            SelectCommand m_command;
+            Action m_action;
             
             Model::ObjectList m_objects;
             Model::BrushFaceList m_faces;
@@ -72,9 +72,9 @@ namespace TrenchBroom {
 
             const Model::SelectionResult& lastResult() const;
         private:
-            SelectionCommand(View::MapDocumentWPtr document, const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces, bool keepBrushSelection);
+            SelectionCommand(View::MapDocumentWPtr document, Action command, const Model::ObjectList& objects, const Model::BrushFaceList& faces, bool keepBrushSelection);
 
-            static String makeName(const SelectCommand command, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
+            static String makeName(Action command, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
             bool doPerformDo();
             bool doPerformUndo();
         };

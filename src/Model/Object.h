@@ -44,8 +44,8 @@ namespace TrenchBroom {
         class Object : public Pickable {
         public:
             typedef enum {
-                OTEntity,
-                OTBrush
+                Type_Entity,
+                Type_Brush
             } Type;
         private:
             Type m_type;

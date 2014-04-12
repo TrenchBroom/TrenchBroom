@@ -289,12 +289,12 @@ namespace Math {
     };
     
     typedef enum {
-        DForward,
-        DBackward,
-        DLeft,
-        DRight,
-        DUp,
-        DDown
+        Direction_Forward,
+        Direction_Backward,
+        Direction_Left,
+        Direction_Right,
+        Direction_Up,
+        Direction_Down
     } Direction;
 
     namespace Axis {

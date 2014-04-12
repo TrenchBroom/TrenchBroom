@@ -37,11 +37,11 @@ namespace TrenchBroom {
         }
 
         AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects) {
-            return AddRemoveObjectsCommand::Ptr(new AddRemoveObjectsCommand(document, AAdd, objects));
+            return AddRemoveObjectsCommand::Ptr(new AddRemoveObjectsCommand(document, Action_Add, objects));
         }
 
         AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::removeObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects) {
-            return AddRemoveObjectsCommand::Ptr(new AddRemoveObjectsCommand(document, ARemove, objects));
+            return AddRemoveObjectsCommand::Ptr(new AddRemoveObjectsCommand(document, Action_Remove, objects));
         }
 
         const Model::ObjectList& AddRemoveObjectsCommand::addedObjects() const {
@@ -56,7 +56,7 @@ namespace TrenchBroom {
         Command(Type, makeName(action, objects), true, true),
         m_document(document),
         m_action(action) {
-            if (action == AAdd)
+            if (action == Action_Add)
                 m_objectsToAdd = objects;
             else
                 m_objectsToRemove = addEmptyBrushEntities(objects);
@@ -86,7 +86,7 @@ namespace TrenchBroom {
                 const Model::ObjectList& children = mIt->second;
                 
                 if (parent != NULL) {
-                    if (parent->type() == Model::Object::OTEntity) {
+                    if (parent->type() == Model::Object::Type_Entity) {
                         Model::Entity* entity = static_cast<Model::Entity*>(parent);
                         if (entity->brushes().size() == children.size() && !entity->worldspawn()) {
                             result.push_back(Model::ObjectParentPair(parent, NULL));
@@ -112,7 +112,7 @@ namespace TrenchBroom {
 
         String AddRemoveObjectsCommand::makeName(const Action action, const Model::ObjectParentList& objects) {
             StringStream name;
-            name << (action == AAdd ? "Add " : "Remove ");
+            name << (action == Action_Add ? "Add " : "Remove ");
             name << (objects.size() == 1 ? "object" : "objects");
             return name.str();
         }
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             m_addedObjects.clear();
             m_removedObjects.clear();
             
-            if (m_action == AAdd)
+            if (m_action == Action_Add)
                 addObjects(m_objectsToAdd);
             else
                 removeObjects(m_objectsToRemove);
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             m_addedObjects.clear();
             m_removedObjects.clear();
             
-            if (m_action == AAdd)
+            if (m_action == Action_Add)
                 removeObjects(m_objectsToRemove);
             else
                 addObjects(m_objectsToAdd);

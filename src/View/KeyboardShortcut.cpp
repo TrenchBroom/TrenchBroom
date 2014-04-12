@@ -49,22 +49,22 @@ namespace TrenchBroom {
             return false;
         }
 
-        const KeyboardShortcut KeyboardShortcut::Empty(wxID_ANY, SCAny, "");
+        const KeyboardShortcut KeyboardShortcut::Empty(wxID_ANY, Context_Any, "");
         
         wxString KeyboardShortcut::contextName(const int context) {
-            if (context == SCAny)
+            if (context == Context_Any)
                 return "Any";
             
             StringList contexts;
-            if (context & SCVertexTool)
+            if (context & Context_VertexTool)
                 contexts.push_back("Vertex Tool");
-            if (context & SCClipTool)
+            if (context & Context_ClipTool)
                 contexts.push_back("Clip Tool");
-            if (context & SCRotateTool)
+            if (context & Context_RotateTool)
                 contexts.push_back("Rotate Tool");
-            if (context & SCObjects)
+            if (context & Context_ObjectSelection)
                 contexts.push_back("Objects");
-            if (context & SCTextures)
+            if (context & Context_FaceSelection)
                 contexts.push_back("Textures");
             return StringUtils::join(contexts, ", ");
         }

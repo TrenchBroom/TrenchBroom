@@ -42,7 +42,7 @@ namespace TrenchBroom {
         }
 
         void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance, BrushFaceAttribs& attribs) const {
-            assert(direction != Math::DForward && direction != Math::DBackward);
+            assert(direction != Math::Direction_Forward && direction != Math::Direction_Backward);
             
             const Vec3 texX = project(normal, getXAxis()).normalize();
             const Vec3 texY = project(normal, getYAxis()).normalize();
@@ -102,25 +102,25 @@ namespace TrenchBroom {
             
             Vec2f offset;
             switch (direction) {
-                case Math::DUp:
+                case Math::Direction_Up:
                     if (up.dot(vAxis) >= 0.0)
                         offset[yIndex] -= distance;
                     else
                         offset[yIndex] += distance;
                     break;
-                case Math::DRight:
+                case Math::Direction_Right:
                     if (right.dot(hAxis) >= 0.0)
                         offset[xIndex] -= distance;
                     else
                         offset[xIndex] += distance;
                     break;
-                case Math::DDown:
+                case Math::Direction_Down:
                     if (up.dot(vAxis) >= 0.0)
                         offset[yIndex] += distance;
                     else
                         offset[yIndex] -= distance;
                     break;
-                case Math::DLeft:
+                case Math::Direction_Left:
                     if (right.dot(hAxis) >= 0.0f)
                         offset[xIndex] += distance;
                     else

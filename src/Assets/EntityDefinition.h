@@ -36,8 +36,8 @@ namespace TrenchBroom {
         class EntityDefinition {
         public:
             typedef enum {
-                PointEntity,
-                BrushEntity
+                Type_PointEntity,
+                Type_BrushEntity
             } Type;
         private:
             String m_name;

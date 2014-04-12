@@ -29,16 +29,16 @@ template <typename T, size_t S>
 class BBox {
 public:
     typedef enum {
-        Min,
-        Max
-    } MinMax;
+        Corner_Min,
+        Corner_Max
+    } Corner;
 
     class RelativePosition {
     public:
         typedef enum {
-            Less,
-            Within,
-            Greater
+            Range_Less,
+            Range_Within,
+            Range_Greater
         } Range;
     private:
         Range m_positions[S];
@@ -106,15 +106,15 @@ public:
         return max - min;
     }
     
-    const Vec<T,S> vertex(MinMax c[S]) const {
+    const Vec<T,S> vertex(const Corner c[S]) const {
         Vec<T,S> result;
         for (size_t i = 0; i < S; ++i)
-            result[i] = c[i] == Min ? min[i] : max[i];
+            result[i] = c[i] == Corner_Min ? min[i] : max[i];
         return result;
     }
     
-    const Vec<T,3> vertex(MinMax x, MinMax y, MinMax z) const {
-        MinMax c[] = {x, y, z};
+    const Vec<T,3> vertex(const Corner x, const Corner y, const Corner z) const {
+        Corner c[] = { x, y, z };
         return vertex(c);
     }
     
@@ -190,11 +190,11 @@ public:
         typename RelativePosition::Range p[S];
         for (size_t i = 0; i < S; ++i) {
             if (point[i] < min[i])
-                p[i] = RelativePosition::Less;
+                p[i] = RelativePosition::Range_Less;
             else if (point[i] > max[i])
-                p[i] = RelativePosition::Greater;
+                p[i] = RelativePosition::Range_Greater;
             else
-                p[i] = RelativePosition::Within;
+                p[i] = RelativePosition::Range_Within;
         }
         
         return RelativePosition(p);

@@ -37,20 +37,20 @@ namespace TrenchBroom {
             const Vec3f half = m_bounds.size() / 2.0f;
             
             if (m_axis == Math::Axis::AZ) {
-                if ((camPos[0] == BBox3::RelativePosition::Less && camPos[1] == BBox3::RelativePosition::Less) ||
-                    (camPos[0] == BBox3::RelativePosition::Less && camPos[1] == BBox3::RelativePosition::Within)) {
+                if ((camPos[0] == BBox3::RelativePosition::Range_Less && camPos[1] == BBox3::RelativePosition::Range_Less) ||
+                    (camPos[0] == BBox3::RelativePosition::Range_Less && camPos[1] == BBox3::RelativePosition::Range_Within)) {
                     pos[0] = m_bounds.min.x();
                     pos[1] = m_bounds.max.y();
-                } else if ((camPos[0] == BBox3::RelativePosition::Less    && camPos[1] == BBox3::RelativePosition::Greater) ||
-                           (camPos[0] == BBox3::RelativePosition::Within  && camPos[1] == BBox3::RelativePosition::Greater)) {
+                } else if ((camPos[0] == BBox3::RelativePosition::Range_Less    && camPos[1] == BBox3::RelativePosition::Range_Greater) ||
+                           (camPos[0] == BBox3::RelativePosition::Range_Within  && camPos[1] == BBox3::RelativePosition::Range_Greater)) {
                     pos[0] = m_bounds.max.x();
                     pos[1] = m_bounds.max.y();
-                } else if ((camPos[0] == BBox3::RelativePosition::Greater && camPos[1] == BBox3::RelativePosition::Greater) ||
-                           (camPos[0] == BBox3::RelativePosition::Greater && camPos[1] == BBox3::RelativePosition::Within)) {
+                } else if ((camPos[0] == BBox3::RelativePosition::Range_Greater && camPos[1] == BBox3::RelativePosition::Range_Greater) ||
+                           (camPos[0] == BBox3::RelativePosition::Range_Greater && camPos[1] == BBox3::RelativePosition::Range_Within)) {
                     pos[0] = m_bounds.max.x();
                     pos[1] = m_bounds.min.y();
-                } else if ((camPos[0] == BBox3::RelativePosition::Within  && camPos[1] == BBox3::RelativePosition::Less) ||
-                           (camPos[0] == BBox3::RelativePosition::Greater && camPos[1] == BBox3::RelativePosition::Less)) {
+                } else if ((camPos[0] == BBox3::RelativePosition::Range_Within  && camPos[1] == BBox3::RelativePosition::Range_Less) ||
+                           (camPos[0] == BBox3::RelativePosition::Range_Greater && camPos[1] == BBox3::RelativePosition::Range_Less)) {
                     pos[0] = m_bounds.min.x();
                     pos[1] = m_bounds.min.y();
                 }
@@ -59,45 +59,45 @@ namespace TrenchBroom {
             } else {
                 if (m_axis == Math::Axis::AX) {
                     pos[0] = m_bounds.min.x() + half.x();
-                    if (       camPos[0] == BBox3::RelativePosition::Less    && camPos[1] == BBox3::RelativePosition::Less) {
-                        pos[1] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.min.y() : m_bounds.max.y();
-                    } else if (camPos[0] == BBox3::RelativePosition::Less    && camPos[1] == BBox3::RelativePosition::Within) {
+                    if (       camPos[0] == BBox3::RelativePosition::Range_Less    && camPos[1] == BBox3::RelativePosition::Range_Less) {
+                        pos[1] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.min.y() : m_bounds.max.y();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Less    && camPos[1] == BBox3::RelativePosition::Range_Within) {
                         pos[1] = m_bounds.max.y();
-                    } else if (camPos[0] == BBox3::RelativePosition::Less    && camPos[1] == BBox3::RelativePosition::Greater) {
-                        pos[1] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.max.y() : m_bounds.min.y();
-                    } else if (camPos[0] == BBox3::RelativePosition::Within  && camPos[1] == BBox3::RelativePosition::Greater) {
-                        pos[1] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.max.y() : m_bounds.min.y();
-                    } else if (camPos[0] == BBox3::RelativePosition::Greater && camPos[1] == BBox3::RelativePosition::Greater) {
-                        pos[1] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.max.y() : m_bounds.min.y();
-                    } else if (camPos[0] == BBox3::RelativePosition::Greater && camPos[1] == BBox3::RelativePosition::Within) {
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Less    && camPos[1] == BBox3::RelativePosition::Range_Greater) {
+                        pos[1] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.max.y() : m_bounds.min.y();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Within  && camPos[1] == BBox3::RelativePosition::Range_Greater) {
+                        pos[1] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.max.y() : m_bounds.min.y();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Greater && camPos[1] == BBox3::RelativePosition::Range_Greater) {
+                        pos[1] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.max.y() : m_bounds.min.y();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Greater && camPos[1] == BBox3::RelativePosition::Range_Within) {
                         pos[1] = m_bounds.min.y();
-                    } else if (camPos[0] == BBox3::RelativePosition::Greater && camPos[1] == BBox3::RelativePosition::Less) {
-                        pos[1] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.min.y() : m_bounds.max.y();
-                    } else if (camPos[0] == BBox3::RelativePosition::Within  && camPos[1] == BBox3::RelativePosition::Less) {
-                        pos[1] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.min.y() : m_bounds.max.y();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Greater && camPos[1] == BBox3::RelativePosition::Range_Less) {
+                        pos[1] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.min.y() : m_bounds.max.y();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Within  && camPos[1] == BBox3::RelativePosition::Range_Less) {
+                        pos[1] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.min.y() : m_bounds.max.y();
                     }
                 } else {
                     pos[1] = m_bounds.min.y() + half.y();
-                    if (       camPos[0] == BBox3::RelativePosition::Less    && camPos[1] == BBox3::RelativePosition::Less) {
-                        pos[0] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.min.x() : m_bounds.max.x();
-                    } else if (camPos[0] == BBox3::RelativePosition::Less    && camPos[1] == BBox3::RelativePosition::Within) {
-                        pos[0] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.min.x() : m_bounds.max.x();
-                    } else if (camPos[0] == BBox3::RelativePosition::Less    && camPos[1] == BBox3::RelativePosition::Greater) {
-                        pos[0] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.min.x() : m_bounds.max.x();
-                    } else if (camPos[0] == BBox3::RelativePosition::Within  && camPos[1] == BBox3::RelativePosition::Greater) {
+                    if (       camPos[0] == BBox3::RelativePosition::Range_Less    && camPos[1] == BBox3::RelativePosition::Range_Less) {
+                        pos[0] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.min.x() : m_bounds.max.x();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Less    && camPos[1] == BBox3::RelativePosition::Range_Within) {
+                        pos[0] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.min.x() : m_bounds.max.x();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Less    && camPos[1] == BBox3::RelativePosition::Range_Greater) {
+                        pos[0] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.min.x() : m_bounds.max.x();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Within  && camPos[1] == BBox3::RelativePosition::Range_Greater) {
                         pos[0] = m_bounds.max.x();
-                    } else if (camPos[0] == BBox3::RelativePosition::Greater && camPos[1] == BBox3::RelativePosition::Greater) {
-                        pos[0] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.max.x() : m_bounds.min.x();
-                    } else if (camPos[0] == BBox3::RelativePosition::Greater && camPos[1] == BBox3::RelativePosition::Within) {
-                        pos[0] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.max.x() : m_bounds.min.x();
-                    } else if (camPos[0] == BBox3::RelativePosition::Greater && camPos[1] == BBox3::RelativePosition::Less) {
-                        pos[0] = camPos[2] == BBox3::RelativePosition::Within ? m_bounds.max.x() : m_bounds.min.x();
-                    } else if (camPos[0] == BBox3::RelativePosition::Within  && camPos[1] == BBox3::RelativePosition::Less) {
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Greater && camPos[1] == BBox3::RelativePosition::Range_Greater) {
+                        pos[0] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.max.x() : m_bounds.min.x();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Greater && camPos[1] == BBox3::RelativePosition::Range_Within) {
+                        pos[0] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.max.x() : m_bounds.min.x();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Greater && camPos[1] == BBox3::RelativePosition::Range_Less) {
+                        pos[0] = camPos[2] == BBox3::RelativePosition::Range_Within ? m_bounds.max.x() : m_bounds.min.x();
+                    } else if (camPos[0] == BBox3::RelativePosition::Range_Within  && camPos[1] == BBox3::RelativePosition::Range_Less) {
                         pos[0] = m_bounds.min.x();
                     }
                 }
                 
-                if (camPos[2] == BBox3::RelativePosition::Less)
+                if (camPos[2] == BBox3::RelativePosition::Range_Less)
                     pos[2] = m_bounds.min.z();
                 else
                     pos[2] = m_bounds.max.z();
@@ -111,7 +111,7 @@ namespace TrenchBroom {
                 return Alignment::Right;
             
             const BBox3::RelativePosition camPos = m_bounds.relativePosition(m_camera.position());
-            if (camPos[2] == BBox3::RelativePosition::Less)
+            if (camPos[2] == BBox3::RelativePosition::Range_Less)
                 return Alignment::Top;
             return Alignment::Bottom;
         }
@@ -129,25 +129,25 @@ namespace TrenchBroom {
             return result;
         }
 
-        BoundsInfoRenderer::BoundsInfoMinMaxTextAnchor::BoundsInfoMinMaxTextAnchor(const BBox3& bounds, const EMinMax minMax, const Renderer::Camera& camera) :
+        BoundsInfoRenderer::BoundsInfoMinMaxTextAnchor::BoundsInfoMinMaxTextAnchor(const BBox3& bounds, const BBox3::Corner minMax, const Renderer::Camera& camera) :
         m_bounds(bounds),
         m_minMax(minMax),
         m_camera(camera) {}
 
         Vec3f BoundsInfoRenderer::BoundsInfoMinMaxTextAnchor::basePosition() const {
-            if (m_minMax == BoxMin)
+            if (m_minMax == BBox3::Corner_Min)
                 return m_bounds.min;
             return m_bounds.max;
         }
         
         Alignment::Type BoundsInfoRenderer::BoundsInfoMinMaxTextAnchor::alignment() const {
             const BBox3::RelativePosition camPos = m_bounds.relativePosition(m_camera.position());
-            if (m_minMax == BoxMin) {
-                if (camPos[1] == BBox3::RelativePosition::Less || (camPos[1] == BBox3::RelativePosition::Within && camPos[0] != BBox3::RelativePosition::Less))
+            if (m_minMax == BBox3::Corner_Min) {
+                if (camPos[1] == BBox3::RelativePosition::Range_Less || (camPos[1] == BBox3::RelativePosition::Range_Within && camPos[0] != BBox3::RelativePosition::Range_Less))
                     return Alignment::Top | Alignment::Right;
                 return Alignment::Top | Alignment::Left;
             }
-            if (camPos[1] == BBox3::RelativePosition::Less || (camPos[1] == BBox3::RelativePosition::Within && camPos[0] != BBox3::RelativePosition::Less))
+            if (camPos[1] == BBox3::RelativePosition::Range_Less || (camPos[1] == BBox3::RelativePosition::Range_Within && camPos[0] != BBox3::RelativePosition::Range_Less))
                 return Alignment::Bottom | Alignment::Left;
             return Alignment::Bottom | Alignment::Right;
         }
@@ -200,12 +200,12 @@ namespace TrenchBroom {
             }
             
             buffer << "Min: " << m_bounds.min.asString();
-            TextAnchor::Ptr minAnchor(new BoundsInfoMinMaxTextAnchor(m_bounds, BoundsInfoMinMaxTextAnchor::BoxMin, renderContext.camera()));
+            TextAnchor::Ptr minAnchor(new BoundsInfoMinMaxTextAnchor(m_bounds, BBox3::Corner_Min, renderContext.camera()));
             m_textRenderer.addString(3, buffer.str(), minAnchor);
             buffer.str("");
             
             buffer << "Max: " << m_bounds.max.asString();
-            TextAnchor::Ptr maxAnchor(new BoundsInfoMinMaxTextAnchor(m_bounds, BoundsInfoMinMaxTextAnchor::BoxMax, renderContext.camera()));
+            TextAnchor::Ptr maxAnchor(new BoundsInfoMinMaxTextAnchor(m_bounds, BBox3::Corner_Max, renderContext.camera()));
             m_textRenderer.addString(4, buffer.str(), maxAnchor);
             
             m_valid = true;

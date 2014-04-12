@@ -27,11 +27,11 @@ namespace TrenchBroom {
         const Command::CommandType FixPlanePointsCommand::Type = Command::freeType();
 
         FixPlanePointsCommand::Ptr FixPlanePointsCommand::snapPlanePoints(View::MapDocumentWPtr document, const Model::BrushList& brushes) {
-            return Ptr(new FixPlanePointsCommand(document, SnapPoints, brushes));
+            return Ptr(new FixPlanePointsCommand(document, Action_SnapPoints, brushes));
         }
         
         FixPlanePointsCommand::Ptr FixPlanePointsCommand::findPlanePoints(View::MapDocumentWPtr document, const Model::BrushList& brushes) {
-            return Ptr(new FixPlanePointsCommand(document, FindPoints, brushes));
+            return Ptr(new FixPlanePointsCommand(document, Action_FindPoints, brushes));
         }
 
         FixPlanePointsCommand::FixPlanePointsCommand(View::MapDocumentWPtr document, const Action action, const Model::BrushList& brushes) :
@@ -44,9 +44,9 @@ namespace TrenchBroom {
         
         String FixPlanePointsCommand::makeName(const Action action, const Model::BrushList& brushes) {
             switch (action) {
-                case SnapPoints:
+                case Action_SnapPoints:
                     return "Snap plane points";
-                case FindPoints:
+                case Action_FindPoints:
                     return "Find plane points";
                 default:
                     assert(false);
@@ -87,10 +87,10 @@ namespace TrenchBroom {
             
             document->objectWillChangeNotifier(m_brushes.begin(), m_brushes.end());
             switch (m_action) {
-                case SnapPoints:
+                case Action_SnapPoints:
                     Model::each(m_brushes.begin(), m_brushes.end(), SnapPlanePoints(document->worldBounds()), Model::MatchAll());
                     break;
-                case FindPoints:
+                case Action_FindPoints:
                     Model::each(m_brushes.begin(), m_brushes.end(), FindPlanePoints(document->worldBounds()), Model::MatchAll());
                     break;
             }

@@ -52,7 +52,7 @@ namespace TrenchBroom {
                 if (vertexIt != geometry.vertices.end()) {
                     BrushVertex* vertex = *vertexIt;
                     const MoveVertexResult result = moveVertex(geometry, vertex, true, start, end);
-                    if (result.type != MoveVertexResult::VertexDeleted)
+                    if (result.type != MoveVertexResult::Type_VertexDeleted)
                         newPositions.push_back(result.vertex->position);
                     updateFacePoints(geometry);
                 }

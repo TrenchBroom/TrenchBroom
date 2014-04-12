@@ -362,11 +362,11 @@ namespace TrenchBroom {
                 if (StringUtils::caseInsensitiveEqual(typeName, "target_source")) {
                     if (properties.count(propertyKey) > 0)
                         throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseTargetSourceProperty(propertyKey);
+                    properties[propertyKey] = parseType_TargetSourceProperty(propertyKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "target_destination")) {
                     if (properties.count(propertyKey) > 0)
                         throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseTargetDestinationProperty(propertyKey);
+                    properties[propertyKey] = parseType_TargetDestinationProperty(propertyKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "string")) {
                     if (properties.count(propertyKey) > 0)
                         throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
@@ -397,7 +397,7 @@ namespace TrenchBroom {
             return properties;
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseTargetSourceProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseType_TargetSourceProperty(const String& name) {
             String description;
             Token token = m_tokenizer.nextToken();
             if (token.type() == FgdToken::Colon) {
@@ -406,10 +406,10 @@ namespace TrenchBroom {
             } else {
                 m_tokenizer.pushToken(token);
             }
-            return Assets::PropertyDefinitionPtr(new Assets::PropertyDefinition(name, Assets::PropertyDefinition::TargetSourceProperty, description));
+            return Assets::PropertyDefinitionPtr(new Assets::PropertyDefinition(name, Assets::PropertyDefinition::Type_TargetSourceProperty, description));
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseTargetDestinationProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseType_TargetDestinationProperty(const String& name) {
             String description;
             Token token = m_tokenizer.nextToken();
             if (token.type() == FgdToken::Colon) {
@@ -418,7 +418,7 @@ namespace TrenchBroom {
             } else {
                 m_tokenizer.pushToken(token);
             }
-            return Assets::PropertyDefinitionPtr(new Assets::PropertyDefinition(name, Assets::PropertyDefinition::TargetDestinationProperty, description));
+            return Assets::PropertyDefinitionPtr(new Assets::PropertyDefinition(name, Assets::PropertyDefinition::Type_TargetDestinationProperty, description));
         }
         
         Assets::PropertyDefinitionPtr FgdParser::parseStringProperty(const String& name) {

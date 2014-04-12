@@ -91,13 +91,6 @@ namespace TrenchBroom {
             }
         };
 
-        typedef enum {
-            CRNone,
-            CRWidth,
-            CRHeight,
-            CRBoth
-        } LayoutCellRestriction;
-
         template <typename CellType>
         class LayoutCell {
         public:

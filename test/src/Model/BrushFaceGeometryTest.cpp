@@ -87,22 +87,22 @@ namespace TrenchBroom {
             face.addForwardEdge(e4);
 
             updateMarks(vertices, edges, Plane3(11.0, Vec3::PosX));
-            ASSERT_EQ(BrushFaceGeometry::Keep, face.mark());
+            ASSERT_EQ(BrushFaceGeometry::Mark_Keep, face.mark());
 
             updateMarks(vertices, edges, Plane3(10.0, Vec3::PosX));
-            ASSERT_EQ(BrushFaceGeometry::Keep, face.mark());
+            ASSERT_EQ(BrushFaceGeometry::Mark_Keep, face.mark());
 
             updateMarks(vertices, edges, Plane3(9.0, Vec3::PosX));
-            ASSERT_EQ(BrushFaceGeometry::Split, face.mark());
+            ASSERT_EQ(BrushFaceGeometry::Mark_Split, face.mark());
 
             updateMarks(vertices, edges, Plane3(1.0, Vec3::PosX));
-            ASSERT_EQ(BrushFaceGeometry::Split, face.mark());
+            ASSERT_EQ(BrushFaceGeometry::Mark_Split, face.mark());
 
             updateMarks(vertices, edges, Plane3(0.0, Vec3::PosX));
-            ASSERT_EQ(BrushFaceGeometry::Drop, face.mark());
+            ASSERT_EQ(BrushFaceGeometry::Mark_Drop, face.mark());
 
             updateMarks(vertices, edges, Plane3(-1.0, Vec3::PosX));
-            ASSERT_EQ(BrushFaceGeometry::Drop, face.mark());
+            ASSERT_EQ(BrushFaceGeometry::Mark_Drop, face.mark());
             
             VectorUtils::clearAndDelete(edges);
             VectorUtils::clearAndDelete(vertices);
@@ -312,12 +312,12 @@ namespace TrenchBroom {
             
             const Plane3 plane1(10.0, Vec3::PosX);
             updateMarks(vertices, edges, plane1);
-            ASSERT_EQ(BrushFaceGeometry::Keep, face->mark());
+            ASSERT_EQ(BrushFaceGeometry::Mark_Keep, face->mark());
             ASSERT_EQ(e3, face->findUndecidedEdge());
             
             const Plane3 plane2(0.0, Vec3::PosX);
             updateMarks(vertices, edges, plane2);
-            ASSERT_EQ(BrushFaceGeometry::Drop, face->mark());
+            ASSERT_EQ(BrushFaceGeometry::Mark_Drop, face->mark());
             ASSERT_EQ(e1, face->findUndecidedEdge());
             
             delete face;

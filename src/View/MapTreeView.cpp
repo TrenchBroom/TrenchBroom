@@ -81,7 +81,7 @@ namespace TrenchBroom {
                 assert(data != NULL);
                 const Model::Object* object = reinterpret_cast<const Model::Object*>(data);
                 
-                if (object->type() == Model::Object::OTEntity) {
+                if (object->type() == Model::Object::Type_Entity) {
 #if defined __linux__
                     return true;
 #else
@@ -111,7 +111,7 @@ namespace TrenchBroom {
                     assert(data != NULL);
                     
                     const Model::Object* object = reinterpret_cast<const Model::Object*>(data);
-                    if (object->type() == Model::Object::OTEntity) {
+                    if (object->type() == Model::Object::Type_Entity) {
                         const Model::Entity* entity = static_cast<const Model::Entity*>(object);
                         const Model::BrushList& brushes = entity->brushes();
 
@@ -131,10 +131,10 @@ namespace TrenchBroom {
                 assert(data != NULL);
                 
                 const Model::Object* object = reinterpret_cast<const Model::Object*>(data);
-                if (object->type() == Model::Object::OTEntity)
+                if (object->type() == Model::Object::Type_Entity)
                     return wxDataViewItem(NULL);
 
-                if (object->type() == Model::Object::OTBrush) {
+                if (object->type() == Model::Object::Type_Brush) {
                     const Model::Brush* brush = reinterpret_cast<const Model::Brush*>(object);
                     return wxDataViewItem(reinterpret_cast<void*>(brush->parent()));
                 }
@@ -152,10 +152,10 @@ namespace TrenchBroom {
                     const void* data = item.GetID();
                     assert(data != NULL);
                     const Model::Object* object = reinterpret_cast<const Model::Object*>(data);
-                    if (object->type() == Model::Object::OTEntity) {
+                    if (object->type() == Model::Object::Type_Entity) {
                         const Model::Entity* entity = static_cast<const Model::Entity*>(object);
                         result = wxVariant(wxString(entity->classname("missing classname")));
-                    } else if (object->type() == Model::Object::OTBrush) {
+                    } else if (object->type() == Model::Object::Type_Brush) {
                         const Model::Brush* brush = static_cast<const Model::Brush*>(object);
                         wxString label;
                         label << brush->faces().size() << "-sided brush";
@@ -226,11 +226,11 @@ namespace TrenchBroom {
             }
 
             void objectWasAdded(Model::Object* object) {
-                if (object->type() == Model::Object::OTEntity) {
+                if (object->type() == Model::Object::Type_Entity) {
                     Model::Entity* entity = static_cast<Model::Entity*>(object);
                     ItemAdded(wxDataViewItem(NULL),
                               wxDataViewItem(reinterpret_cast<void*>(entity)));
-                } else if (object->type() == Model::Object::OTBrush) {
+                } else if (object->type() == Model::Object::Type_Brush) {
                     Model::Brush* brush = static_cast<Model::Brush*>(object);
                     Model::Entity* parent = brush->parent();
                     assert(parent != NULL);
@@ -240,11 +240,11 @@ namespace TrenchBroom {
             }
 
             void objectWillBeRemoved(Model::Object* object) {
-                if (object->type() == Model::Object::OTEntity) {
+                if (object->type() == Model::Object::Type_Entity) {
                     Model::Entity* entity = static_cast<Model::Entity*>(object);
                     ItemDeleted(wxDataViewItem(NULL),
                                 wxDataViewItem(reinterpret_cast<void*>(entity)));
-                } else if (object->type() == Model::Object::OTBrush) {
+                } else if (object->type() == Model::Object::Type_Brush) {
                     Model::Brush* brush = static_cast<Model::Brush*>(object);
                     Model::Entity* parent = brush->parent();
                     ItemDeleted(wxDataViewItem(reinterpret_cast<void*>(parent)),

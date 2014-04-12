@@ -35,17 +35,17 @@
 namespace TrenchBroom {
     namespace View {
         RotateObjectsHandle::Hit::Hit() :
-        m_area(HANone) {}
+        m_area(HitArea_None) {}
         
         RotateObjectsHandle::Hit::Hit(const HitArea area, const FloatType distance, const Vec3& point) :
         m_area(area),
         m_distance(distance),
         m_point(point) {
-            assert(m_area != HANone);
+            assert(m_area != HitArea_None);
         }
         
         bool RotateObjectsHandle::Hit::matches() const {
-            return m_area != HANone;
+            return m_area != HitArea_None;
         }
         
         RotateObjectsHandle::HitArea RotateObjectsHandle::Hit::area() const {
@@ -91,20 +91,20 @@ namespace TrenchBroom {
         }
         
         RotateObjectsHandle::Hit RotateObjectsHandle::pick(const Ray3& pickRay) const {
-            Hit hit = pickPointHandle(pickRay, m_position, HACenter);
-            hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(m_xAxis), HAXAxis));
-            hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(m_yAxis), HAYAxis));
-            hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(m_zAxis), HAZAxis));
+            Hit hit = pickPointHandle(pickRay, m_position, HitArea_Center);
+            hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(m_xAxis), HitArea_XAxis));
+            hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(m_yAxis), HitArea_YAxis));
+            hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(m_zAxis), HitArea_ZAxis));
             return hit;
         }
         
         Vec3 RotateObjectsHandle::getPointHandlePosition(const HitArea area) const {
             switch (area) {
-                case HAXAxis:
+                case HitArea_XAxis:
                     return getPointHandlePosition(m_xAxis);
-                case HAYAxis:
+                case HitArea_YAxis:
                     return getPointHandlePosition(m_yAxis);
-                case HAZAxis:
+                case HitArea_ZAxis:
                     return getPointHandlePosition(m_zAxis);
                 default:
                     return m_position;
@@ -113,11 +113,11 @@ namespace TrenchBroom {
         
         Vec3 RotateObjectsHandle::getPointHandleAxis(const HitArea area) const {
             switch (area) {
-                case HAXAxis:
+                case HitArea_XAxis:
                     return m_xAxis;
-                case HAYAxis:
+                case HitArea_YAxis:
                     return m_yAxis;
-                case HAZAxis:
+                case HitArea_ZAxis:
                     return m_zAxis;
                 default:
                     return Vec3::PosZ;
@@ -126,11 +126,11 @@ namespace TrenchBroom {
         
         Vec3 RotateObjectsHandle::getRotationAxis(const HitArea area) const {
             switch (area) {
-                case HAXAxis:
+                case HitArea_XAxis:
                     return Vec3::PosZ;
-                case HAYAxis:
+                case HitArea_YAxis:
                     return Vec3::PosX;
-                case HAZAxis:
+                case HitArea_ZAxis:
                     return Vec3::PosY;
                 default:
                     return Vec3::PosZ;
@@ -326,16 +326,16 @@ namespace TrenchBroom {
         
         void RotateObjectsHandle::renderPointHandleHighlight(Renderer::RenderContext& renderContext, const HitArea highlight) const {
             switch (highlight) {
-                case HACenter:
+                case HitArea_Center:
                     renderPointHandleHighlight(renderContext, m_position);
                     break;
-                case HAXAxis:
+                case HitArea_XAxis:
                     renderPointHandleHighlight(renderContext, getPointHandlePosition(m_xAxis));
                     break;
-                case HAYAxis:
+                case HitArea_YAxis:
                     renderPointHandleHighlight(renderContext, getPointHandlePosition(m_yAxis));
                     break;
-                case HAZAxis:
+                case HitArea_ZAxis:
                     renderPointHandleHighlight(renderContext, getPointHandlePosition(m_zAxis));
                     break;
                 default:
@@ -374,11 +374,11 @@ namespace TrenchBroom {
         Color RotateObjectsHandle::getAngleIndicatorColor(const HitArea area) const {
             PreferenceManager& prefs = PreferenceManager::instance();
             switch (area) {
-                case HAXAxis:
+                case HitArea_XAxis:
                     return Color(prefs.get(Preferences::ZAxisColor), 0.5f);
-                case HAYAxis:
+                case HitArea_YAxis:
                     return Color(prefs.get(Preferences::XAxisColor), 0.5f);
-                case HAZAxis:
+                case HitArea_ZAxis:
                     return Color(prefs.get(Preferences::YAxisColor), 0.5f);
                 default:
                     return Color(1.0f, 1.0f, 1.0f, 1.0f);

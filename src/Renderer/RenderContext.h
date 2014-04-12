@@ -30,10 +30,10 @@ namespace TrenchBroom {
         class RenderContext {
         private:
             typedef enum {
-                Show,
-                Hide,
-                ForceShow,
-                ForceHide
+                ShowSelectionGuide_Show,
+                ShowSelectionGuide_Hide,
+                ShowSelectionGuide_ForceShow,
+                ShowSelectionGuide_ForceHide
             } ShowSelectionGuide;
             
             const Camera& m_camera;

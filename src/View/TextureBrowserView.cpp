@@ -41,7 +41,7 @@ namespace TrenchBroom {
         m_textureManager(textureManager),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(Assets::TextureManager::Name),
+        m_sortOrder(Assets::TextureManager::SortOrder_Name),
         m_vbo(0xFFF),
         m_selectedTexture(NULL) {}
         

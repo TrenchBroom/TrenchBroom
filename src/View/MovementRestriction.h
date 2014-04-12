@@ -32,9 +32,9 @@ namespace TrenchBroom {
         class MovementRestriction {
         private:
             typedef enum {
-                ARNone,
-                ARLeftRight,
-                ARForwardBack
+                Restriction_None,
+                Restriction_LeftRight,
+                Restriction_ForwardBack
             } Restriction;
             
             Restriction m_horizontalRestriction;

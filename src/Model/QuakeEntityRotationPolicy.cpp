@@ -30,14 +30,14 @@ namespace TrenchBroom {
         Quat3 QuakeEntityRotationPolicy::getRotation(const Entity& entity) {
             const RotationInfo info = rotationInfo(entity);
             switch (info.type) {
-                case RTZAngle: {
+                case RotationType_Angle: {
                     const PropertyValue angleValue = entity.property(info.property);
                     if (angleValue.empty())
                         return Quat3(Vec3::PosZ, 0.0);
                     const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
                     return Quat3(Vec3::PosZ, Math::radians(angle));
                 }
-                case RTZAngleWithUpDown: {
+                case RotationType_AngleUpDown: {
                     const PropertyValue angleValue = entity.property(info.property);
                     if (angleValue.empty())
                         return Quat3(Vec3::PosZ, 0.0);
@@ -48,7 +48,7 @@ namespace TrenchBroom {
                         return Quat3(Vec3::PosY,  Math::C::PiOverTwo);
                     return Quat3(Vec3::PosZ, Math::radians(angle));
                 }
-                case RTEulerAngles: {
+                case RotationType_Euler: {
                     const PropertyValue angleValue = entity.property(info.property);
                     const Vec3 angles = angleValue.empty() ? Vec3::Null : Vec3(angleValue);
                     
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         }
 
         QuakeEntityRotationPolicy::RotationInfo QuakeEntityRotationPolicy::rotationInfo(const Entity& entity) {
-            RotationType type = RTNone;
+            RotationType type = RotationType_None;
             PropertyKey property;
             
             // determine the type of rotation to apply to this entity
@@ -77,28 +77,28 @@ namespace TrenchBroom {
                 if (StringUtils::isPrefix(classname, "light")) {
                     if (entity.hasProperty(PropertyKeys::Mangle)) {
                         // spotlight without a target, update mangle
-                        type = RTEulerAngles;
+                        type = RotationType_Euler;
                         property = PropertyKeys::Mangle;
                     } else if (!entity.hasProperty(PropertyKeys::Target)) {
                         // not a spotlight, but might have a rotatable model, so change angle or angles
                         if (entity.hasProperty(PropertyKeys::Angles)) {
-                            type = RTEulerAngles;
+                            type = RotationType_Euler;
                             property = PropertyKeys::Angles;
                         } else {
-                            type = RTZAngle;
+                            type = RotationType_Angle;
                             property = PropertyKeys::Angle;
                         }
                     } else {
                         // spotlight with target, don't modify
                     }
                 } else {
-                    const bool brushEntity = !entity.brushes().empty() || (entity.definition() != NULL && entity.definition()->type() == Assets::EntityDefinition::BrushEntity);
+                    const bool brushEntity = !entity.brushes().empty() || (entity.definition() != NULL && entity.definition()->type() == Assets::EntityDefinition::Type_BrushEntity);
                     if (brushEntity) {
                         if (entity.hasProperty(PropertyKeys::Angles)) {
-                            type = RTEulerAngles;
+                            type = RotationType_Euler;
                             property = PropertyKeys::Angles;
                         } else if (entity.hasProperty(PropertyKeys::Angle)) {
-                            type = RTZAngleWithUpDown;
+                            type = RotationType_AngleUpDown;
                             property = PropertyKeys::Angle;
                         }
                     } else {
@@ -108,10 +108,10 @@ namespace TrenchBroom {
                         const Vec3 offset = entity.origin() - entity.bounds().center();
                         if (offset.x() == 0.0 && offset.y() == 0.0) {
                             if (entity.hasProperty(PropertyKeys::Angles)) {
-                                type = RTEulerAngles;
+                                type = RotationType_Euler;
                                 property = PropertyKeys::Angles;
                             } else {
-                                type = RTZAngle;
+                                type = RotationType_Angle;
                                 property = PropertyKeys::Angle;
                             }
                         }
@@ -131,10 +131,10 @@ namespace TrenchBroom {
             direction.normalize();
             
             switch (info.type) {
-                case RTZAngle:
+                case RotationType_Angle:
                     setAngle(entity, info.property, direction);
                     break;
-                case RTZAngleWithUpDown:
+                case RotationType_AngleUpDown:
                     if (direction.z() > 0.9)
                         entity.addOrUpdateProperty(info.property, 1.0);
                     else if (direction.z() < -0.9)
@@ -142,7 +142,7 @@ namespace TrenchBroom {
                     else
                         setAngle(entity, info.property, direction);
                     break;
-                case RTEulerAngles: {
+                case RotationType_Euler: {
                     FloatType zAngle, xAngle;
                     
                     if (Math::eq(std::abs(direction.z()), 1.0))

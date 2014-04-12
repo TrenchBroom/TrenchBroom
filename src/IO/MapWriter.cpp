@@ -48,9 +48,9 @@ namespace TrenchBroom {
             Model::ObjectList::const_iterator oIt, oEnd;
             for (oIt = objects.begin(), oEnd = objects.end(); oIt != oEnd; ++oIt) {
                 Model::Object* object = *oIt;
-                if (object->type() == Model::Object::OTEntity) {
+                if (object->type() == Model::Object::Type_Entity) {
                     pointEntities.push_back(static_cast<Model::Entity*>(object));
-                } else if (object->type() == Model::Object::OTBrush) {
+                } else if (object->type() == Model::Object::Type_Brush) {
                     Model::Brush* brush = static_cast<Model::Brush*>(object);
                     Model::Entity* entity = brush->parent();
                     brushEntities[entity].push_back(brush);

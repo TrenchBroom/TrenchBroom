@@ -26,10 +26,10 @@ namespace TrenchBroom {
     class Logger {
     public:
         typedef enum {
-            LLDebug,
-            LLInfo,
-            LLWarn,
-            LLError
+            LogLevel_Debug,
+            LogLevel_Info,
+            LogLevel_Warn,
+            LogLevel_Error
         } LogLevel;
     public:
         virtual ~Logger();

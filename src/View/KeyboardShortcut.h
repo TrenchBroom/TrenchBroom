@@ -50,13 +50,13 @@ namespace TrenchBroom {
         public:
             static const KeyboardShortcut Empty;
             typedef enum {
-                SCVertexTool    = 1 << 1,
-                SCClipTool      = 1 << 2,
-                SCRotateTool    = 1 << 3,
-                SCObjects       = 1 << 4,
-                SCTextures      = 1 << 5,
-                SCAny           = SCVertexTool | SCClipTool | SCRotateTool | SCObjects | SCTextures
-            } ShortcutContext;
+                Context_VertexTool      = 1 << 1,
+                Context_ClipTool        = 1 << 2,
+                Context_RotateTool      = 1 << 3,
+                Context_ObjectSelection = 1 << 4,
+                Context_FaceSelection   = 1 << 5,
+                Context_Any             = Context_VertexTool | Context_ClipTool | Context_RotateTool | Context_ObjectSelection | Context_FaceSelection
+            } Context;
             
             static wxString contextName(const int context);
             static void sortModifierKeys(int& key1, int& key2, int& key3);

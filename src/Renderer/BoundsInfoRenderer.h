@@ -46,17 +46,12 @@ namespace TrenchBroom {
             };
             
             class BoundsInfoMinMaxTextAnchor : public TextAnchor {
-            public:
-                typedef enum {
-                    BoxMin,
-                    BoxMax
-                } EMinMax;
             private:
                 const BBox3& m_bounds;
-                EMinMax m_minMax;
+                BBox3::Corner m_minMax;
                 const Renderer::Camera& m_camera;
             public:
-                BoundsInfoMinMaxTextAnchor(const BBox3& bounds, EMinMax minMax, const Renderer::Camera& camera);
+                BoundsInfoMinMaxTextAnchor(const BBox3& bounds, BBox3::Corner minMax, const Renderer::Camera& camera);
             private:
                 Vec3f basePosition() const;
                 Alignment::Type alignment() const;

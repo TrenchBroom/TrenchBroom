@@ -159,7 +159,7 @@ namespace TrenchBroom {
             BrushGeometry geometry(worldBounds);
             const AddFaceResult result = geometry.addFaces(faces);
             
-            ASSERT_EQ(AddFaceResult::BrushIsSplit, result.resultCode);
+            ASSERT_EQ(AddFaceResult::Code_BrushSplit, result.resultCode);
             ASSERT_EQ(6u, result.addedFaces.size());
             ASSERT_TRUE(result.droppedFaces.empty());
             

@@ -27,28 +27,28 @@
 namespace TrenchBroom {
     namespace Model {
         EntityPropertyQuery EntityPropertyQuery::exact(const String& pattern) {
-            return EntityPropertyQuery(Exact, pattern);
+            return EntityPropertyQuery(Type_Exact, pattern);
         }
         
         EntityPropertyQuery EntityPropertyQuery::prefix(const String& pattern) {
-            return EntityPropertyQuery(Prefix, pattern);
+            return EntityPropertyQuery(Type_Prefix, pattern);
         }
         
         EntityPropertyQuery EntityPropertyQuery::numbered(const String& pattern) {
-            return EntityPropertyQuery(Numbered, pattern);
+            return EntityPropertyQuery(Type_Numbered, pattern);
         }
         
         EntityPropertyQuery EntityPropertyQuery::any() {
-            return EntityPropertyQuery(Any);
+            return EntityPropertyQuery(Type_Any);
         }
         
         EntitySet EntityPropertyQuery::execute(const StringIndex<Entity*>& index) const {
             switch (m_type) {
-                case Exact:
+                case Type_Exact:
                     return index.queryExactMatches(m_pattern);
-                case Prefix:
+                case Type_Prefix:
                     return index.queryPrefixMatches(m_pattern);
-                case Numbered:
+                case Type_Numbered:
                     return index.queryNumberedMatches(m_pattern);
                 default:
                     return EmptyEntitySet;

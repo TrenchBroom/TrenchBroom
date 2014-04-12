@@ -50,16 +50,16 @@ namespace TrenchBroom {
             
             // SetDefaultStyle doesn't work on OS X / Cocoa
             switch (level) {
-                case LLDebug:
+                case LogLevel_Debug:
                     SetStyle(start, end, wxTextAttr(*wxLIGHT_GREY, *wxBLACK)); 
                     break;
-                case LLInfo:
+                case LogLevel_Info:
                     SetStyle(start, end, wxTextAttr(*wxWHITE, *wxBLACK));
                     break;
-                case LLWarn:
+                case LogLevel_Warn:
                     SetStyle(start, end, wxTextAttr(*wxYELLOW, *wxBLACK));
                     break;
-                case LLError:
+                case LogLevel_Error:
                     SetStyle(start, end, wxTextAttr(*wxRED, *wxBLACK));
                     break;
             }

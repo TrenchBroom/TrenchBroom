@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace View {
         bool SmartChoiceEditorMatcher::doMatches(const Model::PropertyKey& key, const Model::EntityList& entities) const {
             const Assets::PropertyDefinition* propDef = Model::selectPropertyDefinition(key, entities);
-            return propDef != NULL && propDef->type() == Assets::PropertyDefinition::ChoiceProperty;
+            return propDef != NULL && propDef->type() == Assets::PropertyDefinition::Type_ChoiceProperty;
         }
     }
 }

@@ -40,7 +40,7 @@ namespace TrenchBroom {
         m_progress(0.0) {
             assert(m_duration > 0);
             switch (curve) {
-                case EaseInEaseOutCurve:
+                case Curve_EaseInEaseOut:
                     m_curve = new EaseInEaseOutAnimationCurve(m_duration);
                     break;
                 default:

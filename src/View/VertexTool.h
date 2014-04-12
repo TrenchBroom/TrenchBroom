@@ -46,13 +46,13 @@ namespace TrenchBroom {
             static const FloatType MaxVertexDistance;
             
             typedef enum {
-                VMMove,
-                VMSplit,
-                VMSnap
-            } VertexToolMode;
+                Mode_Move,
+                Mode_Split,
+                Mode_Snap
+            } Mode;
 
             VertexHandleManager m_handleManager;
-            VertexToolMode m_mode;
+            Mode m_mode;
             size_t m_changeCount;
             bool m_ignoreObjectChangeNotifications;
             Vec3 m_dragHandlePosition;

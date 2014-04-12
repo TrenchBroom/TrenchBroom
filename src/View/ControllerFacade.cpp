@@ -257,7 +257,7 @@ namespace TrenchBroom {
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
                 Model::Object* object = *it;
                 Model::Object* parent = NULL;
-                if (object->type() == Model::Object::OTBrush)
+                if (object->type() == Model::Object::Type_Brush)
                     parent = static_cast<Model::Brush*>(object)->parent();
                 
                 Model::Object* duplicate = object->clone(worldBounds);

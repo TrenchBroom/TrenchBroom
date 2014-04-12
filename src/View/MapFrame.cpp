@@ -386,34 +386,34 @@ namespace TrenchBroom {
         }
         
         void MapFrame::OnEditMoveObjectsForward(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::DForward);
+            m_mapView->moveObjects(Math::Direction_Forward);
         }
         
         void MapFrame::OnEditMoveObjectsBackward(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::DBackward);
+            m_mapView->moveObjects(Math::Direction_Backward);
         }
         
         void MapFrame::OnEditMoveObjectsLeft(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::DLeft);
+            m_mapView->moveObjects(Math::Direction_Left);
         }
         
         void MapFrame::OnEditMoveObjectsRight(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::DRight);
+            m_mapView->moveObjects(Math::Direction_Right);
         }
         
         void MapFrame::OnEditMoveObjectsUp(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::DUp);
+            m_mapView->moveObjects(Math::Direction_Up);
         }
         
         void MapFrame::OnEditMoveObjectsDown(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::DDown);
+            m_mapView->moveObjects(Math::Direction_Down);
         }
         
         void MapFrame::OnEditDuplicateObjectsForward(wxCommandEvent& event) {
             ControllerSPtr controller = lock(m_controller);
             controller->beginUndoableGroup("Duplicate Objects");
             duplicateObjects();
-            m_mapView->moveObjects(Math::DForward);
+            m_mapView->moveObjects(Math::Direction_Forward);
             controller->closeGroup();
         }
         
@@ -421,7 +421,7 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             controller->beginUndoableGroup("Duplicate Objects");
             duplicateObjects();
-            m_mapView->moveObjects(Math::DBackward);
+            m_mapView->moveObjects(Math::Direction_Backward);
             controller->closeGroup();
         }
         
@@ -429,7 +429,7 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             controller->beginUndoableGroup("Duplicate Objects");
             duplicateObjects();
-            m_mapView->moveObjects(Math::DLeft);
+            m_mapView->moveObjects(Math::Direction_Left);
             controller->closeGroup();
         }
         
@@ -437,7 +437,7 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             controller->beginUndoableGroup("Duplicate Objects");
             duplicateObjects();
-            m_mapView->moveObjects(Math::DRight);
+            m_mapView->moveObjects(Math::Direction_Right);
             controller->closeGroup();
         }
         
@@ -445,7 +445,7 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             controller->beginUndoableGroup("Duplicate Objects");
             duplicateObjects();
-            m_mapView->moveObjects(Math::DUp);
+            m_mapView->moveObjects(Math::Direction_Up);
             controller->closeGroup();
         }
         
@@ -453,56 +453,56 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             controller->beginUndoableGroup("Duplicate Objects");
             duplicateObjects();
-            m_mapView->moveObjects(Math::DDown);
+            m_mapView->moveObjects(Math::Direction_Down);
             controller->closeGroup();
         }
         
         void MapFrame::OnEditRollObjectsCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RARoll, true);
+            m_mapView->rotateObjects(RotationAxis_Roll, true);
         }
         
         void MapFrame::OnEditRollObjectsCCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RARoll, false);
+            m_mapView->rotateObjects(RotationAxis_Roll, false);
         }
         
         void MapFrame::OnEditPitchObjectsCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RAPitch, true);
+            m_mapView->rotateObjects(RotationAxis_Pitch, true);
         }
         
         void MapFrame::OnEditPitchObjectsCCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RAPitch, false);
+            m_mapView->rotateObjects(RotationAxis_Pitch, false);
         }
         
         void MapFrame::OnEditYawObjectsCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RAYaw, true);
+            m_mapView->rotateObjects(RotationAxis_Yaw, true);
         }
         
         void MapFrame::OnEditYawObjectsCCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RAYaw, false);
+            m_mapView->rotateObjects(RotationAxis_Yaw, false);
         }
         
         void MapFrame::OnEditFlipObjectsH(wxCommandEvent& event) {
-            m_mapView->flipObjects(Math::DLeft);
+            m_mapView->flipObjects(Math::Direction_Left);
         }
         
         void MapFrame::OnEditFlipObjectsV(wxCommandEvent& event) {
-            m_mapView->flipObjects(Math::DUp);
+            m_mapView->flipObjects(Math::Direction_Up);
         }
         
         void MapFrame::OnEditMoveTexturesUp(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::DUp, true);
+            m_mapView->moveTextures(Math::Direction_Up, true);
         }
         
         void MapFrame::OnEditMoveTexturesDown(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::DDown, true);
+            m_mapView->moveTextures(Math::Direction_Down, true);
         }
         
         void MapFrame::OnEditMoveTexturesLeft(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::DLeft, true);
+            m_mapView->moveTextures(Math::Direction_Left, true);
         }
         
         void MapFrame::OnEditMoveTexturesRight(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::DRight, true);
+            m_mapView->moveTextures(Math::Direction_Right, true);
         }
         
         void MapFrame::OnEditRotateTexturesCW(wxCommandEvent& event) {
@@ -514,19 +514,19 @@ namespace TrenchBroom {
         }
         
         void MapFrame::OnEditMoveTexturesUpFine(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::DUp, false);
+            m_mapView->moveTextures(Math::Direction_Up, false);
         }
         
         void MapFrame::OnEditMoveTexturesDownFine(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::DDown, false);
+            m_mapView->moveTextures(Math::Direction_Down, false);
         }
         
         void MapFrame::OnEditMoveTexturesLeftFine(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::DLeft, false);
+            m_mapView->moveTextures(Math::Direction_Left, false);
         }
         
         void MapFrame::OnEditMoveTexturesRightFine(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::DRight, false);
+            m_mapView->moveTextures(Math::Direction_Right, false);
         }
         
         void MapFrame::OnEditRotateTexturesCWFine(wxCommandEvent& event) {
@@ -561,32 +561,32 @@ namespace TrenchBroom {
         
         void MapFrame::OnEditMoveVerticesForward(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::DForward);
+            m_mapView->moveVertices(Math::Direction_Forward);
         }
         
         void MapFrame::OnEditMoveVerticesBackward(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::DBackward);
+            m_mapView->moveVertices(Math::Direction_Backward);
         }
         
         void MapFrame::OnEditMoveVerticesLeft(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::DLeft);
+            m_mapView->moveVertices(Math::Direction_Left);
         }
         
         void MapFrame::OnEditMoveVerticesRight(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::DRight);
+            m_mapView->moveVertices(Math::Direction_Right);
         }
         
         void MapFrame::OnEditMoveVerticesUp(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::DUp);
+            m_mapView->moveVertices(Math::Direction_Up);
         }
         
         void MapFrame::OnEditMoveVerticesDown(wxCommandEvent& event) {
             assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::DDown);
+            m_mapView->moveVertices(Math::Direction_Down);
         }
 
         void MapFrame::OnEditSnapVertices(wxCommandEvent& event) {
@@ -664,15 +664,15 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnViewSwitchToMapInspector(wxCommandEvent& event) {
-            m_inspector->switchToPage(MapInspectorPage);
+            m_inspector->switchToPage(InspectorPage_Map);
         }
         
         void MapFrame::OnViewSwitchToEntityInspector(wxCommandEvent& event) {
-            m_inspector->switchToPage(EntityInspectorPage);
+            m_inspector->switchToPage(InspectorPage_Entity);
         }
         
         void MapFrame::OnViewSwitchToFaceInspector(wxCommandEvent& event) {
-            m_inspector->switchToPage(FaceInspectorPage);
+            m_inspector->switchToPage(InspectorPage_Face);
         }
 
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
@@ -1237,7 +1237,7 @@ namespace TrenchBroom {
             
             for (oIt = objects.begin(), oEnd = objects.end(); oIt != oEnd; ++oIt) {
                 Model::Object* object = *oIt;
-                if (object->type() == Model::Object::OTEntity) {
+                if (object->type() == Model::Object::Type_Entity) {
                     Model::Entity* entity = static_cast<Model::Entity*>(object);
                     const Model::BrushList& brushes = entity->brushes();
                     if (!entity->worldspawn()) {
