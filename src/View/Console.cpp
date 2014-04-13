@@ -23,6 +23,8 @@
 #include <wx/panel.h>
 #include <wx/simplebook.h>
 
+#include <iostream>
+
 namespace TrenchBroom {
     namespace View {
         Console::Console(wxWindow* parent, wxSimplebook* extraBook) :
@@ -43,6 +45,7 @@ namespace TrenchBroom {
         }
 
         void Console::logToDebugOut(const LogLevel level, const String& message) {
+            std::cout << message << std::endl;
             wxLogDebug(message.c_str());
         }
 
