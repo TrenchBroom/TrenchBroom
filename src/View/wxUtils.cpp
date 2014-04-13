@@ -36,5 +36,21 @@ namespace TrenchBroom {
             }
             return frame;
         }
+
+        Color fromWxColor(const wxColor& color) {
+            const float r = static_cast<float>(color.Red())   / 255.0f;
+            const float g = static_cast<float>(color.Green()) / 255.0f;
+            const float b = static_cast<float>(color.Blue())  / 255.0f;
+            const float a = static_cast<float>(color.Alpha()) / 255.0f;
+            return Color(r, g, b, a);
+        }
+        
+        wxColor toWxColor(const Color& color) {
+            const unsigned char r = static_cast<unsigned char>(color.r() * 255.0f);
+            const unsigned char g = static_cast<unsigned char>(color.g() * 255.0f);
+            const unsigned char b = static_cast<unsigned char>(color.b() * 255.0f);
+            const unsigned char a = static_cast<unsigned char>(color.a() * 255.0f);
+            return wxColor(r, g, b, a);
+        }
     }
 }

@@ -20,7 +20,10 @@
 #ifndef __TrenchBroom__wxUtils__
 #define __TrenchBroom__wxUtils__
 
+#include "Color.h"
+
 #include <iostream>
+#include <wx/colour.h>
 
 class wxFrame;
 class wxWindow;
@@ -28,6 +31,8 @@ class wxWindow;
 namespace TrenchBroom {
     namespace View {
         wxFrame* findFrame(wxWindow* window);
+        Color fromWxColor(const wxColor& color);
+        wxColor toWxColor(const Color& color);
     }
 }
 

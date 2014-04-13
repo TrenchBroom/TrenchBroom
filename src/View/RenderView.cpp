@@ -24,6 +24,7 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
+#include "View/wxUtils.h"
 
 #include <wx/dcclient.h>
 #include <wx/settings.h>
@@ -36,11 +37,7 @@ namespace TrenchBroom {
         m_initialized(false),
         m_vbo(0xFFF) {
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-            const float r = static_cast<float>(color.Red()) / 0xFF;
-            const float g = static_cast<float>(color.Green()) / 0xFF;
-            const float b = static_cast<float>(color.Blue()) / 0xFF;
-            const float a = 1.0f;
-            m_focusColor = Color(r, g, b, a);
+            m_focusColor = fromWxColor(color);
             
             bindEvents();
         }
@@ -51,11 +48,7 @@ namespace TrenchBroom {
         m_initialized(false),
         m_vbo(0xFFF) {
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-            const float r = static_cast<float>(color.Red()) / 0xFF;
-            const float g = static_cast<float>(color.Green()) / 0xFF;
-            const float b = static_cast<float>(color.Blue()) / 0xFF;
-            const float a = 1.0f;
-            m_focusColor = Color(r, g, b, a);
+            m_focusColor = fromWxColor(color);
             
             bindEvents();
         }

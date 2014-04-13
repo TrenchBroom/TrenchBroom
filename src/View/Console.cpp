@@ -30,12 +30,16 @@ namespace TrenchBroom {
             SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             SetBackgroundColour(*wxBLACK);
             extraBook->AddPage(new wxPanel(extraBook), "");
+            
+            
         }
 
         void Console::doLog(const LogLevel level, const String& message) {
-            logToDebugOut(level, message);
-            logToConsole(level, message);
-            logNotifier(level, message);
+            if (!message.empty()) {
+                logToDebugOut(level, message);
+                logToConsole(level, message);
+                logNotifier(level, message);
+            }
         }
 
         void Console::logToDebugOut(const LogLevel level, const String& message) {
@@ -48,7 +52,6 @@ namespace TrenchBroom {
             AppendText("\n");
             const long end = GetLastPosition();
             
-            // SetDefaultStyle doesn't work on OS X / Cocoa
             switch (level) {
                 case LogLevel_Debug:
                     SetStyle(start, end, wxTextAttr(*wxLIGHT_GREY, *wxBLACK)); 
