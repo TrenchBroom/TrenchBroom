@@ -45,11 +45,7 @@ namespace TrenchBroom {
         }
 
         void Console::logToDebugOut(const LogLevel level, const String& message) {
-            char* buffer = new char[message.size() + 1];
-            message.copy(buffer, message.size());
-            buffer[message.size()] = 0;
-            wxLogDebug(buffer);
-            delete [] buffer;
+            wxLogDebug(message.c_str());
         }
 
         void Console::logToConsole(const LogLevel level, const String& message) {
