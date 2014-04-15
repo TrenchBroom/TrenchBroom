@@ -24,55 +24,75 @@
 namespace TrenchBroom {
     Logger::~Logger() {}
     
+    void Logger::debug(const char* format, ...) {
+        va_list(arguments);
+        va_start(arguments, format);
+        const String message = StringUtils::formatStringV(format, arguments);
+        va_end(arguments);
+        debug(message);
+    }
+    
     void Logger::debug(const String& message) {
         log(LogLevel_Debug, message);
     }
     
-    void Logger::debug(const char* format, ...) {
+    void Logger::debug(const wxString& message) {
+        log(LogLevel_Debug, message);
+    }
+    
+    void Logger::info(const char* format, ...) {
         va_list(arguments);
         va_start(arguments, format);
-        const String message = StringUtils::formatString(format, arguments);
+        const String message = StringUtils::formatStringV(format, arguments);
         va_end(arguments);
-        debug(message);
+        info(message);
     }
     
     void Logger::info(const String& message) {
         log(LogLevel_Info, message);
     }
     
-    void Logger::info(const char* format, ...) {
+    void Logger::info(const wxString& message) {
+        log(LogLevel_Info, message);
+    }
+    
+    void Logger::warn(const char* format, ...) {
         va_list(arguments);
         va_start(arguments, format);
-        const String message = StringUtils::formatString(format, arguments);
+        const String message = StringUtils::formatStringV(format, arguments);
         va_end(arguments);
-        info(message);
+        warn(message);
     }
     
     void Logger::warn(const String& message) {
         log(LogLevel_Warn, message);
     }
     
-    void Logger::warn(const char* format, ...) {
+    void Logger::warn(const wxString& message) {
+        log(LogLevel_Warn, message);
+    }
+    
+    void Logger::error(const char* format, ...) {
         va_list(arguments);
         va_start(arguments, format);
-        const String message = StringUtils::formatString(format, arguments);
+        const String message = StringUtils::formatStringV(format, arguments);
         va_end(arguments);
-        warn(message);
+        error(message);
     }
     
     void Logger::error(const String& message) {
         log(LogLevel_Error, message);
     }
     
-    void Logger::error(const char* format, ...) {
-        va_list(arguments);
-        va_start(arguments, format);
-        const String message = StringUtils::formatString(format, arguments);
-        va_end(arguments);
-        error(message);
+    void Logger::error(const wxString& message) {
+        log(LogLevel_Error, message);
     }
 
     void Logger::log(const LogLevel level, const String& message) {
+        doLog(level, message);
+    }
+    
+    void Logger::log(const LogLevel level, const wxString& message) {
         doLog(level, message);
     }
 }

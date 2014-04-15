@@ -27,18 +27,20 @@
 #include <wx/textctrl.h>
 
 class wxSimplebook;
+class wxString;
 
 namespace TrenchBroom {
     namespace View {
         class Console : public wxTextCtrl, public Logger {
         public:
-            Notifier2<LogLevel, const String&> logNotifier;
+            Notifier2<LogLevel, const wxString&> logNotifier;
         public:
             Console(wxWindow* parent, wxSimplebook* extraBook);
         private:
             void doLog(LogLevel level, const String& message);
-            void logToDebugOut(LogLevel level, const String& message);
-            void logToConsole(LogLevel level, const String& message);
+            void doLog(LogLevel level, const wxString& message);
+            void logToDebugOut(LogLevel level, const wxString& message);
+            void logToConsole(LogLevel level, const wxString& message);
         };
     }
 }

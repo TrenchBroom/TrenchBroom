@@ -59,7 +59,7 @@ namespace TrenchBroom {
         public:
             StatusBar(wxWindow* parent, MapDocumentWPtr document, Console* console);
             
-            void log(Logger::LogLevel level, const String& message);
+            void log(Logger::LogLevel level, const wxString& message);
             void OnIdle(wxIdleEvent& event);
         };
     }

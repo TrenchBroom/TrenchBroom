@@ -105,7 +105,8 @@ namespace StringUtils {
     typedef StringLess<CaseSensitiveCharCompare> CaseSensitiveStringLess;
     typedef StringLess<CaseSensitiveCharCompare> CaseInsensitiveStringLess;
     
-    String formatString(const char* format, va_list arguments);
+    String formatString(const char* format, ...);
+    String formatStringV(const char* format, va_list arguments);
     String trim(const String& str, const String& chars = " \n\t\r");
 
     size_t findFirstDifference(const String& str1, const String& str2);

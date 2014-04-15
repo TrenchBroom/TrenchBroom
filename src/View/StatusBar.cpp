@@ -94,7 +94,7 @@ namespace TrenchBroom {
             Bind(wxEVT_IDLE, &StatusBar::OnIdle, this);
         }
 
-        void StatusBar::log(Logger::LogLevel level, const String& message) {
+        void StatusBar::log(Logger::LogLevel level, const wxString& message) {
             m_message->SetLabel(message);
         }
 

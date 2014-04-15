@@ -32,11 +32,13 @@ namespace TrenchBroom {
             SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
             SetBackgroundColour(*wxBLACK);
             extraBook->AddPage(new wxPanel(extraBook), "");
-            
-            
         }
 
         void Console::doLog(const LogLevel level, const String& message) {
+            doLog(level, wxString(message));
+        }
+
+        void Console::doLog(const LogLevel level, const wxString& message) {
             if (!message.empty()) {
                 logToDebugOut(level, message);
                 logToConsole(level, message);
@@ -44,11 +46,11 @@ namespace TrenchBroom {
             }
         }
 
-        void Console::logToDebugOut(const LogLevel level, const String& message) {
-            wxLogDebug(message.c_str());
+        void Console::logToDebugOut(const LogLevel level, const wxString& message) {
+            wxLogDebug(message);
         }
 
-        void Console::logToConsole(const LogLevel level, const String& message) {
+        void Console::logToConsole(const LogLevel level, const wxString& message) {
             const long start = GetLastPosition();
             AppendText(message);
             AppendText("\n");

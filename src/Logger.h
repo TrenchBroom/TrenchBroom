@@ -22,6 +22,8 @@
 
 #include "StringUtils.h"
 
+class wxString;
+
 namespace TrenchBroom {
     class Logger {
     public:
@@ -34,18 +36,27 @@ namespace TrenchBroom {
     public:
         virtual ~Logger();
         
-        void debug(const String& message);
         void debug(const char* format, ...);
-        void info(const String& message);
+        void debug(const String& message);
+        void debug(const wxString& message);
+        
         void info(const char* format, ...);
-        void warn(const String& message);
+        void info(const String& message);
+        void info(const wxString& message);
+        
         void warn(const char* format, ...);
-        void error(const String& message);
+        void warn(const String& message);
+        void warn(const wxString& message);
+        
         void error(const char* format, ...);
+        void error(const String& message);
+        void error(const wxString& message);
         
         void log(LogLevel level, const String& message);
+        void log(LogLevel level, const wxString& message);
     private:
         virtual void doLog(LogLevel level, const String& message) = 0;
+        virtual void doLog(LogLevel level, const wxString& message) = 0;
     };
 }
 

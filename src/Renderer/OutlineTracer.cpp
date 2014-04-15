@@ -122,7 +122,6 @@ namespace TrenchBroom {
         }
 
         OutlineTracer::Position::List::iterator OutlineTracer::findInsertPos(const Position& position, Position::List& positions) const {
-            typedef Position::List::iterator Iter;
             return std::lower_bound(positions.begin(), positions.end(), position);
         }
 
@@ -148,7 +147,6 @@ namespace TrenchBroom {
         }
         
         void OutlineTracer::mergeEdges(Position::List::iterator it, Position::List::iterator end, Position::List& positions) {
-            
             size_t last;
             if (it != positions.begin()) {
                 --it;

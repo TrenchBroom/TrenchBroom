@@ -25,6 +25,8 @@
 
 #include <vector>
 
+#include <wx/string.h>
+
 namespace TrenchBroom {
     namespace View {
         class CachingLogger : public Logger {
@@ -32,9 +34,9 @@ namespace TrenchBroom {
             struct Message {
             public:
                 LogLevel level;
-                String str;
+                wxString str;
                 
-                Message(const LogLevel i_level, const String& i_str);
+                Message(const LogLevel i_level, const wxString& i_str);
             };
             
             typedef std::vector<Message> MessageList;
@@ -47,6 +49,7 @@ namespace TrenchBroom {
             void setParentLogger(Logger* logger);
         private:
             void doLog(LogLevel level, const String& message);
+            void doLog(LogLevel level, const wxString& message);
         };
     }
 }

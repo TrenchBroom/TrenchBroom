@@ -24,7 +24,15 @@
 #include <cstdio>
 
 namespace StringUtils {
-    String formatString(const char* format, va_list arguments) {
+    String formatString(const char* format, ...) {
+        va_list(arguments);
+        va_start(arguments, format);
+        const String message = formatStringV(format, arguments);
+        va_end(arguments);
+        return message;
+    }
+    
+    String formatStringV(const char* format, va_list arguments) {
         static const int BUFFERSIZE = 8192;
         static char buffer[BUFFERSIZE];
         
