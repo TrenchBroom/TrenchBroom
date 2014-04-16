@@ -783,9 +783,6 @@ namespace TrenchBroom {
             const wxString renderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
             const wxString version  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
             
-            // provoke a crash on Ubuntu due UTF-8 character in string (glGetString may return UTF8 strings)
-            // m_logger->info(wxString::FromUTF8("Renderer info: Mesa DRI Mobile Intel® GM45 Express Chipset x86/MMX/SSE2 version 2.1 Mesa 9.2.1 from Intel Open Source Technology Center"));
-            
             m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", renderer, version, vendor));
             m_logger->info("Depth buffer bits: %d", depthBits());
             
