@@ -108,7 +108,7 @@ namespace TrenchBroom {
 
             const Vec2f curHandlePosTexCoords  = getScaleHandlePositionInTexCoords(m_handle);
             const Vec2f newHandlePosFaceCoords = getScaleHandlePositionInFaceCoords(m_handle) + dragDeltaFaceCoords;
-            const Vec2f newHandlePosSnapped    = m_helper.snapToVertices(newHandlePosFaceCoords);
+            const Vec2f newHandlePosSnapped    = m_helper.snapScaleHandle(newHandlePosFaceCoords);
 
             const Vec2f originHandlePosFaceCoords = m_helper.scaleOriginInFaceCoords();
             const Vec2f originHandlePosTexCoords  = m_helper.scaleOriginInTexCoords();

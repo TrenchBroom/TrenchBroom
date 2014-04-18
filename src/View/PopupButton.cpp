@@ -57,7 +57,6 @@ namespace TrenchBroom {
         void PopupButton::OnButtonToggled(wxCommandEvent& event) {
             if (m_button->GetValue()) {
                 wxPoint position = GetScreenRect().GetRightBottom();
-                std::cout << "x:" << position.x << ", y:" << position.y << "\n";
                 position.x -= 2*m_window->GetSize().x;
                 position.y -= m_window->GetSize().y;
                 m_window->Position(position, m_window->GetSize());

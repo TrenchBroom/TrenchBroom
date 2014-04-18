@@ -137,10 +137,11 @@ namespace Math {
     }
     
     template <typename T>
-    T correct(const T v, const T epsilon = Constants<T>::CorrectEpsilon) {
-        const T r = round(v);
+    T correct(const T v, const size_t decimals = 0, const T epsilon = Constants<T>::CorrectEpsilon) {
+        const T m = static_cast<T>(1 << decimals);
+        const T r = round(v * m);
         if (abs(v - r) <= epsilon)
-            return r;
+            return r / m;
         return v;
     }
 

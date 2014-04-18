@@ -226,10 +226,7 @@ namespace TrenchBroom {
             const Vec3 vec = rot * (point - center);
 
             const FloatType angleInRadians = Math::C::TwoPi - angleBetween(vec.normalized(), Vec3::PosX, zAxis);
-            const float angleInDegrees = static_cast<float>(Math::degrees(angleInRadians));
-            
-            std::cout << "Current angle: " << currentAngle << " Vec: " << vec.asString() << "new radians: " << angleInRadians << " new degrees: " << angleInDegrees << std::endl;
-            return angleInDegrees;
+            return static_cast<float>(Math::degrees(angleInRadians));
         }
 
         Vec3 ParaxialTexCoordSystem::transformAxis(const Vec3& normal, const Vec3& axis, const Mat4x4& transformation) const {

@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
             Vec2f snapOffset(const Vec2f& delta) const;
             Vec2f snapScaleOrigin(const Vec2f& deltaInFaceCoords) const;
-            Vec2f snapToVertices(const Vec2f& pointInFaceCoords) const;
+            Vec2f snapScaleHandle(const Vec2f& scaleHandleInFaceCoords) const;
             Vec2f snapToPoints(const Vec2f& pointInFaceCoords, const Vec3::List& points) const;
 
             float measureRotationAngle(const Vec2f& point) const;

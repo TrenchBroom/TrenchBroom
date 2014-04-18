@@ -136,7 +136,7 @@ namespace TrenchBroom {
 
                 // Correct the offsets and the position of the rotation center.	
                 const Vec2f oldCenterInFaceCoords(faceCoordSystem.worldToTex(oldCenterInWorldCoords));
-                const Vec2f delta = oldCenterInFaceCoords - m_helper.rotationCenterInFaceCoords();
+                const Vec2f delta = (oldCenterInFaceCoords - m_helper.rotationCenterInFaceCoords()).corrected(1);
                 controller()->setFaceXOffset(applyTo, -delta.x(), true);
                 controller()->setFaceYOffset(applyTo, -delta.y(), true);
                 m_helper.setRotationCenter(oldCenterInFaceCoords);

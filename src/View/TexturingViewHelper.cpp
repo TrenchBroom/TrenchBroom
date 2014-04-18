@@ -136,13 +136,35 @@ namespace TrenchBroom {
             return Vec2f(x, y);
         }
         
-        Vec2f combineDistances(const Vec2f& r1, const Vec2f& r2) {
+        Vec2f combineIndividualDistances(const Vec2f& r1, const Vec2f& r2) {
+            Vec2f result;
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(r1[i]) < Math::abs(r2[i]))
+                    result[i] = r1[i];
+                else
+                    result[i] = r2[i];
+            }
+            return result;
+        }
+        
+        Vec2f combineBothDistances(const Vec2f& r1, const Vec2f& r2) {
             if (r1.squaredLength() < r2.squaredLength())
                 return r1;
             return r2;
         }
         
-        Vec2f snap(const Vec2f& delta, const Vec2f& distance, const float cameraZoom) {
+        Vec2f snapIndividual(const Vec2f& delta, const Vec2f& distance, const float cameraZoom) {
+            Vec2f result;
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(distance[i]) < 4.0f / cameraZoom)
+                    result[i] = delta[i] - distance[i];
+                else
+                    result[i] = Math::round(delta[i]);
+            }
+            return result;
+        }
+        
+        Vec2f snapBoth(const Vec2f& delta, const Vec2f& distance, const float cameraZoom) {
             if (distance.length() < 4.0f / cameraZoom)
                 return delta - distance;
             return delta.rounded();
@@ -158,18 +180,18 @@ namespace TrenchBroom {
             if (texture == NULL)
                 return delta;
             
-            Model::TexCoordSystemHelper helper(m_face);
-            helper.setOverrideTranslate(m_face->offset() - delta); // I don't know why this has to be subracted, but it works :-(
-            helper.setScale();
-            helper.setProject();
+            Model::TexCoordSystemHelper texCoordSystem(m_face);
+            texCoordSystem.setOverrideTranslate(m_face->offset() - delta); // I don't know why this has to be subracted, but it works :-(
+            texCoordSystem.setScale();
+            texCoordSystem.setProject();
             
             const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f distance = computeDistance(helper.worldToTex(vertices[0]->position), texture, m_subDivisions);
+            Vec2f distance = computeDistance(texCoordSystem.worldToTex(vertices[0]->position), texture, m_subDivisions);
             
             for (size_t i = 1; i < vertices.size(); ++i)
-                distance = combineDistances(distance, computeDistance(helper.worldToTex(vertices[i]->position), texture, m_subDivisions));
+                distance = combineIndividualDistances(distance, computeDistance(texCoordSystem.worldToTex(vertices[i]->position), texture, m_subDivisions));
             
-            return snap(delta, -distance, m_cameraZoom);
+            return snapIndividual(delta, -distance, m_cameraZoom);
         }
         
         Vec2f computeDistance(const Vec3& point, const Vec2f& newHandlePosition) {
@@ -199,23 +221,38 @@ namespace TrenchBroom {
             Vec2f distanceInTexCoords = computeDistance(texCoordSystem.worldToTex(vertices[0]->position), newOriginInTexCoords);
             
             for (size_t i = 1; i < vertices.size(); ++i)
-                distanceInTexCoords = combineDistances(distanceInTexCoords, computeDistance(texCoordSystem.worldToTex(vertices[i]->position), newOriginInTexCoords));
+                distanceInTexCoords = combineIndividualDistances(distanceInTexCoords, computeDistance(texCoordSystem.worldToTex(vertices[i]->position), newOriginInTexCoords));
             
             // and to the texture grid
             const Assets::Texture* texture = m_face->texture();
             if (texture != NULL)
-                distanceInTexCoords = combineDistances(distanceInTexCoords, computeDistance(Vec3(newOriginInTexCoords), texture, m_subDivisions));
+                distanceInTexCoords = combineIndividualDistances(distanceInTexCoords, computeDistance(Vec3(newOriginInTexCoords), texture, m_subDivisions));
             
             // now we have a distance in the scaled and translated texture coordinate system
             // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system
             // and take the actual distance
             const Vec2f distanceInFaceCoords = texCoordSystem.texToTex(newOriginInTexCoords + distanceInTexCoords, faceCoordSystem) - newOriginInFaceCoords;
             
-            return snap(deltaInFaceCoords, distanceInFaceCoords, m_cameraZoom);
+            return snapIndividual(deltaInFaceCoords, distanceInFaceCoords, m_cameraZoom);
         }
         
-        Vec2f TexturingViewHelper::snapToVertices(const Vec2f& pointInFaceCoords) const {
-            return snapToPoints(pointInFaceCoords, Model::vertexPositions(m_face->vertices()));
+        Vec2f TexturingViewHelper::snapScaleHandle(const Vec2f& scaleHandleInFaceCoords) const {
+            assert(valid());
+            
+            const Model::BrushVertexList& vertices = m_face->vertices();
+            
+            const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_face);
+            Vec2f distanceInFaceCoords = computeDistance(faceCoordSystem.worldToTex(vertices[0]->position), scaleHandleInFaceCoords);
+            
+            for (size_t i = 1; i < vertices.size(); ++i)
+                distanceInFaceCoords = combineIndividualDistances(distanceInFaceCoords, computeDistance(faceCoordSystem.worldToTex(vertices[i]->position), scaleHandleInFaceCoords));
+            
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(distanceInFaceCoords[i]) > 4.0f / m_cameraZoom)
+                    distanceInFaceCoords[i] = 0.0f;
+            }
+
+            return scaleHandleInFaceCoords - distanceInFaceCoords;
         }
 
         Vec2f TexturingViewHelper::snapToPoints(const Vec2f& pointInFaceCoords, const Vec3::List& points) const {
@@ -225,7 +262,7 @@ namespace TrenchBroom {
             Vec2f distanceInFaceCoords = computeDistance(faceCoordSystem.worldToTex(points[0]), pointInFaceCoords);
             
             for (size_t i = 1; i < points.size(); ++i)
-                distanceInFaceCoords = combineDistances(distanceInFaceCoords, computeDistance(faceCoordSystem.worldToTex(points[i]), pointInFaceCoords));
+                distanceInFaceCoords = combineBothDistances(distanceInFaceCoords, computeDistance(faceCoordSystem.worldToTex(points[i]), pointInFaceCoords));
             
             if (distanceInFaceCoords.length() > 4.0f / m_cameraZoom)
                 distanceInFaceCoords = Vec2f::Null;
@@ -398,9 +435,8 @@ namespace TrenchBroom {
         }
         
         void TexturingViewHelper::faceDidChange() {
-            if (m_face != NULL) {
+            if (m_face != NULL)
                 validate();
-            }
         }
         
         void TexturingViewHelper::setCameraZoom(const float cameraZoom) {

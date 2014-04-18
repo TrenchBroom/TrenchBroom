@@ -633,14 +633,14 @@ public:
         return true;
     }
     
-    Vec<T,S>& correct(const T epsilon = Math::Constants<T>::CorrectEpsilon) {
+    Vec<T,S>& correct(const size_t decimals = 0, const T epsilon = Math::Constants<T>::CorrectEpsilon) {
         for (size_t i = 0; i < S; ++i)
-            v[i] = Math::correct(v[i], epsilon);
+            v[i] = Math::correct(v[i], decimals, epsilon);
         return *this;
     }
     
-    const Vec<T,S> corrected(const T epsilon = Math::Constants<T>::CorrectEpsilon) const {
-        return Vec<T,S>(*this).correct();
+    const Vec<T,S> corrected(const size_t decimals = 0, const T epsilon = Math::Constants<T>::CorrectEpsilon) const {
+        return Vec<T,S>(*this).correct(decimals, epsilon);
     }
 };
             
