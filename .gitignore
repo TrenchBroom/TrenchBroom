@@ -24,3 +24,4 @@ Thumbs.db
 /osx/wxWidgets
 /xcode/
 /eclipse/
+*.swp

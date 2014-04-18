@@ -220,20 +220,24 @@ namespace TrenchBroom {
             attribs.setYScale(newYScale);
         }
 
-        float ParaxialTexCoordSystem::doMeasureAngle(const Vec2f& center, const Vec2f& point) const {
-            const Vec3 vec(point - center);
+        float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
             const Vec3& zAxis = m_index % 2 == 0 ? Vec3::PosZ : Vec3::NegZ;
+            const Quat3 rot(zAxis, -Math::radians(currentAngle));
+            const Vec3 vec = rot * (point - center);
+
             const FloatType angleInRadians = Math::C::TwoPi - angleBetween(vec.normalized(), Vec3::PosX, zAxis);
-            return static_cast<float>(Math::degrees(angleInRadians));
+            const float angleInDegrees = static_cast<float>(Math::degrees(angleInRadians));
+            
+            std::cout << "Current angle: " << currentAngle << " Vec: " << vec.asString() << "new radians: " << angleInRadians << " new degrees: " << angleInDegrees << std::endl;
+            return angleInDegrees;
         }
 
         Vec3 ParaxialTexCoordSystem::transformAxis(const Vec3& normal, const Vec3& axis, const Mat4x4& transformation) const {
             return transformation * project(normal, axis);
         }
 
-        void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angle, const size_t planeNormIndex) const {
-            // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
-            const Quat3 rot(BaseAxes[(planeNormIndex / 2) * 6], planeNormIndex == 4 ? -angle : angle);
+        void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {
+            const Quat3 rot(BaseAxes[(planeNormIndex / 2) * 6], planeNormIndex == 4 ? -angleInRadians : angleInRadians);
             xAxis = rot * xAxis;
             yAxis = rot * yAxis;
         }

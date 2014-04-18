@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Hit.h"
 #include "Assets/Texture.h"
+#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Model/TexCoordSystemHelper.h"
@@ -234,6 +235,38 @@ namespace TrenchBroom {
         float TexturingViewHelper::measureRotationAngle(const Vec2f& point) const {
             assert(valid());
             return m_face->measureTextureAngle(rotationCenterInFaceCoords(), point);
+        }
+
+        float TexturingViewHelper::snapRotationAngle(const float angle) const {
+            assert(valid());
+
+            const float angles[] = {
+                Math::mod(angle +   0.0f, 360.0f),
+                Math::mod(angle +  90.0f, 360.0f),
+                Math::mod(angle + 180.0f, 360.0f),
+                Math::mod(angle + 270.0f, 360.0f),
+            };
+            float minDelta = std::numeric_limits<float>::max();
+            
+            const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_face);
+            const Model::BrushEdgeList& edges = m_face->edges();
+            Model::BrushEdgeList::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                const Model::BrushEdge* edge = *it;
+                
+                const Vec3 startInFaceCoords = faceCoordSystem.worldToTex(edge->start->position);
+                const Vec3 endInFaceCoords   = faceCoordSystem.worldToTex(edge->end->position);
+                const float edgeAngle        = Math::mod(m_face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
+                
+                for (size_t i = 0; i < 4; ++i) {
+                    if (std::abs(angles[i] - edgeAngle) < std::abs(minDelta))
+                        minDelta = angles[i] - edgeAngle;
+                }
+            }
+            
+            if (std::abs(minDelta) < 3.0f)
+                return angle - minDelta;
+            return angle;
         }
         
         void TexturingViewHelper::computeScaleOriginHandles(Line3& xHandle, Line3& yHandle) const {

@@ -156,8 +156,8 @@ namespace TrenchBroom {
             return coordinateSystemMatrix(xAxis, yAxis, zAxis, origin);
         }
         
-        float TexCoordSystem::measureAngle(const Vec2f& center, const Vec2f& point) const {
-            return doMeasureAngle(center, point);
+        float TexCoordSystem::measureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
+            return doMeasureAngle(currentAngle, center, point);
         }
 
         Vec3 TexCoordSystem::project(const Vec3& normal, const Vec3& vec) const {

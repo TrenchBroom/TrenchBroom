@@ -450,7 +450,7 @@ namespace TrenchBroom {
         }
         
         float BrushFace::measureTextureAngle(const Vec2f& center, const Vec2f& point) const {
-            return m_texCoordSystem->measureAngle(center, point);
+            return m_texCoordSystem->measureAngle(m_attribs.rotation(), center, point);
         }
 
         const BrushEdgeList& BrushFace::edges() const {

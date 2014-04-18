@@ -50,7 +50,7 @@ namespace TrenchBroom {
             void doUpdate(const Vec3& normal, const BrushFaceAttribs& attribs);
             void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs);
 
-            float doMeasureAngle(const Vec2f& center, const Vec2f& point) const;
+            float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
         };
     }
 }

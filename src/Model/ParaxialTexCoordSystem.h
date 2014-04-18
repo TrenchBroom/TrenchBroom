@@ -55,10 +55,10 @@ namespace TrenchBroom {
             void doUpdate(const Vec3& normal, float rotation);
             void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs);
             
-            float doMeasureAngle(const Vec2f& center, const Vec2f& point) const;
+            float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
         private:
             Vec3 transformAxis(const Vec3& normal, const Vec3& axis, const Mat4x4& transformation) const;
-            void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angle, size_t planeNormIndex) const;
+            void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angleInRadians, size_t planeNormIndex) const;
             
             template <typename T1, typename T2>
             Vec<T1,3> safeScaleAxis(const Vec<T1,3>& axis, const T2 factor) const {

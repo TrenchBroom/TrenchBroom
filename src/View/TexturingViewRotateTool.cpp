@@ -128,10 +128,11 @@ namespace TrenchBroom {
                 m_helper.setRotationCenter(snappedPoint);
             } else {
                 const Vec3 oldCenterInWorldCoords = faceCoordSystem.texToWorld(Vec3(m_helper.rotationCenterInFaceCoords()));
-                const float angleDelta = Math::mod(m_helper.measureRotationAngle(curPointInFaceCoords), 360.0f);
-                const float angle = Math::mod(face->rotation() + angleDelta, 360.0f);
+                const float angle = Math::mod(m_helper.measureRotationAngle(curPointInFaceCoords), 360.0f);
+                const float snappedAngle = m_helper.snapRotationAngle(angle);
+                
                 const Model::BrushFaceList applyTo(1, face);
-                controller()->setFaceRotation(applyTo, angle, false);
+                controller()->setFaceRotation(applyTo, snappedAngle, false);
 
                 // Correct the offsets and the position of the rotation center.	
                 const Vec2f oldCenterInFaceCoords(faceCoordSystem.worldToTex(oldCenterInWorldCoords));
