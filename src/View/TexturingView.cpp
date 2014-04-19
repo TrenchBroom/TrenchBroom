@@ -61,6 +61,8 @@ namespace TrenchBroom {
             createTools();
             m_toolBox.disable();
             bindObservers();
+            asdf();
+
         }
         
         TexturingView::~TexturingView() {

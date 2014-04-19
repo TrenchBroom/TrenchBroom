@@ -122,9 +122,7 @@ namespace TrenchBroom {
             const Vec2f curPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(curPoint));
             
             if (m_dragMode == DragMode_Center) {
-                Vec3::List snapPoints = Model::vertexPositions(face->vertices());
-                snapPoints.push_back(face->center());
-                const Vec2f snappedPoint = m_helper.snapToPoints(curPointInFaceCoords - m_offset, snapPoints);
+                const Vec2f snappedPoint = m_helper.snapRotationCenter(curPointInFaceCoords - m_offset);
                 m_helper.setRotationCenter(snappedPoint);
             } else {
                 const Vec3 oldCenterInWorldCoords = faceCoordSystem.texToWorld(Vec3(m_helper.rotationCenterInFaceCoords()));
@@ -140,6 +138,7 @@ namespace TrenchBroom {
                 controller()->setFaceXOffset(applyTo, -delta.x(), true);
                 controller()->setFaceYOffset(applyTo, -delta.y(), true);
                 m_helper.setRotationCenter(oldCenterInFaceCoords);
+                m_helper.setScaleOrigin(m_helper.scaleOriginInFaceCoords() + delta);
             }
             
             return true;
