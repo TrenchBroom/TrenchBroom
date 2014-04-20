@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     class Hits;
@@ -37,6 +38,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class ActiveShader;
         class OrthographicCamera;
+        class RenderContext;
     }
 
     namespace View {
@@ -53,6 +55,7 @@ namespace TrenchBroom {
              */
             Vec2f m_scaleOrigin;
             Vec2f m_rotationCenter;
+            Renderer::Vbo m_vbo;
         public:
             TexturingViewHelper(Renderer::OrthographicCamera& camera);
             
@@ -60,8 +63,6 @@ namespace TrenchBroom {
             Model::BrushFace* face() const;
             const Assets::Texture* texture() const;
 
-            Vec2f textureCoords(const Vec3f& point) const;
-            
             Vec3 computeTexPoint(const Ray3& ray) const;
             Vec3 transformToTex(const Vec3& worldPoint, bool withOffset = false) const;
             Vec3::List transformToTex(const Vec3::List& worldPoints, bool withOffset = false) const;
@@ -82,15 +83,10 @@ namespace TrenchBroom {
             
             Mat4x4 worldToTexMatrix() const;
             
-            void activateTexture(Renderer::ActiveShader& shader);
-            void deactivateTexture();
-            
             Hits pick(const Ray3& pickRay) const;
             
             void setFace(Model::BrushFace* face);
             
-            // Camera related functions
-            void resetCamera();
 
             const Vec2i& subDivisions() const;
             void setSubDivisions(const Vec2i& subDivisions);
@@ -102,6 +98,14 @@ namespace TrenchBroom {
             const Vec2f rotationCenterInFaceCoords() const;
             const Vec2f angleHandleInFaceCoords(const float distance) const;
             void setRotationCenter(const Vec2f& rotationCenterInFaceCoords);
+            
+            // Camera related functions
+            void resetCamera();
+
+            void renderTexture(Renderer::RenderContext& renderContext);
+            Vec3f::List getTextureQuad() const;
+            void activateTexture(Renderer::ActiveShader& shader);
+            void deactivateTexture();
         private:
             void resetScaleOrigin();
             void resetRotationCenter();

@@ -63,6 +63,8 @@ namespace TrenchBroom {
 
         PlaneDragPolicy::~PlaneDragPolicy() {}
         
+        PlaneDragHelper::~PlaneDragHelper() {}
+        
         bool PlaneDragPolicy::doStartMouseDrag(const InputState& inputState) {
             if (doStartPlaneDrag(inputState, m_plane, m_lastPoint)) {
                 m_refPoint = m_lastPoint;

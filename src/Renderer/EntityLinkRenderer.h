@@ -34,6 +34,8 @@ namespace TrenchBroom {
         public:
             class Filter {
             public:
+                virtual ~Filter();
+                
                 bool showLink(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const;
                 const Color& linkColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const;
                 const Color& killColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const;

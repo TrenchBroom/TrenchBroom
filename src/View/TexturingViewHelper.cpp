@@ -27,8 +27,11 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Model/TexCoordSystemHelper.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/OrthographicCamera.h"
+#include "Renderer/RenderContext.h"
+#include "Renderer/ShaderManager.h"
+#include "Renderer/VertexArray.h"
+#include "Renderer/VertexSpec.h"
 #include "View/TexturingView.h"
 
 namespace TrenchBroom {
@@ -36,7 +39,8 @@ namespace TrenchBroom {
         TexturingViewHelper::TexturingViewHelper(Renderer::OrthographicCamera& camera) :
         m_camera(camera),
         m_face(NULL),
-        m_subDivisions(1, 1) {}
+        m_subDivisions(1, 1),
+        m_vbo(0xFFF) {}
         
         bool TexturingViewHelper::valid() const {
             return m_face != NULL;
@@ -50,11 +54,6 @@ namespace TrenchBroom {
             if (!valid())
                 return NULL;
             return m_face->texture();
-        }
-        
-        Vec2f TexturingViewHelper::textureCoords(const Vec3f& point) const {
-            assert(valid());
-            return m_face->textureCoords(Vec3(point));
         }
         
         Vec3 TexturingViewHelper::computeTexPoint(const Ray3& ray) const {
@@ -356,27 +355,6 @@ namespace TrenchBroom {
             return Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
         }
         
-        void TexturingViewHelper::activateTexture(Renderer::ActiveShader& shader) {
-            assert(valid());
-            Assets::Texture* texture = m_face->texture();
-            if (texture != NULL) {
-                shader.set("ApplyTexture", true);
-                shader.set("Color", texture->averageColor());
-                texture->activate();
-            } else {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                shader.set("ApplyTexture", false);
-                shader.set("Color", prefs.get(Preferences::FaceColor));
-            }
-        }
-        
-        void TexturingViewHelper::deactivateTexture() {
-            assert(valid());
-            Assets::Texture* texture = m_face->texture();
-            if (texture != NULL)
-                texture->deactivate();
-        }
-        
         Hits TexturingViewHelper::pick(const Ray3& pickRay) const {
             assert(valid());
             
@@ -399,37 +377,6 @@ namespace TrenchBroom {
             }
         }
         
-        void TexturingViewHelper::resetCamera() {
-            assert(valid());
-            
-            const BBox3 bounds = computeFaceBoundsInCameraCoords();
-            const Vec3f size(bounds.size());
-            const float w = static_cast<float>(m_camera.viewport().width - 20);
-            const float h = static_cast<float>(m_camera.viewport().height - 20);
-            
-            float zoom = 1.0f;
-            if (size.x() > w)
-                zoom = Math::min(zoom, w / size.x());
-            if (size.y() > h)
-                zoom = Math::min(zoom, h / size.y());
-            m_camera.setZoom(zoom);
-
-            const Vec3  position = m_face->center();
-            const Vec3& normal = m_face->boundary().normal;
-            Vec3 right;
-            
-            if (Math::lt(Math::abs(Vec3::PosZ.dot(normal)), 1.0))
-                right = crossed(Vec3::PosZ, normal).normalized();
-            else
-                right = Vec3::PosX;
-            const Vec3 up = crossed(normal, right).normalized();
-
-            m_camera.moveTo(position);
-            m_camera.setNearPlane(-1.0);
-            m_camera.setFarPlane(1.0);
-            m_camera.setDirection(-normal, up);
-        }
-
         const Vec2i& TexturingViewHelper::subDivisions() const {
             return m_subDivisions;
         }
@@ -470,6 +417,121 @@ namespace TrenchBroom {
             m_rotationCenter = rotationCenterInFaceCoords;
         }
         
+        void TexturingViewHelper::renderTexture(Renderer::RenderContext& renderContext) {
+            assert(valid());
+
+            const Assets::Texture* texture = m_face->texture();
+            if (texture == NULL)
+                return;
+
+            const Vec3f::List positions = getTextureQuad();
+            const Vec3f normal(m_face->boundary().normal);
+            
+            typedef Renderer::VertexSpecs::P3NT2::Vertex Vertex;
+            Vertex::List vertices(positions.size());
+            
+            for (size_t i = 0; i < positions.size(); ++i)
+                vertices[i] = Vertex(positions[i],
+                                     normal,
+                                     m_face->textureCoords(positions[i]));
+            
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
+            
+            Renderer::SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            vertexArray.prepare(m_vbo);
+            setVboState.active();
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            
+            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::TexturingViewShader);
+            shader.set("Brightness", prefs.get(Preferences::Brightness));
+            shader.set("RenderGrid", true);
+            shader.set("GridSizes", Vec2f(texture->width(), texture->height()));
+            shader.set("GridColor", Color(1.0f, 1.0f, 0.0f, 1.0f));
+            shader.set("GridScales", m_face->scale());
+            shader.set("GridMatrix", worldToTexMatrix());
+            shader.set("GridDivider", Vec2f(m_subDivisions));
+            shader.set("CameraZoom", m_camera.zoom().x());
+            shader.set("Texture", 0);
+
+            activateTexture(shader);
+            vertexArray.render();
+            deactivateTexture();
+        }
+        
+        Vec3f::List TexturingViewHelper::getTextureQuad() const {
+            Vec3f::List vertices(4);
+
+            const Renderer::Camera::Viewport& v = m_camera.viewport();
+            const Vec2f& z = m_camera.zoom();
+            const float w2 = static_cast<float>(v.width)  / z.x() / 2.0f;
+            const float h2 = static_cast<float>(v.height) / z.y() / 2.0f;
+
+            const Vec3f& p = m_camera.position();
+            const Vec3f& r = m_camera.right();
+            const Vec3f& u = m_camera.up();
+            
+            vertices[0] = -w2 * r +h2 * u + p;
+            vertices[1] = +w2 * r +h2 * u + p;
+            vertices[2] = +w2 * r -h2 * u + p;
+            vertices[3] = -w2 * r -h2 * u + p;
+            
+            return vertices;
+        }
+
+        void TexturingViewHelper::activateTexture(Renderer::ActiveShader& shader) {
+            assert(valid());
+            Assets::Texture* texture = m_face->texture();
+            if (texture != NULL) {
+                shader.set("ApplyTexture", true);
+                shader.set("Color", texture->averageColor());
+                texture->activate();
+            } else {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                shader.set("ApplyTexture", false);
+                shader.set("Color", prefs.get(Preferences::FaceColor));
+            }
+        }
+        
+        void TexturingViewHelper::deactivateTexture() {
+            assert(valid());
+            Assets::Texture* texture = m_face->texture();
+            if (texture != NULL)
+                texture->deactivate();
+        }
+        
+        void TexturingViewHelper::resetCamera() {
+            assert(valid());
+            
+            const BBox3 bounds = computeFaceBoundsInCameraCoords();
+            const Vec3f size(bounds.size());
+            const float w = static_cast<float>(m_camera.viewport().width - 20);
+            const float h = static_cast<float>(m_camera.viewport().height - 20);
+            
+            float zoom = 1.0f;
+            if (size.x() > w)
+                zoom = Math::min(zoom, w / size.x());
+            if (size.y() > h)
+                zoom = Math::min(zoom, h / size.y());
+            m_camera.setZoom(zoom);
+
+            const Vec3  position = m_face->center();
+            const Vec3& normal = m_face->boundary().normal;
+            Vec3 right;
+            
+            if (Math::lt(Math::abs(Vec3::PosZ.dot(normal)), 1.0))
+                right = crossed(Vec3::PosZ, normal).normalized();
+            else
+                right = Vec3::PosX;
+            const Vec3 up = crossed(normal, right).normalized();
+
+            m_camera.moveTo(position);
+            m_camera.setNearPlane(-1.0);
+            m_camera.setFarPlane(1.0);
+            m_camera.setDirection(-normal, up);
+        }
+
         void TexturingViewHelper::resetScaleOrigin() {
             assert(m_face != NULL);
             const Model::BrushVertexList& vertices = m_face->vertices();

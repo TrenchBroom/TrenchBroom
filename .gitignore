@@ -29,3 +29,5 @@ Thumbs.db
 /tags
 
 *.pyc
+
+/src/tags

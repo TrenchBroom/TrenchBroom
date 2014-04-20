@@ -65,7 +65,7 @@ namespace TrenchBroom {
             m_backRenderer.setTintColor(prefs.get(Preferences::ClipFaceColor));
             m_backRenderer.setOccludedEdgeColor(prefs.get(Preferences::ClipOccludedEdgeColor));
             
-            m_handleRenderer.setRadius(prefs.get(Preferences::HandleRadius), 1);
+            m_handleRenderer.setRadius(static_cast<float>(prefs.get(Preferences::HandleRadius)), 1);
         }
         
         void ClipperRenderer::renderClipPoints(RenderContext& renderContext) {

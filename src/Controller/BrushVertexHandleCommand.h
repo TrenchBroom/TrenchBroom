@@ -34,6 +34,7 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<BrushVertexHandleCommand> Ptr;
         public:
             BrushVertexHandleCommand(CommandType type, const String& name, bool undoable, bool modifiesDocument);
+            ~BrushVertexHandleCommand();
 
             void removeBrushes(View::VertexHandleManager& manager);
             void addBrushes(View::VertexHandleManager& manager);

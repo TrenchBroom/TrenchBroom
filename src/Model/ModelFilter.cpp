@@ -27,6 +27,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        ModelFilter::~ModelFilter() {}
+        
         bool ModelFilter::visible(const Object* object) const {
             if (object->type() == Object::Type_Entity) {
                 const Entity* entity = static_cast<const Entity*>(object);

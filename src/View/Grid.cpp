@@ -84,45 +84,6 @@ namespace TrenchBroom {
             gridDidChangeNotifier();
         }
         
-        FloatType Grid::snap(const FloatType f) const {
-            if (!snap())
-                return f;
-            const size_t actSize = actualSize();
-            return actSize * Math::round(f / actSize);
-        }
-        
-        FloatType Grid::snapAngle(const FloatType a) const {
-            if (!snap())
-                return a;
-            return angle() * Math::round(a / angle());
-        }
-        
-        FloatType Grid::snapUp(const FloatType f, bool skip) const {
-            if (!snap())
-                return f;
-            const size_t actSize = actualSize();
-            const FloatType s = actSize * std::ceil(f / actSize);
-            if (skip && s == f)
-                return s + actualSize();
-            return s;
-        }
-        
-        FloatType Grid::snapDown(const FloatType f, bool skip) const {
-            if (!snap())
-                return f;
-            const size_t actSize = actualSize();
-            const FloatType s = actSize * std::floor(f / actSize);
-            if (skip && s == f)
-                return s - actualSize();
-            return s;
-        }
-        
-        FloatType Grid::offset(const FloatType f) const {
-            if (!snap())
-                return static_cast<FloatType>(0.0);
-            return f - snap(f);
-        }
-        
         Vec3 Grid::snap(const Vec3& p, const Plane3& onPlane) const {
             Vec3 result;
             switch(onPlane.normal.firstComponent()) {

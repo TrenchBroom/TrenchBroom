@@ -26,6 +26,8 @@ namespace TrenchBroom {
     namespace Model {
         class ModelFilter {
         public:
+            virtual ~ModelFilter();
+            
             virtual bool visible(const Object* object) const;
             virtual bool visible(const BrushFace* face) const;
             virtual bool pickable(const Object* object) const;

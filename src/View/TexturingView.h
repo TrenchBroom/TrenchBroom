@@ -83,9 +83,9 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
+            void selectionDidChange(const Model::SelectionResult& result);
             void objectDidChange(Model::Object* object);
             void faceDidChange(Model::BrushFace* face);
-            void selectionDidChange(const Model::SelectionResult& result);
             void gridDidChange();
             void cameraDidChange(const Renderer::Camera* camera);
             
@@ -97,8 +97,6 @@ namespace TrenchBroom {
             void renderTexture(Renderer::RenderContext& renderContext);
             void renderFace(Renderer::RenderContext& renderContext);
             void renderToolBox(Renderer::RenderContext& renderContext);
-
-            Vec3f::List getTextureQuad() const;
         private:
             Ray3 doGetPickRay(int x, int y) const;
             Hits doPick(const Ray3& pickRay) const;

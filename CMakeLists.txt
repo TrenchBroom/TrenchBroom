@@ -49,10 +49,11 @@ IF(MSVC)
 	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W3 /MP")
 ELSE()
 	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Os")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wno-format -std=c++0x")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wno-format -Wno-variadic-macros -std=c++0x  -stdlib=libstdc++")
 
 	# Xcode requires these flags to allow debugging
 	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O0 -fno-inline")
+	SET(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libstdc++")
 
 	# Hide some bogus warnings and enable color diagnostics if ccache is used with clang
 	IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

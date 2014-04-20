@@ -45,7 +45,7 @@ namespace TrenchBroom {
         Vec3f EntityRenderer::EntityClassnameAnchor::basePosition() const {
             const Assets::EntityModel* model = m_entity->model();
             Vec3f position = m_entity->bounds().center();
-            position[2] = m_entity->bounds().max.z();
+            position[2] = float(m_entity->bounds().max.z());
             if (model != NULL) {
                 const Assets::ModelSpecification spec = m_entity->modelSpecification();
                 const BBox3f modelBounds = model->bounds(spec.skinIndex, spec.frameIndex);

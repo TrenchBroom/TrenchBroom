@@ -53,6 +53,8 @@ namespace TrenchBroom {
             
             class Color : public std::tr1::enable_shared_from_this<Color> {
             public:
+                virtual ~Color();
+                
                 static ColorPtr parseColor(const String& str);
                 static ColorRange detectRange(const String& str);
                 static ColorPtr fromWxColor(const wxColor& wxColor, ColorRange range);

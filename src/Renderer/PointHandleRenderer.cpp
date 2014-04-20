@@ -97,7 +97,7 @@ namespace TrenchBroom {
 
         void PointHandleRenderer::renderHandleHighlight(RenderContext& renderContext, const Vec3f& position) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const float scaling = prefs.get(Preferences::HandleScalingFactor);
+            const float scaling(prefs.get(Preferences::HandleScalingFactor));
             
             const Camera& camera = renderContext.camera();
             const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();

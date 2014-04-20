@@ -23,6 +23,8 @@ namespace TrenchBroom {
     namespace Controller {
         BrushVertexHandleCommand::BrushVertexHandleCommand(const CommandType type, const String& name, const bool undoable, const bool modifiesDocument) :
         Command(type, name, undoable, modifiesDocument) {}
+        
+        BrushVertexHandleCommand::~BrushVertexHandleCommand() {}
 
         void BrushVertexHandleCommand::removeBrushes(View::VertexHandleManager& manager) {
             doRemoveBrushes(manager);

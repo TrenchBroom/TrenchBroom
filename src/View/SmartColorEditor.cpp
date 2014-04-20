@@ -39,6 +39,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        SmartColorEditor::Color::~Color() {}
+        
         SmartColorEditor::ColorPtr SmartColorEditor::Color::parseColor(const String& str) {
             const StringList components = StringUtils::splitAndTrim(str, " ");
             if (components.size() != 3)
@@ -109,9 +111,9 @@ namespace TrenchBroom {
         }
         
         wxColor SmartColorEditor::FloatColor::toWxColor() const {
-            return wxColor(static_cast<int>(r() * 255.0f),
-                           static_cast<int>(g() * 255.0f),
-                           static_cast<int>(b() * 255.0f));
+            return wxColor(static_cast<wxColor::ChannelType>(r() * 255.0f),
+                           static_cast<wxColor::ChannelType>(g() * 255.0f),
+                           static_cast<wxColor::ChannelType>(b() * 255.0f));
         }
 
         String SmartColorEditor::FloatColor::asString() const {

@@ -53,7 +53,7 @@ namespace TrenchBroom {
                     const size_t index = static_cast<size_t>(static_cast<unsigned char>(indexedImage[i]));
                     assert(index < m_size);
                     for (size_t j = 0; j < 3; ++j) {
-                        const size_t c = m_data[index * 3 + j];
+                        const char c = m_data[index * 3 + j];
                         rgbImage[i * 3 + j] = c;
                         avg[j] += static_cast<double>(c);
                     }

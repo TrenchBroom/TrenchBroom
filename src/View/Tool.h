@@ -131,6 +131,8 @@ namespace TrenchBroom {
         
         class PlaneDragHelper {
         public:
+            virtual ~PlaneDragHelper();
+            
             virtual bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
             virtual bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
             virtual void endPlaneDrag(const InputState& inputState) = 0;

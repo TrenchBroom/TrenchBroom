@@ -52,11 +52,49 @@ namespace TrenchBroom {
             bool snap() const;
             void toggleSnap();
             
-            FloatType snap(const FloatType f) const;
-            FloatType snapAngle(const FloatType a) const;
-            FloatType snapUp(const FloatType f, bool skip = false) const;
-            FloatType snapDown(const FloatType f, bool skip = false) const;
-            FloatType offset(const FloatType f) const;
+            template <typename T>
+            T snap(const T f) const {
+                if (!snap())
+                    return f;
+                const size_t actSize = actualSize();
+                return actSize * Math::round(f / actSize);
+            }
+            
+            template <typename T>
+            T snapAngle(const T a) const {
+                if (!snap())
+                    return a;
+                return angle() * Math::round(a / angle());
+            }
+            
+            template <typename T>
+            T snapUp(const T f, const bool skip) const {
+                if (!snap())
+                    return f;
+                const size_t actSize = actualSize();
+                const T s = actSize * std::ceil(f / actSize);
+                if (skip && s == f)
+                    return s + actualSize();
+                return s;
+            }
+            
+            template <typename T>
+            T snapDown(const T f, const bool skip) const {
+                if (!snap())
+                    return f;
+                const size_t actSize = actualSize();
+                const T s = actSize * std::floor(f / actSize);
+                if (skip && s == f)
+                    return s - actualSize();
+                return s;
+            }
+            
+            template <typename T>
+            T offset(const T f) const {
+                if (!snap())
+                    return static_cast<T>(0.0);
+                return f - snap(f);
+            }
             
             template <typename T, size_t S>
             Vec<T,S> snap(const Vec<T,S>& p) const {

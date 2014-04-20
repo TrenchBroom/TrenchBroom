@@ -1281,7 +1281,7 @@ namespace TrenchBroom {
                 return;
             
             const Grid& grid = document->grid();
-            const float angle = snapAngle ? Math::degrees(grid.angle()) : 1.0f;
+            const float angle(snapAngle ? Math::degrees(grid.angle()) : 1.0f);
             
             ControllerSPtr controller = lock(m_controller);
             controller->rotateTextures(faces, clockwise ? angle : -angle);

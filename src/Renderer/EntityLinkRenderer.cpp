@@ -29,6 +29,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        EntityLinkRenderer::Filter::~Filter() {}
+        
         bool EntityLinkRenderer::Filter::showLink(const Model::Entity* source, const Model::Entity* target, const bool isConnectedToSelected) const {
             return doGetShowLink(source, target, isConnectedToSelected);
         }

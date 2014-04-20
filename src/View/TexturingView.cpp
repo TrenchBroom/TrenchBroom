@@ -128,14 +128,6 @@ namespace TrenchBroom {
             m_camera.cameraDidChangeNotifier.removeObserver(this, &TexturingView::cameraDidChange);
         }
         
-        void TexturingView::objectDidChange(Model::Object* object) {
-            Refresh();
-        }
-
-        void TexturingView::faceDidChange(Model::BrushFace* face) {
-            Refresh();
-        }
-        
         void TexturingView::selectionDidChange(const Model::SelectionResult& result) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList& faces = document->selectedFaces();
@@ -143,13 +135,21 @@ namespace TrenchBroom {
                 m_helper.setFace(NULL);
             else
                 m_helper.setFace(faces.back());
-
+            
             if (m_helper.valid()) {
                 m_toolBox.enable();
                 m_helper.resetCamera();
             } else {
                 m_toolBox.disable();
             }
+            Refresh();
+        }
+        
+        void TexturingView::objectDidChange(Model::Object* object) {
+            Refresh();
+        }
+
+        void TexturingView::faceDidChange(Model::BrushFace* face) {
             Refresh();
         }
 
@@ -171,7 +171,6 @@ namespace TrenchBroom {
         
         void TexturingView::doRender() {
             if (m_helper.valid()) {
-
                 MapDocumentSPtr document = lock(m_document);
                 document->commitPendingRenderStateChanges();
                 
@@ -195,43 +194,9 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
             glDisable(GL_DEPTH_TEST);
         }
-        
-        void TexturingView::renderTexture(Renderer::RenderContext& renderContext) {
-            const Vec3f::List positions = getTextureQuad();
-            const Vec3f normal(m_helper.face()->boundary().normal);
-            
-            typedef Renderer::VertexSpecs::P3NT2::Vertex Vertex;
-            Vertex::List vertices(positions.size());
-            
-            for (size_t i = 0; i < positions.size(); ++i)
-                vertices[i] = Vertex(positions[i],
-                                     normal,
-                                     m_helper.textureCoords(positions[i]));
-            
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
-            
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.mapped();
-            vertexArray.prepare(m_vbo);
-            setVboState.active();
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const Assets::Texture* texture = m_helper.texture();
-            
-            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::TexturingViewShader);
-            shader.set("Brightness", prefs.get(Preferences::Brightness));
-            shader.set("RenderGrid", texture != NULL);
-            shader.set("GridSizes", Vec2f(texture->width(), texture->height()));
-            shader.set("GridColor", Color(1.0f, 1.0f, 0.0f, 1.0f));
-            shader.set("GridScales", m_helper.face()->scale());
-            shader.set("GridMatrix", m_helper.worldToTexMatrix());
-            shader.set("GridDivider", Vec2f(m_helper.subDivisions()));
-            shader.set("CameraZoom", m_camera.zoom().x());
-            shader.set("Texture", 0);
 
-            m_helper.activateTexture(shader);
-            vertexArray.render();
-            m_helper.deactivateTexture();
+        void TexturingView::renderTexture(Renderer::RenderContext& renderContext) {
+            m_helper.renderTexture(renderContext);
         }
         
         void TexturingView::renderFace(Renderer::RenderContext& renderContext) {
@@ -258,26 +223,6 @@ namespace TrenchBroom {
 
         void TexturingView::renderToolBox(Renderer::RenderContext& renderContext) {
             m_toolBox.renderTools(renderContext);
-        }
-
-        Vec3f::List TexturingView::getTextureQuad() const {
-            Vec3f::List vertices(4);
-
-            const Renderer::Camera::Viewport& v = m_camera.viewport();
-            const Vec2f& z = m_camera.zoom();
-            const float w2 = static_cast<float>(v.width)  / z.x() / 2.0f;
-            const float h2 = static_cast<float>(v.height) / z.y() / 2.0f;
-
-            const Vec3f& p = m_camera.position();
-            const Vec3f& r = m_camera.right();
-            const Vec3f& u = m_camera.up();
-            
-            vertices[0] = -w2 * r +h2 * u + p;
-            vertices[1] = +w2 * r +h2 * u + p;
-            vertices[2] = +w2 * r -h2 * u + p;
-            vertices[3] = -w2 * r -h2 * u + p;
-            
-            return vertices;
         }
 
         Ray3 TexturingView::doGetPickRay(const int x, const int y) const {

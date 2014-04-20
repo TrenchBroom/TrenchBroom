@@ -34,6 +34,8 @@ namespace TrenchBroom {
         m_undoable(undoable),
         m_modifiesDocument(modifiesDocument) {}
         
+        Command::~Command() {}
+        
         Command::CommandType Command::type() const {
             return m_type;
         }

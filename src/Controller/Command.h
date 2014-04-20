@@ -50,6 +50,7 @@ namespace TrenchBroom {
             static CommandType freeType();
             
             Command(CommandType type, const String& name, bool undoable, bool modifiesDocument);
+            virtual ~Command();
 
             CommandType type() const;
             CommandState state() const;
