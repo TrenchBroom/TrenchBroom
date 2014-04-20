@@ -42,15 +42,10 @@ namespace TrenchBroom {
     namespace View {
         class TexturingViewHelper {
         private:
-            Model::BrushFace* m_face;
-            Vec3 m_origin;
-            Vec3 m_xAxis;
-            Vec3 m_yAxis;
-            Vec3 m_zAxis;
-            Mat4x4 m_toFaceTransform;
-            Mat4x4 m_fromFaceTransform;
+            Renderer::OrthographicCamera& m_camera;
             
-            float m_cameraZoom;
+            Model::BrushFace* m_face;
+
             Vec2i m_subDivisions;
             
             /**
@@ -59,20 +54,12 @@ namespace TrenchBroom {
             Vec2f m_scaleOrigin;
             Vec2f m_rotationCenter;
         public:
-            TexturingViewHelper();
+            TexturingViewHelper(Renderer::OrthographicCamera& camera);
             
             bool valid() const;
             Model::BrushFace* face() const;
             const Assets::Texture* texture() const;
-            
-            const Vec3& origin() const;
-            const Vec3& xAxis() const;
-            const Vec3& yAxis() const;
-            const Vec3& zAxis() const;
-            
-            BBox3 computeBounds() const;
-            Vec3 transformToFace(const Vec3& point) const;
-            Vec3 transformFromFace(const Vec3& point) const;
+
             Vec2f textureCoords(const Vec3f& point) const;
             
             Vec3 computeTexPoint(const Ray3& ray) const;
@@ -101,8 +88,9 @@ namespace TrenchBroom {
             Hits pick(const Ray3& pickRay) const;
             
             void setFace(Model::BrushFace* face);
-            void faceDidChange();
-            void setCameraZoom(float cameraZoom);
+            
+            // Camera related functions
+            void resetCamera();
 
             const Vec2i& subDivisions() const;
             void setSubDivisions(const Vec2i& subDivisions);
@@ -115,9 +103,13 @@ namespace TrenchBroom {
             const Vec2f angleHandleInFaceCoords(const float distance) const;
             void setRotationCenter(const Vec2f& rotationCenterInFaceCoords);
         private:
-            void validate();
             void resetScaleOrigin();
             void resetRotationCenter();
+            
+            float cameraZoom() const;
+            BBox3 computeFaceBoundsInCameraCoords() const;
+            Vec3 transformToCamera(const Vec3& point) const;
+            Vec3 transformFromCamera(const Vec3& point) const;
         };
     }
 }

@@ -50,19 +50,17 @@ namespace TrenchBroom {
         RenderView(parent, sharedContext),
         m_document(document),
         m_controller(controller),
+        m_helper(m_camera),
         m_toolBox(this, this),
         m_rotateTool(NULL),
         m_scaleOriginTool(NULL),
         m_scaleTool(NULL),
         m_offsetTool(NULL),
         m_cameraTool(NULL) {
-            m_helper.setCameraZoom(m_camera.zoom().x());
             m_toolBox.setClickToActivate(false);
             createTools();
             m_toolBox.disable();
             bindObservers();
-            asdf();
-
         }
         
         TexturingView::~TexturingView() {
@@ -131,12 +129,10 @@ namespace TrenchBroom {
         }
         
         void TexturingView::objectDidChange(Model::Object* object) {
-            m_helper.faceDidChange();
             Refresh();
         }
 
         void TexturingView::faceDidChange(Model::BrushFace* face) {
-            m_helper.faceDidChange();
             Refresh();
         }
         
@@ -150,8 +146,7 @@ namespace TrenchBroom {
 
             if (m_helper.valid()) {
                 m_toolBox.enable();
-                m_camera.setZoom(computeZoomFactor());
-                m_camera.moveTo(Vec3f(m_helper.origin()));
+                m_helper.resetCamera();
             } else {
                 m_toolBox.disable();
             }
@@ -167,7 +162,6 @@ namespace TrenchBroom {
         }
 
         void TexturingView::cameraDidChange(const Renderer::Camera* camera) {
-            m_helper.setCameraZoom(m_camera.zoom().x());
             Refresh();
         }
 
@@ -177,7 +171,6 @@ namespace TrenchBroom {
         
         void TexturingView::doRender() {
             if (m_helper.valid()) {
-                setupCamera();
 
                 MapDocumentSPtr document = lock(m_document);
                 document->commitPendingRenderStateChanges();
@@ -190,14 +183,6 @@ namespace TrenchBroom {
                 renderFace(renderContext);
                 renderToolBox(renderContext);
             }
-        }
-        
-        void TexturingView::setupCamera() {
-            assert(m_helper.valid());
-            
-            m_camera.setNearPlane(-1.0);
-            m_camera.setFarPlane(1.0);
-            m_camera.setDirection(-m_helper.zAxis(), m_helper.yAxis());
         }
         
         void TexturingView::setupGL(Renderer::RenderContext& renderContext) {
@@ -273,21 +258,6 @@ namespace TrenchBroom {
 
         void TexturingView::renderToolBox(Renderer::RenderContext& renderContext) {
             m_toolBox.renderTools(renderContext);
-        }
-
-        float TexturingView::computeZoomFactor() const {
-            m_helper.transformToFace(Vec3::Null);
-            const BBox3 bounds = m_helper.computeBounds();
-            const Vec3f size(bounds.size());
-            const float w = static_cast<float>(m_camera.viewport().width - 20);
-            const float h = static_cast<float>(m_camera.viewport().height - 20);
-            
-            float zoom = 1.0f;
-            if (size.x() > w)
-                zoom = Math::min(zoom, w / size.x());
-            if (size.y() > h)
-                zoom = Math::min(zoom, h / size.y());
-            return zoom;
         }
 
         Vec3f::List TexturingView::getTextureQuad() const {

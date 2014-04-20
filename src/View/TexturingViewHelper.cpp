@@ -33,9 +33,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        TexturingViewHelper::TexturingViewHelper() :
+        TexturingViewHelper::TexturingViewHelper(Renderer::OrthographicCamera& camera) :
+        m_camera(camera),
         m_face(NULL),
-        m_cameraZoom(1.0f),
         m_subDivisions(1, 1) {}
         
         bool TexturingViewHelper::valid() const {
@@ -50,47 +50,6 @@ namespace TrenchBroom {
             if (!valid())
                 return NULL;
             return m_face->texture();
-        }
-        
-        const Vec3& TexturingViewHelper::origin() const {
-            assert(valid());
-            return m_origin;
-        }
-        
-        const Vec3& TexturingViewHelper::xAxis() const {
-            assert(valid());
-            return m_xAxis;
-        }
-        
-        const Vec3& TexturingViewHelper::yAxis() const {
-            assert(valid());
-            return m_yAxis;
-        }
-        
-        const Vec3& TexturingViewHelper::zAxis() const {
-            assert(valid());
-            return m_zAxis;
-        }
-        
-        BBox3 TexturingViewHelper::computeBounds() const {
-            assert(valid());
-            
-            BBox3 result;
-            const Model::BrushVertexList& vertices = m_face->vertices();
-            result.min = result.max = transformToFace(vertices[0]->position);
-            for (size_t i = 1; i < vertices.size(); ++i)
-                result.mergeWith(transformToFace(vertices[i]->position));
-            return result;
-        }
-        
-        Vec3 TexturingViewHelper::transformToFace(const Vec3& point) const {
-            assert(valid());
-            return m_toFaceTransform * point;
-        }
-        
-        Vec3 TexturingViewHelper::transformFromFace(const Vec3& point) const {
-            assert(valid());
-            return m_fromFaceTransform * point;
         }
         
         Vec2f TexturingViewHelper::textureCoords(const Vec3f& point) const {
@@ -191,7 +150,7 @@ namespace TrenchBroom {
             for (size_t i = 1; i < vertices.size(); ++i)
                 distance = combineIndividualDistances(distance, computeDistance(texCoordSystem.worldToTex(vertices[i]->position), texture, m_subDivisions));
             
-            return snapIndividual(delta, -distance, m_cameraZoom);
+            return snapIndividual(delta, -distance, cameraZoom());
         }
         
         Vec2f computeDistance(const Vec3& point, const Vec2f& newHandlePosition) {
@@ -233,7 +192,7 @@ namespace TrenchBroom {
             // and take the actual distance
             const Vec2f distanceInFaceCoords = texCoordSystem.texToTex(newOriginInTexCoords + distanceInTexCoords, faceCoordSystem) - newOriginInFaceCoords;
             
-            return snapIndividual(deltaInFaceCoords, distanceInFaceCoords, m_cameraZoom);
+            return snapIndividual(deltaInFaceCoords, distanceInFaceCoords, cameraZoom());
         }
         
         Vec2f TexturingViewHelper::snapScaleHandle(const Vec2f& scaleHandleInFaceCoords) const {
@@ -248,7 +207,7 @@ namespace TrenchBroom {
                 distanceInFaceCoords = combineIndividualDistances(distanceInFaceCoords, computeDistance(faceCoordSystem.worldToTex(vertices[i]->position), scaleHandleInFaceCoords));
             
             for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(distanceInFaceCoords[i]) > 4.0f / m_cameraZoom)
+                if (Math::abs(distanceInFaceCoords[i]) > 4.0f / cameraZoom())
                     distanceInFaceCoords[i] = 0.0f;
             }
 
@@ -271,7 +230,7 @@ namespace TrenchBroom {
             for (size_t i = 1; i < points.size(); ++i)
                 distanceInFaceCoords = combineBothDistances(distanceInFaceCoords, computeDistance(faceCoordSystem.worldToTex(points[i]), pointInFaceCoords));
             
-            if (distanceInFaceCoords.length() > 4.0f / m_cameraZoom)
+            if (distanceInFaceCoords.length() > 4.0f / cameraZoom())
                 distanceInFaceCoords = Vec2f::Null;
             return pointInFaceCoords - distanceInFaceCoords;
         }
@@ -434,22 +393,43 @@ namespace TrenchBroom {
             if (face != m_face) {
                 m_face = face;
                 if (m_face != NULL) {
-                    validate();
                     resetScaleOrigin();
                     resetRotationCenter();
                 }
             }
         }
         
-        void TexturingViewHelper::faceDidChange() {
-            if (m_face != NULL)
-                validate();
+        void TexturingViewHelper::resetCamera() {
+            assert(valid());
+            
+            const BBox3 bounds = computeFaceBoundsInCameraCoords();
+            const Vec3f size(bounds.size());
+            const float w = static_cast<float>(m_camera.viewport().width - 20);
+            const float h = static_cast<float>(m_camera.viewport().height - 20);
+            
+            float zoom = 1.0f;
+            if (size.x() > w)
+                zoom = Math::min(zoom, w / size.x());
+            if (size.y() > h)
+                zoom = Math::min(zoom, h / size.y());
+            m_camera.setZoom(zoom);
+
+            const Vec3  position = m_face->center();
+            const Vec3& normal = m_face->boundary().normal;
+            Vec3 right;
+            
+            if (Math::lt(Math::abs(Vec3::PosZ.dot(normal)), 1.0))
+                right = crossed(Vec3::PosZ, normal).normalized();
+            else
+                right = Vec3::PosX;
+            const Vec3 up = crossed(normal, right).normalized();
+
+            m_camera.moveTo(position);
+            m_camera.setNearPlane(-1.0);
+            m_camera.setFarPlane(1.0);
+            m_camera.setDirection(-normal, up);
         }
-        
-        void TexturingViewHelper::setCameraZoom(const float cameraZoom) {
-            m_cameraZoom = cameraZoom;
-        }
-        
+
         const Vec2i& TexturingViewHelper::subDivisions() const {
             return m_subDivisions;
         }
@@ -490,24 +470,6 @@ namespace TrenchBroom {
             m_rotationCenter = rotationCenterInFaceCoords;
         }
         
-        void TexturingViewHelper::validate() {
-            assert(m_face != NULL);
-            
-            m_origin = m_face->center();
-            m_zAxis = m_face->boundary().normal;
-            
-            if (Math::lt(Math::abs(Vec3::PosZ.dot(m_zAxis)), 1.0))
-                m_xAxis = crossed(Vec3::PosZ, m_zAxis).normalized();
-            else
-                m_xAxis = Vec3::PosX;
-            m_yAxis = crossed(m_zAxis, m_xAxis).normalized();
-            
-            m_fromFaceTransform = coordinateSystemMatrix(m_xAxis, m_yAxis, m_zAxis, m_origin);
-            bool invertible = true;
-            m_toFaceTransform = invertedMatrix(m_fromFaceTransform, invertible);
-            assert(invertible);
-        }
-        
         void TexturingViewHelper::resetScaleOrigin() {
             assert(m_face != NULL);
             const Model::BrushVertexList& vertices = m_face->vertices();
@@ -534,5 +496,26 @@ namespace TrenchBroom {
             const Vec3 centerInFaceCoords = helper.worldToTex(center);
             m_rotationCenter = Vec2f(centerInFaceCoords);
         }
+
+        float TexturingViewHelper::cameraZoom() const {
+            const Vec2f& zoom = m_camera.zoom();
+            assert(zoom.x() == zoom.y());
+            return zoom.x();
+        }
+
+        BBox3 TexturingViewHelper::computeFaceBoundsInCameraCoords() const {
+            assert(valid());
+            
+            Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
+            invertMatrix(transform);
+
+            BBox3 result;
+            const Model::BrushVertexList& vertices = m_face->vertices();
+            result.min = result.max = transform * vertices[0]->position;
+            for (size_t i = 1; i < vertices.size(); ++i)
+                result.mergeWith(transform * vertices[i]->position);
+            return result;
+        }
+        
     }
 }
