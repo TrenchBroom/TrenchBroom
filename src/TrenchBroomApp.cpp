@@ -119,7 +119,7 @@ namespace TrenchBroom {
 
                 assert(game != NULL);
 
-                MapFrame* frame = m_frameManager->newFrame();
+                frame = m_frameManager->newFrame();
                 frame->openDocument(game, path);
                 return true;
             } catch (const Exception& e) {

@@ -30,6 +30,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        BrushFaceList createBoxFaces(const BBox3& bounds);
+        
         BrushFaceList createBoxFaces(const BBox3& bounds) {
             BrushFace* top = BrushFace::createParaxial(Vec3(0.0, 0.0, bounds.max.z()),
                                                        Vec3(0.0, 1.0, bounds.max.z()),

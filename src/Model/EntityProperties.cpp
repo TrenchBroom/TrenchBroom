@@ -81,7 +81,6 @@ namespace TrenchBroom {
             for (size_t j = i; j < key.size(); ++j) {
                 if (key[j] < '0' || key[j] > '9')
                     return "";
-                ++j;
             }
             return key.substr(0, i);
         }

@@ -120,7 +120,7 @@ namespace TrenchBroom {
                     }
                 }
 
-                return children.size();
+                return static_cast<unsigned int>(children.size());
             }
 
             wxDataViewItem GetParent(const wxDataViewItem& item) const {

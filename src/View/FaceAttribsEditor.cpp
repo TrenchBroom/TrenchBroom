@@ -321,7 +321,7 @@ namespace TrenchBroom {
                 bool surfaceValueMulti = false;
                 
                 Assets::Texture* texture = m_faces[0]->texture();
-                const String& textureName = m_faces[0]->textureName();
+                // const String& textureName = m_faces[0]->textureName();
                 const float xOffset = m_faces[0]->xOffset();
                 const float yOffset = m_faces[0]->yOffset();
                 const float rotation = m_faces[0]->rotation();
@@ -459,6 +459,7 @@ namespace TrenchBroom {
             GetParent()->Layout();
         }
 
+        void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions);
         void getFlags(const Model::GameConfig::FlagConfigList& flags, wxArrayString& names, wxArrayString& descriptions) {
             Model::GameConfig::FlagConfigList::const_iterator it, end;
             for (it = flags.begin(), end = flags.end(); it != end; ++it) {

@@ -277,7 +277,7 @@ namespace TrenchBroom {
                 Model::BrushFace* face = *it;
                 const Vec3 actualDelta = rotateDelta(delta, face, normals);
                 const Mat4x4 toTexTransform = face->toTexCoordSystemMatrix();
-                const Vec2 offset(grid.snap(toTexTransform * actualDelta));
+                const Vec2f offset(grid.snap(toTexTransform * actualDelta));
                 
                 const Model::BrushFaceList applyTo(1, face);
                 if (offset.x() != 0.0)

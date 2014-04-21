@@ -227,6 +227,7 @@ namespace TrenchBroom {
             };
             
             typedef std::map<SphereBuilder::MidPointIndex, size_t> MidPointCache;
+            size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, const size_t index1, const size_t index2);
             
             size_t midPoint(Vec3f::List& vertices, MidPointCache& cache, const size_t index1, const size_t index2) {
                 MidPointCache::iterator it = cache.find(MidPointIndex(index1, index2));

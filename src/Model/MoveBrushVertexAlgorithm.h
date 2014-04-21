@@ -164,7 +164,7 @@ namespace TrenchBroom {
                                 chopFace(geometry, side, vertexIndex);
                             } else {
                                 // Vertex will move above or parallel to the boundary: Create a triangle fan.
-                                for (size_t i = 1; i < side->vertices.size() - 1; ++i) {
+                                for (size_t j = 1; j < side->vertices.size() - 1; ++j) {
                                     const size_t vertexIndex = VectorUtils::indexOf(side->vertices, vertex);
                                     chopFace(geometry, side, Math::succ(vertexIndex, side->vertices.size()));
                                 }

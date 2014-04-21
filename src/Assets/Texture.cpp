@@ -156,7 +156,7 @@ namespace TrenchBroom {
             size_t mipHeight = m_height;
             for (size_t j = 0; j < m_buffers.size(); ++j) {
                 const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
-                glTexImage2D(GL_TEXTURE_2D, j, GL_RGBA,
+                glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
                              static_cast<GLsizei>(mipWidth),
                              static_cast<GLsizei>(mipHeight),
                              0, GL_RGB, GL_UNSIGNED_BYTE, data);

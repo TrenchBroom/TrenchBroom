@@ -205,7 +205,7 @@ namespace TrenchBroom {
         Clipper::Clipper(const Renderer::Camera& camera) :
         m_camera(camera),
         m_clipPoints(m_handlePoints, m_camera.direction()),
-        m_clipSide(Front) {}
+        m_clipSide(ClipSide_Front) {}
 
         size_t Clipper::numPoints() const {
             return m_handlePoints.numPoints();
@@ -223,11 +223,11 @@ namespace TrenchBroom {
         }
         
         bool Clipper::keepFrontBrushes() const {
-            return m_clipSide != Back;
+            return m_clipSide != ClipSide_Back;
         }
         
         bool Clipper::keepBackBrushes() const {
-            return m_clipSide != Front;
+            return m_clipSide != ClipSide_Front;
         }
         
         bool Clipper::canAddClipPoint(const Vec3& position) const {
@@ -263,14 +263,14 @@ namespace TrenchBroom {
         
         void Clipper::toggleClipSide() {
             switch (m_clipSide) {
-                case Front:
-                    m_clipSide = Back;
+                case ClipSide_Front:
+                    m_clipSide = ClipSide_Back;
                     break;
-                case Back:
-                    m_clipSide = Both;
+                case ClipSide_Back:
+                    m_clipSide = ClipSide_Both;
                     break;
-                default:
-                    m_clipSide = Front;
+                case ClipSide_Both:
+                    m_clipSide = ClipSide_Front;
                     break;
             }
         }

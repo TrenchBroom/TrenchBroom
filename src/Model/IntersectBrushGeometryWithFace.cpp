@@ -99,9 +99,12 @@ namespace TrenchBroom {
                         keep++;
                         m_remainingVertices.push_back(vertex);
                         break;
-                    default:
+                    case BrushVertex::Mark_Undecided:
                         undecided++;
                         m_remainingVertices.push_back(vertex);
+                        break;
+                    case BrushVertex::Mark_New:
+                        assert(false);
                         break;
                 }
             }
@@ -123,29 +126,28 @@ namespace TrenchBroom {
                 edge->updateMark();
                 
                 switch (edge->mark) {
-                    case BrushEdge::Drop: {
+                    case BrushEdge::Mark_Drop: {
                         m_droppedEdges.push_back(edge);
                         break;
                     }
-                    case BrushEdge::Keep: {
+                    case BrushEdge::Mark_Keep: {
                         m_remainingEdges.push_back(edge);
                         break;
                     }
-                    case BrushEdge::Undecided: {
+                    case BrushEdge::Mark_Undecided: {
                         m_remainingEdges.push_back(edge);
                         break;
                     }
-                    case BrushEdge::Split: {
+                    case BrushEdge::Mark_Split: {
                         BrushVertex* newVertex = edge->split(boundary);
                         assert(newVertex != NULL);
                         m_remainingVertices.push_back(newVertex);
                         m_remainingEdges.push_back(edge);
                         break;
                     }
-                    default: {
+                    case BrushEdge::Mark_New:
                         assert(false);
                         break;
-                    }
                 }
             }
         }

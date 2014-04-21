@@ -42,7 +42,8 @@ namespace TrenchBroom {
         TextureCollection::~TextureCollection() {
             VectorUtils::clearAndDelete(m_textures);
             if (!m_textureIds.empty()) {
-                glDeleteTextures(m_textureIds.size(), &m_textureIds.front());
+                glDeleteTextures(static_cast<GLsizei>(m_textureIds.size()),
+                                 static_cast<GLuint*>(&m_textureIds.front()));
                 m_textureIds.clear();
             }
         }
@@ -64,7 +65,8 @@ namespace TrenchBroom {
             
             const size_t textureCount = m_textures.size();
             m_textureIds.resize(textureCount);
-            glGenTextures(textureCount, &m_textureIds.front());
+            glGenTextures(static_cast<GLsizei>(textureCount),
+                          static_cast<GLuint*>(&m_textureIds.front()));
 
             for (size_t i = 0; i < textureCount; ++i) {
                 Texture* texture = m_textures[i];

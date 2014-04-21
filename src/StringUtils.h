@@ -125,6 +125,10 @@ namespace StringUtils {
     String escape(const String& str, const String& chars);
     String unescape(const String& str, const String& chars);
 
+    int stringToInt(const String& str);
+    long stringToLong(const String& str);
+    size_t stringToSize(const String& str);
+    
     template <typename D>
     StringList split(const String& str, D d) {
         if (str.empty())

@@ -90,6 +90,7 @@ namespace TrenchBroom {
 
             const Vec2i& subDivisions() const;
             void setSubDivisions(const Vec2i& subDivisions);
+            Vec2 stripeSize() const;
             
             const Vec2f scaleOriginInFaceCoords() const;
             const Vec2f scaleOriginInTexCoords() const;

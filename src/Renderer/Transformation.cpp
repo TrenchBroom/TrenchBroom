@@ -20,6 +20,7 @@
 #include "Transformation.h"
 
 #include "Renderer/GL.h"
+
 #include <cassert>
 
 namespace TrenchBroom {

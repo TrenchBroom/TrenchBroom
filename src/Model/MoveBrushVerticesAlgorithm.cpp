@@ -44,9 +44,9 @@ namespace TrenchBroom {
             std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3::InverseDotOrder(m_delta));
             
             bool canMove = true;
-            Vec3::List::const_iterator vertexIt, vertexEnd;
-            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd && canMove; ++vertexIt) {
-                const Vec3& vertexPosition = *vertexIt;
+            Vec3::List::const_iterator positionIt, positionEnd;
+            for (positionIt = sortedVertexPositions.begin(), positionEnd = sortedVertexPositions.end(); positionIt != positionEnd && canMove; ++positionIt) {
+                const Vec3& vertexPosition = *positionIt;
                 BrushVertexList::iterator vertexIt = findBrushVertex(testGeometry.vertices, vertexPosition);
                 assert(vertexIt != testGeometry.vertices.end());
                 BrushVertex* vertex = *vertexIt;
@@ -74,9 +74,9 @@ namespace TrenchBroom {
             Vec3::List sortedVertexPositions = m_vertexPositions;
             std::sort(sortedVertexPositions.begin(), sortedVertexPositions.end(), Vec3::InverseDotOrder(m_delta));
             
-            Vec3::List::const_iterator vertexIt, vertexEnd;
-            for (vertexIt = sortedVertexPositions.begin(), vertexEnd = sortedVertexPositions.end(); vertexIt != vertexEnd; ++vertexIt) {
-                const Vec3& vertexPosition = *vertexIt;
+            Vec3::List::const_iterator positionIt, positionEnd;
+            for (positionIt = sortedVertexPositions.begin(), positionEnd = sortedVertexPositions.end(); positionIt != positionEnd; ++positionIt) {
+                const Vec3& vertexPosition = *positionIt;
                 BrushVertexList::iterator vertexIt = findBrushVertex(geometry.vertices, vertexPosition);
                 assert(vertexIt != geometry.vertices.end());
                 BrushVertex* vertex = *vertexIt;

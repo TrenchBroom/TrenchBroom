@@ -259,7 +259,7 @@ namespace TrenchBroom {
             }
         };
         
-        void assertHasFace(const Brush& brush, const BrushFace& face) {
+        static void assertHasFace(const Brush& brush, const BrushFace& face) {
             const BrushFaceList& faces = brush.faces();
             const BrushFaceList::const_iterator it = std::find_if(faces.begin(), faces.end(), MatchFace(face));
             ASSERT_TRUE(it != faces.end());

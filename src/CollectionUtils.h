@@ -172,8 +172,8 @@ namespace VectorUtils {
         return vec.size();
     }
     
-    template <typename T>
-    void shiftLeft(std::vector<T>& vec, const size_t offset) {
+    template <typename T, typename O>
+    void shiftLeft(std::vector<T>& vec, const O offset) {
         if (vec.empty() || offset == 0)
             return;
 
@@ -193,7 +193,8 @@ namespace VectorUtils {
         
         typedef typename std::vector<T>::iterator::difference_type DiffType;
         const DiffType modOffset = static_cast<DiffType>(offset) % static_cast<DiffType>(vec.size());
-		shiftLeft(vec, static_cast<size_t>(vec.size()) - modOffset);
+        const DiffType size = static_cast<DiffType>(vec.size());
+		shiftLeft(vec, size - modOffset);
     }
     
     template <typename T>

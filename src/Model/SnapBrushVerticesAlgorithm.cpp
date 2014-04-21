@@ -44,10 +44,10 @@ namespace TrenchBroom {
                 return SnapVerticesResult(Vec3::List(0));
             
             Vec3::List newPositions;
-            Vec3::Map::const_iterator it, end;
-            for (it = positions.begin(), end = positions.end(); it != end; ++it) {
-                const Vec3& start = it->first;
-                const Vec3& end = it->second;
+            Vec3::Map::const_iterator positionIt, positionEnd;
+            for (positionIt = positions.begin(), positionEnd = positions.end(); positionIt != positionEnd; ++positionIt) {
+                const Vec3& start = positionIt->first;
+                const Vec3& end = positionIt->second;
                 BrushVertexList::iterator vertexIt = findBrushVertex(geometry.vertices, start);
                 if (vertexIt != geometry.vertices.end()) {
                     BrushVertex* vertex = *vertexIt;

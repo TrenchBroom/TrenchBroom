@@ -126,7 +126,7 @@ namespace TrenchBroom {
                         return oldValue + newValue;
                     case ValueOp_Mul:
                         return oldValue * newValue;
-                    default:
+                    case ValueOp_None:
                         return oldValue;
                 }
             }
@@ -140,7 +140,7 @@ namespace TrenchBroom {
                         return oldValue | newValue;
                     case FlagOp_Unset:
                         return oldValue & ~newValue;
-                    default:
+                    case FlagOp_None:
                         return oldValue;
                 }
             }

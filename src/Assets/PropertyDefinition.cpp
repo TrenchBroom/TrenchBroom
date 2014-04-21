@@ -93,7 +93,8 @@ namespace TrenchBroom {
                     str << flagsDef.defaultValue();
                     return str.str();
                 }
-                default:
+                case Type_TargetSourceProperty:
+                case Type_TargetDestinationProperty:
                     return "";
             }
         }

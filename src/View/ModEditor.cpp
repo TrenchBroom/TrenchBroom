@@ -78,9 +78,9 @@ namespace TrenchBroom {
 
             StringList mods = document->mods();
             for (size_t i = 0; i < selections.size(); ++i) {
-                const unsigned int index = selections[i] - i;
-                const wxString item = m_availableModList->GetString(index);
-                m_availableModList->Delete(index);
+                const int index = selections[i] - static_cast<int>(i);
+                const wxString item = m_availableModList->GetString(static_cast<unsigned int>(index));
+                m_availableModList->Delete(static_cast<unsigned int>(index));
                 m_enabledModList->Append(item);
 
                 mods.push_back(item.ToStdString());
@@ -105,7 +105,8 @@ namespace TrenchBroom {
             
             wxArrayInt::const_reverse_iterator it, end;
             for (it = selections.rbegin(), end = selections.rend(); it != end; ++it) {
-                const String mod = mods[*it];
+                const size_t index = static_cast<size_t>(*it);
+                const String mod = mods[index];
                 mods.erase(mods.begin() + *it);
             }
 
@@ -130,7 +131,7 @@ namespace TrenchBroom {
             controller->setMods(mods);
 
             m_enabledModList->DeselectAll();
-            m_enabledModList->SetSelection(index - 1);
+            m_enabledModList->SetSelection(static_cast<int>(index - 1));
         }
         
         void ModEditor::OnMoveModDownClicked(wxCommandEvent& event) {
@@ -151,7 +152,7 @@ namespace TrenchBroom {
             controller->setMods(mods);
             
             m_enabledModList->DeselectAll();
-            m_enabledModList->SetSelection(index + 1);
+            m_enabledModList->SetSelection(static_cast<int>(index + 1));
         }
 
         void ModEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {

@@ -126,7 +126,8 @@ namespace TrenchBroom {
                     else
                         offset[xIndex] -= distance;
                     break;
-                default:
+                case Math::Direction_Forward:
+                case Math::Direction_Backward:
                     break;
             }
             

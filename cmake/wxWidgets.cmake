@@ -35,3 +35,4 @@ ENDIF()
 IF(wxWidgets_USE_DEBUG)
 	MESSAGE(STATUS "Using debug version of wxWidgets")
 ENDIF()
+

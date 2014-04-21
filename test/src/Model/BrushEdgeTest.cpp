@@ -49,27 +49,27 @@ namespace TrenchBroom {
             start->updateMark(Plane3(2.0, Vec3::PosZ));
             end->updateMark(Plane3(2.0, Vec3::PosZ));
             edge.updateMark();
-            ASSERT_EQ(BrushEdge::Keep, edge.mark);
+            ASSERT_EQ(BrushEdge::Mark_Keep, edge.mark);
             
             start->updateMark(Plane3(1.0, Vec3::PosZ));
             end->updateMark(Plane3(1.0, Vec3::PosZ));
             edge.updateMark();
-            ASSERT_EQ(BrushEdge::Keep, edge.mark);
+            ASSERT_EQ(BrushEdge::Mark_Keep, edge.mark);
 
             start->updateMark(Plane3(0.0, Vec3::PosZ));
             end->updateMark(Plane3(0.0, Vec3::PosZ));
             edge.updateMark();
-            ASSERT_EQ(BrushEdge::Split, edge.mark);
+            ASSERT_EQ(BrushEdge::Mark_Split, edge.mark);
             
             start->updateMark(Plane3(-1.0, Vec3::PosZ));
             end->updateMark(Plane3(-1.0, Vec3::PosZ));
             edge.updateMark();
-            ASSERT_EQ(BrushEdge::Drop, edge.mark);
+            ASSERT_EQ(BrushEdge::Mark_Drop, edge.mark);
 
             start->updateMark(Plane3(-2.0, Vec3::PosZ));
             end->updateMark(Plane3(-2.0, Vec3::PosZ));
             edge.updateMark();
-            ASSERT_EQ(BrushEdge::Drop, edge.mark);
+            ASSERT_EQ(BrushEdge::Mark_Drop, edge.mark);
 
             delete start;
             delete end;

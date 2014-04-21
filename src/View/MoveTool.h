@@ -96,8 +96,8 @@ namespace TrenchBroom {
             virtual bool doStartMove(const InputState& inputState) = 0;
             virtual Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const = 0;
             virtual MoveResult doMove(const Vec3& delta) = 0;
-            virtual void doEndMove(const InputState& inputState) {};
-            virtual void doCancelMove(const InputState& inputState) {};
+            virtual void doEndMove(const InputState& inputState) {}
+            virtual void doCancelMove(const InputState& inputState) {}
         };
     }
 }

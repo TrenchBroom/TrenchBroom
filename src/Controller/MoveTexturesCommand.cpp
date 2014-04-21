@@ -76,7 +76,8 @@ namespace TrenchBroom {
                 case Math::Direction_Right:
                     buffer << "Right";
                     break;
-                default:
+                case Math::Direction_Forward:
+                case Math::Direction_Backward:
                     break;
             }
             return buffer.str();

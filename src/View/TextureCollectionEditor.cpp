@@ -109,7 +109,7 @@ namespace TrenchBroom {
             assert(index > 0 && index < names.size());
             
             controller->moveTextureCollectionUp(names[index]);
-            m_collections->SetSelection(index - 1);
+            m_collections->SetSelection(static_cast<int>(index - 1));
         }
         
         void TextureCollectionEditor::OnMoveTextureCollectionDownClicked(wxCommandEvent& event) {
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             assert(index < names.size() - 1);
             
             controller->moveTextureCollectionDown(names[index]);
-            m_collections->SetSelection(index + 1);
+            m_collections->SetSelection(static_cast<int>(index + 1));
         }
 
         void TextureCollectionEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {

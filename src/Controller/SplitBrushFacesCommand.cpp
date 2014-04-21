@@ -121,9 +121,9 @@ namespace TrenchBroom {
             typedef std::pair<BrushFacesMap::iterator, bool> BrushFacesMapInsertResult;
             Model::VertexToFacesMap::const_iterator vIt, vEnd;
             for (vIt = faces.begin(), vEnd = faces.end(); vIt != vEnd; ++vIt) {
-                const Model::BrushFaceList& faces = vIt->second;
+                const Model::BrushFaceList& mappedFaces = vIt->second;
                 Model::BrushFaceList::const_iterator eIt, eEnd;
-                for (eIt = faces.begin(), eEnd = faces.end(); eIt != eEnd; ++eIt) {
+                for (eIt = mappedFaces.begin(), eEnd = mappedFaces.end(); eIt != eEnd; ++eIt) {
                     Model::BrushFace* face = *eIt;
                     Model::Brush* brush = face->parent();
                     Model::BrushFaceGeometry* side = face->side();

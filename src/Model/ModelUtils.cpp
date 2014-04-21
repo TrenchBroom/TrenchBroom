@@ -28,6 +28,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const Assets::PropertyDefinition* safeGetPropertyDefinition(const Model::PropertyKey& key, const Model::Entity* entity);
+
         Assets::EntityDefinition* selectEntityDefinition(const Model::EntityList& entities) {
             Assets::EntityDefinition* definition = NULL;
             

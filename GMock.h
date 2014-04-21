@@ -17,27 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapEntitiesIterator_h
-#define TrenchBroom_MapEntitiesIterator_h
+#ifndef TrenchBroom_GMock_h
+#define TrenchBroom_GMock_h
 
-#include "Model/Map.h"
-#include "Model/ModelTypes.h"
+#if defined(_MSC_VER)
+#pragma warning(push, 3)
+#elif defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundef"
+#elif defined(__GNUC__)
+#endif
 
-namespace TrenchBroom {
-    namespace Model {
-        namespace MapEntitiesIterator {
-            EntityList::const_iterator begin(Map& map);
-            EntityList::const_iterator end(Map& map);
+#include <gmock/gmock.h>
 
-            EntityList::const_iterator begin(Map& map) {
-                return map.entities().begin();
-            }
-            
-            EntityList::const_iterator end(Map& map) {
-                return map.entities().end();
-            }
-        }
-    }
-}
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#elif defined(__clang__)
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#endif
 
 #endif

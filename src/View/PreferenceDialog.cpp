@@ -173,14 +173,15 @@ namespace TrenchBroom {
             toggleTools(pane);
             
             switch (pane) {
+                case PrefPane_First:
+                case PrefPane_General:
+                    m_pane = new GeneralPreferencePane(m_paneContainer);
                 case PrefPane_Games:
                     m_pane = new GamesPreferencePane(m_paneContainer);
                     break;
+                case PrefPane_Last:
                 case PrefPane_Keyboard:
                     m_pane = new KeyboardPreferencePane(m_paneContainer);
-                    break;
-                default:
-                    m_pane = new GeneralPreferencePane(m_paneContainer);
                     break;
             }
             m_currentPane = pane;
@@ -196,7 +197,7 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::toggleTools(const PrefPane pane) {
-            for (size_t i = PrefPane_First + 1; i < PrefPane_Last; ++i)
+            for (int i = PrefPane_First + 1; i < PrefPane_Last; ++i)
                 m_toolBar->ToggleTool(i, pane == i);
         }
         

@@ -50,7 +50,7 @@ namespace TrenchBroom {
                     return index.queryPrefixMatches(m_pattern);
                 case Type_Numbered:
                     return index.queryNumberedMatches(m_pattern);
-                default:
+                case Type_Any:
                     return EmptyEntitySet;
             }
         }

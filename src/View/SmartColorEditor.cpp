@@ -167,6 +167,10 @@ namespace TrenchBroom {
             return str.str();
         }
         
+        SmartColorEditor::ColorRange combineColorRanges(const SmartColorEditor::ColorRange oldRange, const SmartColorEditor::ColorRange newRange);
+        SmartColorEditor::ColorRange detectColorRange(const Model::Entity& entity, const Model::PropertyKey& key);
+        SmartColorEditor::ColorRange detectColorRange(const Model::EntityList& entities, const Model::PropertyKey& key);
+        
         SmartColorEditor::ColorRange combineColorRanges(const SmartColorEditor::ColorRange oldRange, const SmartColorEditor::ColorRange newRange) {
             if (oldRange == newRange)
                 return oldRange;
@@ -341,7 +345,7 @@ namespace TrenchBroom {
                     m_floatRadio->SetValue(false);
                     m_byteRadio->SetValue(true);
                     break;
-                default:
+                case ColorRange_Mixed:
                     m_floatRadio->SetValue(false);
                     m_byteRadio->SetValue(false);
                     break;

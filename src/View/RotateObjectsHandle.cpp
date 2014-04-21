@@ -106,7 +106,8 @@ namespace TrenchBroom {
                     return getPointHandlePosition(m_yAxis);
                 case HitArea_ZAxis:
                     return getPointHandlePosition(m_zAxis);
-                default:
+                case HitArea_None:
+                case HitArea_Center:
                     return m_position;
             }
         }
@@ -119,7 +120,8 @@ namespace TrenchBroom {
                     return m_yAxis;
                 case HitArea_ZAxis:
                     return m_zAxis;
-                default:
+                case HitArea_None:
+                case HitArea_Center:
                     return Vec3::PosZ;
             }
         }
@@ -132,7 +134,8 @@ namespace TrenchBroom {
                     return Vec3::PosX;
                 case HitArea_ZAxis:
                     return Vec3::PosY;
-                default:
+                case HitArea_None:
+                case HitArea_Center:
                     return Vec3::PosZ;
             }
         }
@@ -153,12 +156,12 @@ namespace TrenchBroom {
         void RotateObjectsHandle::renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle) const {
             
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.get(Preferences::RotateHandleRadius);
+            const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             const Color& pointHandleColor = prefs.get(Preferences::RotateHandleColor);
             
-            const Vec3 rotationAxis = getRotationAxis(handle);
-            const Vec3 startAxis = getPointHandleAxis(handle);
-            const Vec3 endAxis = Quat3(rotationAxis, angle) * startAxis;
+            const Vec3f rotationAxis(getRotationAxis(handle));
+            const Vec3f startAxis(getPointHandleAxis(handle));
+            const Vec3f endAxis(Quat3(rotationAxis, angle) * startAxis);
             
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.active();
@@ -211,7 +214,7 @@ namespace TrenchBroom {
         
         void RotateObjectsHandle::renderAxes(Renderer::RenderContext& renderContext) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.get(Preferences::RotateHandleRadius);
+            const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             const Color& xColor = prefs.get(Preferences::XAxisColor);
             const Color& yColor = prefs.get(Preferences::YAxisColor);
             const Color& zColor = prefs.get(Preferences::ZAxisColor);
@@ -234,7 +237,7 @@ namespace TrenchBroom {
         
         void RotateObjectsHandle::renderRings(Renderer::RenderContext& renderContext) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.get(Preferences::RotateHandleRadius);
+            const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             const Color& xColor = prefs.get(Preferences::XAxisColor);
             const Color& yColor = prefs.get(Preferences::YAxisColor);
             const Color& zColor = prefs.get(Preferences::ZAxisColor);
@@ -265,7 +268,7 @@ namespace TrenchBroom {
         
         void RotateObjectsHandle::renderRingIndicators(Renderer::RenderContext& renderContext) const {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.get(Preferences::RotateHandleRadius);
+            const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             const Color& color = prefs.get(Preferences::RotateHandleColor);
             
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
@@ -315,7 +318,8 @@ namespace TrenchBroom {
             shader.set("Position", Vec4f(Vec3f(position), 1.0f));
             shader.set("Color", color);
             
-            Renderer::Sphere sphere(prefs.get(Preferences::HandleRadius), 1);
+            const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
+            Renderer::Sphere sphere(handleRadius, 1);
             
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.mapped();
@@ -338,7 +342,7 @@ namespace TrenchBroom {
                 case HitArea_ZAxis:
                     renderPointHandleHighlight(renderContext, getPointHandlePosition(m_zAxis));
                     break;
-                default:
+                case HitArea_None:
                     break;
             };
         }
@@ -346,7 +350,8 @@ namespace TrenchBroom {
         void RotateObjectsHandle::renderPointHandleHighlight(Renderer::RenderContext& renderContext, const Vec3& position) const {
             PreferenceManager& prefs = PreferenceManager::instance();
             
-            const float scaling = prefs.get(Preferences::HandleScalingFactor);
+            const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
+            const float scaling = static_cast<float>(prefs.get(Preferences::HandleScalingFactor));
             
             const Renderer::Camera& camera = renderContext.camera();
             const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();
@@ -357,7 +362,7 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
             shader.set("Color", prefs.get(Preferences::SelectedHandleColor));
             
-            Renderer::Circle circle(2.0f * prefs.get(Preferences::HandleRadius), 16, false);
+            Renderer::Circle circle(2.0f * handleRadius, 16, false);
             
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.mapped();
@@ -380,7 +385,8 @@ namespace TrenchBroom {
                     return Color(prefs.get(Preferences::XAxisColor), 0.5f);
                 case HitArea_ZAxis:
                     return Color(prefs.get(Preferences::YAxisColor), 0.5f);
-                default:
+                case HitArea_Center:
+                case HitArea_None:
                     return Color(1.0f, 1.0f, 1.0f, 1.0f);
             };
         }

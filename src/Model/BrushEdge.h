@@ -36,11 +36,11 @@ namespace TrenchBroom {
         class BrushEdge : public Allocator<BrushEdge> {
         public:
             enum Mark {
-                Drop,
-                Keep,
-                Split,
-                Undecided,
-                New
+                Mark_Drop,
+                Mark_Keep,
+                Mark_Split,
+                Mark_Undecided,
+                Mark_New
             };
 
             BrushVertex* start;

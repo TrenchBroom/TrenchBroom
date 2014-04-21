@@ -127,9 +127,10 @@ namespace TrenchBroom {
             }
             
             void createBindings() {
-                for (int i = 0; i < static_cast<int>(m_recentDocuments.size()); ++i) {
+                for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
                     wxVariant* data = new wxVariant(wxString(m_recentDocuments[i].asString()));
-                    m_handler->Bind(wxEVT_COMMAND_MENU_SELECTED, m_function, m_handler, m_baseId + i, m_baseId + i, data);
+                    const int windowId = m_baseId + static_cast<int>(i);
+                    m_handler->Bind(wxEVT_COMMAND_MENU_SELECTED, m_function, m_handler, windowId, windowId, data);
                 }
             }
             
@@ -167,7 +168,8 @@ namespace TrenchBroom {
             void createMenuItems(wxMenu* menu) {
                 for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
                     const IO::Path& path = m_recentDocuments[i];
-                    menu->Append(m_baseId + i, path.lastComponent().asString());
+                    const int windowId = m_baseId + static_cast<int>(i);
+                    menu->Append(windowId, path.lastComponent().asString());
                 }
             }
         };

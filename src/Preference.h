@@ -281,7 +281,7 @@ namespace TrenchBroom {
         virtual void save(wxConfigBase* config) = 0;
         virtual void setValue(const ValueHolderBase* valueHolder) = 0;
 
-        const bool operator== (const PreferenceBase& other) const {
+        bool operator== (const PreferenceBase& other) const {
             return this == &other;
         }
 

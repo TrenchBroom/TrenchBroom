@@ -29,12 +29,12 @@ namespace TrenchBroom {
     namespace Model {
         typedef ConfigurableEntity<QuakeEntityRotationPolicy> QuakeEntity;
 
-        EntityList findExactExact(const EntityPropertyIndex& index, const PropertyKey& key, const PropertyValue& value) {
+        static EntityList findExactExact(const EntityPropertyIndex& index, const PropertyKey& key, const PropertyValue& value) {
             return index.findEntities(EntityPropertyQuery::exact(key),
                                       EntityPropertyQuery::exact(value));
         }
         
-        EntityList findNumberedExact(const EntityPropertyIndex& index, const PropertyKey& key, const PropertyValue& value) {
+        static EntityList findNumberedExact(const EntityPropertyIndex& index, const PropertyKey& key, const PropertyValue& value) {
             return index.findEntities(EntityPropertyQuery::numbered(key),
                                       EntityPropertyQuery::exact(value));
         }

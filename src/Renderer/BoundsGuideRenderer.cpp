@@ -27,6 +27,9 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        void addSpike(const Vec3& origin, const Vec3& direction, const FloatType length, const Color& color, VertexSpecs::P3C4::Vertex::List& vertices);
+        void addPoint(const Vec3& origin, const Vec3& direction, const FloatType length, View::MapDocumentSPtr document, VertexSpecs::P3::Vertex::List& vertices);
+
         const FloatType BoundsGuideRenderer::SpikeLength = 512.0;
 
         BoundsGuideRenderer::BoundsGuideRenderer(TextureFont& font) :

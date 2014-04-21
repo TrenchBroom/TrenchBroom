@@ -51,7 +51,7 @@ namespace TrenchBroom {
             BrushEdgeList::const_iterator eIt, eEnd;
             for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
                 BrushEdge& edge = **eIt;
-                if (edge.mark == BrushEdge::Split)
+                if (edge.mark == BrushEdge::Mark_Split)
                     newVertices.push_back(edge.split(plane));
             }
             return newVertices;

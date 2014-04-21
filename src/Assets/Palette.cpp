@@ -40,7 +40,7 @@ namespace TrenchBroom {
         Palette::Palette(const Palette& other) :
         m_data(NULL),
         m_size(other.m_size) {
-            m_data = new char[m_size];
+            m_data = new unsigned char[m_size];
             memcpy(m_data, other.m_data, m_size);
         }
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             stream.seekg(0, std::ios::end);
             m_size = static_cast<size_t>(stream.tellg());
             stream.seekg(0, std::ios::beg);
-            m_data = new char[m_size];
+            m_data = new unsigned char[m_size];
             
             stream.read(reinterpret_cast<char*>(m_data), static_cast<std::streamsize>(m_size));
         }
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             if (magic != 0x0C)
                throw FileSystemException("Cannot load palette " + path.asString());
             
-            m_data = new char[m_size];
+            m_data = new unsigned char[m_size];
             stream.read(reinterpret_cast<char*>(m_data), static_cast<std::streamsize>(m_size));
         }
     }

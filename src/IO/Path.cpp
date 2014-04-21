@@ -204,8 +204,10 @@ namespace TrenchBroom {
             if (count == 0)
                 return Path("");
             
-            StringList::const_iterator begin = m_components.begin() + index;
-            StringList::const_iterator end = begin + count;
+            StringList::const_iterator begin = m_components.begin();
+            std::advance(begin, index);
+            StringList::const_iterator end = begin;
+            std::advance(end, count);
             StringList newComponents(count);
             std::copy(begin, end, newComponents.begin());
             return Path(m_absolute && index == 0, newComponents);

@@ -102,9 +102,6 @@ namespace TrenchBroom {
                     return "Set entity property";
                 case Action_Remove:
                     return "Remove entity property";
-                default:
-                    assert(false);
-                    return "";
             }
         }
 
@@ -129,8 +126,6 @@ namespace TrenchBroom {
                 case Action_Remove:
                     doRemove(document);
                     break;
-                default:
-                    break;
             }
             document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());
             
@@ -150,8 +145,6 @@ namespace TrenchBroom {
                     break;
                 case Action_Remove:
                     undoRemove(document);
-                    break;
-                default:
                     break;
             };
             document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());

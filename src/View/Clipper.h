@@ -40,9 +40,9 @@ namespace TrenchBroom {
         class Clipper {
         private:
             enum ClipSide {
-                Front,
-                Back,
-                Both
+                ClipSide_Front,
+                ClipSide_Back,
+                ClipSide_Both
             };
             
             struct ClipHandlePoint {

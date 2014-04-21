@@ -67,8 +67,8 @@ namespace TrenchBroom {
         bounds(i_bounds) {}
 
         BBox3f Bsp29Model::SubModel::transformedBounds(const Mat4x4f& transformation) const {
-            BBox3f bounds;
-            bounds.min = bounds.max = faces.front().vertexPositions().front();
+            BBox3f result;
+            result.min = result.max = faces.front().vertexPositions().front();
             
             FaceList::const_iterator faceIt, faceEnd;
             for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
@@ -76,10 +76,10 @@ namespace TrenchBroom {
                 const Vec3f::List& vertices = face.vertexPositions();
                 Vec3f::List::const_iterator vIt, vEnd;
                 for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt)
-                    bounds.mergeWith(*vIt);
+                    result.mergeWith(*vIt);
             }
             
-            return bounds;
+            return result;
         }
 
         Bsp29Model::Bsp29Model(const String& name, TextureCollection* textureCollection) :

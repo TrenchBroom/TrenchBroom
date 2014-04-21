@@ -29,7 +29,7 @@ namespace TrenchBroom {
         width(0),
         height(0) {}
         
-        Camera::Viewport::Viewport(const int i_x, const int i_y, const unsigned int i_width, const unsigned int i_height) :
+        Camera::Viewport::Viewport(const int i_x, const int i_y, const int i_width, const int i_height) :
         x(i_x),
         y(i_y),
         width(i_width),

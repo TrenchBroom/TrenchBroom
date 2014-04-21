@@ -180,8 +180,8 @@ namespace TrenchBroom {
         
         Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos() {
             const char* cursor = m_begin + BspLayout::DirFacesAddress;
-            const size_t facesAddr = readInt<int32_t>(cursor);
-            const size_t facesLength = readUnsignedInt<int32_t>(cursor);
+            const size_t facesAddr = readSize<int32_t>(cursor);
+            const size_t facesLength = readSize<int32_t>(cursor);
             const size_t faceCount = facesLength / BspLayout::FaceSize;
             
             cursor = m_begin + facesAddr;

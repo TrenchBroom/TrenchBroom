@@ -17,27 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_MapEntitiesIterator_h
-#define TrenchBroom_MapEntitiesIterator_h
+#include "MathUtils.h"
 
-#include "Model/Map.h"
-#include "Model/ModelTypes.h"
-
-namespace TrenchBroom {
-    namespace Model {
-        namespace MapEntitiesIterator {
-            EntityList::const_iterator begin(Map& map);
-            EntityList::const_iterator end(Map& map);
-
-            EntityList::const_iterator begin(Map& map) {
-                return map.entities().begin();
-            }
-            
-            EntityList::const_iterator end(Map& map) {
-                return map.entities().end();
-            }
-        }
+namespace Math {
+    size_t succ(const size_t index, const size_t count, const size_t offset) {
+        return (index + offset) % count;
+    }
+    
+    size_t pred(const size_t index, const size_t count, const size_t offset) {
+        return ((index + count) - (offset % count)) % count;
     }
 }
-
-#endif

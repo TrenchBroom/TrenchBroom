@@ -43,7 +43,7 @@ namespace TrenchBroom {
                 case Curve_EaseInEaseOut:
                     m_curve = new EaseInEaseOutAnimationCurve(m_duration);
                     break;
-                default:
+                case Curve_Flat:
                     m_curve = new FlatAnimationCurve();
                     break;
             }

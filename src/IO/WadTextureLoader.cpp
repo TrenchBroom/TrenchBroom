@@ -29,6 +29,8 @@
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureCollectionSpec.h"
 
+#include <iterator>
+
 namespace TrenchBroom {
     namespace IO {
         WadTextureLoader::WadTextureLoader(const Assets::Palette& palette) :
@@ -53,7 +55,8 @@ namespace TrenchBroom {
 
                 for (size_t j = 0; j < 4; ++j) {
                     const MipData mipData = wad.mipData(entry, j);
-                    m_palette.indexedToRgb(mipData.begin, mipData.end - mipData.begin, buffers[j], tempColor);
+                    const size_t size = static_cast<size_t>(std::distance(mipData.begin, mipData.end));
+                    m_palette.indexedToRgb(mipData.begin, size, buffers[j], tempColor);
                     if (j == 0)
                         averageColor = tempColor;
                 }

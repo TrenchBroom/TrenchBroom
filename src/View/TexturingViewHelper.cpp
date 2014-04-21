@@ -85,11 +85,25 @@ namespace TrenchBroom {
             return helper.worldToTex(worldPoints);
         }
         
+        Vec2 computeStripeSize(const Assets::Texture* texture, const Vec2i& subDivisions);
+        Vec2f computeDistance(const Vec3& position, const Assets::Texture* texture, const Vec2i& subDivisions);
+        Vec2f combineIndividualDistances(const Vec2f& r1, const Vec2f& r2);
+        Vec2f combineBothDistances(const Vec2f& r1, const Vec2f& r2);
+        Vec2f snapIndividual(const Vec2f& delta, const Vec2f& distance, const float cameraZoom);
+        Vec2f snapBoth(const Vec2f& delta, const Vec2f& distance, const float cameraZoom);
+
+        Vec2 computeStripeSize(const Assets::Texture* texture, const Vec2i& subDivisions) {
+            if (texture == NULL)
+                return Vec2::Null;
+            const FloatType width  = static_cast<FloatType>(texture->width())  / static_cast<FloatType>(subDivisions.x());
+            const FloatType height = static_cast<FloatType>(texture->height()) / static_cast<FloatType>(subDivisions.y());
+            return Vec2(width, height);
+        }
+
         Vec2f computeDistance(const Vec3& position, const Assets::Texture* texture, const Vec2i& subDivisions) {
-            const FloatType width  = static_cast<FloatType>(texture->width() / subDivisions.x());
-            const FloatType height = static_cast<FloatType>(texture->height() / subDivisions.y());
-            const FloatType x = Math::remainder(position.x(), width);
-            const FloatType y = Math::remainder(position.y(), height);
+            const Vec2 stripeSize = computeStripeSize(texture, subDivisions);
+            const FloatType x = Math::remainder(position.x(), stripeSize.x());
+            const FloatType y = Math::remainder(position.y(), stripeSize.y());
             
             return Vec2f(x, y);
         }
@@ -152,6 +166,7 @@ namespace TrenchBroom {
             return snapIndividual(delta, -distance, cameraZoom());
         }
         
+        Vec2f computeDistance(const Vec3& point, const Vec2f& newHandlePosition);
         Vec2f computeDistance(const Vec3& point, const Vec2f& newHandlePosition) {
             return Vec2f(newHandlePosition.x() - point.x(),
                          newHandlePosition.y() - point.y());
@@ -385,6 +400,12 @@ namespace TrenchBroom {
             m_subDivisions = subDivisions;
         }
         
+        Vec2 TexturingViewHelper::stripeSize() const {
+            assert(valid());
+            const Assets::Texture* texture = m_face->texture();
+            return computeStripeSize(texture, m_subDivisions);
+        }
+
         const Vec2f TexturingViewHelper::scaleOriginInFaceCoords() const {
             return m_scaleOrigin;
         }

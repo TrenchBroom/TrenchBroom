@@ -40,7 +40,7 @@ namespace TrenchBroom {
     namespace View {
         const Hit::HitType TexturingViewRotateTool::CenterHandleHit = Hit::freeHitType();
         const Hit::HitType TexturingViewRotateTool::AngleHandleHit = Hit::freeHitType();
-        const FloatType TexturingViewRotateTool::HandleRadius = 5.0;
+        const float TexturingViewRotateTool::HandleRadius = 5.0f;
         const float TexturingViewRotateTool::HandleLength = 32.0f;
 
         TexturingViewRotateTool::TexturingViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera) :

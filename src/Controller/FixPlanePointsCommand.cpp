@@ -48,9 +48,6 @@ namespace TrenchBroom {
                     return "Snap plane points";
                 case Action_FindPoints:
                     return "Find plane points";
-                default:
-                    assert(false);
-                    return "";
             }
         }
         

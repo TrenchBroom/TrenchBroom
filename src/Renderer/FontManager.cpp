@@ -61,8 +61,8 @@ namespace TrenchBroom {
                 throw e;
             }
             
-            FT_Set_Pixel_Sizes(face, 0, fontDescriptor.size());
-            // FT_Set_Char_Size(face, 0, fontDescriptor.size() * 64, 72, 72);
+            const FT_UInt fontSize = static_cast<FT_UInt>(fontDescriptor.size());
+            FT_Set_Pixel_Sizes(face, 0, fontSize);
             
             TextureFont* font = new TextureFont(face);
             m_cache.insert(it, std::make_pair(fontDescriptor, font));

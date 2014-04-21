@@ -102,7 +102,7 @@ namespace TrenchBroom {
                     return parseValue();
                 case ConfigEntry::Type_List:
                     return parseList();
-                default:
+                case ConfigEntry::Type_Table:
                     return parseTable();
             }
         }

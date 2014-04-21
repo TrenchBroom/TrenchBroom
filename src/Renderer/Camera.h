@@ -34,10 +34,10 @@ namespace TrenchBroom {
         public:
             struct Viewport {
                 int x, y;
-                unsigned int width, height;
+                int width, height;
 
                 Viewport();
-                Viewport(int i_x, int i_y, unsigned int i_width, unsigned int i_height);
+                Viewport(int i_x, int i_y, int i_width, int i_height);
                 
                 bool operator== (const Viewport& other) const;
             };

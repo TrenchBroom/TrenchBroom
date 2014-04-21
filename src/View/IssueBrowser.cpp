@@ -86,7 +86,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                return children.size();
+                return static_cast<unsigned int>(children.size());
             }
             
             wxDataViewItem GetParent(const wxDataViewItem& item) const {
@@ -272,6 +272,7 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
+        Model::QuickFix::List collectQuickFixes(const wxDataViewItemArray& selections);
         Model::QuickFix::List collectQuickFixes(const wxDataViewItemArray& selections) {
             assert(!selections.empty());
             const Model::Issue* issue = reinterpret_cast<const Model::Issue*>(selections[0].GetID());
@@ -318,10 +319,14 @@ namespace TrenchBroom {
                 wxMenu* quickFixMenu = new wxMenu();
                 for (size_t i = 0; i < quickFixes.size(); ++i) {
                     const Model::QuickFix* quickFix = quickFixes[i];
-                    quickFixMenu->Append(FixObjectsBaseId + i, quickFix->description());
+                    const int quickFixId = FixObjectsBaseId + static_cast<int>(i);
+                    quickFixMenu->Append(quickFixId, quickFix->description());
                 }
                 popupMenu.AppendSubMenu(quickFixMenu, "Fix");
-                quickFixMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnApplyQuickFix, this, FixObjectsBaseId, FixObjectsBaseId + quickFixes.size());
+                
+                const int firstId = FixObjectsBaseId;
+                const int lastId = firstId + static_cast<int>(quickFixes.size());
+                quickFixMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnApplyQuickFix, this, firstId, lastId);
             }
             
             PopupMenu(&popupMenu);

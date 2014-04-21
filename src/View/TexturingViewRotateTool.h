@@ -38,7 +38,7 @@ namespace TrenchBroom {
             static const Hit::HitType CenterHandleHit;
             static const Hit::HitType AngleHandleHit;
         private:
-            static const FloatType HandleRadius;
+            static const float HandleRadius;
             static const float HandleLength;
             
             TexturingViewHelper& m_helper;

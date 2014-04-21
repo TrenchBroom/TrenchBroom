@@ -245,7 +245,7 @@ namespace TrenchBroom {
         }
 
         wxMenu* Menu::findRecentDocumentsMenu(const wxMenuBar* menuBar) {
-            const size_t fileMenuIndex = menuBar->FindMenu("File");
+            const size_t fileMenuIndex = static_cast<size_t>(menuBar->FindMenu("File"));
             const wxMenu* fileMenu = menuBar->GetMenu(fileMenuIndex);
             if (fileMenu == NULL)
                 return NULL;

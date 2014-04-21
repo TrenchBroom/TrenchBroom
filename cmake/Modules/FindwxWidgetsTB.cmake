@@ -144,12 +144,10 @@
 # Helper macro to control the debugging output globally. There are
 # two versions for controlling how verbose your output should be.
 macro(DBG_MSG _MSG)
-#  message(STATUS
-#    "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
+    # message(STATUS "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
 endmacro()
 macro(DBG_MSG_V _MSG)
-#  message(STATUS
-#    "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
+    # message(STATUS "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
 endmacro()
 
 # Clear return values in case the module is loaded more than once.
@@ -166,10 +164,12 @@ set(wxWidgets_CXX_FLAGS    "")
 # See cmake mailing list discussions for more info:
 #   http://www.cmake.org/pipermail/cmake/2008-April/021115.html
 #   http://www.cmake.org/pipermail/cmake/2008-April/021146.html
-#
-if(APPLE OR CMAKE_CXX_PLATFORM_ID MATCHES "OpenBSD")
-  set(wxWidgets_INCLUDE_DIRS_NO_SYSTEM 1)
-endif()
+
+# if(APPLE OR CMAKE_CXX_PLATFORM_ID MATCHES "OpenBSD")
+# set(wxWidgets_INCLUDE_DIRS_NO_SYSTEM 1)
+# endif()
+
+set(wxWidgets_INCLUDE_DIRS_NO_SYSTEM 0)
 
 # DEPRECATED: This is a patch to support the DEPRECATED use of
 # wxWidgets_USE_LIBS.

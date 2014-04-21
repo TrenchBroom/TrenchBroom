@@ -217,7 +217,6 @@ namespace TrenchBroom {
                         return str;
                     }
                     return "";
-                    break;
             }
         }
         
@@ -310,7 +309,6 @@ namespace TrenchBroom {
                         return result;
                     }
                     return L"";
-                    break;
             }
 #else
             return keyMenuText(key);

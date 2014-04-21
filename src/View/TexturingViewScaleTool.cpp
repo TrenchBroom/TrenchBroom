@@ -58,20 +58,18 @@ namespace TrenchBroom {
                     
                     const FloatType maxDistance = MaxPickDistance / m_camera.zoom().x();
                     
-                    const Vec2i& subDivisions = m_helper.subDivisions();
-                    const FloatType width  = static_cast<FloatType>(texture->width() / subDivisions.x());
-                    const FloatType height = static_cast<FloatType>(texture->height() / subDivisions.y());
-                    const FloatType xError = Math::abs(Math::remainder(texHit.x(), width));
-                    const FloatType yError = Math::abs(Math::remainder(texHit.y(), height));
+                    const Vec2 stripeSize = m_helper.stripeSize();
+                    const Vec2 errors(Math::abs(Math::remainder(texHit.x(), stripeSize.x())),
+                                      Math::abs(Math::remainder(texHit.y(), stripeSize.y())));
                     
-                    if (xError <= maxDistance) {
-                        const int index = static_cast<int>(Math::round(texHit.x() / width));
-                        hits.addHit(Hit(XHandleHit, rayDistance, hitPoint, index, xError));
+                    if (errors.x() <= maxDistance) {
+                        const int index = static_cast<int>(Math::round(texHit.x() / stripeSize.x()));
+                        hits.addHit(Hit(XHandleHit, rayDistance, hitPoint, index, errors.x()));
                     }
                     
-                    if (yError  <= maxDistance) {
-                        const int index = static_cast<int>(Math::round(texHit.y() / height));
-                        hits.addHit(Hit(YHandleHit, rayDistance, hitPoint, index, yError));
+                    if (errors.y()  <= maxDistance) {
+                        const int index = static_cast<int>(Math::round(texHit.y() / stripeSize.y()));
+                        hits.addHit(Hit(YHandleHit, rayDistance, hitPoint, index, errors.y()));
                     }
                 }
             }
@@ -200,21 +198,15 @@ namespace TrenchBroom {
         TexturingViewScaleTool::EdgeVertex::List TexturingViewScaleTool::getHandleVertices(const Hits& hits) const {
             const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
             const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
-            
+            const Vec2 stripeSize = m_helper.stripeSize();
             const Color color = Color(1.0f, 1.0f, 0.0f, 1.0f);
 
-            const Model::BrushFace* face = m_helper.face();
-            assert(face != NULL);
-            const Assets::Texture* texture = face->texture();
-            const Vec2i& subDivisions = m_helper.subDivisions();
-            
             EdgeVertex::List vertices;
             vertices.resize(4);
             
             if (xHandleHit.isMatch()) {
                 const int index = xHandleHit.target<int>();
-                const FloatType width  = static_cast<FloatType>(texture->width() / subDivisions.x());
-                const FloatType x = width * index;
+                const FloatType x = stripeSize.x() * index;
                 
                 Vec3 v1, v2;
                 m_helper.computeVLineVertices(m_camera, x, v1, v2);
@@ -224,8 +216,7 @@ namespace TrenchBroom {
             
             if (yHandleHit.isMatch()) {
                 const int index = yHandleHit.target<int>();
-                const FloatType height  = static_cast<FloatType>(texture->height() / subDivisions.y());
-                const FloatType y = height * index;
+                const FloatType y = stripeSize.y() * index;
                 
                 Vec3 v1, v2;
                 m_helper.computeHLineVertices(m_camera, y, v1, v2);

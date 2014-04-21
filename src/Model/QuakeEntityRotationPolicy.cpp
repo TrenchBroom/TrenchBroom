@@ -62,7 +62,7 @@ namespace TrenchBroom {
                     const Quat3 roll(   Vec3::PosX, Math::radians(angles.z()));
                     return pitch * yaw * roll;
                 }
-                default:
+                case RotationType_None:
                     return Quat3(Vec3::PosZ, 0.0);
             }
         }
@@ -162,7 +162,7 @@ namespace TrenchBroom {
                     entity.addOrUpdateProperty(info.property, Vec3(zAngle, xAngle, 0.0).round());
                     break;
                 }
-                default:
+                case RotationType_None:
                     break;
             }
         }

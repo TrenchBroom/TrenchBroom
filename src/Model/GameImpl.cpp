@@ -209,10 +209,6 @@ namespace TrenchBroom {
             
             const IO::Path absDefPath = m_config.findConfigFile(defPath);
             return EntityDefinitionFileSpec::builtin(defPath, m_config.findConfigFile(defPath));
-            if (!IO::Disk::fileExists(absDefPath))
-                throw GameException("Entity definition file not found: '" + defPath.asString() + "'");
-
-            return EntityDefinitionFileSpec::builtin(defPath, absDefPath);
         }
         
         EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const {

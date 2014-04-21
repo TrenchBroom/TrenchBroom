@@ -85,7 +85,7 @@ namespace TrenchBroom {
             m_currentType(TriangleType_Unset),
             m_vertexCount(0) {}
             
-            const size_t size() const {
+            size_t size() const {
                 return m_vertexCount * VertexSpec::Size;
             }
             

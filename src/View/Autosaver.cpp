@@ -132,12 +132,13 @@ namespace TrenchBroom {
                 if (backupBasename != mapBasename)
                     return false;
                 
-                const size_t no = std::atoi(backupName.extension().c_str());
+                const size_t no = StringUtils::stringToSize(backupName.extension());
                 return no > 0;
 
             }
         };
         
+        bool compareBackupsByNo(const IO::Path& lhs, const IO::Path& rhs);
         bool compareBackupsByNo(const IO::Path& lhs, const IO::Path& rhs) {
             return extractBackupNo(lhs) < extractBackupNo(rhs);
         }
@@ -181,7 +182,7 @@ namespace TrenchBroom {
         }
         
         size_t extractBackupNo(const IO::Path& path) {
-            const size_t no = std::atoi(path.deleteExtension().extension().c_str());
+            const size_t no = StringUtils::stringToSize(path.deleteExtension().extension());
             assert(no > 0);
             return no;
         }

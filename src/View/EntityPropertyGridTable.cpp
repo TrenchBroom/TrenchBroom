@@ -112,11 +112,11 @@ namespace TrenchBroom {
         size_t EntityPropertyGridTable::RowManager::indexOf(const String& key) const {
             PropertyRow::List::const_iterator propIt = findPropertyRow(m_propertyRows, key);
             if (propIt != m_propertyRows.end())
-                return std::distance(m_propertyRows.begin(), propIt);
+                return static_cast<size_t>(std::distance(m_propertyRows.begin(), propIt));
             
             DefaultRow::List::const_iterator defIt = findDefaultRow(m_defaultRows, key);
             if (defIt != m_defaultRows.end())
-                return propertyCount() + std::distance(m_defaultRows.begin(), defIt);
+                return propertyCount() + static_cast<size_t>(std::distance(m_defaultRows.begin(), defIt));
             return rowCount();
         }
 
@@ -388,7 +388,7 @@ namespace TrenchBroom {
         }
         
         void EntityPropertyGridTable::Clear() {
-            DeleteRows(0, GetRowsCount());
+            DeleteRows(0, static_cast<size_t>(GetRowsCount()));
         }
         
         bool EntityPropertyGridTable::InsertRows(const size_t pos, const size_t numRows) {

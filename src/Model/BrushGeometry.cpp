@@ -377,15 +377,15 @@ namespace TrenchBroom {
             return AddFaceResult(resultCode, algorithm.addedFaces(), algorithm.removedFaces());
         }
 
-        void BrushGeometry::initializeWithBounds(const BBox3& bounds) {
-            BrushVertex* v000 = new BrushVertex(bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Min));
-            BrushVertex* v001 = new BrushVertex(bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Max));
-            BrushVertex* v010 = new BrushVertex(bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Max, BBox3::Corner_Min));
-            BrushVertex* v011 = new BrushVertex(bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Max, BBox3::Corner_Max));
-            BrushVertex* v100 = new BrushVertex(bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Min, BBox3::Corner_Min));
-            BrushVertex* v101 = new BrushVertex(bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Min, BBox3::Corner_Max));
-            BrushVertex* v110 = new BrushVertex(bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Max, BBox3::Corner_Min));
-            BrushVertex* v111 = new BrushVertex(bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Max, BBox3::Corner_Max));
+        void BrushGeometry::initializeWithBounds(const BBox3& i_bounds) {
+            BrushVertex* v000 = new BrushVertex(i_bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Min));
+            BrushVertex* v001 = new BrushVertex(i_bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Max));
+            BrushVertex* v010 = new BrushVertex(i_bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Max, BBox3::Corner_Min));
+            BrushVertex* v011 = new BrushVertex(i_bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Max, BBox3::Corner_Max));
+            BrushVertex* v100 = new BrushVertex(i_bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Min, BBox3::Corner_Min));
+            BrushVertex* v101 = new BrushVertex(i_bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Min, BBox3::Corner_Max));
+            BrushVertex* v110 = new BrushVertex(i_bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Max, BBox3::Corner_Min));
+            BrushVertex* v111 = new BrushVertex(i_bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Max, BBox3::Corner_Max));
             
             BrushEdge* v000v001 = new BrushEdge(v000, v001);
             BrushEdge* v001v101 = new BrushEdge(v001, v101);

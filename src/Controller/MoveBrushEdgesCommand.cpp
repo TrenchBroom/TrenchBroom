@@ -114,9 +114,9 @@ namespace TrenchBroom {
             typedef std::pair<BrushEdgesMap::iterator, bool> BrushEdgesMapInsertResult;
             Model::VertexToEdgesMap::const_iterator vIt, vEnd;
             for (vIt = edges.begin(), vEnd = edges.end(); vIt != vEnd; ++vIt) {
-                const Model::BrushEdgeList& edges = vIt->second;
+                const Model::BrushEdgeList& mappedEdges = vIt->second;
                 Model::BrushEdgeList::const_iterator eIt, eEnd;
-                for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
+                for (eIt = mappedEdges.begin(), eEnd = mappedEdges.end(); eIt != eEnd; ++eIt) {
                     Model::BrushEdge* edge = *eIt;
                     Model::Brush* brush = edge->left->face->parent();
                     const Edge3 edgePosition = edge->edgeInfo();

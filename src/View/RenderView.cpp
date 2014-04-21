@@ -159,7 +159,7 @@ namespace TrenchBroom {
             vertices[14] = Vertex(Vec3f(t, t, 0.0f), inner);
             vertices[15] = Vertex(Vec3f(t, h-t, 0.0f), inner);
             
-            glViewport(0, 0, w, h);
+            glViewport(0, 0, clientSize.x, clientSize.y);
 
             const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f, 0.0f, 0.0f, w, h);
             Renderer::Transformation transformation(projection, Mat4x4f::Identity);

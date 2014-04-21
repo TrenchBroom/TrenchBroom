@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace View {
         ColorTable::ColorTable(wxWindow* parent, wxWindowID winId, int cellSize, const wxPoint& pos, const wxSize& size, long style) :
-        wxScrolledWindow(parent, winId, pos, size, (style & ~wxHSCROLL) | wxVSCROLL),
+        wxScrolledWindow(parent, winId, pos, size, (style & ~static_cast<long>(wxHSCROLL)) | static_cast<long>(wxVSCROLL)),
         m_cellSize(cellSize),
         m_margin(2) {
             assert(m_cellSize > 0);
@@ -80,16 +80,16 @@ namespace TrenchBroom {
             for (int row = 0; row < rows; ++row) {
                 for (int col = 0; col < cols; ++col) {
                     if (it != m_colors.end()) {
-                        const wxColour& col = *it;
+                        const wxColour& color = *it;
                         
-                        if (std::find(m_selectedColors.begin(), m_selectedColors.end(), col) != m_selectedColors.end()) {
+                        if (std::find(m_selectedColors.begin(), m_selectedColors.end(), color) != m_selectedColors.end()) {
                             dc.SetPen(*wxRED_PEN);
                             dc.SetBrush(*wxRED_BRUSH);
                             dc.DrawRectangle(x-1, y-1, m_cellSize+2, m_cellSize+2);
                         }
 
-                        dc.SetPen(wxPen(col));
-                        dc.SetBrush(wxBrush(col));
+                        dc.SetPen(wxPen(color));
+                        dc.SetBrush(wxBrush(color));
                         dc.DrawRectangle(x, y, m_cellSize, m_cellSize);
 
                         ++it;

@@ -44,7 +44,7 @@ namespace StringUtils {
 #endif
         if (count <= 0)
             return EmptyString;
-        return String(buffer, count);
+        return String(buffer, static_cast<size_t>(count));
     }
     
     String trim(const String& str, const String& chars) {
@@ -194,5 +194,19 @@ namespace StringUtils {
             }
         }
         return buffer.str();
+    }
+
+    int stringToInt(const String& str) {
+        return std::atoi(str.c_str());
+    }
+    
+    long stringToLong(const String& str) {
+        return std::atol(str.c_str());
+    }
+    
+    size_t stringToSize(const String& str) {
+        const long longValue = stringToLong(str);
+        assert(longValue >= 0);
+        return static_cast<size_t>(longValue);
     }
 }

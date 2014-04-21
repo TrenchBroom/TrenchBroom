@@ -215,27 +215,11 @@ namespace Math {
             return gt(v, s, epsilon) && lt(v, e, epsilon);
         return gt(v, e, epsilon) && lt(v, s, epsilon);
     }
-    
-    template <typename T, typename C, typename O>
-    T succ(const T index, const C count, const O offset) {
-        return (index + offset) % count;
-    }
-    
-    template <typename T, typename C>
-    T succ(const T index, const C count) {
-        return succ(index, count, 1);
-    }
-    
-    template <typename T, typename O>
-    T pred(const T index, const T count, const O offset) {
-        return ((index + count) - (offset % count)) % count;
-    }
-    
-    template <typename T>
-    T pred(const T index, const T count) {
-        return pred(index, count, 1);
-    }
+   
+    size_t succ(size_t index, size_t count, size_t offset = 1);
 
+    size_t pred(size_t index, size_t count, size_t offset = 1);
+    
     template <typename T>
     T clamp(const T v, const T minV = 0.0f, const T maxV = 1.0f) {
         return max(min(v, maxV), minV);
@@ -255,7 +239,6 @@ namespace Math {
         // see https://en.wikipedia.org/wiki/Power_of_two
         if (!(n & (n-1)))
             return n;
-        
         
         while (n & (n-1))
             n = n & (n-1);

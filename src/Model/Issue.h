@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class Issue;
         class IssueGroup;
         
-        typedef size_t IssueType;
+        typedef int IssueType;
         
         class Issue {
         private:

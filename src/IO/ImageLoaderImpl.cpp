@@ -135,8 +135,8 @@ namespace TrenchBroom {
             assert(hasIndices());
             if (!m_indicesInitialized) {
                 m_indices = Buffer<unsigned char>(width() * height());
-                for (size_t y = 0; y < height(); ++y) {
-                    for (size_t x = 0; x < width(); ++x) {
+                for (unsigned y = 0; y < height(); ++y) {
+                    for (unsigned x = 0; x < width(); ++x) {
                         BYTE index = 0;
                         const bool success = (FreeImage_GetPixelIndex(m_bitmap, x, y, &index) == TRUE);
                         assert(success);
@@ -175,8 +175,8 @@ namespace TrenchBroom {
             const RGBQUAD* pal = FreeImage_GetPalette(m_bitmap);
             assert(pal != NULL);
             
-            for (size_t y = 0; y < height(); ++y) {
-                for (size_t x = 0; x < width(); ++x) {
+            for (unsigned y = 0; y < height(); ++y) {
+                for (unsigned x = 0; x < width(); ++x) {
                     BYTE paletteIndex = 0;
                     const bool success = (FreeImage_GetPixelIndex(m_bitmap, x, y, &paletteIndex) == TRUE);
                     assert(success);
@@ -193,8 +193,8 @@ namespace TrenchBroom {
         }
         
         void ImageLoaderImpl::initializePixels(const size_t pSize) const {
-            for (size_t y = 0; y < height(); ++y) {
-                for (size_t x = 0; x < width(); ++x) {
+            for (unsigned y = 0; y < height(); ++y) {
+                for (unsigned x = 0; x < width(); ++x) {
                     RGBQUAD pixel;
                     const bool success = (FreeImage_GetPixelColor(m_bitmap, x, y, &pixel) == TRUE);
                     assert(success);
@@ -214,8 +214,6 @@ namespace TrenchBroom {
             switch (format) {
                 case ImageLoader::PCX:
                     return FIF_PCX;
-                default:
-                    return FIF_UNKNOWN;
             }
         }
 
@@ -225,9 +223,6 @@ namespace TrenchBroom {
                     return 3;
                 case ImageLoader::RGBA:
                     return 4;
-                default:
-                    assert(false);
-                    return 0;
             }
         }
     }

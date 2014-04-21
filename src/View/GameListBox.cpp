@@ -45,7 +45,7 @@ namespace TrenchBroom {
             const int index = GetSelection();
             if (index < 0 || index >= static_cast<int>(gameList.size()))
                 return "";
-            return gameList[index];
+            return gameList[static_cast<size_t>(index)];
         }
 
         void GameListBox::selectGame(const int index) {

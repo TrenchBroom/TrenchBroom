@@ -39,7 +39,7 @@ namespace TrenchBroom {
         m_camera(new Renderer::OrthographicCamera()) {
             const BBox3& worldBounds = lock(document)->worldBounds();
             m_camera->setNearPlane(0.0f);
-            m_camera->setFarPlane(worldBounds.size().y());
+            m_camera->setFarPlane(static_cast<float>(worldBounds.size().y()));
             m_camera->setDirection(Vec3f::PosY, Vec3f::PosZ);
             m_camera->moveTo(Vec3f(0.0f, worldBounds.min.y(), 0.0f));
             m_camera->setZoom(Vec2f(0.15f, 0.15f));

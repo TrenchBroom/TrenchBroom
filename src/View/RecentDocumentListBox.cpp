@@ -49,7 +49,7 @@ namespace TrenchBroom {
             if (index < 0 || index >= static_cast<int>(recentDocuments.size()))
                 return;
             
-            const IO::Path& documentPath = recentDocuments[index];
+            const IO::Path& documentPath = recentDocuments[static_cast<size_t>(index)];
             RecentDocumentSelectedCommand command;
             command.setDocumentPath(documentPath);
             command.SetEventObject(this);

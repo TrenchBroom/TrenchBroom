@@ -29,7 +29,7 @@ namespace TrenchBroom {
         end(i_end),
         left(NULL),
         right(NULL),
-        mark(New) {
+        mark(Mark_New) {
             assert(start != end);
         }
         
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         end(i_end),
         left(i_left),
         right(i_right),
-        mark(New) {
+        mark(Mark_New) {
             assert(start != end);
         }
 
@@ -96,17 +96,17 @@ namespace TrenchBroom {
             assert(drop + keep + undecided == 2);
             
             if (drop == 1 && keep == 1)
-                mark = BrushEdge::Split;
+                mark = BrushEdge::Mark_Split;
             else if (drop > 0)
-                mark = BrushEdge::Drop;
+                mark = BrushEdge::Mark_Drop;
             else if (keep > 0)
-                mark = BrushEdge::Keep;
+                mark = BrushEdge::Mark_Keep;
             else
-                mark = BrushEdge::Undecided;
+                mark = BrushEdge::Mark_Undecided;
         }
         
         BrushVertex* BrushEdge::split(const Plane3& plane) {
-            assert(mark == BrushEdge::Split);
+            assert(mark == BrushEdge::Mark_Split);
             
             // Do exactly what QBSP is doing:
             const FloatType startDist = plane.pointDistance(start->position);

@@ -61,7 +61,7 @@ private:
             m_firstFreeBlock = *block;
             m_numFreeBlocks--;
             return reinterpret_cast<T*>(block);
-        };
+        }
         
         void deallocate(T* t) {
             assert(m_numFreeBlocks < BlocksPerChunk - 1);

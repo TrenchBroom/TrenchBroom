@@ -196,7 +196,7 @@ namespace TrenchBroom {
                         }
                         break;
                     }
-                    default:
+                    case MenuItem::Type_Separator:
                         break;
                 }
             }

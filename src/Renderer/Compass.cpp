@@ -127,10 +127,11 @@ namespace TrenchBroom {
                                                                       Vertex::fromLists(headCap.vertices, headCap.normals, headCap.vertices.size()));
             VertexArray::IndexArray indices(2);
             indices[0] = 0;
-            indices[1] = shaftCap.vertices.size();
+            indices[1] = static_cast<GLint>(shaftCap.vertices.size());
+            
             VertexArray::CountArray counts(2);
-            counts[0] = shaftCap.vertices.size();
-            counts[1] = headCap.vertices.size();
+            counts[0] = static_cast<GLsizei>(shaftCap.vertices.size());
+            counts[1] = static_cast<GLsizei>(headCap.vertices.size());
             
             m_strip = VertexArray::swap(GL_TRIANGLE_STRIP, shaftVertices);
             m_set = VertexArray::swap(GL_TRIANGLES, headVertices);

@@ -392,7 +392,8 @@ namespace TrenchBroom {
 
         Model::BrushFace* QuakeMapParser::parseFace(const BBox3& worldBounds) {
             float xOffset, yOffset, rotation, xScale, yScale, surfaceValue;
-            size_t surfaceContents, surfaceFlags;
+            int surfaceContents = 0;
+            int  surfaceFlags = 0;
             Vec3 texAxisX, texAxisY;
             Token token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)

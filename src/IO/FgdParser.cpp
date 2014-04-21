@@ -450,7 +450,7 @@ namespace TrenchBroom {
         
         Assets::PropertyDefinitionPtr FgdParser::parseIntegerProperty(const String& name) {
             String description;
-            int defaultValue;
+            int defaultValue = 0;
             bool hasDefaultValue = false;
             
             Token token = m_tokenizer.nextToken();
@@ -477,7 +477,7 @@ namespace TrenchBroom {
         
         Assets::PropertyDefinitionPtr FgdParser::parseFloatProperty(const String& name) {
             String description;
-            float defaultValue;
+            float defaultValue = 0;
             bool hasDefaultValue = false;
             
             Token token = m_tokenizer.nextToken();
@@ -505,7 +505,7 @@ namespace TrenchBroom {
         
         Assets::PropertyDefinitionPtr FgdParser::parseChoicesProperty(const String& name) {
             String description;
-            int defaultValue = 0;
+            size_t defaultValue = 0;
             bool hasDefaultValue = false;
             
             Token token;
@@ -518,7 +518,7 @@ namespace TrenchBroom {
                 if (token.type() == FgdToken::Colon) {
                     expect(FgdToken::Integer, token = m_tokenizer.nextToken());
                     hasDefaultValue = true;
-                    defaultValue = token.toInteger<int>();
+                    defaultValue = token.toInteger<size_t>();
                     expect(FgdToken::Equality, token = m_tokenizer.nextToken());
                 }
             }

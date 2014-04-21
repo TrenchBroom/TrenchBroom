@@ -170,14 +170,14 @@ namespace TrenchBroom {
             if (!m_skinKey.empty()) {
                 const Model::PropertyValue* skinValue = properties.property(m_skinKey);
                 assert(skinValue != NULL);
-                skinIndex = std::atoi(skinValue->c_str());
+                skinIndex = StringUtils::stringToSize(*skinValue);
             }
             
             size_t frameIndex = 0;
             if (!m_frameKey.empty()) {
                 const Model::PropertyValue* frameValue = properties.property(m_frameKey);
                 assert(frameValue != NULL);
-                frameIndex = std::atoi(frameValue->c_str());
+                frameIndex = StringUtils::stringToSize(*frameValue);
             }
             
             return ModelSpecification(path, skinIndex, frameIndex);

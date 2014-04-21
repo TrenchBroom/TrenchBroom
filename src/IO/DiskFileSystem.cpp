@@ -32,6 +32,10 @@
 namespace TrenchBroom {
     namespace IO {
         namespace Disk {
+            bool doCheckCaseSensitive();
+            Path findCaseSensitivePath(const Path::List& list, const Path& path);
+            Path fixCase(const Path& path);
+            
             bool doCheckCaseSensitive() {
                 const wxString cwd = ::wxGetCwd();
                 assert(::wxDirExists(cwd));

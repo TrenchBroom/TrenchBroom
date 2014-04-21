@@ -131,7 +131,7 @@ namespace TrenchBroom {
 
         void RotateHelper::renderAngleIndicator(Renderer::RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType handleRadius = prefs.get(Preferences::RotateHandleRadius);
+            const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             
             const Vec3 startAxis = (m_firstPoint - m_center).normalized();
             const Vec3 endAxis = Quat3(m_axis, m_lastAngle) * startAxis;

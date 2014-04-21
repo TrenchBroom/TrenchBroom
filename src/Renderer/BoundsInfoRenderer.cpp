@@ -33,8 +33,8 @@ namespace TrenchBroom {
 
         Vec3f BoundsInfoRenderer::BoundsInfoSizeTextAnchor::basePosition() const {
             const BBox3::RelativePosition camPos = m_bounds.relativePosition(m_camera.position());
-            Vec3f pos;
-            const Vec3f half = m_bounds.size() / 2.0f;
+            Vec3 pos;
+            const Vec3 half = m_bounds.size() / 2.0;
             
             if (m_axis == Math::Axis::AZ) {
                 if ((camPos[0] == BBox3::RelativePosition::Range_Less && camPos[1] == BBox3::RelativePosition::Range_Less) ||
@@ -103,7 +103,7 @@ namespace TrenchBroom {
                     pos[2] = m_bounds.max.z();
             }
             
-            return pos;
+            return Vec3f(pos);
         }
         
         Alignment::Type BoundsInfoRenderer::BoundsInfoSizeTextAnchor::alignment() const {
