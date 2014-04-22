@@ -20,6 +20,7 @@
 #include "EntityPropertyIndex.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "Model/Entity.h"
 
 #include <cassert>
@@ -52,6 +53,7 @@ namespace TrenchBroom {
                     return index.queryNumberedMatches(m_pattern);
                 case Type_Any:
                     return EmptyEntitySet;
+                DEFAULT_SWITCH()
             }
         }
         

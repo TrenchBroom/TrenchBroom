@@ -212,7 +212,7 @@ namespace TrenchBroom {
         m_end(end),
         m_palette(palette) {
             assert(begin < end);
-            _unused(m_end);
+            _UNUSED(m_end);
         }
 
         Assets::EntityModel* MdlParser::doParseModel() {

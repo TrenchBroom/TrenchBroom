@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             ~TestEnvironment() {
                 const bool success = deleteTestEnvironment();
-                _unused(success);
+                _UNUSED(success);
                 assert(success);
             }
             
@@ -68,14 +68,14 @@ namespace TrenchBroom {
             
             void createDirectory(const Path& path) {
                 const bool success = ::wxMkdir((m_dir + path).asString());
-                _unused(success);
+                _UNUSED(success);
                 assert(success);
             }
             
             void createFile(const Path& path, const wxString& contents) {
                 wxFile file;
                 bool success = file.Create((m_dir + path).asString());
-                _unused(success);
+                _UNUSED(success);
                 assert(success);
                 success = file.Write(contents);
                 assert(success);

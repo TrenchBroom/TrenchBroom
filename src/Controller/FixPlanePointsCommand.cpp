@@ -19,6 +19,7 @@
 
 #include "FixPlanePointsCommand.h"
 
+#include "Macros.h"
 #include "Model/ModelUtils.h"
 #include "View/MapDocument.h"
 
@@ -48,6 +49,7 @@ namespace TrenchBroom {
                     return "Snap plane points";
                 case Action_FindPoints:
                     return "Find plane points";
+                DEFAULT_SWITCH()
             }
         }
         

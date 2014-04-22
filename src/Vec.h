@@ -152,7 +152,69 @@ public:
         result[index] = static_cast<T>(1.0);
         return result;
     }
+    
+    template <typename U1>
+    static Vec<T,S> create(const U1 i_x) {
+        Vec<T,S> result;
+        if (S > 0) {
+            result[0] = static_cast<T>(i_x);
+        }
+        for (size_t i = 1; i < S; ++i)
+            result[i] = static_cast<T>(0.0);
+        return result;
+    }
+    
+    template <typename U1, typename U2>
+    static Vec<T,S> create(const U1 i_x, const U2 i_y) {
+        Vec<T,S> result;
+        if (S > 0) {
+            result[0] = static_cast<T>(i_x);
+            if (S > 1) {
+                result[1] = static_cast<T>(i_y);
+            }
+        }
+        for (size_t i = 2; i < S; ++i)
+            result[i] = static_cast<T>(0.0);
+        return result;
+    }
 
+    template <typename U1, typename U2, typename U3>
+    static Vec<T,S> create(const U1 i_x, const U2 i_y, const U3 i_z) {
+        Vec<T,S> result;
+        if (S > 0) {
+            result[0] = static_cast<T>(i_x);
+            if (S > 1) {
+                result[1] = static_cast<T>(i_y);
+                if (S > 2) {
+                    result[2] = static_cast<T>(i_z);
+                }
+            }
+        }
+        for (size_t i = 3; i < S; ++i)
+            result[i] = static_cast<T>(0.0);
+        return result;
+    }
+
+    template <typename U1, typename U2, typename U3, typename U4>
+    static Vec<T,S> create(const U1 i_x, const U2 i_y, const U3 i_z, const U4 i_w) {
+        Vec<T,S> result;
+        if (S > 0) {
+            result[0] = static_cast<T>(i_x);
+            if (S > 1) {
+                result[1] = static_cast<T>(i_y);
+                if (S > 2) {
+                    result[2] = static_cast<T>(i_z);
+                    if (S > 3) {
+                        result[3] = static_cast<T>(i_w);
+                    }
+                }
+            }
+        }
+        for (size_t i = 4; i < S; ++i)
+            result[i] = static_cast<T>(0.0);
+        return result;
+    }
+    
     static Vec<T,S> parse(const std::string& str) {
         static const std::string blank(" \t\n\r");
 
@@ -176,13 +238,6 @@ public:
     
     Vec() {
         setNull();
-    }
-    
-    Vec(const T i_x) {
-        if (S > 0)
-            v[0] = i_x;
-        for (size_t i = 1; i < S; ++i)
-            v[i] = static_cast<T>(0.0);
     }
             
     template <typename U1, typename U2>

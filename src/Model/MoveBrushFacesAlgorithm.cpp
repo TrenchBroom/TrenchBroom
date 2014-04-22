@@ -97,7 +97,7 @@ namespace TrenchBroom {
                 const Vec3 end = start + m_delta;
                 
                 MoveVertexResult result = moveVertex(geometry, vertex, true, start, end);
-                _unused(result);
+                _UNUSED(result);
                 assert(result.type == MoveVertexResult::Type_VertexMoved);
                 updateFacePoints(geometry);
             }

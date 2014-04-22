@@ -102,6 +102,10 @@ namespace TrenchBroom {
                     return "Set entity property";
                 case Action_Remove:
                     return "Remove entity property";
+#ifdef _MSC_VER
+                default:
+                    return "";
+#endif
             }
         }
 

@@ -387,7 +387,7 @@ namespace TrenchBroom {
 
                     const bool added = (m_rows.back().addItem(item, itemWidth, itemHeight, titleWidth, titleHeight));
                     assert(added);
-                    _unused(added);
+                    _UNUSED(added);
 
                     const float newRowHeight = m_rows.back().bounds().height();
                     m_contentBounds = LayoutBounds(m_contentBounds.left(), m_contentBounds.top(), m_contentBounds.width(), m_contentBounds.height() + newRowHeight + m_rowMargin);

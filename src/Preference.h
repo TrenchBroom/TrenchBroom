@@ -327,7 +327,7 @@ namespace TrenchBroom {
                 wxString string = m_converter.toWxString(m_value);
                 bool success = config->Write(m_path.asString('/'), string);
                 assert(success);
-                _unused(success);
+                _UNUSED(success);
                 
                 m_modified = false;
             }

@@ -20,6 +20,7 @@
 #include "PropertyDefinition.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 
 namespace TrenchBroom {
     namespace Assets {
@@ -96,6 +97,7 @@ namespace TrenchBroom {
                 case Type_TargetSourceProperty:
                 case Type_TargetDestinationProperty:
                     return "";
+                DEFAULT_SWITCH()
             }
         }
 

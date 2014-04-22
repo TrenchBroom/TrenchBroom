@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "Logger.h"
+#include "Macros.h"
 #include "Notifier.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
@@ -225,6 +226,7 @@ namespace TrenchBroom {
                 case RotationAxis_Yaw:
                     axis = Vec3::PosZ;
                     break;
+                DEFAULT_SWITCH()
             }
             
             if (!clockwise)

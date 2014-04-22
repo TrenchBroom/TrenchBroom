@@ -304,7 +304,7 @@ namespace TrenchBroom {
             int modifierKey1, modifierKey2, modifierKey3, key;
             const bool success = KeyboardShortcut::parseShortcut(value, modifierKey1, modifierKey2, modifierKey3, key);
             assert(success);
-            _unused(success);
+            _UNUSED(success);
 
             const size_t rowIndex = static_cast<size_t>(row);
             const KeyboardShortcut& oldShortcut = m_entries[rowIndex]->shortcut();

@@ -19,6 +19,7 @@
 
 #include "QuakeEntityRotationPolicy.h"
 
+#include "Macros.h"
 #include "VecMath.h"
 #include "StringUtils.h"
 #include "Assets/EntityDefinition.h"
@@ -64,6 +65,7 @@ namespace TrenchBroom {
                 }
                 case RotationType_None:
                     return Quat3(Vec3::PosZ, 0.0);
+                DEFAULT_SWITCH()
             }
         }
 
@@ -164,6 +166,7 @@ namespace TrenchBroom {
                 }
                 case RotationType_None:
                     break;
+                DEFAULT_SWITCH()
             }
         }
 

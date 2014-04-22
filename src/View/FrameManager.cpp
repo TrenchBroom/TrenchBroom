@@ -81,7 +81,7 @@ namespace TrenchBroom {
 
         bool FrameManager::closeAllFrames(bool force) {
             MapFrame* lastFrame = NULL;
-            _unused(lastFrame);
+            _UNUSED(lastFrame);
             while (!m_frames.empty()) {
                 MapFrame* frame = m_frames.front();
                 assert(frame != lastFrame);

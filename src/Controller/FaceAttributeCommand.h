@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__FaceAttributeCommand__
 #define __TrenchBroom__FaceAttributeCommand__
 
+#include "Macros.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Controller/Command.h"
@@ -128,6 +129,7 @@ namespace TrenchBroom {
                         return oldValue * newValue;
                     case ValueOp_None:
                         return oldValue;
+                    DEFAULT_SWITCH()
                 }
             }
             
@@ -142,6 +144,7 @@ namespace TrenchBroom {
                         return oldValue & ~newValue;
                     case FlagOp_None:
                         return oldValue;
+                    DEFAULT_SWITCH()
                 }
             }
         };

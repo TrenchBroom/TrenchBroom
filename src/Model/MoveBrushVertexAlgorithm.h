@@ -448,7 +448,7 @@ namespace TrenchBroom {
                 
                 assert(count >= 0);
                 const size_t totalVertexCount = side->edges.size() + neighbour->edges.size() - static_cast<size_t>(2 * count);
-                _unused(totalVertexCount);
+                _UNUSED(totalVertexCount);
                 
                 // shift the two sides so that their shared edges are at the end of both's edge lists
                 side->shift(Math::succ(sideEdgeIndex, side->edges.size(), static_cast<size_t>(count + 1)));
@@ -470,7 +470,7 @@ namespace TrenchBroom {
                 
                 for (size_t i = neighbour->edges.size() - static_cast<size_t>(count); i < neighbour->edges.size(); ++i) {
                     bool success = VectorUtils::eraseAndDelete(geometry.edges, neighbour->edges[i]);
-                    _unused(success);
+                    _UNUSED(success);
                     assert(success);
                     if (i > neighbour->edges.size() - static_cast<size_t>(count)) {
                         success = VectorUtils::eraseAndDelete(geometry.vertices, neighbour->vertices[i]);
@@ -488,7 +488,7 @@ namespace TrenchBroom {
                 
                 m_faceManager.dropFace(neighbour);
                 bool success = VectorUtils::eraseAndDelete(geometry.sides, neighbour);
-                _unused(success);
+                _UNUSED(success);
                 assert(success);
                 
                 assert(side->vertices.size() == totalVertexCount);

@@ -208,7 +208,7 @@ namespace TrenchBroom {
             void addIssue(Model::Issue* issue) {
                 if (showIssue(issue)) {
                     const bool success = ItemAdded(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
-                    _unused(success);
+                    _UNUSED(success);
                     assert(success);
                 }
             }
@@ -216,7 +216,7 @@ namespace TrenchBroom {
             void removeIssue(Model::Issue* issue) {
                 if (showIssue(issue)) {
                     const bool success = ItemDeleted(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
-                    _unused(success);
+                    _UNUSED(success);
                     assert(success);
                 }
             }

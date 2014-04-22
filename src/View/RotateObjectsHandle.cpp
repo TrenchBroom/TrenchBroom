@@ -19,6 +19,7 @@
 
 #include "RotateObjectsHandle.h"
 
+#include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -109,6 +110,7 @@ namespace TrenchBroom {
                 case HitArea_None:
                 case HitArea_Center:
                     return m_position;
+                DEFAULT_SWITCH()
             }
         }
         
@@ -123,6 +125,7 @@ namespace TrenchBroom {
                 case HitArea_None:
                 case HitArea_Center:
                     return Vec3::PosZ;
+                DEFAULT_SWITCH()
             }
         }
         
@@ -137,6 +140,7 @@ namespace TrenchBroom {
                 case HitArea_None:
                 case HitArea_Center:
                     return Vec3::PosZ;
+                DEFAULT_SWITCH()
             }
         }
         
@@ -344,6 +348,7 @@ namespace TrenchBroom {
                     break;
                 case HitArea_None:
                     break;
+                DEFAULT_SWITCH()
             };
         }
         
@@ -388,6 +393,7 @@ namespace TrenchBroom {
                 case HitArea_Center:
                 case HitArea_None:
                     return Color(1.0f, 1.0f, 1.0f, 1.0f);
+                DEFAULT_SWITCH()
             };
         }
     }

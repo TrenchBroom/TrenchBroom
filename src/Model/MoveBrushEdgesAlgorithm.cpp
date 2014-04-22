@@ -98,7 +98,7 @@ namespace TrenchBroom {
                 
                 MoveVertexResult result = moveVertex(geometry, vertex, true, start, end);
                 assert(result.type == MoveVertexResult::Type_VertexMoved);
-                _unused(result);
+                _UNUSED(result);
                 updateFacePoints(geometry);
             }
 

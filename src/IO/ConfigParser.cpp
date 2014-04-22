@@ -18,6 +18,7 @@
  */
 
 #include "ConfigParser.h"
+#include "Macros.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -104,6 +105,7 @@ namespace TrenchBroom {
                     return parseList();
                 case ConfigEntry::Type_Table:
                     return parseTable();
+                DEFAULT_SWITCH()
             }
         }
         

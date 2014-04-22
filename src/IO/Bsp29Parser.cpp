@@ -71,7 +71,7 @@ namespace TrenchBroom {
             const char* cursor = m_begin;
             const int version = readInt<int32_t>(cursor);
             assert(version == 29);
-            _unused(version);
+            _UNUSED(version);
             
             Assets::TextureCollection* textures = parseTextures();
             const TextureInfoList textureInfos = parseTextureInfos();
@@ -269,8 +269,8 @@ namespace TrenchBroom {
         }
         
         Vec2f Bsp29Parser::textureCoords(const Vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture& texture) const {
-            return Vec2f((vertex.dot(textureInfo.sAxis) + textureInfo.sOffset) / texture.width(),
-                         (vertex.dot(textureInfo.tAxis) + textureInfo.tOffset) / texture.height());
+            return Vec2f::create((vertex.dot(textureInfo.sAxis) + textureInfo.sOffset) / texture.width(),
+                                 (vertex.dot(textureInfo.tAxis) + textureInfo.tOffset) / texture.height());
         }
     }
 }

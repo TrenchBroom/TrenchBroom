@@ -20,6 +20,17 @@
 #ifndef TrenchBroom_Macros_h
 #define TrenchBroom_Macros_h
 
-#define _unused(x) ((void)x)
+// This macro is used to silence compiler warnings about unused variables. These are usually only used in assertions
+// and thus may become unused in release builds.
+#define _UNUSED(x) ((void)x)
+
+// The following macro is used to silence a compiler warning in MSVC when a switch is used in a function to compute
+// a return value, and there is no default path.
+#ifdef _MSC_VER
+#define DEFAULT_SWITCH() default: assert(false); throw "Unhandled switch case";
+#else
+#define DEFAULT_SWITCH()
+#endif
+
 
 #endif
