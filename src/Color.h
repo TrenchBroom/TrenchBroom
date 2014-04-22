@@ -24,13 +24,14 @@
 
 class Color : public Vec<float, 4> {
 public:
+    static Color parse(const std::string& str);
+    
     Color();
     Color(float r, float g, float b, float a = 1.0f);
     Color(const Color& color, float a);
     Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 0xFF);
     Color(const int r, const int g, const int b, const float a);
     Color(int r, int g, int b, int a = 0xFF);
-    Color(const std::string& str);
     
     float r() const;
     float g() const;

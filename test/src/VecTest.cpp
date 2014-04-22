@@ -23,16 +23,16 @@
 #include "MathUtils.h"
 #include "TestUtils.h"
 
-TEST(VecTest, constructVec3fFromValidString) {
-    ASSERT_EQ(Vec3f(1.0f, 3.0f, 3.5f), Vec3f("1.0 3 3.5"));
+TEST(VecTest, parseVec3fWithValidString) {
+    ASSERT_EQ(Vec3f(1.0f, 3.0f, 3.5f), Vec3f::parse("1.0 3 3.5"));
 }
 
-TEST(VecTest, constructVec3fFromShortString) {
-    ASSERT_EQ(Vec3f(1.0f, 3.0f, 0.0f), Vec3f("1.0 3"));
+TEST(VecTest, parseVec3fWithShortString) {
+    ASSERT_EQ(Vec3f(1.0f, 3.0f, 0.0f), Vec3f::parse("1.0 3"));
 }
 
-TEST(VecTest, constructVec3fFromInvalidString) {
-    ASSERT_EQ(Vec3f::Null, Vec3f("asdf"));
+TEST(VecTest, constructVec3fWithInvalidString) {
+    ASSERT_EQ(Vec3f::Null, Vec3f::parse("asdf"));
 }
 
 TEST(VecTest, constructVec3fFrom1Float) {

@@ -87,18 +87,18 @@ namespace TrenchBroom {
             
             if (!stream.eof()) {
                 std::getline(stream, line);
-                points.push_back(Vec3f(line));
+                points.push_back(Vec3f::parse(line));
                 Vec3f lastPoint = points.back();
                 
                 if (!stream.eof()) {
                     std::getline(stream, line);
-                    Vec3f curPoint(line);
+                    Vec3f curPoint = Vec3f::parse(line);
                     Vec3f refDir = (curPoint - lastPoint).normalized();
                     
                     while (!stream.eof()) {
                         lastPoint = curPoint;
                         std::getline(stream, line);
-                        curPoint = Vec3f(line);
+                        curPoint = Vec3f::parse(line);
                         
                         const Vec3f dir = (curPoint - lastPoint).normalized();
                         if (std::acos(dir.dot(refDir)) > Threshold) {

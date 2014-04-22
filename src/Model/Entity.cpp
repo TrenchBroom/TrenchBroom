@@ -191,7 +191,7 @@ namespace TrenchBroom {
             const PropertyValue* value = m_properties.property(PropertyKeys::Origin);
             if (value == NULL)
                 return Vec3();
-            return Vec3(*value);
+            return Vec3::parse(*value);
         }
 
         Quat3 Entity::rotation() const {

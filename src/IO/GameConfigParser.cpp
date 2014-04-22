@@ -128,7 +128,7 @@ namespace TrenchBroom {
             const StringSet modelFormats = parseSet(table["modelformats"]);
             
             expectTableEntry("defaultcolor", ConfigEntry::Type_Value, table);
-            const Color defaultColor(table["defaultcolor"]);
+            const Color defaultColor = Color::parse(table["defaultcolor"]);
             
             return GameConfig::EntityConfig(defFilePaths, modelFormats, defaultColor);
         }

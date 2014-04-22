@@ -50,7 +50,7 @@ namespace TrenchBroom {
                 }
                 case RotationType_Euler: {
                     const PropertyValue angleValue = entity.property(info.property);
-                    const Vec3 angles = angleValue.empty() ? Vec3::Null : Vec3(angleValue);
+                    const Vec3 angles = angleValue.empty() ? Vec3::Null : Vec3::parse(angleValue);
                     
                     // yaw / pitch
                     // const Quatf zRotation(Vec3f::PosZ, Mathf::radians( angles.x()));

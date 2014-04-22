@@ -132,7 +132,7 @@ namespace TrenchBroom {
         }
         
         Color fromWxString(const wxString& string) const {
-            return Color(string.ToStdString());
+            return Color::parse(string.ToStdString());
         }
     };
     

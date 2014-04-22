@@ -152,27 +152,30 @@ public:
         result[index] = static_cast<T>(1.0);
         return result;
     }
+
+    static Vec<T,S> parse(const std::string& str) {
+        static const std::string blank(" \t\n\r");
+
+        Vec<T,S> result;
+
+        const char* cstr = str.c_str();
+        size_t pos = 0;
+        
+        for (size_t i = 0; i < S; ++i) {
+            if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos)
+                break;
+            result[i] = static_cast<T>(std::atof(cstr + pos));
+            if ((pos = str.find_first_of(blank, pos)) == std::string::npos)
+                break;
+        }
+
+        return result;
+    }
     
     T v[S];
     
     Vec() {
         setNull();
-    }
-    
-    Vec(const std::string& str) {
-        setNull();
-        
-        const char* cstr = str.c_str();
-        size_t pos = 0;
-        std::string blank = " \t\n\r";
-        
-        for (size_t i = 0; i < S; ++i) {
-            if ((pos = str.find_first_not_of(blank, pos)) == std::string::npos)
-                return;
-            v[i] = static_cast<T>(std::atof(cstr + pos));
-            if ((pos = str.find_first_of(blank, pos)) == std::string::npos)
-                return;
-        }
     }
     
     Vec(const T i_x) {
