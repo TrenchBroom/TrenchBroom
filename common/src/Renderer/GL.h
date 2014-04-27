@@ -170,10 +170,17 @@ namespace TrenchBroom {
     extern Func0<void> glewInitialize;
     
     extern Func0<GLenum> glGetError;
+    extern Func1<const GLubyte*, GLenum> glGetString;
 
     extern Func1<void, GLenum> glEnable;
     extern Func1<void, GLenum> glDisable;
     extern Func1<void, GLbitfield> glClear;
+    extern Func4<void, GLclampf, GLclampf, GLclampf, GLclampf> glClearColor;
+    
+    extern Func4<void, GLint, GLint, GLsizei, GLsizei> glViewport;
+    
+    extern Func2<void, GLenum, GLenum> glBlendFunc;
+    extern Func1<void, GLenum> glShadeModel;
     
     extern Func1<void, GLenum> glDepthFunc;
     extern Func1<void, GLboolean> glDepthMask;

@@ -220,8 +220,6 @@ namespace TrenchBroom {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
-            typedef std::vector<unsigned char> Buf;
-            
             GLMock glMock;
             
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);

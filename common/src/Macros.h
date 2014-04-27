@@ -26,10 +26,10 @@
 
 // The following macro is used to silence a compiler warning in MSVC when a switch is used in a function to compute
 // a return value, and there is no default path.
-#ifdef _MSC_VER
-#define DEFAULT_SWITCH() default: assert(false); throw "Unhandled switch case";
-#else
+#ifdef __clang__
 #define DEFAULT_SWITCH()
+#else
+#define DEFAULT_SWITCH() default: assert(false); throw "Unhandled switch case";
 #endif
 
 

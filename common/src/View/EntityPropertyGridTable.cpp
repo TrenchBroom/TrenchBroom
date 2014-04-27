@@ -392,7 +392,7 @@ namespace TrenchBroom {
         }
         
         bool EntityPropertyGridTable::InsertRows(const size_t pos, const size_t numRows) {
-            assert(pos >= 0 && static_cast<int>(pos) <= GetRowsCount());
+            assert(static_cast<int>(pos) <= GetRowsCount());
             
             MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);
@@ -425,7 +425,7 @@ namespace TrenchBroom {
             // TODO: when deleting a property that has a default value in the property definition, re-add it to the list
             // of default properties...
             
-            assert(pos >= 0 && pos + numRows <= m_rows.propertyCount());
+            assert(pos + numRows <= m_rows.propertyCount());
             
             MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);

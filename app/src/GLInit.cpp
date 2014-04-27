@@ -27,11 +27,18 @@ namespace TrenchBroom {
     static Func0<void>& _glewInitialize = glewInitialize;
     
     static Func0<GLenum>& _glGetError = glGetError;
+    static Func1<const GLubyte*, GLenum>& _glGetString = glGetString;
     
     static Func1<void, GLenum>& _glEnable = glEnable;
     static Func1<void, GLenum>& _glDisable = glDisable;
     static Func1<void, GLbitfield>& _glClear = glClear;
-    
+    static Func4<void, GLclampf, GLclampf, GLclampf, GLclampf>& _glClearColor = glClearColor;
+
+    static Func4<void, GLint, GLint, GLsizei, GLsizei>& _glViewport = glViewport;
+
+    static Func2<void, GLenum, GLenum>& _glBlendFunc = glBlendFunc;
+    static Func1<void, GLenum>& _glShadeModel = glShadeModel;
+
     static Func1<void, GLenum>& _glDepthFunc = glDepthFunc;
     static Func1<void, GLboolean>& _glDepthMask = glDepthMask;
     static Func2<void, GLclampd, GLclampd>& _glDepthRange = glDepthRange;
@@ -141,10 +148,17 @@ namespace TrenchBroom {
 namespace TrenchBroom {
     static void initRemainingFunctions() {
         _glGetError.bindFunc(&::glGetError);
+        _glGetString.bindFunc(&::glGetString);
         
         _glEnable.bindFunc(&::glEnable);
         _glDisable.bindFunc(&::glDisable);
         _glClear.bindFunc(&::glClear);
+        _glClearColor.bindFunc(&::glClearColor);
+        
+        _glViewport.bindFunc(&::glViewport);
+        
+        _glBlendFunc.bindFunc(&::glBlendFunc);
+        _glShadeModel.bindFunc(&::glShadeModel);
         
         _glDepthFunc.bindFunc(&::glDepthFunc);
         _glDepthMask.bindFunc(&::glDepthMask);

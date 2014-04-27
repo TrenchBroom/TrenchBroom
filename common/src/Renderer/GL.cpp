@@ -23,11 +23,18 @@ namespace TrenchBroom {
     Func0<void> glewInitialize;
     
     Func0<GLenum> glGetError;
+    Func1<const GLubyte*, GLenum> glGetString;
     
     Func1<void, GLenum> glEnable;
     Func1<void, GLenum> glDisable;
     Func1<void, GLbitfield> glClear;
-    
+    Func4<void, GLclampf, GLclampf, GLclampf, GLclampf> glClearColor;
+
+    Func4<void, GLint, GLint, GLsizei, GLsizei> glViewport;
+
+    Func2<void, GLenum, GLenum> glBlendFunc;
+    Func1<void, GLenum> glShadeModel;
+
     Func1<void, GLenum> glDepthFunc;
     Func1<void, GLboolean> glDepthMask;
     Func2<void, GLclampd, GLclampd> glDepthRange;

@@ -20,6 +20,7 @@
 #include "EntityPropertyCommand.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "Model/Entity.h"
 #include "View/MapDocument.h"
 
@@ -102,10 +103,7 @@ namespace TrenchBroom {
                     return "Set entity property";
                 case Action_Remove:
                     return "Remove entity property";
-#ifdef _MSC_VER
-                default:
-                    return "";
-#endif
+                DEFAULT_SWITCH()
             }
         }
 

@@ -505,6 +505,7 @@ namespace TrenchBroom {
                     return Vec3::PosZ;
                 case Math::Direction_Down:
                     return Vec3::NegZ;
+                DEFAULT_SWITCH()
             }
         }
         

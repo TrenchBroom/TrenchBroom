@@ -32,6 +32,7 @@
 #include "Model/SplitBrushEdgeAlgorithm.h"
 #include "Model/SplitBrushFaceAlgorithm.h"
 
+#include <iostream>
 #include <map>
 
 namespace TrenchBroom {
@@ -210,7 +211,7 @@ namespace TrenchBroom {
                 if (sides[i]->face != NULL)
                     ++sideCount;
             if (vertices.size() - edges.size() + sideCount != 2) {
-                fprintf(stdout, "failed Euler check\n");
+                std::cout << "failed Euler check" << std::endl;
                 return false;
             }
             
@@ -228,7 +229,7 @@ namespace TrenchBroom {
                 const BrushFaceGeometry* side = sides[i];
                 
                 if (side->edges.size() != side->vertices.size()) {
-                    fprintf(stdout, "side with index %zu has differing vertex and edge counts\n", i);
+                    std::cout << "side with index " << i << " has differing vertex and edge counts" << std::endl;
                     return false;
                 }
                 
@@ -236,26 +237,26 @@ namespace TrenchBroom {
                 for (size_t j = 0; j < side->edges.size(); ++j) {
                     BrushEdge* edge = side->edges[j];
                     if (edge->left != side && edge->right != side) {
-                        fprintf(stdout, "edge with index %zu of side with index %zu does not actually belong to it\n", j, i);
+                        std::cout << "edge with index " << j << " of side with index " << i << " does not actually belong to it" << std::endl;
                         return false;
                     }
                     
                     index = VectorUtils::indexOf(edges, edge);
                     if (index == edges.size()) {
-                        fprintf(stdout, "edge with index %zu of side with index %zu is missing from vertex data\n", j, i);
+                        std::cout << "edge with index " << j << " of side with index " << i << " is missing from vertex data" << std::endl;
                         return false;
                     }
                     eVisits[index]++;
                     
                     BrushVertex* vertex = edge->startVertex(side);
                     if (side->vertices[j] != vertex) {
-                        fprintf(stdout, "start vertex of edge with index %zu of side with index %zu is not at position %zu in the side's vertex list\n", j, i, j);
+                        std::cout << "start vertex of edge with index " << j << " of side with index " << i << " is not at position " << j << " in the side's vertex list" << std::endl;
                         return false;
                     }
                     
                     index = VectorUtils::indexOf(vertices, vertex);
                     if (index == vertices.size()) {
-                        fprintf(stdout, "start vertex of edge with index %zu of side with index %zu is missing from vertex data\n", j, i);
+                        std::cout << "start vertex of edge with index " << j << " of side with index " << i << " is missing from vertex data" << std::endl;
                         return false;
                     }
                     vVisits[index]++;
@@ -264,30 +265,30 @@ namespace TrenchBroom {
             
             for (size_t i = 0; i < vertices.size(); ++i) {
                 if (vVisits[i] == 0) {
-                    fprintf(stdout, "vertex with index %zu does not belong to any side\n", i);
+                    std::cout << "vertex with index " << i<< " does not belong to any side" << std::endl;
                     return false;
                 }
                 
                 for (size_t j = i + 1; j < vertices.size(); ++j)
                     if (vertices[i]->position.equals(vertices[j]->position)) {
-                        fprintf(stdout, "vertex with index %zu is identical to vertex with index %zu\n", i, j);
+                        std::cout << "vertex with index " << i << " is identical to vertex with index " << j << std::endl;
                         return false;
                     }
             }
             
             for (size_t i = 0; i < edges.size(); ++i) {
                 if (eVisits[i] != 2) {
-                    fprintf(stdout, "edge with index %zu was visited %zu times, should have been 2\n", i, eVisits[i]);
+                    std::cout << " edge with index " << i << " was visited " << eVisits[i] << " times, should have been 2" << std::endl;
                     return false;
                 }
                 
                 if (edges[i]->start->position.equals(edges[i]->end->position)) {
-                    fprintf(stdout, "edge with index %zu has identical vertices", i);
+                    std::cout << "edge with index " << i << " has identical vertices" << std::endl;
                     return false;
                 }
                 
                 if (edges[i]->left == edges[i]->right) {
-                    fprintf(stdout, "edge with index %zu has identical sides", i);
+                    std::cout << "edge with index " << i << " has identical sides" << std::endl;
                     return false;
                 }
                 
@@ -295,7 +296,7 @@ namespace TrenchBroom {
                 for (size_t j = i + 1; j < edges.size(); ++j) {
                     BrushEdge* edge2 = edges[j];
                     if (edge1->hasPositions(edge2->start->position, edge2->end->position)) {
-                        fprintf(stdout, "edge with index %zu is identical to edge with index %zu\n", i, j);
+                        std::cout << "edge with index " << i << " is identical to edge with index " << j << std::endl;
                         return false;
                     }
                 }

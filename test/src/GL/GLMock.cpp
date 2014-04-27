@@ -24,10 +24,17 @@ namespace TrenchBroom {
         glewInitialize.bindMemFunc(this, &GLMock::GlewInitialize);
 
         glGetError.bindMemFunc(this, &GLMock::GetError);
+        glGetString.bindMemFunc(this, &GLMock::GetString);
         
         glEnable.bindMemFunc(this, &GLMock::Enable);
         glDisable.bindMemFunc(this, &GLMock::Disable);
         glClear.bindMemFunc(this, &GLMock::Clear);
+        glClearColor.bindMemFunc(this, &GLMock::ClearColor);
+        
+        glViewport.bindMemFunc(this, &GLMock::Viewport);
+        
+        glBlendFunc.bindMemFunc(this, &GLMock::BlendFunc);
+        glShadeModel.bindMemFunc(this, &GLMock::ShadeModel);
         
         glDepthFunc.bindMemFunc(this, &GLMock::DepthFunc);
         glDepthMask.bindMemFunc(this, &GLMock::DepthMask);
@@ -131,8 +138,5 @@ namespace TrenchBroom {
 #ifdef __APPLE__
         glFinishObjectAPPLE.bindMemFunc(this, &GLMock::FinishObjectAPPLE);
 #endif
-    }
-    
-    GLMock::~GLMock() {
     }
 }

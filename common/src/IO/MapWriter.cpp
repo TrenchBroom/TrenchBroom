@@ -185,7 +185,7 @@ namespace TrenchBroom {
             const Model::IssueType hiddenIssues = object.hiddenIssues();
             if (hiddenIssues == 0)
                 return 0;
-            std::fprintf(stream, "/// hideIssues %zu\n", hiddenIssues);
+            std::fprintf(stream, "/// hideIssues %i\n", hiddenIssues);
             return 1;
         }
 

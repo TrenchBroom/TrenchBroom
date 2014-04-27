@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 
 #include <cassert>
+#include <cstdlib>
 #include <cstring>
 
 namespace TrenchBroom {

@@ -57,10 +57,11 @@ namespace TrenchBroom {
             resetInner();
         }
         
-        ValueType& operator*() {
+        ValueType operator*() {
+            // TODO: this returns a reference to a temporary, which yields undefined behavior
             if (m_returnOuter)
-                return (ValueType&)(*m_outerCur);
-            return (ValueType&)(*m_innerCur);
+                return (ValueType)(*m_outerCur);
+            return (ValueType)(*m_innerCur);
         }
 
         ValueType* operator->() const {
