@@ -111,6 +111,8 @@ namespace TrenchBroom {
 #define GL_TEXTURE_COORD_ARRAY 0x8078
 #define GL_EDGE_FLAG_ARRAY 0x8079
 
+#define GL_MULTISAMPLE 0x809D
+
 #define GL_CLAMP_TO_EDGE 0x812F
 #define GL_TEXTURE_MAX_LEVEL 0x813D
 

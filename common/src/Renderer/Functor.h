@@ -21,6 +21,7 @@
 #define __TrenchBroom__Functor__
 
 #include <cassert>
+#include <iostream> // for NULL
 
 namespace TrenchBroom {
     // ====== Function pointer with 0 arguments ======
@@ -45,6 +46,23 @@ namespace TrenchBroom {
             return (*m_function)();
         }
     };
+    
+#ifdef _MSC_VER
+    template <typename R>
+    class StdCallFuncPtr0 : public FuncBase0<R> {
+    public:
+        typedef R (__stdcall *F)();
+    private:
+        F m_function;
+    public:
+        StdCallFuncPtr0(F function) :
+        m_function(function) {}
+        
+        R operator()() const {
+            return (*m_function)();
+        }
+    };
+#endif
     
     template <class C, typename R>
     class MemFuncPtr0 : public FuncBase0<R> {
@@ -80,6 +98,13 @@ namespace TrenchBroom {
             delete m_func;
             m_func = new FuncPtr0<R>(func);
         }
+        
+#ifdef _MSC_VER
+        void bindFunc(typename StdCallFuncPtr0<R>::F func) {
+            delete m_func;
+            m_func = new StdCallFuncPtr0<R>(func);
+        }
+#endif
         
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr0<C,R>::F func) {
@@ -121,6 +146,23 @@ namespace TrenchBroom {
         }
     };
     
+#ifdef _MSC_VER
+    template <typename R, typename A1>
+    class StdCallFuncPtr1 : public FuncBase1<R,A1> {
+    public:
+        typedef R (__stdcall *F)(A1 a1);
+    private:
+        F m_function;
+    public:
+        StdCallFuncPtr1(F function) :
+        m_function(function) {}
+        
+        R operator()(A1 a1) const {
+            return (*m_function)(a1);
+        }
+    };
+#endif
+    
     template <class C, typename R, typename A1>
     class MemFuncPtr1 : public FuncBase1<R,A1> {
     public:
@@ -155,6 +197,13 @@ namespace TrenchBroom {
             delete m_func;
             m_func = new FuncPtr1<R,A1>(func);
         }
+        
+#ifdef _MSC_VER
+        void bindFunc(typename StdCallFuncPtr1<R,A1>::F func) {
+            delete m_func;
+            m_func = new StdCallFuncPtr1<R,A1>(func);
+        }
+#endif
         
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr1<C,R,A1>::F func) {
@@ -196,6 +245,23 @@ namespace TrenchBroom {
         }
     };
     
+#ifdef _MSC_VER
+    template <typename R, typename A1, typename A2>
+    class StdCallFuncPtr2 : public FuncBase2<R,A1,A2> {
+    public:
+        typedef R (__stdcall *F)(A1 a1, A2 a2);
+    private:
+        F m_function;
+    public:
+        StdCallFuncPtr2(F function) :
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2) const {
+            return (*m_function)(a1, a2);
+        }
+    };
+#endif
+    
     template <class C, typename R, typename A1, typename A2>
     class MemFuncPtr2 : public FuncBase2<R,A1,A2> {
     public:
@@ -230,6 +296,13 @@ namespace TrenchBroom {
             delete m_func;
             m_func = new FuncPtr2<R,A1,A2>(func);
         }
+
+#ifdef _MSC_VER
+        void bindFunc(typename StdCallFuncPtr2<R,A1,A2>::F func) {
+            delete m_func;
+            m_func = new StdCallFuncPtr2<R,A1,A2>(func);
+        }
+#endif
         
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr2<C,R,A1,A2>::F func) {
@@ -271,6 +344,23 @@ namespace TrenchBroom {
         }
     };
     
+#ifdef _MSC_VER
+    template <typename R, typename A1, typename A2, typename A3>
+    class StdCallFuncPtr3 : public FuncBase3<R,A1,A2,A3> {
+    public:
+        typedef R (__stdcall *F)(A1 a1, A2 a2, A3 a3);
+    private:
+        F m_function;
+    public:
+        StdCallFuncPtr3(F function) :
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3) const {
+            return (*m_function)(a1, a2, a3);
+        }
+    };
+#endif
+    
     template <class C, typename R, typename A1, typename A2, typename A3>
     class MemFuncPtr3 : public FuncBase3<R,A1,A2,A3> {
     public:
@@ -306,6 +396,13 @@ namespace TrenchBroom {
             m_func = new FuncPtr3<R,A1,A2,A3>(func);
         }
         
+#ifdef _MSC_VER
+        void bindFunc(typename StdCallFuncPtr3<R,A1,A2,A3>::F func) {
+            delete m_func;
+            m_func = new StdCallFuncPtr3<R,A1,A2,A3>(func);
+        }
+#endif
+
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr3<C,R,A1,A2,A3>::F func) {
             delete m_func;
@@ -346,6 +443,23 @@ namespace TrenchBroom {
         }
     };
     
+#ifdef _MSC_VER
+    template <typename R, typename A1, typename A2, typename A3, typename A4>
+    class StdCallFuncPtr4 : public FuncBase4<R,A1,A2,A3,A4> {
+    public:
+        typedef R (__stdcall *F)(A1 a1, A2 a2, A3 a3, A4 a4);
+    private:
+        F m_function;
+    public:
+        StdCallFuncPtr4(F function) :
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4) const {
+            return (*m_function)(a1, a2, a3, a4);
+        }
+    };
+#endif
+    
     template <class C, typename R, typename A1, typename A2, typename A3, typename A4>
     class MemFuncPtr4 : public FuncBase4<R,A1,A2,A3,A4> {
     public:
@@ -380,6 +494,13 @@ namespace TrenchBroom {
             delete m_func;
             m_func = new FuncPtr4<R,A1,A2,A3,A4>(func);
         }
+        
+#ifdef _MSC_VER
+        void bindFunc(typename StdCallFuncPtr4<R,A1,A2,A3,A4>::F func) {
+            delete m_func;
+            m_func = new StdCallFuncPtr4<R,A1,A2,A3,A4>(func);
+        }
+#endif
         
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr4<C,R,A1,A2,A3,A4>::F func) {
@@ -421,6 +542,23 @@ namespace TrenchBroom {
         }
     };
     
+#ifdef _MSC_VER
+    template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+    class StdCallFuncPtr5 : public FuncBase5<R,A1,A2,A3,A4,A5> {
+    public:
+        typedef R (__stdcall *F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5);
+    private:
+        F m_function;
+    public:
+        StdCallFuncPtr5(F function) :
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const {
+            return (*m_function)(a1, a2, a3, a4, a5);
+        }
+    };
+#endif
+    
     template <class C, typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
     class MemFuncPtr5 : public FuncBase5<R,A1,A2,A3,A4,A5> {
     public:
@@ -455,6 +593,13 @@ namespace TrenchBroom {
             delete m_func;
             m_func = new FuncPtr5<R,A1,A2,A3,A4,A5>(func);
         }
+        
+#ifdef _MSC_VER
+        void bindFunc(typename StdCallFuncPtr5<R,A1,A2,A3,A4,A5>::F func) {
+            delete m_func;
+            m_func = new StdCallFuncPtr5<R,A1,A2,A3,A4,A5>(func);
+        }
+#endif
         
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr5<C,R,A1,A2,A3,A4,A5>::F func) {
@@ -496,6 +641,23 @@ namespace TrenchBroom {
         }
     };
     
+#ifdef _MSC_VER
+    template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+    class StdCallFuncPtr6 : public FuncBase6<R,A1,A2,A3,A4,A5,A6> {
+    public:
+        typedef R (__stdcall *F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6);
+    private:
+        F m_function;
+    public:
+        StdCallFuncPtr6(F function) :
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const {
+            return (*m_function)(a1, a2, a3, a4, a5, a6);
+        }
+    };
+#endif
+    
     template <class C, typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
     class MemFuncPtr6 : public FuncBase6<R,A1,A2,A3,A4,A5,A6> {
     public:
@@ -530,6 +692,13 @@ namespace TrenchBroom {
             delete m_func;
             m_func = new FuncPtr6<R,A1,A2,A3,A4,A5,A6>(func);
         }
+        
+#ifdef _MSC_VER
+        void bindFunc(typename StdCallFuncPtr6<R,A1,A2,A3,A4,A5,A6>::F func) {
+            delete m_func;
+            m_func = new StdCallFuncPtr6<R,A1,A2,A3,A4,A5,A6>(func);
+        }
+#endif
         
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr6<C,R,A1,A2,A3,A4,A5,A6>::F func) {
@@ -571,6 +740,23 @@ namespace TrenchBroom {
         }
     };
     
+#ifdef _MSC_VER
+    template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
+    class StdCallFuncPtr7 : public FuncBase7<R,A1,A2,A3,A4,A5,A6,A7> {
+    public:
+        typedef R (__stdcall *F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7);
+    private:
+        F m_function;
+    public:
+        StdCallFuncPtr7(F function) :
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) const {
+            return (*m_function)(a1, a2, a3, a4, a5, a6, a7);
+        }
+    };
+#endif
+    
     template <class C, typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
     class MemFuncPtr7 : public FuncBase7<R,A1,A2,A3,A4,A5,A6,A7> {
     public:
@@ -605,6 +791,13 @@ namespace TrenchBroom {
             delete m_func;
             m_func = new FuncPtr7<R,A1,A2,A3,A4,A5,A6,A7>(func);
         }
+        
+#ifdef _MSC_VER
+        void bindFunc(typename StdCallFuncPtr7<R,A1,A2,A3,A4,A5,A6,A7>::F func) {
+            delete m_func;
+            m_func = new StdCallFuncPtr7<R,A1,A2,A3,A4,A5,A6,A7>(func);
+        }
+#endif
         
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr7<C,R,A1,A2,A3,A4,A5,A6,A7>::F func) {
@@ -646,6 +839,23 @@ namespace TrenchBroom {
         }
     };
     
+#ifdef _MSC_VER
+    template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
+    class StdCallFuncPtr8 : public FuncBase8<R,A1,A2,A3,A4,A5,A6,A7,A8> {
+    public:
+        typedef R (__stdcall *F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8);
+    private:
+        F m_function;
+    public:
+        StdCallFuncPtr8(F function) :
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) const {
+            return (*m_function)(a1, a2, a3, a4, a5, a6, a7, a8);
+        }
+    };
+#endif
+    
     template <class C, typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
     class MemFuncPtr8 : public FuncBase8<R,A1,A2,A3,A4,A5,A6,A7,A8> {
     public:
@@ -680,6 +890,13 @@ namespace TrenchBroom {
             delete m_func;
             m_func = new FuncPtr8<R,A1,A2,A3,A4,A5,A6,A7,A8>(func);
         }
+        
+#ifdef _MSC_VER
+        void bindFunc(typename StdCallFuncPtr8<R,A1,A2,A3,A4,A5,A6,A7,A8>::F func) {
+            delete m_func;
+            m_func = new StdCallFuncPtr8<R,A1,A2,A3,A4,A5,A6,A7,A8>(func);
+        }
+#endif
         
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr8<C,R,A1,A2,A3,A4,A5,A6,A7,A8>::F func) {
@@ -721,6 +938,23 @@ namespace TrenchBroom {
         }
     };
     
+#ifdef _MSC_VER
+    template <typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9>
+    class StdCallFuncPtr9 : public FuncBase9<R,A1,A2,A3,A4,A5,A6,A7,A8,A9> {
+    public:
+        typedef R (__stdcall *F)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9);
+    private:
+        F m_function;
+    public:
+        StdCallFuncPtr9(F function) :
+        m_function(function) {}
+        
+        R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const {
+            return (*m_function)(a1, a2, a3, a4, a5, a6, a7, a8, a9);
+        }
+    };
+#endif
+    
     template <class C, typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9>
     class MemFuncPtr9 : public FuncBase9<R,A1,A2,A3,A4,A5,A6,A7,A8,A9> {
     public:
@@ -755,6 +989,13 @@ namespace TrenchBroom {
             delete m_func;
             m_func = new FuncPtr9<R,A1,A2,A3,A4,A5,A6,A7,A8,A9>(func);
         }
+        
+#ifdef _MSC_VER
+        void bindFunc(typename StdCallFuncPtr9<R,A1,A2,A3,A4,A5,A6,A7,A8,A9>::F func) {
+            delete m_func;
+            m_func = new StdCallFuncPtr9<R,A1,A2,A3,A4,A5,A6,A7,A8,A9>(func);
+        }
+#endif
         
         template <class C>
         void bindMemFunc(C* receiver, typename MemFuncPtr9<C,R,A1,A2,A3,A4,A5,A6,A7,A8,A9>::F func) {
