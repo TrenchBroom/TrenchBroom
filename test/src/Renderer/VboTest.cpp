@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include "GL/GLMock.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
 
@@ -37,106 +38,103 @@ namespace TrenchBroom {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
-            GLMock = new CGLMock();
-            Mock::AllowLeak(GLMock);
+            GLMock glMock;
             
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
             
             // activate for the first time
-            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
-            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
             {
                 SetVboState setVboState(vbo);
                 setVboState.active();
                 ASSERT_EQ(VboState::Active, vbo.state());
                 
                 // deactivate by leaving block
-                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+                EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             ASSERT_EQ(VboState::Inactive, vbo.state());
             
             // reactivate
-            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
             {
                 SetVboState setVboState(vbo);
                 setVboState.active();
                 ASSERT_EQ(VboState::Active, vbo.state());
                 
                 // deactivate by leaving block
-                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+                EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             ASSERT_EQ(VboState::Inactive, vbo.state());
 
             // destroy vbo
-            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
+            EXPECT_CALL(glMock, DeleteBuffers(1, Pointee(13)));
         }
 
         TEST(VboTest, mapAndUnmapVbo) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
-            GLMock = new CGLMock();
-            Mock::AllowLeak(GLMock);
+            GLMock glMock;
             
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
             
             unsigned char buffer[20];
             
             // activate and map for the first time
-            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
-            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
-            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+            EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(glMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
             {
                 SetVboState setVboState(vbo);
                 setVboState.mapped();
                 ASSERT_EQ(VboState::Mapped, vbo.state());
                 
                 // deactivate and unmap by leaving block
-                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
-                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+                EXPECT_CALL(glMock, UnmapBuffer(GL_ARRAY_BUFFER));
+                EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             ASSERT_EQ(VboState::Inactive, vbo.state());
             
             // reactivate
-            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
             {
                 SetVboState setVboState(vbo);
                 setVboState.active();
                 ASSERT_EQ(VboState::Active, vbo.state());
                 
                 // map
-                EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+                EXPECT_CALL(glMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
                 setVboState.mapped();
                 ASSERT_EQ(VboState::Mapped, vbo.state());
                 
                 // unmap and deactivate by leaving block
-                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
-                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+                EXPECT_CALL(glMock, UnmapBuffer(GL_ARRAY_BUFFER));
+                EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             ASSERT_EQ(VboState::Inactive, vbo.state());
             
             // destroy vbo
-            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
+            EXPECT_CALL(glMock, DeleteBuffers(1, Pointee(13)));
         }
         
         TEST(VboTest, allocateBlocks) {
             using namespace testing;
             InSequence forceInSequenceMockCalls;
             
-            GLMock = new CGLMock();
-            Mock::AllowLeak(GLMock);
+            GLMock glMock;
             
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
             
             unsigned char buffer[0xFFFF];
             
             // activate and map for the first time
-            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
-            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
-            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+            EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(glMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
             {
                 SetVboState setVboState(vbo);
                 setVboState.mapped();
@@ -153,25 +151,25 @@ namespace TrenchBroom {
                 ASSERT_EQ(block3Capacity, block3->capacity());
                 
                 // buffer reallocation
-                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
-                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
-                EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
-                EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(14));
-                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 14));
-                EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0x17FFE, NULL, GL_DYNAMIC_DRAW));
-                EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+                EXPECT_CALL(glMock, UnmapBuffer(GL_ARRAY_BUFFER));
+                EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+                EXPECT_CALL(glMock, DeleteBuffers(1, Pointee(13)));
+                EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(14));
+                EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 14));
+                EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0x17FFE, NULL, GL_DYNAMIC_DRAW));
+                EXPECT_CALL(glMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
 
                 VboBlock* block4 = vbo.allocateBlock(373);
                 ASSERT_EQ(373u, block4->capacity());
                 
                 // deactivate and unmap by leaving block
-                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
-                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+                EXPECT_CALL(glMock, UnmapBuffer(GL_ARRAY_BUFFER));
+                EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             ASSERT_EQ(VboState::Inactive, vbo.state());
             
             // destroy vbo
-            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(14)));
+            EXPECT_CALL(glMock, DeleteBuffers(1, Pointee(14)));
         }
 
         TEST(VboTest, allocateBlockAndWriteBuffer) {
@@ -180,18 +178,17 @@ namespace TrenchBroom {
             
             typedef std::vector<unsigned char> Buf;
             
-            GLMock = new CGLMock();
-            Mock::AllowLeak(GLMock);
+            GLMock glMock;
             
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
             
             unsigned char buffer[0xFFFF];
             
             // activate and map for the first time
-            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
-            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
-            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+            EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(glMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
             {
                 SetVboState setVboState(vbo);
                 setVboState.mapped();
@@ -210,13 +207,13 @@ namespace TrenchBroom {
                     ASSERT_EQ(writeBuffer[i], buffer[i]);
                 
                 // deactivate and unmap by leaving block
-                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
-                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+                EXPECT_CALL(glMock, UnmapBuffer(GL_ARRAY_BUFFER));
+                EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             ASSERT_EQ(VboState::Inactive, vbo.state());
             
             // destroy vbo
-            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
+            EXPECT_CALL(glMock, DeleteBuffers(1, Pointee(13)));
         }
         
         TEST(VboTest, deallocateBlock) {
@@ -225,18 +222,17 @@ namespace TrenchBroom {
             
             typedef std::vector<unsigned char> Buf;
             
-            GLMock = new CGLMock();
-            Mock::AllowLeak(GLMock);
+            GLMock glMock;
             
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
             
             unsigned char buffer[0xFFFF];
             
             // activate and map for the first time
-            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
-            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
-            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+            EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(glMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
             {
                 SetVboState setVboState(vbo);
                 setVboState.mapped();
@@ -247,13 +243,13 @@ namespace TrenchBroom {
                 block->free();
                 
                 // deactivate and unmap by leaving block
-                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
-                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+                EXPECT_CALL(glMock, UnmapBuffer(GL_ARRAY_BUFFER));
+                EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             ASSERT_EQ(VboState::Inactive, vbo.state());
             
             // destroy vbo
-            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
+            EXPECT_CALL(glMock, DeleteBuffers(1, Pointee(13)));
         }
 
         TEST(VboTest, allocateBlockBetweenOtherBlocks) {
@@ -262,8 +258,7 @@ namespace TrenchBroom {
             
             typedef std::vector<unsigned char> Buf;
             
-            GLMock = new CGLMock();
-            Mock::AllowLeak(GLMock);
+            GLMock glMock;
             
             Vbo vbo(0xFFFF, GL_ARRAY_BUFFER);
             
@@ -271,10 +266,10 @@ namespace TrenchBroom {
             memset(buffer, 0, 0xFFFF);
             
             // activate and map for the first time
-            EXPECT_CALL(*GLMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
-            EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 13));
-            EXPECT_CALL(*GLMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
-            EXPECT_CALL(*GLMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
+            EXPECT_CALL(glMock, GenBuffers(1,_)).WillOnce(SetArgumentPointee<1>(13));
+            EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 13));
+            EXPECT_CALL(glMock, BufferData(GL_ARRAY_BUFFER, 0xFFFF, NULL, GL_DYNAMIC_DRAW));
+            EXPECT_CALL(glMock, MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY)).WillOnce(Return(buffer));
             {
                 SetVboState setVboState(vbo);
                 setVboState.mapped();
@@ -314,13 +309,13 @@ namespace TrenchBroom {
                 }
 
                 // deactivate and unmap by leaving block
-                EXPECT_CALL(*GLMock, UnmapBuffer(GL_ARRAY_BUFFER));
-                EXPECT_CALL(*GLMock, BindBuffer(GL_ARRAY_BUFFER, 0));
+                EXPECT_CALL(glMock, UnmapBuffer(GL_ARRAY_BUFFER));
+                EXPECT_CALL(glMock, BindBuffer(GL_ARRAY_BUFFER, 0));
             }
             ASSERT_EQ(VboState::Inactive, vbo.state());
             
             // destroy vbo
-            EXPECT_CALL(*GLMock, DeleteBuffers(1, Pointee(13)));
+            EXPECT_CALL(glMock, DeleteBuffers(1, Pointee(13)));
         }
     }
 }

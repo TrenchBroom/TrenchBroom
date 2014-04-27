@@ -59,7 +59,7 @@ namespace TrenchBroom {
         m_function(function) {}
         
         R operator()() const {
-            return m_receiver->*m_function();
+            return (m_receiver->*m_function)();
         }
     };
     
@@ -85,6 +85,11 @@ namespace TrenchBroom {
         void bindMemFunc(C* receiver, typename MemFuncPtr0<C,R>::F func) {
             delete m_func;
             m_func = new MemFuncPtr0<C,R>(receiver, func);
+        }
+        
+        void unbindFunc() {
+            delete m_func;
+            m_func = 0;
         }
         
         R operator()() {
@@ -129,7 +134,7 @@ namespace TrenchBroom {
         m_function(function) {}
         
         R operator()(A1 a1) const {
-            return m_receiver->*m_function(a1);
+            return (m_receiver->*m_function)(a1);
         }
     };
     
@@ -155,6 +160,11 @@ namespace TrenchBroom {
         void bindMemFunc(C* receiver, typename MemFuncPtr1<C,R,A1>::F func) {
             delete m_func;
             m_func = new MemFuncPtr1<C,R,A1>(receiver, func);
+        }
+        
+        void unbindFunc() {
+            delete m_func;
+            m_func = 0;
         }
         
         R operator()(A1 a1) {
@@ -199,7 +209,7 @@ namespace TrenchBroom {
         m_function(function) {}
         
         R operator()(A1 a1, A2 a2) const {
-            return m_receiver->*m_function(a1, a2);
+            return (m_receiver->*m_function)(a1, a2);
         }
     };
     
@@ -225,6 +235,11 @@ namespace TrenchBroom {
         void bindMemFunc(C* receiver, typename MemFuncPtr2<C,R,A1,A2>::F func) {
             delete m_func;
             m_func = new MemFuncPtr2<C,R,A1,A2>(receiver, func);
+        }
+        
+        void unbindFunc() {
+            delete m_func;
+            m_func = 0;
         }
         
         R operator()(A1 a1, A2 a2) {
@@ -269,7 +284,7 @@ namespace TrenchBroom {
         m_function(function) {}
         
         R operator()(A1 a1, A2 a2, A3 a3) const {
-            return m_receiver->*m_function(a1, a2, a3);
+            return (m_receiver->*m_function)(a1, a2, a3);
         }
     };
     
@@ -295,6 +310,11 @@ namespace TrenchBroom {
         void bindMemFunc(C* receiver, typename MemFuncPtr3<C,R,A1,A2,A3>::F func) {
             delete m_func;
             m_func = new MemFuncPtr3<C,R,A1,A2,A3>(receiver, func);
+        }
+        
+        void unbindFunc() {
+            delete m_func;
+            m_func = 0;
         }
         
         R operator()(A1 a1, A2 a2, A3 a3) {
@@ -339,7 +359,7 @@ namespace TrenchBroom {
         m_function(function) {}
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4) const {
-            return m_receiver->*m_function(a1, a2, a3, a4);
+            return (m_receiver->*m_function)(a1, a2, a3, a4);
         }
     };
     
@@ -365,6 +385,11 @@ namespace TrenchBroom {
         void bindMemFunc(C* receiver, typename MemFuncPtr4<C,R,A1,A2,A3,A4>::F func) {
             delete m_func;
             m_func = new MemFuncPtr4<C,R,A1,A2,A3,A4>(receiver, func);
+        }
+        
+        void unbindFunc() {
+            delete m_func;
+            m_func = 0;
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -409,7 +434,7 @@ namespace TrenchBroom {
         m_function(function) {}
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const {
-            return m_receiver->*m_function(a1, a2, a3, a4, a5);
+            return (m_receiver->*m_function)(a1, a2, a3, a4, a5);
         }
     };
     
@@ -435,6 +460,11 @@ namespace TrenchBroom {
         void bindMemFunc(C* receiver, typename MemFuncPtr5<C,R,A1,A2,A3,A4,A5>::F func) {
             delete m_func;
             m_func = new MemFuncPtr5<C,R,A1,A2,A3,A4,A5>(receiver, func);
+        }
+        
+        void unbindFunc() {
+            delete m_func;
+            m_func = 0;
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) {
@@ -479,7 +509,7 @@ namespace TrenchBroom {
         m_function(function) {}
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const {
-            return m_receiver->*m_function(a1, a2, a3, a4, a5, a6);
+            return (m_receiver->*m_function)(a1, a2, a3, a4, a5, a6);
         }
     };
     
@@ -505,6 +535,11 @@ namespace TrenchBroom {
         void bindMemFunc(C* receiver, typename MemFuncPtr6<C,R,A1,A2,A3,A4,A5,A6>::F func) {
             delete m_func;
             m_func = new MemFuncPtr6<C,R,A1,A2,A3,A4,A5,A6>(receiver, func);
+        }
+        
+        void unbindFunc() {
+            delete m_func;
+            m_func = 0;
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) {
@@ -549,7 +584,7 @@ namespace TrenchBroom {
         m_function(function) {}
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) const {
-            return m_receiver->*m_function(a1, a2, a3, a4, a5, a6, a7);
+            return (m_receiver->*m_function)(a1, a2, a3, a4, a5, a6, a7);
         }
     };
     
@@ -575,6 +610,11 @@ namespace TrenchBroom {
         void bindMemFunc(C* receiver, typename MemFuncPtr7<C,R,A1,A2,A3,A4,A5,A6,A7>::F func) {
             delete m_func;
             m_func = new MemFuncPtr7<C,R,A1,A2,A3,A4,A5,A6,A7>(receiver, func);
+        }
+        
+        void unbindFunc() {
+            delete m_func;
+            m_func = 0;
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) {
@@ -619,7 +659,7 @@ namespace TrenchBroom {
         m_function(function) {}
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) const {
-            return m_receiver->*m_function(a1, a2, a3, a4, a5, a6, a7, a8);
+            return (m_receiver->*m_function)(a1, a2, a3, a4, a5, a6, a7, a8);
         }
     };
     
@@ -645,6 +685,11 @@ namespace TrenchBroom {
         void bindMemFunc(C* receiver, typename MemFuncPtr8<C,R,A1,A2,A3,A4,A5,A6,A7,A8>::F func) {
             delete m_func;
             m_func = new MemFuncPtr8<C,R,A1,A2,A3,A4,A5,A6,A7,A8>(receiver, func);
+        }
+        
+        void unbindFunc() {
+            delete m_func;
+            m_func = 0;
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) {
@@ -689,7 +734,7 @@ namespace TrenchBroom {
         m_function(function) {}
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const {
-            return m_receiver->*m_function(a1, a2, a3, a4, a5, a6, a7, a8, a9);
+            return (m_receiver->*m_function)(a1, a2, a3, a4, a5, a6, a7, a8, a9);
         }
     };
     
@@ -715,6 +760,11 @@ namespace TrenchBroom {
         void bindMemFunc(C* receiver, typename MemFuncPtr9<C,R,A1,A2,A3,A4,A5,A6,A7,A8,A9>::F func) {
             delete m_func;
             m_func = new MemFuncPtr9<C,R,A1,A2,A3,A4,A5,A6,A7,A8,A9>(receiver, func);
+        }
+        
+        void unbindFunc() {
+            delete m_func;
+            m_func = 0;
         }
         
         R operator()(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) {
