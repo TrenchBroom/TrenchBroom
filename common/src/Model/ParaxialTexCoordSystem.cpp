@@ -225,7 +225,7 @@ namespace TrenchBroom {
             const Quat3 rot(zAxis, -Math::radians(currentAngle));
             const Vec3 vec = rot * (point - center);
 
-            const FloatType angleInRadians = Math::C::TwoPi - angleBetween(vec.normalized(), Vec3::PosX, zAxis);
+            const FloatType angleInRadians = Math::C::twoPi() - angleBetween(vec.normalized(), Vec3::PosX, zAxis);
             return static_cast<float>(Math::degrees(angleInRadians));
         }
 

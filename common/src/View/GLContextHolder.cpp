@@ -68,15 +68,7 @@ namespace TrenchBroom {
         }
         
         void RootGLContextHolder::doInitialize() {
-#ifndef TESTING
-            glewExperimental = GL_TRUE;
-            const GLenum glewState = glewInit();
-            if (glewState != GLEW_OK) {
-                RenderException e;
-                e << "Error initializing glew: " << glewGetErrorString(glewState);
-                throw e;
-            }
-#endif
+            glewInitialize();
         }
 
         Renderer::FontManager& RootGLContextHolder::doGetFontManager() {

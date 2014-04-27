@@ -21,6 +21,7 @@
 
 #include <clocale>
 
+#include "GLInit.h"
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
@@ -37,10 +38,6 @@
 
 #include <wx/choicdlg.h>
 #include <wx/filedlg.h>
-
-#ifndef TESTING
-IMPLEMENT_APP(TrenchBroom::View::TrenchBroomApp)
-#endif
 
 namespace TrenchBroom {
     namespace View {
@@ -153,6 +150,8 @@ namespace TrenchBroom {
 
             // load image handlers
             wxImage::AddHandler(new wxPNGHandler());
+
+            initGLFunctions();
 
             assert(m_frameManager == NULL);
             m_frameManager = new FrameManager(useSDI());

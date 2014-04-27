@@ -118,7 +118,7 @@ namespace TrenchBroom {
         void setDefaultPlanePoints(const Plane3& plane, BrushFace::Points& points);
 
         FloatType computePlaneFrequency(const Plane3& plane) {
-            static const FloatType c = 1.0 - std::sin(Math::C::Pi / 4.0);
+            static const FloatType c = 1.0 - std::sin(Math::C::pi() / 4.0);
             
             const Vec3& axis = plane.normal.firstAxis();
             const FloatType d = plane.normal.dot(axis);

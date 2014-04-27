@@ -84,8 +84,4 @@ namespace TrenchBroom {
     }
 }
 
-#ifndef TESTING
-DECLARE_APP(TrenchBroom::View::TrenchBroomApp)
-#endif
-
 #endif /* defined(__TrenchBroom__TrenchBroomApp__) */

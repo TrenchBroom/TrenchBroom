@@ -44,9 +44,9 @@ namespace TrenchBroom {
                         return Quat3(Vec3::PosZ, 0.0);
                     const FloatType angle = static_cast<FloatType>(std::atof(angleValue.c_str()));
                     if (angle == -1.0)
-                        return Quat3(Vec3::PosY, -Math::C::PiOverTwo);
+                        return Quat3(Vec3::PosY, -Math::C::piOverTwo());
                     if (angle == -2.0)
-                        return Quat3(Vec3::PosY,  Math::C::PiOverTwo);
+                        return Quat3(Vec3::PosY,  Math::C::piOverTwo());
                     return Quat3(Vec3::PosZ, Math::radians(angle));
                 }
                 case RotationType_Euler: {

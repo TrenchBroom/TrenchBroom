@@ -221,7 +221,7 @@ public:
         return v[index];
     }
 
-    bool equals(const Mat<T,R,C>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
+    bool equals(const Mat<T,R,C>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
         for (size_t c = 0; c < C; c++)
             if (!v[c].equals(other[c], epsilon))
                 return false;

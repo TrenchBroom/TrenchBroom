@@ -118,7 +118,7 @@ public:
         return ((distance * normal - line.point).dot(normal)) / f;
     }
     
-    Math::PointStatus::Type pointStatus(const Vec<T,S>& point, const T epsilon = Math::Constants<T>::PointStatusEpsilon) const {
+    Math::PointStatus::Type pointStatus(const Vec<T,S>& point, const T epsilon = Math::Constants<T>::pointStatusEpsilon()) const {
         const T dist = pointDistance(point);
         if (dist >  epsilon)
             return Math::PointStatus::PSAbove;
@@ -155,7 +155,7 @@ public:
         return at(point, Math::Axis::AZ);
     }
     
-    bool equals(const Plane<T,S>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
+    bool equals(const Plane<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
         return Math::eq(distance, other.distance, epsilon) && normal.equals(other.normal, epsilon);
     }
     
@@ -232,7 +232,7 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& p
     const Vec<T,3> v1 = point2 - point0;
     const Vec<T,3> v2 = point1 - point0;
     const Vec<T,3> normal = crossed(v1, v2);
-    if (normal.equals(Vec<T,3>::Null, Math::Constants<T>::AlmostZero))
+    if (normal.equals(Vec<T,3>::Null, Math::Constants<T>::almostZero()))
         return false;
     plane.normal = normal.normalized();
     plane.distance = point0.dot(plane.normal);

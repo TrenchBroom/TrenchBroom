@@ -17,13 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GL_h
-#define TrenchBroom_GL_h
+#ifndef __TrenchBroom__Main__
+#define __TrenchBroom__Main__
 
-#ifdef TESTING
-#include "GL/GLMock.h"
-#else
-#include "GL/glew.h"
-#endif
+#include "TrenchBroomApp.h"
 
-#endif
+DECLARE_APP(TrenchBroom::View::TrenchBroomApp)
+
+#endif /* defined(__TrenchBroom__TrenchBroomApp__) */

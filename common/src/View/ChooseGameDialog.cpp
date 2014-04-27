@@ -20,10 +20,10 @@
 #include "ChooseGameDialog.h"
 
 #include "PreferenceManager.h"
+#include "TrenchBroomApp.h"
 #include "View/GameListBox.h"
 #include "View/GameSelectionCommand.h"
 #include "View/ViewConstants.h"
-#include "TrenchBroomApp.h"
 
 #include <wx/panel.h>
 #include <wx/sizer.h>

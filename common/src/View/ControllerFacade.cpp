@@ -20,6 +20,7 @@
 #include "ControllerFacade.h"
 
 #include "CollectionUtils.h"
+#include "TrenchBroomApp.h"
 #include "Controller/AddRemoveObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/FaceAttributeCommand.h"
@@ -45,7 +46,6 @@
 #include "Model/ModelUtils.h"
 #include "View/MapDocument.h"
 #include "View/ViewTypes.h"
-#include "TrenchBroomApp.h"
 
 #include <cassert>
 

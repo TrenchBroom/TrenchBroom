@@ -29,45 +29,67 @@ namespace Math {
     template <typename T>
     class Constants {
     public:
-        static const T AlmostZero;
-        static const T PointStatusEpsilon;
-        static const T CorrectEpsilon;
-        static const T ColinearEpsilon;
-        static const T Pi;
-        static const T TwoPi;
-        static const T PiOverTwo;
-        static const T PiOverFour;
-        static const T ThreePiOverTwo;
-        static const T PiOverStraightAngle;
-        static const T StraightAngleOverPi;
-        static const T E;
+        static T almostZero() {
+            static const T value = static_cast<T>(0.001);
+            return value;
+        }
+        
+        static T pointStatusEpsilon() {
+            static const T value = static_cast<T>(0.01);
+            return value;
+        }
+        
+        static T correctEpsilon() {
+            static const T value = static_cast<T>(0.001); // this is what QBSP uses
+            return value;
+        }
+        
+        static T colinearEpsilon() {
+            static const T value = static_cast<T>(0.01);
+            return value;
+        }
+        
+        static T pi() {
+            static const T value = static_cast<T>(3.141592653589793);
+            return value;
+        }
+        
+        static T twoPi() {
+            static const T value = static_cast<T>(2.0) * pi();
+            return value;
+        }
+        
+        static T piOverTwo() {
+            static const T value = pi() / static_cast<T>(2.0);
+            return value;
+        }
+        
+        static T piOverFour() {
+            static const T value = pi() / static_cast<T>(4.0);
+            return value;
+        }
+        
+        static T threePiOverTwo() {
+            static const T value = static_cast<T>(3.0) * pi() / static_cast<T>(2.0);
+            return value;
+        }
+        
+        static T piOverStraightAngle() {
+            static const T value = pi() / static_cast<T>(180.0);
+            return value;
+        }
+        
+        static T straightAngleOverPi() {
+            static const T value = static_cast<T>(180.0) / pi();
+            return value;
+        }
+        
+        static T e() {
+            static const T value = static_cast<T>(2.718281828459045);
+            return value;
+        }
     };
     
-    template <typename T>
-    const T Constants<T>::AlmostZero           = static_cast<T>(0.001);
-    template <typename T>
-    const T Constants<T>::PointStatusEpsilon   = static_cast<T>(0.01);
-    template <typename T>
-    const T Constants<T>::CorrectEpsilon       = static_cast<T>(0.001); // this is what QBSP uses
-    template <typename T>
-    const T Constants<T>::ColinearEpsilon      = static_cast<T>(0.01);
-    template <typename T>
-    const T Constants<T>::Pi                   = static_cast<T>(3.141592653589793);
-    template <typename T>
-    const T Constants<T>::TwoPi                = static_cast<T>(2.0) * Pi;
-    template <typename T>
-    const T Constants<T>::PiOverTwo            = Pi / static_cast<T>(2.0);
-    template <typename T>
-    const T Constants<T>::PiOverFour           = Pi / static_cast<T>(4.0);
-    template <typename T>
-    const T Constants<T>::ThreePiOverTwo       = Pi * static_cast<T>(3.0 / 2.0);
-    template <typename T>
-    const T Constants<T>::PiOverStraightAngle  = Pi / static_cast<T>(180.0);
-    template <typename T>
-    const T Constants<T>::StraightAngleOverPi  = static_cast<T>(180.0) / Pi;
-    template <typename T>
-    const T Constants<T>:: E                   = static_cast<T>(2.718281828459045);
-
     typedef Constants<double> Cd;
     typedef Constants<float> Cf;
     
@@ -113,12 +135,12 @@ namespace Math {
 
     template <typename T>
     T radians(const T d) {
-        return d * Constants<T>::PiOverStraightAngle;
+        return d * Constants<T>::piOverStraightAngle();
     }
 
     template <typename T>
     T degrees(const T r) {
-        return r * Constants<T>::StraightAngleOverPi;
+        return r * Constants<T>::straightAngleOverPi();
     }
     
     template <typename T>
@@ -137,7 +159,7 @@ namespace Math {
     }
     
     template <typename T>
-    T correct(const T v, const size_t decimals = 0, const T epsilon = Constants<T>::CorrectEpsilon) {
+    T correct(const T v, const size_t decimals = 0, const T epsilon = Constants<T>::correctEpsilon()) {
         const T m = static_cast<T>(1 << decimals);
         const T r = round(v * m);
         if (abs(v - r) <= epsilon)
@@ -146,22 +168,22 @@ namespace Math {
     }
 
     template <typename T>
-    bool zero(const T v, const T epsilon = Constants<T>::AlmostZero) {
+    bool zero(const T v, const T epsilon = Constants<T>::almostZero()) {
         return abs(v) <= epsilon;
     }
     
     template <typename T>
-    bool pos(const T v, const T epsilon = Constants<T>::AlmostZero) {
+    bool pos(const T v, const T epsilon = Constants<T>::almostZero()) {
         return v > epsilon;
     }
     
     template <typename T>
-    bool neg(const T v, const T epsilon = Constants<T>::AlmostZero) {
+    bool neg(const T v, const T epsilon = Constants<T>::almostZero()) {
         return v < -epsilon;
     }
 
     template <typename T>
-    bool relEq(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool relEq(const T v1, const T v2, const T epsilon = Constants<T>::almostZero()) {
         const T absA = abs(v1);
         const T absB = abs(v2);
         const T diff = abs(v1 - v2);
@@ -178,27 +200,27 @@ namespace Math {
     }
 
     template <typename T>
-    bool eq(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool eq(const T v1, const T v2, const T epsilon = Constants<T>::almostZero()) {
         return abs(v1 - v2) < epsilon;
     }
     
     template <typename T>
-    bool gt(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool gt(const T v1, const T v2, const T epsilon = Constants<T>::almostZero()) {
         return v1 > v2 + epsilon;
     }
     
     template <typename T>
-    bool lt(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool lt(const T v1, const T v2, const T epsilon = Constants<T>::almostZero()) {
         return v1 < v2 - epsilon;
     }
     
     template <typename T>
-    bool gte(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool gte(const T v1, const T v2, const T epsilon = Constants<T>::almostZero()) {
         return !lt(v1, v2, epsilon);
     }
     
     template <typename T>
-    bool lte(const T v1, const T v2, const T epsilon = Constants<T>::AlmostZero) {
+    bool lte(const T v1, const T v2, const T epsilon = Constants<T>::almostZero()) {
         return !gt(v1, v2, epsilon);
     }
 
@@ -208,7 +230,7 @@ namespace Math {
     }
     
     template <typename T>
-    bool between(const T v, const T s, const T e, const T epsilon = Constants<T>::AlmostZero) {
+    bool between(const T v, const T s, const T e, const T epsilon = Constants<T>::almostZero()) {
         if (eq(v, s, epsilon) || eq(v, e, epsilon))
             return true;
         if (lt(s, e, epsilon))

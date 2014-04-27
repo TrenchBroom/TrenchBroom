@@ -530,7 +530,7 @@ public:
         return equals(normalized());
     }
     
-    bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
+    bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
         for (size_t i = 0; i < S; ++i)
             if (std::abs(v[i] - other[i]) > epsilon)
                 return false;
@@ -538,7 +538,7 @@ public:
     }
     
     bool null() const {
-        return equals(Null, Math::Constants<T>::AlmostZero);
+        return equals(Null, Math::Constants<T>::almostZero());
     }
 
     void setNull() {
@@ -558,7 +558,7 @@ public:
         return true;
     }
     
-    bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::AlmostZero) const {
+    bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
         const T d = normalized().dot(other.normalized());
         return Math::eq(std::abs(d), static_cast<T>(1.0), epsilon);
     }
@@ -567,7 +567,7 @@ public:
         return weight(v[0]) * 100 + weight(v[1]) * 10 + weight(v[2]);
     }
     
-    bool hasMajorComponent(const T epsilon = Math::Constants<T>::AlmostZero) const {
+    bool hasMajorComponent(const T epsilon = Math::Constants<T>::almostZero()) const {
         if (S == 0)
             return false;
         if (S == 1)
@@ -687,20 +687,20 @@ public:
         return Vec<T,S>(*this).round();
     }
     
-    bool isInteger(const T epsilon = Math::Constants<T>::AlmostZero) const {
+    bool isInteger(const T epsilon = Math::Constants<T>::almostZero()) const {
         for (size_t i = 0; i < S; ++i)
             if (std::abs(v[i] - Math::round(v[i])) > epsilon)
                 return false;
         return true;
     }
     
-    Vec<T,S>& correct(const size_t decimals = 0, const T epsilon = Math::Constants<T>::CorrectEpsilon) {
+    Vec<T,S>& correct(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) {
         for (size_t i = 0; i < S; ++i)
             v[i] = Math::correct(v[i], decimals, epsilon);
         return *this;
     }
     
-    const Vec<T,S> corrected(const size_t decimals = 0, const T epsilon = Math::Constants<T>::CorrectEpsilon) const {
+    const Vec<T,S> corrected(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) const {
         return Vec<T,S>(*this).correct(decimals, epsilon);
     }
 };
@@ -802,11 +802,11 @@ T angleBetween(const Vec<T,3> vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
     if (cos == static_cast<T>(1.0))
         return static_cast<T>(0.0);
     if (cos ==static_cast<T>(-1.0))
-        return Math::Constants<T>::Pi;
+        return Math::Constants<T>::pi();
     const Vec<T,3> cross = crossed(axis, vec);
     if (cross.dot(up) >= static_cast<T>(0.0))
         return std::acos(cos);
-    return Math::Constants<T>::TwoPi - std::acos(cos);
+    return Math::Constants<T>::twoPi() - std::acos(cos);
 }
 
 #endif

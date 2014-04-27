@@ -58,9 +58,9 @@ public:
 
     Math::PointStatus::Type pointStatus(const Vec<T,S>& point) const {
         const T dot = direction.dot(point - origin);
-        if (dot >  Math::Constants<T>::PointStatusEpsilon)
+        if (dot >  Math::Constants<T>::pointStatusEpsilon())
             return Math::PointStatus::PSAbove;
-        if (dot < -Math::Constants<T>::PointStatusEpsilon)
+        if (dot < -Math::Constants<T>::pointStatusEpsilon())
             return Math::PointStatus::PSBelow;
         return Math::PointStatus::PSInside;
     }

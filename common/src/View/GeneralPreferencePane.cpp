@@ -19,7 +19,6 @@
 
 #include "GeneralPreferencePane.h"
 
-#include "TrenchBroomApp.h"
 #include "StringUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

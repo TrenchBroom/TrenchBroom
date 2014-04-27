@@ -89,7 +89,7 @@ namespace TrenchBroom {
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
             const Quat3 rot(Vec3::PosZ, -currentAngle);
             const Vec3 vec = rot * (point - center);
-            const FloatType angleInRadians = Math::C::TwoPi - angleBetween(vec.normalized(), Vec3::PosX, Vec3::PosZ);
+            const FloatType angleInRadians = Math::C::twoPi() - angleBetween(vec.normalized(), Vec3::PosX, Vec3::PosZ);
             return static_cast<float>(Math::degrees(angleInRadians));
         }
     }

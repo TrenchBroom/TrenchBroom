@@ -17,24 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GMock_h
-#define TrenchBroom_GMock_h
+#ifndef __TrenchBroom__GLInit__
+#define __TrenchBroom__GLInit__
 
-#if defined(_MSC_VER)
-#pragma warning(push, 3)
-#elif defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundef"
-#elif defined(__GNUC__)
-#endif
+namespace TrenchBroom {
+    void initGLFunctions();
+}
 
-#include <gmock/gmock.h>
+#endif /* defined(__TrenchBroom__GLInit__) */
 
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#elif defined(__clang__)
-#pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#endif
-
-#endif

@@ -73,7 +73,7 @@ namespace TrenchBroom {
             bool hasPositions(const Vec3& position1, const Vec3& position2) const;
             bool isIncidentWith(const BrushEdge* edge) const;
             bool connects(const BrushVertex* vertex1, BrushVertex* vertex2) const;
-            bool contains(const Vec3& point, const FloatType maxDistance = Math::C::AlmostZero) const;
+            bool contains(const Vec3& point, const FloatType maxDistance = Math::C::almostZero()) const;
 
             Vec3 vector() const;
             Vec3 center() const;
