@@ -55,12 +55,12 @@ ADD_EXECUTABLE(TrenchBroom WIN32 MACOSX_BUNDLE ${APP_SOURCE})
 TARGET_LINK_LIBRARIES(TrenchBroom glew common ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
 SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
-# Increment the build number
-IF(WIN32)
-    ADD_CUSTOM_COMMAND(TARGET TrenchBroom PRE_BUILD COMMAND ${APP_DIR}/version/incbuildno.bat WORKING_DIRECTORY ${APP_DIR}/version/)
-ELSE()
-    ADD_CUSTOM_COMMAND(TARGET TrenchBroom PRE_BUILD COMMAND ${APP_DIR}/version/incbuildno.sh WORKING_DIRECTORY ${APP_DIR}/version/)
-ENDIF()
+# Create the cmake script for version management
+FIND_PACKAGE(Git)
+CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/Version.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/Version.cmake @ONLY)
+ADD_TARGET_PROPERTY(TrenchBroom INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
+ADD_CUSTOM_TARGET(TrenchBroom-Version ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/Version.cmake)
+ADD_DEPENDENCIES(TrenchBroom TrenchBroom-Version)
 
 # Copy some Windows-specific resources
 IF(WIN32)
