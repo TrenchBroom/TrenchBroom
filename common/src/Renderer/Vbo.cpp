@@ -169,7 +169,7 @@ namespace TrenchBroom {
 #ifdef __APPLE__
             // fixes a crash on Mac OS X where a buffer could not be mapped after another windows was closed
             // the error actually still happens under other circumstances (open map document, close the window and reopen the same document)
-            glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, m_vboId);
+            glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId));
 #endif
             m_buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
             assert(glGetError() == GL_NO_ERROR);

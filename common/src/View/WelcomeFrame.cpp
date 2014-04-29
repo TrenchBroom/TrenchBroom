@@ -22,6 +22,7 @@
 #include "TrenchBroomApp.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "View/GetVersion.h"
 #include "View/ViewConstants.h"
 #include "View/RecentDocumentListBox.h"
 #include "View/RecentDocumentSelectedCommand.h"
@@ -98,6 +99,7 @@ namespace TrenchBroom {
             try {
                 if (app.openDocument(event.documentPath().asString()))
                     Destroy();
+                
                 else
                     Show();
             } catch (...) {
@@ -115,8 +117,8 @@ namespace TrenchBroom {
             appName->SetFont(appName->GetFont().Larger().Larger().Larger().Larger().Bold());
             wxStaticLine* appLine = new wxStaticLine(appPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
             wxStaticText* appClaim = new wxStaticText(appPanel, wxID_ANY, "A Modern Level Editor");
-            wxString versionStr("Version 2.0");
-            // versionStr << VERSIONSTR;
+            wxString versionStr("Version ");
+            versionStr << getVersion();
             wxStaticText* version = new wxStaticText(appPanel, wxID_ANY, versionStr);
             version->SetFont(version->GetFont().Smaller());
             version->SetForegroundColour(wxColor(96, 96, 96));
