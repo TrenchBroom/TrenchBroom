@@ -31,3 +31,6 @@ Thumbs.db
 *.pyc
 
 /src/tags
+
+/.lvimrc
+

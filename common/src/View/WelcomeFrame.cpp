@@ -120,8 +120,10 @@ namespace TrenchBroom {
             wxString versionStr("Version ");
             versionStr << getVersion();
             wxStaticText* version = new wxStaticText(appPanel, wxID_ANY, versionStr);
+#if not defined _WIN32
             version->SetFont(version->GetFont().Smaller());
-            version->SetForegroundColour(wxColor(96, 96, 96));
+#endif
+            version->SetForegroundColour(wxColor(128, 128, 128));
             
             wxBoxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->Add(appIcon, 0, wxALIGN_CENTER_HORIZONTAL);
