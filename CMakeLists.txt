@@ -79,3 +79,5 @@ ENDIF()
 INCLUDE(cmake/TrenchBroomApp.cmake)
 INCLUDE(cmake/TrenchBroomTest.cmake)
 
+SET(CPACK_GENERATOR DragNDrop)
+INCLUDE(CPack)
