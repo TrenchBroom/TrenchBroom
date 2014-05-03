@@ -25,6 +25,7 @@
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "View/AboutFrame.h"
 #include "View/CommandIds.h"
 #include "View/ExecutableEvent.h"
 #include "View/MapDocument.h"
@@ -135,6 +136,10 @@ namespace TrenchBroom {
             PreferenceDialog dialog;
             dialog.ShowModal();
         }
+        
+        void TrenchBroomApp::openAbout() {
+            AboutFrame::showAboutFrame();
+        }
 
         bool TrenchBroomApp::OnInit() {
             if (!wxApp::OnInit())
@@ -181,12 +186,15 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_COPY);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PASTE);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_DELETE);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PREFERENCES);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_ABOUT);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
 #endif
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
 
             Bind(EVT_EXECUTABLE_EVENT, EVT_EXECUTABLE_EVENT_HANDLER(TrenchBroomApp::OnExecutableEvent), this);
 
@@ -247,6 +255,10 @@ namespace TrenchBroom {
 
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {
             openPreferences();
+        }
+
+        void TrenchBroomApp::OnOpenAbout(wxCommandEvent& event) {
+            openAbout();
         }
 
         void TrenchBroomApp::OnExecutableEvent(ExecutableEvent& event) {
@@ -316,6 +328,7 @@ namespace TrenchBroom {
         void TrenchBroomApp::OnUpdateUI(wxUpdateUIEvent& event) {
             switch (event.GetId()) {
                 case wxID_PREFERENCES:
+                case wxID_ABOUT:
                 case wxID_NEW:
                 case wxID_OPEN:
                 case wxID_EXIT:

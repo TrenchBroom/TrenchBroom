@@ -56,6 +56,7 @@ namespace TrenchBroom {
             bool newDocument();
             bool openDocument(const String& pathStr);
             void openPreferences();
+            void openAbout();
 
             bool OnInit();
             int OnExit();
@@ -65,6 +66,7 @@ namespace TrenchBroom {
             void OnFileOpen(wxCommandEvent& event);
             void OnFileOpenRecent(wxCommandEvent& event);
             void OnOpenPreferences(wxCommandEvent& event);
+            void OnOpenAbout(wxCommandEvent& event);
             void OnExecutableEvent(ExecutableEvent& event);
             
             int FilterEvent(wxEvent& event);
