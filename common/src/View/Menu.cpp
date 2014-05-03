@@ -234,6 +234,9 @@ namespace TrenchBroom {
 #else
             viewMenu->AppendSeparator();
             viewMenu->Append(wxID_PREFERENCES, "Preferences...");
+
+            helpMenu->AppendSeparator();
+            helpMenu->Append(wxID_ABOUT, "About TrenchBroom");
 #endif
             
             wxMenuBar* menuBar = new wxMenuBar();
