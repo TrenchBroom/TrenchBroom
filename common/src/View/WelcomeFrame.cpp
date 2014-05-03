@@ -120,7 +120,7 @@ namespace TrenchBroom {
             wxString versionStr("Version ");
             versionStr << getVersion();
             wxStaticText* version = new wxStaticText(appPanel, wxID_ANY, versionStr);
-#if not defined _WIN32
+#if not defined(_WIN32)
             version->SetFont(version->GetFont().Smaller());
 #endif
             version->SetForegroundColour(wxColor(128, 128, 128));
