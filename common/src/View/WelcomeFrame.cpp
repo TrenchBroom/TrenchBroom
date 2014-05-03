@@ -20,19 +20,14 @@
 #include "WelcomeFrame.h"
 
 #include "TrenchBroomApp.h"
-#include "IO/Path.h"
-#include "IO/ResourceUtils.h"
-#include "View/GetVersion.h"
+#include "View/AppInfoPanel.h"
 #include "View/ViewConstants.h"
 #include "View/RecentDocumentListBox.h"
 #include "View/RecentDocumentSelectedCommand.h"
 
-#include <wx/bitmap.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
-#include <wx/statbmp.h>
 #include <wx/statline.h>
-#include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -110,28 +105,7 @@ namespace TrenchBroom {
         wxPanel* WelcomeFrame::createAppPanel(wxWindow* parent) {
             wxPanel* appPanel = new wxPanel(parent);
             appPanel->SetBackgroundColour(*wxWHITE);
-            
-            const wxBitmap appIconImage = IO::loadImageResource(IO::Path("images/AppIcon.png"));
-            wxStaticBitmap* appIcon = new wxStaticBitmap(appPanel, wxID_ANY, appIconImage);
-            wxStaticText* appName = new wxStaticText(appPanel, wxID_ANY, "TrenchBroom");
-            appName->SetFont(appName->GetFont().Larger().Larger().Larger().Larger().Bold());
-            wxStaticLine* appLine = new wxStaticLine(appPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-            wxStaticText* appClaim = new wxStaticText(appPanel, wxID_ANY, "A Modern Level Editor");
-            wxString versionStr("Version ");
-            versionStr << getVersion();
-            wxStaticText* version = new wxStaticText(appPanel, wxID_ANY, versionStr);
-#if not defined(_WIN32)
-            version->SetFont(version->GetFont().Smaller());
-#endif
-            version->SetForegroundColour(wxColor(128, 128, 128));
-            
-            wxBoxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->Add(appIcon, 0, wxALIGN_CENTER_HORIZONTAL);
-            innerSizer->Add(appName, 0, wxALIGN_CENTER_HORIZONTAL);
-            innerSizer->Add(appLine, 0, wxEXPAND);
-            innerSizer->Add(appClaim, 0, wxALIGN_CENTER_HORIZONTAL);
-            innerSizer->Add(version, 0, wxALIGN_CENTER_HORIZONTAL);
-            innerSizer->AddStretchSpacer();
+            AppInfoPanel* infoPanel = new AppInfoPanel(appPanel);
             
             m_createNewDocumentButton = new wxButton(appPanel, wxID_ANY, "Create document...");
             m_createNewDocumentButton->SetToolTip("Create a new map document");
@@ -144,7 +118,7 @@ namespace TrenchBroom {
             buttonSizer->Add(m_openOtherDocumentButton, 1, wxEXPAND);
 
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(innerSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxLEFT | wxRIGHT, 50);
+            outerSizer->Add(infoPanel, 0, wxALIGN_CENTER_HORIZONTAL | wxLEFT | wxRIGHT, 50);
             outerSizer->AddSpacer(20);
             outerSizer->Add(buttonSizer, 0, wxALIGN_CENTER_HORIZONTAL | wxLEFT | wxRIGHT, 50);
             outerSizer->AddSpacer(20);
