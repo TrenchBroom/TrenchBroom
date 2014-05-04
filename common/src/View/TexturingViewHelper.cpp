@@ -363,13 +363,6 @@ namespace TrenchBroom {
             v2 = helper.texToWorld(v2);
         }
         
-        Mat4x4 TexturingViewHelper::worldToTexMatrix() const {
-            assert(valid());
-            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            return Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
-        }
-        
         Hits TexturingViewHelper::pick(const Ray3& pickRay) const {
             assert(valid());
             
@@ -553,6 +546,13 @@ namespace TrenchBroom {
             m_camera.setDirection(-normal, up);
         }
 
+        Mat4x4 TexturingViewHelper::worldToTexMatrix() const {
+            assert(valid());
+            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
+            const Vec2f scale(m_face->xScale(), m_face->yScale());
+            return Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+        }
+        
         void TexturingViewHelper::resetScaleOrigin() {
             assert(m_face != NULL);
             const Model::BrushVertexList& vertices = m_face->vertices();
