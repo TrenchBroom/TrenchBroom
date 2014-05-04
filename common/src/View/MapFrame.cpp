@@ -153,11 +153,13 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnClose(wxCloseEvent& event) {
-            assert(m_frameManager != NULL);
-            if (event.CanVeto() && !confirmOrDiscardChanges())
-                event.Veto();
-            else
-                m_frameManager->removeAndDestroyFrame(this);
+            if (!IsBeingDeleted()) {
+                assert(m_frameManager != NULL);
+                if (event.CanVeto() && !confirmOrDiscardChanges())
+                    event.Veto();
+                else
+                    m_frameManager->removeAndDestroyFrame(this);
+            }
         }
 
         void MapFrame::OnFileSave(wxCommandEvent& event) {

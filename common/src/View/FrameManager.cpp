@@ -94,8 +94,8 @@ namespace TrenchBroom {
 
         void FrameManager::removeAndDestroyFrame(MapFrame* frame) {
             FrameList::iterator it = std::find(m_frames.begin(), m_frames.end(), frame);
-            assert(it != m_frames.end());
-            m_frames.erase(it);
+            if (it != m_frames.end()) // On OS X, we sometimes get two close events for a frame when terminating the app from the dock.
+                m_frames.erase(it);
 
             if (m_topFrame == frame)
                 m_topFrame = NULL;
