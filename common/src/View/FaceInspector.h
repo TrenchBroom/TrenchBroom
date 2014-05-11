@@ -27,6 +27,7 @@
 #include <wx/panel.h>
 
 class wxCollapsiblePaneEvent;
+class wxSplitterWindow;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -47,6 +48,7 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             
+            wxSplitterWindow* m_splitter;
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
             TextureCollectionEditor* m_textureCollectionEditor;

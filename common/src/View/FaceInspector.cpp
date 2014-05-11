@@ -53,20 +53,22 @@ namespace TrenchBroom {
         }
 
         void FaceInspector::OnTextureCollectionEditorPaneChanged(wxCollapsiblePaneEvent& event) {
+            m_splitter->GetWindow1()->Layout();
+            m_splitter->GetWindow2()->Layout();
             Layout();
         }
 
         void FaceInspector::createGui(GLContextHolder::Ptr sharedContext) {
-            wxSplitterWindow* splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE | wxSP_3DSASH);
-            wxWindow* faceAttribsEditor = createFaceAttribsEditor(splitter, sharedContext);
-            wxWindow* texturePanel = createTexturePanel(splitter, sharedContext);
+            m_splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE | wxSP_3DSASH);
+            wxWindow* faceAttribsEditor = createFaceAttribsEditor(m_splitter, sharedContext);
+            wxWindow* texturePanel = createTexturePanel(m_splitter, sharedContext);
 
-            splitter->SetSashGravity(0.0f);
-            splitter->SetMinimumPaneSize(250);
-            splitter->SplitHorizontally(faceAttribsEditor, texturePanel);
+            m_splitter->SetSashGravity(0.0f);
+            m_splitter->SetMinimumPaneSize(250);
+            m_splitter->SplitHorizontally(faceAttribsEditor, texturePanel);
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(splitter, 1, wxEXPAND);
+            outerSizer->Add(m_splitter, 1, wxEXPAND);
             SetSizer(outerSizer);
         }
         
