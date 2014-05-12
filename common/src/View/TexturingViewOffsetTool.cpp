@@ -41,8 +41,7 @@ namespace TrenchBroom {
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
-            const Vec3 texPoint = m_helper.computeTexPoint(inputState.pickRay());
-            m_lastPoint = Vec2f(texPoint);
+            m_lastPoint = computeHitPoint(inputState.pickRay());
             
             controller()->beginUndoableGroup("Move Texture");
             return true;
@@ -51,11 +50,9 @@ namespace TrenchBroom {
         bool TexturingViewOffsetTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
-            const Vec3 texPoint = m_helper.computeTexPoint(inputState.pickRay());
-            const Vec2f curPoint(texPoint);
-            
-            const Vec2f delta   = curPoint - m_lastPoint;
-            const Vec2f snapped = m_helper.snapOffset(delta);
+            const Vec2f curPoint = computeHitPoint(inputState.pickRay());
+            const Vec2f delta    = curPoint - m_lastPoint;
+            const Vec2f snapped  = m_helper.snapOffset(delta);
             
             if (snapped.null())
                 return true;
@@ -76,6 +73,15 @@ namespace TrenchBroom {
         
         void TexturingViewOffsetTool::doCancelMouseDrag(const InputState& inputState) {
             controller()->rollbackGroup();
+        }
+
+        Vec2f TexturingViewOffsetTool::computeHitPoint(const Ray3& ray) const {
+            const Model::BrushFace* face = m_helper.face();
+            const Plane3& boundary = face->boundary();
+            const FloatType hitPointDistance = boundary.intersectWithRay(ray);
+            const Vec3 hitPointInWorldCoords = ray.pointAtDistance(hitPointDistance);
+            const Vec3 hitPointInTexCoords = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(Vec2f::Null, face->scale()) * hitPointInWorldCoords        ;
+            return Vec2f(hitPointInTexCoords);
         }
     }
 }

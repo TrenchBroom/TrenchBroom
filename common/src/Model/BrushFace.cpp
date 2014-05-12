@@ -441,6 +441,13 @@ namespace TrenchBroom {
             invalidate();
         }
 
+        Mat4x4 BrushFace::projectToBoundaryMatrix() const {
+            const Vec3 texZAxis = fromTexCoordSystemMatrix(offset(), scale()) * Vec3::PosZ;
+            const Mat4x4 planeToWorldMatrix = planeProjectionMatrix(m_boundary.distance, m_boundary.normal, texZAxis);
+            const Mat4x4 worldToPlaneMatrix = Mat4x4::ZerZ * invertedMatrix(planeToWorldMatrix);
+            return planeToWorldMatrix * worldToPlaneMatrix;
+        }
+
         Mat4x4 BrushFace::toTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale) const {
             return m_texCoordSystem->toMatrix(offset, scale);
         }

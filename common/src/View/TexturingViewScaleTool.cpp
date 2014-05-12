@@ -53,23 +53,19 @@ namespace TrenchBroom {
                     
                     const Plane3& boundary = face->boundary();
                     const FloatType rayDistance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
-                    const Vec3 hitPoint = pickRay.pointAtDistance(rayDistance);
-                    const Vec3 texHit = m_helper.transformToTex(hitPoint, true);
+                    const Vec3 hitPointInWorldCoords = pickRay.pointAtDistance(rayDistance);
+                    const Vec3 hitPointInTexCoords = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(face->offset(), face->scale()) * hitPointInWorldCoords;
                     
                     const FloatType maxDistance = MaxPickDistance / m_camera.zoom().x();
-                    
                     const Vec2 stripeSize = m_helper.stripeSize();
-                    const Vec2 errors(Math::abs(Math::remainder(texHit.x(), stripeSize.x())),
-                                      Math::abs(Math::remainder(texHit.y(), stripeSize.y())));
                     
-                    if (errors.x() <= maxDistance) {
-                        const int index = static_cast<int>(Math::round(texHit.x() / stripeSize.x()));
-                        hits.addHit(Hit(XHandleHit, rayDistance, hitPoint, index, errors.x()));
-                    }
-                    
-                    if (errors.y()  <= maxDistance) {
-                        const int index = static_cast<int>(Math::round(texHit.y() / stripeSize.y()));
-                        hits.addHit(Hit(YHandleHit, rayDistance, hitPoint, index, errors.y()));
+                    static const Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
+                    for (size_t i = 0; i < 2; ++i) {
+                        const FloatType error = Math::abs(Math::remainder(hitPointInTexCoords[i], stripeSize[i]));
+                        if (error <= maxDistance) {
+                            const int index = static_cast<int>(Math::round(hitPointInTexCoords[i] / stripeSize[i]));
+                            hits.addHit(Hit(HitTypes[i], rayDistance, hitPointInWorldCoords, index, error));
+                        }
                     }
                 }
             }

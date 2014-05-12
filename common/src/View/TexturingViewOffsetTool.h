@@ -40,7 +40,7 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
             
-            Vec3 computeTexPoint(const Ray3& ray, const Model::BrushFace* face) const;
+            Vec2f computeHitPoint(const Ray3& ray) const;
         };
     }
 }

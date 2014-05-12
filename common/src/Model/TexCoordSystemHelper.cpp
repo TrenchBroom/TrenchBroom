@@ -138,22 +138,15 @@ namespace TrenchBroom {
         }
 
         Mat4x4 TexCoordSystemHelper::toTexMatrix(const bool project) const {
-            const Mat4x4& p = project ? Mat4x4::ZerZ : Mat4x4::Identity;
-            return p * m_face->toTexCoordSystemMatrix(offset(), scale());
+            if (!project)
+                return m_face->toTexCoordSystemMatrix(offset(), scale());
+            return Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset(), scale());
         }
         
         Mat4x4 TexCoordSystemHelper::toWorldMatrix(const bool project) const {
-            const Mat4x4 fromTexMatrix = m_face->fromTexCoordSystemMatrix(offset(), scale());
-
             if (!project)
-                return fromTexMatrix;
-            
-            const Vec3 texZAxis = m_face->fromTexCoordSystemMatrix() * Vec3::PosZ;
-            const Plane3& boundary = m_face->boundary();
-            const Mat4x4 planeToWorldMatrix = planeProjectionMatrix(boundary.distance, boundary.normal, texZAxis);
-            const Mat4x4 worldToPlaneMatrix = Mat4x4::ZerZ * invertedMatrix(planeToWorldMatrix);
-            
-            return planeToWorldMatrix * worldToPlaneMatrix * fromTexMatrix;
+                return m_face->fromTexCoordSystemMatrix(offset(), scale());;
+            return m_face->projectToBoundaryMatrix() * m_face->fromTexCoordSystemMatrix(offset(), scale());
         }
 
         const Vec2f& TexCoordSystemHelper::offset() const {

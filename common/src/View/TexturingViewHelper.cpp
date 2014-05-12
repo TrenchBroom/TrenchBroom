@@ -56,35 +56,6 @@ namespace TrenchBroom {
             return m_face->texture();
         }
         
-        Vec3 TexturingViewHelper::computeTexPoint(const Ray3& ray) const {
-            assert(valid());
-            
-            const Plane3& boundary = m_face->boundary();
-            const FloatType facePointDist = boundary.intersectWithRay(ray);
-            const Vec3 facePoint = ray.pointAtDistance(facePointDist);
-            return transformToTex(facePoint);
-        }
-        
-        Vec3 TexturingViewHelper::transformToTex(const Vec3& worldPoint, const bool withOffset) const {
-            assert(valid());
-            
-            Model::TexCoordSystemHelper helper(m_face);
-            helper.setScale();
-            helper.setTranslate(withOffset);
-            helper.setProject();
-            return helper.worldToTex(worldPoint);
-        }
-        
-        Vec3::List TexturingViewHelper::transformToTex(const Vec3::List& worldPoints, const bool withOffset) const {
-            assert(valid());
-            
-            Model::TexCoordSystemHelper helper(m_face);
-            helper.setScale();
-            helper.setTranslate(withOffset);
-            helper.setProject();
-            return helper.worldToTex(worldPoints);
-        }
-        
         Vec2 computeStripeSize(const Assets::Texture* texture, const Vec2i& subDivisions);
         Vec2f computeDistance(const Vec3& position, const Assets::Texture* texture, const Vec2i& subDivisions);
         Vec2f combineIndividualDistances(const Vec2f& r1, const Vec2f& r2);

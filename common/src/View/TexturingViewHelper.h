@@ -64,27 +64,6 @@ namespace TrenchBroom {
             const Assets::Texture* texture() const;
 
             /**
-             Returns the point of intersection of the given ray and the current face's boundary plane in rotated and scaled
-             texture coordinates.
-             
-             Used in:
-             - TexturingViewOffsetTool::doStartMouseDrag
-             - TexturingViewOffsetTool::doMouseDrag
-             */
-            Vec3 computeTexPoint(const Ray3& ray) const;
-            /**
-             Transforms the given point in world coordinates to rotated and scaled and possibly translated texture coordinates.
-             
-             Used in:
-             - TexturingViewScaleTool::doPick with withOffset == true
-             */
-            Vec3 transformToTex(const Vec3& worldPoint, bool withOffset = false) const;
-            /**
-             Transforms the given points in world coordinates to rotated and scaled and possibly translated texture coordinates.
-             */
-            Vec3::List transformToTex(const Vec3::List& worldPoints, bool withOffset = false) const;
-
-            /**
              Snaps the given delta in rotated and scaled texture coordinates to the face vertices. The X and Y coords
              are snapped individually.
              
