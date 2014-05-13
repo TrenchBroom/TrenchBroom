@@ -489,6 +489,20 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
         
+        bool ControllerFacade::setFaceOffset(const Model::BrushFaceList& faces, const Vec2f& offset, bool add) {
+            using namespace Controller;
+            
+            FaceAttributeCommand::Ptr command(new FaceAttributeCommand(m_document, faces));
+            if (add) {
+                command->addXOffset(offset.x());
+                command->addYOffset(offset.y());
+            } else {
+                command->setXOffset(offset.x());
+                command->setYOffset(offset.y());
+            }
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
         bool ControllerFacade::setFaceRotation(const Model::BrushFaceList& faces, const float rotation, const bool add) {
             using namespace Controller;
             

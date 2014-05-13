@@ -58,10 +58,7 @@ namespace TrenchBroom {
                 return true;
             
             const Model::BrushFaceList applyTo(1, m_helper.face());
-            if (snapped.x() != 0.0f)
-                controller()->setFaceXOffset(applyTo, -snapped.x(), true);
-            if (snapped.y() != 0.0f)
-                controller()->setFaceYOffset(applyTo, -snapped.y(), true);
+            controller()->setFaceOffset(applyTo, -snapped, true);
             
             m_lastPoint += snapped;
             return true;

@@ -56,29 +56,11 @@ namespace TrenchBroom {
             return m_face->texture();
         }
         
-        Vec2 computeStripeSize(const Assets::Texture* texture, const Vec2i& subDivisions);
-        Vec2f computeDistance(const Vec3& position, const Assets::Texture* texture, const Vec2i& subDivisions);
         Vec2f combineIndividualDistances(const Vec2f& r1, const Vec2f& r2);
         Vec2f combineBothDistances(const Vec2f& r1, const Vec2f& r2);
         Vec2f snapIndividual(const Vec2f& delta, const Vec2f& distance, const float cameraZoom);
         Vec2f snapBoth(const Vec2f& delta, const Vec2f& distance, const float cameraZoom);
 
-        Vec2 computeStripeSize(const Assets::Texture* texture, const Vec2i& subDivisions) {
-            if (texture == NULL)
-                return Vec2::Null;
-            const FloatType width  = static_cast<FloatType>(texture->width())  / static_cast<FloatType>(subDivisions.x());
-            const FloatType height = static_cast<FloatType>(texture->height()) / static_cast<FloatType>(subDivisions.y());
-            return Vec2(width, height);
-        }
-
-        Vec2f computeDistance(const Vec3& position, const Assets::Texture* texture, const Vec2i& subDivisions) {
-            const Vec2 stripeSize = computeStripeSize(texture, subDivisions);
-            const FloatType x = Math::remainder(position.x(), stripeSize.x());
-            const FloatType y = Math::remainder(position.y(), stripeSize.y());
-            
-            return Vec2f(x, y);
-        }
-        
         Vec2f combineIndividualDistances(const Vec2f& r1, const Vec2f& r2) {
             Vec2f result;
             for (size_t i = 0; i < 2; ++i) {
@@ -113,26 +95,24 @@ namespace TrenchBroom {
             return delta.rounded();
         }
         
+        // Computes the smallest distance between the texture grid and the given point in translated and scaled tex
+        // coords.
+        // only used in snapOffset!
+        
         Vec2f TexturingViewHelper::snapOffset(const Vec2f& delta) const {
             assert(valid());
-            
-            if (delta.null())
-                return delta;
             
             const Assets::Texture* texture = m_face->texture();
             if (texture == NULL)
                 return delta;
             
-            Model::TexCoordSystemHelper texCoordSystem(m_face);
-            texCoordSystem.setOverrideTranslate(m_face->offset() - delta); // I don't know why this has to be subracted, but it works :-(
-            texCoordSystem.setScale();
-            texCoordSystem.setProject();
+            const Mat4x4 transform = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(m_face->offset() - delta, m_face->scale());
             
             const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f distance = computeDistance(texCoordSystem.worldToTex(vertices[0]->position), texture, m_subDivisions);
+            Vec2f distance = computeDistanceFromTextureGrid(transform * vertices[0]->position);
             
             for (size_t i = 1; i < vertices.size(); ++i)
-                distance = combineIndividualDistances(distance, computeDistance(texCoordSystem.worldToTex(vertices[i]->position), texture, m_subDivisions));
+                distance = combineIndividualDistances(distance, computeDistanceFromTextureGrid(transform * vertices[i]->position));
             
             return snapIndividual(delta, -distance, cameraZoom());
         }
@@ -170,7 +150,7 @@ namespace TrenchBroom {
             // and to the texture grid
             const Assets::Texture* texture = m_face->texture();
             if (texture != NULL)
-                distanceInTexCoords = combineIndividualDistances(distanceInTexCoords, computeDistance(Vec3(newOriginInTexCoords), texture, m_subDivisions));
+                distanceInTexCoords = combineIndividualDistances(distanceInTexCoords, computeDistanceFromTextureGrid(Vec3(newOriginInTexCoords)));
             
             // now we have a distance in the scaled and translated texture coordinate system
             // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system
@@ -255,6 +235,25 @@ namespace TrenchBroom {
             if (std::abs(minDelta) < 3.0f)
                 return angle - minDelta;
             return angle;
+        }
+        
+        Vec2 TexturingViewHelper::computeStripeSize() const {
+            const Assets::Texture* texture = m_face->texture();
+            if (texture == NULL)
+                return Vec2::Null;
+            const FloatType width  = static_cast<FloatType>(texture->width())  / static_cast<FloatType>(m_subDivisions.x());
+            const FloatType height = static_cast<FloatType>(texture->height()) / static_cast<FloatType>(m_subDivisions.y());
+            return Vec2(width, height);
+        }
+
+        Vec2f TexturingViewHelper::computeDistanceFromTextureGrid(const Vec3& position) const {
+            const Vec2 stripeSize = computeStripeSize();
+            assert(stripeSize.x() != 0.0 && stripeSize.y() != 0);
+            
+            const FloatType x = Math::remainder(position.x(), stripeSize.x());
+            const FloatType y = Math::remainder(position.y(), stripeSize.y());
+            
+            return Vec2f(x, y);
         }
         
         void TexturingViewHelper::computeScaleOriginHandles(Line3& xHandle, Line3& yHandle) const {
@@ -366,8 +365,7 @@ namespace TrenchBroom {
         
         Vec2 TexturingViewHelper::stripeSize() const {
             assert(valid());
-            const Assets::Texture* texture = m_face->texture();
-            return computeStripeSize(texture, m_subDivisions);
+            return computeStripeSize();
         }
 
         const Vec2f TexturingViewHelper::scaleOriginInFaceCoords() const {

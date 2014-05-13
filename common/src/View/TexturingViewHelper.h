@@ -123,6 +123,10 @@ namespace TrenchBroom {
              */
             float snapRotationAngle(float angle) const;
             
+        private:
+            Vec2 computeStripeSize() const;
+            Vec2f computeDistanceFromTextureGrid(const Vec3& position) const;
+        public:
             /**
              Computes the scale origin handle lines for the current scale origin in world coordinates.
              

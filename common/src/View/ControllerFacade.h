@@ -142,6 +142,7 @@ namespace TrenchBroom {
             bool setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture);
             bool setFaceXOffset(const Model::BrushFaceList& faces, float xOffset, bool add);
             bool setFaceYOffset(const Model::BrushFaceList& faces, float yOffset, bool add);
+            bool setFaceOffset(const Model::BrushFaceList& faces, const Vec2f& offset, bool add);
             bool setFaceRotation(const Model::BrushFaceList& faces, float rotation, bool add);
             bool setFaceXScale(const Model::BrushFaceList& faces, float xScale, bool add);
             bool setFaceYScale(const Model::BrushFaceList& faces, float yScale, bool add);
