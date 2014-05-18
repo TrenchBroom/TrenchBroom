@@ -51,10 +51,9 @@ namespace TrenchBroom {
             Vec2i m_subDivisions;
             
             /**
-             The position of the scaling origin handle in texture coordinates (without offset and scaling applied).
+             The position of the scaling origin / rotation center handle in texture coordinates (without offset and scaling applied).
              */
-            Vec2f m_scaleOrigin;
-            Vec2f m_rotationCenter;
+            Vec2f m_origin;
             Renderer::Vbo m_vbo;
         public:
             TexturingViewHelper(Renderer::OrthographicCamera& camera);
@@ -69,7 +68,7 @@ namespace TrenchBroom {
              Used in:
              - TexturingViewScaleOriginTool::doMouseDrag
              */
-            Vec2f snapScaleOrigin(const Vec2f& deltaInFaceCoords) const;
+            Vec2f snapOrigin(const Vec2f& deltaInFaceCoords) const;
             
             /**
              Snaps the given point in rotated, scaled and translated texture coordinates to the face's vertices.
@@ -180,22 +179,22 @@ namespace TrenchBroom {
             Vec2 stripeSize() const;
             
             /**
-             Returns the scale origin position in rotated texture coordinates.
+             Returns the origin position in rotated texture coordinates.
              
              Used in:
              - TexturingViewRotateTool::doMouseDrag to compensate for the rotation
              - TexturingViewScaleOriginTool::doMouseDrag
              - TexturingViewScaleTool::doMouseDrag to compute the scale factors
              */
-            const Vec2f scaleOriginInFaceCoords() const;
+            const Vec2f originInFaceCoords() const;
 
             /**
-             Returns the scale origin position in rotated, scaled and translated texture coordinates.
+             Returns the origin position in rotated, scaled and translated texture coordinates.
              
              Used in:
              - TexturingViewScaleTool::doMouseDrag to compute the scale factors
              */
-            const Vec2f scaleOriginInTexCoords() const;
+            const Vec2f originInTexCoords() const;
             
             /**
              Sets the scale origin position in rotated texture coordinates.
@@ -204,19 +203,8 @@ namespace TrenchBroom {
              - TexturingViewRotateTool::doMouseDrag to compensate for the rotation
              - TexturingViewScaleOriginTool::doMouseDrag to update the scale origin
              */
-            void setScaleOrigin(const Vec2f& scaleOriginInFaceCoords);
-            
-            /**
-             Returns the rotation center in rotated, scaled and translated texture coordinates.
-             
-             Used in:
-             - TexturingViewRotateTool::doPick
-             - TexturingViewRotateTool::doStartMouseDrag
-             - TexturingViewRotateTool::doMouseDrag to compensate for the rotation
-             - TexturingViewRotateTool::doRender
-             */
-            const Vec2f rotationCenterInFaceCoords() const;
-            
+            void setOrigin(const Vec2f& originInFaceCoords);
+
             /**
              Returns the position of the rotation handle in rotated, scaled and translated texture coordinates.
              
@@ -226,14 +214,6 @@ namespace TrenchBroom {
              - TexturingViewRotateTool::doRender
              */
             const Vec2f angleHandleInFaceCoords(const float distance) const;
-            
-            /**
-             Sets the position of the rotation center in rotated, sclaed and translated texture coordinates.
-             
-             Used in:
-             - TexturingView::doMouseDrag for updating the rotation center and for compensating
-             */
-            void setRotationCenter(const Vec2f& rotationCenterInFaceCoords);
             
             // Camera related functions
             void resetCamera();
@@ -246,8 +226,7 @@ namespace TrenchBroom {
         private:
             Mat4x4 worldToTexMatrix() const;
 
-            void resetScaleOrigin();
-            void resetRotationCenter();
+            void resetOrigin();
             
             BBox3 computeFaceBoundsInCameraCoords() const;
             Vec3 transformToCamera(const Vec3& point) const;

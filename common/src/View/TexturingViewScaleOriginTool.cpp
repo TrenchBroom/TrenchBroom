@@ -124,11 +124,11 @@ namespace TrenchBroom {
             const Vec3 texPoint = helper.worldToTex(facePoint);
             const Vec2f curPoint(texPoint);
             
-            const Vec2f delta = m_helper.snapScaleOrigin((curPoint - m_lastPoint) * m_selector);
+            const Vec2f delta = m_helper.snapOrigin((curPoint - m_lastPoint) * m_selector);
             if (delta.null())
                 return true;
             
-            m_helper.setScaleOrigin(m_helper.scaleOriginInFaceCoords() + delta);
+            m_helper.setOrigin(m_helper.originInFaceCoords() + delta);
             m_lastPoint += delta;
             
             return true;

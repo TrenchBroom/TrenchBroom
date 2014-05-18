@@ -104,8 +104,8 @@ namespace TrenchBroom {
             const Vec2f newHandlePosFaceCoords = getScaleHandlePositionInFaceCoords(m_handle) + dragDeltaFaceCoords;
             const Vec2f newHandlePosSnapped    = m_helper.snapScaleHandle(newHandlePosFaceCoords);
 
-            const Vec2f originHandlePosFaceCoords = m_helper.scaleOriginInFaceCoords();
-            const Vec2f originHandlePosTexCoords  = m_helper.scaleOriginInTexCoords();
+            const Vec2f originHandlePosFaceCoords = m_helper.originInFaceCoords();
+            const Vec2f originHandlePosTexCoords  = m_helper.originInTexCoords();
             
             const Vec2f newHandleDistFaceCoords = newHandlePosSnapped    - originHandlePosFaceCoords;
             const Vec2f curHandleDistTexCoords  = curHandlePosTexCoords  - originHandlePosTexCoords;
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             controller()->setFaceXScale(applyTo, newScale.x(), false);
             controller()->setFaceYScale(applyTo, newScale.y(), false);
             
-            const Vec2f newOriginInTexCoords = m_helper.scaleOriginInTexCoords();
+            const Vec2f newOriginInTexCoords = m_helper.originInTexCoords();
             const Vec2f originDelta = newOriginInTexCoords - originHandlePosTexCoords;
 
             controller()->setFaceXOffset(applyTo, -originDelta.x(), true);

@@ -101,7 +101,7 @@ namespace TrenchBroom {
                          newHandlePosition.y() - point.y());
         }
         
-        Vec2f TexturingViewHelper::snapScaleOrigin(const Vec2f& deltaInFaceCoords) const {
+        Vec2f TexturingViewHelper::snapOrigin(const Vec2f& deltaInFaceCoords) const {
             assert(valid());
             
             if (deltaInFaceCoords.null())
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             texCoordSystem.setScale();
             texCoordSystem.setProject();
 
-            const Vec2f newOriginInFaceCoords = m_scaleOrigin + deltaInFaceCoords;
+            const Vec2f newOriginInFaceCoords = m_origin + deltaInFaceCoords;
             const Vec2f newOriginInTexCoords = faceCoordSystem.texToTex(newOriginInFaceCoords, texCoordSystem);
             
             // now snap to the vertices
@@ -180,7 +180,7 @@ namespace TrenchBroom {
 
         float TexturingViewHelper::measureRotationAngle(const Vec2f& point) const {
             assert(valid());
-            return m_face->measureTextureAngle(rotationCenterInFaceCoords(), point);
+            return m_face->measureTextureAngle(originInFaceCoords(), point);
         }
 
         float TexturingViewHelper::snapRotationAngle(const float angle) const {
@@ -242,7 +242,7 @@ namespace TrenchBroom {
             // helper.setScale();
             helper.setProject();
 
-            const Vec3 scaleOriginInFaceCoords(m_scaleOrigin.x(), m_scaleOrigin.y(), 0.0);
+            const Vec3 scaleOriginInFaceCoords(m_origin.x(), m_origin.y(), 0.0);
             xHandle.point = yHandle.point = helper.texToWorld(scaleOriginInFaceCoords);
             
             const Vec3 xHandlePoint2 = helper.texToWorld(scaleOriginInFaceCoords + Vec3::PosY);
@@ -263,11 +263,11 @@ namespace TrenchBroom {
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
             
-            x1 = Vec3(m_scaleOrigin.x(), min.y(), 0.0);
-            x2 = Vec3(m_scaleOrigin.x(), max.y(), 0.0);
+            x1 = Vec3(m_origin.x(), min.y(), 0.0);
+            x2 = Vec3(m_origin.x(), max.y(), 0.0);
             
-            y1 = Vec3(min.x(), m_scaleOrigin.y(), 0.0);
-            y2 = Vec3(max.x(), m_scaleOrigin.y(), 0.0);
+            y1 = Vec3(min.x(), m_origin.y(), 0.0);
+            y2 = Vec3(max.x(), m_origin.y(), 0.0);
             
             x1 = helper.texToWorld(x1);
             x2 = helper.texToWorld(x2);
@@ -326,10 +326,8 @@ namespace TrenchBroom {
         void TexturingViewHelper::setFace(Model::BrushFace* face) {
             if (face != m_face) {
                 m_face = face;
-                if (m_face != NULL) {
-                    resetScaleOrigin();
-                    resetRotationCenter();
-                }
+                if (m_face != NULL)
+                    resetOrigin();
             }
         }
         
@@ -346,11 +344,11 @@ namespace TrenchBroom {
             return computeStripeSize();
         }
 
-        const Vec2f TexturingViewHelper::scaleOriginInFaceCoords() const {
-            return m_scaleOrigin;
+        const Vec2f TexturingViewHelper::originInFaceCoords() const {
+            return m_origin;
         }
         
-        const Vec2f TexturingViewHelper::scaleOriginInTexCoords() const {
+        const Vec2f TexturingViewHelper::originInTexCoords() const {
             Model::TexCoordSystemHelper faceCoordSystem(m_face);
             faceCoordSystem.setProject();
             
@@ -359,23 +357,15 @@ namespace TrenchBroom {
             texCoordSystem.setScale();
             texCoordSystem.setProject();
             
-            return faceCoordSystem.texToTex(m_scaleOrigin, texCoordSystem);
+            return faceCoordSystem.texToTex(m_origin, texCoordSystem);
         }
         
-        void TexturingViewHelper::setScaleOrigin(const Vec2f& scaleOriginInFaceCoords) {
-            m_scaleOrigin = scaleOriginInFaceCoords;
-        }
-        
-        const Vec2f TexturingViewHelper::rotationCenterInFaceCoords() const {
-            return m_rotationCenter;
+        void TexturingViewHelper::setOrigin(const Vec2f& originInFaceCoords) {
+            m_origin = originInFaceCoords;
         }
         
         const Vec2f TexturingViewHelper::angleHandleInFaceCoords(const float distance) const {
-            return m_rotationCenter + distance * Vec2f::PosX;
-        }
-
-        void TexturingViewHelper::setRotationCenter(const Vec2f& rotationCenterInFaceCoords) {
-            m_rotationCenter = rotationCenterInFaceCoords;
+            return m_origin + distance * Vec2f::PosX;
         }
         
         void TexturingViewHelper::renderTexture(Renderer::RenderContext& renderContext) {
@@ -506,7 +496,7 @@ namespace TrenchBroom {
             return Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
         }
         
-        void TexturingViewHelper::resetScaleOrigin() {
+        void TexturingViewHelper::resetOrigin() {
             assert(m_face != NULL);
             const Model::BrushVertexList& vertices = m_face->vertices();
             const size_t vertexCount = vertices.size();
@@ -519,18 +509,7 @@ namespace TrenchBroom {
             helper.setProject();
 
             const BBox3 bounds(helper.worldToTex(positions));
-            m_scaleOrigin = Vec2f(bounds.min);
-        }
-        
-        void TexturingViewHelper::resetRotationCenter() {
-            assert(m_face != NULL);
-            const Vec3 center = m_face->center();
-            
-            Model::TexCoordSystemHelper helper(m_face);
-            helper.setProject();
-            
-            const Vec3 centerInFaceCoords = helper.worldToTex(center);
-            m_rotationCenter = Vec2f(centerInFaceCoords);
+            m_origin = Vec2f(bounds.min);
         }
 
         BBox3 TexturingViewHelper::computeFaceBoundsInCameraCoords() const {

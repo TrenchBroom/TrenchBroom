@@ -35,7 +35,6 @@ namespace TrenchBroom {
 
         class TexturingViewRotateTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         public:
-            static const Hit::HitType CenterHandleHit;
             static const Hit::HitType AngleHandleHit;
         private:
             static const float HandleRadius;
@@ -43,14 +42,7 @@ namespace TrenchBroom {
             
             TexturingViewHelper& m_helper;
             Renderer::OrthographicCamera& m_camera;
-            
-            typedef enum {
-                DragMode_None,
-                DragMode_Center,
-                DragMode_Angle
-            } DragMode;
-            
-            DragMode m_dragMode;
+
             Vec2f m_offset;
         public:
             TexturingViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);

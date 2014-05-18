@@ -38,7 +38,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType TexturingViewRotateTool::CenterHandleHit = Hit::freeHitType();
         const Hit::HitType TexturingViewRotateTool::AngleHandleHit = Hit::freeHitType();
         const float TexturingViewRotateTool::HandleRadius = 5.0f;
         const float TexturingViewRotateTool::HandleLength = 32.0f;
@@ -46,8 +45,7 @@ namespace TrenchBroom {
         TexturingViewRotateTool::TexturingViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera) :
         ToolImpl(document, controller),
         m_helper(helper),
-        m_camera(camera),
-        m_dragMode(DragMode_None) {}
+        m_camera(camera) {}
         
         void TexturingViewRotateTool::doPick(const InputState& inputState, Hits& hits) {
             if (!m_helper.valid())
@@ -64,11 +62,6 @@ namespace TrenchBroom {
             Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
             const Vec2f hitPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(hitPoint));
             
-            const Vec2f centerHandleInFaceCoords = m_helper.rotationCenterInFaceCoords();
-            const float centerHandleError = hitPointInFaceCoords.distanceTo(centerHandleInFaceCoords);
-            if (Math::abs(centerHandleError) <= 2.0f * HandleRadius / m_camera.zoom().x())
-                hits.addHit(Hit(CenterHandleHit, distance, hitPoint, 0, centerHandleError));
-            
             const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
             const float angleHandleError = hitPointInFaceCoords.distanceTo(angleHandleInFaceCoords);
             if (Math::abs(angleHandleError) <= 2.0f * HandleRadius / m_camera.zoom().x())
@@ -83,34 +76,24 @@ namespace TrenchBroom {
                 return false;
 
             const Hits& hits = inputState.hits();
-            const Hit& centerHandleHit = hits.findFirst(CenterHandleHit, true);
             const Hit& angleHandleHit = hits.findFirst(AngleHandleHit, true);
 
-            if (!centerHandleHit.isMatch() && !angleHandleHit.isMatch())
+            if (!angleHandleHit.isMatch())
                 return false;
 
             const Model::BrushFace* face = m_helper.face();
             Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
 
-            if (centerHandleHit.isMatch()) {
-                const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(centerHandleHit.hitPoint());
-                const Vec2f centerHandleInFaceCoords = m_helper.rotationCenterInFaceCoords();
-                m_offset = hitPointInFaceCoords - centerHandleInFaceCoords;
-                m_dragMode = DragMode_Center;
-            } else if (angleHandleHit.isMatch()) {
-                const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(angleHandleHit.hitPoint());
-                const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
-                m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
-                m_dragMode = DragMode_Angle;
-                controller()->beginUndoableGroup("Rotate Texture");
-            }
+            const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(angleHandleHit.hitPoint());
+            const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
+            m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
+            controller()->beginUndoableGroup("Rotate Texture");
             
             return true;
         }
         
         bool TexturingViewRotateTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
-            assert(m_dragMode != DragMode_None);
             
             Model::BrushFace* face = m_helper.face();
             const Plane3& boundary = face->boundary();
@@ -121,39 +104,29 @@ namespace TrenchBroom {
             Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
             const Vec2f curPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(curPoint));
             
-            if (m_dragMode == DragMode_Center) {
-                const Vec2f snappedPoint = m_helper.snapRotationCenter(curPointInFaceCoords - m_offset);
-                m_helper.setRotationCenter(snappedPoint);
-            } else {
-                const Vec3 oldCenterInWorldCoords = faceCoordSystem.texToWorld(Vec3(m_helper.rotationCenterInFaceCoords()));
-                const float angle = Math::mod(m_helper.measureRotationAngle(curPointInFaceCoords), 360.0f);
-                const float snappedAngle = m_helper.snapRotationAngle(angle);
-                
-                const Model::BrushFaceList applyTo(1, face);
-                controller()->setFaceRotation(applyTo, snappedAngle, false);
-
-                // Correct the offsets and the position of the rotation center.
-                const Vec2f oldCenterInFaceCoords(faceCoordSystem.worldToTex(oldCenterInWorldCoords));
-                const Vec2f delta = (oldCenterInFaceCoords - m_helper.rotationCenterInFaceCoords()).corrected(1);
-                controller()->setFaceXOffset(applyTo, -delta.x(), true);
-                controller()->setFaceYOffset(applyTo, -delta.y(), true);
-                m_helper.setRotationCenter(oldCenterInFaceCoords);
-                m_helper.setScaleOrigin(m_helper.scaleOriginInFaceCoords() + delta);
-            }
+            const Vec2f oldCenterInFaceCoords = m_helper.originInFaceCoords();
+            const Vec3 oldCenterInWorldCoords = faceCoordSystem.texToWorld(Vec3(oldCenterInFaceCoords));
+            const float angle = Math::mod(m_helper.measureRotationAngle(curPointInFaceCoords), 360.0f);
+            const float snappedAngle = m_helper.snapRotationAngle(angle);
+            
+            const Model::BrushFaceList applyTo(1, face);
+            controller()->setFaceRotation(applyTo, snappedAngle, false);
+            
+            // Correct the offsets and the position of the rotation center.
+            const Vec2f newCenterInFaceCoords(faceCoordSystem.worldToTex(oldCenterInWorldCoords));
+            const Vec2f delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
+            controller()->setFaceOffset(applyTo, delta, true);
+            m_helper.setOrigin(newCenterInFaceCoords);
             
             return true;
         }
         
         void TexturingViewRotateTool::doEndMouseDrag(const InputState& inputState) {
-            if (m_dragMode == DragMode_Angle)
-                controller()->closeGroup();
-            m_dragMode = DragMode_None;
+            controller()->closeGroup();
         }
         
         void TexturingViewRotateTool::doCancelMouseDrag(const InputState& inputState) {
-            if (m_dragMode == DragMode_Angle)
-                controller()->rollbackGroup();
-            m_dragMode = DragMode_None;
+            controller()->rollbackGroup();
         }
 
         void TexturingViewRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
@@ -161,18 +134,16 @@ namespace TrenchBroom {
                 return;
             
             const Hits& hits = inputState.hits();
-            const Hit& centerHandleHit = hits.findFirst(CenterHandleHit, true);
             const Hit& angleHandleHit = hits.findFirst(AngleHandleHit, true);
             
-            const bool highlightCenterHandle = centerHandleHit.isMatch() || m_dragMode == DragMode_Center;
-            const bool highlightAngleHandle = angleHandleHit.isMatch() || m_dragMode == DragMode_Angle;
+            const bool highlightAngleHandle = angleHandleHit.isMatch() || dragging();
             
             const PreferenceManager& prefs = PreferenceManager::instance();
             const Color& handleColor = prefs.get(Preferences::HandleColor);
             const Color& highlightColor = prefs.get(Preferences::SelectedHandleColor);
 
             const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_helper.face());
-            const Vec2f centerHandlePosition = m_helper.rotationCenterInFaceCoords();
+            const Vec2f originPosition = m_helper.originInFaceCoords();
             const Vec2f angleHandlePosition = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
             const Vec2f faceCenterPosition = faceCoordSystem.worldToTex(m_helper.face()->center());
 
@@ -187,7 +158,7 @@ namespace TrenchBroom {
 
             typedef Renderer::VertexSpecs::P2::Vertex Vertex;
             Vertex::List lineVertices(2);
-            lineVertices[0] = Vertex(centerHandlePosition);
+            lineVertices[0] = Vertex(originPosition);
             lineVertices[1] = Vertex(angleHandlePosition);
             Renderer::VertexArray array = Renderer::VertexArray::ref(GL_LINES, lineVertices);
             
@@ -202,16 +173,11 @@ namespace TrenchBroom {
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
             const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), faceCoordSystem.toWorldMatrix());
             {
-                const Mat4x4 translation = translationMatrix(Vec3(centerHandlePosition));
+                const Mat4x4 translation = translationMatrix(Vec3(originPosition));
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
                 shader.set("Color", handleColor);
                 fill.render();
                 outer.render();
-                
-                if (highlightCenterHandle) {
-                    shader.set("Color", highlightColor);
-                    highlight.render();
-                }
             }
             
             {

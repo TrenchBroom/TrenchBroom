@@ -88,7 +88,7 @@ namespace TrenchBroom {
             
             const Assets::Texture* texture = face->texture();
             if (texture == NULL)
-                return delta;
+                return delta.rounded();
             
             const Mat4x4 transform = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(face->offset() - delta, face->scale());
             
