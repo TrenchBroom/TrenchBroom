@@ -62,15 +62,6 @@ namespace TrenchBroom {
             bool valid() const;
             Model::BrushFace* face() const;
             const Assets::Texture* texture() const;
-
-            /**
-             Snaps the given delta in rotated and scaled texture coordinates to the face vertices. The X and Y coords
-             are snapped individually.
-             
-             Used in:
-             - TexturingViewOffsetTool::doMouseDrag
-             */
-            Vec2f snapOffset(const Vec2f& delta) const;
             
             /**
              Snaps the given delta in rotated texture coordinates to the vertices of the face and to the texture grid.
@@ -122,11 +113,10 @@ namespace TrenchBroom {
              - TexturingViewRotateTool::doMouseDrag
              */
             float snapRotationAngle(float angle) const;
-            
-        private:
+
             Vec2 computeStripeSize() const;
             Vec2f computeDistanceFromTextureGrid(const Vec3& position) const;
-        public:
+
             /**
              Computes the scale origin handle lines for the current scale origin in world coordinates.
              
@@ -247,6 +237,7 @@ namespace TrenchBroom {
             
             // Camera related functions
             void resetCamera();
+            float cameraZoom() const;
 
             void renderTexture(Renderer::RenderContext& renderContext);
             Vec3f::List getTextureQuad() const;
@@ -258,7 +249,6 @@ namespace TrenchBroom {
             void resetScaleOrigin();
             void resetRotationCenter();
             
-            float cameraZoom() const;
             BBox3 computeFaceBoundsInCameraCoords() const;
             Vec3 transformToCamera(const Vec3& point) const;
             Vec3 transformFromCamera(const Vec3& point) const;

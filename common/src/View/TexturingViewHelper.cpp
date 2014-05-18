@@ -95,28 +95,6 @@ namespace TrenchBroom {
             return delta.rounded();
         }
         
-        // Computes the smallest distance between the texture grid and the given point in translated and scaled tex
-        // coords.
-        // only used in snapOffset!
-        
-        Vec2f TexturingViewHelper::snapOffset(const Vec2f& delta) const {
-            assert(valid());
-            
-            const Assets::Texture* texture = m_face->texture();
-            if (texture == NULL)
-                return delta;
-            
-            const Mat4x4 transform = Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(m_face->offset() - delta, m_face->scale());
-            
-            const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f distance = computeDistanceFromTextureGrid(transform * vertices[0]->position);
-            
-            for (size_t i = 1; i < vertices.size(); ++i)
-                distance = combineIndividualDistances(distance, computeDistanceFromTextureGrid(transform * vertices[i]->position));
-            
-            return snapIndividual(delta, -distance, cameraZoom());
-        }
-        
         Vec2f computeDistance(const Vec3& point, const Vec2f& newHandlePosition);
         Vec2f computeDistance(const Vec3& point, const Vec2f& newHandlePosition) {
             return Vec2f(newHandlePosition.x() - point.x(),
@@ -514,6 +492,12 @@ namespace TrenchBroom {
             m_camera.setFarPlane(1.0);
             m_camera.setDirection(-normal, up);
         }
+        
+        float TexturingViewHelper::cameraZoom() const {
+            const Vec2f& zoom = m_camera.zoom();
+            assert(zoom.x() == zoom.y());
+            return zoom.x();
+        }
 
         Mat4x4 TexturingViewHelper::worldToTexMatrix() const {
             assert(valid());
@@ -547,12 +531,6 @@ namespace TrenchBroom {
             
             const Vec3 centerInFaceCoords = helper.worldToTex(center);
             m_rotationCenter = Vec2f(centerInFaceCoords);
-        }
-
-        float TexturingViewHelper::cameraZoom() const {
-            const Vec2f& zoom = m_camera.zoom();
-            assert(zoom.x() == zoom.y());
-            return zoom.x();
         }
 
         BBox3 TexturingViewHelper::computeFaceBoundsInCameraCoords() const {

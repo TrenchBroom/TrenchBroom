@@ -134,6 +134,20 @@ namespace Math {
     }
 
     template <typename T>
+    T absMin(const T v1, const T v2) {
+        if (abs(v1) < abs(v2))
+            return v1;
+        return v2;
+    }
+    
+    template <typename T>
+    T absMax(const T v1, const T v2) {
+        if (abs(v1) > abs(v2))
+            return v1;
+        return v2;
+    }
+    
+    template <typename T>
     T radians(const T d) {
         return d * Constants<T>::piOverStraightAngle();
     }

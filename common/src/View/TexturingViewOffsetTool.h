@@ -41,6 +41,8 @@ namespace TrenchBroom {
             void doCancelMouseDrag(const InputState& inputState);
             
             Vec2f computeHitPoint(const Ray3& ray) const;
+            Vec2f snapDelta(const Vec2f& delta) const;
+            Vec2f snap(const Vec2f& delta, const Vec2f& distance, const float cameraZoom) const;
         };
     }
 }

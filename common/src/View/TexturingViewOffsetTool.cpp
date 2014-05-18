@@ -21,6 +21,7 @@
 
 #include "Hit.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushVertex.h"
 #include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -52,7 +53,7 @@ namespace TrenchBroom {
 
             const Vec2f curPoint = computeHitPoint(inputState.pickRay());
             const Vec2f delta    = curPoint - m_lastPoint;
-            const Vec2f snapped  = m_helper.snapOffset(delta);
+            const Vec2f snapped  = snapDelta(delta);
             
             if (snapped.null())
                 return true;
@@ -79,6 +80,36 @@ namespace TrenchBroom {
             const Vec3 hitPointInWorldCoords = ray.pointAtDistance(hitPointDistance);
             const Vec3 hitPointInTexCoords = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(Vec2f::Null, face->scale()) * hitPointInWorldCoords        ;
             return Vec2f(hitPointInTexCoords);
+        }
+
+        Vec2f TexturingViewOffsetTool::snapDelta(const Vec2f& delta) const {
+            const Model::BrushFace* face = m_helper.face();
+            assert(face != NULL);
+            
+            const Assets::Texture* texture = face->texture();
+            if (texture == NULL)
+                return delta;
+            
+            const Mat4x4 transform = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(face->offset() - delta, face->scale());
+            
+            const Model::BrushVertexList& vertices = face->vertices();
+            Vec2f distance = m_helper.computeDistanceFromTextureGrid(transform * vertices[0]->position);
+            
+            for (size_t i = 1; i < vertices.size(); ++i)
+                distance = min(distance, m_helper.computeDistanceFromTextureGrid(transform * vertices[i]->position));
+            
+            return snap(delta, distance, m_helper.cameraZoom());
+        }
+        
+        Vec2f TexturingViewOffsetTool::snap(const Vec2f& delta, const Vec2f& distance, const float cameraZoom) const {
+            Vec2f result;
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(distance[i]) < 4.0f / cameraZoom)
+                    result[i] = delta[i] + distance[i];
+                else
+                    result[i] = Math::round(delta[i]);
+            }
+            return result;
         }
     }
 }

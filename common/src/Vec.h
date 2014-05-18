@@ -809,4 +809,35 @@ T angleBetween(const Vec<T,3> vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
     return Math::Constants<T>::twoPi() - std::acos(cos);
 }
 
+template <typename T, size_t S>
+Vec<T,S> min(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i)
+        result[i] = Math::min(lhs[i], rhs[i]);
+    return result;
+}
+
+template <typename T, size_t S>
+Vec<T,S> max(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i)
+        result[i] = Math::max(lhs[i], rhs[i]);
+    return result;
+}
+
+template <typename T, size_t S>
+Vec<T,S> absMin(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i)
+        result[i] = Math::absMin(lhs[i], rhs[i]);
+    return result;
+}
+
+template <typename T, size_t S>
+Vec<T,S> absMax(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
+    Vec<T,S> result;
+    for (size_t i = 0; i < S; ++i)
+        result[i] = Math::absMax(lhs[i], rhs[i]);
+    return result;
+}
 #endif
