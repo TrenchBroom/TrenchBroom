@@ -30,7 +30,7 @@
 #include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/TexturingViewHelper.h"
-#include "View/TexturingViewScaleOriginTool.h"
+#include "View/TexturingViewOriginTool.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -179,8 +179,8 @@ namespace TrenchBroom {
             
             // don't overdraw the origin handles
             const Hits& hits = inputState.hits();
-            if (hits.findFirst(TexturingViewScaleOriginTool::XHandleHit, true).isMatch() ||
-                hits.findFirst(TexturingViewScaleOriginTool::YHandleHit, true).isMatch())
+            if (hits.findFirst(TexturingViewOriginTool::XHandleHit, true).isMatch() ||
+                hits.findFirst(TexturingViewOriginTool::YHandleHit, true).isMatch())
                 return;
                 
             EdgeVertex::List vertices = getHandleVertices(hits);

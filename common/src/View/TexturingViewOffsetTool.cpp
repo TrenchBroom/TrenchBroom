@@ -76,10 +76,11 @@ namespace TrenchBroom {
         Vec2f TexturingViewOffsetTool::computeHitPoint(const Ray3& ray) const {
             const Model::BrushFace* face = m_helper.face();
             const Plane3& boundary = face->boundary();
-            const FloatType hitPointDistance = boundary.intersectWithRay(ray);
-            const Vec3 hitPointInWorldCoords = ray.pointAtDistance(hitPointDistance);
-            const Vec3 hitPointInTexCoords = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(Vec2f::Null, face->scale()) * hitPointInWorldCoords        ;
-            return Vec2f(hitPointInTexCoords);
+            const FloatType distance = boundary.intersectWithRay(ray);
+            const Vec3 hitPoint = ray.pointAtDistance(distance);
+            
+            const Mat4x4 transform = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale());
+            return Vec2f(Mat4x4::ZerZ * transform * hitPoint);
         }
 
         Vec2f TexturingViewOffsetTool::snapDelta(const Vec2f& delta) const {
@@ -96,20 +97,10 @@ namespace TrenchBroom {
             Vec2f distance = m_helper.computeDistanceFromTextureGrid(transform * vertices[0]->position);
             
             for (size_t i = 1; i < vertices.size(); ++i)
-                distance = min(distance, m_helper.computeDistanceFromTextureGrid(transform * vertices[i]->position));
+                distance = absMin(distance, m_helper.computeDistanceFromTextureGrid(transform * vertices[i]->position));
             
-            return snap(delta, distance, m_helper.cameraZoom());
+            return m_helper.snapDelta(delta, distance);
         }
         
-        Vec2f TexturingViewOffsetTool::snap(const Vec2f& delta, const Vec2f& distance, const float cameraZoom) const {
-            Vec2f result;
-            for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(distance[i]) < 4.0f / cameraZoom)
-                    result[i] = delta[i] + distance[i];
-                else
-                    result[i] = Math::round(delta[i]);
-            }
-            return result;
-        }
     }
 }

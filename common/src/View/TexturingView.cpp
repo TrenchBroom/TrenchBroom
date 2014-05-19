@@ -37,7 +37,7 @@
 #include "View/TexturingViewOffsetTool.h"
 #include "View/TexturingViewRotateTool.h"
 #include "View/TexturingViewScaleTool.h"
-#include "View/TexturingViewScaleOriginTool.h"
+#include "View/TexturingViewOriginTool.h"
 
 #include <cassert>
 #include <iostream>
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         m_helper(m_camera),
         m_toolBox(this, this),
         m_rotateTool(NULL),
-        m_scaleOriginTool(NULL),
+        m_originTool(NULL),
         m_scaleTool(NULL),
         m_offsetTool(NULL),
         m_cameraTool(NULL) {
@@ -75,13 +75,13 @@ namespace TrenchBroom {
 
         void TexturingView::createTools() {
             m_rotateTool = new TexturingViewRotateTool(m_document, m_controller, m_helper, m_camera);
-            m_scaleOriginTool = new TexturingViewScaleOriginTool(m_document, m_controller, m_helper, m_camera);
+            m_originTool = new TexturingViewOriginTool(m_document, m_controller, m_helper, m_camera);
             m_scaleTool = new TexturingViewScaleTool(m_document, m_controller, m_helper, m_camera);
             m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller, m_helper);
             m_cameraTool = new TexturingViewCameraTool(m_document, m_controller, m_camera);
 
             m_toolBox.addTool(m_rotateTool);
-            m_toolBox.addTool(m_scaleOriginTool);
+            m_toolBox.addTool(m_originTool);
             m_toolBox.addTool(m_scaleTool);
             m_toolBox.addTool(m_offsetTool);
             m_toolBox.addTool(m_cameraTool);
@@ -92,8 +92,8 @@ namespace TrenchBroom {
             m_cameraTool = NULL;
             delete m_offsetTool;
             m_offsetTool = NULL;
-            delete m_scaleOriginTool;
-            m_scaleOriginTool = NULL;
+            delete m_originTool;
+            m_originTool = NULL;
             delete m_scaleTool;
             m_scaleTool = NULL;
             delete m_rotateTool;
@@ -200,7 +200,7 @@ namespace TrenchBroom {
         }
         
         void TexturingView::renderFace(Renderer::RenderContext& renderContext) {
-            assert(m_helper.valid());
+            assert(m_helper.valid()); 
             
             const Model::BrushFace* face = m_helper.face();
             const Model::BrushVertexList& faceVertices = face->vertices();

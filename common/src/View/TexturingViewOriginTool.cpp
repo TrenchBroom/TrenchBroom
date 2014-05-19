@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturingViewScaleOriginTool.h"
+#include "TexturingViewOriginTool.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
@@ -33,16 +33,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType TexturingViewScaleOriginTool::XHandleHit = Hit::freeHitType();
-        const Hit::HitType TexturingViewScaleOriginTool::YHandleHit = Hit::freeHitType();
-        const FloatType TexturingViewScaleOriginTool::MaxPickDistance = 5.0;
+        const Hit::HitType TexturingViewOriginTool::XHandleHit = Hit::freeHitType();
+        const Hit::HitType TexturingViewOriginTool::YHandleHit = Hit::freeHitType();
+        const FloatType TexturingViewOriginTool::MaxPickDistance = 5.0;
 
-        TexturingViewScaleOriginTool::TexturingViewScaleOriginTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera) :
+        TexturingViewOriginTool::TexturingViewOriginTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera) :
         ToolImpl(document, controller),
         m_helper(helper),
         m_camera(camera) {}
 
-        void TexturingViewScaleOriginTool::doPick(const InputState& inputState, Hits& hits) {
+        void TexturingViewOriginTool::doPick(const InputState& inputState, Hits& hits) {
             if (m_helper.valid()) {
                 const Ray3& pickRay = inputState.pickRay();
 
@@ -55,7 +55,7 @@ namespace TrenchBroom {
                 assert(!xDistance.parallel);
                 assert(!yDistance.parallel);
                 
-                const FloatType maxDistance  = MaxPickDistance / m_camera.zoom().x();
+                const FloatType maxDistance  = MaxPickDistance / m_helper.cameraZoom();
                 const FloatType absXDistance = Math::abs(xDistance.distance);
                 const FloatType absYDistance = Math::abs(yDistance.distance);
                 
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool TexturingViewScaleOriginTool::doStartMouseDrag(const InputState& inputState) {
+        bool TexturingViewOriginTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
             
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -85,13 +85,6 @@ namespace TrenchBroom {
             if (!xHandleHit.isMatch() && !yHandleHit.isMatch())
                 return false;
             
-            const Model::BrushFace* face = m_helper.face();
-            const Plane3& boundary = face->boundary();
-            
-            const Ray3& pickRay = inputState.pickRay();
-            const FloatType facePointDist = boundary.intersectWithRay(pickRay);
-            const Vec3 facePoint = pickRay.pointAtDistance(facePointDist);
-            
             if (xHandleHit.isMatch())
                 m_selector[0] = 1.0f;
             else
@@ -102,42 +95,76 @@ namespace TrenchBroom {
             else
                 m_selector[1] = 0.0f;
             
-            Model::TexCoordSystemHelper helper(face);
-            helper.setProject();
-            
-            const Vec3 texPoint = helper.worldToTex(facePoint);
-            m_lastPoint = Vec2f(texPoint);
+            m_lastPoint = computeHitPoint(inputState.pickRay());
             return true;
         }
         
-        bool TexturingViewScaleOriginTool::doMouseDrag(const InputState& inputState) {
-            const Model::BrushFace* face = m_helper.face();
-            const Plane3& boundary = face->boundary();
+        bool TexturingViewOriginTool::doMouseDrag(const InputState& inputState) {
+            const Vec2f curPoint = computeHitPoint(inputState.pickRay());
+            const Vec2f delta = curPoint - m_lastPoint;
             
-            const Ray3& pickRay = inputState.pickRay();
-            const FloatType facePointDist = boundary.intersectWithRay(pickRay);
-            const Vec3 facePoint = pickRay.pointAtDistance(facePointDist);
-            
-            Model::TexCoordSystemHelper helper(face);
-            helper.setProject();
-            
-            const Vec3 texPoint = helper.worldToTex(facePoint);
-            const Vec2f curPoint(texPoint);
-            
-            const Vec2f delta = m_helper.snapOrigin((curPoint - m_lastPoint) * m_selector);
-            if (delta.null())
+            const Vec2f snapped = snapDelta(delta * m_selector);
+            if (snapped.null())
                 return true;
             
-            m_helper.setOrigin(m_helper.originInFaceCoords() + delta);
-            m_lastPoint += delta;
+            m_helper.setOrigin(m_helper.originInFaceCoords() + snapped);
+            m_lastPoint += snapped;
             
             return true;
         }
         
-        void TexturingViewScaleOriginTool::doEndMouseDrag(const InputState& inputState) {}
-        void TexturingViewScaleOriginTool::doCancelMouseDrag(const InputState& inputState) {}
+        void TexturingViewOriginTool::doEndMouseDrag(const InputState& inputState) {}
+        void TexturingViewOriginTool::doCancelMouseDrag(const InputState& inputState) {}
         
-        void TexturingViewScaleOriginTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+        Vec2f TexturingViewOriginTool::computeHitPoint(const Ray3& ray) const {
+            const Model::BrushFace* face = m_helper.face();
+            const Plane3& boundary = face->boundary();
+            const FloatType distance = boundary.intersectWithRay(ray);
+            const Vec3 hitPoint = ray.pointAtDistance(distance);
+            
+            const Mat4x4 transform = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
+            return Vec2f(Mat4x4::ZerZ * transform * hitPoint);
+        }
+
+        Vec2f TexturingViewOriginTool::snapDelta(const Vec2f& delta) const {
+            if (delta.null())
+                return delta;
+            
+            const Model::BrushFace* face = m_helper.face();
+            assert(face != NULL);
+            
+            Model::TexCoordSystemHelper faceCoordSystem(face);
+            faceCoordSystem.setProject();
+            
+            Model::TexCoordSystemHelper texCoordSystem(face);
+            texCoordSystem.setTranslate();
+            texCoordSystem.setScale();
+            texCoordSystem.setProject();
+            
+            const Vec2f newOriginInFaceCoords = m_helper.originInFaceCoords() + delta;
+            const Vec2f newOriginInTexCoords = faceCoordSystem.texToTex(newOriginInFaceCoords, texCoordSystem);
+            
+            // now snap to the vertices
+            const Model::BrushVertexList& vertices = face->vertices();
+            Vec2f distanceInTexCoords = texCoordSystem.worldToTex(vertices[0]->position) - newOriginInTexCoords;
+            
+            for (size_t i = 1; i < vertices.size(); ++i)
+                distanceInTexCoords = absMin(distanceInTexCoords, newOriginInTexCoords - Vec2f(texCoordSystem.worldToTex(vertices[i]->position)));
+            
+            // and to the texture grid
+            const Assets::Texture* texture = face->texture();
+            if (texture != NULL)
+                distanceInTexCoords = absMin(distanceInTexCoords, m_helper.computeDistanceFromTextureGrid(Vec3(newOriginInTexCoords)));
+            
+            // now we have a distance in the scaled and translated texture coordinate system
+            // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system
+            // and take the actual distance
+            const Vec2f distanceInFaceCoords = newOriginInFaceCoords - texCoordSystem.texToTex(newOriginInTexCoords + distanceInTexCoords, faceCoordSystem);
+            
+            return m_helper.snapDelta(delta, distanceInFaceCoords);
+        }
+
+        void TexturingViewOriginTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             if (!m_helper.valid())
                 return;
             
@@ -149,7 +176,7 @@ namespace TrenchBroom {
             glLineWidth(1.0f);
         }
 
-        TexturingViewScaleOriginTool::EdgeVertex::List TexturingViewScaleOriginTool::getHandleVertices(const Hits& hits) const {
+        TexturingViewOriginTool::EdgeVertex::List TexturingViewOriginTool::getHandleVertices(const Hits& hits) const {
             const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
             const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
             

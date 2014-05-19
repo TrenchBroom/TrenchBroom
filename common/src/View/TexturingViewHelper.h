@@ -62,13 +62,7 @@ namespace TrenchBroom {
             Model::BrushFace* face() const;
             const Assets::Texture* texture() const;
             
-            /**
-             Snaps the given delta in rotated texture coordinates to the vertices of the face and to the texture grid.
-             
-             Used in:
-             - TexturingViewScaleOriginTool::doMouseDrag
-             */
-            Vec2f snapOrigin(const Vec2f& deltaInFaceCoords) const;
+            Vec2f snapDelta(const Vec2f& delta, const Vec2f& distance) const;
             
             /**
              Snaps the given point in rotated, scaled and translated texture coordinates to the face's vertices.
@@ -120,7 +114,7 @@ namespace TrenchBroom {
              Computes the scale origin handle lines for the current scale origin in world coordinates.
              
              Used in:
-             - TexturingViewScaleOriginTool::doPick
+             - TexturingViewOriginTool::doPick
              */
             void computeScaleOriginHandles(Line3& xHandle, Line3& yHandle) const;
             
@@ -128,7 +122,7 @@ namespace TrenchBroom {
              Computes the vertices for the origin handle lines by intersecting them with the current camera frustum.
              
              Used in:
-             - TexturingViewScaleOriginTool::doRender via TexturingViewScaleOriginTool::getHandleVertices
+             - TexturingViewOriginTool::doRender via TexturingViewOriginTool::getHandleVertices
              */
             void computeScaleOriginHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
             
@@ -183,7 +177,7 @@ namespace TrenchBroom {
              
              Used in:
              - TexturingViewRotateTool::doMouseDrag to compensate for the rotation
-             - TexturingViewScaleOriginTool::doMouseDrag
+             - TexturingViewOriginTool::doMouseDrag
              - TexturingViewScaleTool::doMouseDrag to compute the scale factors
              */
             const Vec2f originInFaceCoords() const;
@@ -201,7 +195,7 @@ namespace TrenchBroom {
              
              Used in:
              - TexturingViewRotateTool::doMouseDrag to compensate for the rotation
-             - TexturingViewScaleOriginTool::doMouseDrag to update the scale origin
+             - TexturingViewOriginTool::doMouseDrag to update the scale origin
              */
             void setOrigin(const Vec2f& originInFaceCoords);
 

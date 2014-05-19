@@ -56,6 +56,19 @@ namespace TrenchBroom {
             return m_face->texture();
         }
         
+        Vec2f TexturingViewHelper::snapDelta(const Vec2f& delta, const Vec2f& distance) const {
+            const float zoom = cameraZoom();
+            
+            Vec2f result;
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(distance[i]) < 4.0f / zoom)
+                    result[i] = delta[i] + distance[i];
+                else
+                    result[i] = Math::round(delta[i]);
+            }
+            return result;
+        }
+
         Vec2f combineIndividualDistances(const Vec2f& r1, const Vec2f& r2);
         Vec2f combineBothDistances(const Vec2f& r1, const Vec2f& r2);
         Vec2f snapIndividual(const Vec2f& delta, const Vec2f& distance, const float cameraZoom);
@@ -99,43 +112,6 @@ namespace TrenchBroom {
         Vec2f computeDistance(const Vec3& point, const Vec2f& newHandlePosition) {
             return Vec2f(newHandlePosition.x() - point.x(),
                          newHandlePosition.y() - point.y());
-        }
-        
-        Vec2f TexturingViewHelper::snapOrigin(const Vec2f& deltaInFaceCoords) const {
-            assert(valid());
-            
-            if (deltaInFaceCoords.null())
-                return deltaInFaceCoords;
-
-            Model::TexCoordSystemHelper faceCoordSystem(m_face);
-            faceCoordSystem.setProject();
-
-            Model::TexCoordSystemHelper texCoordSystem(m_face);
-            texCoordSystem.setTranslate();
-            texCoordSystem.setScale();
-            texCoordSystem.setProject();
-
-            const Vec2f newOriginInFaceCoords = m_origin + deltaInFaceCoords;
-            const Vec2f newOriginInTexCoords = faceCoordSystem.texToTex(newOriginInFaceCoords, texCoordSystem);
-            
-            // now snap to the vertices
-            const Model::BrushVertexList& vertices = m_face->vertices();
-            Vec2f distanceInTexCoords = computeDistance(texCoordSystem.worldToTex(vertices[0]->position), newOriginInTexCoords);
-            
-            for (size_t i = 1; i < vertices.size(); ++i)
-                distanceInTexCoords = combineIndividualDistances(distanceInTexCoords, computeDistance(texCoordSystem.worldToTex(vertices[i]->position), newOriginInTexCoords));
-            
-            // and to the texture grid
-            const Assets::Texture* texture = m_face->texture();
-            if (texture != NULL)
-                distanceInTexCoords = combineIndividualDistances(distanceInTexCoords, computeDistanceFromTextureGrid(Vec3(newOriginInTexCoords)));
-            
-            // now we have a distance in the scaled and translated texture coordinate system
-            // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system
-            // and take the actual distance
-            const Vec2f distanceInFaceCoords = texCoordSystem.texToTex(newOriginInTexCoords + distanceInTexCoords, faceCoordSystem) - newOriginInFaceCoords;
-            
-            return snapIndividual(deltaInFaceCoords, distanceInFaceCoords, cameraZoom());
         }
         
         Vec2f TexturingViewHelper::snapScaleHandle(const Vec2f& scaleHandleInFaceCoords) const {

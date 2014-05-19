@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexturingViewScaleOriginTool__
-#define __TrenchBroom__TexturingViewScaleOriginTool__
+#ifndef __TrenchBroom__TexturingViewOriginTool__
+#define __TrenchBroom__TexturingViewOriginTool__
 
 #include "Hit.h"
 #include "Renderer/VertexSpec.h"
@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace View {
         class TexturingViewHelper;
         
-        class TexturingViewScaleOriginTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class TexturingViewOriginTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         public:
             static const Hit::HitType XHandleHit;
             static const Hit::HitType YHandleHit;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Vec2f m_lastPoint;
             Vec2f m_selector;
         public:
-            TexturingViewScaleOriginTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
+            TexturingViewOriginTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
         private:
             void doPick(const InputState& inputState, Hits& hits);
 
@@ -58,10 +58,13 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
             
+            Vec2f computeHitPoint(const Ray3& ray) const;
+            Vec2f snapDelta(const Vec2f& delta) const;
+            
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             EdgeVertex::List getHandleVertices(const Hits& hits) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__TexturingViewScaleOriginTool__) */
+#endif /* defined(__TrenchBroom__TexturingViewOriginTool__) */
