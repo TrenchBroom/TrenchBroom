@@ -132,6 +132,12 @@ namespace TrenchBroom {
             const Model::BrushFace* face = m_helper.face();
             assert(face != NULL);
             
+            // The delta is given in non-translated and non-scaled texture coordinates because that's how the origin
+            // is stored. We have to convert to translated and scaled texture coordinates to do our snapping because
+            // that's how the helper computes the distance to the texture grid.
+            // Finally, we will convert the distance back to non-translated and non-scaled texture coordinates and
+            // snap the delta to the distance.
+            
             const Mat4x4 w2fTransform = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
             const Mat4x4 w2tTransform = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(face->offset(), face->scale());
             const Mat4x4 f2wTransform = face->projectToBoundaryMatrix() * face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
