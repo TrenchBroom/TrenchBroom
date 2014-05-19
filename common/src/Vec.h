@@ -72,6 +72,8 @@ public:
     static const Vec<T,S> Null;
     static const Vec<T,S> One;
     static const Vec<T,S> NaN;
+    static const Vec<T,S> Min;
+    static const Vec<T,S> Max;
     
     class LexicographicOrder {
     public:
@@ -723,6 +725,10 @@ template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::One  = Vec<T,S>::fill(static_cast<T>(1.0));
 template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::NaN  = Vec<T,S>::fill(std::numeric_limits<T>::quiet_NaN());
+template <typename T, size_t S>
+const Vec<T,S> Vec<T,S>::Min  = Vec<T,S>::fill(std::numeric_limits<T>::min());
+template <typename T, size_t S>
+const Vec<T,S> Vec<T,S>::Max  = Vec<T,S>::fill(std::numeric_limits<T>::max());
 
 template <typename T, size_t S>
 const typename Vec<T,S>::List Vec<T,S>::EmptyList = Vec<T,S>::List();

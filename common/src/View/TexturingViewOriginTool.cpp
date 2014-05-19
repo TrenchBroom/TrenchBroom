@@ -22,7 +22,6 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Model/ModelTypes.h"
-#include "Model/TexCoordSystemHelper.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
@@ -133,23 +132,22 @@ namespace TrenchBroom {
             const Model::BrushFace* face = m_helper.face();
             assert(face != NULL);
             
-            Model::TexCoordSystemHelper faceCoordSystem(face);
-            faceCoordSystem.setProject();
-            
-            Model::TexCoordSystemHelper texCoordSystem(face);
-            texCoordSystem.setTranslate();
-            texCoordSystem.setScale();
-            texCoordSystem.setProject();
+            const Mat4x4 w2fTransform = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
+            const Mat4x4 w2tTransform = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(face->offset(), face->scale());
+            const Mat4x4 f2wTransform = face->projectToBoundaryMatrix() * face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
+            const Mat4x4 t2wTransform = face->projectToBoundaryMatrix() * face->fromTexCoordSystemMatrix(face->offset(), face->scale());
+            const Mat4x4 f2tTransform = w2tTransform * f2wTransform;
+            const Mat4x4 t2fTransform = w2fTransform * t2wTransform;
             
             const Vec2f newOriginInFaceCoords = m_helper.originInFaceCoords() + delta;
-            const Vec2f newOriginInTexCoords = faceCoordSystem.texToTex(newOriginInFaceCoords, texCoordSystem);
+            const Vec2f newOriginInTexCoords  = Vec2f(f2tTransform * Vec3(newOriginInFaceCoords));
             
             // now snap to the vertices
             const Model::BrushVertexList& vertices = face->vertices();
-            Vec2f distanceInTexCoords = texCoordSystem.worldToTex(vertices[0]->position) - newOriginInTexCoords;
+            Vec2f distanceInTexCoords = Vec2f::Max;
             
-            for (size_t i = 1; i < vertices.size(); ++i)
-                distanceInTexCoords = absMin(distanceInTexCoords, newOriginInTexCoords - Vec2f(texCoordSystem.worldToTex(vertices[i]->position)));
+            for (size_t i = 0; i < vertices.size(); ++i)
+                distanceInTexCoords = absMin(distanceInTexCoords, newOriginInTexCoords - Vec2f(w2tTransform * vertices[i]->position));
             
             // and to the texture grid
             const Assets::Texture* texture = face->texture();
@@ -159,8 +157,7 @@ namespace TrenchBroom {
             // now we have a distance in the scaled and translated texture coordinate system
             // so we transform the new position plus distance back to the unscaled and untranslated texture coordinate system
             // and take the actual distance
-            const Vec2f distanceInFaceCoords = newOriginInFaceCoords - texCoordSystem.texToTex(newOriginInTexCoords + distanceInTexCoords, faceCoordSystem);
-            
+            const Vec2f distanceInFaceCoords = newOriginInFaceCoords - Vec2f(t2fTransform * Vec3(newOriginInTexCoords + distanceInTexCoords));
             return m_helper.snapDelta(delta, distanceInFaceCoords);
         }
 
