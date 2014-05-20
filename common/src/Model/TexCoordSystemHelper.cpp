@@ -138,15 +138,11 @@ namespace TrenchBroom {
         }
 
         Mat4x4 TexCoordSystemHelper::toTexMatrix(const bool project) const {
-            if (!project)
-                return m_face->toTexCoordSystemMatrix(offset(), scale());
-            return Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset(), scale());
+            return m_face->toTexCoordSystemMatrix(offset(), scale(), project);
         }
         
         Mat4x4 TexCoordSystemHelper::toWorldMatrix(const bool project) const {
-            if (!project)
-                return m_face->fromTexCoordSystemMatrix(offset(), scale());;
-            return m_face->projectToBoundaryMatrix() * m_face->fromTexCoordSystemMatrix(offset(), scale());
+            return m_face->fromTexCoordSystemMatrix(offset(), scale(), project);;
         }
 
         const Vec2f& TexCoordSystemHelper::offset() const {

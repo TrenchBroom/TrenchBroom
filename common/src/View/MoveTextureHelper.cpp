@@ -62,7 +62,7 @@ namespace TrenchBroom {
             assert(m_face != NULL);
             assert(m_face->selected() || m_face->parent()->selected());
             
-            const Mat4x4 toTexTransform = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
+            const Mat4x4 toTexTransform = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, false);
             const Vec3 last = toTexTransform * refPoint;
             const Vec3 cur  = toTexTransform * curPoint;
             
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             const Vec3 delta = curPoint - refPoint;
             performMove(delta);
             
-            const Mat4x4 fromTexTransform = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
+            const Mat4x4 fromTexTransform = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, false);
             const Vec3 newRef = fromTexTransform * (last + offset);
             refPoint = newRef;
             return true;
@@ -276,7 +276,7 @@ namespace TrenchBroom {
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 const Vec3 actualDelta = rotateDelta(delta, face, normals);
-                const Mat4x4 toTexTransform = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
+                const Mat4x4 toTexTransform = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, false);
                 const Vec2f offset(grid.snap(toTexTransform * actualDelta));
                 
                 const Model::BrushFaceList applyTo(1, face);

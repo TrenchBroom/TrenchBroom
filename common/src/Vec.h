@@ -705,8 +705,35 @@ public:
     const Vec<T,S> corrected(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) const {
         return Vec<T,S>(*this).correct(decimals, epsilon);
     }
+    
+    struct EdgeDistance {
+        const Vec<T,S> point;
+        const T distance;
+        
+        EdgeDistance(const Vec<T,S>& i_point, const T i_distance) :
+        point(i_point),
+        distance(i_distance) {}
+    };
+    
+    EdgeDistance distanceToSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
+        const Vec<T,S> edgeVec = end - start;
+        const Vec<T,S> edgeDir = edgeVec.normalized();
+        const T dot = (*this - start).dot(edgeDir);
+        
+        // determine the closest point on the edge
+        Vec<T,S> closestPoint;
+        if (dot < 0.0)
+            closestPoint = start;
+        else if ((dot * dot) > edgeVec.squaredLength())
+            closestPoint = end;
+        else
+            closestPoint = start + edgeDir * dot;
+
+        const T distance = (*this - closestPoint).length();
+        return EdgeDistance(closestPoint, distance);
+    }
 };
-            
+
 template <typename T, size_t S>
 const Vec<T,S> Vec<T,S>::PosX = Vec<T,S>::unit(0);
 template <typename T, size_t S>

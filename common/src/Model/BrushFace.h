@@ -182,8 +182,8 @@ namespace TrenchBroom {
             void findIntegerPlanePoints();
             
             Mat4x4 projectToBoundaryMatrix() const;
-            Mat4x4 toTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale) const;
-            Mat4x4 fromTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale) const;
+            Mat4x4 toTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale, bool project) const;
+            Mat4x4 fromTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale, bool project) const;
             float measureTextureAngle(const Vec2f& center, const Vec2f& point) const;
             
             const BrushEdgeList& edges() const;

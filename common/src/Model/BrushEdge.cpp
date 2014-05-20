@@ -202,21 +202,11 @@ namespace TrenchBroom {
         }
 
         bool BrushEdge::contains(const Vec3& point, const FloatType maxDistance) const {
-            const Vec3 edgeVec = vector();
-            const Vec3 edgeDir = edgeVec.normalized();
-            const FloatType dot = (point - start->position).dot(edgeDir);
-            
-            // determine the closest point on the edge
-            Vec3 closestPoint;
-            if (dot < 0.0)
-                closestPoint = start->position;
-            else if ((dot * dot) > edgeVec.squaredLength())
-                closestPoint = end->position;
-            else
-                closestPoint = start->position + edgeDir * dot;
-            
-            const FloatType distance2 = (point - closestPoint).squaredLength();
-            return distance2 <= (maxDistance * maxDistance);
+            return distanceTo(point).distance <= maxDistance;
+        }
+
+        Vec3::EdgeDistance BrushEdge::distanceTo(const Vec3& point) const {
+            return point.distanceToSegment(start->position, end->position);
         }
 
         Vec3 BrushEdge::vector() const {

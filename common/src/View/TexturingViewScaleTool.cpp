@@ -54,7 +54,7 @@ namespace TrenchBroom {
                     const Plane3& boundary = face->boundary();
                     const FloatType rayDistance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
                     const Vec3 hitPointInWorldCoords = pickRay.pointAtDistance(rayDistance);
-                    const Vec3 hitPointInTexCoords = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(face->offset(), face->scale()) * hitPointInWorldCoords;
+                    const Vec3 hitPointInTexCoords = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true) * hitPointInWorldCoords;
                     
                     const FloatType maxDistance = MaxPickDistance / m_camera.zoom().x();
                     const Vec2 stripeSize = m_helper.stripeSize();

@@ -43,6 +43,9 @@ namespace TrenchBroom {
                 Mark_New
             };
 
+            struct EdgeDistance {
+            };
+
             BrushVertex* start;
             BrushVertex* end;
             BrushFaceGeometry* left;
@@ -74,6 +77,7 @@ namespace TrenchBroom {
             bool isIncidentWith(const BrushEdge* edge) const;
             bool connects(const BrushVertex* vertex1, BrushVertex* vertex2) const;
             bool contains(const Vec3& point, const FloatType maxDistance = Math::C::almostZero()) const;
+            Vec3::EdgeDistance distanceTo(const Vec3& point) const;
 
             Vec3 vector() const;
             Vec3 center() const;

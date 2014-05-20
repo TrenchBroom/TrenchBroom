@@ -469,7 +469,7 @@ namespace TrenchBroom {
             assert(valid());
             const Vec2f offset(m_face->xOffset(), m_face->yOffset());
             const Vec2f scale(m_face->xScale(), m_face->yScale());
-            return Mat4x4::ZerZ * m_face->toTexCoordSystemMatrix(offset, scale);
+            return m_face->toTexCoordSystemMatrix(offset, scale, true);
         }
         
         void TexturingViewHelper::resetOrigin() {

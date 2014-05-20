@@ -79,8 +79,8 @@ namespace TrenchBroom {
             const FloatType distance = boundary.intersectWithRay(ray);
             const Vec3 hitPoint = ray.pointAtDistance(distance);
             
-            const Mat4x4 transform = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale());
-            return Vec2f(Mat4x4::ZerZ * transform * hitPoint);
+            const Mat4x4 transform = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale(), true);
+            return Vec2f(transform * hitPoint);
         }
 
         Vec2f TexturingViewOffsetTool::snapDelta(const Vec2f& delta) const {
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             if (texture == NULL)
                 return delta.rounded();
             
-            const Mat4x4 transform = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(face->offset() - delta, face->scale());
+            const Mat4x4 transform = face->toTexCoordSystemMatrix(face->offset() - delta, face->scale(), true);
             
             const Model::BrushVertexList& vertices = face->vertices();
             Vec2f distance = m_helper.computeDistanceFromTextureGrid(transform * vertices[0]->position);

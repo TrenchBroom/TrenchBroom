@@ -121,8 +121,8 @@ namespace TrenchBroom {
             const FloatType distance = boundary.intersectWithRay(ray);
             const Vec3 hitPoint = ray.pointAtDistance(distance);
             
-            const Mat4x4 transform = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
-            return Vec2f(Mat4x4::ZerZ * transform * hitPoint);
+            const Mat4x4 transform = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            return Vec2f(transform * hitPoint);
         }
 
         Vec2f TexturingViewOriginTool::snapDelta(const Vec2f& delta) const {
@@ -138,10 +138,10 @@ namespace TrenchBroom {
             // Finally, we will convert the distance back to non-translated and non-scaled texture coordinates and
             // snap the delta to the distance.
             
-            const Mat4x4 w2fTransform = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
-            const Mat4x4 w2tTransform = Mat4x4::ZerZ * face->toTexCoordSystemMatrix(face->offset(), face->scale());
-            const Mat4x4 f2wTransform = face->projectToBoundaryMatrix() * face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One);
-            const Mat4x4 t2wTransform = face->projectToBoundaryMatrix() * face->fromTexCoordSystemMatrix(face->offset(), face->scale());
+            const Mat4x4 w2fTransform = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 w2tTransform = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true);
+            const Mat4x4 f2wTransform = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 t2wTransform = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);
             const Mat4x4 f2tTransform = w2tTransform * f2wTransform;
             const Mat4x4 t2fTransform = w2fTransform * t2wTransform;
             
@@ -149,6 +149,8 @@ namespace TrenchBroom {
             const Vec2f newOriginInTexCoords  = Vec2f(f2tTransform * Vec3(newOriginInFaceCoords));
             
             // now snap to the vertices
+            // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of the vertices
+            // instead, we must snap to the edges!
             const Model::BrushVertexList& vertices = face->vertices();
             Vec2f distanceInTexCoords = Vec2f::Max;
             
