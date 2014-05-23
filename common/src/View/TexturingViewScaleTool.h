@@ -66,6 +66,8 @@ namespace TrenchBroom {
             Vec2f getScaleHandlePositionInTexCoords(const Vec2i& scaleHandle) const;
             Vec2f getScaleHandlePositionInFaceCoords(const Vec2i& scaleHandle) const;
             
+            Vec2f snap(const Vec2f& position) const;
+            
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
 

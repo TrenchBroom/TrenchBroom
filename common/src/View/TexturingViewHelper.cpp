@@ -114,32 +114,6 @@ namespace TrenchBroom {
                          newHandlePosition.y() - point.y());
         }
         
-        Vec2f TexturingViewHelper::snapScaleHandle(const Vec2f& scaleHandleInFaceCoords) const {
-            assert(valid());
-            
-            const Model::BrushVertexList& vertices = m_face->vertices();
-            
-            const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_face);
-            Vec2f distanceInFaceCoords = computeDistance(faceCoordSystem.worldToTex(vertices[0]->position), scaleHandleInFaceCoords);
-            
-            for (size_t i = 1; i < vertices.size(); ++i)
-                distanceInFaceCoords = combineIndividualDistances(distanceInFaceCoords, computeDistance(faceCoordSystem.worldToTex(vertices[i]->position), scaleHandleInFaceCoords));
-            
-            for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(distanceInFaceCoords[i]) > 4.0f / cameraZoom())
-                    distanceInFaceCoords[i] = 0.0f;
-            }
-
-            return scaleHandleInFaceCoords - distanceInFaceCoords;
-        }
-
-        Vec2f TexturingViewHelper::snapRotationCenter(const Vec2f& rotationCenterInFaceCoords) const {
-            assert(valid());
-            Vec3::List snapPoints = Model::vertexPositions(m_face->vertices());
-            snapPoints.push_back(m_face->center());
-            return snapToPoints(rotationCenterInFaceCoords, snapPoints);
-        }
-
         Vec2f TexturingViewHelper::snapToPoints(const Vec2f& pointInFaceCoords, const Vec3::List& points) const {
             assert(valid());
             

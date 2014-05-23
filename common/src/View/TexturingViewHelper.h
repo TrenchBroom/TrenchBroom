@@ -65,23 +65,6 @@ namespace TrenchBroom {
             Vec2f snapDelta(const Vec2f& delta, const Vec2f& distance) const;
             
             /**
-             Snaps the given point in rotated, scaled and translated texture coordinates to the face's vertices.
-             
-             Used in:
-             - TexturingViewScaleTool::doMouseDrag
-             */
-            Vec2f snapScaleHandle(const Vec2f& scaleHandleInFaceCoords) const;
-            
-            /**
-             Snaps the given point in rotated, scaled and translated texture coordinates to the face's vertices and to
-             its center.
-             
-             Used in:
-             - TexturingViewRotateTool::doMouseDrag
-             */
-            Vec2f snapRotationCenter(const Vec2f& rotationCenterInFaceCoords) const;
-            
-            /**
              Snaps the given point in rotated, scaled and translated texture coordinates to the given points in world
              coordinates.
              

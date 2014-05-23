@@ -102,7 +102,7 @@ namespace TrenchBroom {
 
             const Vec2f curHandlePosTexCoords  = getScaleHandlePositionInTexCoords(m_handle);
             const Vec2f newHandlePosFaceCoords = getScaleHandlePositionInFaceCoords(m_handle) + dragDeltaFaceCoords;
-            const Vec2f newHandlePosSnapped    = m_helper.snapScaleHandle(newHandlePosFaceCoords);
+            const Vec2f newHandlePosSnapped    = snap(newHandlePosFaceCoords);
 
             const Vec2f originHandlePosFaceCoords = m_helper.originInFaceCoords();
             const Vec2f originHandlePosTexCoords  = m_helper.originInTexCoords();
@@ -121,10 +121,10 @@ namespace TrenchBroom {
             controller()->setFaceYScale(applyTo, newScale.y(), false);
             
             const Vec2f newOriginInTexCoords = m_helper.originInTexCoords();
-            const Vec2f originDelta = newOriginInTexCoords - originHandlePosTexCoords;
+            const Vec2f originDelta = originHandlePosTexCoords - newOriginInTexCoords;
 
-            controller()->setFaceXOffset(applyTo, -originDelta.x(), true);
-            controller()->setFaceYOffset(applyTo, -originDelta.y(), true);
+            controller()->setFaceXOffset(applyTo, originDelta.x(), true);
+            controller()->setFaceYOffset(applyTo, originDelta.y(), true);
 
             m_lastHitPoint += dragDeltaFaceCoords - (newHandlePosFaceCoords - newHandlePosSnapped);
             
@@ -163,6 +163,25 @@ namespace TrenchBroom {
             const Model::BrushFace* face = m_helper.face();
             const Vec2f positionInTexCoords = getScaleHandlePositionInTexCoords(scaleHandle);
             return Model::TexCoordSystemHelper::texToFace(face, positionInTexCoords);
+        }
+
+        Vec2f TexturingViewScaleTool::snap(const Vec2f& position) const {
+            const Model::BrushFace* face = m_helper.face();
+            const Mat4x4 toTex = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            
+            Vec2f distance = Vec2f::Max;
+            
+            const Model::BrushVertexList& vertices = face->vertices();
+            for (size_t i = 0; i < vertices.size(); ++i) {
+                const Vec2f vertex(toTex * vertices[i]->position);
+                distance = absMin(distance, position - vertex);
+            }
+            
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(distance[i]) > 4.0f / m_helper.cameraZoom())
+                    distance[i] = 0.0f;
+            }
+            return position - distance;
         }
 
         void TexturingViewScaleTool::doEndMouseDrag(const InputState& inputState) {
