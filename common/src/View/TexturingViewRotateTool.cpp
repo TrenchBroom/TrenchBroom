@@ -106,8 +106,8 @@ namespace TrenchBroom {
             
             const Vec2f oldCenterInFaceCoords = m_helper.originInFaceCoords();
             const Vec3 oldCenterInWorldCoords = faceCoordSystem.texToWorld(Vec3(oldCenterInFaceCoords));
-            const float angle = Math::mod(m_helper.measureRotationAngle(curPointInFaceCoords), 360.0f);
-            const float snappedAngle = m_helper.snapRotationAngle(angle);
+            const float angle = measureAngle(curPointInFaceCoords);
+            const float snappedAngle = snapAngle(angle);
             
             const Model::BrushFaceList applyTo(1, face);
             controller()->setFaceRotation(applyTo, snappedAngle, false);
@@ -121,6 +121,44 @@ namespace TrenchBroom {
             return true;
         }
         
+        float TexturingViewRotateTool::measureAngle(const Vec2f& point) const {
+            const Model::BrushFace* face = m_helper.face();
+            const Vec2f origin = m_helper.originInFaceCoords();
+            return Math::mod(face->measureTextureAngle(origin, point), 360.0f);
+        }
+        
+        float TexturingViewRotateTool::snapAngle(const float angle) const {
+            const Model::BrushFace* face = m_helper.face();
+            
+            const float angles[] = {
+                Math::mod(angle +   0.0f, 360.0f),
+                Math::mod(angle +  90.0f, 360.0f),
+                Math::mod(angle + 180.0f, 360.0f),
+                Math::mod(angle + 270.0f, 360.0f),
+            };
+            float minDelta = std::numeric_limits<float>::max();
+            
+            const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
+            const Model::BrushEdgeList& edges = face->edges();
+            Model::BrushEdgeList::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                const Model::BrushEdge* edge = *it;
+                
+                const Vec3 startInFaceCoords = faceCoordSystem.worldToTex(edge->start->position);
+                const Vec3 endInFaceCoords   = faceCoordSystem.worldToTex(edge->end->position);
+                const float edgeAngle        = Math::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
+                
+                for (size_t i = 0; i < 4; ++i) {
+                    if (std::abs(angles[i] - edgeAngle) < std::abs(minDelta))
+                        minDelta = angles[i] - edgeAngle;
+                }
+            }
+            
+            if (std::abs(minDelta) < 3.0f)
+                return angle - minDelta;
+            return angle;
+        }
+
         void TexturingViewRotateTool::doEndMouseDrag(const InputState& inputState) {
             controller()->closeGroup();
         }

@@ -51,6 +51,10 @@ namespace TrenchBroom {
             
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
+            
+            float measureAngle(const Vec2f& point) const;
+            float snapAngle(float angle) const;
+            
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
 

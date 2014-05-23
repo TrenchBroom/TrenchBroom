@@ -63,32 +63,6 @@ namespace TrenchBroom {
             const Assets::Texture* texture() const;
             
             Vec2f snapDelta(const Vec2f& delta, const Vec2f& distance) const;
-            
-            /**
-             Snaps the given point in rotated, scaled and translated texture coordinates to the given points in world
-             coordinates.
-             
-             Used in:
-             - TexturingViewHelper::snapRotationCenter
-             */
-            Vec2f snapToPoints(const Vec2f& pointInFaceCoords, const Vec3::List& points) const;
-
-            /**
-             Measures the angle between the texture coordinate system's X axis and the vector from the current rotation
-             center handle to the given point in rotated, scaled and translated texture coordinates.
-             
-             Used in:
-             - TexturingViewRotateTool::doMouseDrag
-             */
-            float measureRotationAngle(const Vec2f& point) const;
-            
-            /**
-             Snaps the given rotation angle so that it aligns with the edges of the current face.
-             
-             Used in:
-             - TexturingViewRotateTool::doMouseDrag
-             */
-            float snapRotationAngle(float angle) const;
 
             Vec2 computeStripeSize() const;
             Vec2f computeDistanceFromTextureGrid(const Vec3& position) const;
