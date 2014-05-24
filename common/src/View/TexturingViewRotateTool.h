@@ -57,6 +57,8 @@ namespace TrenchBroom {
             void doCancelMouseDrag(const InputState& inputState);
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+
+            Vec2f angleHandle() const;
         };
     }
 }

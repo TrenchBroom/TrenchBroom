@@ -60,7 +60,7 @@ namespace TrenchBroom {
             Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
             const Vec2f hitPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(hitPoint));
             
-            const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_helper.cameraZoom());
+            const Vec2f angleHandleInFaceCoords = angleHandle();
             const float angleHandleError = hitPointInFaceCoords.distanceTo(angleHandleInFaceCoords);
             if (Math::abs(angleHandleError) <= 2.0f * HandleRadius / m_helper.cameraZoom())
                 hits.addHit(Hit(AngleHandleHit, distance, hitPoint, 0, angleHandleError));
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
 
             const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(angleHandleHit.hitPoint());
-            const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_helper.cameraZoom());
+            const Vec2f angleHandleInFaceCoords = angleHandle();
             m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
             controller()->beginUndoableGroup("Rotate Texture");
             
@@ -181,7 +181,7 @@ namespace TrenchBroom {
 
             const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_helper.face());
             const Vec2f originPosition = m_helper.originInFaceCoords();
-            const Vec2f angleHandlePosition = m_helper.angleHandleInFaceCoords(HandleLength / cameraZoom);
+            const Vec2f angleHandlePosition = angleHandle();
             const Vec2f faceCenterPosition = faceCoordSystem.worldToTex(m_helper.face()->center());
 
             const float actualRadius = HandleRadius / cameraZoom;
@@ -238,6 +238,11 @@ namespace TrenchBroom {
                 shader.set("Color", highlightColor);
                 center.render();
             }
+        }
+
+        Vec2f TexturingViewRotateTool::angleHandle() const {
+            const float distance = HandleLength / m_helper.cameraZoom();
+            return m_helper.originInFaceCoords() + distance * Vec2f::PosX;
         }
     }
 }

@@ -94,7 +94,12 @@ namespace TrenchBroom {
             void doUpdateViewport(int x, int y, int width, int height);
             void doRender();
             void setupGL(Renderer::RenderContext& renderContext);
+
             void renderTexture(Renderer::RenderContext& renderContext);
+            Vec3f::List getTextureQuad() const;
+            void activateTexture(Renderer::ActiveShader& shader);
+            void deactivateTexture();
+            
             void renderFace(Renderer::RenderContext& renderContext);
             void renderToolBox(Renderer::RenderContext& renderContext);
         private:

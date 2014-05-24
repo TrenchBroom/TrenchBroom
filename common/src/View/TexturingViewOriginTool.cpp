@@ -201,7 +201,7 @@ namespace TrenchBroom {
             const Color yColor = highlightYHandle ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color(0.7f, 0.0f, 0.0f, 1.0f);
             
             Vec3 x1, x2, y1, y2;
-            m_helper.computeScaleOriginHandleVertices(x1, x2, y1, y2);
+            m_helper.computeOriginHandleVertices(x1, x2, y1, y2);
 
             EdgeVertex::List vertices(4);
             vertices[0] = EdgeVertex(Vec3f(x1), xColor);

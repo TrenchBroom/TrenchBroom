@@ -56,72 +56,6 @@ namespace TrenchBroom {
             return m_face->texture();
         }
         
-        Vec2f TexturingViewHelper::snapDelta(const Vec2f& delta, const Vec2f& distance) const {
-            const float zoom = cameraZoom();
-            
-            Vec2f result;
-            for (size_t i = 0; i < 2; ++i) {
-                if (Math::abs(distance[i]) < 4.0f / zoom)
-                    result[i] = delta[i] + distance[i];
-                else
-                    result[i] = Math::round(delta[i]);
-            }
-            return result;
-        }
-        
-        Vec2 TexturingViewHelper::computeStripeSize() const {
-            const Assets::Texture* texture = m_face->texture();
-            if (texture == NULL)
-                return Vec2::Null;
-            const FloatType width  = static_cast<FloatType>(texture->width())  / static_cast<FloatType>(m_subDivisions.x());
-            const FloatType height = static_cast<FloatType>(texture->height()) / static_cast<FloatType>(m_subDivisions.y());
-            return Vec2(width, height);
-        }
-
-        Vec2f TexturingViewHelper::computeDistanceFromTextureGrid(const Vec3& position) const {
-            const Vec2 stripeSize = computeStripeSize();
-            assert(stripeSize.x() != 0.0 && stripeSize.y() != 0);
-            
-            const FloatType x = Math::remainder(position.x(), stripeSize.x());
-            const FloatType y = Math::remainder(position.y(), stripeSize.y());
-            
-            return Vec2f(x, y);
-        }
-        
-        void TexturingViewHelper::computeScaleOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
-            assert(valid());
-            
-            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-
-            const Vec3::List viewportVertices = toTex * m_camera.viewportVertices();
-            const BBox3 viewportBounds(viewportVertices);
-            const Vec3& min = viewportBounds.min;
-            const Vec3& max = viewportBounds.max;
-            
-            x1 = toWorld * Vec3(m_origin.x(), min.y(), 0.0);
-            x2 = toWorld * Vec3(m_origin.x(), max.y(), 0.0);
-            y1 = toWorld * Vec3(min.x(), m_origin.y(), 0.0);
-            y2 = toWorld * Vec3(max.x(), m_origin.y(), 0.0);
-        }
-
-        void TexturingViewHelper::computeLineVertices(const Vec2& pos, Vec3& h1, Vec3& h2, Vec3& v1, Vec3& v2) const {
-            assert(valid());
-            
-            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
-            const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
-            
-            const Vec3::List viewportVertices = toTex * m_camera.viewportVertices();
-            const BBox3 viewportBounds(viewportVertices);
-            const Vec3& min = viewportBounds.min;
-            const Vec3& max = viewportBounds.max;
-            
-            h1 = toWorld * Vec3(min.x(), pos.y(), 0.0);
-            h2 = toWorld * Vec3(max.x(), pos.y(), 0.0);
-            v1 = toWorld * Vec3(pos.x(), min.y(), 0.0);
-            v2 = toWorld * Vec3(pos.x(), max.y(), 0.0);
-        }
-        
         void TexturingViewHelper::setFace(Model::BrushFace* face) {
             if (face != m_face) {
                 m_face = face;
@@ -133,16 +67,22 @@ namespace TrenchBroom {
         const Vec2i& TexturingViewHelper::subDivisions() const {
             return m_subDivisions;
         }
-        
+
+        Vec2 TexturingViewHelper::stripeSize() const {
+            assert(valid());
+            
+            const Assets::Texture* texture = m_face->texture();
+            if (texture == NULL)
+                return Vec2::Null;
+            const FloatType width  = static_cast<FloatType>(texture->width())  / static_cast<FloatType>(m_subDivisions.x());
+            const FloatType height = static_cast<FloatType>(texture->height()) / static_cast<FloatType>(m_subDivisions.y());
+            return Vec2(width, height);
+        }
+
         void TexturingViewHelper::setSubDivisions(const Vec2i& subDivisions) {
             m_subDivisions = subDivisions;
         }
         
-        Vec2 TexturingViewHelper::stripeSize() const {
-            assert(valid());
-            return computeStripeSize();
-        }
-
         const Vec2f TexturingViewHelper::originInFaceCoords() const {
             return m_origin;
         }
@@ -163,94 +103,6 @@ namespace TrenchBroom {
             m_origin = originInFaceCoords;
         }
         
-        const Vec2f TexturingViewHelper::angleHandleInFaceCoords(const float distance) const {
-            return m_origin + distance * Vec2f::PosX;
-        }
-        
-        void TexturingViewHelper::renderTexture(Renderer::RenderContext& renderContext) {
-            assert(valid());
-
-            const Assets::Texture* texture = m_face->texture();
-            if (texture == NULL)
-                return;
-
-            const Vec3f::List positions = getTextureQuad();
-            const Vec3f normal(m_face->boundary().normal);
-            
-            typedef Renderer::VertexSpecs::P3NT2::Vertex Vertex;
-            Vertex::List vertices(positions.size());
-            
-            for (size_t i = 0; i < positions.size(); ++i)
-                vertices[i] = Vertex(positions[i],
-                                     normal,
-                                     m_face->textureCoords(positions[i]));
-            
-            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
-            
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.mapped();
-            vertexArray.prepare(m_vbo);
-            setVboState.active();
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
-            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::TexturingViewShader);
-            shader.set("Brightness", prefs.get(Preferences::Brightness));
-            shader.set("RenderGrid", true);
-            shader.set("GridSizes", Vec2f(texture->width(), texture->height()));
-            shader.set("GridColor", Color(1.0f, 1.0f, 0.0f, 1.0f));
-            shader.set("GridScales", m_face->scale());
-            shader.set("GridMatrix", worldToTexMatrix());
-            shader.set("GridDivider", Vec2f(m_subDivisions));
-            shader.set("CameraZoom", m_camera.zoom().x());
-            shader.set("Texture", 0);
-
-            activateTexture(shader);
-            vertexArray.render();
-            deactivateTexture();
-        }
-        
-        Vec3f::List TexturingViewHelper::getTextureQuad() const {
-            Vec3f::List vertices(4);
-
-            const Renderer::Camera::Viewport& v = m_camera.viewport();
-            const Vec2f& z = m_camera.zoom();
-            const float w2 = static_cast<float>(v.width)  / z.x() / 2.0f;
-            const float h2 = static_cast<float>(v.height) / z.y() / 2.0f;
-
-            const Vec3f& p = m_camera.position();
-            const Vec3f& r = m_camera.right();
-            const Vec3f& u = m_camera.up();
-            
-            vertices[0] = -w2 * r +h2 * u + p;
-            vertices[1] = +w2 * r +h2 * u + p;
-            vertices[2] = +w2 * r -h2 * u + p;
-            vertices[3] = -w2 * r -h2 * u + p;
-            
-            return vertices;
-        }
-
-        void TexturingViewHelper::activateTexture(Renderer::ActiveShader& shader) {
-            assert(valid());
-            Assets::Texture* texture = m_face->texture();
-            if (texture != NULL) {
-                shader.set("ApplyTexture", true);
-                shader.set("Color", texture->averageColor());
-                texture->activate();
-            } else {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                shader.set("ApplyTexture", false);
-                shader.set("Color", prefs.get(Preferences::FaceColor));
-            }
-        }
-        
-        void TexturingViewHelper::deactivateTexture() {
-            assert(valid());
-            Assets::Texture* texture = m_face->texture();
-            if (texture != NULL)
-                texture->deactivate();
-        }
-        
         void TexturingViewHelper::resetCamera() {
             assert(valid());
             
@@ -265,7 +117,7 @@ namespace TrenchBroom {
             if (size.y() > h)
                 zoom = Math::min(zoom, h / size.y());
             m_camera.setZoom(zoom);
-
+            
             const Vec3  position = m_face->center();
             const Vec3& normal = m_face->boundary().normal;
             Vec3 right;
@@ -275,7 +127,7 @@ namespace TrenchBroom {
             else
                 right = Vec3::PosX;
             const Vec3 up = crossed(normal, right).normalized();
-
+            
             m_camera.moveTo(position);
             m_camera.setNearPlane(-1.0);
             m_camera.setFarPlane(1.0);
@@ -287,14 +139,58 @@ namespace TrenchBroom {
             assert(zoom.x() == zoom.y());
             return zoom.x();
         }
-
-        Mat4x4 TexturingViewHelper::worldToTexMatrix() const {
-            assert(valid());
-            const Vec2f offset(m_face->xOffset(), m_face->yOffset());
-            const Vec2f scale(m_face->xScale(), m_face->yScale());
-            return m_face->toTexCoordSystemMatrix(offset, scale, true);
+        
+        Vec2f TexturingViewHelper::snapDelta(const Vec2f& delta, const Vec2f& distance) const {
+            const float zoom = cameraZoom();
+            
+            Vec2f result;
+            for (size_t i = 0; i < 2; ++i) {
+                if (Math::abs(distance[i]) < 4.0f / zoom)
+                    result[i] = delta[i] + distance[i];
+                else
+                    result[i] = Math::round(delta[i]);
+            }
+            return result;
         }
         
+        Vec2f TexturingViewHelper::computeDistanceFromTextureGrid(const Vec3& position) const {
+            const Vec2 stripe = stripeSize();
+            assert(stripe.x() != 0.0 && stripe.y() != 0);
+            
+            const FloatType x = Math::remainder(position.x(), stripe.x());
+            const FloatType y = Math::remainder(position.y(), stripe.y());
+            
+            return Vec2f(x, y);
+        }
+        
+        void TexturingViewHelper::computeOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
+            assert(valid());
+            
+            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            computeLineVertices(m_origin, x1, x2, y1, y2, toTex, toWorld);
+        }
+
+        void TexturingViewHelper::computeScaleHandleVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
+            assert(valid());
+            
+            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
+        }
+        
+        void TexturingViewHelper::computeLineVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const {
+            const Vec3::List viewportVertices = toTex * m_camera.viewportVertices();
+            const BBox3 viewportBounds(viewportVertices);
+            const Vec3& min = viewportBounds.min;
+            const Vec3& max = viewportBounds.max;
+            
+            x1 = toWorld * Vec3(pos.x(), min.y(), 0.0);
+            x2 = toWorld * Vec3(pos.x(), max.y(), 0.0);
+            y1 = toWorld * Vec3(min.x(), pos.y(), 0.0);
+            y2 = toWorld * Vec3(max.x(), pos.y(), 0.0);
+        }
+
         void TexturingViewHelper::resetOrigin() {
             assert(m_face != NULL);
             const Model::BrushVertexList& vertices = m_face->vertices();

@@ -196,7 +196,90 @@ namespace TrenchBroom {
         }
 
         void TexturingView::renderTexture(Renderer::RenderContext& renderContext) {
-            m_helper.renderTexture(renderContext);
+            const Model::BrushFace* face = m_helper.face();
+            const Assets::Texture* texture = face->texture();
+            if (texture == NULL)
+                return;
+            
+            const Vec3f::List positions = getTextureQuad();
+            const Vec3f normal(face->boundary().normal);
+            
+            typedef Renderer::VertexSpecs::P3NT2::Vertex Vertex;
+            Vertex::List vertices(positions.size());
+            
+            for (size_t i = 0; i < positions.size(); ++i)
+                vertices[i] = Vertex(positions[i],
+                                     normal,
+                                     face->textureCoords(positions[i]));
+            
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
+            
+            const Vec2f& offset = face->offset();
+            const Vec2f& scale = face->scale();
+            const Mat4x4 toTex = face->toTexCoordSystemMatrix(offset, scale, true);
+            
+            Renderer::SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            vertexArray.prepare(m_vbo);
+            setVboState.active();
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            
+            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::TexturingViewShader);
+            shader.set("Brightness", prefs.get(Preferences::Brightness));
+            shader.set("RenderGrid", true);
+            shader.set("GridSizes", Vec2f(texture->width(), texture->height()));
+            shader.set("GridColor", Color(1.0f, 1.0f, 0.0f, 1.0f));
+            shader.set("GridScales", scale);
+            shader.set("GridMatrix", toTex);
+            shader.set("GridDivider", Vec2f(m_helper.subDivisions()));
+            shader.set("CameraZoom", m_camera.zoom().x());
+            shader.set("Texture", 0);
+            
+            activateTexture(shader);
+            vertexArray.render();
+            deactivateTexture();
+        }
+        
+        Vec3f::List TexturingView::getTextureQuad() const {
+            Vec3f::List vertices(4);
+            
+            const Renderer::Camera::Viewport& v = m_camera.viewport();
+            const Vec2f& z = m_camera.zoom();
+            const float w2 = static_cast<float>(v.width)  / z.x() / 2.0f;
+            const float h2 = static_cast<float>(v.height) / z.y() / 2.0f;
+            
+            const Vec3f& p = m_camera.position();
+            const Vec3f& r = m_camera.right();
+            const Vec3f& u = m_camera.up();
+            
+            vertices[0] = -w2 * r +h2 * u + p;
+            vertices[1] = +w2 * r +h2 * u + p;
+            vertices[2] = +w2 * r -h2 * u + p;
+            vertices[3] = -w2 * r -h2 * u + p;
+            
+            return vertices;
+        }
+        
+        void TexturingView::activateTexture(Renderer::ActiveShader& shader) {
+            const Model::BrushFace* face = m_helper.face();
+            Assets::Texture* texture = face->texture();
+            if (texture != NULL) {
+                shader.set("ApplyTexture", true);
+                shader.set("Color", texture->averageColor());
+                texture->activate();
+            } else {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                shader.set("ApplyTexture", false);
+                shader.set("Color", prefs.get(Preferences::FaceColor));
+            }
+        }
+        
+        void TexturingView::deactivateTexture() {
+            const Model::BrushFace* face = m_helper.face();
+            Assets::Texture* texture = face->texture();
+            if (texture != NULL)
+                texture->deactivate();
         }
         
         void TexturingView::renderFace(Renderer::RenderContext& renderContext) {

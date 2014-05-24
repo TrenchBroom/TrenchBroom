@@ -61,104 +61,26 @@ namespace TrenchBroom {
             bool valid() const;
             Model::BrushFace* face() const;
             const Assets::Texture* texture() const;
-            
-            Vec2f snapDelta(const Vec2f& delta, const Vec2f& distance) const;
-
-            Vec2 computeStripeSize() const;
-            Vec2f computeDistanceFromTextureGrid(const Vec3& position) const;
-
-            /**
-             Computes the vertices for the origin handle lines by intersecting them with the current camera frustum.
-             
-             Used in:
-             - TexturingViewOriginTool::doRender via TexturingViewOriginTool::getHandleVertices
-             */
-            void computeScaleOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
-            
-            /**
-             Computes the vertices for the scale handle line at the given Y coordinate by intersecting it with the current
-             camera frustum.
-             
-             Used in:
-             - TexturingViewScaleTool::doRender via TexturingViewScaleTool::getHandleVertices
-             */
-            void computeLineVertices(const Vec2& pos, Vec3& h1, Vec3& h2, Vec3& v1, Vec3& v2) const;
-            
             void setFace(Model::BrushFace* face);
 
-            /**
-             Returns the sub divisions of the texture size for the texture grid.
-             
-             Used in:
-             - TexturingViewScaleTool::doMouseDrag via getScaleHandlePositionInTexCoords and getScaleHandlePositionInFaceCoords
-             */
             const Vec2i& subDivisions() const;
-            
-            /**
-             Sets the sub divisions of the texture size for the texture grid
-             
-             Used in:
-             TexturingView::setSubDivisions
-             */
+            Vec2 stripeSize() const;
             void setSubDivisions(const Vec2i& subDivisions);
             
-            /**
-             Returns the size of one texture grid box.
-             
-             Used in:
-             - TexturingViewScaleTool::doPick
-             - TexturingViewScaleTool::doRender via TexturingViewScaleTool::getHandleVertices
-             */
-            Vec2 stripeSize() const;
-            
-            /**
-             Returns the origin position in rotated texture coordinates.
-             
-             Used in:
-             - TexturingViewRotateTool::doMouseDrag to compensate for the rotation
-             - TexturingViewOriginTool::doMouseDrag
-             - TexturingViewScaleTool::doMouseDrag to compute the scale factors
-             */
             const Vec2f originInFaceCoords() const;
-
-            /**
-             Returns the origin position in rotated, scaled and translated texture coordinates.
-             
-             Used in:
-             - TexturingViewScaleTool::doMouseDrag to compute the scale factors
-             */
             const Vec2f originInTexCoords() const;
-            
-            /**
-             Sets the scale origin position in rotated texture coordinates.
-             
-             Used in:
-             - TexturingViewRotateTool::doMouseDrag to compensate for the rotation
-             - TexturingViewOriginTool::doMouseDrag to update the scale origin
-             */
             void setOrigin(const Vec2f& originInFaceCoords);
 
-            /**
-             Returns the position of the rotation handle in rotated, scaled and translated texture coordinates.
-             
-             Used in:
-             - TexturingViewRotateTool::doPick
-             - TexturingViewRotateTool::doStartMouseDrag
-             - TexturingViewRotateTool::doRender
-             */
-            const Vec2f angleHandleInFaceCoords(const float distance) const;
-            
-            // Camera related functions
             void resetCamera();
             float cameraZoom() const;
 
-            void renderTexture(Renderer::RenderContext& renderContext);
-            Vec3f::List getTextureQuad() const;
-            void activateTexture(Renderer::ActiveShader& shader);
-            void deactivateTexture();
-        private:
-            Mat4x4 worldToTexMatrix() const;
+            Vec2f snapDelta(const Vec2f& delta, const Vec2f& distance) const;
+            Vec2f computeDistanceFromTextureGrid(const Vec3& position) const;
 
+            void computeOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
+            void computeScaleHandleVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
+            void computeLineVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const;
+        private:
             void resetOrigin();
             
             BBox3 computeFaceBoundsInCameraCoords() const;

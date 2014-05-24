@@ -146,15 +146,7 @@ namespace TrenchBroom {
         }
 
         Vec2f TexturingViewScaleTool::getScaleHandlePositionInTexCoords(const Vec2i& scaleHandle) const {
-            const Model::BrushFace* face = m_helper.face();
-            const Assets::Texture* texture = face->texture();
-            const Vec2i& subDivisions = m_helper.subDivisions();
-            
-            const float width  = static_cast<float>(texture->width())  / static_cast<float>(subDivisions.x());
-            const float height = static_cast<float>(texture->height()) / static_cast<float>(subDivisions.y());
-            
-            return Vec2f(width  * scaleHandle.x(),
-                         height * scaleHandle.y());
+            return Vec2f(scaleHandle * m_helper.stripeSize());
         }
 
         Vec2f TexturingViewScaleTool::getScaleHandlePositionInFaceCoords(const Vec2i& scaleHandle) const {
@@ -219,7 +211,7 @@ namespace TrenchBroom {
             const Vec2 pos = stripeSize * Vec2(xIndex, yIndex);
 
             Vec3 h1, h2, v1, v2;
-            m_helper.computeLineVertices(pos, h1, h2, v1, v2);
+            m_helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);
 
             EdgeVertex::List vertices;
             vertices.resize(4);
