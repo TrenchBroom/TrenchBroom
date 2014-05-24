@@ -24,7 +24,6 @@
 #include "Model/ModelTypes.h"
 #include "Model/TexCoordSystemHelper.h"
 #include "Renderer/EdgeRenderer.h"
-#include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexSpec.h"
 #include "View/ControllerFacade.h"
@@ -38,10 +37,9 @@ namespace TrenchBroom {
         const Hit::HitType TexturingViewScaleTool::YHandleHit = Hit::freeHitType();
         const FloatType TexturingViewScaleTool::MaxPickDistance = 5.0;
 
-        TexturingViewScaleTool::TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera) :
+        TexturingViewScaleTool::TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper) :
         ToolImpl(document, controller),
-        m_helper(helper),
-        m_camera(camera) {}
+        m_helper(helper) {}
 
         void TexturingViewScaleTool::doPick(const InputState& inputState, Hits& hits) {
             if (m_helper.valid()) {
@@ -56,7 +54,7 @@ namespace TrenchBroom {
                     const Vec3 hitPointInWorldCoords = pickRay.pointAtDistance(rayDistance);
                     const Vec3 hitPointInTexCoords = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true) * hitPointInWorldCoords;
                     
-                    const FloatType maxDistance = MaxPickDistance / m_camera.zoom().x();
+                    const FloatType maxDistance = MaxPickDistance / m_helper.cameraZoom();
                     const Vec2 stripeSize = m_helper.stripeSize();
                     
                     static const Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
@@ -224,7 +222,7 @@ namespace TrenchBroom {
                 const FloatType x = stripeSize.x() * index;
                 
                 Vec3 v1, v2;
-                m_helper.computeVLineVertices(m_camera, x, v1, v2);
+                m_helper.computeVLineVertices(x, v1, v2);
                 vertices.push_back(EdgeVertex(Vec3f(v1), color));
                 vertices.push_back(EdgeVertex(Vec3f(v2), color));
             }
@@ -234,7 +232,7 @@ namespace TrenchBroom {
                 const FloatType y = stripeSize.y() * index;
                 
                 Vec3 v1, v2;
-                m_helper.computeHLineVertices(m_camera, y, v1, v2);
+                m_helper.computeHLineVertices(y, v1, v2);
                 vertices.push_back(EdgeVertex(Vec3f(v1), color));
                 vertices.push_back(EdgeVertex(Vec3f(v2), color));
             }

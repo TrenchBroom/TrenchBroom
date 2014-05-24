@@ -31,7 +31,6 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class OrthographicCamera;
         class RenderContext;
     }
     
@@ -48,13 +47,12 @@ namespace TrenchBroom {
             typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
             
             TexturingViewHelper& m_helper;
-            Renderer::OrthographicCamera& m_camera;
 
             Vec2b m_selector;
             Vec2i m_handle;
             Vec2f m_lastHitPoint; // in face coords
         public:
-            TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
+            TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper);
         private:
             void doPick(const InputState& inputState, Hits& hits);
 

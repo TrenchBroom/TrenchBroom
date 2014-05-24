@@ -26,7 +26,6 @@
 #include "Model/BrushVertex.h"
 #include "Model/TexCoordSystemHelper.h"
 #include "Renderer/Circle.h"
-#include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
@@ -42,10 +41,9 @@ namespace TrenchBroom {
         const float TexturingViewRotateTool::HandleRadius = 5.0f;
         const float TexturingViewRotateTool::HandleLength = 32.0f;
 
-        TexturingViewRotateTool::TexturingViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera) :
+        TexturingViewRotateTool::TexturingViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper) :
         ToolImpl(document, controller),
-        m_helper(helper),
-        m_camera(camera) {}
+        m_helper(helper) {}
         
         void TexturingViewRotateTool::doPick(const InputState& inputState, Hits& hits) {
             if (!m_helper.valid())
@@ -62,9 +60,9 @@ namespace TrenchBroom {
             Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
             const Vec2f hitPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(hitPoint));
             
-            const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
+            const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_helper.cameraZoom());
             const float angleHandleError = hitPointInFaceCoords.distanceTo(angleHandleInFaceCoords);
-            if (Math::abs(angleHandleError) <= 2.0f * HandleRadius / m_camera.zoom().x())
+            if (Math::abs(angleHandleError) <= 2.0f * HandleRadius / m_helper.cameraZoom())
                 hits.addHit(Hit(AngleHandleHit, distance, hitPoint, 0, angleHandleError));
         }
         
@@ -85,7 +83,7 @@ namespace TrenchBroom {
             Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
 
             const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(angleHandleHit.hitPoint());
-            const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
+            const Vec2f angleHandleInFaceCoords = m_helper.angleHandleInFaceCoords(HandleLength / m_helper.cameraZoom());
             m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
             controller()->beginUndoableGroup("Rotate Texture");
             
@@ -179,20 +177,21 @@ namespace TrenchBroom {
             const PreferenceManager& prefs = PreferenceManager::instance();
             const Color& handleColor = prefs.get(Preferences::HandleColor);
             const Color& highlightColor = prefs.get(Preferences::SelectedHandleColor);
+            const float cameraZoom = m_helper.cameraZoom();
 
             const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_helper.face());
             const Vec2f originPosition = m_helper.originInFaceCoords();
-            const Vec2f angleHandlePosition = m_helper.angleHandleInFaceCoords(HandleLength / m_camera.zoom().x());
+            const Vec2f angleHandlePosition = m_helper.angleHandleInFaceCoords(HandleLength / cameraZoom);
             const Vec2f faceCenterPosition = faceCoordSystem.worldToTex(m_helper.face()->center());
 
-            const float actualRadius = HandleRadius / m_camera.zoom().x();
+            const float actualRadius = HandleRadius / cameraZoom;
             
             Renderer::Vbo vbo(0xFFF);
             Renderer::SetVboState vboState(vbo);
             Renderer::Circle center(actualRadius / 2.0f, 10, true);
             Renderer::Circle fill(actualRadius, 16, true);
             Renderer::Circle highlight(actualRadius * 2.0f, 16, false);
-            Renderer::Circle outer(HandleLength / m_camera.zoom().x(), 64, false);
+            Renderer::Circle outer(HandleLength / cameraZoom, 64, false);
 
             typedef Renderer::VertexSpecs::P2::Vertex Vertex;
             Vertex::List lineVertices(2);

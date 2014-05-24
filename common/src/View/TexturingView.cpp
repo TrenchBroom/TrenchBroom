@@ -74,9 +74,9 @@ namespace TrenchBroom {
         }
 
         void TexturingView::createTools() {
-            m_rotateTool = new TexturingViewRotateTool(m_document, m_controller, m_helper, m_camera);
-            m_originTool = new TexturingViewOriginTool(m_document, m_controller, m_helper, m_camera);
-            m_scaleTool = new TexturingViewScaleTool(m_document, m_controller, m_helper, m_camera);
+            m_rotateTool = new TexturingViewRotateTool(m_document, m_controller, m_helper);
+            m_originTool = new TexturingViewOriginTool(m_document, m_controller, m_helper);
+            m_scaleTool = new TexturingViewScaleTool(m_document, m_controller, m_helper);
             m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller, m_helper);
             m_cameraTool = new TexturingViewCameraTool(m_document, m_controller, m_camera);
 

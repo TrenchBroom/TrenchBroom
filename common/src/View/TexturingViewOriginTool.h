@@ -44,12 +44,11 @@ namespace TrenchBroom {
             typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
 
             TexturingViewHelper& m_helper;
-            Renderer::OrthographicCamera& m_camera;
             
             Vec2f m_lastPoint;
             Vec2f m_selector;
         public:
-            TexturingViewOriginTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
+            TexturingViewOriginTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper);
         private:
             void doPick(const InputState& inputState, Hits& hits);
 

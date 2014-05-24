@@ -73,7 +73,7 @@ namespace TrenchBroom {
              Used in:
              - TexturingViewOriginTool::doRender via TexturingViewOriginTool::getHandleVertices
              */
-            void computeScaleOriginHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
+            void computeScaleOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const;
             
             /**
              Computes the vertices for the scale handle line at the given Y coordinate by intersecting it with the current
@@ -82,8 +82,8 @@ namespace TrenchBroom {
              Used in:
              - TexturingViewScaleTool::doRender via TexturingViewScaleTool::getHandleVertices
              */
-            void computeHLineVertices(const Renderer::OrthographicCamera& camera, FloatType y, Vec3& v1, Vec3& v2) const;
-            void computeVLineVertices(const Renderer::OrthographicCamera& camera, FloatType x, Vec3& v1, Vec3& v2) const;
+            void computeHLineVertices(FloatType y, Vec3& v1, Vec3& v2) const;
+            void computeVLineVertices(FloatType x, Vec3& v1, Vec3& v2) const;
             
             void setFace(Model::BrushFace* face);
 

@@ -26,7 +26,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class OrthographicCamera;
         class RenderContext;
     }
 
@@ -41,11 +40,10 @@ namespace TrenchBroom {
             static const float HandleLength;
             
             TexturingViewHelper& m_helper;
-            Renderer::OrthographicCamera& m_camera;
 
             Vec2f m_offset;
         public:
-            TexturingViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper, Renderer::OrthographicCamera& camera);
+            TexturingViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper);
         private:
             void doPick(const InputState& inputState, Hits& hits);
             

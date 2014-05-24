@@ -88,13 +88,13 @@ namespace TrenchBroom {
             return Vec2f(x, y);
         }
         
-        void TexturingViewHelper::computeScaleOriginHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
+        void TexturingViewHelper::computeScaleOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
             assert(valid());
             
             Model::TexCoordSystemHelper helper(m_face);
             helper.setProject();
 
-            const Vec3::List viewportVertices = helper.worldToTex(camera.viewportVertices());
+            const Vec3::List viewportVertices = helper.worldToTex(m_camera.viewportVertices());
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
@@ -111,13 +111,13 @@ namespace TrenchBroom {
             y2 = helper.texToWorld(y2);
         }
         
-        void TexturingViewHelper::computeHLineVertices(const Renderer::OrthographicCamera& camera, const FloatType y, Vec3& v1, Vec3& v2) const {
+        void TexturingViewHelper::computeHLineVertices(const FloatType y, Vec3& v1, Vec3& v2) const {
             Model::TexCoordSystemHelper helper(m_face);
             helper.setTranslate();
             helper.setScale();
             helper.setProject();
 
-            const Vec3::List viewportVertices = helper.worldToTex(camera.viewportVertices());
+            const Vec3::List viewportVertices = helper.worldToTex(m_camera.viewportVertices());
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
@@ -129,13 +129,13 @@ namespace TrenchBroom {
             v2 = helper.texToWorld(v2);
         }
         
-        void TexturingViewHelper::computeVLineVertices(const Renderer::OrthographicCamera& camera, const FloatType x, Vec3& v1, Vec3& v2) const {
+        void TexturingViewHelper::computeVLineVertices(const FloatType x, Vec3& v1, Vec3& v2) const {
             Model::TexCoordSystemHelper helper(m_face);
             helper.setTranslate();
             helper.setScale();
             helper.setProject();
             
-            const Vec3::List viewportVertices = helper.worldToTex(camera.viewportVertices());
+            const Vec3::List viewportVertices = helper.worldToTex(m_camera.viewportVertices());
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
