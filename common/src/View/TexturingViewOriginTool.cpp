@@ -46,7 +46,7 @@ namespace TrenchBroom {
                 const Ray3& pickRay = inputState.pickRay();
 
                 Line3 xHandle, yHandle;
-                m_helper.computeScaleOriginHandles(xHandle, yHandle);
+                computeOriginHandles(xHandle, yHandle);
                 
                 const Ray3::LineDistance xDistance = pickRay.distanceToLine(xHandle.point, xHandle.direction);
                 const Ray3::LineDistance yDistance = pickRay.distanceToLine(yHandle.point, yHandle.direction);
@@ -68,6 +68,17 @@ namespace TrenchBroom {
                     hits.addHit(Hit(YHandleHit, yDistance.rayDistance, hitPoint, yHandle, absYDistance));
                 }
             }
+        }
+
+        void TexturingViewOriginTool::computeOriginHandles(Line3& xHandle, Line3& yHandle) const {
+            const Model::BrushFace* face = m_helper.face();
+            const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            
+            const Vec3 origin = m_helper.originInFaceCoords();
+            xHandle.point = yHandle.point = toWorld * origin;
+            
+            xHandle.direction = (toWorld * (origin + Vec3::PosY) - xHandle.point).normalized();
+            yHandle.direction = (toWorld * (origin + Vec3::PosX) - yHandle.point);
         }
 
         bool TexturingViewOriginTool::doStartMouseDrag(const InputState& inputState) {
@@ -111,9 +122,6 @@ namespace TrenchBroom {
             
             return true;
         }
-        
-        void TexturingViewOriginTool::doEndMouseDrag(const InputState& inputState) {}
-        void TexturingViewOriginTool::doCancelMouseDrag(const InputState& inputState) {}
         
         Vec2f TexturingViewOriginTool::computeHitPoint(const Ray3& ray) const {
             const Model::BrushFace* face = m_helper.face();
@@ -169,6 +177,9 @@ namespace TrenchBroom {
             return m_helper.snapDelta(delta, distanceInFaceCoords);
         }
 
+        void TexturingViewOriginTool::doEndMouseDrag(const InputState& inputState) {}
+        void TexturingViewOriginTool::doCancelMouseDrag(const InputState& inputState) {}
+        
         void TexturingViewOriginTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             if (!m_helper.valid())
                 return;

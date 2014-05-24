@@ -68,14 +68,6 @@ namespace TrenchBroom {
             Vec2f computeDistanceFromTextureGrid(const Vec3& position) const;
 
             /**
-             Computes the scale origin handle lines for the current scale origin in world coordinates.
-             
-             Used in:
-             - TexturingViewOriginTool::doPick
-             */
-            void computeScaleOriginHandles(Line3& xHandle, Line3& yHandle) const;
-            
-            /**
              Computes the vertices for the origin handle lines by intersecting them with the current camera frustum.
              
              Used in:
@@ -92,15 +84,6 @@ namespace TrenchBroom {
              */
             void computeHLineVertices(const Renderer::OrthographicCamera& camera, FloatType y, Vec3& v1, Vec3& v2) const;
             void computeVLineVertices(const Renderer::OrthographicCamera& camera, FloatType x, Vec3& v1, Vec3& v2) const;
-            
-            /**
-             Creates a hit container for the given pick ray. The container is either empty or contains a face hit for
-             the current face.
-             
-             Used in:
-             - TexturingView::doPick
-             */
-            Hits pick(const Ray3& pickRay) const;
             
             void setFace(Model::BrushFace* face);
 

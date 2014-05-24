@@ -88,24 +88,6 @@ namespace TrenchBroom {
             return Vec2f(x, y);
         }
         
-        void TexturingViewHelper::computeScaleOriginHandles(Line3& xHandle, Line3& yHandle) const {
-            assert(valid());
-
-            Model::TexCoordSystemHelper helper(m_face);
-            // helper.setTranslate();
-            // helper.setScale();
-            helper.setProject();
-
-            const Vec3 scaleOriginInFaceCoords(m_origin.x(), m_origin.y(), 0.0);
-            xHandle.point = yHandle.point = helper.texToWorld(scaleOriginInFaceCoords);
-            
-            const Vec3 xHandlePoint2 = helper.texToWorld(scaleOriginInFaceCoords + Vec3::PosY);
-            const Vec3 yHandlePoint2 = helper.texToWorld(scaleOriginInFaceCoords + Vec3::PosX);
-            
-            xHandle.direction = (xHandlePoint2 - xHandle.point).normalized();
-            yHandle.direction = (yHandlePoint2 - yHandle.point).normalized();
-        }
-        
         void TexturingViewHelper::computeScaleOriginHandleVertices(const Renderer::OrthographicCamera& camera, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
             assert(valid());
             
@@ -163,18 +145,6 @@ namespace TrenchBroom {
             
             v1 = helper.texToWorld(v1);
             v2 = helper.texToWorld(v2);
-        }
-        
-        Hits TexturingViewHelper::pick(const Ray3& pickRay) const {
-            assert(valid());
-            
-            Hits hits;
-            const FloatType distance = m_face->intersectWithRay(pickRay);
-            if (!Math::isnan(distance)) {
-                const Vec3 hitPoint = pickRay.pointAtDistance(distance);
-                hits.addHit(Hit(TexturingView::FaceHit, distance, hitPoint, m_face));
-            }
-            return hits;
         }
         
         void TexturingViewHelper::setFace(Model::BrushFace* face) {

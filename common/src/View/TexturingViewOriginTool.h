@@ -53,14 +53,17 @@ namespace TrenchBroom {
         private:
             void doPick(const InputState& inputState, Hits& hits);
 
+            void computeOriginHandles(Line3& xHandle, Line3& yHandle) const;
+            
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag(const InputState& inputState);
             
             Vec2f computeHitPoint(const Ray3& ray) const;
             Vec2f snapDelta(const Vec2f& delta) const;
             
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag(const InputState& inputState);
+
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             EdgeVertex::List getHandleVertices(const Hits& hits) const;
         };

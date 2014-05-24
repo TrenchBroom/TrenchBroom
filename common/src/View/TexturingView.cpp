@@ -230,9 +230,17 @@ namespace TrenchBroom {
         }
         
         Hits TexturingView::doPick(const Ray3& pickRay) const {
+            Hits hits;
             if (!m_helper.valid())
-                return Hits();
-            return m_helper.pick(pickRay);
+                return hits;
+            
+            Model::BrushFace* face = m_helper.face();
+            const FloatType distance = face->intersectWithRay(pickRay);
+            if (!Math::isnan(distance)) {
+                const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+                hits.addHit(Hit(TexturingView::FaceHit, distance, hitPoint, face));
+            }
+            return hits;
         }
     }
 }
