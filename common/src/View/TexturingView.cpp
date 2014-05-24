@@ -135,13 +135,11 @@ namespace TrenchBroom {
                 m_helper.setFace(NULL);
             else
                 m_helper.setFace(faces.back());
-            
-            if (m_helper.valid()) {
+
+            if (m_helper.valid())
                 m_toolBox.enable();
-                m_helper.resetCamera();
-            } else {
+            else
                 m_toolBox.disable();
-            }
             Refresh();
         }
         
@@ -208,9 +206,7 @@ namespace TrenchBroom {
             Vertex::List vertices(positions.size());
             
             for (size_t i = 0; i < positions.size(); ++i)
-                vertices[i] = Vertex(positions[i],
-                                     normal,
-                                     face->textureCoords(positions[i]));
+                vertices[i] = Vertex(positions[i], normal, face->textureCoords(positions[i]));
             
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
             

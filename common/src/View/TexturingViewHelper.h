@@ -71,7 +71,6 @@ namespace TrenchBroom {
             const Vec2f originInTexCoords() const;
             void setOrigin(const Vec2f& originInFaceCoords);
 
-            void resetCamera();
             float cameraZoom() const;
 
             Vec2f snapDelta(const Vec2f& delta, const Vec2f& distance) const;
@@ -82,6 +81,7 @@ namespace TrenchBroom {
             void computeLineVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const;
         private:
             void resetOrigin();
+            void resetCamera();
             
             BBox3 computeFaceBoundsInCameraCoords() const;
             Vec3 transformToCamera(const Vec3& point) const;

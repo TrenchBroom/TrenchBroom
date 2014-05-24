@@ -59,8 +59,10 @@ namespace TrenchBroom {
         void TexturingViewHelper::setFace(Model::BrushFace* face) {
             if (face != m_face) {
                 m_face = face;
-                if (m_face != NULL)
+                if (m_face != NULL) {
                     resetOrigin();
+                    resetCamera();
+                }
             }
         }
         
@@ -101,37 +103,6 @@ namespace TrenchBroom {
         
         void TexturingViewHelper::setOrigin(const Vec2f& originInFaceCoords) {
             m_origin = originInFaceCoords;
-        }
-        
-        void TexturingViewHelper::resetCamera() {
-            assert(valid());
-            
-            const BBox3 bounds = computeFaceBoundsInCameraCoords();
-            const Vec3f size(bounds.size());
-            const float w = static_cast<float>(m_camera.viewport().width - 20);
-            const float h = static_cast<float>(m_camera.viewport().height - 20);
-            
-            float zoom = 1.0f;
-            if (size.x() > w)
-                zoom = Math::min(zoom, w / size.x());
-            if (size.y() > h)
-                zoom = Math::min(zoom, h / size.y());
-            m_camera.setZoom(zoom);
-            
-            const Vec3  position = m_face->center();
-            const Vec3& normal = m_face->boundary().normal;
-            Vec3 right;
-            
-            if (Math::lt(Math::abs(Vec3::PosZ.dot(normal)), 1.0))
-                right = crossed(Vec3::PosZ, normal).normalized();
-            else
-                right = Vec3::PosX;
-            const Vec3 up = crossed(normal, right).normalized();
-            
-            m_camera.moveTo(position);
-            m_camera.setNearPlane(-1.0);
-            m_camera.setFarPlane(1.0);
-            m_camera.setDirection(-normal, up);
         }
         
         float TexturingViewHelper::cameraZoom() const {
@@ -205,6 +176,37 @@ namespace TrenchBroom {
 
             const BBox3 bounds(helper.worldToTex(positions));
             m_origin = Vec2f(bounds.min);
+        }
+        
+        void TexturingViewHelper::resetCamera() {
+            assert(valid());
+            
+            const BBox3 bounds = computeFaceBoundsInCameraCoords();
+            const Vec3f size(bounds.size());
+            const float w = static_cast<float>(m_camera.viewport().width - 20);
+            const float h = static_cast<float>(m_camera.viewport().height - 20);
+            
+            float zoom = 1.0f;
+            if (size.x() > w)
+                zoom = Math::min(zoom, w / size.x());
+            if (size.y() > h)
+                zoom = Math::min(zoom, h / size.y());
+            m_camera.setZoom(zoom);
+            
+            const Vec3  position = m_face->center();
+            const Vec3& normal = m_face->boundary().normal;
+            Vec3 right;
+            
+            if (Math::lt(Math::abs(Vec3::PosZ.dot(normal)), 1.0))
+                right = crossed(Vec3::PosZ, normal).normalized();
+            else
+                right = Vec3::PosX;
+            const Vec3 up = crossed(normal, right).normalized();
+            
+            m_camera.moveTo(position);
+            m_camera.setNearPlane(-1.0);
+            m_camera.setFarPlane(1.0);
+            m_camera.setDirection(-normal, up);
         }
 
         BBox3 TexturingViewHelper::computeFaceBoundsInCameraCoords() const {
