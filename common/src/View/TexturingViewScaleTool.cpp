@@ -214,27 +214,24 @@ namespace TrenchBroom {
             const Vec2 stripeSize = m_helper.stripeSize();
             const Color color = Color(1.0f, 1.0f, 0.0f, 1.0f);
 
+            const int xIndex = xHandleHit.target<int>();
+            const int yIndex = yHandleHit.target<int>();
+            const Vec2 pos = stripeSize * Vec2(xIndex, yIndex);
+
+            Vec3 h1, h2, v1, v2;
+            m_helper.computeLineVertices(pos, h1, h2, v1, v2);
+
             EdgeVertex::List vertices;
             vertices.resize(4);
             
             if (xHandleHit.isMatch()) {
-                const int index = xHandleHit.target<int>();
-                const FloatType x = stripeSize.x() * index;
-                
-                Vec3 v1, v2;
-                m_helper.computeVLineVertices(x, v1, v2);
                 vertices.push_back(EdgeVertex(Vec3f(v1), color));
                 vertices.push_back(EdgeVertex(Vec3f(v2), color));
             }
             
             if (yHandleHit.isMatch()) {
-                const int index = yHandleHit.target<int>();
-                const FloatType y = stripeSize.y() * index;
-                
-                Vec3 v1, v2;
-                m_helper.computeHLineVertices(y, v1, v2);
-                vertices.push_back(EdgeVertex(Vec3f(v1), color));
-                vertices.push_back(EdgeVertex(Vec3f(v2), color));
+                vertices.push_back(EdgeVertex(Vec3f(h1), color));
+                vertices.push_back(EdgeVertex(Vec3f(h2), color));
             }
             
             return vertices;

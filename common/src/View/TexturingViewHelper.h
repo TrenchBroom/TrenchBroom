@@ -82,8 +82,7 @@ namespace TrenchBroom {
              Used in:
              - TexturingViewScaleTool::doRender via TexturingViewScaleTool::getHandleVertices
              */
-            void computeHLineVertices(FloatType y, Vec3& v1, Vec3& v2) const;
-            void computeVLineVertices(FloatType x, Vec3& v1, Vec3& v2) const;
+            void computeLineVertices(const Vec2& pos, Vec3& h1, Vec3& h2, Vec3& v1, Vec3& v2) const;
             
             void setFace(Model::BrushFace* face);
 

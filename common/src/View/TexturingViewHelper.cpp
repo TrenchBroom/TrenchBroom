@@ -91,60 +91,35 @@ namespace TrenchBroom {
         void TexturingViewHelper::computeScaleOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
             assert(valid());
             
-            Model::TexCoordSystemHelper helper(m_face);
-            helper.setProject();
+            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
 
-            const Vec3::List viewportVertices = helper.worldToTex(m_camera.viewportVertices());
+            const Vec3::List viewportVertices = toTex * m_camera.viewportVertices();
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
             
-            x1 = Vec3(m_origin.x(), min.y(), 0.0);
-            x2 = Vec3(m_origin.x(), max.y(), 0.0);
-            
-            y1 = Vec3(min.x(), m_origin.y(), 0.0);
-            y2 = Vec3(max.x(), m_origin.y(), 0.0);
-            
-            x1 = helper.texToWorld(x1);
-            x2 = helper.texToWorld(x2);
-            y1 = helper.texToWorld(y1);
-            y2 = helper.texToWorld(y2);
+            x1 = toWorld * Vec3(m_origin.x(), min.y(), 0.0);
+            x2 = toWorld * Vec3(m_origin.x(), max.y(), 0.0);
+            y1 = toWorld * Vec3(min.x(), m_origin.y(), 0.0);
+            y2 = toWorld * Vec3(max.x(), m_origin.y(), 0.0);
         }
-        
-        void TexturingViewHelper::computeHLineVertices(const FloatType y, Vec3& v1, Vec3& v2) const {
-            Model::TexCoordSystemHelper helper(m_face);
-            helper.setTranslate();
-            helper.setScale();
-            helper.setProject();
 
-            const Vec3::List viewportVertices = helper.worldToTex(m_camera.viewportVertices());
+        void TexturingViewHelper::computeLineVertices(const Vec2& pos, Vec3& h1, Vec3& h2, Vec3& v1, Vec3& v2) const {
+            assert(valid());
+            
+            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            
+            const Vec3::List viewportVertices = toTex * m_camera.viewportVertices();
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
             const Vec3& max = viewportBounds.max;
             
-            v1 = Vec3(min.x(), y, 0.0);
-            v2 = Vec3(max.x(), y, 0.0);
-
-            v1 = helper.texToWorld(v1);
-            v2 = helper.texToWorld(v2);
-        }
-        
-        void TexturingViewHelper::computeVLineVertices(const FloatType x, Vec3& v1, Vec3& v2) const {
-            Model::TexCoordSystemHelper helper(m_face);
-            helper.setTranslate();
-            helper.setScale();
-            helper.setProject();
-            
-            const Vec3::List viewportVertices = helper.worldToTex(m_camera.viewportVertices());
-            const BBox3 viewportBounds(viewportVertices);
-            const Vec3& min = viewportBounds.min;
-            const Vec3& max = viewportBounds.max;
-            
-            v1 = Vec3(x, min.y(), 0.0);
-            v2 = Vec3(x, max.y(), 0.0);
-            
-            v1 = helper.texToWorld(v1);
-            v2 = helper.texToWorld(v2);
+            h1 = toWorld * Vec3(min.x(), pos.y(), 0.0);
+            h2 = toWorld * Vec3(max.x(), pos.y(), 0.0);
+            v1 = toWorld * Vec3(pos.x(), min.y(), 0.0);
+            v2 = toWorld * Vec3(pos.x(), max.y(), 0.0);
         }
         
         void TexturingViewHelper::setFace(Model::BrushFace* face) {
