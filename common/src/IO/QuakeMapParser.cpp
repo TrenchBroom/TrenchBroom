@@ -282,7 +282,7 @@ namespace TrenchBroom {
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
             if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
                 return Model::MapFormat::Quake;
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token); // unknown Hexen 2 flag or Quake 2 surface contents
+            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken()); // unknown Hexen 2 flag or Quake 2 surface contents
             if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
                 return Model::MapFormat::Hexen2;
             return Model::MapFormat::Quake2;
