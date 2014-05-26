@@ -23,7 +23,7 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Controller/Command.h"
-#include "IO/Path.h"
+#include "Model/EntityDefinitionFileSpec.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -34,12 +34,12 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<SetEntityDefinitionFileCommand> Ptr;
         private:
             View::MapDocumentWPtr m_document;
-            IO::Path m_newFile;
-            IO::Path m_oldFile;
+            Model::EntityDefinitionFileSpec m_newSpec;
+            Model::EntityDefinitionFileSpec m_oldSpec;
         public:
-            static Ptr setEntityDefinitionFile(View::MapDocumentWPtr document, const IO::Path& file);
+            static Ptr setEntityDefinitionFileSpec(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec);
         private:
-            SetEntityDefinitionFileCommand(View::MapDocumentWPtr document, const IO::Path& file);
+            SetEntityDefinitionFileCommand(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec);
             
             bool doPerformDo();
             bool doPerformUndo();

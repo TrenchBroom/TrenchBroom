@@ -48,13 +48,13 @@ namespace TrenchBroom {
             
             Map* newMap(MapFormat::Type format) const;
             Map* loadMap(const BBox3& worldBounds, const IO::Path& path) const;
-            Model::EntityList parseEntities(const BBox3& worldBounds, const String& str) const;
-            Model::BrushList parseBrushes(const BBox3& worldBounds, const String& str) const;
-            Model::BrushFaceList parseFaces(const BBox3& worldBounds, const String& str) const;
+            EntityList parseEntities(const BBox3& worldBounds, const String& str) const;
+            BrushList parseBrushes(const BBox3& worldBounds, const String& str) const;
+            BrushFaceList parseFaces(const BBox3& worldBounds, const String& str) const;
             
             void writeMap(Map& map, const IO::Path& path) const;
-            void writeObjectsToStream(MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const;
-            void writeFacesToStream(MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const;
+            void writeObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const;
+            void writeFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const;
             
             IO::Path::List findBuiltinTextureCollections() const;
             StringList extractExternalTextureCollections(const Map* map) const;
@@ -62,8 +62,9 @@ namespace TrenchBroom {
             Assets::TextureCollection* loadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
             
             Assets::EntityDefinitionList loadEntityDefinitions(const IO::Path& path) const;
-            IO::Path::List allEntityDefinitionFiles() const;
+            EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             EntityDefinitionFileSpec extractEntityDefinitionFile(const Map* map) const;
+            IO::Path findEntityDefinitionFile(const EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
             Assets::EntityModel* loadModel(const IO::Path& path) const;
             
             StringList availableMods() const;
@@ -79,13 +80,13 @@ namespace TrenchBroom {
             
             virtual Map* doNewMap(MapFormat::Type format) const = 0;
             virtual Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
-            virtual Model::EntityList doParseEntities(const BBox3& worldBounds, const String& str) const = 0;
-            virtual Model::BrushList doParseBrushes(const BBox3& worldBounds, const String& str) const = 0;
-            virtual Model::BrushFaceList doParseFaces(const BBox3& worldBounds, const String& str) const = 0;
+            virtual EntityList doParseEntities(const BBox3& worldBounds, const String& str) const = 0;
+            virtual BrushList doParseBrushes(const BBox3& worldBounds, const String& str) const = 0;
+            virtual BrushFaceList doParseFaces(const BBox3& worldBounds, const String& str) const = 0;
             
             virtual void doWriteMap(Map& map, const IO::Path& path) const = 0;
-            virtual void doWriteObjectsToStream(MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const = 0;
-            virtual void doWriteFacesToStream(MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const = 0;
+            virtual void doWriteObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const = 0;
+            virtual void doWriteFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const = 0;
             
             virtual IO::Path::List doFindBuiltinTextureCollections() const = 0;
             virtual StringList doExtractExternalTextureCollections(const Map* map) const = 0;
@@ -93,8 +94,9 @@ namespace TrenchBroom {
             virtual Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const = 0;
             
             virtual Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const = 0;
-            virtual IO::Path::List doAllEntityDefinitionFiles() const = 0;
+            virtual EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
             virtual EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Map* map) const = 0;
+            virtual IO::Path doFindEntityDefinitionFile(const EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
             virtual Assets::EntityModel* doLoadModel(const IO::Path& path) const = 0;
             
             virtual StringList doAvailableMods() const = 0;

@@ -36,6 +36,7 @@ namespace TrenchBroom {
     }
     
     namespace Model {
+        class EntityDefinitionFileSpec;
         class Game;
     }
     
@@ -115,7 +116,7 @@ namespace TrenchBroom {
             bool removeEntityProperty(const Model::EntityList& entities, const Model::PropertyKey& key, bool force = false);
             
             bool setMods(const StringList& mods);
-            bool setEntityDefinitionFile(const IO::Path& file);
+            bool setEntityDefinitionFile(const Model::EntityDefinitionFileSpec& spec);
 
             bool addTextureCollection(const String& name);
             bool removeTextureCollections(const StringList& names);

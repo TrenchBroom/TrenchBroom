@@ -183,8 +183,15 @@ namespace TrenchBroom {
             throw GameException("Unknown entity definition format: '" + path.asString() + "'");
         }
         
-        IO::Path::List GameImpl::doAllEntityDefinitionFiles() const {
-            return m_config.entityConfig().defFilePaths;
+        EntityDefinitionFileSpec::List GameImpl::doAllEntityDefinitionFiles() const {
+            const IO::Path::List paths = m_config.entityConfig().defFilePaths;
+            const size_t count = paths.size();
+
+            EntityDefinitionFileSpec::List result(count);
+            for (size_t i = 0; i < count; ++i)
+                result[i] = EntityDefinitionFileSpec::builtin(paths[i]);
+            
+            return result;
         }
 
         EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const Map* map) const {
@@ -192,36 +199,33 @@ namespace TrenchBroom {
             if (worldspawn == NULL)
                 return defaultEntityDefinitionFile();
             
-            Model::PropertyValue defValue = worldspawn->property(Model::PropertyKeys::EntityDefinitions);
+            const Model::PropertyValue& defValue = worldspawn->property(Model::PropertyKeys::EntityDefinitions);
             if (defValue.empty())
                 return defaultEntityDefinitionFile();
-            
-            // backward compability with TB 1.x
-            // we now distinguish the extern and builtin files by whether the path is absolute or relative
-            if (StringUtils::isPrefix(defValue, "external:"))
-                defValue = defValue.substr(9);
-            if (StringUtils::isPrefix(defValue, "builtin:"))
-                defValue = defValue.substr(8);
-            
-            const IO::Path defPath(defValue);
-            if (defPath.isAbsolute())
-                return EntityDefinitionFileSpec::external(defPath);
-            
-            const IO::Path absDefPath = m_config.findConfigFile(defPath);
-            return EntityDefinitionFileSpec::builtin(defPath, m_config.findConfigFile(defPath));
+            return EntityDefinitionFileSpec::parse(defValue);
         }
         
         EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const {
-            const IO::Path::List paths = allEntityDefinitionFiles();
+            const IO::Path::List paths = m_config.entityConfig().defFilePaths;
             if (paths.empty())
                 throw GameException("No entity definition files found for game '" + gameName() + "'");
             
             const IO::Path& path = paths.front();
-            const IO::Path absPath = m_config.findConfigFile(path);
-            if (!IO::Disk::fileExists(absPath))
-                throw GameException("Entity definition file not found: '" + path.asString() + "'");
-            
-            return EntityDefinitionFileSpec::builtin(path, absPath);
+            return EntityDefinitionFileSpec::builtin(path);
+        }
+
+        IO::Path GameImpl::doFindEntityDefinitionFile(const EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
+            if (!spec.valid())
+                throw GameException("Invalid entity definition file spec");
+
+            const IO::Path& path = spec.path();
+            if (spec.builtin()) {
+                return m_config.findConfigFile(path);
+            } else {
+                if (path.isAbsolute())
+                    return path;
+                return IO::Disk::resolvePath(searchPaths, path);
+            }
         }
 
         Assets::EntityModel* GameImpl::doLoadModel(const IO::Path& path) const {

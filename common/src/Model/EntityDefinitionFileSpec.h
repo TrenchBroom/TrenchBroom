@@ -22,24 +22,42 @@
 
 #include "IO/Path.h"
 
+#include <vector>
+
 namespace TrenchBroom {
     namespace Model {
         class EntityDefinitionFileSpec {
+        public:
+            typedef std::vector<EntityDefinitionFileSpec> List;
         private:
-            bool m_builtin;
+            typedef enum {
+                Type_Builtin,
+                Type_External,
+                Type_Unset
+            } Type;
+            
+            Type m_type;
             IO::Path m_path;
-            IO::Path m_fullPath;
         public:
             EntityDefinitionFileSpec();
             
-            static EntityDefinitionFileSpec builtin(const IO::Path& path, const IO::Path& fullPath);
-            static EntityDefinitionFileSpec external(const IO::Path& fullPath);
+            static EntityDefinitionFileSpec parse(const String& str);
+            static EntityDefinitionFileSpec builtin(const IO::Path& path);
+            static EntityDefinitionFileSpec external(const IO::Path& path);
+            static EntityDefinitionFileSpec unset();
             
+            bool operator< (const EntityDefinitionFileSpec& rhs) const;
+            bool operator== (const EntityDefinitionFileSpec& rhs) const;
+
+            bool valid() const;
             bool builtin() const;
+            bool external() const;
+            
             const IO::Path& path() const;
-            const IO::Path& fullPath() const;
+            
+            String asString() const;
         private:
-            EntityDefinitionFileSpec(bool builtin, const IO::Path& path, const IO::Path& fullPath);
+            EntityDefinitionFileSpec(Type type, const IO::Path& path);
         };
     }
 }

@@ -437,7 +437,7 @@ namespace TrenchBroom {
             return m_game->extractEntityDefinitionFile(m_map);
         }
 
-        IO::Path::List MapDocument::entityDefinitionFiles() const {
+        Model::EntityDefinitionFileSpec::List MapDocument::entityDefinitionFiles() const {
             return m_game->allEntityDefinitionFiles();
         }
 
@@ -973,15 +973,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::doAddExternalTextureCollections(const StringList& names) {
-            IO::Path::List searchPaths;
-            if (!m_path.isEmpty() && m_path.isAbsolute())
-                searchPaths.push_back(m_path.deleteLastComponent());
-            
-            const IO::Path gamePath = m_game->gamePath();
-            if (!gamePath.isEmpty())
-                searchPaths.push_back(gamePath);
-            
-            searchPaths.push_back(IO::SystemPaths::appDirectory());
+            const IO::Path::List searchPaths = externalSearchPaths();
             
             StringList::const_iterator it, end;
             for (it = names.begin(), end = names.end(); it != end; ++it) {
@@ -995,6 +987,19 @@ namespace TrenchBroom {
                 else
                     warn("External texture collection not found: '" + name +  "'");
             }
+        }
+
+        IO::Path::List MapDocument::externalSearchPaths() const {
+            IO::Path::List searchPaths;
+            if (!m_path.isEmpty() && m_path.isAbsolute())
+                searchPaths.push_back(m_path.deleteLastComponent());
+            
+            const IO::Path gamePath = m_game->gamePath();
+            if (!gamePath.isEmpty())
+                searchPaths.push_back(gamePath);
+            
+            searchPaths.push_back(IO::SystemPaths::appDirectory());
+            return searchPaths;
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {

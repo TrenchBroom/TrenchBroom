@@ -53,13 +53,13 @@ namespace TrenchBroom {
 
             Map* doNewMap(MapFormat::Type format) const;
             Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
-            Model::EntityList doParseEntities(const BBox3& worldBounds, const String& str) const;
-            Model::BrushList doParseBrushes(const BBox3& worldBounds, const String& str) const;
-            Model::BrushFaceList doParseFaces(const BBox3& worldBounds, const String& str) const;
+            EntityList doParseEntities(const BBox3& worldBounds, const String& str) const;
+            BrushList doParseBrushes(const BBox3& worldBounds, const String& str) const;
+            BrushFaceList doParseFaces(const BBox3& worldBounds, const String& str) const;
             
             void doWriteMap(Map& map, const IO::Path& path) const;
-            void doWriteObjectsToStream(MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const;
-            void doWriteFacesToStream(MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const;
+            void doWriteObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const;
+            void doWriteFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const;
             
             IO::Path::List doFindBuiltinTextureCollections() const;
             StringList doExtractExternalTextureCollections(const Map* map) const;
@@ -67,9 +67,10 @@ namespace TrenchBroom {
             Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
             
             Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
-            IO::Path::List doAllEntityDefinitionFiles() const;
+            EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const;
             EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Map* map) const;
             EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
+            IO::Path doFindEntityDefinitionFile(const EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
             Assets::EntityModel* doLoadModel(const IO::Path& path) const;
 
             MapWriterPtr mapWriter(MapFormat::Type format) const;

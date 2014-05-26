@@ -323,10 +323,10 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::setEntityDefinitionFile(const IO::Path& file) {
+        bool ControllerFacade::setEntityDefinitionFile(const Model::EntityDefinitionFileSpec& spec) {
             using namespace Controller;
             
-            Command::Ptr command = SetEntityDefinitionFileCommand::setEntityDefinitionFile(m_document, file);
+            Command::Ptr command = SetEntityDefinitionFileCommand::setEntityDefinitionFileSpec(m_document, spec);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

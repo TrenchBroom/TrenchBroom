@@ -98,12 +98,16 @@ namespace TrenchBroom {
             return doLoadEntityDefinitions(path);
         }
         
-        IO::Path::List Game::allEntityDefinitionFiles() const {
+        EntityDefinitionFileSpec::List Game::allEntityDefinitionFiles() const {
             return doAllEntityDefinitionFiles();
         }
 
         EntityDefinitionFileSpec Game::extractEntityDefinitionFile(const Map* map) const {
             return doExtractEntityDefinitionFile(map);
+        }
+        
+        IO::Path Game::findEntityDefinitionFile(const EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const {
+            return doFindEntityDefinitionFile(spec, searchPaths);
         }
         
         Assets::EntityModel* Game::loadModel(const IO::Path& path) const {

@@ -146,7 +146,7 @@ namespace TrenchBroom {
             StringList mods() const;
             
             Model::EntityDefinitionFileSpec entityDefinitionFile() const;
-            IO::Path::List entityDefinitionFiles() const;
+            Model::EntityDefinitionFileSpec::List entityDefinitionFiles() const;
             
             void addExternalTextureCollections(const StringList& names);
             void removeExternalTextureCollections(const StringList& names);
@@ -241,6 +241,7 @@ namespace TrenchBroom {
             void loadExternalTextures();
             void updateTextures();
             void doAddExternalTextureCollections(const StringList& names);
+            IO::Path::List externalSearchPaths() const;
             
             void doSaveDocument(const IO::Path& path);
             void setDocumentPath(const IO::Path& path);

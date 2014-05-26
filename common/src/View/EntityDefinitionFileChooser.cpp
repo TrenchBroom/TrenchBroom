@@ -56,15 +56,14 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);
 
-            IO::Path::List paths = document->entityDefinitionFiles();
-            std::sort(paths.begin(), paths.end());
+            Model::EntityDefinitionFileSpec::List specs = document->entityDefinitionFiles();
+            std::sort(specs.begin(), specs.end());
             
             const size_t index = static_cast<size_t>(m_builtin->GetSelection());
-            assert(index < paths.size());
-            const IO::Path& path = paths[index];
+            assert(index < specs.size());
+            const Model::EntityDefinitionFileSpec& spec = specs[index];
             
-            assert(!path.isAbsolute());
-            controller->setEntityDefinitionFile(path);
+            controller->setEntityDefinitionFile(spec);
         }
         
         void EntityDefinitionFileChooser::OnChooseExternalClicked(wxCommandEvent& event) {
@@ -77,9 +76,10 @@ namespace TrenchBroom {
             
             const IO::Path path(pathWxStr.ToStdString());
             assert(path.isAbsolute());
-
+            const Model::EntityDefinitionFileSpec spec = Model::EntityDefinitionFileSpec::external(path);
+            
             ControllerSPtr controller = lock(m_controller);
-            controller->setEntityDefinitionFile(path);
+            controller->setEntityDefinitionFile(spec);
         }
 
         void EntityDefinitionFileChooser::createGui() {
@@ -149,24 +149,25 @@ namespace TrenchBroom {
             m_builtin->Clear();
             
             MapDocumentSPtr document = lock(m_document);
-            IO::Path::List paths = document->entityDefinitionFiles();
-            std::sort(paths.begin(), paths.end());
+            Model::EntityDefinitionFileSpec::List specs = document->entityDefinitionFiles();
+            std::sort(specs.begin(), specs.end());
             
-            IO::Path::List::const_iterator it, end;
-            for (it = paths.begin(), end = paths.end(); it != end; ++it) {
-                const IO::Path& path = *it;
+            Model::EntityDefinitionFileSpec::List::const_iterator it, end;
+            for (it = specs.begin(), end = specs.end(); it != end; ++it) {
+                const Model::EntityDefinitionFileSpec& spec = *it;
+                const IO::Path& path = spec.path();
                 m_builtin->Append(path.lastComponent().asString());
             }
             
             const Model::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
-                const size_t index = VectorUtils::indexOf(paths, spec.path());
-                if (index < paths.size())
+                const size_t index = VectorUtils::indexOf(specs, spec);
+                if (index < specs.size())
                     m_builtin->SetSelection(static_cast<int>(index));
                 m_external->SetLabel("use builtin");
             } else {
                 m_builtin->DeselectAll();
-                m_external->SetLabel(spec.fullPath().asString());
+                m_external->SetLabel(spec.path().asString());
             }
         }
     }

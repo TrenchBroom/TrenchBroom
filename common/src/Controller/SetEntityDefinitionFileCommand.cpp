@@ -27,22 +27,21 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType SetEntityDefinitionFileCommand::Type = Command::freeType();
 
-        SetEntityDefinitionFileCommand::Ptr SetEntityDefinitionFileCommand::setEntityDefinitionFile(View::MapDocumentWPtr document, const IO::Path& file) {
-            return Ptr(new SetEntityDefinitionFileCommand(document, file));
+        SetEntityDefinitionFileCommand::Ptr SetEntityDefinitionFileCommand::setEntityDefinitionFileSpec(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec) {
+            return Ptr(new SetEntityDefinitionFileCommand(document, spec));
         }
 
-        SetEntityDefinitionFileCommand::SetEntityDefinitionFileCommand(View::MapDocumentWPtr document, const IO::Path& file) :
+        SetEntityDefinitionFileCommand::SetEntityDefinitionFileCommand(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec) :
         Command(Type, "Set Entity Definition File", true, true),
         m_document(document),
-        m_newFile(file),
-        m_oldFile("") {}
+        m_newSpec(spec) {}
         
         bool SetEntityDefinitionFileCommand::doPerformDo() {
             View::MapDocumentSPtr document = lock(m_document);
             Model::Entity* worldspawn = document->worldspawn();
             document->objectWillChangeNotifier(worldspawn);
-            m_oldFile = document->entityDefinitionFile().path();
-            worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_newFile.asString());
+            m_oldSpec = document->entityDefinitionFile();
+            worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_newSpec.asString());
             document->objectDidChangeNotifier(worldspawn);
             document->entityDefinitionsDidChangeNotifier();
             return true;
@@ -52,7 +51,7 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             Model::Entity* worldspawn = document->worldspawn();
             document->objectWillChangeNotifier(worldspawn);
-            worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_oldFile.asString());
+            worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_oldSpec.asString());
             document->objectDidChangeNotifier(worldspawn);
             document->entityDefinitionsDidChangeNotifier();
             return true;
