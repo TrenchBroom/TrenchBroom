@@ -96,7 +96,7 @@ namespace TrenchBroom {
             virtual Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const = 0;
             virtual EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
             virtual EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Map* map) const = 0;
-            virtual IO::Path doFindEntityDefinitionFile(const EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
+            virtual IO::Path doFindEntityDefinitionFile(const EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const = 0;
             virtual Assets::EntityModel* doLoadModel(const IO::Path& path) const = 0;
             
             virtual StringList doAvailableMods() const = 0;

@@ -67,7 +67,7 @@ namespace TrenchBroom {
         }
 
         bool EntityDefinitionFileSpec::operator== (const EntityDefinitionFileSpec& rhs) const {
-            
+            return m_type == rhs.m_type && m_path == rhs.m_path;
         }
 
         bool EntityDefinitionFileSpec::valid() const {

@@ -908,8 +908,9 @@ namespace TrenchBroom {
         
         void MapDocument::loadEntityDefinitions() {
             const Model::EntityDefinitionFileSpec spec = entityDefinitionFile();
-            m_entityDefinitionManager.loadDefinitions(m_game, spec.fullPath());
-            info("Loaded entity definition file " + spec.fullPath().lastComponent().asString());
+            const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
+            m_entityDefinitionManager.loadDefinitions(m_game, path);
+            info("Loaded entity definition file " + path.lastComponent().asString());
         }
         
         void MapDocument::clearEntityModels() {
