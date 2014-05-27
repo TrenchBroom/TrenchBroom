@@ -104,6 +104,8 @@ namespace TrenchBroom {
             StringMap collectStringVertices(Layout& layout, const float y, const float height);
             
             Mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const;
+            
+            wxString tooltip(const typename Layout::Group::Row::Cell& cell);
         };
     }
 }
