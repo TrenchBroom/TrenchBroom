@@ -27,11 +27,9 @@ namespace TrenchBroom {
         namespace Colors {
             const wxColour& disabledText() {
                 static const wxColour col =
-#if defined _WIN32
-                wxColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-#elif defined __APPLE__
+#if defined __APPLE__
                 wxColour(108, 108, 108);
-#elif defined __linux__
+#else
                 wxColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
 #endif
                 return col;

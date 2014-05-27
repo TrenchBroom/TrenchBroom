@@ -23,6 +23,9 @@
 #include "Notifier.h"
 #include "IO/Path.h"
 #include "Model/EntityDefinitionFileSpec.h"
+#include "Model/Game.h"
+#include "Model/GameFactory.h"
+#include "View/ChoosePathTypeDialog.h"
 #include "View/ControllerFacade.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
@@ -74,11 +77,20 @@ namespace TrenchBroom {
             if (pathWxStr.empty())
                 return;
             
-            const IO::Path path(pathWxStr.ToStdString());
-            assert(path.isAbsolute());
-            const Model::EntityDefinitionFileSpec spec = Model::EntityDefinitionFileSpec::external(path);
-            
+            MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);
+            
+            const IO::Path absPath(pathWxStr.ToStdString());
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            
+            const IO::Path docPath = document->path();
+            const IO::Path gamePath = gameFactory.gamePath(document->game()->gameName());
+            
+            ChoosePathTypeDialog pathDialog(this, absPath, docPath, gamePath);
+            if (pathDialog.ShowModal() != wxID_OK)
+                return;
+            
+            const Model::EntityDefinitionFileSpec spec = Model::EntityDefinitionFileSpec::external(pathDialog.path());
             controller->setEntityDefinitionFile(spec);
         }
 
@@ -165,9 +177,19 @@ namespace TrenchBroom {
                 if (index < specs.size())
                     m_builtin->SetSelection(static_cast<int>(index));
                 m_external->SetLabel("use builtin");
+                m_external->SetForegroundColour(Colors::disabledText());
+                
+                wxFont font = m_external->GetFont();
+                font.SetStyle(wxFONTSTYLE_ITALIC);
+                m_external->SetFont(font);
             } else {
                 m_builtin->DeselectAll();
                 m_external->SetLabel(spec.path().asString());
+                m_external->SetForegroundColour(*wxBLACK);
+
+                wxFont font = m_external->GetFont();
+                font.SetStyle(wxFONTSTYLE_NORMAL);
+                m_external->SetFont(font);
             }
         }
     }
