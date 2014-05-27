@@ -437,7 +437,7 @@ namespace TrenchBroom {
                     translationMatrix(-center));
         }
         
-        wxString EntityBrowserView::tooltip(const typename Layout::Group::Row::Cell& cell) {
+        wxString EntityBrowserView::tooltip(const Layout::Group::Row::Cell& cell) {
             return cell.item().entityDefinition->name();
         }
     }

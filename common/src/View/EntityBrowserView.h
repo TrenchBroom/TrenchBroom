@@ -105,7 +105,7 @@ namespace TrenchBroom {
             
             Mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const;
             
-            wxString tooltip(const typename Layout::Group::Row::Cell& cell);
+            wxString tooltip(const Layout::Group::Row::Cell& cell);
         };
     }
 }

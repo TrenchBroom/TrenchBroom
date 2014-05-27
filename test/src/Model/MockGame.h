@@ -69,8 +69,9 @@ namespace TrenchBroom {
             MOCK_CONST_METHOD1(doLoadTextureCollection, Assets::TextureCollection*(const Assets::TextureCollectionSpec&));
             
             MOCK_CONST_METHOD1(doLoadEntityDefinitions, Assets::EntityDefinitionList(const IO::Path&));
-            MOCK_CONST_METHOD0(doAllEntityDefinitionFiles, IO::Path::List());
+            MOCK_CONST_METHOD0(doAllEntityDefinitionFiles, EntityDefinitionFileSpec::List());
             MOCK_CONST_METHOD1(doExtractEntityDefinitionFile, EntityDefinitionFileSpec(const Map* map));
+            MOCK_CONST_METHOD2(doFindEntityDefinitionFile, IO::Path(const EntityDefinitionFileSpec&, const IO::Path::List&));
             MOCK_CONST_METHOD1(doLoadModel, Assets::EntityModel*(const IO::Path&));
 
             MOCK_CONST_METHOD0(doAvailableMods, StringList());
