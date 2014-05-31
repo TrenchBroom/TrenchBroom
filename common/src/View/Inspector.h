@@ -37,7 +37,6 @@ namespace TrenchBroom {
         class EntityInspector;
         class FaceInspector;
         class MapInspector;
-        class ViewInspector;
         
         class Inspector : public wxPanel {
         private:
@@ -45,7 +44,6 @@ namespace TrenchBroom {
             MapInspector* m_mapInspector;
             EntityInspector* m_entityInspector;
             FaceInspector* m_faceInspector;
-            ViewInspector* m_viewInspector;
         public:
             Inspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
             void switchToPage(InspectorPage page);
