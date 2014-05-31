@@ -86,7 +86,7 @@ namespace TrenchBroom {
         m_textureConfig("", "", IO::Path(""), IO::Path("")),
         m_entityConfig(IO::Path(""), StringSet(), Color()) {}
 
-        GameConfig::GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringSet& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig) :
+        GameConfig::GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringList& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig) :
         m_name(name),
         m_path(path),
         m_icon(icon),
@@ -111,7 +111,7 @@ namespace TrenchBroom {
             return m_icon;
         }
 
-        const StringSet& GameConfig::fileFormats() const {
+        const StringList& GameConfig::fileFormats() const {
             return m_fileFormats;
         }
 

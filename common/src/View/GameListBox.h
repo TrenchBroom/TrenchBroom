@@ -51,6 +51,8 @@ namespace TrenchBroom {
             const wxBitmap& image(const size_t n) const;
             wxString title(const size_t n) const;
             wxString subtitle(const size_t n) const;
+            
+            void submitChangeEvent(wxEventType type);
         };
     }
 }

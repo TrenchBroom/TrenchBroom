@@ -51,7 +51,7 @@ namespace TrenchBroom {
             }
             
             expectTableEntry("fileformats", ConfigEntry::Type_List, rootTable);
-            const StringSet fileFormats = parseSet(rootTable["fileformats"]);
+            const StringList fileFormats = parseList(rootTable["fileformats"]);
             
             expectTableEntry("filesystem", ConfigEntry::Type_Table, rootTable);
             const GameConfig::FileSystemConfig fileSystemConfig = parseFileSystemConfig(rootTable["filesystem"]);

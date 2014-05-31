@@ -28,11 +28,11 @@
 #include "View/AboutFrame.h"
 #include "View/CommandIds.h"
 #include "View/ExecutableEvent.h"
+#include "View/GameDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/MapView.h"
 #include "View/Menu.h"
-#include "View/ChooseGameDialog.h"
 #include "View/PreferenceDialog.h"
 #include "View/WelcomeFrame.h"
 #include "View/wxUtils.h"
@@ -88,8 +88,9 @@ namespace TrenchBroom {
         }
 
         bool TrenchBroomApp::newDocument() {
-            const String gameName = ChooseGameDialog::ShowNewDocument(NULL);
-            if (gameName.empty())
+            String gameName;
+            String mapFormat;
+            if (!NewDocumentGameDialog::showDialog(NULL, gameName, mapFormat))
                 return false;
 
             const Model::GameFactory& gameFactory = Model::GameFactory::instance();
@@ -108,10 +109,9 @@ namespace TrenchBroom {
                 const Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 Model::GamePtr game = gameFactory.detectGame(path);
                 if (game == NULL) {
-                    const String gameName = ChooseGameDialog::ShowOpenDocument(NULL);
-                    if (gameName.empty())
+                    String gameName;
+                    if (!OpenDocumentGameDialog::showDialog(NULL, gameName))
                         return false;
-
                     game = gameFactory.createGame(gameName);
                 }
 

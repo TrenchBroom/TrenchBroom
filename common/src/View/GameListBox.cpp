@@ -59,17 +59,11 @@ namespace TrenchBroom {
         }
 
         void GameListBox::OnListBoxChange(wxCommandEvent& event) {
-            GameSelectionCommand command(EVT_GAME_SELECTION_CHANGE_EVENT, selectedGameName());
-            command.SetEventObject(this);
-            command.SetId(GetId());
-            ProcessEvent(command);
+            submitChangeEvent(EVT_GAME_SELECTION_CHANGE_EVENT);
         }
 
         void GameListBox::OnListBoxDoubleClick(wxCommandEvent& event) {
-            GameSelectionCommand command(EVT_GAME_SELECTION_DBLCLICK_EVENT, selectedGameName());
-            command.SetEventObject(this);
-            command.SetId(GetId());
-            ProcessEvent(command);
+            submitChangeEvent(EVT_GAME_SELECTION_DBLCLICK_EVENT);
         }
 
         void GameListBox::reloadGameInfos() {
@@ -111,6 +105,13 @@ namespace TrenchBroom {
         wxString GameListBox::subtitle(const size_t n) const {
             assert(n < m_gameInfos.size());
             return m_gameInfos[n].subtitle;
+        }
+
+        void GameListBox::submitChangeEvent(const wxEventType type) {
+            GameSelectionCommand command(type, selectedGameName());
+            command.SetEventObject(this);
+            command.SetId(GetId());
+            ProcessEvent(command);
         }
     }
 }
