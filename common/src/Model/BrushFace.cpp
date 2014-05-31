@@ -365,6 +365,14 @@ namespace TrenchBroom {
             setSurfaceValue(other.surfaceValue());
         }
 
+        const Vec3& BrushFace::textureXAxis() const {
+            return m_texCoordSystem->xAxis();
+        }
+        
+        const Vec3& BrushFace::textureYAxis() const {
+            return m_texCoordSystem->yAxis();
+        }
+
         void BrushFace::moveTexture(const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) {
             m_texCoordSystem->moveTexture(m_boundary.normal, up, right, direction, distance, m_attribs);
         }

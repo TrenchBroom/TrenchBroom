@@ -34,6 +34,7 @@
 #include "IO/QuakeMapWriter.h"
 #include "IO/Quake2MapWriter.h"
 #include "IO/SystemPaths.h"
+#include "IO/ValveMapWriter.h"
 #include "IO/WadTextureLoader.h"
 #include "IO/WalTextureLoader.h"
 #include "Model/Map.h"
@@ -258,7 +259,7 @@ namespace TrenchBroom {
                 case MapFormat::Hexen2:
                     return MapWriterPtr(new IO::Hexen2MapWriter());
                 case MapFormat::Valve:
-                    break;
+                    return MapWriterPtr(new IO::ValveMapWriter());
             }
             throw GameException("Map format is not supported for writing");
         }

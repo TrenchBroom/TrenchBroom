@@ -25,6 +25,18 @@
 
 namespace TrenchBroom {
     namespace Model {
+        MapFormat::Type mapFormat(const String& formatName) {
+            if (formatName == "Quake 1")
+                return MapFormat::Quake;
+            if (formatName == "Quake 2")
+                return MapFormat::Quake2;
+            if (formatName == "Valve")
+                return MapFormat::Valve;
+            if (formatName == "Hexen 2")
+                return MapFormat::Hexen2;
+            return MapFormat::Unknown;
+        }
+
         ObjectParentPair::ObjectParentPair(Object* i_object, Object* i_parent) :
         object(i_object),
         parent(i_parent) {}

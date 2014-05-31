@@ -140,10 +140,10 @@ namespace TrenchBroom {
             }
         }
 
-        bool MapFrame::newDocument(Model::GamePtr game) {
+        bool MapFrame::newDocument(Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             if (!confirmOrDiscardChanges())
                 return false;
-            return m_controller->newDocument(MapDocument::DefaultWorldBounds, game);
+            return m_controller->newDocument(MapDocument::DefaultWorldBounds, game, mapFormat);
         }
         
         bool MapFrame::openDocument(Model::GamePtr game, const IO::Path& path) {

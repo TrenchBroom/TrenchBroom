@@ -29,6 +29,14 @@ namespace TrenchBroom {
             return doClone();
         }
 
+        const Vec3& TexCoordSystem::xAxis() const {
+            return getXAxis();
+        }
+        
+        const Vec3& TexCoordSystem::yAxis() const {
+            return getYAxis();
+        }
+
         Vec2f TexCoordSystem::getTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const {
             return doGetTexCoords(point, attribs);
         }

@@ -315,14 +315,14 @@ namespace TrenchBroom {
             m_modificationCount = 0;
         }
         
-        void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game) {
+        void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             assert(game != NULL);
             info("Creating new document");
 
             clearMap();
             m_worldBounds = worldBounds;
             m_game = game;
-            m_map = m_game->newMap(Model::MapFormat::Quake);
+            m_map = m_game->newMap(mapFormat);
             
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);

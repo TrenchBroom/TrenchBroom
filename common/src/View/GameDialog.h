@@ -21,6 +21,7 @@
 #define __TrenchBroom__GameDialog__
 
 #include "StringUtils.h"
+#include "Model/ModelTypes.h"
 
 #include <wx/dialog.h>
 
@@ -72,9 +73,9 @@ namespace TrenchBroom {
         private:
             wxChoice* m_mapFormatChoice;
         public:
-            static bool showDialog(wxWindow* parent, String& gameName, String& mapFormat);
+            static bool showDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat);
             
-            String selectedMapFormat() const;
+            Model::MapFormat::Type selectedMapFormat() const;
             
             void OnUpdateMapFormatChoice(wxUpdateUIEvent& event);
         private:

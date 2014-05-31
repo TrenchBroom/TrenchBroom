@@ -77,7 +77,7 @@ namespace TrenchBroom {
             Logger* logger() const;
             void positionOnScreen(wxFrame* reference);
             
-            bool newDocument(Model::GamePtr game);
+            bool newDocument(Model::GamePtr game, Model::MapFormat::Type mapFormat);
             bool openDocument(Model::GamePtr game, const IO::Path& path);
             
             void OnClose(wxCloseEvent& event);

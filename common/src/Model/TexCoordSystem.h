@@ -37,6 +37,9 @@ namespace TrenchBroom {
             
             TexCoordSystem* clone() const;
             
+            const Vec3& xAxis() const;
+            const Vec3& yAxis() const;
+            
             Vec2f getTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;
             void update(const Vec3& normal, const BrushFaceAttribs& attribs);
             void compensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs);

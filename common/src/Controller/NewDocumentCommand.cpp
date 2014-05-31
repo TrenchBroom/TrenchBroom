@@ -25,11 +25,12 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType NewDocumentCommand::Type = Command::freeType();
 
-        NewDocumentCommand::NewDocumentCommand(View::MapDocumentWPtr document, const BBox3& worldBounds, Model::GamePtr game) :
+        NewDocumentCommand::NewDocumentCommand(View::MapDocumentWPtr document, const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) :
         Command(Type, "New Document", false, false),
         m_document(document),
         m_worldBounds(worldBounds),
-        m_game(game) {}
+        m_game(game),
+        m_mapFormat(mapFormat) {}
 
         Model::Map* NewDocumentCommand::map() const {
             View::MapDocumentSPtr document = lock(m_document);
@@ -38,7 +39,7 @@ namespace TrenchBroom {
 
         bool NewDocumentCommand::doPerformDo() {
             View::MapDocumentSPtr document = lock(m_document);
-            document->newDocument(m_worldBounds, m_game);
+            document->newDocument(m_worldBounds, m_game, m_mapFormat);
             document->documentWasNewedNotifier();
             return true;
         }

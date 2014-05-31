@@ -126,7 +126,7 @@ namespace TrenchBroom {
             void decModificationCount();
             void clearModificationCount();
 
-            void newDocument(const BBox3& worldBounds, Model::GamePtr game);
+            void newDocument(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);

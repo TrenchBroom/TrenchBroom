@@ -25,6 +25,7 @@
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "Model/ModelTypes.h"
 #include "View/AboutFrame.h"
 #include "View/CommandIds.h"
 #include "View/ExecutableEvent.h"
@@ -89,7 +90,7 @@ namespace TrenchBroom {
 
         bool TrenchBroomApp::newDocument() {
             String gameName;
-            String mapFormat;
+            Model::MapFormat::Type mapFormat;
             if (!NewDocumentGameDialog::showDialog(NULL, gameName, mapFormat))
                 return false;
 
@@ -98,7 +99,7 @@ namespace TrenchBroom {
             assert(game != NULL);
 
             MapFrame* frame = m_frameManager->newFrame();
-            frame->newDocument(game);
+            frame->newDocument(game, mapFormat);
             return true;
         }
 

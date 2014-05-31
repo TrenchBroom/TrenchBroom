@@ -82,10 +82,10 @@ namespace TrenchBroom {
             return m_commandProcessor.nextCommandName();
         }
 
-        bool ControllerFacade::newDocument(const BBox3& worldBounds, Model::GamePtr game) {
+        bool ControllerFacade::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             using namespace Controller;
             
-            Command::Ptr command = Command::Ptr(new NewDocumentCommand(m_document, worldBounds, game));
+            Command::Ptr command = Command::Ptr(new NewDocumentCommand(m_document, worldBounds, game, mapFormat));
             return m_commandProcessor.submitCommand(command);
         }
         

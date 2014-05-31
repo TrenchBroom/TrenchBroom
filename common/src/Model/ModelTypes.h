@@ -40,6 +40,8 @@ namespace TrenchBroom {
             static const Type Hexen2  = 1 << 4;
         }
         
+        MapFormat::Type mapFormat(const String& formatName);
+        
         class Map;
         
         typedef String PropertyKey;

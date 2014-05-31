@@ -33,6 +33,8 @@
 #include <wx/statline.h>
 #include <wx/stattext.h>
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace View {
         GameDialog::~GameDialog() {
@@ -151,7 +153,7 @@ namespace TrenchBroom {
             m_gameListBox->reloadGameInfos();
         }
         
-        bool NewDocumentGameDialog::showDialog(wxWindow* parent, String& gameName, String& mapFormat) {
+        bool NewDocumentGameDialog::showDialog(wxWindow* parent, String& gameName, Model::MapFormat::Type& mapFormat) {
             NewDocumentGameDialog dialog;
             dialog.createDialog(parent, "Select Game", "Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.");
             if (dialog.ShowModal() != wxID_OK)
@@ -161,13 +163,14 @@ namespace TrenchBroom {
             return true;
         }
 
-        String NewDocumentGameDialog::selectedMapFormat() const {
-            if (m_mapFormatChoice->IsEmpty())
-                return "";
+        Model::MapFormat::Type NewDocumentGameDialog::selectedMapFormat() const {
+            assert(!m_mapFormatChoice->IsEmpty());
+
             const int index = m_mapFormatChoice->GetSelection();
-            if (index < 0)
-                return "";
-            return m_mapFormatChoice->GetString(static_cast<unsigned int>(index)).ToStdString();
+            assert(index >= 0);
+            
+            const String formatName = m_mapFormatChoice->GetString(static_cast<unsigned int>(index)).ToStdString();
+            return Model::mapFormat(formatName);
         }
         
         void NewDocumentGameDialog::OnUpdateMapFormatChoice(wxUpdateUIEvent& event) {

@@ -42,8 +42,9 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             BBox3 m_worldBounds;
             Model::GamePtr m_game;
+            Model::MapFormat::Type m_mapFormat;
         public:
-            NewDocumentCommand(View::MapDocumentWPtr document, const BBox3& worldBounds, Model::GamePtr game);
+            NewDocumentCommand(View::MapDocumentWPtr document, const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             
             Model::Map* map() const;
         private:
