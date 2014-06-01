@@ -46,6 +46,8 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doSetAdditionalSearchPaths(IO::Path::List()));
 
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));
+            EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("")));
+            EXPECT_CALL(*game, doFindEntityDefinitionFile(_, _)).WillOnce(Return(IO::Path("/somefile.def")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
 
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
@@ -80,6 +82,8 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doSetAdditionalSearchPaths(IO::Path::List()));
 
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map1)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));
+            EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("")));
+            EXPECT_CALL(*game, doFindEntityDefinitionFile(_, _)).WillOnce(Return(IO::Path("/somefile.def")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
 
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
@@ -93,6 +97,8 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doSetAdditionalSearchPaths(IO::Path::List()));
 
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map2)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/someotherfile.def"))));
+            EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("")));
+            EXPECT_CALL(*game, doFindEntityDefinitionFile(_, _)).WillOnce(Return(IO::Path("/someotherfile.def")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/someotherfile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));

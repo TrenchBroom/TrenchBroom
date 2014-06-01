@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "CollectionUtils.h"
 #include "IO/GameConfigParser.h"
 #include "IO/Path.h"
 #include "Model/GameConfig.h"
@@ -63,8 +64,8 @@ namespace TrenchBroom {
             const Model::GameConfig gameConfig = parser.parse();
             ASSERT_EQ(String("Quake"), gameConfig.name());
             ASSERT_EQ(2u, gameConfig.fileFormats().size());
-            ASSERT_EQ(1u, gameConfig.fileFormats().count("Quake 1"));
-            ASSERT_EQ(1u, gameConfig.fileFormats().count("Valve"));
+            ASSERT_TRUE(VectorUtils::contains(gameConfig.fileFormats(), String("Quake 1")));
+            ASSERT_TRUE(VectorUtils::contains(gameConfig.fileFormats(), String("Valve")));
             ASSERT_EQ(Path("id1"), gameConfig.fileSystemConfig().searchPath);
             ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat);
             ASSERT_EQ(String("wad"), gameConfig.textureConfig().type);
@@ -83,7 +84,7 @@ namespace TrenchBroom {
             const String config("{\n"
                                 "	name = \"Quake 2\",\n"
                                 "	icon = \"Quake2/Icon.png\",\n"
-                                " 	fileformats = { \"Quake2\" },\n"
+                                " 	fileformats = { \"Quake 2\" },\n"
                                 "	filesystem = {\n"
                                 "		searchpath = \"baseq2\",\n"
                                 "		packageformat = \"pak\"\n"
@@ -128,7 +129,7 @@ namespace TrenchBroom {
             ASSERT_EQ(String("Quake 2"), gameConfig.name());
             ASSERT_EQ(Path("Quake2/Icon.png"), gameConfig.icon());
             ASSERT_EQ(1u, gameConfig.fileFormats().size());
-            ASSERT_EQ(1u, gameConfig.fileFormats().count("Quake2"));
+            ASSERT_TRUE(VectorUtils::contains(gameConfig.fileFormats(), String("Quake 2")));
             ASSERT_EQ(Path("baseq2"), gameConfig.fileSystemConfig().searchPath);
             ASSERT_EQ(String("pak"), gameConfig.fileSystemConfig().packageFormat);
             ASSERT_EQ(String("wal"), gameConfig.textureConfig().type);

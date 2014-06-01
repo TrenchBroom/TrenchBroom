@@ -42,11 +42,15 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doNewMap(Model::MapFormat::Quake)).WillOnce(Return(new Model::Map(Model::MapFormat::Quake)));
             EXPECT_CALL(*game, doContentFlags()).WillOnce(ReturnRef(contentFlags));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));
+            EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("")));
+            EXPECT_CALL(*game, doFindEntityDefinitionFile(_, _)).WillOnce(Return(IO::Path("/somefile.def")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
 
             MapDocumentSPtr document = MapDocument::newMapDocument();
-            document->newDocument(worldBounds, game);
+            const Model::MapFormat::Type format = Model::MapFormat::Quake;
+
+            document->newDocument(worldBounds, game, format);
             
             ASSERT_EQ(IO::Path("unnamed.map"), document->path());
             ASSERT_EQ(String("unnamed.map"), document->filename());
@@ -68,6 +72,8 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doSetAdditionalSearchPaths(IO::Path::List()));
 
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(map)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));
+            EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("")));
+            EXPECT_CALL(*game, doFindEntityDefinitionFile(_, _)).WillOnce(Return(IO::Path("/somefile.def")));
             EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
             
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
