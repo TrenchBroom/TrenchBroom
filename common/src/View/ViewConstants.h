@@ -99,6 +99,7 @@ namespace TrenchBroom {
         
         namespace Colors {
             const wxColour& disabledText();
+            const wxColour& borderColor();
         }
     }
 }

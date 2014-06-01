@@ -24,7 +24,13 @@
 namespace TrenchBroom {
     namespace View {
         ContainerBar::ContainerBar(wxWindow* parent) :
-        wxPanel(parent) {
+        BorderPanel(parent,
+#ifdef __APPLE__
+                    wxRIGHT | wxBOTTOM
+#else
+                    0
+#endif
+                    ) {
 #ifdef __APPLE__
             SetBackgroundStyle(wxBG_STYLE_PAINT);
             Bind(wxEVT_PAINT, &ContainerBar::OnPaint, this);
@@ -33,6 +39,7 @@ namespace TrenchBroom {
         
         void ContainerBar::OnPaint(wxPaintEvent& event) {
             paintMac(event);
+            event.Skip();
         }
 
         void ContainerBar::paintMac(wxPaintEvent& event) {
@@ -40,13 +47,9 @@ namespace TrenchBroom {
             wxRect rect = GetClientRect();
             rect.height -= 1;
             dc.GradientFillLinear(rect, wxColour(211, 211, 211), wxColour(174, 174, 174), wxDOWN);
-            dc.SetPen(wxPen(wxColour(67, 67, 67)));
-            dc.DrawLine(0, rect.height, rect.width, rect.height);
-            dc.DrawLine(rect.width - 1, 0, rect.width - 1, rect.height);
         }
         
         void ContainerBar::paintOther(wxPaintEvent& event) {
-            event.Skip();
         }
     }
 }

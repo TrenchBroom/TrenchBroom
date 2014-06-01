@@ -17,33 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ViewConstants.h"
+#ifndef __TrenchBroom__BorderPanel__
+#define __TrenchBroom__BorderPanel__
 
-#include <wx/settings.h>
-#include <wx/wx.h>
+#include <wx/panel.h>
 
 namespace TrenchBroom {
     namespace View {
-        namespace Colors {
-            const wxColour& disabledText() {
-                static const wxColour col =
-#if defined __APPLE__
-                wxColour(108, 108, 108);
-#else
-                wxColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-#endif
-                return col;
-            }
-            
-            const wxColour& borderColor() {
-                static const wxColour col =
-#if defined __APPLE__
-                wxColour(67, 67, 67);
-#else
-                *wxBLACK;
-#endif
-                return col;
-            }
-        }
+        class BorderPanel : public wxPanel {
+        private:
+            int m_borders;
+        public:
+            BorderPanel(wxWindow* parent, int borders);
+            void OnPaint(wxPaintEvent& event);
+        protected:
+            wxSize DoGetBestSize() const;
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__BorderPanel__) */

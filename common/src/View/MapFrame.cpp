@@ -39,6 +39,7 @@
 #include "View/MapView.h"
 #include "View/Menu.h"
 #include "View/NavBar.h"
+#include "View/SplitterWindow.h"
 #include "View/StatusBar.h"
 
 #include <wx/clipbrd.h>
@@ -960,9 +961,14 @@ namespace TrenchBroom {
             inspectorSplitter->SetSashGravity(1.0f);
             inspectorSplitter->SetMinimumPaneSize(350);
             
+            SplitterWindow* consoleSplitter = new SplitterWindow(inspectorSplitter);
+            consoleSplitter->setSashGravity(1.0f);
+
+            /*
             wxSplitterWindow* consoleSplitter = new wxSplitterWindow(inspectorSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE | wxSP_3DSASH);
             consoleSplitter->SetSashGravity(1.0f);
             consoleSplitter->SetMinimumPaneSize(0);
+             */
             
             m_infoPanel = new InfoPanel(consoleSplitter, m_document, m_controller);
 
@@ -982,7 +988,10 @@ namespace TrenchBroom {
             containerSizer->Add(m_mapView, 1, wxEXPAND);
             container->SetSizer(containerSizer);
             
-            consoleSplitter->SplitHorizontally(container, m_infoPanel, -150);
+            consoleSplitter->splitHorizontally(container, m_infoPanel);
+            consoleSplitter->setMinSize(container, wxSize(100, 100));
+            consoleSplitter->setMinSize(m_infoPanel, wxSize(100, 100));
+            
             m_inspector = new Inspector(inspectorSplitter, m_mapView->contextHolder(), m_document, m_controller, m_camera3D);
             inspectorSplitter->SplitVertically(consoleSplitter, m_inspector, -350);
 

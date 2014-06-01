@@ -20,11 +20,11 @@
 #ifndef __TrenchBroom__ContainerBar__
 #define __TrenchBroom__ContainerBar__
 
-#include <wx/panel.h>
+#include "View/BorderPanel.h"
 
 namespace TrenchBroom {
     namespace View {
-        class ContainerBar : public wxPanel {
+        class ContainerBar : public BorderPanel {
         public:
             ContainerBar(wxWindow* parent);
             
