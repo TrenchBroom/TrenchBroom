@@ -45,8 +45,6 @@ namespace TrenchBroom {
             int m_dragOffset;
             
             wxSize m_oldSize;
-            wxCursor m_oldCursor;
-            wxWindow* m_oldCursorWindow;
         public:
             SplitterWindow(wxWindow* parent);
             
@@ -62,12 +60,11 @@ namespace TrenchBroom {
         private:
             bool dragging() const;
             bool isOnSash(const wxPoint& pos) const;
-            void setCursor(wxWindow* window);
             wxCursor sizeCursor() const;
-            void resetCursor();
         public:
             void OnSize(wxSizeEvent& event);
         private:
+            void bindMouseEventsRecurse(wxWindow* window);
             void bindMouseEvents(wxWindow* window);
             
             void updateSashPosition(const wxSize& oldSize, const wxSize& newSize);
@@ -75,6 +72,64 @@ namespace TrenchBroom {
             void setSashPosition(int position);
             void sizeWindows();
             int sashSize() const;
+            
+            template <typename T>
+            void setHV(T& p, const int h, const int v) const {
+                setH(p, h);
+                setV(p, v);
+            }
+            
+            template <typename T>
+            void setH(T& p, const int h) const {
+                switch (m_splitMode) {
+                    case SplitMode_Horizontal:
+                        p.y = h;
+                        break;
+                    case SplitMode_Vertical:
+                        p.x = h;
+                        break;
+                    case SplitMode_Unset:
+                        break;
+                }
+            }
+            
+            template <typename T>
+            void setV(T& p, const int v) const {
+                switch (m_splitMode) {
+                    case SplitMode_Horizontal:
+                        p.x = v;
+                        break;
+                    case SplitMode_Vertical:
+                        p.y = v;
+                        break;
+                    case SplitMode_Unset:
+                        break;
+                }
+            }
+
+            template <typename T>
+            int h(const T& p) const {
+                switch (m_splitMode) {
+                    case SplitMode_Horizontal:
+                        return p.y;
+                    case SplitMode_Vertical:
+                        return p.x;
+                    case SplitMode_Unset:
+                        return 0;
+                }
+            }
+            
+            template <typename T>
+            int v(const T& p) const {
+                switch (m_splitMode) {
+                    case SplitMode_Horizontal:
+                        return p.x;
+                    case SplitMode_Vertical:
+                        return p.y;
+                    case SplitMode_Unset:
+                        return 0;
+                }
+            }
         };
     }
 }
