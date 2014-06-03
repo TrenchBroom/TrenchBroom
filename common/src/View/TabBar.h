@@ -17,40 +17,42 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__InfoPanel__
-#define __TrenchBroom__InfoPanel__
+#ifndef __TrenchBroom__TabBar__
+#define __TrenchBroom__TabBar__
 
-#include "View/ViewTypes.h"
+#include "View/ContainerBar.h"
 
-#include <wx/bitmap.h>
-#include <wx/panel.h>
+#include <vector>
 
-class wxBookCtrlEvent;
 class wxButton;
-class wxCommandEvent;
+class wxBookCtrlEvent;
 class wxSimplebook;
-class wxWindow;
 
 namespace TrenchBroom {
-    class Logger;
-
     namespace View {
-        class Console;
-        class IssueBrowser;
         class TabBook;
+        class TabBookPage;
         
-        class InfoPanel : public wxPanel {
+        class TabBar : public ContainerBar {
         private:
-            TabBook* m_tabBook;
-            Console* m_console;
-            IssueBrowser* m_issueBrowser;
-        public:
-            InfoPanel(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
+            typedef std::vector<wxButton*> ButtonList;
             
-            wxWindow* tabBar() const;
-            Console* console() const;
+            TabBook* m_tabBook;
+            wxSimplebook* m_barBook;
+            ButtonList m_buttons;
+        public:
+            TabBar(wxWindow* parent, TabBook* tabBook);
+            
+            void addTab(const wxString& title, TabBookPage* bookPage);
+            
+            void OnButtonClicked(wxCommandEvent& event);
+            void OnTabBookPageChanged(wxBookCtrlEvent& event);
+        private:
+            size_t findButtonIndex(wxWindow* button) const;
+            void setButtonActive(int index);
+            void setButtonInactive(int index);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__InfoPanel__) */
+#endif /* defined(__TrenchBroom__TabBar__) */

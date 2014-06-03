@@ -23,14 +23,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        ContainerBar::ContainerBar(wxWindow* parent) :
-        BorderPanel(parent,
-#ifdef __APPLE__
-                    wxRIGHT | wxBOTTOM
-#else
-                    0
-#endif
-                    ) {
+        ContainerBar::ContainerBar(wxWindow* parent, const int borders) :
+        BorderPanel(parent, borders) {
 #ifdef __APPLE__
             SetBackgroundStyle(wxBG_STYLE_PAINT);
             Bind(wxEVT_PAINT, &ContainerBar::OnPaint, this);

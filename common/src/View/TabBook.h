@@ -17,40 +17,40 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__InfoPanel__
-#define __TrenchBroom__InfoPanel__
+#ifndef __TrenchBroom__TabBook__
+#define __TrenchBroom__TabBook__
 
-#include "View/ViewTypes.h"
-
-#include <wx/bitmap.h>
 #include <wx/panel.h>
 
 class wxBookCtrlEvent;
-class wxButton;
-class wxCommandEvent;
 class wxSimplebook;
-class wxWindow;
 
 namespace TrenchBroom {
-    class Logger;
-
     namespace View {
-        class Console;
-        class IssueBrowser;
-        class TabBook;
-        
-        class InfoPanel : public wxPanel {
-        private:
-            TabBook* m_tabBook;
-            Console* m_console;
-            IssueBrowser* m_issueBrowser;
+        class TabBar;
+
+        class TabBookPage : public wxPanel {
         public:
-            InfoPanel(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
+            TabBookPage(wxWindow* parent);
+            virtual ~TabBookPage();
+            virtual wxWindow* createTabBarPage(wxWindow* parent);
+        };
+        
+        class TabBook : public wxPanel {
+        private:
+            TabBar* m_tabBar;
+            wxSimplebook* m_tabBook;
+        public:
+            TabBook(wxWindow* bookParent, wxWindow* barParent);
             
-            wxWindow* tabBar() const;
-            Console* console() const;
+            TabBar* tabBar() const;
+            
+            void addPage(const wxString& title, TabBookPage* page);
+            void switchToPage(size_t index);
+            
+            void OnTabBookPageChanged(wxBookCtrlEvent& event);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__InfoPanel__) */
+#endif /* defined(__TrenchBroom__TabBook__) */

@@ -957,19 +957,12 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
-            wxSplitterWindow* inspectorSplitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE | wxSP_3DSASH);
-            inspectorSplitter->SetSashGravity(1.0f);
-            inspectorSplitter->SetMinimumPaneSize(350);
+            SplitterWindow* inspectorSplitter = new SplitterWindow(this);
+            inspectorSplitter->setSashGravity(1.0f);
             
             SplitterWindow* consoleSplitter = new SplitterWindow(inspectorSplitter);
             consoleSplitter->setSashGravity(1.0f);
 
-            /*
-            wxSplitterWindow* consoleSplitter = new wxSplitterWindow(inspectorSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE | wxSP_3DSASH);
-            consoleSplitter->SetSashGravity(1.0f);
-            consoleSplitter->SetMinimumPaneSize(0);
-             */
-            
             m_infoPanel = new InfoPanel(consoleSplitter, m_document, m_controller);
 
             wxPanel* container = new wxPanel(consoleSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize,
@@ -991,9 +984,12 @@ namespace TrenchBroom {
             consoleSplitter->splitHorizontally(container, m_infoPanel);
             consoleSplitter->setMinSize(container, wxSize(100, 100));
             consoleSplitter->setMinSize(m_infoPanel, wxSize(100, 100));
+            consoleSplitter->setSashWindow(m_infoPanel->tabBar());
             
             m_inspector = new Inspector(inspectorSplitter, m_mapView->contextHolder(), m_document, m_controller, m_camera3D);
-            inspectorSplitter->SplitVertically(consoleSplitter, m_inspector, -350);
+            inspectorSplitter->splitVertically(consoleSplitter, m_inspector);
+            inspectorSplitter->setMinSize(consoleSplitter, wxSize(350, 100));
+            inspectorSplitter->setMinSize(m_inspector, wxSize(350, 100));
 
             m_statusBar = new StatusBar(this, m_document, m_infoPanel->console());
             

@@ -21,8 +21,7 @@
 #define __TrenchBroom__IssueBrowser__
 
 #include "View/ViewTypes.h"
-
-#include <wx/panel.h>
+#include "View/TabBook.h"
 
 class wxCheckBox;
 class wxCommandEvent;
@@ -44,7 +43,7 @@ namespace TrenchBroom {
         class FlagsPopupEditor;
         class IssueBrowserDataModel;
         
-        class IssueBrowser : public wxPanel {
+        class IssueBrowser : public TabBookPage {
         private:
             static const int SelectObjectsCommandId = 1;
             static const int ShowIssuesCommandId = 2;
@@ -58,9 +57,11 @@ namespace TrenchBroom {
             wxCheckBox* m_showHiddenIssuesCheckBox;
             FlagsPopupEditor* m_filterEditor;
         public:
-            IssueBrowser(wxWindow* parent, wxSimplebook* extraBook, MapDocumentWPtr document, ControllerWPtr controller);
+            IssueBrowser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~IssueBrowser();
 
+            wxWindow* createTabBarPage(wxWindow* parent);
+            
             void OnShowHiddenIssuesChanged(wxCommandEvent& event);
             void OnFilterChanged(FlagChangedCommand& command);
             void OnTreeViewContextMenu(wxDataViewEvent& event);

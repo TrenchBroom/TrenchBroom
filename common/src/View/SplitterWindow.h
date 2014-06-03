@@ -57,9 +57,10 @@ namespace TrenchBroom {
             
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
+            void OnPaint(wxPaintEvent& event);
         private:
             bool dragging() const;
-            bool isOnSash(const wxPoint& pos) const;
+            bool isOnSash(const wxPoint& pos, const wxWindow* window) const;
             wxCursor sizeCursor() const;
         public:
             void OnSize(wxSizeEvent& event);

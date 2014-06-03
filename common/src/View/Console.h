@@ -23,19 +23,20 @@
 #include "StringUtils.h"
 #include "Notifier.h"
 #include "Logger.h"
+#include "View/TabBook.h"
 
-#include <wx/textctrl.h>
-
-class wxSimplebook;
 class wxString;
+class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
-        class Console : public wxTextCtrl, public Logger {
+        class Console : public TabBookPage, public Logger {
         public:
             Notifier2<LogLevel, const wxString&> logNotifier;
+        private:
+            wxTextCtrl* m_textView;
         public:
-            Console(wxWindow* parent, wxSimplebook* extraBook);
+            Console(wxWindow* parent);
         private:
             void doLog(LogLevel level, const String& message);
             void doLog(LogLevel level, const wxString& message);

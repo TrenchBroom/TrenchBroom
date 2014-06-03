@@ -226,8 +226,8 @@ namespace TrenchBroom {
             }
         };
         
-        IssueBrowser::IssueBrowser(wxWindow* parent, wxSimplebook* extraBook, MapDocumentWPtr document, ControllerWPtr controller) :
-        wxPanel(parent),
+        IssueBrowser::IssueBrowser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
+        TabBookPage(parent),
         m_document(document),
         m_controller(controller),
         m_model(NULL),
@@ -235,7 +235,7 @@ namespace TrenchBroom {
         m_showHiddenIssuesCheckBox(NULL),
         m_filterEditor(NULL) {
             m_model = new IssueBrowserDataModel(m_document);
-            m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES | wxDV_MULTIPLE | wxBORDER_SIMPLE);
+            m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES | wxDV_MULTIPLE | wxBORDER_NONE);
             m_tree->AssociateModel(m_model);
             m_tree->AppendTextColumn("Line", 0)->SetWidth(80);
             m_tree->AppendTextColumn("Description", 1)->SetWidth(200);
@@ -247,29 +247,32 @@ namespace TrenchBroom {
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_tree, 1, wxEXPAND);
             SetSizerAndFit(sizer);
-
-            wxPanel* extraPanel = new wxPanel(extraBook);
-            m_showHiddenIssuesCheckBox = new wxCheckBox(extraPanel, wxID_ANY, "Show hidden issues");
-            m_showHiddenIssuesCheckBox->Bind(wxEVT_CHECKBOX, &IssueBrowser::OnShowHiddenIssuesChanged, this);
-            
-            m_filterEditor = new FlagsPopupEditor(extraPanel, 1, "Filter", false);
-            m_filterEditor->Bind(EVT_FLAG_CHANGED_EVENT,
-                                EVT_FLAG_CHANGED_HANDLER(IssueBrowser::OnFilterChanged),
-                                this);
-            
-            wxBoxSizer* extraPanelSizer = new wxBoxSizer(wxHORIZONTAL);
-            extraPanelSizer->AddStretchSpacer();
-            extraPanelSizer->Add(m_showHiddenIssuesCheckBox, 0, wxALIGN_CENTER_VERTICAL);
-            extraPanelSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            extraPanelSizer->Add(m_filterEditor, 0, wxALIGN_RIGHT);
-            extraPanel->SetSizer(extraPanelSizer);
-            extraBook->AddPage(extraPanel, "");
             
             bindObservers();
         }
         
         IssueBrowser::~IssueBrowser() {
             unbindObservers();
+        }
+
+        wxWindow* IssueBrowser::createTabBarPage(wxWindow* parent) {
+            wxPanel* barPage = new wxPanel(parent);
+            m_showHiddenIssuesCheckBox = new wxCheckBox(barPage, wxID_ANY, "Show hidden issues");
+            m_showHiddenIssuesCheckBox->Bind(wxEVT_CHECKBOX, &IssueBrowser::OnShowHiddenIssuesChanged, this);
+            
+            m_filterEditor = new FlagsPopupEditor(barPage, 1, "Filter", false);
+            m_filterEditor->Bind(EVT_FLAG_CHANGED_EVENT,
+                                 EVT_FLAG_CHANGED_HANDLER(IssueBrowser::OnFilterChanged),
+                                 this);
+            
+            wxBoxSizer* barPageSizer = new wxBoxSizer(wxHORIZONTAL);
+            barPageSizer->AddStretchSpacer();
+            barPageSizer->Add(m_showHiddenIssuesCheckBox, 0, wxALIGN_CENTER_VERTICAL);
+            barPageSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            barPageSizer->Add(m_filterEditor, 0, wxALIGN_RIGHT);
+            barPage->SetSizer(barPageSizer);
+            
+            return barPage;
         }
 
         Model::QuickFix::List collectQuickFixes(const wxDataViewItemArray& selections);

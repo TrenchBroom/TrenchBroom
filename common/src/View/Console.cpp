@@ -21,17 +21,22 @@
 
 #include <wx/log.h>
 #include <wx/panel.h>
-#include <wx/simplebook.h>
+#include <wx/sizer.h>
+#include <wx/textctrl.h>
 
 #include <iostream>
 
 namespace TrenchBroom {
     namespace View {
-        Console::Console(wxWindow* parent, wxSimplebook* extraBook) :
-        wxTextCtrl(parent, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2) {
-            SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
-            SetBackgroundColour(*wxBLACK);
-            extraBook->AddPage(new wxPanel(extraBook), "");
+        Console::Console(wxWindow* parent) :
+        TabBookPage(parent),
+        m_textView(new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2)) {
+            m_textView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
+            m_textView->SetBackgroundColour(*wxBLACK);
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_textView, 1, wxEXPAND);
+            SetSizer(sizer);
         }
 
         void Console::doLog(const LogLevel level, const String& message) {
@@ -51,23 +56,23 @@ namespace TrenchBroom {
         }
 
         void Console::logToConsole(const LogLevel level, const wxString& message) {
-            const long start = GetLastPosition();
-            AppendText(message);
-            AppendText("\n");
-            const long end = GetLastPosition();
+            const long start = m_textView->GetLastPosition();
+            m_textView->AppendText(message);
+            m_textView->AppendText("\n");
+            const long end = m_textView->GetLastPosition();
             
             switch (level) {
                 case LogLevel_Debug:
-                    SetStyle(start, end, wxTextAttr(*wxLIGHT_GREY, *wxBLACK)); 
+                    m_textView->SetStyle(start, end, wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
                     break;
                 case LogLevel_Info:
-                    SetStyle(start, end, wxTextAttr(*wxWHITE, *wxBLACK));
+                    m_textView->SetStyle(start, end, wxTextAttr(*wxWHITE, *wxBLACK));
                     break;
                 case LogLevel_Warn:
-                    SetStyle(start, end, wxTextAttr(*wxYELLOW, *wxBLACK));
+                    m_textView->SetStyle(start, end, wxTextAttr(*wxYELLOW, *wxBLACK));
                     break;
                 case LogLevel_Error:
-                    SetStyle(start, end, wxTextAttr(*wxRED, *wxBLACK));
+                    m_textView->SetStyle(start, end, wxTextAttr(*wxRED, *wxBLACK));
                     break;
             }
         }

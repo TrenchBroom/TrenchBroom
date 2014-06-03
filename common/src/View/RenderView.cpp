@@ -125,12 +125,12 @@ namespace TrenchBroom {
                 return;
             
             const Color& outer = m_focusColor;
-            const Color inner(m_focusColor, 0.7f);
+            const Color& inner = m_focusColor;
 
             const wxSize clientSize = GetClientSize();
             const float w = static_cast<float>(clientSize.x);
             const float h = static_cast<float>(clientSize.y);
-            const float t = 3.0f;
+            const float t = 1.0f;
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
             Vertex::List vertices(16);

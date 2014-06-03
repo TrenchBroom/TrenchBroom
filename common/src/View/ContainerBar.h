@@ -26,7 +26,7 @@ namespace TrenchBroom {
     namespace View {
         class ContainerBar : public BorderPanel {
         public:
-            ContainerBar(wxWindow* parent);
+            ContainerBar(wxWindow* parent, int borders);
             
             void OnPaint(wxPaintEvent& event);
         private:

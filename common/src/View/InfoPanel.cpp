@@ -23,9 +23,9 @@
 #include "IO/ResourceUtils.h"
 #include "View/Console.h"
 #include "View/IssueBrowser.h"
+#include "View/TabBar.h"
+#include "View/TabBook.h"
 
-#include <wx/button.h>
-#include <wx/simplebook.h>
 #include <wx/sizer.h>
 
 #include <cassert>
@@ -34,73 +34,28 @@ namespace TrenchBroom {
     namespace View {
         InfoPanel::InfoPanel(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
+        m_tabBook(NULL),
         m_console(NULL),
         m_issueBrowser(NULL) {
-            m_mainBook = new wxSimplebook(this);
-            m_extraBook = new wxSimplebook(this);
+            m_tabBook = new TabBook(this, parent);
             
-            m_consoleActiveBitmap = IO::loadImageResource(IO::Path("images/ConsolePressed.png"));
-            m_consoleInactiveBitmap = IO::loadImageResource(IO::Path("images/Console.png"));
-            m_issueBrowserActiveBitmap = IO::loadImageResource(IO::Path("images/IssueBrowserPressed.png"));
-            m_issueBrowserInactiveBitmap = IO::loadImageResource(IO::Path("images/IssueBrowser.png"));
+            m_console = new Console(m_tabBook);
+            m_issueBrowser = new IssueBrowser(m_tabBook, document, controller);
             
-            assert(m_consoleActiveBitmap.IsOk());
-            assert(m_consoleInactiveBitmap.IsOk());
-            assert(m_issueBrowserActiveBitmap.IsOk());
-            assert(m_issueBrowserInactiveBitmap.IsOk());
-            
-            m_console = new Console(m_mainBook, m_extraBook);
-            m_issueBrowser = new IssueBrowser(m_mainBook, m_extraBook, document, controller);
-            
-            m_mainBook->AddPage(m_console, "Console");
-            m_mainBook->AddPage(m_issueBrowser, "Issues");
-            
-            m_consoleButton = new wxButton(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBU_LEFT | wxBU_EXACTFIT | wxBORDER_NONE);
-            m_consoleButton->SetBitmap(m_consoleActiveBitmap);
-            m_issueBrowserButton = new wxButton(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBU_LEFT | wxBU_EXACTFIT | wxBORDER_NONE);
-            m_issueBrowserButton->SetBitmap(m_issueBrowserInactiveBitmap);
-            
-            m_consoleButton->Bind(wxEVT_BUTTON, &InfoPanel::OnConsoleButtonPressed, this);
-            m_issueBrowserButton->Bind(wxEVT_BUTTON, &InfoPanel::OnIssueBrowserButtonPressed, this);
-            m_mainBook->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &InfoPanel::OnNotebookPageChanged, this);
-            
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->AddSpacer(6);
-            buttonSizer->Add(m_consoleButton, 0, wxALIGN_CENTER_VERTICAL);
-            buttonSizer->AddSpacer(6);
-            buttonSizer->Add(m_issueBrowserButton, 0, wxALIGN_CENTER_VERTICAL);
-            buttonSizer->AddSpacer(6);
-            buttonSizer->Add(m_extraBook, 1, wxEXPAND);
-            
-            wxSizer* notebookSizer = new wxBoxSizer(wxVERTICAL);
-            notebookSizer->Add(buttonSizer, 0, wxEXPAND);
-            notebookSizer->AddSpacer(1);
-            notebookSizer->Add(m_mainBook, 1, wxEXPAND);
-            SetSizer(notebookSizer);
+            m_tabBook->addPage("Console", m_console);
+            m_tabBook->addPage("Issues", m_issueBrowser);
+
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_tabBook, 1, wxEXPAND);
+            SetSizer(sizer);
         }
 
-        Console* InfoPanel::console() {
+        wxWindow* InfoPanel::tabBar() const {
+            return m_tabBook->tabBar();
+        }
+
+        Console* InfoPanel::console() const {
             return m_console;
-        }
-
-        void InfoPanel::OnConsoleButtonPressed(wxCommandEvent& event) {
-            m_mainBook->SetSelection(0);
-            m_extraBook->SetSelection(0);
-        }
-        
-        void InfoPanel::OnIssueBrowserButtonPressed(wxCommandEvent& event) {
-            m_mainBook->SetSelection(1);
-            m_extraBook->SetSelection(1);
-        }
-
-        void InfoPanel::OnNotebookPageChanged(wxBookCtrlEvent& event) {
-            if (event.GetSelection() == 0) {
-                m_consoleButton->SetBitmap(m_consoleActiveBitmap);
-                m_issueBrowserButton->SetBitmap(m_issueBrowserInactiveBitmap);
-            } else {
-                m_consoleButton->SetBitmap(m_consoleInactiveBitmap);
-                m_issueBrowserButton->SetBitmap(m_issueBrowserActiveBitmap);
-            }
         }
     }
 }

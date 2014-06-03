@@ -39,7 +39,7 @@ namespace TrenchBroom {
         }
         
         NavBar::NavBar(wxWindow* parent) :
-        ContainerBar(parent),
+        ContainerBar(parent, wxBOTTOM),
         m_navPanel(new wxPanel(this, wxID_ANY)),
         m_searchBox(new wxSearchCtrl(this, wxID_ANY)) {
 #ifdef __APPLE__
