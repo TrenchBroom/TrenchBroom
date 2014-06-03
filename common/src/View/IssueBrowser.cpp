@@ -266,10 +266,9 @@ namespace TrenchBroom {
                                  this);
             
             wxBoxSizer* barPageSizer = new wxBoxSizer(wxHORIZONTAL);
-            barPageSizer->AddStretchSpacer();
             barPageSizer->Add(m_showHiddenIssuesCheckBox, 0, wxALIGN_CENTER_VERTICAL);
             barPageSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            barPageSizer->Add(m_filterEditor, 0, wxALIGN_RIGHT);
+            barPageSizer->Add(m_filterEditor, 0, wxALIGN_CENTER_VERTICAL);
             barPage->SetSizer(barPageSizer);
             
             return barPage;

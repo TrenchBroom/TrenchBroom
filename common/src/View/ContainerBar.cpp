@@ -19,31 +19,11 @@
 
 #include "ContainerBar.h"
 
-#include <wx/dcclient.h>
+#include "View/ViewConstants.h"
 
 namespace TrenchBroom {
     namespace View {
         ContainerBar::ContainerBar(wxWindow* parent, const int borders) :
-        BorderPanel(parent, borders) {
-#ifdef __APPLE__
-            SetBackgroundStyle(wxBG_STYLE_PAINT);
-            Bind(wxEVT_PAINT, &ContainerBar::OnPaint, this);
-#endif
-        }
-        
-        void ContainerBar::OnPaint(wxPaintEvent& event) {
-            paintMac(event);
-            event.Skip();
-        }
-
-        void ContainerBar::paintMac(wxPaintEvent& event) {
-            wxPaintDC dc(this);
-            wxRect rect = GetClientRect();
-            rect.height -= 1;
-            dc.GradientFillLinear(rect, wxColour(211, 211, 211), wxColour(174, 174, 174), wxDOWN);
-        }
-        
-        void ContainerBar::paintOther(wxPaintEvent& event) {
-        }
+        BorderPanel(parent, borders) {}
     }
 }

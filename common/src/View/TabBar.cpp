@@ -28,6 +28,7 @@
 #include <wx/sizer.h>
 
 #include <cassert>
+#include <iostream>
 
 namespace TrenchBroom {
     namespace View {
@@ -36,7 +37,6 @@ namespace TrenchBroom {
         m_tabBook(tabBook),
         m_barBook(new wxSimplebook(this)) {
             assert(m_tabBook != NULL);
-            m_barBook->AddPage(new wxPanel(m_barBook), "");
             m_tabBook->Bind(wxEVT_COMMAND_BOOKCTRL_PAGE_CHANGED, &TabBar::OnTabBookPageChanged, this);
         }
         
@@ -51,17 +51,23 @@ namespace TrenchBroom {
             wxWindow* barPage = bookPage->createTabBarPage(m_barBook);
             m_barBook->AddPage(barPage, title);
             
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+            hSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
             for (size_t i = 0; i < m_buttons.size(); ++i) {
-                buttonSizer->Add(m_buttons[i], 0, wxALIGN_CENTER_VERTICAL);
-                buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+                hSizer->Add(m_buttons[i], 0, wxALIGN_CENTER_VERTICAL);
+                hSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
             }
             
-            buttonSizer->AddStretchSpacer();
-            buttonSizer->Add(m_barBook, 0, wxALIGN_CENTER_VERTICAL);
+            hSizer->AddStretchSpacer();
+            hSizer->Add(m_barBook, 0, wxALIGN_CENTER_VERTICAL);
+            hSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
             
-            SetSizer(buttonSizer);
+            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+            vSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            vSizer->Add(hSizer, 1, wxEXPAND);
+            vSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            
+            SetSizer(vSizer);
         }
         
         void TabBar::OnButtonClicked(wxCommandEvent& event) {

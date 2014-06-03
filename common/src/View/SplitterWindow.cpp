@@ -83,6 +83,7 @@ namespace TrenchBroom {
             
             m_sashWindow = sashWindow;
             bindMouseEventsRecurse(m_sashWindow);
+            m_sashWindow->Fit();
         }
         
         void SplitterWindow::setMinSize(wxWindow* window, const wxSize& minSize) {
@@ -142,6 +143,7 @@ namespace TrenchBroom {
             if (dragging()) {
                 setSashPosition(h(clientPos) - m_dragOffset);
                 sizeWindows();
+                wxSetCursor(sizeCursor());
             } else {
                 if (isOnSash(clientPos, window))
                     wxSetCursor(sizeCursor());
@@ -150,7 +152,7 @@ namespace TrenchBroom {
                 event.Skip();
             }
         }
-        
+
         void SplitterWindow::OnPaint(wxPaintEvent& event) {
             if (m_sashWindow == NULL) {
                 wxPoint from, to;
@@ -174,6 +176,7 @@ namespace TrenchBroom {
                 return false;
             
             if (!window->IsKindOf(CLASSINFO(wxControl)) &&
+                window->IsShownOnScreen() &&
                 h(pos) >= m_sashPosition &&
                 h(pos) <= m_sashPosition + sashSize())
                 return true;
@@ -210,7 +213,7 @@ namespace TrenchBroom {
             
             wxWindowList::const_iterator it, end;
             for (it = children.begin(), end = children.end(); it != end; ++it)
-                bindMouseEvents(*it);
+                bindMouseEventsRecurse(*it);
         }
 
         void SplitterWindow::bindMouseEvents(wxWindow* window) {
@@ -262,6 +265,8 @@ namespace TrenchBroom {
                 }
                 
                 if (m_sashWindow != NULL) {
+                    m_sashWindow->Fit();
+                    
                     wxPoint sashPos;
                     wxSize sashSize;
                     
@@ -277,7 +282,7 @@ namespace TrenchBroom {
         int SplitterWindow::sashSize() const {
             if (m_sashWindow == NULL)
                 return 1;
-            return h(m_sashWindow->GetBestSize());
+            return h(m_sashWindow->GetSize());
         }
     }
 }

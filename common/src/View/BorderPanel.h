@@ -31,7 +31,7 @@ namespace TrenchBroom {
             BorderPanel(wxWindow* parent, int borders);
             void OnPaint(wxPaintEvent& event);
         protected:
-            wxSize DoGetBestSize() const;
+            virtual wxSize DoGetBestSize() const;
         };
     }
 }

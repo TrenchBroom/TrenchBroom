@@ -19,6 +19,8 @@
 
 #include "NavBar.h"
 
+#include "View/ViewConstants.h"
+
 #include <wx/dcclient.h>
 #include <wx/sizer.h>
 #include <wx/srchctrl.h>
@@ -47,20 +49,24 @@ namespace TrenchBroom {
 #endif
             m_searchBox->Bind(wxEVT_COMMAND_TEXT_UPDATED, &NavBar::OnSearchPatternChanged, this);
             
-            wxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
-            innerSizer->AddSpacer(4);
-            innerSizer->Add(m_navPanel, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
-            innerSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_RIGHT);
-#ifdef __APPLE__
-            innerSizer->AddSpacer(4);
-#endif
-            innerSizer->SetItemMinSize(m_searchBox, 200, wxDefaultSize.y);
+            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
+            hSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            hSizer->Add(m_navPanel, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
+            hSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            hSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_RIGHT | wxTOP);
+            hSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            hSizer->SetItemMinSize(m_searchBox, 200, wxDefaultSize.y);
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->AddSpacer(2);
-            outerSizer->Add(innerSizer, 1, wxEXPAND);
-            outerSizer->AddSpacer(2);
-            SetSizer(outerSizer);
+            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
+            vSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            vSizer->Add(hSizer, 1, wxEXPAND);
+            vSizer->AddSpacer(LayoutConstants::BarVerticalMargin
+#ifdef __APPLE__
+                              + 1
+#endif
+                              );
+
+            SetSizer(vSizer);
         }
         
         void NavBar::OnSearchPatternChanged(wxCommandEvent& event) {
