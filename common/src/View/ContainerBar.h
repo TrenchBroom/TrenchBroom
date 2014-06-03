@@ -27,6 +27,7 @@ namespace TrenchBroom {
         class ContainerBar : public BorderPanel {
         public:
             ContainerBar(wxWindow* parent, int borders);
+            virtual ~ContainerBar();
         };
     }
 }

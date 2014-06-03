@@ -30,6 +30,8 @@ namespace TrenchBroom {
         m_borders(borders) {
             Bind(wxEVT_PAINT, &BorderPanel::OnPaint, this);
         }
+        
+        BorderPanel::~BorderPanel() {}
 
         void BorderPanel::OnPaint(wxPaintEvent& event) {
             wxPaintDC dc(this);

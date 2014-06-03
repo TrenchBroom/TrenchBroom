@@ -60,11 +60,7 @@ namespace TrenchBroom {
             wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
             vSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
             vSizer->Add(hSizer, 1, wxEXPAND);
-            vSizer->AddSpacer(LayoutConstants::BarVerticalMargin
-#ifdef __APPLE__
-                              + 1
-#endif
-                              );
+            vSizer->AddSpacer(LayoutConstants::BarVerticalMargin + 1);
 
             SetSizer(vSizer);
         }

@@ -32,7 +32,7 @@
 namespace TrenchBroom {
     namespace View {
         RenderView::RenderView(wxWindow* parent, const GLContextHolder::GLAttribs& attribs) :
-        wxGLCanvas(parent, wxID_ANY, &attribs.front()),
+        wxGLCanvas(parent, wxID_ANY, &attribs.front(), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
         m_contextHolder(new RootGLContextHolder(this, attribs)),
         m_initialized(false),
         m_vbo(0xFFF) {

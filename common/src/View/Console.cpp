@@ -31,8 +31,6 @@ namespace TrenchBroom {
         Console::Console(wxWindow* parent) :
         TabBookPage(parent),
         m_textView(new wxTextCtrl(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP | wxTE_RICH2)) {
-            m_textView->SetDefaultStyle(wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
-            m_textView->SetBackgroundColour(*wxBLACK);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_textView, 1, wxEXPAND);
@@ -63,16 +61,16 @@ namespace TrenchBroom {
             
             switch (level) {
                 case LogLevel_Debug:
-                    m_textView->SetStyle(start, end, wxTextAttr(*wxLIGHT_GREY, *wxBLACK));
+                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(128, 128, 128), *wxWHITE));
                     break;
                 case LogLevel_Info:
-                    m_textView->SetStyle(start, end, wxTextAttr(*wxWHITE, *wxBLACK));
+                    m_textView->SetStyle(start, end, wxTextAttr(*wxBLACK, *wxWHITE));
                     break;
                 case LogLevel_Warn:
-                    m_textView->SetStyle(start, end, wxTextAttr(*wxYELLOW, *wxBLACK));
+                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(250, 150, 25), *wxWHITE));
                     break;
                 case LogLevel_Error:
-                    m_textView->SetStyle(start, end, wxTextAttr(*wxRED, *wxBLACK));
+                    m_textView->SetStyle(start, end, wxTextAttr(wxColor(250, 30, 60), *wxWHITE));
                     break;
             }
         }

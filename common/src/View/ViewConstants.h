@@ -47,7 +47,7 @@ namespace TrenchBroom {
             static const int ChooseGameDialogButtonSideMargin   = 7;
             static const int ChooseGameDialogButtonBottomMargin = 10;
             static const int TextBoxInnerMargin                 = 5;
-            static const int BarHorizontalMargin                = 4;
+            static const int BarHorizontalMargin                = 2;
             static const int BarVerticalMargin                  = 2;
 #elif defined __APPLE__
             static const int NotebookPageInnerMargin            = 5;
@@ -96,7 +96,7 @@ namespace TrenchBroom {
             static const int ChooseGameDialogButtonSideMargin   = 0;
             static const int ChooseGameDialogButtonBottomMargin = 10;
             static const int TextBoxInnerMargin                 = 2;
-            static const int BarHorizontalMargin                = 4;
+            static const int BarHorizontalMargin                = 2;
             static const int BarVerticalMargin                  = 2;
 #endif
             static const int MinPreferenceLabelWidth            = 100;
