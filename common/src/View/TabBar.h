@@ -22,9 +22,10 @@
 
 #include "View/ContainerBar.h"
 
+#include <wx/stattext.h>
+
 #include <vector>
 
-class wxButton;
 class wxBookCtrlEvent;
 class wxSimplebook;
 
@@ -33,9 +34,22 @@ namespace TrenchBroom {
         class TabBook;
         class TabBookPage;
         
+        class TabBarButton : public wxStaticText {
+        private:
+            bool m_pressed;
+        public:
+            TabBarButton(wxWindow* parent, const wxString& label);
+            
+            void setPressed(bool pressed);
+            
+            void OnClick(wxMouseEvent& event);
+        private:
+            void updateLabel();
+        };
+        
         class TabBar : public ContainerBar {
         private:
-            typedef std::vector<wxButton*> ButtonList;
+            typedef std::vector<TabBarButton*> ButtonList;
             
             TabBook* m_tabBook;
             wxSimplebook* m_barBook;

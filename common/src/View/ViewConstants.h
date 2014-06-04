@@ -47,6 +47,7 @@ namespace TrenchBroom {
             static const int ChooseGameDialogButtonSideMargin   = 7;
             static const int ChooseGameDialogButtonBottomMargin = 10;
             static const int TextBoxInnerMargin                 = 5;
+            static const int TabBarBarLeftMargin                = 10;
             static const int BarHorizontalMargin                = 2;
             static const int BarVerticalMargin                  = 2;
 #elif defined __APPLE__
@@ -72,6 +73,7 @@ namespace TrenchBroom {
             static const int ChooseGameDialogButtonSideMargin   = 0;
             static const int ChooseGameDialogButtonBottomMargin = 3;
             static const int TextBoxInnerMargin                 = 0;
+            static const int TabBarBarLeftMargin                = 10;
             static const int BarHorizontalMargin                = 4;
             static const int BarVerticalMargin                  = 2;
 #elif defined __linux__
@@ -96,6 +98,7 @@ namespace TrenchBroom {
             static const int ChooseGameDialogButtonSideMargin   = 0;
             static const int ChooseGameDialogButtonBottomMargin = 10;
             static const int TextBoxInnerMargin                 = 2;
+            static const int TabBarBarLeftMargin                = 10;
             static const int BarHorizontalMargin                = 2;
             static const int BarVerticalMargin                  = 2;
 #endif
@@ -104,6 +107,8 @@ namespace TrenchBroom {
         }
         
         namespace Colors {
+            const wxColour& defaultText();
+            const wxColour& highlightText();
             const wxColour& disabledText();
             const wxColour& borderColor();
         }

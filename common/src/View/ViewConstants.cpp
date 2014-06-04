@@ -25,12 +25,27 @@
 namespace TrenchBroom {
     namespace View {
         namespace Colors {
+            const wxColour& defaultText() {
+                static const wxColour col = wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT);
+                return col;
+            }
+
+            const wxColour& highlightText() {
+                static const wxColour col =
+#if defined __APPLE__
+                wxColour(26, 79, 189);
+#else
+                wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
+#endif
+                return col;
+            }
+
             const wxColour& disabledText() {
                 static const wxColour col =
 #if defined __APPLE__
                 wxColour(108, 108, 108);
 #else
-                wxColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
+                wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
 #endif
                 return col;
             }

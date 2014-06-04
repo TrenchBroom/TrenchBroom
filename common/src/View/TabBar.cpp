@@ -26,12 +26,38 @@
 #include <wx/settings.h>
 #include <wx/simplebook.h>
 #include <wx/sizer.h>
+#include <wx/statline.h>
 
 #include <cassert>
 #include <iostream>
 
 namespace TrenchBroom {
     namespace View {
+        TabBarButton::TabBarButton(wxWindow* parent, const wxString& label) :
+        wxStaticText(parent, wxID_ANY, label),
+        m_pressed(false) {
+            Bind(wxEVT_LEFT_DOWN, &TabBarButton::OnClick, this);
+        }
+        
+        void TabBarButton::setPressed(const bool pressed) {
+            m_pressed = pressed;
+            updateLabel();
+        }
+
+        void TabBarButton::OnClick(wxMouseEvent& event) {
+            wxCommandEvent commandEvent(wxEVT_BUTTON, GetId());
+            commandEvent.SetEventObject(this);
+            ProcessEvent(commandEvent);
+        }
+
+        void TabBarButton::updateLabel() {
+            if (m_pressed)
+                SetForegroundColour(Colors::highlightText());
+            else
+                SetForegroundColour(Colors::defaultText());
+            Refresh();
+        }
+
         TabBar::TabBar(wxWindow* parent, TabBook* tabBook) :
         ContainerBar(parent, wxTOP | wxBOTTOM),
         m_tabBook(tabBook),
@@ -40,7 +66,7 @@ namespace TrenchBroom {
             assert(m_tabBook != NULL);
             m_tabBook->Bind(wxEVT_COMMAND_BOOKCTRL_PAGE_CHANGED, &TabBar::OnTabBookPageChanged, this);
 
-            m_controlSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            m_controlSizer->AddSpacer(LayoutConstants::TabBarBarLeftMargin);
             m_controlSizer->AddStretchSpacer();
             m_controlSizer->Add(m_barBook, 0, wxALIGN_CENTER_VERTICAL);
             m_controlSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
@@ -56,12 +82,14 @@ namespace TrenchBroom {
         void TabBar::addTab(const wxString& title, TabBookPage* bookPage) {
             assert(bookPage != NULL);
             
-            wxButton* button = new wxButton(this, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxBU_EXACTFIT);
+            TabBarButton* button = new TabBarButton(this, title);
             button->Bind(wxEVT_BUTTON, &TabBar::OnButtonClicked, this);
+            button->setPressed(m_buttons.empty());
             m_buttons.push_back(button);
             
-            m_controlSizer->Insert(m_buttons.size(), button, 0, wxALIGN_CENTER_VERTICAL);
-            m_controlSizer->InsertSpacer(m_buttons.size() + 1, LayoutConstants::ControlHorizontalMargin);
+            const size_t sizerIndex = 2 * (m_buttons.size() - 1) + 1;
+            m_controlSizer->Insert(sizerIndex, button, 0, wxALIGN_CENTER_VERTICAL);
+            m_controlSizer->InsertSpacer(sizerIndex + 3, LayoutConstants::ControlHorizontalMargin);
             
             wxWindow* barPage = bookPage->createTabBarPage(m_barBook);
             m_barBook->AddPage(barPage, title);
@@ -94,11 +122,11 @@ namespace TrenchBroom {
         }
 
         void TabBar::setButtonActive(const int index) {
-            m_buttons[static_cast<size_t>(index)]->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+            m_buttons[static_cast<size_t>(index)]->setPressed(true);
         }
         
         void TabBar::setButtonInactive(const int index) {
-            m_buttons[static_cast<size_t>(index)]->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT));
+            m_buttons[static_cast<size_t>(index)]->setPressed(false);
         }
     }
 }
