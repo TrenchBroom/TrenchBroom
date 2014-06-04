@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__SplitterWindow__
 #define __TrenchBroom__SplitterWindow__
 
+#include "Macros.h"
+
 #include <wx/panel.h>
 
 namespace TrenchBroom {
@@ -27,7 +29,7 @@ namespace TrenchBroom {
         class SplitterWindow : public wxPanel {
         private:
             static const size_t NumWindows = 2;
-            static const int HalfMinSashSize = 1;
+            static const int HalfMinSashSize = 2;
             
             typedef enum {
                 SplitMode_Unset,
@@ -44,6 +46,8 @@ namespace TrenchBroom {
             int m_sashPosition;
             int m_dragOffset;
             
+            bool m_sashCursorSet;
+            
             wxSize m_oldSize;
         public:
             SplitterWindow(wxWindow* parent);
@@ -51,23 +55,26 @@ namespace TrenchBroom {
             void splitHorizontally(wxWindow* left, wxWindow* right);
             void splitVertically(wxWindow* top, wxWindow* bottom);
             void setSashWindow(wxWindow* sashWindow);
-            
+        private:
+            void bindMouseEventsRecurse(wxWindow* window);
+            void bindMouseEvents(wxWindow* window);
+        public:
             void setMinSize(wxWindow* window, const wxSize& minSize);
             void setSashGravity(float sashGravity);
             
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
-            void OnPaint(wxPaintEvent& event);
+            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
         private:
             bool dragging() const;
             bool isOnSash(const wxPoint& pos, const wxWindow* window) const;
+            void setSashCursor();
+            void unsetSashCursor();
             wxCursor sizeCursor() const;
         public:
+            void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
         private:
-            void bindMouseEventsRecurse(wxWindow* window);
-            void bindMouseEvents(wxWindow* window);
-            
             void updateSashPosition(const wxSize& oldSize, const wxSize& newSize);
             void initSashPosition();
             void setSashPosition(int position);
@@ -91,6 +98,7 @@ namespace TrenchBroom {
                         break;
                     case SplitMode_Unset:
                         break;
+                    DEFAULT_SWITCH()
                 }
             }
             
@@ -105,6 +113,7 @@ namespace TrenchBroom {
                         break;
                     case SplitMode_Unset:
                         break;
+                    DEFAULT_SWITCH()
                 }
             }
 
@@ -117,6 +126,7 @@ namespace TrenchBroom {
                         return p.x;
                     case SplitMode_Unset:
                         return 0;
+                    DEFAULT_SWITCH()
                 }
             }
             
@@ -129,6 +139,7 @@ namespace TrenchBroom {
                         return p.y;
                     case SplitMode_Unset:
                         return 0;
+                    DEFAULT_SWITCH()
                 }
             }
         };

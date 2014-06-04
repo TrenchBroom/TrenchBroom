@@ -35,39 +35,38 @@ namespace TrenchBroom {
         TabBar::TabBar(wxWindow* parent, TabBook* tabBook) :
         ContainerBar(parent, wxTOP | wxBOTTOM),
         m_tabBook(tabBook),
-        m_barBook(new wxSimplebook(this)) {
+        m_barBook(new wxSimplebook(this)),
+        m_controlSizer(new wxBoxSizer(wxHORIZONTAL)) {
             assert(m_tabBook != NULL);
             m_tabBook->Bind(wxEVT_COMMAND_BOOKCTRL_PAGE_CHANGED, &TabBar::OnTabBookPageChanged, this);
+
+            m_controlSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            m_controlSizer->AddStretchSpacer();
+            m_controlSizer->Add(m_barBook, 0, wxALIGN_CENTER_VERTICAL);
+            m_controlSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            outerSizer->Add(m_controlSizer, 1, wxEXPAND);
+            outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            
+            SetSizer(outerSizer);
         }
         
         void TabBar::addTab(const wxString& title, TabBookPage* bookPage) {
             assert(bookPage != NULL);
             
             wxButton* button = new wxButton(this, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxBU_EXACTFIT);
-//            wxStaticText* button = new wxStaticText(this, wxID_ANY, title);
             button->Bind(wxEVT_BUTTON, &TabBar::OnButtonClicked, this);
             m_buttons.push_back(button);
+            
+            m_controlSizer->Insert(m_buttons.size(), button, 0, wxALIGN_CENTER_VERTICAL);
+            m_controlSizer->InsertSpacer(m_buttons.size() + 1, LayoutConstants::ControlHorizontalMargin);
             
             wxWindow* barPage = bookPage->createTabBarPage(m_barBook);
             m_barBook->AddPage(barPage, title);
             
-            wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-            hSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
-            for (size_t i = 0; i < m_buttons.size(); ++i) {
-                hSizer->Add(m_buttons[i], 0, wxALIGN_CENTER_VERTICAL);
-                hSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-            }
-            
-            hSizer->AddStretchSpacer();
-            hSizer->Add(m_barBook, 0, wxALIGN_CENTER_VERTICAL);
-            hSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
-            
-            wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
-            vSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
-            vSizer->Add(hSizer, 1, wxEXPAND);
-            vSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
-            
-            SetSizer(vSizer);
+            Layout();
         }
         
         void TabBar::OnButtonClicked(wxCommandEvent& event) {

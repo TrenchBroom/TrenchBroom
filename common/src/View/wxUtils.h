@@ -25,6 +25,7 @@
 #include <iostream>
 #include <wx/colour.h>
 
+class wxCursor;
 class wxFrame;
 class wxWindow;
 

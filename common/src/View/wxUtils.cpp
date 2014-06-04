@@ -22,19 +22,14 @@
 #include <wx/frame.h>
 #include <wx/window.h>
 
+#include <list>
+
 namespace TrenchBroom {
     namespace View {
         wxFrame* findFrame(wxWindow* window) {
             if (window == NULL)
                 return NULL;
-            
-            wxFrame* frame = wxDynamicCast(window, wxFrame);
-            wxWindow* parent = window->GetParent();
-            while (frame == NULL && parent != NULL) {
-                frame = wxDynamicCast(parent, wxFrame);
-                parent = parent->GetParent();
-            }
-            return frame;
+            return static_cast<wxFrame*>(wxGetTopLevelParent(window));
         }
 
         Color fromWxColor(const wxColor& color) {

@@ -957,37 +957,37 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
-            SplitterWindow* inspectorSplitter = new SplitterWindow(this);
-            inspectorSplitter->setSashGravity(1.0f);
+            SplitterWindow* horizontalSplitter = new SplitterWindow(this);
+            horizontalSplitter->setSashGravity(1.0f);
             
-            SplitterWindow* consoleSplitter = new SplitterWindow(inspectorSplitter);
-            consoleSplitter->setSashGravity(1.0f);
+            SplitterWindow* verticalSplitter = new SplitterWindow(horizontalSplitter);
+            verticalSplitter->setSashGravity(1.0f);
 
-            m_infoPanel = new InfoPanel(consoleSplitter, m_document, m_controller);
+            m_infoPanel = new InfoPanel(verticalSplitter, m_document, m_controller);
 
-            wxPanel* container = new wxPanel(consoleSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_navBar = new NavBar(container);
-            m_mapView = new MapView(container, logger(), m_document, m_controller, m_camera3D);
+            wxPanel* mapViewContainer = new wxPanel(verticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            m_navBar = new NavBar(mapViewContainer);
+            m_mapView = new MapView(mapViewContainer, logger(), m_document, m_controller, m_camera3D);
 
             wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
             containerSizer->Add(m_navBar, 0, wxEXPAND);
             containerSizer->Add(m_mapView, 1, wxEXPAND);
-            container->SetSizer(containerSizer);
+            mapViewContainer->SetSizer(containerSizer);
             
-            consoleSplitter->splitHorizontally(container, m_infoPanel);
-            consoleSplitter->setMinSize(container, wxSize(100, 100));
-            consoleSplitter->setMinSize(m_infoPanel, wxSize(100, 100));
-            consoleSplitter->setSashWindow(m_infoPanel->tabBar());
+            verticalSplitter->splitHorizontally(mapViewContainer, m_infoPanel);
+            verticalSplitter->setMinSize(mapViewContainer, wxSize(100, 100));
+            verticalSplitter->setMinSize(m_infoPanel, wxSize(100, 100));
+            verticalSplitter->setSashWindow(m_infoPanel->tabBar());
             
-            m_inspector = new Inspector(inspectorSplitter, m_mapView->contextHolder(), m_document, m_controller, m_camera3D);
-            inspectorSplitter->splitVertically(consoleSplitter, m_inspector);
-            inspectorSplitter->setMinSize(consoleSplitter, wxSize(350, 100));
-            inspectorSplitter->setMinSize(m_inspector, wxSize(350, 100));
+            m_inspector = new Inspector(horizontalSplitter, m_mapView->contextHolder(), m_document, m_controller, m_camera3D);
+            horizontalSplitter->splitVertically(verticalSplitter, m_inspector);
+            horizontalSplitter->setMinSize(verticalSplitter, wxSize(350, 100));
+            horizontalSplitter->setMinSize(m_inspector, wxSize(350, 100));
 
             m_statusBar = new StatusBar(this, m_document, m_infoPanel->console());
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(inspectorSplitter, 1, wxEXPAND);
+            outerSizer->Add(horizontalSplitter, 1, wxEXPAND);
             outerSizer->Add(m_statusBar, 0, wxEXPAND);
             SetSizer(outerSizer);
         }

@@ -39,6 +39,7 @@ namespace TrenchBroom {
             
             TabBook* m_tabBook;
             wxSimplebook* m_barBook;
+            wxSizer* m_controlSizer;
             ButtonList m_buttons;
         public:
             TabBar(wxWindow* parent, TabBook* tabBook);

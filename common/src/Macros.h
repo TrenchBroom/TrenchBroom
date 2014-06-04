@@ -24,7 +24,7 @@
 // and thus may become unused in release builds.
 #define _UNUSED(x) ((void)x)
 
-// The following macro is used to silence a compiler warning in MSVC when a switch is used in a function to compute
+// The following macro is used to silence a compiler warning in MSVC and GCC when a switch is used in a function to compute
 // a return value, and there is no default path.
 #ifdef __clang__
 #define DEFAULT_SWITCH()
