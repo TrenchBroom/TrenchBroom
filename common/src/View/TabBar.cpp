@@ -89,7 +89,7 @@ namespace TrenchBroom {
             
             const size_t sizerIndex = 2 * (m_buttons.size() - 1) + 1;
             m_controlSizer->Insert(sizerIndex, button, 0, wxALIGN_CENTER_VERTICAL);
-            m_controlSizer->InsertSpacer(sizerIndex + 3, LayoutConstants::ControlHorizontalMargin);
+            m_controlSizer->InsertSpacer(sizerIndex + 1, LayoutConstants::ControlHorizontalMargin);
             
             wxWindow* barPage = bookPage->createTabBarPage(m_barBook);
             m_barBook->AddPage(barPage, title);
