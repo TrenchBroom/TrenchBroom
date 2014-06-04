@@ -965,14 +965,7 @@ namespace TrenchBroom {
 
             m_infoPanel = new InfoPanel(consoleSplitter, m_document, m_controller);
 
-            wxPanel* container = new wxPanel(consoleSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize,
-#ifdef _WIN32
-                                             wxBORDER_SUNKEN
-#else
-                                             wxBORDER_NONE
-#endif
-                                             );
-            
+            wxPanel* container = new wxPanel(consoleSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_navBar = new NavBar(container);
             m_mapView = new MapView(container, logger(), m_document, m_controller, m_camera3D);
 
