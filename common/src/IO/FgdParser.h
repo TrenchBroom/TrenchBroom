@@ -82,8 +82,8 @@ namespace TrenchBroom {
             Assets::ModelDefinitionPtr parseStaticModel();
             Assets::ModelDefinitionPtr parseDynamicModel();
             Assets::PropertyDefinitionMap parseProperties();
-            Assets::PropertyDefinitionPtr parseType_TargetSourceProperty(const String& name);
-            Assets::PropertyDefinitionPtr parseType_TargetDestinationProperty(const String& name);
+            Assets::PropertyDefinitionPtr parseTargetSourceProperty(const String& name);
+            Assets::PropertyDefinitionPtr parseTargetDestinationProperty(const String& name);
             Assets::PropertyDefinitionPtr parseStringProperty(const String& name);
             Assets::PropertyDefinitionPtr parseIntegerProperty(const String& name);
             Assets::PropertyDefinitionPtr parseFloatProperty(const String& name);

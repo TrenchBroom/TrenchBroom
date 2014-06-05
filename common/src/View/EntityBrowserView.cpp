@@ -242,7 +242,8 @@ namespace TrenchBroom {
                                 
                                 if (modelRenderer == NULL) {
                                     const Mat4x4f itemTrans = itemTransformation(cell, y, height);
-                                    CollectBoundsVertices<BoundsVertex> collect(itemTrans, definition->color(), vertices);
+                                    const Color& color = definition->color();
+                                    CollectBoundsVertices<BoundsVertex> collect(itemTrans, color, vertices);
                                     eachBBoxEdge(definition->bounds(), collect);
                                 }
                             }

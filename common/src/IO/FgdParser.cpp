@@ -214,7 +214,7 @@ namespace TrenchBroom {
             
             expect(FgdToken::Word, token = m_tokenizer.nextToken());
             classInfo.setName(token.data());
-            
+
             expect(FgdToken::Colon | FgdToken::OBracket, token = m_tokenizer.nextToken());
             if (token.type() == FgdToken::Colon) {
                 expect(FgdToken::String, token = m_tokenizer.nextToken());
@@ -362,11 +362,11 @@ namespace TrenchBroom {
                 if (StringUtils::caseInsensitiveEqual(typeName, "target_source")) {
                     if (properties.count(propertyKey) > 0)
                         throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseType_TargetSourceProperty(propertyKey);
+                    properties[propertyKey] = parseTargetSourceProperty(propertyKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "target_destination")) {
                     if (properties.count(propertyKey) > 0)
                         throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseType_TargetDestinationProperty(propertyKey);
+                    properties[propertyKey] = parseTargetDestinationProperty(propertyKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "string")) {
                     if (properties.count(propertyKey) > 0)
                         throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
@@ -397,7 +397,7 @@ namespace TrenchBroom {
             return properties;
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseType_TargetSourceProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseTargetSourceProperty(const String& name) {
             String description;
             Token token = m_tokenizer.nextToken();
             if (token.type() == FgdToken::Colon) {
@@ -409,7 +409,7 @@ namespace TrenchBroom {
             return Assets::PropertyDefinitionPtr(new Assets::PropertyDefinition(name, Assets::PropertyDefinition::Type_TargetSourceProperty, description));
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseType_TargetDestinationProperty(const String& name) {
+        Assets::PropertyDefinitionPtr FgdParser::parseTargetDestinationProperty(const String& name) {
             String description;
             Token token = m_tokenizer.nextToken();
             if (token.type() == FgdToken::Colon) {

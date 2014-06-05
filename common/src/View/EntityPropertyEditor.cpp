@@ -19,6 +19,7 @@
 
 #include "EntityPropertyEditor.h"
 
+#include "View/BorderLine.h"
 #include "View/EntityPropertyGrid.h"
 #include "View/EntityPropertySelectedCommand.h"
 #include "View/ViewConstants.h"
@@ -49,7 +50,7 @@ namespace TrenchBroom {
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_propertyGrid, 1, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(m_smartEditorManager, 0, wxEXPAND);
             sizer->SetItemMinSize(m_smartEditorManager, 100, 120);
             SetSizer(sizer);

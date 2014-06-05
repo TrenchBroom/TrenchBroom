@@ -86,6 +86,7 @@ namespace TrenchBroom {
             m_filterBox->Bind(wxEVT_TEXT, &EntityBrowser::OnFilterPatternChanged, this);
             
             wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
+            controlSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
             controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
             controlSizer->Add(m_sortOrderChoice, 0, wxEXPAND);
             controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
@@ -94,6 +95,7 @@ namespace TrenchBroom {
             controlSizer->Add(m_usedButton, 0, wxEXPAND);
             controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
             controlSizer->Add(m_filterBox, 1, wxEXPAND);
+            controlSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
             
             wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);

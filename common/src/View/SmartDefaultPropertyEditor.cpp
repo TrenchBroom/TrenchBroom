@@ -31,7 +31,7 @@ namespace TrenchBroom {
         SmartPropertyEditor(document, controller) {}
 
         wxWindow* SmartDefaultPropertyEditor::doCreateVisual(wxWindow* parent) {
-            m_descriptionTxt = new wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP);
+            m_descriptionTxt = new wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
             return m_descriptionTxt;
         }
         

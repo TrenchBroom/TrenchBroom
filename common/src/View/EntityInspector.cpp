@@ -20,6 +20,7 @@
 #include "EntityInspector.h"
 
 #include "StringUtils.h"
+#include "View/BorderLine.h"
 #include "View/EntityBrowser.h"
 #include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityPropertyEditor.h"
@@ -46,11 +47,11 @@ namespace TrenchBroom {
 
         void EntityInspector::createGui(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(createEntityBrowser(this, sharedContext), 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(createEntityDefinitionFileChooser(this, document, controller), 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
+            outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND);
+            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            outerSizer->Add(createEntityBrowser(this, sharedContext), 1, wxEXPAND);
+            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            outerSizer->Add(createEntityDefinitionFileChooser(this, document, controller), 0, wxEXPAND);
             SetSizerAndFit(outerSizer);
         }
         

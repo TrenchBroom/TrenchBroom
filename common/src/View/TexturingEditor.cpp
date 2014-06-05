@@ -28,7 +28,7 @@
 namespace TrenchBroom {
     namespace View {
         TexturingEditor::TexturingEditor(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) :
-        wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN),
+        wxPanel(parent),
         m_document(document),
         m_controller(controller),
         m_texturingView(NULL),

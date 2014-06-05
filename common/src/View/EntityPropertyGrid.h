@@ -45,8 +45,6 @@ namespace TrenchBroom {
             EntityPropertyGridTable* m_table;
             wxGrid* m_grid;
             wxGridCellCoords m_lastHoveredCell;
-            wxButton* m_addPropertyButton;
-            wxButton* m_removePropertiesButton;
             
             bool m_ignoreSelection;
             Model::PropertyKey m_lastSelectedKey;
@@ -60,10 +58,7 @@ namespace TrenchBroom {
             void OnPropertyGridTab(wxGridEvent& event);
             void OnPropertyGridMouseMove(wxMouseEvent& event);
 
-            void OnAddPropertyPressed(wxCommandEvent& event);
-            void OnRemovePropertiesPressed(wxCommandEvent& event);
-            void OnUpdatePropertyViewOrAddPropertiesButton(wxUpdateUIEvent& event);
-            void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
+            void OnUpdatePropertyView(wxUpdateUIEvent& event);
         private:
             void createGui(MapDocumentWPtr document, ControllerWPtr controller);
             void bindEvents();
