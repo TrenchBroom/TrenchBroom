@@ -977,7 +977,6 @@ namespace TrenchBroom {
             verticalSplitter->splitHorizontally(mapViewContainer, m_infoPanel);
             verticalSplitter->setMinSize(mapViewContainer, wxSize(100, 100));
             verticalSplitter->setMinSize(m_infoPanel, wxSize(100, 100));
-            verticalSplitter->setSashWindow(m_infoPanel->tabBar());
             
             m_inspector = new Inspector(horizontalSplitter, m_mapView->contextHolder(), m_document, m_controller, m_camera3D);
             horizontalSplitter->splitVertically(verticalSplitter, m_inspector);

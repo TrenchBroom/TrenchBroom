@@ -19,9 +19,10 @@
 
 #include "MiniMap.h"
 
-#include "View/ViewConstants.h"
+#include "View/BorderLine.h"
 #include "View/MiniMapXYView.h"
 #include "View/MiniMapZView.h"
+#include "View/ViewConstants.h"
 
 #include <wx/sizer.h>
 #include <wx/slider.h>
@@ -46,12 +47,13 @@ namespace TrenchBroom {
         }
 
         void MiniMap::createGui(GLContextHolder::Ptr sharedContext, View::MapDocumentWPtr document, Renderer::Camera& camera) {
+            
             m_miniMapXYView = new MiniMapXYView(this, sharedContext, document, m_renderer, camera);
             m_miniMapZView = new MiniMapZView(this, sharedContext, document, m_renderer, camera);
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_miniMapZView, 0, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::ControlMargin);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
             sizer->Add(m_miniMapXYView, 1, wxEXPAND);
             sizer->SetItemMinSize(m_miniMapZView, 32, wxDefaultSize.y);
             

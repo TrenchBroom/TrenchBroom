@@ -19,10 +19,11 @@
 
 #include "MapInspector.h"
 
-#include "View/ViewConstants.h"
+#include "View/BorderLine.h"
 #include "View/MapTreeView.h"
 #include "View/MiniMap.h"
 #include "View/ModEditor.h"
+#include "View/ViewConstants.h"
 
 #include <wx/collpane.h>
 #include <wx/notebook.h>
@@ -46,11 +47,11 @@ namespace TrenchBroom {
             wxWindow* modEditor = createModEditor(this, document, controller);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(miniMap, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            sizer->Add(mapTree, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            sizer->Add(modEditor, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, LayoutConstants::NotebookPageInnerMargin);
+            sizer->Add(miniMap, 0, wxEXPAND);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->Add(mapTree, 1, wxEXPAND);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->Add(modEditor, 0, wxEXPAND);
             
             sizer->SetItemMinSize(miniMap, wxDefaultSize.x, 180);
             SetSizer(sizer);

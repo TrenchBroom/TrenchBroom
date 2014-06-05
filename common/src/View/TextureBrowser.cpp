@@ -100,7 +100,7 @@ namespace TrenchBroom {
             controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
             controlSizer->Add(m_filterBox, 1, wxEXPAND);
             
-            wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+            wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
 
             MapDocumentSPtr document = lock(m_document);

@@ -41,7 +41,6 @@ namespace TrenchBroom {
             wxWindow* m_windows[NumWindows];
             wxSize m_minSizes[NumWindows];
             
-            wxWindow* m_sashWindow;
             float m_sashGravity;
             int m_sashPosition;
             int m_dragOffset;
@@ -54,7 +53,6 @@ namespace TrenchBroom {
             
             void splitHorizontally(wxWindow* left, wxWindow* right);
             void splitVertically(wxWindow* top, wxWindow* bottom);
-            void setSashWindow(wxWindow* sashWindow);
         private:
             void bindMouseEventsRecurse(wxWindow* window);
             void bindMouseEvents(wxWindow* window);

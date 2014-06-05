@@ -20,7 +20,8 @@
 #ifndef __TrenchBroom__TabBar__
 #define __TrenchBroom__TabBar__
 
-#include <wx/panel.h>
+#include "View/ContainerBar.h"
+
 #include <wx/stattext.h>
 
 #include <vector>
@@ -46,7 +47,7 @@ namespace TrenchBroom {
             void updateLabel();
         };
         
-        class TabBar : public wxPanel {
+        class TabBar : public ContainerBar {
         private:
             typedef std::vector<TabBarButton*> ButtonList;
             
@@ -55,7 +56,7 @@ namespace TrenchBroom {
             wxSizer* m_controlSizer;
             ButtonList m_buttons;
         public:
-            TabBar(wxWindow* parent, TabBook* tabBook);
+            TabBar(TabBook* tabBook);
             
             void addTab(TabBookPage* bookPage, const wxString& title);
             

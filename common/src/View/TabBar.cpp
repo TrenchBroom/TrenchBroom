@@ -58,8 +58,8 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        TabBar::TabBar(wxWindow* parent, TabBook* tabBook) :
-        wxPanel(parent),
+        TabBar::TabBar(TabBook* tabBook) :
+        ContainerBar(tabBook, wxBOTTOM),
         m_tabBook(tabBook),
         m_barBook(new wxSimplebook(this)),
         m_controlSizer(new wxBoxSizer(wxHORIZONTAL)) {
@@ -75,6 +75,7 @@ namespace TrenchBroom {
             outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
             outerSizer->Add(m_controlSizer, 1, wxEXPAND);
             outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            outerSizer->SetMinSize(wxSize(wxDefaultSize.x, 24));
             
             SetSizer(outerSizer);
         }

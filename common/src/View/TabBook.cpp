@@ -34,21 +34,18 @@ namespace TrenchBroom {
             return new wxPanel(parent);
         }
 
-        TabBook::TabBook(wxWindow* bookParent, wxWindow* barParent) :
-        wxPanel(bookParent),
-        m_tabBar(new TabBar(barParent, this)),
+        TabBook::TabBook(wxWindow* parent) :
+        wxPanel(parent),
+        m_tabBar(new TabBar(this)),
         m_tabBook(new wxSimplebook(this)) {
             m_tabBook->Bind(wxEVT_COMMAND_BOOKCTRL_PAGE_CHANGED, &TabBook::OnTabBookPageChanged, this);
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_tabBar, 0, wxEXPAND);
             sizer->Add(m_tabBook, 1, wxEXPAND);
             SetSizer(sizer);
         }
         
-        TabBar* TabBook::tabBar() const {
-            return m_tabBar;
-        }
-
         void TabBook::addPage(TabBookPage* page, const wxString& title) {
             assert(page != NULL);
             assert(page->GetParent() == this);
@@ -56,7 +53,6 @@ namespace TrenchBroom {
             RemoveChild(page);
             page->Reparent(m_tabBook);
             m_tabBook->AddPage(page, title);
-            
             m_tabBar->addTab(page, title);
         }
 

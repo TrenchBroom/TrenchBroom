@@ -33,7 +33,6 @@ namespace TrenchBroom {
         SplitterWindow::SplitterWindow(wxWindow* parent) :
         wxPanel(parent, wxID_ANY),
         m_splitMode(SplitMode_Unset),
-        m_sashWindow(NULL),
         m_sashGravity(0.5f),
         m_sashPosition(-1),
         m_sashCursorSet(0),
@@ -79,16 +78,6 @@ namespace TrenchBroom {
                 bindMouseEventsRecurse(m_windows[i]);
         }
         
-        void SplitterWindow::setSashWindow(wxWindow* sashWindow) {
-            assert(sashWindow != NULL);
-            assert(sashWindow->GetParent() == this);
-            assert(m_sashWindow == NULL);
-            
-            m_sashWindow = sashWindow;
-            bindMouseEventsRecurse(m_sashWindow);
-            m_sashWindow->Fit();
-        }
-        
         void SplitterWindow::bindMouseEventsRecurse(wxWindow* window) {
             bindMouseEvents(window);
             const wxWindowList& children = window->GetChildren();
@@ -115,11 +104,6 @@ namespace TrenchBroom {
                 
                 setH(splitterMinSize, h(splitterMinSize) + h(m_minSizes[i]));
                 setV(splitterMinSize, std::max(v(splitterMinSize), v(m_minSizes[i])));
-            }
-            
-            if (m_sashWindow != NULL) {
-                setH(splitterMinSize, h(splitterMinSize) + h(m_sashWindow->GetSize()));
-                setV(splitterMinSize, v(splitterMinSize) + v(m_sashWindow->GetSize()));
             }
             
             SetMinClientSize(splitterMinSize);
@@ -226,15 +210,13 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow::OnPaint(wxPaintEvent& event) {
-            if (m_sashWindow == NULL) {
-                wxPoint from, to;
-                setHV(from, m_sashPosition, 0);
-                setHV(to, m_sashPosition, v(GetClientSize()));
-                
-                wxPaintDC dc(this);
-                dc.SetPen(wxPen(Colors::borderColor()));
-                dc.DrawLine(from, to);
-            }
+            wxPoint from, to;
+            setHV(from, m_sashPosition, 0);
+            setHV(to, m_sashPosition, v(GetClientSize()));
+            
+            wxPaintDC dc(this);
+            dc.SetPen(wxPen(Colors::borderColor()));
+            dc.DrawLine(from, to);
         }
         
         void SplitterWindow::OnSize(wxSizeEvent& event) {
@@ -285,26 +267,11 @@ namespace TrenchBroom {
                     m_windows[i]->SetPosition(pos[i]);
                     m_windows[i]->SetSize(size[i]);
                 }
-                
-                if (m_sashWindow != NULL) {
-                    m_sashWindow->Fit();
-                    
-                    wxPoint sashPos;
-                    wxSize sashSize;
-                    
-                    setHV(sashPos, m_sashPosition, 0);
-                    setHV(sashSize, this->sashSize(), v(GetClientSize()));
-                    
-                    m_sashWindow->SetPosition(sashPos);
-                    m_sashWindow->SetSize(sashSize);
-                }
             }
         }
         
         int SplitterWindow::sashSize() const {
-            if (m_sashWindow == NULL)
-                return 1;
-            return h(m_sashWindow->GetSize());
+            return 1;
         }
     }
 }

@@ -264,7 +264,7 @@ namespace TrenchBroom {
         m_tree(NULL),
         m_ignoreTreeSelection(false),
         m_ignoreDocumentSelection(false) {
-            m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_NO_HEADER | wxDV_MULTIPLE | wxBORDER_SIMPLE);
+            m_tree = new wxDataViewCtrl(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_NO_HEADER | wxDV_MULTIPLE | wxBORDER_NONE);
             m_tree->AssociateModel(new MapTreeViewDataModel(m_document));
             m_tree->AppendTextColumn("Caption", 0)->SetWidth(200);
             m_tree->Expand(wxDataViewItem(NULL));

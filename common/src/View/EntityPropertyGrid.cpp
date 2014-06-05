@@ -148,7 +148,7 @@ namespace TrenchBroom {
         void EntityPropertyGrid::createGui(MapDocumentWPtr document, ControllerWPtr controller) {
             m_table = new EntityPropertyGridTable(document, controller);
             
-            m_grid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
+            m_grid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_grid->SetTable(m_table, true, wxGrid::wxGridSelectRows);
             m_grid->SetUseNativeColLabels();
             m_grid->UseNativeColHeader();

@@ -94,7 +94,7 @@ namespace TrenchBroom {
         wxWindow* SmartSpawnflagsEditor::doCreateVisual(wxWindow* parent) {
             assert(m_scrolledWindow == NULL);
             
-            m_scrolledWindow = new wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, static_cast<long>(wxHSCROLL | wxVSCROLL | wxBORDER_SUNKEN));
+            m_scrolledWindow = new wxScrolledWindow(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, static_cast<long>(wxHSCROLL | wxVSCROLL | wxBORDER_NONE));
             m_scrolledWindow->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             
             m_flagsEditor = new FlagsEditor(m_scrolledWindow, NumCols);

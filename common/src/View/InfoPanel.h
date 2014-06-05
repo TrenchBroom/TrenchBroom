@@ -43,13 +43,10 @@ namespace TrenchBroom {
         class InfoPanel : public wxPanel {
         private:
             TabBook* m_tabBook;
-            ContainerBar* m_tabBar;
             Console* m_console;
             IssueBrowser* m_issueBrowser;
         public:
             InfoPanel(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
-            
-            wxWindow* tabBar() const;
             Console* console() const;
         };
     }

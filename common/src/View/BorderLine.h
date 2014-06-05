@@ -17,38 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TabBook__
-#define __TrenchBroom__TabBook__
+#ifndef __TrenchBroom__BorderLine__
+#define __TrenchBroom__BorderLine__
 
-#include <wx/panel.h>
-
-class wxBookCtrlEvent;
-class wxSimplebook;
+#include <wx/window.h>
 
 namespace TrenchBroom {
     namespace View {
-        class TabBar;
-
-        class TabBookPage : public wxPanel {
+        class BorderLine : public wxWindow {
         public:
-            TabBookPage(wxWindow* parent);
-            virtual ~TabBookPage();
-            virtual wxWindow* createTabBarPage(wxWindow* parent);
-        };
-        
-        class TabBook : public wxPanel {
-        private:
-            TabBar* m_tabBar;
-            wxSimplebook* m_tabBook;
+            typedef enum {
+                Direction_Horizontal,
+                Direction_Vertical
+            } Direction;
         public:
-            TabBook(wxWindow* parent);
+            BorderLine(wxWindow* parent, Direction direction, int thickness = 1);
             
-            void addPage(TabBookPage* page, const wxString& title);
-            void switchToPage(size_t index);
-            
-            void OnTabBookPageChanged(wxBookCtrlEvent& event);
+            void OnPaint(wxPaintEvent& event);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__TabBook__) */
+#endif /* defined(__TrenchBroom__BorderLine__) */
