@@ -32,7 +32,7 @@
 namespace TrenchBroom {
     namespace View {
         MapInspector::MapInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
-        wxPanel(parent) {
+        TabBookPage(parent) {
             createGui(sharedContext, document, controller, camera);
         }
 

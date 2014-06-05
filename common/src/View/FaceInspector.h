@@ -22,9 +22,8 @@
 
 #include "Controller/Command.h"
 #include "View/GLContextHolder.h"
+#include "View/TabBook.h"
 #include "View/ViewTypes.h"
-
-#include <wx/panel.h>
 
 class wxCollapsiblePaneEvent;
 class wxSplitterWindow;
@@ -43,7 +42,7 @@ namespace TrenchBroom {
         class TextureCollectionEditor;
         class TextureSelectedCommand;
         
-        class FaceInspector : public wxPanel {
+        class FaceInspector : public TabBookPage {
         private:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;

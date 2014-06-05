@@ -35,6 +35,7 @@ namespace TrenchBroom {
     class Logger;
 
     namespace View {
+        class ContainerBar;
         class Console;
         class IssueBrowser;
         class TabBook;
@@ -42,6 +43,7 @@ namespace TrenchBroom {
         class InfoPanel : public wxPanel {
         private:
             TabBook* m_tabBook;
+            ContainerBar* m_tabBar;
             Console* m_console;
             IssueBrowser* m_issueBrowser;
         public:

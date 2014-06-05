@@ -59,7 +59,7 @@ namespace TrenchBroom {
         }
 
         TabBar::TabBar(wxWindow* parent, TabBook* tabBook) :
-        ContainerBar(parent, wxTOP | wxBOTTOM),
+        wxPanel(parent),
         m_tabBook(tabBook),
         m_barBook(new wxSimplebook(this)),
         m_controlSizer(new wxBoxSizer(wxHORIZONTAL)) {
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             SetSizer(outerSizer);
         }
         
-        void TabBar::addTab(const wxString& title, TabBookPage* bookPage) {
+        void TabBar::addTab(TabBookPage* bookPage, const wxString& title) {
             assert(bookPage != NULL);
             
             TabBarButton* button = new TabBarButton(this, title);

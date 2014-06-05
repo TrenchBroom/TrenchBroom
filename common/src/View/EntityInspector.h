@@ -21,9 +21,8 @@
 #define __TrenchBroom__EntityInspector__
 
 #include "View/GLContextHolder.h"
+#include "View/TabBook.h"
 #include "View/ViewTypes.h"
-
-#include <wx/panel.h>
 
 class wxButton;
 class wxCollapsiblePaneEvent;
@@ -39,7 +38,7 @@ namespace TrenchBroom {
         class EntityDefinitionFileChooser;
         class EntityPropertyEditor;
         
-        class EntityInspector : public wxPanel {
+        class EntityInspector : public TabBookPage {
         private:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;

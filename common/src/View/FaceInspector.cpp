@@ -38,7 +38,7 @@
 namespace TrenchBroom {
     namespace View {
         FaceInspector::FaceInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) :
-        wxPanel(parent),
+        TabBookPage(parent),
         m_document(document),
         m_controller(controller) {
             createGui(sharedContext);

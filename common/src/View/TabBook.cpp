@@ -49,7 +49,7 @@ namespace TrenchBroom {
             return m_tabBar;
         }
 
-        void TabBook::addPage(const wxString& title, TabBookPage* page) {
+        void TabBook::addPage(TabBookPage* page, const wxString& title) {
             assert(page != NULL);
             assert(page->GetParent() == this);
             
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             page->Reparent(m_tabBook);
             m_tabBook->AddPage(page, title);
             
-            m_tabBar->addTab(title, page);
+            m_tabBar->addTab(page, title);
         }
 
         void TabBook::switchToPage(const size_t index) {

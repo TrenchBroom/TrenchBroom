@@ -22,30 +22,31 @@
 #include "View/EntityInspector.h"
 #include "View/FaceInspector.h"
 #include "View/MapInspector.h"
+#include "View/TabBook.h"
+#include "View/TabBar.h"
 
-#include <wx/notebook.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
     namespace View {
         Inspector::Inspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
-        wxPanel(parent) {
-            m_notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxNB_TOP | wxCLIP_CHILDREN);
-            m_mapInspector = new MapInspector(m_notebook, sharedContext, document, controller, camera);
-            m_entityInspector = new EntityInspector(m_notebook, sharedContext, document, controller);
-            m_faceInspector = new FaceInspector(m_notebook, sharedContext, document, controller);
+        wxPanel(parent),
+        m_tabBook(new TabBook(this, this)),
+        m_mapInspector(new MapInspector(m_tabBook, sharedContext, document, controller, camera)),
+        m_entityInspector(new EntityInspector(m_tabBook, sharedContext, document, controller)),
+        m_faceInspector(new FaceInspector(m_tabBook, sharedContext, document, controller)) {
+            m_tabBook->addPage(m_mapInspector, "Map");
+            m_tabBook->addPage(m_entityInspector, "Entity");
+            m_tabBook->addPage(m_faceInspector, "Face");
             
-            m_notebook->AddPage(m_mapInspector, "Map");
-            m_notebook->AddPage(m_entityInspector, "Entity");
-            m_notebook->AddPage(m_faceInspector, "Face");
-            
-            wxSizer* notebookSizer = new wxBoxSizer(wxVERTICAL);
-            notebookSizer->Add(m_notebook, 1, wxEXPAND);
-            SetSizer(notebookSizer);
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_tabBook->tabBar(), 0, wxEXPAND);
+            sizer->Add(m_tabBook, 1, wxEXPAND);
+            SetSizer(sizer);
         }
 
         void Inspector::switchToPage(const InspectorPage page) {
-            m_notebook->SetSelection(static_cast<size_t>(page));
+            m_tabBook->switchToPage(static_cast<size_t>(page));
         }
     }
 }

@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             TabBar* tabBar() const;
             
-            void addPage(const wxString& title, TabBookPage* page);
+            void addPage(TabBookPage* page, const wxString& title);
             void switchToPage(size_t index);
             
             void OnTabBookPageChanged(wxBookCtrlEvent& event);

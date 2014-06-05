@@ -21,9 +21,8 @@
 #define __TrenchBroom__MapInspector__
 
 #include "View/GLContextHolder.h"
+#include "View/TabBook.h"
 #include "View/ViewTypes.h"
-
-#include <wx/panel.h>
 
 class wxCollapsiblePaneEvent;
 class wxWindow;
@@ -37,7 +36,7 @@ namespace TrenchBroom {
         class MapTreeView;
         class ModEditor;
         
-        class MapInspector : public wxPanel {
+        class MapInspector : public TabBookPage {
         public:
             MapInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
 

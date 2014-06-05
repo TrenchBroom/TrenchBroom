@@ -34,7 +34,7 @@
 namespace TrenchBroom {
     namespace View {
         EntityInspector::EntityInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) :
-        wxPanel(parent),
+        TabBookPage(parent),
         m_document(document),
         m_controller(controller) {
             createGui(parent, sharedContext, m_document, m_controller);

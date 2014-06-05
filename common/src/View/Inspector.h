@@ -26,8 +26,6 @@
 
 #include <wx/panel.h>
 
-class wxNotebook;
-
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
@@ -37,10 +35,11 @@ namespace TrenchBroom {
         class EntityInspector;
         class FaceInspector;
         class MapInspector;
+        class TabBook;
         
         class Inspector : public wxPanel {
         private:
-            wxNotebook* m_notebook;
+            TabBook* m_tabBook;
             MapInspector* m_mapInspector;
             EntityInspector* m_entityInspector;
             FaceInspector* m_faceInspector;

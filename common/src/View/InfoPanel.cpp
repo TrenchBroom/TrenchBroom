@@ -22,6 +22,7 @@
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "View/Console.h"
+#include "View/ContainerBar.h"
 #include "View/IssueBrowser.h"
 #include "View/TabBar.h"
 #include "View/TabBook.h"
@@ -35,15 +36,21 @@ namespace TrenchBroom {
         InfoPanel::InfoPanel(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxPanel(parent),
         m_tabBook(NULL),
+        m_tabBar(NULL),
         m_console(NULL),
         m_issueBrowser(NULL) {
-            m_tabBook = new TabBook(this, parent);
+            m_tabBar = new ContainerBar(parent, wxTOP | wxBOTTOM);
+            m_tabBook = new TabBook(this, m_tabBar);
+
+            wxSizer* tabBarSizer = new wxBoxSizer(wxVERTICAL);
+            tabBarSizer->Add(m_tabBook->tabBar(), 1, wxEXPAND);
+            m_tabBar->SetSizer(tabBarSizer);
             
             m_console = new Console(m_tabBook);
             m_issueBrowser = new IssueBrowser(m_tabBook, document, controller);
             
-            m_tabBook->addPage("Console", m_console);
-            m_tabBook->addPage("Issues", m_issueBrowser);
+            m_tabBook->addPage(m_console, "Console");
+            m_tabBook->addPage(m_issueBrowser, "Issues");
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_tabBook, 1, wxEXPAND);
@@ -51,7 +58,7 @@ namespace TrenchBroom {
         }
 
         wxWindow* InfoPanel::tabBar() const {
-            return m_tabBook->tabBar();
+            return m_tabBar;
         }
 
         Console* InfoPanel::console() const {
