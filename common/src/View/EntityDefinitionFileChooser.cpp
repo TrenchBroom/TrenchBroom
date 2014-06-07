@@ -25,6 +25,7 @@
 #include "Model/EntityDefinitionFileSpec.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "View/BorderLine.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/ControllerFacade.h"
 #include "View/ViewConstants.h"
@@ -95,32 +96,53 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::createGui() {
-            wxStaticText* builtinHeader = new wxStaticText(this, wxID_ANY, "Builtin");
-            m_builtin = new wxListBox(this, wxID_ANY);
-            
-            wxStaticText* externalHeader = new wxStaticText(this, wxID_ANY, "External");
-            m_external = new wxStaticText(this, wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
-            m_chooseExternal = new wxButton(this, wxID_ANY, "Browse...");
-
-            wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
-            externalSizer->Add(m_external, 1, wxEXPAND);
-            externalSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
-#if defined __APPLE__
-            externalSizer->Add(m_chooseExternal, 0, wxALL, 1);
+            static const int ListBoxMargin =
+#ifdef __APPLE__
+            0;
 #else
-            externalSizer->Add(m_chooseExternal);
+            LayoutConstants::BarHorizontalMargin;
+#endif
+
+            const wxFont font =
+#if defined __APPLE__
+            *wxSMALL_FONT;
+#else
+            *wxNORMAL_FONT;
 #endif
             
+            wxStaticText* builtinHeader = new wxStaticText(this, wxID_ANY, "Builtin");
+            builtinHeader->SetFont(font.Bold());
+
+            m_builtin = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxBORDER_NONE);
+            m_builtin->SetFont(font);
+            
+            wxStaticText* externalHeader = new wxStaticText(this, wxID_ANY, "External");
+            externalHeader->SetFont(font.Bold());
+            
+            m_external = new wxStaticText(this, wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            m_external->SetFont(font);
+            
+            m_chooseExternal = new wxButton(this, wxID_ANY, "Browse...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_chooseExternal->SetFont(font);
+
+            wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
+            externalSizer->AddSpacer(LayoutConstants::TitleBarHorizontalMargin);
+            externalSizer->Add(m_external, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
+            externalSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            externalSizer->Add(m_chooseExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
+            externalSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(builtinHeader);
-            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin / 2);
-            sizer->Add(m_builtin, 1, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            sizer->Add(externalHeader);
-            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin / 2);
+            sizer->Add(builtinHeader, 0, wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
+            sizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            sizer->Add(m_builtin, 1, wxEXPAND | wxLEFT | wxRIGHT, ListBoxMargin);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->Add(externalHeader, 0, wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
+            sizer->AddSpacer(LayoutConstants::BarVerticalMargin);
             sizer->Add(externalSizer, 0, wxEXPAND);
             sizer->SetItemMinSize(m_builtin, 100, 70);
             
+            SetBackgroundColour(*wxWHITE);
             SetSizerAndFit(sizer);
         }
         

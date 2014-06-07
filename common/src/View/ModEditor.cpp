@@ -27,6 +27,7 @@
 #include "Model/Object.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "View/BorderLine.h"
 #include "View/ControllerFacade.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
@@ -178,54 +179,73 @@ namespace TrenchBroom {
         }
 
         void ModEditor::createGui() {
-            wxStaticText* availableModListTitle = new wxStaticText(this, wxID_ANY, "Available");
-            wxStaticText* enabledModListTitle = new wxStaticText(this, wxID_ANY, "Enabled");
-#if defined __APPLE__
-            availableModListTitle->SetFont(*wxSMALL_FONT);
-            enabledModListTitle->SetFont(*wxSMALL_FONT);
+            static const int ListBoxMargin =
+#ifdef __APPLE__
+            0;
+#else
+            LayoutConstants::BarHorizontalMargin;
 #endif
             
-            m_availableModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
-            m_enabledModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
+            wxStaticText* availableModListTitle = new wxStaticText(this, wxID_ANY, "Available");
+            wxStaticText* enabledModListTitle = new wxStaticText(this, wxID_ANY, "Enabled");
             
+            m_availableModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
+            m_enabledModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
+            
+#if defined __APPLE__
+            m_availableModList->SetFont(*wxSMALL_FONT);
+            m_enabledModList->SetFont(*wxSMALL_FONT);
+#endif
+            availableModListTitle->SetFont(m_availableModList->GetFont().Bold());
+            enabledModListTitle->SetFont(m_enabledModList->GetFont().Bold());
+
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->SetToolTip("Filter the list of available mods");
+            m_filterBox->SetFont(m_availableModList->GetFont());
             
-            const wxBitmap addBitmap = IO::loadImageResource(IO::Path("images/Add.png"));
+            wxSizer* filterBoxSizer = new wxBoxSizer(wxVERTICAL);
+            filterBoxSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            filterBoxSizer->Add(m_filterBox, 0, wxEXPAND);
+            filterBoxSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            
+            const wxBitmap addBitmap    = IO::loadImageResource(IO::Path("images/Add.png"));
             const wxBitmap removeBitmap = IO::loadImageResource(IO::Path("images/Remove.png"));
-            const wxBitmap upBitmap = IO::loadImageResource(IO::Path("images/Up.png"));
-            const wxBitmap downBitmap = IO::loadImageResource(IO::Path("images/Down.png"));
+            const wxBitmap upBitmap     = IO::loadImageResource(IO::Path("images/Up.png"));
+            const wxBitmap downBitmap   = IO::loadImageResource(IO::Path("images/Down.png"));
             
-            m_addModsButton = new wxBitmapButton(this, wxID_ANY, addBitmap);
+            m_addModsButton = new wxBitmapButton(this, wxID_ANY, addBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_addModsButton->SetToolTip("Add the selected available mods to the list of enabled mods");
-            m_removeModsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap);
+            m_removeModsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_removeModsButton->SetToolTip("Remove the selected items from the list of enabled mods");
-            m_moveModUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap);
+            m_moveModUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_moveModUpButton->SetToolTip("Move the selected mod up in the list of enabled mods");
-            m_moveModDownButton = new wxBitmapButton(this, wxID_ANY, downBitmap);
+            m_moveModDownButton = new wxBitmapButton(this, wxID_ANY, downBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_moveModDownButton->SetToolTip("Move the selected mod down in the list of enabled mods");
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(m_addModsButton);
-            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin / 2);
-            buttonSizer->Add(m_removeModsButton);
+            buttonSizer->Add(m_addModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
+            buttonSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            buttonSizer->Add(m_removeModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
             buttonSizer->AddStretchSpacer();
-            buttonSizer->Add(m_moveModUpButton);
-            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin / 2);
-            buttonSizer->Add(m_moveModDownButton);
+            buttonSizer->Add(m_moveModUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
+            buttonSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            buttonSizer->Add(m_moveModDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
             
-            wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::ControlVerticalMargin, LayoutConstants::ControlHorizontalMargin);
-            sizer->Add(availableModListTitle, wxGBPosition(0, 0));
-            sizer->Add(enabledModListTitle, wxGBPosition(0, 1));
-            sizer->Add(m_availableModList, wxGBPosition(1, 0), wxDefaultSpan, wxEXPAND);
-            sizer->Add(m_enabledModList, wxGBPosition(1, 1), wxDefaultSpan, wxEXPAND);
-            sizer->Add(m_filterBox, wxGBPosition(2, 0), wxDefaultSpan, wxEXPAND);
-            sizer->Add(buttonSizer, wxGBPosition(2, 1), wxDefaultSpan, wxEXPAND);
+            wxGridBagSizer* sizer = new wxGridBagSizer(0, 0);
+            sizer->Add(availableModListTitle, wxGBPosition(0, 0), wxDefaultSpan, wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
+            sizer->Add(enabledModListTitle, wxGBPosition(0, 2), wxDefaultSpan, wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
+            sizer->Add(m_availableModList, wxGBPosition(1, 0), wxDefaultSpan, wxEXPAND | wxLEFT, ListBoxMargin);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), wxGBPosition(0, 1), wxGBSpan(3, 1), wxEXPAND);
+            sizer->Add(m_enabledModList, wxGBPosition(1, 2), wxDefaultSpan, wxEXPAND | wxRIGHT, ListBoxMargin);
+            sizer->Add(filterBoxSizer, wxGBPosition(2, 0), wxDefaultSpan, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
+            sizer->Add(buttonSizer, wxGBPosition(2, 2), wxDefaultSpan, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
             sizer->SetItemMinSize(m_availableModList, 100, 100);
             sizer->SetItemMinSize(m_enabledModList, 100, 100);
             sizer->AddGrowableCol(0);
-            sizer->AddGrowableCol(1);
+            sizer->AddGrowableCol(2);
             sizer->AddGrowableRow(1);
+
+            SetBackgroundColour(*wxWHITE);
             SetSizerAndFit(sizer);
         }
         

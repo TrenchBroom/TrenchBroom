@@ -70,6 +70,21 @@ namespace TrenchBroom {
         }
 
         void EntityBrowser::createGui(GLContextHolder::Ptr sharedContext) {
+            wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
+            
+            MapDocumentSPtr document = lock(m_document);
+            m_view = new EntityBrowserView(browserPanel, m_scrollBar,
+                                           sharedContext,
+                                           document->entityDefinitionManager(),
+                                           document->entityModelManager(),
+                                           *document);
+            
+            wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
+            browserPanelSizer->Add(m_view, 1, wxEXPAND);
+            browserPanelSizer->Add(m_scrollBar, 0, wxEXPAND);
+            browserPanel->SetSizerAndFit(browserPanelSizer);
+            
             const wxString sortOrders[2] = { "Name", "Usage" };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
@@ -86,7 +101,6 @@ namespace TrenchBroom {
             m_filterBox->Bind(wxEVT_TEXT, &EntityBrowser::OnFilterPatternChanged, this);
             
             wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
-            controlSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
             controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
             controlSizer->Add(m_sortOrderChoice, 0, wxEXPAND);
             controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
@@ -95,30 +109,15 @@ namespace TrenchBroom {
             controlSizer->Add(m_usedButton, 0, wxEXPAND);
             controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
             controlSizer->Add(m_filterBox, 1, wxEXPAND);
-            controlSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
-            
-            wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
-
-            MapDocumentSPtr document = lock(m_document);
-            m_view = new EntityBrowserView(browserPanel, m_scrollBar,
-                                           sharedContext,
-                                           document->entityDefinitionManager(),
-                                           document->entityModelManager(),
-                                           *document);
-            
-            wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
-            browserPanelSizer->Add(m_view, 1, wxEXPAND);
-            browserPanelSizer->Add(m_scrollBar, 0, wxEXPAND);
-            browserPanel->SetSizerAndFit(browserPanelSizer);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            outerSizer->Add(controlSizer, 0, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
             outerSizer->Add(browserPanel, 1, wxEXPAND);
+            outerSizer->AddSpacer(LayoutConstants::TitleBarVerticalMargin);
+            outerSizer->Add(controlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
+            outerSizer->AddSpacer(LayoutConstants::TitleBarVerticalMargin);
             
-            SetSizerAndFit(outerSizer);
+            SetBackgroundColour(*wxWHITE);
+            SetSizer(outerSizer);
         }
         
         void EntityBrowser::bindObservers() {

@@ -974,14 +974,10 @@ namespace TrenchBroom {
             containerSizer->Add(m_mapView, 1, wxEXPAND);
             mapViewContainer->SetSizer(containerSizer);
             
-            verticalSplitter->splitHorizontally(mapViewContainer, m_infoPanel);
-            verticalSplitter->setMinSize(mapViewContainer, wxSize(100, 100));
-            verticalSplitter->setMinSize(m_infoPanel, wxSize(100, 100));
+            verticalSplitter->splitHorizontally(mapViewContainer, m_infoPanel, wxSize(100, 100), wxSize(100, 100));
             
             m_inspector = new Inspector(horizontalSplitter, m_mapView->contextHolder(), m_document, m_controller, m_camera3D);
-            horizontalSplitter->splitVertically(verticalSplitter, m_inspector);
-            horizontalSplitter->setMinSize(verticalSplitter, wxSize(350, 100));
-            horizontalSplitter->setMinSize(m_inspector, wxSize(350, 100));
+            horizontalSplitter->splitVertically(verticalSplitter, m_inspector, wxSize(350, 100), wxSize(350, 100));
 
             m_statusBar = new StatusBar(this, m_document, m_infoPanel->console());
             

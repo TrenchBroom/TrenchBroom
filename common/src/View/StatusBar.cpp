@@ -22,13 +22,13 @@
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/IssueManager.h"
+#include "View/BorderLine.h"
 #include "View/Console.h"
 #include "View/Grid.h"
 #include "View/ImagePanel.h"
 #include "View/MapDocument.h"
 
 #include <wx/sizer.h>
-#include <wx/statline.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
@@ -39,8 +39,6 @@ namespace TrenchBroom {
         m_gridSize(32),
         m_textureLock(true),
         m_issueCount(0) {
-            wxStaticLine* line = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL);
-            
             m_gridIconPanel = new ImagePanel(this);
             m_gridIconPanel->SetImage(IO::loadImageResource(IO::Path("images/Grid.png")));
             m_gridSizeText = new wxStaticText(this, wxID_ANY, "Size 32");
@@ -66,28 +64,28 @@ namespace TrenchBroom {
             innerSizer->AddSpacer(1);
             innerSizer->Add(m_gridSizeText);
             innerSizer->AddSpacer(1);
-            innerSizer->Add(new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL), 0, wxEXPAND);
+            innerSizer->AddSpacer(5);
             
             innerSizer->Add(m_textureLockIconPanel);
             innerSizer->Add(m_textureLockText);
             innerSizer->AddSpacer(1);
-            innerSizer->Add(new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL), 0, wxEXPAND);
+            innerSizer->AddSpacer(5);
             innerSizer->AddSpacer(1);
 
             innerSizer->Add(m_issuesIconPanel);
             innerSizer->AddSpacer(1);
             innerSizer->Add(m_issuesText);
             innerSizer->AddSpacer(1);
-            innerSizer->Add(new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL), 0, wxEXPAND);
+            innerSizer->AddSpacer(5);
             innerSizer->AddSpacer(1);
 
             innerSizer->Add(m_message, 1, wxEXPAND);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(line, 0, wxEXPAND);
+            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             outerSizer->Add(innerSizer, 1, wxEXPAND);
             outerSizer->SetItemMinSize(innerSizer, wxDefaultSize.x, 18);
-            SetSizerAndFit(outerSizer);
+            SetSizer(outerSizer);
             
             console->logNotifier.addObserver(this, &StatusBar::log);
             

@@ -52,6 +52,7 @@ namespace TrenchBroom {
             sizer->Add(m_propertyGrid, 1, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(m_smartEditorManager, 0, wxEXPAND);
+            sizer->SetItemMinSize(m_propertyGrid, 100, 200);
             sizer->SetItemMinSize(m_smartEditorManager, 100, 120);
             SetSizer(sizer);
             

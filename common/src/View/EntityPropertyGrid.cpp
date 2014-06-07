@@ -168,7 +168,6 @@ namespace TrenchBroom {
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_grid, 1, wxEXPAND);
-            sizer->SetItemMinSize(m_grid, wxDefaultSize.x, 300);
             SetSizer(sizer);
         }
         

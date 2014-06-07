@@ -48,7 +48,7 @@ namespace TrenchBroom {
             Bind(wxEVT_PAINT, &SplitterWindow::OnPaint, this);
         }
         
-        void SplitterWindow::splitHorizontally(wxWindow* left, wxWindow* right) {
+        void SplitterWindow::splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin, const wxSize& rightMin) {
             assert(left != NULL);
             assert(left->GetParent() == this);
             assert(right != NULL);
@@ -61,9 +61,12 @@ namespace TrenchBroom {
             
             for (size_t i = 0; i < 2; ++i)
                 bindMouseEventsRecurse(m_windows[i]);
+            
+            setMinSize(left, leftMin);
+            setMinSize(right, rightMin);
         }
         
-        void SplitterWindow::splitVertically(wxWindow* top, wxWindow* bottom) {
+        void SplitterWindow::splitVertically(wxWindow* top, wxWindow* bottom, const wxSize& topMin, const wxSize& bottomMin) {
             assert(top != NULL);
             assert(top->GetParent() == this);
             assert(bottom != NULL);
@@ -76,6 +79,9 @@ namespace TrenchBroom {
             
             for (size_t i = 0; i < 2; ++i)
                 bindMouseEventsRecurse(m_windows[i]);
+            
+            setMinSize(top, topMin);
+            setMinSize(bottom, bottomMin);
         }
         
         void SplitterWindow::bindMouseEventsRecurse(wxWindow* window) {

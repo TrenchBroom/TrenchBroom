@@ -51,8 +51,8 @@ namespace TrenchBroom {
         public:
             SplitterWindow(wxWindow* parent);
             
-            void splitHorizontally(wxWindow* left, wxWindow* right);
-            void splitVertically(wxWindow* top, wxWindow* bottom);
+            void splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin = wxDefaultSize, const wxSize& rightMin = wxDefaultSize);
+            void splitVertically(wxWindow* top, wxWindow* bottom, const wxSize& topMin = wxDefaultSize, const wxSize& bottomMin = wxDefaultSize);
         private:
             void bindMouseEventsRecurse(wxWindow* window);
             void bindMouseEvents(wxWindow* window);

@@ -48,10 +48,8 @@ namespace TrenchBroom {
             EntityDefinitionFileChooser* m_entityDefinitionFileChooser;
         public:
             EntityInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
-
-            void OnEntityDefinitionFileChooserPaneChanged(wxCollapsiblePaneEvent& event);
         private:
-            void createGui(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
+            void createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
             wxWindow* createPropertyEditor(wxWindow* parent);
             wxWindow* createEntityBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext);
             wxWindow* createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);

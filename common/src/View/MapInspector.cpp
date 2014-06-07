@@ -20,12 +20,13 @@
 #include "MapInspector.h"
 
 #include "View/BorderLine.h"
+#include "View/CollapsibleTitledPanel.h"
 #include "View/MapTreeView.h"
 #include "View/MiniMap.h"
 #include "View/ModEditor.h"
+#include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-#include <wx/collpane.h>
 #include <wx/notebook.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
@@ -62,12 +63,20 @@ namespace TrenchBroom {
         }
 
         wxWindow* MapInspector::createMapTree(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
-            return new MapTreeView(parent, document, controller);
+            TitledPanel* titledPanel = new TitledPanel(parent, "Map Structure");
+            MapTreeView* treeView = new MapTreeView(titledPanel->getPanel(), document, controller);
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(treeView, 1, wxEXPAND);
+            titledPanel->getPanel()->SetSizer(sizer);
+            
+            return titledPanel;
         }
         
         wxWindow* MapInspector::createModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
-            wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, "Mods", wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
-            
+            CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(parent, "Mods", false);
+
+			/*
 #if defined _WIN32
             // this is a hack to prevent the pane having the wrong background color on Windows 7
             wxNotebook* book = static_cast<wxNotebook*>(GetParent());
@@ -77,15 +86,15 @@ namespace TrenchBroom {
                 collPane->GetPane()->SetBackgroundColour(col);
             }
 #endif
+			*/
             
-            ModEditor* modEditor = new ModEditor(collPane->GetPane(), document, controller);
+            ModEditor* modEditor = new ModEditor(titledPanel->getPanel(), document, controller);
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(modEditor, 1, wxEXPAND);
-            collPane->GetPane()->SetSizerAndFit(sizer);
+            titledPanel->getPanel()->SetSizerAndFit(sizer);
             
-            collPane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &MapInspector::OnPaneChanged, this);
-            return collPane;
+            return titledPanel;
         }
     }
 }

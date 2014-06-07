@@ -25,8 +25,6 @@
 #include "View/TabBook.h"
 #include "View/ViewTypes.h"
 
-class wxCollapsiblePaneEvent;
-class wxSplitterWindow;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -47,7 +45,6 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             
-            wxSplitterWindow* m_splitter;
             FaceAttribsEditor* m_faceAttribsEditor;
             TextureBrowser* m_textureBrowser;
             TextureCollectionEditor* m_textureCollectionEditor;
@@ -55,11 +52,9 @@ namespace TrenchBroom {
             FaceInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
 
             void OnTextureSelected(TextureSelectedCommand& event);
-            void OnTextureCollectionEditorPaneChanged(wxCollapsiblePaneEvent& event);
         private:
             void createGui(GLContextHolder::Ptr sharedContext);
             wxWindow* createFaceAttribsEditor(wxWindow* parent, GLContextHolder::Ptr sharedContext);
-            wxWindow* createTexturePanel(wxWindow* parent, GLContextHolder::Ptr sharedContext);
             wxWindow* createTextureBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext);
             wxWindow* createTextureCollectionEditor(wxWindow* parent);
             

@@ -22,18 +22,19 @@
 #include "Controller/EntityPropertyCommand.h"
 #include "Model/Entity.h"
 #include "Model/Object.h"
+#include "View/BorderLine.h"
+#include "View/CollapsibleTitledPanel.h"
 #include "View/ControllerFacade.h"
 #include "View/FaceAttribsEditor.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
+#include "View/SplitterWindow.h"
 #include "View/TextureBrowser.h"
 #include "View/TextureCollectionEditor.h"
 #include "View/TextureSelectedCommand.h"
 
-#include <wx/collpane.h>
 #include <wx/notebook.h>
 #include <wx/sizer.h>
-#include <wx/splitter.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -52,38 +53,18 @@ namespace TrenchBroom {
                 event.Veto();
         }
 
-        void FaceInspector::OnTextureCollectionEditorPaneChanged(wxCollapsiblePaneEvent& event) {
-            m_splitter->GetWindow1()->Layout();
-            m_splitter->GetWindow2()->Layout();
-            Layout();
-        }
-
         void FaceInspector::createGui(GLContextHolder::Ptr sharedContext) {
-            m_splitter = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_LIVE_UPDATE | wxSP_3DSASH);
-            wxWindow* faceAttribsEditor = createFaceAttribsEditor(m_splitter, sharedContext);
-            wxWindow* texturePanel = createTexturePanel(m_splitter, sharedContext);
-
-            m_splitter->SetSashGravity(0.0f);
-            m_splitter->SetMinimumPaneSize(250);
-            m_splitter->SplitHorizontally(faceAttribsEditor, texturePanel);
-
+            SplitterWindow* splitter = new SplitterWindow(this);
+            splitter->setSashGravity(0.0f);
+            splitter->splitHorizontally(createFaceAttribsEditor(splitter, sharedContext),
+                                        createTextureBrowser(splitter, sharedContext),
+                                        wxSize(100, 250), wxSize(100, 250));
+            
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(m_splitter, 1, wxEXPAND);
+            outerSizer->Add(splitter, 1, wxEXPAND);
+            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            outerSizer->Add(createTextureCollectionEditor(this), 0, wxEXPAND);
             SetSizer(outerSizer);
-        }
-        
-        wxWindow* FaceInspector::createTexturePanel(wxWindow* parent, GLContextHolder::Ptr sharedContext) {
-            wxPanel* browserPanel = new wxPanel(parent);
-            wxWindow* textureBrowser = createTextureBrowser(browserPanel, sharedContext);
-            wxWindow* collectionEditor = createTextureCollectionEditor(browserPanel);
-            
-            wxSizer* browserPanelSizer = new wxBoxSizer(wxVERTICAL);
-            browserPanelSizer->Add(textureBrowser, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            browserPanelSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            browserPanelSizer->Add(collectionEditor, 0, wxEXPAND | wxLEFT | wxBOTTOM | wxRIGHT, LayoutConstants::NotebookPageInnerMargin);
-            browserPanel->SetSizer(browserPanelSizer);
-            
-            return browserPanel;
         }
 
         wxWindow* FaceInspector::createFaceAttribsEditor(wxWindow* parent, GLContextHolder::Ptr sharedContext) {
@@ -97,26 +78,14 @@ namespace TrenchBroom {
         }
         
         wxWindow* FaceInspector::createTextureCollectionEditor(wxWindow* parent) {
-            wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, "Texture Collections", wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
-
-#if defined _WIN32
-            // this is a hack to prevent the pane having the wrong background color on Windows 7
-            wxNotebook* book = static_cast<wxNotebook*>(GetParent());
-            wxColour col = book->GetThemeBackgroundColour();
-            if (col.IsOk()) {
-                collPane->SetBackgroundColour(col);
-                collPane->GetPane()->SetBackgroundColour(col);
-            }
-#endif
-
-            m_textureCollectionEditor = new TextureCollectionEditor(collPane->GetPane(), m_document, m_controller);
+            CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Texture Collections", false);
+            m_textureCollectionEditor = new TextureCollectionEditor(panel->getPanel(), m_document, m_controller);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_textureCollectionEditor, 1, wxEXPAND);
-            collPane->GetPane()->SetSizerAndFit(sizer);
+            panel->getPanel()->SetSizer(sizer);
             
-            collPane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &FaceInspector::OnTextureCollectionEditorPaneChanged, this);
-            return collPane;
+            return panel;
         }
 
         void FaceInspector::bindEvents() {

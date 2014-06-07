@@ -21,13 +21,15 @@
 
 #include "StringUtils.h"
 #include "View/BorderLine.h"
+#include "View/CollapsibleTitledPanel.h"
 #include "View/EntityBrowser.h"
 #include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityPropertyEditor.h"
+#include "View/SplitterWindow.h"
+#include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
-#include <wx/collpane.h>
 #include <wx/event.h>
 #include <wx/notebook.h>
 #include <wx/sizer.h>
@@ -38,21 +40,22 @@ namespace TrenchBroom {
         TabBookPage(parent),
         m_document(document),
         m_controller(controller) {
-            createGui(parent, sharedContext, m_document, m_controller);
-        }
-        
-        void EntityInspector::OnEntityDefinitionFileChooserPaneChanged(wxCollapsiblePaneEvent& event) {
-            Layout();
+            createGui(sharedContext, m_document, m_controller);
         }
 
-        void EntityInspector::createGui(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) {
+        void EntityInspector::createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) {
+            SplitterWindow* splitter = new SplitterWindow(this);
+            splitter->setSashGravity(0.0);
+            
+            splitter->splitHorizontally(createPropertyEditor(splitter),
+                                        createEntityBrowser(splitter, sharedContext),
+                                        wxSize(100, 300), wxSize(100, 150));
+            
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(createPropertyEditor(this), 0, wxEXPAND);
-            outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            outerSizer->Add(createEntityBrowser(this, sharedContext), 1, wxEXPAND);
+            outerSizer->Add(splitter, 1, wxEXPAND);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             outerSizer->Add(createEntityDefinitionFileChooser(this, document, controller), 0, wxEXPAND);
-            SetSizerAndFit(outerSizer);
+            SetSizer(outerSizer);
         }
         
         wxWindow* EntityInspector::createPropertyEditor(wxWindow* parent) {
@@ -61,31 +64,25 @@ namespace TrenchBroom {
         }
         
         wxWindow* EntityInspector::createEntityBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext) {
-            m_entityBrowser = new EntityBrowser(parent, sharedContext, m_document);
-            return m_entityBrowser;
+            TitledPanel* panel = new TitledPanel(parent, "Entity Browser");
+            m_entityBrowser = new EntityBrowser(panel->getPanel(), sharedContext, m_document);
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_entityBrowser, 1, wxEXPAND);
+            panel->getPanel()->SetSizer(sizer);
+            
+            return panel;
         }
         
         wxWindow* EntityInspector::createEntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
-            wxCollapsiblePane* collPane = new wxCollapsiblePane(parent, wxID_ANY, "Entity Definitions", wxDefaultPosition, wxDefaultSize, wxCP_NO_TLW_RESIZE | wxTAB_TRAVERSAL | wxBORDER_NONE);
-
-#if defined _WIN32
-            // this is a hack to prevent the pane having the wrong background color on Windows 7
-            wxNotebook* book = static_cast<wxNotebook*>(GetParent());
-            wxColour col = book->GetThemeBackgroundColour();
-            if (col.IsOk()) {
-                collPane->SetBackgroundColour(col);
-                collPane->GetPane()->SetBackgroundColour(col);
-            }
-#endif
-
-            m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(collPane->GetPane(), document, controller);
+            CollapsibleTitledPanel* panel = new CollapsibleTitledPanel(parent, "Entity Definitions", false);
+            m_entityDefinitionFileChooser = new EntityDefinitionFileChooser(panel->getPanel(), document, controller);
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_entityDefinitionFileChooser, 1, wxEXPAND);
-            collPane->GetPane()->SetSizerAndFit(sizer);
-            
-            collPane->Bind(wxEVT_COLLAPSIBLEPANE_CHANGED, &EntityInspector::OnEntityDefinitionFileChooserPaneChanged, this);
-            return collPane;
+            panel->getPanel()->SetSizer(sizer);
+
+            return panel;
         }
     }
 }

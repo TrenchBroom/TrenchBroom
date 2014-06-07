@@ -476,6 +476,8 @@ namespace TrenchBroom {
                     attr->SetFont(GetView()->GetFont().MakeItalic());
                     attr->SetReadOnly();
                 } else {
+                    attr->SetFont(GetView()->GetFont());
+                    
                     const String& key = m_rows.key(rowIndex);
                     const bool subset = m_rows.subset(rowIndex);
                     const bool readonly = !Model::isPropertyKeyMutable(key) || !Model::isPropertyValueMutable(key);
@@ -490,6 +492,8 @@ namespace TrenchBroom {
                 if (m_rows.isDefaultRow(rowIndex)) {
                     attr->SetFont(GetView()->GetFont().MakeItalic());
                 } else {
+                    attr->SetFont(GetView()->GetFont());
+
                     const String& key = m_rows.key(rowIndex);
                     const bool multi = m_rows.multi(rowIndex);
                     const bool readonly = !Model::isPropertyValueMutable(key);

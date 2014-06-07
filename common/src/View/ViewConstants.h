@@ -50,6 +50,8 @@ namespace TrenchBroom {
             static const int TabBarBarLeftMargin                = 10;
             static const int BarHorizontalMargin                = 2;
             static const int BarVerticalMargin                  = 2;
+            static const int TitleBarHorizontalMargin           = 2;
+            static const int TitleBarVerticalMargin             = 2;
 #elif defined __APPLE__
             static const int NotebookPageInnerMargin            = 5;
             static const int NotebookPageExtraBottomMargin      = 2;
@@ -76,6 +78,8 @@ namespace TrenchBroom {
             static const int TabBarBarLeftMargin                = 10;
             static const int BarHorizontalMargin                = 4;
             static const int BarVerticalMargin                  = 2;
+            static const int TitleBarHorizontalMargin           = 2;
+            static const int TitleBarVerticalMargin             = 2;
 #elif defined __linux__
             static const int NotebookPageInnerMargin            = 5;
             static const int NotebookPageExtraBottomMargin      = 2;
@@ -101,6 +105,8 @@ namespace TrenchBroom {
             static const int TabBarBarLeftMargin                = 10;
             static const int BarHorizontalMargin                = 2;
             static const int BarVerticalMargin                  = 2;
+            static const int TitleBarHorizontalMargin           = 2;
+            static const int TitleBarVerticalMargin             = 2;
 #endif
             static const int MinPreferenceLabelWidth            = 100;
             static const int HighlightBoxMargin                 = 5;

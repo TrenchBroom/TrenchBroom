@@ -150,37 +150,52 @@ namespace TrenchBroom {
         }
 
         void TextureCollectionEditor::createGui() {
-            m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE);
+            static const int ListBoxMargin =
+#ifdef __APPLE__
+            0;
+#else
+            LayoutConstants::BarHorizontalMargin;
+#endif
+            
+            const wxFont font =
+#if defined __APPLE__
+            *wxSMALL_FONT;
+#else
+            *wxNORMAL_FONT;
+#endif
+
+            m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
+            m_collections->SetFont(font);
 
             const wxBitmap addBitmap = IO::loadImageResource(IO::Path("images/Add.png"));
             const wxBitmap removeBitmap = IO::loadImageResource(IO::Path("images/Remove.png"));
             const wxBitmap upBitmap = IO::loadImageResource(IO::Path("images/Up.png"));
             const wxBitmap downBitmap = IO::loadImageResource(IO::Path("images/Down.png"));
             
-            m_addTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, addBitmap);
+            m_addTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, addBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_addTextureCollectionsButton->SetToolTip("Add texture collections from the file system");
-            m_removeTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap);
+            m_removeTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_removeTextureCollectionsButton->SetToolTip("Remove the selected texture collection(s)");
-            m_moveTextureCollectionUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap);
+            m_moveTextureCollectionUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_moveTextureCollectionUpButton->SetToolTip("Move the selected texture collection up in the list");
-            m_moveTextureCollectionDownButton = new wxBitmapButton(this, wxID_ANY, downBitmap);
+            m_moveTextureCollectionDownButton = new wxBitmapButton(this, wxID_ANY, downBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_moveTextureCollectionDownButton->SetToolTip("Move the selected texture collection down in the list");
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(m_addTextureCollectionsButton);
-            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin / 2);
-            buttonSizer->Add(m_removeTextureCollectionsButton);
+            buttonSizer->Add(m_addTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
+            buttonSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            buttonSizer->Add(m_removeTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
             buttonSizer->AddStretchSpacer();
-            buttonSizer->Add(m_moveTextureCollectionUpButton);
-            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin / 2);
-            buttonSizer->Add(m_moveTextureCollectionDownButton);
+            buttonSizer->Add(m_moveTextureCollectionUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
+            buttonSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            buttonSizer->Add(m_moveTextureCollectionDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_collections, 1, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
-            sizer->Add(buttonSizer, 0, wxEXPAND);
+            sizer->Add(m_collections, 1, wxEXPAND | wxLEFT | wxRIGHT, ListBoxMargin);
+            sizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
             sizer->SetItemMinSize(m_collections, 100, 70);
             
+            SetBackgroundColour(*wxWHITE);
             SetSizerAndFit(sizer);
         }
         
