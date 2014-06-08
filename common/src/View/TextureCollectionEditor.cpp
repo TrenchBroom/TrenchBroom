@@ -156,16 +156,8 @@ namespace TrenchBroom {
 #else
             LayoutConstants::BarHorizontalMargin;
 #endif
-            
-            const wxFont font =
-#if defined __APPLE__
-            *wxSMALL_FONT;
-#else
-            *wxNORMAL_FONT;
-#endif
 
             m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
-            m_collections->SetFont(font);
 
             const wxBitmap addBitmap = IO::loadImageResource(IO::Path("images/Add.png"));
             const wxBitmap removeBitmap = IO::loadImageResource(IO::Path("images/Remove.png"));

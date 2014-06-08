@@ -103,27 +103,14 @@ namespace TrenchBroom {
             LayoutConstants::BarHorizontalMargin;
 #endif
 
-            const wxFont font =
-#if defined __APPLE__
-            *wxSMALL_FONT;
-#else
-            *wxNORMAL_FONT;
-#endif
-            
             wxStaticText* builtinHeader = new wxStaticText(this, wxID_ANY, "Builtin");
-            builtinHeader->SetFont(font.Bold());
-
+            builtinHeader->SetFont(builtinHeader->GetFont().Bold());
             m_builtin = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxBORDER_NONE);
-            m_builtin->SetFont(font);
             
             wxStaticText* externalHeader = new wxStaticText(this, wxID_ANY, "External");
-            externalHeader->SetFont(font.Bold());
-            
+            externalHeader->SetFont(externalHeader->GetFont().Bold());
             m_external = new wxStaticText(this, wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
-            m_external->SetFont(font);
-            
             m_chooseExternal = new wxButton(this, wxID_ANY, "Browse...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-            m_chooseExternal->SetFont(font);
 
             wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
             externalSizer->AddSpacer(LayoutConstants::TitleBarHorizontalMargin);

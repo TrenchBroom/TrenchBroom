@@ -46,6 +46,8 @@ namespace TrenchBroom {
         public:
             Inspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
             void switchToPage(InspectorPage page);
+            
+            void setTabBarHeight(int height);
         };
     }
 }

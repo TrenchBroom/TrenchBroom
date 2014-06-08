@@ -153,6 +153,11 @@ namespace TrenchBroom {
             return m_controller->openDocument(MapDocument::DefaultWorldBounds, game, path);
         }
 
+        void MapFrame::OnNavBarSize(wxSizeEvent& event) {
+            m_inspector->setTabBarHeight(event.GetSize().y);
+            event.Skip();
+        }
+
         void MapFrame::OnClose(wxCloseEvent& event) {
             if (!IsBeingDeleted()) {
                 assert(m_frameManager != NULL);
@@ -988,6 +993,8 @@ namespace TrenchBroom {
         }
         
         void MapFrame::bindEvents() {
+            m_navBar->Bind(wxEVT_SIZE, &MapFrame::OnNavBarSize, this);
+            
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnFileSave, this, wxID_SAVE);

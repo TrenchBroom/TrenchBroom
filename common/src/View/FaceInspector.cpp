@@ -43,6 +43,9 @@ namespace TrenchBroom {
         TabBookPage(parent),
         m_document(document),
         m_controller(controller) {
+#if defined __APPLE__
+            SetWindowVariant(wxWINDOW_VARIANT_SMALL);
+#endif
             createGui(sharedContext);
             bindEvents();
         }

@@ -35,6 +35,9 @@ namespace TrenchBroom {
     namespace View {
         MapInspector::MapInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
         TabBookPage(parent) {
+#if defined __APPLE__
+            SetWindowVariant(wxWINDOW_VARIANT_SMALL);
+#endif
             createGui(sharedContext, document, controller, camera);
         }
 

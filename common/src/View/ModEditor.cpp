@@ -187,17 +187,13 @@ namespace TrenchBroom {
 #endif
             
             wxStaticText* availableModListTitle = new wxStaticText(this, wxID_ANY, "Available");
+            availableModListTitle->SetFont(availableModListTitle->GetFont().Bold());
+
             wxStaticText* enabledModListTitle = new wxStaticText(this, wxID_ANY, "Enabled");
+            enabledModListTitle->SetFont(enabledModListTitle->GetFont().Bold());
             
             m_availableModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
             m_enabledModList = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
-            
-#if defined __APPLE__
-            m_availableModList->SetFont(*wxSMALL_FONT);
-            m_enabledModList->SetFont(*wxSMALL_FONT);
-#endif
-            availableModListTitle->SetFont(m_availableModList->GetFont().Bold());
-            enabledModListTitle->SetFont(m_enabledModList->GetFont().Bold());
 
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->SetToolTip("Filter the list of available mods");

@@ -47,8 +47,10 @@ namespace TrenchBroom {
         }
         
         void CollapsibleTitleBar::OnClick(wxMouseEvent& event) {
-            wxMouseEvent newEvent = event;
+			// TODO: this doesn't work properly on windows, where the mouse event is not handled in the CollapsibleTitledPanel
+            wxMouseEvent newEvent(event);
             newEvent.SetEventObject(this);
+            newEvent.SetId(GetId());
             ProcessEvent(newEvent);
         }
 

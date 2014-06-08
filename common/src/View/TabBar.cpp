@@ -75,7 +75,6 @@ namespace TrenchBroom {
             outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
             outerSizer->Add(m_controlSizer, 1, wxEXPAND);
             outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
-            outerSizer->SetMinSize(wxSize(wxDefaultSize.x, 24));
             
             SetSizer(outerSizer);
         }

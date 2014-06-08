@@ -31,10 +31,16 @@ namespace TrenchBroom {
     namespace View {
         Inspector::Inspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
         wxPanel(parent),
-        m_tabBook(new TabBook(this)),
-        m_mapInspector(new MapInspector(m_tabBook, sharedContext, document, controller, camera)),
-        m_entityInspector(new EntityInspector(m_tabBook, sharedContext, document, controller)),
-        m_faceInspector(new FaceInspector(m_tabBook, sharedContext, document, controller)) {
+        m_tabBook(NULL),
+        m_mapInspector(NULL),
+        m_entityInspector(NULL),
+        m_faceInspector(NULL) {
+            m_tabBook = new TabBook(this);
+
+            m_mapInspector = new MapInspector(m_tabBook, sharedContext, document, controller, camera);
+            m_entityInspector = new EntityInspector(m_tabBook, sharedContext, document, controller);
+            m_faceInspector = new FaceInspector(m_tabBook, sharedContext, document, controller);
+            
             m_tabBook->addPage(m_mapInspector, "Map");
             m_tabBook->addPage(m_entityInspector, "Entity");
             m_tabBook->addPage(m_faceInspector, "Face");
@@ -46,6 +52,10 @@ namespace TrenchBroom {
 
         void Inspector::switchToPage(const InspectorPage page) {
             m_tabBook->switchToPage(static_cast<size_t>(page));
+        }
+
+        void Inspector::setTabBarHeight(const int height) {
+            m_tabBook->setTabBarHeight(height);
         }
     }
 }

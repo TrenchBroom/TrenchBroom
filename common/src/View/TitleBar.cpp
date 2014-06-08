@@ -29,7 +29,7 @@ namespace TrenchBroom {
         TitleBar::TitleBar(wxWindow* parent, const wxString& title) :
         wxPanel(parent),
         m_titleText(new wxStaticText(this, wxID_ANY, title)) {
-            m_titleText->SetFont(wxSMALL_FONT->Bold());
+            m_titleText->SetFont(m_titleText->GetFont().Bold());
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->AddSpacer(LayoutConstants::TitleBarHorizontalMargin);
