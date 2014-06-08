@@ -51,6 +51,8 @@ namespace TrenchBroom {
 #endif
             version->SetForegroundColour(wxColor(128, 128, 128));
             
+            SetBackgroundColour(*wxWHITE);
+            
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(appIcon, 0, wxALIGN_CENTER_HORIZONTAL);
             sizer->Add(appName, 0, wxALIGN_CENTER_HORIZONTAL);

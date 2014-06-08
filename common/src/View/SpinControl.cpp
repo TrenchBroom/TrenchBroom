@@ -87,6 +87,11 @@ m_format("%g") {
     SetInitialSize(size);
     Move(pos);
 
+    Bind(wxEVT_MOUSEWHEEL, &SpinControl::OnMouseWheel, this);
+    m_text->Bind(wxEVT_MOUSEWHEEL, &SpinControl::OnMouseWheel, this);
+    m_spin->Bind(wxEVT_MOUSEWHEEL, &SpinControl::OnMouseWheel, this);
+    
+    m_text->Bind(wxEVT_KEY_DOWN, &SpinControl::OnTextKeyDown, this);
     m_text->Bind(wxEVT_COMMAND_TEXT_ENTER, &SpinControl::OnTextEnter, this);
     m_text->Bind(wxEVT_KILL_FOCUS, &SpinControl::OnTextKillFocus, this);
     m_spin->Bind(wxEVT_SPIN_UP, &SpinControl::OnSpinButtonUp, this);
@@ -209,6 +214,21 @@ bool SpinControl::SyncFromText() {
     return DoSetValue(textValue);
 }
 
+void SpinControl::OnTextKeyDown(wxKeyEvent& event) {
+    switch (event.GetKeyCode()) {
+        case WXK_UP:
+            Spin(+1.0, event);
+            event.Skip();
+            break;
+        case WXK_DOWN:
+            Spin(-1.0, event);
+            event.Skip();
+            break;
+        default:
+            break;
+    }
+}
+
 void SpinControl::OnTextEnter(wxCommandEvent& event) {
     if (SyncFromText())
         DoSendEvent(false, GetValue());
@@ -220,7 +240,24 @@ void SpinControl::OnTextKillFocus(wxFocusEvent& event) {
     event.Skip();
 }
 
-void SpinControl::OnSpinButton(bool up) {
+void SpinControl::OnSpinButtonUp(wxSpinEvent& event) {
+    Spin(+1.0, wxGetMouseState());
+}
+
+void SpinControl::OnSpinButtonDown(wxSpinEvent& event) {
+    Spin(-1.0, wxGetMouseState());
+}
+
+void SpinControl::OnMouseWheel(wxMouseEvent& event) {
+    double multiplier = event.GetWheelRotation() > 0 ? 1.0 : -1.0;
+#if defined __APPLE__
+    if (event.ShiftDown())
+        multiplier *= -1.0;
+#endif
+    Spin(multiplier, event);
+}
+
+void SpinControl::Spin(const double multiplier, const wxKeyboardState& keyboardState) {
     static const unsigned int SHIFT = 1;
     static const unsigned int ALT = 2;
     static const unsigned int META = 4;
@@ -228,16 +265,14 @@ void SpinControl::OnSpinButton(bool up) {
     
     double increment = 0.0f;
     
-    wxMouseState mouseState = wxGetMouseState();
     unsigned int keys = 0;
-    
-    if (mouseState.ShiftDown())
+    if (keyboardState.ShiftDown())
         keys |= SHIFT;
-    if (mouseState.AltDown())
+    if (keyboardState.AltDown())
         keys |= ALT;
-    if (mouseState.MetaDown())
+    if (keyboardState.MetaDown())
         keys |= META;
-    if (mouseState.ControlDown() || mouseState.CmdDown())
+    if (keyboardState.ControlDown() || keyboardState.CmdDown())
         keys |= CTRLCMD;
     
     if (keys == 0)
@@ -247,17 +282,8 @@ void SpinControl::OnSpinButton(bool up) {
     else if (keys == CTRLCMD)
         increment = m_ctrlIncrement;
     
-    if (!up)
-        increment *= -1.0;
+    increment *= multiplier;
     DoSendEvent(true, increment);
-}
-
-void SpinControl::OnSpinButtonUp(wxSpinEvent& event) {
-    OnSpinButton(true);
-}
-
-void SpinControl::OnSpinButtonDown(wxSpinEvent& event) {
-    OnSpinButton(false);
 }
 
 void SpinControl::OnSetFocus(wxFocusEvent& event) {

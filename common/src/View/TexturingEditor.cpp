@@ -53,20 +53,20 @@ namespace TrenchBroom {
             m_ySubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER);
             m_ySubDivisionEditor->SetRange(1, 16);
             
-            wxFlexGridSizer* bottomSizer = new wxFlexGridSizer(5, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
+            wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
             bottomSizer->Add(new wxStaticText(this, wxID_ANY, "Texture Grid"),  0, wxALIGN_CENTER_VERTICAL);
             bottomSizer->Add(new wxStaticText(this, wxID_ANY, "X:"),            0, wxALIGN_CENTER_VERTICAL);
             bottomSizer->Add(m_xSubDivisionEditor,                              0, wxALIGN_CENTER_VERTICAL);
             bottomSizer->Add(new wxStaticText(this, wxID_ANY, "Y:"),            0, wxALIGN_CENTER_VERTICAL);
             bottomSizer->Add(m_ySubDivisionEditor,                              0, wxALIGN_CENTER_VERTICAL);
-            bottomSizer->AddGrowableCol(2);
-            bottomSizer->AddGrowableCol(4);
             bottomSizer->SetItemMinSize(m_xSubDivisionEditor, 50, m_xSubDivisionEditor->GetSize().y);
             bottomSizer->SetItemMinSize(m_ySubDivisionEditor, 50, m_ySubDivisionEditor->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(m_texturingView, 1, wxEXPAND);
-            outerSizer->Add(bottomSizer, 0, wxALL, LayoutConstants::ControlMargin);
+            outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            outerSizer->Add(bottomSizer, 0, wxALIGN_RIGHT);
+            outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
             
             SetSizer(outerSizer);
         }

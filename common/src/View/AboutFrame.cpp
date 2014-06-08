@@ -63,6 +63,7 @@ namespace TrenchBroom {
             AppInfoPanel* infoPanel = new AppInfoPanel(this);
             
             wxPanel* creditsPanel = new wxPanel(this);
+            creditsPanel->SetBackgroundColour(*wxWHITE);
             
             wxStaticText* creditsText = new wxStaticText(creditsPanel, wxID_ANY, "Developed by Kristian Duske");
             creditsText->SetFont(creditsText->GetFont().Bold());

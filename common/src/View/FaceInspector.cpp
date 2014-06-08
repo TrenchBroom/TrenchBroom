@@ -32,6 +32,7 @@
 #include "View/TextureBrowser.h"
 #include "View/TextureCollectionEditor.h"
 #include "View/TextureSelectedCommand.h"
+#include "View/TitledPanel.h"
 
 #include <wx/notebook.h>
 #include <wx/sizer.h>
@@ -55,7 +56,7 @@ namespace TrenchBroom {
 
         void FaceInspector::createGui(GLContextHolder::Ptr sharedContext) {
             SplitterWindow* splitter = new SplitterWindow(this);
-            splitter->setSashGravity(0.0f);
+            splitter->setSashGravity(1.0f);
             splitter->splitHorizontally(createFaceAttribsEditor(splitter, sharedContext),
                                         createTextureBrowser(splitter, sharedContext),
                                         wxSize(100, 250), wxSize(100, 250));
@@ -73,8 +74,14 @@ namespace TrenchBroom {
         }
         
         wxWindow* FaceInspector::createTextureBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext) {
-            m_textureBrowser = new TextureBrowser(parent, sharedContext, m_document);
-            return m_textureBrowser;
+            TitledPanel* panel = new TitledPanel(parent, "Texture Browser");
+            m_textureBrowser = new TextureBrowser(panel->getPanel(), sharedContext, m_document);
+
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_textureBrowser, 1, wxEXPAND);
+            panel->getPanel()->SetSizer(sizer);
+            
+            return panel;
         }
         
         wxWindow* FaceInspector::createTextureCollectionEditor(wxWindow* parent) {

@@ -78,12 +78,15 @@ private:
     void DoSendEvent(bool spin, double value);
     bool SyncFromText();
     
+    void OnTextKeyDown(wxKeyEvent& event);
     void OnTextEnter(wxCommandEvent& event);
     void OnTextKillFocus(wxFocusEvent& event);
-    void OnSpinButton(bool up);
     void OnSpinButtonUp(wxSpinEvent& event);
     void OnSpinButtonDown(wxSpinEvent& event);
-    
+    void OnMouseWheel(wxMouseEvent& event);
+
+    void Spin(double multiplier, const wxKeyboardState& keyboardState);
+
     void OnSetFocus(wxFocusEvent& event);
 };
 
