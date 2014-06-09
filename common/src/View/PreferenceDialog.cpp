@@ -134,7 +134,11 @@ namespace TrenchBroom {
 #if !defined __APPLE__
 			wxStaticLine* toolBarDivider = new wxStaticLine(this);
             sizer->Add(toolBarDivider, 0, wxEXPAND);
+#if defined _WIN32
 			sizer->SetItemMinSize(toolBarDivider, wxDefaultSize.x, 5);
+#else
+			sizer->SetItemMinSize(toolBarDivider, wxDefaultSize.x, 1);
+#endif
 #endif
             
             sizer->Add(m_paneContainer, 1, wxEXPAND);
@@ -176,6 +180,7 @@ namespace TrenchBroom {
                 case PrefPane_First:
                 case PrefPane_General:
                     m_pane = new GeneralPreferencePane(m_paneContainer);
+                    break;
                 case PrefPane_Games:
                     m_pane = new GamesPreferencePane(m_paneContainer);
                     break;
@@ -187,8 +192,8 @@ namespace TrenchBroom {
             m_currentPane = pane;
             
             wxBoxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
-            containerSizer->Add(m_pane, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
-            m_paneContainer->SetSizerAndFit(containerSizer);
+            containerSizer->Add(m_pane, 1, wxEXPAND);
+            m_paneContainer->SetSizer(containerSizer);
             
             Fit();
 #if defined __APPLE__

@@ -32,7 +32,7 @@
 #include <wx/dirdlg.h>
 #include <wx/sizer.h>
 #include <wx/settings.h>
-#include <wx/statbox.h>
+#include <wx/statline.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
@@ -61,41 +61,46 @@ namespace TrenchBroom {
         }
 
         void GamesPreferencePane::createGui() {
-            m_gameListBox = new GameListBox(this, wxBORDER_THEME);
+            m_gameListBox = new GameListBox(this, wxBORDER_NONE);
             m_gameListBox->selectGame(0);
             
             wxWindow* gamePreferences = createGamePreferences();
             
-            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
-            outerSizer->Add(m_gameListBox, 0, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
-            outerSizer->Add(gamePreferences, 1, wxEXPAND);
-            outerSizer->SetItemMinSize(m_gameListBox, 200, 200);
+            wxSizer* prefMarginSizer = new wxBoxSizer(wxVERTICAL);
+            prefMarginSizer->AddSpacer(LayoutConstants::WideVMargin);
+            prefMarginSizer->Add(gamePreferences, 0, wxEXPAND);
+            prefMarginSizer->AddSpacer(LayoutConstants::ChoiceSizeDelta);
             
-            SetSizer(outerSizer);
+            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+            sizer->Add(m_gameListBox, 0, wxEXPAND);
+            sizer->Add(new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL), 0, wxEXPAND);
+            sizer->AddSpacer(LayoutConstants::WideVMargin);
+            sizer->Add(prefMarginSizer, 1, wxEXPAND);
+            sizer->AddSpacer(LayoutConstants::WideVMargin);
+            sizer->SetItemMinSize(m_gameListBox, 200, 200);
+            
+            SetSizer(sizer);
             SetMinSize(wxSize(600, 300));
+            SetBackgroundColour(*wxWHITE);
         }
         
         wxWindow* GamesPreferencePane::createGamePreferences() {
-            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, "Game Preferences");
+            wxPanel* box = new wxPanel(this);
+            box->SetBackgroundColour(*wxWHITE);
             
             wxStaticText* gamePathLabel = new wxStaticText(box, wxID_ANY, "Game Path");
+            gamePathLabel->SetFont(gamePathLabel->GetFont().Bold());
             m_gamePathValueLabel = new wxStaticText(box, wxID_ANY, "Not set");
             m_chooseGamePathButton = new wxButton(box, wxID_ANY, "Choose...");
             
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(3, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
-            innerSizer->AddGrowableCol(1);
-            innerSizer->Add(gamePathLabel, 0, wxALIGN_CENTER_VERTICAL);
-            innerSizer->Add(m_gamePathValueLabel, 0, wxALIGN_CENTER_VERTICAL);
-            innerSizer->Add(m_chooseGamePathButton, 0, wxALIGN_CENTER_VERTICAL);
-            innerSizer->SetItemMinSize(gamePathLabel, LayoutConstants::MinPreferenceLabelWidth, wxDefaultSize.y);
+            wxFlexGridSizer* sizer = new wxFlexGridSizer(3, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
+            sizer->AddGrowableCol(1);
+            sizer->Add(gamePathLabel, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->Add(m_gamePathValueLabel, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->Add(m_chooseGamePathButton, 0, wxALIGN_CENTER_VERTICAL);
+            sizer->SetItemMinSize(m_chooseGamePathButton, wxDefaultCoord, m_chooseGamePathButton->GetSize().y + 1);
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
-            
-            box->SetSizerAndFit(outerSizer);
+            box->SetSizer(sizer);
             return box;
         }
 
@@ -110,6 +115,7 @@ namespace TrenchBroom {
             const IO::Path gamePath = gameFactory.gamePath(gameName);
             m_gamePathValueLabel->SetLabel(gamePath.isEmpty() ? "not set" : gamePath.asString());
             m_gameListBox->reloadGameInfos();
+            Layout();
         }
         
         bool GamesPreferencePane::doValidate() {

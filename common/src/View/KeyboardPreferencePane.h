@@ -151,11 +151,11 @@ namespace TrenchBroom {
             wxGrid* m_grid;
             KeyboardGridTable* m_table;
             
-            wxStaticBox* createMenuShortcutBox();
         public:
             KeyboardPreferencePane(wxWindow* parent);
             void OnGridSize(wxSizeEvent& event);
         private:
+            wxWindow* createMenuShortcutGrid();
             bool doValidate();
         };
     }

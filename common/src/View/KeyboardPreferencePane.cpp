@@ -414,58 +414,17 @@ namespace TrenchBroom {
             return hasDuplicates;
         }
 
-        wxStaticBox* KeyboardPreferencePane::createMenuShortcutBox() {
-            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, "Menu Shortcuts");
-            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
-#if defined __APPLE__
-            infoText->SetFont(*wxSMALL_FONT);
-#endif
-
-            m_table = new KeyboardGridTable();
-            m_grid = new wxGrid(box, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN);
-            m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
-
-            m_grid->SetTable(m_table, true, wxGrid::wxGridSelectRows);
-            m_grid->SetUseNativeColLabels();
-            m_grid->UseNativeColHeader();
-            m_grid->SetDefaultCellBackgroundColour(*wxWHITE);
-            m_grid->HideRowLabels();
-            m_grid->SetCellHighlightPenWidth(0);
-            m_grid->SetCellHighlightROPenWidth(0);
-            //            m_grid->EnableEditing(false);
-
-            m_grid->DisableColResize(0);
-            m_grid->DisableColResize(1);
-            m_grid->DisableColResize(2);
-            m_grid->DisableDragColMove();
-            m_grid->DisableDragCell();
-            m_grid->DisableDragColSize();
-            m_grid->DisableDragGridSize();
-            m_grid->DisableDragRowSize();
-
-            m_table->update();
-
-            wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
-            innerSizer->Add(infoText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->AddSpacer(LayoutConstants::WideVMargin);
-            innerSizer->Add(m_grid, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
-            box->SetSizer(innerSizer);
-
-            return box;
-        }
-
         KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
         PreferencePane(parent),
         m_grid(NULL),
         m_table(NULL) {
-            wxStaticBox* menuShortcutBox = createMenuShortcutBox();
+            wxWindow* menuShortcutGrid = createMenuShortcutGrid();
 
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(menuShortcutBox, 1, wxEXPAND);
-            outerSizer->SetItemMinSize(menuShortcutBox, 700, 550);
+            outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
+            outerSizer->SetItemMinSize(menuShortcutGrid, 700, 550);
             SetSizerAndFit(outerSizer);
+            SetBackgroundColour(*wxWHITE);
         }
 
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
@@ -479,6 +438,49 @@ namespace TrenchBroom {
             event.Skip();
         }
 
+        
+        wxWindow* KeyboardPreferencePane::createMenuShortcutGrid() {
+            wxPanel* container = new wxPanel(this);
+            container->SetBackgroundColour(*wxWHITE);
+            
+            m_table = new KeyboardGridTable();
+            m_grid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
+            
+            m_grid->SetTable(m_table, true, wxGrid::wxGridSelectRows);
+            m_grid->SetColLabelSize(18);
+            m_grid->SetDefaultCellBackgroundColour(*wxWHITE);
+            m_grid->HideRowLabels();
+            m_grid->SetCellHighlightPenWidth(0);
+            m_grid->SetCellHighlightROPenWidth(0);
+            
+            m_grid->DisableColResize(0);
+            m_grid->DisableColResize(1);
+            m_grid->DisableColResize(2);
+            m_grid->DisableDragColMove();
+            m_grid->DisableDragCell();
+            m_grid->DisableDragColSize();
+            m_grid->DisableDragGridSize();
+            m_grid->DisableDragRowSize();
+            
+            m_table->update();
+            
+            wxStaticText* infoText = new wxStaticText(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
+            infoText->SetBackgroundColour(*wxWHITE);
+#if defined __APPLE__
+            infoText->SetFont(*wxSMALL_FONT);
+#endif
+
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_grid, 1, wxEXPAND);
+            sizer->AddSpacer(LayoutConstants::WideVMargin);
+            sizer->Add(infoText, 0, wxALIGN_CENTER);
+            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            container->SetSizer(sizer);
+            
+            return container;
+        }
+        
         bool KeyboardPreferencePane::doValidate() {
             m_grid->SaveEditControlValue();
             if (m_table->hasDuplicates()) {

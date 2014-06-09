@@ -29,7 +29,7 @@ namespace TrenchBroom {
         wxFrame* findFrame(wxWindow* window) {
             if (window == NULL)
                 return NULL;
-            return static_cast<wxFrame*>(wxGetTopLevelParent(window));
+            return wxDynamicCast(wxGetTopLevelParent(window), wxFrame);
         }
 
         Color fromWxColor(const wxColor& color) {

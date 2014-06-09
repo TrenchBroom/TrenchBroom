@@ -40,6 +40,7 @@ namespace TrenchBroom {
             static const int StaticBoxTopMargin                 = 20;
             static const int StaticBoxBottomMargin              = 15;
             static const int ChoiceLeftMargin                   = 0;
+            static const int ChoiceSizeDelta                    = 0;
             static const int TextBoxInnerMargin                 = 5;
             static const int TabBarBarLeftMargin                = 10;
             static const int ToggleButtonStyle                  = 0;
@@ -58,6 +59,7 @@ namespace TrenchBroom {
             static const int StaticBoxTopMargin                 = 10;
             static const int StaticBoxBottomMargin              = 10;
             static const int ChoiceLeftMargin                   = 1;
+            static const int ChoiceSizeDelta                    = 1;
             static const int TextBoxInnerMargin                 = 0;
             static const int TabBarBarLeftMargin                = 10;
             static const int ToggleButtonStyle                  = 0x08000000; // wxBORDER_SUNKEN
@@ -76,6 +78,7 @@ namespace TrenchBroom {
             static const int StaticBoxTopMargin                 = 10;
             static const int StaticBoxBottomMargin              = 30;
             static const int ChoiceLeftMargin                   = 0;
+            static const int ChoiceSizeDelta                    = 0;
             static const int TextBoxInnerMargin                 = 2;
             static const int TabBarBarLeftMargin                = 10;
             static const int ToggleButtonStyle                  = 0;

@@ -302,7 +302,8 @@ namespace TrenchBroom {
                         }
                     }
                 } else if (event.GetEventType() == MapFrame::EVT_REBUILD_MENUBAR) {
-                    wxFrame* frame = wxStaticCast(event.GetEventObject(), wxFrame);
+                    wxObject* eventObject = event.GetEventObject();
+                    MapFrame* frame = wxStaticCast(eventObject, MapFrame);
                     frame->ProcessWindowEventLocally(event);
                     return 1;
                 } else if (event.GetEventType() == wxEVT_ACTIVATE) {

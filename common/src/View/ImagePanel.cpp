@@ -21,22 +21,29 @@
 
 #include <wx/dcclient.h>
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace View {
         ImagePanel::ImagePanel(wxWindow* parent) :
         wxPanel(parent) {
+            SetBackgroundStyle(wxBG_STYLE_PAINT);
             Bind(wxEVT_PAINT, &ImagePanel::OnPaint, this);
         }
         
         void ImagePanel::SetImage(const wxBitmap& bitmap) {
-            m_bitmap = wxBitmap(bitmap);
-            SetMinClientSize(m_bitmap.GetSize());
+            assert(bitmap.IsOk());
+            m_bitmap = bitmap;
+            SetMinSize(m_bitmap.GetSize());
             Refresh();
         }
         
         void ImagePanel::OnPaint(wxPaintEvent& event) {
             wxClientDC dc(this);
-            dc.DrawBitmap(m_bitmap, 0, 0);
+            dc.SetPen(wxPen(GetBackgroundColour()));
+            dc.SetBrush(wxBrush(GetBackgroundColour()));
+            dc.DrawRectangle(GetRect());
+            dc.DrawBitmap(m_bitmap, 0, 0, true);
         }
     }
 }

@@ -27,7 +27,9 @@
 #include "View/Grid.h"
 #include "View/ImagePanel.h"
 #include "View/MapDocument.h"
+#include "View/ViewConstants.h"
 
+#include <wx/choice.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
@@ -41,7 +43,7 @@ namespace TrenchBroom {
         m_issueCount(0) {
             m_gridIconPanel = new ImagePanel(this);
             m_gridIconPanel->SetImage(IO::loadImageResource(IO::Path("images/Grid.png")));
-            m_gridSizeText = new wxStaticText(this, wxID_ANY, "Size 32");
+            m_gridSizeText = new wxStaticText(this, wxID_ANY, "Grid 32");
             m_gridSizeText->SetMinSize(wxSize(70, wxDefaultSize.y));
             
             m_textureLockOn = IO::loadImageResource(IO::Path("images/TextureLockOn.png"));
@@ -59,32 +61,29 @@ namespace TrenchBroom {
             m_message = new wxStaticText(this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxELLIPSIZE_END | wxST_NO_AUTORESIZE);
             
             wxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
-            innerSizer->AddSpacer(1);
-            innerSizer->Add(m_gridIconPanel);
-            innerSizer->AddSpacer(1);
-            innerSizer->Add(m_gridSizeText);
-            innerSizer->AddSpacer(1);
-            innerSizer->AddSpacer(5);
+            innerSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            innerSizer->Add(m_gridIconPanel, 0, wxALIGN_CENTER_VERTICAL);
+            innerSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            innerSizer->Add(m_gridSizeText, 0, wxALIGN_CENTER_VERTICAL);
+            innerSizer->AddSpacer(LayoutConstants::WideHMargin);
             
-            innerSizer->Add(m_textureLockIconPanel);
-            innerSizer->Add(m_textureLockText);
-            innerSizer->AddSpacer(1);
-            innerSizer->AddSpacer(5);
-            innerSizer->AddSpacer(1);
+            innerSizer->Add(m_textureLockIconPanel, 0, wxALIGN_CENTER_VERTICAL);
+            innerSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            innerSizer->Add(m_textureLockText, 0, wxALIGN_CENTER_VERTICAL);
+            innerSizer->AddSpacer(LayoutConstants::WideHMargin);
 
-            innerSizer->Add(m_issuesIconPanel);
-            innerSizer->AddSpacer(1);
-            innerSizer->Add(m_issuesText);
-            innerSizer->AddSpacer(1);
-            innerSizer->AddSpacer(5);
-            innerSizer->AddSpacer(1);
+            innerSizer->Add(m_issuesIconPanel, 0, wxALIGN_CENTER_VERTICAL);
+            innerSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            innerSizer->Add(m_issuesText, 0, wxALIGN_CENTER_VERTICAL);
+            innerSizer->AddSpacer(LayoutConstants::WideHMargin);
 
             innerSizer->Add(m_message, 1, wxEXPAND);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            outerSizer->Add(innerSizer, 1, wxEXPAND);
-            outerSizer->SetItemMinSize(innerSizer, wxDefaultSize.x, 18);
+            outerSizer->AddSpacer(1);
+            outerSizer->Add(innerSizer, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL);
+            outerSizer->AddSpacer(1);
             SetSizer(outerSizer);
             
             console->logNotifier.addObserver(this, &StatusBar::log);
@@ -102,7 +101,7 @@ namespace TrenchBroom {
                 
                 const Grid& grid = document->grid();
                 if (grid.actualSize() != m_gridSize) {
-                    m_gridSizeText->SetLabel(wxString("Size ") << grid.actualSize());
+                    m_gridSizeText->SetLabel(wxString("Grid ") << grid.actualSize());
                     m_gridSize = grid.actualSize();
                 }
                 
