@@ -100,7 +100,7 @@ namespace TrenchBroom {
 #ifdef __APPLE__
             0;
 #else
-            LayoutConstants::BarHorizontalMargin;
+            LayoutConstants::NarrowHMargin;
 #endif
 
             wxStaticText* builtinHeader = new wxStaticText(this, wxID_ANY, "Builtin");
@@ -113,19 +113,19 @@ namespace TrenchBroom {
             m_chooseExternal = new wxButton(this, wxID_ANY, "Browse...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 
             wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
-            externalSizer->AddSpacer(LayoutConstants::TitleBarHorizontalMargin);
-            externalSizer->Add(m_external, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
-            externalSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
-            externalSizer->Add(m_chooseExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::BarVerticalMargin);
-            externalSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            externalSizer->Add(m_external, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            externalSizer->Add(m_chooseExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(builtinHeader, 0, wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
-            sizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            sizer->Add(builtinHeader, 0, wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
             sizer->Add(m_builtin, 1, wxEXPAND | wxLEFT | wxRIGHT, ListBoxMargin);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(externalHeader, 0, wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
-            sizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            sizer->Add(externalHeader, 0, wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
             sizer->Add(externalSizer, 0, wxEXPAND);
             sizer->SetItemMinSize(m_builtin, 100, 70);
             

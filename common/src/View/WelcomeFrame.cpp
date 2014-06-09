@@ -114,7 +114,7 @@ namespace TrenchBroom {
             
             wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(m_createNewDocumentButton, 1, wxEXPAND);
-            buttonSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
             buttonSizer->Add(m_openOtherDocumentButton, 1, wxEXPAND);
 
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);

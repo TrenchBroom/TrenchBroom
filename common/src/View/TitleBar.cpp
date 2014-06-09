@@ -32,10 +32,10 @@ namespace TrenchBroom {
             m_titleText->SetFont(m_titleText->GetFont().Bold());
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->AddSpacer(LayoutConstants::TitleBarHorizontalMargin);
-            sizer->Add(m_titleText, 0, wxTOP | wxBOTTOM, LayoutConstants::TitleBarVerticalMargin);
+            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            sizer->Add(m_titleText, 0, wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             sizer->AddStretchSpacer();
-            sizer->AddSpacer(LayoutConstants::TitleBarHorizontalMargin);
+            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
 
             SetSizer(sizer);
         }

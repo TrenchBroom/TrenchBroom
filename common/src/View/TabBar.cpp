@@ -36,6 +36,7 @@ namespace TrenchBroom {
         TabBarButton::TabBarButton(wxWindow* parent, const wxString& label) :
         wxStaticText(parent, wxID_ANY, label),
         m_pressed(false) {
+            SetFont(GetFont().Bold());
             Bind(wxEVT_LEFT_DOWN, &TabBarButton::OnClick, this);
         }
         
@@ -69,12 +70,12 @@ namespace TrenchBroom {
             m_controlSizer->AddSpacer(LayoutConstants::TabBarBarLeftMargin);
             m_controlSizer->AddStretchSpacer();
             m_controlSizer->Add(m_barBook, 0, wxALIGN_CENTER_VERTICAL);
-            m_controlSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            m_controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            outerSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             outerSizer->Add(m_controlSizer, 1, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            outerSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             
             SetSizer(outerSizer);
         }
@@ -89,7 +90,7 @@ namespace TrenchBroom {
             
             const size_t sizerIndex = 2 * (m_buttons.size() - 1) + 1;
             m_controlSizer->Insert(sizerIndex, button, 0, wxALIGN_CENTER_VERTICAL);
-            m_controlSizer->InsertSpacer(sizerIndex + 1, LayoutConstants::ControlHorizontalMargin);
+            m_controlSizer->InsertSpacer(sizerIndex + 1, LayoutConstants::WideHMargin);
             
             wxWindow* barPage = bookPage->createTabBarPage(m_barBook);
             m_barBook->AddPage(barPage, title);

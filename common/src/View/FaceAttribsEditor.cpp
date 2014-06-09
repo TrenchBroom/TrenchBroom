@@ -133,57 +133,85 @@ namespace TrenchBroom {
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
             
+            wxStaticText* xOffsetLabel = new wxStaticText(this, wxID_ANY, "X Offset");
+            xOffsetLabel->SetFont(xOffsetLabel->GetFont().Bold());
             m_xOffsetEditor = new SpinControl(this);
             m_xOffsetEditor->SetRange(min, max);
             
+            wxStaticText* yOffsetLabel = new wxStaticText(this, wxID_ANY, "Y Offset");
+            yOffsetLabel->SetFont(yOffsetLabel->GetFont().Bold());
             m_yOffsetEditor = new SpinControl(this);
             m_yOffsetEditor->SetRange(min, max);
             
+            wxStaticText* xScaleLabel = new wxStaticText(this, wxID_ANY, "X Scale");
+            xScaleLabel->SetFont(xScaleLabel->GetFont().Bold());
             m_xScaleEditor = new SpinControl(this);
             m_xScaleEditor->SetRange(min, max);
             m_xScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             
+            wxStaticText* yScaleLabel = new wxStaticText(this, wxID_ANY, "Y Scale");
+            yScaleLabel->SetFont(yScaleLabel->GetFont().Bold());
             m_yScaleEditor = new SpinControl(this);
             m_yScaleEditor->SetRange(min, max);
             m_yScaleEditor->SetIncrements(0.1, 0.25, 0.01);
             
+            wxStaticText* rotationLabel = new wxStaticText(this, wxID_ANY, "Angle");
+            rotationLabel->SetFont(rotationLabel->GetFont().Bold());
             m_rotationEditor = new SpinControl(this);
             m_rotationEditor->SetRange(min, max);
             
             m_surfaceValueLabel = new wxStaticText(this, wxID_ANY, "Value", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+            m_surfaceValueLabel->SetFont(m_surfaceValueLabel->GetFont().Bold());
             m_surfaceValueEditor = new SpinControl(this);
             m_surfaceValueEditor->SetRange(min, max);
             m_surfaceValueEditor->SetIncrements(1.0, 10.0, 100.0);
             
             m_surfaceFlagsLabel = new wxStaticText(this, wxID_ANY, "Surface", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+            m_surfaceFlagsLabel->SetFont(m_surfaceFlagsLabel->GetFont().Bold());
             m_surfaceFlagsEditor = new FlagsPopupEditor(this, 2);
             
             m_contentFlagsLabel = new wxStaticText(this, wxID_ANY, "Content", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
+            m_contentFlagsLabel->SetFont(m_contentFlagsLabel->GetFont().Bold());
             m_contentFlagsEditor = new FlagsPopupEditor(this, 2);
             
-            m_faceAttribsSizer = new wxGridBagSizer(LayoutConstants::ControlVerticalMargin);
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X Offset"),   wxGBPosition(0,0), wxDefaultSpan, wxALIGN_RIGHT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_xOffsetEditor,                                wxGBPosition(0,1), wxDefaultSpan, wxEXPAND);
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Y Offset"),   wxGBPosition(0,2), wxDefaultSpan, wxALIGN_RIGHT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_yOffsetEditor,                                wxGBPosition(0,3), wxDefaultSpan, wxEXPAND);
+            const int LabelMargin  = LayoutConstants::NarrowHMargin;
+            const int EditorMargin = LayoutConstants::WideHMargin;
+            const int RowMargin    = LayoutConstants::NarrowVMargin;
             
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "X Scale"),    wxGBPosition(1,0), wxDefaultSpan, wxALIGN_RIGHT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_xScaleEditor,                                 wxGBPosition(1,1), wxDefaultSpan, wxEXPAND | wxRIGHT, 1);
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Y Scale"),    wxGBPosition(1,2), wxDefaultSpan, wxALIGN_RIGHT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_yScaleEditor,                                 wxGBPosition(1,3), wxDefaultSpan, wxEXPAND | wxRIGHT, 1);
+            const int LabelFlags   = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxRIGHT;
+            const int Editor1Flags = wxEXPAND | wxRIGHT;
+            const int Editor2Flags = wxEXPAND;
             
-            m_faceAttribsSizer->Add(new wxStaticText(this, wxID_ANY, "Angle"),      wxGBPosition(2,0), wxDefaultSpan, wxALIGN_RIGHT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_rotationEditor,                               wxGBPosition(2,1), wxDefaultSpan, wxEXPAND);
-            m_faceAttribsSizer->Add(m_surfaceValueLabel,                            wxGBPosition(2,2), wxDefaultSpan, wxALIGN_RIGHT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_surfaceValueEditor,                           wxGBPosition(2,3), wxDefaultSpan, wxEXPAND);
+            int r = 0;
+            int c = 0;
             
-            m_faceAttribsSizer->Add(m_surfaceFlagsLabel,                            wxGBPosition(3,0), wxDefaultSpan, wxALIGN_RIGHT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_surfaceFlagsEditor,                           wxGBPosition(3,1), wxGBSpan(1,3), wxEXPAND);
+            m_faceAttribsSizer = new wxGridBagSizer(RowMargin);
+            m_faceAttribsSizer->Add(xOffsetLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_xOffsetEditor,      wxGBPosition(r,c++), wxDefaultSpan, Editor1Flags, EditorMargin);
+            m_faceAttribsSizer->Add(yOffsetLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_yOffsetEditor,      wxGBPosition(r,c++), wxDefaultSpan, Editor2Flags, EditorMargin);
+            ++r; c = 0;
             
-            m_faceAttribsSizer->Add(m_contentFlagsLabel,                            wxGBPosition(4,0), wxDefaultSpan, wxALIGN_RIGHT | wxRIGHT, LayoutConstants::ControlHorizontalMargin);
-            m_faceAttribsSizer->Add(m_contentFlagsEditor,                           wxGBPosition(4,1), wxGBSpan(1,3), wxEXPAND);
+            m_faceAttribsSizer->Add(xScaleLabel,          wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_xScaleEditor,       wxGBPosition(r,c++), wxDefaultSpan, Editor1Flags, EditorMargin);
+            m_faceAttribsSizer->Add(yScaleLabel,          wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_yScaleEditor,       wxGBPosition(r,c++), wxDefaultSpan, Editor2Flags, EditorMargin);
+            ++r; c = 0;
             
-            m_faceAttribsSizer->AddGrowableRow(0);
+            m_faceAttribsSizer->Add(rotationLabel,        wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_rotationEditor,     wxGBPosition(r,c++), wxDefaultSpan, Editor1Flags, EditorMargin);
+            m_faceAttribsSizer->Add(m_surfaceValueLabel,  wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_surfaceValueEditor, wxGBPosition(r,c++), wxDefaultSpan, Editor2Flags, EditorMargin);
+            ++r; c = 0;
+            
+            m_faceAttribsSizer->Add(m_surfaceFlagsLabel,  wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_surfaceFlagsEditor, wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
+            ++r; c = 0;
+            
+            m_faceAttribsSizer->Add(m_contentFlagsLabel,  wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_contentFlagsEditor, wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
+            ++r; c = 0;
+            
             m_faceAttribsSizer->AddGrowableCol(1);
             m_faceAttribsSizer->AddGrowableCol(3);
             m_faceAttribsSizer->SetItemMinSize(m_texturingEditor, 100, 100);
@@ -197,9 +225,9 @@ namespace TrenchBroom {
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(m_texturingEditor, 1, wxEXPAND);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
-            outerSizer->Add(m_faceAttribsSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::BarHorizontalMargin);
-            outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
+            outerSizer->Add(m_faceAttribsSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
+            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
             
             SetSizer(outerSizer);
         }

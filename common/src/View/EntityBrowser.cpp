@@ -102,19 +102,19 @@ namespace TrenchBroom {
             
             wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
             controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
-            controlSizer->Add(m_sortOrderChoice, 0, wxEXPAND);
-            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
-            controlSizer->Add(m_groupButton, 0, wxEXPAND);
-            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
-            controlSizer->Add(m_usedButton, 0, wxEXPAND);
-            controlSizer->AddSpacer(LayoutConstants::BrowserControlsHorizontalMargin);
+            controlSizer->Add(m_sortOrderChoice);
+            controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            controlSizer->Add(m_groupButton, 0);
+            controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            controlSizer->Add(m_usedButton, 0);
+            controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             controlSizer->Add(m_filterBox, 1, wxEXPAND);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(browserPanel, 1, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::TitleBarVerticalMargin);
-            outerSizer->Add(controlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::TitleBarHorizontalMargin);
-            outerSizer->AddSpacer(LayoutConstants::TitleBarVerticalMargin);
+            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            outerSizer->Add(controlSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
             SetBackgroundColour(*wxWHITE);
             SetSizer(outerSizer);

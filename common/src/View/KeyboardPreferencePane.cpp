@@ -448,7 +448,7 @@ namespace TrenchBroom {
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
             innerSizer->Add(infoText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            innerSizer->AddSpacer(LayoutConstants::WideVMargin);
             innerSizer->Add(m_grid, 1, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
             box->SetSizer(innerSizer);

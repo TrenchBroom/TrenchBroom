@@ -169,7 +169,7 @@ namespace TrenchBroom {
             
             wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
             innerSizer->Add(viewPreferences, 0, wxEXPAND);
-            innerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            innerSizer->AddSpacer(LayoutConstants::WideVMargin);
             innerSizer->Add(mousePreferences, 0, wxEXPAND);
             
             SetSizerAndFit(innerSizer);
@@ -191,10 +191,10 @@ namespace TrenchBroom {
             
             wxSizer* textureBrowserIconSizeSizer = new wxBoxSizer(wxHORIZONTAL);
             textureBrowserIconSizeSizer->Add(textureBrowserIconSizeLabel, 0, wxALIGN_CENTER_VERTICAL);
-            textureBrowserIconSizeSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            textureBrowserIconSizeSizer->AddSpacer(LayoutConstants::WideHMargin);
             textureBrowserIconSizeSizer->Add(m_textureBrowserIconSizeChoice, 0, wxALIGN_CENTER_VERTICAL);
             
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
+            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(brightnessLabel);
             innerSizer->Add(m_brightnessSlider, 0, wxEXPAND);
@@ -224,7 +224,7 @@ namespace TrenchBroom {
             m_invertLookVAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert Y Axis");
             wxSizer* invertLookSizer = new wxBoxSizer(wxHORIZONTAL);
             invertLookSizer->Add(m_invertLookHAxisCheckBox);
-            invertLookSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            invertLookSizer->AddSpacer(LayoutConstants::WideHMargin);
             invertLookSizer->Add(m_invertLookVAxisCheckBox);
             
             wxStaticText* panSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Pan");
@@ -235,7 +235,7 @@ namespace TrenchBroom {
             m_invertPanVAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert Y Axis");
             wxSizer* invertPanSizer = new wxBoxSizer(wxHORIZONTAL);
             invertPanSizer->Add(m_invertPanHAxisCheckBox);
-            invertPanSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            invertPanSizer->AddSpacer(LayoutConstants::WideHMargin);
             invertPanSizer->Add(m_invertPanVAxisCheckBox);
             
             wxStaticText* moveSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Move");
@@ -247,10 +247,10 @@ namespace TrenchBroom {
             m_moveInCursorDirCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Move camera towards cursor");
             wxSizer* altMoveOptionsSizer = new wxBoxSizer(wxHORIZONTAL);
             altMoveOptionsSizer->Add(m_enableAltMoveCheckBox);
-            altMoveOptionsSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            altMoveOptionsSizer->AddSpacer(LayoutConstants::WideHMargin);
             altMoveOptionsSizer->Add(m_invertAltMoveAxisCheckBox);
             
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
+            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(lookSpeedLabel);
             innerSizer->Add(m_lookSpeedSlider, 0, wxEXPAND);

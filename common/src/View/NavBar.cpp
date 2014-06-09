@@ -50,17 +50,17 @@ namespace TrenchBroom {
             m_searchBox->Bind(wxEVT_COMMAND_TEXT_UPDATED, &NavBar::OnSearchPatternChanged, this);
             
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
-            hSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             hSizer->Add(m_navPanel, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
-            hSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            hSizer->AddSpacer(LayoutConstants::MediumHMargin);
             hSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_RIGHT | wxTOP);
-            hSizer->AddSpacer(LayoutConstants::BarHorizontalMargin);
+            hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             hSizer->SetItemMinSize(m_searchBox, 200, wxDefaultSize.y);
             
             wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
-            vSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            vSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             vSizer->Add(hSizer, 1, wxEXPAND);
-            vSizer->AddSpacer(LayoutConstants::BarVerticalMargin + 1);
+            vSizer->AddSpacer(LayoutConstants::NarrowVMargin);
 
             SetSizer(vSizer);
         }

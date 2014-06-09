@@ -47,27 +47,30 @@ namespace TrenchBroom {
         void TexturingEditor::createGui(GLContextHolder::Ptr sharedContext) {
             m_texturingView = new TexturingView(this, sharedContext, m_document, m_controller);
             
-            m_xSubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER);
+            wxStaticText* gridLabel = new wxStaticText(this, wxID_ANY, "Texture Grid ");
+            gridLabel->SetFont(gridLabel->GetFont().Bold());
+            m_xSubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
             m_xSubDivisionEditor->SetRange(1, 16);
             
-            m_ySubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER);
+            m_ySubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
             m_ySubDivisionEditor->SetRange(1, 16);
             
             wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
-            bottomSizer->Add(new wxStaticText(this, wxID_ANY, "Texture Grid"),  0, wxALIGN_CENTER_VERTICAL);
-            bottomSizer->Add(new wxStaticText(this, wxID_ANY, "X:"),            0, wxALIGN_CENTER_VERTICAL);
-            bottomSizer->Add(m_xSubDivisionEditor,                              0, wxALIGN_CENTER_VERTICAL);
-            bottomSizer->Add(new wxStaticText(this, wxID_ANY, "Y:"),            0, wxALIGN_CENTER_VERTICAL);
-            bottomSizer->Add(m_ySubDivisionEditor,                              0, wxALIGN_CENTER_VERTICAL);
+            bottomSizer->Add(gridLabel,                              0, wxALIGN_CENTER_VERTICAL);
+            bottomSizer->Add(new wxStaticText(this, wxID_ANY, "X:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
+            bottomSizer->Add(m_xSubDivisionEditor,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::MediumHMargin);
+            bottomSizer->Add(new wxStaticText(this, wxID_ANY, "Y:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
+            bottomSizer->Add(m_ySubDivisionEditor,                   0, wxALIGN_CENTER_VERTICAL);
             bottomSizer->SetItemMinSize(m_xSubDivisionEditor, 50, m_xSubDivisionEditor->GetSize().y);
             bottomSizer->SetItemMinSize(m_ySubDivisionEditor, 50, m_ySubDivisionEditor->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(m_texturingView, 1, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
-            outerSizer->Add(bottomSizer, 0, wxALIGN_RIGHT);
-            outerSizer->AddSpacer(LayoutConstants::BarVerticalMargin);
+            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            outerSizer->Add(bottomSizer, 0, wxALIGN_RIGHT | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
+            outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
+            SetBackgroundColour(*wxWHITE);
             SetSizer(outerSizer);
         }
         

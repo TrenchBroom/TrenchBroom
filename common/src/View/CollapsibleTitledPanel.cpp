@@ -35,8 +35,8 @@ namespace TrenchBroom {
             m_stateText->SetFont(m_titleText->GetFont());
             m_stateText->SetForegroundColour(*wxLIGHT_GREY);
             
-            GetSizer()->Add(m_stateText, 0, wxTOP | wxBOTTOM, LayoutConstants::TitleBarVerticalMargin);
-            GetSizer()->AddSpacer(LayoutConstants::TitleBarHorizontalMargin);
+            GetSizer()->Add(m_stateText, 0, wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            GetSizer()->AddSpacer(LayoutConstants::NarrowHMargin);
             Layout();
             
             Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);

@@ -193,18 +193,18 @@ namespace TrenchBroom {
             m_mapFormatChoice->Bind(wxEVT_UPDATE_UI, &NewDocumentGameDialog::OnUpdateMapFormatChoice, this);
             
             wxBoxSizer* mapFormatSizer = new wxBoxSizer(wxHORIZONTAL);
-            mapFormatSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
             mapFormatSizer->Add(header, 0, wxEXPAND);
-            mapFormatSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
             mapFormatSizer->Add(m_mapFormatChoice);
-            mapFormatSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
             
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(gameSelection, 1, wxEXPAND);
             outerSizer->Add(new wxStaticLine(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL), 0, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
             outerSizer->Add(mapFormatSizer);
-            outerSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
             panel->SetSizer(outerSizer);
             
             return panel;

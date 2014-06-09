@@ -68,7 +68,7 @@ namespace TrenchBroom {
             
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->Add(m_gameListBox, 0, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            outerSizer->AddSpacer(LayoutConstants::WideVMargin);
             outerSizer->Add(gamePreferences, 1, wxEXPAND);
             outerSizer->SetItemMinSize(m_gameListBox, 200, 200);
             
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             m_gamePathValueLabel = new wxStaticText(box, wxID_ANY, "Not set");
             m_chooseGamePathButton = new wxButton(box, wxID_ANY, "Choose...");
             
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(3, LayoutConstants::ControlHorizontalMargin, LayoutConstants::ControlVerticalMargin);
+            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(3, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
             innerSizer->AddGrowableCol(1);
             innerSizer->Add(gamePathLabel, 0, wxALIGN_CENTER_VERTICAL);
             innerSizer->Add(m_gamePathValueLabel, 0, wxALIGN_CENTER_VERTICAL);

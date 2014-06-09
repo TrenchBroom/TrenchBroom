@@ -48,7 +48,7 @@ namespace TrenchBroom {
             const size_t numRows = count / m_numCols;
             wxFlexGridSizer* sizer = new wxFlexGridSizer(static_cast<int>(numRows),
                                                          static_cast<int>(m_numCols),
-                                                         0, LayoutConstants::ControlHorizontalMargin);
+                                                         0, LayoutConstants::WideHMargin);
             
             for (size_t row = 0; row < numRows; ++row) {
                 for (size_t col = 0; col < m_numCols; ++col) {

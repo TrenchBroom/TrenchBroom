@@ -281,17 +281,17 @@ namespace TrenchBroom {
             
             wxSizer* leftSizer = new wxBoxSizer(wxVERTICAL);
             leftSizer->Add(rangeTxt);
-            leftSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
             leftSizer->Add(m_floatRadio);
-            leftSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
             leftSizer->Add(m_byteRadio);
-            leftSizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
             leftSizer->Add(m_colorPicker);
             leftSizer->AddStretchSpacer();
             
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
             outerSizer->Add(leftSizer);
-            outerSizer->AddSpacer(LayoutConstants::ControlHorizontalMargin);
+            outerSizer->AddSpacer(LayoutConstants::WideHMargin);
             outerSizer->Add(m_colorHistory, 1, wxEXPAND);
             m_panel->SetSizer(outerSizer);
             

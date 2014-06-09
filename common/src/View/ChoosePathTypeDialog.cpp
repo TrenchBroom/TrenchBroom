@@ -86,22 +86,22 @@ namespace TrenchBroom {
             
             innerSizer->Add(0, LayoutConstants::StaticBoxTopMargin, wxGBPosition(0, 0), wxGBSpan(1, 2));
             innerSizer->Add(infoText, wxGBPosition(1, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(1, 2 * LayoutConstants::ControlVerticalMargin, wxGBPosition(2,0), wxGBSpan(1,2));
+            innerSizer->Add(1, 2 * LayoutConstants::WideVMargin, wxGBPosition(2,0), wxGBSpan(1,2));
             
             innerSizer->Add(m_absRadio, wxGBPosition(3, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->Add(18, 1, wxGBPosition(4, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->Add(absolutePathText, wxGBPosition(4, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(1, LayoutConstants::ControlVerticalMargin, wxGBPosition(5,0), wxGBSpan(1,2));
+            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(5,0), wxGBSpan(1,2));
             
             innerSizer->Add(m_docRelativeRadio, wxGBPosition(6, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->Add(18, 1, wxGBPosition(7, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->Add(mapRelativePathText, wxGBPosition(7, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(1, LayoutConstants::ControlVerticalMargin, wxGBPosition(8,0), wxGBSpan(1,2));
+            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(8,0), wxGBSpan(1,2));
             
             innerSizer->Add(m_appRelativeRadio, wxGBPosition(9, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->Add(18, 1, wxGBPosition(10, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->Add(appRelativePathText, wxGBPosition(10, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(1, LayoutConstants::ControlVerticalMargin, wxGBPosition(11,0), wxGBSpan(1,2));
+            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(11,0), wxGBSpan(1,2));
             
             innerSizer->Add(m_gameRelativeRadio, wxGBPosition(12, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
             innerSizer->Add(18, 1, wxGBPosition(13, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);

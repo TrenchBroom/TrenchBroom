@@ -55,7 +55,7 @@ namespace TrenchBroom {
             m_editor = new FlagsEditor(editorContainer, numCols);
             
             wxSizer* editorContainerSizer = new wxBoxSizer(wxVERTICAL);
-            editorContainerSizer->Add(m_editor, 1, wxEXPAND | wxALL, LayoutConstants::NotebookPageInnerMargin);
+            editorContainerSizer->Add(m_editor, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
             editorContainer->SetSizer(editorContainerSizer);
             
             wxSizer* popupSizer = new wxBoxSizer(wxVERTICAL);
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             if (flagsPanel != NULL) {
                 sizer->Add(flagsPanel, 1, wxEXPAND);
-                sizer->AddSpacer(LayoutConstants::FaceAttribsControlMargin);
+                sizer->AddSpacer(LayoutConstants::MediumHMargin);
             }
             sizer->Add(m_button, 0, wxALIGN_CENTER_VERTICAL);
             SetSizerAndFit(sizer);

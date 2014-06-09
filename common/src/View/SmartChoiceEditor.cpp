@@ -62,7 +62,7 @@ namespace TrenchBroom {
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(infoText);
-            sizer->AddSpacer(LayoutConstants::ControlVerticalMargin);
+            sizer->AddSpacer(LayoutConstants::WideVMargin);
             sizer->Add(m_comboBox, 0, wxEXPAND);
             sizer->AddStretchSpacer();
             
