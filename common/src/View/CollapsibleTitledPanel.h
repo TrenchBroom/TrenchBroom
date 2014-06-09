@@ -24,6 +24,8 @@
 
 class wxStaticText;
 
+wxDECLARE_EVENT(TITLE_BAR_CLICK, wxCommandEvent);
+
 namespace TrenchBroom {
     namespace View {
         class BorderLine;
@@ -35,7 +37,7 @@ namespace TrenchBroom {
             CollapsibleTitleBar(wxWindow* parent, const wxString& title, const wxString& stateText);
             
             void setStateText(const wxString& stateText);
-            
+        private:
             void OnClick(wxMouseEvent& event);
         };
         
@@ -55,7 +57,7 @@ namespace TrenchBroom {
             bool expanded() const;
             void setExpanded(bool expanded);
             
-            void OnTitleBarClicked(wxMouseEvent& event);
+            void OnTitleBarClick(wxCommandEvent& event);
         private:
             void update();
         };

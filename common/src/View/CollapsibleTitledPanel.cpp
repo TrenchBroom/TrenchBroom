@@ -25,6 +25,8 @@
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
+wxDEFINE_EVENT(TITLE_BAR_CLICK, wxCommandEvent);
+
 namespace TrenchBroom {
     namespace View {
         CollapsibleTitleBar::CollapsibleTitleBar(wxWindow* parent, const wxString& title, const wxString& stateText) :
@@ -37,6 +39,7 @@ namespace TrenchBroom {
             GetSizer()->AddSpacer(LayoutConstants::TitleBarHorizontalMargin);
             Layout();
             
+            Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
             m_titleText->Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
             m_stateText->Bind(wxEVT_LEFT_DOWN, &CollapsibleTitleBar::OnClick, this);
         }
@@ -47,11 +50,9 @@ namespace TrenchBroom {
         }
         
         void CollapsibleTitleBar::OnClick(wxMouseEvent& event) {
-			// TODO: this doesn't work properly on windows, where the mouse event is not handled in the CollapsibleTitledPanel
-            wxMouseEvent newEvent(event);
+            wxCommandEvent newEvent(TITLE_BAR_CLICK, GetId());
             newEvent.SetEventObject(this);
-            newEvent.SetId(GetId());
-            ProcessEvent(newEvent);
+            wxPostEvent(this, newEvent);
         }
 
         CollapsibleTitledPanel::CollapsibleTitledPanel(wxWindow* parent, const wxString& title, const bool initiallyExpanded) :
@@ -66,7 +67,7 @@ namespace TrenchBroom {
             sizer->Add(m_panel, 1, wxEXPAND);
             SetSizer(sizer);
             
-            m_titleBar->Bind(wxEVT_LEFT_UP, &CollapsibleTitledPanel::OnTitleBarClicked, this);
+            m_titleBar->Bind(TITLE_BAR_CLICK, &CollapsibleTitledPanel::OnTitleBarClick, this);
             
             update();
         }
@@ -95,7 +96,7 @@ namespace TrenchBroom {
             update();
         }
         
-        void CollapsibleTitledPanel::OnTitleBarClicked(wxMouseEvent& event) {
+        void CollapsibleTitledPanel::OnTitleBarClick(wxCommandEvent& event) {
             setExpanded(!m_expanded);
         }
 

@@ -32,8 +32,6 @@ class wxGridBagSizer;
 class wxSpinCtrl;
 class wxSpinEvent;
 class wxStaticText;
-class SpinControl;
-class SpinControlEvent;
 
 namespace TrenchBroom {
     namespace Model {
@@ -44,6 +42,8 @@ namespace TrenchBroom {
         class ControllerFacade;
         class FlagChangedCommand;
         class FlagsPopupEditor;
+        class SpinControl;
+        class SpinControlEvent;
         class TexturingEditor;
 
         class FaceAttribsEditor : public wxPanel {
