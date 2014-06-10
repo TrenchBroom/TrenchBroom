@@ -33,6 +33,10 @@ namespace TrenchBroom {
         return prefs;
     }
 
+    bool PreferenceManager::saveInstantly() const {
+        return m_saveInstantly;
+    }
+
     PreferenceBase::Set PreferenceManager::saveChanges() {
         PreferenceBase::Set changedPreferences;
         UnsavedPreferences::iterator it, end;

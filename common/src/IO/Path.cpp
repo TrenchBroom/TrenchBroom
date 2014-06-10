@@ -246,6 +246,16 @@ namespace TrenchBroom {
             return m_absolute;
         }
 
+        bool Path::canMakeRelative(const Path& absolutePath) const {
+            return (!isEmpty() && !absolutePath.isEmpty() &&
+                    isAbsolute() && absolutePath.isAbsolute()
+#ifdef _WIN32
+                    &&
+                    m_components[0] == absolutePath.m_components[0]
+#endif
+            );
+        }
+
         Path Path::makeAbsolute(const Path& relativePath) const {
             if (!isAbsolute())
                 throw PathException("Cannot make absolute path from relative path");

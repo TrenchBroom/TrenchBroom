@@ -47,6 +47,7 @@ namespace TrenchBroom {
         
         Notifier1<const IO::Path&> preferenceDidChangeNotifier;
 
+        bool saveInstantly() const;
         PreferenceBase::Set saveChanges();
         PreferenceBase::Set discardChanges();
         
@@ -62,7 +63,7 @@ namespace TrenchBroom {
         void set(Preference<T>& preference, const T& value) {
             const T previousValue = preference.value();
             preference.setValue(value);
-            if (m_saveInstantly) {
+            if (saveInstantly()) {
                 preference.save(wxConfig::Get());
                 preferenceDidChangeNotifier(preference.path());
             } else {

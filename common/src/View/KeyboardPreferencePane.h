@@ -156,6 +156,8 @@ namespace TrenchBroom {
             void OnGridSize(wxSizeEvent& event);
         private:
             wxWindow* createMenuShortcutGrid();
+            
+            void doUpdateControls();
             bool doValidate();
         };
     }

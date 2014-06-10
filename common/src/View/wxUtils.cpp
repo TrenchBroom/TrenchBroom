@@ -19,7 +19,11 @@
 
 #include "wxUtils.h"
 
+#include "View/BorderLine.h"
+#include "View/ViewConstants.h"
+
 #include <wx/frame.h>
+#include <wx/sizer.h>
 #include <wx/window.h>
 
 #include <list>
@@ -46,6 +50,15 @@ namespace TrenchBroom {
             const unsigned char b = static_cast<unsigned char>(color.b() * 255.0f);
             const unsigned char a = static_cast<unsigned char>(color.a() * 255.0f);
             return wxColor(r, g, b, a);
+        }
+
+        wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent) {
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(new BorderLine(parent, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->AddSpacer(LayoutConstants::DialogButtonTopMargin);
+            sizer->Add(buttonSizer, 0, wxEXPAND | wxRIGHT, LayoutConstants::DialogButtonSideMargin);
+            sizer->AddSpacer(LayoutConstants::DialogButtonBottomMargin);
+            return sizer;
         }
     }
 }

@@ -23,14 +23,15 @@
 #include "PreferenceManager.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
+#include "View/BorderLine.h"
 #include "View/GameListBox.h"
 #include "View/GameSelectionCommand.h"
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <wx/button.h>
 #include <wx/choice.h>
 #include <wx/sizer.h>
-#include <wx/statline.h>
 #include <wx/stattext.h>
 
 #include <cassert>
@@ -68,7 +69,7 @@ namespace TrenchBroom {
         m_openPreferencesButton(NULL) {}
 
         void GameDialog::createDialog(wxWindow* parent, const wxString& title, const wxString& infoText) {
-            Create(parent, wxID_ANY, title);
+            Create(wxGetTopLevelParent(parent), wxID_ANY, title);
             createGui(title, infoText);
             bindObservers();
             CentreOnParent();
@@ -80,7 +81,7 @@ namespace TrenchBroom {
 
             wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
             innerSizer->Add(infoPanel, 0, wxEXPAND);
-            innerSizer->Add(new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL), 0, wxEXPAND);
+            innerSizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
             innerSizer->Add(selectionPanel, 1, wxEXPAND);
             innerSizer->SetItemMinSize(selectionPanel, 300, wxDefaultSize.y);
             
@@ -88,11 +89,7 @@ namespace TrenchBroom {
             
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(innerSizer, 1, wxEXPAND);
-            outerSizer->Add(new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL), 0, wxEXPAND);
-            outerSizer->AddSpacer(LayoutConstants::ChooseGameDialogButtonTopMargin);
-            outerSizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::ChooseGameDialogButtonSideMargin);
-            outerSizer->AddSpacer(LayoutConstants::ChooseGameDialogButtonBottomMargin);
-            
+            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             SetSizerAndFit(outerSizer);
 
             FindWindow(wxID_OK)->Bind(wxEVT_UPDATE_UI, &GameDialog::OnUpdateOkButton, this);
@@ -201,7 +198,7 @@ namespace TrenchBroom {
             
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(gameSelection, 1, wxEXPAND);
-            outerSizer->Add(new wxStaticLine(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL), 0, wxEXPAND);
+            outerSizer->Add(new BorderLine(panel, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             outerSizer->AddSpacer(LayoutConstants::WideVMargin);
             outerSizer->Add(mapFormatSizer);
             outerSizer->AddSpacer(LayoutConstants::WideVMargin);

@@ -21,10 +21,11 @@
 
 #include "IO/SystemPaths.h"
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <wx/gbsizer.h>
+#include <wx/panel.h>
 #include <wx/radiobut.h>
-#include <wx/statbox.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
@@ -51,29 +52,34 @@ namespace TrenchBroom {
         }
         
         bool ChoosePathTypeDialog::Create() {
-            wxStaticBox* box = new wxStaticBox(this, wxID_ANY, "");
-            wxStaticText* infoText = new wxStaticText(box, wxID_ANY, "Paths can be stored either as absolute paths or as relative paths. Please choose how you want to store this path.");
+            wxPanel* panel = new wxPanel(this);
+            panel->SetBackgroundColour(*wxWHITE);
             
-            m_absRadio = new wxRadioButton(box, wxID_ANY, "Absolute");
+            wxStaticText* infoText = new wxStaticText(panel, wxID_ANY, "Paths can be stored either as absolute paths or as relative paths. Please choose how you want to store this path.");
+            infoText->Wrap(370);
+            
+            m_absRadio = new wxRadioButton(panel, wxID_ANY, "Absolute");
             m_absRadio->SetFont(m_absRadio->GetFont().MakeBold());
             m_absRadio->SetValue(true);
-            wxStaticText* absolutePathText = new wxStaticText(box, wxID_ANY, m_absPath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            wxStaticText* absolutePathText = new wxStaticText(panel, wxID_ANY, m_absPath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
-            m_docRelativeRadio = new wxRadioButton(box, wxID_ANY, "Relative to map file");
+            m_docRelativeRadio = new wxRadioButton(panel, wxID_ANY, "Relative to map file");
             m_docRelativeRadio->SetFont(m_docRelativeRadio->GetFont().MakeBold());
             if (m_docRelativePath.isEmpty())
                 m_docRelativeRadio->Enable(false);
-            wxStaticText* mapRelativePathText = new wxStaticText(box, wxID_ANY, m_docRelativePath.isEmpty() ? "Please save this map first." : m_docRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            wxStaticText* mapRelativePathText = new wxStaticText(panel, wxID_ANY, m_docRelativePath.isEmpty() ? "Unable to build a path." : m_docRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
-            m_appRelativeRadio = new wxRadioButton(box, wxID_ANY, "Relative to application executable");
+            m_appRelativeRadio = new wxRadioButton(panel, wxID_ANY, "Relative to application executable");
             m_appRelativeRadio->SetFont(m_appRelativeRadio->GetFont().MakeBold());
-            wxStaticText* appRelativePathText = new wxStaticText(box, wxID_ANY, m_appRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            if (m_appRelativePath.isEmpty())
+                m_appRelativeRadio->Enable(false);
+            wxStaticText* appRelativePathText = new wxStaticText(panel, wxID_ANY, m_appRelativePath.isEmpty() ? "Unable to build a path." : m_appRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
-            m_gameRelativeRadio = new wxRadioButton(box, wxID_ANY, "Relative to game directory");
+            m_gameRelativeRadio = new wxRadioButton(panel, wxID_ANY, "Relative to game directory");
             if (m_gameRelativePath.isEmpty())
                 m_gameRelativeRadio->Enable(false);
             m_gameRelativeRadio->SetFont(m_gameRelativeRadio->GetFont().MakeBold());
-            wxStaticText* gameRelativePathText = new wxStaticText(box, wxID_ANY, m_gameRelativePath.isEmpty() ? "Please set the game path first." : m_gameRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
+            wxStaticText* gameRelativePathText = new wxStaticText(panel, wxID_ANY, m_gameRelativePath.isEmpty() ? "Unable to build a path." : m_gameRelativePath.asString(), wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             
 #if defined __APPLE__
             absolutePathText->SetFont(*wxSMALL_FONT);
@@ -84,43 +90,36 @@ namespace TrenchBroom {
             
             wxGridBagSizer* innerSizer = new wxGridBagSizer();
             
-            innerSizer->Add(0, LayoutConstants::StaticBoxTopMargin, wxGBPosition(0, 0), wxGBSpan(1, 2));
-            innerSizer->Add(infoText, wxGBPosition(1, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(1, 2 * LayoutConstants::WideVMargin, wxGBPosition(2,0), wxGBSpan(1,2));
+            innerSizer->Add(infoText, wxGBPosition(0, 0), wxGBSpan(1, 2));
+            innerSizer->Add(1, 2 * LayoutConstants::WideVMargin, wxGBPosition(1,0), wxGBSpan(1,2));
             
-            innerSizer->Add(m_absRadio, wxGBPosition(3, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(18, 1, wxGBPosition(4, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(absolutePathText, wxGBPosition(4, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(5,0), wxGBSpan(1,2));
+            innerSizer->Add(m_absRadio, wxGBPosition(2, 0), wxGBSpan(1, 2));
+            innerSizer->Add(18, 1, wxGBPosition(3, 0), wxGBSpan(1, 1));
+            innerSizer->Add(absolutePathText, wxGBPosition(3, 1), wxGBSpan(1, 1));
+            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(4,0), wxGBSpan(1,2));
             
-            innerSizer->Add(m_docRelativeRadio, wxGBPosition(6, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(18, 1, wxGBPosition(7, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(mapRelativePathText, wxGBPosition(7, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(8,0), wxGBSpan(1,2));
+            innerSizer->Add(m_docRelativeRadio, wxGBPosition(5, 0), wxGBSpan(1, 2));
+            innerSizer->Add(18, 1, wxGBPosition(6, 0), wxGBSpan(1, 1));
+            innerSizer->Add(mapRelativePathText, wxGBPosition(6, 1), wxGBSpan(1, 1));
+            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(7,0), wxGBSpan(1,2));
             
-            innerSizer->Add(m_appRelativeRadio, wxGBPosition(9, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(18, 1, wxGBPosition(10, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(appRelativePathText, wxGBPosition(10, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(11,0), wxGBSpan(1,2));
+            innerSizer->Add(m_appRelativeRadio, wxGBPosition(8, 0), wxGBSpan(1, 2));
+            innerSizer->Add(18, 1, wxGBPosition(9, 0), wxGBSpan(1, 1));
+            innerSizer->Add(appRelativePathText, wxGBPosition(9, 1), wxGBSpan(1, 1));
+            innerSizer->Add(1, LayoutConstants::WideVMargin, wxGBPosition(10,0), wxGBSpan(1,2));
             
-            innerSizer->Add(m_gameRelativeRadio, wxGBPosition(12, 0), wxGBSpan(1, 2), wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(18, 1, wxGBPosition(13, 0), wxGBSpan(1, 1), wxLEFT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(gameRelativePathText, wxGBPosition(13, 1), wxGBSpan(1, 1), wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            innerSizer->Add(0, LayoutConstants::StaticBoxBottomMargin, wxGBPosition(14, 0), wxGBSpan(1, 2));
+            innerSizer->Add(m_gameRelativeRadio, wxGBPosition(11, 0), wxGBSpan(1, 2));
+            innerSizer->Add(18, 1, wxGBPosition(12, 0), wxGBSpan(1, 1));
+            innerSizer->Add(gameRelativePathText, wxGBPosition(12, 1), wxGBSpan(1, 1));
             
-            int maxWidth = 350;
-            maxWidth = std::max(maxWidth, absolutePathText->GetSize().x);
-            maxWidth = std::max(maxWidth, mapRelativePathText->GetSize().x);
-            maxWidth = std::max(maxWidth, appRelativePathText->GetSize().x);
-            maxWidth = std::max(maxWidth, gameRelativePathText->GetSize().x);
-            infoText->Wrap(maxWidth);
-            
-            box->SetSizerAndFit(innerSizer);
+            wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+            panelSizer->Add(innerSizer, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
+            panel->SetSizerAndFit(panelSizer);
             
             wxSizer* buttonSizer = CreateStdDialogButtonSizer(wxOK | wxCANCEL);
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(box, 1, wxEXPAND | wxLEFT | wxTOP | wxRIGHT, LayoutConstants::DialogOuterMargin);
-            outerSizer->Add(buttonSizer, 0, wxEXPAND | wxALL, LayoutConstants::DialogButtonMargin);
+            outerSizer->Add(panel, 1, wxEXPAND);
+            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             
             SetSizerAndFit(outerSizer);
             CentreOnParent();
@@ -138,7 +137,7 @@ namespace TrenchBroom {
         }
 
         IO::Path ChoosePathTypeDialog::makeRelativePath(const IO::Path& absPath, const IO::Path& newRootPath) {
-            if (newRootPath.isEmpty())
+            if (!newRootPath.canMakeRelative(absPath))
                 return IO::Path("");
             return newRootPath.makeRelative(absPath);
         }

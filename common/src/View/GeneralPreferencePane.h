@@ -74,7 +74,7 @@ namespace TrenchBroom {
 
             void bindEvents();
             
-            void updateControls();
+            void doUpdateControls();
             bool doValidate();
         };
     }

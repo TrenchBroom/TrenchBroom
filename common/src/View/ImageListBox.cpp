@@ -19,6 +19,8 @@
 
 #include "ImageListBox.h"
 
+#include "View/ViewConstants.h"
+
 #include <wx/control.h>
 #include <wx/dc.h>
 #include <wx/settings.h>
@@ -95,7 +97,7 @@ namespace TrenchBroom {
                 return;
             
             assert(n < GetItemCount());
-            dc.SetPen(*wxLIGHT_GREY_PEN);
+            dc.SetPen(Colors::borderColor());
             dc.DrawLine(rect.GetLeft(), rect.GetBottom(), rect.GetRight(), rect.GetBottom());
             rect.Deflate(0, 1);
         }

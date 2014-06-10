@@ -23,15 +23,17 @@
 #include "Preferences.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "View/BorderLine.h"
 #include "View/GamesPreferencePane.h"
 #include "View/GeneralPreferencePane.h"
 #include "View/KeyboardPreferencePane.h"
 #include "View/ViewConstants.h"
 #include "View/PreferencePane.h"
+#include "View/wxUtils.h"
 
 #include <wx/panel.h>
 #include <wx/sizer.h>
-#include <wx/statline.h>
+#include <wx/simplebook.h>
 #include <wx/toolbar.h>
 
 namespace TrenchBroom {
@@ -40,8 +42,7 @@ namespace TrenchBroom {
 
         PreferenceDialog::PreferenceDialog() :
         m_toolBar(NULL),
-        m_paneContainer(NULL),
-        m_pane(NULL) {
+        m_book(NULL) {
             Create();
         }
         
@@ -51,7 +52,9 @@ namespace TrenchBroom {
             
             createGui();
             bindEvents();
-            switchToPane(PrefPane_Games);
+            switchToPane(PrefPane_First);
+            SetClientSize(currentPane()->GetMinSize());
+            
             return true;
         }
 
@@ -61,50 +64,47 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnOKClicked(wxCommandEvent& event) {
-#if !defined __APPLE__
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.saveChanges();
-#endif
+            if (!prefs.saveInstantly())
+                prefs.saveChanges();
             EndModal(wxID_OK);
         }
 
         void PreferenceDialog::OnApplyClicked(wxCommandEvent& event) {
-#if !defined __APPLE__
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.saveChanges();
-#endif
+            if (!prefs.saveInstantly())
+                prefs.saveChanges();
         }
 
         void PreferenceDialog::OnCancelClicked(wxCommandEvent& event) {
-#if !defined __APPLE__
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.discardChanges();
-#endif
+            if (!prefs.saveInstantly())
+                prefs.discardChanges();
             EndModal(wxID_CANCEL);
         }
 
         void PreferenceDialog::OnClose(wxCloseEvent& event) {
-            if (!m_pane->validate() && event.CanVeto()) {
+            if (!currentPane()->validate() && event.CanVeto()) {
                 event.Veto();
                 return;
             }
             
-#if !defined __APPLE__
             PreferenceManager& prefs = PreferenceManager::instance();
-            switch (event.GetId()) {
-                case wxID_OK:
-                    prefs.saveChanges();
-                    break;
-                default:
-                    prefs.discardChanges();
-                    break;
-                    
+            if (!prefs.saveInstantly()) {
+                switch (event.GetId()) {
+                    case wxID_OK:
+                        prefs.saveChanges();
+                        break;
+                    default:
+                        prefs.discardChanges();
+                        break;
+                        
+                }
             }
-#endif
         }
 
         void PreferenceDialog::OnFileClose(wxCommandEvent& event) {
-            if (!m_pane->validate()) {
+            if (!currentPane()->validate()) {
                 event.Skip();
                 return;
             }
@@ -115,8 +115,6 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::createGui() {
-            m_pane = NULL;
-            
             const wxBitmap gamesImage = IO::loadImageResource(IO::Path("images/GeneralPreferences.png"));
             const wxBitmap generalImage = IO::loadImageResource(IO::Path("images/GeneralPreferences.png"));
             const wxBitmap keyboardImage = IO::loadImageResource(IO::Path("images/KeyboardPreferences.png"));
@@ -127,26 +125,22 @@ namespace TrenchBroom {
             m_toolBar->AddCheckTool(PrefPane_Keyboard, "Keyboard", keyboardImage, wxNullBitmap);
             m_toolBar->Realize();
             
-            m_paneContainer = new wxPanel(this);
+            m_book = new wxSimplebook(this);
+            m_book->AddPage(new GamesPreferencePane(m_book), "Games");
+            m_book->AddPage(new GeneralPreferencePane(m_book), "General");
+            m_book->AddPage(new KeyboardPreferencePane(m_book), "Keyboard");
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_toolBar, 0, wxEXPAND);
 #if !defined __APPLE__
-			wxStaticLine* toolBarDivider = new wxStaticLine(this);
-            sizer->Add(toolBarDivider, 0, wxEXPAND);
-#if defined _WIN32
-			sizer->SetItemMinSize(toolBarDivider, wxDefaultSize.x, 5);
-#else
-			sizer->SetItemMinSize(toolBarDivider, wxDefaultSize.x, 1);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->SetItemMinSize(1, wxSize(wxDefaultCoord, 1));
 #endif
-#endif
-            
-            sizer->Add(m_paneContainer, 1, wxEXPAND);
+            sizer->Add(m_book, 1, wxEXPAND);
             
 #if !defined __APPLE__
-            wxSizer* stdButtonsSizer = CreateSeparatedButtonSizer(wxOK | wxAPPLY | wxCANCEL);
-            sizer->Add(stdButtonsSizer, 0, wxEXPAND);
-			sizer->AddSpacer(LayoutConstants::DialogOuterMargin);
+            wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL);
+            sizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
 #endif
             
             SetSizer(sizer);
@@ -161,41 +155,21 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::switchToPane(const PrefPane pane) {
-            if (m_currentPane == pane && m_pane != NULL) {
-                toggleTools(m_currentPane);
+            if (currentPaneId() == pane && currentPane() != NULL) {
+                toggleTools(currentPaneId());
                 return;
             }
             
-            if (m_pane != NULL && !m_pane->validate()) {
-                toggleTools(m_currentPane);
+            if (currentPane() != NULL && !currentPane()->validate()) {
+                toggleTools(currentPaneId());
                 return;
             }
             
-            if (m_pane != NULL)
-                m_pane->Destroy();
-
             toggleTools(pane);
+            m_book->SetSelection(static_cast<size_t>(pane));
+            currentPane()->updateControls();
             
-            switch (pane) {
-                case PrefPane_First:
-                case PrefPane_General:
-                    m_pane = new GeneralPreferencePane(m_paneContainer);
-                    break;
-                case PrefPane_Games:
-                    m_pane = new GamesPreferencePane(m_paneContainer);
-                    break;
-                case PrefPane_Last:
-                case PrefPane_Keyboard:
-                    m_pane = new KeyboardPreferencePane(m_paneContainer);
-                    break;
-            }
-            m_currentPane = pane;
-            
-            wxBoxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
-            containerSizer->Add(m_pane, 1, wxEXPAND);
-            m_paneContainer->SetSizer(containerSizer);
-            
-            Fit();
+            SetSize(currentPane()->GetMinSize());
 #if defined __APPLE__
             updateAcceleratorTable(pane);
 #endif
@@ -206,6 +180,14 @@ namespace TrenchBroom {
                 m_toolBar->ToggleTool(i, pane == i);
         }
         
+        PreferencePane* PreferenceDialog::currentPane() const {
+            return static_cast<PreferencePane*>(m_book->GetCurrentPage());
+        }
+        
+        PreferenceDialog::PrefPane PreferenceDialog::currentPaneId() const {
+            return static_cast<PrefPane>(m_book->GetSelection());
+        }
+
         void PreferenceDialog::updateAcceleratorTable(const PrefPane pane) {
             // allow the dialog to be closed using CMD+W
             // but only if the keyboard preference pane is not active

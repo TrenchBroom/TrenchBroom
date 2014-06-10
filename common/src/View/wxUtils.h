@@ -27,6 +27,7 @@
 
 class wxCursor;
 class wxFrame;
+class wxSizer;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -34,6 +35,8 @@ namespace TrenchBroom {
         wxFrame* findFrame(wxWindow* window);
         Color fromWxColor(const wxColor& color);
         wxColor toWxColor(const Color& color);
+        
+        wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
     }
 }
 

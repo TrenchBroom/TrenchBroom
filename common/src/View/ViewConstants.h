@@ -27,10 +27,9 @@ namespace TrenchBroom {
         namespace LayoutConstants {
 #if defined _WIN32
             static const int DialogOuterMargin                  = 10;
-            static const int DialogButtonMargin                 = 7;
-            static const int ChooseGameDialogButtonTopMargin    = 10;
-            static const int ChooseGameDialogButtonSideMargin   = 7;
-            static const int ChooseGameDialogButtonBottomMargin = 10;
+            static const int DialogButtonTopMargin              = 10;
+            static const int DialogButtonSideMargin             = 7;
+            static const int DialogButtonBottomMargin           = 10;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
             static const int NarrowHMargin                      = 2;
@@ -46,10 +45,9 @@ namespace TrenchBroom {
             static const int ToggleButtonStyle                  = 0;
 #elif defined __APPLE__
             static const int DialogOuterMargin                  = 10;
-            static const int DialogButtonMargin                 = 0;
-            static const int ChooseGameDialogButtonTopMargin    = 0;
-            static const int ChooseGameDialogButtonSideMargin   = 0;
-            static const int ChooseGameDialogButtonBottomMargin = 3;
+            static const int DialogButtonTopMargin              = 0;
+            static const int DialogButtonSideMargin             = 0;
+            static const int DialogButtonBottomMargin           = 3;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
             static const int NarrowHMargin                      = 2;
@@ -65,10 +63,9 @@ namespace TrenchBroom {
             static const int ToggleButtonStyle                  = 0x08000000; // wxBORDER_SUNKEN
 #elif defined __linux__
             static const int DialogOuterMargin                  = 10;
-            static const int DialogButtonMargin                 = 7;
-            static const int ChooseGameDialogButtonTopMargin    = 10;
-            static const int ChooseGameDialogButtonSideMargin   = 0;
-            static const int ChooseGameDialogButtonBottomMargin = 10;
+            static const int DialogButtonTopMargin              = 10;
+            static const int DialogButtonSideMargin             = 0;
+            static const int DialogButtonBottomMargin           = 10;
             static const int WideHMargin                        = 8;
             static const int MediumHMargin                      = 4;
             static const int NarrowHMargin                      = 2;

@@ -481,6 +481,8 @@ namespace TrenchBroom {
             return container;
         }
         
+        void KeyboardPreferencePane::doUpdateControls() {}
+
         bool KeyboardPreferencePane::doValidate() {
             m_grid->SaveEditControlValue();
             if (m_table->hasDuplicates()) {

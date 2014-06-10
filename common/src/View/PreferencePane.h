@@ -29,6 +29,8 @@ namespace TrenchBroom {
         public:
             PreferencePane(wxWindow* parent);
             virtual ~PreferencePane();
+            
+            void updateControls();
             bool validate();
         protected:
             template <typename T>
@@ -42,6 +44,7 @@ namespace TrenchBroom {
                 slider->Bind(wxEVT_SCROLL_THUMBTRACK, function, handler);
             }
         private:
+            virtual void doUpdateControls() = 0;
             virtual bool doValidate() = 0;
         };
     }

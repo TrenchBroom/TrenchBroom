@@ -21,13 +21,13 @@
 
 #include "TrenchBroomApp.h"
 #include "View/AppInfoPanel.h"
+#include "View/BorderLine.h"
 #include "View/ViewConstants.h"
 #include "View/RecentDocumentListBox.h"
 #include "View/RecentDocumentSelectedCommand.h"
 
 #include <wx/panel.h>
 #include <wx/sizer.h>
-#include <wx/statline.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             
             wxBoxSizer* innerSizer = new wxBoxSizer(wxHORIZONTAL);
             innerSizer->Add(appPanel, 0, wxEXPAND);
-            innerSizer->Add(new wxStaticLine(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL), 0, wxEXPAND);
+            innerSizer->Add(new BorderLine(container, BorderLine::Direction_Vertical), 0, wxEXPAND);
             innerSizer->Add(m_recentDocumentListBox, 1, wxEXPAND);
             innerSizer->SetItemMinSize(m_recentDocumentListBox, wxSize(300, wxDefaultSize.y));
             container->SetSizer(innerSizer);

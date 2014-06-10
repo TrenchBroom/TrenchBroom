@@ -24,6 +24,7 @@
 #include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "View/BorderLine.h"
 #include "View/GameListBox.h"
 #include "View/GameSelectionCommand.h"
 #include "View/ViewConstants.h"
@@ -32,7 +33,6 @@
 #include <wx/dirdlg.h>
 #include <wx/sizer.h>
 #include <wx/settings.h>
-#include <wx/statline.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
@@ -41,7 +41,6 @@ namespace TrenchBroom {
         PreferencePane(parent) {
             createGui();
             bindEvents();
-            updateControls();
         }
         
         void GamesPreferencePane::OnGameSelectionChanged(GameSelectionCommand& event) {
@@ -73,7 +72,7 @@ namespace TrenchBroom {
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_gameListBox, 0, wxEXPAND);
-            sizer->Add(new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL), 0, wxEXPAND);
+            sizer->Add(new BorderLine(this, BorderLine::Direction_Vertical), 0, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::WideVMargin);
             sizer->Add(prefMarginSizer, 1, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::WideVMargin);
@@ -109,7 +108,7 @@ namespace TrenchBroom {
             m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
         }
         
-        void GamesPreferencePane::updateControls() {
+        void GamesPreferencePane::doUpdateControls() {
             const String gameName = m_gameListBox->selectedGameName();
             Model::GameFactory& gameFactory = Model::GameFactory::instance();
             const IO::Path gamePath = gameFactory.gamePath(gameName);

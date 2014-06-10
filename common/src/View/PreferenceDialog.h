@@ -23,6 +23,7 @@
 #include <wx/dialog.h>
 
 class wxPanel;
+class wxSimplebook;
 class wxToolBar;
 class wxToolBarToolBase;
 
@@ -33,17 +34,15 @@ namespace TrenchBroom {
         class PreferenceDialog : public wxDialog {
         private:
             typedef enum {
-                PrefPane_First,
-                PrefPane_Games,
-                PrefPane_General,
-                PrefPane_Keyboard,
-                PrefPane_Last
+                PrefPane_First = 0,
+                PrefPane_Games = 0,
+                PrefPane_General = 1,
+                PrefPane_Keyboard = 2,
+                PrefPane_Last = 2
             } PrefPane;
 
             wxToolBar* m_toolBar;
-            wxPanel* m_paneContainer;
-            PrefPane m_currentPane;
-            PreferencePane* m_pane;
+            wxSimplebook* m_book;
         public:
             PreferenceDialog();
             bool Create();
@@ -59,8 +58,13 @@ namespace TrenchBroom {
         private:
             void createGui();
             void bindEvents();
+            
             void switchToPane(const PrefPane pane);
             void toggleTools(const PrefPane pane);
+
+            PreferencePane* currentPane() const;
+            PrefPane currentPaneId() const;
+
             void updateAcceleratorTable(const PrefPane pane);
         };
     }

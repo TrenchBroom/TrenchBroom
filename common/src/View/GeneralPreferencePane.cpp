@@ -44,7 +44,6 @@ namespace TrenchBroom {
         PreferencePane(parent) {
             createGui();
             bindEvents();
-            updateControls();
         }
 
 
@@ -293,7 +292,7 @@ namespace TrenchBroom {
             bindSliderEvents(m_moveSpeedSlider, &GeneralPreferencePane::OnMoveSpeedChanged, this);
         }
 
-        void GeneralPreferencePane::updateControls() {
+        void GeneralPreferencePane::doUpdateControls() {
             PreferenceManager& prefs = PreferenceManager::instance();
             
             m_brightnessSlider->SetValue(static_cast<int>(prefs.get(Preferences::Brightness) * 40.0f));

@@ -28,8 +28,8 @@
 #include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/ControllerFacade.h"
-#include "View/ViewConstants.h"
 #include "View/MapDocument.h"
+#include "View/ViewConstants.h"
 
 #include <wx/bitmap.h>
 #include <wx/bmpbuttn.h>
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             const IO::Path docPath = document->path();
             const IO::Path gamePath = gameFactory.gamePath(document->game()->gameName());
             
-            ChoosePathTypeDialog pathDialog(this, absPath, docPath, gamePath);
+            ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(this), absPath, docPath, gamePath);
             if (pathDialog.ShowModal() != wxID_OK)
                 return;
             

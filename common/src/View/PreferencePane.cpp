@@ -26,6 +26,10 @@ namespace TrenchBroom {
         
         PreferencePane::~PreferencePane() {}
         
+        void PreferencePane::updateControls() {
+            doUpdateControls();
+        }
+
         bool PreferencePane::validate() {
             return doValidate();
         }
