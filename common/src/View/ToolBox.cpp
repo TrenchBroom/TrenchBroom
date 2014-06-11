@@ -52,6 +52,7 @@ namespace TrenchBroom {
         m_clickToActivate(true),
         m_ignoreNextClick(false),
         m_lastActivation(wxDateTime::Now()),
+        m_cursorLocked(false),
         m_enabled(true) {
             assert(m_window != NULL);
             assert(m_helper != NULL);
@@ -158,6 +159,29 @@ namespace TrenchBroom {
             return success;
         }
         
+        void ToolBox::lockCursor() {
+            assert(!m_cursorLocked);
+            
+            if (!m_enabled)
+                return;
+            
+            assert(m_dragReceiver == NULL);
+            assert(m_dropReceiver == NULL);
+            
+            m_lockCursorPos = m_window->ScreenToClient(wxGetMousePosition());
+            resetLockedCursor();
+            m_window->CaptureMouse();
+            
+            m_cursorLocked = true;
+        }
+        
+        void ToolBox::unlockCursor() {
+            assert(m_cursorLocked);
+            
+            m_window->ReleaseMouse();
+            restoreLockedCursor();
+        }
+
         void ToolBox::OnKey(wxKeyEvent& event) {
             if (!m_enabled)
                 return;
@@ -268,6 +292,10 @@ namespace TrenchBroom {
                     m_toolChain->mouseMove(m_inputState);
                 }
             }
+            
+            if (m_cursorLocked)
+                resetLockedCursor();
+            
             m_window->Refresh();
             event.Skip();
         }
@@ -294,6 +322,8 @@ namespace TrenchBroom {
                 return;
             
             cancelDrag();
+            restoreLockedCursor();
+            
             m_window->Refresh();
             event.Skip();
         }
@@ -393,6 +423,22 @@ namespace TrenchBroom {
                 m_toolChain->renderChain(m_inputState, renderContext);
         }
 
+        wxPoint ToolBox::lockPosition() const {
+            const wxSize size = m_window->GetSize();
+            return wxPoint(size.x / 2, size.y / 2);
+        }
+        
+        void ToolBox::resetLockedCursor() {
+            const wxPoint warpTo = lockPosition();
+            m_window->WarpPointer(warpTo.x, warpTo.y);
+            m_inputState.mouseMove(warpTo.x, warpTo.y);
+        }
+
+        void ToolBox::restoreLockedCursor() {
+            m_window->WarpPointer(m_lockCursorPos.x, m_lockCursorPos.y);
+            m_cursorLocked = false;
+        }
+        
         void ToolBox::cancelDrag() {
             if (m_dragReceiver != NULL) {
                 m_toolChain->cancelMouseDrag(m_inputState);
