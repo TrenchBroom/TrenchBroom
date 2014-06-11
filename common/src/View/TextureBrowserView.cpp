@@ -120,8 +120,9 @@ namespace TrenchBroom {
                 for (gIt = groups.begin(), gEnd = groups.end(); gIt != gEnd; ++gIt) {
                     const Assets::TextureCollection* collection = gIt->first;
                     const Assets::TextureList& textures = gIt->second;
+                    const IO::Path collectionPath(collection->name());
                     
-                    layout.addGroup(collection->name(), fontSize + 2.0f);
+                    layout.addGroup(collectionPath.lastComponent().asString(), fontSize + 2.0f);
                     
                     Assets::TextureList::const_iterator tIt, tEnd;
                     for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {

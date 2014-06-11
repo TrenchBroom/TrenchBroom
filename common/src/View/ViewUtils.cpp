@@ -23,6 +23,11 @@
 #include "Logger.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/ModelDefinition.h"
+#include "Model/Game.h"
+#include "Model/GameFactory.h"
+#include "View/ChoosePathTypeDialog.h"
+#include "View/ControllerFacade.h"
+#include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -45,6 +50,85 @@ namespace TrenchBroom {
                 setFlags &= ~(1 << i);
                 mixedFlags |= (1 << i);
             }
+        }
+
+        bool loadTextureCollection(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxString& wxPath) {
+            wxArrayString wxPaths;
+            wxPaths.Add(wxPath);
+            return loadTextureCollections(document, controller, parent, wxPaths) == 1;
+        }
+
+        size_t loadTextureCollections(MapDocumentWPtr i_document, ControllerWPtr i_controller, wxWindow* parent, const wxArrayString& wxPaths) {
+            if (wxPaths.empty())
+                return 0;
+            
+            size_t count = 0;
+            
+            MapDocumentSPtr document = lock(i_document);
+            Model::GamePtr game = document->game();
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const IO::Path gamePath = gameFactory.gamePath(game->gameName());
+            const IO::Path docPath = document->path();
+
+            ControllerSPtr controller = lock(i_controller);
+            controller->beginUndoableGroup();
+            try {
+                for (size_t i = 0; i < wxPaths.size(); ++i) {
+                    const wxString& wxPath = wxPaths[i];
+                    const IO::Path absPath(wxPath.ToStdString());
+                    if (game->isTextureCollection(absPath)) {
+                        ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
+                        if (pathDialog.ShowModal() == wxID_OK) {
+                            const IO::Path collectionPath = pathDialog.path();
+                            controller->addTextureCollection(collectionPath.asString());
+                            ++count;
+                        }
+                    }
+                }
+            } catch (...) {
+                controller->rollbackGroup();
+                controller->closeGroup();
+                throw;
+            }
+            
+            return count;
+        }
+
+        bool loadEntityDefinitionFile(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxString& wxPath) {
+            wxArrayString wxPaths;
+            wxPaths.Add(wxPath);
+            return loadEntityDefinitionFile(document, controller, parent, wxPaths) == 0;
+        }
+        
+        size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, ControllerWPtr i_controller, wxWindow* parent, const wxArrayString& wxPaths) {
+            if (wxPaths.empty())
+                return 0;
+            
+            MapDocumentSPtr document = lock(i_document);
+            Model::GamePtr game = document->game();
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const IO::Path gamePath = gameFactory.gamePath(game->gameName());
+            const IO::Path docPath = document->path();
+            
+            ControllerSPtr controller = lock(i_controller);
+            try {
+                for (size_t i = 0; i < wxPaths.size(); ++i) {
+                    const wxString& wxPath = wxPaths[i];
+                    const IO::Path absPath(wxPath.ToStdString());
+                    if (game->isEntityDefinitionFile(absPath)) {
+                        ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(parent), absPath, docPath, gamePath);
+                        if (pathDialog.ShowModal() == wxID_OK) {
+                            const Model::EntityDefinitionFileSpec spec = Model::EntityDefinitionFileSpec::external(pathDialog.path());
+                            controller->setEntityDefinitionFile(spec);
+                            return i;
+                        }
+                    }
+                }
+            } catch (...) {
+                throw;
+            }
+            
+            return wxPaths.size();
         }
     }
 }

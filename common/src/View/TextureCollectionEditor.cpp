@@ -30,6 +30,7 @@
 #include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
+#include "View/ViewUtils.h"
 
 #include <wx/bitmap.h>
 #include <wx/bmpbuttn.h>
@@ -58,21 +59,7 @@ namespace TrenchBroom {
             if (pathWxStr.empty())
                 return;
             
-            MapDocumentSPtr document = lock(m_document);
-            ControllerSPtr controller = lock(m_controller);
-
-            const IO::Path absPath(pathWxStr.ToStdString());
-            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-
-            const IO::Path docPath = document->path();
-            const IO::Path gamePath = gameFactory.gamePath(document->game()->gameName());
-            
-            ChoosePathTypeDialog pathDialog(wxGetTopLevelParent(this), absPath, docPath, gamePath);
-            if (pathDialog.ShowModal() != wxID_OK)
-                return;
-            
-            const IO::Path collectionPath = pathDialog.path();
-            controller->addTextureCollection(collectionPath.asString());
+            loadTextureCollection(m_document, m_controller, this, pathWxStr);
         }
         
         void TextureCollectionEditor::OnRemoveTextureCollectionsClicked(wxCommandEvent& event) {

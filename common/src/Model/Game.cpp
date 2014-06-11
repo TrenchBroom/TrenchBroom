@@ -78,6 +78,10 @@ namespace TrenchBroom {
             doWriteFacesToStream(format, faces, stream);
         }
         
+        bool Game::isTextureCollection(const IO::Path& path) const {
+            return doIsTextureCollection(path);
+        }
+
         IO::Path::List Game::findBuiltinTextureCollections() const {
             return doFindBuiltinTextureCollections();
         }
@@ -94,6 +98,10 @@ namespace TrenchBroom {
             return doLoadTextureCollection(spec);
         }
         
+        bool Game::isEntityDefinitionFile(const IO::Path& path) const {
+            return doIsEntityDefinitionFile(path);
+        }
+
         Assets::EntityDefinitionList Game::loadEntityDefinitions(const IO::Path& path) const {
             return doLoadEntityDefinitions(path);
         }

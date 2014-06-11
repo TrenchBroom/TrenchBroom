@@ -56,11 +56,13 @@ namespace TrenchBroom {
             void writeObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const;
             void writeFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const;
             
+            bool isTextureCollection(const IO::Path& path) const;
             IO::Path::List findBuiltinTextureCollections() const;
             StringList extractExternalTextureCollections(const Map* map) const;
             void updateExternalTextureCollections(Map* map, const StringList& collections) const;
             Assets::TextureCollection* loadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
             
+            bool isEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionList loadEntityDefinitions(const IO::Path& path) const;
             EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             EntityDefinitionFileSpec extractEntityDefinitionFile(const Map* map) const;
@@ -88,11 +90,13 @@ namespace TrenchBroom {
             virtual void doWriteObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const = 0;
             virtual void doWriteFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const = 0;
             
+            virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
             virtual IO::Path::List doFindBuiltinTextureCollections() const = 0;
             virtual StringList doExtractExternalTextureCollections(const Map* map) const = 0;
             virtual void doUpdateExternalTextureCollections(Map* map, const StringList& collections) const = 0;
             virtual Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const = 0;
             
+            virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
             virtual Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const = 0;
             virtual EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const = 0;
             virtual EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Map* map) const = 0;

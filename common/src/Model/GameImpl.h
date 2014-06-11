@@ -61,11 +61,13 @@ namespace TrenchBroom {
             void doWriteObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const;
             void doWriteFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const;
             
+            bool doIsTextureCollection(const IO::Path& path) const;
             IO::Path::List doFindBuiltinTextureCollections() const;
             StringList doExtractExternalTextureCollections(const Map* map) const;
             void doUpdateExternalTextureCollections(Map* map, const StringList& collections) const;
             Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
             
+            bool doIsEntityDefinitionFile(const IO::Path& path) const;
             Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
             EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const;
             EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Map* map) const;

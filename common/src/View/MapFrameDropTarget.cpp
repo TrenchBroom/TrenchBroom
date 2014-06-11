@@ -17,29 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__wxUtils__
-#define __TrenchBroom__wxUtils__
+#include "MapFrameDropTarget.h"
 
-#include "Color.h"
-
-#include <iostream>
-#include <wx/colour.h>
-
-class wxCursor;
-class wxFrame;
-class wxSizer;
-class wxWindow;
+#include "View/ViewUtils.h"
+#include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
-        wxFrame* findFrame(wxWindow* window);
-        Color fromWxColor(const wxColor& color);
-        wxColor toWxColor(const Color& color);
-        
-        wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
+        MapFrameDropTarget::MapFrameDropTarget(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent) :
+        wxFileDropTarget(),
+        m_document(document),
+        m_controller(controller),
+        m_parent(parent) {}
 
-        wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, bool caseSensitive = false);
+        bool MapFrameDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) {
+            size_t count = 0;
+            count += loadTextureCollections(m_document, m_controller, m_parent, filenames);
+            if (loadEntityDefinitionFile(m_document, m_controller, m_parent, filenames) < filenames.size())
+                ++count;
+            return count > 0;
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__wxUtils__) */

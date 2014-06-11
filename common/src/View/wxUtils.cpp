@@ -60,5 +60,20 @@ namespace TrenchBroom {
             sizer->AddSpacer(LayoutConstants::DialogButtonBottomMargin);
             return sizer;
         }
+
+        wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, const bool caseSensitive) {
+            wxArrayString result;
+            for (size_t i = 0; i < strings.size(); ++i) {
+                const wxString& str = strings[i];
+                if (caseSensitive) {
+                    if (str.EndsWith(suffix))
+                        result.Add(str);
+                } else {
+                    if (str.Lower().EndsWith(suffix.Lower()))
+                        result.Add(str);
+                }
+            }
+            return result;
+        }
     }
 }

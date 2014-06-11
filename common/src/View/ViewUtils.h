@@ -20,7 +20,9 @@
 #ifndef __TrenchBroom__ViewUtils__
 #define __TrenchBroom__ViewUtils__
 
-#include <iostream>
+#include "View/ViewTypes.h"
+
+#include <wx/wx.h>
 
 namespace TrenchBroom {
     class Logger;
@@ -34,6 +36,12 @@ namespace TrenchBroom {
     namespace View {
         Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger);
         void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags);
+        
+        bool loadTextureCollection(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxString& wxPath);
+        size_t loadTextureCollections(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxArrayString& wxPaths);
+        
+        bool loadEntityDefinitionFile(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxString& wxPath);
+        size_t loadEntityDefinitionFile(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxArrayString& wxPath);
     }
 }
 

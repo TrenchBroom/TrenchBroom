@@ -17,29 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__wxUtils__
-#define __TrenchBroom__wxUtils__
+#ifndef __TrenchBroom__MapFrameDropTarget__
+#define __TrenchBroom__MapFrameDropTarget__
 
-#include "Color.h"
+#include "View/ViewTypes.h"
 
-#include <iostream>
-#include <wx/colour.h>
-
-class wxCursor;
-class wxFrame;
-class wxSizer;
-class wxWindow;
+#include <wx/dnd.h>
 
 namespace TrenchBroom {
     namespace View {
-        wxFrame* findFrame(wxWindow* window);
-        Color fromWxColor(const wxColor& color);
-        wxColor toWxColor(const Color& color);
-        
-        wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
-
-        wxArrayString filterBySuffix(const wxArrayString& strings, const wxString& suffix, bool caseSensitive = false);
+        class MapFrameDropTarget : public wxFileDropTarget {
+        private:
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
+            wxWindow* m_parent;
+        public:
+            MapFrameDropTarget(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent);
+            bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
+        };
     }
 }
 
-#endif /* defined(__TrenchBroom__wxUtils__) */
+#endif /* defined(__TrenchBroom__MapFrameDropTarget__) */

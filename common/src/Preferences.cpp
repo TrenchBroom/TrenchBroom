@@ -90,11 +90,11 @@ namespace TrenchBroom {
         
         Preference<int> BrowserFontSize(IO::Path("Browser/Font size"), 13);
         Preference<Color> BrowserTextColor(IO::Path("Browser/Text color"), Color(0.0f, 0.0f, 0.0f, 1.0f));
-        Preference<Color> BrowserGroupBackgroundColor(IO::Path("Browser/Group background color"), Color(0.5f, 0.5f, 0.5f, 0.5f));
+        Preference<Color> BrowserGroupBackgroundColor(IO::Path("Browser/Group background color"), Color(0.8f, 0.8f, 0.8f, 0.8f));
         Preference<float> TextureBrowserIconSize(IO::Path("Texture Browser/Icon size"), 1.0f);
         Preference<Color> TextureBrowserDefaultColor(IO::Path("Texture Browser/Default color"), Color(0.0f, 0.0f, 0.0f, 0.0f));
         Preference<Color> TextureBrowserSelectedColor(IO::Path("Texture Browser/Selected color"), Color(1.0f, 0.0f, 0.0f, 1.0f));
-        Preference<Color> TextureBrowserUsedColor(IO::Path("Texture Browser/Used color"), Color(1.0f, 1.0f, 0.0f, 1.0f));
+        Preference<Color> TextureBrowserUsedColor(IO::Path("Texture Browser/Used color"), Color(1.0f, 0.7f, 0.0f, 1.0f));
         
         Preference<float> CameraLookSpeed(IO::Path("Controls/Camera/Look speed"), 0.5f);
         Preference<bool>  CameraLookInvertH(IO::Path("Controls/Camera/Invert horizontal look"), false);

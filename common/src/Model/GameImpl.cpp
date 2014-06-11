@@ -118,6 +118,15 @@ namespace TrenchBroom {
             mapWriter(format)->writeFacesToStream(faces, stream);
         }
         
+        bool GameImpl::doIsTextureCollection(const IO::Path& path) const {
+            const String& type = m_config.textureConfig().type;
+            if (type == "wad")
+                return StringUtils::caseInsensitiveEqual(path.extension(), "wad");
+            if (type == "wal")
+                return IO::Disk::directoryExists(path);
+            return false;
+        }
+
         IO::Path::List GameImpl::doFindBuiltinTextureCollections() const {
             try {
                 const IO::Path& searchPath = m_config.textureConfig().builtinTexturesSearchPath;
@@ -167,6 +176,15 @@ namespace TrenchBroom {
             throw GameException("Unknown texture collection type '" + type + "'");
         }
         
+        bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const {
+            const String extension = path.extension();
+            if (StringUtils::caseInsensitiveEqual("fgd", extension))
+                return true;
+            if (StringUtils::caseInsensitiveEqual("def", extension))
+                return true;
+            return false;
+        }
+
         Assets::EntityDefinitionList GameImpl::doLoadEntityDefinitions(const IO::Path& path) const {
             const String extension = path.extension();
             const Color& defaultColor = m_config.entityConfig().defaultColor;
