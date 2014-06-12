@@ -16,6 +16,7 @@ These icons are to be used in several places all over the editor and therefore s
 - Edit something
 - Delete something (this is different from removing because it will cause something to be erased permanently).
 - Select something from disk (open a browser window / open file dialog).
+- Refresh or reload something from disk (for example reload all textures).
 
 # Object Icons (16x16, 32x32)
 - Entity icon: Could be a humanoid figure.

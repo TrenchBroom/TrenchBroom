@@ -63,11 +63,13 @@ namespace TrenchBroom {
             MOCK_CONST_METHOD3(doWriteObjectsToStream, void(Model::MapFormat::Type, const Model::ObjectList&, std::ostream&));
             MOCK_CONST_METHOD3(doWriteFacesToStream, void(Model::MapFormat::Type, const Model::BrushFaceList&, std::ostream&));
             
+            MOCK_CONST_METHOD1(doIsTextureCollection, bool(const IO::Path&));
             MOCK_CONST_METHOD0(doFindBuiltinTextureCollections, IO::Path::List());
             MOCK_CONST_METHOD1(doExtractExternalTextureCollections, StringList(const Map*));
             MOCK_CONST_METHOD2(doUpdateExternalTextureCollections, void(Map*, const StringList&));
             MOCK_CONST_METHOD1(doLoadTextureCollection, Assets::TextureCollection*(const Assets::TextureCollectionSpec&));
             
+            MOCK_CONST_METHOD1(doIsEntityDefinitionFile, bool(const IO::Path&));
             MOCK_CONST_METHOD1(doLoadEntityDefinitions, Assets::EntityDefinitionList(const IO::Path&));
             MOCK_CONST_METHOD0(doAllEntityDefinitionFiles, EntityDefinitionFileSpec::List());
             MOCK_CONST_METHOD1(doExtractEntityDefinitionFile, EntityDefinitionFileSpec(const Map* map));
