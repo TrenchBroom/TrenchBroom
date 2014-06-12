@@ -117,11 +117,11 @@ namespace TrenchBroom {
             m_mouseButtons = MouseButtons::MBNone;
         }
 
-        void InputState::mouseMove(const int mouseX, const int mouseY) {
-            m_mouseDX = mouseX - m_mouseX;
+        void InputState::mouseMove(const int mouseX, const int mouseY, const int mouseDX, const int mouseDY) {
             m_mouseX = mouseX;
-            m_mouseDY = mouseY - m_mouseY;
             m_mouseY = mouseY;
+            m_mouseDX = mouseDX;
+            m_mouseDY = mouseDY;
         }
         
         void InputState::scroll(const float scrollX, const float scrollY) {

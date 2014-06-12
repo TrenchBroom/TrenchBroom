@@ -506,6 +506,8 @@ namespace TrenchBroom {
             cameraMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::ViewMoveCameraToNextPoint, WXK_SHIFT, '+', KeyboardShortcut::Context_Any, "Move to Next Point"));
             cameraMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::ViewMoveCameraToPreviousPoint, WXK_SHIFT, '-', KeyboardShortcut::Context_Any, "Move to Previous Point"));
             cameraMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::ViewCenterCameraOnSelection, WXK_CONTROL, WXK_SHIFT, 'C', KeyboardShortcut::Context_Any, "Center on Selection"));
+            cameraMenu.addSeparator();
+            cameraMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewToggleCameraFlyMode, 'F', KeyboardShortcut::Context_Any, "Fly Mode"));
             
             viewMenu->addSeparator();
             viewMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::ViewSwitchToMapInspector, WXK_CONTROL, '1', KeyboardShortcut::Context_Any, "Switch to Map Inspector"));

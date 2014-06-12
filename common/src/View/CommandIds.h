@@ -129,6 +129,7 @@ namespace TrenchBroom {
                 const int EditSelectContained                = Lowest + 103;
                 const int EditDeleteLastClipPoint            = Lowest + 104;
                 const int EditToggleTextureTool              = Lowest + 105;
+                const int ViewToggleCameraFlyMode            = Lowest + 106;
                 const int FileRecentDocuments                = Lowest + 190;
                 const int Highest                            = Lowest + 200;
             }

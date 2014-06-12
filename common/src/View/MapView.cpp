@@ -76,6 +76,7 @@ namespace TrenchBroom {
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
         m_textureTool(NULL),
+        m_cameraFlyMode(false),
         m_renderer(document, contextHolder()->fontManager()),
         m_compass(),
         m_selectionGuide(defaultFont(contextHolder()->fontManager())) {
@@ -107,6 +108,19 @@ namespace TrenchBroom {
         void MapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
             CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
             m_animationManager->runAnimation(animation, true);
+        }
+
+        bool MapView::cameraFlyModeActive() const {
+            return m_cameraFlyMode;
+        }
+
+        void MapView::toggleCameraFlyMode() {
+            m_cameraFlyMode = !m_cameraFlyMode;
+            if (m_cameraFlyMode) {
+                m_toolBox.lockCursor();
+            } else {
+                m_toolBox.unlockCursor();
+            }
         }
 
         void MapView::toggleMovementRestriction() {

@@ -18,6 +18,7 @@
  */
 
 #include "ToolBox.h"
+#include "SetBool.h"
 #include "View/Tool.h"
 
 #include <cassert>
@@ -33,13 +34,13 @@ namespace TrenchBroom {
         Hits ToolBoxHelper::pick(const Ray3& pickRay) const {
             return doPick(pickRay);
         }
-
+        
         void ToolBoxHelper::showPopupMenu() {
             doShowPopupMenu();
         }
-
+        
         void ToolBoxHelper::doShowPopupMenu() {}
-
+        
         ToolBox::ToolBox(wxWindow* window, ToolBoxHelper* helper) :
         m_window(window),
         m_helper(helper),
@@ -52,7 +53,9 @@ namespace TrenchBroom {
         m_clickToActivate(true),
         m_ignoreNextClick(false),
         m_lastActivation(wxDateTime::Now()),
-        m_enabled(true) {
+        m_cursorLocked(false),
+        m_enabled(true),
+        m_ignoreMotionEvents(false) {
             assert(m_window != NULL);
             assert(m_helper != NULL);
             bindEvents();
@@ -61,13 +64,13 @@ namespace TrenchBroom {
         ToolBox::~ToolBox() {
             unbindEvents();
         }
-
+        
         void ToolBox::setClickToActivate(const bool clickToActivate) {
             m_clickToActivate = clickToActivate;
             if (!m_clickToActivate)
                 m_ignoreNextClick = false;
         }
-
+        
         const Ray3& ToolBox::pickRay() const {
             return m_inputState.pickRay();
         }
@@ -75,7 +78,7 @@ namespace TrenchBroom {
         const Hits& ToolBox::hits() const {
             return m_inputState.hits();
         }
-
+        
         void ToolBox::updateHits() {
             const Ray3 pickRay = m_helper->pickRay(m_inputState.mouseX(),  m_inputState.mouseY());
             m_inputState.setPickRay(pickRay);
@@ -88,7 +91,7 @@ namespace TrenchBroom {
         void ToolBox::updateLastActivation() {
             m_lastActivation = wxDateTime::Now();
         }
-
+        
         bool ToolBox::dragEnter(const wxCoord x, const wxCoord y, const String& text) {
             assert(m_dropReceiver == NULL);
             
@@ -96,7 +99,7 @@ namespace TrenchBroom {
                 return false;
             
             deactivateAllTools();
-            m_inputState.mouseMove(x, y);
+            mouseMoved(wxPoint(x, y));
             updateHits();
             m_dropReceiver = m_toolChain->dragEnter(m_inputState, text);
             m_window->Refresh();
@@ -111,7 +114,7 @@ namespace TrenchBroom {
             if (!m_enabled)
                 return false;
             
-            m_inputState.mouseMove(x, y);
+            mouseMoved(wxPoint(x, y));
             updateHits();
             m_dropReceiver->dragMove(m_inputState);
             m_window->Refresh();
@@ -156,6 +159,26 @@ namespace TrenchBroom {
             m_window->Refresh();
             
             return success;
+        }
+        
+        void ToolBox::lockCursor() {
+            assert(!m_cursorLocked);
+            
+            if (!m_enabled)
+                return;
+            
+            assert(m_dragReceiver == NULL);
+            assert(m_dropReceiver == NULL);
+            
+            m_lockCursorPos = wxPoint(m_inputState.mouseX(), m_inputState.mouseY());
+            resetLockedCursor();
+            
+            m_cursorLocked = true;
+        }
+        
+        void ToolBox::unlockCursor() {
+            assert(m_cursorLocked);
+            restoreLockedCursor();
         }
         
         void ToolBox::OnKey(wxKeyEvent& event) {
@@ -240,13 +263,16 @@ namespace TrenchBroom {
         }
         
         void ToolBox::OnMouseMotion(wxMouseEvent& event) {
-            if (!m_enabled)
+            std::cout << "motion at " << event.GetPosition().x << "," << event.GetPosition().y << std::endl;
+            
+            if (!m_enabled || m_ignoreMotionEvents ||
+                event.GetPosition() == m_lastMousePos)
                 return;
             
             updateModifierKeys();
-            updateHits();
             if (m_dragReceiver != NULL) {
-                m_inputState.mouseMove(event.GetX(), event.GetY());
+                mouseMoved(event.GetPosition());
+                updateHits();
                 if (!m_dragReceiver->mouseDrag(m_inputState)) {
                     m_dragReceiver->endMouseDrag(m_inputState);
                     m_dragReceiver = NULL;
@@ -254,20 +280,24 @@ namespace TrenchBroom {
                 }
             } else if (!m_ignoreNextDrag) {
                 if (m_inputState.mouseButtons() != MouseButtons::MBNone &&
-                    (std::abs(event.GetX() - m_clickPos.x) > 1 ||
-                     std::abs(event.GetY() - m_clickPos.y) > 1)) {
+                    (std::abs(event.GetX() - m_clickPos.x) > 0 ||
+                     std::abs(event.GetY() - m_clickPos.y) > 0)) {
+                        updateHits();
                         m_dragReceiver = m_toolChain->startMouseDrag(m_inputState);
                         if (m_dragReceiver == NULL)
                             m_ignoreNextDrag = true;
                     }
-                if (m_dragReceiver != NULL) {
-                    m_inputState.mouseMove(event.GetX(), event.GetY());
+                mouseMoved(event.GetPosition());
+                updateHits();
+                if (m_dragReceiver != NULL)
                     m_dragReceiver->mouseDrag(m_inputState);
-                } else {
-                    m_inputState.mouseMove(event.GetX(), event.GetY());
+                else
                     m_toolChain->mouseMove(m_inputState);
-                }
             }
+            
+            if (m_cursorLocked)
+                resetLockedCursor();
+            
             m_window->Refresh();
             event.Skip();
         }
@@ -294,6 +324,8 @@ namespace TrenchBroom {
                 return;
             
             cancelDrag();
+            restoreLockedCursor();
+            
             m_window->Refresh();
             event.Skip();
         }
@@ -380,7 +412,7 @@ namespace TrenchBroom {
             cancelDrag();
             m_enabled = false;
         }
-
+        
         void ToolBox::setRenderOptions(Renderer::RenderContext& renderContext) {
             if (m_toolChain != NULL)
                 m_toolChain->setRenderOptions(m_inputState, renderContext);
@@ -392,7 +424,25 @@ namespace TrenchBroom {
             else if (m_toolChain != NULL)
                 m_toolChain->renderChain(m_inputState, renderContext);
         }
-
+        
+        wxPoint ToolBox::lockPosition() const {
+            const wxSize size = m_window->GetSize();
+            return wxPoint(size.x / 2, size.y / 2);
+        }
+        
+        void ToolBox::resetLockedCursor() {
+            const SetBool ignoreMotionEvents(m_ignoreMotionEvents);
+            const wxPoint warpTo = lockPosition();
+            m_window->WarpPointer(warpTo.x, warpTo.y);
+        }
+        
+        void ToolBox::restoreLockedCursor() {
+            const SetBool ignoreMotionEvents(m_ignoreMotionEvents);
+            m_window->WarpPointer(m_lockCursorPos.x, m_lockCursorPos.y);
+            m_inputState.mouseMove(m_lockCursorPos.x, m_lockCursorPos.y, 0, 0);
+            m_cursorLocked = false;
+        }
+        
         void ToolBox::cancelDrag() {
             if (m_dragReceiver != NULL) {
                 m_toolChain->cancelMouseDrag(m_inputState);
@@ -400,7 +450,7 @@ namespace TrenchBroom {
                 m_dragReceiver = NULL;
             }
         }
-
+        
         ModifierKeyState ToolBox::modifierKeys() {
             const wxMouseState mouseState = wxGetMouseState();
             
@@ -443,7 +493,22 @@ namespace TrenchBroom {
                     return MouseButtons::MBNone;
             }
         }
-
+        
+        void ToolBox::mouseMoved(const wxPoint& position) {
+            if (m_cursorLocked) {
+                const wxPoint warpTo = lockPosition();
+                const wxPoint delta = position - warpTo;
+                m_inputState.mouseMove(warpTo.x, warpTo.y, delta.x, delta.y);
+                std::cout << "motion at " << position.x << "," << position.y << " last " << warpTo.x << "," << warpTo.y << std::endl;
+                m_lastMousePos = warpTo;
+            } else {
+                const wxPoint delta = position - m_lastMousePos;
+                m_inputState.mouseMove(position.x, position.y, delta.x, delta.y);
+                std::cout << "motion at " << position.x << "," << position.y << " last " << m_lastMousePos.x << "," << m_lastMousePos.y << std::endl;
+                m_lastMousePos = position;
+            }
+        }
+        
         void ToolBox::showPopupMenu() {
             m_helper->showPopupMenu();
         }

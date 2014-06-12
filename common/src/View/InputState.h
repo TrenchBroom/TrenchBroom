@@ -83,7 +83,7 @@ namespace TrenchBroom {
             void mouseDown(const MouseButtonState button);
             void mouseUp(const MouseButtonState button);
             void clearMouseButtons();
-            void mouseMove(const int mouseX, const int mouseY);
+            void mouseMove(const int mouseX, const int mouseY, const int mouseDX, const int mouseDY);
             void scroll(const float scrollX, const float scrollY);
 
             const Ray3& pickRay() const;

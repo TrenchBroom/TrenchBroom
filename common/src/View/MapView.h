@@ -90,6 +90,8 @@ namespace TrenchBroom {
             SelectionTool* m_selectionTool;
             TextureTool* m_textureTool;
 
+            bool m_cameraFlyMode;
+            
             Renderer::MapRenderer m_renderer;
             Renderer::Compass m_compass;
             Renderer::BoundsGuideRenderer m_selectionGuide;
@@ -99,7 +101,10 @@ namespace TrenchBroom {
 
             void centerCameraOnSelection();
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
-
+            
+            bool cameraFlyModeActive() const;
+            void toggleCameraFlyMode();
+            
             void toggleMovementRestriction();
 
             bool anyToolActive() const;
