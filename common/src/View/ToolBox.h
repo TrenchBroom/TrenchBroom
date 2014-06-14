@@ -63,7 +63,7 @@ namespace TrenchBroom {
             Tool* m_dropReceiver;
             Tool* m_savedDropReceiver;
             
-            wxPoint m_clickPos;
+            wxPoint m_clickDelta;
             wxPoint m_lastMousePos;
             bool m_ignoreNextDrag;
             bool m_clickToActivate;
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             wxDateTime m_lastActivation;
             
             bool m_cursorLocked;
-            wxPoint m_lockCursorPos;
+            wxPoint m_lockCursorStartPos;
             
             bool m_enabled;
             bool m_ignoreMotionEvents;
@@ -118,17 +118,23 @@ namespace TrenchBroom {
             void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderTools(Renderer::RenderContext& renderContext);
         private:
-            wxPoint lockPosition() const;
-            void resetLockedCursor();
-            void restoreLockedCursor();
+            void captureMouse();
+            void releaseMouse();
             
             void cancelDrag();
+            void cancelLock();
 
             ModifierKeyState modifierKeys();
             bool updateModifierKeys();
             bool clearModifierKeys();
             MouseButtonState mouseButton(wxMouseEvent& event);
             void mouseMoved(const wxPoint& position);
+            
+            void startCursorLock();
+            void endCursorLock();
+            void updateCursorLock();
+            wxPoint lockedMouseDelta(const wxPoint& position) const;
+            wxPoint windowCenter() const;
             
             void showPopupMenu();
 

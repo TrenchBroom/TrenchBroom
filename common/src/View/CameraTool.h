@@ -36,10 +36,14 @@ namespace TrenchBroom {
             Renderer::Camera& m_camera;
             bool m_orbit;
             Vec3f m_orbitCenter;
+            bool m_flyMode;
         public:
             CameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
+            
+            void setFlyMode(bool flyMode);
         private:
             void doScroll(const InputState& inputState);
+            void doMouseMove(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
@@ -49,6 +53,8 @@ namespace TrenchBroom {
             bool look(const InputState& inputState) const;
             bool pan(const InputState& inputState) const;
             bool orbit(const InputState& inputState) const;
+            
+            void doLook(const InputState& inputState);
             
             float lookSpeedH() const;
             float lookSpeedV() const;

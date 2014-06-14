@@ -33,8 +33,13 @@ namespace TrenchBroom {
         CameraTool::CameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
         ToolImpl(document, controller),
         m_camera(camera),
-        m_orbit(false) {}
+        m_orbit(false),
+        m_flyMode(false) {}
         
+        void CameraTool::setFlyMode(const bool flyMode) {
+            m_flyMode = flyMode;
+        }
+
         void CameraTool::doScroll(const InputState& inputState) {
             if (m_orbit) {
                 const Plane3f orbitPlane(m_orbitCenter, m_camera.direction());
@@ -49,7 +54,15 @@ namespace TrenchBroom {
             }
         }
 
+        void CameraTool::doMouseMove(const InputState& inputState) {
+            if (m_flyMode)
+                doLook(inputState);
+        }
+
         bool CameraTool::doStartMouseDrag(const InputState& inputState) {
+            if (m_flyMode)
+                return false;
+            
             if (orbit(inputState)) {
                 const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit | Model::Entity::EntityHit, document()->filter(), true);
                 if (hit.isMatch()) {
@@ -72,9 +85,7 @@ namespace TrenchBroom {
                 m_camera.orbit(m_orbitCenter, hAngle, vAngle);
                 return true;
             } else if (look(inputState)) {
-                const float hAngle = inputState.mouseDX() * lookSpeedH();
-                const float vAngle = inputState.mouseDY() * lookSpeedV();
-                m_camera.rotate(hAngle, vAngle);
+                doLook(inputState);
                 return true;
             } else if (pan(inputState)) {
                 PreferenceManager& prefs = PreferenceManager::instance();
@@ -120,6 +131,12 @@ namespace TrenchBroom {
         bool CameraTool::orbit(const InputState& inputState) const {
             return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt));
+        }
+
+        void CameraTool::doLook(const InputState& inputState) {
+            const float hAngle = inputState.mouseDX() * lookSpeedH();
+            const float vAngle = inputState.mouseDY() * lookSpeedV();
+            m_camera.rotate(hAngle, vAngle);
         }
 
         float CameraTool::lookSpeedH() const {

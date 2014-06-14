@@ -118,8 +118,10 @@ namespace TrenchBroom {
             m_cameraFlyMode = !m_cameraFlyMode;
             if (m_cameraFlyMode) {
                 m_toolBox.lockCursor();
+                m_cameraTool->setFlyMode(true);
             } else {
                 m_toolBox.unlockCursor();
+                m_cameraTool->setFlyMode(false);
             }
         }
 
