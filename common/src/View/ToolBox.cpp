@@ -432,6 +432,8 @@ namespace TrenchBroom {
         }
         
         void ToolBox::cancelLock() {
+            if (m_cursorLocked)
+                endCursorLock();
         }
         
         ModifierKeyState ToolBox::modifierKeys() {

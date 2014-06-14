@@ -1,5 +1,7 @@
 #include "Version.h"
 
+#include <wx/msw/wx.rc>
+
 AAAAAAAA                ICON                    "../resources/graphics/icons/TrenchBroom.ico"
 APPICON                 ICON                    "../resources/graphics/icons/TrenchBroomDoc.ico"
 
