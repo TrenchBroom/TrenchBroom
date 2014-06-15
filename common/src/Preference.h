@@ -277,7 +277,7 @@ namespace TrenchBroom {
         
         virtual ~PreferenceBase() {}
         
-        virtual void load(wxConfigBase* config) = 0;
+        virtual void load(wxConfigBase* config) const = 0;
         virtual void save(wxConfigBase* config) = 0;
         virtual void setValue(const ValueHolderBase* valueHolder) = 0;
 
@@ -297,8 +297,8 @@ namespace TrenchBroom {
         
         Converter<T> m_converter;
         IO::Path m_path;
-        T m_value;
-        bool m_initialized;
+        mutable T m_value;
+        mutable bool m_initialized;
         bool m_modified;
         
         void setValue(const T& value) {
@@ -315,7 +315,7 @@ namespace TrenchBroom {
             return m_initialized;
         }
         
-        void load(wxConfigBase* config) {
+        void load(wxConfigBase* config) const {
             wxString string;
             if (config->Read(m_path.asString('/'), &string))
                 m_value = m_converter.fromWxString(string);

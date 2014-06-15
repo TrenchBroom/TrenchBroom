@@ -35,10 +35,11 @@ class wxStaticBox;
 
 namespace TrenchBroom {
     namespace View {
+        class Action;
+        class ActionMenuItem;
         class Menu;
         class KeyboardShortcutEditor;
         class KeyboardShortcutEvent;
-        class ShortcutMenuItem;
 
         class KeyboardGridCellEditor : public wxGridCellEditor {
         private:
@@ -46,7 +47,7 @@ namespace TrenchBroom {
             wxEvtHandler* m_evtHandler;
         public:
             KeyboardGridCellEditor();
-            KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, int modifierKey1, int modifierKey2, int modifierKey3, int key);
+            KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, int key, int modifier1, int modifier2, int modifier3);
 
             void Create(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler);
             wxGridCellEditor* Clone() const;
@@ -62,55 +63,30 @@ namespace TrenchBroom {
             wxString GetValue() const;
         };
 
-        class KeyboardShortcutEntry {
+        class ActionEntry {
         public:
-            typedef std::tr1::shared_ptr<KeyboardShortcutEntry> Ptr;
+            typedef std::tr1::shared_ptr<ActionEntry> Ptr;
         private:
-            bool m_duplicate;
+            Action& m_action;
+            bool m_conflicts;
         public:
-            KeyboardShortcutEntry();
-            
-            virtual ~KeyboardShortcutEntry() {}
-            
-            virtual const String caption() const = 0;
-            virtual const KeyboardShortcut& shortcut() const = 0;
-            virtual void saveShortcut(const KeyboardShortcut& shortcut) const = 0;
-            bool isDuplicateOf(const KeyboardShortcutEntry& entry) const;
-            
-            inline bool duplicate() const {
-                return m_duplicate;
-            }
-            
-            inline void setDuplicate(bool duplicate) {
-                m_duplicate = duplicate;
-            }
-        };
-        
-        class MenuKeyboardShortcutEntry : public KeyboardShortcutEntry {
-        private:
-            const ShortcutMenuItem& m_item;
-        public:
-            MenuKeyboardShortcutEntry(const ShortcutMenuItem& item);
+            ActionEntry(Action& action);
             
             const String caption() const;
-            const KeyboardShortcut& shortcut() const;
-            void saveShortcut(const KeyboardShortcut& shortcut) const;
+            const String contextName() const;
+            const wxString shortcut() const;
+            bool modifiable() const;
+            
+            void updateShortcut(const KeyboardShortcut& shortcut);
+            bool conflictsWith(const ActionEntry& entry) const;
+            
+            bool conflicts() const;
+            void setConflicts(bool conflicts);
         };
         
-        class SimpleKeyboardShortcutEntry : public KeyboardShortcutEntry {
-        private:
-            Preference<KeyboardShortcut>& m_preference;
-        public:
-            SimpleKeyboardShortcutEntry(Preference<KeyboardShortcut>& preference);
-            
-            const String caption() const;
-            inline const KeyboardShortcut& shortcut() const;
-            inline void saveShortcut(const KeyboardShortcut& shortcut) const;
-        };
-
         class KeyboardGridTable : public wxGridTableBase {
         private:
-            typedef std::vector<KeyboardShortcutEntry::Ptr> EntryList;
+            typedef std::vector<ActionEntry::Ptr> EntryList;
 
             EntryList m_entries;
             KeyboardGridCellEditor* m_cellEditor;
@@ -120,8 +96,8 @@ namespace TrenchBroom {
             void notifyRowsAppended(size_t numRows = 1);
             void notifyRowsDeleted(size_t pos = 0, size_t numRows = 1);
 
-            bool markDuplicates(EntryList& entries);
-            void addMenu(const Menu& menu, EntryList& entries) const;
+            bool markConflicts(EntryList& entries);
+            void addMenu(Menu& menu, EntryList& entries) const;
             void addShortcut(Preference<KeyboardShortcut>& shortcut, EntryList& entries) const;
         public:
             KeyboardGridTable();

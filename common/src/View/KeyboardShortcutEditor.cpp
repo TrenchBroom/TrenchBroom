@@ -39,15 +39,15 @@ namespace TrenchBroom {
         END_EVENT_TABLE()
         
         void KeyboardShortcutEditor::update() {
-            if (!KeyboardShortcut::isShortcutValid(m_key, m_modifierKey1, m_modifierKey2, m_modifierKey3)) {
+            if (!KeyboardShortcut::isShortcutValid(m_key, m_modifier1, m_modifier2, m_modifier3)) {
                 m_key = WXK_NONE;
-                m_modifierKey1 = WXK_NONE;
-                m_modifierKey2 = WXK_NONE;
-                m_modifierKey3 = WXK_NONE;
+                m_modifier1 = WXK_NONE;
+                m_modifier2 = WXK_NONE;
+                m_modifier3 = WXK_NONE;
             }
             
-            KeyboardShortcut::sortModifierKeys(m_modifierKey1, m_modifierKey2, m_modifierKey3);
-            wxString label = KeyboardShortcut::shortcutDisplayText(m_modifierKey1, m_modifierKey2, m_modifierKey3, m_key);
+            KeyboardShortcut::sortModifierKeys(m_modifier1, m_modifier2, m_modifier3);
+            wxString label = KeyboardShortcut::shortcutDisplayString(m_key, m_modifier1, m_modifier2, m_modifier3);
             m_label->SetLabel(label);
             Refresh();
         }
@@ -55,10 +55,10 @@ namespace TrenchBroom {
         KeyboardShortcutEditor::KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
         wxControl(parent, windowId, pos, size, style | wxTAB_TRAVERSAL | wxWANTS_CHARS, validator, name),
         m_label(NULL),
-        m_modifierKey1(WXK_NONE),
-        m_modifierKey2(WXK_NONE),
-        m_modifierKey3(WXK_NONE),
         m_key(WXK_NONE),
+        m_modifier1(WXK_NONE),
+        m_modifier2(WXK_NONE),
+        m_modifier3(WXK_NONE),
         m_resetOnNextKey(false) {
             SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
             m_label = new wxStaticText(this, wxID_ANY, "");
@@ -68,15 +68,31 @@ namespace TrenchBroom {
             SetSizer(sizer);
         }
 
+        int KeyboardShortcutEditor::key() const {
+            return m_key;
+        }
+        
+        int KeyboardShortcutEditor::modifier1() const {
+            return m_modifier1;
+        }
+        
+        int KeyboardShortcutEditor::modifier2() const {
+            return m_modifier2;
+        }
+        
+        int KeyboardShortcutEditor::modifier3() const {
+            return m_modifier3;
+        }
+        
         void KeyboardShortcutEditor::SetShortcut(const KeyboardShortcut& shortcut) {
-            SetShortcut(shortcut.key(), shortcut.modifierKey1(), shortcut.modifierKey2(), shortcut.modifierKey3());
+            SetShortcut(shortcut.key(), shortcut.modifier1(), shortcut.modifier2(), shortcut.modifier3());
         }
 
-        void KeyboardShortcutEditor::SetShortcut(int key, int modifierKey1, int modifierKey2, int modifierKey3) {
-            m_modifierKey1 = modifierKey1;
-            m_modifierKey2 = modifierKey2;
-            m_modifierKey3 = modifierKey3;
+        void KeyboardShortcutEditor::SetShortcut(const int key, const int modifier1, const int modifier2, const int modifier3) {
             m_key = key;
+            m_modifier1 = modifier1;
+            m_modifier2 = modifier2;
+            m_modifier3 = modifier3;
             m_resetOnNextKey = true;
             update();
         }
@@ -99,7 +115,7 @@ namespace TrenchBroom {
         void KeyboardShortcutEditor::OnKeyDown(wxKeyEvent& event) {
             bool wasReset = false;
             if (m_resetOnNextKey) {
-                wasReset = m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE || m_modifierKey3 != WXK_NONE || m_key != WXK_NONE;
+                wasReset = m_key != WXK_NONE || m_modifier1 != WXK_NONE || m_modifier2 != WXK_NONE || m_modifier3 != WXK_NONE;
                 SetShortcut();
                 m_resetOnNextKey = false;
             }
@@ -109,12 +125,12 @@ namespace TrenchBroom {
                 case WXK_SHIFT:
                 case WXK_ALT:
                 case WXK_CONTROL:
-                    if (m_modifierKey1 == WXK_NONE)
-                        m_modifierKey1 = key;
-                    else if (m_modifierKey2 == WXK_NONE)
-                        m_modifierKey2 = key;
-                    else if (m_modifierKey3 == WXK_NONE)
-                        m_modifierKey3 = key;
+                    if (m_modifier1 == WXK_NONE)
+                        m_modifier1 = key;
+                    else if (m_modifier2 == WXK_NONE)
+                        m_modifier2 = key;
+                    else if (m_modifier3 == WXK_NONE)
+                        m_modifier3 = key;
                     break;
 #if defined __APPLE__
                 case WXK_RAW_CONTROL:
@@ -144,12 +160,12 @@ namespace TrenchBroom {
                     case WXK_SHIFT:
                     case WXK_ALT:
                     case WXK_CONTROL:
-                        if (m_modifierKey1 == key)
-                            m_modifierKey1 = WXK_NONE;
-                        else if (m_modifierKey2 == key)
-                            m_modifierKey2 = WXK_NONE;
-                        else if (m_modifierKey3 == key)
-                            m_modifierKey3 = WXK_NONE;
+                        if (m_modifier1 == key)
+                            m_modifier1 = WXK_NONE;
+                        else if (m_modifier2 == key)
+                            m_modifier2 = WXK_NONE;
+                        else if (m_modifier3 == key)
+                            m_modifier3 = WXK_NONE;
                         break;
 #if defined __APPLE__
                     case WXK_RAW_CONTROL:
@@ -161,7 +177,7 @@ namespace TrenchBroom {
                 }
                 update();
             } else {
-                KeyboardShortcutEvent shortcutEvent(m_modifierKey1, m_modifierKey2, m_modifierKey3, m_key);
+                KeyboardShortcutEvent shortcutEvent(m_key, m_modifier1, m_modifier2, m_modifier3);
                 shortcutEvent.SetEventType(EVT_KEYBOARD_SHORTCUT_EVENT);
                 shortcutEvent.SetEventObject(this);
                 shortcutEvent.SetId(GetId());

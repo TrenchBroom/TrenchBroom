@@ -20,13 +20,11 @@
 #ifndef __TrenchBroom__KeyboardShortcut__
 #define __TrenchBroom__KeyboardShortcut__
 
-#include "StringUtils.h"
-
-#include <cassert>
-#include <set>
-
 #include <wx/defs.h>
 #include <wx/string.h>
+
+#include <set>
+
 
 namespace TrenchBroom {
     namespace View {
@@ -49,59 +47,52 @@ namespace TrenchBroom {
 #endif
         public:
             static const KeyboardShortcut Empty;
-            typedef enum {
-                Context_VertexTool      = 1 << 1,
-                Context_ClipTool        = 1 << 2,
-                Context_RotateTool      = 1 << 3,
-                Context_ObjectSelection = 1 << 4,
-                Context_FaceSelection   = 1 << 5,
-                Context_Any             = Context_VertexTool | Context_ClipTool | Context_RotateTool | Context_ObjectSelection | Context_FaceSelection
-            } Context;
             
-            static wxString contextName(const int context);
             static void sortModifierKeys(int& key1, int& key2, int& key3);
-            static bool isShortcutValid(const int key, const int modifierKey1 = WXK_NONE, const int modifierKey2 = WXK_NONE, const int modifierKey3 = WXK_NONE);
-            static wxString modifierKeyMenuText(const int key);
-            static wxString modifierKeyDisplayText(const int key);
-            static wxString keyMenuText(const int key);
-            static wxString keyDisplayText(const int key);
-            static int parseKeyDisplayText(const wxString string);
-            static wxString shortcutDisplayText(int modifierKey1, int modifierKey2, int modifierKey3, int key);
-            static bool parseShortcut(const wxString& string, int& modifierKey1, int& modifierKey2, int& modifierKey3, int& key);
-        private:
-            int m_commandId;
-            int m_modifierKey1;
-            int m_modifierKey2;
-            int m_modifierKey3;
-            int m_key;
-            int m_context;
-            String m_text;
-        public:
-            KeyboardShortcut(const int commandId, const int context, const String& text);
-            KeyboardShortcut(const int commandId, const int key, const int context, const String& text);
-            KeyboardShortcut(const int commandId, const int modifierKey1, const int key, const int context, const String& text);
-            KeyboardShortcut(const int commandId, const int modifierKey1, const int modifierKey2, const int key, const int context, const String& text);
-            KeyboardShortcut(const int commandId, const int modifierKey1, const int modifierKey2, const int modifierKey3, const int key, const int context, const String& text);
-            KeyboardShortcut(const String& string);
+            static bool isShortcutValid(const int key, const int modifier1 = WXK_NONE, const int modifier2 = WXK_NONE, const int modifier3 = WXK_NONE);
             
-            int commandId() const;
-            int modifierKey1() const;
-            int modifierKey2() const;
-            int modifierKey3() const;
+            static wxString shortcutDisplayString(int key, int modifier1, int modifier2, int modifier3);
+            
+            static wxString keyMenuString(const int key);
+            static wxString keyDisplayString(const int key);
+            
+            static wxString modifierMenuString(const int key);
+            static wxString modifierDisplayString(const int key);
+            
+            static bool parseShortcut(const wxString& string, int& key, int& modifier1, int& modifier2, int& modifier3);
+            static int parseKeyDisplayString(const wxString& string);
+        private:
+            int m_key;
+            int m_modifier1;
+            int m_modifier2;
+            int m_modifier3;
+        public:
+            KeyboardShortcut(int key = WXK_NONE, int modifier1 = WXK_NONE, int modifier2 = WXK_NONE, int modifier3 = WXK_NONE);
+            KeyboardShortcut(const wxString& string);
+            
+            bool operator== (const KeyboardShortcut& other) const;
+            
             int key() const;
-            int context() const;
-            const String& text() const;
+            bool hasKey() const;
+            
+            int modifier1() const;
+            int modifier2() const;
+            int modifier3() const;
             bool hasModifier() const;
             
-            bool matches(const int key, const int modifierKey1 = WXK_NONE, const int modifierKey2 = WXK_NONE, const int modifierKey3 = WXK_NONE) const;
+            bool matches(const int key, const int modifier1 = WXK_NONE, const int modifier2 = WXK_NONE, const int modifier3 = WXK_NONE) const;
             bool alwaysShowModifier() const;
-            wxString modifierKeyMenuText() const;
-            wxString keyMenuText() const;
-            wxString shortcutMenuText() const;
-            wxString menuText(const String& additionalText = "") const;
-            wxString keyDisplayText() const;
-            wxString shortcutDisplayText() const;
-            String asString() const;
+            
+            wxString shortcutMenuString() const;
+            wxString shortcutMenuItemString(const wxString& name) const;
+            wxString shortcutDisplayString() const;
+            
+            wxString keyMenuString() const;
+            wxString keyDisplayString() const;
+            
+            wxString modifierMenuString() const;
+            
+            wxString asString() const;
         };
     }
 }

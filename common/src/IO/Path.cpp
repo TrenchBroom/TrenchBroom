@@ -121,6 +121,20 @@ namespace TrenchBroom {
             return StringUtils::join(m_components, separator);
         }
 
+        String Path::asString(const String& separator) const {
+            if (m_absolute) {
+#ifdef _WIN32
+                if (hasDriveSpec(m_components))
+                    return StringUtils::join(m_components, separator);
+                else
+                    return separator + StringUtils::join(m_components, separator);
+#else
+                return separator + StringUtils::join(m_components, separator);
+#endif
+            }
+            return StringUtils::join(m_components, separator);
+        }
+
         StringList Path::asStrings(const Path::List& paths, const char separator) {
             StringList result;
             Path::List::const_iterator it, end;

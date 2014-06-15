@@ -19,6 +19,8 @@
 
 #include "KeyboardShortcut.h"
 
+#include <wx/sstream.h>
+#include <wx/txtstrm.h>
 #include <wx/tokenzr.h>
 
 namespace TrenchBroom {
@@ -49,25 +51,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        const KeyboardShortcut KeyboardShortcut::Empty(wxID_ANY, Context_Any, "");
-        
-        wxString KeyboardShortcut::contextName(const int context) {
-            if (context == Context_Any)
-                return "Any";
-            
-            StringList contexts;
-            if (context & Context_VertexTool)
-                contexts.push_back("Vertex Tool");
-            if (context & Context_ClipTool)
-                contexts.push_back("Clip Tool");
-            if (context & Context_RotateTool)
-                contexts.push_back("Rotate Tool");
-            if (context & Context_ObjectSelection)
-                contexts.push_back("Objects");
-            if (context & Context_FaceSelection)
-                contexts.push_back("Textures");
-            return StringUtils::join(contexts, ", ");
-        }
+        const KeyboardShortcut KeyboardShortcut::Empty = KeyboardShortcut();
         
         void KeyboardShortcut::sortModifierKeys(int& key1, int& key2, int& key3) {
             ModifierSet modifierSet;
@@ -88,49 +72,39 @@ namespace TrenchBroom {
             }
         }
         
-        bool KeyboardShortcut::isShortcutValid(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) {
+        bool KeyboardShortcut::isShortcutValid(const int key, const int modifier1, const int modifier2, const int modifier3) {
 #ifdef __linux__
             // TAB and Escape are never allowed on GTK2:
             if (key == WXK_TAB || key == WXK_ESCAPE)
                 return false;
             // cursor keys are only allowed if they have modifiers
             if (key == WXK_LEFT || key == WXK_RIGHT || key == WXK_UP || key == WXK_DOWN)
-                return modifierKey1 != WXK_NONE || modifierKey2 != WXK_NONE || modifierKey3 != WXK_NONE;
+                return modifier1 != WXK_NONE || modifier2 != WXK_NONE || modifier3 != WXK_NONE;
 #endif
             return true;
         }
         
-        wxString KeyboardShortcut::modifierKeyMenuText(const int key) {
-            switch (key) {
-                case WXK_SHIFT:
-                    return "Shift";
-                case WXK_ALT:
-                    return "Alt";
-                case WXK_CONTROL:
-                    return "Ctrl";
-                default:
-                    return "";
-            }
-        }
-        
-        wxString KeyboardShortcut::modifierKeyDisplayText(const int key) {
+        wxString KeyboardShortcut::shortcutDisplayString(const int key, int modifier1, int modifier2, int modifier3) {
+            sortModifierKeys(modifier1, modifier2, modifier3);
+            wxString text;
 #if defined __APPLE__
-            switch (key) {
-                case WXK_SHIFT:
-                    return L"\u21E7";
-                case WXK_ALT:
-                    return L"\u2325";
-                case WXK_CONTROL:
-                    return L"\u2318";
-                default:
-                    return "";
-            }
+            text << modifierDisplayString(modifier1) << modifierDisplayString(modifier2) << modifierDisplayString(modifier3) << keyDisplayString(key);
 #else
-            return modifierKeyMenuText(key);
+            text << modifierDisplayString(modifier1);
+            if (modifier1 != WXK_NONE && modifier2 != WXK_NONE)
+                text << "+";
+            text << modifierDisplayString(modifier2);
+            if ((modifier1 != WXK_NONE || modifier2 != WXK_NONE) && modifier3 != WXK_NONE)
+                text << "+";
+            text << modifierDisplayString(modifier3);
+            if ((modifier1 != WXK_NONE || modifier2 != WXK_NONE || modifier3 != WXK_NONE) && key != WXK_NONE)
+                text << "+";
+            text << keyMenuString(key);
 #endif
+            return text;
         }
         
-        wxString KeyboardShortcut::keyMenuText(const int key) {
+        wxString KeyboardShortcut::keyMenuString(const int key) {
             switch (key) {
                 case WXK_BACK:
                     return "Back";
@@ -220,7 +194,7 @@ namespace TrenchBroom {
             }
         }
         
-        wxString KeyboardShortcut::keyDisplayText(const int key) {
+        wxString KeyboardShortcut::keyDisplayString(const int key) {
 #if defined __APPLE__
             switch (key) {
                 case WXK_BACK:
@@ -311,11 +285,105 @@ namespace TrenchBroom {
                     return L"";
             }
 #else
-            return keyMenuText(key);
+            return keyMenuString(key);
 #endif
         }
         
-        int KeyboardShortcut::parseKeyDisplayText(const wxString string) {
+        wxString KeyboardShortcut::modifierMenuString(const int key) {
+            switch (key) {
+                case WXK_SHIFT:
+                    return "Shift";
+                case WXK_ALT:
+                    return "Alt";
+                case WXK_CONTROL:
+                    return "Ctrl";
+                default:
+                    return "";
+            }
+        }
+        
+        wxString KeyboardShortcut::modifierDisplayString(const int key) {
+#if defined __APPLE__
+            switch (key) {
+                case WXK_SHIFT:
+                    return L"\u21E7";
+                case WXK_ALT:
+                    return L"\u2325";
+                case WXK_CONTROL:
+                    return L"\u2318";
+                default:
+                    return "";
+            }
+#else
+            return modifierMenuString(key);
+#endif
+        }
+        
+        bool KeyboardShortcut::parseShortcut(const wxString& string, int& key, int& modifier1, int& modifier2, int& modifier3) {
+            modifier1 = modifier2 = modifier3 = key = WXK_NONE;
+            
+            int keys[4];
+            for (size_t i = 0; i < 4; i++)
+                keys[i] = WXK_NONE;
+            
+#if defined __APPLE__
+            size_t keyIndex = string.Length();
+            for (size_t i = 0; i < string.Length(); i++) {
+                if (i > 3)
+                    return false;
+                
+                wxUniChar c = string[i];
+                if (c == L'\u21E7') {
+                    keys[i] = WXK_SHIFT;
+                } else if (c == L'\u2325') {
+                    keys[i] = WXK_ALT;
+                } else if (c == L'\u2318') {
+                    keys[i] = WXK_CONTROL;
+                } else {
+                    keyIndex = i;
+                    break;
+                }
+            }
+            
+            if (keyIndex < string.Length()) {
+                wxString keyString = string.SubString(keyIndex, string.size() - 1);
+                keys[3] = parseKeyDisplayString(keyString);
+                if (keys[3] == WXK_NONE)
+                    return false;
+            }
+#else
+            size_t index = 0;
+            wxStringTokenizer tokenizer(string, L"+");
+            while (tokenizer.HasMoreTokens()) {
+                if (index > 3)
+                    return false;
+                
+                wxString token = tokenizer.GetNextToken();
+                if (token == L"Ctrl") {
+                    keys[index] = WXK_CONTROL;
+                } else if (token == L"Alt") {
+                    keys[index] = WXK_ALT;
+                } else if (token == L"Shift") {
+                    keys[index] = WXK_SHIFT;
+                } else {
+                    keys[3] = parseKeyDisplayString(token);
+                    if (keys[3] == WXK_NONE)
+                        return false;
+                }
+                
+                index++;
+            }
+#endif
+            
+            modifier1 = keys[0];
+            modifier2 = keys[1];
+            modifier3 = keys[2];
+            key = keys[3];
+            sortModifierKeys(modifier1, modifier2, modifier3);
+            return true;
+        }
+        
+        int KeyboardShortcut::parseKeyDisplayString(const wxString& string) {
 #if defined __APPLE__
             if (string == L"\u232B")
                 return WXK_BACK;
@@ -431,206 +499,64 @@ namespace TrenchBroom {
             return WXK_NONE;
         }
         
-        wxString KeyboardShortcut::shortcutDisplayText(int modifierKey1, int modifierKey2, int modifierKey3, const int key) {
-            sortModifierKeys(modifierKey1, modifierKey2, modifierKey3);
-            wxString text;
-#if defined __APPLE__
-            text << modifierKeyDisplayText(modifierKey1) << modifierKeyDisplayText(modifierKey2) << modifierKeyDisplayText(modifierKey3) << keyDisplayText(key);
-#else
-            text << modifierKeyDisplayText(modifierKey1);
-            if (modifierKey1 != WXK_NONE && modifierKey2 != WXK_NONE)
-                text << "+";
-            text << modifierKeyDisplayText(modifierKey2);
-            if ((modifierKey1 != WXK_NONE || modifierKey2 != WXK_NONE) && modifierKey3 != WXK_NONE)
-                text << "+";
-            text << modifierKeyDisplayText(modifierKey3);
-            if ((modifierKey1 != WXK_NONE || modifierKey2 != WXK_NONE || modifierKey3 != WXK_NONE) && key != WXK_NONE)
-                text << "+";
-            text << keyMenuText(key);
-#endif
-            return text;
+        KeyboardShortcut::KeyboardShortcut(const int key, const int modifier1, const int modifier2, const int modifier3) :
+        m_key(key),
+        m_modifier1(modifier1),
+        m_modifier2(modifier2),
+        m_modifier3(modifier3) {
+            sortModifierKeys(m_modifier1, m_modifier2, m_modifier3);
         }
         
-        bool KeyboardShortcut::parseShortcut(const wxString& string, int& modifierKey1, int& modifierKey2, int& modifierKey3, int& key) {
-            modifierKey1 = modifierKey2 = modifierKey3 = key = WXK_NONE;
+        KeyboardShortcut::KeyboardShortcut(const wxString& string) {
+            wxStringInputStream stringStream(string);
+            wxTextInputStream stream(stringStream, ':');
             
-            int keys[4];
-            for (size_t i = 0; i < 4; i++)
-                keys[i] = WXK_NONE;
-            
-#if defined __APPLE__
-            size_t keyIndex = string.Length();
-            for (size_t i = 0; i < string.Length(); i++) {
-                if (i > 3)
-                    return false;
-                
-                wxUniChar c = string[i];
-                if (c == L'\u21E7') {
-                    keys[i] = WXK_SHIFT;
-                } else if (c == L'\u2325') {
-                    keys[i] = WXK_ALT;
-                } else if (c == L'\u2318') {
-                    keys[i] = WXK_CONTROL;
-                } else {
-                    keyIndex = i;
-                    break;
-                }
-            }
-            
-            if (keyIndex < string.Length()) {
-                wxString keyString = string.SubString(keyIndex, string.size() - 1);
-                keys[3] = parseKeyDisplayText(keyString);
-                if (keys[3] == WXK_NONE)
-                    return false;
-            }
-#else
-            size_t index = 0;
-            wxStringTokenizer tokenizer(string, L"+");
-            while (tokenizer.HasMoreTokens()) {
-                if (index > 3)
-                    return false;
-                
-                wxString token = tokenizer.GetNextToken();
-                if (token == L"Ctrl") {
-                    keys[index] = WXK_CONTROL;
-                } else if (token == L"Alt") {
-                    keys[index] = WXK_ALT;
-                } else if (token == L"Shift") {
-                    keys[index] = WXK_SHIFT;
-                } else {
-                    keys[3] = parseKeyDisplayText(token);
-                    if (keys[3] == WXK_NONE)
-                        return false;
-                }
-                
-                index++;
-            }
-#endif
-            
-            modifierKey1 = keys[0];
-            modifierKey2 = keys[1];
-            modifierKey3 = keys[2];
-            key = keys[3];
-            sortModifierKeys(modifierKey1, modifierKey2, modifierKey3);
-            return true;
-        }
-        
-        KeyboardShortcut::KeyboardShortcut(const int commandId, const int context, const String& text) :
-        m_commandId(commandId),
-        m_modifierKey1(WXK_NONE),
-        m_modifierKey2(WXK_NONE),
-        m_modifierKey3(WXK_NONE),
-        m_key(WXK_NONE),
-        m_context(context),
-        m_text(text) {}
-        
-        KeyboardShortcut::KeyboardShortcut(const int commandId, const int key, const int context, const String& text) :
-        m_commandId(commandId),
-        m_modifierKey1(WXK_NONE),
-        m_modifierKey2(WXK_NONE),
-        m_modifierKey3(WXK_NONE),
-        m_key(key),
-        m_context(context),
-        m_text(text) {}
-        
-        KeyboardShortcut::KeyboardShortcut(const int commandId, const int modifierKey1, const int key, const int context, const String& text) :
-        m_commandId(commandId),
-        m_modifierKey1(modifierKey1),
-        m_modifierKey2(WXK_NONE),
-        m_modifierKey3(WXK_NONE),
-        m_key(key),
-        m_context(context),
-        m_text(text) {}
-        
-        KeyboardShortcut::KeyboardShortcut(const int commandId, const int modifierKey1, const int modifierKey2, const int key, const int context, const String& text) :
-        m_commandId(commandId),
-        m_modifierKey1(modifierKey1),
-        m_modifierKey2(modifierKey2),
-        m_modifierKey3(WXK_NONE),
-        m_key(key),
-        m_context(context),
-        m_text(text) {
-            sortModifierKeys(m_modifierKey1, m_modifierKey2, m_modifierKey3);
-        }
-        
-        KeyboardShortcut::KeyboardShortcut(const int commandId, const int modifierKey1, const int modifierKey2, const int modifierKey3, const int key, const int context, const String& text) :
-        m_commandId(commandId),
-        m_modifierKey1(modifierKey1),
-        m_modifierKey2(modifierKey2),
-        m_modifierKey3(modifierKey3),
-        m_key(key),
-        m_context(context),
-        m_text(text) {
-            sortModifierKeys(m_modifierKey1, m_modifierKey2, m_modifierKey3);
-        }
-        
-        KeyboardShortcut::KeyboardShortcut(const String& string) {
-            StringStream stream(string);
-            
-            char colon;
-            stream >> m_commandId;
-            stream >> colon;
-            assert(colon == ':');
-            stream >> m_modifierKey1;
-            stream >> colon;
-            assert(colon == ':');
-            stream >> m_modifierKey2;
-            stream >> colon;
-            assert(colon == ':');
-            stream >> m_modifierKey3;
-            stream >> colon;
-            assert(colon == ':');
+            wxUniChar colon;
             stream >> m_key;
-            stream >> colon;
-            assert(colon == ':');
-            stream >> m_context;
-            stream >> colon;
-            assert(colon == ':');
+            stream >> m_modifier1;
+            stream >> m_modifier2;
+            stream >> m_modifier3;
             
-            const size_t index = static_cast<size_t>(stream.tellg());
-            m_text = string.substr(index);
-            
-            sortModifierKeys(m_modifierKey1, m_modifierKey2, m_modifierKey3);
+            sortModifierKeys(m_modifier1, m_modifier2, m_modifier3);
         }
         
-        int KeyboardShortcut::commandId() const {
-            return m_commandId;
+        bool KeyboardShortcut::operator== (const KeyboardShortcut& other) const {
+            return (m_key == other.m_key &&
+                    m_modifier1 == other.m_modifier1 &&
+                    m_modifier2 == other.m_modifier2 &&
+                    m_modifier3 == other.m_modifier3);
         }
-        
-        int KeyboardShortcut::modifierKey1() const {
-            return m_modifierKey1;
-        }
-        
-        int KeyboardShortcut::modifierKey2() const {
-            return m_modifierKey2;
-        }
-        
-        int KeyboardShortcut::modifierKey3() const {
-            return m_modifierKey3;
-        }
-        
+
         int KeyboardShortcut::key() const {
             return m_key;
         }
         
-        int KeyboardShortcut::context() const {
-            return m_context;
+        bool KeyboardShortcut::hasKey() const {
+            return m_key != WXK_NONE;
+        }
+
+        int KeyboardShortcut::modifier1() const {
+            return m_modifier1;
         }
         
-        const String& KeyboardShortcut::text() const {
-            return m_text;
+        int KeyboardShortcut::modifier2() const {
+            return m_modifier2;
+        }
+        
+        int KeyboardShortcut::modifier3() const {
+            return m_modifier3;
         }
         
         bool KeyboardShortcut::hasModifier() const {
-            return m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE || m_modifierKey3 != WXK_NONE;
+            return m_modifier1 != WXK_NONE || m_modifier2 != WXK_NONE || m_modifier3 != WXK_NONE;
         }
         
-        bool KeyboardShortcut::matches(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {
+        bool KeyboardShortcut::matches(const int key, const int modifier1, const int modifier2, const int modifier3) const {
             if (key != m_key)
                 return false;
             
-            int myModifierKeys[] = { m_modifierKey1, m_modifierKey2, m_modifierKey3 };
-            int inModifierKeys[] = { modifierKey1, modifierKey2, modifierKey3 };
+            int myModifierKeys[] = { m_modifier1, m_modifier2, m_modifier3 };
+            int inModifierKeys[] = { modifier1, modifier2, modifier3 };
             sortModifierKeys(inModifierKeys[0], inModifierKeys[1], inModifierKeys[2]);
             
             for (size_t i = 0; i < 3; i++)
@@ -685,66 +611,63 @@ namespace TrenchBroom {
                 default:
                     if (!hasModifier())
                         return false;
-                    if (m_modifierKey1 == WXK_SHIFT && m_modifierKey2 == WXK_NONE)
+                    if (m_modifier1 == WXK_SHIFT && m_modifier2 == WXK_NONE)
                         return false;
                     return true;
             }
         }
         
-        wxString KeyboardShortcut::modifierKeyMenuText() const {
-            wxString text;
-            text << modifierKeyMenuText(m_modifierKey1);
-            if (m_modifierKey1 != WXK_NONE && m_modifierKey2 != WXK_NONE)
-                text << "+";
-            
-            text << modifierKeyMenuText(m_modifierKey2);
-            if ((m_modifierKey1 != WXK_NONE || m_modifierKey2 != WXK_NONE) && m_modifierKey3 != WXK_NONE)
-                text << "+";
-            
-            text << modifierKeyMenuText(m_modifierKey3);
-            return text;
-        }
-        
-        wxString KeyboardShortcut::keyMenuText() const {
-            return keyMenuText(m_key);
-        }
-        
-        wxString KeyboardShortcut::shortcutMenuText() const {
-            wxString text = modifierKeyMenuText();
+        wxString KeyboardShortcut::shortcutMenuString() const {
+            wxString text = modifierMenuString();
             if (text.empty())
-                return keyMenuText();
+                return keyMenuString();
             
-            text << "+" << keyMenuText();
+            text << "+" << keyMenuString();
             return text;
         }
         
-        wxString KeyboardShortcut::menuText(const String& additionalText) const {
-            if (m_key == WXK_NONE)
-                return m_text;
+        wxString KeyboardShortcut::shortcutMenuItemString(const wxString& name) const {
+            if (!hasKey())
+                return name;
             
-            wxString text;
-            text << m_text;
-            if (!additionalText.empty())
-                text << " " << additionalText;
-            text << "\t";
+            wxString result;
+            result << name << "\t";
             if (hasModifier())
-                text << modifierKeyMenuText() << "+";
-            text << keyMenuText();
+                result << modifierMenuString() << "+";
+            result << keyMenuString();
+            return result;
+        }
+        
+        wxString KeyboardShortcut::shortcutDisplayString() const {
+            return shortcutDisplayString(m_key, m_modifier1, m_modifier2, m_modifier3);
+        }
+        
+        wxString KeyboardShortcut::keyMenuString() const {
+            return keyMenuString(m_key);
+        }
+        
+        wxString KeyboardShortcut::keyDisplayString() const {
+            return keyDisplayString(m_key);
+        }
+
+        wxString KeyboardShortcut::modifierMenuString() const {
+            wxString text;
+            text << modifierMenuString(m_modifier1);
+            if (m_modifier1 != WXK_NONE && m_modifier2 != WXK_NONE)
+                text << "+";
+            
+            text << modifierMenuString(m_modifier2);
+            if ((m_modifier1 != WXK_NONE || m_modifier2 != WXK_NONE) && m_modifier3 != WXK_NONE)
+                text << "+";
+            
+            text << modifierMenuString(m_modifier3);
             return text;
         }
         
-        wxString KeyboardShortcut::keyDisplayText() const {
-            return keyDisplayText(m_key);
-        }
-        
-        wxString KeyboardShortcut::shortcutDisplayText() const {
-            return shortcutDisplayText(m_modifierKey1, m_modifierKey2, m_modifierKey3, m_key);
-        }
-        
-        String KeyboardShortcut::asString() const {
-            StringStream str;
-            str << m_commandId << ":" << m_modifierKey1 << ":" << m_modifierKey2 << ":" << m_modifierKey3 << ":" << m_key << ":" << m_context << ":" << m_text;
-            return str.str();
+        wxString KeyboardShortcut::asString() const {
+            wxString str;
+            str << m_key << ":" << m_modifier1 << ":" << m_modifier2 << ":" << m_modifier3;
+            return str;
         }
     }
 }

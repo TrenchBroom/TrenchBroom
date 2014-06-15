@@ -43,93 +43,96 @@ namespace TrenchBroom {
             return m_parent;
         }
 
+        const Action* MenuItem::findAction(const int id) const {
+            return NULL;
+        }
+
+        /*
         const KeyboardShortcut* MenuItem::shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {
             return NULL;
         }
+         */
 
-        TextMenuItem::TextMenuItem(const Type type, MenuItemParent* parent) :
+        MenuItemWithCaption::MenuItemWithCaption(const Type type, MenuItemParent* parent) :
         MenuItem(type, parent) {}
         
-        TextMenuItem::~TextMenuItem() {}
+        MenuItemWithCaption::~MenuItemWithCaption() {}
         
-        String ShortcutMenuItem::path() const {
-            StringList components;
-            components.push_back(text());
-            const MenuItemParent* p = parent();
-            while (p != NULL) {
-                if (!p->text().empty())
-                    components.push_back(p->text());
-                p = p->parent();
-            }
-            components.push_back("Menu");
-            std::reverse(components.begin(), components.end());
-            return StringUtils::join(components, "/");
-        }
-        
-        ShortcutMenuItem::ShortcutMenuItem(Type type, const KeyboardShortcut& shortcut, MenuItemParent* parent) :
-        TextMenuItem(type, parent),
-        m_shortcut(shortcut),
-        m_preference(path(), m_shortcut) {
+        ActionMenuItem::ActionMenuItem(const Type type, MenuItemParent* parent, const int id, const int context, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) :
+        MenuItemWithCaption(type, parent),
+        m_action(id, context, text, path(text), defaultShortcut, modifiable) {
             assert(type == Type_Action || type == Type_Check);
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const String p = path();
-            
-            Preference<KeyboardShortcut> preference(p, m_shortcut);
-            m_shortcut = prefs.get(preference);
         }
         
-        ShortcutMenuItem::~ShortcutMenuItem() {}
+        ActionMenuItem::~ActionMenuItem() {}
 
-        const String& ShortcutMenuItem::text() const {
-            return m_shortcut.text();
+        int ActionMenuItem::id() const {
+            return m_action.id();
         }
 
-        const String ShortcutMenuItem::longText() const {
-            StringList components;
-            components.push_back(shortcut().text());
-            const MenuItemParent* p = parent();
-            while (p != NULL) {
-                if (!p->text().empty())
-                    components.push_back(p->text());
-                p = p->parent();
-            }
-            std::reverse(components.begin(), components.end());
-            return StringUtils::join(components, " > ");
+        const String& ActionMenuItem::text() const {
+            return m_action.name();
+        }
+
+        wxString ActionMenuItem::menuText() const {
+            return m_action.menuItemString();
         }
         
-        const KeyboardShortcut& ShortcutMenuItem::shortcut() const {
-            return m_shortcut;
+        Action& ActionMenuItem::action() {
+            return m_action;
         }
-        
-        void ShortcutMenuItem::setShortcut(const KeyboardShortcut& shortcut) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const String p = path();
-            prefs.set(m_preference, shortcut);
-            m_shortcut = m_preference.value();
-        }
-        
-        const KeyboardShortcut* ShortcutMenuItem::shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {
-            if (m_shortcut.matches(key, modifierKey1, modifierKey2, modifierKey3))
-                return &m_shortcut;
+
+        const Action* ActionMenuItem::findAction(const int i_id) const {
+            if (i_id == id())
+                return &m_action;
             return NULL;
         }
         
+        IO::Path ActionMenuItem::path(const String& text) const {
+            IO::Path path(text);
+            
+            const MenuItemParent* p = parent();
+            while (p != NULL) {
+                if (!p->text().empty())
+                    path = IO::Path(p->text()) + path;
+                p = p->parent();
+            }
+
+            return path;
+        }
+
+        int MenuItemParent::id() const {
+            return m_id;
+        }
+
+        const String& MenuItemParent::text() const {
+            return m_text;
+        }
+        
+        const Action* MenuItemParent::findAction(const int id) const {
+            MenuItem::List::const_iterator it, end;
+            for (it = m_items.begin(), end = m_items.end(); it != end; ++it) {
+                const MenuItem::Ptr item = *it;
+                const Action* action = item->findAction(id);
+                if (action != NULL)
+                    return action;
+            }
+            return NULL;
+        }
+
         const MenuItemParent::List& MenuItemParent::items() const {
+            return m_items;
+        }
+        
+        MenuItemParent::List& MenuItemParent::items() {
             return m_items;
         }
         
         void MenuItemParent::addItem(MenuItem::Ptr item) {
             m_items.push_back(item);
         }
-        
-        const String& MenuItemParent::text() const {
-            return m_text;
-        }
-        
-        int MenuItemParent::menuId() const {
-            return m_menuId;
-        }
 
+        /*
         const KeyboardShortcut* MenuItemParent::shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const {
             List::const_iterator it, end;
             for (it = m_items.begin(), end = m_items.end(); it != end; ++it) {
@@ -140,11 +143,12 @@ namespace TrenchBroom {
             }
             return NULL;
         }
+         */
         
-        MenuItemParent::MenuItemParent(Type type, const String& text, MenuItemParent* parent, int menuId) :
-        TextMenuItem(type, parent),
-        m_text(text),
-        m_menuId(menuId) {}
+        MenuItemParent::MenuItemParent(const Type type, MenuItemParent* parent, const int id, const String& text) :
+        MenuItemWithCaption(type, parent),
+        m_id(id),
+        m_text(text) {}
 
         MenuItemParent::~MenuItemParent() {}
 
@@ -154,23 +158,23 @@ namespace TrenchBroom {
             return NULL;
         }
 
-        MultiMenu::MultiMenu(const String& text, MenuItemParent* parent, int menuId) :
-        MenuItemParent(Type_MultiMenu, text, parent, menuId) {
+        MultiMenu::MultiMenu(MenuItemParent* parent, const int id, const String& text) :
+        MenuItemParent(Type_MultiMenu, parent, id, text) {
             assert(parent != NULL);
         }
 
-        Menu& MultiMenu::addMenu(const String& text, const int menuId) {
-            Menu* menu = new Menu(text, this, menuId);
+        Menu& MultiMenu::addMenu(const int id, const String& text) {
+            Menu* menu = new Menu(this, id, text);
             addItem(MenuItem::Ptr(menu));
             return *menu;
         }
         
-        const Menu* MultiMenu::menuById(const int menuId) const {
+        const Menu* MultiMenu::menuById(const int id) const {
             const MenuItem::List& myItems = items();
             List::const_iterator it, end;
             for (it = myItems.begin(), end = myItems.end(); it != end; ++it) {
                 const Menu* menu = static_cast<Menu*>(it->get());
-                if (menu->menuId() == menuId)
+                if (menu->id() == id)
                     return menu;
             }
             return NULL;
@@ -184,66 +188,59 @@ namespace TrenchBroom {
         const String EditMenu = "Edit";
         const String ViewMenu = "View";
 
-        Menu::Menu(const String& text, MenuItemParent* parent, const int menuId) :
-        MenuItemParent(Type_Menu, text, parent, menuId) {}
+        Menu::Menu(MenuItemParent* parent, const int id, const String& text) :
+        MenuItemParent(Type_Menu, parent, id, text) {}
         
+        Menu::Menu(const String& text) :
+        MenuItemParent(Type_Menu, NULL, wxID_ANY, text) {}
+
         Menu::~Menu() {}
 
-        MenuItem::Ptr Menu::addActionItem(const KeyboardShortcut& shortcut) {
-            MenuItem::Ptr item = MenuItem::Ptr(new ShortcutMenuItem(MenuItem::Type_Action, shortcut, this));
-            addItem(item);
-            return item;
+        MenuItem::Ptr Menu::addModifiableActionItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut) {
+            return addActionItem(id, context, text, defaultShortcut, true);
         }
         
-        MenuItem::Ptr Menu::addCheckItem(const KeyboardShortcut& shortcut) {
-            MenuItem::Ptr item = MenuItem::Ptr(new ShortcutMenuItem(MenuItem::Type_Check, shortcut, this));
-            addItem(item);
-            return item;
+        MenuItem::Ptr Menu::addUnmodifiableActionItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut) {
+            return addActionItem(id, context, text, defaultShortcut, false);
         }
         
+        MenuItem::Ptr Menu::addModifiableCheckItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut) {
+            return addCheckItem(id, context, text, defaultShortcut, true);
+        }
+        
+        MenuItem::Ptr Menu::addUnmodifiableCheckItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut) {
+            return addCheckItem(id, context, text, defaultShortcut, false);
+        }
+
         void Menu::addSeparator() {
-            MenuItem* item = new MenuItem(MenuItem::Type_Separator, this);
-            addItem(MenuItem::Ptr(item));
+            MenuItem::Ptr item(new MenuItem(MenuItem::Type_Separator, this));
+            addItem(item);
         }
         
-        Menu& Menu::addMenu(const String& text, int menuId) {
-            Menu* menu = new Menu(text, this, menuId);
+        Menu& Menu::addMenu(const int id, const String& text) {
+            Menu* menu = new Menu(this, id, text);
             addItem(Menu::Ptr(menu));
             return *menu;
         }
         
-        MultiMenu& Menu::addMultiMenu(const String& text, int menuId) {
-            MultiMenu* menu = new MultiMenu(text, this, menuId);
+        MultiMenu& Menu::addMultiMenu(const int id, const String& text) {
+            MultiMenu* menu = new MultiMenu(this, id, text);
             addItem(MultiMenu::Ptr(menu));
             return *menu;
         }
 
-        wxMenuBar* Menu::createMenuBar(const MultiMenuSelector& selector, const bool showModifiers) {
-            wxMenu* fileMenu = createMenu(FileMenu, selector, showModifiers);
-            wxMenu* editMenu = createMenu(EditMenu, selector, showModifiers);
-            wxMenu* viewMenu = createMenu(ViewMenu, selector, showModifiers);
-
-            wxMenu* helpMenu = new wxMenu();
-            helpMenu->Append(CommandIds::Menu::HelpShowHelp, "TrenchBroom Help");
-
-#ifdef __APPLE__
-            // these won't show up in the app menu if we don't add them here
-            fileMenu->Append(wxID_ABOUT, "About");
-            fileMenu->Append(wxID_PREFERENCES, "Preferences...\tCtrl-,");
-            fileMenu->Append(wxID_EXIT, "Exit");
-#else
-            viewMenu->AppendSeparator();
-            viewMenu->Append(wxID_PREFERENCES, "Preferences...");
-
-            helpMenu->AppendSeparator();
-            helpMenu->Append(wxID_ABOUT, "About TrenchBroom");
-#endif
-            
+        wxMenuBar* Menu::createMenuBar(const MultiMenuSelector& selector) {
             wxMenuBar* menuBar = new wxMenuBar();
-            menuBar->Append(fileMenu, "File");
-            menuBar->Append(editMenu, "Edit");
-            menuBar->Append(viewMenu, "View");
-            menuBar->Append(helpMenu, "Help");
+
+            const Menu& mainMenu = getMenu();
+            const MenuItem::List& menus = mainMenu.items();
+            MenuItem::List::const_iterator it, end;
+            for (it = menus.begin(), end = menus.end(); it != end; ++it) {
+                const MenuItem::Ptr item = *it;
+                const Menu* menu = static_cast<const Menu*>(item.get());
+                menuBar->Append(createMenu(*menu, selector), menu->text());
+            }
+
             return menuBar;
         }
 
@@ -258,30 +255,28 @@ namespace TrenchBroom {
             return recentDocumentsItem->GetSubMenu();
         }
         
-        const KeyboardShortcut& Menu::undoShortcut() {
-            static const KeyboardShortcut shortcut(wxID_UNDO, WXK_CONTROL, 'Z', KeyboardShortcut::Context_Any, "Undo");
-            return shortcut;
-        }
-        
-        const KeyboardShortcut& Menu::redoShortcut() {
-            static const KeyboardShortcut shortcut(wxID_REDO, WXK_CONTROL, WXK_SHIFT, 'Z', KeyboardShortcut::Context_Any, "Redo");
-            return shortcut;
+        const Action* Menu::findMenuAction(const int id) {
+            return getMenu().findAction(id);
         }
 
-        
-        wxMenu* Menu::createMenu(const String& name, const MultiMenuSelector& selector, const bool showModifiers) {
-            const Menu& menu = getMenu(name);
-            return createMenu(menu, selector, showModifiers);
-        }
-
-        const Menu& Menu::getMenu(const String& name) {
-            static const Menu::MenuMap menus = buildMenus();
-            MenuMap::const_iterator it = menus.find(name);
-            assert(it != menus.end());
-            return static_cast<const Menu&>(*(it->second.get()));
+        Menu& Menu::getMenu() {
+            static Menu* menu = buildMenu();
+            return *menu;
         }
         
-        wxMenu* Menu::createMenu(const Menu& menu, const MultiMenuSelector& selector, const bool showModifiers) {
+        MenuItem::Ptr Menu::addActionItem(const int id, const int context, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) {
+            MenuItem::Ptr item = MenuItem::Ptr(new ActionMenuItem(MenuItem::Type_Action, this, id, context, text, defaultShortcut, modifiable));
+            addItem(item);
+            return item;
+        }
+        
+        MenuItem::Ptr Menu::addCheckItem(const int id, const int context, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) {
+            MenuItem::Ptr item = MenuItem::Ptr(new ActionMenuItem(MenuItem::Type_Check, this, id, context, text, defaultShortcut, modifiable));
+            addItem(item);
+            return item;
+        }
+        
+        wxMenu* Menu::createMenu(const Menu& menu, const MultiMenuSelector& selector) {
             wxMenu* result = new wxMenu();
             
             const Menu::List& items = menu.items();
@@ -290,27 +285,19 @@ namespace TrenchBroom {
                 const MenuItem& item = **it;
                 switch (item.type()) {
                     case MenuItem::Type_Action: {
-                        const ShortcutMenuItem& shortcutItem = static_cast<const ShortcutMenuItem&>(item);
-                        const KeyboardShortcut& shortcut = shortcutItem.shortcut();
-                        if (showModifiers || shortcut.alwaysShowModifier())
-                            result->Append(shortcut.commandId(), shortcut.menuText());
-                        else
-                            result->Append(shortcut.commandId(), shortcut.text());
+                        const ActionMenuItem& actionItem = static_cast<const ActionMenuItem&>(item);
+                        result->Append(actionItem.id(), actionItem.menuText());
                         break;
                     }
                     case MenuItem::Type_Check: {
-                        const ShortcutMenuItem& shortcutItem = static_cast<const ShortcutMenuItem&>(item);
-                        const KeyboardShortcut& shortcut = shortcutItem.shortcut();
-                        if (showModifiers || shortcut.alwaysShowModifier())
-                            result->AppendCheckItem(shortcut.commandId(), shortcut.menuText());
-                        else
-                            result->AppendCheckItem(shortcut.commandId(), shortcut.text());
+                        const ActionMenuItem& actionItem = static_cast<const ActionMenuItem&>(item);
+                        result->AppendCheckItem(actionItem.id(), actionItem.menuText());
                         break;
                     }
                     case MenuItem::Type_Menu: {
                         const Menu& subMenu = static_cast<const Menu&>(item);
-                        wxMenuItem* wxSubMenuItem = new wxMenuItem(result, subMenu.menuId(), subMenu.text());
-                        wxSubMenuItem->SetSubMenu(createMenu(subMenu, selector, showModifiers));
+                        wxMenuItem* wxSubMenuItem = new wxMenuItem(result, subMenu.id(), subMenu.text());
+                        wxSubMenuItem->SetSubMenu(createMenu(subMenu, selector));
                         result->Append(wxSubMenuItem);
                         break;
                     }
@@ -318,11 +305,11 @@ namespace TrenchBroom {
                         const MultiMenu& multiMenu = static_cast<const MultiMenu&>(item);
                         const Menu* multiMenuItem = multiMenu.selectMenu(selector);
                         if (multiMenuItem != NULL) {
-                            wxMenuItem* wxSubMenuItem = new wxMenuItem(result, multiMenu.menuId(), multiMenu.text());
-                            wxSubMenuItem->SetSubMenu(createMenu(*multiMenuItem, selector, showModifiers));
+                            wxMenuItem* wxSubMenuItem = new wxMenuItem(result, multiMenu.id(), multiMenu.text());
+                            wxSubMenuItem->SetSubMenu(createMenu(*multiMenuItem, selector));
                             result->Append(wxSubMenuItem);
                         } else {
-                            result->Append(multiMenu.menuId(), multiMenu.text());
+                            result->Append(multiMenu.id(), multiMenu.text());
                         }
                         break;
                     }
@@ -335,185 +322,206 @@ namespace TrenchBroom {
             
             return result;
         }
+        
+        Menu* Menu::buildMenu() {
+            Menu* menu = new Menu("Menu");
 
-        const Menu::MenuMap Menu::buildMenus() {
-            Menu::MenuMap menus;
+            Menu& fileMenu = menu->addMenu(wxID_ANY, "File");
+            fileMenu.addUnmodifiableActionItem(wxID_NEW, Action::Context_Any, "New", KeyboardShortcut('N', WXK_CONTROL));
+            fileMenu.addSeparator();
+            fileMenu.addUnmodifiableActionItem(wxID_OPEN, Action::Context_Any, "Open...", KeyboardShortcut('O', WXK_CONTROL));
+            fileMenu.addMenu(CommandIds::Menu::FileOpenRecent, "Open Recent");
+            fileMenu.addSeparator();
+            fileMenu.addUnmodifiableActionItem(wxID_SAVE, Action::Context_Any, "Save", KeyboardShortcut('S', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_SAVEAS, Action::Context_Any, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));
+            fileMenu.addSeparator();
+            fileMenu.addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, Action::Context_Any, "Load Point File");
+            fileMenu.addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, Action::Context_Any, "Unload Point File");
+            fileMenu.addSeparator();
+            fileMenu.addUnmodifiableActionItem(wxID_CLOSE, Action::Context_Any, "Close", KeyboardShortcut('W', WXK_CONTROL));
             
-            Menu* fileMenu = new Menu("File");
-            menus[FileMenu] = Menu::Ptr(fileMenu);
-            
-            fileMenu->addActionItem(KeyboardShortcut(wxID_NEW, WXK_CONTROL, 'N', KeyboardShortcut::Context_Any, "New"));
-            fileMenu->addSeparator();
-            fileMenu->addActionItem(KeyboardShortcut(wxID_OPEN, WXK_CONTROL, 'O', KeyboardShortcut::Context_Any, "Open..."));
-            fileMenu->addMenu("Open Recent", CommandIds::Menu::FileOpenRecent);
-            fileMenu->addSeparator();
-            fileMenu->addActionItem(KeyboardShortcut(wxID_SAVE, WXK_CONTROL, 'S', KeyboardShortcut::Context_Any, "Save"));
-            fileMenu->addActionItem(KeyboardShortcut(wxID_SAVEAS, WXK_SHIFT, WXK_CONTROL, 'S', KeyboardShortcut::Context_Any, "Save as..."));
-            fileMenu->addSeparator();
-            fileMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::FileLoadPointFile, KeyboardShortcut::Context_Any, "Load Point File"));
-            fileMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::FileUnloadPointFile, KeyboardShortcut::Context_Any, "Unload Point File"));
-            fileMenu->addSeparator();
-            fileMenu->addActionItem(KeyboardShortcut(wxID_CLOSE, WXK_CONTROL, 'W', KeyboardShortcut::Context_Any, "Close"));
-            
-            Menu* editMenu = new Menu("Edit");
-            menus[EditMenu] = Menu::Ptr(editMenu);
-            
-            editMenu->addActionItem(undoShortcut());
-            editMenu->addActionItem(redoShortcut());
-            editMenu->addSeparator();
-            editMenu->addActionItem(KeyboardShortcut(wxID_CUT, WXK_CONTROL, 'X', KeyboardShortcut::Context_Any, "Cut"));
-            editMenu->addActionItem(KeyboardShortcut(wxID_COPY, WXK_CONTROL, 'C', KeyboardShortcut::Context_Any, "Copy"));
-            editMenu->addActionItem(KeyboardShortcut(wxID_PASTE, WXK_CONTROL, 'V', KeyboardShortcut::Context_Any, "Paste"));
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditPasteAtOriginalPosition, WXK_CONTROL, WXK_SHIFT, 'V', KeyboardShortcut::Context_Any, "Paste at Original Position"));
+            Menu& editMenu = menu->addMenu(wxID_ANY, "Edit");
+            editMenu.addUnmodifiableActionItem(wxID_UNDO, Action::Context_Any, "Undo", KeyboardShortcut('Z', WXK_CONTROL));
+            editMenu.addUnmodifiableActionItem(wxID_REDO, Action::Context_Any, "Redo", KeyboardShortcut('Z', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addSeparator();
+            editMenu.addUnmodifiableActionItem(wxID_CUT, Action::Context_Any, "Cut", KeyboardShortcut('X', WXK_CONTROL));
+            editMenu.addUnmodifiableActionItem(wxID_COPY, Action::Context_Any, "Copy", KeyboardShortcut('C', WXK_CONTROL));
+            editMenu.addUnmodifiableActionItem(wxID_PASTE, Action::Context_Any, "Paste", KeyboardShortcut('V', WXK_CONTROL));
+            editMenu.addUnmodifiableActionItem(CommandIds::Menu::EditPasteAtOriginalPosition, Action::Context_Any, "Paste at Original Position", KeyboardShortcut('V', WXK_CONTROL, WXK_SHIFT));
 #ifdef __APPLE__
-            editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_BACK, KeyboardShortcut::Context_ObjectSelection, "Delete"));
+            editMenu.addModifiableActionItem(wxID_DELETE, Action::Context_ObjectSelection, "Delete", KeyboardShortcut(WXK_BACK));
 #else
-            editMenu->addActionItem(KeyboardShortcut(wxID_DELETE, WXK_DELETE, KeyboardShortcut::Context_ObjectSelection, "Delete"));
+            editMenu.addModifiableActionItem(wxID_DELETE, Action::Context_ObjectSelection, "Delete", KeyboardShortcut(WXK_DELETE));
 #endif
-            editMenu->addSeparator();
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectAll, WXK_CONTROL, 'A', KeyboardShortcut::Context_Any, "Select All"));
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectSiblings, WXK_CONTROL, WXK_ALT, 'A', KeyboardShortcut::Context_Any, "Select Siblings"));
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectTouching, WXK_CONTROL, 'T', KeyboardShortcut::Context_Any, "Select Touching"));
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectContained, WXK_CONTROL, WXK_ALT, 'T', KeyboardShortcut::Context_Any, "Select Contained"));
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectByFilePosition, KeyboardShortcut::Context_Any, "Select by Line Number"));
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditSelectNone, WXK_CONTROL, WXK_SHIFT, 'A', KeyboardShortcut::Context_Any, "Select None"));
-            editMenu->addSeparator();
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditHideSelected, WXK_CONTROL, 'H', KeyboardShortcut::Context_Any, "Hide Selected"));
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditHideUnselected, WXK_CONTROL, WXK_ALT, 'H', KeyboardShortcut::Context_Any, "Hide Unselected"));
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditUnhideAll, WXK_CONTROL, WXK_SHIFT, 'H', KeyboardShortcut::Context_Any, "Unhide All"));
-            editMenu->addSeparator();
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditLockSelected, WXK_CONTROL, 'L', KeyboardShortcut::Context_Any, "Lock Selected"));
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditLockUnselected, WXK_CONTROL, WXK_ALT, 'L', KeyboardShortcut::Context_Any, "Lock Unselected"));
-            editMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::EditUnlockAll, WXK_CONTROL, WXK_SHIFT, 'L', KeyboardShortcut::Context_Any, "Unlock All"));
-            editMenu->addSeparator();
+            editMenu.addSeparator();
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectAll, Action::Context_Any, "Select All", KeyboardShortcut('A', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, Action::Context_Any, "Select Siblings", KeyboardShortcut('A', WXK_CONTROL, WXK_ALT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectTouching, Action::Context_Any, "Select Touching", KeyboardShortcut('T', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectContained, Action::Context_Any, "Select Contained", KeyboardShortcut('T', WXK_CONTROL, WXK_ALT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectByFilePosition, Action::Context_Any, "Select by Line Number");
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectNone, Action::Context_Any, "Select None", KeyboardShortcut('A', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addSeparator();
+            /*
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditHideSelected, Action::Context_Any, "Hide Selected", KeyboardShortcut('H', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditHideUnselected, Action::Context_Any, "Hide Unselected", KeyboardShortcut('H', WXK_CONTROL, WXK_ALT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditUnhideAll, Action::Context_Any, "Unhide All", KeyboardShortcut('H', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addSeparator();
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditLockSelected, Action::Context_Any, "Lock Selected", KeyboardShortcut('L', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditLockUnselected, Action::Context_Any, "Lock Unselected", KeyboardShortcut('L', WXK_CONTROL, WXK_ALT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditUnlockAll, Action::Context_Any, "Unlock All", KeyboardShortcut('L', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addSeparator();
+             */
+
+            /*
+            Menu& toolMenu = editMenu.addMenu(wxID_ANY, "Tools");
+            toolMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleClipTool, Action::Context_Any, "Clip Tool", KeyboardShortcut('C'));
+            toolMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleVertexTool, Action::Context_Any, "Vertex Tool", KeyboardShortcut('V'));
+            toolMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleRotateObjectsTool, Action::Context_Any, "Rotate Tool", KeyboardShortcut('R'));
+            toolMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleTextureTool, Action::Context_Any, "Texture Tool", KeyboardShortcut('T'));
+             */
             
-            Menu& toolMenu = editMenu->addMenu("Tools");
-            toolMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleClipTool, 'C', KeyboardShortcut::Context_Any, "Clip Tool"));
-            toolMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleVertexTool, 'V', KeyboardShortcut::Context_Any, "Vertex Tool"));
-            toolMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleRotateObjectsTool, 'R', KeyboardShortcut::Context_Any, "Rotate Tool"));
-            toolMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleTextureTool, 'T', KeyboardShortcut::Context_Any, "Texture Tool"));
+            /*
+            MultiMenu& actionMenu = editMenu.addMultiMenu(CommandIds::Menu::EditActions, "Actions");
             
-            MultiMenu& actionMenu = editMenu->addMultiMenu("Actions", CommandIds::Menu::EditActions);
-            
-            Menu& faceActionMenu = actionMenu.addMenu("Faces", CommandIds::Menu::EditFaceActions);
+            Menu& faceActionMenu = actionMenu.addMenu(CommandIds::Menu::EditFaceActions, "Faces");
 #ifdef __linux__ // unmodified cursor keys are not allowed as a menu accelerator on GTK
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesUp, WXK_SHIFT, WXK_UP, KeyboardShortcut::Context_FaceSelection, "Move Up"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesDown, WXK_SHIFT, WXK_DOWN, KeyboardShortcut::Context_FaceSelection, "Move Down"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesLeft, WXK_SHIFT, WXK_LEFT, KeyboardShortcut::Context_FaceSelection, "Move Left"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesRight, WXK_SHIFT, WXK_RIGHT, KeyboardShortcut::Context_FaceSelection, "Move Right"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCW, WXK_SHIFT, WXK_PAGEUP, KeyboardShortcut::Context_FaceSelection, "Rotate Clockwise by 15"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCW, WXK_SHIFT, WXK_PAGEDOWN, KeyboardShortcut::Context_FaceSelection, "Rotate Counter-clockwise by 15"));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesUp, Action::Context_FaceSelection, "Move Up", KeyboardShortcut(WXK_UP, WXK_SHIFT));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesDown, Action::Context_FaceSelection, "Move Down", KeyboardShortcut(WXK_DOWN, WXK_SHIFT));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesLeft, Action::Context_FaceSelection, "Move Left", KeyboardShortcut(WXK_LEFT, WXK_SHIFT));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesRight, Action::Context_FaceSelection, "Move Right", KeyboardShortcut(WXK_RIGHT, WXK_SHIFT));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCW, Action::Context_FaceSelection, "Rotate Clockwise by 15", KeyboardShortcut(WXK_PAGEUP, WXK_SHIFT));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCW, Action::Context_FaceSelection, "Rotate Counter-clockwise by 15", KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT));
 #else
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesUp, WXK_UP, KeyboardShortcut::Context_FaceSelection, "Move Up"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesDown, WXK_DOWN, KeyboardShortcut::Context_FaceSelection, "Move Down"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesLeft, WXK_LEFT, KeyboardShortcut::Context_FaceSelection, "Move Left"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesRight, WXK_RIGHT, KeyboardShortcut::Context_FaceSelection, "Move Right"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCW, WXK_PAGEUP, KeyboardShortcut::Context_FaceSelection, "Rotate Clockwise by 15"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCCW, WXK_PAGEDOWN, KeyboardShortcut::Context_FaceSelection, "Rotate Counter-clockwise by 15"));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesUp, Action::Context_FaceSelection, "Move Up", KeyboardShortcut(WXK_UP));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesDown, Action::Context_FaceSelection, "Move Down", KeyboardShortcut(WXK_DOWN));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesLeft, Action::Context_FaceSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesRight, Action::Context_FaceSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCW, Action::Context_FaceSelection, "Rotate Clockwise by 15", KeyboardShortcut(WXK_PAGEUP));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCCW, Action::Context_FaceSelection, "Rotate Counter-clockwise by 15", KeyboardShortcut(WXK_PAGEDOWN));
 #endif
             faceActionMenu.addSeparator();
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesUpFine, WXK_CONTROL, WXK_UP, KeyboardShortcut::Context_FaceSelection, "Move Up by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesDownFine, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::Context_FaceSelection, "Move Down by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesLeftFine, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::Context_FaceSelection, "Move Left by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveTexturesRightFine, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::Context_FaceSelection, "Move Right by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCWFine, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::Context_FaceSelection, "Rotate Clockwise by 1"));
-            faceActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRotateTexturesCCWFine, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::Context_FaceSelection, "Rotate Counter-clockwise by 1"));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesUpFine, Action::Context_FaceSelection, "Move Up by 1", KeyboardShortcut(WXK_UP, WXK_CONTROL));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesDownFine, Action::Context_FaceSelection, "Move Down by 1", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesLeftFine, Action::Context_FaceSelection, "Move Left by 1", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesRightFine, Action::Context_FaceSelection, "Move Right by 1", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCWFine, Action::Context_FaceSelection, "Rotate Clockwise by 1", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCCWFine, Action::Context_FaceSelection, "Rotate Counter-clockwise by 1", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
             
-            Menu& objectActionMenu = actionMenu.addMenu("Objects", CommandIds::Menu::EditObjectActions);
+            Menu& objectActionMenu = actionMenu.addMenu(CommandIds::Menu::EditObjectActions, "Objects");
 #ifdef __linux__ // unmodified cursor keys are not allowed as a menu accelerator on GTK
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsForward, WXK_SHIFT, WXK_UP, KeyboardShortcut::Context_ObjectSelection, "Move Forward"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsBackward, WXK_SHIFT, WXK_DOWN, KeyboardShortcut::Context_ObjectSelection, "Move Backward"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsLeft, WXK_SHIFT, WXK_LEFT, KeyboardShortcut::Context_ObjectSelection, "Move Left"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsRight, WXK_SHIFT, WXK_RIGHT, KeyboardShortcut::Context_ObjectSelection, "Move Right"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsUp, WXK_SHIFT, WXK_PAGEUP, KeyboardShortcut::Context_ObjectSelection, "Move Up"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsDown, WXK_SHIFT, WXK_PAGEDOWN, KeyboardShortcut::Context_ObjectSelection, "Move Down"));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP, WXK_SHIFT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN, WXK_SHIFT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT, WXK_SHIFT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT, WXK_SHIFT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP, WXK_SHIFT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT));
 #else
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsForward, WXK_UP, KeyboardShortcut::Context_ObjectSelection, "Move Forward"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsBackward, WXK_DOWN, KeyboardShortcut::Context_ObjectSelection, "Move Backward"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsLeft, WXK_LEFT, KeyboardShortcut::Context_ObjectSelection, "Move Left"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsRight, WXK_RIGHT, KeyboardShortcut::Context_ObjectSelection, "Move Right"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsUp, WXK_PAGEUP, KeyboardShortcut::Context_ObjectSelection, "Move Up"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveObjectsDown, WXK_PAGEDOWN, KeyboardShortcut::Context_ObjectSelection, "Move Down"));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN));
 #endif
             objectActionMenu.addSeparator();
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDuplicateObjectsForward, WXK_CONTROL, WXK_UP, KeyboardShortcut::Context_ObjectSelection, "Duplicate & Move Forward"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDuplicateObjectsBackward, WXK_CONTROL, WXK_DOWN, KeyboardShortcut::Context_ObjectSelection, "Duplicate & Move Backward"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDuplicateObjectsLeft, WXK_CONTROL, WXK_LEFT, KeyboardShortcut::Context_ObjectSelection, "Duplicate & Move Left"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDuplicateObjectsRight, WXK_CONTROL, WXK_RIGHT, KeyboardShortcut::Context_ObjectSelection, "Duplicate & Move Right"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDuplicateObjectsUp, WXK_CONTROL, WXK_PAGEUP, KeyboardShortcut::Context_ObjectSelection, "Duplicate & Move Up"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDuplicateObjectsDown, WXK_CONTROL, WXK_PAGEDOWN, KeyboardShortcut::Context_ObjectSelection, "Duplicate & Move Down"));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsForward, Action::Context_ObjectSelection, "Duplicate & Move Forward", KeyboardShortcut(WXK_UP, WXK_CONTROL));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsBackward, Action::Context_ObjectSelection, "Duplicate & Move Backward", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsLeft, Action::Context_ObjectSelection, "Duplicate & Move Left", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsRight, Action::Context_ObjectSelection, "Duplicate & Move Right", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsUp, Action::Context_ObjectSelection, "Duplicate & Move Up", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsDown, Action::Context_ObjectSelection, "Duplicate & Move Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
             objectActionMenu.addSeparator();
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRollObjectsCW, WXK_ALT, WXK_UP, KeyboardShortcut::Context_ObjectSelection, "Rotate Clockwise by 90"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditRollObjectsCCW, WXK_ALT, WXK_DOWN, KeyboardShortcut::Context_ObjectSelection, "Rotate Counter-clockwise by 90"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditYawObjectsCW, WXK_ALT, WXK_LEFT, KeyboardShortcut::Context_ObjectSelection, "Rotate Left by 90"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditYawObjectsCCW, WXK_ALT, WXK_RIGHT, KeyboardShortcut::Context_ObjectSelection, "Rotate Right by 90"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditPitchObjectsCW, WXK_ALT, WXK_PAGEUP, KeyboardShortcut::Context_ObjectSelection, "Rotate Up by 90"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditPitchObjectsCCW, WXK_ALT, WXK_PAGEDOWN, KeyboardShortcut::Context_ObjectSelection, "Rotate Down by 90"));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditRollObjectsCW, Action::Context_ObjectSelection, "Rotate Clockwise by 90", KeyboardShortcut(WXK_UP, WXK_ALT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditRollObjectsCCW, Action::Context_ObjectSelection, "Rotate Counter-clockwise by 90", KeyboardShortcut(WXK_DOWN, WXK_ALT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditYawObjectsCW, Action::Context_ObjectSelection, "Rotate Left by 90", KeyboardShortcut(WXK_LEFT, WXK_ALT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditYawObjectsCCW, Action::Context_ObjectSelection, "Rotate Right by 90", KeyboardShortcut(WXK_RIGHT, WXK_ALT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditPitchObjectsCW, Action::Context_ObjectSelection, "Rotate Up by 90", KeyboardShortcut(WXK_PAGEUP, WXK_ALT));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditPitchObjectsCCW, Action::Context_ObjectSelection, "Rotate Down by 90", KeyboardShortcut(WXK_PAGEDOWN, WXK_ALT));
             objectActionMenu.addSeparator();
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditFlipObjectsHorizontally, WXK_CONTROL, 'F', KeyboardShortcut::Context_ObjectSelection, "Flip Horizontally"));
-            objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditFlipObjectsVertically, WXK_CONTROL, WXK_ALT, 'F', KeyboardShortcut::Context_ObjectSelection, "Flip Vertically"));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditFlipObjectsHorizontally, Action::Context_ObjectSelection, "Flip Horizontally", KeyboardShortcut('F', WXK_CONTROL));
+            objectActionMenu.addActionItem(CommandIds::Menu::EditFlipObjectsVertically, Action::Context_ObjectSelection, "Flip Vertically", KeyboardShortcut('F', WXK_CONTROL, WXK_ALT));
             objectActionMenu.addSeparator();
 #ifdef __linux__ // tab is not allowed as a menu accelerator on GTK
-            MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleMovementRestriction, 'X', KeyboardShortcut::Context_ObjectSelection | KeyboardShortcut::Context_VertexTool, "Toggle Movement Axis"));
+            MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(CommandIds::Menu::EditToggleMovementRestriction, Action::Context_ObjectSelection | Action::Context_VertexTool, "Toggle Movement Axis", KeyboardShortcut('X'));
 #else
-            MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleMovementRestriction, WXK_TAB, KeyboardShortcut::Context_ObjectSelection | KeyboardShortcut::Context_VertexTool, "Toggle Movement Axis"));
+            MenuItem::Ptr toggleAxisItem = objectActionMenu.addActionItem(CommandIds::Menu::EditToggleMovementRestriction, Action::Context_ObjectSelection | Action::Context_VertexTool, "Toggle Movement Axis", KeyboardShortcut(WXK_TAB));
 #endif
             
-            Menu& vertexActionMenu = actionMenu.addMenu("Vertices", CommandIds::Menu::EditVertexActions);
-            vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesForward, WXK_UP, KeyboardShortcut::Context_VertexTool, "Move Forward"));
-            vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesBackward, WXK_DOWN, KeyboardShortcut::Context_VertexTool, "Move Backward"));
-            vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesLeft, WXK_LEFT, KeyboardShortcut::Context_VertexTool, "Move Left"));
-            vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesRight, WXK_RIGHT, KeyboardShortcut::Context_VertexTool, "Move Right"));
-            vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesUp, WXK_PAGEUP, KeyboardShortcut::Context_VertexTool, "Move Up"));
-            vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditMoveVerticesDown, WXK_PAGEDOWN, KeyboardShortcut::Context_VertexTool, "Move Down"));
+            Menu& vertexActionMenu = actionMenu.addMenu(CommandIds::Menu::EditVertexActions, "Vertices");
+            vertexActionMenu.addActionItem(CommandIds::Menu::EditMoveVerticesForward, Action::Context_VertexTool, "Move Forward", KeyboardShortcut(WXK_UP));
+            vertexActionMenu.addActionItem(CommandIds::Menu::EditMoveVerticesBackward, Action::Context_VertexTool, "Move Backward", KeyboardShortcut(WXK_DOWN));
+            vertexActionMenu.addActionItem(CommandIds::Menu::EditMoveVerticesLeft, Action::Context_VertexTool, "Move Left", KeyboardShortcut(WXK_LEFT));
+            vertexActionMenu.addActionItem(CommandIds::Menu::EditMoveVerticesRight, Action::Context_VertexTool, "Move Right", KeyboardShortcut(WXK_RIGHT));
+            vertexActionMenu.addActionItem(CommandIds::Menu::EditMoveVerticesUp, Action::Context_VertexTool, "Move Up", KeyboardShortcut(WXK_PAGEUP));
+            vertexActionMenu.addActionItem(CommandIds::Menu::EditMoveVerticesDown, Action::Context_VertexTool, "Move Down", KeyboardShortcut(WXK_PAGEDOWN));
             vertexActionMenu.addSeparator();
-            vertexActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditSnapVertices, KeyboardShortcut::Context_VertexTool, "Snap Vertices to Grid"));
+            vertexActionMenu.addActionItem(CommandIds::Menu::EditSnapVertices, Action::Context_VertexTool, "Snap Vertices to Grid");
             vertexActionMenu.addSeparator();
             vertexActionMenu.addItem(toggleAxisItem);
             
-            Menu& clipActionMenu = actionMenu.addMenu("Clip Tool", CommandIds::Menu::EditClipActions);
-            clipActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditToggleClipSide, WXK_CONTROL, WXK_RETURN, KeyboardShortcut::Context_ClipTool, "Toggle Clip Side"));
-            clipActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditPerformClip, WXK_RETURN, KeyboardShortcut::Context_ClipTool, "Perform Clip"));
+            Menu& clipActionMenu = actionMenu.addMenu(CommandIds::Menu::EditClipActions, "Clip Tool");
+            clipActionMenu.addActionItem(CommandIds::Menu::EditToggleClipSide, Action::Context_ClipTool, "Toggle Clip Side", KeyboardShortcut(WXK_RETURN, WXK_CONTROL));
+            clipActionMenu.addActionItem(CommandIds::Menu::EditPerformClip, Action::Context_ClipTool, "Perform Clip", KeyboardShortcut(WXK_RETURN));
 #ifdef __APPLE__
-            clipActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDeleteLastClipPoint, WXK_BACK, KeyboardShortcut::Context_ClipTool, "Delete Last Clip Point"));
+            clipActionMenu.addActionItem(CommandIds::Menu::EditDeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_BACK));
 #else
-            clipActionMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::EditDeleteLastClipPoint, WXK_DELETE, KeyboardShortcut::Context_ClipTool, "Delete Last Clip Point"));
+            clipActionMenu.addActionItem(CommandIds::Menu::EditDeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_DELETE));
 #endif
             
-            editMenu->addSeparator();
-            editMenu->addCheckItem(KeyboardShortcut(CommandIds::Menu::EditToggleTextureLock, KeyboardShortcut::Context_Any, "Texture Lock"));
+            editMenu.addSeparator();
+             */
             
-            Menu* viewMenu = new Menu("View");
-            menus[ViewMenu] = Menu::Ptr(viewMenu);
+            editMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, Action::Context_Any, "Texture Lock");
             
-            Menu& gridMenu = viewMenu->addMenu("Grid");
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewToggleShowGrid, WXK_CONTROL, 'G', KeyboardShortcut::Context_Any, "Show Grid"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewToggleSnapToGrid, WXK_CONTROL, WXK_SHIFT, 'G', KeyboardShortcut::Context_Any, "Snap to Grid"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewIncGridSize, '+', KeyboardShortcut::Context_Any, "Increase Grid Size"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewDecGridSize, '-', KeyboardShortcut::Context_Any, "Decrease Grid Size"));
+            Menu& viewMenu = menu->addMenu(wxID_ANY, "View");
+            Menu& gridMenu = viewMenu.addMenu(wxID_ANY, "Grid");
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, Action::Context_Any, "Show Grid", KeyboardShortcut('G', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleSnapToGrid, Action::Context_Any, "Snap to Grid", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewIncGridSize, Action::Context_Any, "Increase Grid Size", KeyboardShortcut('+', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewDecGridSize, Action::Context_Any, "Decrease Grid Size", KeyboardShortcut('-', WXK_CONTROL));
             gridMenu.addSeparator();
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize1, '1', KeyboardShortcut::Context_Any, "Set Grid Size 1"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize2, '2', KeyboardShortcut::Context_Any, "Set Grid Size 2"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize4, '3', KeyboardShortcut::Context_Any, "Set Grid Size 4"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize8, '4', KeyboardShortcut::Context_Any, "Set Grid Size 8"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize16, '5', KeyboardShortcut::Context_Any, "Set Grid Size 16"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize32, '6', KeyboardShortcut::Context_Any, "Set Grid Size 32"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize64, '7', KeyboardShortcut::Context_Any, "Set Grid Size 64"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize128, '8', KeyboardShortcut::Context_Any, "Set Grid Size 128"));
-            gridMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewSetGridSize256, '9', KeyboardShortcut::Context_Any, "Set Grid Size 256"));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize1, Action::Context_Any, "Set Grid Size 1", KeyboardShortcut('1', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize2, Action::Context_Any, "Set Grid Size 2", KeyboardShortcut('2', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize4, Action::Context_Any, "Set Grid Size 4", KeyboardShortcut('3', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize8, Action::Context_Any, "Set Grid Size 8", KeyboardShortcut('4', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize16, Action::Context_Any, "Set Grid Size 16", KeyboardShortcut('5', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize32, Action::Context_Any, "Set Grid Size 32", KeyboardShortcut('6', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize64, Action::Context_Any, "Set Grid Size 64", KeyboardShortcut('7', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize128, Action::Context_Any, "Set Grid Size 128", KeyboardShortcut('8', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize256, Action::Context_Any, "Set Grid Size 256", KeyboardShortcut('9', WXK_CONTROL));
             
-            Menu& cameraMenu = viewMenu->addMenu("Camera");
-            cameraMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::ViewMoveCameraToNextPoint, WXK_SHIFT, '+', KeyboardShortcut::Context_Any, "Move to Next Point"));
-            cameraMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::ViewMoveCameraToPreviousPoint, WXK_SHIFT, '-', KeyboardShortcut::Context_Any, "Move to Previous Point"));
-            cameraMenu.addActionItem(KeyboardShortcut(CommandIds::Menu::ViewCenterCameraOnSelection, WXK_CONTROL, WXK_SHIFT, 'C', KeyboardShortcut::Context_Any, "Center on Selection"));
+            Menu& cameraMenu = viewMenu.addMenu(wxID_ANY, "Camera");
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, Action::Context_Any, "Move to Next Point", KeyboardShortcut('+', WXK_SHIFT));
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, Action::Context_Any, "Move to Previous Point", KeyboardShortcut('-', WXK_SHIFT));
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewCenterCameraOnSelection, Action::Context_Any, "Center on Selection", KeyboardShortcut('C', WXK_CONTROL, WXK_SHIFT));
+            
+            /*
             cameraMenu.addSeparator();
-            cameraMenu.addCheckItem(KeyboardShortcut(CommandIds::Menu::ViewToggleCameraFlyMode, 'F', KeyboardShortcut::Context_Any, "Fly Mode"));
+            cameraMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleCameraFlyMode, Action::Context_Any, "Fly Mode", KeyboardShortcut('F'));
+             */
             
-            viewMenu->addSeparator();
-            viewMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::ViewSwitchToMapInspector, WXK_CONTROL, '1', KeyboardShortcut::Context_Any, "Switch to Map Inspector"));
-            viewMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::ViewSwitchToEntityInspector, WXK_CONTROL, '2', KeyboardShortcut::Context_Any, "Switch to Entity Inspector"));
-            viewMenu->addActionItem(KeyboardShortcut(CommandIds::Menu::ViewSwitchToFaceInspector, WXK_CONTROL, '3', KeyboardShortcut::Context_Any, "Switch to Face Inspector"));
-            return menus;
+            viewMenu.addSeparator();
+            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToMapInspector, Action::Context_Any, "Switch to Map Inspector", KeyboardShortcut('1', WXK_SHIFT));
+            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToEntityInspector, Action::Context_Any, "Switch to Entity Inspector", KeyboardShortcut('2', WXK_SHIFT));
+            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToFaceInspector, Action::Context_Any, "Switch to Face Inspector", KeyboardShortcut('3', WXK_SHIFT));
+
+            Menu& helpMenu = menu->addMenu(wxID_ANY, "Help");
+            helpMenu.addUnmodifiableActionItem(CommandIds::Menu::HelpShowHelp, Action::Context_Any, "TrenchBroom Help");
+
+#ifdef __APPLE__
+            // these won't show up in the app menu if we don't add them here
+            fileMenu.addUnmodifiableActionItem(wxID_ABOUT, Action::Context_Any, "About TrenchBroom");
+            fileMenu.addUnmodifiableActionItem(wxID_PREFERENCES, Action::Context_Any, "Preferences...\tCtrl-,");
+            fileMenu.addUnmodifiableActionItem(wxID_EXIT, Action::Context_Any, "Exit");
+#else
+            viewMenu.addSeparator();
+            viewMenu.addUnmodifiableActionItem(wxID_PREFERENCES, Action::Context_Any, "Preferences...");
+            
+            helpMenu.addSeparator();
+            helpMenu.addUnmodifiableActionItem(wxID_ABOUT, Action::Context_Any, "About TrenchBroom");
+#endif
+            
+            return menu;
         }
     }
 }

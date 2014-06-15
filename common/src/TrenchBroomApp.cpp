@@ -167,7 +167,7 @@ namespace TrenchBroom {
 
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
-            wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector(), false);
+            wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector());
             wxMenuBar::MacSetCommonMenuBar(menuBar);
 
             wxMenu* recentDocumentsMenu = Menu::findRecentDocumentsMenu(menuBar);

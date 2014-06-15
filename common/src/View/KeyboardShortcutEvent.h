@@ -26,29 +26,18 @@ namespace TrenchBroom {
     namespace View {
         class KeyboardShortcutEvent : public wxEvent {
         protected:
-            int m_modifierKey1;
-            int m_modifierKey2;
-            int m_modifierKey3;
             int m_key;
+            int m_modifier1;
+            int m_modifier2;
+            int m_modifier3;
         public:
             KeyboardShortcutEvent();
-            KeyboardShortcutEvent(int modifierKey1, int modifierKey2, int modifierKey3, int key);
+            KeyboardShortcutEvent(int key, int modifier1, int modifier2, int modifier3);
             
-            inline int modifierKey1() const {
-                return m_modifierKey1;
-            }
-            
-            inline int modifierKey2() const {
-                return m_modifierKey2;
-            }
-            
-            inline int modifierKey3() const {
-                return m_modifierKey3;
-            }
-            
-            inline int key() const {
-                return m_key;
-            }
+            int key() const;
+            int modifier1() const;
+            int modifier2() const;
+            int modifier3() const;
             
             virtual wxEvent* Clone() const;
             

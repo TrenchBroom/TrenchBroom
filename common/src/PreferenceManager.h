@@ -52,7 +52,7 @@ namespace TrenchBroom {
         PreferenceBase::Set discardChanges();
         
         template <typename T>
-        const T& get(Preference<T>& preference) const {
+        const T& get(const Preference<T>& preference) const {
             if (!preference.initialized())
                 preference.load(wxConfig::Get());
             

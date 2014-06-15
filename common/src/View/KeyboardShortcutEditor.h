@@ -32,34 +32,23 @@ namespace TrenchBroom {
         class KeyboardShortcutEditor : public wxControl {
         private:
             wxStaticText* m_label;
-            int m_modifierKey1;
-            int m_modifierKey2;
-            int m_modifierKey3;
             int m_key;
+            int m_modifier1;
+            int m_modifier2;
+            int m_modifier3;
             bool m_resetOnNextKey;
             
             void update();
         public:
             KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = 0, const wxValidator& validator = wxDefaultValidator, const wxString& name = wxPanelNameStr);
-
-            inline int modifierKey1() const {
-                return m_modifierKey1;
-            }
-
-            inline int modifierKey2() const {
-                return m_modifierKey2;
-            }
             
-            inline int modifierKey3() const {
-                return m_modifierKey3;
-            }
-            
-            inline int key() const {
-                return m_key;
-            }
+            int key() const;
+            int modifier1() const;
+            int modifier2() const;
+            int modifier3() const;
             
             void SetShortcut(const KeyboardShortcut& shortcut);
-            void SetShortcut(int key = WXK_NONE, int modifierKey1 = WXK_NONE, int modifierKey2 = WXK_NONE, int modifierKey3 = WXK_NONE);
+            void SetShortcut(int key = WXK_NONE, int modifier1 = WXK_NONE, int modifier2 = WXK_NONE, int modifier3 = WXK_NONE);
             
             void OnPaint(wxPaintEvent& event);
             void OnSetFocus(wxFocusEvent& event);

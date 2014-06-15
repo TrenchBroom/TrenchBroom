@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2014 Kristian Duske
-
+ 
  This file is part of TrenchBroom.
-
+ 
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
-
+ 
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
-
+ 
  You should have received a copy of the GNU General Public License
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,78 +41,78 @@ namespace TrenchBroom {
         wxGridCellEditor(),
         m_editor(NULL),
         m_evtHandler(NULL) {}
-
-        KeyboardGridCellEditor::KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, int modifierKey1, int modifierKey2, int modifierKey3, int key) :
+        
+        KeyboardGridCellEditor::KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, const int key, const int modifier1, const int modifier2, const int modifier3) :
         wxGridCellEditor(),
         m_editor(NULL),
         m_evtHandler(NULL) {
             Create(parent, windowId, evtHandler);
-            m_editor->SetShortcut(key, modifierKey1, modifierKey2, modifierKey3);
+            m_editor->SetShortcut(key, modifier1, modifier2, modifier3);
         }
-
+        
         void KeyboardGridCellEditor::Create(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler) {
             m_evtHandler = evtHandler;
             m_editor = new KeyboardShortcutEditor(parent, wxID_ANY);
             SetControl(m_editor);
             // wxGridCellEditor::Create(parent, windowId, evtHandler);
         }
-
+        
         wxGridCellEditor* KeyboardGridCellEditor::Clone() const {
             return new KeyboardGridCellEditor(m_editor->GetParent(), wxID_ANY, m_evtHandler,
-                                              m_editor->modifierKey1(),
-                                              m_editor->modifierKey2(),
-                                              m_editor->modifierKey3(),
-                                              m_editor->key());
+                                              m_editor->key(),
+                                              m_editor->modifier1(),
+                                              m_editor->modifier2(),
+                                              m_editor->modifier3());
         }
-
+        
         void KeyboardGridCellEditor::BeginEdit(int row, int col, wxGrid* grid) {
-            int modifierKey1, modifierKey2, modifierKey3, key;
+            int modifier1, modifier2, modifier3, key;
             KeyboardShortcut::parseShortcut(grid->GetCellValue(row, col),
-                                            modifierKey1,
-                                            modifierKey2,
-                                            modifierKey3,
-                                            key);
-            m_editor->SetShortcut(key, modifierKey1, modifierKey2, modifierKey3);
+                                            key,
+                                            modifier1,
+                                            modifier2,
+                                            modifier3);
+            m_editor->SetShortcut(key, modifier1, modifier2, modifier3);
             m_editor->SetFocus();
         }
-
+        
         bool KeyboardGridCellEditor::EndEdit(int row, int col, const wxGrid* grid, const wxString& oldValue, wxString* newValue) {
-            *newValue = KeyboardShortcut::shortcutDisplayText(m_editor->modifierKey1(),
-                                                              m_editor->modifierKey2(),
-                                                              m_editor->modifierKey3(),
-                                                              m_editor->key());
+            *newValue = KeyboardShortcut::shortcutDisplayString(m_editor->key(),
+                                                                m_editor->modifier1(),
+                                                                m_editor->modifier2(),
+                                                                m_editor->modifier3());
             if (*newValue == oldValue)
                 return false;
             return true;
         }
-
+        
         void KeyboardGridCellEditor::ApplyEdit(int row, int col, wxGrid* grid) {
-            wxString newValue = KeyboardShortcut::shortcutDisplayText(m_editor->modifierKey1(),
-                                                                      m_editor->modifierKey2(),
-                                                                      m_editor->modifierKey3(),
-                                                                      m_editor->key());
+            wxString newValue = KeyboardShortcut::shortcutDisplayString(m_editor->key(),
+                                                                        m_editor->modifier1(),
+                                                                        m_editor->modifier2(),
+                                                                        m_editor->modifier3());
             grid->SetCellValue(row, col, newValue);
         }
-
+        
         void KeyboardGridCellEditor::HandleReturn(wxKeyEvent& event) {
             event.Skip();
         }
-
+        
         void KeyboardGridCellEditor::Reset() {
             m_editor->SetShortcut();
         }
-
+        
         void KeyboardGridCellEditor::Show(bool show, wxGridCellAttr* attr) {
             m_editor->Show(show);
         }
-
+        
         wxString KeyboardGridCellEditor::GetValue() const {
-            return KeyboardShortcut::shortcutDisplayText(m_editor->modifierKey1(),
-                                                         m_editor->modifierKey2(),
-                                                         m_editor->modifierKey3(),
-                                                         m_editor->key());
+            return KeyboardShortcut::shortcutDisplayString(m_editor->key(),
+                                                           m_editor->modifier1(),
+                                                           m_editor->modifier2(),
+                                                           m_editor->modifier3());
         }
-
+        
         void KeyboardGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
-
+        
         void KeyboardGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
@@ -130,7 +130,7 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
-
+        
         void KeyboardGridTable::notifyRowsAppended(size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
@@ -138,7 +138,7 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
-
+        
         void KeyboardGridTable::notifyRowsDeleted(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED,
@@ -147,51 +147,49 @@ namespace TrenchBroom {
                 GetView()->ProcessTableMessage(message);
             }
         }
-
-        bool KeyboardGridTable::markDuplicates(EntryList& entries) {
+        
+        bool KeyboardGridTable::markConflicts(EntryList& entries) {
             for (size_t i = 0; i < entries.size(); i++)
-                entries[i]->setDuplicate(false);
-
-            bool hasDuplicates = false;
+                entries[i]->setConflicts(false);
+            
+            bool hasConflicts = false;
             for (size_t i = 0; i < entries.size(); i++) {
-                KeyboardShortcutEntry& first = *entries[i];
-                if (first.shortcut().key() != WXK_NONE) {
-                    for (size_t j = i + 1; j < entries.size(); j++) {
-                        KeyboardShortcutEntry& second = *entries[j];
-                        if (first.isDuplicateOf(second)) {
-                            first.setDuplicate(true);
-                            second.setDuplicate(true);
-                            hasDuplicates = true;
-                        }
+                ActionEntry& first = *entries[i];
+                for (size_t j = i + 1; j < entries.size(); j++) {
+                    ActionEntry& second = *entries[j];
+                    if (first.conflictsWith(second)) {
+                        first.setConflicts(true);
+                        second.setConflicts(true);
+                        hasConflicts = true;
                     }
                 }
             }
-            return hasDuplicates;
+            return hasConflicts;
         }
-
-        void KeyboardGridTable::addMenu(const Menu& menu, EntryList& entries) const {
-            const MenuItem::List& items = menu.items();
-            MenuItem::List::const_iterator itemIt, itemEnd;
+        
+        void KeyboardGridTable::addMenu(Menu& menu, EntryList& entries) const {
+            MenuItem::List& items = menu.items();
+            MenuItem::List::iterator itemIt, itemEnd;
             for (itemIt = items.begin(), itemEnd = items.end(); itemIt != itemEnd; ++itemIt) {
-                const MenuItem& item = **itemIt;
+                MenuItem& item = **itemIt;
                 switch (item.type()) {
                     case MenuItem::Type_Action:
                     case MenuItem::Type_Check: {
-                        const ShortcutMenuItem& shortcutItem = static_cast<const ShortcutMenuItem&>(item);
-                        entries.push_back(KeyboardShortcutEntry::Ptr(new MenuKeyboardShortcutEntry(shortcutItem)));
+                        ActionMenuItem& actionItem = static_cast<ActionMenuItem&>(item);
+                        entries.push_back(ActionEntry::Ptr(new ActionEntry(actionItem.action())));
                         break;
                     }
                     case MenuItem::Type_Menu: {
-                        const Menu& subMenu = static_cast<const Menu&>(item);
+                        Menu& subMenu = static_cast<Menu&>(item);
                         addMenu(subMenu, entries);
                         break;
                     }
                     case MenuItem::Type_MultiMenu: {
-                        const MultiMenu& multiMenu = static_cast<const MultiMenu&>(item);
-                        const MenuItem::List& multiItems = multiMenu.items();
+                        MultiMenu& multiMenu = static_cast<MultiMenu&>(item);
+                        MenuItem::List& multiItems = multiMenu.items();
                         MenuItem::List::const_iterator multiIt, multiEnd;
                         for (multiIt = multiItems.begin(), multiEnd = multiItems.end(); multiIt != multiEnd; ++multiIt) {
-                            const Menu& multiItem = static_cast<const Menu&>(**multiIt);
+                            Menu& multiItem = static_cast<Menu&>(**multiIt);
                             addMenu(multiItem, entries);
                         }
                         break;
@@ -201,145 +199,123 @@ namespace TrenchBroom {
                 }
             }
         }
-
+        
         void KeyboardGridTable::addShortcut(Preference<KeyboardShortcut>& shortcut, EntryList& entries) const {
-            entries.push_back(KeyboardShortcutEntry::Ptr(new SimpleKeyboardShortcutEntry(shortcut)));
+            //            entries.push_back(ActionEntry::Ptr(new SimpleKeyboardShortcutEntry(shortcut)));
+        }
+        
+        ActionEntry::ActionEntry(Action& action) :
+        m_action(action),
+        m_conflicts(false) {}
+        
+        const String ActionEntry::caption() const {
+            return m_action.displayName();
+        }
+        
+        const String ActionEntry::contextName() const {
+            return m_action.contextName();
+            
+        }
+        
+        const wxString ActionEntry::shortcut() const {
+            return m_action.shortcutDisplayString();
+        }
+        
+        bool ActionEntry::modifiable() const {
+            return m_action.modifiable();
         }
 
-        KeyboardShortcutEntry::KeyboardShortcutEntry() :
-        m_duplicate(false) {}
-
-        bool KeyboardShortcutEntry::isDuplicateOf(const KeyboardShortcutEntry& entry) const {
-            if (shortcut().commandId() == entry.shortcut().commandId())
-                return false;
-            if (shortcut().modifierKey1() != entry.shortcut().modifierKey1())
-                return false;
-            if (shortcut().modifierKey2() != entry.shortcut().modifierKey2())
-                return false;
-            if (shortcut().modifierKey3() != entry.shortcut().modifierKey3())
-                return false;
-            if (shortcut().key() != entry.shortcut().key())
-                return false;
-            if ((shortcut().context() & entry.shortcut().context()) == 0)
-                return false;
-            return true;
+        void ActionEntry::updateShortcut(const KeyboardShortcut& shortcut) {
+            m_action.updateShortcut(shortcut);
         }
-
-        MenuKeyboardShortcutEntry::MenuKeyboardShortcutEntry(const ShortcutMenuItem& item) :
-        KeyboardShortcutEntry(),
-        m_item(item) {}
-
-        const String MenuKeyboardShortcutEntry::caption() const {
-            return m_item.longText();
+        
+        bool ActionEntry::conflictsWith(const ActionEntry& entry) const {
+            return m_action.conflictsWith(entry.m_action);
         }
-
-        const KeyboardShortcut& MenuKeyboardShortcutEntry::shortcut() const {
-            return m_item.shortcut();
+        
+        bool ActionEntry::conflicts() const {
+            return m_conflicts;
         }
-
-        void MenuKeyboardShortcutEntry::saveShortcut(const KeyboardShortcut& shortcut) const {
-            m_item.setShortcut(shortcut);
+        
+        void ActionEntry::setConflicts(const bool conflicts) {
+            m_conflicts = conflicts;
         }
-
-        SimpleKeyboardShortcutEntry::SimpleKeyboardShortcutEntry(Preference<KeyboardShortcut>& preference) :
-        KeyboardShortcutEntry(),
-        m_preference(preference) {}
-
-        const String SimpleKeyboardShortcutEntry::caption() const {
-            return shortcut().text();
-        }
-
-        const KeyboardShortcut& SimpleKeyboardShortcutEntry::shortcut() const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            return prefs.get(m_preference);
-        }
-
-        void SimpleKeyboardShortcutEntry::saveShortcut(const KeyboardShortcut& shortcut) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(m_preference, shortcut);
-        }
-
+        
         KeyboardGridTable::KeyboardGridTable() :
         m_cellEditor(new KeyboardGridCellEditor()) {
             m_cellEditor->IncRef();
         }
-
+        
         KeyboardGridTable::~KeyboardGridTable() {
             m_cellEditor->DecRef();
         }
-
+        
         int KeyboardGridTable::GetNumberRows() {
             return static_cast<int>(m_entries.size());
         }
-
+        
         int KeyboardGridTable::GetNumberCols() {
             return 3;
         }
-
+        
         wxString KeyboardGridTable::GetValue(int row, int col) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col >= 0 && col < GetNumberCols());
-
+            
             size_t rowIndex = static_cast<size_t>(row);
-
+            
             switch (col) {
                 case 0:
                     return m_entries[rowIndex]->caption();
                 case 1:
-                    return KeyboardShortcut::contextName(m_entries[rowIndex]->shortcut().context());
+                    return m_entries[rowIndex]->contextName();
                 case 2:
-                    return m_entries[rowIndex]->shortcut().shortcutDisplayText();
+                    return m_entries[rowIndex]->shortcut();
                 default:
                     assert(false);
                     break;
             }
-
+            
             return "";
         }
-
+        
         void KeyboardGridTable::SetValue(int row, int col, const wxString& value) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col == 2);
-
-            int modifierKey1, modifierKey2, modifierKey3, key;
-            const bool success = KeyboardShortcut::parseShortcut(value, modifierKey1, modifierKey2, modifierKey3, key);
+            
+            int key, modifier1, modifier2, modifier3;
+            const bool success = KeyboardShortcut::parseShortcut(value, key, modifier1, modifier2, modifier3);
             assert(success);
             _UNUSED(success);
-
+            
             const size_t rowIndex = static_cast<size_t>(row);
-            const KeyboardShortcut& oldShortcut = m_entries[rowIndex]->shortcut();
-            KeyboardShortcut newShortcut = KeyboardShortcut(oldShortcut.commandId(),
-                                                            modifierKey1, modifierKey2, modifierKey3, key,
-                                                            oldShortcut.context(),
-                                                            oldShortcut.text());
-
-            m_entries[rowIndex]->saveShortcut(newShortcut);
-
-            if (markDuplicates(m_entries))
+            m_entries[rowIndex]->updateShortcut(KeyboardShortcut(key, modifier1, modifier2, modifier3));
+            
+            if (markConflicts(m_entries))
                 notifyRowsUpdated(m_entries.size());
             else
                 notifyRowsUpdated(rowIndex, 1);
         }
-
+        
         void KeyboardGridTable::Clear() {
             assert(false);
         }
-
+        
         bool KeyboardGridTable::InsertRows(size_t pos, size_t numRows) {
             assert(false);
             return false;
         }
-
+        
         bool KeyboardGridTable::AppendRows(size_t numRows) {
             assert(false);
             return false;
         }
-
+        
         bool KeyboardGridTable::DeleteRows(size_t pos, size_t numRows) {
             assert(false);
             return false;
         }
-
+        
         wxString KeyboardGridTable::GetColLabelValue(int col) {
             assert(col >= 0 && col < GetNumberCols());
             switch (col) {
@@ -353,15 +329,15 @@ namespace TrenchBroom {
                     assert(false);
                     break;
             }
-
+            
             return "";
         }
-
+        
         wxGridCellAttr* KeyboardGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
             if (row >= 0 && row < GetNumberRows()) {
-                const KeyboardShortcutEntry& entry = *m_entries[static_cast<size_t>(row)];
-                if (entry.duplicate()) {
+                const ActionEntry& entry = *m_entries[static_cast<size_t>(row)];
+                if (entry.conflicts()) {
                     if (attr == NULL)
                         attr = new wxGridCellAttr();
                     attr->SetTextColour(*wxRED);
@@ -373,60 +349,63 @@ namespace TrenchBroom {
                 } else if (col == 2) {
                     if (attr == NULL)
                         attr = new wxGridCellAttr();
-                    attr->SetEditor(m_cellEditor);
-                    m_cellEditor->IncRef();
+                    if (entry.modifiable()) {
+                        attr->SetEditor(m_cellEditor);
+                        m_cellEditor->IncRef();
+                    } else {
+                        attr->SetReadOnly(true);
+                        attr->SetTextColour(*wxLIGHT_GREY);
+                    }
                 }
             }
             return attr;
         }
-
+        
         bool KeyboardGridTable::hasDuplicates() const {
             for (size_t i = 0; i < m_entries.size(); i++)
-                if (m_entries[i]->duplicate())
+                if (m_entries[i]->conflicts())
                     return true;
             return false;
         }
-
+        
         bool KeyboardGridTable::update() {
             EntryList newEntries;
-
-            addMenu(Menu::getMenu(FileMenu), newEntries);
-            addMenu(Menu::getMenu(EditMenu), newEntries);
-            addMenu(Menu::getMenu(ViewMenu), newEntries);
+            addMenu(Menu::getMenu(), newEntries);
+            
             /*
-            addShortcut(Preferences::CameraMoveForward, newEntries);
-            addShortcut(Preferences::CameraMoveBackward, newEntries);
-            addShortcut(Preferences::CameraMoveLeft, newEntries);
-            addShortcut(Preferences::CameraMoveRight, newEntries);
+             addShortcut(Preferences::CameraMoveForward, newEntries);
+             addShortcut(Preferences::CameraMoveBackward, newEntries);
+             addShortcut(Preferences::CameraMoveLeft, newEntries);
+             addShortcut(Preferences::CameraMoveRight, newEntries);
              */
-
-            bool hasDuplicates = markDuplicates(newEntries);
-
+            
+            const bool hasConflicts = markConflicts(newEntries);
+            
             size_t oldSize = m_entries.size();
             m_entries = newEntries;
-
+            
             notifyRowsUpdated(0, oldSize);
             if (oldSize < m_entries.size())
                 notifyRowsAppended(m_entries.size() - oldSize);
             else if (oldSize > m_entries.size())
                 notifyRowsDeleted(oldSize, oldSize - m_entries.size());
-
-            return hasDuplicates;
+            
+            return hasConflicts;
         }
-
+        
         KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
         PreferencePane(parent),
         m_grid(NULL),
         m_table(NULL) {
             wxWindow* menuShortcutGrid = createMenuShortcutGrid();
-
+            
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
             outerSizer->SetItemMinSize(menuShortcutGrid, 700, 550);
             SetSizerAndFit(outerSizer);
             SetBackgroundColour(*wxWHITE);
         }
-
+        
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
             int width = m_grid->GetClientSize().x;
             m_grid->AutoSizeColumn(0);
@@ -437,7 +416,7 @@ namespace TrenchBroom {
             m_grid->SetColSize(2, colSize);
             event.Skip();
         }
-
+        
         
         wxWindow* KeyboardPreferencePane::createMenuShortcutGrid() {
             wxPanel* container = new wxPanel(this);
@@ -470,7 +449,7 @@ namespace TrenchBroom {
 #if defined __APPLE__
             infoText->SetFont(*wxSMALL_FONT);
 #endif
-
+            
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_grid, 1, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::WideVMargin);
@@ -482,7 +461,7 @@ namespace TrenchBroom {
         }
         
         void KeyboardPreferencePane::doUpdateControls() {}
-
+        
         bool KeyboardPreferencePane::doValidate() {
             m_grid->SaveEditControlValue();
             if (m_table->hasDuplicates()) {

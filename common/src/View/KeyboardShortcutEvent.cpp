@@ -25,17 +25,33 @@ namespace TrenchBroom {
     namespace View {
         IMPLEMENT_DYNAMIC_CLASS(KeyboardShortcutEvent, wxEvent)
         KeyboardShortcutEvent::KeyboardShortcutEvent() :
-        m_modifierKey1(WXK_NONE),
-        m_modifierKey2(WXK_NONE),
-        m_modifierKey3(WXK_NONE),
-        m_key(WXK_NONE) {}
+        m_key(WXK_NONE),
+        m_modifier1(WXK_NONE),
+        m_modifier2(WXK_NONE),
+        m_modifier3(WXK_NONE) {}
         
-        KeyboardShortcutEvent::KeyboardShortcutEvent(int modifierKey1, int modifierKey2, int modifierKey3, int key) :
-        m_modifierKey1(modifierKey1),
-        m_modifierKey2(modifierKey2),
-        m_modifierKey3(modifierKey3),
-        m_key(key) {}
+        KeyboardShortcutEvent::KeyboardShortcutEvent(const int key, const int modifier1, const int modifier2, const int modifier3) :
+        m_key(key),
+        m_modifier1(modifier1),
+        m_modifier2(modifier2),
+        m_modifier3(modifier3) {}
         
+        int KeyboardShortcutEvent::key() const {
+            return m_key;
+        }
+        
+        int KeyboardShortcutEvent::modifier1() const {
+            return m_modifier1;
+        }
+        
+        int KeyboardShortcutEvent::modifier2() const {
+            return m_modifier2;
+        }
+        
+        int KeyboardShortcutEvent::modifier3() const {
+            return m_modifier3;
+        }
+
         wxEvent* KeyboardShortcutEvent::Clone() const {
             return new KeyboardShortcutEvent(*this);
         }

@@ -30,6 +30,7 @@
 #include "Model/MapObjectsIterator.h"
 #include "Model/Object.h"
 #include "Model/Selection.h"
+#include "View/Action.h"
 #include "View/Autosaver.h"
 #include "View/CommandIds.h"
 #include "View/InfoPanel.h"
@@ -707,24 +708,29 @@ namespace TrenchBroom {
                 case CommandIds::Menu::FileUnloadPointFile:
                     event.Enable(document->isPointFileLoaded());
                     break;
-                case wxID_UNDO:
+                case wxID_UNDO: {
+                    const Action* action = Menu::findMenuAction(wxID_UNDO);
+                    assert(action != NULL);
                     if (controller->hasLastCommand()) {
                         event.Enable(true);
-                        event.SetText(Menu::undoShortcut().menuText(controller->lastCommandName()));
+                        event.SetText(action->menuItemString(controller->lastCommandName()));
                     } else {
                         event.Enable(false);
-                        event.SetText(Menu::undoShortcut().menuText());
+                        event.SetText(action->menuItemString());
                     }
                     break;
-                case wxID_REDO:
+                }
+                case wxID_REDO: {
+                    const Action* action = Menu::findMenuAction(wxID_REDO);
                     if (controller->hasNextCommand()) {
                         event.Enable(true);
-                        event.SetText(Menu::redoShortcut().menuText(controller->nextCommandName()));
+                        event.SetText(action->menuItemString(controller->nextCommandName()));
                     } else {
                         event.Enable(false);
-                        event.SetText(Menu::redoShortcut().menuText());
+                        event.SetText(action->menuItemString());
                     }
                     break;
+                }
                 case wxID_CUT:
                 case wxID_COPY:
                     event.Enable(!m_mapView->anyToolActive() &&
@@ -915,8 +921,15 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewSwitchToFaceInspector:
                     event.Enable(true);
                     break;
+                case CommandIds::Menu::FileOpenRecent:
+                    event.Enable(true);
+                    break;
                 default:
-                    event.Enable(false);
+                    if (event.GetId() >= CommandIds::Menu::FileRecentDocuments &&
+                        event.GetId() < CommandIds::Menu::FileRecentDocuments + 10)
+                        event.Enable(true);
+                    else
+                        event.Enable(false);
                     break;
             }
         }
@@ -1148,7 +1161,7 @@ namespace TrenchBroom {
         }
         
         void MapFrame::createMenuBar(const bool showModifiers) {
-            wxMenuBar* menuBar = Menu::createMenuBar(FrameMenuSelector(m_mapView, m_document), showModifiers);
+            wxMenuBar* menuBar = Menu::createMenuBar(FrameMenuSelector(m_mapView, m_document));
             SetMenuBar(menuBar);
             
             View::TrenchBroomApp::instance().addRecentDocumentMenu(Menu::findRecentDocumentsMenu(menuBar));
@@ -1157,8 +1170,10 @@ namespace TrenchBroom {
         void MapFrame::updateMenuBar(const bool showModifiers) {
             wxMenuBar* oldMenuBar = GetMenuBar();
             View::TrenchBroomApp::instance().removeRecentDocumentMenu(Menu::findRecentDocumentsMenu(oldMenuBar));
-            createMenuBar(showModifiers);
+            SetMenuBar(NULL);
             delete oldMenuBar;
+            
+            createMenuBar(showModifiers);
         }
         
         void MapFrame::updateTitle() {

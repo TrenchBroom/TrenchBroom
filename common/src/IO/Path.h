@@ -58,6 +58,7 @@ namespace TrenchBroom {
             bool operator> (const Path& rhs) const;
             
             String asString(const char sep = separator()) const;
+            String asString(const String& sep) const;
             static StringList asStrings(const Path::List& paths, const char sep = separator());
             
             size_t length() const;
