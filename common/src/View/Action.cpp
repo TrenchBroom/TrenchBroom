@@ -70,6 +70,14 @@ namespace TrenchBroom {
             return m_modifiable;
         }
 
+        wxAcceleratorEntry Action::acceleratorEntry() const {
+            return shortcut().acceleratorEntry(m_id);
+        }
+
+        bool Action::appliesToContext(const int context) const {
+            return (context & m_context) != 0;
+        }
+
         wxString Action::shortcutMenuString() const {
             return shortcut().shortcutMenuString();
         }

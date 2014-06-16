@@ -37,6 +37,7 @@
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
+#include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraTool.h"
@@ -85,6 +86,10 @@ namespace TrenchBroom {
             bindObservers();
             
             SetDropTarget(new ToolBoxDropTarget(m_toolBox));
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView ::OnAccelEntry, this, CommandIds::Menu::EditToggleClipTool);
+
+            updateAcceleratorTable();
         }
         
         MapView::~MapView() {
@@ -93,6 +98,10 @@ namespace TrenchBroom {
             m_animationManager->Delete();
             m_animationManager = NULL;
             m_logger = NULL;
+        }
+
+        void MapView::OnAccelEntry(wxCommandEvent& event) {
+            m_logger->debug("asdf");
         }
 
         void MapView::centerCameraOnSelection() {
@@ -123,10 +132,13 @@ namespace TrenchBroom {
                 m_toolBox.unlockCursor();
                 m_cameraTool->setFlyMode(false);
             }
+            updateAcceleratorTable();
+            Refresh();
         }
 
         void MapView::toggleMovementRestriction() {
             m_movementRestriction.toggleHorizontalRestriction(m_camera);
+            updateAcceleratorTable();
             Refresh();
         }
 
@@ -136,6 +148,7 @@ namespace TrenchBroom {
 
         void MapView::toggleClipTool() {
             m_toolBox.toggleTool(m_clipTool);
+            updateAcceleratorTable();
         }
         
         bool MapView::clipToolActive() const {
@@ -177,6 +190,7 @@ namespace TrenchBroom {
 
         void MapView::toggleRotateObjectsTool() {
             m_toolBox.toggleTool(m_rotateObjectsTool);
+            updateAcceleratorTable();
         }
         
         bool MapView::rotateObjectsToolActive() const {
@@ -185,6 +199,7 @@ namespace TrenchBroom {
 
         void MapView::toggleVertexTool() {
             m_toolBox.toggleTool(m_vertexTool);
+            updateAcceleratorTable();
         }
         
         bool MapView::vertexToolActive() const {
@@ -206,6 +221,7 @@ namespace TrenchBroom {
 
         void MapView::toggleTextureTool() {
             m_toolBox.toggleTool(m_textureTool);
+            updateAcceleratorTable();
         }
         
         bool MapView::textureToolActive() const {
@@ -359,6 +375,30 @@ namespace TrenchBroom {
             assert(definition != NULL);
             assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
             createBrushEntity(*static_cast<const Assets::BrushEntityDefinition*>(definition));
+        }
+
+        void MapView::updateAcceleratorTable() {
+            const ActionManager& actionManager = ActionManager::instance();
+            
+            const Action::Context context = actionContext();
+            const wxAcceleratorTable acceleratorTable = actionManager.createMapViewAcceleratorTable(context);
+            SetAcceleratorTable(acceleratorTable);
+        }
+
+        Action::Context MapView::actionContext() const {
+            if (clipToolActive())
+                return Action::Context_ClipTool;
+            if (vertexToolActive())
+                return Action::Context_VertexTool;
+            if (rotateObjectsToolActive())
+                return Action::Context_VertexTool;
+
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedObjects())
+                return Action::Context_ObjectSelection;
+            if (document->hasSelectedFaces())
+                return Action::Context_FaceSelection;
+            return Action::Context_Default;
         }
 
         void MapView::OnUpdatePopupMenuItem(wxUpdateUIEvent& event) {
@@ -716,6 +756,7 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedObjects())
                 m_selectionGuide.setBounds(lock(m_document)->selectionBounds());
+            updateAcceleratorTable();
             Refresh();
         }
         

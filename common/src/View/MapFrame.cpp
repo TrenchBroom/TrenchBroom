@@ -31,6 +31,7 @@
 #include "Model/Object.h"
 #include "Model/Selection.h"
 #include "View/Action.h"
+#include "View/ActionManager.h"
 #include "View/Autosaver.h"
 #include "View/CommandIds.h"
 #include "View/InfoPanel.h"
@@ -53,8 +54,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        const wxEventType MapFrame::EVT_REBUILD_MENUBAR = wxNewEventType();
-
         IMPLEMENT_DYNAMIC_CLASS(MapFrame, wxFrame)
 
         class OpenClipboard {
@@ -97,7 +96,7 @@ namespace TrenchBroom {
             m_autosaver = new Autosaver(m_document);
             
             createGui();
-            createMenuBar(false);
+            createMenuBar();
             updateTitle();
             m_document->setParentLogger(logger());
 
@@ -118,7 +117,10 @@ namespace TrenchBroom {
             delete m_autosaver;
             m_autosaver = NULL;
 
-            View::TrenchBroomApp::instance().removeRecentDocumentMenu(Menu::findRecentDocumentsMenu(GetMenuBar()));
+            TrenchBroomApp& app = TrenchBroomApp::instance();
+            
+            wxMenu* recentDocumentsMenu = ActionManager::findRecentDocumentsMenu(GetMenuBar());
+            app.removeRecentDocumentMenu(recentDocumentsMenu);
         }
 
         Logger* MapFrame::logger() const {
@@ -551,7 +553,6 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
             m_mapView->toggleClipTool();
-            updateMenuBar(m_mapView->HasFocus());
         }
 
         void MapFrame::OnEditToggleClipSide(wxCommandEvent& event) {
@@ -568,7 +569,6 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
             m_mapView->toggleVertexTool();
-            updateMenuBar(m_mapView->HasFocus());
         }
         
         void MapFrame::OnEditMoveVerticesForward(wxCommandEvent& event) {
@@ -611,12 +611,10 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditToggleTextureTool(wxCommandEvent& event) {
             m_mapView->toggleTextureTool();
-            updateMenuBar(m_mapView->HasFocus());
         }
 
         void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
             m_mapView->toggleRotateObjectsTool();
-            updateMenuBar(m_mapView->HasFocus());
         }
 
         void MapFrame::OnEditToggleMovementRestriction(wxCommandEvent& event) {
@@ -694,6 +692,7 @@ namespace TrenchBroom {
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);
+            const ActionManager& actionManager = ActionManager::instance();
             
             switch (event.GetId()) {
                 case wxID_OPEN:
@@ -709,7 +708,7 @@ namespace TrenchBroom {
                     event.Enable(document->isPointFileLoaded());
                     break;
                 case wxID_UNDO: {
-                    const Action* action = Menu::findMenuAction(wxID_UNDO);
+                    const Action* action = actionManager.findMenuAction(wxID_UNDO);
                     assert(action != NULL);
                     if (controller->hasLastCommand()) {
                         event.Enable(true);
@@ -721,7 +720,7 @@ namespace TrenchBroom {
                     break;
                 }
                 case wxID_REDO: {
-                    const Action* action = Menu::findMenuAction(wxID_REDO);
+                    const Action* action = actionManager.findMenuAction(wxID_REDO);
                     if (controller->hasNextCommand()) {
                         event.Enable(true);
                         event.SetText(action->menuItemString(controller->nextCommandName()));
@@ -934,10 +933,6 @@ namespace TrenchBroom {
             }
         }
 
-        void MapFrame::OnRebuildMenuBar(wxEvent& event) {
-            rebuildMenuBar();
-        }
-
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
             m_autosaver->triggerAutosave(logger());
         }
@@ -1126,54 +1121,38 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DELETE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
             
-            Bind(EVT_REBUILD_MENUBAR, &MapFrame::OnRebuildMenuBar, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
             
             Bind(wxEVT_ACTIVATE, &MapView::OnActivateFrame, m_mapView);
             Bind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
         }
         
-        class FrameMenuSelector : public TrenchBroom::View::MultiMenuSelector {
-        private:
-            const MapView* m_mapView;
-            const MapDocumentSPtr m_document;
-        public:
-            FrameMenuSelector(const MapView* mapView, const MapDocumentSPtr document) :
-            m_mapView(mapView),
-            m_document(document) {}
-            
-            const Menu* select(const MultiMenu& multiMenu) const {
-                if (m_mapView->clipToolActive())
-                    return multiMenu.menuById(CommandIds::Menu::EditClipActions);
-                else if (m_mapView->vertexToolActive())
-                    return multiMenu.menuById(CommandIds::Menu::EditVertexActions);
-                if (m_document->hasSelectedObjects())
-                    return multiMenu.menuById(CommandIds::Menu::EditObjectActions);
-                if (m_document->hasSelectedFaces())
-                    return multiMenu.menuById(CommandIds::Menu::EditFaceActions);
-                
-                return NULL;
-            }
-        };
-        
         void MapFrame::rebuildMenuBar() {
-            updateMenuBar(m_mapView->HasFocus());
-        }
-        
-        void MapFrame::createMenuBar(const bool showModifiers) {
-            wxMenuBar* menuBar = Menu::createMenuBar(FrameMenuSelector(m_mapView, m_document));
-            SetMenuBar(menuBar);
-            
-            View::TrenchBroomApp::instance().addRecentDocumentMenu(Menu::findRecentDocumentsMenu(menuBar));
-        }
-        
-        void MapFrame::updateMenuBar(const bool showModifiers) {
             wxMenuBar* oldMenuBar = GetMenuBar();
-            View::TrenchBroomApp::instance().removeRecentDocumentMenu(Menu::findRecentDocumentsMenu(oldMenuBar));
+            
+            const ActionManager& actionManager = ActionManager::instance();
+            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(oldMenuBar);
+            assert(recentDocumentsMenu != NULL);
+            
+            TrenchBroomApp& app = TrenchBroomApp::instance();
+            app.removeRecentDocumentMenu(recentDocumentsMenu);
+
             SetMenuBar(NULL);
             delete oldMenuBar;
             
-            createMenuBar(showModifiers);
+            createMenuBar();
+        }
+        
+        void MapFrame::createMenuBar() {
+            const ActionManager& actionManager = ActionManager::instance();
+            wxMenuBar* menuBar = actionManager.createMenuBar();
+            SetMenuBar(menuBar);
+            
+            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
+            assert(recentDocumentsMenu != NULL);
+
+            TrenchBroomApp& app = TrenchBroomApp::instance();
+            app.addRecentDocumentMenu(recentDocumentsMenu);
         }
         
         void MapFrame::updateTitle() {

@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Preferences.h"
+#include "View/ActionManager.h"
 #include "View/CommandIds.h"
 #include "View/KeyboardShortcutEditor.h"
 #include "View/KeyboardShortcutEvent.h"
@@ -182,16 +183,6 @@ namespace TrenchBroom {
                     case MenuItem::Type_Menu: {
                         Menu& subMenu = static_cast<Menu&>(item);
                         addMenu(subMenu, entries);
-                        break;
-                    }
-                    case MenuItem::Type_MultiMenu: {
-                        MultiMenu& multiMenu = static_cast<MultiMenu&>(item);
-                        MenuItem::List& multiItems = multiMenu.items();
-                        MenuItem::List::const_iterator multiIt, multiEnd;
-                        for (multiIt = multiItems.begin(), multiEnd = multiItems.end(); multiIt != multiEnd; ++multiIt) {
-                            Menu& multiItem = static_cast<Menu&>(**multiIt);
-                            addMenu(multiItem, entries);
-                        }
                         break;
                     }
                     case MenuItem::Type_Separator:
@@ -370,7 +361,9 @@ namespace TrenchBroom {
         
         bool KeyboardGridTable::update() {
             EntryList newEntries;
-            addMenu(Menu::getMenu(), newEntries);
+
+            ActionManager& actionManager = ActionManager::instance();
+            addMenu(actionManager.getMenu(), newEntries);
             
             /*
              addShortcut(Preferences::CameraMoveForward, newEntries);

@@ -42,8 +42,7 @@ namespace TrenchBroom {
                 Type_Separator,
                 Type_Action,
                 Type_Check,
-                Type_Menu,
-                Type_MultiMenu
+                Type_Menu
             } Type;
             
             typedef std::tr1::shared_ptr<MenuItem> Ptr;
@@ -59,7 +58,6 @@ namespace TrenchBroom {
             const MenuItemParent* parent() const;
             
             virtual const Action* findAction(int id) const;
-            // virtual const KeyboardShortcut* shortcutByKeys(const int key, const int modifierKey1, const int modifierKey2, const int modifierKey3) const;
         };
 
         class MenuItemWithCaption : public MenuItem {
@@ -111,29 +109,6 @@ namespace TrenchBroom {
             virtual ~MenuItemParent();
         };
         
-        class MultiMenu;
-        
-        class MultiMenuSelector {
-        public:
-            virtual ~MultiMenuSelector();
-            virtual const Menu* select(const MultiMenu& multiMenu) const = 0;
-        };
-        class Menu;
-        
-        class NullMenuSelector : public MultiMenuSelector {
-        public:
-            const Menu* select(const MultiMenu& multiMenu) const;
-        };
-        
-        class MultiMenu : public MenuItemParent {
-        public:
-            MultiMenu(MenuItemParent* parent, int id, const String& text);
-            Menu& addMenu(int id, const String& text);
-            const Menu* menuById(int id) const;
-            const Menu* selectMenu(const MultiMenuSelector& selector) const;
-        };
-
-        
         class Menu : public MenuItemParent {
         public:
             Menu(MenuItemParent* parent, int id, const String& text);
@@ -148,21 +123,10 @@ namespace TrenchBroom {
 
             void addSeparator();
             Menu& addMenu(int id, const String& text);
-            MultiMenu& addMultiMenu(int id, const String& text);
             
-            static wxMenuBar* createMenuBar(const MultiMenuSelector& selector);
-            static wxMenu* findRecentDocumentsMenu(const wxMenuBar* menuBar);
-
-            static const Action* findMenuAction(int id);
-
-            static Menu& getMenu();
         private:
             MenuItem::Ptr addActionItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
             MenuItem::Ptr addCheckItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
-
-            static wxMenu* createMenu(const Menu& menu, const MultiMenuSelector& selector);
-            static Menu* buildMenu();
-            
         };
     }
 }

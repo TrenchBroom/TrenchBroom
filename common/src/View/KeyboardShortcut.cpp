@@ -551,6 +551,33 @@ namespace TrenchBroom {
             return m_modifier1 != WXK_NONE || m_modifier2 != WXK_NONE || m_modifier3 != WXK_NONE;
         }
         
+        wxAcceleratorEntry KeyboardShortcut::acceleratorEntry(const int id) const {
+            return wxAcceleratorEntry(acceleratorFlags(), m_key, id);
+        }
+
+        int KeyboardShortcut::acceleratorFlags() const {
+            int flags = wxACCEL_NORMAL;
+            
+            const int modifiers[3] = { m_modifier1, m_modifier2, m_modifier3 };
+            for (size_t i = 0; i < 3; ++i) {
+                switch (modifiers[i]) {
+                    case WXK_SHIFT:
+                        flags |= wxACCEL_SHIFT;
+                        break;
+                    case WXK_CONTROL:
+                        flags |= wxACCEL_CTRL;
+                        break;
+                    case WXK_ALT:
+                        flags |= wxACCEL_ALT;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            
+            return flags;
+        }
+
         bool KeyboardShortcut::matches(const int key, const int modifier1, const int modifier2, const int modifier3) const {
             if (key != m_key)
                 return false;

@@ -31,6 +31,7 @@
 #include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/Vbo.h"
+#include "View/Action.h"
 #include "View/GLContextHolder.h"
 #include "View/MovementRestriction.h"
 #include "View/RenderView.h"
@@ -99,6 +100,8 @@ namespace TrenchBroom {
             MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
             ~MapView();
 
+            void OnAccelEntry(wxCommandEvent& event);
+            
             void centerCameraOnSelection();
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
             
@@ -146,6 +149,9 @@ namespace TrenchBroom {
             void OnPopupCreateBrushEntity(wxCommandEvent& event);
             void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
         private:
+            void updateAcceleratorTable();
+            Action::Context actionContext() const;
+            
             void updateReparentBrushesMenuItem(wxUpdateUIEvent& event) const;
             void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
             Model::Entity* findNewBrushParent(const Model::BrushList& brushes) const;

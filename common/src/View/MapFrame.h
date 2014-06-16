@@ -52,8 +52,6 @@ namespace TrenchBroom {
         class StatusBar;
         
         class MapFrame : public wxFrame {
-        public:
-            static const wxEventType EVT_REBUILD_MENUBAR;
         private:
             FrameManager* m_frameManager;
             MapDocumentSPtr m_document;
@@ -181,7 +179,6 @@ namespace TrenchBroom {
             
             void OnUpdateUI(wxUpdateUIEvent& event);
             
-            void OnRebuildMenuBar(wxEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);
             void OnIdleSetFocusToMapView(wxIdleEvent& event);
 
@@ -197,8 +194,7 @@ namespace TrenchBroom {
             void createGui();
             void bindEvents();
             void rebuildMenuBar();
-            void createMenuBar(const bool showModifiers);
-            void updateMenuBar(const bool showModifiers);
+            void createMenuBar();
             void updateTitle();
 
             bool confirmOrDiscardChanges();

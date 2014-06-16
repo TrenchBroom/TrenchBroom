@@ -38,8 +38,6 @@ namespace TrenchBroom {
             FrameManager* m_frameManager;
             RecentDocuments<TrenchBroomApp>* m_recentDocuments;
             wxLongLong m_lastActivation;
-            wxWindow* m_lastFocusedWindow;
-            bool m_lastFocusedWindowIsMapView;
         public:
             static TrenchBroomApp& instance();
 

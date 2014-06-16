@@ -27,6 +27,7 @@
 #include "Model/GameFactory.h"
 #include "Model/ModelTypes.h"
 #include "View/AboutFrame.h"
+#include "View/ActionManager.h"
 #include "View/CommandIds.h"
 #include "View/ExecutableEvent.h"
 #include "View/GameDialog.h"
@@ -51,9 +52,7 @@ namespace TrenchBroom {
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
         m_frameManager(NULL),
-        m_recentDocuments(NULL),
-        m_lastFocusedWindow(NULL),
-        m_lastFocusedWindowIsMapView(false) {
+        m_recentDocuments(NULL) {
             /*
             SetAppName("TrenchBroom");
             SetAppDisplayName("TrenchBroom");
@@ -167,12 +166,13 @@ namespace TrenchBroom {
 
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
-            wxMenuBar* menuBar = Menu::createMenuBar(TrenchBroom::View::NullMenuSelector());
+            const ActionManager& actionManager = ActionManager::instance();
+            wxMenuBar* menuBar = actionManager.createMenuBar();
             wxMenuBar::MacSetCommonMenuBar(menuBar);
 
-            wxMenu* recentDocumentsMenu = Menu::findRecentDocumentsMenu(menuBar);
+            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
             assert(recentDocumentsMenu != NULL);
-            m_recentDocuments->addMenu(recentDocumentsMenu);
+            addRecentDocumentMenu(recentDocumentsMenu);
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
 
@@ -267,46 +267,8 @@ namespace TrenchBroom {
         }
 
         int TrenchBroomApp::FilterEvent(wxEvent& event) {
-            /*
-             Because the Ubuntu window manager will unfocus the map view when a menu is opened, we track all SET_FOCUS
-             events here and send a separate event either
-             - the map view itself receives a focus event and it was not the last control to receive one, or
-             - another control receives a focus event and the last control to do so was the map view.
-             An event will be added to the event queue here and then dispatched directly to the map frame containing the
-             focused control once it is filtered here, too.
-             */
-
             if (event.GetEventObject() != NULL) {
-                if (event.GetEventType() == wxEVT_SET_FOCUS) {
-                    // find the frame containing the focused control
-                    wxWindow* window = wxDynamicCast(event.GetEventObject(), wxWindow);
-                    wxFrame* frame = findFrame(window);
-                    if (frame != NULL) {
-                        if (window != m_lastFocusedWindow) {
-                            const bool windowIsMapView = wxDynamicCast(window, MapView) != NULL;
-                            if (windowIsMapView || m_lastFocusedWindowIsMapView) {
-                                /*
-                                 If we found a frame, then send a command event to the frame that will cause it to
-                                 rebuild its menu.
-                                 Make sure the command is sent via AddPendingEvent to give wxWidgets a chance to update
-                                 the focus states!
-                                 */
-                                wxCommandEvent buildMenuEvent(MapFrame::EVT_REBUILD_MENUBAR);
-                                buildMenuEvent.SetClientData(event.GetEventObject());
-                                buildMenuEvent.SetEventObject(frame);
-                                buildMenuEvent.SetId(event.GetId());
-                                AddPendingEvent(buildMenuEvent);
-                            }
-                            m_lastFocusedWindow = window;
-                            m_lastFocusedWindowIsMapView = windowIsMapView;
-                        }
-                    }
-                } else if (event.GetEventType() == MapFrame::EVT_REBUILD_MENUBAR) {
-                    wxObject* eventObject = event.GetEventObject();
-                    MapFrame* frame = wxStaticCast(eventObject, MapFrame);
-                    frame->ProcessWindowEventLocally(event);
-                    return 1;
-                } else if (event.GetEventType() == wxEVT_ACTIVATE) {
+                if (event.GetEventType() == wxEVT_ACTIVATE) {
                     m_lastActivation = wxGetLocalTimeMillis();
                 } else if (event.GetEventType() == wxEVT_LEFT_DOWN ||
                            event.GetEventType() == wxEVT_MIDDLE_DOWN ||

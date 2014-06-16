@@ -24,7 +24,10 @@
 #include "StringUtils.h"
 #include "View/KeyboardShortcut.h"
 
+#include <wx/accel.h>
 #include <wx/string.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace IO {
@@ -35,15 +38,18 @@ namespace TrenchBroom {
         class Action {
         public:
             typedef enum {
-                Context_VertexTool      = 1 << 1,
-                Context_ClipTool        = 1 << 2,
-                Context_RotateTool      = 1 << 3,
-                Context_ObjectSelection = 1 << 4,
-                Context_FaceSelection   = 1 << 5,
-                Context_Any             = Context_VertexTool | Context_ClipTool | Context_RotateTool | Context_ObjectSelection | Context_FaceSelection
+                Context_Default         = 1 << 1,
+                Context_VertexTool      = 1 << 2,
+                Context_ClipTool        = 1 << 3,
+                Context_RotateTool      = 1 << 4,
+                Context_ObjectSelection = 1 << 5,
+                Context_FaceSelection   = 1 << 6,
+                Context_Any             = Context_Default | Context_VertexTool | Context_ClipTool | Context_RotateTool | Context_ObjectSelection | Context_FaceSelection
             } Context;
             
             static String makeContextName(int context);
+            
+            typedef std::vector<Action> List;
         private:
             int m_id;
             int m_context;
@@ -59,6 +65,9 @@ namespace TrenchBroom {
             String contextName() const;
             bool modifiable() const;
 
+            wxAcceleratorEntry acceleratorEntry() const;
+            bool appliesToContext(int context) const;
+            
             wxString shortcutMenuString() const;
             wxString shortcutDisplayString() const;
             
