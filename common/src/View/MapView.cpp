@@ -97,10 +97,6 @@ namespace TrenchBroom {
             m_logger = NULL;
         }
 
-        void MapView::OnAccelEntry(wxCommandEvent& event) {
-            m_logger->debug("asdf");
-        }
-
         void MapView::centerCameraOnSelection() {
             MapDocumentSPtr document = lock(m_document);
             const Model::EntityList& entities = document->selectedEntities();
@@ -160,6 +156,7 @@ namespace TrenchBroom {
         void MapView::toggleClipSide() {
             assert(clipToolActive());
             m_clipTool->toggleClipSide();
+            m_toolBox.updateHits();
             Refresh();
         }
         
@@ -171,6 +168,7 @@ namespace TrenchBroom {
         void MapView::performClip() {
             assert(clipToolActive());
             m_clipTool->performClip();
+            m_toolBox.updateHits();
             Refresh();
         }
 
@@ -182,6 +180,7 @@ namespace TrenchBroom {
         void MapView::deleteLastClipPoint() {
             assert(clipToolActive());
             m_clipTool->deleteLastClipPoint();
+            m_toolBox.updateHits();
             Refresh();
         }
 
@@ -214,6 +213,7 @@ namespace TrenchBroom {
         void MapView::snapVertices(const size_t snapTo) {
             assert(vertexToolActive());
             m_vertexTool->snapVertices(snapTo);
+            m_toolBox.updateHits();
         }
 
         void MapView::toggleTextureTool() {
@@ -327,6 +327,29 @@ namespace TrenchBroom {
             }
         }
 
+        void MapView::OnToggleClipTool(wxCommandEvent& event) {
+            assert(lock(m_document)->hasSelectedBrushes());
+            toggleClipTool();
+        }
+        
+        void MapView::OnToggleClipSide(wxCommandEvent& event) {
+            assert(clipToolActive());
+            if (canToggleClipSide())
+                toggleClipSide();
+        }
+        
+        void MapView::OnPerformClip(wxCommandEvent& event) {
+            assert(clipToolActive());
+            if (canPerformClip())
+                performClip();
+        }
+        
+        void MapView::OnDeleteLastClipPoint(wxCommandEvent& event) {
+            assert(clipToolActive());
+            if (canDeleteLastClipPoint())
+                deleteLastClipPoint();
+        }
+        
         void MapView::OnKey(wxKeyEvent& event) {
             m_movementRestriction.setVerticalRestriction(event.AltDown());
             event.Skip();
@@ -1002,7 +1025,10 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView ::OnAccelEntry, this, CommandIds::Menu::EditToggleClipTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipTool, this, CommandIds::Actions::MapViewToggleClipTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipSide, this, CommandIds::Actions::MapViewToggleClipSide);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPerformClip, this, CommandIds::Actions::MapViewPerformClip);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDeleteLastClipPoint, this, CommandIds::Actions::MapViewDeleteLastClipPoint);
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupReparentBrushes, this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupMoveBrushesToWorld, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);

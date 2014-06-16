@@ -141,11 +141,6 @@ namespace TrenchBroom {
             void OnEditRotateTexturesCWFine(wxCommandEvent& event);
             void OnEditRotateTexturesCCWFine(wxCommandEvent& event);
 
-            void OnEditToggleClipTool(wxCommandEvent& event);
-            void OnEditToggleClipSide(wxCommandEvent& event);
-            void OnEditPerformClip(wxCommandEvent& event);
-            void OnEditDeleteLastClipPoint(wxCommandEvent& event);
-            
             void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
 
             void OnEditToggleVertexTool(wxCommandEvent& event);

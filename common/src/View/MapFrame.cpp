@@ -551,22 +551,6 @@ namespace TrenchBroom {
             rotateTextures(false, false);
         }
 
-        void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
-            m_mapView->toggleClipTool();
-        }
-
-        void MapFrame::OnEditToggleClipSide(wxCommandEvent& event) {
-            m_mapView->toggleClipSide();
-        }
-        
-        void MapFrame::OnEditPerformClip(wxCommandEvent& event) {
-            m_mapView->performClip();
-        }
-
-        void MapFrame::OnEditDeleteLastClipPoint(wxCommandEvent& event) {
-            m_mapView->deleteLastClipPoint();
-        }
-
         void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
             m_mapView->toggleVertexTool();
         }
@@ -808,23 +792,6 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditFlipObjectsHorizontally:
                 case CommandIds::Menu::EditFlipObjectsVertically:
                     event.Enable(document->hasSelectedObjects());
-                    break;
-                case CommandIds::Menu::EditToggleClipTool:
-                    event.Enable(document->hasSelectedBrushes());
-                    event.Check(m_mapView->clipToolActive());
-                    break;
-                case CommandIds::Menu::EditToggleClipSide:
-                    event.Enable(m_mapView->clipToolActive() && m_mapView->canToggleClipSide());
-                    break;
-                case CommandIds::Menu::EditPerformClip:
-                    event.Enable(m_mapView->clipToolActive() && m_mapView->canPerformClip());
-                    break;
-                case CommandIds::Menu::EditDeleteLastClipPoint:
-                    event.Enable(m_mapView->clipToolActive() && m_mapView->canDeleteLastClipPoint());
-                    break;
-                case CommandIds::Menu::EditToggleVertexTool:
-                    event.Enable(document->hasSelectedObjects() || m_mapView->vertexToolActive());
-                    event.Check(m_mapView->vertexToolActive());
                     break;
                 case CommandIds::Menu::EditMoveVerticesForward:
                 case CommandIds::Menu::EditMoveVerticesBackward:
@@ -1074,11 +1041,6 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditFlipObjectsH, this, CommandIds::Menu::EditFlipObjectsHorizontally);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditFlipObjectsV, this, CommandIds::Menu::EditFlipObjectsVertically);
 
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleClipSide, this, CommandIds::Menu::EditToggleClipSide);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPerformClip, this, CommandIds::Menu::EditPerformClip);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDeleteLastClipPoint, this, CommandIds::Menu::EditDeleteLastClipPoint);
-            
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);

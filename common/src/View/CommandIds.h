@@ -37,9 +37,6 @@ namespace TrenchBroom {
                 const int EditLockSelected                   = Lowest +   9;
                 const int EditLockUnselected                 = Lowest +  10;
                 const int EditUnlockAll                      = Lowest +  11;
-                const int EditToggleClipTool                 = Lowest +  12;
-                const int EditToggleClipSide                 = Lowest +  13;
-                const int EditPerformClip                    = Lowest +  14;
                 const int EditToggleVertexTool               = Lowest +  15;
                 const int EditMoveTexturesUp                 = Lowest +  18;
                 const int EditMoveTexturesRight              = Lowest +  19;
@@ -127,10 +124,18 @@ namespace TrenchBroom {
                 const int EditPrintFilePositions             = Lowest + 101;
                 const int EditToggleMovementRestriction      = Lowest + 102;
                 const int EditSelectContained                = Lowest + 103;
-                const int EditDeleteLastClipPoint            = Lowest + 104;
                 const int EditToggleTextureTool              = Lowest + 105;
                 const int ViewToggleCameraFlyMode            = Lowest + 106;
                 const int FileRecentDocuments                = Lowest + 190;
+                const int Highest                            = Lowest + 200;
+            }
+            
+            namespace Actions {
+                const int Lowest                             = Menu::Highest + 1;
+                const int MapViewToggleClipTool              = Lowest +   1;
+                const int MapViewToggleClipSide              = Lowest +   2;
+                const int MapViewPerformClip                 = Lowest +   3;
+                const int MapViewDeleteLastClipPoint         = Lowest +   4;
                 const int Highest                            = Lowest + 200;
             }
 

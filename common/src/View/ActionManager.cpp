@@ -127,7 +127,14 @@ namespace TrenchBroom {
         }
         
         void ActionManager::createMapViewActions() {
-            createMapViewAction(CommandIds::Menu::EditToggleClipTool, Action::Context_Any, "Clip Tool", KeyboardShortcut('C'));
+            createMapViewAction(CommandIds::Actions::MapViewToggleClipTool, Action::Context_Any, "Clip Tool", KeyboardShortcut('C'));
+            createMapViewAction(CommandIds::Actions::MapViewToggleClipSide, Action::Context_ClipTool, "Toggle Clip Side", KeyboardShortcut(WXK_RETURN, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::MapViewPerformClip, Action::Context_ClipTool, "Perform Clip", KeyboardShortcut(WXK_RETURN));
+#ifdef __APPLE__
+            createMapViewAction(CommandIds::Actions::MapViewDeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_BACK));
+#else
+            createMapViewAction(CommandIds::Actions::MapViewDeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_DELETE));
+#endif
         }
 
         void ActionManager::createMapViewAction(const int id, const int context, const String& name, const KeyboardShortcut& defaultShortcut) {
@@ -159,11 +166,15 @@ namespace TrenchBroom {
             editMenu.addUnmodifiableActionItem(wxID_COPY, Action::Context_Any, "Copy", KeyboardShortcut('C', WXK_CONTROL));
             editMenu.addUnmodifiableActionItem(wxID_PASTE, Action::Context_Any, "Paste", KeyboardShortcut('V', WXK_CONTROL));
             editMenu.addUnmodifiableActionItem(CommandIds::Menu::EditPasteAtOriginalPosition, Action::Context_Any, "Paste at Original Position", KeyboardShortcut('V', WXK_CONTROL, WXK_SHIFT));
+            
+            /*
 #ifdef __APPLE__
             editMenu.addModifiableActionItem(wxID_DELETE, Action::Context_ObjectSelection, "Delete", KeyboardShortcut(WXK_BACK));
 #else
             editMenu.addModifiableActionItem(wxID_DELETE, Action::Context_ObjectSelection, "Delete", KeyboardShortcut(WXK_DELETE));
 #endif
+             */
+            
             editMenu.addSeparator();
             editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectAll, Action::Context_Any, "Select All", KeyboardShortcut('A', WXK_CONTROL));
             editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, Action::Context_Any, "Select Siblings", KeyboardShortcut('A', WXK_CONTROL, WXK_ALT));

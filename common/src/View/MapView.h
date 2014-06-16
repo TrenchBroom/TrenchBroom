@@ -99,8 +99,6 @@ namespace TrenchBroom {
         public:
             MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
             ~MapView();
-
-            void OnAccelEntry(wxCommandEvent& event);
             
             void centerCameraOnSelection();
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
@@ -140,6 +138,11 @@ namespace TrenchBroom {
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
 
+            void OnToggleClipTool(wxCommandEvent& event);
+            void OnToggleClipSide(wxCommandEvent& event);
+            void OnPerformClip(wxCommandEvent& event);
+            void OnDeleteLastClipPoint(wxCommandEvent& event);
+            
             void OnKey(wxKeyEvent& event);
 
             void OnActivateFrame(wxActivateEvent& event);
