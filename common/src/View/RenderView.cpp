@@ -111,7 +111,7 @@ namespace TrenchBroom {
         void RenderView::render() {
             clearBackground();
             doRender();
-            // renderFocusRect();
+            renderFocusIndicator();
         }
         
         void RenderView::clearBackground() {
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
 
-        void RenderView::renderFocusRect() {
+        void RenderView::renderFocusIndicator() {
             if (!HasFocus())
                 return;
             

@@ -143,6 +143,8 @@ namespace TrenchBroom {
             void OnKey(wxKeyEvent& event);
 
             void OnActivateFrame(wxActivateEvent& event);
+            void OnSetFocus(wxFocusEvent& event);
+            void OnKillFocus(wxFocusEvent& event);
             void OnPopupReparentBrushes(wxCommandEvent& event);
             void OnPopupMoveBrushesToWorld(wxCommandEvent& event);
             void OnPopupCreatePointEntity(wxCommandEvent& event);

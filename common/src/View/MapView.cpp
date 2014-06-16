@@ -84,12 +84,9 @@ namespace TrenchBroom {
             createTools();
             bindEvents();
             bindObservers();
+            updateAcceleratorTable();
             
             SetDropTarget(new ToolBoxDropTarget(m_toolBox));
-            
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView ::OnAccelEntry, this, CommandIds::Menu::EditToggleClipTool);
-
-            updateAcceleratorTable();
         }
         
         MapView::~MapView() {
@@ -340,6 +337,16 @@ namespace TrenchBroom {
             event.Skip();
         }
 
+        void MapView::OnSetFocus(wxFocusEvent& event) {
+            updateAcceleratorTable();
+            event.Skip();
+        }
+        
+        void MapView::OnKillFocus(wxFocusEvent& event) {
+            updateAcceleratorTable();
+            event.Skip();
+        }
+
         void MapView::OnPopupReparentBrushes(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushList& brushes = document->selectedBrushes();
@@ -378,11 +385,14 @@ namespace TrenchBroom {
         }
 
         void MapView::updateAcceleratorTable() {
-            const ActionManager& actionManager = ActionManager::instance();
-            
-            const Action::Context context = actionContext();
-            const wxAcceleratorTable acceleratorTable = actionManager.createMapViewAcceleratorTable(context);
-            SetAcceleratorTable(acceleratorTable);
+            if (HasFocus()) {
+                const ActionManager& actionManager = ActionManager::instance();
+                const Action::Context context = actionContext();
+                const wxAcceleratorTable acceleratorTable = actionManager.createMapViewAcceleratorTable(context);
+                SetAcceleratorTable(acceleratorTable);
+            } else {
+                SetAcceleratorTable(wxNullAcceleratorTable);
+            }
         }
 
         Action::Context MapView::actionContext() const {
@@ -988,6 +998,11 @@ namespace TrenchBroom {
         void MapView::bindEvents() {
             Bind(wxEVT_KEY_DOWN, &MapView::OnKey, this);
             Bind(wxEVT_KEY_UP, &MapView::OnKey, this);
+
+            Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
+            Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView ::OnAccelEntry, this, CommandIds::Menu::EditToggleClipTool);
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupReparentBrushes, this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupMoveBrushesToWorld, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
