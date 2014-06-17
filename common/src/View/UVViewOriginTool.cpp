@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturingViewOriginTool.h"
+#include "UVViewOriginTool.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
@@ -27,19 +27,19 @@
 #include "Renderer/VertexSpec.h"
 #include "View/ControllerFacade.h"
 #include "View/InputState.h"
-#include "View/TexturingViewHelper.h"
+#include "View/UVViewHelper.h"
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType TexturingViewOriginTool::XHandleHit = Hit::freeHitType();
-        const Hit::HitType TexturingViewOriginTool::YHandleHit = Hit::freeHitType();
-        const FloatType TexturingViewOriginTool::MaxPickDistance = 5.0;
+        const Hit::HitType UVViewOriginTool::XHandleHit = Hit::freeHitType();
+        const Hit::HitType UVViewOriginTool::YHandleHit = Hit::freeHitType();
+        const FloatType UVViewOriginTool::MaxPickDistance = 5.0;
 
-        TexturingViewOriginTool::TexturingViewOriginTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper) :
+        UVViewOriginTool::UVViewOriginTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
         ToolImpl(document, controller),
         m_helper(helper) {}
 
-        void TexturingViewOriginTool::doPick(const InputState& inputState, Hits& hits) {
+        void UVViewOriginTool::doPick(const InputState& inputState, Hits& hits) {
             if (m_helper.valid()) {
                 const Ray3& pickRay = inputState.pickRay();
 
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             }
         }
 
-        void TexturingViewOriginTool::computeOriginHandles(Line3& xHandle, Line3& yHandle) const {
+        void UVViewOriginTool::computeOriginHandles(Line3& xHandle, Line3& yHandle) const {
             const Model::BrushFace* face = m_helper.face();
             const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             yHandle.direction = (toWorld * (origin + Vec3::PosX) - yHandle.point);
         }
 
-        bool TexturingViewOriginTool::doStartMouseDrag(const InputState& inputState) {
+        bool UVViewOriginTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
             
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool TexturingViewOriginTool::doMouseDrag(const InputState& inputState) {
+        bool UVViewOriginTool::doMouseDrag(const InputState& inputState) {
             const Vec2f curPoint = computeHitPoint(inputState.pickRay());
             const Vec2f delta = curPoint - m_lastPoint;
             
@@ -121,7 +121,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        Vec2f TexturingViewOriginTool::computeHitPoint(const Ray3& ray) const {
+        Vec2f UVViewOriginTool::computeHitPoint(const Ray3& ray) const {
             const Model::BrushFace* face = m_helper.face();
             const Plane3& boundary = face->boundary();
             const FloatType distance = boundary.intersectWithRay(ray);
@@ -131,7 +131,7 @@ namespace TrenchBroom {
             return Vec2f(transform * hitPoint);
         }
 
-        Vec2f TexturingViewOriginTool::snapDelta(const Vec2f& delta) const {
+        Vec2f UVViewOriginTool::snapDelta(const Vec2f& delta) const {
             if (delta.null())
                 return delta;
             
@@ -175,10 +175,10 @@ namespace TrenchBroom {
             return m_helper.snapDelta(delta, distanceInFaceCoords);
         }
 
-        void TexturingViewOriginTool::doEndMouseDrag(const InputState& inputState) {}
-        void TexturingViewOriginTool::doCancelMouseDrag(const InputState& inputState) {}
+        void UVViewOriginTool::doEndMouseDrag(const InputState& inputState) {}
+        void UVViewOriginTool::doCancelMouseDrag(const InputState& inputState) {}
         
-        void TexturingViewOriginTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+        void UVViewOriginTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             if (!m_helper.valid())
                 return;
             
@@ -190,7 +190,7 @@ namespace TrenchBroom {
             glLineWidth(1.0f);
         }
 
-        TexturingViewOriginTool::EdgeVertex::List TexturingViewOriginTool::getHandleVertices(const Hits& hits) const {
+        UVViewOriginTool::EdgeVertex::List UVViewOriginTool::getHandleVertices(const Hits& hits) const {
             const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
             const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
             

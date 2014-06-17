@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturingEditor.h"
-#include "View/TexturingView.h"
+#include "UVEditor.h"
+#include "View/UVView.h"
 #include "View/ViewConstants.h"
 
 #include <wx/sizer.h>
@@ -31,7 +31,7 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
-        m_texturingView(NULL),
+        m_uvView(NULL),
         m_xSubDivisionEditor(NULL),
         m_ySubDivisionEditor(NULL) {
             createGui(sharedContext);
@@ -41,11 +41,11 @@ namespace TrenchBroom {
         void TexturingEditor::OnSubDivisionChanged(wxSpinEvent& event) {
             const int x = m_xSubDivisionEditor->GetValue();
             const int y = m_ySubDivisionEditor->GetValue();
-            m_texturingView->setSubDivisions(Vec2i(x, y));
+            m_uvView->setSubDivisions(Vec2i(x, y));
         }
         
         void TexturingEditor::createGui(GLContextHolder::Ptr sharedContext) {
-            m_texturingView = new TexturingView(this, sharedContext, m_document, m_controller);
+            m_uvView = new UVView(this, sharedContext, m_document, m_controller);
             
             wxStaticText* gridLabel = new wxStaticText(this, wxID_ANY, "Texture Grid ");
             gridLabel->SetFont(gridLabel->GetFont().Bold());
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             bottomSizer->SetItemMinSize(m_ySubDivisionEditor, 50, m_ySubDivisionEditor->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(m_texturingView, 1, wxEXPAND);
+            outerSizer->Add(m_uvView, 1, wxEXPAND);
             outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             outerSizer->Add(bottomSizer, 0, wxALIGN_RIGHT | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);
             outerSizer->AddSpacer(LayoutConstants::NarrowVMargin);

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturingViewCameraTool.h"
+#include "UVViewCameraTool.h"
 
 #include "VecMath.h"
 #include "View/InputState.h"
@@ -25,11 +25,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        TexturingViewCameraTool::TexturingViewCameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::OrthographicCamera& camera) :
+        UVViewCameraTool::UVViewCameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::OrthographicCamera& camera) :
         ToolImpl(document, controller),
         m_camera(camera) {}
         
-        void TexturingViewCameraTool::doScroll(const InputState& inputState) {
+        void UVViewCameraTool::doScroll(const InputState& inputState) {
             const Vec3f oldWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
                                                          static_cast<float>(inputState.mouseY()),
                                                          0.0f);
@@ -47,11 +47,11 @@ namespace TrenchBroom {
             m_camera.moveBy(delta);
         }
         
-        bool TexturingViewCameraTool::doStartMouseDrag(const InputState& inputState) {
+        bool UVViewCameraTool::doStartMouseDrag(const InputState& inputState) {
             return inputState.mouseButtonsPressed(MouseButtons::MBRight);
         }
         
-        bool TexturingViewCameraTool::doMouseDrag(const InputState& inputState) {
+        bool UVViewCameraTool::doMouseDrag(const InputState& inputState) {
             const int oldX = inputState.mouseX() - inputState.mouseDX();
             const int oldY = inputState.mouseY() - inputState.mouseDY();
             
@@ -66,8 +66,8 @@ namespace TrenchBroom {
             return true;
         }
         
-        void TexturingViewCameraTool::doEndMouseDrag(const InputState& inputState) {}
+        void UVViewCameraTool::doEndMouseDrag(const InputState& inputState) {}
         
-        void TexturingViewCameraTool::doCancelMouseDrag(const InputState& inputState) {}
+        void UVViewCameraTool::doCancelMouseDrag(const InputState& inputState) {}
     }
 }

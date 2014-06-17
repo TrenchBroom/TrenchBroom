@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturingView.h"
+#include "UVView.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Hit.h"
@@ -33,20 +33,20 @@
 #include "Renderer/VertexSpec.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
-#include "View/TexturingViewCameraTool.h"
-#include "View/TexturingViewOffsetTool.h"
-#include "View/TexturingViewRotateTool.h"
-#include "View/TexturingViewScaleTool.h"
-#include "View/TexturingViewOriginTool.h"
+#include "View/UVViewCameraTool.h"
+#include "View/UVViewOffsetTool.h"
+#include "View/UVViewRotateTool.h"
+#include "View/UVViewScaleTool.h"
+#include "View/UVViewOriginTool.h"
 
 #include <cassert>
 #include <iostream>
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType TexturingView::FaceHit = Hit::freeHitType();
+        const Hit::HitType UVView::FaceHit = Hit::freeHitType();
         
-        TexturingView::TexturingView(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) :
+        UVView::UVView(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) :
         RenderView(parent, sharedContext),
         m_document(document),
         m_controller(controller),
@@ -63,22 +63,22 @@ namespace TrenchBroom {
             bindObservers();
         }
         
-        TexturingView::~TexturingView() {
+        UVView::~UVView() {
             unbindObservers();
             destroyTools();
         }
 
-        void TexturingView::setSubDivisions(const Vec2i& subDivisions) {
+        void UVView::setSubDivisions(const Vec2i& subDivisions) {
             m_helper.setSubDivisions(subDivisions);
             Refresh();
         }
 
-        void TexturingView::createTools() {
-            m_rotateTool = new TexturingViewRotateTool(m_document, m_controller, m_helper);
-            m_originTool = new TexturingViewOriginTool(m_document, m_controller, m_helper);
-            m_scaleTool = new TexturingViewScaleTool(m_document, m_controller, m_helper);
-            m_offsetTool = new TexturingViewOffsetTool(m_document, m_controller, m_helper);
-            m_cameraTool = new TexturingViewCameraTool(m_document, m_controller, m_camera);
+        void UVView::createTools() {
+            m_rotateTool = new UVViewRotateTool(m_document, m_controller, m_helper);
+            m_originTool = new UVViewOriginTool(m_document, m_controller, m_helper);
+            m_scaleTool = new UVViewScaleTool(m_document, m_controller, m_helper);
+            m_offsetTool = new UVViewOffsetTool(m_document, m_controller, m_helper);
+            m_cameraTool = new UVViewCameraTool(m_document, m_controller, m_camera);
 
             m_toolBox.addTool(m_rotateTool);
             m_toolBox.addTool(m_originTool);
@@ -87,7 +87,7 @@ namespace TrenchBroom {
             m_toolBox.addTool(m_cameraTool);
         }
         
-        void TexturingView::destroyTools() {
+        void UVView::destroyTools() {
             delete m_cameraTool;
             m_cameraTool = NULL;
             delete m_offsetTool;
@@ -100,35 +100,35 @@ namespace TrenchBroom {
             m_rotateTool = NULL;
         }
 
-        void TexturingView::bindObservers() {
+        void UVView::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
-            document->objectDidChangeNotifier.addObserver(this, &TexturingView::objectDidChange);
-            document->faceDidChangeNotifier.addObserver(this, &TexturingView::faceDidChange);
-            document->selectionDidChangeNotifier.addObserver(this, &TexturingView::selectionDidChange);
-            document->grid().gridDidChangeNotifier.addObserver(this, &TexturingView::gridDidChange);
+            document->objectDidChangeNotifier.addObserver(this, &UVView::objectDidChange);
+            document->faceDidChangeNotifier.addObserver(this, &UVView::faceDidChange);
+            document->selectionDidChangeNotifier.addObserver(this, &UVView::selectionDidChange);
+            document->grid().gridDidChangeNotifier.addObserver(this, &UVView::gridDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.addObserver(this, &TexturingView::preferenceDidChange);
+            prefs.preferenceDidChangeNotifier.addObserver(this, &UVView::preferenceDidChange);
             
-            m_camera.cameraDidChangeNotifier.addObserver(this, &TexturingView::cameraDidChange);
+            m_camera.cameraDidChangeNotifier.addObserver(this, &UVView::cameraDidChange);
         }
         
-        void TexturingView::unbindObservers() {
+        void UVView::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
-                document->objectDidChangeNotifier.removeObserver(this, &TexturingView::objectDidChange);
-                document->faceDidChangeNotifier.removeObserver(this, &TexturingView::faceDidChange);
-                document->selectionDidChangeNotifier.removeObserver(this, &TexturingView::selectionDidChange);
-                document->grid().gridDidChangeNotifier.removeObserver(this, &TexturingView::gridDidChange);
+                document->objectDidChangeNotifier.removeObserver(this, &UVView::objectDidChange);
+                document->faceDidChangeNotifier.removeObserver(this, &UVView::faceDidChange);
+                document->selectionDidChangeNotifier.removeObserver(this, &UVView::selectionDidChange);
+                document->grid().gridDidChangeNotifier.removeObserver(this, &UVView::gridDidChange);
             }
             
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.preferenceDidChangeNotifier.removeObserver(this, &TexturingView::preferenceDidChange);
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &UVView::preferenceDidChange);
 
-            m_camera.cameraDidChangeNotifier.removeObserver(this, &TexturingView::cameraDidChange);
+            m_camera.cameraDidChangeNotifier.removeObserver(this, &UVView::cameraDidChange);
         }
         
-        void TexturingView::selectionDidChange(const Model::SelectionResult& result) {
+        void UVView::selectionDidChange(const Model::SelectionResult& result) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList& faces = document->selectedFaces();
             if (faces.empty())
@@ -143,32 +143,32 @@ namespace TrenchBroom {
             Refresh();
         }
         
-        void TexturingView::objectDidChange(Model::Object* object) {
+        void UVView::objectDidChange(Model::Object* object) {
             Refresh();
         }
 
-        void TexturingView::faceDidChange(Model::BrushFace* face) {
+        void UVView::faceDidChange(Model::BrushFace* face) {
             Refresh();
         }
 
-        void TexturingView::gridDidChange() {
+        void UVView::gridDidChange() {
             Refresh();
         }
 
-        void TexturingView::preferenceDidChange(const IO::Path& path) {
+        void UVView::preferenceDidChange(const IO::Path& path) {
             Refresh();
         }
 
-        void TexturingView::cameraDidChange(const Renderer::Camera* camera) {
+        void UVView::cameraDidChange(const Renderer::Camera* camera) {
             Refresh();
         }
 
-        void TexturingView::doUpdateViewport(int x, int y, int width, int height) {
+        void UVView::doUpdateViewport(int x, int y, int width, int height) {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
             m_helper.cameraViewportChanged();
         }
         
-        void TexturingView::doRender() {
+        void UVView::doRender() {
             if (m_helper.valid()) {
                 MapDocumentSPtr document = lock(m_document);
                 document->commitPendingRenderStateChanges();
@@ -183,7 +183,7 @@ namespace TrenchBroom {
             }
         }
         
-        void TexturingView::setupGL(Renderer::RenderContext& renderContext) {
+        void UVView::setupGL(Renderer::RenderContext& renderContext) {
             const Renderer::Camera::Viewport& viewport = renderContext.camera().viewport();
             glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
             
@@ -194,7 +194,7 @@ namespace TrenchBroom {
             glDisable(GL_DEPTH_TEST);
         }
 
-        void TexturingView::renderTexture(Renderer::RenderContext& renderContext) {
+        void UVView::renderTexture(Renderer::RenderContext& renderContext) {
             const Model::BrushFace* face = m_helper.face();
             const Assets::Texture* texture = face->texture();
             if (texture == NULL)
@@ -222,7 +222,7 @@ namespace TrenchBroom {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             
-            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::TexturingViewShader);
+            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::UVViewShader);
             shader.set("Brightness", prefs.get(Preferences::Brightness));
             shader.set("RenderGrid", true);
             shader.set("GridSizes", Vec2f(texture->width(), texture->height()));
@@ -238,7 +238,7 @@ namespace TrenchBroom {
             deactivateTexture();
         }
         
-        Vec3f::List TexturingView::getTextureQuad() const {
+        Vec3f::List UVView::getTextureQuad() const {
             Vec3f::List vertices(4);
             
             const Renderer::Camera::Viewport& v = m_camera.viewport();
@@ -258,7 +258,7 @@ namespace TrenchBroom {
             return vertices;
         }
         
-        void TexturingView::activateTexture(Renderer::ActiveShader& shader) {
+        void UVView::activateTexture(Renderer::ActiveShader& shader) {
             const Model::BrushFace* face = m_helper.face();
             Assets::Texture* texture = face->texture();
             if (texture != NULL) {
@@ -272,14 +272,14 @@ namespace TrenchBroom {
             }
         }
         
-        void TexturingView::deactivateTexture() {
+        void UVView::deactivateTexture() {
             const Model::BrushFace* face = m_helper.face();
             Assets::Texture* texture = face->texture();
             if (texture != NULL)
                 texture->deactivate();
         }
         
-        void TexturingView::renderFace(Renderer::RenderContext& renderContext) {
+        void UVView::renderFace(Renderer::RenderContext& renderContext) {
             assert(m_helper.valid()); 
             
             const Model::BrushFace* face = m_helper.face();
@@ -301,15 +301,15 @@ namespace TrenchBroom {
             glLineWidth(1.0f);
         }
 
-        void TexturingView::renderToolBox(Renderer::RenderContext& renderContext) {
+        void UVView::renderToolBox(Renderer::RenderContext& renderContext) {
             m_toolBox.renderTools(renderContext);
         }
 
-        Ray3 TexturingView::doGetPickRay(const int x, const int y) const {
+        Ray3 UVView::doGetPickRay(const int x, const int y) const {
             return m_camera.pickRay(x, y);
         }
         
-        Hits TexturingView::doPick(const Ray3& pickRay) const {
+        Hits UVView::doPick(const Ray3& pickRay) const {
             Hits hits;
             if (!m_helper.valid())
                 return hits;
@@ -318,7 +318,7 @@ namespace TrenchBroom {
             const FloatType distance = face->intersectWithRay(pickRay);
             if (!Math::isnan(distance)) {
                 const Vec3 hitPoint = pickRay.pointAtDistance(distance);
-                hits.addHit(Hit(TexturingView::FaceHit, distance, hitPoint, face));
+                hits.addHit(Hit(UVView::FaceHit, distance, hitPoint, face));
             }
             return hits;
         }

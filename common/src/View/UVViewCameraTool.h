@@ -17,33 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexturingViewOffsetTool__
-#define __TrenchBroom__TexturingViewOffsetTool__
+#ifndef __TrenchBroom__UVViewCameraTool__
+#define __TrenchBroom__UVViewCameraTool__
 
-#include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class OrthographicCamera;
+    }
+    
     namespace View {
-        class TexturingViewHelper;
-        
-        class TexturingViewOffsetTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class UVViewCameraTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
         private:
-            const TexturingViewHelper& m_helper;
-            Vec2f m_lastPoint;
+            Renderer::OrthographicCamera& m_camera;
         public:
-            TexturingViewOffsetTool(MapDocumentWPtr document, ControllerWPtr controller, const TexturingViewHelper& helper);
+            UVViewCameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::OrthographicCamera& camera);
         private:
+            void doScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
-            
-            Vec2f computeHitPoint(const Ray3& ray) const;
-            Vec2f snapDelta(const Vec2f& delta) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__TexturingViewOffsetTool__) */
+#endif /* defined(__TrenchBroom__UVViewCameraTool__) */

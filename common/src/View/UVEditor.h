@@ -31,14 +31,14 @@ class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
-        class TexturingView;
+        class UVView;
         
         class TexturingEditor : public wxPanel {
         private:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
 
-            TexturingView* m_texturingView;
+            UVView* m_uvView;
             wxSpinCtrl* m_xSubDivisionEditor;
             wxSpinCtrl* m_ySubDivisionEditor;
         public:

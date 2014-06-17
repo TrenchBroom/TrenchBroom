@@ -33,7 +33,7 @@
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/SpinControl.h"
-#include "View/TexturingEditor.h"
+#include "View/UVEditor.h"
 #include "View/ViewUtils.h"
 
 #include <wx/bitmap.h>

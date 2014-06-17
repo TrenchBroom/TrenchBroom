@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexturingViewScaleTool__
-#define __TrenchBroom__TexturingViewScaleTool__
+#ifndef __TrenchBroom__UVViewScaleTool__
+#define __TrenchBroom__UVViewScaleTool__
 
 #include "Hit.h"
 #include "Renderer/VertexSpec.h"
@@ -35,9 +35,9 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class TexturingViewHelper;
+        class UVViewHelper;
         
-        class TexturingViewScaleTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class UVViewScaleTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         public:
             static const Hit::HitType XHandleHit;
             static const Hit::HitType YHandleHit;
@@ -46,13 +46,13 @@ namespace TrenchBroom {
             
             typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
             
-            TexturingViewHelper& m_helper;
+            UVViewHelper& m_helper;
 
             Vec2b m_selector;
             Vec2i m_handle;
             Vec2f m_lastHitPoint; // in face coords
         public:
-            TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper);
+            UVViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:
             void doPick(const InputState& inputState, Hits& hits);
 
@@ -75,4 +75,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TexturingViewScaleTool__) */
+#endif /* defined(__TrenchBroom__UVViewScaleTool__) */

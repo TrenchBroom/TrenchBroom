@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturingViewRotateTool.h"
+#include "UVViewRotateTool.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -33,19 +33,19 @@
 #include "Renderer/VertexArray.h"
 #include "View/ControllerFacade.h"
 #include "View/InputState.h"
-#include "View/TexturingViewHelper.h"
+#include "View/UVViewHelper.h"
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType TexturingViewRotateTool::AngleHandleHit = Hit::freeHitType();
-        const float TexturingViewRotateTool::HandleRadius = 5.0f;
-        const float TexturingViewRotateTool::HandleLength = 32.0f;
+        const Hit::HitType UVViewRotateTool::AngleHandleHit = Hit::freeHitType();
+        const float UVViewRotateTool::HandleRadius = 5.0f;
+        const float UVViewRotateTool::HandleLength = 32.0f;
 
-        TexturingViewRotateTool::TexturingViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper) :
+        UVViewRotateTool::UVViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
         ToolImpl(document, controller),
         m_helper(helper) {}
         
-        void TexturingViewRotateTool::doPick(const InputState& inputState, Hits& hits) {
+        void UVViewRotateTool::doPick(const InputState& inputState, Hits& hits) {
             if (!m_helper.valid())
                 return;
 
@@ -66,7 +66,7 @@ namespace TrenchBroom {
                 hits.addHit(Hit(AngleHandleHit, distance, hitPoint, 0, angleHandleError));
         }
         
-        bool TexturingViewRotateTool::doStartMouseDrag(const InputState& inputState) {
+        bool UVViewRotateTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
             
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool TexturingViewRotateTool::doMouseDrag(const InputState& inputState) {
+        bool UVViewRotateTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
             
             Model::BrushFace* face = m_helper.face();
@@ -119,13 +119,13 @@ namespace TrenchBroom {
             return true;
         }
         
-        float TexturingViewRotateTool::measureAngle(const Vec2f& point) const {
+        float UVViewRotateTool::measureAngle(const Vec2f& point) const {
             const Model::BrushFace* face = m_helper.face();
             const Vec2f origin = m_helper.originInFaceCoords();
             return Math::mod(face->measureTextureAngle(origin, point), 360.0f);
         }
         
-        float TexturingViewRotateTool::snapAngle(const float angle) const {
+        float UVViewRotateTool::snapAngle(const float angle) const {
             const Model::BrushFace* face = m_helper.face();
             
             const float angles[] = {
@@ -157,15 +157,15 @@ namespace TrenchBroom {
             return angle;
         }
 
-        void TexturingViewRotateTool::doEndMouseDrag(const InputState& inputState) {
+        void UVViewRotateTool::doEndMouseDrag(const InputState& inputState) {
             controller()->closeGroup();
         }
         
-        void TexturingViewRotateTool::doCancelMouseDrag(const InputState& inputState) {
+        void UVViewRotateTool::doCancelMouseDrag(const InputState& inputState) {
             controller()->rollbackGroup();
         }
 
-        void TexturingViewRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+        void UVViewRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             if (!m_helper.valid())
                 return;
             
@@ -240,7 +240,7 @@ namespace TrenchBroom {
             }
         }
 
-        Vec2f TexturingViewRotateTool::angleHandle() const {
+        Vec2f UVViewRotateTool::angleHandle() const {
             const float distance = HandleLength / m_helper.cameraZoom();
             return m_helper.originInFaceCoords() + distance * Vec2f::PosX;
         }

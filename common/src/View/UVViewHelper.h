@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexturingViewHelper__
-#define __TrenchBroom__TexturingViewHelper__
+#ifndef __TrenchBroom__UVViewHelper__
+#define __TrenchBroom__UVViewHelper__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -42,7 +42,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
-        class TexturingViewHelper {
+        class UVViewHelper {
         private:
             Renderer::OrthographicCamera& m_camera;
             bool m_zoomValid;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             Vec2f m_origin;
             Renderer::Vbo m_vbo;
         public:
-            TexturingViewHelper(Renderer::OrthographicCamera& camera);
+            UVViewHelper(Renderer::OrthographicCamera& camera);
             
             bool valid() const;
             Model::BrushFace* face() const;
@@ -93,4 +93,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TexturingViewHelper__) */
+#endif /* defined(__TrenchBroom__UVViewHelper__) */

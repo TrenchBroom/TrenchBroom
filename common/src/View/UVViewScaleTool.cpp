@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturingViewScaleTool.h"
+#include "UVViewScaleTool.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
@@ -28,20 +28,20 @@
 #include "Renderer/VertexSpec.h"
 #include "View/ControllerFacade.h"
 #include "View/InputState.h"
-#include "View/TexturingViewHelper.h"
-#include "View/TexturingViewOriginTool.h"
+#include "View/UVViewHelper.h"
+#include "View/UVViewOriginTool.h"
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType TexturingViewScaleTool::XHandleHit = Hit::freeHitType();
-        const Hit::HitType TexturingViewScaleTool::YHandleHit = Hit::freeHitType();
-        const FloatType TexturingViewScaleTool::MaxPickDistance = 5.0;
+        const Hit::HitType UVViewScaleTool::XHandleHit = Hit::freeHitType();
+        const Hit::HitType UVViewScaleTool::YHandleHit = Hit::freeHitType();
+        const FloatType UVViewScaleTool::MaxPickDistance = 5.0;
 
-        TexturingViewScaleTool::TexturingViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper) :
+        UVViewScaleTool::UVViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
         ToolImpl(document, controller),
         m_helper(helper) {}
 
-        void TexturingViewScaleTool::doPick(const InputState& inputState, Hits& hits) {
+        void UVViewScaleTool::doPick(const InputState& inputState, Hits& hits) {
             if (m_helper.valid()) {
                 const Model::BrushFace* face = m_helper.face();
                 const Assets::Texture* texture = face->texture();
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             }
         }
 
-        bool TexturingViewScaleTool::doStartMouseDrag(const InputState& inputState) {
+        bool UVViewScaleTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
             
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool TexturingViewScaleTool::doMouseDrag(const InputState& inputState) {
+        bool UVViewScaleTool::doMouseDrag(const InputState& inputState) {
             const Ray3& pickRay = inputState.pickRay();
             const Vec2f curPointFaceCoords = getHitPointInFaceCoords(pickRay);
             const Vec2f dragDeltaFaceCoords = curPointFaceCoords - m_lastHitPoint;
@@ -129,13 +129,13 @@ namespace TrenchBroom {
             return true;
         }
 
-        Vec2i TexturingViewScaleTool::getScaleHandle(const Hit& xHandleHit, const Hit& yHandleHit) const {
+        Vec2i UVViewScaleTool::getScaleHandle(const Hit& xHandleHit, const Hit& yHandleHit) const {
             const int x = xHandleHit.isMatch() ? xHandleHit.target<int>() : 0;
             const int y = yHandleHit.isMatch() ? yHandleHit.target<int>() : 0;
             return Vec2i(x, y);
         }
         
-        Vec2f TexturingViewScaleTool::getHitPointInFaceCoords(const Ray3& pickRay) const {
+        Vec2f UVViewScaleTool::getHitPointInFaceCoords(const Ray3& pickRay) const {
             const Model::BrushFace* face = m_helper.face();
             const Plane3& boundary = face->boundary();
             const FloatType facePointDist = boundary.intersectWithRay(pickRay);
@@ -145,17 +145,17 @@ namespace TrenchBroom {
             return faceCoordSystem.worldToTex(facePoint);
         }
 
-        Vec2f TexturingViewScaleTool::getScaleHandlePositionInTexCoords(const Vec2i& scaleHandle) const {
+        Vec2f UVViewScaleTool::getScaleHandlePositionInTexCoords(const Vec2i& scaleHandle) const {
             return Vec2f(scaleHandle * m_helper.stripeSize());
         }
 
-        Vec2f TexturingViewScaleTool::getScaleHandlePositionInFaceCoords(const Vec2i& scaleHandle) const {
+        Vec2f UVViewScaleTool::getScaleHandlePositionInFaceCoords(const Vec2i& scaleHandle) const {
             const Model::BrushFace* face = m_helper.face();
             const Vec2f positionInTexCoords = getScaleHandlePositionInTexCoords(scaleHandle);
             return Model::TexCoordSystemHelper::texToFace(face, positionInTexCoords);
         }
 
-        Vec2f TexturingViewScaleTool::snap(const Vec2f& position) const {
+        Vec2f UVViewScaleTool::snap(const Vec2f& position) const {
             const Model::BrushFace* face = m_helper.face();
             const Mat4x4 toTex = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             
@@ -174,22 +174,22 @@ namespace TrenchBroom {
             return position - distance;
         }
 
-        void TexturingViewScaleTool::doEndMouseDrag(const InputState& inputState) {
+        void UVViewScaleTool::doEndMouseDrag(const InputState& inputState) {
             controller()->closeGroup();
         }
         
-        void TexturingViewScaleTool::doCancelMouseDrag(const InputState& inputState) {
+        void UVViewScaleTool::doCancelMouseDrag(const InputState& inputState) {
             controller()->rollbackGroup();
         }
         
-        void TexturingViewScaleTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+        void UVViewScaleTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             if (!m_helper.valid())
                 return;
             
             // don't overdraw the origin handles
             const Hits& hits = inputState.hits();
-            if (hits.findFirst(TexturingViewOriginTool::XHandleHit, true).isMatch() ||
-                hits.findFirst(TexturingViewOriginTool::YHandleHit, true).isMatch())
+            if (hits.findFirst(UVViewOriginTool::XHandleHit, true).isMatch() ||
+                hits.findFirst(UVViewOriginTool::YHandleHit, true).isMatch())
                 return;
                 
             EdgeVertex::List vertices = getHandleVertices(hits);
@@ -200,7 +200,7 @@ namespace TrenchBroom {
             glLineWidth(1.0f);
         }
 
-        TexturingViewScaleTool::EdgeVertex::List TexturingViewScaleTool::getHandleVertices(const Hits& hits) const {
+        UVViewScaleTool::EdgeVertex::List UVViewScaleTool::getHandleVertices(const Hits& hits) const {
             const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
             const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
             const Vec2 stripeSize = m_helper.stripeSize();

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexturingView__
-#define __TrenchBroom__TexturingView__
+#ifndef __TrenchBroom__UVView__
+#define __TrenchBroom__UVView__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -26,7 +26,7 @@
 #include "Model/ModelTypes.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/GLContextHolder.h"
-#include "View/TexturingViewHelper.h"
+#include "View/UVViewHelper.h"
 #include "View/ToolBox.h"
 #include "View/ViewTypes.h"
 
@@ -43,18 +43,18 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class TexturingViewRotateTool;
-        class TexturingViewOriginTool;
-        class TexturingViewScaleTool;
-        class TexturingViewOffsetTool;
-        class TexturingViewCameraTool;
+        class UVViewRotateTool;
+        class UVViewOriginTool;
+        class UVViewScaleTool;
+        class UVViewOffsetTool;
+        class UVViewCameraTool;
         
         /**
          A view which allows the user to manipulate the texture projection interactively with the mouse. The user can 
          change texture offsets, scaling factors and rotation. If supported by the map format, the user can manipulate 
          the texture axes as well.
          */
-        class TexturingView : public RenderView, public ToolBoxHelper {
+        class UVView : public RenderView, public ToolBoxHelper {
         public:
             static const Hit::HitType FaceHit;
         private:
@@ -62,18 +62,18 @@ namespace TrenchBroom {
             ControllerWPtr m_controller;
             
             Renderer::OrthographicCamera m_camera;
-            TexturingViewHelper m_helper;
+            UVViewHelper m_helper;
 
             ToolBox m_toolBox;
             
-            TexturingViewRotateTool* m_rotateTool;
-            TexturingViewOriginTool* m_originTool;
-            TexturingViewScaleTool* m_scaleTool;
-            TexturingViewOffsetTool* m_offsetTool;
-            TexturingViewCameraTool* m_cameraTool;
+            UVViewRotateTool* m_rotateTool;
+            UVViewOriginTool* m_originTool;
+            UVViewScaleTool* m_scaleTool;
+            UVViewOffsetTool* m_offsetTool;
+            UVViewCameraTool* m_cameraTool;
         public:
-            TexturingView(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
-            ~TexturingView();
+            UVView(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
+            ~UVView();
             
             void setSubDivisions(const Vec2i& subDivisions);
         private:
@@ -108,4 +108,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TexturingView__) */
+#endif /* defined(__TrenchBroom__UVView__) */

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturingViewHelper.h"
+#include "UVViewHelper.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -32,32 +32,32 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
-#include "View/TexturingView.h"
+#include "View/UVView.h"
 
 namespace TrenchBroom {
     namespace View {
-        TexturingViewHelper::TexturingViewHelper(Renderer::OrthographicCamera& camera) :
+        UVViewHelper::UVViewHelper(Renderer::OrthographicCamera& camera) :
         m_camera(camera),
         m_zoomValid(false),
         m_face(NULL),
         m_subDivisions(1, 1),
         m_vbo(0xFFF) {}
         
-        bool TexturingViewHelper::valid() const {
+        bool UVViewHelper::valid() const {
             return m_face != NULL;
         }
         
-        Model::BrushFace* TexturingViewHelper::face() const {
+        Model::BrushFace* UVViewHelper::face() const {
             return m_face;
         }
         
-        const Assets::Texture* TexturingViewHelper::texture() const {
+        const Assets::Texture* UVViewHelper::texture() const {
             if (!valid())
                 return NULL;
             return m_face->texture();
         }
         
-        void TexturingViewHelper::setFace(Model::BrushFace* face) {
+        void UVViewHelper::setFace(Model::BrushFace* face) {
             if (face != m_face) {
                 m_face = face;
                 if (m_face != NULL) {
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             }
         }
         
-        void TexturingViewHelper::cameraViewportChanged() {
+        void UVViewHelper::cameraViewportChanged() {
             // If the user selects a face before the texturing view was shown for the first time, the size of the view
             // might still have been off, resulting in invalid zoom factors. Therefore we must reset the zoom whenever
             // the viewport changes until a valid zoom factor can be computed.
@@ -75,11 +75,11 @@ namespace TrenchBroom {
                 resetZoom();
         }
         
-        const Vec2i& TexturingViewHelper::subDivisions() const {
+        const Vec2i& UVViewHelper::subDivisions() const {
             return m_subDivisions;
         }
 
-        Vec2 TexturingViewHelper::stripeSize() const {
+        Vec2 UVViewHelper::stripeSize() const {
             assert(valid());
             
             const Assets::Texture* texture = m_face->texture();
@@ -90,15 +90,15 @@ namespace TrenchBroom {
             return Vec2(width, height);
         }
 
-        void TexturingViewHelper::setSubDivisions(const Vec2i& subDivisions) {
+        void UVViewHelper::setSubDivisions(const Vec2i& subDivisions) {
             m_subDivisions = subDivisions;
         }
         
-        const Vec2f TexturingViewHelper::originInFaceCoords() const {
+        const Vec2f UVViewHelper::originInFaceCoords() const {
             return m_origin;
         }
         
-        const Vec2f TexturingViewHelper::originInTexCoords() const {
+        const Vec2f UVViewHelper::originInTexCoords() const {
             Model::TexCoordSystemHelper faceCoordSystem(m_face);
             faceCoordSystem.setProject();
             
@@ -110,17 +110,17 @@ namespace TrenchBroom {
             return faceCoordSystem.texToTex(m_origin, texCoordSystem);
         }
         
-        void TexturingViewHelper::setOrigin(const Vec2f& originInFaceCoords) {
+        void UVViewHelper::setOrigin(const Vec2f& originInFaceCoords) {
             m_origin = originInFaceCoords;
         }
         
-        float TexturingViewHelper::cameraZoom() const {
+        float UVViewHelper::cameraZoom() const {
             const Vec2f& zoom = m_camera.zoom();
             assert(zoom.x() == zoom.y());
             return zoom.x();
         }
         
-        Vec2f TexturingViewHelper::snapDelta(const Vec2f& delta, const Vec2f& distance) const {
+        Vec2f UVViewHelper::snapDelta(const Vec2f& delta, const Vec2f& distance) const {
             const float zoom = cameraZoom();
             
             Vec2f result;
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             return result;
         }
         
-        Vec2f TexturingViewHelper::computeDistanceFromTextureGrid(const Vec3& position) const {
+        Vec2f UVViewHelper::computeDistanceFromTextureGrid(const Vec3& position) const {
             const Vec2 stripe = stripeSize();
             assert(stripe.x() != 0.0 && stripe.y() != 0);
             
@@ -143,7 +143,7 @@ namespace TrenchBroom {
             return Vec2f(x, y);
         }
         
-        void TexturingViewHelper::computeOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
+        void UVViewHelper::computeOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
             assert(valid());
             
             const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
@@ -151,7 +151,7 @@ namespace TrenchBroom {
             computeLineVertices(m_origin, x1, x2, y1, y2, toTex, toWorld);
         }
 
-        void TexturingViewHelper::computeScaleHandleVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
+        void UVViewHelper::computeScaleHandleVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
             assert(valid());
             
             const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
@@ -159,7 +159,7 @@ namespace TrenchBroom {
             computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
         }
         
-        void TexturingViewHelper::computeLineVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const {
+        void UVViewHelper::computeLineVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2, const Mat4x4& toTex, const Mat4x4& toWorld) const {
             const Vec3::List viewportVertices = toTex * m_camera.viewportVertices();
             const BBox3 viewportBounds(viewportVertices);
             const Vec3& min = viewportBounds.min;
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             y2 = toWorld * Vec3(max.x(), pos.y(), 0.0);
         }
 
-        void TexturingViewHelper::resetOrigin() {
+        void UVViewHelper::resetOrigin() {
             assert(m_face != NULL);
             const Model::BrushVertexList& vertices = m_face->vertices();
             const size_t vertexCount = vertices.size();
@@ -187,7 +187,7 @@ namespace TrenchBroom {
             m_origin = Vec2f(bounds.min);
         }
         
-        void TexturingViewHelper::resetCamera() {
+        void UVViewHelper::resetCamera() {
             assert(valid());
 
             const Vec3& normal = m_face->boundary().normal;
@@ -208,7 +208,7 @@ namespace TrenchBroom {
             resetZoom();
         }
         
-        void TexturingViewHelper::resetZoom() {
+        void UVViewHelper::resetZoom() {
             assert(valid());
             
             const BBox3 bounds = computeFaceBoundsInCameraCoords();
@@ -225,7 +225,7 @@ namespace TrenchBroom {
             }
         }
 
-        BBox3 TexturingViewHelper::computeFaceBoundsInCameraCoords() const {
+        BBox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
             assert(valid());
             
             Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());

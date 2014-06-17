@@ -17,56 +17,50 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexturingViewOriginTool__
-#define __TrenchBroom__TexturingViewOriginTool__
+#ifndef __TrenchBroom__UVViewRotateTool__
+#define __TrenchBroom__UVViewRotateTool__
 
 #include "Hit.h"
-#include "Renderer/VertexSpec.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class OrthographicCamera;
         class RenderContext;
     }
-    
-    namespace View {
-        class TexturingViewHelper;
-        
-        class TexturingViewOriginTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
-        public:
-            static const Hit::HitType XHandleHit;
-            static const Hit::HitType YHandleHit;
-        private:
-            static const FloatType MaxPickDistance;
-            
-            typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
 
-            TexturingViewHelper& m_helper;
-            
-            Vec2f m_lastPoint;
-            Vec2f m_selector;
+    namespace View {
+        class UVViewHelper;
+
+        class UVViewRotateTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         public:
-            TexturingViewOriginTool(MapDocumentWPtr document, ControllerWPtr controller, TexturingViewHelper& helper);
+            static const Hit::HitType AngleHandleHit;
+        private:
+            static const float HandleRadius;
+            static const float HandleLength;
+            
+            UVViewHelper& m_helper;
+
+            Vec2f m_offset;
+        public:
+            UVViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:
             void doPick(const InputState& inputState, Hits& hits);
-
-            void computeOriginHandles(Line3& xHandle, Line3& yHandle) const;
             
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             
-            Vec2f computeHitPoint(const Ray3& ray) const;
-            Vec2f snapDelta(const Vec2f& delta) const;
+            float measureAngle(const Vec2f& point) const;
+            float snapAngle(float angle) const;
             
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
-            EdgeVertex::List getHandleVertices(const Hits& hits) const;
+
+            Vec2f angleHandle() const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__TexturingViewOriginTool__) */
+#endif /* defined(__TrenchBroom__UVViewRotateTool__) */
