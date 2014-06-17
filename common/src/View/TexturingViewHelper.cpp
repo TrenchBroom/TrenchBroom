@@ -190,10 +190,7 @@ namespace TrenchBroom {
         void TexturingViewHelper::resetCamera() {
             assert(valid());
 
-            resetZoom();
-            
-            const Vec3  position = m_face->center();
-            const Vec3& normal   = m_face->boundary().normal;
+            const Vec3& normal = m_face->boundary().normal;
             Vec3 right;
             
             if (Math::lt(Math::abs(Vec3::PosZ.dot(normal)), 1.0))
@@ -202,10 +199,13 @@ namespace TrenchBroom {
                 right = Vec3::PosX;
             const Vec3 up = crossed(normal, right).normalized();
             
-            m_camera.moveTo(position);
             m_camera.setNearPlane(-1.0);
             m_camera.setFarPlane(1.0);
             m_camera.setDirection(-normal, up);
+
+            const Vec3 position = m_face->boundsCenter();
+            m_camera.moveTo(position);
+            resetZoom();
         }
         
         void TexturingViewHelper::resetZoom() {
@@ -213,8 +213,8 @@ namespace TrenchBroom {
             
             const BBox3 bounds = computeFaceBoundsInCameraCoords();
             const Vec3f size(bounds.size());
-            const float w = static_cast<float>(m_camera.viewport().width - 100);
-            const float h = static_cast<float>(m_camera.viewport().height - 100);
+            const float w = static_cast<float>(m_camera.viewport().width - 80);
+            const float h = static_cast<float>(m_camera.viewport().height - 80);
             
             float zoom = 3.0f;
             zoom = Math::min(zoom, w / size.x());
@@ -238,6 +238,5 @@ namespace TrenchBroom {
                 result.mergeWith(transform * vertices[i]->position);
             return result;
         }
-        
     }
 }

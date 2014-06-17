@@ -227,6 +227,19 @@ namespace TrenchBroom {
             return centerOfVertices(m_side->vertices);
         }
 
+        Vec3 BrushFace::boundsCenter() const {
+            assert(m_side != NULL);
+            
+            const Mat4x4 toPlane = planeProjectionMatrix(m_boundary.distance, m_boundary.normal);
+            const Mat4x4 fromPlane = invertedMatrix(toPlane);
+            
+            BBox3 bounds;
+            bounds.min = bounds.max = toPlane * m_side->vertices[0]->position;
+            for (size_t i = 1; i < m_side->vertices.size(); ++i)
+                bounds.mergeWith(toPlane * m_side->vertices[i]->position);
+            return fromPlane * bounds.center();
+        }
+
         const BrushFaceAttribs& BrushFace::attribs() const {
             return m_attribs;
         }

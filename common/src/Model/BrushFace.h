@@ -143,6 +143,7 @@ namespace TrenchBroom {
             bool arePointsOnPlane(const Plane3& plane) const;
             const Plane3& boundary() const;
             Vec3 center() const;
+            Vec3 boundsCenter() const;
 
             const BrushFaceAttribs& attribs() const;
             void setAttribs(const BrushFaceAttribs& attribs);

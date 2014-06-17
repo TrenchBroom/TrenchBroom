@@ -630,7 +630,7 @@ const Mat<T,4,4> coordinateSystemMatrix(const Vec<T,3>& x, const Vec<T,3>& y, co
 }
 
 /**
- Returns the inverse of a matrix that will transform a point to a coordinate system where the X and 
+ Returns the inverse of a matrix that will transform a point to a coordinate system where the X and
  Y axes are in the given plane and the Z axis is parallel to the given direction. This is useful for
  projecting points onto a plane along a particular direction.
  */
@@ -656,6 +656,15 @@ const Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal,
     assert(Math::eq(zAxis.length(), 1.0));
     
     return coordinateSystemMatrix(xAxis, yAxis, zAxis, distance * normal);
+}
+
+/**
+ Returns the inverse of a matrix that will transform a point to a coordinate system where the X and
+ Y axes are in the given plane and the Z axis is the given normal.
+ */
+template <typename T>
+const Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal) {
+    return planeProjectionMatrix(distance, normal, normal);
 }
 
 template <typename T, size_t R, size_t C>
