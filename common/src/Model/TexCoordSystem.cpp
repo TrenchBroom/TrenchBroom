@@ -149,20 +149,16 @@ namespace TrenchBroom {
         }
 
         Mat4x4 TexCoordSystem::toMatrix(const Vec2f& offset, const Vec2f& scale) const {
-            bool invertible = false;
-            Mat4x4 matrix = fromMatrix(offset, scale);
-            invertMatrix(matrix, invertible);
-            assert(invertible);
-            return matrix;
-        }
-
-        Mat4x4 TexCoordSystem::fromMatrix(const Vec2f& offset, const Vec2f& scale) const {
             const Vec3 xAxis(getXAxis() * scale.x());
             const Vec3 yAxis(getYAxis() * scale.y());
             const Vec3 zAxis(getZAxis());
-            const Vec3 origin(xAxis * -offset.x() + yAxis * -offset.y());
+            const Vec3 origin(xAxis * offset.x() + yAxis * offset.y());
             
             return coordinateSystemMatrix(xAxis, yAxis, zAxis, origin);
+        }
+
+        Mat4x4 TexCoordSystem::fromMatrix(const Vec2f& offset, const Vec2f& scale) const {
+            return invertedMatrix(toMatrix(offset, scale));
         }
         
         float TexCoordSystem::measureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {

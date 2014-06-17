@@ -1,21 +1,21 @@
 /*
-Copyright (C) 2010-2014 Kristian Duske
-
-This file is part of TrenchBroom.
-
-TrenchBroom is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-TrenchBroom is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
-*/
+ Copyright (C) 2010-2014 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef TrenchBroom_Mat_h
 #define TrenchBroom_Mat_h
@@ -51,17 +51,17 @@ public:
     static const Mat<T,R,C> ZerZ;
     static const Mat<T,R,C> YIQToRGB;
     static const Mat<T,R,C> RGBToYIQ;
-
+    
     typedef std::vector<Mat<T,R,C> > List;
-
+    
     // we store in column-major format
     // every vector is one column
     Vec<T,R> v[C];
-
+    
     Mat<T,R,C>() {
         setIdentity();
     }
-
+    
     Mat<T,R,C>(const T v11, const T v12, const T v13,
                const T v21, const T v22, const T v23,
                const T v31, const T v32, const T v33) {
@@ -72,7 +72,7 @@ public:
             for (size_t r = 3; r < R; r++)
                 v[c][r] = static_cast<T>(0.0);
     }
-
+    
     Mat<T,R,C>(const T v11, const T v12, const T v13, const T v14,
                const T v21, const T v22, const T v23, const T v24,
                const T v31, const T v32, const T v33, const T v34,
@@ -85,21 +85,21 @@ public:
             for (size_t r = 4; r < R; r++)
                 v[c][r] = static_cast<T>(0.0);
     }
-
+    
     template <typename U>
     Mat<T,R,C>(const Mat<U,R,C>& other) {
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
                 v[c][r] = static_cast<T>(other[c][r]);
     }
-
+    
     Mat<T,R,C>& operator= (const Mat<T,R,C>& right) {
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
                 v[c][r] = right[c][r];
         return *this;
     }
-
+    
     const Mat<T,R,C> operator- () const {
         Mat<T,R,C> result;
         for (size_t c = 0; c < C; c++)
@@ -114,30 +114,30 @@ public:
                     return false;
         return true;
     }
-
+    
     // Matrix addition and subtraction
     const Mat<T,R,C> operator+ (const Mat<T,R,C>& right) const {
         Mat<T,R,C> result(*this);
         return result += right;
     }
-
+    
     Mat<T,R,C>& operator+= (const Mat<T,R,C>& right) {
         for (size_t c = 0; c < C; c++)
             v[c] += right[c];
         return *this;
     }
-
+    
     const Mat<T,R,C> operator- (const Mat<T,R,C>& right) const {
         Mat<T,R,C> result(*this);
         return result -= right;
     }
-
+    
     Mat<T,R,C>& operator-= (const Mat<T,R,C>& right) {
         for (size_t c = 0; c < C; c++)
             v[c] -= right[c];
         return *this;
     }
-
+    
     // Matrix multiplication
     const Mat<T,R,C> operator* (const Mat<T,C,R>& right) const {
         Mat<T,R,C> result(Mat<T,R,C>::Null);
@@ -147,34 +147,34 @@ public:
                     result[c][r] += v[i][r] * right[c][i];
         return result;
     }
-
+    
     Mat<T,R,C>& operator*= (const Mat<T,C,R>& right) {
         return *this = *this * right;
     }
-
+    
     // Scalar multiplication
     const Mat<T,R,C> operator* (const T right) const {
         Mat<T,R,C> result(*this);
         return result *= right;
     }
-
+    
     Mat<T,R,C>& operator*= (const T right) {
         for (size_t c = 0; c < C; c++)
             v[c] *= right;
         return *this;
     }
-
+    
     const Mat<T,R,C> operator/ (const T right) const {
         Mat<T,R,C> result(*this);
         return result /= right;
     }
-
+    
     Mat<T,R,C>& operator/= (const T right) {
         for (size_t c = 0; c < C; c++)
             v[c] /= right;
         return *this;
     }
-
+    
     // Vector right multiplication
     const Vec<T,C> operator* (const Vec<T,C>& right) const {
         Vec<T,C> result;
@@ -183,7 +183,7 @@ public:
                 result[r] += v[c][r] * right[c];
         return result;
     }
-
+    
     const Vec<T,C-1> operator* (const Vec<T,C-1>& right) const {
         const Vec<T,C> t(right, static_cast<T>(1.0));
         return (*this * t).overLast();
@@ -193,21 +193,21 @@ public:
     const typename Vec<T,C>::List operator* (const typename Vec<T,C>::List& right) const {
         typename Vec<T,C>::List result;
         result.reserve(right.size());
-
+        
         typename Vec<T,C>::List::const_iterator it, end;
         for (it = right.begin(), end = right.end(); it != end; ++it)
             result.push_back(*this * *it);
         return result;
     }
-
+    
     const typename Vec<T,C-1>::List operator* (const typename Vec<T,C-1>::List& right) const {
         typename Vec<T,C-1>::List result;
         result.reserve(right.size());
-
+        
         typename Vec<T,C-1>::List::const_iterator it, end;
         for (it = right.begin(), end = right.end(); it != end; ++it)
             result.push_back(*this * *it);
-            return result;
+        return result;
     }
     
     // indexed access, returns one column
@@ -215,30 +215,30 @@ public:
         assert(index < C);
         return v[index];
     }
-
+    
     const Vec<T,R>& operator[] (const size_t index) const {
         assert(index < C);
         return v[index];
     }
-
+    
     bool equals(const Mat<T,R,C>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
         for (size_t c = 0; c < C; c++)
             if (!v[c].equals(other[c], epsilon))
                 return false;
         return true;
     }
-
+    
     bool null() const {
         return equals(Null);
     }
-
+    
     Mat<T,R,C>& setIdentity() {
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
                 v[c][r] = c == r ? static_cast<T>(1.0) : static_cast<T>(0.0);
         return *this;
     }
-
+    
     Mat<T,R,C>& setNull() {
         for (size_t c = 0; c < C; c++)
             for (size_t r = 0; r < R; r++)
@@ -441,7 +441,7 @@ const Mat<T,S,S> invertedMatrix(const Mat<T,S,S>& mat, bool& invertible) {
     invertible = det != 0.0;
     if (!invertible)
         return mat;
-
+    
     return adjointMatrix(mat) / det;
 }
 
@@ -458,11 +458,11 @@ const Mat<T,4,4> perspectiveMatrix(const T fov, const T nearPlane, const T farPl
     const T vFrustum = std::tan(Math::radians(fov) / static_cast<T>(2.0)) * static_cast<T>(0.75) * nearPlane;
     const T hFrustum = vFrustum * static_cast<T>(width) / static_cast<T>(height);
     const T depth = farPlane - nearPlane;
-
+    
     static const T zero = static_cast<T>(0.0);
     static const T one  = static_cast<T>(1.0);
     static const T two  = static_cast<T>(2.0);
-
+    
     return Mat<T,4,4>(nearPlane / hFrustum, zero,                    zero,                               zero,
                       zero,                 nearPlane / vFrustum,    zero,                               zero,
                       zero,                 zero,                   -(farPlane + nearPlane) / depth,    -two * farPlane * nearPlane / depth,
@@ -474,11 +474,11 @@ const Mat<T,4,4> orthoMatrix(const T nearPlane, const T farPlane, const T left, 
     const T width = right - left;
     const T height = top - bottom;
     const T depth = farPlane - nearPlane;
-
+    
     static const T zero = static_cast<T>(0.0);
     static const T one  = static_cast<T>(1.0);
     static const T two  = static_cast<T>(2.0);
-
+    
     return Mat<T,4,4>(two / width,  zero,            zero,          -(left + right) / width,
                       zero,         two / height,    zero,          -(top + bottom) / height,
                       zero,         zero,           -two / depth,   -(farPlane + nearPlane) / depth,
@@ -490,14 +490,14 @@ const Mat<T,4,4> viewMatrix(const Vec<T,3>& direction, const Vec<T,3>& up) {
     const Vec<T,3>& f = direction;
     const Vec<T,3> s = crossed(f, up);
     const Vec<T,3> u = crossed(s, f);
-
+    
     static const T zero = static_cast<T>(0.0);
     static const T one  = static_cast<T>(1.0);
-
+    
     return Mat<T,4,4>( s[0],  s[1],  s[2], zero,
-                       u[0],  u[1],  u[2], zero,
+                      u[0],  u[1],  u[2], zero,
                       -f[0], -f[1], -f[2], zero,
-                       zero,  zero,  zero, one);
+                      zero,  zero,  zero, one);
 }
 
 // The returned matrix will rotate any point counter-clockwise about the given axis by the given angle (in radians).
@@ -546,24 +546,24 @@ const Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
     const T y = quat.v[1];
     const T z = quat.v[2];
     const T w = quat.r;
-
+    
     const T x2 = x*x;
     const T y2 = y*y;
     const T z2 = z*z;
-
+    
     Mat<T,4,4> rotation;
     rotation[0][0] = static_cast<T>(1.0 - 2.0*(y2 + z2));// a2 + b2 - c2 - d2;
     rotation[0][1] = static_cast<T>(2.0*(x*y + z*w));
     rotation[0][2] = static_cast<T>(2.0*(x*z - y*w));
-
+    
     rotation[1][0] = static_cast<T>(2.0*(x*y - z*w));
     rotation[1][1] = static_cast<T>(1.0 - 2.0*(x2 + z2));//a2 - b2 + c2 - d2;
     rotation[1][2] = static_cast<T>(2.0*(y*z + x*w));
-
+    
     rotation[2][0] = static_cast<T>(2.0*(x*z + y*w));
     rotation[2][1] = static_cast<T>(2.0*(y*z - x*w));
     rotation[2][2] = static_cast<T>(1.0 - 2.0*(x2 + y2));// a2 - b2 - c2 + d2;
-
+    
     return rotation;
 }
 
@@ -623,14 +623,14 @@ const Mat<T,4,4>& mirrorMatrix(const Math::Axis::Type axis) {
 
 template <typename T>
 const Mat<T,4,4> coordinateSystemMatrix(const Vec<T,3>& x, const Vec<T,3>& y, const Vec<T,3>& z, const Vec<T,3>& o) {
-    return Mat<T,4,4>(x[0], y[0], z[0], o[0],
-                      x[1], y[1], z[1], o[1],
-                      x[2], y[2], z[2], o[2],
-                       0.0,  0.0,  0.0,  1.0);
+    return invertedMatrix(Mat<T,4,4>(x[0], y[0], z[0], o[0],
+                                     x[1], y[1], z[1], o[1],
+                                     x[2], y[2], z[2], o[2],
+                                     0.0,  0.0,  0.0,  1.0));
 }
 
 /**
- Returns the inverse of a matrix that will transform a point to a coordinate system where the X and
+ Returns a matrix that will transform a point to a coordinate system where the X and
  Y axes are in the given plane and the Z axis is parallel to the given direction. This is useful for
  projecting points onto a plane along a particular direction.
  */
@@ -675,88 +675,88 @@ const Mat<T,R,C> Mat<T,R,C>::Null = Mat<T,R,C>().setNull();
 
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot90XCW    = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot90YCW    = Mat<T,R,C>( static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot90ZCW    = Mat<T,R,C>( static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
                                                       -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot90XCCW   = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot90YCCW   = Mat<T,R,C>( static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
                                                       -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot90ZCCW   = Mat<T,R,C>( static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot180X     = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot180Y     = Mat<T,R,C>(-static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Rot180Z     = Mat<T,R,C>(-static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::MirX        = Mat<T,R,C>(-static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::MirY        = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::MirZ        = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0), -static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::ZerX        = Mat<T,R,C>( static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::ZerY        = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::ZerZ        = Mat<T,R,C>( static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
-                                                       static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
+                                                      static_cast<T>(0.0),  static_cast<T>(1.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),
+                                                      static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(0.0),  static_cast<T>(1.0));
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::YIQToRGB     = Mat<T,R,C>( static_cast<T>(1.0), static_cast<T>( 0.9563), static_cast<T> (0.6210),
-                                                        static_cast<T>(1.0), static_cast<T>(-0.2721), static_cast<T>(-0.6474),
-                                                        static_cast<T>(1.0), static_cast<T>(-1.1070), static_cast<T>( 1.7046));
+                                                       static_cast<T>(1.0), static_cast<T>(-0.2721), static_cast<T>(-0.6474),
+                                                       static_cast<T>(1.0), static_cast<T>(-1.1070), static_cast<T>( 1.7046));
 
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::RGBToYIQ     = Mat<T,R,C>( static_cast<T>(0.299),    static_cast<T>( 0.587),    static_cast<T>( 0.114),
-                                                        static_cast<T>(0.595716), static_cast<T>(-0.274453), static_cast<T>(-0.321263),
-                                                        static_cast<T>(0.211456), static_cast<T>(-0.522591), static_cast<T>( 0.311135));
+                                                       static_cast<T>(0.595716), static_cast<T>(-0.274453), static_cast<T>(-0.321263),
+                                                       static_cast<T>(0.211456), static_cast<T>(-0.522591), static_cast<T>( 0.311135));
 
 
 typedef Mat<float,2,2> Mat2x2f;

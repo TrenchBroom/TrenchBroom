@@ -228,8 +228,7 @@ namespace TrenchBroom {
         BBox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
             assert(valid());
             
-            Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
-            invertMatrix(transform);
+            const Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
 
             BBox3 result;
             const Model::BrushVertexList& vertices = m_face->vertices();
