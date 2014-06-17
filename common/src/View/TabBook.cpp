@@ -63,6 +63,7 @@ namespace TrenchBroom {
 
         void TabBook::setTabBarHeight(const int height) {
             GetSizer()->SetItemMinSize(m_tabBar, wxDefaultCoord, height);
+            Layout();
         }
 
         void TabBook::OnTabBookPageChanged(wxBookCtrlEvent& event) {

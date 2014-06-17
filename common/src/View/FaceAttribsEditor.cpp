@@ -429,7 +429,6 @@ namespace TrenchBroom {
                 m_surfaceFlagsEditor->Disable();
                 m_contentFlagsEditor->Disable();
             }
-            Layout();
         }
 
         

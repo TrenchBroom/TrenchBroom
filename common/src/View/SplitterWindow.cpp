@@ -49,41 +49,31 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow::splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin, const wxSize& rightMin) {
-            assert(left != NULL);
-            assert(left->GetParent() == this);
-            assert(right != NULL);
-            assert(right->GetParent() == this);
-            assert(m_splitMode == SplitMode_Unset);
-            
-            m_windows[0] = left;
-            m_windows[1] = right;
-            m_splitMode = SplitMode_Horizontal;
-            
-            for (size_t i = 0; i < 2; ++i)
-                bindMouseEventsRecurse(m_windows[i]);
-            
-            setMinSize(left, leftMin);
-            setMinSize(right, rightMin);
+            split(left, right, leftMin, rightMin, SplitMode_Horizontal);
         }
         
         void SplitterWindow::splitVertically(wxWindow* top, wxWindow* bottom, const wxSize& topMin, const wxSize& bottomMin) {
-            assert(top != NULL);
-            assert(top->GetParent() == this);
-            assert(bottom != NULL);
-            assert(bottom->GetParent() == this);
+            split(top, bottom, topMin, bottomMin, SplitMode_Vertical);
+        }
+        
+        void SplitterWindow::split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, const SplitMode splitMode) {
+            assert(window1 != NULL);
+            assert(window1->GetParent() == this);
+            assert(window2 != NULL);
+            assert(window2->GetParent() == this);
             assert(m_splitMode == SplitMode_Unset);
             
-            m_windows[0] = top;
-            m_windows[1] = bottom;
-            m_splitMode = SplitMode_Vertical;
+            m_windows[0] = window1;
+            m_windows[1] = window2;
+            m_splitMode = splitMode;
             
             for (size_t i = 0; i < 2; ++i)
                 bindMouseEventsRecurse(m_windows[i]);
             
-            setMinSize(top, topMin);
-            setMinSize(bottom, bottomMin);
+            setMinSize(window1, min1);
+            setMinSize(window2, min2);
         }
-        
+
         void SplitterWindow::bindMouseEventsRecurse(wxWindow* window) {
             bindMouseEvents(window);
             const wxWindowList& children = window->GetChildren();
@@ -244,7 +234,8 @@ namespace TrenchBroom {
         void SplitterWindow::initSashPosition() {
             if (m_splitMode != SplitMode_Unset && m_sashPosition == -1) {
                 const int clientH = h(GetClientSize());
-                m_sashPosition = h(m_minSizes[0]) + static_cast<int>(m_sashGravity * (clientH - h(m_minSizes[0]) - h(m_minSizes[1]) - sashSize()));
+                const int position = h(m_minSizes[0]) + static_cast<int>(m_sashGravity * (clientH - h(m_minSizes[0]) - h(m_minSizes[1]) - sashSize()));
+                setSashPosition(position);
             }
         }
         
@@ -252,6 +243,8 @@ namespace TrenchBroom {
             m_sashPosition = position;
             m_sashPosition = std::max(m_sashPosition, h(m_minSizes[0]));
             m_sashPosition = std::min(m_sashPosition, h(GetClientSize()) - h(m_minSizes[1]) - sashSize());
+            if (m_sashPosition < 0)
+                m_sashPosition = h(GetClientSize()) / 2;
         }
         
         void SplitterWindow::sizeWindows() {

@@ -165,6 +165,7 @@ namespace TrenchBroom {
 
         void TexturingView::doUpdateViewport(int x, int y, int width, int height) {
             m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
+            m_helper.cameraViewportChanged();
         }
         
         void TexturingView::doRender() {

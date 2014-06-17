@@ -45,6 +45,7 @@ namespace TrenchBroom {
         class TexturingViewHelper {
         private:
             Renderer::OrthographicCamera& m_camera;
+            bool m_zoomValid;
             
             Model::BrushFace* m_face;
 
@@ -62,6 +63,7 @@ namespace TrenchBroom {
             Model::BrushFace* face() const;
             const Assets::Texture* texture() const;
             void setFace(Model::BrushFace* face);
+            void cameraViewportChanged();
 
             const Vec2i& subDivisions() const;
             Vec2 stripeSize() const;
@@ -82,6 +84,7 @@ namespace TrenchBroom {
         private:
             void resetOrigin();
             void resetCamera();
+            void resetZoom();
             
             BBox3 computeFaceBoundsInCameraCoords() const;
             Vec3 transformToCamera(const Vec3& point) const;

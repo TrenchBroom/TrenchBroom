@@ -38,6 +38,7 @@ namespace TrenchBroom {
     namespace View {
         TexturingViewHelper::TexturingViewHelper(Renderer::OrthographicCamera& camera) :
         m_camera(camera),
+        m_zoomValid(false),
         m_face(NULL),
         m_subDivisions(1, 1),
         m_vbo(0xFFF) {}
@@ -64,6 +65,14 @@ namespace TrenchBroom {
                     resetCamera();
                 }
             }
+        }
+        
+        void TexturingViewHelper::cameraViewportChanged() {
+            // If the user selects a face before the texturing view was shown for the first time, the size of the view
+            // might still have been off, resulting in invalid zoom factors. Therefore we must reset the zoom whenever
+            // the viewport changes until a valid zoom factor can be computed.
+            if (valid() && !m_zoomValid)
+                resetZoom();
         }
         
         const Vec2i& TexturingViewHelper::subDivisions() const {
@@ -180,21 +189,11 @@ namespace TrenchBroom {
         
         void TexturingViewHelper::resetCamera() {
             assert(valid());
-            
-            const BBox3 bounds = computeFaceBoundsInCameraCoords();
-            const Vec3f size(bounds.size());
-            const float w = static_cast<float>(m_camera.viewport().width - 20);
-            const float h = static_cast<float>(m_camera.viewport().height - 20);
-            
-            float zoom = 1.0f;
-            if (size.x() > w)
-                zoom = Math::min(zoom, w / size.x());
-            if (size.y() > h)
-                zoom = Math::min(zoom, h / size.y());
-            m_camera.setZoom(zoom);
+
+            resetZoom();
             
             const Vec3  position = m_face->center();
-            const Vec3& normal = m_face->boundary().normal;
+            const Vec3& normal   = m_face->boundary().normal;
             Vec3 right;
             
             if (Math::lt(Math::abs(Vec3::PosZ.dot(normal)), 1.0))
@@ -207,6 +206,23 @@ namespace TrenchBroom {
             m_camera.setNearPlane(-1.0);
             m_camera.setFarPlane(1.0);
             m_camera.setDirection(-normal, up);
+        }
+        
+        void TexturingViewHelper::resetZoom() {
+            assert(valid());
+            
+            const BBox3 bounds = computeFaceBoundsInCameraCoords();
+            const Vec3f size(bounds.size());
+            const float w = static_cast<float>(m_camera.viewport().width - 100);
+            const float h = static_cast<float>(m_camera.viewport().height - 100);
+            
+            float zoom = 3.0f;
+            zoom = Math::min(zoom, w / size.x());
+            zoom = Math::min(zoom, h / size.y());
+            if (zoom > 0.0f) {
+                m_camera.setZoom(zoom);
+                m_zoomValid = true;
+            }
         }
 
         BBox3 TexturingViewHelper::computeFaceBoundsInCameraCoords() const {
