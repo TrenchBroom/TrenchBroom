@@ -99,15 +99,11 @@ namespace TrenchBroom {
         }
         
         const Vec2f UVViewHelper::originInTexCoords() const {
-            Model::TexCoordSystemHelper faceCoordSystem(m_face);
-            faceCoordSystem.setProject();
+            assert(valid());
             
-            Model::TexCoordSystemHelper texCoordSystem(m_face);
-            texCoordSystem.setTranslate();
-            texCoordSystem.setScale();
-            texCoordSystem.setProject();
-            
-            return faceCoordSystem.texToTex(m_origin, texCoordSystem);
+            const Mat4x4 fromTex = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toFace  = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            return Vec2f(toFace * fromTex * Vec3(m_origin));
         }
         
         void UVViewHelper::setOrigin(const Vec2f& originInFaceCoords) {
@@ -154,7 +150,7 @@ namespace TrenchBroom {
         void UVViewHelper::computeScaleHandleVertices(const Vec2& pos, Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
             assert(valid());
             
-            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
+            const Mat4x4 toTex   = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
             const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true);
             computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
         }
@@ -172,18 +168,10 @@ namespace TrenchBroom {
         }
 
         void UVViewHelper::resetOrigin() {
-            assert(m_face != NULL);
-            const Model::BrushVertexList& vertices = m_face->vertices();
-            const size_t vertexCount = vertices.size();
+            assert(valid());
             
-            Vec3::List positions(vertexCount);
-            for (size_t i = 0; i < vertexCount; ++i)
-                positions[i] = vertices[i]->position;
-            
-            Model::TexCoordSystemHelper helper(m_face);
-            helper.setProject();
-
-            const BBox3 bounds(helper.worldToTex(positions));
+            const Mat4x4 toFace = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const BBox3 bounds(toFace * vertexPositions(m_face->vertices()));
             m_origin = Vec2f(bounds.min);
         }
         
@@ -228,8 +216,7 @@ namespace TrenchBroom {
         BBox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
             assert(valid());
             
-            Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
-            invertMatrix(transform);
+            const Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
 
             BBox3 result;
             const Model::BrushVertexList& vertices = m_face->vertices();

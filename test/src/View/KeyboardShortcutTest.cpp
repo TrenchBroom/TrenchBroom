@@ -20,20 +20,12 @@
 
 #include "View/KeyboardShortcut.h"
 #include <gtest/gtest.h>
+
+#include "StringUtils.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {
     namespace View {
-        TEST(KeyboardShortcutTest, contextName) {
-            ASSERT_WXSTR_EQ(wxString("Any"), KeyboardShortcut::contextName(KeyboardShortcut::Context_Any));
-            ASSERT_WXSTR_EQ(wxString("Vertex Tool"), KeyboardShortcut::contextName(KeyboardShortcut::Context_VertexTool));
-            ASSERT_WXSTR_EQ(wxString("Clip Tool"), KeyboardShortcut::contextName(KeyboardShortcut::Context_ClipTool));
-            ASSERT_WXSTR_EQ(wxString("Rotate Tool"), KeyboardShortcut::contextName(KeyboardShortcut::Context_RotateTool));
-            ASSERT_WXSTR_EQ(wxString("Objects"), KeyboardShortcut::contextName(KeyboardShortcut::Context_ObjectSelection));
-            ASSERT_WXSTR_EQ(wxString("Textures"), KeyboardShortcut::contextName(KeyboardShortcut::Context_FaceSelection));
-            ASSERT_WXSTR_EQ(wxString("Objects, Textures"), KeyboardShortcut::contextName(KeyboardShortcut::Context_ObjectSelection | KeyboardShortcut::Context_FaceSelection));
-        }
-        
         void assertSortModifierKeys(int key1, int key2, int key3, const int exp1, const int exp2, const int exp3);
         void assertSortModifierKeys(int key1, int key2, int key3, const int exp1, const int exp2, const int exp3) {
             KeyboardShortcut::sortModifierKeys(key1, key2, key3);
@@ -108,111 +100,111 @@ namespace TrenchBroom {
 #endif
         
         TEST(KeyboardShortcutTest, staticModifierKeyMenuText) {
-            ASSERT_WXSTR_EQ(wxString("Ctrl"), KeyboardShortcut::modifierKeyMenuText(WXK_CONTROL));
-            ASSERT_WXSTR_EQ(wxString("Alt"), KeyboardShortcut::modifierKeyMenuText(WXK_ALT));
-            ASSERT_WXSTR_EQ(wxString("Shift"), KeyboardShortcut::modifierKeyMenuText(WXK_SHIFT));
-            ASSERT_WXSTR_EQ(wxString(""), KeyboardShortcut::modifierKeyMenuText(WXK_TAB));
+            ASSERT_WXSTR_EQ(wxString("Ctrl"), KeyboardShortcut::modifierMenuString(WXK_CONTROL));
+            ASSERT_WXSTR_EQ(wxString("Alt"), KeyboardShortcut::modifierMenuString(WXK_ALT));
+            ASSERT_WXSTR_EQ(wxString("Shift"), KeyboardShortcut::modifierMenuString(WXK_SHIFT));
+            ASSERT_WXSTR_EQ(wxString(""), KeyboardShortcut::modifierMenuString(WXK_TAB));
         }
         
-        TEST(KeyboardShortcutTest, modifierKeyDisplayText) {
+        TEST(KeyboardShortcutTest, modifierDisplayString) {
 #ifdef __APPLE__
-            ASSERT_WXSTR_EQ(wxString(L"\u2318"), KeyboardShortcut::modifierKeyDisplayText(WXK_CONTROL));
-            ASSERT_WXSTR_EQ(wxString(L"\u2325"), KeyboardShortcut::modifierKeyDisplayText(WXK_ALT));
-            ASSERT_WXSTR_EQ(wxString(L"\u21E7"), KeyboardShortcut::modifierKeyDisplayText(WXK_SHIFT));
-            ASSERT_WXSTR_EQ(wxString(""), KeyboardShortcut::modifierKeyDisplayText(WXK_TAB));
+            ASSERT_WXSTR_EQ(wxString(L"\u2318"), KeyboardShortcut::modifierDisplayString(WXK_CONTROL));
+            ASSERT_WXSTR_EQ(wxString(L"\u2325"), KeyboardShortcut::modifierDisplayString(WXK_ALT));
+            ASSERT_WXSTR_EQ(wxString(L"\u21E7"), KeyboardShortcut::modifierDisplayString(WXK_SHIFT));
+            ASSERT_WXSTR_EQ(wxString(""), KeyboardShortcut::modifierDisplayString(WXK_TAB));
 #else
-            ASSERT_WXSTR_EQ(wxString("Ctrl"), KeyboardShortcut::modifierKeyDisplayText(WXK_CONTROL));
-            ASSERT_WXSTR_EQ(wxString("Alt"), KeyboardShortcut::modifierKeyDisplayText(WXK_ALT));
-            ASSERT_WXSTR_EQ(wxString("Shift"), KeyboardShortcut::modifierKeyDisplayText(WXK_SHIFT));
-            ASSERT_WXSTR_EQ(wxString(""), KeyboardShortcut::modifierKeyDisplayText(WXK_TAB));
+            ASSERT_WXSTR_EQ(wxString("Ctrl"), KeyboardShortcut::modifierDisplayString(WXK_CONTROL));
+            ASSERT_WXSTR_EQ(wxString("Alt"), KeyboardShortcut::modifierDisplayString(WXK_ALT));
+            ASSERT_WXSTR_EQ(wxString("Shift"), KeyboardShortcut::modifierDisplayString(WXK_SHIFT));
+            ASSERT_WXSTR_EQ(wxString(""), KeyboardShortcut::modifierDisplayString(WXK_TAB));
 #endif
         }
         
         TEST(KeyboardShortcutTest, staticShortcutDisplayText) {
 #ifdef __APPLE__
-            ASSERT_WXSTR_EQ(wxString("C"), KeyboardShortcut::shortcutDisplayText(WXK_NONE, WXK_NONE, WXK_NONE, 'C'));
-            ASSERT_WXSTR_EQ(wxString(L"\u238B"), KeyboardShortcut::shortcutDisplayText(WXK_NONE, WXK_NONE, WXK_NONE, WXK_ESCAPE));
-            ASSERT_WXSTR_EQ(wxString("F11"), KeyboardShortcut::shortcutDisplayText(WXK_NONE, WXK_NONE, WXK_NONE, WXK_F11));
-            ASSERT_WXSTR_EQ(wxString(L"\u2318D"), KeyboardShortcut::shortcutDisplayText(WXK_CONTROL, WXK_NONE, WXK_NONE, 'D'));
-            ASSERT_WXSTR_EQ(wxString(L"\u2318D"), KeyboardShortcut::shortcutDisplayText(WXK_NONE, WXK_NONE, WXK_CONTROL, 'D'));
-            ASSERT_WXSTR_EQ(wxString(L"\u2325\u2318S"), KeyboardShortcut::shortcutDisplayText(WXK_CONTROL, WXK_NONE, WXK_ALT, 'S'));
+            ASSERT_WXSTR_EQ(wxString("C"), KeyboardShortcut::shortcutDisplayString('C', WXK_NONE, WXK_NONE, WXK_NONE));
+            ASSERT_WXSTR_EQ(wxString(L"\u238B"), KeyboardShortcut::shortcutDisplayString(WXK_ESCAPE, WXK_NONE, WXK_NONE, WXK_NONE));
+            ASSERT_WXSTR_EQ(wxString("F11"), KeyboardShortcut::shortcutDisplayString(WXK_F11, WXK_NONE, WXK_NONE, WXK_NONE));
+            ASSERT_WXSTR_EQ(wxString(L"\u2318D"), KeyboardShortcut::shortcutDisplayString('D', WXK_CONTROL, WXK_NONE, WXK_NONE));
+            ASSERT_WXSTR_EQ(wxString(L"\u2318D"), KeyboardShortcut::shortcutDisplayString('D', WXK_NONE, WXK_NONE, WXK_CONTROL));
+            ASSERT_WXSTR_EQ(wxString(L"\u2325\u2318S"), KeyboardShortcut::shortcutDisplayString('S', WXK_CONTROL, WXK_NONE, WXK_ALT));
 #else
-            ASSERT_WXSTR_EQ(wxString("C"), KeyboardShortcut::shortcutDisplayText(WXK_NONE, WXK_NONE, WXK_NONE, 'C'));
-            ASSERT_WXSTR_EQ(wxString("Esc"), KeyboardShortcut::shortcutDisplayText(WXK_NONE, WXK_NONE, WXK_NONE, WXK_ESCAPE));
-            ASSERT_WXSTR_EQ(wxString("F11"), KeyboardShortcut::shortcutDisplayText(WXK_NONE, WXK_NONE, WXK_NONE, WXK_F11));
-            ASSERT_WXSTR_EQ(wxString("Ctrl+D"), KeyboardShortcut::shortcutDisplayText(WXK_CONTROL, WXK_NONE, WXK_NONE, 'D'));
-            ASSERT_WXSTR_EQ(wxString("Ctrl+D"), KeyboardShortcut::shortcutDisplayText(WXK_NONE, WXK_NONE, WXK_CONTROL, 'D'));
-            ASSERT_WXSTR_EQ(wxString("Ctrl+Alt+S"), KeyboardShortcut::shortcutDisplayText(WXK_ALT, WXK_CONTROL, WXK_NONE, 'S'));
+            ASSERT_WXSTR_EQ(wxString("C"), KeyboardShortcut::shortcutDisplayString('C', WXK_NONE, WXK_NONE, WXK_NONE));
+            ASSERT_WXSTR_EQ(wxString("Esc"), KeyboardShortcut::shortcutDisplayString(WXK_ESCAPE, WXK_NONE, WXK_NONE, WXK_NONE));
+            ASSERT_WXSTR_EQ(wxString("F11"), KeyboardShortcut::shortcutDisplayString(WXK_F11, WXK_NONE, WXK_NONE, WXK_NONE));
+            ASSERT_WXSTR_EQ(wxString("Ctrl+D"), KeyboardShortcut::shortcutDisplayString('D', WXK_CONTROL, WXK_NONE, WXK_NONE));
+            ASSERT_WXSTR_EQ(wxString("Ctrl+D"), KeyboardShortcut::shortcutDisplayString('D', WXK_NONE, WXK_NONE, WXK_CONTROL));
+            ASSERT_WXSTR_EQ(wxString("Ctrl+Alt+S"), KeyboardShortcut::shortcutDisplayString('S', WXK_ALT, WXK_CONTROL, WXK_NONE));
 #endif
         }
         
         TEST(KeyboardShortcutTest, parseShortcut) {
             int m1, m2, m3, k;
             
-            ASSERT_TRUE(KeyboardShortcut::parseShortcut("", m1, m2, m3, k));
+            ASSERT_TRUE(KeyboardShortcut::parseShortcut("", k, m1, m2, m3));
             ASSERT_EQ(WXK_NONE, m1);
             ASSERT_EQ(WXK_NONE, m2);
             ASSERT_EQ(WXK_NONE, m3);
             ASSERT_EQ(WXK_NONE, k);
             
-            ASSERT_FALSE(KeyboardShortcut::parseShortcut("asdf", m1, m2, m3, k));
-            ASSERT_FALSE(KeyboardShortcut::parseShortcut(" D", m1, m2, m3, k));
-            ASSERT_FALSE(KeyboardShortcut::parseShortcut("D ", m1, m2, m3, k));
+            ASSERT_FALSE(KeyboardShortcut::parseShortcut("asdf", k, m1, m2, m3));
+            ASSERT_FALSE(KeyboardShortcut::parseShortcut(" D", k, m1, m2, m3));
+            ASSERT_FALSE(KeyboardShortcut::parseShortcut("D ", k, m1, m2, m3));
 
-            ASSERT_TRUE(KeyboardShortcut::parseShortcut("D", m1, m2, m3, k));
+            ASSERT_TRUE(KeyboardShortcut::parseShortcut("D", k, m1, m2, m3));
             ASSERT_EQ(WXK_NONE, m1);
             ASSERT_EQ(WXK_NONE, m2);
             ASSERT_EQ(WXK_NONE, m3);
             ASSERT_EQ('D', k);
             
 #ifdef __APPLE__
-            ASSERT_FALSE(KeyboardShortcut::parseShortcut("\u2318+D", m1, m2, m3, k));
+            ASSERT_FALSE(KeyboardShortcut::parseShortcut("\u2318+D", k, m1, m2, m3));
 
-            ASSERT_TRUE(KeyboardShortcut::parseShortcut("\u2318", m1, m2, m3, k));
+            ASSERT_TRUE(KeyboardShortcut::parseShortcut("\u2318", k, m1, m2, m3));
             ASSERT_EQ(WXK_CONTROL, m1);
             ASSERT_EQ(WXK_NONE, m2);
             ASSERT_EQ(WXK_NONE, m3);
             ASSERT_EQ(WXK_NONE, k);
 
-            ASSERT_TRUE(KeyboardShortcut::parseShortcut("\u2318D", m1, m2, m3, k));
+            ASSERT_TRUE(KeyboardShortcut::parseShortcut("\u2318D", k, m1, m2, m3));
             ASSERT_EQ(WXK_CONTROL, m1);
             ASSERT_EQ(WXK_NONE, m2);
             ASSERT_EQ(WXK_NONE, m3);
             ASSERT_EQ('D', k);
 
-            ASSERT_TRUE(KeyboardShortcut::parseShortcut("\u2318\u2325D", m1, m2, m3, k));
+            ASSERT_TRUE(KeyboardShortcut::parseShortcut("\u2318\u2325D", k, m1, m2, m3));
             ASSERT_EQ(WXK_ALT, m1);
             ASSERT_EQ(WXK_CONTROL, m2);
             ASSERT_EQ(WXK_NONE, m3);
             ASSERT_EQ('D', k);
             
-            ASSERT_TRUE(KeyboardShortcut::parseShortcut("\u2318\u2325\u21E7\u21E5", m1, m2, m3, k));
+            ASSERT_TRUE(KeyboardShortcut::parseShortcut("\u2318\u2325\u21E7\u21E5", k, m1, m2, m3));
             ASSERT_EQ(WXK_ALT, m1);
             ASSERT_EQ(WXK_SHIFT, m2);
             ASSERT_EQ(WXK_CONTROL, m3);
             ASSERT_EQ(WXK_TAB, k);
 #else
-            ASSERT_FALSE(KeyboardShortcut::parseShortcut("Ctrl D", m1, m2, m3, k));
+            ASSERT_FALSE(KeyboardShortcut::parseShortcut("Ctrl D", k, m1, m2, m3));
             
-            ASSERT_TRUE(KeyboardShortcut::parseShortcut("Ctrl", m1, m2, m3, k));
+            ASSERT_TRUE(KeyboardShortcut::parseShortcut("Ctrl", k, m1, m2, m3));
             ASSERT_EQ(WXK_CONTROL, m1);
             ASSERT_EQ(WXK_NONE, m2);
             ASSERT_EQ(WXK_NONE, m3);
             ASSERT_EQ(WXK_NONE, k);
             
-            ASSERT_TRUE(KeyboardShortcut::parseShortcut("Ctrl+D", m1, m2, m3, k));
+            ASSERT_TRUE(KeyboardShortcut::parseShortcut("Ctrl+D", k, m1, m2, m3));
             ASSERT_EQ(WXK_CONTROL, m1);
             ASSERT_EQ(WXK_NONE, m2);
             ASSERT_EQ(WXK_NONE, m3);
             ASSERT_EQ('D', k);
             
-            ASSERT_TRUE(KeyboardShortcut::parseShortcut("Alt+Ctrl+D", m1, m2, m3, k));
+            ASSERT_TRUE(KeyboardShortcut::parseShortcut("Alt+Ctrl+D", k, m1, m2, m3));
             ASSERT_EQ(WXK_CONTROL, m1);
             ASSERT_EQ(WXK_ALT, m2);
             ASSERT_EQ(WXK_NONE, m3);
             ASSERT_EQ('D', k);
             
-            ASSERT_TRUE(KeyboardShortcut::parseShortcut("Alt+Ctrl+Shift+Tab", m1, m2, m3, k));
+            ASSERT_TRUE(KeyboardShortcut::parseShortcut("Alt+Ctrl+Shift+Tab", k, m1, m2, m3));
             ASSERT_EQ(WXK_CONTROL, m1);
             ASSERT_EQ(WXK_ALT, m2);
             ASSERT_EQ(WXK_SHIFT, m3);
@@ -222,25 +214,22 @@ namespace TrenchBroom {
         
         TEST(KeyboardShortcutTest, constructWithString) {
             StringStream test;
-            test << "7:" << WXK_CONTROL << ":" << WXK_ALT << ":" << WXK_NONE << ":" << static_cast<int>('D') << ":" << KeyboardShortcut::Context_ObjectSelection << ":Duplicate";
+            test << static_cast<int>('D') << ":" << WXK_CONTROL << ":" << WXK_ALT << ":" << WXK_NONE;
             
             const KeyboardShortcut shortcut(test.str());
-            ASSERT_EQ(7, shortcut.commandId());
 #ifdef __APPLE__
-            ASSERT_EQ(WXK_ALT, shortcut.modifierKey1());
-            ASSERT_EQ(WXK_CONTROL, shortcut.modifierKey2());
+            ASSERT_EQ(WXK_ALT, shortcut.modifier1());
+            ASSERT_EQ(WXK_CONTROL, shortcut.modifier2());
 #else
-            ASSERT_EQ(WXK_CONTROL, shortcut.modifierKey1());
-            ASSERT_EQ(WXK_ALT, shortcut.modifierKey2());
+            ASSERT_EQ(WXK_CONTROL, shortcut.modifier1());
+            ASSERT_EQ(WXK_ALT, shortcut.modifier2());
 #endif
-            ASSERT_EQ(WXK_NONE, shortcut.modifierKey3());
+            ASSERT_EQ(WXK_NONE, shortcut.modifier3());
             ASSERT_EQ('D', shortcut.key());
-            ASSERT_EQ(KeyboardShortcut::Context_ObjectSelection, shortcut.context());
-            ASSERT_EQ(String("Duplicate"), shortcut.text());
         }
         
         TEST(KeyboardShortcutTest, matches) {
-            const KeyboardShortcut shortcut(0, WXK_CONTROL, WXK_ALT, 'D', KeyboardShortcut::Context_ObjectSelection, "Test");
+            const KeyboardShortcut shortcut('D', WXK_CONTROL, WXK_ALT);
             
             ASSERT_FALSE(shortcut.matches('S', WXK_CONTROL, WXK_ALT));
             ASSERT_FALSE(shortcut.matches('D', WXK_CONTROL, WXK_SHIFT));
@@ -253,11 +242,11 @@ namespace TrenchBroom {
         }
         
         TEST(KeyboardShortcutTest, modifierKeyMenuText) {
-            const KeyboardShortcut shortcut(0, WXK_ALT, WXK_CONTROL, 'D', KeyboardShortcut::Context_ObjectSelection, "Test");
+            const KeyboardShortcut shortcut('D', WXK_ALT, WXK_CONTROL);
 #ifdef __APPLE__
-            ASSERT_WXSTR_EQ(wxString("Alt+Ctrl"), shortcut.modifierKeyMenuText());
+            ASSERT_WXSTR_EQ(wxString("Alt+Ctrl"), shortcut.modifierMenuString());
 #else
-            ASSERT_WXSTR_EQ(wxString("Ctrl+Alt"), shortcut.modifierKeyMenuText());
+            ASSERT_WXSTR_EQ(wxString("Ctrl+Alt"), shortcut.modifierMenuString());
 #endif
         }
     }

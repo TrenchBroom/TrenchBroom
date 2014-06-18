@@ -179,10 +179,16 @@ namespace TrenchBroom {
             const Color& highlightColor = prefs.get(Preferences::SelectedHandleColor);
             const float cameraZoom = m_helper.cameraZoom();
 
-            const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(m_helper.face());
-            const Vec2f originPosition = m_helper.originInFaceCoords();
+            const Model::BrushFace* face = m_helper.face();
+            const Plane3& boundary = face->boundary();
+            const Mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+            const Mat4x4 fromPlane = invertedMatrix(toPlane);
+            
+            const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, false);
+            
+            const Vec2f originPosition(toPlane * fromFace * Vec3(m_helper.originInFaceCoords()));
             const Vec2f angleHandlePosition = angleHandle();
-            const Vec2f faceCenterPosition = faceCoordSystem.worldToTex(m_helper.face()->center());
+            const Vec2f faceCenterPosition(toPlane * m_helper.face()->boundsCenter());
 
             const float actualRadius = HandleRadius / cameraZoom;
             
@@ -208,7 +214,7 @@ namespace TrenchBroom {
             vboState.active();
 
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
-            const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), faceCoordSystem.toWorldMatrix());
+            const Renderer::MultiplyModelMatrix toWorldTransform(renderContext.transformation(), fromPlane);
             {
                 const Mat4x4 translation = translationMatrix(Vec3(originPosition));
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);

@@ -777,6 +777,14 @@ TEST(MatTest, invertedMatrix) {
                      -5.0,  1.0,  0.0,  0.0,
                      19.0, 10.0, 11.0,  8.0,
                       0.0,  1.0, -8.0,  3.0);
+    const Mat4x4d m3( 0.0, -1.0,  0.0,    0.0,
+                      0.0,  0.0,  1.0,  128.0,
+                     -1.0,  0.0,  0.0,    0.0,
+                      0.0,  0.0,  0.0,    1.0);
+    const Mat4x4d m4( 0.0,  0.0, -1.0,    0.0,
+                     -1.0,  0.0,  0.0,    0.0,
+                      0.0,  1.0,  0.0, -128.0,
+                      0.0,  0.0,  0.0,    1.0);
     const Mat4x4d r2( 0.0061937296468936, -0.10759210778367, 0.0031287912649256, 0.0019794393716876,
                       0.030968648234468,   0.46203946108167, 0.015643956324628,  0.0098971968584382,
                      -0.01066343145393,   -0.04156822680544, 0.025541153183066, -0.08588212757806,
@@ -790,6 +798,8 @@ TEST(MatTest, invertedMatrix) {
     ASSERT_MAT_EQ(m1, invertedMatrix(m1, invertible));
     ASSERT_FALSE(invertible);
     ASSERT_MAT_EQ(r2, invertedMatrix(m2, invertible));
+    ASSERT_TRUE(invertible);
+    ASSERT_MAT_EQ(m4, invertedMatrix(m3, invertible));
     ASSERT_TRUE(invertible);
 }
 
