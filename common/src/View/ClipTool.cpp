@@ -57,7 +57,7 @@ namespace TrenchBroom {
             // need to make a copy here so that it is not affected by the deselection
             const Model::ObjectList objects = document()->selectedObjects();
             
-            controller()->beginUndoableGroup(objects.size() == 1 ? "Clip Brush" : "Clip Brushes");
+            const UndoableCommandGroup commandGroup(controller(), objects.size() == 1 ? "Clip Brush" : "Clip Brushes");
             controller()->deselectAll();
             controller()->removeObjects(objects);
 

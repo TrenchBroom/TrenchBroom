@@ -45,6 +45,18 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class ControllerFacade;
+        class UndoableCommandGroup {
+        private:
+            ControllerFacade* m_controller;
+        public:
+            UndoableCommandGroup(ControllerSPtr controller, const String& name = "");
+            UndoableCommandGroup(ControllerFacade* controller, const String& name = "");
+            ~UndoableCommandGroup();
+            
+            void rollback();
+        };
+        
         /**
          Wraps an instance of CommandProcessor for executing commands and provides convenience methods for executing
          such commands.

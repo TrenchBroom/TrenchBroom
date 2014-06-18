@@ -245,9 +245,7 @@ namespace TrenchBroom {
                     pastedFace->setTexture(texture);
                     
                     const Model::BrushFaceList& selectedFaces = m_document->selectedFaces();
-                    m_controller->beginUndoableGroup("Paste faces");
                     m_controller->setFaceAttributes(selectedFaces, *pastedFace);
-                    m_controller->closeGroup();
                     
                     VectorUtils::deleteAll(faces);
 
@@ -290,10 +288,9 @@ namespace TrenchBroom {
             const Model::ObjectList objects = m_document->selectedObjects();
             assert(!objects.empty());
             
-            m_controller->beginUndoableGroup(String("Delete ") + String(objects.size() == 1 ? "object" : "objects"));
+            const UndoableCommandGroup commandGroup(m_controller, String("Delete ") + String(objects.size() == 1 ? "object" : "objects"));
             m_controller->deselectAll();
             m_controller->removeObjects(objects);
-            m_controller->closeGroup();
         }
 
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
@@ -333,11 +330,10 @@ namespace TrenchBroom {
                 ++it;
             }
             
-            m_controller->beginUndoableGroup("Select touching objects");
+            const UndoableCommandGroup commandGroup(m_controller, "Select touching objects");
             m_controller->deselectAll();
             m_controller->removeObject(selectionBrush);
             m_controller->selectObjects(selectObjects);
-            m_controller->closeGroup();
         }
         
         void MapFrame::OnEditSelectContained(wxCommandEvent& event) {
@@ -356,11 +352,10 @@ namespace TrenchBroom {
                 ++it;
             }
             
-            m_controller->beginUndoableGroup("Select contained objects");
+            const UndoableCommandGroup commandGroup(m_controller, "Select contained objects");
             m_controller->deselectAll();
             m_controller->removeObject(selectionBrush);
             m_controller->selectObjects(selectObjects);
-            m_controller->closeGroup();
         }
         
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
@@ -382,10 +377,9 @@ namespace TrenchBroom {
             }
 
             if (!selectObjects.empty()) {
-                m_controller->beginUndoableGroup("Select objects by line numbers");
+                const UndoableCommandGroup commandGroup(m_controller, "Select objects by line numbers");
                 m_controller->deselectAll();
                 m_controller->selectObjects(selectObjects);
-                m_controller->closeGroup();
                 
                 StringStream message;
                 message << "Selected " << selectObjects.size() << " " << (selectObjects.size() == 1 ? "object" : "objects");
@@ -425,50 +419,45 @@ namespace TrenchBroom {
         
         void MapFrame::OnEditDuplicateObjectsForward(wxCommandEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            controller->beginUndoableGroup("Duplicate Objects");
+
+            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
             duplicateObjects();
             m_mapView->moveObjects(Math::Direction_Forward);
-            controller->closeGroup();
         }
         
         void MapFrame::OnEditDuplicateObjectsBackward(wxCommandEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            controller->beginUndoableGroup("Duplicate Objects");
+            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
             duplicateObjects();
             m_mapView->moveObjects(Math::Direction_Backward);
-            controller->closeGroup();
         }
         
         void MapFrame::OnEditDuplicateObjectsLeft(wxCommandEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            controller->beginUndoableGroup("Duplicate Objects");
+            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
             duplicateObjects();
             m_mapView->moveObjects(Math::Direction_Left);
-            controller->closeGroup();
         }
         
         void MapFrame::OnEditDuplicateObjectsRight(wxCommandEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            controller->beginUndoableGroup("Duplicate Objects");
+            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
             duplicateObjects();
             m_mapView->moveObjects(Math::Direction_Right);
-            controller->closeGroup();
         }
         
         void MapFrame::OnEditDuplicateObjectsUp(wxCommandEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            controller->beginUndoableGroup("Duplicate Objects");
+            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
             duplicateObjects();
             m_mapView->moveObjects(Math::Direction_Up);
-            controller->closeGroup();
         }
         
         void MapFrame::OnEditDuplicateObjectsDown(wxCommandEvent& event) {
             ControllerSPtr controller = lock(m_controller);
-            controller->beginUndoableGroup("Duplicate Objects");
+            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
             duplicateObjects();
             m_mapView->moveObjects(Math::Direction_Down);
-            controller->closeGroup();
         }
         
         void MapFrame::OnEditRollObjectsCW(wxCommandEvent& event) {
@@ -1186,14 +1175,12 @@ namespace TrenchBroom {
             Model::ObjectList selectableObjects;
             collectPastedObjects(objects, pastedObjects, selectableObjects);
             
-            const String groupName = String("Paste ") + String(objects.size() == 1 ? "Object" : "Objects");
-            m_controller->beginUndoableGroup(groupName);
+            const UndoableCommandGroup commandGroup(m_controller, String("Paste ") + String(objects.size() == 1 ? "Object" : "Objects"));
             m_controller->deselectAll();
             m_controller->addObjects(pastedObjects);
             m_controller->selectObjects(selectableObjects);
             if (!delta.null())
                 m_controller->moveObjects(selectableObjects, delta, m_document->textureLock());
-            m_controller->closeGroup();
             
             StringStream logMsg;
             logMsg << "Pasted " << pastedObjects.size() << (pastedObjects.size() == 1 ? " object" : " objects") << " from clipboard";

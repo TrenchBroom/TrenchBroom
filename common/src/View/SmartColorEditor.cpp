@@ -226,17 +226,15 @@ namespace TrenchBroom {
         };
         
         void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
-            controller()->beginUndoableGroup("Convert " + key() + " Range");
+            const UndoableCommandGroup commandGroup(controller(), "Convert " + key() + " Range");
             const Model::EntityList& entities = SmartPropertyEditor::entities();
             Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), key(), ColorRange_Float), Model::MatchAll());
-            controller()->closeGroup();
         }
         
         void SmartColorEditor::OnByteRangeRadioButton(wxCommandEvent& event) {
-            controller()->beginUndoableGroup("Convert " + key() + " Range");
+            const UndoableCommandGroup commandGroup(controller(), "Convert " + key() + " Range");
             const Model::EntityList& entities = SmartPropertyEditor::entities();
             Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), key(), ColorRange_Byte), Model::MatchAll());
-            controller()->closeGroup();
         }
         
         struct SetColor {
@@ -409,10 +407,9 @@ namespace TrenchBroom {
         void SmartColorEditor::setColor(const wxColor& wxColor) const {
             ColorPtr color = Color::fromWxColor(wxColor, ColorRange_Byte);
             
-            controller()->beginUndoableGroup("Set " + key());
+            const UndoableCommandGroup commandGroup(controller(), "Set " + key());
             const Model::EntityList& entities = SmartPropertyEditor::entities();
             Model::each(entities.begin(), entities.end(), SetColor(controller(), key(), color), Model::MatchAll());
-            controller()->closeGroup();
         }
     }
 }

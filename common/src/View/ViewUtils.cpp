@@ -71,7 +71,7 @@ namespace TrenchBroom {
             const IO::Path docPath = document->path();
 
             ControllerSPtr controller = lock(i_controller);
-            controller->beginUndoableGroup();
+            UndoableCommandGroup commandGroup(controller);
             try {
                 for (size_t i = 0; i < wxPaths.size(); ++i) {
                     const wxString& wxPath = wxPaths[i];
@@ -86,8 +86,7 @@ namespace TrenchBroom {
                     }
                 }
             } catch (...) {
-                controller->rollbackGroup();
-                controller->closeGroup();
+                commandGroup.rollback();
                 throw;
             }
             

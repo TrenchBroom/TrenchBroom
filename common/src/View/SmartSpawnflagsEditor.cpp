@@ -84,11 +84,10 @@ namespace TrenchBroom {
             
             const SetBool ignoreUpdates(m_ignoreUpdates);
             
-            controller()->beginUndoableGroup("Set Spawnflags");
+            const UndoableCommandGroup commandGroup(controller(), "Set Spawnflags");
             Model::each(updateEntities.begin(), updateEntities.end(),
                         UpdateSpawnflag(controller(), key(), index, set),
                         Model::MatchAll());
-            controller()->closeGroup();
         }
         
         wxWindow* SmartSpawnflagsEditor::doCreateVisual(wxWindow* parent) {

@@ -403,15 +403,14 @@ namespace TrenchBroom {
             const StringList newKeys = m_rows.insertRows(pos, numRows, entities);
 
             const SetBool ignoreUpdates(m_ignoreUpdates);
-            controller->beginUndoableGroup(numRows == 1 ? "Add Property" : "Add Properties");
 
+            const UndoableCommandGroup commandGroup(controller);
             StringList::const_iterator it, end;
             for (it = newKeys.begin(), end = newKeys.end(); it != end; ++it) {
                 const String& key = *it;
                 controller->setEntityProperty(entities, key, "");
             }
             
-            controller->closeGroup();
             notifyRowsInserted(pos, numRows);
             
             return true;
@@ -437,7 +436,7 @@ namespace TrenchBroom {
             assert(keys.size() == numRows);
             
             const SetBool ignoreUpdates(m_ignoreUpdates);
-            controller->beginUndoableGroup(numRows == 1 ? "Remove Property" : "Remove Properties");
+            const UndoableCommandGroup commandGroup(controller, numRows == 1 ? "Remove Property" : "Remove Properties");
             
             bool success = true;
             for (size_t i = 0; i < numRows && success; i++)
@@ -447,7 +446,6 @@ namespace TrenchBroom {
                 controller->rollbackGroup();
                 return false;
             }
-            controller->closeGroup();
 
             m_rows.deleteRows(pos, numRows);
             notifyRowsDeleted(pos, numRows);

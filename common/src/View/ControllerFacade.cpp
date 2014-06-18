@@ -51,6 +51,24 @@
 
 namespace TrenchBroom {
     namespace View {
+        UndoableCommandGroup::UndoableCommandGroup(ControllerSPtr controller, const String& name) :
+        m_controller(controller.get()) {
+            m_controller->beginUndoableGroup(name);
+        }
+        
+        UndoableCommandGroup::UndoableCommandGroup(ControllerFacade* controller, const String& name) :
+        m_controller(controller) {
+            m_controller->beginUndoableGroup(name);
+        }
+
+        UndoableCommandGroup::~UndoableCommandGroup() {
+            m_controller->closeGroup();
+        }
+
+        void UndoableCommandGroup::rollback() {
+            m_controller->rollbackGroup();
+        }
+
         ControllerFacade::MoveVerticesResult::MoveVerticesResult(bool i_success, bool i_hasRemainingVertices) :
         success(i_success),
         hasRemainingVertices(i_hasRemainingVertices) {
@@ -150,11 +168,10 @@ namespace TrenchBroom {
 
             Command::Ptr deselectCommand = SelectionCommand::deselectAll(m_document);
             Command::Ptr selectCommand = SelectionCommand::select(m_document, objects);
-            
-            m_commandProcessor.beginUndoableGroup(selectCommand->name());
+
+            const UndoableCommandGroup commandGroup(this);
             m_commandProcessor.submitAndStoreCommand(deselectCommand);
             m_commandProcessor.submitAndStoreCommand(selectCommand);
-            m_commandProcessor.closeGroup();
             
             return true;
         }
@@ -190,10 +207,10 @@ namespace TrenchBroom {
             Command::Ptr deselectCommand = SelectionCommand::deselectAll(m_document);
             Command::Ptr selectCommand = SelectionCommand::select(m_document, Model::BrushFaceList(1, face));
             
-            m_commandProcessor.beginUndoableGroup(selectCommand->name());
+            const UndoableCommandGroup commandGroup(this);
             m_commandProcessor.submitAndStoreCommand(deselectCommand);
             m_commandProcessor.submitAndStoreCommand(selectCommand);
-            m_commandProcessor.closeGroup();
+
             return true;
         }
         
@@ -277,9 +294,9 @@ namespace TrenchBroom {
         bool ControllerFacade::reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent) {
             using namespace Controller;
             
+            const UndoableCommandGroup commandGroup(this);
+
             ReparentBrushesCommand::Ptr command = ReparentBrushesCommand::reparent(m_document, brushes, newParent);
-            beginUndoableGroup(command->name());
-            
             const bool success = m_commandProcessor.submitAndStoreCommand(command);
             if (success) {
                 const Model::EntityList& emptyEntities = command->emptyEntities();
@@ -287,7 +304,6 @@ namespace TrenchBroom {
                     removeObjects(VectorUtils::cast<Model::Object*>(emptyEntities));
             }
             
-            closeGroup();
             return success;
         }
 

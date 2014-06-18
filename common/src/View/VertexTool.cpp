@@ -59,10 +59,9 @@ namespace TrenchBroom {
         }
 
         void VertexTool::moveVerticesAndRebuildBrushGeometry(const Vec3& delta) {
-            controller()->beginUndoableGroup();
+            const UndoableCommandGroup commandGroup(controller());
             moveVertices(delta);
             controller()->rebuildBrushGeometry(document()->selectedBrushes());
-            controller()->closeGroup();
             m_mode = Mode_Move;
         }
 
@@ -75,13 +74,12 @@ namespace TrenchBroom {
         
         void VertexTool::snapVertices(const size_t snapTo) {
             assert(canSnapVertices());
-            controller()->beginUndoableGroup();
+            const UndoableCommandGroup commandGroup(controller());
             if (m_handleManager.selectedVertexCount() > 0)
                 controller()->snapVertices(m_handleManager.selectedVertexHandles(), snapTo);
             else
                 controller()->snapVertices(document()->selectedBrushes(), snapTo);
             controller()->rebuildBrushGeometry(document()->selectedBrushes());
-            controller()->closeGroup();
         }
 
         MoveResult VertexTool::moveVertices(const Vec3& delta) {

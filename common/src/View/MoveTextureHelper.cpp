@@ -271,7 +271,8 @@ namespace TrenchBroom {
             const Grid& grid = document->grid();
             
             View::ControllerSPtr controller = lock(m_controller);
-            controller->beginUndoableGroup("Move Texture");
+            const UndoableCommandGroup commandGroup(controller, "Move Texture");
+
             Model::BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
@@ -285,7 +286,6 @@ namespace TrenchBroom {
                 if (offset.y() != 0.0)
                     controller->setFaceYOffset(applyTo, -offset.y(), true);
             }
-            controller->closeGroup();
         }
         
         Vec3 MoveTextureHelper::rotateDelta(const Vec3& delta, const Model::BrushFace* face, const Vec3::List& normals) const {

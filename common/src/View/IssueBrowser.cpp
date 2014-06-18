@@ -336,13 +336,11 @@ namespace TrenchBroom {
         
         void IssueBrowser::OnSelectIssues(wxCommandEvent& event) {
             View::ControllerSPtr controller = lock(m_controller);
-            controller->beginUndoableGroup("Select fixable objects");
+            const UndoableCommandGroup commandGroup(controller);
 
             wxDataViewItemArray selections;
             m_tree->GetSelections(selections);
             selectIssueObjects(selections, controller);
-            
-            controller->closeGroup();
         }
         
         void IssueBrowser::OnShowIssues(wxCommandEvent& event) {
@@ -364,7 +362,7 @@ namespace TrenchBroom {
             const Model::QuickFix* quickFix = quickFixes[index];
             
             View::ControllerSPtr controller = lock(m_controller);
-            controller->beginUndoableGroup("");
+            const UndoableCommandGroup commandGroup(controller);
 
             selectIssueObjects(selections, controller);
             
@@ -375,8 +373,6 @@ namespace TrenchBroom {
                 Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
                 issue->applyQuickFix(quickFix, controller);
             }
-            
-            controller->closeGroup();
             
             m_tree->UnselectAll();
             m_tree->SetSelections(selections);

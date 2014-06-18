@@ -520,11 +520,10 @@ namespace TrenchBroom {
             StringStream name;
             name << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to " << newParent->classname("<missing classname>");
             
-            controller->beginUndoableGroup(name.str());
+            const UndoableCommandGroup commandGroup(controller, name.str());
             controller->deselectAll();
             controller->reparentBrushes(brushes, newParent);
             controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
-            controller->closeGroup();
         }
 
         Assets::EntityDefinition* MapView::findEntityDefinition(const Assets::EntityDefinitionGroups& groups, const size_t index) const {
@@ -562,12 +561,11 @@ namespace TrenchBroom {
             StringStream name;
             name << "Create " << definition.name();
             
-            controller->beginUndoableGroup(name.str());
+            const UndoableCommandGroup commandGroup(controller, name.str());
             controller->deselectAll();
             controller->addEntity(entity);
             controller->selectObject(entity);
             controller->moveObjects(Model::ObjectList(1, entity), delta, false);
-            controller->closeGroup();
         }
         
         Vec3 MapView::moveDirection(const Math::Direction direction) const {
@@ -702,12 +700,11 @@ namespace TrenchBroom {
             StringStream name;
             name << "Create " << definition.name();
             
-            controller->beginUndoableGroup(name.str());
+            const UndoableCommandGroup commandGroup(controller, name.str());
             controller->deselectAll();
             controller->addEntity(entity);
             controller->reparentBrushes(brushes, entity);
             controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
-            controller->closeGroup();
         }
 
         void MapView::resetCamera() {
