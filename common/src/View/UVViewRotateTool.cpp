@@ -27,6 +27,7 @@
 #include "Model/TexCoordSystemHelper.h"
 #include "Renderer/Circle.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/Ring.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"
@@ -38,8 +39,9 @@
 namespace TrenchBroom {
     namespace View {
         const Hit::HitType UVViewRotateTool::AngleHandleHit = Hit::freeHitType();
-        const float UVViewRotateTool::HandleRadius = 5.0f;
-        const float UVViewRotateTool::HandleLength = 32.0f;
+        const float UVViewRotateTool::CenterHandleRadius =  5.0f;
+        const float UVViewRotateTool::RotateHandleRadius = 32.0f;
+        const float UVViewRotateTool::RotateHandleWidth  =  5.0f;
 
         UVViewRotateTool::UVViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
         ToolImpl(document, controller),
@@ -50,20 +52,23 @@ namespace TrenchBroom {
                 return;
 
             const Model::BrushFace* face = m_helper.face();
+            const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+
             const Plane3& boundary = face->boundary();
-            
+            const Mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+
             const Ray3& pickRay = inputState.pickRay();
             const FloatType distance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
             assert(!Math::isnan(distance));
             const Vec3 hitPoint = pickRay.pointAtDistance(distance);
             
-            Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
-            const Vec2f hitPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(hitPoint));
-            
-            const Vec2f angleHandleInFaceCoords = angleHandle();
-            const float angleHandleError = hitPointInFaceCoords.distanceTo(angleHandleInFaceCoords);
-            if (Math::abs(angleHandleError) <= 2.0f * HandleRadius / m_helper.cameraZoom())
-                hits.addHit(Hit(AngleHandleHit, distance, hitPoint, 0, angleHandleError));
+            const Vec3 originOnPlane   = toPlane * fromFace * Vec3(m_helper.originInFaceCoords());
+            const Vec3 hitPointOnPlane = toPlane * hitPoint;
+
+            const float zoom = m_helper.cameraZoom();
+            const FloatType error = std::abs(RotateHandleRadius / zoom - hitPointOnPlane.distanceTo(originOnPlane));
+            if (error <= RotateHandleWidth / zoom)
+                hits.addHit(Hit(AngleHandleHit, distance, hitPoint, 0, error));
         }
         
         bool UVViewRotateTool::doStartMouseDrag(const InputState& inputState) {
@@ -83,8 +88,8 @@ namespace TrenchBroom {
             Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
 
             const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(angleHandleHit.hitPoint());
-            const Vec2f angleHandleInFaceCoords = angleHandle();
-            m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
+            // const Vec2f angleHandleInFaceCoords = angleHandle();
+            // m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
             controller()->beginUndoableGroup("Rotate Texture");
             
             return true;
@@ -180,37 +185,28 @@ namespace TrenchBroom {
             const float cameraZoom = m_helper.cameraZoom();
 
             const Model::BrushFace* face = m_helper.face();
+            const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, false);
+
             const Plane3& boundary = face->boundary();
             const Mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
             const Mat4x4 fromPlane = invertedMatrix(toPlane);
             
-            const Mat4x4 fromFace = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, false);
             
             const Vec2f originPosition(toPlane * fromFace * Vec3(m_helper.originInFaceCoords()));
-            const Vec2f angleHandlePosition = angleHandle();
             const Vec2f faceCenterPosition(toPlane * m_helper.face()->boundsCenter());
 
-            const float actualRadius = HandleRadius / cameraZoom;
-            
             Renderer::Vbo vbo(0xFFF);
             Renderer::SetVboState vboState(vbo);
-            Renderer::Circle center(actualRadius / 2.0f, 10, true);
-            Renderer::Circle fill(actualRadius, 16, true);
-            Renderer::Circle highlight(actualRadius * 2.0f, 16, false);
-            Renderer::Circle outer(HandleLength / cameraZoom, 64, false);
+            Renderer::Circle center(CenterHandleRadius / cameraZoom / 2.0f, 10, true);
+            Renderer::Circle fill(CenterHandleRadius / cameraZoom, 16, true);
+            Renderer::Circle centerHighlight(CenterHandleRadius / cameraZoom * 2.0f, 16, false);
+            Renderer::Circle outer(RotateHandleRadius / cameraZoom, 32, false);
 
-            typedef Renderer::VertexSpecs::P2::Vertex Vertex;
-            Vertex::List lineVertices(2);
-            lineVertices[0] = Vertex(originPosition);
-            lineVertices[1] = Vertex(angleHandlePosition);
-            Renderer::VertexArray array = Renderer::VertexArray::ref(GL_LINES, lineVertices);
-            
             vboState.mapped();
             center.prepare(vbo);
             fill.prepare(vbo);
-            highlight.prepare(vbo);
+            centerHighlight.prepare(vbo);
             outer.prepare(vbo);
-            array.prepare(vbo);
             vboState.active();
 
             Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
@@ -220,35 +216,18 @@ namespace TrenchBroom {
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
                 shader.set("Color", handleColor);
                 fill.render();
+
+                if (highlightAngleHandle)
+                    shader.set("Color", highlightColor);
                 outer.render();
             }
             
-            {
-                const Mat4x4 translation = translationMatrix(Vec3(angleHandlePosition));
-                const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
-                shader.set("Color", handleColor);
-                fill.render();
-                
-                if (highlightAngleHandle) {
-                    shader.set("Color", highlightColor);
-                    highlight.render();
-                }
-            }
-            
-            shader.set("Color", handleColor);
-            array.render();
-
             {
                 const Mat4x4 translation = translationMatrix(Vec3(faceCenterPosition));
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
                 shader.set("Color", highlightColor);
                 center.render();
             }
-        }
-
-        Vec2f UVViewRotateTool::angleHandle() const {
-            const float distance = HandleLength / m_helper.cameraZoom();
-            return m_helper.originInFaceCoords() + distance * Vec2f::PosX;
         }
     }
 }

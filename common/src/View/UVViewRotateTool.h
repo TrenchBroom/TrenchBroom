@@ -36,8 +36,9 @@ namespace TrenchBroom {
         public:
             static const Hit::HitType AngleHandleHit;
         private:
-            static const float HandleRadius;
-            static const float HandleLength;
+            static const float CenterHandleRadius;
+            static const float RotateHandleRadius;
+            static const float RotateHandleWidth;
             
             UVViewHelper& m_helper;
 
@@ -57,8 +58,6 @@ namespace TrenchBroom {
             void doCancelMouseDrag(const InputState& inputState);
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
-
-            Vec2f angleHandle() const;
         };
     }
 }
