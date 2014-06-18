@@ -142,7 +142,7 @@ namespace TrenchBroom {
         void UVViewHelper::computeOriginHandleVertices(Vec3& x1, Vec3& x2, Vec3& y1, Vec3& y2) const {
             assert(valid());
             
-            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toTex   = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             const Mat4x4 toWorld = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             computeLineVertices(m_origin, x1, x2, y1, y2, toTex, toWorld);
         }
