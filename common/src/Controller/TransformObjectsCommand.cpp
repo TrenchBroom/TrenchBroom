@@ -53,8 +53,8 @@ namespace TrenchBroom {
 
             Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentWillChange, Model::MatchAll());
-
             document->objectWillChangeNotifier(m_objects.begin(), m_objects.end());
+
             Model::each(m_objects.begin(), m_objects.end(), Model::Transform(m_transformation, m_lockTextures, worldBounds), Model::MatchAll());
             
             assert(Model::each(m_objects.begin(), m_objects.end(), Model::CheckBounds(worldBounds)));
