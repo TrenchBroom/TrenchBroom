@@ -392,50 +392,7 @@ namespace TrenchBroom {
         void MapFrame::OnEditSelectNone(wxCommandEvent& event) {
             m_controller->deselectAll();
         }
-        
-        void MapFrame::OnEditDuplicateObjectsForward(wxCommandEvent& event) {
-            ControllerSPtr controller = lock(m_controller);
 
-            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
-            duplicateObjects();
-            m_mapView->moveObjects(Math::Direction_Forward);
-        }
-        
-        void MapFrame::OnEditDuplicateObjectsBackward(wxCommandEvent& event) {
-            ControllerSPtr controller = lock(m_controller);
-            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
-            duplicateObjects();
-            m_mapView->moveObjects(Math::Direction_Backward);
-        }
-        
-        void MapFrame::OnEditDuplicateObjectsLeft(wxCommandEvent& event) {
-            ControllerSPtr controller = lock(m_controller);
-            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
-            duplicateObjects();
-            m_mapView->moveObjects(Math::Direction_Left);
-        }
-        
-        void MapFrame::OnEditDuplicateObjectsRight(wxCommandEvent& event) {
-            ControllerSPtr controller = lock(m_controller);
-            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
-            duplicateObjects();
-            m_mapView->moveObjects(Math::Direction_Right);
-        }
-        
-        void MapFrame::OnEditDuplicateObjectsUp(wxCommandEvent& event) {
-            ControllerSPtr controller = lock(m_controller);
-            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
-            duplicateObjects();
-            m_mapView->moveObjects(Math::Direction_Up);
-        }
-        
-        void MapFrame::OnEditDuplicateObjectsDown(wxCommandEvent& event) {
-            ControllerSPtr controller = lock(m_controller);
-            const UndoableCommandGroup commandGroup(m_controller, "Duplicate Objects");
-            duplicateObjects();
-            m_mapView->moveObjects(Math::Direction_Down);
-        }
-        
         void MapFrame::OnEditRollObjectsCW(wxCommandEvent& event) {
             m_mapView->rotateObjects(RotationAxis_Roll, true);
         }
@@ -736,12 +693,6 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditRotateTexturesCCWFine:
                     event.Enable(document->hasSelectedFaces());
                     break;
-                case CommandIds::Menu::EditDuplicateObjectsForward:
-                case CommandIds::Menu::EditDuplicateObjectsBackward:
-                case CommandIds::Menu::EditDuplicateObjectsLeft:
-                case CommandIds::Menu::EditDuplicateObjectsRight:
-                case CommandIds::Menu::EditDuplicateObjectsUp:
-                case CommandIds::Menu::EditDuplicateObjectsDown:
                 case CommandIds::Menu::EditRollObjectsCW:
                 case CommandIds::Menu::EditRollObjectsCCW:
                 case CommandIds::Menu::EditPitchObjectsCW:
@@ -976,13 +927,6 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCCW, this, CommandIds::Menu::EditRotateTexturesCCW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCCWFine, this, CommandIds::Menu::EditRotateTexturesCCWFine);
 
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsForward, this, CommandIds::Menu::EditDuplicateObjectsForward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsBackward, this, CommandIds::Menu::EditDuplicateObjectsBackward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsLeft, this, CommandIds::Menu::EditDuplicateObjectsLeft);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsRight, this, CommandIds::Menu::EditDuplicateObjectsRight);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsUp, this, CommandIds::Menu::EditDuplicateObjectsUp);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsDown, this, CommandIds::Menu::EditDuplicateObjectsDown);
-
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRollObjectsCW, this, CommandIds::Menu::EditRollObjectsCW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRollObjectsCCW, this, CommandIds::Menu::EditRollObjectsCCW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPitchObjectsCW, this, CommandIds::Menu::EditPitchObjectsCW);
@@ -1181,17 +1125,6 @@ namespace TrenchBroom {
                     selectableObjects.push_back(object);
                 }
             }
-        }
-
-        void MapFrame::duplicateObjects() {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::ObjectList& objects = document->selectedObjects();
-            if (objects.empty())
-                return;
-            
-            ControllerSPtr controller = lock(m_controller);
-            const Model::ObjectList duplicates = controller->duplicateObjects(objects, document->worldBounds());
-            controller->deselectAllAndSelectObjects(duplicates);
         }
 
         void MapFrame::rotateTextures(const bool clockwise, const bool snapAngle) {

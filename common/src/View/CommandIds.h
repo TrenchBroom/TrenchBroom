@@ -52,7 +52,7 @@ namespace TrenchBroom {
                 const int EditYawObjectsCCW                  = Lowest +  35;
                 const int EditFlipObjectsHorizontally        = Lowest +  36;
                 const int EditFlipObjectsVertically          = Lowest +  37;
-                const int EditDuplicateObjects               = Lowest +  38;
+                const int DuplicateObjects               = Lowest +  38;
                 const int EditActions                        = Lowest +  39;
                 const int EditCreatePointEntity              = Lowest +  40;
                 const int EditCreateBrushEntity              = Lowest +  41;
@@ -103,12 +103,6 @@ namespace TrenchBroom {
                 const int ViewSwitchToMapInspector           = Lowest +  86;
                 const int ViewSwitchToEntityInspector        = Lowest +  87;
                 const int ViewSwitchToFaceInspector          = Lowest +  88;
-                const int EditDuplicateObjectsForward        = Lowest +  89;
-                const int EditDuplicateObjectsRight          = Lowest +  90;
-                const int EditDuplicateObjectsBackward       = Lowest +  91;
-                const int EditDuplicateObjectsLeft           = Lowest +  92;
-                const int EditDuplicateObjectsUp             = Lowest +  93;
-                const int EditDuplicateObjectsDown           = Lowest +  94;
                 const int EditNavigateUp                     = Lowest +  95;
                 const int FileOpenRecent                     = Lowest +  96;
                 const int EditVertexActions                  = Lowest +  97;
@@ -126,16 +120,22 @@ namespace TrenchBroom {
             
             namespace Actions {
                 const int Lowest                             = Menu::Highest + 1;
-                const int MapViewToggleClipTool              = Lowest +   1;
-                const int MapViewToggleClipSide              = Lowest +   2;
-                const int MapViewPerformClip                 = Lowest +   3;
-                const int MapViewDeleteLastClipPoint         = Lowest +   4;
-                const int MapViewMoveObjectsForward          = Lowest +   5;
-                const int MapViewMoveObjectsRight            = Lowest +   6;
-                const int MapViewMoveObjectsBackward         = Lowest +   7;
-                const int MapViewMoveObjectsLeft             = Lowest +   8;
-                const int MapViewMoveObjectsUp               = Lowest +   9;
-                const int MapViewMoveObjectsDown             = Lowest +  10;
+                const int ToggleClipTool                     = Lowest +   1;
+                const int ToggleClipSide                     = Lowest +   2;
+                const int PerformClip                        = Lowest +   3;
+                const int DeleteLastClipPoint                = Lowest +   4;
+                const int MoveObjectsForward                 = Lowest +   5;
+                const int MoveObjectsRight                   = Lowest +   6;
+                const int MoveObjectsBackward                = Lowest +   7;
+                const int MoveObjectsLeft                    = Lowest +   8;
+                const int MoveObjectsUp                      = Lowest +   9;
+                const int MoveObjectsDown                    = Lowest +  10;
+                const int DuplicateObjectsForward            = Lowest +  11;
+                const int DuplicateObjectsRight              = Lowest +  12;
+                const int DuplicateObjectsBackward           = Lowest +  13;
+                const int DuplicateObjectsLeft               = Lowest +  14;
+                const int DuplicateObjectsUp                 = Lowest +  15;
+                const int DuplicateObjectsDown               = Lowest +  16;
                 const int Highest                            = Lowest + 200;
             }
 

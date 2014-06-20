@@ -338,6 +338,49 @@ namespace TrenchBroom {
             moveObjects(Math::Direction_Down);
         }
 
+        
+        void MapView::OnDuplicateObjectsForward(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Forward);
+        }
+        
+        void MapView::OnDuplicateObjectsBackward(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Backward);
+        }
+        
+        void MapView::OnDuplicateObjectsLeft(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Left);
+        }
+        
+        void MapView::OnDuplicateObjectsRight(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Right);
+        }
+        
+        void MapView::OnDuplicateObjectsUp(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Up);
+        }
+        
+        void MapView::OnDuplicateObjectsDown(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Down);
+        }
+        
+        void MapView::duplicateAndMoveObjects(const Math::Direction direction) {
+            ControllerSPtr controller = lock(m_controller);
+            const UndoableCommandGroup commandGroup(controller, "Duplicate Objects");
+            duplicateObjects();
+            moveObjects(direction);
+        }
+
+        void MapView::duplicateObjects() {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::ObjectList& objects = document->selectedObjects();
+            if (objects.empty())
+                return;
+            
+            ControllerSPtr controller = lock(m_controller);
+            const Model::ObjectList duplicates = controller->duplicateObjects(objects, document->worldBounds());
+            controller->deselectAllAndSelectObjects(duplicates);
+        }
+        
         void MapView::moveObjects(const Math::Direction direction) {
             MapDocumentSPtr document = lock(m_document);
             const Model::ObjectList& objects = document->selectedObjects();
@@ -1046,22 +1089,29 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsForward,   this, CommandIds::Actions::MapViewMoveObjectsForward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsBackward,  this, CommandIds::Actions::MapViewMoveObjectsBackward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsLeft,      this, CommandIds::Actions::MapViewMoveObjectsLeft);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsRight,     this, CommandIds::Actions::MapViewMoveObjectsRight);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsUp,        this, CommandIds::Actions::MapViewMoveObjectsUp);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsDown,      this, CommandIds::Actions::MapViewMoveObjectsDown);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsForward,       this, CommandIds::Actions::MoveObjectsForward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsBackward,      this, CommandIds::Actions::MoveObjectsBackward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsLeft,          this, CommandIds::Actions::MoveObjectsLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsRight,         this, CommandIds::Actions::MoveObjectsRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsUp,            this, CommandIds::Actions::MoveObjectsUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsDown,          this, CommandIds::Actions::MoveObjectsDown);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipTool, this, CommandIds::Actions::MapViewToggleClipTool);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipSide, this, CommandIds::Actions::MapViewToggleClipSide);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPerformClip, this, CommandIds::Actions::MapViewPerformClip);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDeleteLastClipPoint, this, CommandIds::Actions::MapViewDeleteLastClipPoint);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsForward,  this, CommandIds::Actions::DuplicateObjectsForward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsBackward, this, CommandIds::Actions::DuplicateObjectsBackward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsLeft,     this, CommandIds::Actions::DuplicateObjectsLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsRight,    this, CommandIds::Actions::DuplicateObjectsRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsUp,       this, CommandIds::Actions::DuplicateObjectsUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsDown,     this, CommandIds::Actions::DuplicateObjectsDown);
 
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupReparentBrushes, this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupMoveBrushesToWorld, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupCreatePointEntity, this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupCreateBrushEntity, this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipTool,           this, CommandIds::Actions::ToggleClipTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipSide,           this, CommandIds::Actions::ToggleClipSide);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPerformClip,              this, CommandIds::Actions::PerformClip);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDeleteLastClipPoint,      this, CommandIds::Actions::DeleteLastClipPoint);
+
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupReparentBrushes,     this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupMoveBrushesToWorld,  this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupCreatePointEntity,   this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupCreateBrushEntity,   this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
             
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);

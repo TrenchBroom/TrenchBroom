@@ -143,8 +143,18 @@ namespace TrenchBroom {
             void OnMoveObjectsRight(wxCommandEvent& event);
             void OnMoveObjectsUp(wxCommandEvent& event);
             void OnMoveObjectsDown(wxCommandEvent& event);
-            void moveObjects(Math::Direction direction);
 
+            void OnDuplicateObjectsForward(wxCommandEvent& event);
+            void OnDuplicateObjectsBackward(wxCommandEvent& event);
+            void OnDuplicateObjectsLeft(wxCommandEvent& event);
+            void OnDuplicateObjectsRight(wxCommandEvent& event);
+            void OnDuplicateObjectsUp(wxCommandEvent& event);
+            void OnDuplicateObjectsDown(wxCommandEvent& event);
+        private:
+            void duplicateAndMoveObjects(Math::Direction direction);
+            void duplicateObjects();
+            void moveObjects(Math::Direction direction);
+        public:
             void OnToggleClipTool(wxCommandEvent& event);
             void OnToggleClipSide(wxCommandEvent& event);
             void OnPerformClip(wxCommandEvent& event);

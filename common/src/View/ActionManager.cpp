@@ -127,22 +127,29 @@ namespace TrenchBroom {
         }
         
         void ActionManager::createMapViewActions() {
-            createMapViewAction(CommandIds::Actions::MapViewToggleClipTool, Action::Context_Any, "Clip Tool", KeyboardShortcut('C'));
-            createMapViewAction(CommandIds::Actions::MapViewToggleClipSide, Action::Context_ClipTool, "Toggle Clip Side", KeyboardShortcut(WXK_RETURN, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::MapViewPerformClip, Action::Context_ClipTool, "Perform Clip", KeyboardShortcut(WXK_RETURN));
+            createMapViewAction(CommandIds::Actions::ToggleClipTool, Action::Context_Any, "Clip Tool", KeyboardShortcut('C'));
+            createMapViewAction(CommandIds::Actions::ToggleClipSide, Action::Context_ClipTool, "Toggle Clip Side", KeyboardShortcut(WXK_RETURN, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::PerformClip, Action::Context_ClipTool, "Perform Clip", KeyboardShortcut(WXK_RETURN));
 #ifdef __APPLE__
-            createMapViewAction(CommandIds::Actions::MapViewDeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_BACK));
+            createMapViewAction(CommandIds::Actions::DeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_BACK));
 #else
-            createMapViewAction(CommandIds::Actions::MapViewDeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_DELETE));
+            createMapViewAction(CommandIds::Actions::DeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_DELETE));
 #endif
             
-            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP));
-            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN));
-            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
-            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
-            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP));
-            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN));
+            createMapViewAction(CommandIds::Actions::MoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP));
+            createMapViewAction(CommandIds::Actions::MoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN));
+            createMapViewAction(CommandIds::Actions::MoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
+            createMapViewAction(CommandIds::Actions::MoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
+            createMapViewAction(CommandIds::Actions::MoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP));
+            createMapViewAction(CommandIds::Actions::MoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN));
             
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsForward, Action::Context_ObjectSelection, "Duplicate & Move Forward", KeyboardShortcut(WXK_UP, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsBackward, Action::Context_ObjectSelection, "Duplicate & Move Backward", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsLeft, Action::Context_ObjectSelection, "Duplicate & Move Left", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsRight, Action::Context_ObjectSelection, "Duplicate & Move Right", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsUp, Action::Context_ObjectSelection, "Duplicate & Move Up", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsDown, Action::Context_ObjectSelection, "Duplicate & Move Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
+
             /*
              objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP));
              objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN));
@@ -239,20 +246,6 @@ namespace TrenchBroom {
              faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCCWFine, Action::Context_FaceSelection, "Rotate Counter-clockwise by 1", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
              
              Menu& objectActionMenu = actionMenu.addMenu(CommandIds::Menu::EditObjectActions, "Objects");
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN));
-             objectActionMenu.addSeparator();
-             objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsForward, Action::Context_ObjectSelection, "Duplicate & Move Forward", KeyboardShortcut(WXK_UP, WXK_CONTROL));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsBackward, Action::Context_ObjectSelection, "Duplicate & Move Backward", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsLeft, Action::Context_ObjectSelection, "Duplicate & Move Left", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsRight, Action::Context_ObjectSelection, "Duplicate & Move Right", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsUp, Action::Context_ObjectSelection, "Duplicate & Move Up", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsDown, Action::Context_ObjectSelection, "Duplicate & Move Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
-             objectActionMenu.addSeparator();
              objectActionMenu.addActionItem(CommandIds::Menu::EditRollObjectsCW, Action::Context_ObjectSelection, "Rotate Clockwise by 90", KeyboardShortcut(WXK_UP, WXK_ALT));
              objectActionMenu.addActionItem(CommandIds::Menu::EditRollObjectsCCW, Action::Context_ObjectSelection, "Rotate Counter-clockwise by 90", KeyboardShortcut(WXK_DOWN, WXK_ALT));
              objectActionMenu.addActionItem(CommandIds::Menu::EditYawObjectsCW, Action::Context_ObjectSelection, "Rotate Left by 90", KeyboardShortcut(WXK_LEFT, WXK_ALT));

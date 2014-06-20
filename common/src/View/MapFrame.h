@@ -103,13 +103,6 @@ namespace TrenchBroom {
             void OnEditSelectByLineNumber(wxCommandEvent& event);
             void OnEditSelectNone(wxCommandEvent& event);
             
-            void OnEditDuplicateObjectsForward(wxCommandEvent& event);
-            void OnEditDuplicateObjectsBackward(wxCommandEvent& event);
-            void OnEditDuplicateObjectsLeft(wxCommandEvent& event);
-            void OnEditDuplicateObjectsRight(wxCommandEvent& event);
-            void OnEditDuplicateObjectsUp(wxCommandEvent& event);
-            void OnEditDuplicateObjectsDown(wxCommandEvent& event);
-            
             void OnEditRollObjectsCW(wxCommandEvent& event);
             void OnEditRollObjectsCCW(wxCommandEvent& event);
             void OnEditPitchObjectsCW(wxCommandEvent& event);
