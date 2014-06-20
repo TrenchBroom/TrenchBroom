@@ -152,7 +152,7 @@ namespace TrenchBroom {
             const Vec3 xAxis(getXAxis() * scale.x());
             const Vec3 yAxis(getYAxis() * scale.y());
             const Vec3 zAxis(getZAxis());
-            const Vec3 origin(xAxis * offset.x() + yAxis * offset.y());
+            const Vec3 origin(xAxis * -offset.x() + yAxis * -offset.y());
             
             return coordinateSystemMatrix(xAxis, yAxis, zAxis, origin);
         }

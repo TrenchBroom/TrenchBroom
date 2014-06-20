@@ -54,12 +54,15 @@ namespace TrenchBroom {
             const Vec2f curPoint = computeHitPoint(inputState.pickRay());
             const Vec2f delta    = curPoint - m_lastPoint;
             const Vec2f snapped  = snapDelta(delta);
+
+            const Model::BrushFace* face = m_helper.face();
+            const Vec2f corrected = (face->offset() - snapped).corrected(4, 0.0f);
             
-            if (snapped.null())
+            if (corrected == face->offset())
                 return true;
             
             const Model::BrushFaceList applyTo(1, m_helper.face());
-            controller()->setFaceOffset(applyTo, -snapped, true);
+            controller()->setFaceOffset(applyTo, corrected, false);
             
             m_lastPoint += snapped;
             return true;

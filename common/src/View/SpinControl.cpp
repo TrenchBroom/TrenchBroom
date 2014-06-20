@@ -220,13 +220,12 @@ namespace TrenchBroom {
             switch (event.GetKeyCode()) {
                 case WXK_UP:
                     Spin(+1.0, event);
-                    event.Skip();
                     break;
                 case WXK_DOWN:
                     Spin(-1.0, event);
-                    event.Skip();
                     break;
                 default:
+                    event.Skip();
                     break;
             }
         }

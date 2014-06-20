@@ -113,12 +113,13 @@ namespace TrenchBroom {
             for (size_t i = 0; i < 2; ++i)
                 if (m_selector[i])
                     newScale[i] = newHandleDistFaceCoords[i] / curHandleDistTexCoords[i];
+            newScale.correct(4, 0.0f);
             
             const Model::BrushFaceList applyTo(1, face);
             controller()->setFaceXScale(applyTo, newScale.x(), false);
             controller()->setFaceYScale(applyTo, newScale.y(), false);
             
-            const Vec2f newOriginInTexCoords = m_helper.originInTexCoords();
+            const Vec2f newOriginInTexCoords = m_helper.originInTexCoords().corrected(4, 0.0f);
             const Vec2f originDelta = originHandlePosTexCoords - newOriginInTexCoords;
 
             controller()->setFaceXOffset(applyTo, originDelta.x(), true);

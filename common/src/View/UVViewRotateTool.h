@@ -42,7 +42,7 @@ namespace TrenchBroom {
             
             UVViewHelper& m_helper;
 
-            Vec2f m_offset;
+            float m_initalAngle;
         public:
             UVViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:

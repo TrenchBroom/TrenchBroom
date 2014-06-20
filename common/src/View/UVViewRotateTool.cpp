@@ -85,11 +85,11 @@ namespace TrenchBroom {
                 return false;
 
             const Model::BrushFace* face = m_helper.face();
-            Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
+            const Mat4x4 toFace = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
 
-            const Vec2f hitPointInFaceCoords = faceCoordSystem.worldToTex(angleHandleHit.hitPoint());
-            // const Vec2f angleHandleInFaceCoords = angleHandle();
-            // m_offset = hitPointInFaceCoords - angleHandleInFaceCoords;
+            const Vec2f hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
+            m_initalAngle = measureAngle(hitPointInFaceCoords);
+
             controller()->beginUndoableGroup("Rotate Texture");
             
             return true;
@@ -104,22 +104,29 @@ namespace TrenchBroom {
             const FloatType curPointDistance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
             const Vec3 curPoint = pickRay.pointAtDistance(curPointDistance);
             
-            Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
-            const Vec2f curPointInFaceCoords = Vec2f(faceCoordSystem.worldToTex(curPoint));
-            
+            const Mat4x4 toFaceOld = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+
+            const Vec2f curPointInFaceCoords(toFaceOld * curPoint);
+            const float curAngle = measureAngle(curPointInFaceCoords);
+
+            const float angle = curAngle - m_initalAngle;
+            const float snappedAngle = Math::correct(snapAngle(angle), 4, 0.0f);
+
             const Vec2f oldCenterInFaceCoords = m_helper.originInFaceCoords();
-            const Vec3 oldCenterInWorldCoords = faceCoordSystem.texToWorld(Vec3(oldCenterInFaceCoords));
-            const float angle = measureAngle(curPointInFaceCoords);
-            const float snappedAngle = snapAngle(angle);
+            const Vec3 oldCenterInWorldCoords = toWorld * Vec3(oldCenterInFaceCoords);
             
             const Model::BrushFaceList applyTo(1, face);
             controller()->setFaceRotation(applyTo, snappedAngle, false);
             
             // Correct the offsets and the position of the rotation center.
-            const Vec2f newCenterInFaceCoords(faceCoordSystem.worldToTex(oldCenterInWorldCoords));
-            const Vec2f delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
-            controller()->setFaceOffset(applyTo, delta, true);
+            const Mat4x4 toFaceNew = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Vec2f newCenterInFaceCoords(toFaceNew * oldCenterInWorldCoords);
             m_helper.setOrigin(newCenterInFaceCoords);
+
+            const Vec2f delta = (oldCenterInFaceCoords - newCenterInFaceCoords) / face->scale();
+            const Vec2f newOffset = (face->offset() + delta).corrected(4, 0.0f);
+            controller()->setFaceOffset(applyTo, newOffset, false);
             
             return true;
         }
