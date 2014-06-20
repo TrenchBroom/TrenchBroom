@@ -135,6 +135,23 @@ namespace TrenchBroom {
 #else
             createMapViewAction(CommandIds::Actions::MapViewDeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_DELETE));
 #endif
+            
+            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP));
+            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN));
+            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
+            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
+            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP));
+            createMapViewAction(CommandIds::Actions::MapViewMoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN));
+            
+            /*
+             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP));
+             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN));
+             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
+             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
+             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP));
+             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN));
+             */
+            
         }
 
         void ActionManager::createMapViewAction(const int id, const int context, const String& name, const KeyboardShortcut& defaultShortcut) {
@@ -195,14 +212,6 @@ namespace TrenchBroom {
              */
             
             /*
-             Menu& toolMenu = editMenu.addMenu(wxID_ANY, "Tools");
-             toolMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleClipTool, Action::Context_Any, "Clip Tool", KeyboardShortcut('C'));
-             toolMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleVertexTool, Action::Context_Any, "Vertex Tool", KeyboardShortcut('V'));
-             toolMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleRotateObjectsTool, Action::Context_Any, "Rotate Tool", KeyboardShortcut('R'));
-             toolMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleTextureTool, Action::Context_Any, "Texture Tool", KeyboardShortcut('T'));
-             */
-            
-            /*
              MultiMenu& actionMenu = editMenu.addMultiMenu(CommandIds::Menu::EditActions, "Actions");
              
              Menu& faceActionMenu = actionMenu.addMenu(CommandIds::Menu::EditFaceActions, "Faces");
@@ -230,21 +239,12 @@ namespace TrenchBroom {
              faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCCWFine, Action::Context_FaceSelection, "Rotate Counter-clockwise by 1", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
              
              Menu& objectActionMenu = actionMenu.addMenu(CommandIds::Menu::EditObjectActions, "Objects");
-             #ifdef __linux__ // unmodified cursor keys are not allowed as a menu accelerator on GTK
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP, WXK_SHIFT));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN, WXK_SHIFT));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT, WXK_SHIFT));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT, WXK_SHIFT));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP, WXK_SHIFT));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT));
-             #else
              objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP));
              objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN));
              objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
              objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
              objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP));
              objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN));
-             #endif
              objectActionMenu.addSeparator();
              objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsForward, Action::Context_ObjectSelection, "Duplicate & Move Forward", KeyboardShortcut(WXK_UP, WXK_CONTROL));
              objectActionMenu.addActionItem(CommandIds::Menu::EditDuplicateObjectsBackward, Action::Context_ObjectSelection, "Duplicate & Move Backward", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));

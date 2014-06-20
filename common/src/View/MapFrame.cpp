@@ -393,30 +393,6 @@ namespace TrenchBroom {
             m_controller->deselectAll();
         }
         
-        void MapFrame::OnEditMoveObjectsForward(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::Direction_Forward);
-        }
-        
-        void MapFrame::OnEditMoveObjectsBackward(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::Direction_Backward);
-        }
-        
-        void MapFrame::OnEditMoveObjectsLeft(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::Direction_Left);
-        }
-        
-        void MapFrame::OnEditMoveObjectsRight(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::Direction_Right);
-        }
-        
-        void MapFrame::OnEditMoveObjectsUp(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::Direction_Up);
-        }
-        
-        void MapFrame::OnEditMoveObjectsDown(wxCommandEvent& event) {
-            m_mapView->moveObjects(Math::Direction_Down);
-        }
-        
         void MapFrame::OnEditDuplicateObjectsForward(wxCommandEvent& event) {
             ControllerSPtr controller = lock(m_controller);
 
@@ -760,12 +736,6 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditRotateTexturesCCWFine:
                     event.Enable(document->hasSelectedFaces());
                     break;
-                case CommandIds::Menu::EditMoveObjectsForward:
-                case CommandIds::Menu::EditMoveObjectsBackward:
-                case CommandIds::Menu::EditMoveObjectsLeft:
-                case CommandIds::Menu::EditMoveObjectsRight:
-                case CommandIds::Menu::EditMoveObjectsUp:
-                case CommandIds::Menu::EditMoveObjectsDown:
                 case CommandIds::Menu::EditDuplicateObjectsForward:
                 case CommandIds::Menu::EditDuplicateObjectsBackward:
                 case CommandIds::Menu::EditDuplicateObjectsLeft:
@@ -1005,13 +975,6 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCWFine, this, CommandIds::Menu::EditRotateTexturesCWFine);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCCW, this, CommandIds::Menu::EditRotateTexturesCCW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCCWFine, this, CommandIds::Menu::EditRotateTexturesCCWFine);
-
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsForward, this, CommandIds::Menu::EditMoveObjectsForward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsBackward, this, CommandIds::Menu::EditMoveObjectsBackward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsLeft, this, CommandIds::Menu::EditMoveObjectsLeft);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsRight, this, CommandIds::Menu::EditMoveObjectsRight);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsUp, this, CommandIds::Menu::EditMoveObjectsUp);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveObjectsDown, this, CommandIds::Menu::EditMoveObjectsDown);
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsForward, this, CommandIds::Menu::EditDuplicateObjectsForward);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDuplicateObjectsBackward, this, CommandIds::Menu::EditDuplicateObjectsBackward);

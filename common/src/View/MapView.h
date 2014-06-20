@@ -130,13 +130,20 @@ namespace TrenchBroom {
             void toggleTextureTool();
             bool textureToolActive() const;
             
-            void moveObjects(Math::Direction direction);
             void rotateObjects(RotationAxis axis, bool clockwise);
             void flipObjects(Math::Direction direction);
             void moveTextures(Math::Direction direction, bool snapToGrid);
             void moveVertices(Math::Direction direction);
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
+
+            void OnMoveObjectsForward(wxCommandEvent& event);
+            void OnMoveObjectsBackward(wxCommandEvent& event);
+            void OnMoveObjectsLeft(wxCommandEvent& event);
+            void OnMoveObjectsRight(wxCommandEvent& event);
+            void OnMoveObjectsUp(wxCommandEvent& event);
+            void OnMoveObjectsDown(wxCommandEvent& event);
+            void moveObjects(Math::Direction direction);
 
             void OnToggleClipTool(wxCommandEvent& event);
             void OnToggleClipSide(wxCommandEvent& event);

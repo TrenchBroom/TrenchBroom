@@ -44,12 +44,6 @@ namespace TrenchBroom {
                 const int EditMoveTexturesLeft               = Lowest +  21;
                 const int EditRotateTexturesCW               = Lowest +  22;
                 const int EditRotateTexturesCCW              = Lowest +  23;
-                const int EditMoveObjectsForward             = Lowest +  24;
-                const int EditMoveObjectsRight               = Lowest +  25;
-                const int EditMoveObjectsBackward            = Lowest +  26;
-                const int EditMoveObjectsLeft                = Lowest +  27;
-                const int EditMoveObjectsUp                  = Lowest +  28;
-                const int EditMoveObjectsDown                = Lowest +  29;
                 const int EditRollObjectsCW                  = Lowest +  30;
                 const int EditRollObjectsCCW                 = Lowest +  31;
                 const int EditPitchObjectsCW                 = Lowest +  32;
@@ -136,6 +130,12 @@ namespace TrenchBroom {
                 const int MapViewToggleClipSide              = Lowest +   2;
                 const int MapViewPerformClip                 = Lowest +   3;
                 const int MapViewDeleteLastClipPoint         = Lowest +   4;
+                const int MapViewMoveObjectsForward          = Lowest +   5;
+                const int MapViewMoveObjectsRight            = Lowest +   6;
+                const int MapViewMoveObjectsBackward         = Lowest +   7;
+                const int MapViewMoveObjectsLeft             = Lowest +   8;
+                const int MapViewMoveObjectsUp               = Lowest +   9;
+                const int MapViewMoveObjectsDown             = Lowest +  10;
                 const int Highest                            = Lowest + 200;
             }
 

@@ -225,19 +225,6 @@ namespace TrenchBroom {
             return m_toolBox.toolActive(m_textureTool);
         }
 
-        void MapView::moveObjects(const Math::Direction direction) {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::ObjectList& objects = document->selectedObjects();
-            if (objects.empty())
-                return;
-            
-            ControllerSPtr controller = lock(m_controller);
-            const Grid& grid = document->grid();
-            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
-            
-            controller->moveObjects(objects, delta, document->textureLock());
-        }
-        
         void MapView::rotateObjects(const RotationAxis axisSpec, const bool clockwise) {
             MapDocumentSPtr document = lock(m_document);
             const Model::ObjectList& objects = document->selectedObjects();
@@ -327,6 +314,43 @@ namespace TrenchBroom {
             }
         }
 
+        void MapView::OnMoveObjectsForward(wxCommandEvent& event) {
+            moveObjects(Math::Direction_Forward);
+        }
+        
+        void MapView::OnMoveObjectsBackward(wxCommandEvent& event) {
+            moveObjects(Math::Direction_Backward);
+        }
+        
+        void MapView::OnMoveObjectsLeft(wxCommandEvent& event) {
+            moveObjects(Math::Direction_Left);
+        }
+        
+        void MapView::OnMoveObjectsRight(wxCommandEvent& event) {
+            moveObjects(Math::Direction_Right);
+        }
+        
+        void MapView::OnMoveObjectsUp(wxCommandEvent& event) {
+            moveObjects(Math::Direction_Up);
+        }
+        
+        void MapView::OnMoveObjectsDown(wxCommandEvent& event) {
+            moveObjects(Math::Direction_Down);
+        }
+
+        void MapView::moveObjects(const Math::Direction direction) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::ObjectList& objects = document->selectedObjects();
+            if (objects.empty())
+                return;
+            
+            ControllerSPtr controller = lock(m_controller);
+            const Grid& grid = document->grid();
+            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            
+            controller->moveObjects(objects, delta, document->textureLock());
+        }
+        
         void MapView::OnToggleClipTool(wxCommandEvent& event) {
             assert(lock(m_document)->hasSelectedBrushes());
             toggleClipTool();
@@ -1021,6 +1045,13 @@ namespace TrenchBroom {
 
             Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsForward,   this, CommandIds::Actions::MapViewMoveObjectsForward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsBackward,  this, CommandIds::Actions::MapViewMoveObjectsBackward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsLeft,      this, CommandIds::Actions::MapViewMoveObjectsLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsRight,     this, CommandIds::Actions::MapViewMoveObjectsRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsUp,        this, CommandIds::Actions::MapViewMoveObjectsUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsDown,      this, CommandIds::Actions::MapViewMoveObjectsDown);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipTool, this, CommandIds::Actions::MapViewToggleClipTool);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipSide, this, CommandIds::Actions::MapViewToggleClipSide);
