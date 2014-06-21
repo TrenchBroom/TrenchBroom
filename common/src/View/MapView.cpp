@@ -268,19 +268,6 @@ namespace TrenchBroom {
             controller->flipObjects(objects, center, axis, document->textureLock());
         }
         
-        void MapView::moveTextures(const Math::Direction direction, const bool snapToGrid) {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::BrushFaceList& faces = document->allSelectedFaces();
-            if (faces.empty())
-                return;
-            
-            const Grid& grid = document->grid();
-            const float distance = snapToGrid ? static_cast<float>(grid.actualSize()) : 1.0f;
-            
-            ControllerSPtr controller = lock(m_controller);
-            controller->moveTextures(faces, m_camera.up(), m_camera.right(), direction, distance);
-        }
-        
         void MapView::moveVertices(const Math::Direction direction) {
             assert(vertexToolActive());
             MapDocumentSPtr document = lock(m_document);
@@ -394,6 +381,66 @@ namespace TrenchBroom {
             controller->moveObjects(objects, delta, document->textureLock());
         }
         
+        void MapView::OnMoveTexturesUp(wxCommandEvent& event) {
+            moveTextures(Math::Direction_Up, moveTextureDistance());
+        }
+        
+        void MapView::OnMoveTexturesDown(wxCommandEvent& event) {
+            moveTextures(Math::Direction_Down, moveTextureDistance());
+        }
+        
+        void MapView::OnMoveTexturesLeft(wxCommandEvent& event) {
+            moveTextures(Math::Direction_Left, moveTextureDistance());
+        }
+        
+        void MapView::OnMoveTexturesRight(wxCommandEvent& event) {
+            moveTextures(Math::Direction_Right, moveTextureDistance());
+        }
+        
+        void MapView::OnRotateTexturesCW(wxCommandEvent& event) {
+            rotateTextures(true, true);
+        }
+        
+        void MapView::OnRotateTexturesCCW(wxCommandEvent& event) {
+            rotateTextures(false, true);
+        }
+
+        float MapView::moveTextureDistance() const {
+            const Grid& grid = lock(m_document)->grid();
+            const float gridSize = static_cast<float>(grid.actualSize());
+            
+            const wxMouseState mouseState = wxGetMouseState();
+            switch (mouseState.GetModifiers()) {
+                case wxMOD_CMD:
+                    return 1.0f;
+                case wxMOD_SHIFT:
+                    return 2.0f * gridSize;
+                default:
+                    return gridSize;
+            }
+        }
+        
+        void MapView::moveTextures(const Math::Direction direction, const float distance) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::BrushFaceList& faces = document->allSelectedFaces();
+            assert(!faces.empty());
+            
+            ControllerSPtr controller = lock(m_controller);
+            controller->moveTextures(faces, m_camera.up(), m_camera.right(), direction, distance);
+        }
+        
+        void MapView::rotateTextures(const bool clockwise, const bool snapAngle) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::BrushFaceList& faces = document->selectedFaces();
+            assert(!faces.empty());
+            
+            const Grid& grid = document->grid();
+            const float angle = snapAngle ? static_cast<float>(Math::degrees(grid.angle())) : 1.0f;
+            
+            ControllerSPtr controller = lock(m_controller);
+            controller->rotateTextures(faces, clockwise ? angle : -angle);
+        }
+
         void MapView::OnToggleClipTool(wxCommandEvent& event) {
             assert(lock(m_document)->hasSelectedBrushes());
             toggleClipTool();
@@ -1089,6 +1136,11 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
             
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesUp,           this, CommandIds::Actions::MoveTexturesUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesDown,         this, CommandIds::Actions::MoveTexturesDown);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesLeft,         this, CommandIds::Actions::MoveTexturesLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesRight,        this, CommandIds::Actions::MoveTexturesRight);
+
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsForward,       this, CommandIds::Actions::MoveObjectsForward);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsBackward,      this, CommandIds::Actions::MoveObjectsBackward);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsLeft,          this, CommandIds::Actions::MoveObjectsLeft);

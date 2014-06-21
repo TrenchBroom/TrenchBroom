@@ -259,29 +259,18 @@ namespace TrenchBroom {
         }
         
         void SpinControl::Spin(const double multiplier, const wxKeyboardState& keyboardState) {
-            static const unsigned int SHIFT = 1;
-            static const unsigned int ALT = 2;
-            static const unsigned int META = 4;
-            static const unsigned int CTRLCMD = 8;
-            
             double increment = 0.0f;
-            
-            unsigned int keys = 0;
-            if (keyboardState.ShiftDown())
-                keys |= SHIFT;
-            if (keyboardState.AltDown())
-                keys |= ALT;
-            if (keyboardState.MetaDown())
-                keys |= META;
-            if (keyboardState.ControlDown() || keyboardState.CmdDown())
-                keys |= CTRLCMD;
-            
-            if (keys == 0)
-                increment = m_regularIncrement;
-            else if (keys == SHIFT)
-                increment = m_shiftIncrement;
-            else if (keys == CTRLCMD)
-                increment = m_ctrlIncrement;
+            switch (keyboardState.GetModifiers()) {
+                case wxMOD_CMD:
+                    increment = m_ctrlIncrement;
+                    break;
+                case wxMOD_SHIFT:
+                    increment = m_shiftIncrement;
+                    break;
+                default:
+                    increment = m_regularIncrement;
+                    break;
+            }
             
             increment *= multiplier;
             DoSendEvent(true, increment);

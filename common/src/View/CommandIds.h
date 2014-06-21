@@ -38,10 +38,6 @@ namespace TrenchBroom {
                 const int EditLockUnselected                 = Lowest +  10;
                 const int EditUnlockAll                      = Lowest +  11;
                 const int EditToggleVertexTool               = Lowest +  15;
-                const int EditMoveTexturesUp                 = Lowest +  18;
-                const int EditMoveTexturesRight              = Lowest +  19;
-                const int EditMoveTexturesDown               = Lowest +  20;
-                const int EditMoveTexturesLeft               = Lowest +  21;
                 const int EditRotateTexturesCW               = Lowest +  22;
                 const int EditRotateTexturesCCW              = Lowest +  23;
                 const int EditRollObjectsCW                  = Lowest +  30;
@@ -136,6 +132,10 @@ namespace TrenchBroom {
                 const int DuplicateObjectsLeft               = Lowest +  14;
                 const int DuplicateObjectsUp                 = Lowest +  15;
                 const int DuplicateObjectsDown               = Lowest +  16;
+                const int MoveTexturesUp                     = Lowest +  17;
+                const int MoveTexturesRight                  = Lowest +  18;
+                const int MoveTexturesDown                   = Lowest +  19;
+                const int MoveTexturesLeft                   = Lowest +  20;
                 const int Highest                            = Lowest + 200;
             }
 

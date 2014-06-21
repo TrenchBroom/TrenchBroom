@@ -150,13 +150,25 @@ namespace TrenchBroom {
             createMapViewAction(CommandIds::Actions::DuplicateObjectsUp, Action::Context_ObjectSelection, "Duplicate & Move Up", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
             createMapViewAction(CommandIds::Actions::DuplicateObjectsDown, Action::Context_ObjectSelection, "Duplicate & Move Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
 
+            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Up by Grid Size", KeyboardShortcut(WXK_UP));
+            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Up by 2 * Grid Size", KeyboardShortcut(WXK_UP, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Up by 1", KeyboardShortcut(WXK_UP, WXK_CONTROL));
+
+            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Down by Grid Size", KeyboardShortcut(WXK_DOWN));
+            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Down by 2 * Grid Size", KeyboardShortcut(WXK_DOWN, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Down by 1", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
+            
+            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Left by Grid Size", KeyboardShortcut(WXK_LEFT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Left by 2 * Grid Size", KeyboardShortcut(WXK_LEFT, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Left by 1", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
+            
+            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Right by Grid Size", KeyboardShortcut(WXK_RIGHT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Right by 2 * Grid Size", KeyboardShortcut(WXK_RIGHT, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Right by 1", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
+            
             /*
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP));
-             objectActionMenu.addActionItem(CommandIds::Menu::EditMoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCW, Action::Context_FaceSelection, "Rotate Clockwise by 15", KeyboardShortcut(WXK_PAGEUP));
+            faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCCW, Action::Context_FaceSelection, "Rotate Counter-clockwise by 15", KeyboardShortcut(WXK_PAGEDOWN));
              */
             
         }
@@ -191,14 +203,6 @@ namespace TrenchBroom {
             editMenu.addUnmodifiableActionItem(wxID_PASTE, Action::Context_Any, "Paste", KeyboardShortcut('V', WXK_CONTROL));
             editMenu.addUnmodifiableActionItem(CommandIds::Menu::EditPasteAtOriginalPosition, Action::Context_Any, "Paste at Original Position", KeyboardShortcut('V', WXK_CONTROL, WXK_SHIFT));
             
-            /*
-#ifdef __APPLE__
-            editMenu.addModifiableActionItem(wxID_DELETE, Action::Context_ObjectSelection, "Delete", KeyboardShortcut(WXK_BACK));
-#else
-            editMenu.addModifiableActionItem(wxID_DELETE, Action::Context_ObjectSelection, "Delete", KeyboardShortcut(WXK_DELETE));
-#endif
-             */
-            
             editMenu.addSeparator();
             editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectAll, Action::Context_Any, "Select All", KeyboardShortcut('A', WXK_CONTROL));
             editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, Action::Context_Any, "Select Siblings", KeyboardShortcut('A', WXK_CONTROL, WXK_ALT));
@@ -222,21 +226,13 @@ namespace TrenchBroom {
              MultiMenu& actionMenu = editMenu.addMultiMenu(CommandIds::Menu::EditActions, "Actions");
              
              Menu& faceActionMenu = actionMenu.addMenu(CommandIds::Menu::EditFaceActions, "Faces");
-             #ifdef __linux__ // unmodified cursor keys are not allowed as a menu accelerator on GTK
-             faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesUp, Action::Context_FaceSelection, "Move Up", KeyboardShortcut(WXK_UP, WXK_SHIFT));
-             faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesDown, Action::Context_FaceSelection, "Move Down", KeyboardShortcut(WXK_DOWN, WXK_SHIFT));
-             faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesLeft, Action::Context_FaceSelection, "Move Left", KeyboardShortcut(WXK_LEFT, WXK_SHIFT));
-             faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesRight, Action::Context_FaceSelection, "Move Right", KeyboardShortcut(WXK_RIGHT, WXK_SHIFT));
-             faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCW, Action::Context_FaceSelection, "Rotate Clockwise by 15", KeyboardShortcut(WXK_PAGEUP, WXK_SHIFT));
-             faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCW, Action::Context_FaceSelection, "Rotate Counter-clockwise by 15", KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT));
-             #else
              faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesUp, Action::Context_FaceSelection, "Move Up", KeyboardShortcut(WXK_UP));
              faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesDown, Action::Context_FaceSelection, "Move Down", KeyboardShortcut(WXK_DOWN));
              faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesLeft, Action::Context_FaceSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
              faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesRight, Action::Context_FaceSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
              faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCW, Action::Context_FaceSelection, "Rotate Clockwise by 15", KeyboardShortcut(WXK_PAGEUP));
              faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCCW, Action::Context_FaceSelection, "Rotate Counter-clockwise by 15", KeyboardShortcut(WXK_PAGEDOWN));
-             #endif
+
              faceActionMenu.addSeparator();
              faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesUpFine, Action::Context_FaceSelection, "Move Up by 1", KeyboardShortcut(WXK_UP, WXK_CONTROL));
              faceActionMenu.addActionItem(CommandIds::Menu::EditMoveTexturesDownFine, Action::Context_FaceSelection, "Move Down by 1", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));

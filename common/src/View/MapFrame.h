@@ -113,20 +113,6 @@ namespace TrenchBroom {
             void OnEditFlipObjectsH(wxCommandEvent& event);
             void OnEditFlipObjectsV(wxCommandEvent& event);
             
-            void OnEditMoveTexturesUp(wxCommandEvent& event);
-            void OnEditMoveTexturesDown(wxCommandEvent& event);
-            void OnEditMoveTexturesLeft(wxCommandEvent& event);
-            void OnEditMoveTexturesRight(wxCommandEvent& event);
-            void OnEditRotateTexturesCW(wxCommandEvent& event);
-            void OnEditRotateTexturesCCW(wxCommandEvent& event);
-            
-            void OnEditMoveTexturesUpFine(wxCommandEvent& event);
-            void OnEditMoveTexturesDownFine(wxCommandEvent& event);
-            void OnEditMoveTexturesLeftFine(wxCommandEvent& event);
-            void OnEditMoveTexturesRightFine(wxCommandEvent& event);
-            void OnEditRotateTexturesCWFine(wxCommandEvent& event);
-            void OnEditRotateTexturesCCWFine(wxCommandEvent& event);
-
             void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
 
             void OnEditToggleVertexTool(wxCommandEvent& event);
@@ -185,9 +171,6 @@ namespace TrenchBroom {
             
             void pasteObjects(const Model::ObjectList& objects, const Vec3& delta);
             void collectPastedObjects(const Model::ObjectList& objects, Model::ObjectParentList& pastedObjects, Model::ObjectList& selectableObjects);
-            
-            void duplicateObjects();
-            void rotateTextures(bool clockwise, bool snapAngle);
         };
     }
 }

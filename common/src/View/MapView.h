@@ -132,7 +132,6 @@ namespace TrenchBroom {
             
             void rotateObjects(RotationAxis axis, bool clockwise);
             void flipObjects(Math::Direction direction);
-            void moveTextures(Math::Direction direction, bool snapToGrid);
             void moveVertices(Math::Direction direction);
             
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
@@ -154,6 +153,17 @@ namespace TrenchBroom {
             void duplicateAndMoveObjects(Math::Direction direction);
             void duplicateObjects();
             void moveObjects(Math::Direction direction);
+        public:
+            void OnMoveTexturesUp(wxCommandEvent& event);
+            void OnMoveTexturesDown(wxCommandEvent& event);
+            void OnMoveTexturesLeft(wxCommandEvent& event);
+            void OnMoveTexturesRight(wxCommandEvent& event);
+            void OnRotateTexturesCW(wxCommandEvent& event);
+            void OnRotateTexturesCCW(wxCommandEvent& event);
+        private:
+            float moveTextureDistance() const;
+            void moveTextures(Math::Direction direction, float distance);
+            void rotateTextures(bool clockwise, bool snapAngle);
         public:
             void OnToggleClipTool(wxCommandEvent& event);
             void OnToggleClipSide(wxCommandEvent& event);

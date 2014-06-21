@@ -424,54 +424,6 @@ namespace TrenchBroom {
         void MapFrame::OnEditFlipObjectsV(wxCommandEvent& event) {
             m_mapView->flipObjects(Math::Direction_Up);
         }
-        
-        void MapFrame::OnEditMoveTexturesUp(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::Direction_Up, true);
-        }
-        
-        void MapFrame::OnEditMoveTexturesDown(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::Direction_Down, true);
-        }
-        
-        void MapFrame::OnEditMoveTexturesLeft(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::Direction_Left, true);
-        }
-        
-        void MapFrame::OnEditMoveTexturesRight(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::Direction_Right, true);
-        }
-        
-        void MapFrame::OnEditRotateTexturesCW(wxCommandEvent& event) {
-            rotateTextures(true, true);
-        }
-        
-        void MapFrame::OnEditRotateTexturesCCW(wxCommandEvent& event) {
-            rotateTextures(false, true);
-        }
-        
-        void MapFrame::OnEditMoveTexturesUpFine(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::Direction_Up, false);
-        }
-        
-        void MapFrame::OnEditMoveTexturesDownFine(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::Direction_Down, false);
-        }
-        
-        void MapFrame::OnEditMoveTexturesLeftFine(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::Direction_Left, false);
-        }
-        
-        void MapFrame::OnEditMoveTexturesRightFine(wxCommandEvent& event) {
-            m_mapView->moveTextures(Math::Direction_Right, false);
-        }
-        
-        void MapFrame::OnEditRotateTexturesCWFine(wxCommandEvent& event) {
-            rotateTextures(true, false);
-        }
-        
-        void MapFrame::OnEditRotateTexturesCCWFine(wxCommandEvent& event) {
-            rotateTextures(false, false);
-        }
 
         void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
             m_mapView->toggleVertexTool();
@@ -678,20 +630,6 @@ namespace TrenchBroom {
                                  m_mapView->hasSelectedVertices() ||
                                  document->hasSelectedObjects() ||
                                  document->hasSelectedFaces());
-                    break;
-                case CommandIds::Menu::EditMoveTexturesUp:
-                case CommandIds::Menu::EditMoveTexturesUpFine:
-                case CommandIds::Menu::EditMoveTexturesDown:
-                case CommandIds::Menu::EditMoveTexturesDownFine:
-                case CommandIds::Menu::EditMoveTexturesLeft:
-                case CommandIds::Menu::EditMoveTexturesLeftFine:
-                case CommandIds::Menu::EditMoveTexturesRight:
-                case CommandIds::Menu::EditMoveTexturesRightFine:
-                case CommandIds::Menu::EditRotateTexturesCW:
-                case CommandIds::Menu::EditRotateTexturesCWFine:
-                case CommandIds::Menu::EditRotateTexturesCCW:
-                case CommandIds::Menu::EditRotateTexturesCCWFine:
-                    event.Enable(document->hasSelectedFaces());
                     break;
                 case CommandIds::Menu::EditRollObjectsCW:
                 case CommandIds::Menu::EditRollObjectsCCW:
@@ -912,7 +850,8 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectContained, this, CommandIds::Menu::EditSelectContained);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
-            
+
+            /*
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesUp, this, CommandIds::Menu::EditMoveTexturesUp);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesUpFine, this, CommandIds::Menu::EditMoveTexturesUpFine);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesDown, this, CommandIds::Menu::EditMoveTexturesDown);
@@ -921,11 +860,12 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesLeftFine, this, CommandIds::Menu::EditMoveTexturesLeftFine);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesRight, this, CommandIds::Menu::EditMoveTexturesRight);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesRightFine, this, CommandIds::Menu::EditMoveTexturesRightFine);
-            
+             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCW, this, CommandIds::Menu::EditRotateTexturesCW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCWFine, this, CommandIds::Menu::EditRotateTexturesCWFine);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCCW, this, CommandIds::Menu::EditRotateTexturesCCW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCCWFine, this, CommandIds::Menu::EditRotateTexturesCCWFine);
+             */
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRollObjectsCW, this, CommandIds::Menu::EditRollObjectsCW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRollObjectsCCW, this, CommandIds::Menu::EditRollObjectsCCW);
@@ -1125,19 +1065,6 @@ namespace TrenchBroom {
                     selectableObjects.push_back(object);
                 }
             }
-        }
-
-        void MapFrame::rotateTextures(const bool clockwise, const bool snapAngle) {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::BrushFaceList& faces = document->selectedFaces();
-            if (faces.empty())
-                return;
-            
-            const Grid& grid = document->grid();
-            const float angle = snapAngle ? static_cast<float>(Math::degrees(grid.angle())) : 1.0f;
-            
-            ControllerSPtr controller = lock(m_controller);
-            controller->rotateTextures(faces, clockwise ? angle : -angle);
         }
     }
 }
