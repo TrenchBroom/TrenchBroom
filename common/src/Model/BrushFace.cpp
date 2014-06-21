@@ -388,12 +388,12 @@ namespace TrenchBroom {
 
         void BrushFace::moveTexture(const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) {
             m_texCoordSystem->moveTexture(m_boundary.normal, up, right, direction, distance, m_attribs);
-            invalidateVertexCache();
+            invalidate();
         }
 
         void BrushFace::rotateTexture(const float angle) {
             m_texCoordSystem->rotateTexture(m_boundary.normal, angle, m_attribs);
-            invalidateVertexCache();
+            invalidate();
         }
 
         void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {

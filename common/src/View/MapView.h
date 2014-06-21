@@ -163,7 +163,8 @@ namespace TrenchBroom {
         private:
             float moveTextureDistance() const;
             void moveTextures(Math::Direction direction, float distance);
-            void rotateTextures(bool clockwise, bool snapAngle);
+            float rotateTextureAngle(bool clockwise) const;
+            void rotateTextures(float angle);
         public:
             void OnToggleClipTool(wxCommandEvent& event);
             void OnToggleClipSide(wxCommandEvent& event);

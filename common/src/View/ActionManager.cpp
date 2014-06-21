@@ -136,35 +136,43 @@ namespace TrenchBroom {
             createMapViewAction(CommandIds::Actions::DeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_DELETE));
 #endif
             
-            createMapViewAction(CommandIds::Actions::MoveObjectsForward, Action::Context_ObjectSelection, "Move Forward", KeyboardShortcut(WXK_UP));
-            createMapViewAction(CommandIds::Actions::MoveObjectsBackward, Action::Context_ObjectSelection, "Move Backward", KeyboardShortcut(WXK_DOWN));
-            createMapViewAction(CommandIds::Actions::MoveObjectsLeft, Action::Context_ObjectSelection, "Move Left", KeyboardShortcut(WXK_LEFT));
-            createMapViewAction(CommandIds::Actions::MoveObjectsRight, Action::Context_ObjectSelection, "Move Right", KeyboardShortcut(WXK_RIGHT));
-            createMapViewAction(CommandIds::Actions::MoveObjectsUp, Action::Context_ObjectSelection, "Move Up", KeyboardShortcut(WXK_PAGEUP));
-            createMapViewAction(CommandIds::Actions::MoveObjectsDown, Action::Context_ObjectSelection, "Move Down", KeyboardShortcut(WXK_PAGEDOWN));
+            createMapViewAction(CommandIds::Actions::MoveObjectsForward, Action::Context_ObjectSelection, "Move Objects Forward", KeyboardShortcut(WXK_UP));
+            createMapViewAction(CommandIds::Actions::MoveObjectsBackward, Action::Context_ObjectSelection, "Move Objects Backward", KeyboardShortcut(WXK_DOWN));
+            createMapViewAction(CommandIds::Actions::MoveObjectsLeft, Action::Context_ObjectSelection, "Move Objects Left", KeyboardShortcut(WXK_LEFT));
+            createMapViewAction(CommandIds::Actions::MoveObjectsRight, Action::Context_ObjectSelection, "Move Objects Right", KeyboardShortcut(WXK_RIGHT));
+            createMapViewAction(CommandIds::Actions::MoveObjectsUp, Action::Context_ObjectSelection, "Move Objects Up", KeyboardShortcut(WXK_PAGEUP));
+            createMapViewAction(CommandIds::Actions::MoveObjectsDown, Action::Context_ObjectSelection, "Move Objects Down", KeyboardShortcut(WXK_PAGEDOWN));
             
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsForward, Action::Context_ObjectSelection, "Duplicate & Move Forward", KeyboardShortcut(WXK_UP, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsBackward, Action::Context_ObjectSelection, "Duplicate & Move Backward", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsLeft, Action::Context_ObjectSelection, "Duplicate & Move Left", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsRight, Action::Context_ObjectSelection, "Duplicate & Move Right", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsUp, Action::Context_ObjectSelection, "Duplicate & Move Up", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsDown, Action::Context_ObjectSelection, "Duplicate & Move Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsForward, Action::Context_ObjectSelection, "Duplicate & Move Objects Forward", KeyboardShortcut(WXK_UP, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsBackward, Action::Context_ObjectSelection, "Duplicate & Move Objects Backward", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsLeft, Action::Context_ObjectSelection, "Duplicate & Move Objects Left", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsRight, Action::Context_ObjectSelection, "Duplicate & Move Objects Right", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsUp, Action::Context_ObjectSelection, "Duplicate & Move Objects Up", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsDown, Action::Context_ObjectSelection, "Duplicate & Move Objects Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
 
-            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Up by Grid Size", KeyboardShortcut(WXK_UP));
-            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Up by 2 * Grid Size", KeyboardShortcut(WXK_UP, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Up by 1", KeyboardShortcut(WXK_UP, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Textures Up by Grid Size", KeyboardShortcut(WXK_UP));
+            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Textures Up by 2 * Grid Size", KeyboardShortcut(WXK_UP, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Textures Up by 1", KeyboardShortcut(WXK_UP, WXK_CONTROL));
 
-            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Down by Grid Size", KeyboardShortcut(WXK_DOWN));
-            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Down by 2 * Grid Size", KeyboardShortcut(WXK_DOWN, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Down by 1", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Textures Down by Grid Size", KeyboardShortcut(WXK_DOWN));
+            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Textures Down by 2 * Grid Size", KeyboardShortcut(WXK_DOWN, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Textures Down by 1", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
             
-            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Left by Grid Size", KeyboardShortcut(WXK_LEFT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Left by 2 * Grid Size", KeyboardShortcut(WXK_LEFT, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Left by 1", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Textures Left by Grid Size", KeyboardShortcut(WXK_LEFT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Textures Left by 2 * Grid Size", KeyboardShortcut(WXK_LEFT, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Textures Left by 1", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
             
-            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Right by Grid Size", KeyboardShortcut(WXK_RIGHT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Right by 2 * Grid Size", KeyboardShortcut(WXK_RIGHT, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Right by 1", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Textures Right by Grid Size", KeyboardShortcut(WXK_RIGHT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Textures Right by 2 * Grid Size", KeyboardShortcut(WXK_RIGHT, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Textures Right by 1", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
+            
+            createMapViewAction(CommandIds::Actions::RotateTexturesCW, Action::Context_FaceSelection, "Rotate Textures Clockwise by 15", KeyboardShortcut(WXK_PAGEUP));
+            createMapViewAction(CommandIds::Actions::RotateTexturesCW, Action::Context_FaceSelection, "Rotate Textures Clockwise by 90", KeyboardShortcut(WXK_PAGEUP, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::RotateTexturesCW, Action::Context_FaceSelection, "Rotate Textures Clockwise by 1", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
+            
+            createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 15", KeyboardShortcut(WXK_PAGEDOWN));
+            createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 90", KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 1", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
             
             /*
             faceActionMenu.addActionItem(CommandIds::Menu::EditRotateTexturesCW, Action::Context_FaceSelection, "Rotate Clockwise by 15", KeyboardShortcut(WXK_PAGEUP));

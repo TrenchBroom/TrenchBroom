@@ -851,22 +851,6 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
 
-            /*
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesUp, this, CommandIds::Menu::EditMoveTexturesUp);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesUpFine, this, CommandIds::Menu::EditMoveTexturesUpFine);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesDown, this, CommandIds::Menu::EditMoveTexturesDown);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesDownFine, this, CommandIds::Menu::EditMoveTexturesDownFine);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesLeft, this, CommandIds::Menu::EditMoveTexturesLeft);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesLeftFine, this, CommandIds::Menu::EditMoveTexturesLeftFine);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesRight, this, CommandIds::Menu::EditMoveTexturesRight);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveTexturesRightFine, this, CommandIds::Menu::EditMoveTexturesRightFine);
-             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCW, this, CommandIds::Menu::EditRotateTexturesCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCWFine, this, CommandIds::Menu::EditRotateTexturesCWFine);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCCW, this, CommandIds::Menu::EditRotateTexturesCCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRotateTexturesCCWFine, this, CommandIds::Menu::EditRotateTexturesCCWFine);
-             */
-
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRollObjectsCW, this, CommandIds::Menu::EditRollObjectsCW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRollObjectsCCW, this, CommandIds::Menu::EditRollObjectsCCW);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPitchObjectsCW, this, CommandIds::Menu::EditPitchObjectsCW);

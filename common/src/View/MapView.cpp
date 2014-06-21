@@ -398,11 +398,11 @@ namespace TrenchBroom {
         }
         
         void MapView::OnRotateTexturesCW(wxCommandEvent& event) {
-            rotateTextures(true, true);
+            rotateTextures(rotateTextureAngle(true));
         }
         
         void MapView::OnRotateTexturesCCW(wxCommandEvent& event) {
-            rotateTextures(false, true);
+            rotateTextures(rotateTextureAngle(false));
         }
 
         float MapView::moveTextureDistance() const {
@@ -429,16 +429,34 @@ namespace TrenchBroom {
             controller->moveTextures(faces, m_camera.up(), m_camera.right(), direction, distance);
         }
         
-        void MapView::rotateTextures(const bool clockwise, const bool snapAngle) {
+        float MapView::rotateTextureAngle(const bool clockwise) const {
+            const Grid& grid = lock(m_document)->grid();
+            const float gridAngle = static_cast<float>(Math::degrees(grid.angle()));
+            float angle = 0.0f;
+            
+            const wxMouseState mouseState = wxGetMouseState();
+            switch (mouseState.GetModifiers()) {
+                case wxMOD_CMD:
+                    angle = 1.0f;
+                    break;
+                case wxMOD_SHIFT:
+                    angle = 90.0f;
+                    break;
+                default:
+                    angle = gridAngle;
+                    break;
+            }
+
+            return clockwise ? angle : -angle;
+        }
+
+        void MapView::rotateTextures(const float angle) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList& faces = document->selectedFaces();
             assert(!faces.empty());
             
-            const Grid& grid = document->grid();
-            const float angle = snapAngle ? static_cast<float>(Math::degrees(grid.angle())) : 1.0f;
-            
             ControllerSPtr controller = lock(m_controller);
-            controller->rotateTextures(faces, clockwise ? angle : -angle);
+            controller->rotateTextures(faces, angle);
         }
 
         void MapView::OnToggleClipTool(wxCommandEvent& event) {
@@ -1140,6 +1158,9 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesDown,         this, CommandIds::Actions::MoveTexturesDown);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesLeft,         this, CommandIds::Actions::MoveTexturesLeft);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesRight,        this, CommandIds::Actions::MoveTexturesRight);
+
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRotateTexturesCW,         this, CommandIds::Actions::RotateTexturesCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRotateTexturesCCW,        this, CommandIds::Actions::RotateTexturesCCW);
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsForward,       this, CommandIds::Actions::MoveObjectsForward);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsBackward,      this, CommandIds::Actions::MoveObjectsBackward);
