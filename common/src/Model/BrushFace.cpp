@@ -344,8 +344,7 @@ namespace TrenchBroom {
             if (rotation == m_attribs.rotation())
                 return;
             m_attribs.setRotation(rotation);
-            m_texCoordSystem->update(m_boundary.normal, m_attribs);
-            invalidateVertexCache();
+            invalidate();
         }
 
         void BrushFace::setSurfaceContents(const int surfaceContents) {
@@ -388,7 +387,7 @@ namespace TrenchBroom {
 
         void BrushFace::moveTexture(const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) {
             m_texCoordSystem->moveTexture(m_boundary.normal, up, right, direction, distance, m_attribs);
-            invalidate();
+            invalidateVertexCache();
         }
 
         void BrushFace::rotateTexture(const float angle) {
