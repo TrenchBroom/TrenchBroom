@@ -57,7 +57,6 @@ namespace TrenchBroom {
             
             float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
         private:
-            Vec3 transformAxis(const Vec3& normal, const Vec3& axis, const Mat4x4& transformation) const;
             void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angleInRadians, size_t planeNormIndex) const;
             
             template <typename T1, typename T2>

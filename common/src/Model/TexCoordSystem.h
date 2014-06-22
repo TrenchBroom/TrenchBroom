@@ -50,9 +50,6 @@ namespace TrenchBroom {
             Mat4x4 toMatrix(const Vec2f& offset, const Vec2f& scale) const;
             Mat4x4 fromMatrix(const Vec2f& offset, const Vec2f& scale) const;
             float measureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
-        protected:
-            Vec3 project(const Vec3& normal, const Vec3& vec) const;
-            Vec3 project(const Plane3& plane, const Vec3& vec) const;
         private:
             virtual TexCoordSystem* doClone() const = 0;
 

@@ -117,24 +117,28 @@ namespace TrenchBroom {
             rotateAxes(m_xAxis, m_yAxis, Math::radians(rotation), m_index);
         }
         
-        void ParaxialTexCoordSystem::doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
+        void ParaxialTexCoordSystem::doCompensate(const Vec3& oldNormal, const Vec3& oldCenter, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
             // calculate the current texture coordinates of the face's center
-            const Vec2f curCenterTexCoords = Vec2f(static_cast<float>(center.dot(safeScaleAxis(m_xAxis, attribs.xScale()))),
-                                                   static_cast<float>(center.dot(safeScaleAxis(m_yAxis, attribs.yScale())))) +
+            const Vec2f curCenterTexCoords = Vec2f(static_cast<float>(oldCenter.dot(safeScaleAxis(m_xAxis, attribs.xScale()))),
+                                                   static_cast<float>(oldCenter.dot(safeScaleAxis(m_yAxis, attribs.yScale())))) +
                                              Vec2f(attribs.xOffset(), attribs.yOffset());
             
             // compute the parameters of the transformed texture coordinate system
             const Vec3 offset = transformation * Vec3::Null;
-            const Vec3 newCenter = transformation * center;
+            const Vec3 newCenter = transformation * oldCenter;
+            
+            const Mat4x4 toPlane = planeProjectionMatrix(0.0, oldNormal, crossed(m_xAxis, m_yAxis).normalized());
+            const Mat4x4 fromPlane = invertedMatrix(toPlane);
+            const Mat4x4 projectToPlane = fromPlane * Mat4x4::ZerZ * toPlane;
             
             // compensate the translational part of the transformation for the directional vectors
-            Vec3 newXAxis = transformAxis(normal, m_xAxis * attribs.xScale(), transformation) - offset;
-            Vec3 newYAxis = transformAxis(normal, m_yAxis * attribs.yScale(), transformation) - offset;
-            Vec3 newNormal = transformation * normal - offset;
+            const Vec3 newXAxisOnPlane = transformation * projectToPlane * safeScaleAxis(m_xAxis, attribs.xScale()) - offset;
+            const Vec3 newYAxisOnPlane = transformation * projectToPlane * safeScaleAxis(m_yAxis, attribs.yScale()) - offset;
+                  Vec3 newNormal       = transformation * oldNormal - offset;
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
-            if (newNormal.equals(normal, 0.01))
-                newNormal = normal;
+            if (newNormal.equals(oldNormal, 0.01))
+                newNormal = oldNormal;
             
             // obtain the new texture plane norm and the new base texture axes
             Vec3 newBaseXAxis, newBaseYAxis, newProjectionAxis;
@@ -142,9 +146,13 @@ namespace TrenchBroom {
             axes(newIndex, newBaseXAxis, newBaseYAxis, newProjectionAxis);
             
             // project the transformed texture axes onto the new texture projection plane
-            newXAxis = project(newProjectionAxis, newXAxis);
-            newYAxis = project(newProjectionAxis, newYAxis);
-            assert(!newXAxis.nan());
+            const Mat4x4 toTexPlane = planeProjectionMatrix(0.0, newProjectionAxis);
+            const Mat4x4 fromTexPlane = invertedMatrix(toTexPlane);
+            const Mat4x4 projectToTexPlane = fromTexPlane * Mat4x4::ZerZ * toTexPlane;
+            Vec3 newXAxis = projectToTexPlane * newXAxisOnPlane;
+            Vec3 newYAxis = projectToTexPlane * newYAxisOnPlane;
+
+            assert(!newXAxis.nan() && !newYAxis.nan());
             
             // the new scaling factors are the lengths of the transformed texture axes
             float newXScale = static_cast<float>(newXAxis.length());
@@ -227,10 +235,6 @@ namespace TrenchBroom {
 
             const FloatType angleInRadians = Math::C::twoPi() - angleBetween(vec.normalized(), Vec3::PosX, zAxis);
             return static_cast<float>(Math::degrees(angleInRadians));
-        }
-
-        Vec3 ParaxialTexCoordSystem::transformAxis(const Vec3& normal, const Vec3& axis, const Mat4x4& transformation) const {
-            return transformation * project(normal, axis);
         }
 
         void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {

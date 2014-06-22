@@ -52,8 +52,11 @@ namespace TrenchBroom {
         void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance, BrushFaceAttribs& attribs) const {
             assert(direction != Math::Direction_Forward && direction != Math::Direction_Backward);
             
-            const Vec3 texX = project(normal, getXAxis()).normalize();
-            const Vec3 texY = project(normal, getYAxis()).normalize();
+            const Mat4x4 toPlane = planeProjectionMatrix(0.0, normal);
+            const Mat4x4 fromPlane = invertedMatrix(toPlane);
+            const Mat4x4 transform = fromPlane * Mat4x4::ZerZ * toPlane;
+            const Vec3 texX = (transform * getXAxis()).normalized();
+            const Vec3 texY = (transform * getYAxis()).normalized();
             
             Vec3 vAxis, hAxis;
             size_t xIndex = 0;
@@ -163,19 +166,6 @@ namespace TrenchBroom {
         
         float TexCoordSystem::measureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
             return doMeasureAngle(currentAngle, center, point);
-        }
-
-        Vec3 TexCoordSystem::project(const Vec3& normal, const Vec3& vec) const {
-            const Plane3 plane(0.0, normal);
-            return project(plane, vec);
-        }
-
-        Vec3 TexCoordSystem::project(const Plane3& plane, const Vec3& vec) const {
-            const Vec3 zAxis = crossed(getXAxis(), getYAxis()).normalized();
-            if (zAxis.null())
-                return Vec3::NaN;
-            const Line3 line(vec, zAxis);
-            return line.pointAtDistance(plane.intersectWithLine(line));
         }
     }
 }
