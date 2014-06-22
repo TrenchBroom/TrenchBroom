@@ -103,30 +103,10 @@ namespace TrenchBroom {
             void OnEditSelectByLineNumber(wxCommandEvent& event);
             void OnEditSelectNone(wxCommandEvent& event);
             
-            void OnEditRollObjectsCW(wxCommandEvent& event);
-            void OnEditRollObjectsCCW(wxCommandEvent& event);
-            void OnEditPitchObjectsCW(wxCommandEvent& event);
-            void OnEditPitchObjectsCCW(wxCommandEvent& event);
-            void OnEditYawObjectsCW(wxCommandEvent& event);
-            void OnEditYawObjectsCCW(wxCommandEvent& event);
-            
-            void OnEditFlipObjectsH(wxCommandEvent& event);
-            void OnEditFlipObjectsV(wxCommandEvent& event);
-            
-            void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
-
-            void OnEditToggleVertexTool(wxCommandEvent& event);
-            void OnEditMoveVerticesForward(wxCommandEvent& event);
-            void OnEditMoveVerticesBackward(wxCommandEvent& event);
-            void OnEditMoveVerticesLeft(wxCommandEvent& event);
-            void OnEditMoveVerticesRight(wxCommandEvent& event);
-            void OnEditMoveVerticesUp(wxCommandEvent& event);
-            void OnEditMoveVerticesDown(wxCommandEvent& event);
             void OnEditSnapVertices(wxCommandEvent& event);
 
             void OnEditToggleTextureTool(wxCommandEvent& event);
             
-            void OnEditToggleMovementRestriction(wxCommandEvent& event);
             void OnEditToggleTextureLock(wxCommandEvent& event);
             
             void OnViewToggleShowGrid(wxCommandEvent& event);

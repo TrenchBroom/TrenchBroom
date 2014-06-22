@@ -44,6 +44,7 @@ namespace TrenchBroom {
                 Context_RotateTool      = 1 << 4,
                 Context_ObjectSelection = 1 << 5,
                 Context_FaceSelection   = 1 << 6,
+                Context_AnyTool         = Context_VertexTool | Context_ClipTool | Context_RotateTool,
                 Context_Any             = Context_Default | Context_VertexTool | Context_ClipTool | Context_RotateTool | Context_ObjectSelection | Context_FaceSelection
             } Context;
             

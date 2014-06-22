@@ -37,19 +37,7 @@ namespace TrenchBroom {
                 const int EditLockSelected                   = Lowest +   9;
                 const int EditLockUnselected                 = Lowest +  10;
                 const int EditUnlockAll                      = Lowest +  11;
-                const int EditToggleVertexTool               = Lowest +  15;
-                const int EditRollObjectsCW                  = Lowest +  30;
-                const int EditRollObjectsCCW                 = Lowest +  31;
-                const int EditPitchObjectsCW                 = Lowest +  32;
-                const int EditPitchObjectsCCW                = Lowest +  33;
-                const int EditYawObjectsCW                   = Lowest +  34;
-                const int EditYawObjectsCCW                  = Lowest +  35;
-                const int EditFlipObjectsHorizontally        = Lowest +  36;
-                const int EditFlipObjectsVertically          = Lowest +  37;
-                const int DuplicateObjects                   = Lowest +  38;
-                const int EditActions                        = Lowest +  39;
-                const int EditCreatePointEntity              = Lowest +  40;
-                const int EditCreateBrushEntity              = Lowest +  41;
+                const int EditSnapVertices                   = Lowest +  12;
                 const int EditToggleTextureLock              = Lowest +  42;
                 const int ViewToggleShowGrid                 = Lowest +  43;
                 const int ViewToggleSnapToGrid               = Lowest +  44;
@@ -68,23 +56,14 @@ namespace TrenchBroom {
                 const int ViewMoveCameraRight                = Lowest +  57;
                 const int ViewMoveCameraUp                   = Lowest +  58;
                 const int ViewMoveCameraDown                 = Lowest +  59;
-                const int EditMoveVerticesForward            = Lowest +  60;
-                const int EditMoveVerticesBackward           = Lowest +  61;
-                const int EditMoveVerticesLeft               = Lowest +  62;
-                const int EditMoveVerticesRight              = Lowest +  63;
-                const int EditMoveVerticesUp                 = Lowest +  64;
-                const int EditMoveVerticesDown               = Lowest +  65;
                 const int ViewCenterCameraOnSelection        = Lowest +  72;
-                const int EditToggleRotateObjectsTool        = Lowest +  73;
                 const int ViewIncGridSize                    = Lowest +  74;
                 const int ViewDecGridSize                    = Lowest +  75;
                 const int FileLoadPointFile                  = Lowest +  76;
                 const int FileUnloadPointFile                = Lowest +  77;
                 const int ViewMoveCameraToNextPoint          = Lowest +  78;
                 const int ViewMoveCameraToPreviousPoint      = Lowest +  79;
-                const int EditShowMapProperties              = Lowest +  80;
-                const int EditSnapVertices                   = Lowest +  81;
-                const int EditCorrectVertices                = Lowest +  82;
+
                 const int HelpShowHelp                       = Lowest +  83;
                 const int EditPasteAtOriginalPosition        = Lowest +  84;
                 const int EditSelectByFilePosition           = Lowest +  85;
@@ -93,14 +72,8 @@ namespace TrenchBroom {
                 const int ViewSwitchToFaceInspector          = Lowest +  88;
                 const int EditNavigateUp                     = Lowest +  95;
                 const int FileOpenRecent                     = Lowest +  96;
-                const int EditVertexActions                  = Lowest +  97;
-                const int EditClipActions                    = Lowest +  98;
-                const int EditObjectActions                  = Lowest +  99;
-                const int EditFaceActions                    = Lowest + 100;
                 const int EditPrintFilePositions             = Lowest + 101;
-                const int EditToggleMovementRestriction      = Lowest + 102;
                 const int EditSelectContained                = Lowest + 103;
-                const int EditToggleTextureTool              = Lowest + 105;
                 const int ViewToggleCameraFlyMode            = Lowest + 106;
                 const int FileRecentDocuments                = Lowest + 190;
                 const int Highest                            = Lowest + 200;
@@ -112,24 +85,54 @@ namespace TrenchBroom {
                 const int ToggleClipSide                     = Lowest +   2;
                 const int PerformClip                        = Lowest +   3;
                 const int DeleteLastClipPoint                = Lowest +   4;
-                const int MoveObjectsForward                 = Lowest +   5;
-                const int MoveObjectsRight                   = Lowest +   6;
-                const int MoveObjectsBackward                = Lowest +   7;
-                const int MoveObjectsLeft                    = Lowest +   8;
-                const int MoveObjectsUp                      = Lowest +   9;
-                const int MoveObjectsDown                    = Lowest +  10;
-                const int DuplicateObjectsForward            = Lowest +  11;
-                const int DuplicateObjectsRight              = Lowest +  12;
-                const int DuplicateObjectsBackward           = Lowest +  13;
-                const int DuplicateObjectsLeft               = Lowest +  14;
-                const int DuplicateObjectsUp                 = Lowest +  15;
-                const int DuplicateObjectsDown               = Lowest +  16;
-                const int MoveTexturesUp                     = Lowest +  17;
-                const int MoveTexturesRight                  = Lowest +  18;
-                const int MoveTexturesDown                   = Lowest +  19;
-                const int MoveTexturesLeft                   = Lowest +  20;
-                const int RotateTexturesCW                   = Lowest +  21;
-                const int RotateTexturesCCW                  = Lowest +  22;
+
+                const int ToggleVertexTool                   = Lowest +   5;
+                const int MoveVerticesForward                = Lowest +  34;
+                const int MoveVerticesBackward               = Lowest +  35;
+                const int MoveVerticesLeft                   = Lowest +  36;
+                const int MoveVerticesRight                  = Lowest +  37;
+                const int MoveVerticesUp                     = Lowest +  38;
+                const int MoveVerticesDown                   = Lowest +  39;
+
+                const int ToggleRotateObjectsTool            = Lowest +   6;
+                
+                const int ToggleMovementRestriction          = Lowest +   7;
+
+                const int MoveObjectsForward                 = Lowest +   8;
+                const int MoveObjectsRight                   = Lowest +   9;
+                const int MoveObjectsBackward                = Lowest +  10;
+                const int MoveObjectsLeft                    = Lowest +  11;
+                const int MoveObjectsUp                      = Lowest +  12;
+                const int MoveObjectsDown                    = Lowest +  13;
+                
+                const int RollObjectsCW                      = Lowest +  14;
+                const int RollObjectsCCW                     = Lowest +  15;
+                const int PitchObjectsCW                     = Lowest +  16;
+                const int PitchObjectsCCW                    = Lowest +  17;
+                const int YawObjectsCW                       = Lowest +  18;
+                const int YawObjectsCCW                      = Lowest +  19;
+                
+                const int FlipObjectsHorizontally            = Lowest +  20;
+                const int FlipObjectsVertically              = Lowest +  21;
+                
+                const int DuplicateObjectsForward            = Lowest +  22;
+                const int DuplicateObjectsRight              = Lowest +  23;
+                const int DuplicateObjectsBackward           = Lowest +  24;
+                const int DuplicateObjectsLeft               = Lowest +  25;
+                const int DuplicateObjectsUp                 = Lowest +  26;
+                const int DuplicateObjectsDown               = Lowest +  27;
+                
+                const int MoveTexturesUp                     = Lowest +  28;
+                const int MoveTexturesRight                  = Lowest +  29;
+                const int MoveTexturesDown                   = Lowest +  30;
+                const int MoveTexturesLeft                   = Lowest +  31;
+                const int RotateTexturesCW                   = Lowest +  32;
+                const int RotateTexturesCCW                  = Lowest +  33;
+
+                /*
+                const int CorrectVertices                    = Lowest +  82;
+                 */
+
                 const int Highest                            = Lowest + 200;
             }
 

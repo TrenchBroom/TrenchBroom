@@ -130,11 +130,26 @@ namespace TrenchBroom {
             void toggleTextureTool();
             bool textureToolActive() const;
             
-            void rotateObjects(RotationAxis axis, bool clockwise);
-            void flipObjects(Math::Direction direction);
-            void moveVertices(Math::Direction direction);
-            
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
+
+            void OnToggleClipTool(wxCommandEvent& event);
+            void OnToggleClipSide(wxCommandEvent& event);
+            void OnPerformClip(wxCommandEvent& event);
+            void OnDeleteLastClipPoint(wxCommandEvent& event);
+
+            void OnToggleVertexTool(wxCommandEvent& event);
+            void OnMoveVerticesForward(wxCommandEvent& event);
+            void OnMoveVerticesBackward(wxCommandEvent& event);
+            void OnMoveVerticesLeft(wxCommandEvent& event);
+            void OnMoveVerticesRight(wxCommandEvent& event);
+            void OnMoveVerticesUp(wxCommandEvent& event);
+            void OnMoveVerticesDown(wxCommandEvent& event);
+        private:
+            void moveVertices(Math::Direction direction);
+        public:
+            void OnToggleRotateObjectsTool(wxCommandEvent& event);
+
+            void OnToggleMovementRestriction(wxCommandEvent& event);
 
             void OnMoveObjectsForward(wxCommandEvent& event);
             void OnMoveObjectsBackward(wxCommandEvent& event);
@@ -143,6 +158,16 @@ namespace TrenchBroom {
             void OnMoveObjectsUp(wxCommandEvent& event);
             void OnMoveObjectsDown(wxCommandEvent& event);
 
+            void OnRollObjectsCW(wxCommandEvent& event);
+            void OnRollObjectsCCW(wxCommandEvent& event);
+            void OnPitchObjectsCW(wxCommandEvent& event);
+            void OnPitchObjectsCCW(wxCommandEvent& event);
+            void OnYawObjectsCW(wxCommandEvent& event);
+            void OnYawObjectsCCW(wxCommandEvent& event);
+            
+            void OnFlipObjectsH(wxCommandEvent& event);
+            void OnFlipObjectsV(wxCommandEvent& event);
+            
             void OnDuplicateObjectsForward(wxCommandEvent& event);
             void OnDuplicateObjectsBackward(wxCommandEvent& event);
             void OnDuplicateObjectsLeft(wxCommandEvent& event);
@@ -150,6 +175,9 @@ namespace TrenchBroom {
             void OnDuplicateObjectsUp(wxCommandEvent& event);
             void OnDuplicateObjectsDown(wxCommandEvent& event);
         private:
+            void rotateObjects(RotationAxis axis, bool clockwise);
+            void flipObjects(Math::Direction direction);
+            
             void duplicateAndMoveObjects(Math::Direction direction);
             void duplicateObjects();
             void moveObjects(Math::Direction direction);
@@ -166,11 +194,6 @@ namespace TrenchBroom {
             float rotateTextureAngle(bool clockwise) const;
             void rotateTextures(float angle);
         public:
-            void OnToggleClipTool(wxCommandEvent& event);
-            void OnToggleClipSide(wxCommandEvent& event);
-            void OnPerformClip(wxCommandEvent& event);
-            void OnDeleteLastClipPoint(wxCommandEvent& event);
-            
             void OnKey(wxKeyEvent& event);
 
             void OnActivateFrame(wxActivateEvent& event);

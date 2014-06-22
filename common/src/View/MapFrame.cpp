@@ -393,72 +393,6 @@ namespace TrenchBroom {
             m_controller->deselectAll();
         }
 
-        void MapFrame::OnEditRollObjectsCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RotationAxis_Roll, true);
-        }
-        
-        void MapFrame::OnEditRollObjectsCCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RotationAxis_Roll, false);
-        }
-        
-        void MapFrame::OnEditPitchObjectsCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RotationAxis_Pitch, true);
-        }
-        
-        void MapFrame::OnEditPitchObjectsCCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RotationAxis_Pitch, false);
-        }
-        
-        void MapFrame::OnEditYawObjectsCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RotationAxis_Yaw, true);
-        }
-        
-        void MapFrame::OnEditYawObjectsCCW(wxCommandEvent& event) {
-            m_mapView->rotateObjects(RotationAxis_Yaw, false);
-        }
-        
-        void MapFrame::OnEditFlipObjectsH(wxCommandEvent& event) {
-            m_mapView->flipObjects(Math::Direction_Left);
-        }
-        
-        void MapFrame::OnEditFlipObjectsV(wxCommandEvent& event) {
-            m_mapView->flipObjects(Math::Direction_Up);
-        }
-
-        void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
-            m_mapView->toggleVertexTool();
-        }
-        
-        void MapFrame::OnEditMoveVerticesForward(wxCommandEvent& event) {
-            assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::Direction_Forward);
-        }
-        
-        void MapFrame::OnEditMoveVerticesBackward(wxCommandEvent& event) {
-            assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::Direction_Backward);
-        }
-        
-        void MapFrame::OnEditMoveVerticesLeft(wxCommandEvent& event) {
-            assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::Direction_Left);
-        }
-        
-        void MapFrame::OnEditMoveVerticesRight(wxCommandEvent& event) {
-            assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::Direction_Right);
-        }
-        
-        void MapFrame::OnEditMoveVerticesUp(wxCommandEvent& event) {
-            assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::Direction_Up);
-        }
-        
-        void MapFrame::OnEditMoveVerticesDown(wxCommandEvent& event) {
-            assert(m_mapView->vertexToolActive());
-            m_mapView->moveVertices(Math::Direction_Down);
-        }
-
         void MapFrame::OnEditSnapVertices(wxCommandEvent& event) {
             assert(m_mapView->canSnapVertices());
             MapDocumentSPtr document = lock(m_document);
@@ -469,14 +403,6 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditToggleTextureTool(wxCommandEvent& event) {
             m_mapView->toggleTextureTool();
-        }
-
-        void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
-            m_mapView->toggleRotateObjectsTool();
-        }
-
-        void MapFrame::OnEditToggleMovementRestriction(wxCommandEvent& event) {
-            m_mapView->toggleMovementRestriction();
         }
 
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
@@ -625,43 +551,8 @@ namespace TrenchBroom {
                     event.Enable(!m_mapView->anyToolActive() &&
                                  document->hasSelection());
                     break;
-                case CommandIds::Menu::EditActions:
-                    event.Enable(m_mapView->clipToolActive() ||
-                                 m_mapView->hasSelectedVertices() ||
-                                 document->hasSelectedObjects() ||
-                                 document->hasSelectedFaces());
-                    break;
-                case CommandIds::Menu::EditRollObjectsCW:
-                case CommandIds::Menu::EditRollObjectsCCW:
-                case CommandIds::Menu::EditPitchObjectsCW:
-                case CommandIds::Menu::EditPitchObjectsCCW:
-                case CommandIds::Menu::EditYawObjectsCW:
-                case CommandIds::Menu::EditYawObjectsCCW:
-                case CommandIds::Menu::EditFlipObjectsHorizontally:
-                case CommandIds::Menu::EditFlipObjectsVertically:
-                    event.Enable(document->hasSelectedObjects());
-                    break;
-                case CommandIds::Menu::EditMoveVerticesForward:
-                case CommandIds::Menu::EditMoveVerticesBackward:
-                case CommandIds::Menu::EditMoveVerticesLeft:
-                case CommandIds::Menu::EditMoveVerticesRight:
-                case CommandIds::Menu::EditMoveVerticesUp:
-                case CommandIds::Menu::EditMoveVerticesDown:
-                    event.Enable(m_mapView->vertexToolActive() && m_mapView->hasSelectedVertices());
-                    break;
                 case CommandIds::Menu::EditSnapVertices:
                     event.Enable(m_mapView->canSnapVertices());
-                    break;
-                case CommandIds::Menu::EditToggleRotateObjectsTool:
-                    event.Enable(document->hasSelectedObjects() || m_mapView->rotateObjectsToolActive());
-                    event.Check(m_mapView->rotateObjectsToolActive());
-                    break;
-                case CommandIds::Menu::EditToggleTextureTool:
-                    event.Enable(document->hasSelectedFaces() || (document->hasSelectedBrushes() && !document->hasSelectedEntities()));
-                    event.Check(m_mapView->textureToolActive());
-                    break;
-                case CommandIds::Menu::EditToggleMovementRestriction:
-                    event.Enable(true);
                     break;
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Enable(true);
@@ -851,30 +742,8 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
 
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRollObjectsCW, this, CommandIds::Menu::EditRollObjectsCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditRollObjectsCCW, this, CommandIds::Menu::EditRollObjectsCCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPitchObjectsCW, this, CommandIds::Menu::EditPitchObjectsCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPitchObjectsCCW, this, CommandIds::Menu::EditPitchObjectsCCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditYawObjectsCW, this, CommandIds::Menu::EditYawObjectsCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditYawObjectsCCW, this, CommandIds::Menu::EditYawObjectsCCW);
-
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditFlipObjectsH, this, CommandIds::Menu::EditFlipObjectsHorizontally);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditFlipObjectsV, this, CommandIds::Menu::EditFlipObjectsVertically);
-
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
-
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesForward, this, CommandIds::Menu::EditMoveVerticesForward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesBackward, this, CommandIds::Menu::EditMoveVerticesBackward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesLeft, this, CommandIds::Menu::EditMoveVerticesLeft);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesRight, this, CommandIds::Menu::EditMoveVerticesRight);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesUp, this, CommandIds::Menu::EditMoveVerticesUp);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditMoveVerticesDown, this, CommandIds::Menu::EditMoveVerticesDown);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSnapVertices, this, CommandIds::Menu::EditSnapVertices);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleTextureTool, this, CommandIds::Menu::EditToggleTextureTool);
-
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleMovementRestriction, this, CommandIds::Menu::EditToggleMovementRestriction);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewToggleShowGrid, this, CommandIds::Menu::ViewToggleShowGrid);
