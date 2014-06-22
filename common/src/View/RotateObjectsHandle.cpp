@@ -66,7 +66,12 @@ namespace TrenchBroom {
         
         RotateObjectsHandle::RotateObjectsHandle() :
         m_vbo(0xFFF),
-        m_locked(false) {}
+        m_locked(false),
+        m_pointHandleRenderer(m_vbo) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            m_pointHandleRenderer.setRadius(prefs.get(Preferences::HandleRadius), 1);
+            m_pointHandleRenderer.setRenderOccluded(false);
+        }
         
         void RotateObjectsHandle::setLocked(const bool locked) {
             m_locked = locked;
@@ -144,7 +149,7 @@ namespace TrenchBroom {
             }
         }
         
-        void RotateObjectsHandle::renderHandle(Renderer::RenderContext& renderContext, const HitArea highlight) const {
+        void RotateObjectsHandle::renderHandle(Renderer::RenderContext& renderContext, const HitArea highlight) {
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.active();
             
@@ -157,7 +162,7 @@ namespace TrenchBroom {
             glEnable(GL_DEPTH_TEST);
         }
         
-        void RotateObjectsHandle::renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle) const {
+        void RotateObjectsHandle::renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle) {
             
             PreferenceManager& prefs = PreferenceManager::instance();
             const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
@@ -189,8 +194,11 @@ namespace TrenchBroom {
                 glPolygonMode(GL_FRONT, GL_FILL);
                 glEnable(GL_CULL_FACE);
             }
-            renderPointHandle(renderContext, m_position, pointHandleColor);
-            renderPointHandle(renderContext, getPointHandlePosition(handle), pointHandleColor);
+
+            m_pointHandleRenderer.setColor(pointHandleColor);
+            m_pointHandleRenderer.renderSingleHandle(renderContext, m_position);
+            m_pointHandleRenderer.renderSingleHandle(renderContext, getPointHandlePosition(handle));
+
             glEnable(GL_DEPTH_TEST);
         }
         
@@ -216,7 +224,7 @@ namespace TrenchBroom {
             return closest;
         }
         
-        void RotateObjectsHandle::renderAxes(Renderer::RenderContext& renderContext) const {
+        void RotateObjectsHandle::renderAxes(Renderer::RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             const Color& xColor = prefs.get(Preferences::XAxisColor);
@@ -239,7 +247,7 @@ namespace TrenchBroom {
             array.render();
         }
         
-        void RotateObjectsHandle::renderRings(Renderer::RenderContext& renderContext) const {
+        void RotateObjectsHandle::renderRings(Renderer::RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             const Color& xColor = prefs.get(Preferences::XAxisColor);
@@ -270,7 +278,7 @@ namespace TrenchBroom {
             zRing.render();
         }
         
-        void RotateObjectsHandle::renderRingIndicators(Renderer::RenderContext& renderContext) const {
+        void RotateObjectsHandle::renderRingIndicators(Renderer::RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             const Color& color = prefs.get(Preferences::RotateHandleColor);
@@ -302,78 +310,37 @@ namespace TrenchBroom {
             zRing.render();
         }
         
-        void RotateObjectsHandle::renderPointHandles(Renderer::RenderContext& renderContext) const {
+        void RotateObjectsHandle::renderPointHandles(Renderer::RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const Color& color = prefs.get(Preferences::RotateHandleColor);
-            
-            renderPointHandle(renderContext, m_position, color);
-            renderPointHandle(renderContext, getPointHandlePosition(m_xAxis), color);
-            renderPointHandle(renderContext, getPointHandlePosition(m_yAxis), color);
-            renderPointHandle(renderContext, getPointHandlePosition(m_zAxis), color);
+            m_pointHandleRenderer.setColor(prefs.get(Preferences::RotateHandleColor));
+
+            m_pointHandleRenderer.renderSingleHandle(renderContext, m_position);
+            m_pointHandleRenderer.renderSingleHandle(renderContext, getPointHandlePosition(m_xAxis));
+            m_pointHandleRenderer.renderSingleHandle(renderContext, getPointHandlePosition(m_yAxis));
+            m_pointHandleRenderer.renderSingleHandle(renderContext, getPointHandlePosition(m_zAxis));
         }
         
-        void RotateObjectsHandle::renderPointHandle(Renderer::RenderContext& renderContext, const Vec3& position, const Color& color) const {
+        void RotateObjectsHandle::renderPointHandleHighlight(Renderer::RenderContext& renderContext, const HitArea highlight) {
             PreferenceManager& prefs = PreferenceManager::instance();
+            m_pointHandleRenderer.setHighlightColor(prefs.get(Preferences::SelectedHandleColor));
             
-            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::PointHandleShader);
-            shader.set("CameraPosition", renderContext.camera().position());
-            shader.set("ScalingFactor", prefs.get(Preferences::HandleScalingFactor));
-            shader.set("MaximumDistance", prefs.get(Preferences::MaximumHandleDistance));
-            shader.set("Position", Vec4f(Vec3f(position), 1.0f));
-            shader.set("Color", color);
-            
-            const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
-            Renderer::Sphere sphere(handleRadius, 1);
-            
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.mapped();
-            sphere.prepare(m_vbo);
-            setVboState.active();
-            sphere.render();
-        }
-        
-        void RotateObjectsHandle::renderPointHandleHighlight(Renderer::RenderContext& renderContext, const HitArea highlight) const {
             switch (highlight) {
                 case HitArea_Center:
-                    renderPointHandleHighlight(renderContext, m_position);
+                    m_pointHandleRenderer.renderHandleHighlight(renderContext, m_position);
                     break;
                 case HitArea_XAxis:
-                    renderPointHandleHighlight(renderContext, getPointHandlePosition(m_xAxis));
+                    m_pointHandleRenderer.renderHandleHighlight(renderContext, getPointHandlePosition(m_xAxis));
                     break;
                 case HitArea_YAxis:
-                    renderPointHandleHighlight(renderContext, getPointHandlePosition(m_yAxis));
+                    m_pointHandleRenderer.renderHandleHighlight(renderContext, getPointHandlePosition(m_yAxis));
                     break;
                 case HitArea_ZAxis:
-                    renderPointHandleHighlight(renderContext, getPointHandlePosition(m_zAxis));
+                    m_pointHandleRenderer.renderHandleHighlight(renderContext, getPointHandlePosition(m_zAxis));
                     break;
                 case HitArea_None:
                     break;
                 DEFAULT_SWITCH()
             };
-        }
-        
-        void RotateObjectsHandle::renderPointHandleHighlight(Renderer::RenderContext& renderContext, const Vec3& position) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
-            const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
-            const float scaling = static_cast<float>(prefs.get(Preferences::HandleScalingFactor));
-            
-            const Renderer::Camera& camera = renderContext.camera();
-            const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();
-            const float factor = camera.distanceTo(position) * scaling;
-            const Mat4x4f matrix = translationMatrix(Vec3f(position)) * billboardMatrix * scalingMatrix(Vec3f(factor, factor, 0.0f));
-            Renderer::MultiplyModelMatrix billboard(renderContext.transformation(), matrix);
-            
-            Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::HandleShader);
-            shader.set("Color", prefs.get(Preferences::SelectedHandleColor));
-            
-            Renderer::Circle circle(2.0f * handleRadius, 16, false);
-            
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.mapped();
-            circle.prepare(m_vbo);
-            setVboState.active();
-            circle.render();
         }
         
         Vec3 RotateObjectsHandle::getPointHandlePosition(const Vec3& axis) const {

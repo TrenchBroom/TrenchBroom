@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Color.h"
 #include "Renderer/Vbo.h"
+#include "Renderer/PointHandleRenderer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -56,13 +57,15 @@ namespace TrenchBroom {
                 const Vec3& point() const;
             };
         private:
-            mutable Renderer::Vbo m_vbo;
+            Renderer::Vbo m_vbo;
             
             bool m_locked;
             Vec3 m_position;
             Vec3 m_xAxis;
             Vec3 m_yAxis;
             Vec3 m_zAxis;
+            
+            Renderer::PointHandleRenderer m_pointHandleRenderer;
         public:
             RotateObjectsHandle();
             
@@ -74,19 +77,17 @@ namespace TrenchBroom {
             Vec3 getPointHandlePosition(const HitArea area) const;
             Vec3 getPointHandleAxis(const HitArea area) const;
             Vec3 getRotationAxis(const HitArea area) const;
-            void renderHandle(Renderer::RenderContext& renderContext, const HitArea highlight) const;
-            void renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle) const;
+            void renderHandle(Renderer::RenderContext& renderContext, const HitArea highlight);
+            void renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle);
         private:
             Hit pickPointHandle(const Ray3& pickRay, const Vec3& position, const HitArea area) const;
             Hit selectHit(const Hit& closest, const Hit& hit) const;
             
-            void renderAxes(Renderer::RenderContext& renderContext) const;
-            void renderRings(Renderer::RenderContext& renderContext) const;
-            void renderRingIndicators(Renderer::RenderContext& renderContext) const;
-            void renderPointHandles(Renderer::RenderContext& renderContext) const;
-            void renderPointHandle(Renderer::RenderContext& renderContext, const Vec3& position, const Color& color) const;
-            void renderPointHandleHighlight(Renderer::RenderContext& renderContext, const HitArea highlight) const;
-            void renderPointHandleHighlight(Renderer::RenderContext& renderContext, const Vec3& position) const;
+            void renderAxes(Renderer::RenderContext& renderContext);
+            void renderRings(Renderer::RenderContext& renderContext);
+            void renderRingIndicators(Renderer::RenderContext& renderContext);
+            void renderPointHandles(Renderer::RenderContext& renderContext);
+            void renderPointHandleHighlight(Renderer::RenderContext& renderContext, const HitArea highlight);
             
             Vec3 getPointHandlePosition(const Vec3& axis) const;
             Color getAngleIndicatorColor(const HitArea area) const;
