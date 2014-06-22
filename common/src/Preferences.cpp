@@ -50,9 +50,9 @@ namespace TrenchBroom {
         Preference<Color> SelectedInfoOverlayTextColor(IO::Path("Renderer/Colors/Selected info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> SelectedInfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Selected info overlay background"), Color(1.0f, 0.0f, 0.0f, 0.6f));
         
-        Preference<FloatType> HandleRadius(IO::Path("Controls/Handle radius"), 3.0);
-        Preference<FloatType> HandleScalingFactor(IO::Path("Controls/Handle scaling factor"), 1.0f / 300.0);
-        Preference<FloatType> MaximumHandleDistance(IO::Path("Controls/Maximum handle distance"), 1000.0);
+        Preference<float> HandleRadius(IO::Path("Controls/Handle radius"), 3.0f);
+        Preference<float> HandleScalingFactor(IO::Path("Controls/Handle scaling factor"), 1.0f / 300.0f);
+        Preference<float> MaximumHandleDistance(IO::Path("Controls/Maximum handle distance"), 1000.0f);
         Preference<Color> HandleColor(IO::Path("Renderer/Colors/Handle"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> OccludedHandleColor(IO::Path("Renderer/Colors/Occluded handle"), Color(1.0f, 1.0f, 1.0f, 0.5f));
         Preference<Color> SelectedHandleColor(IO::Path("Renderer/Colors/Selected handle"), Color(1.0f, 0.0f, 0.0f, 1.0f));
@@ -64,7 +64,7 @@ namespace TrenchBroom {
         Preference<Color> ClipOccludedEdgeColor(IO::Path("Renderer/Colors/Clip edge"), Color(1.0f,  0.0f,  0.0f,  0.5f));
         
         Preference<Color> ResizeHandleColor(IO::Path("Renderer/Colors/Resize handle"), Color(1.0f, 1.0f, 1.0f, 1.0f));
-        Preference<FloatType> RotateHandleRadius(IO::Path("Controls/Rotate handle radius"), 64.0);
+        Preference<float> RotateHandleRadius(IO::Path("Controls/Rotate handle radius"), 64.0f);
         Preference<Color> RotateHandleColor(IO::Path("Renderer/Colors/Rotate handle"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         
         Preference<Color> MoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 1.0f));
