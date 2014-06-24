@@ -113,7 +113,8 @@ namespace TrenchBroom {
         }
 
         bool CameraTool::move(const InputState& inputState) const {
-            return (inputState.mouseButtonsPressed(MouseButtons::MBNone) &&
+            return ((inputState.mouseButtonsPressed(MouseButtons::MBNone) ||
+                     inputState.mouseButtonsPressed(MouseButtons::MBRight)) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKNone));
         }
 
