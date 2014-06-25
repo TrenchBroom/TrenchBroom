@@ -65,6 +65,9 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsTool::doPick(const InputState& inputState, Hits& hits) {
+            if (document()->selectedObjects().empty())
+                return;
+
             updateHandleAxes(inputState);
             
             const RotateObjectsHandle::Hit hit = m_handle.pick(inputState.pickRay());
@@ -129,6 +132,9 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            if (document()->selectedObjects().empty())
+                return;
+            
             updateHandleAxes(inputState);
             
             m_handle.renderHandle(renderContext, highlightHandleArea(inputState));

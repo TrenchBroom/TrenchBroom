@@ -38,7 +38,7 @@ namespace TrenchBroom {
             "%s " <<
             "[ %.6g %.6g %.6g %.6g ] " <<
             "[ %.6g %.6g %.6g %.6g ] " <<
-            "%s %.6g %.6g %.6g\n";
+            "%.6g %.6g %.6g\n";
             
             FaceFormat = str.str();
         }

@@ -49,8 +49,6 @@ namespace TrenchBroom {
             void doTransform(const Vec3& oldNormal, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture);
 
             float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
-        private:
-            void setRotation(const Vec3& normal, float angle);
         };
     }
 }

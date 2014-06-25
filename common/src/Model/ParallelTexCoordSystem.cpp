@@ -66,6 +66,8 @@ namespace TrenchBroom {
         }
         
         Vec2f ParallelTexCoordSystem::doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const {
+            // todo rotate the axes here?!
+            
             const Assets::Texture* texture = attribs.texture();
             const size_t textureWidth = texture == NULL ? 1 : texture->width();
             const size_t textureHeight = texture == NULL ? 1 : texture->height();
@@ -92,15 +94,9 @@ namespace TrenchBroom {
                                                    static_cast<float>(Vec3::Null.dot(safeScaleAxis(m_yAxis, attribs.yScale())))) +
                                                    attribs.offset();
             
-            const Vec3 offset      = transformation * Vec3::Null;
-            const Vec3 newXAxis    = transformation * m_xAxis - offset;
-            const Vec3 newYAxis    = transformation * m_yAxis - offset;
-
-            const float angleDelta = static_cast<float>(angleBetween(m_xAxis, newXAxis, oldNormal));
-            const float newAngle   = Math::correct(attribs.rotation() + angleDelta, 4);
-
-            m_xAxis = newXAxis;
-            m_yAxis = newYAxis;
+            const Vec3 offset = transformation * Vec3::Null;
+            m_xAxis           = transformation * m_xAxis - offset;
+            m_yAxis           = transformation * m_yAxis - offset;
 
             // determine the new texture coordinates of the transformed center of the face, sans offsets
             const Vec2f newOriginTexCoords(static_cast<float>(offset.dot(safeScaleAxis(m_xAxis, attribs.xScale()))),
@@ -113,7 +109,6 @@ namespace TrenchBroom {
             newOffset.correct(4);
 
             attribs.setOffset(newOffset);
-            attribs.setRotation(newAngle);
         }
 
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
