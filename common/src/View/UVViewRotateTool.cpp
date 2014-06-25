@@ -88,7 +88,7 @@ namespace TrenchBroom {
             const Mat4x4 toFace = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
 
             const Vec2f hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
-            m_initalAngle = measureAngle(hitPointInFaceCoords);
+            m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();
 
             controller()->beginUndoableGroup("Rotate Texture");
             

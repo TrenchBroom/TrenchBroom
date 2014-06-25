@@ -30,19 +30,7 @@ namespace TrenchBroom {
         
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
-            const Math::Axis::Type first = normal.firstComponent();
-            
-            switch (first) {
-                case Math::Axis::AX:
-                case Math::Axis::AY:
-                    m_xAxis = crossed(Vec3::PosZ, normal).normalized();
-                    break;
-                case Math::Axis::AZ:
-                    m_xAxis = crossed(Vec3::PosY, normal).normalized();
-                    break;
-            }
-            
-            m_yAxis = crossed(m_xAxis, normal).normalized();
+            computeInitialAxes(normal, m_xAxis, m_yAxis);
         }
         
         TexCoordSystem* ParallelTexCoordSystem::doClone() const {
@@ -72,11 +60,11 @@ namespace TrenchBroom {
         }
         
         void ParallelTexCoordSystem::doSetRotation(const Vec3& normal, const float oldAngle, const float newAngle) {
-            const float angleDelta = oldAngle - newAngle;
+            const float angleDelta = newAngle - oldAngle;
             if (angleDelta == 0.0f)
                 return;
             
-            const FloatType angle = static_cast<FloatType>(Math::radians(angleDelta));
+            const FloatType angle = static_cast<FloatType>(Math::radians(-angleDelta));
             const Quat3 rot(normal, angle);
             
             m_xAxis = rot * m_xAxis;
@@ -104,10 +92,25 @@ namespace TrenchBroom {
         }
 
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
-            const Quat3 rot(Vec3::PosZ, -currentAngle);
-            const Vec3 vec = rot * (point - center);
-            const FloatType angleInRadians = Math::C::twoPi() - angleBetween(vec.normalized(), Vec3::PosX, Vec3::PosZ);
-            return static_cast<float>(Math::degrees(angleInRadians));
+            const Vec3 vec(point - center);
+            const FloatType angleInRadians = angleBetween(vec.normalized(), Vec3::PosX, Vec3::PosZ);
+            return static_cast<float>(currentAngle + Math::degrees(angleInRadians));
+        }
+
+        void ParallelTexCoordSystem::computeInitialAxes(const Vec3& normal, Vec3& xAxis, Vec3& yAxis) const {
+            const Math::Axis::Type first = normal.firstComponent();
+            
+            switch (first) {
+                case Math::Axis::AX:
+                case Math::Axis::AY:
+                    xAxis = crossed(Vec3::PosZ, normal).normalized();
+                    break;
+                case Math::Axis::AZ:
+                    xAxis = crossed(Vec3::PosY, normal).normalized();
+                    break;
+            }
+            
+            yAxis = crossed(m_xAxis, normal).normalized();
         }
     }
 }
