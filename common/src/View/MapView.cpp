@@ -629,7 +629,7 @@ namespace TrenchBroom {
             if (vertexToolActive())
                 return Action::Context_VertexTool;
             if (rotateObjectsToolActive())
-                return Action::Context_VertexTool;
+                return Action::Context_RotateTool;
 
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedObjects())
