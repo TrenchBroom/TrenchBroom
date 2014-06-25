@@ -66,6 +66,8 @@ namespace TrenchBroom {
             
             virtual float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const = 0;
         protected:
+            Vec2f computeTexCoords(const Vec3& point, const Vec2f& scale) const;
+
             template <typename T>
             T safeScale(const T value) const {
                 return Math::zero(value) ? static_cast<T>(1.0) : value;

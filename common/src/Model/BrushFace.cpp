@@ -48,6 +48,14 @@ namespace TrenchBroom {
         Assets::Texture* BrushFaceAttribs::texture() const {
             return m_texture;
         }
+        
+        Vec2f BrushFaceAttribs::textureSize() const {
+            if (m_texture == NULL)
+                return Vec2f::One;
+            const float w = m_texture->width()  == 0 ? 1.0f : static_cast<float>(m_texture->width());
+            const float h = m_texture->height() == 0 ? 1.0f : static_cast<float>(m_texture->height());
+            return Vec2f(w, h);
+        }
 
         const Vec2f& BrushFaceAttribs::offset() const {
             return m_offset;

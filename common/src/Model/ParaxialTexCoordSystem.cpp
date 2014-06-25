@@ -97,12 +97,9 @@ namespace TrenchBroom {
         }
 
         Vec2f ParaxialTexCoordSystem::doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const {
-            const Assets::Texture* texture = attribs.texture();
-            const size_t textureWidth = texture == NULL ? 1 : texture->width();
-            const size_t textureHeight = texture == NULL ? 1 : texture->height();
-            const float x = static_cast<float>((point.dot(xAxis() / safeScale(attribs.xScale())) + attribs.xOffset()) / textureWidth);
-            const float y = static_cast<float>((point.dot(yAxis() / safeScale(attribs.yScale())) + attribs.yOffset()) / textureHeight);
-            return Vec2f(x, y);
+            const Vec2f texSize = attribs.textureSize();
+            const Vec2f coords = computeTexCoords(point, attribs.scale());
+            return (coords + attribs.offset()) / texSize;
         }
         
         void ParaxialTexCoordSystem::doSetRotation(const Vec3& normal, const float oldAngle, const float newAngle) {
@@ -116,9 +113,7 @@ namespace TrenchBroom {
                 return;
 
             // calculate the current texture coordinates of the origin
-            const Vec2f oldOriginTexCoords = Vec2f(static_cast<float>(Vec3::Null.dot(safeScaleAxis(m_xAxis, attribs.xScale()))),
-                                                   static_cast<float>(Vec3::Null.dot(safeScaleAxis(m_yAxis, attribs.yScale())))) +
-                                                   attribs.offset();
+            const Vec2f oldOriginTexCoords = computeTexCoords(Vec3::Null, attribs.scale()) + attribs.offset();
             
             // compute the parameters of the transformed texture coordinate system
             const Vec3 offset = transformation * Vec3::Null;
@@ -190,8 +185,7 @@ namespace TrenchBroom {
             doSetRotation(newNormal, attribs.rotation(), newRotation);
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            const Vec2f newOriginTexCoords(static_cast<float>(offset.dot(safeScaleAxis(m_xAxis, newScale.x()))),
-                                           static_cast<float>(offset.dot(safeScaleAxis(m_yAxis, newScale.y()))));
+            const Vec2f newOriginTexCoords = computeTexCoords(offset, newScale);
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center

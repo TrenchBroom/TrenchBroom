@@ -175,5 +175,11 @@ namespace TrenchBroom {
             offset[0] -= Math::round(offset[0] / w) * w;
             offset[1] -= Math::round(offset[1] / h) * h;
         }
+
+        Vec2f TexCoordSystem::computeTexCoords(const Vec3& point, const Vec2f& scale) const {
+            return Vec2f(point.dot(safeScaleAxis(getXAxis(), scale.x())),
+                         point.dot(safeScaleAxis(getYAxis(), scale.y())));
+        }
+        
     }
 }

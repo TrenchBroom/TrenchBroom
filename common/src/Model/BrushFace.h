@@ -57,6 +57,7 @@ namespace TrenchBroom {
             
             const String& textureName() const;
             Assets::Texture* texture() const;
+            Vec2f textureSize() const;
 
             const Vec2f& offset() const;
             float xOffset() const;
