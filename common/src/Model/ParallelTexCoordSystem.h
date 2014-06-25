@@ -41,15 +41,16 @@ namespace TrenchBroom {
             Vec3 getXAxis() const;
             Vec3 getYAxis() const;
             Vec3 getZAxis() const;
+
             bool isRotationInverted(const Vec3& normal) const;
-            
             Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;
-            void doUpdate(const Vec3& normal, const BrushFaceAttribs& attribs);
-            void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs);
+            
+            void doSetRotation(const Vec3& normal, float oldAngle, float newAngle);
+            void doTransform(const Vec3& oldNormal, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture);
 
             float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
-            
-            void doUpdate(const Vec3& normal, float rotation);
+        private:
+            void setRotation(const Vec3& normal, float angle);
         };
     }
 }

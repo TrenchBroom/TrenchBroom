@@ -97,15 +97,22 @@ namespace TrenchBroom {
                 m_textureName = BrushFace::NoTextureName;
         }
         
+        void BrushFaceAttribs::setOffset(const Vec2f& offset) {
+            m_offset = offset;
+        }
+
         void BrushFaceAttribs::setXOffset(const float xOffset) {
             m_offset[0] = xOffset;
         }
         
         void BrushFaceAttribs::setYOffset(const float yOffset) {
             m_offset[1] = yOffset;
-            
         }
 
+        void BrushFaceAttribs::setScale(const Vec2f& scale) {
+            m_scale = scale;
+        }
+        
         void BrushFaceAttribs::setXScale(const float xScale) {
             m_scale[0] = xScale;
         }
@@ -315,6 +322,7 @@ namespace TrenchBroom {
         void BrushFace::setXOffset(const float i_xOffset) {
             if (i_xOffset == xOffset())
                 return;
+            
             m_attribs.setXOffset(i_xOffset);
             invalidateVertexCache();
         }
@@ -343,8 +351,11 @@ namespace TrenchBroom {
         void BrushFace::setRotation(const float rotation) {
             if (rotation == m_attribs.rotation())
                 return;
+
+            const float oldRotation = m_attribs.rotation();
             m_attribs.setRotation(rotation);
-            invalidate();
+            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, rotation);
+            invalidateVertexCache();
         }
 
         void BrushFace::setSurfaceContents(const int surfaceContents) {
@@ -398,8 +409,7 @@ namespace TrenchBroom {
         void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {
             using std::swap;
 
-            if (lockTexture)
-                m_texCoordSystem->compensate(m_boundary.normal, center(), transform, m_attribs);
+            m_texCoordSystem->transform(m_boundary.normal, transform, m_attribs, lockTexture);
             
             m_boundary.transform(transform);
             for (size_t i = 0; i < 3; ++i)
@@ -407,7 +417,7 @@ namespace TrenchBroom {
             if (crossed(m_points[2] - m_points[0], m_points[1] - m_points[0]).dot(m_boundary.normal) < 0.0)
                 swap(m_points[1], m_points[2]);
             correctPoints();
-            invalidate();
+            invalidateVertexCache();
         }
 
         void BrushFace::invert() {
@@ -415,7 +425,7 @@ namespace TrenchBroom {
 
             m_boundary.flip();
             swap(m_points[1], m_points[2]);
-            invalidate();
+            invalidateVertexCache();
         }
 
         void BrushFace::updatePointsFromVertices() {
@@ -447,20 +457,20 @@ namespace TrenchBroom {
             setPoints(m_side->vertices[best]->position,
                       m_side->vertices[Math::succ(best, vertexCount)]->position,
                       m_side->vertices[Math::pred(best, vertexCount)]->position);
-            invalidate();
+            invalidateVertexCache();
         }
 
         void BrushFace::snapPlanePointsToInteger() {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i].round();
             setPoints(m_points[0], m_points[1], m_points[2]);
-            invalidate();
+            invalidateVertexCache();
         }
         
         void BrushFace::findIntegerPlanePoints() {
             PlanePointFinder::findPoints(m_boundary, m_points, 3);
             setPoints(m_points[0], m_points[1], m_points[2]);
-            invalidate();
+            invalidateVertexCache();
         }
 
         Mat4x4 BrushFace::projectToBoundaryMatrix() const {
@@ -546,9 +556,8 @@ namespace TrenchBroom {
         Vec2f BrushFace::textureCoords(const Vec3& point) const {
             return m_texCoordSystem->getTexCoords(point, m_attribs);
         }
-
+        
         void BrushFace::invalidate() {
-            m_texCoordSystem->update(m_boundary.normal, m_attribs);
             invalidateVertexCache();
         }
 

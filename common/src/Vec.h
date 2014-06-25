@@ -565,6 +565,23 @@ public:
         return Math::eq(std::abs(d), static_cast<T>(1.0), epsilon);
     }
     
+    Vec<T,S> makePerpendicular() const {
+        Vec<T,S> result;
+        const T l = v[S-1];
+        if (l == static_cast<T>(0.0)) {
+            result[S-1] = static_cast<T>(1.0);
+        } else {
+            T lp = static_cast<T>(0.0);
+            for (size_t i = 0; i < S-1; ++i) {
+                result[i] = static_cast<T>(1.0);
+                lp += v[i];
+            }
+            result[S-1] = lp / l;
+            result.normalize();
+        }
+        return result;
+    }
+    
     int weight() const {
         return weight(v[0]) * 100 + weight(v[1]) * 10 + weight(v[2]);
     }

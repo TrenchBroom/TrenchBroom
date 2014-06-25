@@ -19,6 +19,7 @@
 
 #include "TexCoordSystem.h"
 
+#include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {
@@ -41,12 +42,12 @@ namespace TrenchBroom {
             return doGetTexCoords(point, attribs);
         }
         
-        void TexCoordSystem::update(const Vec3& normal, const BrushFaceAttribs& attribs) {
-            doUpdate(normal, attribs);
+        void TexCoordSystem::setRotation(const Vec3& normal, const float oldAngle, const float newAngle) {
+            doSetRotation(normal, oldAngle, newAngle);
         }
         
-        void TexCoordSystem::compensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
-            doCompensate(normal, center, transformation, attribs);
+        void TexCoordSystem::transform(const Vec3& oldNormal, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture) {
+            doTransform(oldNormal, transformation, attribs, lockTexture);
         }
 
         void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance, BrushFaceAttribs& attribs) const {
@@ -166,6 +167,13 @@ namespace TrenchBroom {
         
         float TexCoordSystem::measureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
             return doMeasureAngle(currentAngle, center, point);
+        }
+
+        void TexCoordSystem::modOffset(Vec2f& offset, const Assets::Texture* texture) const {
+            const float w = texture != NULL && texture->width() != 0.0f  ? static_cast<float>(texture->width()) : 1.0f;
+            const float h = texture != NULL && texture->height() != 0.0f ? static_cast<float>(texture->height()) : 1.0f;
+            offset[0] -= Math::round(offset[0] / w) * w;
+            offset[1] -= Math::round(offset[1] / h) * h;
         }
     }
 }

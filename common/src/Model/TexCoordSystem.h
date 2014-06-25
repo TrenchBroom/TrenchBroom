@@ -41,8 +41,9 @@ namespace TrenchBroom {
             Vec3 yAxis() const;
             
             Vec2f getTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;
-            void update(const Vec3& normal, const BrushFaceAttribs& attribs);
-            void compensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs);
+            
+            void setRotation(const Vec3& normal, float oldAngle, float newAngle);
+            void transform(const Vec3& oldNormal, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture);
             
             void moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Math::Direction direction, float distance, BrushFaceAttribs& attribs) const;
             void rotateTexture(const Vec3& normal, float angle, BrushFaceAttribs& attribs) const;
@@ -56,12 +57,13 @@ namespace TrenchBroom {
             virtual Vec3 getXAxis() const = 0;
             virtual Vec3 getYAxis() const = 0;
             virtual Vec3 getZAxis() const = 0;
-            virtual bool isRotationInverted(const Vec3& normal) const = 0;
             
+            virtual bool isRotationInverted(const Vec3& normal) const = 0;
             virtual Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const = 0;
-            virtual void doUpdate(const Vec3& normal, const BrushFaceAttribs& attribs) = 0;
-            virtual void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) = 0;
-
+            
+            virtual void doSetRotation(const Vec3& normal, float oldAngle, float newAngle) = 0;
+            virtual void doTransform(const Vec3& oldNormal, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture) = 0;
+            
             virtual float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const = 0;
         protected:
             template <typename T>
@@ -73,6 +75,8 @@ namespace TrenchBroom {
             Vec<T1,3> safeScaleAxis(const Vec<T1,3>& axis, const T2 factor) const {
                 return axis / safeScale(factor);
             }
+            
+            void modOffset(Vec2f& offset, const Assets::Texture* texture) const;
         };
     }
 }

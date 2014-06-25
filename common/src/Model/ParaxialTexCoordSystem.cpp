@@ -35,7 +35,7 @@ namespace TrenchBroom {
 
         ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
-            doUpdate(normal, 0.0f);
+            setRotation(normal, 0.0f, 0.0f);
         }
 
         size_t ParaxialTexCoordSystem::planeNormalIndex(const Vec3& normal) {
@@ -101,29 +101,27 @@ namespace TrenchBroom {
             const size_t textureWidth = texture == NULL ? 1 : texture->width();
             const size_t textureHeight = texture == NULL ? 1 : texture->height();
             const float x = static_cast<float>((point.dot(xAxis() / safeScale(attribs.xScale())) + attribs.xOffset()) / textureWidth);
-            const float y = static_cast<float>((point.dot(xAxis() / safeScale(attribs.xScale())) + attribs.yOffset()) / textureHeight);
+            const float y = static_cast<float>((point.dot(yAxis() / safeScale(attribs.yScale())) + attribs.yOffset()) / textureHeight);
             return Vec2f(x, y);
         }
         
-        void ParaxialTexCoordSystem::doUpdate(const Vec3& normal, const BrushFaceAttribs& attribs) {
-            doUpdate(normal, attribs.rotation());
-        }
-        
-        void ParaxialTexCoordSystem::doUpdate(const Vec3& normal, float rotation) {
+        void ParaxialTexCoordSystem::doSetRotation(const Vec3& normal, const float oldAngle, const float newAngle) {
             m_index = planeNormalIndex(normal);
             axes(m_index, m_xAxis, m_yAxis);
-            rotateAxes(m_xAxis, m_yAxis, Math::radians(rotation), m_index);
+            rotateAxes(m_xAxis, m_yAxis, Math::radians(newAngle), m_index);
         }
-        
-        void ParaxialTexCoordSystem::doCompensate(const Vec3& oldNormal, const Vec3& oldCenter, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
-            // calculate the current texture coordinates of the face's center
-            const Vec2f curCenterTexCoords = Vec2f(static_cast<float>(oldCenter.dot(safeScaleAxis(m_xAxis, attribs.xScale()))),
-                                                   static_cast<float>(oldCenter.dot(safeScaleAxis(m_yAxis, attribs.yScale())))) +
-                                             attribs.offset();
+
+        void ParaxialTexCoordSystem::doTransform(const Vec3& oldNormal, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture) {
+            if (!lockTexture)
+                return;
+
+            // calculate the current texture coordinates of the origin
+            const Vec2f oldOriginTexCoords = Vec2f(static_cast<float>(Vec3::Null.dot(safeScaleAxis(m_xAxis, attribs.xScale()))),
+                                                   static_cast<float>(Vec3::Null.dot(safeScaleAxis(m_yAxis, attribs.yScale())))) +
+                                                   attribs.offset();
             
             // compute the parameters of the transformed texture coordinate system
             const Vec3 offset = transformation * Vec3::Null;
-            const Vec3 newCenter = transformation * oldCenter;
             
             const Mat4x4 toPlane = planeProjectionMatrix(0.0, oldNormal, crossed(m_xAxis, m_yAxis).normalized());
             const Mat4x4 fromPlane = invertedMatrix(toPlane);
@@ -153,12 +151,12 @@ namespace TrenchBroom {
             assert(!newXAxis.nan() && !newYAxis.nan());
             
             // the new scaling factors are the lengths of the transformed texture axes
-            float newXScale = static_cast<float>(newXAxis.length());
-            float newYScale = static_cast<float>(newYAxis.length());
+            Vec2f newScale = Vec2f(newXAxis.length(),
+                                   newYAxis.length());
             
             // normalize the transformed texture axes
-            newXAxis /= newXScale;
-            newYAxis /= newYScale;
+            newXAxis /= newScale.x();
+            newYAxis /= newScale.y();
             
             // WARNING: the texture plane norm is not the rotation axis of the texture (it's always the absolute axis)
             
@@ -175,55 +173,41 @@ namespace TrenchBroom {
                 rad *= -1.0f;
             
             float newRotation = Math::degrees(rad);
-            newRotation = Math::correct(newRotation);
+            newRotation = Math::correct(newRotation, 4);
             
             // apply the rotation to the new base axes
             rotateAxes(newBaseXAxis, newBaseYAxis, rad, newIndex);
             
             // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
             if (newBaseXAxis.dot(newXAxis) < 0.0)
-                newXScale *= -1.0f;
+                newScale[0] *= -1.0f;
             if (newBaseYAxis.dot(newYAxis) < 0.0)
-                newYScale *= -1.0f;
+                newScale[1] *= -1.0f;
             
             // correct rounding errors
-            newXScale = Math::correct(newXScale);
-            newYScale = Math::correct(newYScale);
+            newScale.correct(4);
             
-            doUpdate(newNormal, newRotation);
+            doSetRotation(newNormal, attribs.rotation(), newRotation);
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            const Vec2f newCenterTexCoords(static_cast<float>(newCenter.dot(safeScaleAxis(m_xAxis, newXScale))),
-                                           static_cast<float>(newCenter.dot(safeScaleAxis(m_yAxis, newYScale))));
+            const Vec2f newOriginTexCoords(static_cast<float>(offset.dot(safeScaleAxis(m_xAxis, newScale.x()))),
+                                           static_cast<float>(offset.dot(safeScaleAxis(m_yAxis, newScale.y()))));
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
-            float newXOffset = curCenterTexCoords.x() - newCenterTexCoords.x();
-            float newYOffset = curCenterTexCoords.y() - newCenterTexCoords.y();
+            Vec2f newOffset = oldOriginTexCoords - newOriginTexCoords;
+            modOffset(newOffset, attribs.texture());
+            newOffset.correct(4);
             
-            const Assets::Texture* texture = attribs.texture();
-            if (texture != NULL) {
-                newXOffset -= Math::round(newXOffset / static_cast<float>(texture->width())) * static_cast<float>(texture->width());
-                newYOffset -= Math::round(newYOffset / static_cast<float>(texture->height())) * static_cast<float>(texture->height());
-            }
-            
-            // correct rounding errors
-            newXOffset = Math::correct(newXOffset);
-            newYOffset = Math::correct(newYOffset);
-            
-            assert(!Math::isnan(newXOffset));
-            assert(!Math::isnan(newYOffset));
+            assert(!newOffset.nan());
+            assert(!newScale.nan());
             assert(!Math::isnan(newRotation));
-            assert(!Math::isnan(newXScale));
-            assert(!Math::isnan(newYScale));
-            assert(!Math::zero(newXScale));
-            assert(!Math::zero(newYScale));
+            assert(!Math::zero(newScale.x()));
+            assert(!Math::zero(newScale.y()));
             
-            attribs.setXOffset(newXOffset);
-            attribs.setYOffset(newYOffset);
+            attribs.setOffset(newOffset);
+            attribs.setScale(newScale);
             attribs.setRotation(newRotation);
-            attribs.setXScale(newXScale);
-            attribs.setYScale(newYScale);
         }
 
         float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
