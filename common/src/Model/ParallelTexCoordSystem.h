@@ -30,20 +30,17 @@ namespace TrenchBroom {
         
         class ParallelTexCoordSystem : public TexCoordSystem {
         private:
-            Vec3 m_initialXAxis;
-            Vec3 m_initialYAxis;
             Vec3 m_xAxis;
             Vec3 m_yAxis;
-            Vec3 m_zAxis;
         public:
             ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const Vec3& normal, float rotation);
             ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2);
         private:
             TexCoordSystem* doClone() const;
             
-            const Vec3& getXAxis() const;
-            const Vec3& getYAxis() const;
-            const Vec3& getZAxis() const;
+            Vec3 getXAxis() const;
+            Vec3 getYAxis() const;
+            Vec3 getZAxis() const;
             bool isRotationInverted(const Vec3& normal) const;
             
             Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;
@@ -51,6 +48,8 @@ namespace TrenchBroom {
             void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs);
 
             float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
+            
+            void doUpdate(const Vec3& normal, float rotation);
         };
     }
 }

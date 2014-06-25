@@ -377,11 +377,11 @@ namespace TrenchBroom {
             setSurfaceValue(other.surfaceValue());
         }
 
-        const Vec3& BrushFace::textureXAxis() const {
+        Vec3 BrushFace::textureXAxis() const {
             return m_texCoordSystem->xAxis();
         }
         
-        const Vec3& BrushFace::textureYAxis() const {
+        Vec3 BrushFace::textureYAxis() const {
             return m_texCoordSystem->yAxis();
         }
 

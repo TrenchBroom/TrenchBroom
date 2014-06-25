@@ -66,15 +66,15 @@ namespace TrenchBroom {
             return new ParaxialTexCoordSystem(*this);
         }
 
-        const Vec3& ParaxialTexCoordSystem::getXAxis() const {
+        Vec3 ParaxialTexCoordSystem::getXAxis() const {
             return m_xAxis;
         }
         
-        const Vec3& ParaxialTexCoordSystem::getYAxis() const {
+        Vec3 ParaxialTexCoordSystem::getYAxis() const {
             return m_yAxis;
         }
         
-        const Vec3& ParaxialTexCoordSystem::getZAxis() const {
+        Vec3 ParaxialTexCoordSystem::getZAxis() const {
             return BaseAxes[m_index * 3 + 0];
         }
         
@@ -100,10 +100,8 @@ namespace TrenchBroom {
             const Assets::Texture* texture = attribs.texture();
             const size_t textureWidth = texture == NULL ? 1 : texture->width();
             const size_t textureHeight = texture == NULL ? 1 : texture->height();
-            const Vec3 scaledXAxis = safeScaleAxis(m_xAxis, attribs.xScale());
-            const Vec3 scaledYAxis = safeScaleAxis(m_yAxis, attribs.yScale());
-            const float x = static_cast<float>((point.dot(scaledXAxis) + attribs.xOffset()) / textureWidth);
-            const float y = static_cast<float>((point.dot(scaledYAxis) + attribs.yOffset()) / textureHeight);
+            const float x = static_cast<float>((point.dot(xAxis() / safeScale(attribs.xScale())) + attribs.xOffset()) / textureWidth);
+            const float y = static_cast<float>((point.dot(xAxis() / safeScale(attribs.xScale())) + attribs.yOffset()) / textureHeight);
             return Vec2f(x, y);
         }
         
@@ -121,7 +119,7 @@ namespace TrenchBroom {
             // calculate the current texture coordinates of the face's center
             const Vec2f curCenterTexCoords = Vec2f(static_cast<float>(oldCenter.dot(safeScaleAxis(m_xAxis, attribs.xScale()))),
                                                    static_cast<float>(oldCenter.dot(safeScaleAxis(m_yAxis, attribs.yScale())))) +
-                                             Vec2f(attribs.xOffset(), attribs.yOffset());
+                                             attribs.offset();
             
             // compute the parameters of the transformed texture coordinate system
             const Vec3 offset = transformation * Vec3::Null;

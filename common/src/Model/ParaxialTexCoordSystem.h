@@ -44,9 +44,9 @@ namespace TrenchBroom {
         private:
             TexCoordSystem* doClone() const;
 
-            const Vec3& getXAxis() const;
-            const Vec3& getYAxis() const;
-            const Vec3& getZAxis() const;
+            Vec3 getXAxis() const;
+            Vec3 getYAxis() const;
+            Vec3 getZAxis() const;
             
             bool isRotationInverted(const Vec3& normal) const;
 
@@ -58,11 +58,6 @@ namespace TrenchBroom {
             float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
         private:
             void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angleInRadians, size_t planeNormIndex) const;
-            
-            template <typename T1, typename T2>
-            Vec<T1,3> safeScaleAxis(const Vec<T1,3>& axis, const T2 factor) const {
-                return axis / (factor == static_cast<T1>(0.0) ? static_cast<T1>(1.0) : factor);
-            }
         };
     }
 }

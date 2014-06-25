@@ -37,8 +37,8 @@ namespace TrenchBroom {
             
             TexCoordSystem* clone() const;
             
-            const Vec3& xAxis() const;
-            const Vec3& yAxis() const;
+            Vec3 xAxis() const;
+            Vec3 yAxis() const;
             
             Vec2f getTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;
             void update(const Vec3& normal, const BrushFaceAttribs& attribs);
@@ -53,9 +53,9 @@ namespace TrenchBroom {
         private:
             virtual TexCoordSystem* doClone() const = 0;
 
-            virtual const Vec3& getXAxis() const = 0;
-            virtual const Vec3& getYAxis() const = 0;
-            virtual const Vec3& getZAxis() const = 0;
+            virtual Vec3 getXAxis() const = 0;
+            virtual Vec3 getYAxis() const = 0;
+            virtual Vec3 getZAxis() const = 0;
             virtual bool isRotationInverted(const Vec3& normal) const = 0;
             
             virtual Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const = 0;
@@ -63,6 +63,16 @@ namespace TrenchBroom {
             virtual void doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) = 0;
 
             virtual float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const = 0;
+        protected:
+            template <typename T>
+            T safeScale(const T value) const {
+                return Math::zero(value) ? static_cast<T>(1.0) : value;
+            }
+            
+            template <typename T1, typename T2>
+            Vec<T1,3> safeScaleAxis(const Vec<T1,3>& axis, const T2 factor) const {
+                return axis / safeScale(factor);
+            }
         };
     }
 }

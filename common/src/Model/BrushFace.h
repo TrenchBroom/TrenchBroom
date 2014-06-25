@@ -172,8 +172,8 @@ namespace TrenchBroom {
             void setSurfaceValue(float surfaceValue);
             void setAttributes(const BrushFace& other);
 
-            const Vec3& textureXAxis() const;
-            const Vec3& textureYAxis() const;
+            Vec3 textureXAxis() const;
+            Vec3 textureYAxis() const;
             
             void moveTexture(const Vec3& up, const Vec3& right, Math::Direction direction, float distance);
             void rotateTexture(float angle);

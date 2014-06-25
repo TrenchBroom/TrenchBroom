@@ -45,8 +45,8 @@ namespace TrenchBroom {
         
         size_t ValveMapWriter::writeFace(Model::BrushFace& face, const size_t lineNumber, FILE* stream) {
             const String& textureName = face.textureName().empty() ? Model::BrushFace::NoTextureName : face.textureName();
-            const Vec3& xAxis = face.textureXAxis();
-            const Vec3& yAxis = face.textureYAxis();
+            const Vec3 xAxis = face.textureXAxis();
+            const Vec3 yAxis = face.textureYAxis();
             const Model::BrushFace::Points& points = face.points();
             
             std::fprintf(stream, FaceFormat.c_str(),

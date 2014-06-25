@@ -26,37 +26,51 @@ namespace TrenchBroom {
     namespace Model {
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const Vec3& normal, const float rotation) :
         m_xAxis(xAxis),
-        m_yAxis(yAxis) {
-            const FloatType angle = static_cast<FloatType>(Math::radians(rotation));
-            const Quat3 rot(normal, -angle);
-            m_initialXAxis = rot * m_xAxis;
-            m_initialYAxis = rot * m_yAxis;
-        }
+        m_yAxis(yAxis) {}
         
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
+            const Math::Axis::Type first = normal.firstComponent();
+            const bool pos = normal[first] > 0.0;
             
-            const size_t index = ParaxialTexCoordSystem::planeNormalIndex(normal);
-            ParaxialTexCoordSystem::axes(index, m_initialXAxis, m_initialYAxis);
-
-            m_xAxis = m_initialXAxis;
-            m_yAxis = m_initialYAxis;
+            switch (first) {
+                case Math::Axis::AX:
+                    if (pos)
+                        m_xAxis = crossed(normal, Vec3::NegZ).normalized();
+                    else
+                        m_yAxis = crossed(normal, Vec3::PosZ).normalized();
+                    break;
+                case Math::Axis::AY:
+                    if (pos)
+                        m_xAxis = crossed(Vec3::PosZ, normal).normalized();
+                    else
+                        m_xAxis = crossed(Vec3::NegZ, normal).normalized();
+                    break;
+                case Math::Axis::AZ:
+                    if (pos)
+                        m_xAxis = crossed(Vec3::PosY, normal).normalized();
+                    else
+                        m_xAxis = crossed(Vec3::NegY, normal).normalized();
+                    break;
+            }
+            
+            m_yAxis = crossed(normal, m_xAxis).normalized();
         }
         
         TexCoordSystem* ParallelTexCoordSystem::doClone() const {
             return new ParallelTexCoordSystem(*this);
         }
         
-        const Vec3& ParallelTexCoordSystem::getXAxis() const {
+        Vec3 ParallelTexCoordSystem::getXAxis() const {
             return m_xAxis;
         }
         
-        const Vec3& ParallelTexCoordSystem::getYAxis() const {
+        Vec3 ParallelTexCoordSystem::getYAxis() const {
             return m_yAxis;
         }
         
-        const Vec3& ParallelTexCoordSystem::getZAxis() const {
-            return m_zAxis;
+        Vec3 ParallelTexCoordSystem::getZAxis() const {
+            return crossed(m_xAxis, m_yAxis).normalized();
         }
         
         bool ParallelTexCoordSystem::isRotationInverted(const Vec3& normal) const {
@@ -67,10 +81,8 @@ namespace TrenchBroom {
             const Assets::Texture* texture = attribs.texture();
             const size_t textureWidth = texture == NULL ? 1 : texture->width();
             const size_t textureHeight = texture == NULL ? 1 : texture->height();
-            const float safeXScale = attribs.xScale() == 0.0f ? 1.0f : attribs.xScale();
-            const float safeYScale = attribs.yScale() == 0.0f ? 1.0f : attribs.yScale();
-            const float x = static_cast<float>((point.dot(m_xAxis / safeXScale) + attribs.xOffset()) / textureWidth);
-            const float y = static_cast<float>((point.dot(m_yAxis / safeYScale) + attribs.yOffset()) / textureHeight);
+            const float x = static_cast<float>((point.dot(xAxis() / safeScale(attribs.xScale())) + attribs.xOffset()) / textureWidth);
+            const float y = static_cast<float>((point.dot(xAxis() / safeScale(attribs.xScale())) + attribs.yOffset()) / textureHeight);
             return Vec2f(x, y);
         }
         
@@ -79,11 +91,40 @@ namespace TrenchBroom {
             const Quat3 rot(normal, angle);
             m_xAxis = rot * m_initialXAxis;
             m_yAxis = rot * m_initialYAxis;
-            m_zAxis = crossed(m_xAxis, m_yAxis).normalized();
         }
         
-        void ParallelTexCoordSystem::doCompensate(const Vec3& normal, const Vec3& center, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
-            // todo
+        void ParallelTexCoordSystem::doCompensate(const Vec3& oldNormal, const Vec3& oldCenter, const Mat4x4& transformation, BrushFaceAttribs& attribs) {
+            // calculate the current texture coordinates of the face's center
+            const Vec2f curCenterTexCoords = Vec2f(static_cast<float>(oldCenter.dot(safeScaleAxis(m_xAxis, attribs.xScale()))),
+                                                   static_cast<float>(oldCenter.dot(safeScaleAxis(m_yAxis, attribs.yScale())))) +
+                                             attribs.offset();
+            
+            const Vec3 offset    = transformation * Vec3::Null;
+            const Vec3 newNormal = transformation * oldNormal - offset;
+            m_xAxis = transformation * m_xAxis;
+            m_yAxis = transformation * m_yAxis;
+
+            doUpdate(newNormal, newRotation);
+
+            // determine the new texture coordinates of the transformed center of the face, sans offsets
+            const Vec3 newCenter = transformation * oldCenter;
+            const Vec2f newCenterTexCoords(static_cast<float>(newCenter.dot(safeScaleAxis(m_xAxis, attribs.xScale()))),
+                                           static_cast<float>(newCenter.dot(safeScaleAxis(m_yAxis, attribs.yScale()))));
+            
+            // since the center should be invariant, the offsets are determined by the difference of the current and
+            // the original texture coordinates of the center
+            float newXOffset = curCenterTexCoords.x() - newCenterTexCoords.x();
+            float newYOffset = curCenterTexCoords.y() - newCenterTexCoords.y();
+            
+            const Assets::Texture* texture = attribs.texture();
+            if (texture != NULL) {
+                newXOffset -= Math::round(newXOffset / static_cast<float>(texture->width())) * static_cast<float>(texture->width());
+                newYOffset -= Math::round(newYOffset / static_cast<float>(texture->height())) * static_cast<float>(texture->height());
+            }
+            
+            // correct rounding errors
+            newXOffset = Math::correct(newXOffset);
+            newYOffset = Math::correct(newYOffset);
         }
 
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
