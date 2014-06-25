@@ -179,6 +179,7 @@ namespace TrenchBroom {
                 setupGL(renderContext);
                 renderTexture(renderContext);
                 renderFace(renderContext);
+                renderTextureAxes(renderContext);
                 renderToolBox(renderContext);
             }
         }
@@ -299,6 +300,35 @@ namespace TrenchBroom {
             glLineWidth(2.0f);
             edgeRenderer.render(renderContext);
             glLineWidth(1.0f);
+        }
+
+        void UVView::renderTextureAxes(Renderer::RenderContext& renderContext) {
+            assert(m_helper.valid());
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+
+            const Model::BrushFace* face = m_helper.face();
+            const Vec3 xAxis = face->textureXAxis();
+            const Vec3 yAxis = face->textureYAxis();
+            const Vec3 center = face->boundsCenter();
+            
+            typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
+            Vertex::List vertices(4);
+            
+            vertices[0] = Vertex(center, prefs.get(Preferences::XAxisColor));
+            vertices[1] = Vertex(center + 32.0 * xAxis, prefs.get(Preferences::XAxisColor));
+            vertices[2] = Vertex(center, prefs.get(Preferences::YAxisColor));
+            vertices[3] = Vertex(center + 32.0 * yAxis, prefs.get(Preferences::YAxisColor));
+            
+            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
+            edgeRenderer.setUseColor(false);
+            
+            glDisable(GL_DEPTH_TEST);
+            glLineWidth(2.0f);
+            edgeRenderer.render(renderContext);
+            glLineWidth(1.0f);
+            glEnable(GL_DEPTH_TEST);
+            
         }
 
         void UVView::renderToolBox(Renderer::RenderContext& renderContext) {

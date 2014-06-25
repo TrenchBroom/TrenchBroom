@@ -100,6 +100,7 @@ namespace TrenchBroom {
             void deactivateTexture();
             
             void renderFace(Renderer::RenderContext& renderContext);
+            void renderTextureAxes(Renderer::RenderContext& renderContext);
             void renderToolBox(Renderer::RenderContext& renderContext);
         private:
             Ray3 doGetPickRay(int x, int y) const;

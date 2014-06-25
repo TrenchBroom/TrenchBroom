@@ -235,7 +235,8 @@ namespace TrenchBroom {
             const Vec3 handlePos = m_handle.getPointHandlePosition(RotateObjectsHandle::HitArea_Center);
             const Vec3 refVector = (handlePoint - handlePos).normalized();
             const Vec3 curVector = (curPoint - handlePos).normalized();
-            return document()->grid().snapAngle(angleBetween(curVector, refVector, axis));
+            const FloatType angle = document()->grid().snapAngle(angleBetween(curVector, refVector, axis));
+            return Math::remainder(angle, Math::C::twoPi());
         }
         
         bool RotateObjectsTool::doRotate(const Vec3& center, const Vec3& axis, const FloatType angle) {

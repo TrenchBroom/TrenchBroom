@@ -192,7 +192,7 @@ namespace TrenchBroom {
         
         BrushFace* BrushFace::clone() const {
             BrushFace* result = new BrushFace(points()[0], points()[1], points()[2], textureName(), m_texCoordSystem->clone());
-            result->setAttributes(*this);
+            result->m_attribs = m_attribs;
             result->setFilePosition(m_lineNumber, m_lineCount);
             if (m_selected)
                 result->select();
