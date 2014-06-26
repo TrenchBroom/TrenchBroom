@@ -21,7 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Hit.h"
 #include "Assets/Texture.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
@@ -116,6 +115,30 @@ namespace TrenchBroom {
             return zoom.x();
         }
         
+        void UVViewHelper::pickTextureGrid(const Ray3& ray, const Hit::HitType hitTypes[2], Hits& hits) const {
+            assert(valid());
+            
+            const Assets::Texture* texture = m_face->texture();
+            if (texture != NULL) {
+                
+                const Plane3& boundary = m_face->boundary();
+                const FloatType rayDistance = ray.intersectWithPlane(boundary.normal, boundary.anchor());
+                const Vec3 hitPointInWorldCoords = ray.pointAtDistance(rayDistance);
+                const Vec3 hitPointInTexCoords = m_face->toTexCoordSystemMatrix(m_face->offset(), m_face->scale(), true) * hitPointInWorldCoords;
+                
+                const FloatType maxDistance = 5.0 / cameraZoom();
+                const Vec2 stripeSize = UVViewHelper::stripeSize();
+                
+                for (size_t i = 0; i < 2; ++i) {
+                    const FloatType error = Math::abs(Math::remainder(hitPointInTexCoords[i], stripeSize[i]));
+                    if (error <= maxDistance) {
+                        const int index = static_cast<int>(Math::round(hitPointInTexCoords[i] / stripeSize[i]));
+                        hits.addHit(Hit(hitTypes[i], rayDistance, hitPointInWorldCoords, index, error));
+                    }
+                }
+            }
+        }
+
         Vec2f UVViewHelper::snapDelta(const Vec2f& delta, const Vec2f& distance) const {
             const float zoom = cameraZoom();
             

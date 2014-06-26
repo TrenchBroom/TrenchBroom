@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Hit.h"
 #include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
@@ -75,6 +76,8 @@ namespace TrenchBroom {
 
             float cameraZoom() const;
 
+            void pickTextureGrid(const Ray3& ray, const Hit::HitType hitTypes[2], Hits& hits) const;
+            
             Vec2f snapDelta(const Vec2f& delta, const Vec2f& distance) const;
             Vec2f computeDistanceFromTextureGrid(const Vec3& position) const;
 

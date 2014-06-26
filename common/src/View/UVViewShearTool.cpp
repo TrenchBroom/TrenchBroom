@@ -20,26 +20,37 @@
 #include "UVViewShearTool.h"
 
 #include "Model/BrushFace.h"
+#include "View/InputState.h"
 #include "View/UVViewHelper.h"
 
 namespace TrenchBroom {
     namespace View {
+        const Hit::HitType UVViewShearTool::XHandleHit = Hit::freeHitType();
+        const Hit::HitType UVViewShearTool::YHandleHit = Hit::freeHitType();
+
         UVViewShearTool::UVViewShearTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
         ToolImpl(document, controller),
         m_helper(helper) {}
         
         void UVViewShearTool::doPick(const InputState& inputState, Hits& hits) {
             if (m_helper.valid()) {
-                const Model::BrushFace* face = m_helper.face();
-                const Assets::Texture* texture = face->texture();
-                if (texture != NULL) {
-                    // Move common picking code from ScaleTool and ShearTool to
-                    // UVViewHelper!
-                }
+                static const Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
+                if (m_helper.valid())
+                    m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, hits);
             }
         }
         
         bool UVViewShearTool::doStartMouseDrag(const InputState& inputState) {
+            if (!inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
+                !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                return false;
+            
+            const Hits& hits = inputState.hits();
+            const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
+            const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
+            
+            if (!xHandleHit.isMatch() && !yHandleHit.isMatch())
+                return false;
         }
         
         bool UVViewShearTool::doMouseDrag(const InputState& inputState) {

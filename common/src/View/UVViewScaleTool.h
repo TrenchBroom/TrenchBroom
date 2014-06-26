@@ -22,7 +22,7 @@
 
 #include "Hit.h"
 #include "Renderer/VertexSpec.h"
-#include "View/Tool.h"
+#include "View/UVTextureGridTool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -37,38 +37,18 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVViewScaleTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
-        public:
-            static const Hit::HitType XHandleHit;
-            static const Hit::HitType YHandleHit;
+        class UVViewScaleTool : public UVViewTextureGridTool {
         private:
-            static const FloatType MaxPickDistance;
-            
             typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
-            
-            UVViewHelper& m_helper;
-
-            Vec2b m_selector;
-            Vec2i m_handle;
-            Vec2f m_lastHitPoint; // in face coords
         public:
             UVViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:
-            void doPick(const InputState& inputState, Hits& hits);
-
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            Vec2i getScaleHandle(const Hit& xHandleHit, const Hit& yHandleHit) const;
+            bool checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const;
+            String getActionName() const;
             
-            Vec2f getHitPointInFaceCoords(const Ray3& pickRay) const;
-            Vec2f getScaleHandlePositionInTexCoords(const Vec2i& scaleHandle) const;
-            Vec2f getScaleHandlePositionInFaceCoords(const Vec2i& scaleHandle) const;
-            
+            Vec2f performDrag(const Vec2f& delta);
             Vec2f snap(const Vec2f& position) const;
             
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag(const InputState& inputState);
-
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             EdgeVertex::List getHandleVertices(const Hits& hits) const;
         };

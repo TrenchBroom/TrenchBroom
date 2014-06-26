@@ -33,75 +33,29 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType UVViewScaleTool::XHandleHit = Hit::freeHitType();
-        const Hit::HitType UVViewScaleTool::YHandleHit = Hit::freeHitType();
-        const FloatType UVViewScaleTool::MaxPickDistance = 5.0;
-
         UVViewScaleTool::UVViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
-        ToolImpl(document, controller),
-        m_helper(helper) {}
+        UVViewTextureGridTool(document, controller, helper) {}
 
-        void UVViewScaleTool::doPick(const InputState& inputState, Hits& hits) {
-            if (m_helper.valid()) {
-                const Model::BrushFace* face = m_helper.face();
-                const Assets::Texture* texture = face->texture();
-                
-                if (texture != NULL) {
-                    const Ray3& pickRay = inputState.pickRay();
-                    
-                    const Plane3& boundary = face->boundary();
-                    const FloatType rayDistance = pickRay.intersectWithPlane(boundary.normal, boundary.anchor());
-                    const Vec3 hitPointInWorldCoords = pickRay.pointAtDistance(rayDistance);
-                    const Vec3 hitPointInTexCoords = face->toTexCoordSystemMatrix(face->offset(), face->scale(), true) * hitPointInWorldCoords;
-                    
-                    const FloatType maxDistance = MaxPickDistance / m_helper.cameraZoom();
-                    const Vec2 stripeSize = m_helper.stripeSize();
-                    
-                    static const Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
-                    for (size_t i = 0; i < 2; ++i) {
-                        const FloatType error = Math::abs(Math::remainder(hitPointInTexCoords[i], stripeSize[i]));
-                        if (error <= maxDistance) {
-                            const int index = static_cast<int>(Math::round(hitPointInTexCoords[i] / stripeSize[i]));
-                            hits.addHit(Hit(HitTypes[i], rayDistance, hitPointInWorldCoords, index, error));
-                        }
-                    }
-                }
-            }
-        }
-
-        bool UVViewScaleTool::doStartMouseDrag(const InputState& inputState) {
-            assert(m_helper.valid());
-            
+        bool UVViewScaleTool::checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const {
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
-            const Hits& hits = inputState.hits();
-            const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
-            const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
-            
-            if (!xHandleHit.isMatch() && !yHandleHit.isMatch())
+            if (!xHit.isMatch() && !yHit.isMatch())
                 return false;
-
-            m_handle = getScaleHandle(xHandleHit, yHandleHit);
-            m_selector = Vec2b(xHandleHit.isMatch(), yHandleHit.isMatch());
-
-            const Ray3& pickRay = inputState.pickRay();
-            m_lastHitPoint = getHitPointInFaceCoords(pickRay);
             
-            controller()->beginUndoableGroup("Scale Texture");
             return true;
         }
         
-        bool UVViewScaleTool::doMouseDrag(const InputState& inputState) {
-            const Ray3& pickRay = inputState.pickRay();
-            const Vec2f curPointFaceCoords = getHitPointInFaceCoords(pickRay);
-            const Vec2f dragDeltaFaceCoords = curPointFaceCoords - m_lastHitPoint;
-
-            const Vec2f curHandlePosTexCoords  = getScaleHandlePositionInTexCoords(m_handle);
-            const Vec2f newHandlePosFaceCoords = getScaleHandlePositionInFaceCoords(m_handle) + dragDeltaFaceCoords;
+        String UVViewScaleTool::getActionName() const {
+            return "Scale Texture";
+        }
+        
+        Vec2f UVViewScaleTool::performDrag(const Vec2f& dragDeltaFaceCoords) {
+            const Vec2f curHandlePosTexCoords  = getScaledTranslatedHandlePos();
+            const Vec2f newHandlePosFaceCoords = getHandlePos() + dragDeltaFaceCoords;
             const Vec2f newHandlePosSnapped    = snap(newHandlePosFaceCoords);
-
+            
             const Vec2f originHandlePosFaceCoords = m_helper.originInFaceCoords();
             const Vec2f originHandlePosTexCoords  = m_helper.originInTexCoords();
             
@@ -121,41 +75,13 @@ namespace TrenchBroom {
             
             const Vec2f newOriginInTexCoords = m_helper.originInTexCoords().corrected(4, 0.0f);
             const Vec2f originDelta = originHandlePosTexCoords - newOriginInTexCoords;
-
+            
             controller()->setFaceXOffset(applyTo, originDelta.x(), true);
             controller()->setFaceYOffset(applyTo, originDelta.y(), true);
-
-            m_lastHitPoint += dragDeltaFaceCoords - (newHandlePosFaceCoords - newHandlePosSnapped);
             
-            return true;
-        }
-
-        Vec2i UVViewScaleTool::getScaleHandle(const Hit& xHandleHit, const Hit& yHandleHit) const {
-            const int x = xHandleHit.isMatch() ? xHandleHit.target<int>() : 0;
-            const int y = yHandleHit.isMatch() ? yHandleHit.target<int>() : 0;
-            return Vec2i(x, y);
+            return dragDeltaFaceCoords - (newHandlePosFaceCoords - newHandlePosSnapped);
         }
         
-        Vec2f UVViewScaleTool::getHitPointInFaceCoords(const Ray3& pickRay) const {
-            const Model::BrushFace* face = m_helper.face();
-            const Plane3& boundary = face->boundary();
-            const FloatType facePointDist = boundary.intersectWithRay(pickRay);
-            const Vec3 facePoint = pickRay.pointAtDistance(facePointDist);
-            
-            const Model::TexCoordSystemHelper faceCoordSystem = Model::TexCoordSystemHelper::faceCoordSystem(face);
-            return faceCoordSystem.worldToTex(facePoint);
-        }
-
-        Vec2f UVViewScaleTool::getScaleHandlePositionInTexCoords(const Vec2i& scaleHandle) const {
-            return Vec2f(scaleHandle * m_helper.stripeSize());
-        }
-
-        Vec2f UVViewScaleTool::getScaleHandlePositionInFaceCoords(const Vec2i& scaleHandle) const {
-            const Model::BrushFace* face = m_helper.face();
-            const Vec2f positionInTexCoords = getScaleHandlePositionInTexCoords(scaleHandle);
-            return Model::TexCoordSystemHelper::texToFace(face, positionInTexCoords);
-        }
-
         Vec2f UVViewScaleTool::snap(const Vec2f& position) const {
             const Model::BrushFace* face = m_helper.face();
             const Mat4x4 toTex = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
@@ -173,14 +99,6 @@ namespace TrenchBroom {
                     distance[i] = 0.0f;
             }
             return position - distance;
-        }
-
-        void UVViewScaleTool::doEndMouseDrag(const InputState& inputState) {
-            controller()->closeGroup();
-        }
-        
-        void UVViewScaleTool::doCancelMouseDrag(const InputState& inputState) {
-            controller()->rollbackGroup();
         }
         
         void UVViewScaleTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
