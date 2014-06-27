@@ -1,5 +1,6 @@
 Thumbs.db
 *.suo
+*.o
 
 /Windows/TrenchBroom/bin
 /Windows/TrenchBroom/obj
