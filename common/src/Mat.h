@@ -667,6 +667,19 @@ const Mat<T,4,4> planeProjectionMatrix(const T distance, const Vec<T,3>& normal)
     return planeProjectionMatrix(distance, normal, normal);
 }
 
+/**
+ Returns a matrix that rotates a 3D vector in counter clockwise direction about the Z axis by the given angle
+ (in radians).
+ */
+template <typename T>
+const Mat<T,3,3> rotationMatrix(const T angle) {
+    const T sin = std::sin(angle);
+    const T cos = std::cos(angle);
+    return Mat<T,3,3>(cos, -sin, 0.0,
+                      sin,  cos, 0.0,
+                      0.0,  0.0, 1.0);
+}
+
 template <typename T, size_t R, size_t C>
 const Mat<T,R,C> Mat<T,R,C>::Identity = Mat<T,R,C>().setIdentity();
 
