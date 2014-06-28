@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "UVTextureGridTool.h"
+#include "UVViewTextureGridTool.h"
 
 #include "Model/BrushFace.h"
 #include "View/ControllerFacade.h"
@@ -53,6 +53,8 @@ namespace TrenchBroom {
             m_selector = Vec2b(xHit.isMatch(), yHit.isMatch());
             m_lastHitPoint = getHitPoint(inputState.pickRay());
 
+            startDrag(m_lastHitPoint);
+            
             controller()->beginUndoableGroup(getActionName());
             return true;
         }
@@ -100,5 +102,7 @@ namespace TrenchBroom {
         Vec2f UVViewTextureGridTool::getScaledTranslatedHandlePos() const {
             return Vec2f(m_handle * m_helper.stripeSize());
         }
+
+        void UVViewTextureGridTool::startDrag(const Vec2f& pos) {}
     }
 }

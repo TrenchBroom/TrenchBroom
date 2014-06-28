@@ -22,7 +22,7 @@
 
 #include "Hit.h"
 #include "Renderer/VertexSpec.h"
-#include "View/UVTextureGridTool.h"
+#include "View/UVViewTextureGridTool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {

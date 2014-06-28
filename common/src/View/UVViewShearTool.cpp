@@ -25,41 +25,39 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType UVViewShearTool::XHandleHit = Hit::freeHitType();
-        const Hit::HitType UVViewShearTool::YHandleHit = Hit::freeHitType();
-
         UVViewShearTool::UVViewShearTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
-        ToolImpl(document, controller),
-        m_helper(helper) {}
-        
-        void UVViewShearTool::doPick(const InputState& inputState, Hits& hits) {
-            if (m_helper.valid()) {
-                static const Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
-                if (m_helper.valid())
-                    m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, hits);
-            }
-        }
-        
-        bool UVViewShearTool::doStartMouseDrag(const InputState& inputState) {
+        UVViewTextureGridTool(document, controller, helper) {}
+
+        bool UVViewShearTool::checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const {
             if (!inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
-            const Hits& hits = inputState.hits();
-            const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
-            const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
-            
-            if (!xHandleHit.isMatch() && !yHandleHit.isMatch())
+            if (!xHit.isMatch() && !yHit.isMatch())
                 return false;
+            
+            return true;
         }
         
-        bool UVViewShearTool::doMouseDrag(const InputState& inputState) {
+        String UVViewShearTool::getActionName() const {
+            return "Shear Texture";
         }
         
-        void UVViewShearTool::doEndMouseDrag(const InputState& inputState) {
+        void UVViewShearTool::startDrag(const Vec2f& pos) {
+            const Model::BrushFace* face = m_helper.face();
+            m_axisLength[0] = face->textureXAxis().length();
+            m_axisLength[1] = face->textureYAxis().length();
+        }
+
+        Vec2f UVViewShearTool::performDrag(const Vec2f& delta) {
+            // all positions in unscaled and untranslated texture coordinates
+            const Vec2f originPos = m_helper.originInFaceCoords();
+            const Vec2f curHandlePos = getHandlePos();
+            const Vec2f newHandlePos = curHandlePos + delta;
+            
         }
         
-        void UVViewShearTool::doCancelMouseDrag(const InputState& inputState) {
+        Vec2f UVViewShearTool::snap(const Vec2f& position) const {
         }
         
         void UVViewShearTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {

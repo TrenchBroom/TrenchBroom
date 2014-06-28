@@ -53,6 +53,7 @@ namespace TrenchBroom {
         private:
             virtual bool checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const = 0;
             virtual String getActionName() const = 0;
+            virtual void startDrag(const Vec2f& pos);
             virtual Vec2f performDrag(const Vec2f& delta) = 0;
         protected:
             Vec2f getHandlePos() const;
