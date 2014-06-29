@@ -97,6 +97,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool SplitBrushFacesCommand::doCollateWith(Command::Ptr command) {
+            return false;
+        }
+
         void SplitBrushFacesCommand::doRemoveBrushes(View::VertexHandleManager& manager) {
             manager.removeBrushes(m_brushes);
         }

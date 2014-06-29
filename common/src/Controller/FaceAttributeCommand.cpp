@@ -220,5 +220,53 @@ namespace TrenchBroom {
             document->faceDidChangeNotifier(m_faces.begin(), m_faces.end());
             return true;
         }
+
+        bool FaceAttributeCommand::doCollateWith(Command::Ptr command) {
+            Ptr other = Command::cast<FaceAttributeCommand>(command);
+            
+            Assets::Texture* newTexture = m_texture; bool newSetTexture = m_setTexture;
+            float newXOffset = m_xOffset;   ValueOp newXOffsetOp = m_xOffsetOp;
+            float newYOffset = m_yOffset;   ValueOp newYOffsetOp = m_yOffsetOp;
+            float newRotation = m_rotation; ValueOp newRotationOp = m_rotationOp;
+            float newXScale = m_xScale;     ValueOp newXScaleOp = m_xScaleOp;
+            float newYScale = m_yScale;     ValueOp newYScaleOp = m_yScaleOp;
+            
+            int newSurfaceFlags = m_surfaceFlags; FlagOp newSurfaceFlagsOp = m_surfaceFlagsOp;
+            int newContentFlags = m_contentFlags; FlagOp newContentFlagsOp = m_contentFlagsOp;
+            float newSurfaceValue = m_surfaceValue; ValueOp newSurfaceValueOp = m_surfaceValueOp;
+            
+            if (!collateTextureOp(newSetTexture, newTexture, other->m_setTexture, other->m_texture))
+                return false;
+            if (!collateValueOp(newXOffsetOp, newXOffset, other->m_xOffsetOp, other->m_xOffset))
+                return false;
+            if (!collateValueOp(newYOffsetOp, newYOffset, other->m_yOffsetOp, other->m_yOffset))
+                return false;
+            if (!collateValueOp(newRotationOp, newRotation, other->m_rotationOp, other->m_rotation))
+                return false;
+            if (!collateValueOp(newXScaleOp, newXScale, other->m_xScaleOp, other->m_xScale))
+                return false;
+            if (!collateValueOp(newYScaleOp, newYScale, other->m_yScaleOp, other->m_yScale))
+                return false;
+            
+            if (!collateFlagOp(newSurfaceFlagsOp, newSurfaceFlags, other->m_surfaceFlagsOp, other->m_surfaceFlags))
+                return false;
+            if (!collateFlagOp(newContentFlagsOp, newContentFlags, other->m_contentFlagsOp, other->m_contentFlags))
+                return false;
+            if (!collateValueOp(newSurfaceValueOp, newSurfaceValue, other->m_surfaceValueOp, other->m_surfaceValue))
+                return false;
+            
+            m_texture = newTexture; m_setTexture = newSetTexture;
+            m_xOffset = newXOffset; m_xOffsetOp = newXOffsetOp;
+            m_yOffset = newYOffset; m_yOffsetOp = newYOffsetOp;
+            m_rotation = newRotation; m_rotationOp = newRotationOp;
+            m_xScale = newXScale; m_xScaleOp = newXScaleOp;
+            m_yScale = newYScale; m_yScaleOp = newYScaleOp;
+            
+            m_surfaceFlags = newSurfaceFlags; m_surfaceFlagsOp = newSurfaceFlagsOp;
+            m_contentFlags = newContentFlags; m_contentFlagsOp = newContentFlagsOp;
+            m_surfaceValue = newSurfaceValue; m_surfaceValueOp = newSurfaceValueOp;
+            
+            return true;
+        }
     }
 }

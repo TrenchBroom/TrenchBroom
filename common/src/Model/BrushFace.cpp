@@ -262,9 +262,14 @@ namespace TrenchBroom {
         void BrushFace::setAttribs(const BrushFaceAttribs& attribs) {
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->decUsageCount();
+            
+            const float oldRotation = m_attribs.rotation();
             m_attribs = attribs;
+            
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->incUsageCount();
+
+            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
             invalidate();
         }
 

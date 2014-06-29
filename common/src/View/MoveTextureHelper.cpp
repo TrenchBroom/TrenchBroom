@@ -146,8 +146,8 @@ namespace TrenchBroom {
             Vertex::List vertices(2 * edges.size());
             
             for (size_t i = 0; i < edges.size(); ++i) {
-                vertices[2 * i + 0] = Vertex(edges[i].start);
-                vertices[2 * i + 1] = Vertex(edges[i].end);
+                vertices[2 * i + 0] = Vertex(edges[i].start());
+                vertices[2 * i + 1] = Vertex(edges[i].end());
             }
             
             return Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));

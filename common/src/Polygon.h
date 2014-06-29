@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_Polygon_h
 #define TrenchBroom_Polygon_h
 
+#include "CollectionUtils.h"
 #include "Vec.h"
 
 #include <algorithm>
@@ -28,49 +29,90 @@
 
 namespace TrenchBroom {
     template <typename T, size_t S>
-    struct Polygon {
+    class Polygon {
+    public:
         typedef std::vector<Polygon<T,S> > List;
-        
-        typename Vec<T,S>::List vertices;
-        
+    private:
+        typename Vec<T,S>::List m_vertices;
+    public:
         Polygon() {}
         
         Polygon(const typename Vec<T,S>::List& i_vertices) :
-        vertices(i_vertices) {}
+        m_vertices(i_vertices) {
+            orderVertices(m_vertices);
+        }
         
         Polygon(typename Vec<T,S>::List& i_vertices) {
             using std::swap;
-            swap(vertices, i_vertices);
+            swap(m_vertices, i_vertices);
+            orderVertices(m_vertices);
         }
         
         bool operator==(const Polygon<T,S>& rhs) const {
-            if (vertices.size() != rhs.vertices.size())
-                return false;
-            
-            const size_t count = vertices.size();
+            return VectorUtils::equals(m_vertices, rhs.m_vertices);
+        }
+        
+        bool operator!=(const Polygon<T,S>& rhs) const {
+            return !(*this == rhs);
+        }
+        
+        bool operator<(const Polygon<T,S>& rhs) const {
+            return compare(rhs) < 0;
+        }
+        
+        int compare(const Polygon<T,S>& other) const {
+            const size_t count = std::min(m_vertices.size(), other.m_vertices.size());
             for (size_t i = 0; i < count; ++i) {
-                bool equal = true;
-                for (size_t j = 0; j < count && equal; ++j)
-                    equal = vertices[(i+j) % count] == rhs.vertices[j];
-                if (equal)
-                    return true;
+                const int cmp = m_vertices[i].compare(other.m_vertices[i]);
+                if (cmp < 0)
+                    return -1;
+                if (cmp > 0)
+                    return 1;
             }
-            return false;
+            
+            if (m_vertices.size() < other.m_vertices.size())
+                return -1;
+            if (m_vertices.size() > other.m_vertices.size())
+                return 1;
+            return 0;
+        }
+        
+        const typename Vec<T,S>::List& vertices() const {
+            return m_vertices;
         }
         
         Vec<T,S> center() const {
-            assert(!vertices.empty());
-            Vec<T,S> center = vertices[0];
-            for (size_t i = 1; i < vertices.size(); ++i)
-                center += vertices[i];
-            return center / static_cast<T>(vertices.size());
+            assert(!m_vertices.empty());
+            Vec<T,S> center = m_vertices[0];
+            for (size_t i = 1; i < m_vertices.size(); ++i)
+                center += m_vertices[i];
+            return center / static_cast<T>(m_vertices.size());
         }
         
         static typename Vec<T,S>::List asVertexList(const typename Polygon<T,S>::List& polygons) {
             typename Vec<T,S>::List result;
             for (size_t i = 0; i < polygons.size(); ++i)
-                result.insert(result.end(), polygons[i].vertices.begin(), polygons[i].vertices.end());
+                result.insert(result.end(), polygons[i].m_vertices.begin(), polygons[i].m_vertices.end());
             return result;
+        }
+        
+    private:
+        void orderVertices(typename Vec<T,S>::List& vertices) {
+            if (vertices.size() < 2)
+                return;
+            
+            typedef typename Vec<T,S>::List::iterator Iter;
+            Iter it = vertices.begin();
+            Iter end = vertices.end();
+            Iter smallest = it++;
+            
+            while (it != end) {
+                if (*it < *smallest)
+                    smallest = it;
+                ++it;
+            }
+
+            std::rotate(vertices.begin(), smallest, vertices.end());
         }
     };
 }

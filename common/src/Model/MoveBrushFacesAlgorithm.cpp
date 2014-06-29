@@ -68,7 +68,7 @@ namespace TrenchBroom {
             Polygon3::List::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); canMove && it != end; ++it) {
                 const Polygon3& face = *it;
-                canMove = findBrushFaceGeometry(testGeometry.sides, face.vertices + m_delta) != testGeometry.sides.end();
+                canMove = findBrushFaceGeometry(testGeometry.sides, face.vertices() + m_delta) != testGeometry.sides.end();
             }
             
             canMove &= testGeometry.sides.size() >= 3;
@@ -104,8 +104,8 @@ namespace TrenchBroom {
             
             Polygon3::List newFaces(m_faces.size());
             for (size_t i = 0; i < m_faces.size(); ++i) {
-                newFaces[i] = Polygon3(m_faces[i].vertices + m_delta);
-                assert(findBrushFaceGeometry(geometry.sides, newFaces[i].vertices) != geometry.sides.end());
+                newFaces[i] = Polygon3(m_faces[i].vertices() + m_delta);
+                assert(findBrushFaceGeometry(geometry.sides, newFaces[i].vertices()) != geometry.sides.end());
             }
             
             updateNewAndDroppedFaces();

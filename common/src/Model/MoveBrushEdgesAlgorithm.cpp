@@ -68,7 +68,7 @@ namespace TrenchBroom {
             Edge3::List::const_iterator it, end;
             for (it = m_edges.begin(), end = m_edges.end(); canMove && it != end; ++it) {
                 const Edge3& edge = *it;
-                canMove = findBrushEdge(testGeometry.edges, edge.start + m_delta, edge.end + m_delta) != testGeometry.edges.end();
+                canMove = findBrushEdge(testGeometry.edges, edge.start() + m_delta, edge.end() + m_delta) != testGeometry.edges.end();
             }
             
             canMove &= testGeometry.sides.size() >= 3;
@@ -104,9 +104,9 @@ namespace TrenchBroom {
 
             Edge3::List newEdges(m_edges.size());
             for (size_t i = 0; i < m_edges.size(); ++i) {
-                newEdges[i] = Edge3(m_edges[i].start + m_delta,
-                                    m_edges[i].end + m_delta);
-                assert(findBrushEdge(geometry.edges, newEdges[i].start, newEdges[i].end) != geometry.edges.end());
+                newEdges[i] = Edge3(m_edges[i].start() + m_delta,
+                                    m_edges[i].end() + m_delta);
+                assert(findBrushEdge(geometry.edges, newEdges[i].start(), newEdges[i].end()) != geometry.edges.end());
             }
             
             updateNewAndDroppedFaces();

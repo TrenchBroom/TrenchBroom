@@ -42,5 +42,9 @@ namespace TrenchBroom {
             document->documentWasLoadedNotifier();
             return true;
         }
+
+        bool OpenDocumentCommand::doCollateWith(Command::Ptr command) {
+            return false;
+        }
     }
 }

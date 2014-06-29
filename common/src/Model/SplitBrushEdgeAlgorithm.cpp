@@ -38,7 +38,7 @@ namespace TrenchBroom {
             if (m_delta.null())
                 return false;
             
-            BrushEdgeList::iterator edgeIt = findBrushEdge(geometry.edges, m_edge.start, m_edge.end);
+            BrushEdgeList::iterator edgeIt = findBrushEdge(geometry.edges, m_edge.start(), m_edge.end());
             if (edgeIt == geometry.edges.end())
                 return false;
             
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             BrushGeometry testGeometry(geometry);
             testGeometry.restoreFaceGeometries();
             
-            edgeIt = findBrushEdge(testGeometry.edges, m_edge.start, m_edge.end);
+            edgeIt = findBrushEdge(testGeometry.edges, m_edge.start(), m_edge.end());
             assert(edgeIt != testGeometry.edges.end());
             edge = *edgeIt;
             assert(edge != NULL);
@@ -78,7 +78,7 @@ namespace TrenchBroom {
         SplitResult SplitBrushEdgeAlgorithm::doExecute(BrushGeometry& geometry) {
             assert(!m_delta.null());
             
-            BrushEdgeList::iterator edgeIt = findBrushEdge(geometry.edges, m_edge.start, m_edge.end);
+            BrushEdgeList::iterator edgeIt = findBrushEdge(geometry.edges, m_edge.start(), m_edge.end());
             assert(edgeIt != geometry.edges.end());
             BrushEdge* edge = *edgeIt;
             assert(edge != NULL);

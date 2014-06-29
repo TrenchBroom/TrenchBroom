@@ -50,6 +50,7 @@ namespace TrenchBroom {
             Model::Map* map() const;
         private:
             bool doPerformDo();
+            bool doCollateWith(Command::Ptr command);
         };
     }
 }

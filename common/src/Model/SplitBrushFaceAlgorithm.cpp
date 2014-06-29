@@ -38,7 +38,7 @@ namespace TrenchBroom {
             if (m_delta.null())
                 return false;
             
-            BrushFaceGeometryList::iterator faceIt = findBrushFaceGeometry(geometry.sides, m_face.vertices);
+            BrushFaceGeometryList::iterator faceIt = findBrushFaceGeometry(geometry.sides, m_face.vertices());
             if (faceIt == geometry.sides.end())
                 return false;
             
@@ -71,7 +71,7 @@ namespace TrenchBroom {
         SplitResult SplitBrushFaceAlgorithm::doExecute(BrushGeometry& geometry) {
             assert(!m_delta.null());
             
-            BrushFaceGeometryList::iterator faceIt = findBrushFaceGeometry(geometry.sides, m_face.vertices);
+            BrushFaceGeometryList::iterator faceIt = findBrushFaceGeometry(geometry.sides, m_face.vertices());
             assert(faceIt != geometry.sides.end());
             BrushFaceGeometry* side = *faceIt;
             assert(side != NULL);

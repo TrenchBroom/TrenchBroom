@@ -64,6 +64,8 @@ namespace TrenchBroom {
                 document->objectDidChangeNotifier(brush);
             }
             
+            VectorUtils::sort(m_newFacePositions);
+            
             return true;
         }
         
@@ -90,6 +92,17 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool MoveBrushFacesCommand::doCollateWith(Command::Ptr command) {
+            Ptr other = Command::cast<MoveBrushFacesCommand>(command);
+            
+            if (!VectorUtils::equals(m_newFacePositions, other->m_oldFacePositions))
+                return false;
+            
+            m_newFacePositions = other->m_newFacePositions;
+            m_delta += other->m_delta;
+            return true;
+        }
+
         void MoveBrushFacesCommand::doRemoveBrushes(View::VertexHandleManager& manager) {
             manager.removeBrushes(m_brushes);
         }
@@ -130,6 +143,8 @@ namespace TrenchBroom {
                     m_oldFacePositions.push_back(facePosition);
                 }
             }
+            
+            VectorUtils::sort(m_oldFacePositions);
             
             assert(!m_brushes.empty());
             assert(m_brushes.size() == m_brushFaces.size());

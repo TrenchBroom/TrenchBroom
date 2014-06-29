@@ -43,5 +43,9 @@ namespace TrenchBroom {
             document->documentWasNewedNotifier();
             return true;
         }
+
+        bool NewDocumentCommand::doCollateWith(Command::Ptr command) {
+            return false;
+        }
     }
 }

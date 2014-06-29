@@ -117,6 +117,7 @@ namespace TrenchBroom {
 
             bool doPerformDo();
             bool doPerformUndo();
+            bool doCollateWith(Command::Ptr command);
             
             template <typename T>
             T evaluate(const T oldValue, const T newValue, const ValueOp op) const {
@@ -145,6 +146,117 @@ namespace TrenchBroom {
                     case FlagOp_None:
                         return oldValue;
                     DEFAULT_SWITCH()
+                }
+            }
+            
+            bool collateTextureOp(bool& mySet, Assets::Texture* myTexture, const bool theirSet, Assets::Texture* theirTexture) const {
+                if (mySet) {
+                    if (theirSet) {
+                        myTexture = theirTexture;
+                        return true;
+                    } else {
+                        return true;
+                    }
+                } else {
+                    mySet = theirSet;
+                    myTexture = theirTexture;
+                    return true;
+                }
+            }
+            
+            template <typename T>
+            bool collateValueOp(ValueOp& myOp, T& myValue, const ValueOp theirOp, const T theirValue) const {
+                switch (myOp) {
+                    case ValueOp_None:
+                        myOp = theirOp;
+                        myValue = theirValue;
+                        return true;
+                    case ValueOp_Set:
+                        switch (theirOp) {
+                            case ValueOp_None:
+                                return true;
+                            case ValueOp_Set:
+                                myValue = theirValue;
+                                return true;
+                            case ValueOp_Add:
+                            case ValueOp_Mul:
+                                return false;
+                        }
+                    case ValueOp_Add:
+                        switch (theirOp) {
+                            case ValueOp_None:
+                                return true;
+                            case ValueOp_Set:
+                                myOp = theirOp;
+                                myValue = theirValue;
+                                return true;
+                            case ValueOp_Add:
+                                myValue += theirValue;
+                                return true;
+                            case ValueOp_Mul:
+                                return false;
+                        }
+                    case ValueOp_Mul:
+                        switch (theirOp) {
+                            case ValueOp_None:
+                                return true;
+                            case ValueOp_Set:
+                                myOp = theirOp;
+                                myValue = theirValue;
+                            case ValueOp_Add:
+                                return false;
+                            case ValueOp_Mul:
+                                myValue *= theirValue;
+                                return true;
+                        }
+                }
+            }
+            
+            template <typename T>
+            bool collateFlagOp(FlagOp& myOp, T& myValue, const FlagOp theirOp, const T theirValue) const {
+                switch (myOp) {
+                    case FlagOp_None:
+                        myOp = theirOp;
+                        myValue = theirValue;
+                    case FlagOp_Replace:
+                        switch (theirOp) {
+                            case FlagOp_None:
+                                return true;
+                            case FlagOp_Replace:
+                                myValue = theirValue;
+                                return true;
+                            case FlagOp_Set:
+                            case FlagOp_Unset:
+                                return false;
+                        }
+                    case FlagOp_Set:
+                        switch (theirOp) {
+                            case FlagOp_None:
+                                return true;
+                            case FlagOp_Replace:
+                                myOp = theirOp;
+                                myValue = theirValue;
+                                return true;
+                            case FlagOp_Set:
+                                myValue |= theirValue;
+                                return true;
+                            case FlagOp_Unset:
+                                return false;
+                        }
+                    case FlagOp_Unset:
+                        switch (theirOp) {
+                            case FlagOp_None:
+                                return true;
+                            case FlagOp_Replace:
+                                myOp = theirOp;
+                                myValue = theirValue;
+                                return true;
+                            case FlagOp_Set:
+                                return false;
+                            case FlagOp_Unset:
+                                myValue |= theirValue;
+                                return true;
+                        }
                 }
             }
         };

@@ -72,9 +72,7 @@ namespace TrenchBroom {
         }
 
         void OutlineTracer::addEdge(const Edge3& edge) {
-            const Vec3 anchor = edge.start;
-            const Vec3 direction = (edge.end - edge.start).normalized();
-            const Line3 line = Line3(anchor, direction).makeCanonical();
+            const Line3 line = Line3(edge.start(), edge.direction()).makeCanonical();
 
             EdgeMap::iterator it = MapUtils::findOrInsert(m_edges, line);
             assert(m_edges.count(line) > 0);
@@ -88,8 +86,8 @@ namespace TrenchBroom {
         }
 
         void OutlineTracer::addEdge(const Edge3& edge, const Line3& line, Position::List& positions) {
-            FloatType left = edge.start.dot(line.direction);
-            FloatType right = edge.end.dot(line.direction);
+            FloatType left = edge.start().dot(line.direction);
+            FloatType right = edge.end().dot(line.direction);
             if (left > right)
                 std::swap(left, right);
             
