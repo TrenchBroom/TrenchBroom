@@ -24,7 +24,9 @@
 #include <cassert>
 
 #ifdef __APPLE__
-#include "ApplicationServices/ApplicationServices.h"
+// Don't include Quickdraw - we don't need it and it leads to symbol redefinition errrors
+#define __QUICKDRAWAPI__
+#include <ApplicationServices/ApplicationServices.h>
 #endif
 
 namespace TrenchBroom {

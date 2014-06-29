@@ -54,10 +54,11 @@ namespace TrenchBroom {
             const Vec2f originPos = m_helper.originInFaceCoords();
             const Vec2f curHandlePos = getHandlePos();
             const Vec2f newHandlePos = curHandlePos + delta;
-            
+            return Vec2f::Null;
         }
         
         Vec2f UVViewShearTool::snap(const Vec2f& position) const {
+            return position;
         }
         
         void UVViewShearTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
