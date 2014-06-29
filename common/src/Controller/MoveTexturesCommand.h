@@ -38,18 +38,17 @@ namespace TrenchBroom {
             Model::BrushFaceList m_faces;
             const Vec3 m_up;
             const Vec3 m_right;
-            const Math::Direction m_direction;
-            const float m_distance;
+            Vec2f m_offset;
         public:
-            static Ptr moveTextures(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, Math::Direction direction, float distance);
+            static Ptr moveTextures(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Vec2f& offset);
         private:
-            MoveTexturesCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, Math::Direction direction, float distance);
+            MoveTexturesCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Vec2f& offset);
             
             bool doPerformDo();
             bool doPerformUndo();
-            void moveTextures(float distance);
+            bool doCollateWith(Command::Ptr command);
             
-            static String makeName(const Model::BrushFaceList& faces, Math::Direction direction);
+            void moveTextures(const Vec2f& offset);
         };
     }
 }

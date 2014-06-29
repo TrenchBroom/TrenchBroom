@@ -61,6 +61,19 @@ namespace TrenchBroom {
             return modifierKeys() == keys;
         }
         
+        bool InputState::checkModifierKeys(const ModifierKeyState key1, const ModifierKeyState key2, const ModifierKeyState key3, const ModifierKeyState key4) const {
+            assert(key1 != ModifierKeys::MKDontCare);
+            if (modifierKeysPressed(key1))
+                return true;
+            if (key2 != ModifierKeys::MKDontCare && modifierKeysPressed(key2))
+                return true;
+            if (key3 != ModifierKeys::MKDontCare && modifierKeysPressed(key3))
+                return true;
+            if (key3 != ModifierKeys::MKDontCare && modifierKeysPressed(key3))
+                return true;
+            return false;
+        }
+
         MouseButtonState InputState::mouseButtons() const {
             return m_mouseButtons;
         }

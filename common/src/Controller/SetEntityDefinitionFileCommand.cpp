@@ -56,5 +56,9 @@ namespace TrenchBroom {
             document->entityDefinitionsDidChangeNotifier();
             return true;
         }
+
+        bool SetEntityDefinitionFileCommand::doCollateWith(Command::Ptr command) {
+            return false;
+        }
     }
 }

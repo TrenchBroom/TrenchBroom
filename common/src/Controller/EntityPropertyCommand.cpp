@@ -155,6 +155,19 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool EntityPropertyCommand::doCollateWith(Command::Ptr command) {
+            const Ptr other = command->cast<EntityPropertyCommand>(command);
+            
+            if (other->m_action != m_action ||
+                other->m_force != m_force ||
+                other->m_oldKey != m_oldKey ||
+                other->m_newKey != m_newKey)
+                return false;
+            
+            m_newValue = other->m_newValue;
+            return true;
+        }
+
         void EntityPropertyCommand::doRename(View::MapDocumentSPtr document) {
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {

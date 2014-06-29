@@ -74,6 +74,15 @@ namespace TrenchBroom {
             return moveBoundary(-m_delta);
         }
 
+        bool ResizeBrushesCommand::doCollateWith(Command::Ptr command) {
+            Ptr other = Command::cast<ResizeBrushesCommand>(command);
+            if (other->m_lockTextures != m_lockTextures)
+                return false;
+            
+            m_delta += other->m_delta;
+            return true;
+        }
+
         bool ResizeBrushesCommand::moveBoundary(const Vec3& delta) {
             View::MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();

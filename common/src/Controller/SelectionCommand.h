@@ -75,8 +75,10 @@ namespace TrenchBroom {
             SelectionCommand(View::MapDocumentWPtr document, Action command, const Model::ObjectList& objects, const Model::BrushFaceList& faces, bool keepBrushSelection);
 
             static String makeName(Action command, const Model::ObjectList& objects, const Model::BrushFaceList& faces);
+            
             bool doPerformDo();
             bool doPerformUndo();
+            bool doCollateWith(Command::Ptr command);
         };
     }
 }

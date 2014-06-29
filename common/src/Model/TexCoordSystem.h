@@ -45,7 +45,7 @@ namespace TrenchBroom {
             void setRotation(const Vec3& normal, float oldAngle, float newAngle);
             void transform(const Vec3& oldNormal, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture);
             
-            void moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Math::Direction direction, float distance, BrushFaceAttribs& attribs) const;
+            void moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttribs& attribs) const;
             void rotateTexture(const Vec3& normal, float angle, BrushFaceAttribs& attribs) const;
 
             Mat4x4 toMatrix(const Vec2f& offset, const Vec2f& scale) const;

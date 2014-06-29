@@ -84,6 +84,16 @@ namespace ListUtils {
 
 namespace VectorUtils {
     template <typename T>
+    bool equals(const std::vector<T>& lhs, const std::vector<T>& rhs) {
+        if (lhs.size() != rhs.size())
+            return false;
+        for (size_t i = 0; i < lhs.size(); ++i)
+            if (lhs[i] != rhs[i])
+                return false;
+        return true;
+    }
+    
+    template <typename T>
     typename std::vector<T>::const_iterator find(const std::vector<T>& vec, const T& item) {
         return std::find(vec.begin(), vec.end(), item);
     }
@@ -263,6 +273,11 @@ namespace VectorUtils {
     template <typename T1, typename T2>
     void append(std::vector<T1>& vec1, const std::vector<T2>& vec2) {
         vec1.insert(vec1.end(), vec2.begin(), vec2.end());
+    }
+    
+    template <typename T>
+    void sort(std::vector<T>& vec) {
+        std::sort(vec.begin(), vec.end());
     }
     
     template <typename T>

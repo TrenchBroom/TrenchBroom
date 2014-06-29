@@ -478,19 +478,19 @@ namespace TrenchBroom {
         }
         
         void MapView::OnMoveTexturesUp(wxCommandEvent& event) {
-            moveTextures(Math::Direction_Up, moveTextureDistance());
+            moveTextures(Vec2f(0.0f, moveTextureDistance()));
         }
         
         void MapView::OnMoveTexturesDown(wxCommandEvent& event) {
-            moveTextures(Math::Direction_Down, moveTextureDistance());
+            moveTextures(Vec2f(0.0f, -moveTextureDistance()));
         }
         
         void MapView::OnMoveTexturesLeft(wxCommandEvent& event) {
-            moveTextures(Math::Direction_Left, moveTextureDistance());
+            moveTextures(Vec2f(-moveTextureDistance(), 0.0f));
         }
         
         void MapView::OnMoveTexturesRight(wxCommandEvent& event) {
-            moveTextures(Math::Direction_Right, moveTextureDistance());
+            moveTextures(Vec2f(moveTextureDistance(), 0.0f));
         }
         
         void MapView::OnRotateTexturesCW(wxCommandEvent& event) {
@@ -516,13 +516,13 @@ namespace TrenchBroom {
             }
         }
         
-        void MapView::moveTextures(const Math::Direction direction, const float distance) {
+        void MapView::moveTextures(const Vec2f& offset) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList& faces = document->allSelectedFaces();
             assert(!faces.empty());
             
             ControllerSPtr controller = lock(m_controller);
-            controller->moveTextures(faces, m_camera.up(), m_camera.right(), direction, distance);
+            controller->moveTextures(faces, m_camera.up(), m_camera.right(), offset);
         }
         
         float MapView::rotateTextureAngle(const bool clockwise) const {

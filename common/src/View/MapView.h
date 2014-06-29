@@ -190,7 +190,7 @@ namespace TrenchBroom {
             void OnRotateTexturesCCW(wxCommandEvent& event);
         private:
             float moveTextureDistance() const;
-            void moveTextures(Math::Direction direction, float distance);
+            void moveTextures(const Vec2f& offset);
             float rotateTextureAngle(bool clockwise) const;
             void rotateTextures(float angle);
         public:

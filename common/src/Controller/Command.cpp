@@ -80,8 +80,20 @@ namespace TrenchBroom {
             return m_modifiesDocument;
         }
 
+        bool Command::collateWith(Ptr command) {
+            if (command->type() != m_type)
+                return false;
+            return doCollateWith(command);
+        }
+        
         bool Command::doPerformUndo() {
             throw CommandProcessorException("Undo not implemented");
         }
+        
+        /*
+        bool Command::doCollateWith(Command::Ptr command) {
+            return false;
+        }
+         */
     }
 }

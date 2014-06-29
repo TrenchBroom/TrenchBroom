@@ -58,6 +58,8 @@ namespace TrenchBroom {
             
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
+            if (!inputState.checkModifierKeys(ModifierKeys::MKNone, ModifierKeys::MKAlt))
+                return false;
             if (document()->hasSelectedObjects())
                 return false;
             

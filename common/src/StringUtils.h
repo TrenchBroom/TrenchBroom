@@ -106,6 +106,16 @@ namespace StringUtils {
     typedef StringLess<CaseSensitiveCharCompare> CaseSensitiveStringLess;
     typedef StringLess<CaseSensitiveCharCompare> CaseInsensitiveStringLess;
     
+    template <typename T>
+    const String& safePlural(const T count, const String& singular, const String& plural) {
+        return count == 1 ? singular : plural;
+    }
+    
+    template <typename T>
+    String safePlural(const String& prefix, const T count, const String& singular, const String& plural, const String& suffix = "") {
+        return prefix + safePlural(count, singular, plural) + suffix;
+    }
+    
     String formatString(const char* format, ...);
     String formatStringV(const char* format, va_list arguments);
     String trim(const String& str, const String& chars = " \n\t\r");

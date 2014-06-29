@@ -26,61 +26,47 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType MoveTexturesCommand::Type = Command::freeType();
 
-        MoveTexturesCommand::Ptr MoveTexturesCommand::moveTextures(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) {
-            return Ptr(new MoveTexturesCommand(document, faces, up, right, direction, distance));
+        MoveTexturesCommand::Ptr MoveTexturesCommand::moveTextures(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Vec2f& offset) {
+            return Ptr(new MoveTexturesCommand(document, faces, up, right, offset));
         }
         
-        MoveTexturesCommand::MoveTexturesCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) :
-        Command(Type, makeName(faces, direction), true, true),
+        MoveTexturesCommand::MoveTexturesCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Vec2f& offset) :
+        Command(Type, StringUtils::safePlural("Move ", faces.size(), "Texture", "Textures"), true, true),
         m_document(document),
         m_faces(faces),
         m_up(up),
         m_right(right),
-        m_direction(direction),
-        m_distance(distance) {}
+        m_offset(offset) {}
         
         bool MoveTexturesCommand::doPerformDo() {
-            moveTextures(m_distance);
+            moveTextures(m_offset);
             return true;
         }
         
         bool MoveTexturesCommand::doPerformUndo() {
-            moveTextures(-m_distance);
+            moveTextures(-m_offset);
             return true;
         }
 
-        void MoveTexturesCommand::moveTextures(const float distance) {
+        bool MoveTexturesCommand::doCollateWith(Command::Ptr command) {
+            const Ptr other = cast<MoveTexturesCommand>(command);
+            if (other->m_up != m_up ||
+                other->m_right != m_right)
+                return false;
+            
+            m_offset += other->m_offset;
+            return true;
+        }
+
+        void MoveTexturesCommand::moveTextures(const Vec2f& offset) {
             View::MapDocumentSPtr document = lock(m_document);
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 document->faceWillChangeNotifier(face);
-                face->moveTexture(m_up, m_right, m_direction, distance);
+                face->moveTexture(m_up, m_right, offset);
                 document->faceDidChangeNotifier(face);
             }
-        }
-
-        String MoveTexturesCommand::makeName(const Model::BrushFaceList& faces, const Math::Direction direction) {
-            StringStream buffer;
-            buffer << "Move " << (faces.size() == 1 ? "Texture" : "Textures");
-            switch (direction) {
-                case Math::Direction_Up:
-                    buffer << "Up";
-                    break;
-                case Math::Direction_Down:
-                    buffer << "Down";
-                    break;
-                case Math::Direction_Left:
-                    buffer << "Left";
-                    break;
-                case Math::Direction_Right:
-                    buffer << "Right";
-                    break;
-                case Math::Direction_Forward:
-                case Math::Direction_Backward:
-                    break;
-            }
-            return buffer.str();
         }
     }
 }

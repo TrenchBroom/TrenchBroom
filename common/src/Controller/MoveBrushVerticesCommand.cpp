@@ -24,6 +24,7 @@
 #include "View/MapDocument.h"
 #include "View/VertexHandleManager.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {
@@ -65,6 +66,8 @@ namespace TrenchBroom {
                 document->objectDidChangeNotifier(brush);
             }
             
+            VectorUtils::sort(m_newVertexPositions);
+            
             return true;
         }
         
@@ -91,6 +94,17 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool MoveBrushVerticesCommand::doCollateWith(Command::Ptr command) {
+            Ptr other = Command::cast<MoveBrushVerticesCommand>(command);
+            
+            if (!VectorUtils::equals(m_newVertexPositions, other->m_oldVertexPositions))
+                return false;
+            
+            m_newVertexPositions = other->m_newVertexPositions;
+            m_delta += other->m_delta;
+            return true;
+        }
+
         void MoveBrushVerticesCommand::doRemoveBrushes(View::VertexHandleManager& manager) {
             manager.removeBrushes(m_brushes);
         }
@@ -127,6 +141,8 @@ namespace TrenchBroom {
                 }
                 m_oldVertexPositions.push_back(position);
             }
+            
+            VectorUtils::sort(m_oldVertexPositions);
             
             assert(!m_brushes.empty());
             assert(m_brushes.size() == m_brushVertices.size());

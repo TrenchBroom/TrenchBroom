@@ -24,11 +24,11 @@
 #include "Controller/MoveBrushEdgesCommand.h"
 #include "Controller/MoveBrushFacesCommand.h"
 #include "Controller/MoveBrushVerticesCommand.h"
-#include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/SnapBrushVerticesCommand.h"
 #include "Controller/SplitBrushEdgesCommand.h"
 #include "Controller/SplitBrushFacesCommand.h"
 #include "Model/Brush.h"
+#include "Model/BrushVertex.h"
 #include "Model/HitAdapter.h"
 #include "Model/Picker.h"
 #include "Model/Object.h"
@@ -44,6 +44,7 @@
 namespace TrenchBroom {
     namespace View {
         const FloatType VertexTool::MaxVertexDistance = 0.25;
+        const FloatType VertexTool::MaxVertexError = 0.01;
         
         VertexTool::VertexTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
         MoveTool(document, controller, movementRestriction),
@@ -59,9 +60,7 @@ namespace TrenchBroom {
         }
 
         void VertexTool::moveVerticesAndRebuildBrushGeometry(const Vec3& delta) {
-            const UndoableCommandGroup commandGroup(controller());
             moveVertices(delta);
-            controller()->rebuildBrushGeometry(document()->selectedBrushes());
             m_mode = Mode_Move;
         }
 
@@ -79,7 +78,6 @@ namespace TrenchBroom {
                 controller()->snapVertices(m_handleManager.selectedVertexHandles(), snapTo);
             else
                 controller()->snapVertices(document()->selectedBrushes(), snapTo);
-            controller()->rebuildBrushGeometry(document()->selectedBrushes());
         }
 
         MoveResult VertexTool::moveVertices(const Vec3& delta) {
@@ -154,6 +152,123 @@ namespace TrenchBroom {
             return MoveResult_Deny;
         }
 
+        void VertexTool::rebuildBrushGeometry() {
+            const Vec3::List selectedVertexHandles = m_handleManager.selectedVertexHandlePositions();
+            const Vec3::List selectedEdgeHandles   = m_handleManager.selectedEdgeHandlePositions();
+            const Vec3::List selectedFaceHandles   = m_handleManager.selectedFaceHandlePositions();
+            
+            const Model::BrushList brushes = m_handleManager.selectedBrushes();
+            const BBox3& worldBounds = document()->worldBounds();
+            
+            m_handleManager.removeBrushes(brushes);
+            
+            document()->objectWillChangeNotifier(brushes.begin(), brushes.end());
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Model::Brush* brush = *it;
+                brush->rebuildGeometry(worldBounds);
+            }
+            document()->objectDidChangeNotifier(brushes.begin(), brushes.end());
+
+            m_handleManager.addBrushes(brushes);
+            
+            selectVertexHandlePositions(brushes, selectedVertexHandles);
+            selectEdgeHandlePositions(brushes, selectedEdgeHandles);
+            selectFaceHandlePositions(brushes, selectedFaceHandles);
+        }
+
+        void VertexTool::selectVertexHandlePositions(const Model::BrushList& brushes, const Vec3::List& vertexHandlePositions) {
+            Vec3::List::const_iterator oIt, oEnd, nIt, nEnd;
+            for (oIt = vertexHandlePositions.begin(), oEnd = vertexHandlePositions.end(); oIt != oEnd; ++oIt) {
+                const Vec3& oldPosition = *oIt;
+                const Vec3::List newPositions = findVertexHandlePositions(brushes, oldPosition);
+                for (nIt = newPositions.begin(), nEnd = newPositions.end(); nIt != nEnd; ++nIt) {
+                    const Vec3& newPosition = *nIt;
+                    m_handleManager.selectVertexHandle(newPosition);
+                }
+            }
+        }
+        
+        Vec3::List VertexTool::findVertexHandlePositions(const Model::BrushList& brushes, const Vec3& original) const {
+            Vec3::List result;
+            Model::BrushList::const_iterator bIt, bEnd;
+            Model::BrushVertexList::const_iterator vIt, vEnd;
+            
+            for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                const Model::Brush* brush = *bIt;
+                const Model::BrushVertexList& vertices = brush->vertices();
+                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                    const Model::BrushVertex* vertex = *vIt;
+                    if (original.squaredDistanceTo(vertex->position) <= MaxVertexError * MaxVertexError)
+                        result.push_back(vertex->position);
+                }
+            }
+            
+            return result;
+        }
+
+        void VertexTool::selectEdgeHandlePositions(const Model::BrushList& brushes, const Vec3::List& edgeHandlePositions) {
+            Vec3::List::const_iterator oIt, oEnd, nIt, nEnd;
+            for (oIt = edgeHandlePositions.begin(), oEnd = edgeHandlePositions.end(); oIt != oEnd; ++oIt) {
+                const Vec3& oldPosition = *oIt;
+                const Vec3::List newPositions = findEdgeHandlePositions(brushes, oldPosition);
+                for (nIt = newPositions.begin(), nEnd = newPositions.end(); nIt != nEnd; ++nIt) {
+                    const Vec3& newPosition = *nIt;
+                    m_handleManager.selectEdgeHandle(newPosition);
+                }
+            }
+        }
+        
+        Vec3::List VertexTool::findEdgeHandlePositions(const Model::BrushList& brushes, const Vec3& original) const {
+            Vec3::List result;
+            Model::BrushList::const_iterator bIt, bEnd;
+            Model::BrushEdgeList::const_iterator eIt, eEnd;
+            
+            for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                const Model::Brush* brush = *bIt;
+                const Model::BrushEdgeList& edges = brush->edges();
+                for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
+                    const Model::BrushEdge* edge = *eIt;
+                    const Vec3 center = edge->center();
+                    if (original.squaredDistanceTo(center) <= MaxVertexError * MaxVertexError)
+                        result.push_back(center);
+                }
+            }
+            
+            return result;
+        }
+
+        void VertexTool::selectFaceHandlePositions(const Model::BrushList& brushes, const Vec3::List& faceHandlePositions) {
+            Vec3::List::const_iterator oIt, oEnd, nIt, nEnd;
+            for (oIt = faceHandlePositions.begin(), oEnd = faceHandlePositions.end(); oIt != oEnd; ++oIt) {
+                const Vec3& oldPosition = *oIt;
+                const Vec3::List newPositions = findFaceHandlePositions(brushes, oldPosition);
+                for (nIt = newPositions.begin(), nEnd = newPositions.end(); nIt != nEnd; ++nIt) {
+                    const Vec3& newPosition = *nIt;
+                    m_handleManager.selectFaceHandle(newPosition);
+                }
+            }
+        }
+        
+        Vec3::List VertexTool::findFaceHandlePositions(const Model::BrushList& brushes, const Vec3& original) const {
+            Vec3::List result;
+            Model::BrushList::const_iterator bIt, bEnd;
+            Model::BrushFaceList::const_iterator fIt, fEnd;
+            
+            for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                const Model::Brush* brush = *bIt;
+                const Model::BrushFaceList& faces = brush->faces();
+                for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+                    const Model::BrushFace* face = *fIt;
+                    const Vec3 center = face->center();
+                    if (original.squaredDistanceTo(center) <= MaxVertexError * MaxVertexError)
+                        result.push_back(center);
+                }
+            }
+            
+            return result;
+        }
+
         bool VertexTool::doHandleMove(const InputState& inputState) const {
             if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
                   (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -223,7 +338,6 @@ namespace TrenchBroom {
         }
         
         void VertexTool::doEndMove(const InputState& inputState) {
-            controller()->rebuildBrushGeometry(document()->selectedBrushes());
             controller()->closeGroup();
             m_mode = Mode_Move;
         }
@@ -518,8 +632,7 @@ namespace TrenchBroom {
                 command->type() == MoveBrushFacesCommand::Type ||
                 command->type() == SplitBrushEdgesCommand::Type ||
                 command->type() == SplitBrushFacesCommand::Type ||
-                command->type() == SnapBrushVerticesCommand::Type ||
-                command->type() == RebuildBrushGeometryCommand::Type) {
+                command->type() == SnapBrushVerticesCommand::Type) {
                 BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
                 handleCommand->removeBrushes(m_handleManager);
                 m_ignoreObjectChangeNotifications = true;
@@ -533,11 +646,13 @@ namespace TrenchBroom {
                 command->type() == MoveBrushFacesCommand::Type ||
                 command->type() == SplitBrushEdgesCommand::Type ||
                 command->type() == SplitBrushFacesCommand::Type ||
-                command->type() == SnapBrushVerticesCommand::Type ||
-                command->type() == RebuildBrushGeometryCommand::Type) {
+                command->type() == SnapBrushVerticesCommand::Type) {
                 BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
                 handleCommand->addBrushes(m_handleManager);
                 handleCommand->selectNewHandlePositions(m_handleManager);
+                
+                if (!dragging())
+                    rebuildBrushGeometry();
                 m_ignoreObjectChangeNotifications = false;
             }
         }
@@ -549,11 +664,13 @@ namespace TrenchBroom {
                 command->type() == MoveBrushFacesCommand::Type ||
                 command->type() == SplitBrushEdgesCommand::Type ||
                 command->type() == SplitBrushFacesCommand::Type ||
-                command->type() == SnapBrushVerticesCommand::Type ||
-                command->type() == RebuildBrushGeometryCommand::Type) {
+                command->type() == SnapBrushVerticesCommand::Type) {
                 BrushVertexHandleCommand::Ptr handleCommand = Command::cast<BrushVertexHandleCommand>(command);
                 handleCommand->addBrushes(m_handleManager);
                 handleCommand->selectOldHandlePositions(m_handleManager);
+                
+                if (!dragging())
+                    rebuildBrushGeometry();
                 m_ignoreObjectChangeNotifications = false;
             }
         }

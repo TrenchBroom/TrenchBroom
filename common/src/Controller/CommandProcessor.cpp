@@ -62,6 +62,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool CommandGroup::doCollateWith(Ptr command) {
+            return false;
+        }
+
         CommandProcessor::CommandProcessor() :
         m_groupUndoable(false),
         m_groupLevel(0) {}
@@ -196,7 +200,7 @@ namespace TrenchBroom {
             assert(m_groupLevel > 0);
             if (m_groupUndoable && !command->undoable())
                 throw CommandProcessorException("Cannot add one-shot command to undoable command group");
-            m_groupedCommands.push_back(command);
+            pushCommand(m_groupedCommands, command);
         }
         
         Command::Ptr CommandProcessor::popGroupedCommand() {
@@ -226,7 +230,7 @@ namespace TrenchBroom {
 
         void CommandProcessor::pushLastCommand(Command::Ptr command) {
             assert(m_groupLevel == 0);
-            m_lastCommandStack.push_back(command);
+            pushCommand(m_lastCommandStack, command);
         }
         
         void CommandProcessor::pushNextCommand(Command::Ptr command) {
@@ -250,6 +254,16 @@ namespace TrenchBroom {
             Command::Ptr nextCommand = m_nextCommandStack.back();
             m_nextCommandStack.pop_back();
             return nextCommand;
+        }
+
+        void CommandProcessor::pushCommand(CommandStack& commandStack, Command::Ptr command) {
+            if (!commandStack.empty()) {
+                Command::Ptr lastCommand = commandStack.back();
+                if (!lastCommand->collateWith(command))
+                    commandStack.push_back(command);
+            } else {
+                commandStack.push_back(command);
+            }
         }
     }
 }

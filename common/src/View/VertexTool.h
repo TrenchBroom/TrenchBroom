@@ -44,6 +44,7 @@ namespace TrenchBroom {
         class VertexTool : public MoveTool<ActivationPolicy, PickingPolicy, MousePolicy, NoDropPolicy, RenderPolicy> {
         private:
             static const FloatType MaxVertexDistance;
+            static const FloatType MaxVertexError;
             
             typedef enum {
                 Mode_Move,
@@ -70,6 +71,14 @@ namespace TrenchBroom {
             MoveResult doMoveFaces(const Vec3& delta);
             MoveResult doSplitEdges(const Vec3& delta);
             MoveResult doSplitFaces(const Vec3& delta);
+
+            void rebuildBrushGeometry();
+            void selectVertexHandlePositions(const Model::BrushList& brushes, const Vec3::List& vertexHandlePositions);
+            Vec3::List findVertexHandlePositions(const Model::BrushList& brushes, const Vec3& original) const;
+            void selectEdgeHandlePositions(const Model::BrushList& brushes, const Vec3::List& edgeHandlePositions);
+            Vec3::List findEdgeHandlePositions(const Model::BrushList& brushes, const Vec3& original) const;
+            void selectFaceHandlePositions(const Model::BrushList& brushes, const Vec3::List& faceHandlePositions);
+            Vec3::List findFaceHandlePositions(const Model::BrushList& brushes, const Vec3& original) const;
 
             bool doHandleMove(const InputState& inputState) const;
             Vec3 doGetMoveOrigin(const InputState& inputState) const;
@@ -105,7 +114,6 @@ namespace TrenchBroom {
             void commandDoOrUndo(Controller::Command::Ptr command);
             void commandDoneOrUndoFailed(Controller::Command::Ptr command);
             void commandDoFailedOrUndone(Controller::Command::Ptr command);
-
             
             const Hit& firstHit(const Hits& hits) const;
             Hits::List firstHits(const Hits& hits) const;

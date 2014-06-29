@@ -76,8 +76,10 @@ namespace TrenchBroom {
             const Model::EntityList& affectedEntities() const;
         private:
             static String makeName(const Action command);
+            
             bool doPerformDo();
             bool doPerformUndo();
+            bool doCollateWith(Command::Ptr command);
             
             void doRename(View::MapDocumentSPtr document);
             void doSetValue(View::MapDocumentSPtr document);

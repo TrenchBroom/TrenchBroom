@@ -140,5 +140,9 @@ namespace TrenchBroom {
             document->selectionDidChangeNotifier(m_lastResult);
             return true;
         }
+
+        bool SelectionCommand::doCollateWith(Command::Ptr command) {
+            return false;
+        }
     }
 }

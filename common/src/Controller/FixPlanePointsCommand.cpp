@@ -113,5 +113,9 @@ namespace TrenchBroom {
             Model::each(m_brushes.begin(), m_brushes.end(), parentDidChange, Model::MatchAll());
             return true;
         }
+
+        bool FixPlanePointsCommand::doCollateWith(Command::Ptr command) {
+            return true;
+        }
     }
 }

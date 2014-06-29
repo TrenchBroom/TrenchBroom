@@ -124,5 +124,9 @@ namespace TrenchBroom {
             document->textureCollectionsDidChangeNotifier();
             return true;
         }
+
+        bool TextureCollectionCommand::doCollateWith(Command::Ptr command) {
+            return false;
+        }
     }
 }

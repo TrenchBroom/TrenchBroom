@@ -36,7 +36,7 @@ namespace TrenchBroom {
         private:
             View::MapDocumentWPtr m_document;
             Model::BrushFaceList m_faces;
-            const float m_angle;
+            float m_angle;
         public:
             static Ptr rotateTextures(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, float angle);
         private:
@@ -44,6 +44,8 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
+            bool doCollateWith(Command::Ptr command);
+            
             void rotateTextures(float angle);
             
             static String makeName(const Model::BrushFaceList& faces);

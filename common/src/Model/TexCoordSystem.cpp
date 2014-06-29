@@ -50,9 +50,47 @@ namespace TrenchBroom {
             doTransform(oldNormal, transformation, attribs, lockTexture);
         }
 
-        void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance, BrushFaceAttribs& attribs) const {
-            assert(direction != Math::Direction_Forward && direction != Math::Direction_Backward);
+        void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttribs& attribs) const {
             
+            /*
+            const Vec3 direction  = crossed(up, right);
+            const Mat4x4 toPlane  = Mat4x4::ZerZ * planeProjectionMatrix(0.0, direction);
+            const Vec3 upPlane    = (toPlane * up).normalized();
+            const Vec3 rightPlane = (toPlane * right).normalized();
+            const Vec3 xPlane     = (toPlane * xAxis()).normalized();
+            const Vec3 yPlane     = (toPlane * yAxis()).normalized();
+            
+            size_t hIndex, vIndex;
+            float hFactor, vFactor;
+            if (rightPlane.firstComponent() == xPlane.firstComponent()) {
+                hIndex = 0;
+                vIndex = 1;
+                if (rightPlane.dot(xPlane) > 0.0f)
+                    hFactor = -1.0f;
+                else
+                    hFactor = +1.0f;
+                if (upPlane.dot(yPlane) > 0.0f)
+                    vFactor = -1.0f;
+                else
+                    vFactor = +1.0f;
+            } else {
+                hIndex = 1;
+                vIndex = 0;
+                if (rightPlane.dot(yPlane) > 0.0f)
+                    hFactor = +1.0f;
+                else
+                    hFactor = -1.0f;
+                if (upPlane.dot(xPlane) > 0.0f)
+                    vFactor = +1.0f;
+                else
+                    vFactor = -1.0f;
+            }
+            
+            Vec2f actualOffset;
+            actualOffset[hIndex] = hFactor * offset.x();
+            actualOffset[vIndex] = vFactor * offset.y();
+             */
+
             const Mat4x4 toPlane = planeProjectionMatrix(0.0, normal);
             const Mat4x4 fromPlane = invertedMatrix(toPlane);
             const Mat4x4 transform = fromPlane * Mat4x4::ZerZ * toPlane;
@@ -112,39 +150,18 @@ namespace TrenchBroom {
                 }
             }
             
-            Vec2f offset;
-            switch (direction) {
-                case Math::Direction_Up:
-                    if (up.dot(vAxis) >= 0.0)
-                        offset[yIndex] -= distance;
-                    else
-                        offset[yIndex] += distance;
-                    break;
-                case Math::Direction_Right:
-                    if (right.dot(hAxis) >= 0.0)
-                        offset[xIndex] -= distance;
-                    else
-                        offset[xIndex] += distance;
-                    break;
-                case Math::Direction_Down:
-                    if (up.dot(vAxis) >= 0.0)
-                        offset[yIndex] += distance;
-                    else
-                        offset[yIndex] -= distance;
-                    break;
-                case Math::Direction_Left:
-                    if (right.dot(hAxis) >= 0.0f)
-                        offset[xIndex] += distance;
-                    else
-                        offset[xIndex] -= distance;
-                    break;
-                case Math::Direction_Forward:
-                case Math::Direction_Backward:
-                    break;
-            }
+            Vec2f actualOffset;
+            if (right.dot(hAxis) >= 0.0)
+                actualOffset[xIndex] = -offset.x();
+            else
+                actualOffset[xIndex] = +offset.x();
+            if (up.dot(vAxis) >= 0.0)
+                actualOffset[yIndex] = -offset.y();
+            else
+                actualOffset[yIndex] = +offset.y();
             
-            attribs.setXOffset(attribs.xOffset() + offset.x());
-            attribs.setYOffset(attribs.yOffset() + offset.y());
+            
+            attribs.setOffset(attribs.offset() + actualOffset);
         }
 
         void TexCoordSystem::rotateTexture(const Vec3& normal, const float angle, BrushFaceAttribs& attribs) const {

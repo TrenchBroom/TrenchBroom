@@ -46,6 +46,12 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool RotateTexturesCommand::doCollateWith(Command::Ptr command) {
+            Ptr other = Command::cast<RotateTexturesCommand>(command);
+            m_angle += other->m_angle;
+            return true;
+        }
+
         void RotateTexturesCommand::rotateTextures(const float angle) {
             View::MapDocumentSPtr document = lock(m_document);
             Model::BrushFaceList::const_iterator it, end;

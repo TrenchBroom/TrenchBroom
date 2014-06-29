@@ -82,6 +82,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool SnapBrushVerticesCommand::doCollateWith(Command::Ptr command) {
+            return false;
+        }
+
         void SnapBrushVerticesCommand::doRemoveBrushes(View::VertexHandleManager& manager) {
             manager.removeBrushes(m_brushes);
         }

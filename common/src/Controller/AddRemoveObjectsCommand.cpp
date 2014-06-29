@@ -145,6 +145,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool AddRemoveObjectsCommand::doCollateWith(Command::Ptr command) {
+            return false;
+        }
+
         struct AddObjectToDocument {
         private:
             View::MapDocumentSPtr m_document;

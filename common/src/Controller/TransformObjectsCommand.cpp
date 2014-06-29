@@ -79,5 +79,13 @@ namespace TrenchBroom {
             Model::each(m_objects.begin(), m_objects.end(), parentDidChange, Model::MatchAll());
             return true;
         }
+
+        bool TransformObjectsCommand::doCollateWith(Command::Ptr command) {
+            Ptr other = Command::cast<TransformObjectsCommand>(command);
+            if (other->m_lockTextures != m_lockTextures)
+                return false;
+            m_transformation = m_transformation * other->m_transformation;
+            return true;
+        }
     }
 }

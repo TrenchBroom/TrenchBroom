@@ -98,5 +98,9 @@ namespace TrenchBroom {
             document->objectDidChangeNotifier(m_newParent);
             return true;
         }
+
+        bool ReparentBrushesCommand::doCollateWith(Command::Ptr command) {
+            return false;
+        }
     }
 }

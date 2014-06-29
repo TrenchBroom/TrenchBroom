@@ -58,6 +58,7 @@ namespace TrenchBroom {
 
             bool doPerformDo();
             bool doPerformUndo();
+            bool doCollateWith(Command::Ptr command);
             
             void addObjects(const Model::ObjectParentList& objects);
             void removeObjects(const Model::ObjectParentList& objects);

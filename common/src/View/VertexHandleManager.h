@@ -82,6 +82,10 @@ namespace TrenchBroom {
             const Model::VertexToFacesMap& unselectedFaceHandles() const;
             const Model::VertexToFacesMap& selectedFaceHandles() const;
             
+            Vec3::List selectedVertexHandlePositions() const;
+            Vec3::List selectedEdgeHandlePositions() const;
+            Vec3::List selectedFaceHandlePositions() const;
+            
             bool isHandleSelected(const Vec3& position) const;
             bool isVertexHandleSelected(const Vec3& position) const;
             bool isEdgeHandleSelected(const Vec3& position) const;
@@ -94,7 +98,7 @@ namespace TrenchBroom {
             size_t selectedFaceCount() const;
             size_t totalSelectedFaceCount() const;
             
-            const Model::BrushList& brushes() const;
+            Model::BrushList selectedBrushes() const;
             const Model::BrushList& brushes(const Vec3& handlePosition) const;
             const Model::BrushEdgeList& edges(const Vec3& handlePosition) const;
             const Model::BrushFaceList& faces(const Vec3& handlePosition) const;
@@ -162,6 +166,19 @@ namespace TrenchBroom {
                 
                 from.erase(mapIt);
                 return elementCount;
+            }
+
+            template <typename T, typename O>
+            Vec3::List handlePositions(const std::map<Vec3, T, O>& handles) const {
+                Vec3::List result;
+                result.reserve(handles.size());
+                
+                typename std::map<Vec3, T, O>::const_iterator it, end;
+                for (it = handles.begin(), end = handles.end(); it != end; ++it) {
+                    const Vec3& position = it->first;
+                    result.push_back(position);
+                }
+                return result;
             }
 
             Hit pickHandle(const Ray3& ray, const Vec3& position, Hit::HitType type) const;

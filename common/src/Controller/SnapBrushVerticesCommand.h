@@ -55,6 +55,7 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
+            bool doCollateWith(Command::Ptr command);
             
             void doRemoveBrushes(View::VertexHandleManager& manager);
             void doAddBrushes(View::VertexHandleManager& manager);

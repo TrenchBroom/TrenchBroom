@@ -56,5 +56,9 @@ namespace TrenchBroom {
             document->modsDidChangeNotifier();
             return true;
         }
+
+        bool SetModsCommand::doCollateWith(Command::Ptr command) {
+            return false;
+        }
     }
 }

@@ -43,6 +43,7 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
+            bool doCollateWith(Command::Ptr command);
         };
     }
 }

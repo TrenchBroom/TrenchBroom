@@ -50,6 +50,7 @@ namespace TrenchBroom {
         private:
             bool doPerformDo();
             bool doPerformUndo();
+            bool doCollateWith(Ptr command);
         };
         
         class CommandProcessor {
@@ -98,8 +99,11 @@ namespace TrenchBroom {
 
             void pushLastCommand(Command::Ptr command);
             void pushNextCommand(Command::Ptr command);
+            
             Command::Ptr popLastCommand();
             Command::Ptr popNextCommand();
+
+            void pushCommand(CommandStack& commandStack, Command::Ptr command);
         };
     }
 }

@@ -76,6 +76,18 @@ namespace TrenchBroom {
             return m_selectedFaceHandles;
         }
         
+        Vec3::List VertexHandleManager::selectedVertexHandlePositions() const {
+            return handlePositions(m_selectedVertexHandles);
+        }
+        
+        Vec3::List VertexHandleManager::selectedEdgeHandlePositions() const {
+            return handlePositions(m_selectedEdgeHandles);
+        }
+        
+        Vec3::List VertexHandleManager::selectedFaceHandlePositions() const {
+            return handlePositions(m_selectedFaceHandles);
+        }
+
         bool VertexHandleManager::isHandleSelected(const Vec3& position) const {
             return (isVertexHandleSelected(position) ||
                     isEdgeHandleSelected(position) ||
@@ -118,6 +130,41 @@ namespace TrenchBroom {
             return m_totalFaceCount;
         }
         
+        Model::BrushList VertexHandleManager::selectedBrushes() const {
+            Model::BrushSet brushSet;
+            
+            Model::VertexToBrushesMap::const_iterator vMapIt, vMapEnd;
+            for (vMapIt = m_selectedVertexHandles.begin(), vMapEnd = m_selectedVertexHandles.end(); vMapIt != vMapEnd; ++vMapIt) {
+                const Model::BrushList& brushes = vMapIt->second;
+                brushSet.insert(brushes.begin(), brushes.end());
+            }
+            
+            Model::VertexToEdgesMap::const_iterator eMapIt, eMapEnd;
+            Model::BrushEdgeList::const_iterator eIt, eEnd;
+            for (eMapIt = m_selectedEdgeHandles.begin(), eMapEnd = m_selectedEdgeHandles.end(); eMapIt != eMapEnd; ++eMapIt) {
+                const Model::BrushEdgeList& edges = eMapIt->second;
+                
+                for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
+                    Model::BrushEdge* edge = *eIt;
+                    Model::Brush* brush = edge->leftFace()->parent();
+                    brushSet.insert(brush);
+                }
+            }
+            
+            Model::VertexToFacesMap::const_iterator fMapIt, fMapEnd;
+            Model::BrushFaceList::const_iterator fIt, fEnd;
+            for (fMapIt = m_selectedFaceHandles.begin(), fMapEnd = m_selectedFaceHandles.end(); fMapIt != fMapEnd; ++fMapIt) {
+                const Model::BrushFaceList& faces = fMapIt->second;
+                
+                for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+                    Model::BrushFace* face = *fIt;
+                    brushSet.insert(face->parent());
+                }
+            }
+            
+            return Model::BrushList(brushSet.begin(), brushSet.end());
+        }
+
         const Model::BrushList& VertexHandleManager::brushes(const Vec3& handlePosition) const {
             Model::VertexToBrushesMap::const_iterator mapIt = m_selectedVertexHandles.find(handlePosition);
             if (mapIt != m_selectedVertexHandles.end())

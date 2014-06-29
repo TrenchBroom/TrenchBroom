@@ -31,7 +31,6 @@
 #include "Controller/MoveTexturesCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
-#include "Controller/RebuildBrushGeometryCommand.h"
 #include "Controller/ReparentBrushesCommand.h"
 #include "Controller/ResizeBrushesCommand.h"
 #include "Controller/RotateTexturesCommand.h"
@@ -468,13 +467,6 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::rebuildBrushGeometry(const Model::BrushList& brushes) {
-            using namespace Controller;
-            
-            Command::Ptr command = RebuildBrushGeometryCommand::rebuildBrushGeometry(m_document, brushes);
-            return m_commandProcessor.submitCommand(command);
-        }
-
         bool ControllerFacade::setTexture(const Model::BrushFaceList& faces, Assets::Texture* texture) {
             using namespace Controller;
             
@@ -617,10 +609,10 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::moveTextures(const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Math::Direction direction, const float distance) {
+        bool ControllerFacade::moveTextures(const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Vec2f& offset) {
             using namespace Controller;
             
-            Command::Ptr command = MoveTexturesCommand::moveTextures(m_document, faces, up, right, direction, distance);
+            Command::Ptr command = MoveTexturesCommand::moveTextures(m_document, faces, up, right, offset);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

@@ -32,6 +32,7 @@ namespace TrenchBroom {
             static const ModifierKeyState MKShift     = 1 << 0;
             static const ModifierKeyState MKCtrlCmd   = 1 << 1; // Cmd on Mac, Ctrl on other systems
             static const ModifierKeyState MKAlt       = 1 << 2;
+            static const ModifierKeyState MKDontCare  = 1 << 3;
         }
         
         typedef unsigned int MouseButtonState;
@@ -63,14 +64,14 @@ namespace TrenchBroom {
             virtual ~InputState();
             
             virtual ModifierKeyState modifierKeys() const;
-            bool modifierKeysDown(const ModifierKeyState keys) const;
-            bool modifierKeysPressed(const ModifierKeyState keys) const;
+            bool modifierKeysDown(ModifierKeyState keys) const;
+            bool modifierKeysPressed(ModifierKeyState keys) const;
+            bool checkModifierKeys(ModifierKeyState key1, ModifierKeyState key2 = ModifierKeys::MKDontCare, ModifierKeyState key3 = ModifierKeys::MKDontCare, ModifierKeyState key4 = ModifierKeys::MKDontCare) const;
             
             MouseButtonState mouseButtons() const;
-            bool mouseButtonsDown(const MouseButtonState buttons) const;
+            bool mouseButtonsDown(MouseButtonState buttons) const;
             bool mouseButtonsPressed(const MouseButtonState buttons) const;
-            
-            int mouseX() const;
+                       int mouseX() const;
             int mouseY() const;
             int mouseDX() const;
             int mouseDY() const;
