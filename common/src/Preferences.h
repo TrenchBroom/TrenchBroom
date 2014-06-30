@@ -24,6 +24,7 @@
 #include "Color.h"
 #include "Preference.h"
 #include "PreferenceManager.h"
+#include "View/KeyboardShortcut.h"
 
 namespace TrenchBroom {
     namespace Preferences {
@@ -107,6 +108,11 @@ namespace TrenchBroom {
         extern Preference<bool> CameraEnableAltMove;
         extern Preference<bool> CameraAltMoveInvert;
         extern Preference<bool> CameraMoveInCursorDir;
+        
+        extern Preference<View::KeyboardShortcut> CameraForwardShortcut;
+        extern Preference<View::KeyboardShortcut> CameraBackwardShortcut;
+        extern Preference<View::KeyboardShortcut> CameraLeftShortcut;
+        extern Preference<View::KeyboardShortcut> CameraRightShortcut;
     }
 }
 

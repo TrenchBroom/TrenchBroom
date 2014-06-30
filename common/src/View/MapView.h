@@ -32,6 +32,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/Vbo.h"
 #include "View/Action.h"
+#include "View/FlyModeHelper.h"
 #include "View/GLContextHolder.h"
 #include "View/MovementRestriction.h"
 #include "View/RenderView.h"
@@ -41,6 +42,7 @@
 #include <vector>
 #include <wx/datetime.h>
 #include <wx/longlong.h>
+#include <wx/timer.h>
 
 namespace TrenchBroom {
     class Logger;
@@ -71,6 +73,8 @@ namespace TrenchBroom {
         
         class MapView : public RenderView, public ToolBoxHelper {
         private:
+            static const int FlyTimerId;
+            
             Logger* m_logger;
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
@@ -91,7 +95,8 @@ namespace TrenchBroom {
             SelectionTool* m_selectionTool;
             TextureTool* m_textureTool;
 
-            bool m_cameraFlyMode;
+            wxTimer m_cameraFlyTimer;
+            FlyModeHelper m_flyModeHelper;
             
             Renderer::MapRenderer m_renderer;
             Renderer::Compass m_compass;
@@ -149,6 +154,9 @@ namespace TrenchBroom {
         public:
             void OnToggleRotateObjectsTool(wxCommandEvent& event);
 
+            void OnToggleFlyMode(wxCommandEvent& event);
+            void OnFlyTimer(wxTimerEvent& event);
+            
             void OnToggleMovementRestriction(wxCommandEvent& event);
 
             void OnMoveObjectsForward(wxCommandEvent& event);

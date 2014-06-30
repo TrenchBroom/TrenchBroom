@@ -137,7 +137,16 @@ namespace TrenchBroom {
 #endif
             
             createMapViewAction(CommandIds::Actions::ToggleVertexTool, Action::Context_ObjectSelection | Action::Context_AnyTool, "Toggle Vertex Tool", KeyboardShortcut('V'));
+            createMapViewAction(CommandIds::Actions::MoveVerticesForward, Action::Context_VertexTool, "Move Vertices Forward", KeyboardShortcut(WXK_UP));
+            createMapViewAction(CommandIds::Actions::MoveVerticesBackward, Action::Context_VertexTool, "Move Vertices Backward", KeyboardShortcut(WXK_DOWN));
+            createMapViewAction(CommandIds::Actions::MoveVerticesLeft, Action::Context_VertexTool, "Move Vertices Left", KeyboardShortcut(WXK_LEFT));
+            createMapViewAction(CommandIds::Actions::MoveVerticesRight, Action::Context_VertexTool, "Move Vertices Right", KeyboardShortcut(WXK_RIGHT));
+            createMapViewAction(CommandIds::Actions::MoveVerticesUp, Action::Context_VertexTool, "Move Vertices Up", KeyboardShortcut(WXK_PAGEUP));
+            createMapViewAction(CommandIds::Actions::MoveVerticesDown, Action::Context_VertexTool, "Move Vertices Down", KeyboardShortcut(WXK_PAGEDOWN));
+            
             createMapViewAction(CommandIds::Actions::ToggleRotateObjectsTool, Action::Context_ObjectSelection | Action::Context_AnyTool, "Toggle Rotate Tool", KeyboardShortcut('R'));
+
+            createMapViewAction(CommandIds::Actions::ToggleFlyMode, Action::Context_Any, "Toggle Fly Mode", KeyboardShortcut('F'));
             
             createMapViewAction(CommandIds::Actions::ToggleMovementRestriction, Action::Context_Any, "Toggle Movement Axis", KeyboardShortcut('X'));
             
@@ -188,13 +197,6 @@ namespace TrenchBroom {
             createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 15", KeyboardShortcut(WXK_PAGEDOWN));
             createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 90", KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT));
             createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 1", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
-            
-            createMapViewAction(CommandIds::Actions::MoveVerticesForward, Action::Context_VertexTool, "Move Vertices Forward", KeyboardShortcut(WXK_UP));
-            createMapViewAction(CommandIds::Actions::MoveVerticesBackward, Action::Context_VertexTool, "Move Vertices Backward", KeyboardShortcut(WXK_DOWN));
-            createMapViewAction(CommandIds::Actions::MoveVerticesLeft, Action::Context_VertexTool, "Move Vertices Left", KeyboardShortcut(WXK_LEFT));
-            createMapViewAction(CommandIds::Actions::MoveVerticesRight, Action::Context_VertexTool, "Move Vertices Right", KeyboardShortcut(WXK_RIGHT));
-            createMapViewAction(CommandIds::Actions::MoveVerticesUp, Action::Context_VertexTool, "Move Vertices Up", KeyboardShortcut(WXK_PAGEUP));
-            createMapViewAction(CommandIds::Actions::MoveVerticesDown, Action::Context_VertexTool, "Move Vertices Down", KeyboardShortcut(WXK_PAGEDOWN));
         }
 
         void ActionManager::createMapViewAction(const int id, const int context, const String& name, const KeyboardShortcut& defaultShortcut) {

@@ -70,9 +70,6 @@ namespace TrenchBroom {
             bool m_ignoreNextClick;
             wxDateTime m_lastActivation;
             
-            bool m_cursorLocked;
-            wxPoint m_lockCursorStartPos;
-            
             bool m_enabled;
             bool m_ignoreMotionEvents;
         public:
@@ -92,9 +89,6 @@ namespace TrenchBroom {
             void dragLeave();
             bool dragDrop(wxCoord x, wxCoord y, const String& text);
 
-            void lockCursor();
-            void unlockCursor();
-            
             void OnKey(wxKeyEvent& event);
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseDoubleClick(wxMouseEvent& event);
@@ -122,19 +116,12 @@ namespace TrenchBroom {
             void releaseMouse();
             
             void cancelDrag();
-            void cancelLock();
 
             ModifierKeyState modifierKeys();
             bool updateModifierKeys();
             bool clearModifierKeys();
             MouseButtonState mouseButton(wxMouseEvent& event);
             void mouseMoved(const wxPoint& position);
-            
-            void startCursorLock();
-            void endCursorLock();
-            void updateCursorLock();
-            wxPoint lockedMouseDelta(const wxPoint& position) const;
-            wxPoint windowCenter() const;
             
             void showPopupMenu();
 

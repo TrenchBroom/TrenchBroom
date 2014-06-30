@@ -95,6 +95,7 @@ namespace TrenchBroom {
                 const int MoveVerticesDown                   = Lowest +  39;
 
                 const int ToggleRotateObjectsTool            = Lowest +   6;
+                const int ToggleFlyMode                      = Lowest +  40;
                 
                 const int ToggleMovementRestriction          = Lowest +   7;
 

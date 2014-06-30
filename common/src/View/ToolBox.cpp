@@ -23,12 +23,6 @@
 
 #include <cassert>
 
-#ifdef __APPLE__
-// Don't include Quickdraw - we don't need it and it leads to symbol redefinition errrors
-#define __QUICKDRAWAPI__
-#include <ApplicationServices/ApplicationServices.h>
-#endif
-
 namespace TrenchBroom {
     namespace View {
         ToolBoxHelper::~ToolBoxHelper() {}
@@ -59,7 +53,6 @@ namespace TrenchBroom {
         m_clickToActivate(true),
         m_ignoreNextClick(false),
         m_lastActivation(wxDateTime::Now()),
-        m_cursorLocked(false),
         m_enabled(true),
         m_ignoreMotionEvents(false) {
             assert(m_window != NULL);
@@ -165,17 +158,6 @@ namespace TrenchBroom {
             m_window->Refresh();
             
             return success;
-        }
-        
-        void ToolBox::lockCursor() {
-            if (!m_enabled)
-                return;
-
-            startCursorLock();
-        }
-        
-        void ToolBox::unlockCursor() {
-            endCursorLock();
         }
         
         void ToolBox::OnKey(wxKeyEvent& event) {
@@ -285,9 +267,6 @@ namespace TrenchBroom {
                     m_toolChain->mouseMove(m_inputState);
             }
             
-            if (m_cursorLocked)
-                updateCursorLock();
-
             m_window->Refresh();
             event.Skip();
         }
@@ -314,7 +293,6 @@ namespace TrenchBroom {
                 return;
             
             cancelDrag();
-            cancelLock();
             
             m_window->Refresh();
             event.Skip();
@@ -415,12 +393,12 @@ namespace TrenchBroom {
         }
         
         void ToolBox::captureMouse() {
-            if (!m_window->HasCapture() && m_dragReceiver == NULL && !m_cursorLocked)
+            if (!m_window->HasCapture() && m_dragReceiver == NULL)
                 m_window->CaptureMouse();
         }
         
         void ToolBox::releaseMouse() {
-            if (m_window->HasCapture() && m_dragReceiver == NULL && !m_cursorLocked)
+            if (m_window->HasCapture() && m_dragReceiver == NULL)
                 m_window->ReleaseMouse();
         }
 
@@ -431,11 +409,6 @@ namespace TrenchBroom {
                 m_inputState.clearMouseButtons();
                 m_dragReceiver = NULL;
             }
-        }
-        
-        void ToolBox::cancelLock() {
-            if (m_cursorLocked)
-                endCursorLock();
         }
         
         ModifierKeyState ToolBox::modifierKeys() {
@@ -482,86 +455,12 @@ namespace TrenchBroom {
         }
         
         void ToolBox::mouseMoved(const wxPoint& position) {
-            if (m_cursorLocked) {
-                const wxPoint delta = lockedMouseDelta(position);
-                const wxPoint oldPosition = position - delta;
-                m_inputState.mouseMove(oldPosition.x, oldPosition.y, delta.x, delta.y);
-                m_clickDelta += delta;
-            } else {
-                const wxPoint delta = position - m_lastMousePos;
-                m_inputState.mouseMove(position.x, position.y, delta.x, delta.y);
-                m_lastMousePos = position;
-                m_clickDelta += delta;
-            }
+            const wxPoint delta = position - m_lastMousePos;
+            m_inputState.mouseMove(position.x, position.y, delta.x, delta.y);
+            m_lastMousePos = position;
+            m_clickDelta += delta;
         }
         
-        void ToolBox::startCursorLock() {
-            assert(!m_cursorLocked);
-            assert(m_dragReceiver == NULL);
-            assert(m_dropReceiver == NULL);
-
-            m_window->SetCursor(wxCursor(wxCURSOR_BLANK));
-            
-#ifdef __APPLE__
-            CGAssociateMouseAndMouseCursorPosition(false);
-            int32_t dx, dy;
-            CGGetLastMouseDelta(&dx, &dy);
-#else
-            m_lockCursorStartPos = m_window->ScreenToClient(wxGetMousePosition());
-            const wxPoint center = windowCenter();
-            
-            m_ignoreMotionEvents = true;
-            m_window->WarpPointer(center.x, center.y);
-            m_ignoreMotionEvents = false;
-            m_lastMousePos = center;
-#endif
-            
-            captureMouse();
-            m_cursorLocked = true;
-        }
-        
-        void ToolBox::endCursorLock() {
-            assert(m_cursorLocked);
-            
-#ifdef __APPLE__
-            CGAssociateMouseAndMouseCursorPosition(true);
-#else
-            m_ignoreMotionEvents = true;
-            m_window->WarpPointer(m_lockCursorStartPos.x, m_lockCursorStartPos.y);
-            m_ignoreMotionEvents = false;
-#endif
-            m_window->SetCursor(wxNullCursor);
-            
-            m_cursorLocked = false;
-            releaseMouse();
-        }
-        
-        void ToolBox::updateCursorLock() {
-            assert(m_cursorLocked);
-            
-#ifndef __APPLE__
-            const wxPoint center = windowCenter();
-            m_ignoreMotionEvents = true;
-            m_window->WarpPointer(center.x, center.y);
-            m_ignoreMotionEvents = false;
-#endif
-        }
-        
-        wxPoint ToolBox::lockedMouseDelta(const wxPoint& position) const {
-#ifdef __APPLE__
-            int32_t dx, dy;
-            CGGetLastMouseDelta(&dx, &dy);
-            return wxPoint(dx, dy);
-#else
-            return position - m_lastMousePos;
-#endif
-        }
-
-        wxPoint ToolBox::windowCenter() const {
-            const wxSize size = m_window->GetSize();
-            return wxPoint(size.x / 2, size.y / 2);
-        }
-
         void ToolBox::showPopupMenu() {
             m_helper->showPopupMenu();
         }

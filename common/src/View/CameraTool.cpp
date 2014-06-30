@@ -28,16 +28,33 @@
 #include "View/MapDocument.h"
 #include "Renderer/Camera.h"
 
+#include <iostream>
+
 namespace TrenchBroom {
     namespace View {
         CameraTool::CameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
         ToolImpl(document, controller),
         m_camera(camera),
-        m_orbit(false),
-        m_flyMode(false) {}
+        m_orbit(false) {}
         
-        void CameraTool::setFlyMode(const bool flyMode) {
-            m_flyMode = flyMode;
+        void CameraTool::fly(int dx, int dy, const bool forward, const bool backward, const bool left, const bool right, const unsigned int time) {
+            static const float speed = 256.0f / 1000.0f; // 64 units per second
+            const float dist  = speed * time;
+            
+            Vec3 delta;
+            if (forward)
+                delta += m_camera.direction() * dist;
+            if (backward)
+                delta -= m_camera.direction() * dist;
+            if (left)
+                delta -= m_camera.right() * dist;
+            if (right)
+                delta += m_camera.right() * dist;
+            m_camera.moveBy(delta);
+            
+            const float hAngle = static_cast<float>(dx) * lookSpeedH();
+            const float vAngle = static_cast<float>(dy) * lookSpeedV();
+            m_camera.rotate(hAngle, vAngle);
         }
 
         void CameraTool::doScroll(const InputState& inputState) {
@@ -54,15 +71,7 @@ namespace TrenchBroom {
             }
         }
 
-        void CameraTool::doMouseMove(const InputState& inputState) {
-            if (m_flyMode)
-                doLook(inputState);
-        }
-
         bool CameraTool::doStartMouseDrag(const InputState& inputState) {
-            if (m_flyMode)
-                return false;
-            
             if (orbit(inputState)) {
                 const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit | Model::Entity::EntityHit, document()->filter(), true);
                 if (hit.isMatch()) {
@@ -85,7 +94,9 @@ namespace TrenchBroom {
                 m_camera.orbit(m_orbitCenter, hAngle, vAngle);
                 return true;
             } else if (look(inputState)) {
-                doLook(inputState);
+                const float hAngle = inputState.mouseDX() * lookSpeedH();
+                const float vAngle = inputState.mouseDY() * lookSpeedV();
+                m_camera.rotate(hAngle, vAngle);
                 return true;
             } else if (pan(inputState)) {
                 PreferenceManager& prefs = PreferenceManager::instance();
@@ -132,12 +143,6 @@ namespace TrenchBroom {
         bool CameraTool::orbit(const InputState& inputState) const {
             return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt));
-        }
-
-        void CameraTool::doLook(const InputState& inputState) {
-            const float hAngle = inputState.mouseDX() * lookSpeedH();
-            const float vAngle = inputState.mouseDY() * lookSpeedV();
-            m_camera.rotate(hAngle, vAngle);
         }
 
         float CameraTool::lookSpeedH() const {

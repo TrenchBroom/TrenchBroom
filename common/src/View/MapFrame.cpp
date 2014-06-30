@@ -457,10 +457,6 @@ namespace TrenchBroom {
             m_mapView->centerCameraOnSelection();
         }
 
-        void MapFrame::OnViewToggleCameraFlyMode(wxCommandEvent& event) {
-            m_mapView->toggleCameraFlyMode();
-        }
-
         void MapFrame::OnViewSwitchToMapInspector(wxCommandEvent& event) {
             m_inspector->switchToPage(InspectorPage_Map);
         }
@@ -755,7 +751,6 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToNextPoint, this, CommandIds::Menu::ViewMoveCameraToNextPoint);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewCenterCameraOnSelection, this, CommandIds::Menu::ViewCenterCameraOnSelection);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewToggleCameraFlyMode, this, CommandIds::Menu::ViewToggleCameraFlyMode);
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewSwitchToMapInspector, this, CommandIds::Menu::ViewSwitchToMapInspector);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewSwitchToEntityInspector, this, CommandIds::Menu::ViewSwitchToEntityInspector);

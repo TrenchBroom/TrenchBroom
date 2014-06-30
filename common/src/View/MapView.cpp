@@ -59,6 +59,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        const int MapView::FlyTimerId = wxID_HIGHEST + 1;
+        
         MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
         RenderView(parent, attribs()),
         m_logger(logger),
@@ -77,7 +79,8 @@ namespace TrenchBroom {
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
         m_textureTool(NULL),
-        m_cameraFlyMode(false),
+        m_cameraFlyTimer(this, FlyTimerId),
+        m_flyModeHelper(this),
         m_renderer(document, contextHolder()->fontManager()),
         m_compass(),
         m_selectionGuide(defaultFont(contextHolder()->fontManager())) {
@@ -90,13 +93,16 @@ namespace TrenchBroom {
         }
         
         MapView::~MapView() {
+            if (cameraFlyModeActive())
+                toggleCameraFlyMode();
+            
             unbindObservers();
             deleteTools();
             m_animationManager->Delete();
             m_animationManager = NULL;
             m_logger = NULL;
         }
-
+        
         void MapView::centerCameraOnSelection() {
             MapDocumentSPtr document = lock(m_document);
             const Model::EntityList& entities = document->selectedEntities();
@@ -106,39 +112,40 @@ namespace TrenchBroom {
             const Vec3 newPosition = centerCameraOnObjectsPosition(entities, brushes);
             animateCamera(newPosition, m_camera.direction(), m_camera.up(), 150);
         }
-
+        
         void MapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
             CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
             m_animationManager->runAnimation(animation, true);
         }
-
+        
         bool MapView::cameraFlyModeActive() const {
-            return m_cameraFlyMode;
+            return m_flyModeHelper.enabled();
         }
-
+        
         void MapView::toggleCameraFlyMode() {
-            m_cameraFlyMode = !m_cameraFlyMode;
-            if (m_cameraFlyMode) {
-                m_toolBox.lockCursor();
-                m_cameraTool->setFlyMode(true);
+            if (!cameraFlyModeActive()) {
+                m_toolBox.disable();
+                m_flyModeHelper.enable();
+                m_cameraFlyTimer.Start(20);
             } else {
-                m_toolBox.unlockCursor();
-                m_cameraTool->setFlyMode(false);
+                m_cameraFlyTimer.Stop();
+                m_flyModeHelper.disable();
+                m_toolBox.enable();
             }
             updateAcceleratorTable();
             Refresh();
         }
-
+        
         void MapView::toggleMovementRestriction() {
             m_movementRestriction.toggleHorizontalRestriction(m_camera);
             updateAcceleratorTable();
             Refresh();
         }
-
+        
         bool MapView::anyToolActive() const {
             return m_toolBox.anyToolActive();
         }
-
+        
         void MapView::toggleClipTool() {
             m_toolBox.toggleTool(m_clipTool);
             updateAcceleratorTable();
@@ -147,12 +154,12 @@ namespace TrenchBroom {
         bool MapView::clipToolActive() const {
             return m_toolBox.toolActive(m_clipTool);
         }
-
+        
         bool MapView::canToggleClipSide() const {
             assert(clipToolActive());
             return m_clipTool->canToggleClipSide();
         }
-
+        
         void MapView::toggleClipSide() {
             assert(clipToolActive());
             m_clipTool->toggleClipSide();
@@ -164,14 +171,14 @@ namespace TrenchBroom {
             assert(clipToolActive());
             return m_clipTool->canPerformClip();
         }
-
+        
         void MapView::performClip() {
             assert(clipToolActive());
             m_clipTool->performClip();
             m_toolBox.updateHits();
             Refresh();
         }
-
+        
         bool MapView::canDeleteLastClipPoint() const {
             assert(clipToolActive());
             return m_clipTool->canDeleteLastClipPoint();
@@ -183,7 +190,7 @@ namespace TrenchBroom {
             m_toolBox.updateHits();
             Refresh();
         }
-
+        
         void MapView::toggleRotateObjectsTool() {
             m_toolBox.toggleTool(m_rotateObjectsTool);
             updateAcceleratorTable();
@@ -192,7 +199,7 @@ namespace TrenchBroom {
         bool MapView::rotateObjectsToolActive() const {
             return m_toolBox.toolActive(m_rotateObjectsTool);
         }
-
+        
         void MapView::toggleVertexTool() {
             m_toolBox.toggleTool(m_vertexTool);
             updateAcceleratorTable();
@@ -205,7 +212,7 @@ namespace TrenchBroom {
         bool MapView::hasSelectedVertices() const {
             return vertexToolActive() && m_vertexTool->hasSelectedHandles();
         }
-
+        
         bool MapView::canSnapVertices() const {
             return vertexToolActive() && m_vertexTool->canSnapVertices();
         }
@@ -215,7 +222,7 @@ namespace TrenchBroom {
             m_vertexTool->snapVertices(snapTo);
             m_toolBox.updateHits();
         }
-
+        
         void MapView::toggleTextureTool() {
             m_toolBox.toggleTool(m_textureTool);
             updateAcceleratorTable();
@@ -224,7 +231,7 @@ namespace TrenchBroom {
         bool MapView::textureToolActive() const {
             return m_toolBox.toolActive(m_textureTool);
         }
-
+        
         Vec3 MapView::pasteObjectsDelta(const BBox3& bounds) const {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
@@ -249,7 +256,7 @@ namespace TrenchBroom {
                 return snappedDefaultPoint - snappedCenter;
             }
         }
-
+        
         void MapView::OnToggleClipTool(wxCommandEvent& event) {
             assert(lock(m_document)->hasSelectedBrushes());
             toggleClipTool();
@@ -319,6 +326,18 @@ namespace TrenchBroom {
             toggleRotateObjectsTool();
         }
         
+        void MapView::OnToggleFlyMode(wxCommandEvent& event) {
+            toggleCameraFlyMode();
+        }
+        
+        void MapView::OnFlyTimer(wxTimerEvent& event) {
+            const FlyModeHelper::Input input = m_flyModeHelper.poll();
+            
+            m_cameraTool->fly(input.delta.x, input.delta.y,
+                              input.forward, input.backward, input.left, input.right,
+                              input.time);
+        }
+        
         void MapView::OnToggleMovementRestriction(wxCommandEvent& event) {
             toggleMovementRestriction();
         }
@@ -346,7 +365,7 @@ namespace TrenchBroom {
         void MapView::OnMoveObjectsDown(wxCommandEvent& event) {
             moveObjects(Math::Direction_Down);
         }
-
+        
         void MapView::OnRollObjectsCW(wxCommandEvent& event) {
             rotateObjects(RotationAxis_Roll, true);
         }
@@ -452,7 +471,7 @@ namespace TrenchBroom {
             duplicateObjects();
             moveObjects(direction);
         }
-
+        
         void MapView::duplicateObjects() {
             MapDocumentSPtr document = lock(m_document);
             const Model::ObjectList& objects = document->selectedObjects();
@@ -500,7 +519,7 @@ namespace TrenchBroom {
         void MapView::OnRotateTexturesCCW(wxCommandEvent& event) {
             rotateTextures(rotateTextureAngle(false));
         }
-
+        
         float MapView::moveTextureDistance() const {
             const Grid& grid = lock(m_document)->grid();
             const float gridSize = static_cast<float>(grid.actualSize());
@@ -542,10 +561,10 @@ namespace TrenchBroom {
                     angle = gridAngle;
                     break;
             }
-
+            
             return clockwise ? angle : -angle;
         }
-
+        
         void MapView::rotateTextures(const float angle) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList& faces = document->selectedFaces();
@@ -554,17 +573,17 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             controller->rotateTextures(faces, angle);
         }
-
+        
         void MapView::OnKey(wxKeyEvent& event) {
             m_movementRestriction.setVerticalRestriction(event.AltDown());
             event.Skip();
         }
-
+        
         void MapView::OnActivateFrame(wxActivateEvent& event) {
             m_toolBox.updateLastActivation();
             event.Skip();
         }
-
+        
         void MapView::OnSetFocus(wxFocusEvent& event) {
             updateAcceleratorTable();
             event.Skip();
@@ -574,7 +593,7 @@ namespace TrenchBroom {
             updateAcceleratorTable();
             event.Skip();
         }
-
+        
         void MapView::OnPopupReparentBrushes(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushList& brushes = document->selectedBrushes();
@@ -611,7 +630,7 @@ namespace TrenchBroom {
             assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
             createBrushEntity(*static_cast<const Assets::BrushEntityDefinition*>(definition));
         }
-
+        
         void MapView::updateAcceleratorTable() {
             if (HasFocus()) {
                 const ActionManager& actionManager = ActionManager::instance();
@@ -622,7 +641,7 @@ namespace TrenchBroom {
                 SetAcceleratorTable(wxNullAcceleratorTable);
             }
         }
-
+        
         Action::Context MapView::actionContext() const {
             if (clipToolActive())
                 return Action::Context_ClipTool;
@@ -630,7 +649,7 @@ namespace TrenchBroom {
                 return Action::Context_VertexTool;
             if (rotateObjectsToolActive())
                 return Action::Context_RotateTool;
-
+            
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedObjects())
                 return Action::Context_ObjectSelection;
@@ -638,7 +657,7 @@ namespace TrenchBroom {
                 return Action::Context_FaceSelection;
             return Action::Context_Default;
         }
-
+        
         void MapView::OnUpdatePopupMenuItem(wxUpdateUIEvent& event) {
             switch (event.GetId()) {
                 case CommandIds::CreateEntityPopupMenu::ReparentBrushes:
@@ -674,7 +693,7 @@ namespace TrenchBroom {
             }
             event.SetText(name.str());
         }
-
+        
         void MapView::updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushList& brushes = document->selectedBrushes();
@@ -683,10 +702,10 @@ namespace TrenchBroom {
             event.Enable(canReparentBrushes(brushes, document->worldspawn()));
             event.SetText(name.str());
         }
-
+        
         Model::Entity* MapView::findNewBrushParent(const Model::BrushList& brushes) const {
             Model::Entity* newParent = NULL;
-
+            
             MapDocumentSPtr document = lock(m_document);
             const Hit& hit = Model::findFirstHit(m_toolBox.hits(), Model::Entity::EntityHit | Model::Brush::BrushHit, document->filter(), true);
             if (hit.isMatch()) {
@@ -704,7 +723,7 @@ namespace TrenchBroom {
                 return newParent;
             return NULL;
         }
-
+        
         bool MapView::canReparentBrushes(const Model::BrushList& brushes, const Model::Entity* newParent) const {
             Model::BrushList::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
@@ -714,14 +733,14 @@ namespace TrenchBroom {
             }
             return false;
         }
-
+        
         // note that we make a copy of the brush list on purpose here
         void MapView::reparentBrushes(const Model::BrushList brushes, Model::Entity* newParent) {
             assert(newParent != NULL);
             assert(canReparentBrushes(brushes, newParent));
             
             ControllerSPtr controller = lock(m_controller);
-
+            
             StringStream name;
             name << "Move " << (brushes.size() == 1 ? "Brush" : "Brushes") << " to " << newParent->classname("<missing classname>");
             
@@ -730,7 +749,7 @@ namespace TrenchBroom {
             controller->reparentBrushes(brushes, newParent);
             controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
         }
-
+        
         Assets::EntityDefinition* MapView::findEntityDefinition(const Assets::EntityDefinitionGroups& groups, const size_t index) const {
             Assets::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
             Assets::EntityDefinitionList::const_iterator defIt, defEnd;
@@ -744,11 +763,11 @@ namespace TrenchBroom {
             }
             return NULL;
         }
-
+        
         void MapView::createPointEntity(const Assets::PointEntityDefinition& definition) {
             MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);
-
+            
             Model::Entity* entity = document->map()->createEntity();
             entity->addOrUpdateProperty(Model::PropertyKeys::Classname, definition.name());
             
@@ -797,7 +816,7 @@ namespace TrenchBroom {
                     return Vec3::PosZ;
                 case Math::Direction_Down:
                     return Vec3::NegZ;
-                DEFAULT_SWITCH()
+                    DEFAULT_SWITCH()
             }
         }
         
@@ -834,7 +853,7 @@ namespace TrenchBroom {
                     ++count;
                 }
             }
-
+            
             center /= static_cast<FloatType>(count);
             
             // act as if the camera were there already:
@@ -885,10 +904,10 @@ namespace TrenchBroom {
         void MapView::createBrushEntity(const Assets::BrushEntityDefinition& definition) {
             MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);
-
+            
             const Model::BrushList brushes = document->selectedBrushes();
             assert(!brushes.empty());
-
+            
             // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
             Model::BrushList::const_iterator it = brushes.begin();
             Model::BrushList::const_iterator end = brushes.end();
@@ -911,12 +930,12 @@ namespace TrenchBroom {
             controller->reparentBrushes(brushes, entity);
             controller->selectObjects(VectorUtils::cast<Model::Object*>(brushes));
         }
-
+        
         void MapView::resetCamera() {
             m_camera.setDirection(Vec3f(-1.0f, -1.0f, -0.65f).normalized(), Vec3f::PosZ);
             m_camera.moveTo(Vec3f(160.0f, 160.0f, 48.0f));
         }
-
+        
         void MapView::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &MapView::documentWasNewedOrLoaded);
@@ -929,7 +948,7 @@ namespace TrenchBroom {
             document->modsDidChangeNotifier.addObserver(this, &MapView::modsDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
             document->grid().gridDidChangeNotifier.addObserver(this, &MapView::gridDidChange);
-
+            
             ControllerSPtr controller = lock(m_controller);
             controller->commandDoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
             controller->commandUndoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
@@ -968,7 +987,7 @@ namespace TrenchBroom {
             // the camera has already been destroyed at this point.
             // m_camera.cameraDidChangeNotifier.removeObserver(this, &MapView::cameraDidChange);
         }
-
+        
         void MapView::documentWasNewedOrLoaded() {
             resetCamera();
         }
@@ -976,7 +995,7 @@ namespace TrenchBroom {
         void MapView::objectWasAddedOrRemoved(Model::Object* object) {
             Refresh();
         }
-
+        
         void MapView::objectDidChange(Model::Object* object) {
             View::MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedObjects())
@@ -998,7 +1017,7 @@ namespace TrenchBroom {
         void MapView::gridDidChange() {
             Refresh();
         }
-
+        
         void MapView::modsDidChange() {
             Refresh();
         }
@@ -1015,10 +1034,10 @@ namespace TrenchBroom {
         void MapView::cameraDidChange(const Renderer::Camera* camera) {
             Refresh();
         }
-
+        
         void MapView::createTools() {
             Renderer::TextureFont& font = defaultFont(contextHolder()->fontManager());
-
+            
             m_cameraTool = new CameraTool(m_document, m_controller, m_camera);
             m_clipTool = new ClipTool(m_document, m_controller, m_camera);
             m_createBrushTool = new CreateBrushTool(m_document, m_controller, m_camera, font);
@@ -1064,7 +1083,7 @@ namespace TrenchBroom {
             delete m_vertexTool;
             m_vertexTool = NULL;
         }
-
+        
         void MapView::doUpdateViewport(int x, int y, int width, int height) {
             const Renderer::Camera::Viewport viewport(x, y, width, height);
             m_camera.setViewport(viewport);
@@ -1091,7 +1110,7 @@ namespace TrenchBroom {
         void MapView::doRender() {
             MapDocumentSPtr document = lock(m_document);
             document->commitPendingRenderStateChanges();
-
+            
             const View::Grid& grid = document->grid();
             Renderer::RenderContext context(m_camera, contextHolder()->shaderManager(), grid.visible(), grid.actualSize());
             
@@ -1117,7 +1136,7 @@ namespace TrenchBroom {
         void MapView::setRenderOptions(Renderer::RenderContext& context) {
             m_toolBox.setRenderOptions(context);
         }
-
+        
         void MapView::renderCoordinateSystem(Renderer::RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const Color& xColor = prefs.get(Preferences::XAxisColor);
@@ -1164,7 +1183,7 @@ namespace TrenchBroom {
         void MapView::renderToolBox(Renderer::RenderContext& context) {
             m_toolBox.renderTools(context);
         }
-
+        
         void MapView::renderCompass(Renderer::RenderContext& context) {
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.active();
@@ -1179,7 +1198,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             return document->pick(pickRay);
         }
-
+        
         void MapView::doShowPopupMenu() {
             MapDocumentSPtr document = lock(m_document);
             Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
@@ -1219,11 +1238,10 @@ namespace TrenchBroom {
             }
             return menu;
         }
-
+        
         void MapView::bindEvents() {
             Bind(wxEVT_KEY_DOWN, &MapView::OnKey, this);
-            Bind(wxEVT_KEY_UP, &MapView::OnKey, this);
-
+            
             Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
             
@@ -1239,11 +1257,12 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesRight,        this, CommandIds::Actions::MoveVerticesRight);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesUp,           this, CommandIds::Actions::MoveVerticesUp);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesDown,         this, CommandIds::Actions::MoveVerticesDown);
-
+            
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleRotateObjectsTool,  this, CommandIds::Actions::ToggleRotateObjectsTool);
-
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleFlyMode,            this, CommandIds::Actions::ToggleFlyMode);
+            
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleMovementRestriction,this, CommandIds::Actions::ToggleMovementRestriction);
-
+            
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsForward,       this, CommandIds::Actions::MoveObjectsForward);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsBackward,      this, CommandIds::Actions::MoveObjectsBackward);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsLeft,          this, CommandIds::Actions::MoveObjectsLeft);
@@ -1284,6 +1303,8 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
+            
+            Bind(wxEVT_TIMER, &MapView::OnFlyTimer, this, FlyTimerId);
         }
         
         const GLContextHolder::GLAttribs& MapView::attribs() {
@@ -1291,7 +1312,7 @@ namespace TrenchBroom {
             static GLContextHolder::GLAttribs attribs;
             if (initialized)
                 return attribs;
-
+            
             int testAttribs[] =
             {
                 // 32 bit depth buffer, 4 samples
@@ -1353,7 +1374,7 @@ namespace TrenchBroom {
                 0,
                 0,
             };
-
+            
             size_t index = 0;
             while (!initialized && testAttribs[index] != 0) {
                 size_t count = 0;
@@ -1366,12 +1387,12 @@ namespace TrenchBroom {
                 }
                 index += count + 1;
             }
-
+            
             assert(initialized);
             assert(!attribs.empty());
             return attribs;
         }
-
+        
         int MapView::depthBits() {
             return attribs()[3];
         }
@@ -1379,7 +1400,7 @@ namespace TrenchBroom {
         bool MapView::multisample() {
             return attribs()[4] != 0;
         }
-
+        
         Renderer::TextureFont& MapView::defaultFont(Renderer::FontManager& fontManager) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const String& fontName = prefs.get(Preferences::RendererFontName);
