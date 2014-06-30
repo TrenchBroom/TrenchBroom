@@ -139,6 +139,7 @@ namespace TrenchBroom {
             void addFaces(const BrushFaceList& faces);
             void addFace(BrushFace* face);
             void detachFaces(const BrushFaceList& faces);
+            void detachFace(BrushFace* face);
             
             bool checkFaceGeometryLinks() const;
             

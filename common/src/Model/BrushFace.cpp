@@ -208,18 +208,7 @@ namespace TrenchBroom {
         }
         
         void BrushFace::setParent(Brush* parent) {
-            if (m_parent == parent)
-                return;
-            
-            if (m_parent != NULL) {
-                if (m_selected)
-                    m_parent->decChildSelectionCount();
-            }
             m_parent = parent;
-            if (m_parent != NULL) {
-                if (m_selected)
-                    m_parent->incChildSelectionCount();
-            }
         }
         
         const BrushFace::Points& BrushFace::points() const {
@@ -541,19 +530,17 @@ namespace TrenchBroom {
         }
         
         void BrushFace::select() {
-            if (m_selected)
-                return;
+            assert(!m_selected);
             m_selected = true;
             if (m_parent != NULL)
-                m_parent->incChildSelectionCount();
+                m_parent->childSelectionChanged(selected());
         }
         
         void BrushFace::deselect() {
-            if (!m_selected)
-                return;
+            assert(m_selected);
             m_selected = false;
             if (m_parent != NULL)
-                m_parent->decChildSelectionCount();
+                m_parent->childSelectionChanged(selected());
         }
         
         void BrushFace::addToMesh(Mesh& mesh) const {

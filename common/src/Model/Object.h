@@ -83,8 +83,7 @@ namespace TrenchBroom {
             virtual void deselect();
             bool partiallySelected() const;
             size_t childSelectionCount() const;
-            void incChildSelectionCount();
-            void decChildSelectionCount();
+            void childSelectionChanged(bool newValue);
             
             IssueType hiddenIssues() const;
             void setHiddenIssues(IssueType hiddenIssues);
@@ -107,6 +106,9 @@ namespace TrenchBroom {
         protected:
             Object(const Type type);
             virtual Object* doClone(const BBox3& worldBounds) const = 0;
+
+            void incChildSelectionCount();
+            void decChildSelectionCount();
         private:
             virtual void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) = 0;
             virtual bool doContains(const Object& object) const = 0;

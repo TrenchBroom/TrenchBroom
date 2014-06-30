@@ -206,13 +206,16 @@ namespace TrenchBroom {
             assert(brush->parent() == NULL);
             m_brushes.push_back(brush);
             brush->setParent(this);
+            if (brush->selected())
+                incChildSelectionCount();
             invalidateBounds();
         }
 
         void Entity::removeBrush(Brush* brush) {
             assert(brush->parent() == this);
             VectorUtils::remove(m_brushes, brush);
-            brush->setParent(NULL);
+            if (brush->selected())
+                decChildSelectionCount();
             invalidateBounds();
         }
 

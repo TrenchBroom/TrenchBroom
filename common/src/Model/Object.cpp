@@ -79,12 +79,11 @@ namespace TrenchBroom {
             return m_childSelectionCount;
         }
 
-        void Object::incChildSelectionCount() {
-            ++m_childSelectionCount;
-        }
-        
-        void Object::decChildSelectionCount() {
-            --m_childSelectionCount;
+        void Object::childSelectionChanged(const bool newValue) {
+            if (newValue)
+                incChildSelectionCount();
+            else
+                decChildSelectionCount();
         }
 
         IssueType Object::hiddenIssues() const {
@@ -162,5 +161,13 @@ namespace TrenchBroom {
         m_selected(false),
         m_childSelectionCount(0),
         m_hiddenIssues(0) {}
+
+        void Object::incChildSelectionCount() {
+            ++m_childSelectionCount;
+        }
+        
+        void Object::decChildSelectionCount() {
+            --m_childSelectionCount;
+        }
     }
 }

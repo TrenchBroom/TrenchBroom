@@ -78,30 +78,19 @@ namespace TrenchBroom {
         }
         
         void Brush::setParent(Entity* parent) {
-            if (m_parent == parent)
-                return;
-            
-            if (m_parent != NULL) {
-                if (selected())
-                    m_parent->decChildSelectionCount();
-            }
             m_parent = parent;
-            if (m_parent != NULL) {
-                if (selected())
-                    m_parent->incChildSelectionCount();
-            }
         }
 
         void Brush::select() {
             Object::select();
             if (m_parent != NULL)
-                m_parent->incChildSelectionCount();
+                m_parent->childSelectionChanged(selected());
         }
         
         void Brush::deselect() {
             Object::deselect();
             if (m_parent != NULL)
-                m_parent->decChildSelectionCount();
+                m_parent->childSelectionChanged(selected());
         }
         
         const BBox3& Brush::bounds() const {
@@ -336,6 +325,7 @@ namespace TrenchBroom {
             delete m_geometry;
             m_geometry = new BrushGeometry(worldBounds);
             const AddFaceResult result = m_geometry->addFaces(m_faces);
+            detachFaces(m_faces);
             m_faces.clear();
             processBrushAlgorithmResult(worldBounds, result);
             notifyParent();
@@ -487,12 +477,8 @@ namespace TrenchBroom {
                 return;
             
             BrushFaceList::const_iterator it, end;
-            for (it = result.droppedFaces.begin(), end = result.droppedFaces.end(); it != end; ++it) {
-                BrushFace* face = *it;
-                face->setParent(NULL);
-                VectorUtils::remove(m_faces, face);
-                delete face;
-            }
+            detachFaces(result.droppedFaces);
+            VectorUtils::deleteAll(result.droppedFaces);
             
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 BrushFace* face = *it;
@@ -513,14 +499,22 @@ namespace TrenchBroom {
         void Brush::addFace(BrushFace* face) {
             m_faces.push_back(face);
             face->setParent(this);
+            if (face->selected())
+                incChildSelectionCount();
         }
 
         void Brush::detachFaces(const BrushFaceList& faces) {
             BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 BrushFace* face = *it;
-                face->setParent(NULL);
+                detachFace(face);
             }
+        }
+
+        void Brush::detachFace(BrushFace* face) {
+            face->setParent(NULL);
+            if (face->selected())
+                decChildSelectionCount();
         }
 
         bool Brush::checkFaceGeometryLinks() const {
