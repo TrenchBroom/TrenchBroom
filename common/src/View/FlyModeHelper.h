@@ -27,21 +27,15 @@
 #include <wx/wx.h>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+    }
+    
     namespace View {
-        class FlyModeHelper {
-        public:
-            struct Input {
-                bool forward;
-                bool backward;
-                bool left;
-                bool right;
-                wxPoint delta;
-                unsigned int time;
-                
-                Input();
-            };
+        class FlyModeHelper : public wxTimer {
         private:
             wxWindow* m_window;
+            Renderer::Camera& m_camera;
             
             bool m_forward;
             bool m_backward;
@@ -53,19 +47,23 @@ namespace TrenchBroom {
             wxPoint m_originalMousePos;
             wxLongLong m_lastPollTime;
         public:
-            FlyModeHelper(wxWindow* window);
+            FlyModeHelper(wxWindow* window, Renderer::Camera& camera);
             ~FlyModeHelper();
             
             void enable();
             void disable();
             bool enabled() const;
-            
-            Input poll();
         private:
             void lockMouse();
             void unlockMouse();
 
-            wxPoint mouseDelta() const;
+            void Notify();
+            Vec3f moveDelta(float time) const;
+            float lookSpeed() const;
+            float moveSpeed() const;
+            
+            float pollTime();
+            wxPoint pollMouseDelta();
             void resetMouse();
             
             wxPoint windowCenter() const;

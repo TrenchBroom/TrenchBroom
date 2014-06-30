@@ -79,8 +79,7 @@ namespace TrenchBroom {
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
         m_textureTool(NULL),
-        m_cameraFlyTimer(this, FlyTimerId),
-        m_flyModeHelper(this),
+        m_flyModeHelper(this, camera),
         m_renderer(document, contextHolder()->fontManager()),
         m_compass(),
         m_selectionGuide(defaultFont(contextHolder()->fontManager())) {
@@ -126,9 +125,7 @@ namespace TrenchBroom {
             if (!cameraFlyModeActive()) {
                 m_toolBox.disable();
                 m_flyModeHelper.enable();
-                m_cameraFlyTimer.Start(20);
             } else {
-                m_cameraFlyTimer.Stop();
                 m_flyModeHelper.disable();
                 m_toolBox.enable();
             }
@@ -328,14 +325,6 @@ namespace TrenchBroom {
         
         void MapView::OnToggleFlyMode(wxCommandEvent& event) {
             toggleCameraFlyMode();
-        }
-        
-        void MapView::OnFlyTimer(wxTimerEvent& event) {
-            const FlyModeHelper::Input input = m_flyModeHelper.poll();
-            
-            m_cameraTool->fly(input.delta.x, input.delta.y,
-                              input.forward, input.backward, input.left, input.right,
-                              input.time);
         }
         
         void MapView::OnToggleMovementRestriction(wxCommandEvent& event) {
@@ -1303,8 +1292,6 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
-            
-            Bind(wxEVT_TIMER, &MapView::OnFlyTimer, this, FlyTimerId);
         }
         
         const GLContextHolder::GLAttribs& MapView::attribs() {
