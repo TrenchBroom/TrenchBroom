@@ -20,6 +20,9 @@
 #include "CommandProcessor.h"
 
 #include "Exceptions.h"
+
+#include <wx/time.h> 
+
 #include <algorithm>
 
 namespace TrenchBroom {
@@ -66,7 +69,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        const wxLongLong CommandProcessor::CollationInterval(1000);
+        
         CommandProcessor::CommandProcessor() :
+        m_lastCommandTimestamp(0),
         m_groupUndoable(false),
         m_groupLevel(0) {}
 
@@ -200,7 +206,14 @@ namespace TrenchBroom {
             assert(m_groupLevel > 0);
             if (m_groupUndoable && !command->undoable())
                 throw CommandProcessorException("Cannot add one-shot command to undoable command group");
-            pushCommand(m_groupedCommands, command);
+            
+            if (!m_groupedCommands.empty()) {
+                Command::Ptr lastCommand = m_groupedCommands.back();
+                if (!lastCommand->collateWith(command))
+                    m_groupedCommands.push_back(command);
+            } else {
+                m_groupedCommands.push_back(command);
+            }
         }
         
         Command::Ptr CommandProcessor::popGroupedCommand() {
@@ -230,7 +243,16 @@ namespace TrenchBroom {
 
         void CommandProcessor::pushLastCommand(Command::Ptr command) {
             assert(m_groupLevel == 0);
-            pushCommand(m_lastCommandStack, command);
+            
+            const wxLongLong timestamp = ::wxGetLocalTimeMillis();
+            if (!m_lastCommandStack.empty() && timestamp - m_lastCommandTimestamp <= CollationInterval) {
+                Command::Ptr lastCommand = m_lastCommandStack.back();
+                if (!lastCommand->collateWith(command))
+                    m_lastCommandStack.push_back(command);
+            } else {
+                m_lastCommandStack.push_back(command);
+            }
+            m_lastCommandTimestamp = timestamp;
         }
         
         void CommandProcessor::pushNextCommand(Command::Ptr command) {
@@ -254,16 +276,6 @@ namespace TrenchBroom {
             Command::Ptr nextCommand = m_nextCommandStack.back();
             m_nextCommandStack.pop_back();
             return nextCommand;
-        }
-
-        void CommandProcessor::pushCommand(CommandStack& commandStack, Command::Ptr command) {
-            if (!commandStack.empty()) {
-                Command::Ptr lastCommand = commandStack.back();
-                if (!lastCommand->collateWith(command))
-                    commandStack.push_back(command);
-            } else {
-                commandStack.push_back(command);
-            }
         }
     }
 }

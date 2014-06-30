@@ -25,12 +25,13 @@
 #include "StringUtils.h"
 #include "Controller/Command.h"
 
+// unfortunately we must depend on wx Widgets for time stamps here
+#include <wx/longlong.h>
+
 #include <vector>
 
 namespace TrenchBroom {
     namespace Controller {
-        class CommandProcessor;
-        
         class CommandGroup : public Command {
         public:
             static const CommandType Type;
@@ -55,10 +56,13 @@ namespace TrenchBroom {
         
         class CommandProcessor {
         private:
+            static const wxLongLong CollationInterval;
+            
             typedef Command::List CommandStack;
             CommandStack m_lastCommandStack;
             CommandStack m_nextCommandStack;
-
+            wxLongLong m_lastCommandTimestamp;
+            
             String m_groupName;
             bool m_groupUndoable;
             CommandStack m_groupedCommands;
@@ -102,8 +106,6 @@ namespace TrenchBroom {
             
             Command::Ptr popLastCommand();
             Command::Ptr popNextCommand();
-
-            void pushCommand(CommandStack& commandStack, Command::Ptr command);
         };
     }
 }
