@@ -25,8 +25,9 @@
 #include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
 #include "View/GamesPreferencePane.h"
-#include "View/GeneralPreferencePane.h"
 #include "View/KeyboardPreferencePane.h"
+#include "View/MousePreferencePane.h"
+#include "View/ViewPreferencePane.h"
 #include "View/ViewConstants.h"
 #include "View/PreferencePane.h"
 #include "View/wxUtils.h"
@@ -121,13 +122,15 @@ namespace TrenchBroom {
             
             m_toolBar = new wxToolBar(this, wxID_ANY);
             m_toolBar->AddCheckTool(PrefPane_Games, "Games", gamesImage, wxNullBitmap);
-            m_toolBar->AddCheckTool(PrefPane_General, "General", generalImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PrefPane_View, "View", generalImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PrefPane_Mouse, "Mouse", generalImage, wxNullBitmap);
             m_toolBar->AddCheckTool(PrefPane_Keyboard, "Keyboard", keyboardImage, wxNullBitmap);
             m_toolBar->Realize();
             
             m_book = new wxSimplebook(this);
             m_book->AddPage(new GamesPreferencePane(m_book), "Games");
-            m_book->AddPage(new GeneralPreferencePane(m_book), "General");
+            m_book->AddPage(new ViewPreferencePane(m_book), "View");
+            m_book->AddPage(new MousePreferencePane(m_book), "Mouse");
             m_book->AddPage(new KeyboardPreferencePane(m_book), "Keyboard");
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);

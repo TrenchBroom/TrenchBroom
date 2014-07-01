@@ -17,7 +17,7 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GeneralPreferencePane.h"
+#include "ViewPreferencePane.h"
 
 #include "StringUtils.h"
 #include "PreferenceManager.h"
@@ -36,25 +36,25 @@
 
 namespace TrenchBroom {
     namespace View {
-        namespace GeneralPreferencePaneLayout {
+        namespace ViewPreferencePaneLayout {
             static const int MinimumLabelWidth = 100;
         }
 
-        GeneralPreferencePane::GeneralPreferencePane(wxWindow* parent) :
+        ViewPreferencePane::ViewPreferencePane(wxWindow* parent) :
         PreferencePane(parent) {
             createGui();
             bindEvents();
         }
 
 
-        void GeneralPreferencePane::OnBrightnessChanged(wxScrollEvent& event) {
+        void ViewPreferencePane::OnBrightnessChanged(wxScrollEvent& event) {
             const int value = m_brightnessSlider->GetValue();
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::Brightness, value / 40.0f);
         }
         
-        void GeneralPreferencePane::OnGridAlphaChanged(wxScrollEvent& event) {
+        void ViewPreferencePane::OnGridAlphaChanged(wxScrollEvent& event) {
             const int value = m_gridAlphaSlider->GetValue();
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -63,7 +63,7 @@ namespace TrenchBroom {
             prefs.set(Preferences::GridAlpha, floatValue);
         }
 
-        void GeneralPreferencePane::OnTextureBrowserIconSizeChanged(wxCommandEvent& event) {
+        void ViewPreferencePane::OnTextureBrowserIconSizeChanged(wxCommandEvent& event) {
             PreferenceManager& prefs = PreferenceManager::instance();
 
             const int selection = m_textureBrowserIconSizeChoice->GetSelection();
@@ -92,77 +92,77 @@ namespace TrenchBroom {
             }
         }
 
-        void GeneralPreferencePane::OnLookSpeedChanged(wxScrollEvent& event) {
+        void ViewPreferencePane::OnLookSpeedChanged(wxScrollEvent& event) {
             const float value = m_lookSpeedSlider->GetValue() / 100.0f;
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraLookSpeed, value);
         }
         
-        void GeneralPreferencePane::OnInvertLookHAxisChanged(wxCommandEvent& event) {
+        void ViewPreferencePane::OnInvertLookHAxisChanged(wxCommandEvent& event) {
             const bool value = event.GetInt() != 0;
 
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraLookInvertH, value);
         }
         
-        void GeneralPreferencePane::OnInvertLookVAxisChanged(wxCommandEvent& event) {
+        void ViewPreferencePane::OnInvertLookVAxisChanged(wxCommandEvent& event) {
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraLookInvertV, value);
         }
 
-        void GeneralPreferencePane::OnPanSpeedChanged(wxScrollEvent& event) {
+        void ViewPreferencePane::OnPanSpeedChanged(wxScrollEvent& event) {
             const float value = m_panSpeedSlider->GetValue() / 100.0f;
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraPanSpeed, value);
         }
         
-        void GeneralPreferencePane::OnInvertPanHAxisChanged(wxCommandEvent& event) {
+        void ViewPreferencePane::OnInvertPanHAxisChanged(wxCommandEvent& event) {
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraPanInvertH, value);
         }
         
-        void GeneralPreferencePane::OnInvertPanVAxisChanged(wxCommandEvent& event) {
+        void ViewPreferencePane::OnInvertPanVAxisChanged(wxCommandEvent& event) {
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraPanInvertV, value);
         }
 
-        void GeneralPreferencePane::OnMoveSpeedChanged(wxScrollEvent& event) {
+        void ViewPreferencePane::OnMoveSpeedChanged(wxScrollEvent& event) {
             const float value = m_moveSpeedSlider->GetValue() / 100.0f;
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraMoveSpeed, value);
         }
 
-        void GeneralPreferencePane::OnEnableAltMoveChanged(wxCommandEvent& event) {
+        void ViewPreferencePane::OnEnableAltMoveChanged(wxCommandEvent& event) {
             const bool value = event.GetInt() != 0;
 
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraEnableAltMove, value);
         }
 
-        void GeneralPreferencePane::OnInvertAltMoveAxisChanged(wxCommandEvent& event) {
+        void ViewPreferencePane::OnInvertAltMoveAxisChanged(wxCommandEvent& event) {
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraAltMoveInvert, value);
         }
 
-        void GeneralPreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
+        void ViewPreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
             const bool value = event.GetInt() != 0;
 
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.set(Preferences::CameraMoveInCursorDir, value);
         }
 
-        void GeneralPreferencePane::createGui() {
+        void ViewPreferencePane::createGui() {
             wxWindow* viewPreferences = createViewPreferences();
             wxWindow* mousePreferences = createMousePreferences();
             
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             SetSizerAndFit(innerSizer);
         }
         
-        wxWindow* GeneralPreferencePane::createViewPreferences() {
+        wxWindow* ViewPreferencePane::createViewPreferences() {
             wxStaticBox* viewBox = new wxStaticBox(this, wxID_ANY, "View");
             
             wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, "Brightness");
@@ -201,7 +201,7 @@ namespace TrenchBroom {
             innerSizer->Add(m_gridAlphaSlider, 0, wxEXPAND);
             innerSizer->Add(textureBrowserFakeLabel);
             innerSizer->Add(textureBrowserIconSizeSizer);
-            innerSizer->SetItemMinSize(brightnessLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, brightnessLabel->GetSize().y);
+            innerSizer->SetItemMinSize(brightnessLabel, ViewPreferencePaneLayout::MinimumLabelWidth, brightnessLabel->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
@@ -212,7 +212,7 @@ namespace TrenchBroom {
             return viewBox;
         }
         
-        wxWindow* GeneralPreferencePane::createMousePreferences() {
+        wxWindow* ViewPreferencePane::createMousePreferences() {
             wxStaticBox* mouseBox = new wxStaticBox(this, wxID_ANY, "Mouse");
             
             wxStaticText* lookSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Look");
@@ -265,7 +265,7 @@ namespace TrenchBroom {
             innerSizer->Add(altMoveOptionsSizer);
             innerSizer->Add(moveInCursorDirFakeLabel);
             innerSizer->Add(m_moveInCursorDirCheckBox);
-            innerSizer->SetItemMinSize(lookSpeedLabel, GeneralPreferencePaneLayout::MinimumLabelWidth, lookSpeedLabel->GetSize().y);
+            innerSizer->SetItemMinSize(lookSpeedLabel, ViewPreferencePaneLayout::MinimumLabelWidth, lookSpeedLabel->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
@@ -276,23 +276,23 @@ namespace TrenchBroom {
             return mouseBox;
         }
         
-        void GeneralPreferencePane::bindEvents() {
-            m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &GeneralPreferencePane::OnTextureBrowserIconSizeChanged, this);
-            m_invertLookHAxisCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnInvertLookHAxisChanged, this);
-            m_invertLookVAxisCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnInvertLookVAxisChanged, this);
-            m_invertPanHAxisCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnInvertPanHAxisChanged, this);
-            m_invertPanVAxisCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnInvertPanVAxisChanged, this);
-            m_enableAltMoveCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnEnableAltMoveChanged, this);
-            m_moveInCursorDirCheckBox->Bind(wxEVT_CHECKBOX, &GeneralPreferencePane::OnMoveCameraInCursorDirChanged, this);
+        void ViewPreferencePane::bindEvents() {
+            m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureBrowserIconSizeChanged, this);
+            m_invertLookHAxisCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnInvertLookHAxisChanged, this);
+            m_invertLookVAxisCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnInvertLookVAxisChanged, this);
+            m_invertPanHAxisCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnInvertPanHAxisChanged, this);
+            m_invertPanVAxisCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnInvertPanVAxisChanged, this);
+            m_enableAltMoveCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnEnableAltMoveChanged, this);
+            m_moveInCursorDirCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnMoveCameraInCursorDirChanged, this);
             
-            bindSliderEvents(m_brightnessSlider, &GeneralPreferencePane::OnBrightnessChanged, this);
-            bindSliderEvents(m_gridAlphaSlider, &GeneralPreferencePane::OnGridAlphaChanged, this);
-            bindSliderEvents(m_lookSpeedSlider, &GeneralPreferencePane::OnLookSpeedChanged, this);
-            bindSliderEvents(m_panSpeedSlider, &GeneralPreferencePane::OnPanSpeedChanged, this);
-            bindSliderEvents(m_moveSpeedSlider, &GeneralPreferencePane::OnMoveSpeedChanged, this);
+            bindSliderEvents(m_brightnessSlider, &ViewPreferencePane::OnBrightnessChanged, this);
+            bindSliderEvents(m_gridAlphaSlider, &ViewPreferencePane::OnGridAlphaChanged, this);
+            bindSliderEvents(m_lookSpeedSlider, &ViewPreferencePane::OnLookSpeedChanged, this);
+            bindSliderEvents(m_panSpeedSlider, &ViewPreferencePane::OnPanSpeedChanged, this);
+            bindSliderEvents(m_moveSpeedSlider, &ViewPreferencePane::OnMoveSpeedChanged, this);
         }
 
-        void GeneralPreferencePane::doUpdateControls() {
+        void ViewPreferencePane::doUpdateControls() {
             PreferenceManager& prefs = PreferenceManager::instance();
             
             m_brightnessSlider->SetValue(static_cast<int>(prefs.get(Preferences::Brightness) * 40.0f));
@@ -328,7 +328,7 @@ namespace TrenchBroom {
             m_moveInCursorDirCheckBox->SetValue(prefs.get(Preferences::CameraMoveInCursorDir));
         }
 
-        bool GeneralPreferencePane::doValidate() {
+        bool ViewPreferencePane::doValidate() {
             return true;
         }
 	}

@@ -31,7 +31,7 @@ namespace TrenchBroom {
                 Direction_Vertical
             } Direction;
         public:
-            BorderLine(wxWindow* parent, Direction direction, int thickness = 1);
+            BorderLine(wxWindow* parent, Direction direction = Direction_Horizontal, int thickness = 1);
             
             void OnPaint(wxPaintEvent& event);
         };

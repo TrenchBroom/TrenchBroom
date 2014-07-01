@@ -53,6 +53,7 @@
 #include "View/SelectionTool.h"
 #include "View/TextureTool.h"
 #include "View/VertexTool.h"
+#include "View/wxUtils.h"
 
 #include <wx/menu.h>
 #include <wx/timer.h>
@@ -569,7 +570,10 @@ namespace TrenchBroom {
         }
         
         void MapView::OnActivateFrame(wxActivateEvent& event) {
-            m_toolBox.updateLastActivation();
+            if (event.GetActive())
+                m_toolBox.updateLastActivation();
+            if (cameraFlyModeActive())
+                toggleCameraFlyMode();
             event.Skip();
         }
         
@@ -579,6 +583,8 @@ namespace TrenchBroom {
         }
         
         void MapView::OnKillFocus(wxFocusEvent& event) {
+            if (cameraFlyModeActive())
+                toggleCameraFlyMode();
             updateAcceleratorTable();
             event.Skip();
         }
@@ -1292,6 +1298,9 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
+            
+            wxFrame* frame = findFrame(this);
+            frame->Bind(wxEVT_ACTIVATE, &MapView::OnActivateFrame, this);
         }
         
         const GLContextHolder::GLAttribs& MapView::attribs() {

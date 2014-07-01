@@ -769,7 +769,6 @@ namespace TrenchBroom {
             
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
             
-            Bind(wxEVT_ACTIVATE, &MapView::OnActivateFrame, m_mapView);
             Bind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
         }
         

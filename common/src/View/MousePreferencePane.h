@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GeneralPreferencePane__
-#define __TrenchBroom__GeneralPreferencePane__
+#ifndef __TrenchBroom__MousePreferencePane__
+#define __TrenchBroom__MousePreferencePane__
 
 #include "View/PreferencePane.h"
 
@@ -30,11 +30,8 @@ class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
-        class GeneralPreferencePane : public PreferencePane {
+        class MousePreferencePane : public PreferencePane {
         private:
-            wxSlider* m_brightnessSlider;
-            wxSlider* m_gridAlphaSlider;
-            wxChoice* m_textureBrowserIconSizeChoice;
             wxSlider* m_lookSpeedSlider;
             wxCheckBox* m_invertLookHAxisCheckBox;
             wxCheckBox* m_invertLookVAxisCheckBox;
@@ -47,12 +44,8 @@ namespace TrenchBroom {
             wxCheckBox* m_moveInCursorDirCheckBox;
             
         public:
-            GeneralPreferencePane(wxWindow* parent);
+            MousePreferencePane(wxWindow* parent);
 
-            void OnBrightnessChanged(wxScrollEvent& event);
-            void OnGridAlphaChanged(wxScrollEvent& event);
-            void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
-            
             void OnLookSpeedChanged(wxScrollEvent& event);
             void OnInvertLookHAxisChanged(wxCommandEvent& event);
             void OnInvertLookVAxisChanged(wxCommandEvent& event);
@@ -69,7 +62,6 @@ namespace TrenchBroom {
 
         private:
             void createGui();
-            wxWindow* createViewPreferences();
             wxWindow* createMousePreferences();
 
             void bindEvents();
@@ -80,4 +72,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GeneralPreferencePane__) */
+#endif /* defined(__TrenchBroom__MousePreferencePane__) */
