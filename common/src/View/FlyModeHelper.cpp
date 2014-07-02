@@ -98,12 +98,9 @@ namespace TrenchBroom {
             const Vec3f delta = moveDelta(pollTime());
             m_camera.moveBy(delta);
             
-            const wxPoint mouseDelta = pollMouseDelta();
-            const float hAngle = static_cast<float>(mouseDelta.x) * lookSpeed();
-            const float vAngle = static_cast<float>(mouseDelta.y) * lookSpeed();
-            m_camera.rotate(hAngle, vAngle);
+            const Vec2f angles = lookDelta(pollMouseDelta());
+            m_camera.rotate(angles.x(), angles.y());
         }
-
         
         Vec3f FlyModeHelper::moveDelta(const float time) const {
             const float dist = moveSpeed() * time;
@@ -120,8 +117,20 @@ namespace TrenchBroom {
             return delta;
         }
 
-        float FlyModeHelper::lookSpeed() const {
-            return -0.5f / 50.0f;
+        Vec2f FlyModeHelper::lookDelta(const wxPoint mouseDelta) const {
+            const Vec2f speed = lookSpeed();
+            const float hAngle = static_cast<float>(mouseDelta.x) * speed.x();
+            const float vAngle = static_cast<float>(mouseDelta.y) * speed.y();
+            return Vec2f(hAngle, vAngle);
+        }
+
+        Vec2f FlyModeHelper::lookSpeed() const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            Vec2f speed(prefs.get(Preferences::CameraFlySpeed), prefs.get(Preferences::CameraFlySpeed));
+            speed /= -50.0f;
+            if (prefs.get(Preferences::CameraFlyInvertV))
+                speed[1] *= -1.0f;
+            return speed;
         }
         
         float FlyModeHelper::moveSpeed() const {
@@ -170,10 +179,10 @@ namespace TrenchBroom {
 
         void FlyModeHelper::onKey(wxKeyEvent& event, const bool down) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const KeyboardShortcut& forward = prefs.get(Preferences::CameraForwardShortcut);
-            const KeyboardShortcut& backward = prefs.get(Preferences::CameraBackwardShortcut);
-            const KeyboardShortcut& left = prefs.get(Preferences::CameraLeftShortcut);
-            const KeyboardShortcut& right = prefs.get(Preferences::CameraRightShortcut);
+            const KeyboardShortcut& forward = prefs.get(Preferences::CameraFlyForward);
+            const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
+            const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
+            const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
             
             if (forward.matches(event.GetKeyCode()))
                 m_forward = down;

@@ -59,7 +59,8 @@ namespace TrenchBroom {
 
             void Notify();
             Vec3f moveDelta(float time) const;
-            float lookSpeed() const;
+            Vec2f lookDelta(wxPoint mouseDelta) const;
+            Vec2f lookSpeed() const;
             float moveSpeed() const;
             
             float pollTime();

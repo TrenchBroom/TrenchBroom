@@ -22,11 +22,8 @@
 
 #include "View/PreferencePane.h"
 
-class wxButton;
-class wxCheckBox;
 class wxChoice;
 class wxSlider;
-class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
@@ -35,42 +32,15 @@ namespace TrenchBroom {
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
             wxChoice* m_textureBrowserIconSizeChoice;
-            wxSlider* m_lookSpeedSlider;
-            wxCheckBox* m_invertLookHAxisCheckBox;
-            wxCheckBox* m_invertLookVAxisCheckBox;
-            wxSlider* m_panSpeedSlider;
-            wxCheckBox* m_invertPanHAxisCheckBox;
-            wxCheckBox* m_invertPanVAxisCheckBox;
-            wxSlider* m_moveSpeedSlider;
-            wxCheckBox* m_enableAltMoveCheckBox;
-            wxCheckBox* m_invertAltMoveAxisCheckBox;
-            wxCheckBox* m_moveInCursorDirCheckBox;
-            
         public:
             ViewPreferencePane(wxWindow* parent);
 
             void OnBrightnessChanged(wxScrollEvent& event);
             void OnGridAlphaChanged(wxScrollEvent& event);
             void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
-            
-            void OnLookSpeedChanged(wxScrollEvent& event);
-            void OnInvertLookHAxisChanged(wxCommandEvent& event);
-            void OnInvertLookVAxisChanged(wxCommandEvent& event);
-            
-            void OnPanSpeedChanged(wxScrollEvent& event);
-            void OnInvertPanHAxisChanged(wxCommandEvent& event);
-            void OnInvertPanVAxisChanged(wxCommandEvent& event);
-            
-            void OnMoveSpeedChanged(wxScrollEvent& event);
-            
-            void OnEnableAltMoveChanged(wxCommandEvent& event);
-            void OnInvertAltMoveAxisChanged(wxCommandEvent& event);
-            void OnMoveCameraInCursorDirChanged(wxCommandEvent& event);
-
         private:
             void createGui();
             wxWindow* createViewPreferences();
-            wxWindow* createMousePreferences();
 
             void bindEvents();
             

@@ -22,24 +22,17 @@
 #include "StringUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "View/BorderLine.h"
 #include "View/ViewConstants.h"
 
-#include <wx/button.h>
-#include <wx/checkbox.h>
 #include <wx/choice.h>
-#include <wx/dirdlg.h>
+#include <wx/gbsizer.h>
 #include <wx/sizer.h>
 #include <wx/slider.h>
-#include <wx/statbox.h>
-#include <wx/statline.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
-        namespace ViewPreferencePaneLayout {
-            static const int MinimumLabelWidth = 100;
-        }
-
         ViewPreferencePane::ViewPreferencePane(wxWindow* parent) :
         PreferencePane(parent) {
             createGui();
@@ -92,204 +85,68 @@ namespace TrenchBroom {
             }
         }
 
-        void ViewPreferencePane::OnLookSpeedChanged(wxScrollEvent& event) {
-            const float value = m_lookSpeedSlider->GetValue() / 100.0f;
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraLookSpeed, value);
-        }
-        
-        void ViewPreferencePane::OnInvertLookHAxisChanged(wxCommandEvent& event) {
-            const bool value = event.GetInt() != 0;
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraLookInvertH, value);
-        }
-        
-        void ViewPreferencePane::OnInvertLookVAxisChanged(wxCommandEvent& event) {
-            const bool value = event.GetInt() != 0;
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraLookInvertV, value);
-        }
-
-        void ViewPreferencePane::OnPanSpeedChanged(wxScrollEvent& event) {
-            const float value = m_panSpeedSlider->GetValue() / 100.0f;
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraPanSpeed, value);
-        }
-        
-        void ViewPreferencePane::OnInvertPanHAxisChanged(wxCommandEvent& event) {
-            const bool value = event.GetInt() != 0;
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraPanInvertH, value);
-        }
-        
-        void ViewPreferencePane::OnInvertPanVAxisChanged(wxCommandEvent& event) {
-            const bool value = event.GetInt() != 0;
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraPanInvertV, value);
-        }
-
-        void ViewPreferencePane::OnMoveSpeedChanged(wxScrollEvent& event) {
-            const float value = m_moveSpeedSlider->GetValue() / 100.0f;
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraMoveSpeed, value);
-        }
-
-        void ViewPreferencePane::OnEnableAltMoveChanged(wxCommandEvent& event) {
-            const bool value = event.GetInt() != 0;
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraEnableAltMove, value);
-        }
-
-        void ViewPreferencePane::OnInvertAltMoveAxisChanged(wxCommandEvent& event) {
-            const bool value = event.GetInt() != 0;
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraAltMoveInvert, value);
-        }
-
-        void ViewPreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
-            const bool value = event.GetInt() != 0;
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraMoveInCursorDir, value);
-        }
-
         void ViewPreferencePane::createGui() {
             wxWindow* viewPreferences = createViewPreferences();
-            wxWindow* mousePreferences = createMousePreferences();
             
-            wxSizer* innerSizer = new wxBoxSizer(wxVERTICAL);
-            innerSizer->Add(viewPreferences, 0, wxEXPAND);
-            innerSizer->AddSpacer(LayoutConstants::WideVMargin);
-            innerSizer->Add(mousePreferences, 0, wxEXPAND);
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            sizer->Add(viewPreferences, 1, wxEXPAND);
+            sizer->AddSpacer(LayoutConstants::WideVMargin);
             
-            SetSizerAndFit(innerSizer);
+            SetSizer(sizer);
+            SetMinSize(wxSize(600, 220));
+            SetBackgroundColour(*wxWHITE);
         }
         
         wxWindow* ViewPreferencePane::createViewPreferences() {
-            wxStaticBox* viewBox = new wxStaticBox(this, wxID_ANY, "View");
+            wxPanel* viewBox = new wxPanel(this);
+            viewBox->SetBackgroundColour(*wxWHITE);
             
+            wxStaticText* _3dViewPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "3D View");
+            _3dViewPrefsHeader->SetFont(_3dViewPrefsHeader->GetFont().Bold());
             wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, "Brightness");
             m_brightnessSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-            
             wxStaticText* gridLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
             m_gridAlphaSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
-            wxStaticText* textureBrowserFakeLabel = new wxStaticText(viewBox, wxID_ANY, "");
-            wxStaticText* textureBrowserIconSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Texture Browser Icon Size");
+            wxStaticText* textureBrowserPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Texture Browser");
+            textureBrowserPrefsHeader->SetFont(textureBrowserPrefsHeader->GetFont().Bold());
+            wxStaticText* textureBrowserIconSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Icon Size");
             wxString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
             m_textureBrowserIconSizeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, 7, iconSizes);
+            m_textureBrowserIconSizeChoice->SetToolTip("Sets the icon size in the texture browser.");
             
-            wxSizer* textureBrowserIconSizeSizer = new wxBoxSizer(wxHORIZONTAL);
-            textureBrowserIconSizeSizer->Add(textureBrowserIconSizeLabel, 0, wxALIGN_CENTER_VERTICAL);
-            textureBrowserIconSizeSizer->AddSpacer(LayoutConstants::WideHMargin);
-            textureBrowserIconSizeSizer->Add(m_textureBrowserIconSizeChoice, 0, wxALIGN_CENTER_VERTICAL);
+            const int HMargin       = LayoutConstants::WideHMargin;
+            const int LMargin       = LayoutConstants::WideVMargin;
+            const int HeaderFlags   = wxLEFT;
+            const int LabelFlags    = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxLEFT;
+            const int SliderFlags   = wxEXPAND | wxRIGHT;
+            const int ChoiceFlags   = wxRIGHT;
+            const int LineFlags     = wxEXPAND | wxTOP;
             
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
-            innerSizer->AddGrowableCol(1);
-            innerSizer->Add(brightnessLabel);
-            innerSizer->Add(m_brightnessSlider, 0, wxEXPAND);
-            innerSizer->Add(gridLabel);
-            innerSizer->Add(m_gridAlphaSlider, 0, wxEXPAND);
-            innerSizer->Add(textureBrowserFakeLabel);
-            innerSizer->Add(textureBrowserIconSizeSizer);
-            innerSizer->SetItemMinSize(brightnessLabel, ViewPreferencePaneLayout::MinimumLabelWidth, brightnessLabel->GetSize().y);
+            wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
+            sizer->Add(_3dViewPrefsHeader,              wxGBPosition( 0, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(brightnessLabel,                 wxGBPosition( 1, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_brightnessSlider,              wxGBPosition( 1, 1), wxDefaultSpan, SliderFlags, HMargin);
             
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
+            sizer->Add(gridLabel,                       wxGBPosition( 2, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_gridAlphaSlider,               wxGBPosition( 2, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->Add(new BorderLine(viewBox),         wxGBPosition( 3, 0), wxGBSpan(1,2), LineFlags, LMargin);
             
-            viewBox->SetSizerAndFit(outerSizer);
+            sizer->Add(textureBrowserPrefsHeader,       wxGBPosition( 4, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(textureBrowserIconSizeLabel,     wxGBPosition( 5, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_textureBrowserIconSizeChoice,  wxGBPosition( 5, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            
+            sizer->AddGrowableCol(1);
+            viewBox->SetSizer(sizer);
             return viewBox;
-        }
-        
-        wxWindow* ViewPreferencePane::createMousePreferences() {
-            wxStaticBox* mouseBox = new wxStaticBox(this, wxID_ANY, "Mouse");
-            
-            wxStaticText* lookSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Look");
-            m_lookSpeedSlider = new wxSlider(mouseBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-            
-            wxStaticText* invertLookFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
-            m_invertLookHAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert X Axis");
-            m_invertLookVAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert Y Axis");
-            wxSizer* invertLookSizer = new wxBoxSizer(wxHORIZONTAL);
-            invertLookSizer->Add(m_invertLookHAxisCheckBox);
-            invertLookSizer->AddSpacer(LayoutConstants::WideHMargin);
-            invertLookSizer->Add(m_invertLookVAxisCheckBox);
-            
-            wxStaticText* panSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Pan");
-            m_panSpeedSlider = new wxSlider(mouseBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-            
-            wxStaticText* invertPanFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
-            m_invertPanHAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert X Axis");
-            m_invertPanVAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert Y Axis");
-            wxSizer* invertPanSizer = new wxBoxSizer(wxHORIZONTAL);
-            invertPanSizer->Add(m_invertPanHAxisCheckBox);
-            invertPanSizer->AddSpacer(LayoutConstants::WideHMargin);
-            invertPanSizer->Add(m_invertPanVAxisCheckBox);
-            
-            wxStaticText* moveSpeedLabel = new wxStaticText(mouseBox, wxID_ANY, "Mouse Move");
-            m_moveSpeedSlider = new wxSlider(mouseBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
-            wxStaticText* altMoveOptionsFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
-            wxStaticText* moveInCursorDirFakeLabel = new wxStaticText(mouseBox, wxID_ANY, "");
-            m_enableAltMoveCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Alt+MMB drag to move camera");
-            m_invertAltMoveAxisCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Invert Z axis in Alt+MMB drag");
-            m_moveInCursorDirCheckBox = new wxCheckBox(mouseBox, wxID_ANY, "Move camera towards cursor");
-            wxSizer* altMoveOptionsSizer = new wxBoxSizer(wxHORIZONTAL);
-            altMoveOptionsSizer->Add(m_enableAltMoveCheckBox);
-            altMoveOptionsSizer->AddSpacer(LayoutConstants::WideHMargin);
-            altMoveOptionsSizer->Add(m_invertAltMoveAxisCheckBox);
-            
-            wxFlexGridSizer* innerSizer = new wxFlexGridSizer(2, LayoutConstants::WideHMargin, LayoutConstants::WideVMargin);
-            innerSizer->AddGrowableCol(1);
-            innerSizer->Add(lookSpeedLabel);
-            innerSizer->Add(m_lookSpeedSlider, 0, wxEXPAND);
-            innerSizer->Add(invertLookFakeLabel);
-            innerSizer->Add(invertLookSizer);
-            innerSizer->Add(panSpeedLabel);
-            innerSizer->Add(m_panSpeedSlider, 0, wxEXPAND);
-            innerSizer->Add(invertPanFakeLabel);
-            innerSizer->Add(invertPanSizer);
-            innerSizer->Add(moveSpeedLabel);
-            innerSizer->Add(m_moveSpeedSlider, 0, wxEXPAND);
-            innerSizer->Add(altMoveOptionsFakeLabel);
-            innerSizer->Add(altMoveOptionsSizer);
-            innerSizer->Add(moveInCursorDirFakeLabel);
-            innerSizer->Add(m_moveInCursorDirCheckBox);
-            innerSizer->SetItemMinSize(lookSpeedLabel, ViewPreferencePaneLayout::MinimumLabelWidth, lookSpeedLabel->GetSize().y);
-            
-            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->AddSpacer(LayoutConstants::StaticBoxTopMargin);
-            outerSizer->Add(innerSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::StaticBoxSideMargin);
-            outerSizer->AddSpacer(LayoutConstants::StaticBoxBottomMargin);
-            
-            mouseBox->SetSizerAndFit(outerSizer);
-            return mouseBox;
         }
         
         void ViewPreferencePane::bindEvents() {
             m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureBrowserIconSizeChanged, this);
-            m_invertLookHAxisCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnInvertLookHAxisChanged, this);
-            m_invertLookVAxisCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnInvertLookVAxisChanged, this);
-            m_invertPanHAxisCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnInvertPanHAxisChanged, this);
-            m_invertPanVAxisCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnInvertPanVAxisChanged, this);
-            m_enableAltMoveCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnEnableAltMoveChanged, this);
-            m_moveInCursorDirCheckBox->Bind(wxEVT_CHECKBOX, &ViewPreferencePane::OnMoveCameraInCursorDirChanged, this);
             
             bindSliderEvents(m_brightnessSlider, &ViewPreferencePane::OnBrightnessChanged, this);
             bindSliderEvents(m_gridAlphaSlider, &ViewPreferencePane::OnGridAlphaChanged, this);
-            bindSliderEvents(m_lookSpeedSlider, &ViewPreferencePane::OnLookSpeedChanged, this);
-            bindSliderEvents(m_panSpeedSlider, &ViewPreferencePane::OnPanSpeedChanged, this);
-            bindSliderEvents(m_moveSpeedSlider, &ViewPreferencePane::OnMoveSpeedChanged, this);
         }
 
         void ViewPreferencePane::doUpdateControls() {
@@ -313,19 +170,6 @@ namespace TrenchBroom {
                 m_textureBrowserIconSizeChoice->SetSelection(6);
             else
                 m_textureBrowserIconSizeChoice->SetSelection(2);
-            
-            m_lookSpeedSlider->SetValue(static_cast<int>(prefs.get(Preferences::CameraLookSpeed) * m_lookSpeedSlider->GetMax()));
-            m_invertLookHAxisCheckBox->SetValue(prefs.get(Preferences::CameraLookInvertH));
-            m_invertLookVAxisCheckBox->SetValue(prefs.get(Preferences::CameraLookInvertV));
-            
-            m_panSpeedSlider->SetValue(static_cast<int>(prefs.get(Preferences::CameraPanSpeed) * m_panSpeedSlider->GetMax()));
-            m_invertPanHAxisCheckBox->SetValue(prefs.get(Preferences::CameraPanInvertH));
-            m_invertPanVAxisCheckBox->SetValue(prefs.get(Preferences::CameraPanInvertV));
-            
-            m_moveSpeedSlider->SetValue(static_cast<int>(prefs.get(Preferences::CameraMoveSpeed) * m_moveSpeedSlider->GetMax()));
-            m_enableAltMoveCheckBox->SetValue(prefs.get(Preferences::CameraEnableAltMove));
-            m_invertAltMoveAxisCheckBox->SetValue(prefs.get(Preferences::CameraAltMoveInvert));
-            m_moveInCursorDirCheckBox->SetValue(prefs.get(Preferences::CameraMoveInCursorDir));
         }
 
         bool ViewPreferencePane::doValidate() {
