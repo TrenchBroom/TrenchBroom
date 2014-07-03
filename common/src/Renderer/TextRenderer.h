@@ -50,7 +50,7 @@ namespace TrenchBroom {
         
         class TextAnchor {
         public:
-            typedef std::tr1::shared_ptr<TextAnchor> Ptr;
+            typedef TrenchBroom::shared_ptr<TextAnchor> Ptr;
         public:
             virtual ~TextAnchor() {}
             Vec3f offset(const Camera& camera, const Vec2f& size) const;

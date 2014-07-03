@@ -26,7 +26,7 @@ template <typename T> class Holder;
 
 class BaseHolder {
 public:
-    typedef std::tr1::shared_ptr<BaseHolder> Ptr;
+    typedef TrenchBroom::shared_ptr<BaseHolder> Ptr;
     virtual ~BaseHolder() {}
     
     template <typename T>

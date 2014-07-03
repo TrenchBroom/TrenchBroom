@@ -32,7 +32,7 @@ namespace TrenchBroom {
     
     class HitFilterChain : public HitFilter {
     private:
-        typedef std::tr1::shared_ptr<HitFilter> FilterPtr;
+        typedef TrenchBroom::shared_ptr<HitFilter> FilterPtr;
         FilterPtr m_filter;
         FilterPtr m_next;
     public:

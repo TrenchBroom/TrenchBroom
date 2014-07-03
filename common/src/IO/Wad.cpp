@@ -83,7 +83,7 @@ namespace TrenchBroom {
 
         Wad::Wad(const Path& path) {
             m_file = Disk::openFile(path);
-            if (m_file == NULL)
+            if (m_file.get() == NULL)
                 throw AssetException("Cannot open wad file " + path.asString());
             loadEntries();
         }

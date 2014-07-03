@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class TextureCollectionCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<TextureCollectionCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<TextureCollectionCommand> Ptr;
         private:
             typedef enum {
                 Action_Add,

@@ -124,7 +124,7 @@ namespace TrenchBroom {
         }
         
         void SmartPropertyEditorManager::deactivateEditor() {
-            if (m_activeEditor != NULL) {
+            if (m_activeEditor.get() != NULL) {
                 m_activeEditor->deactivate();
                 m_activeEditor = EditorPtr();
                 m_key = "";
@@ -132,7 +132,7 @@ namespace TrenchBroom {
         }
 
         void SmartPropertyEditorManager::updateEditor() {
-            if (m_activeEditor != NULL) {
+            if (m_activeEditor.get() != NULL) {
                 MapDocumentSPtr document = lock(m_document);
                 m_activeEditor->update(document->allSelectedEntities());
             }

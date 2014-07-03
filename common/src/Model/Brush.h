@@ -44,7 +44,7 @@ namespace TrenchBroom {
         class BrushSnapshot {
         private:
             struct FacesHolder {
-                typedef std::tr1::shared_ptr<FacesHolder> Ptr;
+                typedef TrenchBroom::shared_ptr<FacesHolder> Ptr;
                 BrushFaceList faces;
                 ~FacesHolder();
             };

@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace Model {
         class GameImpl : public Game {
         private:
-            typedef std::tr1::shared_ptr<IO::MapWriter> MapWriterPtr;
+            typedef TrenchBroom::shared_ptr<IO::MapWriter> MapWriterPtr;
             
             GameConfig m_config;
             IO::Path m_gamePath;

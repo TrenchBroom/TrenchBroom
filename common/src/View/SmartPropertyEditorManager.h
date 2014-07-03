@@ -41,8 +41,8 @@ namespace TrenchBroom {
         
         class SmartPropertyEditorManager : public wxPanel {
         private:
-            typedef std::tr1::shared_ptr<SmartPropertyEditor> EditorPtr;
-            typedef std::tr1::shared_ptr<SmartPropertyEditorMatcher> MatcherPtr;
+            typedef TrenchBroom::shared_ptr<SmartPropertyEditor> EditorPtr;
+            typedef TrenchBroom::shared_ptr<SmartPropertyEditorMatcher> MatcherPtr;
             typedef std::pair<MatcherPtr, EditorPtr> MatcherEditorPair;
             typedef std::vector<MatcherEditorPair> EditorList;
             

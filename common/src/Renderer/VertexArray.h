@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class BaseHolder {
         public:
-            typedef std::tr1::shared_ptr<BaseHolder> Ptr;
+            typedef TrenchBroom::shared_ptr<BaseHolder> Ptr;
             virtual ~BaseHolder() {}
             
             virtual size_t vertexCount() const = 0;

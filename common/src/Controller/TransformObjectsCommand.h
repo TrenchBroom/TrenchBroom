@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class TransformObjectsCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<TransformObjectsCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<TransformObjectsCommand> Ptr;
         private:
             View::MapDocumentWPtr m_document;
             Mat4x4 m_transformation;

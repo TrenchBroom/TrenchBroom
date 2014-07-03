@@ -44,7 +44,7 @@ namespace TrenchBroom {
         SmartColorEditor::ColorPtr SmartColorEditor::Color::parseColor(const String& str) {
             const StringList components = StringUtils::splitAndTrim(str, " ");
             if (components.size() != 3)
-                return ColorPtr(new ByteColor(0, 0, 0));
+                return NonConstColorPtr(new ByteColor(0, 0, 0));
             
             const ColorRange range = detectRange(components);
             assert(range != ColorRange_Mixed);
@@ -53,17 +53,17 @@ namespace TrenchBroom {
                 const int r = std::atoi(components[0].c_str());
                 const int g = std::atoi(components[1].c_str());
                 const int b = std::atoi(components[2].c_str());
-                return ColorPtr(new ByteColor(r, g, b));
+                return NonConstColorPtr(new ByteColor(r, g, b));
             }
             
             const float r = static_cast<float>(std::atof(components[0].c_str()));
             const float g = static_cast<float>(std::atof(components[1].c_str()));
             const float b = static_cast<float>(std::atof(components[2].c_str()));
-            return ColorPtr(new FloatColor(r, g, b));
+            return NonConstColorPtr(new FloatColor(r, g, b));
         }
         
         SmartColorEditor::ColorPtr SmartColorEditor::Color::fromWxColor(const wxColor& wxColor, const ColorRange range) {
-            ColorPtr byteColor(new ByteColor(wxColor.Red(), wxColor.Green(), wxColor.Blue()));
+            NonConstColorPtr byteColor(new ByteColor(wxColor.Red(), wxColor.Green(), wxColor.Blue()));
             return byteColor->toColor(range);
         }
 
@@ -105,7 +105,7 @@ namespace TrenchBroom {
         }
         
         SmartColorEditor::ColorPtr SmartColorEditor::FloatColor::toByteColor() const {
-            return ColorPtr(new ByteColor(static_cast<int>(Math::round(r() * 255.0f)),
+            return NonConstColorPtr(new ByteColor(static_cast<int>(Math::round(r() * 255.0f)),
                                           static_cast<int>(Math::round(g() * 255.0f)),
                                           static_cast<int>(Math::round(b() * 255.0f))));
         }
@@ -148,7 +148,7 @@ namespace TrenchBroom {
         }
         
         SmartColorEditor::ColorPtr SmartColorEditor::ByteColor::toFloatColor() const {
-            return ColorPtr(new FloatColor(static_cast<float>(r()) / 255.0f,
+            return NonConstColorPtr(new FloatColor(static_cast<float>(r()) / 255.0f,
                                            static_cast<float>(g()) / 255.0f,
                                            static_cast<float>(b()) / 255.0f));
         }

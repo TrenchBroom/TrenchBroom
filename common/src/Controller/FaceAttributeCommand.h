@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class FaceAttributeCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<FaceAttributeCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<FaceAttributeCommand> Ptr;
         private:
             typedef enum {
                 ValueOp_None,

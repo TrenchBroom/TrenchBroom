@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class SplitBrushEdgesCommand : public BrushVertexHandleCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SplitBrushEdgesCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<SplitBrushEdgesCommand> Ptr;
         private:
             typedef std::map<Model::Brush*, Edge3::List> BrushEdgesMap;
             

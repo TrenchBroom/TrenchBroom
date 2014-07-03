@@ -38,7 +38,7 @@ namespace TrenchBroom {
             
             class Edge {
             public:
-                typedef std::tr1::shared_ptr<Edge> Ptr;
+                typedef TrenchBroom::shared_ptr<Edge> Ptr;
                 typedef std::vector<Ptr> List;
             private:
                 Node* m_node1;

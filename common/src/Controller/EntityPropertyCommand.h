@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class EntityPropertyCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<EntityPropertyCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<EntityPropertyCommand> Ptr;
         private:
             typedef enum {
                 Action_Rename,

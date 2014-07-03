@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class MoveBrushFacesCommand : public BrushVertexHandleCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<MoveBrushFacesCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<MoveBrushFacesCommand> Ptr;
         private:
             typedef std::map<Model::Brush*, Polygon3::List> BrushFacesMap;
             

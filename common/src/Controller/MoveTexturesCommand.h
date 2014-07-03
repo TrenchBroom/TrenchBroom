@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class MoveTexturesCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<MoveTexturesCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<MoveTexturesCommand> Ptr;
         private:
             View::MapDocumentWPtr m_document;
             Model::BrushFaceList m_faces;

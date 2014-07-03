@@ -35,7 +35,7 @@ namespace TrenchBroom {
             using Model::GameConfig;
 
             const ConfigEntry::Ptr root = m_parser.parse();
-            if (root == NULL)
+            if (root.get() == NULL)
                 throw ParserException("Empty game config");
             
             expectEntry(ConfigEntry::Type_Table, *root);

@@ -42,7 +42,7 @@ namespace TrenchBroom {
         class Map;
         
         class MockGame;
-        typedef std::tr1::shared_ptr<MockGame> MockGamePtr;
+        typedef TrenchBroom::shared_ptr<MockGame> MockGamePtr;
         
         class MockGame : public Game {
         public:

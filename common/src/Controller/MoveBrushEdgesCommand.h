@@ -33,7 +33,7 @@ namespace TrenchBroom {
         class MoveBrushEdgesCommand : public BrushVertexHandleCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<MoveBrushEdgesCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<MoveBrushEdgesCommand> Ptr;
         private:
             typedef std::map<Model::Brush*, Edge3::List> BrushEdgesMap;
             

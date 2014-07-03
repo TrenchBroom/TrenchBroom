@@ -34,7 +34,7 @@ namespace TrenchBroom {
         class GLContextHolder {
         public:
             typedef std::vector<int> GLAttribs;
-            typedef std::tr1::shared_ptr<GLContextHolder> Ptr;
+            typedef TrenchBroom::shared_ptr<GLContextHolder> Ptr;
         private:
             wxGLContext* m_context;
         public:

@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class ReparentBrushesCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<ReparentBrushesCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<ReparentBrushesCommand> Ptr;
         private:
             View::MapDocumentWPtr m_document;
             Model::BrushList m_brushes;

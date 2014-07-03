@@ -95,7 +95,7 @@ namespace TrenchBroom {
                 const FSPtr fileSystem = *it;
                 if (fileSystem->fileExists(path)) {
                     const MappedFile::Ptr file = fileSystem->openFile(path);
-                    if (file != NULL)
+                    if (file.get() != NULL)
                         return file;
                 }
             }

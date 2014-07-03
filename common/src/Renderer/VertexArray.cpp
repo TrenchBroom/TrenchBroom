@@ -48,11 +48,11 @@ namespace TrenchBroom {
         }
 
         size_t VertexArray::size() const {
-            return m_holder == NULL ? 0 : m_holder->size();
+            return m_holder.get() == NULL ? 0 : m_holder->size();
         }
 
         size_t VertexArray::vertexCount() const {
-            return m_holder == NULL ? 0 : m_holder->vertexCount();
+            return m_holder.get() == NULL ? 0 : m_holder->vertexCount();
         }
 
         bool VertexArray::prepared() const {
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         }
 
         void VertexArray::prepare(Vbo& vbo) {
-            if (!m_prepared && m_holder != NULL && m_holder->vertexCount() > 0)
+            if (!m_prepared && m_holder.get() != NULL && m_holder->vertexCount() > 0)
                 m_holder->prepare(vbo);
             m_prepared = true;
         }
@@ -68,7 +68,7 @@ namespace TrenchBroom {
         void VertexArray::render() {
             assert(m_prepared);
             
-            if (m_holder == NULL || m_holder->vertexCount() == 0)
+            if (m_holder.get() == NULL || m_holder->vertexCount() == 0)
                 return;
 
             m_holder->setup();

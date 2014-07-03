@@ -407,11 +407,11 @@ Color	Color.cpp	/^Color::Color(const int r, const int g, const int b, const int 
 Color	Color.cpp	/^Color::Color(const std::string& str) :$/;"	f	language:C++	class:Color
 Color	Color.cpp	/^Color::Color(const unsigned char r, const unsigned char g, const unsigned char b, const unsigned char a) :$/;"	f	language:C++	class:Color
 Color	Color.h	/^class Color : public Vec<float, 4> {$/;"	c	language:C++
-Color	View/SmartColorEditor.h	/^            class Color : public std::tr1::enable_shared_from_this<Color> {$/;"	c	language:C++	class:TrenchBroom::View::SmartColorEditor
+Color	View/SmartColorEditor.h	/^            class Color : public TrenchBroom::enable_shared_from_this<Color> {$/;"	c	language:C++	class:TrenchBroom::View::SmartColorEditor
 ColorCmp	View/SmartColorEditor.cpp	/^        struct ColorCmp {$/;"	s	language:C++	namespace:TrenchBroom::View	file:
 ColorHistoryCellSize	View/SmartColorEditor.h	/^            static const size_t ColorHistoryCellSize = 15;$/;"	m	language:C++	class:TrenchBroom::View::SmartColorEditor
 ColorList	View/ColorTable.h	/^            typedef std::vector<wxColour> ColorList;$/;"	t	language:C++	class:TrenchBroom::View::ColorTable
-ColorPtr	View/SmartColorEditor.h	/^            typedef std::tr1::shared_ptr<const Color> ColorPtr;$/;"	t	language:C++	class:TrenchBroom::View::SmartColorEditor
+ColorPtr	View/SmartColorEditor.h	/^            typedef TrenchBroom::shared_ptr<const Color> ColorPtr;$/;"	t	language:C++	class:TrenchBroom::View::SmartColorEditor
 ColorRange	View/SmartColorEditor.h	/^            } ColorRange;$/;"	t	language:C++	class:TrenchBroom::View::SmartColorEditor	typeref:enum:TrenchBroom::View::SmartColorEditor::__anon36
 ColorRange_Byte	View/SmartColorEditor.h	/^                ColorRange_Byte,$/;"	e	language:C++	enum:TrenchBroom::View::SmartColorEditor::__anon36
 ColorRange_Float	View/SmartColorEditor.h	/^                ColorRange_Float,$/;"	e	language:C++	enum:TrenchBroom::View::SmartColorEditor::__anon36
@@ -554,8 +554,8 @@ Controller	Controller/TransformObjectsCommand.h	/^    namespace Controller {$/;"
 Controller	View/ControllerFacade.h	/^    namespace Controller {$/;"	n	language:C++	namespace:TrenchBroom
 ControllerFacade	View/ControllerFacade.cpp	/^        ControllerFacade::ControllerFacade(MapDocumentWPtr document) :$/;"	f	language:C++	class:TrenchBroom::View::ControllerFacade
 ControllerFacade	View/ControllerFacade.h	/^        class ControllerFacade {$/;"	c	language:C++	namespace:TrenchBroom::View
-ControllerSPtr	View/ViewTypes.h	/^        typedef std::tr1::shared_ptr<ControllerFacade> ControllerSPtr;$/;"	t	language:C++	namespace:TrenchBroom::View
-ControllerWPtr	View/ViewTypes.h	/^        typedef std::tr1::weak_ptr<ControllerFacade> ControllerWPtr;$/;"	t	language:C++	namespace:TrenchBroom::View
+ControllerSPtr	View/ViewTypes.h	/^        typedef TrenchBroom::shared_ptr<ControllerFacade> ControllerSPtr;$/;"	t	language:C++	namespace:TrenchBroom::View
+ControllerWPtr	View/ViewTypes.h	/^        typedef TrenchBroom::weak_ptr<ControllerFacade> ControllerWPtr;$/;"	t	language:C++	namespace:TrenchBroom::View
 ConvertColorRange	View/SmartColorEditor.cpp	/^            ConvertColorRange(View::ControllerSPtr controller, const Model::PropertyKey& key, const SmartColorEditor::ColorRange toRange) :$/;"	f	language:C++	struct:TrenchBroom::View::ConvertColorRange
 ConvertColorRange	View/SmartColorEditor.cpp	/^        struct ConvertColorRange {$/;"	s	language:C++	namespace:TrenchBroom::View	file:
 Converter	Preference.h	/^    class Converter {$/;"	c	language:C++	namespace:TrenchBroom
@@ -806,7 +806,7 @@ EditVertexActions	View/CommandIds.h	/^                const int EditVertexAction
 EditYawObjectsCCW	View/CommandIds.h	/^                const int EditYawObjectsCCW                  = Lowest +  35;$/;"	m	language:C++	namespace:TrenchBroom::View::CommandIds::Menu
 EditYawObjectsCW	View/CommandIds.h	/^                const int EditYawObjectsCW                   = Lowest +  34;$/;"	m	language:C++	namespace:TrenchBroom::View::CommandIds::Menu
 EditorList	View/SmartPropertyEditorManager.h	/^            typedef std::vector<MatcherEditorPair> EditorList;$/;"	t	language:C++	class:TrenchBroom::View::SmartPropertyEditorManager
-EditorPtr	View/SmartPropertyEditorManager.h	/^            typedef std::tr1::shared_ptr<SmartPropertyEditor> EditorPtr;$/;"	t	language:C++	class:TrenchBroom::View::SmartPropertyEditorManager
+EditorPtr	View/SmartPropertyEditorManager.h	/^            typedef TrenchBroom::shared_ptr<SmartPropertyEditor> EditorPtr;$/;"	t	language:C++	class:TrenchBroom::View::SmartPropertyEditorManager
 ElementType	Renderer/AttributeSpec.h	/^            typedef Vec<DataType, S> ElementType;$/;"	t	language:C++	class:TrenchBroom::Renderer::AttributeSpec
 Empty	View/KeyboardShortcut.h	/^            static const KeyboardShortcut Empty;$/;"	m	language:C++	class:TrenchBroom::View::KeyboardShortcut
 EmptyBrushEntityIssue	Model/EmptyBrushEntityIssueGenerator.cpp	/^            EmptyBrushEntityIssue(Entity* entity) :$/;"	f	language:C++	class:TrenchBroom::Model::EmptyBrushEntityIssue
@@ -956,7 +956,7 @@ F	Notifier.h	/^            typedef void (R::*F)(A1 a1);$/;"	t	language:C++	class
 F	Notifier.h	/^            typedef void (R::*F)(A1 a1, A2 a2);$/;"	t	language:C++	class:TrenchBroom::Notifier2::CObserver
 F	Notifier.h	/^            typedef void (R::*F)(A1 a1, A2 a2, A3 a3);$/;"	t	language:C++	class:TrenchBroom::Notifier3::CObserver
 F	SetBool.h	/^        typedef void (R::*F)(bool b);$/;"	t	language:C++	class:TrenchBroom::SetBoolFun
-FSPtr	IO/GameFileSystem.h	/^            typedef std::tr1::shared_ptr<FileSystem> FSPtr;$/;"	t	language:C++	class:TrenchBroom::IO::GameFileSystem
+FSPtr	IO/GameFileSystem.h	/^            typedef TrenchBroom::shared_ptr<FileSystem> FSPtr;$/;"	t	language:C++	class:TrenchBroom::IO::GameFileSystem
 Face	Assets/Bsp29Model.cpp	/^        Bsp29Model::Face::Face(Assets::Texture* texture) :$/;"	f	language:C++	class:TrenchBroom::Assets::Bsp29Model::Face
 Face	Assets/Bsp29Model.h	/^            class Face {$/;"	c	language:C++	class:TrenchBroom::Assets::Bsp29Model
 FaceAdjacencyGraph	Model/FaceAdjacencyGraph.h	/^        class FaceAdjacencyGraph {$/;"	c	language:C++	namespace:TrenchBroom::Model
@@ -1025,7 +1025,7 @@ Filter	Renderer/EntityLinkRenderer.h	/^            class Filter {$/;"	c	language
 FilterEvent	TrenchBroomApp.cpp	/^        int TrenchBroomApp::FilterEvent(wxEvent& event) {$/;"	f	language:C++	class:TrenchBroom::View::TrenchBroomApp
 FilterIterator	FilterIterator.h	/^        FilterIterator(const Iterator& cur, const Iterator& end, const Filter& filter) :$/;"	f	language:C++	class:TrenchBroom::FilterIterator
 FilterIterator	FilterIterator.h	/^    class FilterIterator {$/;"	c	language:C++	namespace:TrenchBroom
-FilterPtr	HitFilter.h	/^        typedef std::tr1::shared_ptr<HitFilter> FilterPtr;$/;"	t	language:C++	class:TrenchBroom::HitFilterChain
+FilterPtr	HitFilter.h	/^        typedef TrenchBroom::shared_ptr<HitFilter> FilterPtr;$/;"	t	language:C++	class:TrenchBroom::HitFilterChain
 FindClosestFaceHit	View/ResizeBrushesTool.cpp	/^            FindClosestFaceHit(const Ray3& pickRay) :$/;"	f	language:C++	struct:TrenchBroom::View::FindClosestFaceHit
 FindClosestFaceHit	View/ResizeBrushesTool.cpp	/^        struct FindClosestFaceHit {$/;"	s	language:C++	namespace:TrenchBroom::View	file:
 FindFlagByValue	Assets/PropertyDefinition.cpp	/^            FindFlagByValue(const int i_value) : value(i_value) {}$/;"	f	language:C++	struct:TrenchBroom::Assets::FindFlagByValue
@@ -1122,7 +1122,7 @@ GameImpl	Model/GameImpl.h	/^        class GameImpl : public Game {$/;"	c	languag
 GameListBox	View/GameListBox.cpp	/^        GameListBox::GameListBox(wxWindow* parent, const long style) :$/;"	f	language:C++	class:TrenchBroom::View::GameListBox
 GameListBox	View/GameListBox.h	/^        class GameListBox : public ImageListBox {$/;"	c	language:C++	namespace:TrenchBroom::View
 GamePathMap	Model/GameFactory.h	/^            typedef std::map<String, Preference<IO::Path> > GamePathMap;$/;"	t	language:C++	class:TrenchBroom::Model::GameFactory
-GamePtr	Model/ModelTypes.h	/^        typedef std::tr1::shared_ptr<Game> GamePtr;$/;"	t	language:C++	namespace:TrenchBroom::Model
+GamePtr	Model/ModelTypes.h	/^        typedef TrenchBroom::shared_ptr<Game> GamePtr;$/;"	t	language:C++	namespace:TrenchBroom::Model
 GameSelectionCommand	View/GameSelectionCommand.cpp	/^        GameSelectionCommand::GameSelectionCommand() :$/;"	f	language:C++	class:TrenchBroom::View::GameSelectionCommand
 GameSelectionCommand	View/GameSelectionCommand.cpp	/^        GameSelectionCommand::GameSelectionCommand(wxEventType type, const String& gameName) :$/;"	f	language:C++	class:TrenchBroom::View::GameSelectionCommand
 GameSelectionCommand	View/GameSelectionCommand.h	/^        class GameSelectionCommand : public wxCommandEvent {$/;"	c	language:C++	namespace:TrenchBroom::View
@@ -1359,7 +1359,7 @@ IntegerPropertyDefinition	Assets/PropertyDefinition.cpp	/^        IntegerPropert
 IntegerPropertyDefinition	Assets/PropertyDefinition.cpp	/^        IntegerPropertyDefinition::IntegerPropertyDefinition(const String& name, const String& description, const int defaultValue) :$/;"	f	language:C++	class:TrenchBroom::Assets::IntegerPropertyDefinition
 IntegerPropertyDefinition	Assets/PropertyDefinition.h	/^        class IntegerPropertyDefinition : public PropertyDefinitionWithDefaultValue<int> {$/;"	c	language:C++	namespace:TrenchBroom::Assets
 InternalBuffer	ByteBuffer.h	/^    typedef std::vector<T> InternalBuffer;$/;"	t	language:C++	class:Buffer
-InternalBufferPtr	ByteBuffer.h	/^    typedef std::tr1::shared_ptr<InternalBuffer> InternalBufferPtr;$/;"	t	language:C++	class:Buffer
+InternalBufferPtr	ByteBuffer.h	/^    typedef TrenchBroom::shared_ptr<InternalBuffer> InternalBufferPtr;$/;"	t	language:C++	class:Buffer
 IntersectBrushGeometryWithFace	Model/IntersectBrushGeometryWithFace.cpp	/^        IntersectBrushGeometryWithFace::IntersectBrushGeometryWithFace(BrushGeometry& geometry, BrushFace* face) :$/;"	f	language:C++	class:TrenchBroom::Model::IntersectBrushGeometryWithFace
 IntersectBrushGeometryWithFace	Model/IntersectBrushGeometryWithFace.h	/^        class IntersectBrushGeometryWithFace : public BrushAlgorithm<AddFaceResult::Code> {$/;"	c	language:C++	namespace:TrenchBroom::Model
 InverseDotOrder	Vec.h	/^        InverseDotOrder(const Vec<T,S>& dir) :$/;"	f	language:C++	class:Vec::InverseDotOrder
@@ -1496,8 +1496,8 @@ Map	Vec.h	/^    typedef std::map<Vec<T,S>, Vec<T,S>, LexicographicOrder> Map;$/;
 MapBrushesIterator	Model/MapBrushesIterator.h	/^        struct MapBrushesIterator {$/;"	s	language:C++	namespace:TrenchBroom::Model
 MapDocument	View/MapDocument.cpp	/^        MapDocument::MapDocument() :$/;"	f	language:C++	class:TrenchBroom::View::MapDocument
 MapDocument	View/MapDocument.h	/^        class MapDocument : public CachingLogger {$/;"	c	language:C++	namespace:TrenchBroom::View
-MapDocumentSPtr	View/ViewTypes.h	/^        typedef std::tr1::shared_ptr<MapDocument> MapDocumentSPtr;$/;"	t	language:C++	namespace:TrenchBroom::View
-MapDocumentWPtr	View/ViewTypes.h	/^        typedef std::tr1::weak_ptr<MapDocument> MapDocumentWPtr;$/;"	t	language:C++	namespace:TrenchBroom::View
+MapDocumentSPtr	View/ViewTypes.h	/^        typedef TrenchBroom::shared_ptr<MapDocument> MapDocumentSPtr;$/;"	t	language:C++	namespace:TrenchBroom::View
+MapDocumentWPtr	View/ViewTypes.h	/^        typedef TrenchBroom::weak_ptr<MapDocument> MapDocumentWPtr;$/;"	t	language:C++	namespace:TrenchBroom::View
 MapEntitiesIterator	Model/MapEntitiesIterator.h	/^        namespace MapEntitiesIterator {$/;"	n	language:C++	namespace:TrenchBroom::Model
 MapFacesIterator	Model/MapFacesIterator.h	/^        struct MapFacesIterator {$/;"	s	language:C++	namespace:TrenchBroom::Model
 MapFormat	Model/ModelTypes.h	/^        namespace MapFormat {$/;"	n	language:C++	namespace:TrenchBroom::Model
@@ -1518,7 +1518,7 @@ MapUtils	CollectionUtils.h	/^namespace MapUtils {$/;"	n	language:C++
 MapView	View/MapView.cpp	/^        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :$/;"	f	language:C++	class:TrenchBroom::View::MapView
 MapView	View/MapView.h	/^        class MapView : public RenderView, public ToolBoxHelper {$/;"	c	language:C++	namespace:TrenchBroom::View
 MapWriter	IO/MapWriter.h	/^        class MapWriter {$/;"	c	language:C++	namespace:TrenchBroom::IO
-MapWriterPtr	Model/GameImpl.h	/^            typedef std::tr1::shared_ptr<IO::MapWriter> MapWriterPtr;$/;"	t	language:C++	class:TrenchBroom::Model::GameImpl
+MapWriterPtr	Model/GameImpl.h	/^            typedef TrenchBroom::shared_ptr<IO::MapWriter> MapWriterPtr;$/;"	t	language:C++	class:TrenchBroom::Model::GameImpl
 Mapped	Renderer/Vbo.h	/^            static const Type Mapped    = 2;$/;"	m	language:C++	namespace:TrenchBroom::Renderer::VboState
 MappedFile	IO/MappedFile.cpp	/^        MappedFile::MappedFile() :$/;"	f	language:C++	class:TrenchBroom::IO::MappedFile
 MappedFile	IO/MappedFile.h	/^        class MappedFile {$/;"	c	language:C++	namespace:TrenchBroom::IO
@@ -1558,7 +1558,7 @@ MatchPartiallySelected	Model/Selection.cpp	/^        struct MatchPartiallySelect
 MatchSelected	Model/Selection.cpp	/^        struct MatchSelected  {$/;"	s	language:C++	namespace:TrenchBroom::Model	file:
 MatchUnselected	Model/Selection.cpp	/^        struct MatchUnselected {$/;"	s	language:C++	namespace:TrenchBroom::Model	file:
 MatcherEditorPair	View/SmartPropertyEditorManager.h	/^            typedef std::pair<MatcherPtr, EditorPtr> MatcherEditorPair;$/;"	t	language:C++	class:TrenchBroom::View::SmartPropertyEditorManager
-MatcherPtr	View/SmartPropertyEditorManager.h	/^            typedef std::tr1::shared_ptr<SmartPropertyEditorMatcher> MatcherPtr;$/;"	t	language:C++	class:TrenchBroom::View::SmartPropertyEditorManager
+MatcherPtr	View/SmartPropertyEditorManager.h	/^            typedef TrenchBroom::shared_ptr<SmartPropertyEditorMatcher> MatcherPtr;$/;"	t	language:C++	class:TrenchBroom::View::SmartPropertyEditorManager
 Math	MathUtils.h	/^namespace Math {$/;"	n	language:C++
 Math	TrenchBroom.h	/^namespace Math {$/;"	n	language:C++
 MatrixDeterminant	Mat.h	/^struct MatrixDeterminant {$/;"	s	language:C++
@@ -1833,7 +1833,7 @@ ModelCache	Assets/EntityModelManager.h	/^            typedef std::map<IO::Path, 
 ModelDefinition	Assets/ModelDefinition.cpp	/^        ModelDefinition::ModelDefinition() {}$/;"	f	language:C++	class:TrenchBroom::Assets::ModelDefinition
 ModelDefinition	Assets/ModelDefinition.h	/^        class ModelDefinition {$/;"	c	language:C++	namespace:TrenchBroom::Assets
 ModelDefinitionList	Assets/AssetTypes.h	/^        typedef std::vector<ModelDefinitionPtr> ModelDefinitionList;$/;"	t	language:C++	namespace:TrenchBroom::Assets
-ModelDefinitionPtr	Assets/AssetTypes.h	/^        typedef std::tr1::shared_ptr<ModelDefinition> ModelDefinitionPtr;$/;"	t	language:C++	namespace:TrenchBroom::Assets
+ModelDefinitionPtr	Assets/AssetTypes.h	/^        typedef TrenchBroom::shared_ptr<ModelDefinition> ModelDefinitionPtr;$/;"	t	language:C++	namespace:TrenchBroom::Assets
 ModelFaceIndex	IO/Bsp29Parser.cpp	/^            static const size_t ModelFaceIndex        = 0x38;$/;"	m	language:C++	namespace:TrenchBroom::IO::BspLayout	file:
 ModelFactory	Model/ModelFactory.cpp	/^        ModelFactory::ModelFactory(const MapFormat::Type format) :$/;"	f	language:C++	class:TrenchBroom::Model::ModelFactory
 ModelFactory	Model/ModelFactory.h	/^        class ModelFactory {$/;"	c	language:C++	namespace:TrenchBroom::Model
@@ -1953,7 +1953,7 @@ Node	Model/FaceAdjacencyGraph.h	/^            class Node {$/;"	c	language:C++	cl
 Node	StringIndex.h	/^            Node(const String& key) :$/;"	f	language:C++	class:TrenchBroom::StringIndex::Node
 Node	StringIndex.h	/^        class Node {$/;"	c	language:C++	class:TrenchBroom::StringIndex
 NodeMap	Model/FaceAdjacencyGraph.h	/^            typedef std::map<Vec3, Node::List, Vec3::LexicographicOrder> NodeMap;$/;"	t	language:C++	class:TrenchBroom::Model::FaceAdjacencyGraph
-NodePtr	Model/Octree.h	/^            typedef std::tr1::shared_ptr<OctreeNode<F,T> > NodePtr;$/;"	t	language:C++	class:TrenchBroom::Model::Octree
+NodePtr	Model/Octree.h	/^            typedef TrenchBroom::shared_ptr<OctreeNode<F,T> > NodePtr;$/;"	t	language:C++	class:TrenchBroom::Model::Octree
 NodeSet	StringIndex.h	/^            typedef std::set<Node> NodeSet;$/;"	t	language:C++	class:TrenchBroom::StringIndex::Node
 NonParallel	Ray.h	/^        static const LineDistance NonParallel(const T rayDistance, const T distance, const Vec<T,S>& point) {$/;"	f	language:C++	struct:Ray::LineDistance
 NopFunc	Renderer/MeshRenderer.cpp	/^        struct NopFunc {$/;"	s	language:C++	namespace:TrenchBroom::Renderer	file:
@@ -2415,7 +2415,7 @@ PropertyDefinition	Assets/PropertyDefinition.cpp	/^        PropertyDefinition::P
 PropertyDefinition	Assets/PropertyDefinition.h	/^        class PropertyDefinition {$/;"	c	language:C++	namespace:TrenchBroom::Assets
 PropertyDefinitionList	Assets/AssetTypes.h	/^        typedef std::vector<PropertyDefinitionPtr> PropertyDefinitionList;$/;"	t	language:C++	namespace:TrenchBroom::Assets
 PropertyDefinitionMap	Assets/AssetTypes.h	/^        typedef std::map<String, PropertyDefinitionPtr> PropertyDefinitionMap;$/;"	t	language:C++	namespace:TrenchBroom::Assets
-PropertyDefinitionPtr	Assets/AssetTypes.h	/^        typedef std::tr1::shared_ptr<PropertyDefinition> PropertyDefinitionPtr;$/;"	t	language:C++	namespace:TrenchBroom::Assets
+PropertyDefinitionPtr	Assets/AssetTypes.h	/^        typedef TrenchBroom::shared_ptr<PropertyDefinition> PropertyDefinitionPtr;$/;"	t	language:C++	namespace:TrenchBroom::Assets
 PropertyDefinitionWithDefaultValue	Assets/PropertyDefinition.h	/^            PropertyDefinitionWithDefaultValue(const String& name, const Type type, const String& description) :$/;"	f	language:C++	class:TrenchBroom::Assets::PropertyDefinitionWithDefaultValue
 PropertyDefinitionWithDefaultValue	Assets/PropertyDefinition.h	/^            PropertyDefinitionWithDefaultValue(const String& name, const Type type, const String& description, const T& defaultValue) :$/;"	f	language:C++	class:TrenchBroom::Assets::PropertyDefinitionWithDefaultValue
 PropertyDefinitionWithDefaultValue	Assets/PropertyDefinition.h	/^        class PropertyDefinitionWithDefaultValue : public PropertyDefinition {$/;"	c	language:C++	namespace:TrenchBroom::Assets
@@ -2432,47 +2432,47 @@ PropertyValue	Model/ModelTypes.h	/^        typedef String PropertyValue;$/;"	t	l
 PropertyValueList	Model/ModelTypes.h	/^        typedef std::vector<PropertyValue> PropertyValueList;$/;"	t	language:C++	namespace:TrenchBroom::Model
 PropertyValues	Model/EntityProperties.cpp	/^        namespace PropertyValues {$/;"	n	language:C++	namespace:TrenchBroom::Model	file:
 PropertyValues	Model/EntityProperties.h	/^        namespace PropertyValues {$/;"	n	language:C++	namespace:TrenchBroom::Model
-Ptr	ConfigTypes.h	/^        typedef std::tr1::shared_ptr<ConfigEntry> Ptr;$/;"	t	language:C++	class:TrenchBroom::ConfigEntry
-Ptr	ConfigTypes.h	/^        typedef std::tr1::shared_ptr<ConfigList> Ptr;$/;"	t	language:C++	class:TrenchBroom::ConfigList
-Ptr	ConfigTypes.h	/^        typedef std::tr1::shared_ptr<ConfigTable> Ptr;$/;"	t	language:C++	class:TrenchBroom::ConfigTable
-Ptr	ConfigTypes.h	/^        typedef std::tr1::shared_ptr<ConfigValue> Ptr;$/;"	t	language:C++	class:TrenchBroom::ConfigValue
-Ptr	Controller/AddRemoveObjectsCommand.h	/^            typedef std::tr1::shared_ptr<AddRemoveObjectsCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::AddRemoveObjectsCommand
-Ptr	Controller/BrushVertexHandleCommand.h	/^            typedef std::tr1::shared_ptr<BrushVertexHandleCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::BrushVertexHandleCommand
-Ptr	Controller/Command.h	/^            typedef std::tr1::shared_ptr<Command> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::Command
-Ptr	Controller/EntityPropertyCommand.h	/^            typedef std::tr1::shared_ptr<EntityPropertyCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::EntityPropertyCommand
-Ptr	Controller/FaceAttributeCommand.h	/^            typedef std::tr1::shared_ptr<FaceAttributeCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::FaceAttributeCommand
-Ptr	Controller/FixPlanePointsCommand.h	/^            typedef std::tr1::shared_ptr<FixPlanePointsCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::FixPlanePointsCommand
-Ptr	Controller/MoveBrushEdgesCommand.h	/^            typedef std::tr1::shared_ptr<MoveBrushEdgesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::MoveBrushEdgesCommand
-Ptr	Controller/MoveBrushFacesCommand.h	/^            typedef std::tr1::shared_ptr<MoveBrushFacesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::MoveBrushFacesCommand
-Ptr	Controller/MoveBrushVerticesCommand.h	/^            typedef std::tr1::shared_ptr<MoveBrushVerticesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::MoveBrushVerticesCommand
-Ptr	Controller/MoveTexturesCommand.h	/^            typedef std::tr1::shared_ptr<MoveTexturesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::MoveTexturesCommand
-Ptr	Controller/NewDocumentCommand.h	/^            typedef std::tr1::shared_ptr<NewDocumentCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::NewDocumentCommand
-Ptr	Controller/OpenDocumentCommand.h	/^            typedef std::tr1::shared_ptr<OpenDocumentCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::OpenDocumentCommand
-Ptr	Controller/RebuildBrushGeometryCommand.h	/^            typedef std::tr1::shared_ptr<RebuildBrushGeometryCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::RebuildBrushGeometryCommand
-Ptr	Controller/ReparentBrushesCommand.h	/^            typedef std::tr1::shared_ptr<ReparentBrushesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::ReparentBrushesCommand
-Ptr	Controller/ResizeBrushesCommand.h	/^            typedef std::tr1::shared_ptr<ResizeBrushesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::ResizeBrushesCommand
-Ptr	Controller/RotateTexturesCommand.h	/^            typedef std::tr1::shared_ptr<RotateTexturesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::RotateTexturesCommand
-Ptr	Controller/SelectionCommand.h	/^            typedef std::tr1::shared_ptr<SelectionCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SelectionCommand
-Ptr	Controller/SetEntityDefinitionFileCommand.h	/^            typedef std::tr1::shared_ptr<SetEntityDefinitionFileCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SetEntityDefinitionFileCommand
-Ptr	Controller/SetModsCommand.h	/^            typedef std::tr1::shared_ptr<SetModsCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SetModsCommand
-Ptr	Controller/SnapBrushVerticesCommand.h	/^            typedef std::tr1::shared_ptr<SnapBrushVerticesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SnapBrushVerticesCommand
-Ptr	Controller/SplitBrushEdgesCommand.h	/^            typedef std::tr1::shared_ptr<SplitBrushEdgesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SplitBrushEdgesCommand
-Ptr	Controller/SplitBrushFacesCommand.h	/^            typedef std::tr1::shared_ptr<SplitBrushFacesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SplitBrushFacesCommand
-Ptr	Controller/TextureCollectionCommand.h	/^            typedef std::tr1::shared_ptr<TextureCollectionCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::TextureCollectionCommand
-Ptr	Controller/TransformObjectsCommand.h	/^            typedef std::tr1::shared_ptr<TransformObjectsCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::TransformObjectsCommand
-Ptr	Holder.h	/^    typedef std::tr1::shared_ptr<BaseHolder> Ptr;$/;"	t	language:C++	class:BaseHolder
-Ptr	IO/MappedFile.h	/^            typedef std::tr1::shared_ptr<MappedFile> Ptr;$/;"	t	language:C++	class:TrenchBroom::IO::MappedFile
-Ptr	Model/Brush.h	/^                typedef std::tr1::shared_ptr<FacesHolder> Ptr;$/;"	t	language:C++	struct:TrenchBroom::Model::BrushSnapshot::FacesHolder
-Ptr	Model/FaceAdjacencyGraph.h	/^                typedef std::tr1::shared_ptr<Edge> Ptr;$/;"	t	language:C++	class:TrenchBroom::Model::FaceAdjacencyGraph::Edge
+Ptr	ConfigTypes.h	/^        typedef TrenchBroom::shared_ptr<ConfigEntry> Ptr;$/;"	t	language:C++	class:TrenchBroom::ConfigEntry
+Ptr	ConfigTypes.h	/^        typedef TrenchBroom::shared_ptr<ConfigList> Ptr;$/;"	t	language:C++	class:TrenchBroom::ConfigList
+Ptr	ConfigTypes.h	/^        typedef TrenchBroom::shared_ptr<ConfigTable> Ptr;$/;"	t	language:C++	class:TrenchBroom::ConfigTable
+Ptr	ConfigTypes.h	/^        typedef TrenchBroom::shared_ptr<ConfigValue> Ptr;$/;"	t	language:C++	class:TrenchBroom::ConfigValue
+Ptr	Controller/AddRemoveObjectsCommand.h	/^            typedef TrenchBroom::shared_ptr<AddRemoveObjectsCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::AddRemoveObjectsCommand
+Ptr	Controller/BrushVertexHandleCommand.h	/^            typedef TrenchBroom::shared_ptr<BrushVertexHandleCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::BrushVertexHandleCommand
+Ptr	Controller/Command.h	/^            typedef TrenchBroom::shared_ptr<Command> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::Command
+Ptr	Controller/EntityPropertyCommand.h	/^            typedef TrenchBroom::shared_ptr<EntityPropertyCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::EntityPropertyCommand
+Ptr	Controller/FaceAttributeCommand.h	/^            typedef TrenchBroom::shared_ptr<FaceAttributeCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::FaceAttributeCommand
+Ptr	Controller/FixPlanePointsCommand.h	/^            typedef TrenchBroom::shared_ptr<FixPlanePointsCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::FixPlanePointsCommand
+Ptr	Controller/MoveBrushEdgesCommand.h	/^            typedef TrenchBroom::shared_ptr<MoveBrushEdgesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::MoveBrushEdgesCommand
+Ptr	Controller/MoveBrushFacesCommand.h	/^            typedef TrenchBroom::shared_ptr<MoveBrushFacesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::MoveBrushFacesCommand
+Ptr	Controller/MoveBrushVerticesCommand.h	/^            typedef TrenchBroom::shared_ptr<MoveBrushVerticesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::MoveBrushVerticesCommand
+Ptr	Controller/MoveTexturesCommand.h	/^            typedef TrenchBroom::shared_ptr<MoveTexturesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::MoveTexturesCommand
+Ptr	Controller/NewDocumentCommand.h	/^            typedef TrenchBroom::shared_ptr<NewDocumentCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::NewDocumentCommand
+Ptr	Controller/OpenDocumentCommand.h	/^            typedef TrenchBroom::shared_ptr<OpenDocumentCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::OpenDocumentCommand
+Ptr	Controller/RebuildBrushGeometryCommand.h	/^            typedef TrenchBroom::shared_ptr<RebuildBrushGeometryCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::RebuildBrushGeometryCommand
+Ptr	Controller/ReparentBrushesCommand.h	/^            typedef TrenchBroom::shared_ptr<ReparentBrushesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::ReparentBrushesCommand
+Ptr	Controller/ResizeBrushesCommand.h	/^            typedef TrenchBroom::shared_ptr<ResizeBrushesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::ResizeBrushesCommand
+Ptr	Controller/RotateTexturesCommand.h	/^            typedef TrenchBroom::shared_ptr<RotateTexturesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::RotateTexturesCommand
+Ptr	Controller/SelectionCommand.h	/^            typedef TrenchBroom::shared_ptr<SelectionCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SelectionCommand
+Ptr	Controller/SetEntityDefinitionFileCommand.h	/^            typedef TrenchBroom::shared_ptr<SetEntityDefinitionFileCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SetEntityDefinitionFileCommand
+Ptr	Controller/SetModsCommand.h	/^            typedef TrenchBroom::shared_ptr<SetModsCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SetModsCommand
+Ptr	Controller/SnapBrushVerticesCommand.h	/^            typedef TrenchBroom::shared_ptr<SnapBrushVerticesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SnapBrushVerticesCommand
+Ptr	Controller/SplitBrushEdgesCommand.h	/^            typedef TrenchBroom::shared_ptr<SplitBrushEdgesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SplitBrushEdgesCommand
+Ptr	Controller/SplitBrushFacesCommand.h	/^            typedef TrenchBroom::shared_ptr<SplitBrushFacesCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::SplitBrushFacesCommand
+Ptr	Controller/TextureCollectionCommand.h	/^            typedef TrenchBroom::shared_ptr<TextureCollectionCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::TextureCollectionCommand
+Ptr	Controller/TransformObjectsCommand.h	/^            typedef TrenchBroom::shared_ptr<TransformObjectsCommand> Ptr;$/;"	t	language:C++	class:TrenchBroom::Controller::TransformObjectsCommand
+Ptr	Holder.h	/^    typedef TrenchBroom::shared_ptr<BaseHolder> Ptr;$/;"	t	language:C++	class:BaseHolder
+Ptr	IO/MappedFile.h	/^            typedef TrenchBroom::shared_ptr<MappedFile> Ptr;$/;"	t	language:C++	class:TrenchBroom::IO::MappedFile
+Ptr	Model/Brush.h	/^                typedef TrenchBroom::shared_ptr<FacesHolder> Ptr;$/;"	t	language:C++	struct:TrenchBroom::Model::BrushSnapshot::FacesHolder
+Ptr	Model/FaceAdjacencyGraph.h	/^                typedef TrenchBroom::shared_ptr<Edge> Ptr;$/;"	t	language:C++	class:TrenchBroom::Model::FaceAdjacencyGraph::Edge
 Ptr	Renderer/FontTexture.h	/^            typedef std::auto_ptr<FontTexture> Ptr;$/;"	t	language:C++	class:TrenchBroom::Renderer::FontTexture
-Ptr	Renderer/TextRenderer.h	/^            typedef std::tr1::shared_ptr<TextAnchor> Ptr;$/;"	t	language:C++	class:TrenchBroom::Renderer::TextAnchor
-Ptr	Renderer/Vbo.h	/^            typedef std::tr1::shared_ptr<Vbo> Ptr;$/;"	t	language:C++	class:TrenchBroom::Renderer::Vbo
-Ptr	Renderer/VertexArray.h	/^            typedef std::tr1::shared_ptr<BaseHolder> Ptr;$/;"	t	language:C++	class:TrenchBroom::Renderer::BaseHolder
-Ptr	View/Animation.h	/^            typedef std::tr1::shared_ptr<Animation> Ptr;$/;"	t	language:C++	class:TrenchBroom::View::Animation
-Ptr	View/ExecutableEvent.h	/^                typedef std::tr1::shared_ptr<Executable> Ptr;$/;"	t	language:C++	class:TrenchBroom::View::ExecutableEvent::Executable
-Ptr	View/GLContextHolder.h	/^            typedef std::tr1::shared_ptr<GLContextHolder> Ptr;$/;"	t	language:C++	class:TrenchBroom::View::GLContextHolder
-Ptr	View/KeyboardPreferencePane.h	/^            typedef std::tr1::shared_ptr<KeyboardShortcutEntry> Ptr;$/;"	t	language:C++	class:TrenchBroom::View::KeyboardShortcutEntry
-Ptr	View/Menu.h	/^            typedef std::tr1::shared_ptr<MenuItem> Ptr;$/;"	t	language:C++	class:TrenchBroom::View::MenuItem
+Ptr	Renderer/TextRenderer.h	/^            typedef TrenchBroom::shared_ptr<TextAnchor> Ptr;$/;"	t	language:C++	class:TrenchBroom::Renderer::TextAnchor
+Ptr	Renderer/Vbo.h	/^            typedef TrenchBroom::shared_ptr<Vbo> Ptr;$/;"	t	language:C++	class:TrenchBroom::Renderer::Vbo
+Ptr	Renderer/VertexArray.h	/^            typedef TrenchBroom::shared_ptr<BaseHolder> Ptr;$/;"	t	language:C++	class:TrenchBroom::Renderer::BaseHolder
+Ptr	View/Animation.h	/^            typedef TrenchBroom::shared_ptr<Animation> Ptr;$/;"	t	language:C++	class:TrenchBroom::View::Animation
+Ptr	View/ExecutableEvent.h	/^                typedef TrenchBroom::shared_ptr<Executable> Ptr;$/;"	t	language:C++	class:TrenchBroom::View::ExecutableEvent::Executable
+Ptr	View/GLContextHolder.h	/^            typedef TrenchBroom::shared_ptr<GLContextHolder> Ptr;$/;"	t	language:C++	class:TrenchBroom::View::GLContextHolder
+Ptr	View/KeyboardPreferencePane.h	/^            typedef TrenchBroom::shared_ptr<KeyboardShortcutEntry> Ptr;$/;"	t	language:C++	class:TrenchBroom::View::KeyboardShortcutEntry
+Ptr	View/Menu.h	/^            typedef TrenchBroom::shared_ptr<MenuItem> Ptr;$/;"	t	language:C++	class:TrenchBroom::View::MenuItem
 PtrCmp	CollectionUtils.h	/^    struct PtrCmp {$/;"	s	language:C++	namespace:Utils
 Quake	Model/ModelTypes.h	/^            static const Type Quake   = 1 << 1;$/;"	m	language:C++	namespace:TrenchBroom::Model::MapFormat
 Quake2	Model/ModelTypes.h	/^            static const Type Quake2  = 1 << 2;$/;"	m	language:C++	namespace:TrenchBroom::Model::MapFormat
@@ -4347,7 +4347,7 @@ Whitespace	IO/Tokenizer.h	/^        const String Tokenizer<TokenType>::Whitespac
 WinMappedFile	IO/MappedFile.cpp	/^        WinMappedFile::WinMappedFile(const Path& path, std::ios_base::openmode mode) :$/;"	f	language:C++	class:TrenchBroom::IO::WinMappedFile
 WinMappedFile	IO/MappedFile.h	/^        class WinMappedFile : public MappedFile {$/;"	c	language:C++	namespace:TrenchBroom::IO
 WinModifierOrder	View/KeyboardShortcut.h	/^            class WinModifierOrder {$/;"	c	language:C++	class:TrenchBroom::View::KeyboardShortcut
-WkPtr	View/MapDocument.h	/^            typedef std::tr1::weak_ptr<MapDocument> WkPtr;$/;"	t	language:C++	class:TrenchBroom::View::MapDocument
+WkPtr	View/MapDocument.h	/^            typedef TrenchBroom::weak_ptr<MapDocument> WkPtr;$/;"	t	language:C++	class:TrenchBroom::View::MapDocument
 Word	IO/DefParser.h	/^            static const Type Word            = 1 <<  7; \/\/ word$/;"	m	language:C++	namespace:TrenchBroom::IO::DefToken
 Word	IO/FgdParser.h	/^            static const Type Word              = 1 <<  2; \/\/ letter or digits, no whitespace$/;"	m	language:C++	namespace:TrenchBroom::IO::FgdToken
 WordDelims	IO/DefParser.cpp	/^        const String DefTokenizer::WordDelims = " \\t\\n\\r()[]{}?;,=";$/;"	m	language:C++	class:TrenchBroom::IO::DefTokenizer	file:
@@ -5103,7 +5103,7 @@ caption	View/KeyboardPreferencePane.cpp	/^        const String SimpleKeyboardSho
 caseInsensitiveEqual	StringUtils.cpp	/^    bool caseInsensitiveEqual(const String& str1, const String& str2) {$/;"	f	language:C++	namespace:StringUtils
 caseSensitiveEqual	StringUtils.cpp	/^    bool caseSensitiveEqual(const String& str1, const String& str2) {$/;"	f	language:C++	namespace:StringUtils
 cast	CollectionUtils.h	/^    std::vector<O> cast(const std::vector<I>& input) {$/;"	f	language:C++	namespace:VectorUtils
-cast	Controller/Command.h	/^            static std::tr1::shared_ptr<T> cast(Ptr& command) {$/;"	f	language:C++	class:TrenchBroom::Controller::Command
+cast	Controller/Command.h	/^            static TrenchBroom::shared_ptr<T> cast(Ptr& command) {$/;"	f	language:C++	class:TrenchBroom::Controller::Command
 castIterator	CastIterator.h	/^        static CastIterator<Iterator, OutType> castIterator(const Iterator& iterator) {$/;"	f	language:C++	struct:TrenchBroom::MakeCastIterator
 ceil	MathUtils.h	/^    T ceil(const T v) {$/;"	f	language:C++	namespace:Math
 cellAt	View/CellLayout.h	/^            bool cellAt(const float x, const float y, const Cell** result) const {$/;"	f	language:C++	class:TrenchBroom::View::LayoutRow
@@ -6241,8 +6241,8 @@ expect	Preference.h	/^        void expect(const wxString& token, const String& e
 expect	Preference.h	/^        wxString expect(wxStringTokenizer& tokenizer, const String& expected1, const String& expected2 = "", const String& expected3 = "") const {$/;"	f	language:C++	class:TrenchBroom::Converter
 expectEntry	IO/GameConfigParser.cpp	/^        void GameConfigParser::expectEntry(const int typeMask, const ConfigEntry& entry) const {$/;"	f	language:C++	class:TrenchBroom::IO::GameConfigParser
 expectTableEntry	IO/GameConfigParser.cpp	/^        void GameConfigParser::expectTableEntry(const String& key, const int typeMask, const ConfigTable& parent) const {$/;"	f	language:C++	class:TrenchBroom::IO::GameConfigParser
-expired	SharedPointer.h	/^bool expired(std::tr1::shared_ptr<T> ptr) {$/;"	f	language:C++
-expired	SharedPointer.h	/^bool expired(std::tr1::weak_ptr<T> ptr) {$/;"	f	language:C++
+expired	SharedPointer.h	/^bool expired(TrenchBroom::shared_ptr<T> ptr) {$/;"	f	language:C++
+expired	SharedPointer.h	/^bool expired(TrenchBroom::weak_ptr<T> ptr) {$/;"	f	language:C++
 extension	IO/Path.cpp	/^        const String Path::extension() const {$/;"	f	language:C++	class:TrenchBroom::IO::Path
 external	Model/EntityDefinitionFileSpec.cpp	/^        EntityDefinitionFileSpec EntityDefinitionFileSpec::external(const IO::Path& fullPath) {$/;"	f	language:C++	class:TrenchBroom::Model::EntityDefinitionFileSpec
 externalCollectionNames	Assets/TextureManager.cpp	/^        const StringList TextureManager::externalCollectionNames() const {$/;"	f	language:C++	class:TrenchBroom::Assets::TextureManager
@@ -6349,7 +6349,7 @@ findFrame	View/wxUtils.cpp	/^        wxFrame* findFrame(wxWindow* window) {$/;"	
 findFreeBlock	Renderer/Vbo.cpp	/^        Vbo::VboBlockList::iterator Vbo::findFreeBlock(const size_t minCapacity) {$/;"	f	language:C++	class:TrenchBroom::Renderer::Vbo
 findIf	CollectionUtils.h	/^    T* findIf(const std::vector<T*>& vec, const P& predicate) {$/;"	f	language:C++	namespace:VectorUtils
 findIf	CollectionUtils.h	/^    const T* findIf(const std::vector<T>& vec, const P& predicate) {$/;"	f	language:C++	namespace:VectorUtils
-findIf	CollectionUtils.h	/^    const std::tr1::shared_ptr<T> findIf(const std::vector<std::tr1::shared_ptr<T> >& vec, const P& predicate) {$/;"	f	language:C++	namespace:VectorUtils
+findIf	CollectionUtils.h	/^    const TrenchBroom::shared_ptr<T> findIf(const std::vector<TrenchBroom::shared_ptr<T> >& vec, const P& predicate) {$/;"	f	language:C++	namespace:VectorUtils
 findInsertPos	Renderer/OutlineTracer.cpp	/^        OutlineTracer::Position::List::iterator OutlineTracer::findInsertPos(const Position& position, Position::List& positions) const {$/;"	f	language:C++	class:TrenchBroom::Renderer::OutlineTracer
 findIntegerPlanePoints	Model/Brush.cpp	/^        void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {$/;"	f	language:C++	class:TrenchBroom::Model::Brush
 findIntegerPlanePoints	Model/BrushFace.cpp	/^        void BrushFace::findIntegerPlanePoints() {$/;"	f	language:C++	class:TrenchBroom::Model::BrushFace
@@ -6897,8 +6897,8 @@ loadTextures	View/MapDocument.cpp	/^        void MapDocument::loadTextures() {$/
 loadWadTextureCollection	Model/GameImpl.cpp	/^        Assets::TextureCollection* GameImpl::loadWadTextureCollection(const Assets::TextureCollectionSpec& spec) const {$/;"	f	language:C++	class:TrenchBroom::Model::GameImpl
 loadWalTextureCollection	Model/GameImpl.cpp	/^        Assets::TextureCollection* GameImpl::loadWalTextureCollection(const Assets::TextureCollectionSpec& spec) const {$/;"	f	language:C++	class:TrenchBroom::Model::GameImpl
 loaded	Assets/TextureCollection.cpp	/^        bool TextureCollection::loaded() const {$/;"	f	language:C++	class:TrenchBroom::Assets::TextureCollection
-lock	SharedPointer.h	/^std::tr1::shared_ptr<T> lock(std::tr1::shared_ptr<T> ptr) {$/;"	f	language:C++
-lock	SharedPointer.h	/^std::tr1::shared_ptr<T> lock(std::tr1::weak_ptr<T> ptr) {$/;"	f	language:C++
+lock	SharedPointer.h	/^TrenchBroom::shared_ptr<T> lock(TrenchBroom::shared_ptr<T> ptr) {$/;"	f	language:C++
+lock	SharedPointer.h	/^TrenchBroom::shared_ptr<T> lock(TrenchBroom::weak_ptr<T> ptr) {$/;"	f	language:C++
 log	Logger.cpp	/^    void Logger::log(const LogLevel level, const String& message) {$/;"	f	language:C++	class:TrenchBroom::Logger
 log	Logger.cpp	/^    void Logger::log(const LogLevel level, const wxString& message) {$/;"	f	language:C++	class:TrenchBroom::Logger
 log	View/StatusBar.cpp	/^        void StatusBar::log(Logger::LogLevel level, const wxString& message) {$/;"	f	language:C++	class:TrenchBroom::View::StatusBar

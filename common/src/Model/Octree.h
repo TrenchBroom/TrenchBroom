@@ -165,7 +165,7 @@ namespace TrenchBroom {
         public:
             typedef std::vector<T> List;
         private:
-            typedef std::tr1::shared_ptr<OctreeNode<F,T> > NodePtr;
+            typedef TrenchBroom::shared_ptr<OctreeNode<F,T> > NodePtr;
             BBox<F,3> m_bounds;
             NodePtr m_root;
         public:

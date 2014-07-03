@@ -33,7 +33,7 @@ namespace TrenchBroom {
         
         class GameFileSystem : public FileSystem {
         private:
-            typedef std::tr1::shared_ptr<FileSystem> FSPtr;
+            typedef TrenchBroom::shared_ptr<FileSystem> FSPtr;
             typedef std::vector<FSPtr> FileSystemList;
             FileSystemList m_fileSystems;
         public:

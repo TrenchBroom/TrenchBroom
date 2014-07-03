@@ -93,7 +93,7 @@ namespace TrenchBroom {
         typedef std::vector<Pickable*> PickableList;
         
         class Game;
-        typedef std::tr1::shared_ptr<Game> GamePtr;
+        typedef TrenchBroom::shared_ptr<Game> GamePtr;
 
         typedef std::map<Vec3, BrushList, Vec3::LexicographicOrder> VertexToBrushesMap;
         typedef std::map<Vec3, BrushEdgeList, Vec3::LexicographicOrder> VertexToEdgesMap;

@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class AddRemoveObjectsCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<AddRemoveObjectsCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<AddRemoveObjectsCommand> Ptr;
         private:
             typedef enum {
                 Action_Add,
