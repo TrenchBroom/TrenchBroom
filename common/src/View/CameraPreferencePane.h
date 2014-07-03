@@ -30,6 +30,9 @@ class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
+        class KeyboardShortcutEditor;
+        class KeyboardShortcutEvent;
+        
         class CameraPreferencePane : public PreferencePane {
         private:
             wxSlider* m_lookSpeedSlider;
@@ -44,6 +47,11 @@ namespace TrenchBroom {
             wxCheckBox* m_moveInCursorDirCheckBox;
             wxSlider* m_flySpeedSlider;
             wxCheckBox* m_invertFlyVAxisCheckBox;
+            
+            KeyboardShortcutEditor* m_forwardKeyEditor;
+            KeyboardShortcutEditor* m_backwardKeyEditor;
+            KeyboardShortcutEditor* m_leftKeyEditor;
+            KeyboardShortcutEditor* m_rightKeyEditor;
         public:
             CameraPreferencePane(wxWindow* parent);
 
@@ -63,6 +71,11 @@ namespace TrenchBroom {
 
             void OnFlySpeedChanged(wxScrollEvent& event);
             void OnInvertFlyVAxisChanged(wxCommandEvent& event);
+            
+            void OnForwardKeyChanged(KeyboardShortcutEvent& event);
+            void OnBackwardKeyChanged(KeyboardShortcutEvent& event);
+            void OnLeftKeyChanged(KeyboardShortcutEvent& event);
+            void OnRightKeyChanged(KeyboardShortcutEvent& event);
         private:
             void createGui();
             wxWindow* createCameraPreferences();

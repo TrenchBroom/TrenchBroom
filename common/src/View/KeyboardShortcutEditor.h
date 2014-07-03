@@ -23,6 +23,7 @@
 #include <wx/defs.h>
 #include <wx/control.h>
 
+class wxPanel;
 class wxStaticText;
 
 namespace TrenchBroom {
@@ -31,11 +32,10 @@ namespace TrenchBroom {
         
         class KeyboardShortcutEditor : public wxControl {
         private:
+            wxPanel* m_panel;
             wxStaticText* m_label;
             int m_key;
-            int m_modifier1;
-            int m_modifier2;
-            int m_modifier3;
+            int m_modifiers[3];
             bool m_resetOnNextKey;
             
             void update();
@@ -56,7 +56,11 @@ namespace TrenchBroom {
             void OnKeyDown(wxKeyEvent& event);
             void OnKeyUp(wxKeyEvent& event);
             
-            DECLARE_EVENT_TABLE()
+            void OnMouseDown(wxMouseEvent& event);
+        private:
+            void updateModifiers(wxKeyEvent& event);
+            void resetKey();
+            void resetModifiers();
         };
     }
 }
