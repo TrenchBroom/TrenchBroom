@@ -157,6 +157,8 @@ namespace TrenchBroom {
             
             void OnToggleMovementRestriction(wxCommandEvent& event);
 
+            void OnDeleteObjects(wxCommandEvent& event);
+            
             void OnMoveObjectsForward(wxCommandEvent& event);
             void OnMoveObjectsBackward(wxCommandEvent& event);
             void OnMoveObjectsLeft(wxCommandEvent& event);

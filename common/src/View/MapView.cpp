@@ -314,10 +314,12 @@ namespace TrenchBroom {
         
         void MapView::moveVertices(const Math::Direction direction) {
             assert(vertexToolActive());
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
-            m_vertexTool->moveVerticesAndRebuildBrushGeometry(delta);
+            if (hasSelectedVertices()) {
+                MapDocumentSPtr document = lock(m_document);
+                const Grid& grid = document->grid();
+                const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+                m_vertexTool->moveVerticesAndRebuildBrushGeometry(delta);
+            }
         }
         
         void MapView::OnToggleRotateObjectsTool(wxCommandEvent& event) {
@@ -332,6 +334,10 @@ namespace TrenchBroom {
             toggleMovementRestriction();
         }
         
+        void MapView::OnDeleteObjects(wxCommandEvent& event) {
+            lock(m_controller)->deleteSelectedObjects();
+        }
+
         void MapView::OnMoveObjectsForward(wxCommandEvent& event) {
             moveObjects(Math::Direction_Forward);
         }
@@ -566,6 +572,7 @@ namespace TrenchBroom {
         
         void MapView::OnKey(wxKeyEvent& event) {
             m_movementRestriction.setVerticalRestriction(event.AltDown());
+            Refresh();
             event.Skip();
         }
         
@@ -1240,6 +1247,7 @@ namespace TrenchBroom {
         
         void MapView::bindEvents() {
             Bind(wxEVT_KEY_DOWN, &MapView::OnKey, this);
+            Bind(wxEVT_KEY_UP, &MapView::OnKey, this);
             
             Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
@@ -1261,6 +1269,8 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleFlyMode,            this, CommandIds::Actions::ToggleFlyMode);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleMovementRestriction,this, CommandIds::Actions::ToggleMovementRestriction);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDeleteObjects,            this, CommandIds::Actions::DeleteObjects);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsForward,       this, CommandIds::Actions::MoveObjectsForward);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsBackward,      this, CommandIds::Actions::MoveObjectsBackward);

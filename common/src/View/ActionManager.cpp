@@ -131,9 +131,9 @@ namespace TrenchBroom {
             createMapViewAction(CommandIds::Actions::ToggleClipSide, Action::Context_ClipTool, "Toggle Clip Side", KeyboardShortcut(WXK_RETURN, WXK_CONTROL));
             createMapViewAction(CommandIds::Actions::PerformClip, Action::Context_ClipTool, "Perform Clip", KeyboardShortcut(WXK_RETURN));
 #ifdef __APPLE__
-            createMapViewAction(CommandIds::Actions::DeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_BACK));
+            createMapViewAction(CommandIds::Actions::DeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_BACK, WXK_CONTROL));
 #else
-            createMapViewAction(CommandIds::Actions::DeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_DELETE));
+            createMapViewAction(CommandIds::Actions::DeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_DELETE, WXK_CONTROL));
 #endif
             
             createMapViewAction(CommandIds::Actions::ToggleVertexTool, Action::Context_ObjectSelection | Action::Context_AnyTool, "Toggle Vertex Tool", KeyboardShortcut('V'));
@@ -150,6 +150,12 @@ namespace TrenchBroom {
             
             createMapViewAction(CommandIds::Actions::ToggleMovementRestriction, Action::Context_Any, "Toggle Movement Axis", KeyboardShortcut('X'));
             
+#ifdef __APPLE__
+            createMapViewAction(CommandIds::Actions::DeleteObjects, Action::Context_ObjectSelection | Action::Context_AnyTool, "Delete Objects", KeyboardShortcut(WXK_BACK));
+#else
+            createMapViewAction(CommandIds::Actions::DeleteObjects, Action::Context_ObjectSelection | Action::Context_VertexTool | Action::Context_RotateTool, "Delete Objects", KeyboardShortcut(WXK_DELETE));
+#endif
+
             createMapViewAction(CommandIds::Actions::MoveObjectsForward, Action::Context_ObjectSelection, "Move Objects Forward", KeyboardShortcut(WXK_UP));
             createMapViewAction(CommandIds::Actions::MoveObjectsBackward, Action::Context_ObjectSelection, "Move Objects Backward", KeyboardShortcut(WXK_DOWN));
             createMapViewAction(CommandIds::Actions::MoveObjectsLeft, Action::Context_ObjectSelection, "Move Objects Left", KeyboardShortcut(WXK_LEFT));

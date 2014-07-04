@@ -286,6 +286,17 @@ namespace TrenchBroom {
             return result;
         }
 
+        bool ControllerFacade::deleteSelectedObjects() {
+            View::MapDocumentSPtr document = lock(m_document);
+            const Model::ObjectList objects = document->selectedObjects();
+            assert(!objects.empty());
+            
+            const UndoableCommandGroup commandGroup(this, String("Delete ") + String(objects.size() == 1 ? "object" : "objects"));
+            if (!deselectAll())
+                return false;
+            return removeObjects(objects);
+        }
+
         bool ControllerFacade::moveBrushesToWorldspawn(const Model::BrushList& brushes) {
             return reparentBrushes(brushes, lock(m_document)->worldspawn());
         }
