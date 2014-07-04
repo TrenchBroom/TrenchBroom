@@ -369,30 +369,6 @@ namespace TrenchBroom {
             return true;
         }
         
-        void VertexTool::bindObservers() {
-            document()->selectionDidChangeNotifier.addObserver(this, &VertexTool::selectionDidChange);
-            document()->objectWillChangeNotifier.addObserver(this, &VertexTool::objectWillChange);
-            document()->objectDidChangeNotifier.addObserver(this, &VertexTool::objectDidChange);
-            controller()->commandDoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
-            controller()->commandDoneNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
-            controller()->commandDoFailedNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-            controller()->commandUndoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
-            controller()->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-            controller()->commandUndoFailedNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
-        }
-        
-        void VertexTool::unbindObservers() {
-            document()->selectionDidChangeNotifier.removeObserver(this, &VertexTool::selectionDidChange);
-            document()->objectWillChangeNotifier.removeObserver(this, &VertexTool::objectWillChange);
-            document()->objectDidChangeNotifier.removeObserver(this, &VertexTool::objectDidChange);
-            controller()->commandDoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
-            controller()->commandDoneNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
-            controller()->commandDoFailedNotifier.removeObserver(this, &VertexTool::commandDoFailedOrUndone);
-            controller()->commandUndoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
-            controller()->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-            controller()->commandUndoFailedNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
-        }
-
         void VertexTool::doPick(const InputState& inputState, Hits& hits) {
             m_handleManager.pick(inputState.pickRay(), hits, m_mode == Mode_Split);
         }
@@ -585,6 +561,34 @@ namespace TrenchBroom {
             }
         }
 
+        void VertexTool::bindObservers() {
+            document()->selectionDidChangeNotifier.addObserver(this, &VertexTool::selectionDidChange);
+            document()->objectWillChangeNotifier.addObserver(this, &VertexTool::objectWillChange);
+            document()->objectDidChangeNotifier.addObserver(this, &VertexTool::objectDidChange);
+            controller()->commandDoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
+            controller()->commandDoneNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
+            controller()->commandDoFailedNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
+            controller()->commandUndoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
+            controller()->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
+            controller()->commandUndoFailedNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
+        }
+        
+        void VertexTool::unbindObservers() {
+            if (!expired(document())) {
+                document()->selectionDidChangeNotifier.removeObserver(this, &VertexTool::selectionDidChange);
+                document()->objectWillChangeNotifier.removeObserver(this, &VertexTool::objectWillChange);
+                document()->objectDidChangeNotifier.removeObserver(this, &VertexTool::objectDidChange);
+            }
+            if (!expired(controller())) {
+                controller()->commandDoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
+                controller()->commandDoneNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
+                controller()->commandDoFailedNotifier.removeObserver(this, &VertexTool::commandDoFailedOrUndone);
+                controller()->commandUndoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
+                controller()->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
+                controller()->commandUndoFailedNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
+            }
+        }
+        
         void VertexTool::selectionDidChange(const Model::SelectionResult& selection) {
             Model::ObjectSet::const_iterator it, end;
 
