@@ -147,11 +147,13 @@ namespace TrenchBroom {
         }
 
         void MoveHelper::renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
-            const Renderer::MoveIndicatorRenderer::Direction direction = getDirection();
-            
-            Renderer::MoveIndicatorRenderer indicatorRenderer;
-            indicatorRenderer.render(renderContext, position, direction);
+            if (renderContext.showMouseIndicators()) {
+                const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
+                const Renderer::MoveIndicatorRenderer::Direction direction = getDirection();
+                
+                Renderer::MoveIndicatorRenderer indicatorRenderer;
+                indicatorRenderer.render(renderContext, position, direction);
+            }
         }
 
         Renderer::MoveIndicatorRenderer::Direction MoveHelper::getDirection() const {

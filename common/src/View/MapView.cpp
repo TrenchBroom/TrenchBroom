@@ -1132,6 +1132,8 @@ namespace TrenchBroom {
         
         void MapView::setRenderOptions(Renderer::RenderContext& context) {
             m_toolBox.setRenderOptions(context);
+            if (cameraFlyModeActive())
+                context.setHideMouseIndicators();
         }
         
         void MapView::renderCoordinateSystem(Renderer::RenderContext& context) {

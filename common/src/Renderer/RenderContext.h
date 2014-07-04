@@ -45,6 +45,7 @@ namespace TrenchBroom {
             bool m_hideSelection;
             bool m_tintSelection;
             ShowSelectionGuide m_showSelectionGuide;
+            bool m_showMouseIndicators;
         public:
             RenderContext(const Camera& camera, ShaderManager& shaderManager, const bool gridVisible, const size_t gridSize);
             
@@ -65,6 +66,9 @@ namespace TrenchBroom {
             void setHideSelectionGuide();
             void setForceShowSelectionGuide();
             void setForceHideSelectionGuide();
+            
+            bool showMouseIndicators() const;
+            void setHideMouseIndicators();
         private:
             void setShowSelectionGuide(ShowSelectionGuide showSelectionGuide);
         };
