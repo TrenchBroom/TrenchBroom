@@ -184,14 +184,15 @@ namespace TrenchBroom {
         
         void CameraPreferencePane::createGui() {
             wxWindow* mousePreferences = createCameraPreferences();
-            
+
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowVMargin);
             sizer->Add(mousePreferences, 1, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::WideVMargin);
             
+            SetMinSize(sizer->GetMinSize());
             SetSizer(sizer);
-            SetMinSize(wxSize(600, 520));
+
             SetBackgroundColour(*wxWHITE);
         }
         
@@ -288,6 +289,7 @@ namespace TrenchBroom {
             sizer->Add(m_rightKeyEditor,            wxGBPosition(22, 1), wxDefaultSpan, KeyEditorFlags, HMargin);
             
             sizer->AddGrowableCol(1);
+            sizer->SetMinSize(500, wxDefaultCoord);
             box->SetSizer(sizer);
             return box;
         }

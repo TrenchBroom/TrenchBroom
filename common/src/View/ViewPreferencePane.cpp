@@ -93,8 +93,9 @@ namespace TrenchBroom {
             sizer->Add(viewPreferences, 1, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::WideVMargin);
             
+            SetMinSize(sizer->GetMinSize());
             SetSizer(sizer);
-            SetMinSize(wxSize(600, 220));
+
             SetBackgroundColour(*wxWHITE);
         }
         
@@ -125,19 +126,21 @@ namespace TrenchBroom {
             const int LineFlags     = wxEXPAND | wxTOP;
             
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
-            sizer->Add(_3dViewPrefsHeader,              wxGBPosition( 0, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            sizer->Add(brightnessLabel,                 wxGBPosition( 1, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_brightnessSlider,              wxGBPosition( 1, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->Add(_3dViewPrefsHeader,                  wxGBPosition( 0, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(brightnessLabel,                     wxGBPosition( 1, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_brightnessSlider,                  wxGBPosition( 1, 1), wxDefaultSpan, SliderFlags, HMargin);
             
-            sizer->Add(gridLabel,                       wxGBPosition( 2, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_gridAlphaSlider,               wxGBPosition( 2, 1), wxDefaultSpan, SliderFlags, HMargin);
-            sizer->Add(new BorderLine(viewBox),         wxGBPosition( 3, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->Add(gridLabel,                           wxGBPosition( 2, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_gridAlphaSlider,                   wxGBPosition( 2, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->Add(new BorderLine(viewBox),             wxGBPosition( 3, 0), wxGBSpan(1,2), LineFlags, LMargin);
             
-            sizer->Add(textureBrowserPrefsHeader,       wxGBPosition( 4, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            sizer->Add(textureBrowserIconSizeLabel,     wxGBPosition( 5, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_textureBrowserIconSizeChoice,  wxGBPosition( 5, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            sizer->Add(textureBrowserPrefsHeader,           wxGBPosition( 4, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(textureBrowserIconSizeLabel,         wxGBPosition( 5, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_textureBrowserIconSizeChoice,      wxGBPosition( 5, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( 6, 0), wxGBSpan(1,2));
             
             sizer->AddGrowableCol(1);
+            sizer->SetMinSize(500, wxDefaultCoord);
             viewBox->SetSizer(sizer);
             return viewBox;
         }

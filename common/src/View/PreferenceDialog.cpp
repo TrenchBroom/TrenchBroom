@@ -136,8 +136,9 @@ namespace TrenchBroom {
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_toolBar, 0, wxEXPAND);
 #if !defined __APPLE__
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->SetItemMinSize(1, wxSize(wxDefaultCoord, 1));
+            wxWindow* line = new BorderLine(this, BorderLine::Direction_Horizontal);
+            sizer->Add(line, 0, wxEXPAND);
+            sizer->SetItemMinSize(line, wxSize(wxDefaultCoord, 1));
 #endif
             sizer->Add(m_book, 1, wxEXPAND);
             
@@ -172,14 +173,15 @@ namespace TrenchBroom {
             m_book->SetSelection(static_cast<size_t>(pane));
             currentPane()->updateControls();
             
-            SetSize(currentPane()->GetMinSize());
+            GetSizer()->SetItemMinSize(m_book, currentPane()->GetMinSize());
+            Fit();
 #if defined __APPLE__
             updateAcceleratorTable(pane);
 #endif
         }
 
         void PreferenceDialog::toggleTools(const PrefPane pane) {
-            for (int i = PrefPane_First + 1; i < PrefPane_Last; ++i)
+            for (int i = PrefPane_First; i <= PrefPane_Last; ++i)
                 m_toolBar->ToggleTool(i, pane == i);
         }
         
