@@ -63,6 +63,14 @@ namespace TrenchBroom {
             Bind(wxEVT_KEY_DOWN, &KeyboardShortcutEditor::OnKeyDown, this);
             Bind(wxEVT_KEY_UP, &KeyboardShortcutEditor::OnKeyUp, this);
             
+            Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
+            
+            m_panel->Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            m_panel->Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            m_panel->Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
+            
             m_label->Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
             m_label->Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
             m_label->Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
@@ -150,7 +158,13 @@ namespace TrenchBroom {
                     }
                     break;
                 default:
-                    m_key = key;
+                    KeyboardShortcutEvent shortcutEvent(key, m_modifiers[0], m_modifiers[1], m_modifiers[2]);
+                    shortcutEvent.SetEventType(EVT_KEYBOARD_SHORTCUT_EVENT);
+                    shortcutEvent.SetEventObject(this);
+                    shortcutEvent.SetId(GetId());
+                    ProcessEvent(shortcutEvent);
+                    if (shortcutEvent.IsAllowed())
+                        m_key = key;
                     break;
             }
             update();
@@ -170,11 +184,6 @@ namespace TrenchBroom {
                     break;
                 default:
                     m_resetOnNextKey = true;
-                    KeyboardShortcutEvent shortcutEvent(m_key, m_modifiers[0], m_modifiers[1], m_modifiers[2]);
-                    shortcutEvent.SetEventType(EVT_KEYBOARD_SHORTCUT_EVENT);
-                    shortcutEvent.SetEventObject(this);
-                    shortcutEvent.SetId(GetId());
-                    ProcessEvent(shortcutEvent);
                     break;
             }
             update();

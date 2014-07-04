@@ -644,6 +644,8 @@ namespace TrenchBroom {
                 return Action::Context_VertexTool;
             if (rotateObjectsToolActive())
                 return Action::Context_RotateTool;
+            if (cameraFlyModeActive())
+                return Action::Context_FlyMode;
             
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedObjects())

@@ -23,7 +23,7 @@ DEFINE_EVENT_TYPE(EVT_KEYBOARD_SHORTCUT_EVENT)
 
 namespace TrenchBroom {
     namespace View {
-        IMPLEMENT_DYNAMIC_CLASS(KeyboardShortcutEvent, wxEvent)
+        IMPLEMENT_DYNAMIC_CLASS(KeyboardShortcutEvent, wxNotifyEvent)
         KeyboardShortcutEvent::KeyboardShortcutEvent() :
         m_key(WXK_NONE),
         m_modifier1(WXK_NONE),

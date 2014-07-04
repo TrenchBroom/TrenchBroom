@@ -128,22 +128,58 @@ namespace TrenchBroom {
         
         void CameraPreferencePane::OnForwardKeyChanged(KeyboardShortcutEvent& event) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraFlyForward, KeyboardShortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3()));
+            
+            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
+            if (prefs.get(Preferences::CameraFlyBackward).hasKey() && prefs.get(Preferences::CameraFlyBackward) == shortcut)
+                event.Veto();
+            else if (prefs.get(Preferences::CameraFlyLeft).hasKey() && prefs.get(Preferences::CameraFlyLeft) == shortcut)
+                event.Veto();
+            else if (prefs.get(Preferences::CameraFlyRight).hasKey() && prefs.get(Preferences::CameraFlyRight) == shortcut)
+                event.Veto();
+            else
+                prefs.set(Preferences::CameraFlyForward, shortcut);
         }
         
         void CameraPreferencePane::OnBackwardKeyChanged(KeyboardShortcutEvent& event) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraFlyBackward, KeyboardShortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3()));
+
+            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
+            if (prefs.get(Preferences::CameraFlyForward).hasKey() && prefs.get(Preferences::CameraFlyForward) == shortcut)
+                event.Veto();
+            else if (prefs.get(Preferences::CameraFlyLeft).hasKey() && prefs.get(Preferences::CameraFlyLeft) == shortcut)
+                event.Veto();
+            else if (prefs.get(Preferences::CameraFlyRight).hasKey() && prefs.get(Preferences::CameraFlyRight) == shortcut)
+                event.Veto();
+            else
+                prefs.set(Preferences::CameraFlyBackward, shortcut);
         }
         
         void CameraPreferencePane::OnLeftKeyChanged(KeyboardShortcutEvent& event) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraFlyLeft, KeyboardShortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3()));
+
+            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
+            if (prefs.get(Preferences::CameraFlyForward).hasKey() && prefs.get(Preferences::CameraFlyForward) == shortcut)
+                event.Veto();
+            else if (prefs.get(Preferences::CameraFlyBackward).hasKey() && prefs.get(Preferences::CameraFlyBackward) == shortcut)
+                event.Veto();
+            else if (prefs.get(Preferences::CameraFlyRight).hasKey() && prefs.get(Preferences::CameraFlyRight) == shortcut)
+                event.Veto();
+            else
+                prefs.set(Preferences::CameraFlyLeft, shortcut);
         }
         
         void CameraPreferencePane::OnRightKeyChanged(KeyboardShortcutEvent& event) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::CameraFlyRight, KeyboardShortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3()));
+
+            const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
+            if (prefs.get(Preferences::CameraFlyForward).hasKey() && prefs.get(Preferences::CameraFlyForward) == shortcut)
+                event.Veto();
+            else if (prefs.get(Preferences::CameraFlyBackward).hasKey() && prefs.get(Preferences::CameraFlyBackward) == shortcut)
+                event.Veto();
+            else if (prefs.get(Preferences::CameraFlyLeft).hasKey() && prefs.get(Preferences::CameraFlyLeft) == shortcut)
+                event.Veto();
+            else
+                prefs.set(Preferences::CameraFlyRight, shortcut);
         }
         
         void CameraPreferencePane::createGui() {

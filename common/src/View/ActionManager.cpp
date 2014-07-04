@@ -146,7 +146,7 @@ namespace TrenchBroom {
             
             createMapViewAction(CommandIds::Actions::ToggleRotateObjectsTool, Action::Context_ObjectSelection | Action::Context_AnyTool, "Toggle Rotate Tool", KeyboardShortcut('R'));
 
-            createMapViewAction(CommandIds::Actions::ToggleFlyMode, Action::Context_Any, "Toggle Fly Mode", KeyboardShortcut('F'));
+            createMapViewAction(CommandIds::Actions::ToggleFlyMode, Action::Context_Any | Action::Context_FlyMode, "Toggle Fly Mode", KeyboardShortcut('F'));
             
             createMapViewAction(CommandIds::Actions::ToggleMovementRestriction, Action::Context_Any, "Toggle Movement Axis", KeyboardShortcut('X'));
             
