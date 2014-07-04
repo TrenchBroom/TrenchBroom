@@ -101,8 +101,6 @@ namespace TrenchBroom {
             m_texture = texture;
             if (m_texture != NULL)
                 m_textureName = texture->name();
-            else
-                m_textureName = BrushFace::NoTextureName;
         }
         
         void BrushFaceAttribs::setOffset(const Vec2f& offset) {
