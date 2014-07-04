@@ -265,7 +265,9 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < NumWindows; ++i) {
                     m_windows[i]->SetPosition(pos[i]);
                     m_windows[i]->SetSize(size[i]);
+                    m_windows[i]->Refresh();
                 }
+                Refresh();
             }
         }
         
