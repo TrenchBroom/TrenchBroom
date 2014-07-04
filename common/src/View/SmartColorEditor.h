@@ -49,9 +49,9 @@ namespace TrenchBroom {
             } ColorRange;
 
             class Color;
-            typedef std::tr1::shared_ptr<const Color> ColorPtr;
+            typedef TrenchBroom::shared_ptr<const Color> ColorPtr;
             
-            class Color : public std::tr1::enable_shared_from_this<Color> {
+            class Color : public TrenchBroom::enable_shared_from_this<Color> {
             public:
                 virtual ~Color();
                 
@@ -109,7 +109,8 @@ namespace TrenchBroom {
         private:
             static const size_t ColorHistoryCellSize = 15;
             typedef std::vector<wxColour> wxColorList;
-            
+            typedef TrenchBroom::shared_ptr<Color> NonConstColorPtr;
+
             wxPanel* m_panel;
             wxRadioButton* m_floatRadio;
             wxRadioButton* m_byteRadio;

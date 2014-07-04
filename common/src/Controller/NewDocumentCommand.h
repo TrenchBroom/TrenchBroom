@@ -37,7 +37,7 @@ namespace TrenchBroom {
         class NewDocumentCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<NewDocumentCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<NewDocumentCommand> Ptr;
         private:
             View::MapDocumentWPtr m_document;
             BBox3 m_worldBounds;

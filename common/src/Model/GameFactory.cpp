@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 return GamePtr();
             
             const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
-            if (file == NULL)
+            if (file.get() == NULL)
                 return GamePtr();
             
             // we will try to detect a comment in the beginning of the file formatted like so:

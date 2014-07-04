@@ -29,7 +29,7 @@ template <typename T>
 class Buffer {
 private:
     typedef std::vector<T> InternalBuffer;
-    typedef std::tr1::shared_ptr<InternalBuffer> InternalBufferPtr;
+    typedef TrenchBroom::shared_ptr<InternalBuffer> InternalBufferPtr;
     InternalBufferPtr m_buffer;
 public:
     typedef std::vector<Buffer<T> > List;

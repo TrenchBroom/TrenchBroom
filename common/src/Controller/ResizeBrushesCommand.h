@@ -32,7 +32,7 @@ namespace TrenchBroom {
         class ResizeBrushesCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<ResizeBrushesCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<ResizeBrushesCommand> Ptr;
         private:
             View::MapDocumentWPtr m_document;
             Model::BrushFaceList m_faces;

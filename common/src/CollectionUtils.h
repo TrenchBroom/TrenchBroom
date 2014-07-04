@@ -135,10 +135,10 @@ namespace VectorUtils {
     }
     
     template <typename T, class P>
-    const std::tr1::shared_ptr<T> findIf(const std::vector<std::tr1::shared_ptr<T> >& vec, const P& predicate) {
-        typename std::vector<std::tr1::shared_ptr<T> >::const_iterator it = std::find_if(vec.begin(), vec.end(), predicate);
+    const TrenchBroom::shared_ptr<T> findIf(const std::vector<TrenchBroom::shared_ptr<T> >& vec, const P& predicate) {
+        typename std::vector<TrenchBroom::shared_ptr<T> >::const_iterator it = std::find_if(vec.begin(), vec.end(), predicate);
         if (it == vec.end())
-            return std::tr1::shared_ptr<T>();
+            return TrenchBroom::shared_ptr<T>();
         return *it;
     }
     

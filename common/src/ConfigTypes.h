@@ -40,7 +40,7 @@ namespace TrenchBroom {
             Type_Table  = 1 << 2
         } Type;
         
-        typedef std::tr1::shared_ptr<ConfigEntry> Ptr;
+        typedef TrenchBroom::shared_ptr<ConfigEntry> Ptr;
     private:
         Type m_type;
     public:
@@ -57,7 +57,7 @@ namespace TrenchBroom {
     
     class ConfigValue : public ConfigEntry {
     public:
-        typedef std::tr1::shared_ptr<ConfigValue> Ptr;
+        typedef TrenchBroom::shared_ptr<ConfigValue> Ptr;
     private:
         String m_value;
     public:
@@ -68,7 +68,7 @@ namespace TrenchBroom {
     
     class ConfigList : public ConfigEntry {
     public:
-        typedef std::tr1::shared_ptr<ConfigList> Ptr;
+        typedef TrenchBroom::shared_ptr<ConfigList> Ptr;
     private:
         typedef std::vector<ConfigEntry::Ptr> EntryList;
         EntryList m_entries;
@@ -83,7 +83,7 @@ namespace TrenchBroom {
     
     class ConfigTable : public ConfigEntry {
     public:
-        typedef std::tr1::shared_ptr<ConfigTable> Ptr;
+        typedef TrenchBroom::shared_ptr<ConfigTable> Ptr;
     private:
         typedef std::map<String, ConfigEntry::Ptr> EntryMap;
         StringSet m_keys;

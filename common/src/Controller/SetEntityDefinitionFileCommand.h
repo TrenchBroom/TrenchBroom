@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class SetEntityDefinitionFileCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SetEntityDefinitionFileCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<SetEntityDefinitionFileCommand> Ptr;
         private:
             View::MapDocumentWPtr m_document;
             Model::EntityDefinitionFileSpec m_newSpec;

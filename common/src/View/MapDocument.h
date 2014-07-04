@@ -57,7 +57,7 @@ namespace TrenchBroom {
         public:
             static const BBox3 DefaultWorldBounds;
         private:
-            typedef std::tr1::weak_ptr<MapDocument> WkPtr;
+            typedef TrenchBroom::weak_ptr<MapDocument> WkPtr;
             
             BBox3 m_worldBounds;
             IO::Path m_path;

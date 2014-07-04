@@ -31,7 +31,7 @@ namespace TrenchBroom {
     namespace Controller {
         class BrushVertexHandleCommand : public Command {
         public:
-            typedef std::tr1::shared_ptr<BrushVertexHandleCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<BrushVertexHandleCommand> Ptr;
         public:
             BrushVertexHandleCommand(CommandType type, const String& name, bool undoable, bool modifiesDocument);
             ~BrushVertexHandleCommand();

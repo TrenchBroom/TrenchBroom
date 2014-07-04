@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class FixPlanePointsCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<FixPlanePointsCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<FixPlanePointsCommand> Ptr;
         private:
             typedef enum {
                 Action_SnapPoints,

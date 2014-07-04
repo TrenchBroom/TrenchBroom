@@ -65,7 +65,7 @@ namespace TrenchBroom {
 
         class ActionEntry {
         public:
-            typedef std::tr1::shared_ptr<ActionEntry> Ptr;
+            typedef TrenchBroom::shared_ptr<ActionEntry> Ptr;
         private:
             Action& m_action;
             bool m_conflicts;

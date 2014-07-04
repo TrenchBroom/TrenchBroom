@@ -29,7 +29,7 @@ namespace TrenchBroom {
         public:
             class Executable {
             public:
-                typedef std::tr1::shared_ptr<Executable> Ptr;
+                typedef TrenchBroom::shared_ptr<Executable> Ptr;
             public:
                 virtual ~Executable();
                 void operator()();

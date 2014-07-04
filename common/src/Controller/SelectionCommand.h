@@ -36,7 +36,7 @@ namespace TrenchBroom {
         class SelectionCommand : public Command {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SelectionCommand> Ptr;
+            typedef TrenchBroom::shared_ptr<SelectionCommand> Ptr;
 
             typedef enum {
                 Action_SelectObjects,

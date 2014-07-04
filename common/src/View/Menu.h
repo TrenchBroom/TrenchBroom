@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 Type_Menu
             } Type;
             
-            typedef std::tr1::shared_ptr<MenuItem> Ptr;
+            typedef TrenchBroom::shared_ptr<MenuItem> Ptr;
             typedef std::vector<Ptr> List;
         private:
             Type m_type;

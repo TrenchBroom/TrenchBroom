@@ -45,12 +45,12 @@ namespace TrenchBroom {
         typedef std::map<String, EntityDefinitionList> EntityDefinitionGroups;
         
         class PropertyDefinition;
-        typedef std::tr1::shared_ptr<PropertyDefinition> PropertyDefinitionPtr;
+        typedef TrenchBroom::shared_ptr<PropertyDefinition> PropertyDefinitionPtr;
         typedef std::vector<PropertyDefinitionPtr> PropertyDefinitionList;
         typedef std::map<String, PropertyDefinitionPtr> PropertyDefinitionMap;
         
         class ModelDefinition;
-        typedef std::tr1::shared_ptr<ModelDefinition> ModelDefinitionPtr;
+        typedef TrenchBroom::shared_ptr<ModelDefinition> ModelDefinitionPtr;
         typedef std::vector<ModelDefinitionPtr> ModelDefinitionList;
         static const ModelDefinitionList EmptyModelDefinitionList;
         

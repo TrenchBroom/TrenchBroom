@@ -25,12 +25,12 @@
 namespace TrenchBroom {
     namespace View {
         class ControllerFacade;
-        typedef std::tr1::shared_ptr<ControllerFacade> ControllerSPtr;
-        typedef std::tr1::weak_ptr<ControllerFacade> ControllerWPtr;
+        typedef TrenchBroom::shared_ptr<ControllerFacade> ControllerSPtr;
+        typedef TrenchBroom::weak_ptr<ControllerFacade> ControllerWPtr;
         
         class MapDocument;
-        typedef std::tr1::shared_ptr<MapDocument> MapDocumentSPtr;
-        typedef std::tr1::weak_ptr<MapDocument> MapDocumentWPtr;
+        typedef TrenchBroom::shared_ptr<MapDocument> MapDocumentSPtr;
+        typedef TrenchBroom::weak_ptr<MapDocument> MapDocumentWPtr;
         
         typedef enum {
             RotationAxis_Roll,

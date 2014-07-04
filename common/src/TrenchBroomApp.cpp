@@ -108,7 +108,7 @@ namespace TrenchBroom {
                 const IO::Path path(pathStr);
                 const Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 Model::GamePtr game = gameFactory.detectGame(path);
-                if (game == NULL) {
+                if (game.get() == NULL) {
                     String gameName;
                     if (!OpenDocumentGameDialog::showDialog(NULL, gameName))
                         return false;

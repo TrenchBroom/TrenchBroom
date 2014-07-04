@@ -22,30 +22,42 @@
 
 #include <cassert>
 
-#if defined _MSC_VER
+#if defined(_MSC_VER) || defined(__clang__)
 #include <memory>
+namespace TrenchBroom {
+    using std::shared_ptr;
+    using std::weak_ptr;
+    using std::static_pointer_cast;
+    using std::enable_shared_from_this;
+}
 #else
 #include <tr1/memory>
+namespace TrenchBroom {
+    using std::tr1::shared_ptr;
+    using std::tr1::weak_ptr;
+    using std::tr1::static_pointer_cast;
+    using std::tr1::enable_shared_from_this;
+}
 #endif
 
 template <typename T>
-std::tr1::shared_ptr<T> lock(std::tr1::shared_ptr<T> ptr) {
+TrenchBroom::shared_ptr<T> lock(TrenchBroom::shared_ptr<T> ptr) {
     return ptr;
 }
 
 template <typename T>
-bool expired(std::tr1::shared_ptr<T> ptr) {
+bool expired(TrenchBroom::shared_ptr<T> ptr) {
     return true;
 }
 
 template <typename T>
-std::tr1::shared_ptr<T> lock(std::tr1::weak_ptr<T> ptr) {
+TrenchBroom::shared_ptr<T> lock(TrenchBroom::weak_ptr<T> ptr) {
     assert(!ptr.expired());
     return ptr.lock();
 }
 
 template <typename T>
-bool expired(std::tr1::weak_ptr<T> ptr) {
+bool expired(TrenchBroom::weak_ptr<T> ptr) {
     return ptr.expired();
 }
 

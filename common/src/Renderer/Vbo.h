@@ -60,7 +60,7 @@ namespace TrenchBroom {
         
         class Vbo {
         public:
-            typedef std::tr1::shared_ptr<Vbo> Ptr;
+            typedef TrenchBroom::shared_ptr<Vbo> Ptr;
         private:
             typedef std::vector<VboBlock*> VboBlockList;
             static const float GrowthFactor;

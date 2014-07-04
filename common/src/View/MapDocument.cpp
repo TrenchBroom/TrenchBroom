@@ -295,7 +295,7 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::isGamePathPreference(const IO::Path& path) const {
-            return m_game != NULL && m_game->isGamePathPreference(path);
+            return m_game.get() != NULL && m_game->isGamePathPreference(path);
         }
 
         bool MapDocument::modified() const {

@@ -30,7 +30,7 @@ namespace TrenchBroom {
     namespace Controller {
         class Command {
         public:
-            typedef std::tr1::shared_ptr<Command> Ptr;
+            typedef TrenchBroom::shared_ptr<Command> Ptr;
             typedef std::vector<Ptr> List;
             typedef size_t CommandType;
             
@@ -64,8 +64,8 @@ namespace TrenchBroom {
             bool collateWith(Ptr command);
             
             template <class T>
-            static std::tr1::shared_ptr<T> cast(Ptr& command) {
-                return std::tr1::static_pointer_cast<T>(command);
+            static TrenchBroom::shared_ptr<T> cast(Ptr& command) {
+                return TrenchBroom::static_pointer_cast<T>(command);
             }
         private:
             virtual bool doPerformDo() = 0;
