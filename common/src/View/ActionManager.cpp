@@ -153,7 +153,7 @@ namespace TrenchBroom {
 #ifdef __APPLE__
             createMapViewAction(CommandIds::Actions::DeleteObjects, Action::Context_ObjectSelection | Action::Context_AnyTool, "Delete Objects", KeyboardShortcut(WXK_BACK));
 #else
-            createMapViewAction(CommandIds::Actions::DeleteObjects, Action::Context_ObjectSelection | Action::Context_VertexTool | Action::Context_RotateTool, "Delete Objects", KeyboardShortcut(WXK_DELETE));
+            createMapViewAction(CommandIds::Actions::DeleteObjects, Action::Context_ObjectSelection | Action::Context_AnyTool, "Delete Objects", KeyboardShortcut(WXK_DELETE));
 #endif
 
             createMapViewAction(CommandIds::Actions::MoveObjectsForward, Action::Context_ObjectSelection, "Move Objects Forward", KeyboardShortcut(WXK_UP));

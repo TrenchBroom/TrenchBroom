@@ -101,12 +101,14 @@ namespace TrenchBroom {
                 return false;
             m_clipper.reset();
             updateBrushes();
+            bindObservers();
             return true;
         }
         
         bool ClipTool::doDeactivate(const InputState& inputState) {
             clearAndDelete(m_frontBrushes);
             clearAndDelete(m_backBrushes);
+            unbindObservers();
             return true;
         }
 
@@ -217,6 +219,8 @@ namespace TrenchBroom {
                 const ClipResult result = m_clipper.clip(brushes, document());
                 m_frontBrushes = result.frontBrushes;
                 m_backBrushes = result.backBrushes;
+            } else {
+                m_clipper.reset();
             }
             
             m_renderer.setBrushes(Model::mergeEntityBrushesMap(m_frontBrushes),
@@ -228,6 +232,32 @@ namespace TrenchBroom {
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
                 VectorUtils::clearAndDelete(it->second);
             brushes.clear();
+        }
+
+        void ClipTool::bindObservers() {
+            document()->selectionDidChangeNotifier.addObserver(this, &ClipTool::selectionDidChange);
+            document()->objectWillChangeNotifier.addObserver(this, &ClipTool::objectWillChange);
+            document()->objectDidChangeNotifier.addObserver(this, &ClipTool::objectDidChange);
+        }
+        
+        void ClipTool::unbindObservers() {
+            if (!expired(document())) {
+                document()->selectionDidChangeNotifier.removeObserver(this, &ClipTool::selectionDidChange);
+                document()->objectWillChangeNotifier.removeObserver(this, &ClipTool::objectWillChange);
+                document()->objectDidChangeNotifier.removeObserver(this, &ClipTool::objectDidChange);
+            }
+        }
+        
+        void ClipTool::selectionDidChange(const Model::SelectionResult& selection) {
+            updateBrushes();
+        }
+        
+        void ClipTool::objectWillChange(Model::Object* object) {
+            updateBrushes();
+        }
+        
+        void ClipTool::objectDidChange(Model::Object* object) {
+            updateBrushes();
         }
     }
 }
