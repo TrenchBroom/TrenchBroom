@@ -24,6 +24,7 @@
 
 #include <wx/control.h>
 #include <wx/dcclient.h>
+#include <wx/log.h>
 
 #include <cassert>
 #include <iostream>
@@ -129,6 +130,7 @@ namespace TrenchBroom {
             } else {
                 event.Skip();
             }
+            Refresh();
         }
         
         void SplitterWindow::OnMouseMotion(wxMouseEvent& event) {
@@ -216,10 +218,11 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow::OnSize(wxSizeEvent& event) {
+            wxLogDebug("Size changed from %d,%d to %d,%d", m_oldSize.x, m_oldSize.y, event.GetSize().x, event.GetSize().y);
             updateSashPosition(m_oldSize, event.GetSize());
             sizeWindows();
             m_oldSize = event.GetSize();
-            event.Skip();
+            // event.Skip();
         }
         
         void SplitterWindow::updateSashPosition(const wxSize& oldSize, const wxSize& newSize) {
@@ -232,11 +235,8 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow::initSashPosition() {
-            if (m_splitMode != SplitMode_Unset && m_sashPosition == -1) {
-                const int clientH = h(GetClientSize());
-                const int position = h(m_minSizes[0]) + static_cast<int>(m_sashGravity * (clientH - h(m_minSizes[0]) - h(m_minSizes[1]) - sashSize()));
-                setSashPosition(position);
-            }
+            if (m_splitMode != SplitMode_Unset && m_sashPosition == -1)
+                setSashPosition(0);
         }
         
         void SplitterWindow::setSashPosition(const int position) {
@@ -245,6 +245,7 @@ namespace TrenchBroom {
             m_sashPosition = std::min(m_sashPosition, h(GetClientSize()) - h(m_minSizes[1]) - sashSize());
             if (m_sashPosition < 0)
                 m_sashPosition = h(GetClientSize()) / 2;
+            wxLogDebug("Setting sash position %d, truncated from %d", m_sashPosition, position);
         }
         
         void SplitterWindow::sizeWindows() {
@@ -263,6 +264,7 @@ namespace TrenchBroom {
                 setHV(size[1], h(GetClientSize()) - m_sashPosition - sashSize(), clientV);
                 
                 for (size_t i = 0; i < NumWindows; ++i) {
+                    wxLogDebug("Setting sub window %d size %d,%d and pos %d,%d", (int)i, size[i].x, size[i].y, pos[i].x, pos[i].y);
                     m_windows[i]->SetPosition(pos[i]);
                     m_windows[i]->SetSize(size[i]);
                     m_windows[i]->Refresh();
