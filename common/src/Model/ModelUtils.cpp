@@ -277,5 +277,12 @@ namespace TrenchBroom {
                     m_notifier(parent);
             }
         }
+
+        NotifyObject::NotifyObject(Notifier1<Object*>& notifier) :
+        m_notifier(notifier) {}
+        
+        void NotifyObject::operator()(Object* object) {
+            m_notifier(object);
+        }
     }
 }

@@ -53,13 +53,16 @@ namespace TrenchBroom {
 
             Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentWillChange, Model::MatchAll());
-            document->objectWillChangeNotifier(m_objects.begin(), m_objects.end());
+            
+            Model::NotifyObject objectWillChange(document->objectWillChangeNotifier);
+            Model::each(m_objects.begin(), m_objects.end(), objectWillChange, Model::MatchAll());
 
             Model::each(m_objects.begin(), m_objects.end(), Model::Transform(m_transformation, m_lockTextures, worldBounds), Model::MatchAll());
-            
             assert(Model::each(m_objects.begin(), m_objects.end(), Model::CheckBounds(worldBounds)));
             
-            document->objectDidChangeNotifier(m_objects.begin(), m_objects.end());
+            Model::NotifyObject objectDidChange(document->objectWillChangeNotifier);
+            Model::each(m_objects.begin(), m_objects.end(), objectDidChange, Model::MatchAll());
+
             Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentDidChange, Model::MatchAll());
             
@@ -68,13 +71,18 @@ namespace TrenchBroom {
         
         bool TransformObjectsCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lock(m_document);
+            
             Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentWillChange, Model::MatchAll());
 
-            document->objectWillChangeNotifier(m_objects.begin(), m_objects.end());
-            m_snapshot.restore(document->worldBounds());
-            document->objectDidChangeNotifier(m_objects.begin(), m_objects.end());
+            Model::NotifyObject objectWillChange(document->objectWillChangeNotifier);
+            Model::each(m_objects.begin(), m_objects.end(), objectWillChange, Model::MatchAll());
 
+            m_snapshot.restore(document->worldBounds());
+
+            Model::NotifyObject objectDidChange(document->objectWillChangeNotifier);
+            Model::each(m_objects.begin(), m_objects.end(), objectDidChange, Model::MatchAll());
+            
             Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), parentDidChange, Model::MatchAll());
             return true;

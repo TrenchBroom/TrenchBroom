@@ -110,6 +110,14 @@ namespace TrenchBroom {
             void operator()(const ObjectParentPair& pair);
             void operator()(Object* object);
         };
+        
+        struct NotifyObject {
+        private:
+            Notifier1<Object*>& m_notifier;
+        public:
+            NotifyObject(Notifier1<Object*>& notifier);
+            void operator()(Object* object);
+        };
 
         template <typename Iter, class Operator, class Filter>
         void each(Iter cur, Iter end, const Operator& op, const Filter& filter) {
