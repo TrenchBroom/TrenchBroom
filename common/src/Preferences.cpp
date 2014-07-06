@@ -107,9 +107,12 @@ namespace TrenchBroom {
         Preference<bool> CameraAltMoveInvert(IO::Path("Controls/Camera/Invert zoom direction when using alt to move"), false);
         Preference<bool> CameraMoveInCursorDir(IO::Path("Controls/Camera/Move camera in cursor dir"), false);
 
-        Preference<View::KeyboardShortcut> CameraForwardShortcut(IO::Path("Controls/Camerea/Move forward"), 'W');
-        Preference<View::KeyboardShortcut> CameraBackwardShortcut(IO::Path("Controls/Camerea/Move backward"), 'S');
-        Preference<View::KeyboardShortcut> CameraLeftShortcut(IO::Path("Controls/Camerea/Move left"), 'A');
-        Preference<View::KeyboardShortcut> CameraRightShortcut(IO::Path("Controls/Camerea/Move right"), 'D');
+        Preference<float> CameraFlySpeed(IO::Path("Controls/Camera/Fly speed"), 0.5f);
+        Preference<bool> CameraFlyInvertV(IO::Path("Controls/Camera/Invert vertical fly"), false);
+
+        Preference<View::KeyboardShortcut> CameraFlyForward(IO::Path("Controls/Camerea/Move forward"), 'W');
+        Preference<View::KeyboardShortcut> CameraFlyBackward(IO::Path("Controls/Camerea/Move backward"), 'S');
+        Preference<View::KeyboardShortcut> CameraFlyLeft(IO::Path("Controls/Camerea/Move left"), 'A');
+        Preference<View::KeyboardShortcut> CameraFlyRight(IO::Path("Controls/Camerea/Move right"), 'D');
     }
 }

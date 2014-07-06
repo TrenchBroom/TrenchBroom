@@ -30,7 +30,8 @@ namespace TrenchBroom {
         m_gridSize(gridSize),
         m_hideSelection(false),
         m_tintSelection(true),
-        m_showSelectionGuide(ShowSelectionGuide_Hide) {}
+        m_showSelectionGuide(ShowSelectionGuide_Hide),
+        m_showMouseIndicators(true) {}
         
         const Camera& RenderContext::camera() const {
             return m_camera;
@@ -106,6 +107,14 @@ namespace TrenchBroom {
                         m_showSelectionGuide = ShowSelectionGuide_ForceHide;
                     break;
             }
+        }
+
+        bool RenderContext::showMouseIndicators() const {
+            return m_showMouseIndicators;
+        }
+        
+        void RenderContext::setHideMouseIndicators() {
+            m_showMouseIndicators = false;
         }
     }
 }

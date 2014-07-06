@@ -204,7 +204,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditCut(wxCommandEvent& event) {
             OnEditCopy(event);
-            OnEditDeleteObjects(event);
+            m_controller->deleteSelectedObjects();
         }
         
         void MapFrame::OnEditCopy(wxCommandEvent& event) {
@@ -282,15 +282,6 @@ namespace TrenchBroom {
             } else {
                 logger()->error("Clipboard is empty");
             }
-        }
-        
-        void MapFrame::OnEditDeleteObjects(wxCommandEvent& event) {
-            const Model::ObjectList objects = m_document->selectedObjects();
-            assert(!objects.empty());
-            
-            const UndoableCommandGroup commandGroup(m_controller, String("Delete ") + String(objects.size() == 1 ? "object" : "objects"));
-            m_controller->deselectAll();
-            m_controller->removeObjects(objects);
         }
 
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
@@ -512,40 +503,31 @@ namespace TrenchBroom {
                 }
                 case wxID_CUT:
                 case wxID_COPY:
-                    event.Enable(!m_mapView->anyToolActive() &&
-                                 (document->hasSelectedObjects() ||
-                                  document->selectedFaces().size() == 1));
+                    event.Enable(document->hasSelectedObjects() ||
+                                 document->selectedFaces().size() == 1);
                     break;
                 case wxID_PASTE:
                 case CommandIds::Menu::EditPasteAtOriginalPosition: {
                     OpenClipboard openClipboard;
-                    static bool canPaste = wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT);
-                    event.Enable(!m_mapView->anyToolActive() && canPaste);
+                    event.Enable(wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT));
                     break;
                 }
-                case wxID_DELETE:
-                    event.Enable(document->hasSelectedObjects() &&
-                                 !m_mapView->anyToolActive());
-                    break;
                 case CommandIds::Menu::EditSelectAll:
-                    event.Enable(!m_mapView->anyToolActive());
+                    event.Enable(true);
                     break;
                 case CommandIds::Menu::EditSelectSiblings:
-                    event.Enable(!m_mapView->anyToolActive()&&
-                                 document->hasSelectedBrushes());
+                    event.Enable(document->hasSelectedBrushes());
                     break;
                 case CommandIds::Menu::EditSelectTouching:
                 case CommandIds::Menu::EditSelectContained:
-                    event.Enable(!m_mapView->anyToolActive() &&
-                                 !document->hasSelectedEntities() &&
+                    event.Enable(!document->hasSelectedEntities() &&
                                  document->selectedBrushes().size() == 1);
                     break;
                 case CommandIds::Menu::EditSelectByFilePosition:
-                    event.Enable(!m_mapView->anyToolActive());
+                    event.Enable(true);
                     break;
                 case CommandIds::Menu::EditSelectNone:
-                    event.Enable(!m_mapView->anyToolActive() &&
-                                 document->hasSelection());
+                    event.Enable(document->hasSelection());
                     break;
                 case CommandIds::Menu::EditSnapVertices:
                     event.Enable(m_mapView->canSnapVertices());
@@ -729,7 +711,6 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditCopy, this, wxID_COPY);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPaste, this, wxID_PASTE);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditPasteAtOriginalPosition, this, CommandIds::Menu::EditPasteAtOriginalPosition);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditDeleteObjects, this, wxID_DELETE);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectAll, this, CommandIds::Menu::EditSelectAll);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectSiblings, this, CommandIds::Menu::EditSelectSiblings);
@@ -769,7 +750,6 @@ namespace TrenchBroom {
             
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
             
-            Bind(wxEVT_ACTIVATE, &MapView::OnActivateFrame, m_mapView);
             Bind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
         }
         

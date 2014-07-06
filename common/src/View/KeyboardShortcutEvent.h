@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        class KeyboardShortcutEvent : public wxEvent {
+        class KeyboardShortcutEvent : public wxNotifyEvent {
         protected:
             int m_key;
             int m_modifier1;

@@ -109,10 +109,13 @@ namespace TrenchBroom {
         extern Preference<bool> CameraAltMoveInvert;
         extern Preference<bool> CameraMoveInCursorDir;
         
-        extern Preference<View::KeyboardShortcut> CameraForwardShortcut;
-        extern Preference<View::KeyboardShortcut> CameraBackwardShortcut;
-        extern Preference<View::KeyboardShortcut> CameraLeftShortcut;
-        extern Preference<View::KeyboardShortcut> CameraRightShortcut;
+        extern Preference<float> CameraFlySpeed;
+        extern Preference<bool> CameraFlyInvertV;
+        
+        extern Preference<View::KeyboardShortcut> CameraFlyForward;
+        extern Preference<View::KeyboardShortcut> CameraFlyBackward;
+        extern Preference<View::KeyboardShortcut> CameraFlyLeft;
+        extern Preference<View::KeyboardShortcut> CameraFlyRight;
     }
 }
 

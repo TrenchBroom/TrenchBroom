@@ -99,6 +99,8 @@ namespace TrenchBroom {
                 
                 const int ToggleMovementRestriction          = Lowest +   7;
 
+                const int DeleteObjects                      = Lowest +  41;
+                
                 const int MoveObjectsForward                 = Lowest +   8;
                 const int MoveObjectsRight                   = Lowest +   9;
                 const int MoveObjectsBackward                = Lowest +  10;

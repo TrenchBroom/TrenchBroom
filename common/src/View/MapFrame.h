@@ -94,7 +94,6 @@ namespace TrenchBroom {
             void OnEditCopy(wxCommandEvent& event);
             void OnEditPaste(wxCommandEvent& event);
             void OnEditPasteAtOriginalPosition(wxCommandEvent& event);
-            void OnEditDeleteObjects(wxCommandEvent& event);
             
             void OnEditSelectAll(wxCommandEvent& event);
             void OnEditSelectSiblings(wxCommandEvent& event);

@@ -25,8 +25,9 @@
 #include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
 #include "View/GamesPreferencePane.h"
-#include "View/GeneralPreferencePane.h"
 #include "View/KeyboardPreferencePane.h"
+#include "View/CameraPreferencePane.h"
+#include "View/ViewPreferencePane.h"
 #include "View/ViewConstants.h"
 #include "View/PreferencePane.h"
 #include "View/wxUtils.h"
@@ -121,20 +122,23 @@ namespace TrenchBroom {
             
             m_toolBar = new wxToolBar(this, wxID_ANY);
             m_toolBar->AddCheckTool(PrefPane_Games, "Games", gamesImage, wxNullBitmap);
-            m_toolBar->AddCheckTool(PrefPane_General, "General", generalImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PrefPane_View, "View", generalImage, wxNullBitmap);
+            m_toolBar->AddCheckTool(PrefPane_Camera, "Camera", generalImage, wxNullBitmap);
             m_toolBar->AddCheckTool(PrefPane_Keyboard, "Keyboard", keyboardImage, wxNullBitmap);
             m_toolBar->Realize();
             
             m_book = new wxSimplebook(this);
             m_book->AddPage(new GamesPreferencePane(m_book), "Games");
-            m_book->AddPage(new GeneralPreferencePane(m_book), "General");
+            m_book->AddPage(new ViewPreferencePane(m_book), "View");
+            m_book->AddPage(new CameraPreferencePane(m_book), "Camera");
             m_book->AddPage(new KeyboardPreferencePane(m_book), "Keyboard");
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_toolBar, 0, wxEXPAND);
 #if !defined __APPLE__
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->SetItemMinSize(1, wxSize(wxDefaultCoord, 1));
+            wxWindow* line = new BorderLine(this, BorderLine::Direction_Horizontal);
+            sizer->Add(line, 0, wxEXPAND);
+            sizer->SetItemMinSize(line, wxSize(wxDefaultCoord, 1));
 #endif
             sizer->Add(m_book, 1, wxEXPAND);
             
@@ -169,14 +173,15 @@ namespace TrenchBroom {
             m_book->SetSelection(static_cast<size_t>(pane));
             currentPane()->updateControls();
             
-            SetSize(currentPane()->GetMinSize());
+            GetSizer()->SetItemMinSize(m_book, currentPane()->GetMinSize());
+            Fit();
 #if defined __APPLE__
             updateAcceleratorTable(pane);
 #endif
         }
 
         void PreferenceDialog::toggleTools(const PrefPane pane) {
-            for (int i = PrefPane_First + 1; i < PrefPane_Last; ++i)
+            for (int i = PrefPane_First; i <= PrefPane_Last; ++i)
                 m_toolBar->ToggleTool(i, pane == i);
         }
         

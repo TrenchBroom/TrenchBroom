@@ -22,50 +22,58 @@
 #include "View/KeyboardShortcut.h"
 #include "View/KeyboardShortcutEvent.h"
 
-#include <wx/dcclient.h>
-#include <wx/renderer.h>
+#include <wx/panel.h>
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
-        BEGIN_EVENT_TABLE(KeyboardShortcutEditor, wxControl)
-        EVT_PAINT(KeyboardShortcutEditor::OnPaint)
-        EVT_SET_FOCUS(KeyboardShortcutEditor::OnSetFocus)
-        EVT_KILL_FOCUS(KeyboardShortcutEditor::OnKillFocus)
-        EVT_KEY_DOWN(KeyboardShortcutEditor::OnKeyDown)
-        EVT_KEY_UP(KeyboardShortcutEditor::OnKeyUp)
-        END_EVENT_TABLE()
-        
         void KeyboardShortcutEditor::update() {
-            if (!KeyboardShortcut::isShortcutValid(m_key, m_modifier1, m_modifier2, m_modifier3)) {
-                m_key = WXK_NONE;
-                m_modifier1 = WXK_NONE;
-                m_modifier2 = WXK_NONE;
-                m_modifier3 = WXK_NONE;
+            if (!KeyboardShortcut::isShortcutValid(m_key, m_modifiers[0], m_modifiers[1], m_modifiers[2])) {
+                resetKey();
+                resetModifiers();
             }
             
-            KeyboardShortcut::sortModifierKeys(m_modifier1, m_modifier2, m_modifier3);
-            wxString label = KeyboardShortcut::shortcutDisplayString(m_key, m_modifier1, m_modifier2, m_modifier3);
+            KeyboardShortcut::sortModifierKeys(m_modifiers[0], m_modifiers[1], m_modifiers[2]);
+            wxString label = KeyboardShortcut::shortcutDisplayString(m_key, m_modifiers[0], m_modifiers[1], m_modifiers[2]);
             m_label->SetLabel(label);
             Refresh();
         }
         
         KeyboardShortcutEditor::KeyboardShortcutEditor(wxWindow* parent, wxWindowID windowId, const wxPoint& pos, const wxSize& size, long style, const wxValidator& validator, const wxString& name) :
         wxControl(parent, windowId, pos, size, style | wxTAB_TRAVERSAL | wxWANTS_CHARS, validator, name),
-        m_label(NULL),
-        m_key(WXK_NONE),
-        m_modifier1(WXK_NONE),
-        m_modifier2(WXK_NONE),
-        m_modifier3(WXK_NONE),
+        m_panel(new wxPanel(this)),
+        m_label(new wxStaticText(m_panel, wxID_ANY, "")),
         m_resetOnNextKey(false) {
-            SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-            m_label = new wxStaticText(this, wxID_ANY, "");
-            m_label->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->Add(m_label, 1, wxEXPAND);
+            resetKey();
+            resetModifiers();
+            
+            wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+            panelSizer->Add(m_label, 0, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
+            m_panel->SetSizer(panelSizer);
+
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_panel, 1, wxEXPAND);
             SetSizer(sizer);
+            
+            Bind(wxEVT_PAINT, &KeyboardShortcutEditor::OnPaint, this);
+            Bind(wxEVT_SET_FOCUS, &KeyboardShortcutEditor::OnSetFocus, this);
+            Bind(wxEVT_KILL_FOCUS, &KeyboardShortcutEditor::OnKillFocus, this);
+            Bind(wxEVT_KEY_DOWN, &KeyboardShortcutEditor::OnKeyDown, this);
+            Bind(wxEVT_KEY_UP, &KeyboardShortcutEditor::OnKeyUp, this);
+            
+            Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
+            
+            m_panel->Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            m_panel->Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            m_panel->Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
+            
+            m_label->Bind(wxEVT_LEFT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            m_label->Bind(wxEVT_RIGHT_DOWN, &KeyboardShortcutEditor::OnMouseDown, this);
+            m_label->Bind(wxEVT_LEFT_DCLICK, &KeyboardShortcutEditor::OnMouseDown, this);
         }
 
         int KeyboardShortcutEditor::key() const {
@@ -73,15 +81,15 @@ namespace TrenchBroom {
         }
         
         int KeyboardShortcutEditor::modifier1() const {
-            return m_modifier1;
+            return m_modifiers[0];
         }
         
         int KeyboardShortcutEditor::modifier2() const {
-            return m_modifier2;
+            return m_modifiers[1];
         }
         
         int KeyboardShortcutEditor::modifier3() const {
-            return m_modifier3;
+            return m_modifiers[2];
         }
         
         void KeyboardShortcutEditor::SetShortcut(const KeyboardShortcut& shortcut) {
@@ -90,32 +98,42 @@ namespace TrenchBroom {
 
         void KeyboardShortcutEditor::SetShortcut(const int key, const int modifier1, const int modifier2, const int modifier3) {
             m_key = key;
-            m_modifier1 = modifier1;
-            m_modifier2 = modifier2;
-            m_modifier3 = modifier3;
+            m_modifiers[0] = modifier1;
+            m_modifiers[1] = modifier2;
+            m_modifiers[2] = modifier3;
             m_resetOnNextKey = true;
             update();
         }
 
         void KeyboardShortcutEditor::OnPaint(wxPaintEvent& event) {
-            wxDelegateRendererNative renderer;
-            
-            wxPaintDC dc(this);
-            renderer.DrawFocusRect(this, dc, GetClientRect());
+            /*
+            if (HasFocus()) {
+                wxDelegateRendererNative renderer;
+                
+                wxPaintDC dc(this);
+                renderer.DrawFocusRect(this, dc, GetClientRect());
+            }
+             */
         }
 
         void KeyboardShortcutEditor::OnSetFocus(wxFocusEvent& event) {
+            m_panel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+            m_label->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
+            Refresh();
             event.Skip();
         }
         
         void KeyboardShortcutEditor::OnKillFocus(wxFocusEvent& event) {
+            m_panel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
+            m_label->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
+            Refresh();
             event.Skip();
         }
 
         void KeyboardShortcutEditor::OnKeyDown(wxKeyEvent& event) {
             bool wasReset = false;
             if (m_resetOnNextKey) {
-                wasReset = m_key != WXK_NONE || m_modifier1 != WXK_NONE || m_modifier2 != WXK_NONE || m_modifier3 != WXK_NONE;
+                wasReset = m_key != WXK_NONE || m_modifiers[0] != WXK_NONE || m_modifiers[1] != WXK_NONE || m_modifiers[2] != WXK_NONE;
                 SetShortcut();
                 m_resetOnNextKey = false;
             }
@@ -125,18 +143,11 @@ namespace TrenchBroom {
                 case WXK_SHIFT:
                 case WXK_ALT:
                 case WXK_CONTROL:
-                    if (m_modifier1 == WXK_NONE)
-                        m_modifier1 = key;
-                    else if (m_modifier2 == WXK_NONE)
-                        m_modifier2 = key;
-                    else if (m_modifier3 == WXK_NONE)
-                        m_modifier3 = key;
-                    break;
+                    updateModifiers(event);
 #if defined __APPLE__
                 case WXK_RAW_CONTROL:
-                    // not supported
-                    break;
 #endif
+                    break;
                 case WXK_BACK:
                 case WXK_DELETE:
                     if (m_key != WXK_NONE) {
@@ -147,42 +158,60 @@ namespace TrenchBroom {
                     }
                     break;
                 default:
-                    m_key = key;
+                    KeyboardShortcutEvent shortcutEvent(key, m_modifiers[0], m_modifiers[1], m_modifiers[2]);
+                    shortcutEvent.SetEventType(EVT_KEYBOARD_SHORTCUT_EVENT);
+                    shortcutEvent.SetEventObject(this);
+                    shortcutEvent.SetId(GetId());
+                    ProcessEvent(shortcutEvent);
+                    if (shortcutEvent.IsAllowed())
+                        m_key = key;
                     break;
             }
             update();
         }
         
         void KeyboardShortcutEditor::OnKeyUp(wxKeyEvent& event) {
-            if (m_key == WXK_NONE) {
-                const int key = event.GetKeyCode();
-                switch (key) {
-                    case WXK_SHIFT:
-                    case WXK_ALT:
-                    case WXK_CONTROL:
-                        if (m_modifier1 == key)
-                            m_modifier1 = WXK_NONE;
-                        else if (m_modifier2 == key)
-                            m_modifier2 = WXK_NONE;
-                        else if (m_modifier3 == key)
-                            m_modifier3 = WXK_NONE;
-                        break;
+            const int key = event.GetKeyCode();
+            switch (key) {
+                case WXK_SHIFT:
+                case WXK_ALT:
+                case WXK_CONTROL:
+                    if (m_key == WXK_NONE)
+                        updateModifiers(event);
 #if defined __APPLE__
-                    case WXK_RAW_CONTROL:
-                        // not supported
-                        break;
+                case WXK_RAW_CONTROL:
 #endif
-                    default:
-                        break;
-                }
-                update();
-            } else {
-                KeyboardShortcutEvent shortcutEvent(m_key, m_modifier1, m_modifier2, m_modifier3);
-                shortcutEvent.SetEventType(EVT_KEYBOARD_SHORTCUT_EVENT);
-                shortcutEvent.SetEventObject(this);
-                shortcutEvent.SetId(GetId());
-                ProcessEvent(shortcutEvent);
+                    break;
+                default:
+                    m_resetOnNextKey = true;
+                    break;
             }
+            update();
+        }
+        
+        void KeyboardShortcutEditor::OnMouseDown(wxMouseEvent& event) {
+            SetFocus();
+        }
+
+        void KeyboardShortcutEditor::updateModifiers(wxKeyEvent& event) {
+            resetModifiers();
+
+            size_t count = 0;
+            if (event.ShiftDown())
+                m_modifiers[count++] = WXK_SHIFT;
+            if (event.AltDown())
+                m_modifiers[count++] = WXK_ALT;
+            if (event.ControlDown())
+                m_modifiers[count++] = WXK_CONTROL;
+        }
+
+        void KeyboardShortcutEditor::resetKey() {
+            m_key = WXK_NONE;
+        }
+
+        void KeyboardShortcutEditor::resetModifiers() {
+            for (size_t i = 0; i < 3; ++i)
+                m_modifiers[i] = WXK_NONE;
         }
     }
 }

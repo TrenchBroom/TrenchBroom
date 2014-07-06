@@ -39,10 +39,10 @@
 #include "View/ToolBox.h"
 #include "View/ViewTypes.h"
 
-#include <vector>
 #include <wx/datetime.h>
 #include <wx/longlong.h>
-#include <wx/timer.h>
+
+#include <vector>
 
 namespace TrenchBroom {
     class Logger;
@@ -95,7 +95,6 @@ namespace TrenchBroom {
             SelectionTool* m_selectionTool;
             TextureTool* m_textureTool;
 
-            wxTimer m_cameraFlyTimer;
             FlyModeHelper m_flyModeHelper;
             
             Renderer::MapRenderer m_renderer;
@@ -155,10 +154,11 @@ namespace TrenchBroom {
             void OnToggleRotateObjectsTool(wxCommandEvent& event);
 
             void OnToggleFlyMode(wxCommandEvent& event);
-            void OnFlyTimer(wxTimerEvent& event);
             
             void OnToggleMovementRestriction(wxCommandEvent& event);
 
+            void OnDeleteObjects(wxCommandEvent& event);
+            
             void OnMoveObjectsForward(wxCommandEvent& event);
             void OnMoveObjectsBackward(wxCommandEvent& event);
             void OnMoveObjectsLeft(wxCommandEvent& event);

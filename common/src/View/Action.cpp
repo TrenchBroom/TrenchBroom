@@ -36,6 +36,8 @@ namespace TrenchBroom {
                 contexts.push_back("Clip Tool");
             if (context & Context_RotateTool)
                 contexts.push_back("Rotate Tool");
+            if (context & Context_FlyMode)
+                contexts.push_back("Fly Mode");
             if (context & Context_ObjectSelection)
                 contexts.push_back("Objects");
             if (context & Context_FaceSelection)

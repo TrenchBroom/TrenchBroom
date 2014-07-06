@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GeneralPreferencePane__
-#define __TrenchBroom__GeneralPreferencePane__
+#ifndef __TrenchBroom__CameraPreferencePane__
+#define __TrenchBroom__CameraPreferencePane__
 
 #include "View/PreferencePane.h"
 
@@ -30,11 +30,11 @@ class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
-        class GeneralPreferencePane : public PreferencePane {
+        class KeyboardShortcutEditor;
+        class KeyboardShortcutEvent;
+        
+        class CameraPreferencePane : public PreferencePane {
         private:
-            wxSlider* m_brightnessSlider;
-            wxSlider* m_gridAlphaSlider;
-            wxChoice* m_textureBrowserIconSizeChoice;
             wxSlider* m_lookSpeedSlider;
             wxCheckBox* m_invertLookHAxisCheckBox;
             wxCheckBox* m_invertLookVAxisCheckBox;
@@ -45,14 +45,16 @@ namespace TrenchBroom {
             wxCheckBox* m_enableAltMoveCheckBox;
             wxCheckBox* m_invertAltMoveAxisCheckBox;
             wxCheckBox* m_moveInCursorDirCheckBox;
+            wxSlider* m_flySpeedSlider;
+            wxCheckBox* m_invertFlyVAxisCheckBox;
             
+            KeyboardShortcutEditor* m_forwardKeyEditor;
+            KeyboardShortcutEditor* m_backwardKeyEditor;
+            KeyboardShortcutEditor* m_leftKeyEditor;
+            KeyboardShortcutEditor* m_rightKeyEditor;
         public:
-            GeneralPreferencePane(wxWindow* parent);
+            CameraPreferencePane(wxWindow* parent);
 
-            void OnBrightnessChanged(wxScrollEvent& event);
-            void OnGridAlphaChanged(wxScrollEvent& event);
-            void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
-            
             void OnLookSpeedChanged(wxScrollEvent& event);
             void OnInvertLookHAxisChanged(wxCommandEvent& event);
             void OnInvertLookVAxisChanged(wxCommandEvent& event);
@@ -67,10 +69,16 @@ namespace TrenchBroom {
             void OnInvertAltMoveAxisChanged(wxCommandEvent& event);
             void OnMoveCameraInCursorDirChanged(wxCommandEvent& event);
 
+            void OnFlySpeedChanged(wxScrollEvent& event);
+            void OnInvertFlyVAxisChanged(wxCommandEvent& event);
+            
+            void OnForwardKeyChanged(KeyboardShortcutEvent& event);
+            void OnBackwardKeyChanged(KeyboardShortcutEvent& event);
+            void OnLeftKeyChanged(KeyboardShortcutEvent& event);
+            void OnRightKeyChanged(KeyboardShortcutEvent& event);
         private:
             void createGui();
-            wxWindow* createViewPreferences();
-            wxWindow* createMousePreferences();
+            wxWindow* createCameraPreferences();
 
             void bindEvents();
             
@@ -80,4 +88,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__GeneralPreferencePane__) */
+#endif /* defined(__TrenchBroom__CameraPreferencePane__) */

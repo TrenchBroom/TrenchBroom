@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/Camera.h"
 #include "View/KeyboardShortcut.h"
 
 #ifdef __APPLE__
@@ -31,16 +32,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        FlyModeHelper::Input::Input() :
-        forward(false),
-        backward(false),
-        left(false),
-        right(false),
-        delta(0, 0),
-        time(0) {}
-
-        FlyModeHelper::FlyModeHelper(wxWindow* window) :
+        FlyModeHelper::FlyModeHelper(wxWindow* window, Renderer::Camera& camera) :
         m_window(window),
+        m_camera(camera),
         m_enabled(false) {}
         
         FlyModeHelper::~FlyModeHelper() {
@@ -59,12 +53,14 @@ namespace TrenchBroom {
             lockMouse();
             
             m_lastPollTime = ::wxGetLocalTimeMillis();
+            Start(20);
             m_enabled = true;
         }
         
         void FlyModeHelper::disable() {
             assert(enabled());
-            
+
+            Stop();
             unlockMouse();
             m_enabled = false;
             m_window->Unbind(wxEVT_KEY_DOWN, &FlyModeHelper::OnKeyDown, this);
@@ -73,23 +69,6 @@ namespace TrenchBroom {
         
         bool FlyModeHelper::enabled() const {
             return m_enabled;
-        }
-        
-        FlyModeHelper::Input FlyModeHelper::poll() {
-            assert(enabled());
-            
-            Input result;
-            result.forward = m_forward;
-            result.backward = m_backward;
-            result.left = m_left;
-            result.right = m_right;
-            result.delta = mouseDelta();
-            
-            const wxLongLong currentTime = ::wxGetLocalTimeMillis();
-            result.time = static_cast<unsigned int>((currentTime - m_lastPollTime).ToLong());
-            m_lastPollTime = currentTime;
-            
-            return result;
         }
         
         void FlyModeHelper::lockMouse() {
@@ -115,7 +94,57 @@ namespace TrenchBroom {
             m_window->SetCursor(wxNullCursor);
         }
         
-        wxPoint FlyModeHelper::mouseDelta() const {
+        void FlyModeHelper::Notify() {
+            const Vec3f delta = moveDelta(pollTime());
+            m_camera.moveBy(delta);
+            
+            const Vec2f angles = lookDelta(pollMouseDelta());
+            m_camera.rotate(angles.x(), angles.y());
+        }
+        
+        Vec3f FlyModeHelper::moveDelta(const float time) const {
+            const float dist = moveSpeed() * time;
+
+            Vec3f delta;
+            if (m_forward)
+                delta += m_camera.direction() * dist;
+            if (m_backward)
+                delta -= m_camera.direction() * dist;
+            if (m_left)
+                delta -= m_camera.right() * dist;
+            if (m_right)
+                delta += m_camera.right() * dist;
+            return delta;
+        }
+
+        Vec2f FlyModeHelper::lookDelta(const wxPoint mouseDelta) const {
+            const Vec2f speed = lookSpeed();
+            const float hAngle = static_cast<float>(mouseDelta.x) * speed.x();
+            const float vAngle = static_cast<float>(mouseDelta.y) * speed.y();
+            return Vec2f(hAngle, vAngle);
+        }
+
+        Vec2f FlyModeHelper::lookSpeed() const {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            Vec2f speed(prefs.get(Preferences::CameraFlySpeed), prefs.get(Preferences::CameraFlySpeed));
+            speed /= -50.0f;
+            if (prefs.get(Preferences::CameraFlyInvertV))
+                speed[1] *= -1.0f;
+            return speed;
+        }
+        
+        float FlyModeHelper::moveSpeed() const {
+            return 256.0f / 1000.0f;
+        }
+
+        float FlyModeHelper::pollTime() {
+            const wxLongLong currentTime = ::wxGetLocalTimeMillis();
+            const float time = static_cast<float>((currentTime - m_lastPollTime).ToLong());
+            m_lastPollTime = currentTime;
+            return time;
+        }
+
+        wxPoint FlyModeHelper::pollMouseDelta() {
 #ifndef __APPLE__
             const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
             return currentMousePos - windowCenter();
@@ -125,7 +154,7 @@ namespace TrenchBroom {
             return wxPoint(dx, dy);
 #endif
         }
-
+        
         void FlyModeHelper::resetMouse() {
 #ifndef __APPLE__
             const wxPoint center = windowCenter();
@@ -150,10 +179,10 @@ namespace TrenchBroom {
 
         void FlyModeHelper::onKey(wxKeyEvent& event, const bool down) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const KeyboardShortcut& forward = prefs.get(Preferences::CameraForwardShortcut);
-            const KeyboardShortcut& backward = prefs.get(Preferences::CameraBackwardShortcut);
-            const KeyboardShortcut& left = prefs.get(Preferences::CameraLeftShortcut);
-            const KeyboardShortcut& right = prefs.get(Preferences::CameraRightShortcut);
+            const KeyboardShortcut& forward = prefs.get(Preferences::CameraFlyForward);
+            const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
+            const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
+            const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
             
             if (forward.matches(event.GetKeyCode()))
                 m_forward = down;

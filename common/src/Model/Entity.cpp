@@ -214,6 +214,7 @@ namespace TrenchBroom {
         void Entity::removeBrush(Brush* brush) {
             assert(brush->parent() == this);
             VectorUtils::remove(m_brushes, brush);
+            brush->setParent(NULL);
             if (brush->selected())
                 decChildSelectionCount();
             invalidateBounds();

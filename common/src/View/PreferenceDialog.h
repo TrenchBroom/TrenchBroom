@@ -36,9 +36,10 @@ namespace TrenchBroom {
             typedef enum {
                 PrefPane_First = 0,
                 PrefPane_Games = 0,
-                PrefPane_General = 1,
-                PrefPane_Keyboard = 2,
-                PrefPane_Last = 2
+                PrefPane_View = 1,
+                PrefPane_Camera = 2,
+                PrefPane_Keyboard = 3,
+                PrefPane_Last = 3
             } PrefPane;
 
             wxToolBar* m_toolBar;

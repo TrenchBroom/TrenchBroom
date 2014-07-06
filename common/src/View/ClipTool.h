@@ -69,6 +69,12 @@ namespace TrenchBroom {
             Vec3 clipPoint(const Hit& hit) const;
             void updateBrushes();
             void clearAndDelete(Model::EntityBrushesMap& brushes);
+
+            void bindObservers();
+            void unbindObservers();
+            void selectionDidChange(const Model::SelectionResult& selection);
+            void objectWillChange(Model::Object* object);
+            void objectDidChange(Model::Object* object);
         };
     }
 }

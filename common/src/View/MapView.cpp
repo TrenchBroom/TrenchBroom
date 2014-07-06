@@ -53,6 +53,7 @@
 #include "View/SelectionTool.h"
 #include "View/TextureTool.h"
 #include "View/VertexTool.h"
+#include "View/wxUtils.h"
 
 #include <wx/menu.h>
 #include <wx/timer.h>
@@ -79,8 +80,7 @@ namespace TrenchBroom {
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
         m_textureTool(NULL),
-        m_cameraFlyTimer(this, FlyTimerId),
-        m_flyModeHelper(this),
+        m_flyModeHelper(this, camera),
         m_renderer(document, contextHolder()->fontManager()),
         m_compass(),
         m_selectionGuide(defaultFont(contextHolder()->fontManager())) {
@@ -126,9 +126,7 @@ namespace TrenchBroom {
             if (!cameraFlyModeActive()) {
                 m_toolBox.disable();
                 m_flyModeHelper.enable();
-                m_cameraFlyTimer.Start(20);
             } else {
-                m_cameraFlyTimer.Stop();
                 m_flyModeHelper.disable();
                 m_toolBox.enable();
             }
@@ -316,10 +314,12 @@ namespace TrenchBroom {
         
         void MapView::moveVertices(const Math::Direction direction) {
             assert(vertexToolActive());
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
-            m_vertexTool->moveVerticesAndRebuildBrushGeometry(delta);
+            if (hasSelectedVertices()) {
+                MapDocumentSPtr document = lock(m_document);
+                const Grid& grid = document->grid();
+                const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+                m_vertexTool->moveVerticesAndRebuildBrushGeometry(delta);
+            }
         }
         
         void MapView::OnToggleRotateObjectsTool(wxCommandEvent& event) {
@@ -330,18 +330,14 @@ namespace TrenchBroom {
             toggleCameraFlyMode();
         }
         
-        void MapView::OnFlyTimer(wxTimerEvent& event) {
-            const FlyModeHelper::Input input = m_flyModeHelper.poll();
-            
-            m_cameraTool->fly(input.delta.x, input.delta.y,
-                              input.forward, input.backward, input.left, input.right,
-                              input.time);
-        }
-        
         void MapView::OnToggleMovementRestriction(wxCommandEvent& event) {
             toggleMovementRestriction();
         }
         
+        void MapView::OnDeleteObjects(wxCommandEvent& event) {
+            lock(m_controller)->deleteSelectedObjects();
+        }
+
         void MapView::OnMoveObjectsForward(wxCommandEvent& event) {
             moveObjects(Math::Direction_Forward);
         }
@@ -576,11 +572,15 @@ namespace TrenchBroom {
         
         void MapView::OnKey(wxKeyEvent& event) {
             m_movementRestriction.setVerticalRestriction(event.AltDown());
+            Refresh();
             event.Skip();
         }
         
         void MapView::OnActivateFrame(wxActivateEvent& event) {
-            m_toolBox.updateLastActivation();
+            if (event.GetActive())
+                m_toolBox.updateLastActivation();
+            if (cameraFlyModeActive())
+                toggleCameraFlyMode();
             event.Skip();
         }
         
@@ -590,6 +590,8 @@ namespace TrenchBroom {
         }
         
         void MapView::OnKillFocus(wxFocusEvent& event) {
+            if (cameraFlyModeActive())
+                toggleCameraFlyMode();
             updateAcceleratorTable();
             event.Skip();
         }
@@ -649,6 +651,8 @@ namespace TrenchBroom {
                 return Action::Context_VertexTool;
             if (rotateObjectsToolActive())
                 return Action::Context_RotateTool;
+            if (cameraFlyModeActive())
+                return Action::Context_FlyMode;
             
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedObjects())
@@ -1135,6 +1139,8 @@ namespace TrenchBroom {
         
         void MapView::setRenderOptions(Renderer::RenderContext& context) {
             m_toolBox.setRenderOptions(context);
+            if (cameraFlyModeActive())
+                context.setHideMouseIndicators();
         }
         
         void MapView::renderCoordinateSystem(Renderer::RenderContext& context) {
@@ -1241,6 +1247,7 @@ namespace TrenchBroom {
         
         void MapView::bindEvents() {
             Bind(wxEVT_KEY_DOWN, &MapView::OnKey, this);
+            Bind(wxEVT_KEY_UP, &MapView::OnKey, this);
             
             Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
@@ -1262,6 +1269,8 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleFlyMode,            this, CommandIds::Actions::ToggleFlyMode);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleMovementRestriction,this, CommandIds::Actions::ToggleMovementRestriction);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDeleteObjects,            this, CommandIds::Actions::DeleteObjects);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsForward,       this, CommandIds::Actions::MoveObjectsForward);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsBackward,      this, CommandIds::Actions::MoveObjectsBackward);
@@ -1304,7 +1313,8 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
             
-            Bind(wxEVT_TIMER, &MapView::OnFlyTimer, this, FlyTimerId);
+            wxFrame* frame = findFrame(this);
+            frame->Bind(wxEVT_ACTIVATE, &MapView::OnActivateFrame, this);
         }
         
         const GLContextHolder::GLAttribs& MapView::attribs() {
