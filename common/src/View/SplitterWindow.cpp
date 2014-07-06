@@ -227,7 +227,9 @@ namespace TrenchBroom {
             
             if (m_splitMode != SplitMode_Unset) {
                 const wxSize diff = newSize - oldSize;
-                setSashPosition(m_sashPosition + static_cast<int>(m_sashGravity * h(diff)));
+                const int actualDiff = wxRound(m_sashGravity * h(diff));
+                if (actualDiff != 0)
+                    setSashPosition(m_sashPosition + actualDiff);
             }
         }
         
@@ -240,6 +242,8 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow::setSashPosition(const int position) {
+            if (position == m_sashPosition)
+                return;
             m_sashPosition = position;
             m_sashPosition = std::max(m_sashPosition, h(m_minSizes[0]));
             m_sashPosition = std::min(m_sashPosition, h(GetClientSize()) - h(m_minSizes[1]) - sashSize());
@@ -251,21 +255,22 @@ namespace TrenchBroom {
             initSashPosition();
             
             if (m_splitMode != SplitMode_Unset) {
-                const int clientV = v(GetClientSize());
-                m_windows[0]->SetPosition(wxPoint(0, 0));
+                const int origH = h(GetClientAreaOrigin());
+                const int origV = h(wxWindowBase::GetClientAreaOrigin());
+                const int sizeH = h(GetClientSize());
+                const int sizeV = v(GetClientSize());
                 
                 wxPoint pos[2];
                 wxSize size[2];
                 
-                setHV(pos[0], 0, 0);
-                setHV(pos[1], m_sashPosition + sashSize(), 0);
-                setHV(size[0], m_sashPosition, clientV);
-                setHV(size[1], h(GetClientSize()) - m_sashPosition - sashSize(), clientV);
+                setHV(pos[0], origH, origV);
+                setHV(pos[1], origH + m_sashPosition + sashSize(), origV);
+                setHV(size[0], m_sashPosition, sizeV);
+                setHV(size[1], sizeH - m_sashPosition - sashSize(), sizeV);
                 
-                for (size_t i = 0; i < NumWindows; ++i) {
-                    m_windows[i]->SetPosition(pos[i]);
-                    m_windows[i]->SetSize(size[i]);
-                }
+                for (size_t i = 0; i < NumWindows; ++i)
+                    m_windows[i]->SetSize(wxRect(pos[i], size[i]));
+                Refresh();
             }
         }
         
