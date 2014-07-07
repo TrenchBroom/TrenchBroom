@@ -38,12 +38,12 @@ namespace TrenchBroom {
             } SplitMode;
             
             SplitMode m_splitMode;
+            wxWindow* m_sash;
             wxWindow* m_windows[NumWindows];
             wxSize m_minSizes[NumWindows];
             
             float m_sashGravity;
             int m_sashPosition;
-            int m_dragOffset;
             
             bool m_sashCursorSet;
             
@@ -55,23 +55,22 @@ namespace TrenchBroom {
             void splitVertically(wxWindow* top, wxWindow* bottom, const wxSize& topMin = wxDefaultSize, const wxSize& bottomMin = wxDefaultSize);
         private:
             void split(wxWindow* window1, wxWindow* window2, const wxSize& min1, const wxSize& min2, SplitMode splitMode);
-            void bindMouseEventsRecurse(wxWindow* window);
             void bindMouseEvents(wxWindow* window);
         public:
             void setMinSize(wxWindow* window, const wxSize& minSize);
             void setSashGravity(float sashGravity);
             
+            void OnMouseEnter(wxMouseEvent& event);
+            void OnMouseLeave(wxMouseEvent& event);
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
         private:
             bool dragging() const;
-            bool isOnSash(const wxPoint& pos, const wxWindow* window) const;
             void setSashCursor();
             void unsetSashCursor();
             wxCursor sizeCursor() const;
         public:
-            void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
         private:
             void updateSashPosition(const wxSize& oldSize, const wxSize& newSize);

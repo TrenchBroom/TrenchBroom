@@ -19,6 +19,7 @@
 
 #include "SplitterWindow.h"
 
+#include "View/BorderLine.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
@@ -34,6 +35,7 @@ namespace TrenchBroom {
         SplitterWindow::SplitterWindow(wxWindow* parent) :
         wxPanel(parent, wxID_ANY),
         m_splitMode(SplitMode_Unset),
+        m_sash(NULL),
         m_sashGravity(0.5f),
         m_sashPosition(-1),
         m_sashCursorSet(0),
@@ -43,10 +45,8 @@ namespace TrenchBroom {
                 m_minSizes[i] = wxSize(0, 0);
             }
             
-            bindMouseEvents(this);
             Bind(wxEVT_MOUSE_CAPTURE_LOST, &SplitterWindow::OnMouseCaptureLost, this);
             Bind(wxEVT_SIZE, &SplitterWindow::OnSize, this);
-            Bind(wxEVT_PAINT, &SplitterWindow::OnPaint, this);
         }
         
         void SplitterWindow::splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin, const wxSize& rightMin) {
@@ -67,24 +67,20 @@ namespace TrenchBroom {
             m_windows[0] = window1;
             m_windows[1] = window2;
             m_splitMode = splitMode;
-            
-            for (size_t i = 0; i < 2; ++i)
-                bindMouseEventsRecurse(m_windows[i]);
+
+            if (m_splitMode == SplitMode_Horizontal)
+                m_sash = new BorderLine(this, BorderLine::Direction_Vertical, sashSize());
+            else
+                m_sash = new BorderLine(this, BorderLine::Direction_Horizontal, sashSize());
+            bindMouseEvents(m_sash);
             
             setMinSize(window1, min1);
             setMinSize(window2, min2);
         }
 
-        void SplitterWindow::bindMouseEventsRecurse(wxWindow* window) {
-            bindMouseEvents(window);
-            const wxWindowList& children = window->GetChildren();
-            
-            wxWindowList::const_iterator it, end;
-            for (it = children.begin(), end = children.end(); it != end; ++it)
-                bindMouseEventsRecurse(*it);
-        }
-        
         void SplitterWindow::bindMouseEvents(wxWindow* window) {
+            window->Bind(wxEVT_ENTER_WINDOW, &SplitterWindow::OnMouseEnter, this);
+            window->Bind(wxEVT_LEAVE_WINDOW, &SplitterWindow::OnMouseLeave, this);
             window->Bind(wxEVT_LEFT_DOWN, &SplitterWindow::OnMouseButton, this);
             window->Bind(wxEVT_LEFT_UP, &SplitterWindow::OnMouseButton, this);
             window->Bind(wxEVT_MOTION, &SplitterWindow::OnMouseMotion, this);
@@ -111,24 +107,24 @@ namespace TrenchBroom {
             m_sashGravity = sashGravity;
         }
         
+        void SplitterWindow::OnMouseEnter(wxMouseEvent& event) {
+            setSashCursor();
+        }
+        
+        void SplitterWindow::OnMouseLeave(wxMouseEvent& event) {
+            if (!dragging())
+                unsetSashCursor();
+        }
+
         void SplitterWindow::OnMouseButton(wxMouseEvent& event) {
             assert(m_splitMode != SplitMode_Unset);
             
             if (event.LeftDown()) {
-                wxWindow* window = static_cast<wxWindow*>(event.GetEventObject());
-                const wxPoint screenPos = wxGetMousePosition();
-                const wxPoint clientPos = ScreenToClient(screenPos);
-                
-                if (isOnSash(clientPos, window)) {
-                    CaptureMouse();
-                    m_dragOffset = h(clientPos) - m_sashPosition;
-                } else {
-                    event.Skip();
-                }
+                m_sash->CaptureMouse();
+                setSashCursor();
             } else if (event.LeftUp() && dragging()) {
-                ReleaseMouse();
-            } else {
-                event.Skip();
+                m_sash->ReleaseMouse();
+                unsetSashCursor();
             }
             Refresh();
         }
@@ -136,49 +132,22 @@ namespace TrenchBroom {
         void SplitterWindow::OnMouseMotion(wxMouseEvent& event) {
             assert(m_splitMode != SplitMode_Unset);
             
-            wxWindow* window = static_cast<wxWindow*>(event.GetEventObject());
             const wxPoint screenPos = wxGetMousePosition();
             const wxPoint clientPos = ScreenToClient(screenPos);
             
             if (dragging()) {
-                setSashPosition(h(clientPos) - m_dragOffset);
+                setSashPosition(h(clientPos));
                 sizeWindows();
                 setSashCursor();
-            } else {
-                if (isOnSash(clientPos, window))
-                    setSashCursor();
-                else
-                    unsetSashCursor();
-                event.Skip();
             }
         }
 
-        void SplitterWindow::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {}
-        
-        bool SplitterWindow::dragging() const {
-            return GetCapture() == this;
+        void SplitterWindow::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+            unsetSashCursor();
         }
         
-        bool SplitterWindow::isOnSash(const wxPoint& pos, const wxWindow* window) const {
-            assert(m_splitMode != SplitMode_Unset);
-
-            // make sure to stay out of other splitter windows' hot zones, too
-            if (v(pos) <= HalfMinSashSize + 1 ||
-                v(pos) >= v(GetClientSize()) - HalfMinSashSize - 1)
-                return false;
-            
-            if (!window->IsKindOf(CLASSINFO(wxControl)) &&
-                window->IsShownOnScreen() &&
-                h(pos) >= m_sashPosition &&
-                h(pos) <= m_sashPosition + sashSize())
-                return true;
-            
-            if (sashSize() <= 2 * HalfMinSashSize &&
-                h(pos) >= m_sashPosition + sashSize() / 2 - HalfMinSashSize &&
-                h(pos) <= m_sashPosition + sashSize() / 2 + HalfMinSashSize)
-                return true;
-            
-            return false;
+        bool SplitterWindow::dragging() const {
+            return GetCapture() == m_sash;
         }
         
         void SplitterWindow::setSashCursor() {
@@ -189,8 +158,8 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow::unsetSashCursor() {
-            if (m_sashCursorSet) {
-                wxSetCursor(wxNullCursor);
+            if (m_sashCursorSet && m_sash->HitTest(m_sash->ScreenToClient(wxGetMousePosition())) == wxHT_WINDOW_OUTSIDE) {
+                wxSetCursor(wxCursor(wxCURSOR_ARROW));
                 m_sashCursorSet = false;
             }
         }
@@ -207,18 +176,7 @@ namespace TrenchBroom {
             }
         }
         
-        void SplitterWindow::OnPaint(wxPaintEvent& event) {
-            wxPoint from, to;
-            setHV(from, m_sashPosition, 0);
-            setHV(to, m_sashPosition, v(GetClientSize()));
-            
-            wxPaintDC dc(this);
-            dc.SetPen(wxPen(Colors::borderColor()));
-            dc.DrawLine(from, to);
-        }
-        
         void SplitterWindow::OnSize(wxSizeEvent& event) {
-            wxLogDebug("Size changed from %d,%d to %d,%d", m_oldSize.x, m_oldSize.y, event.GetSize().x, event.GetSize().y);
             updateSashPosition(m_oldSize, event.GetSize());
             sizeWindows();
             m_oldSize = event.GetSize();
@@ -249,7 +207,6 @@ namespace TrenchBroom {
             m_sashPosition = std::min(m_sashPosition, h(GetClientSize()) - h(m_minSizes[1]) - sashSize());
             if (m_sashPosition < 0)
                 m_sashPosition = h(GetClientSize()) / 2;
-            wxLogDebug("Setting sash position %d, truncated from %d", m_sashPosition, position);
         }
         
         void SplitterWindow::sizeWindows() {
@@ -269,10 +226,16 @@ namespace TrenchBroom {
                 setHV(size[0], m_sashPosition, sizeV);
                 setHV(size[1], sizeH - m_sashPosition - sashSize(), sizeV);
                 
-                for (size_t i = 0; i < NumWindows; ++i) {
-                    wxLogDebug("Setting sub window %d size %d,%d and pos %d,%d", (int)i, size[i].x, size[i].y, pos[i].x, pos[i].y);
+                for (size_t i = 0; i < NumWindows; ++i)
                     m_windows[i]->SetSize(wxRect(pos[i], size[i]));
-                }
+
+                wxPoint sashPos;
+                wxSize sashSize;
+                
+                setHV(sashPos, origH + m_sashPosition, origV);
+                setHV(sashSize, SplitterWindow::sashSize(), sizeV);
+                m_sash->SetSize(wxRect(sashPos, sashSize));
+                
                 Refresh();
             }
         }
