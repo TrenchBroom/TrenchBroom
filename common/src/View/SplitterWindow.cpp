@@ -195,8 +195,8 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow::initSashPosition() {
-            if (m_splitMode != SplitMode_Unset && m_sashPosition == -1)
-                setSashPosition(0);
+            if (m_splitMode != SplitMode_Unset && m_sashPosition == -1 && h(GetClientSize()) > 0)
+                setSashPosition(h(m_minSizes[0]) + wxRound(m_sashGravity * (h(m_minSizes[1]) - h(m_minSizes[0]))) + 1);
         }
         
         void SplitterWindow::setSashPosition(const int position) {
