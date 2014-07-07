@@ -181,6 +181,7 @@ namespace TrenchBroom {
                             case ValueOp_Add:
                             case ValueOp_Mul:
                                 return false;
+                            DEFAULT_SWITCH()
                         }
                     case ValueOp_Add:
                         switch (theirOp) {
@@ -195,6 +196,7 @@ namespace TrenchBroom {
                                 return true;
                             case ValueOp_Mul:
                                 return false;
+                            DEFAULT_SWITCH()
                         }
                     case ValueOp_Mul:
                         switch (theirOp) {
@@ -208,7 +210,9 @@ namespace TrenchBroom {
                             case ValueOp_Mul:
                                 myValue *= theirValue;
                                 return true;
+                            DEFAULT_SWITCH()
                         }
+                    DEFAULT_SWITCH()
                 }
             }
             
@@ -228,6 +232,7 @@ namespace TrenchBroom {
                             case FlagOp_Set:
                             case FlagOp_Unset:
                                 return false;
+                            DEFAULT_SWITCH()
                         }
                     case FlagOp_Set:
                         switch (theirOp) {
@@ -242,6 +247,7 @@ namespace TrenchBroom {
                                 return true;
                             case FlagOp_Unset:
                                 return false;
+                            DEFAULT_SWITCH()
                         }
                     case FlagOp_Unset:
                         switch (theirOp) {
@@ -256,7 +262,9 @@ namespace TrenchBroom {
                             case FlagOp_Unset:
                                 myValue |= theirValue;
                                 return true;
+                            DEFAULT_SWITCH()
                         }
+                    DEFAULT_SWITCH()
                 }
             }
         };
