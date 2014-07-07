@@ -60,7 +60,7 @@ namespace TrenchBroom {
             Model::each(m_objects.begin(), m_objects.end(), Model::Transform(m_transformation, m_lockTextures, worldBounds), Model::MatchAll());
             assert(Model::each(m_objects.begin(), m_objects.end(), Model::CheckBounds(worldBounds)));
             
-            Model::NotifyObject objectDidChange(document->objectWillChangeNotifier);
+            Model::NotifyObject objectDidChange(document->objectDidChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), objectDidChange, Model::MatchAll());
 
             Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
@@ -80,7 +80,7 @@ namespace TrenchBroom {
 
             m_snapshot.restore(document->worldBounds());
 
-            Model::NotifyObject objectDidChange(document->objectWillChangeNotifier);
+            Model::NotifyObject objectDidChange(document->objectDidChangeNotifier);
             Model::each(m_objects.begin(), m_objects.end(), objectDidChange, Model::MatchAll());
             
             Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);

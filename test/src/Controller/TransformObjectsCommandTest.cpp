@@ -51,21 +51,25 @@ namespace TrenchBroom {
             View::MapDocumentSPtr doc = View::MapDocument::newMapDocument();
             doc->newDocument(worldBounds, game, mapFormat);
             
-            const Mat4x4d transformation = translationMatrix(Vec3(1.0, 2.0, 3.0));
-            
             const Model::BrushBuilder builder(doc->map(), worldBounds);
             Model::Brush* brush = builder.createCube(128.0, "someName");
             ASSERT_EQ(Vec3::Null, brush->bounds().center());
             
+            doc->objectWillChangeNotifier(doc->worldspawn());
             doc->addObject(brush);
             doc->objectWasAddedNotifier(brush);
+            doc->objectDidChangeNotifier(doc->worldspawn());
             
+
+            const Mat4x4d transformation = translationMatrix(Vec3(1.0, 2.0, 3.0));
             Model::ObjectList objects(1, brush);
             
             TransformObjectsCommand::Ptr command = TransformObjectsCommand::transformObjects(doc, transformation, true, "Translate", objects);
             
             ASSERT_TRUE(command->performDo());
             ASSERT_EQ(Vec3(1.0, 2.0, 3.0), brush->bounds().center());
+            ASSERT_TRUE(command->performUndo());
+            ASSERT_EQ(Vec3::Null, brush->bounds().center());
         }
     }
 }
