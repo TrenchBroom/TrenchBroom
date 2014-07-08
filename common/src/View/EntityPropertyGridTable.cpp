@@ -167,8 +167,9 @@ namespace TrenchBroom {
             PropertyRow::List newPropertyRows = collectPropertyRows(entities);
             DefaultRow::List newDefaultRows = collectDefaultRows(entities, newPropertyRows);
             
-            std::swap(m_propertyRows, newPropertyRows);
-            std::swap(m_defaultRows, newDefaultRows);
+            using std::swap;
+            swap(m_propertyRows, newPropertyRows);
+            swap(m_defaultRows, newDefaultRows);
         }
 
         StringList EntityPropertyGridTable::RowManager::insertRows(const size_t rowIndex, const size_t count, const Model::EntityList& entities) {

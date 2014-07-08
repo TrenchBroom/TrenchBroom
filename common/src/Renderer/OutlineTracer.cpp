@@ -88,8 +88,10 @@ namespace TrenchBroom {
         void OutlineTracer::addEdge(const Edge3& edge, const Line3& line, Position::List& positions) {
             FloatType left = edge.start().dot(line.direction);
             FloatType right = edge.end().dot(line.direction);
+            
+            using std::swap;
             if (left > right)
-                std::swap(left, right);
+                swap(left, right);
             
             Position leftPos(left, 0);
             Position rightPos(right, 0);
