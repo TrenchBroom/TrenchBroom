@@ -518,6 +518,7 @@ namespace TrenchBroom {
                     m_bounds.mergeWith(m_brushes[i]->bounds());
             } else {
                 m_bounds = DefaultBounds;
+                m_bounds.translate(origin());
             }
             m_boundsValid = true;
         }

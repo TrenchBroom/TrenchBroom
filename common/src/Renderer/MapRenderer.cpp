@@ -324,6 +324,7 @@ namespace TrenchBroom {
             
             m_unselectedEntityRenderer.setOverlayTextColor(prefs.get(Preferences::InfoOverlayTextColor));
             m_unselectedEntityRenderer.setOverlayBackgroundColor(prefs.get(Preferences::InfoOverlayBackgroundColor));
+            m_unselectedEntityRenderer.setBoundsColor(prefs.get(Preferences::UndefinedEntityColor));
             m_unselectedEntityRenderer.setApplyTinting(false);
             m_unselectedEntityRenderer.render(context);
             
