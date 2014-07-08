@@ -131,14 +131,13 @@ namespace TrenchBroom {
         private:
             void bindObservers();
             void unbindObservers();
-            
-            void selectionDidChange(const Model::SelectionResult& result);
+
             void commandDone(Controller::Command::Ptr command);
             void commandUndone(Controller::Command::Ptr command);
 
             void createGui();
             void bindEvents();
-            void rebuildMenuBar();
+
             void createMenuBar();
             void updateTitle();
 
