@@ -20,6 +20,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+#include "MockObserver.h"
 #include "VecMath.h"
 #include "Controller/TransformObjectsCommand.h"
 #include "Model/Brush.h"
@@ -27,12 +28,13 @@
 #include "Model/Map.h"
 #include "Model/ModelTypes.h"
 #include "Model/MockGame.h"
+#include "Model/Object.h"
 #include "Model/SelectionResult.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        View::MapDocumentSPtr makeDocument(const BBox3d& worldBounds) {
+        static View::MapDocumentSPtr makeDocument(const BBox3d& worldBounds) {
             using namespace testing;
             
             Model::MockGamePtr game = Model::MockGame::newGame();
@@ -69,8 +71,24 @@ namespace TrenchBroom {
             
             TransformObjectsCommand::Ptr command = TransformObjectsCommand::translateObjects(doc, offset, true, objects);
             
+            MockObserver1<Model::Object*> objectWillChange(doc->objectWillChangeNotifier);
+            MockObserver1<Model::Object*> objectDidChange(doc->objectDidChangeNotifier);
+
+            objectWillChange.expect(brush->parent());
+            objectWillChange.expect(brush);
+            objectDidChange.expect(brush->parent());
+            objectDidChange.expect(brush);
+
             ASSERT_TRUE(command->performDo());
             ASSERT_EQ(offset, brush->bounds().center());
+
+            objectWillChange.expect(brush->parent());
+            objectWillChange.expect(brush);
+            objectDidChange.expect(brush->parent());
+            objectDidChange.expect(brush);
+
+            ASSERT_TRUE(command->performUndo());
+            ASSERT_EQ(Vec3::Null, brush->bounds().center());
         }
         
         TEST(TransformObjectsCommandTest, collateWith) {
