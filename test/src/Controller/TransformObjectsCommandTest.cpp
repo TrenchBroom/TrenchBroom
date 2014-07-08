@@ -50,8 +50,8 @@ namespace TrenchBroom {
             
             View::MapDocumentSPtr doc = View::MapDocument::newMapDocument();
             doc->newDocument(worldBounds, game, mapFormat);
-            
-            const Mat4x4d transformation = translationMatrix(Vec3(1.0, 2.0, 3.0));
+
+            const Vec3 offset(1.0, 2.0, 3.0);
             
             const Model::BrushBuilder builder(doc->map(), worldBounds);
             Model::Brush* brush = builder.createCube(128.0, "someName");
@@ -62,10 +62,10 @@ namespace TrenchBroom {
             
             Model::ObjectList objects(1, brush);
             
-            TransformObjectsCommand::Ptr command = TransformObjectsCommand::transformObjects(doc, transformation, true, "Translate", objects);
+            TransformObjectsCommand::Ptr command = TransformObjectsCommand::translateObjects(doc, offset, true, objects);
             
             ASSERT_TRUE(command->performDo());
-            ASSERT_EQ(Vec3(1.0, 2.0, 3.0), brush->bounds().center());
+            ASSERT_EQ(offset, brush->bounds().center());
         }
     }
 }

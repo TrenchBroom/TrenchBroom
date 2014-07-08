@@ -387,23 +387,21 @@ namespace TrenchBroom {
         bool ControllerFacade::moveObjects(const Model::ObjectList& objects, const Vec3& delta, const bool lockTextures) {
             using namespace Controller;
             
-            const Mat4x4 transformation = translationMatrix(delta);
-            Command::Ptr command = TransformObjectsCommand::transformObjects(m_document, transformation, lockTextures, "Move", objects);
+            Command::Ptr command = TransformObjectsCommand::translateObjects(m_document, delta, lockTextures, objects);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
         bool ControllerFacade::rotateObjects(const Model::ObjectList& objects, const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures) {
             using namespace Controller;
             
-            const Mat4x4 transformation = translationMatrix(center) * rotationMatrix(axis, angle) * translationMatrix(-center);
-            Command::Ptr command = TransformObjectsCommand::transformObjects(m_document, transformation, lockTextures, "Rotate", objects);
+            Command::Ptr command = TransformObjectsCommand::rotateObjects(m_document, center, axis, angle, lockTextures, objects);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
         bool ControllerFacade::flipObjects(const Model::ObjectList& objects, const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
             using namespace Controller;
-            const Mat4x4 transformation = translationMatrix(center) * mirrorMatrix<FloatType>(axis) * translationMatrix(-center);
-            Command::Ptr command = TransformObjectsCommand::transformObjects(m_document, transformation, lockTextures, "Flip", objects);
+
+            Command::Ptr command = TransformObjectsCommand::flipObjects(m_document, center, axis, lockTextures, objects);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

@@ -36,19 +36,32 @@ namespace TrenchBroom {
             static const CommandType Type;
             typedef std::tr1::shared_ptr<TransformObjectsCommand> Ptr;
         private:
+            typedef enum {
+                Action_Translate,
+                Action_Rotate,
+                Action_Flip
+            } Action;
+            
             View::MapDocumentWPtr m_document;
+            Action m_action;
             Mat4x4 m_transformation;
             bool m_lockTextures;
             Model::ObjectList m_objects;
             Model::Snapshot m_snapshot;
         public:
-            static Ptr transformObjects(View::MapDocumentWPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects);
+            static Ptr translateObjects(View::MapDocumentWPtr document, const Vec3& offset, bool lockTextures, const Model::ObjectList& objects);
+            
+            static Ptr rotateObjects(View::MapDocumentWPtr document, const Vec3& center, const Vec3& axis, FloatType angle, bool lockTextures, const Model::ObjectList& objects);
+            
+            static Ptr flipObjects(View::MapDocumentWPtr document, const Vec3& center, Math::Axis::Type axis, bool lockTextures, const Model::ObjectList& objects);
         private:
-            TransformObjectsCommand(View::MapDocumentWPtr document, const Mat4x4& transformation, const bool lockTextures, const String& action, const Model::ObjectList& objects);
-            static String makeName(const String& action, const Model::ObjectList& objects);
+            TransformObjectsCommand(View::MapDocumentWPtr document, Action action, const Mat4x4& transformation, const bool lockTextures, const Model::ObjectList& objects);
+            static String makeName(Action action, const Model::ObjectList& objects);
             
             bool doPerformDo();
             bool doPerformUndo();
+            void notifyBefore(View::MapDocumentSPtr document);
+            void notifyAfter(View::MapDocumentSPtr document);
             bool doCollateWith(Command::Ptr command);
         };
     }
