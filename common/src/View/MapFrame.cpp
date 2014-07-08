@@ -787,6 +787,7 @@ namespace TrenchBroom {
                 if (path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(path))) {
                     m_document->saveDocument();
                     updateTitle();
+                    View::TrenchBroomApp::instance().updateRecentDocument(path);
                     logger()->info("Saved " + m_document->path().asString());
                     return true;
                 }
@@ -809,6 +810,7 @@ namespace TrenchBroom {
                 const IO::Path path(saveDialog.GetPath().ToStdString());
                 m_document->saveDocumentAs(path);
                 updateTitle();
+                View::TrenchBroomApp::instance().updateRecentDocument(path);
                 logger()->info("Saved " + m_document->path().asString());
                 return true;
             } catch (FileSystemException e) {
