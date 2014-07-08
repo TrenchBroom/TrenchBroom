@@ -22,38 +22,18 @@
 
 #include "MockObserver.h"
 #include "VecMath.h"
+#include "TestUtils.h"
 #include "Controller/TransformObjectsCommand.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Map.h"
 #include "Model/ModelTypes.h"
-#include "Model/MockGame.h"
 #include "Model/Object.h"
 #include "Model/SelectionResult.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        static View::MapDocumentSPtr makeDocument(const BBox3d& worldBounds) {
-            using namespace testing;
-            
-            Model::MockGamePtr game = Model::MockGame::newGame();
-            const Model::MapFormat::Type mapFormat = Model::MapFormat::Quake;
-            
-            EXPECT_CALL(*game, doNewMap(Model::MapFormat::Quake)).WillOnce(Return(new Model::Map(Model::MapFormat::Quake)));
-            const Model::GameConfig::FlagsConfig contentFlags;
-            EXPECT_CALL(*game, doContentFlags()).WillOnce(ReturnRef(contentFlags));
-            EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));
-            EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("")));
-            EXPECT_CALL(*game, doFindEntityDefinitionFile(_, _)).WillOnce(Return(IO::Path("/somefile.def")));
-            EXPECT_CALL(*game, doLoadEntityDefinitions(IO::Path("/somefile.def"))).WillOnce(Return(Assets::EntityDefinitionList()));
-            EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
-            
-            View::MapDocumentSPtr doc = View::MapDocument::newMapDocument();
-            doc->newDocument(worldBounds, game, mapFormat);
-            return doc;
-        }
-        
         TEST(TransformObjectsCommandTest, transformBrush) {
             const BBox3d worldBounds(8192.0);
             View::MapDocumentSPtr doc = makeDocument(worldBounds);

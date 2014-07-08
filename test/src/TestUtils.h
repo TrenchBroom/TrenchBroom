@@ -21,7 +21,13 @@
 #define TrenchBroom_TestUtils_h
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
+
+#include "VecMath.h"
+#include "View/MapDocument.h"
+
+namespace TrenchBroom {
+    View::MapDocumentSPtr makeDocument(const BBox3d& worldBounds);
+}
 
 #define ASSERT_VEC_EQ(vec1, vec2) ASSERT_TRUE((vec1).equals((vec2)))
 #define ASSERT_VEC_NE(vec1, vec2) ASSERT_FALSE((vec1).equals((vec2)))
