@@ -79,7 +79,8 @@ namespace TrenchBroom {
             }
             
             // now we iterate the map, checking for every non-null parent whether all its children are removed
-            // if that is the case, we add that parent to the list of objects to be removed instead of all its children, which then get removed automatically
+            // if that is the case, we add that parent to the list of objects to be removed instead
+            // of all its children, which then get removed automatically
             Model::ObjectChildrenMap::const_iterator mIt, mEnd;
             for (mIt = map.begin(), mEnd = map.end(); mIt != mEnd; ++mIt) {
                 Model::Object* parent = mIt->first;
