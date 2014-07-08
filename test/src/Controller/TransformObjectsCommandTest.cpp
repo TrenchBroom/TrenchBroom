@@ -32,10 +32,9 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        TEST(TransformObjectsCommandTest, transformBrush) {
+        View::MapDocumentSPtr makeDocument(const BBox3d& worldBounds) {
             using namespace testing;
             
-            const BBox3d worldBounds(-8192.0, 8192.0);
             Model::MockGamePtr game = Model::MockGame::newGame();
             const Model::MapFormat::Type mapFormat = Model::MapFormat::Quake;
             
@@ -50,7 +49,13 @@ namespace TrenchBroom {
             
             View::MapDocumentSPtr doc = View::MapDocument::newMapDocument();
             doc->newDocument(worldBounds, game, mapFormat);
-
+            return doc;
+        }
+        
+        TEST(TransformObjectsCommandTest, transformBrush) {
+            const BBox3d worldBounds(8192.0);
+            View::MapDocumentSPtr doc = makeDocument(worldBounds);
+            
             const Vec3 offset(1.0, 2.0, 3.0);
             
             const Model::BrushBuilder builder(doc->map(), worldBounds);
@@ -66,6 +71,37 @@ namespace TrenchBroom {
             
             ASSERT_TRUE(command->performDo());
             ASSERT_EQ(offset, brush->bounds().center());
+        }
+        
+        TEST(TransformObjectsCommandTest, collateWith) {
+            const BBox3d worldBounds(8192.0);
+            View::MapDocumentSPtr doc = makeDocument(worldBounds);
+            
+            const Model::BrushBuilder builder(doc->map(), worldBounds);
+            Model::Brush* brush = builder.createCube(128.0, "someName");
+            ASSERT_EQ(Vec3::Null, brush->bounds().center());
+            
+            doc->addObject(brush);
+            doc->objectWasAddedNotifier(brush);
+            Model::ObjectList objects(1, brush);
+            
+            TransformObjectsCommand::Ptr translate1 = TransformObjectsCommand::translateObjects(doc, Vec3::PosX, true, objects);
+            TransformObjectsCommand::Ptr translate2 = TransformObjectsCommand::translateObjects(doc, Vec3::PosY, true, objects);
+            TransformObjectsCommand::Ptr rotate1    = TransformObjectsCommand::rotateObjects(doc, Vec3::Null, Vec3::PosZ, Math::radians(10.0), true, objects);
+            TransformObjectsCommand::Ptr rotate2    = TransformObjectsCommand::rotateObjects(doc, Vec3::Null, Vec3::PosY, Math::radians(12.0), true, objects);
+            TransformObjectsCommand::Ptr flip1      = TransformObjectsCommand::flipObjects(doc, Vec3::Null, Math::Axis::AX, true, objects);
+            TransformObjectsCommand::Ptr flip2      = TransformObjectsCommand::flipObjects(doc, Vec3::Null, Math::Axis::AY, true, objects);
+            
+            ASSERT_FALSE(translate1->collateWith(rotate1));
+            ASSERT_FALSE(translate1->collateWith(flip1));
+            ASSERT_FALSE(rotate1->collateWith(translate1));
+            ASSERT_FALSE(rotate1->collateWith(flip1));
+            ASSERT_FALSE(flip1->collateWith(translate1));
+            ASSERT_FALSE(flip1->collateWith(rotate1));
+            
+            ASSERT_TRUE(translate1->collateWith(translate2));
+            ASSERT_TRUE(rotate1->collateWith(rotate2));
+            ASSERT_TRUE(flip1->collateWith(flip2));
         }
     }
 }

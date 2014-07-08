@@ -47,6 +47,7 @@ namespace TrenchBroom {
         TransformObjectsCommand::TransformObjectsCommand(View::MapDocumentWPtr document, const Action action, const Mat4x4& transformation, const bool lockTextures, const Model::ObjectList& objects) :
         Command(Type, makeName(action, objects), true, true),
         m_document(document),
+        m_action(action),
         m_transformation(transformation),
         m_lockTextures(lockTextures),
         m_objects(objects) {

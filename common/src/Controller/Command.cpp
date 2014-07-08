@@ -81,6 +81,7 @@ namespace TrenchBroom {
         }
 
         bool Command::collateWith(Ptr command) {
+            assert(command.get() != this);
             if (command->type() != m_type)
                 return false;
             return doCollateWith(command);
