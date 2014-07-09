@@ -103,11 +103,13 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     Model::Brush* brush = Model::hitAsBrush(hit);
                     Model::Entity* parent = brush->parent();
-                    const Model::ObjectList objects = VectorUtils::cast<Model::Object*>(parent->brushes());
-                    if (isMultiClick(inputState))
-                        controller()->selectObjects(objects);
-                    else
-                        controller()->deselectAllAndSelectObjects(objects);
+                    if (!parent->worldspawn()) {
+                        const Model::ObjectList objects = VectorUtils::cast<Model::Object*>(parent->brushes());
+                        if (isMultiClick(inputState))
+                            controller()->selectObjects(objects);
+                        else
+                            controller()->deselectAllAndSelectObjects(objects);
+                    }
                 }
             }
             
