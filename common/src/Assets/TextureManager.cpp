@@ -201,6 +201,16 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_externalCollections);
             MapUtils::clearAndDelete(m_toRemove);
 
+            m_builtinCollectionsByName.clear();
+            m_externalCollectionsByName.clear();
+            m_allCollections.clear();
+            m_texturesByName.clear();
+            
+            for (size_t i = 0; i < 2; ++i) {
+                m_sortedTextures[i].clear();
+                m_sortedGroups[i].clear();
+            }
+            
             if (m_logger != NULL)
                 m_logger->debug("Cleared texture collections");
         }
