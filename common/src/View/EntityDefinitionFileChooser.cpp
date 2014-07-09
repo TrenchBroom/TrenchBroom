@@ -28,6 +28,7 @@
 #include "View/BorderLine.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/ControllerFacade.h"
+#include "View/EntityDefinitionFileChooserDropTarget.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
@@ -49,6 +50,8 @@ namespace TrenchBroom {
             createGui();
             bindEvents();
             bindObservers();
+            
+            SetDropTarget(new EntityDefinitionFileChooserDropTarget(m_document, m_controller, this));
         }
         
         EntityDefinitionFileChooser::~EntityDefinitionFileChooser() {

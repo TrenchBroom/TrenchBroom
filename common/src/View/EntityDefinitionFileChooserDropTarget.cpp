@@ -17,25 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFrameDropTarget.h"
+#include "EntityDefinitionFileChooserDropTarget.h"
 
 #include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
-        MapFrameDropTarget::MapFrameDropTarget(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent) :
+        EntityDefinitionFileChooserDropTarget::EntityDefinitionFileChooserDropTarget(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent) :
         wxFileDropTarget(),
         m_document(document),
         m_controller(controller),
-        m_parent(parent) {}
+        m_parent(parent) {
+            SetDefaultAction(wxDragCopy);
+        }
 
-        bool MapFrameDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) {
-            size_t count = 0;
-            count += loadTextureCollections(m_document, m_controller, m_parent, filenames);
-            if (loadEntityDefinitionFile(m_document, m_controller, m_parent, filenames) < filenames.size())
-                ++count;
-            return count > 0;
+        bool EntityDefinitionFileChooserDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) {
+            return loadEntityDefinitionFile(m_document, m_controller, m_parent, filenames) < filenames.size();
         }
     }
 }

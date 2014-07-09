@@ -38,7 +38,6 @@
 #include "View/FrameManager.h"
 #include "View/Inspector.h"
 #include "View/MapDocument.h"
-#include "View/MapFrameDropTarget.h"
 #include "View/MapView.h"
 #include "View/Menu.h"
 #include "View/NavBar.h"
@@ -105,8 +104,6 @@ namespace TrenchBroom {
 
             m_autosaveTimer = new wxTimer(this);
             m_autosaveTimer->Start(1000);
-            
-            SetDropTarget(new MapFrameDropTarget(m_document, m_controller, this));
         }
 
         MapFrame::~MapFrame() {

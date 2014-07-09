@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapFrameDropTarget__
-#define __TrenchBroom__MapFrameDropTarget__
+#ifndef __TrenchBroom__TextureCollectionEditorDropTarget__
+#define __TrenchBroom__TextureCollectionEditorDropTarget__
 
 #include "View/ViewTypes.h"
 
@@ -26,16 +26,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        class MapFrameDropTarget : public wxFileDropTarget {
+        class TextureCollectionEditorDropTarget : public wxFileDropTarget {
         private:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             wxWindow* m_parent;
         public:
-            MapFrameDropTarget(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent);
+            TextureCollectionEditorDropTarget(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent);
             bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapFrameDropTarget__) */
+#endif /* defined(__TrenchBroom__TextureCollectionEditorDropTarget__) */

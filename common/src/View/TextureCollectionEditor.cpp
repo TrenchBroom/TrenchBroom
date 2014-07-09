@@ -29,6 +29,7 @@
 #include "View/ChoosePathTypeDialog.h"
 #include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
+#include "View/TextureCollectionEditorDropTarget.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
 
@@ -48,6 +49,8 @@ namespace TrenchBroom {
             createGui();
             bindEvents();
             bindObservers();
+            
+            SetDropTarget(new TextureCollectionEditorDropTarget(m_document, m_controller, this));
         }
         
         TextureCollectionEditor::~TextureCollectionEditor() {
