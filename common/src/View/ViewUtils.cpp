@@ -52,12 +52,37 @@ namespace TrenchBroom {
             }
         }
 
+        size_t loadDroppedFiles(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxArrayString& wxPaths) {
+            size_t count = 0;
+            count += loadTextureCollections(document, controller, parent, wxPaths);
+            if (loadEntityDefinitionFile(document, controller, parent, wxPaths) < wxPaths.size())
+                ++count;
+            return count > 0;
+        }
+
         bool loadTextureCollection(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxString& wxPath) {
             wxArrayString wxPaths;
             wxPaths.Add(wxPath);
             return loadTextureCollections(document, controller, parent, wxPaths) == 1;
         }
 
+        bool containsLoadableTextureCollections(MapDocumentWPtr i_document, const wxArrayString& wxPaths) {
+            MapDocumentSPtr document = lock(i_document);
+            Model::GamePtr game = document->game();
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const IO::Path gamePath = gameFactory.gamePath(game->gameName());
+            const IO::Path docPath = document->path();
+            
+            for (size_t i = 0; i < wxPaths.size(); ++i) {
+                const wxString& wxPath = wxPaths[i];
+                const IO::Path absPath(wxPath.ToStdString());
+                if (!game->isTextureCollection(absPath))
+                    return true;
+            }
+            
+            return false;
+        }
+        
         size_t loadTextureCollections(MapDocumentWPtr i_document, ControllerWPtr i_controller, wxWindow* parent, const wxArrayString& wxPaths) {
             if (wxPaths.empty())
                 return 0;
@@ -97,6 +122,23 @@ namespace TrenchBroom {
             wxArrayString wxPaths;
             wxPaths.Add(wxPath);
             return loadEntityDefinitionFile(document, controller, parent, wxPaths) == 0;
+        }
+
+        bool containsLoadableEntityDefinitionFile(MapDocumentWPtr i_document, const wxArrayString& wxPaths) {
+            MapDocumentSPtr document = lock(i_document);
+            Model::GamePtr game = document->game();
+            const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+            const IO::Path gamePath = gameFactory.gamePath(game->gameName());
+            const IO::Path docPath = document->path();
+            
+            for (size_t i = 0; i < wxPaths.size(); ++i) {
+                const wxString& wxPath = wxPaths[i];
+                const IO::Path absPath(wxPath.ToStdString());
+                if (game->isEntityDefinitionFile(absPath))
+                    return true;
+            }
+            
+            return false;
         }
         
         size_t loadEntityDefinitionFile(MapDocumentWPtr i_document, ControllerWPtr i_controller, wxWindow* parent, const wxArrayString& wxPaths) {

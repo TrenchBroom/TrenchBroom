@@ -37,11 +37,15 @@ namespace TrenchBroom {
         Assets::EntityModel* safeGetModel(Assets::EntityModelManager& manager, const Assets::ModelSpecification& spec, Logger& logger);
         void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags);
         
+        size_t loadDroppedFiles(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxArrayString& wxPaths);
+        
         bool loadTextureCollection(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxString& wxPath);
+        bool containsLoadableTextureCollections(MapDocumentWPtr i_document, const wxArrayString& wxPaths);
         size_t loadTextureCollections(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxArrayString& wxPaths);
         
         bool loadEntityDefinitionFile(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxString& wxPath);
-        size_t loadEntityDefinitionFile(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxArrayString& wxPath);
+        bool containsLoadableEntityDefinitionFile(MapDocumentWPtr document, const wxArrayString& wxPaths);
+        size_t loadEntityDefinitionFile(MapDocumentWPtr document, ControllerWPtr controller, wxWindow* parent, const wxArrayString& wxPaths);
     }
 }
 
