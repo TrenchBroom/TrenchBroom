@@ -31,6 +31,11 @@ namespace TrenchBroom {
         private:
             bool doMouseUp(const InputState& inputState);
             bool doMouseDoubleClick(const InputState& inputState);
+            
+            bool handleClick(const InputState& inputState) const;
+            bool isFaceClick(const InputState& inputState) const;
+            bool isMultiClick(const InputState& inputState) const;
+            
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);

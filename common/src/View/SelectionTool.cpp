@@ -19,6 +19,7 @@
 
 #include "SelectionTool.h"
 
+#include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
 #include "Model/Entity.h"
@@ -36,17 +37,14 @@ namespace TrenchBroom {
         ToolImpl(document, controller) {}
 
         bool SelectionTool::doMouseUp(const InputState& inputState) {
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+            if (!handleClick(inputState))
                 return false;
             
-            const bool multi = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-            const bool faces = inputState.modifierKeysDown(ModifierKeys::MKShift);
-            
-            if (faces) {
+            if (isFaceClick(inputState)) {
                 const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
                 if (hit.isMatch()) {
                     Model::BrushFace* face = Model::hitAsFace(hit);
-                    if (multi) {
+                    if (isMultiClick(inputState)) {
                         const bool objects = !document()->selectedObjects().empty();
                         if (objects) {
                             const Model::Brush* brush = face->parent();
@@ -70,7 +68,7 @@ namespace TrenchBroom {
                 const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Entity::EntityHit | Model::Brush::BrushHit, document()->filter(), true);
                 if (hit.isMatch()) {
                     Model::Object* object = Model::hitAsObject(hit);
-                    if (multi) {
+                    if (isMultiClick(inputState)) {
                         if (object->selected())
                             controller()->deselectObject(object);
                         else
@@ -87,9 +85,47 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::doMouseDoubleClick(const InputState& inputState) {
-            return false;
+            if (!handleClick(inputState))
+                return false;
+            
+            if (isFaceClick(inputState)) {
+                const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
+                if (hit.isMatch()) {
+                    Model::BrushFace* face = Model::hitAsFace(hit);
+                    const Model::Brush* brush = face->parent();
+                    if (isMultiClick(inputState))
+                        controller()->selectFaces(brush->faces());
+                    else
+                        controller()->deselectAllAndSelectFaces(brush->faces());
+                }
+            } else {
+                const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
+                if (hit.isMatch()) {
+                    Model::Brush* brush = Model::hitAsBrush(hit);
+                    Model::Entity* parent = brush->parent();
+                    const Model::ObjectList objects = VectorUtils::cast<Model::Object*>(parent->brushes());
+                    if (isMultiClick(inputState))
+                        controller()->selectObjects(objects);
+                    else
+                        controller()->deselectAllAndSelectObjects(objects);
+                }
+            }
+            
+            return true;
         }
         
+        bool SelectionTool::handleClick(const InputState& inputState) const {
+            return inputState.mouseButtonsPressed(MouseButtons::MBLeft);
+        }
+        
+        bool SelectionTool::isFaceClick(const InputState& inputState) const {
+            return inputState.modifierKeysDown(ModifierKeys::MKShift);
+        }
+
+        bool SelectionTool::isMultiClick(const InputState& inputState) const {
+            return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+        }
+
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {
             return false;
         }
