@@ -205,7 +205,7 @@ namespace TrenchBroom {
         }
 
         bool ControllerFacade::deselectAllAndSelectFace(Model::BrushFace* face) {
-            deselectAllAndSelectFaces(Model::BrushFaceList(1, face));
+            return deselectAllAndSelectFaces(Model::BrushFaceList(1, face));
         }
         
         bool ControllerFacade::deselectAllAndSelectFaces(const Model::BrushFaceList& faces) {
