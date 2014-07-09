@@ -131,7 +131,7 @@ namespace TrenchBroom {
         void UVView::selectionDidChange(const Model::SelectionResult& result) {
             MapDocumentSPtr document = lock(m_document);
             const Model::BrushFaceList& faces = document->selectedFaces();
-            if (faces.empty())
+            if (faces.size() != 1)
                 m_helper.setFace(NULL);
             else
                 m_helper.setFace(faces.back());
