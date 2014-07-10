@@ -249,6 +249,12 @@ namespace TrenchBroom {
             return m_killTargets;
         }
 
+        bool Entity::hasMissingSources() const {
+            return (m_linkSources.empty() &&
+                    m_killSources.empty() &&
+                    m_properties.hasProperty(PropertyKeys::Targetname));
+        }
+        
         PropertyKeyList Entity::findMissingLinkTargets() const {
             PropertyKeyList result;
             findMissingTargets(PropertyKeys::Target, result);
@@ -304,7 +310,7 @@ namespace TrenchBroom {
         }
 
         void Entity::addLinkTargets(const PropertyValue& targetname) {
-            if (m_map != NULL) {
+            if (!targetname.empty() && m_map != NULL) {
                 const EntityList& targets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
                 EntityList::const_iterator it, end;
                 for (it = targets.begin(), end = targets.end(); it != end; ++it) {
@@ -316,7 +322,7 @@ namespace TrenchBroom {
         }
         
         void Entity::addKillTargets(const PropertyValue& targetname) {
-            if (m_map != NULL) {
+            if (!targetname.empty() && m_map != NULL) {
                 const EntityList& targets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
                 EntityList::const_iterator it, end;
                 for (it = targets.begin(), end = targets.end(); it != end; ++it) {
@@ -328,35 +334,39 @@ namespace TrenchBroom {
         }
 
         void Entity::removeLinkTargets(const PropertyValue& targetname) {
-            EntityList::iterator it = m_linkTargets.begin();
-            while (it != m_linkTargets.end()) {
-                Entity* target = *it;
-                const PropertyValue& entityTargetname = target->property(PropertyKeys::Targetname);
-                if (entityTargetname == targetname) {
-                    target->removeLinkSource(this);
-                    it = m_linkTargets.erase(it);
-                } else {
-                    ++it;
+            if (!targetname.empty()) {
+                EntityList::iterator it = m_linkTargets.begin();
+                while (it != m_linkTargets.end()) {
+                    Entity* target = *it;
+                    const PropertyValue& entityTargetname = target->property(PropertyKeys::Targetname);
+                    if (entityTargetname == targetname) {
+                        target->removeLinkSource(this);
+                        it = m_linkTargets.erase(it);
+                    } else {
+                        ++it;
+                    }
                 }
             }
         }
         
         void Entity::removeKillTargets(const PropertyValue& targetname) {
-            EntityList::iterator it = m_killTargets.begin();
-            while (it != m_killTargets.end()) {
-                Entity* target = *it;
-                const PropertyValue& entityTargetname = target->property(PropertyKeys::Targetname);
-                if (entityTargetname == targetname) {
-                    target->removeKillSource(this);
-                    it = m_killTargets.erase(it);
-                } else {
-                    ++it;
+            if (!targetname.empty()) {
+                EntityList::iterator it = m_killTargets.begin();
+                while (it != m_killTargets.end()) {
+                    Entity* target = *it;
+                    const PropertyValue& entityTargetname = target->property(PropertyKeys::Targetname);
+                    if (entityTargetname == targetname) {
+                        target->removeKillSource(this);
+                        it = m_killTargets.erase(it);
+                    } else {
+                        ++it;
+                    }
                 }
             }
         }
 
         void Entity::addAllLinkSources(const PropertyValue& targetname) {
-            if (m_map != NULL) {
+            if (!targetname.empty() && m_map != NULL) {
                 const EntityList& linkSources = m_map->findEntitiesWithNumberedProperty(PropertyKeys::Target, targetname);
                 EntityList::const_iterator it, end;
                 for (it = linkSources.begin(), end = linkSources.end(); it != end; ++it) {
@@ -368,26 +378,26 @@ namespace TrenchBroom {
         }
         
         void Entity::addAllLinkTargets() {
-            if (m_map != NULL) {
-                const EntityProperty::List properties = m_properties.numberedProperties(PropertyKeys::Target);
-                EntityProperty::List::const_iterator pIt, pEnd;
-                for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
-                    const EntityProperty& property = *pIt;
-                    const String& targetname = property.value;
+            const EntityProperty::List properties = m_properties.numberedProperties(PropertyKeys::Target);
+            EntityProperty::List::const_iterator pIt, pEnd;
+            for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
+                const EntityProperty& property = *pIt;
+                const String& targetname = property.value;
+                if (!targetname.empty()) {
                     const EntityList& linkTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
                     VectorUtils::append(m_linkTargets, linkTargets);
                 }
-                
-                EntityList::const_iterator eIt, eEnd;
-                for (eIt = m_linkTargets.begin(), eEnd = m_linkTargets.end(); eIt != eEnd; ++eIt) {
-                    Entity* linkTarget = *eIt;
-                    linkTarget->addLinkSource(this);
-                }
+            }
+            
+            EntityList::const_iterator eIt, eEnd;
+            for (eIt = m_linkTargets.begin(), eEnd = m_linkTargets.end(); eIt != eEnd; ++eIt) {
+                Entity* linkTarget = *eIt;
+                linkTarget->addLinkSource(this);
             }
         }
         
         void Entity::addAllKillSources(const PropertyValue& targetname) {
-            if (m_map != NULL) {
+            if (!targetname.empty() && m_map != NULL) {
                 const EntityList& killSources = m_map->findEntitiesWithNumberedProperty(PropertyKeys::Killtarget, targetname);
                 EntityList::const_iterator it, end;
                 for (it = killSources.begin(), end = killSources.end(); it != end; ++it) {
@@ -405,8 +415,10 @@ namespace TrenchBroom {
                 for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
                     const EntityProperty& property = *pIt;
                     const String& targetname = property.value;
-                    const EntityList& killTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
-                    VectorUtils::append(m_killTargets, killTargets);
+                    if (!targetname.empty()) {
+                        const EntityList& killTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
+                        VectorUtils::append(m_killTargets, killTargets);
+                    }
                 }
                 
                 EntityList::const_iterator eIt, eEnd;
@@ -452,7 +464,7 @@ namespace TrenchBroom {
             }
             m_killTargets.clear();
         }
-        
+
         void Entity::findMissingTargets(const PropertyKey& prefix, PropertyKeyList& result) const {
             if (m_map != NULL) {
                 const EntityProperty::List properties = m_properties.numberedProperties(prefix);
@@ -460,9 +472,13 @@ namespace TrenchBroom {
                 for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
                     const EntityProperty& property = *pIt;
                     const String& targetname = property.value;
-                    const EntityList& linkTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
-                    if (linkTargets.empty())
+                    if (targetname.empty()) {
                         result.push_back(property.key);
+                    } else {
+                        const EntityList& linkTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
+                        if (linkTargets.empty())
+                            result.push_back(property.key);
+                    }
                 }
             }
         }

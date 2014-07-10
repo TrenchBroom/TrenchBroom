@@ -145,6 +145,7 @@ namespace TrenchBroom {
             const EntityList& killSources() const;
             const EntityList& killTargets() const;
 
+            bool hasMissingSources() const;
             PropertyKeyList findMissingLinkTargets() const;
             PropertyKeyList findMissingKillTargets() const;
         private:

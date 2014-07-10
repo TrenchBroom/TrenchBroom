@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityLinkIssueGenerator.h"
+#include "EntityLinkTargetIssueGenerator.h"
 
 #include "CollectionUtils.h"
 #include "Model/Brush.h"
@@ -34,13 +34,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class EntityLinkIssue : public EntityIssue {
+        class EntityLinkTargetIssue : public EntityIssue {
         public:
             static const IssueType Type;
         private:
             PropertyKey m_key;
         public:
-            EntityLinkIssue(Entity* entity, const PropertyKey& key) :
+            EntityLinkTargetIssue(Entity* entity, const PropertyKey& key) :
             EntityIssue(Type, entity),
             m_key(key) {
                 addSharedQuickFix(DeleteEntityPropertyQuickFix::instance());
@@ -56,18 +56,18 @@ namespace TrenchBroom {
             }
         };
         
-        const IssueType EntityLinkIssue::Type = Issue::freeType();
+        const IssueType EntityLinkTargetIssue::Type = Issue::freeType();
         
-        IssueType EntityLinkIssueGenerator::type() const {
-            return EntityLinkIssue::Type;
+        IssueType EntityLinkTargetIssueGenerator::type() const {
+            return EntityLinkTargetIssue::Type;
         }
         
-        const String& EntityLinkIssueGenerator::description() const {
+        const String& EntityLinkTargetIssueGenerator::description() const {
             static const String description("Missing entity link target");
             return description;
         }
 
-        Issue* EntityLinkIssueGenerator::generate(Entity* entity) const {
+        Issue* EntityLinkTargetIssueGenerator::generate(Entity* entity) const {
             assert(entity != NULL);
             const Model::PropertyKeyList missingLinkTargets = entity->findMissingLinkTargets();
             const Model::PropertyKeyList missingKillTargets = entity->findMissingKillTargets();
@@ -79,15 +79,11 @@ namespace TrenchBroom {
             return issue;
         }
 
-        void EntityLinkIssueGenerator::processKeys(Entity* entity, const Model::PropertyKeyList& keys, Issue*& issue) const {
+        void EntityLinkTargetIssueGenerator::processKeys(Entity* entity, const Model::PropertyKeyList& keys, Issue*& issue) const {
             Model::PropertyKeyList::const_iterator it, end;
             for (it = keys.begin(), end = keys.end(); it != end; ++it) {
                 const Model::PropertyKey& key = *it;
-                Issue* newIssue = new EntityLinkIssue(entity, key);
-                if (issue == NULL)
-                    issue = newIssue;
-                else
-                    newIssue->insertAfter(issue);
+                issue = Issue::insert(issue, new EntityLinkTargetIssue(entity, key));
             }
         }
     }

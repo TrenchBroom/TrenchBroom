@@ -69,6 +69,14 @@ namespace TrenchBroom {
             return m_next;
         }
 
+        Issue* Issue::insert(Issue* previous, Issue* next) {
+            assert(next != NULL);
+            if (previous == NULL)
+                return next;
+            next->insertAfter(previous);
+            return previous;
+        }
+
         void Issue::insertAfter(Issue* previous) {
             if (previous != NULL) {
                 Issue* next = previous->m_next;

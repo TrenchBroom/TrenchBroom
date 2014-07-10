@@ -57,7 +57,7 @@ namespace TrenchBroom {
             clearGenerators();
         }
 
-        void IssueManager::registerGenerator(IssueGenerator* generator, bool showByDefault) {
+        void IssueManager::registerGenerator(IssueGenerator* generator, const bool showByDefault) {
             assert(!VectorUtils::contains(m_generators, generator));
             m_generators.push_back(generator);
             if (!showByDefault)

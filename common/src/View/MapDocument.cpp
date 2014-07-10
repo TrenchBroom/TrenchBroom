@@ -31,7 +31,8 @@
 #include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/EntityBrushesIterator.h"
 #include "Model/EntityFacesIterator.h"
-#include "Model/EntityLinkIssueGenerator.h"
+#include "Model/EntityLinkSourceIssueGenerator.h"
+#include "Model/EntityLinkTargetIssueGenerator.h"
 #include "Model/FloatPointsIssueGenerator.h"
 #include "Model/FloatVerticesIssueGenerator.h"
 #include "Model/Game.h"
@@ -838,7 +839,8 @@ namespace TrenchBroom {
             m_issueManager.registerGenerator(new Model::FloatPointsIssueGenerator(), true);
             m_issueManager.registerGenerator(new Model::FloatVerticesIssueGenerator(), false);
             m_issueManager.registerGenerator(new Model::MixedBrushContentsIssueGenerator(m_game->contentFlags()), true);
-            m_issueManager.registerGenerator(new Model::EntityLinkIssueGenerator(), true);
+            m_issueManager.registerGenerator(new Model::EntityLinkSourceIssueGenerator(), true);
+            m_issueManager.registerGenerator(new Model::EntityLinkTargetIssueGenerator(), true);
             m_issueManager.registerGenerator(new Model::MissingEntityClassnameIssueGenerator(), true);
             m_issueManager.registerGenerator(new Model::MissingEntityDefinitionIssueGenerator(), true);
             m_issueManager.registerGenerator(new Model::EmptyBrushEntityIssueGenerator(), true);

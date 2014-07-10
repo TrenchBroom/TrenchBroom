@@ -70,6 +70,7 @@ namespace TrenchBroom {
             Issue* next() const;
             Issue* parent() const;
 
+            static Issue* insert(Issue* previous, Issue* next);
             void insertAfter(Issue* previous);
             void insertBefore(Issue* next);
             void remove(Issue* last = NULL);
