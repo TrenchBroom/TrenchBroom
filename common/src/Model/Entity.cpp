@@ -335,6 +335,8 @@ namespace TrenchBroom {
                 if (entityTargetname == targetname) {
                     target->removeLinkSource(this);
                     it = m_linkTargets.erase(it);
+                } else {
+                    ++it;
                 }
             }
         }
@@ -347,6 +349,8 @@ namespace TrenchBroom {
                 if (entityTargetname == targetname) {
                     target->removeKillSource(this);
                     it = m_killTargets.erase(it);
+                } else {
+                    ++it;
                 }
             }
         }
