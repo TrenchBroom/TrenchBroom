@@ -173,12 +173,18 @@ IF(WIN32)
 
     # A custom target to copy the release build to a Dropbox folder
     ADD_CUSTOM_TARGET(publish ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${APP_PACKAGE_FILE_NAME}.zip" "$ENV{DROPBOX}/TrenchBroom/")
+
+    # Create a script to create a new build and publish it
+    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish-dropbox.bat.in ${CMAKE_CURRENT_BINARY_DIR}/publish-dropbox.bat @ONLY)
 ELSEIF(APPLE)
     INSTALL(TARGETS TrenchBroom BUNDLE DESTINATION . COMPONENT TrenchBroom)
     SET(CPACK_GENERATOR "DragNDrop")
 
     # A custom target to copy the release build to a Dropbox folder
     ADD_CUSTOM_TARGET(publish ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${APP_PACKAGE_FILE_NAME}.dmg" "$ENV{DROPBOX}/TrenchBroom/")
+
+    # Create a script to create a new build and publish it
+    CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/publish-dropbox.sh.in ${CMAKE_CURRENT_BINARY_DIR}/publish-dropbox.sh @ONLY)
 ENDIF()
 INCLUDE(CPack)
 
