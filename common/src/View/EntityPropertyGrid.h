@@ -56,6 +56,13 @@ namespace TrenchBroom {
             void OnPropertyGridSize(wxSizeEvent& event);
             void OnPropertyGridSelectCell(wxGridEvent& event);
             void OnPropertyGridTab(wxGridEvent& event);
+            
+            void OnPropertyGridKeyDown(wxKeyEvent& event);
+            void OnPropertyGridKeyUp(wxKeyEvent& event);
+        private:
+            bool isInsertRowShortcut(const wxKeyEvent& event) const;
+            bool isDeleteRowShortcut(const wxKeyEvent& event) const;
+        public:
             void OnPropertyGridMouseMove(wxMouseEvent& event);
 
             void OnUpdatePropertyView(wxUpdateUIEvent& event);

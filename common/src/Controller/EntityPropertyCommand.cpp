@@ -178,7 +178,7 @@ namespace TrenchBroom {
                     const Model::EntityProperty after(newKey(), value);
                     
                     m_snapshot[entity] = before;
-                    entity->renameProperty(after.key, after.value);
+                    entity->renameProperty(before.key, after.key);
                     document->entityPropertyDidChangeNotifier(entity, before, after);
                 }
             }

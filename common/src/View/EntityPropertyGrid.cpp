@@ -82,14 +82,45 @@ namespace TrenchBroom {
                 } else if (event.GetRow() < m_grid->GetNumberRows() - 1) {
                     m_grid->SelectRow(event.GetRow() + 1);
                     m_grid->GoToCell(event.GetRow() + 1, 0);
-                } else {
-                    m_table->AppendRows();
-                    m_grid->SelectRow(event.GetRow() - 1);
-                    m_grid->GoToCell(m_grid->GetNumberRows() - 1, 0);
                 }
             }
         }
         
+        void EntityPropertyGrid::OnPropertyGridKeyDown(wxKeyEvent& event) {
+            if (isInsertRowShortcut(event)) {
+                m_grid->AppendRows();
+                m_grid->SelectRow(m_table->GetNumberPropertyRows() - 1);
+                m_grid->GoToCell(m_table->GetNumberPropertyRows() - 1, 0);
+            } else if (isDeleteRowShortcut(event)) {
+                int firstRowIndex = m_grid->GetNumberRows();
+                wxArrayInt selectedRows = m_grid->GetSelectedRows();
+                wxArrayInt::reverse_iterator it, end;
+                for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
+                    
+                    m_grid->DeleteRows(*it, 1);
+                    firstRowIndex = std::min(*it, firstRowIndex);
+                }
+                
+                if (firstRowIndex < m_grid->GetNumberRows())
+                    m_grid->SelectRow(firstRowIndex);
+            } else {
+                event.Skip();
+            }
+        }
+        
+        void EntityPropertyGrid::OnPropertyGridKeyUp(wxKeyEvent& event) {
+            if (!isInsertRowShortcut(event) && !isDeleteRowShortcut(event))
+                event.Skip();
+        }
+
+        bool EntityPropertyGrid::isInsertRowShortcut(const wxKeyEvent& event) const {
+            return event.GetKeyCode() == WXK_RETURN && event.ControlDown();
+        }
+        
+        bool EntityPropertyGrid::isDeleteRowShortcut(const wxKeyEvent& event) const {
+            return (event.GetKeyCode() == WXK_DELETE || event.GetKeyCode() == WXK_BACK) && !m_grid->IsCellEditControlShown();
+        }
+
         void EntityPropertyGrid::OnPropertyGridMouseMove(wxMouseEvent& event) {
             int logicalX, logicalY;
             m_grid->CalcUnscrolledPosition(event.GetX(), event.GetY(), &logicalX, &logicalY);
@@ -175,6 +206,8 @@ namespace TrenchBroom {
             m_grid->Bind(wxEVT_SIZE, &EntityPropertyGrid::OnPropertyGridSize, this);
             m_grid->Bind(wxEVT_GRID_SELECT_CELL, &EntityPropertyGrid::OnPropertyGridSelectCell, this);
             m_grid->Bind(wxEVT_GRID_TABBING, &EntityPropertyGrid::OnPropertyGridTab, this);
+            m_grid->Bind(wxEVT_KEY_DOWN, &EntityPropertyGrid::OnPropertyGridKeyDown, this);
+            m_grid->Bind(wxEVT_KEY_UP, &EntityPropertyGrid::OnPropertyGridKeyUp, this);
             m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityPropertyGrid::OnPropertyGridMouseMove, this);
             m_grid->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdatePropertyView, this);
         }

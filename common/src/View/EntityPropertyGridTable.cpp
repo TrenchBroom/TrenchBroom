@@ -421,9 +421,14 @@ namespace TrenchBroom {
             return InsertRows(m_rows.propertyCount(), numRows);
         }
         
-        bool EntityPropertyGridTable::DeleteRows(const size_t pos, const size_t numRows) {
+        bool EntityPropertyGridTable::DeleteRows(const size_t pos, size_t numRows) {
             // TODO: when deleting a property that has a default value in the property definition, re-add it to the list
             // of default properties...
+
+            numRows = std::min(m_rows.propertyCount(), pos + numRows);
+            if (pos >= numRows)
+                return false;
+            numRows -= pos;
             
             assert(pos + numRows <= m_rows.propertyCount());
             
