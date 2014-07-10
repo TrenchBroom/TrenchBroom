@@ -104,6 +104,9 @@ namespace TrenchBroom {
             MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
             ~MapView();
             
+            void setToolboxDropTarget();
+            void clearToolboxDropTarget();
+            
             void centerCameraOnSelection();
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
             

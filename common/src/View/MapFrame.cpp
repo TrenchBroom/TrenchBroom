@@ -105,8 +105,8 @@ namespace TrenchBroom {
 
             m_autosaveTimer = new wxTimer(this);
             m_autosaveTimer->Start(1000);
-            
-            SetDropTarget(new MapFrameDropTarget(m_document, m_controller, this));
+
+            clearMapViewDropTarget();
         }
 
         MapFrame::~MapFrame() {
@@ -157,6 +157,16 @@ namespace TrenchBroom {
             if (!confirmOrDiscardChanges())
                 return false;
             return m_controller->openDocument(MapDocument::DefaultWorldBounds, game, path);
+        }
+
+        void MapFrame::setMapViewDropTarget() {
+            SetDropTarget(NULL);
+            m_mapView->setToolboxDropTarget();
+        }
+        
+        void MapFrame::clearMapViewDropTarget() {
+            m_mapView->clearToolboxDropTarget();
+            SetDropTarget(new MapFrameDropTarget(m_document, m_controller, this));
         }
 
         void MapFrame::OnNavBarSize(wxSizeEvent& event) {

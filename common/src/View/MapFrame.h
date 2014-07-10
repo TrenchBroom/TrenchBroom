@@ -78,6 +78,9 @@ namespace TrenchBroom {
             bool newDocument(Model::GamePtr game, Model::MapFormat::Type mapFormat);
             bool openDocument(Model::GamePtr game, const IO::Path& path);
             
+            void setMapViewDropTarget();
+            void clearMapViewDropTarget();
+            
             void OnNavBarSize(wxSizeEvent& event);
             
             void OnClose(wxCloseEvent& event);

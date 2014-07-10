@@ -88,8 +88,6 @@ namespace TrenchBroom {
             bindEvents();
             bindObservers();
             updateAcceleratorTable();
-            
-            SetDropTarget(new ToolBoxDropTarget(m_toolBox));
         }
         
         MapView::~MapView() {
@@ -103,6 +101,14 @@ namespace TrenchBroom {
             m_logger = NULL;
         }
         
+        void MapView::setToolboxDropTarget() {
+            SetDropTarget(new ToolBoxDropTarget(m_toolBox));
+        }
+        
+        void MapView::clearToolboxDropTarget() {
+            SetDropTarget(NULL);
+        }
+
         void MapView::centerCameraOnSelection() {
             MapDocumentSPtr document = lock(m_document);
             const Model::EntityList& entities = document->selectedEntities();

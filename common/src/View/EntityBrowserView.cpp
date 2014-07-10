@@ -35,7 +35,9 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
+#include "View/MapFrame.h"
 #include "View/ViewUtils.h"
+#include "View/wxUtils.h"
 
 #include <map>
 
@@ -151,6 +153,18 @@ namespace TrenchBroom {
             return true;
         }
         
+        void EntityBrowserView::dndWillStart() {
+            MapFrame* mapFrame = findMapFrame(this);
+            assert(mapFrame != NULL);
+            mapFrame->setMapViewDropTarget();
+        }
+        
+        void EntityBrowserView::dndDidEnd() {
+            MapFrame* mapFrame = findMapFrame(this);
+            assert(mapFrame != NULL);
+            mapFrame->clearMapViewDropTarget();
+        }
+
         wxString EntityBrowserView::dndData(const Layout::Group::Row::Cell& cell) {
             static const String prefix("entity:");
             const String name = cell.item().entityDefinition->name();

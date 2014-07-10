@@ -140,6 +140,20 @@ namespace TrenchBroom {
                 event.Skip();
             }
 
+            class DndHelper {
+            private:
+                CellView& m_cellView;
+            public:
+                DndHelper(CellView& cellView) :
+                m_cellView(cellView) {
+                    m_cellView.dndWillStart();
+                }
+                
+                ~DndHelper() {
+                    m_cellView.dndDidEnd();
+                }
+            };
+            
             void OnMouseMove(wxMouseEvent& event) {
                 int top = m_scrollBar != NULL ? m_scrollBar->GetThumbPosition() : 0;
                 float x = static_cast<float>(event.GetX());
@@ -153,6 +167,7 @@ namespace TrenchBroom {
                         int yOffset = event.GetY() - static_cast<int>(cell->itemBounds().top()) + top;
                          */
 
+                        const DndHelper dndHelper(*this);
                         wxTextDataObject dropData(dndData(*cell));
                         DropSource dropSource(dropData, this);
                         dropSource.DoDragDrop();
@@ -221,7 +236,10 @@ namespace TrenchBroom {
             virtual void doClear() {}
             virtual void doRender(Layout& layout, const float y, const float height) = 0;
             virtual void doLeftClick(Layout& layout, const float x, const float y) {}
+            
             virtual bool dndEnabled() { return false; }
+            virtual void dndWillStart() {}
+            virtual void dndDidEnd() {}
             virtual wxImage dndImage(const typename Layout::Group::Row::Cell& cell) { assert(false); return wxImage(); }
             virtual wxString dndData(const typename Layout::Group::Row::Cell& cell) { assert(false); return ""; }
             virtual wxString tooltip(const typename Layout::Group::Row::Cell& cell) { return ""; }

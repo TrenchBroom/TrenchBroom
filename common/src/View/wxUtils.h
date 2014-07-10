@@ -32,6 +32,9 @@ class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
+        class MapFrame;
+        
+        MapFrame* findMapFrame(wxWindow* window);
         wxFrame* findFrame(wxWindow* window);
         Color fromWxColor(const wxColor& color);
         wxColor toWxColor(const Color& color);

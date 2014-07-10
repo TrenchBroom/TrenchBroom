@@ -20,6 +20,7 @@
 #include "wxUtils.h"
 
 #include "View/BorderLine.h"
+#include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
 #include <wx/frame.h>
@@ -30,6 +31,10 @@
 
 namespace TrenchBroom {
     namespace View {
+        MapFrame* findMapFrame(wxWindow* window) {
+            return wxDynamicCast(findFrame(window), MapFrame);
+        }
+
         wxFrame* findFrame(wxWindow* window) {
             if (window == NULL)
                 return NULL;
