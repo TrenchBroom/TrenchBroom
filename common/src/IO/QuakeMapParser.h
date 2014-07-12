@@ -24,6 +24,7 @@
 #include "IO/Parser.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
+#include "Model/ModelFactory.h"
 #include "Model/ModelTypes.h"
 
 #include <map>
@@ -119,6 +120,7 @@ namespace TrenchBroom {
             Logger* m_logger;
             QuakeMapTokenizer m_tokenizer;
             Model::MapFormat::Type m_format;
+            Model::ModelFactory m_factory;
         public:
             QuakeMapParser(const char* begin, const char* end, Logger* logger = NULL);
             QuakeMapParser(const String& str, Logger* logger = NULL);

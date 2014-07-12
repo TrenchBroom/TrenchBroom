@@ -22,6 +22,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Model/Map.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/QuakeEntityRotationPolicy.h"
@@ -30,34 +31,47 @@
 
 namespace TrenchBroom {
     namespace Model {
+        ModelFactory::ModelFactory() :
+        m_format(MapFormat::Unknown) {}
+        
         ModelFactory::ModelFactory(const MapFormat::Type format) :
         m_format(format) {
             assert(m_format != MapFormat::Unknown);
         }
 
+        Map* ModelFactory::createMap() const {
+            assert(m_format != MapFormat::Unknown);
+            return new Map(m_format);
+        }
+
         Entity* ModelFactory::createEntity() const {
+            assert(m_format != MapFormat::Unknown);
             return new ConfigurableEntity<QuakeEntityRotationPolicy>();
         }
         
         Brush* ModelFactory::createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+            assert(m_format != MapFormat::Unknown);
             return new Brush(worldBounds, faces);
         }
 
-        BrushFace* ModelFactory::createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const {
+        BrushFace* ModelFactory::createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName) const {
+            assert(m_format != MapFormat::Unknown);
             switch (m_format) {
                 case MapFormat::Valve:
-                    return createValveFace(point0, point1, point2, textureName);
+                    return new BrushFace(point1, point2, point3, textureName, new ParallelTexCoordSystem(point1, point2, point3));
                 default:
-                    return createDefaultFace(point0, point1, point2, textureName);
+                    return new BrushFace(point1, point2, point3, textureName, new ParaxialTexCoordSystem(point1, point2, point3));
             }
         }
 
-        BrushFace* ModelFactory::createValveFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const {
-            return new BrushFace(point0, point1, point2, textureName, new ParallelTexCoordSystem(point0, point1, point2));
-        }
-        
-        BrushFace* ModelFactory::createDefaultFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const {
-            return new BrushFace(point0, point1, point2, textureName, new ParaxialTexCoordSystem(point0, point1, point2));
+        BrushFace* ModelFactory::createFaceWithAxes(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY) const {
+            assert(m_format != MapFormat::Unknown);
+            switch (m_format) {
+                case MapFormat::Valve:
+                    return new BrushFace(point1, point2, point3, textureName, new ParallelTexCoordSystem(texAxisX, texAxisY));
+                default:
+                    return new BrushFace(point1, point2, point3, textureName, new ParaxialTexCoordSystem(point1, point2, point3));
+            }
         }
     }
 }

@@ -181,7 +181,8 @@ namespace TrenchBroom {
             m_format = detectFormat();
             m_tokenizer.reset();
             
-            Model::Map* map = new Model::Map(m_format);
+            m_factory = Model::ModelFactory(m_format);
+            Model::Map* map = m_factory.createMap();
             try {
                 Model::Entity* entity = parseEntity(worldBounds);
                 while (entity != NULL) {
@@ -298,7 +299,7 @@ namespace TrenchBroom {
                 return NULL;
             
             ExtraProperties extraProperties;
-            Model::Entity* entity = new Model::ConfigurableEntity<Model::QuakeEntityRotationPolicy>();
+            Model::Entity* entity = m_factory.createEntity();
             const size_t firstLine = token.line();
             
             try {
@@ -444,13 +445,7 @@ namespace TrenchBroom {
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
             yScale = token.toFloat<float>();
             
-            Model::BrushFace* face = NULL;
-            if (m_format == Model::MapFormat::Valve)
-                face = new Model::BrushFace(p1, p2, p3, textureName,
-                                            new Model::ParallelTexCoordSystem(texAxisX, texAxisY, normal, rotation));
-            else
-                face = new Model::BrushFace(p1, p2, p3, textureName,
-                                                 new Model::ParaxialTexCoordSystem(p1, p2, p3));
+            Model::BrushFace* face = m_factory.createFaceWithAxes(p1, p2, p3, textureName, texAxisX, texAxisY);
 
             if (m_format == Model::MapFormat::Quake2) {
                 expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
@@ -526,7 +521,7 @@ namespace TrenchBroom {
                 std::sort(sortedFaces.begin(), sortedFaces.end(), FaceWeightOrder(PlaneWeightOrder(true)));
                 std::sort(sortedFaces.begin(), sortedFaces.end(), FaceWeightOrder(PlaneWeightOrder(false)));
 
-                brush = new Model::Brush(worldBounds, sortedFaces);
+                brush = m_factory.createBrush(worldBounds, sortedFaces);
                 brush->setFilePosition(firstLine, lineCount);
                 setExtraObjectProperties(brush, extraProperties);
             } catch (GeometryException& e) {

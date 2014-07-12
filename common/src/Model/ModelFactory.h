@@ -31,14 +31,14 @@ namespace TrenchBroom {
         private:
             MapFormat::Type m_format;
         public:
+            ModelFactory();
             ModelFactory(const MapFormat::Type format);
 
+            Map* createMap() const;
             Entity* createEntity() const;
             Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
-            BrushFace* createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
-        private:
-            BrushFace* createValveFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
-            BrushFace* createDefaultFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;
+            BrushFace* createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName) const;
+            BrushFace* createFaceWithAxes(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY) const;
         };
     }
 }
