@@ -44,6 +44,7 @@ namespace TrenchBroom {
             Menu& getMenu();
             wxMenuBar* createMenuBar() const;
             
+            Action::List& mapViewActions();
             wxAcceleratorTable createMapViewAcceleratorTable(Action::Context context) const;
         private:
             wxMenu* createMenu(const Menu& menu) const;

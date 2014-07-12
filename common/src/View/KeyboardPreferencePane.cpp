@@ -78,6 +78,24 @@ namespace TrenchBroom {
         }
         
         bool KeyboardGridCellEditor::EndEdit(int row, int col, const wxGrid* grid, const wxString& oldValue, wxString* newValue) {
+            KeyboardGridTable* table = static_cast<KeyboardGridTable*>(grid->GetTable());
+            if (!table->isValid(row,
+                                m_editor->key(),
+                                m_editor->modifier1(),
+                                m_editor->modifier2(),
+                                m_editor->modifier3())) {
+                StringStream msg;
+                msg << "Shortcuts for menu items must include the ";
+#ifdef __APPLE__
+                msg << "Command";
+#else
+                msg << "Control";
+#endif
+                msg << " key.";
+                wxMessageBox(msg.str(), "Error", wxOK, m_editor);
+                return false;
+            }
+            
             *newValue = KeyboardShortcut::shortcutDisplayString(m_editor->key(),
                                                                 m_editor->modifier1(),
                                                                 m_editor->modifier2(),
@@ -114,87 +132,6 @@ namespace TrenchBroom {
                                                            m_editor->modifier3());
         }
         
-        void KeyboardGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
-                wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
-                                           static_cast<int>(pos),
-                                           static_cast<int>(numRows));
-                GetView()->ProcessTableMessage(message);
-            }
-        }
-        
-        void KeyboardGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
-                wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
-                                           static_cast<int>(pos),
-                                           static_cast<int>(numRows));
-                GetView()->ProcessTableMessage(message);
-            }
-        }
-        
-        void KeyboardGridTable::notifyRowsAppended(size_t numRows) {
-            if (GetView() != NULL) {
-                wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
-                                           static_cast<int>(numRows));
-                GetView()->ProcessTableMessage(message);
-            }
-        }
-        
-        void KeyboardGridTable::notifyRowsDeleted(size_t pos, size_t numRows) {
-            if (GetView() != NULL) {
-                wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED,
-                                           static_cast<int>(pos),
-                                           static_cast<int>(numRows));
-                GetView()->ProcessTableMessage(message);
-            }
-        }
-        
-        bool KeyboardGridTable::markConflicts(EntryList& entries) {
-            for (size_t i = 0; i < entries.size(); i++)
-                entries[i]->setConflicts(false);
-            
-            bool hasConflicts = false;
-            for (size_t i = 0; i < entries.size(); i++) {
-                ActionEntry& first = *entries[i];
-                for (size_t j = i + 1; j < entries.size(); j++) {
-                    ActionEntry& second = *entries[j];
-                    if (first.conflictsWith(second)) {
-                        first.setConflicts(true);
-                        second.setConflicts(true);
-                        hasConflicts = true;
-                    }
-                }
-            }
-            return hasConflicts;
-        }
-        
-        void KeyboardGridTable::addMenu(Menu& menu, EntryList& entries) const {
-            MenuItem::List& items = menu.items();
-            MenuItem::List::iterator itemIt, itemEnd;
-            for (itemIt = items.begin(), itemEnd = items.end(); itemIt != itemEnd; ++itemIt) {
-                MenuItem& item = **itemIt;
-                switch (item.type()) {
-                    case MenuItem::Type_Action:
-                    case MenuItem::Type_Check: {
-                        ActionMenuItem& actionItem = static_cast<ActionMenuItem&>(item);
-                        entries.push_back(ActionEntry::Ptr(new ActionEntry(actionItem.action())));
-                        break;
-                    }
-                    case MenuItem::Type_Menu: {
-                        Menu& subMenu = static_cast<Menu&>(item);
-                        addMenu(subMenu, entries);
-                        break;
-                    }
-                    case MenuItem::Type_Separator:
-                        break;
-                }
-            }
-        }
-        
-        void KeyboardGridTable::addShortcut(Preference<KeyboardShortcut>& shortcut, EntryList& entries) const {
-            //            entries.push_back(ActionEntry::Ptr(new SimpleKeyboardShortcutEntry(shortcut)));
-        }
-        
         ActionEntry::ActionEntry(Action& action) :
         m_action(action),
         m_conflicts(false) {}
@@ -214,6 +151,10 @@ namespace TrenchBroom {
         
         bool ActionEntry::modifiable() const {
             return m_action.modifiable();
+        }
+
+        bool ActionEntry::requiresModifiers() const {
+            return m_action.requiresModifiers();
         }
 
         void ActionEntry::updateShortcut(const KeyboardShortcut& shortcut) {
@@ -241,6 +182,19 @@ namespace TrenchBroom {
             m_cellEditor->DecRef();
         }
         
+        bool KeyboardGridTable::isValid(const int row, const int key, const int modifier1, const int modifier2, const int modifier3) const {
+            assert(row >= 0);
+            const size_t rowIndex = static_cast<size_t>(row);
+            assert(rowIndex < m_entries.size());
+            
+            const ActionEntry::Ptr entry = m_entries[rowIndex];
+            if (!entry->modifiable())
+                return false;
+            if (entry->requiresModifiers() && modifier1 != WXK_COMMAND && modifier2 != WXK_COMMAND && modifier3 != WXK_COMMAND)
+                return false;
+            return true;
+        }
+
         int KeyboardGridTable::GetNumberRows() {
             return static_cast<int>(m_entries.size());
         }
@@ -364,6 +318,7 @@ namespace TrenchBroom {
 
             ActionManager& actionManager = ActionManager::instance();
             addMenu(actionManager.getMenu(), newEntries);
+            addActions(actionManager.mapViewActions(), newEntries);
             
             /*
              addShortcut(Preferences::CameraMoveForward, newEntries);
@@ -386,6 +341,95 @@ namespace TrenchBroom {
             return hasConflicts;
         }
         
+        void KeyboardGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
+            if (GetView() != NULL) {
+                wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
+                                           static_cast<int>(pos),
+                                           static_cast<int>(numRows));
+                GetView()->ProcessTableMessage(message);
+            }
+        }
+        
+        void KeyboardGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
+            if (GetView() != NULL) {
+                wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
+                                           static_cast<int>(pos),
+                                           static_cast<int>(numRows));
+                GetView()->ProcessTableMessage(message);
+            }
+        }
+        
+        void KeyboardGridTable::notifyRowsAppended(size_t numRows) {
+            if (GetView() != NULL) {
+                wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
+                                           static_cast<int>(numRows));
+                GetView()->ProcessTableMessage(message);
+            }
+        }
+        
+        void KeyboardGridTable::notifyRowsDeleted(size_t pos, size_t numRows) {
+            if (GetView() != NULL) {
+                wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED,
+                                           static_cast<int>(pos),
+                                           static_cast<int>(numRows));
+                GetView()->ProcessTableMessage(message);
+            }
+        }
+        
+        bool KeyboardGridTable::markConflicts(EntryList& entries) {
+            for (size_t i = 0; i < entries.size(); i++)
+                entries[i]->setConflicts(false);
+            
+            bool hasConflicts = false;
+            for (size_t i = 0; i < entries.size(); i++) {
+                ActionEntry& first = *entries[i];
+                for (size_t j = i + 1; j < entries.size(); j++) {
+                    ActionEntry& second = *entries[j];
+                    if (first.conflictsWith(second)) {
+                        first.setConflicts(true);
+                        second.setConflicts(true);
+                        hasConflicts = true;
+                    }
+                }
+            }
+            return hasConflicts;
+        }
+        
+        void KeyboardGridTable::addMenu(Menu& menu, EntryList& entries) const {
+            MenuItem::List& items = menu.items();
+            MenuItem::List::iterator itemIt, itemEnd;
+            for (itemIt = items.begin(), itemEnd = items.end(); itemIt != itemEnd; ++itemIt) {
+                MenuItem& item = **itemIt;
+                switch (item.type()) {
+                    case MenuItem::Type_Action:
+                    case MenuItem::Type_Check: {
+                        ActionMenuItem& actionItem = static_cast<ActionMenuItem&>(item);
+                        entries.push_back(ActionEntry::Ptr(new ActionEntry(actionItem.action())));
+                        break;
+                    }
+                    case MenuItem::Type_Menu: {
+                        Menu& subMenu = static_cast<Menu&>(item);
+                        addMenu(subMenu, entries);
+                        break;
+                    }
+                    case MenuItem::Type_Separator:
+                        break;
+                }
+            }
+        }
+        
+        void KeyboardGridTable::addActions(Action::List& actions, EntryList& entries) const {
+            Action::List::iterator it, end;
+            for (it = actions.begin(), end = actions.end(); it != end; ++it) {
+                Action& action = *it;
+                entries.push_back(ActionEntry::Ptr(new ActionEntry(action)));
+            }
+        }
+        
+        void KeyboardGridTable::addShortcut(Preference<KeyboardShortcut>& shortcut, EntryList& entries) const {
+            //            entries.push_back(ActionEntry::Ptr(new SimpleKeyboardShortcutEntry(shortcut)));
+        }
+        
         KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
         PreferencePane(parent),
         m_grid(NULL),
@@ -394,7 +438,7 @@ namespace TrenchBroom {
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(menuShortcutGrid, 1, wxEXPAND);
-            outerSizer->SetItemMinSize(menuShortcutGrid, 700, 550);
+            outerSizer->SetItemMinSize(menuShortcutGrid, 900, 550);
             SetSizerAndFit(outerSizer);
             SetBackgroundColour(*wxWHITE);
         }

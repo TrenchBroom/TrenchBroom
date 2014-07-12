@@ -22,6 +22,7 @@
 
 #include "Preference.h"
 #include "SharedPointer.h"
+#include "View/Action.h"
 #include "View/KeyboardShortcut.h"
 #include "View/PreferencePane.h"
 
@@ -76,6 +77,7 @@ namespace TrenchBroom {
             const String contextName() const;
             const wxString shortcut() const;
             bool modifiable() const;
+            bool requiresModifiers() const;
             
             void updateShortcut(const KeyboardShortcut& shortcut);
             bool conflictsWith(const ActionEntry& entry) const;
@@ -90,19 +92,12 @@ namespace TrenchBroom {
 
             EntryList m_entries;
             KeyboardGridCellEditor* m_cellEditor;
-
-            void notifyRowsUpdated(size_t pos, size_t numRows = 1);
-            void notifyRowsInserted(size_t pos = 0, size_t numRows = 1);
-            void notifyRowsAppended(size_t numRows = 1);
-            void notifyRowsDeleted(size_t pos = 0, size_t numRows = 1);
-
-            bool markConflicts(EntryList& entries);
-            void addMenu(Menu& menu, EntryList& entries) const;
-            void addShortcut(Preference<KeyboardShortcut>& shortcut, EntryList& entries) const;
         public:
             KeyboardGridTable();
             ~KeyboardGridTable();
 
+            bool isValid(int row, int key, int modifier1, int modifier2, int modifier3) const;
+            
             int GetNumberRows();
             int GetNumberCols();
 
@@ -119,6 +114,16 @@ namespace TrenchBroom {
 
             bool hasDuplicates() const;
             bool update();
+        private:
+            void notifyRowsUpdated(size_t pos, size_t numRows = 1);
+            void notifyRowsInserted(size_t pos = 0, size_t numRows = 1);
+            void notifyRowsAppended(size_t numRows = 1);
+            void notifyRowsDeleted(size_t pos = 0, size_t numRows = 1);
+            
+            bool markConflicts(EntryList& entries);
+            void addMenu(Menu& menu, EntryList& entries) const;
+            void addActions(Action::List& actions, EntryList& entries) const;
+            void addShortcut(Preference<KeyboardShortcut>& shortcut, EntryList& entries) const;
         };
 
 
