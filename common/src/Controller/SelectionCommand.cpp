@@ -102,6 +102,8 @@ namespace TrenchBroom {
 
         bool SelectionCommand::doPerformDo() {
             View::MapDocumentSPtr document = lock(m_document);
+            document->selectionWillChangeNotifier();
+            
             m_previouslySelectedObjects = document->selectedObjects();
             m_previouslySelectedFaces = document->selectedFaces();
             
@@ -134,6 +136,7 @@ namespace TrenchBroom {
         
         bool SelectionCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lock(m_document);
+            document->selectionWillChangeNotifier();
             m_lastResult = document->deselectAll();
             m_lastResult += document->selectObjects(m_previouslySelectedObjects);
             m_lastResult += document->selectFaces(m_previouslySelectedFaces, false);

@@ -99,6 +99,7 @@ namespace TrenchBroom {
             Notifier0 entityDefinitionsDidChangeNotifier;
             Notifier0 textureCollectionsDidChangeNotifier;
             
+            Notifier0 selectionWillChangeNotifier;
             Notifier1<const Model::SelectionResult&> selectionDidChangeNotifier;
         public:
             static MapDocumentSPtr newMapDocument();

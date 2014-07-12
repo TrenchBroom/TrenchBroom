@@ -217,6 +217,7 @@ namespace TrenchBroom {
             document->documentWasNewedNotifier.addObserver(this, &EntityPropertyGrid::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &EntityPropertyGrid::documentWasLoaded);
             document->objectDidChangeNotifier.addObserver(this, &EntityPropertyGrid::objectDidChange);
+            document->selectionWillChangeNotifier.addObserver(this, &EntityPropertyGrid::selectionWillChange);
             document->selectionDidChangeNotifier.addObserver(this, &EntityPropertyGrid::selectionDidChange);
         }
         
@@ -226,6 +227,7 @@ namespace TrenchBroom {
                 document->documentWasNewedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasLoaded);
                 document->objectDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::objectDidChange);
+                document->selectionWillChangeNotifier.removeObserver(this, &EntityPropertyGrid::selectionWillChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::selectionDidChange);
             }
         }
@@ -241,6 +243,11 @@ namespace TrenchBroom {
         void EntityPropertyGrid::objectDidChange(Model::Object* object) {
             if (object->type() == Model::Object::Type_Entity)
                 updateControls();
+        }
+        
+        void EntityPropertyGrid::selectionWillChange() {
+            m_grid->SaveEditControlValue();
+            m_grid->HideCellEditControl();
         }
         
         void EntityPropertyGrid::selectionDidChange(const Model::SelectionResult& result) {

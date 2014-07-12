@@ -362,6 +362,10 @@ namespace TrenchBroom {
         }
         
         wxString EntityPropertyGridTable::GetValue(const int row, const int col) {
+            // Fixes a problem when the user deselects everything while editing an entity property.
+            if (row < 0 || col < 0)
+                return wxEmptyString;
+            
             assert(row >= 0 && row < GetRowsCount());
             assert(col >= 0 && col < GetColsCount());
             
