@@ -46,8 +46,8 @@ namespace TrenchBroom {
             doSetRotation(normal, oldAngle, newAngle);
         }
         
-        void TexCoordSystem::transform(const Vec3& oldNormal, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture) {
-            doTransform(oldNormal, transformation, attribs, lockTexture);
+        void TexCoordSystem::transform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture) {
+            doTransform(oldBoundary, transformation, attribs, lockTexture);
         }
 
         void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttribs& attribs) const {

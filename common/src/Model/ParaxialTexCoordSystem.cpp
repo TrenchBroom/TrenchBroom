@@ -108,24 +108,28 @@ namespace TrenchBroom {
             rotateAxes(m_xAxis, m_yAxis, Math::radians(newAngle), m_index);
         }
 
-        void ParaxialTexCoordSystem::doTransform(const Vec3& oldNormal, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture) {
-            if (!lockTexture)
+        void ParaxialTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture) {
+            if (!lockTexture || attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
                 return;
 
             // calculate the current texture coordinates of the origin
-            const Vec2f oldOriginTexCoords = computeTexCoords(Vec3::Null, attribs.scale()) + attribs.offset();
+            const Vec3& oldNormal = oldBoundary.normal;
+            const Vec3 oldAnchor  = oldBoundary.anchor();
+            const Vec2f oldAnchorTexCoords = computeTexCoords(oldAnchor, attribs.scale()) + attribs.offset();
             
             // compute the parameters of the transformed texture coordinate system
             const Vec3 offset = transformation * Vec3::Null;
+            const Vec3 newAnchor = transformation * oldAnchor;
             
-            const Mat4x4 toPlane = planeProjectionMatrix(0.0, oldNormal, crossed(m_xAxis, m_yAxis).normalized());
-            const Mat4x4 fromPlane = invertedMatrix(toPlane);
-            const Mat4x4 projectToPlane = fromPlane * Mat4x4::ZerZ * toPlane;
+            const Mat4x4 toBoundary        = planeProjectionMatrix(0.0, oldNormal, crossed(m_xAxis, m_yAxis).normalized());
+            const Mat4x4 fromBoundary      = invertedMatrix(toBoundary);
+            const Mat4x4 projectToBoundary = fromBoundary * Mat4x4::ZerZ * toBoundary;
             
             // compensate the translational part of the transformation for the directional vectors
-            const Vec3 newXAxisOnPlane = transformation * projectToPlane * safeScaleAxis(m_xAxis, attribs.xScale()) - offset;
-            const Vec3 newYAxisOnPlane = transformation * projectToPlane * safeScaleAxis(m_yAxis, attribs.yScale()) - offset;
-                  Vec3 newNormal       = transformation * oldNormal - offset;
+            const Vec3 newXAxisOnBoundary = transformation * projectToBoundary * (m_xAxis * attribs.xScale()) - offset;
+            const Vec3 newYAxisOnBoundary = transformation * projectToBoundary * (m_yAxis * attribs.yScale()) - offset;
+                  Vec3 newNormal          = transformation * oldNormal - offset;
+            assert(Math::eq(newNormal.length(), 1.0));
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
             if (newNormal.equals(oldNormal, 0.01))
@@ -137,11 +141,11 @@ namespace TrenchBroom {
             axes(newIndex, newBaseXAxis, newBaseYAxis, newProjectionAxis);
             
             // project the transformed texture axes onto the new texture projection plane
-            const Mat4x4 toTexPlane = planeProjectionMatrix(0.0, newProjectionAxis);
-            const Mat4x4 fromTexPlane = invertedMatrix(toTexPlane);
+            const Mat4x4 toTexPlane        = planeProjectionMatrix(0.0, newProjectionAxis);
+            const Mat4x4 fromTexPlane      = invertedMatrix(toTexPlane);
             const Mat4x4 projectToTexPlane = fromTexPlane * Mat4x4::ZerZ * toTexPlane;
-            Vec3 newXAxis = projectToTexPlane * newXAxisOnPlane;
-            Vec3 newYAxis = projectToTexPlane * newYAxisOnPlane;
+            Vec3 newXAxis = projectToTexPlane * newXAxisOnBoundary;
+            Vec3 newYAxis = projectToTexPlane * newYAxisOnBoundary;
 
             assert(!newXAxis.nan() && !newYAxis.nan());
             
@@ -185,11 +189,11 @@ namespace TrenchBroom {
             doSetRotation(newNormal, attribs.rotation(), newRotation);
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            const Vec2f newOriginTexCoords = computeTexCoords(offset, newScale);
+            const Vec2f newAnchorTexCoords = computeTexCoords(newAnchor, newScale);
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
-            Vec2f newOffset = oldOriginTexCoords - newOriginTexCoords;
+            Vec2f newOffset = oldAnchorTexCoords - newAnchorTexCoords;
             modOffset(newOffset, attribs.texture());
             newOffset.correct(4);
             
