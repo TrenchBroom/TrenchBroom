@@ -65,6 +65,9 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnOKClicked(wxCommandEvent& event) {
+            if (!currentPane()->validate())
+                return;
+
             PreferenceManager& prefs = PreferenceManager::instance();
             if (!prefs.saveInstantly())
                 prefs.saveChanges();
@@ -72,6 +75,9 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnApplyClicked(wxCommandEvent& event) {
+            if (!currentPane()->validate())
+                return;
+
             PreferenceManager& prefs = PreferenceManager::instance();
             if (!prefs.saveInstantly())
                 prefs.saveChanges();
