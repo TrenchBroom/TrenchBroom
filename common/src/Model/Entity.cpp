@@ -55,20 +55,24 @@ namespace TrenchBroom {
             if (map == m_map)
                 return;
             
-            removeAllLinkSources();
-            removeAllLinkTargets();
-            removeAllKillSources();
-            removeAllKillTargets();
+            if (m_map != NULL) {
+                removeAllLinkSources();
+                removeAllLinkTargets();
+                removeAllKillSources();
+                removeAllKillTargets();
+            }
             
             m_map = map;
             
-            addAllLinkTargets();
-            addAllKillTargets();
-            
-            const PropertyValue* targetname = m_properties.property(PropertyKeys::Targetname);
-            if (targetname != NULL && !targetname->empty()) {
-                addAllLinkSources(*targetname);
-                addAllKillSources(*targetname);
+            if (m_map != NULL) {
+                addAllLinkTargets();
+                addAllKillTargets();
+                
+                const PropertyValue* targetname = m_properties.property(PropertyKeys::Targetname);
+                if (targetname != NULL && !targetname->empty()) {
+                    addAllLinkSources(*targetname);
+                    addAllKillSources(*targetname);
+                }
             }
         }
 
