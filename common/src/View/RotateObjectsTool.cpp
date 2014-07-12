@@ -132,9 +132,6 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            if (document()->selectedObjects().empty())
-                return;
-            
             updateHandleAxes(inputState);
             
             m_handle.renderHandle(renderContext, highlightHandleArea(inputState));
