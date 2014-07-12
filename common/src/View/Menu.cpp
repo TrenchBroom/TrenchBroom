@@ -54,7 +54,7 @@ namespace TrenchBroom {
         
         ActionMenuItem::ActionMenuItem(const Type type, MenuItemParent* parent, const int id, const int context, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) :
         MenuItemWithCaption(type, parent),
-        m_action(id, context, text, path(text), defaultShortcut, modifiable) {
+        m_action(id, context, text, path(text), defaultShortcut, modifiable, true) {
             assert(type == Type_Action || type == Type_Check);
         }
         

@@ -58,14 +58,16 @@ namespace TrenchBroom {
             String m_name;
             Preference<KeyboardShortcut> m_preference;
             bool m_modifiable;
+            bool m_requiresModifiers;
         public:
-            Action(int id, int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable);
+            Action(int id, int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable, bool requiresModifiers);
             
             int id() const;
             const String& name() const;
             String displayName() const;
             String contextName() const;
             bool modifiable() const;
+            bool requiresModifiers() const;
 
             wxAcceleratorEntry acceleratorEntry() const;
             bool appliesToContext(int context) const;

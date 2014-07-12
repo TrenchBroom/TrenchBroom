@@ -45,12 +45,13 @@ namespace TrenchBroom {
             return StringUtils::join(contexts, ", ");
         }
         
-        Action::Action(int id, int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable) :
+        Action::Action(int id, int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable, bool requiresModifiers) :
         m_id(id),
         m_context(context),
         m_name(name),
         m_preference(preferencePath, defaultShortcut),
-        m_modifiable(modifiable) {}
+        m_modifiable(modifiable),
+        m_requiresModifiers(requiresModifiers) {}
 
         int Action::id() const {
             return m_id;
@@ -70,6 +71,10 @@ namespace TrenchBroom {
 
         bool Action::modifiable() const {
             return m_modifiable;
+        }
+
+        bool Action::requiresModifiers() const {
+            return m_requiresModifiers;
         }
 
         wxAcceleratorEntry Action::acceleratorEntry() const {

@@ -71,21 +71,6 @@ namespace TrenchBroom {
             return *m_menu;
         }
 
-        wxAcceleratorTable ActionManager::createMapViewAcceleratorTable(const Action::Context context) const {
-            typedef std::vector<wxAcceleratorEntry> EntryList;
-            
-            EntryList tableEntries;
-            
-            Action::List::const_iterator it, end;
-            for (it = m_mapViewActions.begin(), end = m_mapViewActions.end(); it != end; ++it) {
-                const Action& action = *it;
-                if (action.appliesToContext(context))
-                    tableEntries.push_back(action.acceleratorEntry());
-            }
-            
-            return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
-        }
-
         wxMenu* ActionManager::createMenu(const Menu& menu) const {
             wxMenu* result = new wxMenu();
             
@@ -121,6 +106,25 @@ namespace TrenchBroom {
             return result;
         }
 
+        Action::List& ActionManager::mapViewActions() {
+            return m_mapViewActions;
+        }
+
+        wxAcceleratorTable ActionManager::createMapViewAcceleratorTable(const Action::Context context) const {
+            typedef std::vector<wxAcceleratorEntry> EntryList;
+            
+            EntryList tableEntries;
+            
+            Action::List::const_iterator it, end;
+            for (it = m_mapViewActions.begin(), end = m_mapViewActions.end(); it != end; ++it) {
+                const Action& action = *it;
+                if (action.appliesToContext(context))
+                    tableEntries.push_back(action.acceleratorEntry());
+            }
+            
+            return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
+        }
+        
         ActionManager::ActionManager() {
             createMapViewActions();
             createMenu();
@@ -206,7 +210,7 @@ namespace TrenchBroom {
         }
 
         void ActionManager::createMapViewAction(const int id, const int context, const String& name, const KeyboardShortcut& defaultShortcut) {
-            m_mapViewActions.push_back(Action(id, context, name, IO::Path("Actions/Map View") + IO::Path(name), defaultShortcut, true));
+            m_mapViewActions.push_back(Action(id, context, name, IO::Path("Actions/Map View") + IO::Path(name), defaultShortcut, true, false));
         }
 
         void ActionManager::createMenu() {
