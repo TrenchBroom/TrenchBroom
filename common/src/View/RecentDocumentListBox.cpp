@@ -35,14 +35,22 @@ namespace TrenchBroom {
         ImageListBox(parent, wxSize(32, 32), "No Recent Documents"),
         m_documentIcon(IO::loadImageResource(IO::Path("images/DocIcon.png"))) {
             assert(m_documentIcon.IsOk());
-            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
+            TrenchBroomApp& app = View::TrenchBroomApp::instance();
+            app.recentDocumentsDidChangeNotifier.addObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
+
             const IO::Path::List& recentDocuments = app.recentDocuments();
             SetItemCount(recentDocuments.size());
+            
             Bind(wxEVT_LISTBOX_DCLICK, &RecentDocumentListBox::OnListBoxDoubleClick, this);
+        }
+        
+        RecentDocumentListBox::~RecentDocumentListBox() {
+            TrenchBroomApp& app = View::TrenchBroomApp::instance();
+            app.recentDocumentsDidChangeNotifier.removeObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);
         }
 
         void RecentDocumentListBox::OnListBoxDoubleClick(wxCommandEvent& event) {
-            const TrenchBroomApp& app = View::TrenchBroomApp::instance();
+            TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
 
             const int index = GetSelection();
@@ -55,6 +63,12 @@ namespace TrenchBroom {
             command.SetEventObject(this);
             command.SetId(GetId());
             ProcessEvent(command);
+        }
+
+        void RecentDocumentListBox::recentDocumentsDidChange() {
+            TrenchBroomApp& app = View::TrenchBroomApp::instance();
+            const IO::Path::List& recentDocuments = app.recentDocuments();
+            SetItemCount(recentDocuments.size());
         }
 
         const wxBitmap& RecentDocumentListBox::image(const size_t n) const {

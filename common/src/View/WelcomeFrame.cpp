@@ -94,7 +94,6 @@ namespace TrenchBroom {
             try {
                 if (app.openDocument(event.documentPath().asString()))
                     Destroy();
-                
                 else
                     Show();
             } catch (...) {

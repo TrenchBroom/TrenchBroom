@@ -104,8 +104,8 @@ namespace TrenchBroom {
 
         bool TrenchBroomApp::openDocument(const String& pathStr) {
             MapFrame* frame = NULL;
+            const IO::Path path(pathStr);
             try {
-                const IO::Path path(pathStr);
                 const Model::GameFactory& gameFactory = Model::GameFactory::instance();
                 Model::GamePtr game = gameFactory.detectGame(path);
                 if (game == NULL) {
@@ -121,14 +121,17 @@ namespace TrenchBroom {
                 frame->openDocument(game, path);
                 return true;
             } catch (const Exception& e) {
-                wxLogError(e.what());
+                m_recentDocuments->removePath(IO::Path(path));
                 if (frame != NULL)
                     frame->Close();
-                throw;
+                ::wxMessageBox(e.what(), "TrenchBroom", wxOK, NULL);
+                return false;
             } catch (...) {
+                m_recentDocuments->removePath(IO::Path(path));
                 if (frame != NULL)
                     frame->Close();
-                throw;
+                ::wxMessageBox(pathStr + " could not be opened.", "TrenchBroom", wxOK, NULL);
+                return false;
             }
         }
 
@@ -199,6 +202,8 @@ namespace TrenchBroom {
 
             Bind(EVT_EXECUTABLE_EVENT, EVT_EXECUTABLE_EVENT_HANDLER(TrenchBroomApp::OnExecutableEvent), this);
 
+            m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
+            
 #ifndef __APPLE__
             if (wxApp::argc > 1) {
                 const wxString filename = wxApp::argv[1];
@@ -214,6 +219,8 @@ namespace TrenchBroom {
         }
 
         int TrenchBroomApp::OnExit() {
+            m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
+
             delete m_frameManager;
             m_frameManager = NULL;
 
@@ -246,12 +253,7 @@ namespace TrenchBroom {
             assert(object != NULL);
             const wxString data = object->GetString();
             
-            try {
-                openDocument(data.ToStdString());
-            } catch (...) {
-                m_recentDocuments->removePath(IO::Path(data.ToStdString()));
-                ::wxMessageBox(data.ToStdString() + " could not be opened.", "TrenchBroom", wxOK, NULL);
-            }
+            openDocument(data.ToStdString());
         }
 
         void TrenchBroomApp::OnOpenPreferences(wxCommandEvent& event) {

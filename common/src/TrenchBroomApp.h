@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__TrenchBroomApp__
 #define __TrenchBroom__TrenchBroomApp__
 
+#include "Notifier.h"
 #include "IO/Path.h"
 #include "Model/ModelTypes.h"
 #include "View/FrameManager.h"
@@ -38,6 +39,8 @@ namespace TrenchBroom {
             FrameManager* m_frameManager;
             RecentDocuments<TrenchBroomApp>* m_recentDocuments;
             wxLongLong m_lastActivation;
+        public:
+            Notifier0 recentDocumentsDidChangeNotifier;
         public:
             static TrenchBroomApp& instance();
 

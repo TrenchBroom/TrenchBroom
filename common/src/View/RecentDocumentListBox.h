@@ -31,9 +31,12 @@ namespace TrenchBroom {
             wxBitmap m_documentIcon;
         public:
             RecentDocumentListBox(wxWindow* parent);
+            ~RecentDocumentListBox();
             
             void OnListBoxDoubleClick(wxCommandEvent& event);
         private:
+            void recentDocumentsDidChange();
+            
             const wxBitmap& image(const size_t n) const;
             wxString title(const size_t n) const;
             wxString subtitle(const size_t n) const;

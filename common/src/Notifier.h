@@ -130,6 +130,14 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool addObserver(Notifier0& notifier) {
+            return addObserver(&notifier, &Notifier0::operator());
+        }
+        
+        bool removeObserver(Notifier0& notifier) {
+            return removeObserver(&notifier, &Notifier0::operator());
+        }
+        
         void notify() {
             const SetBool notifying(m_notifying);
             
@@ -247,6 +255,14 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool addObserver(Notifier1& notifier) {
+            return addObserver(&notifier, &Notifier1::operator());
+        }
+        
+        bool removeObserver(Notifier1& notifier) {
+            return removeObserver(&notifier, &Notifier1::operator());
+        }
+
         template <typename A>
         void notify(A a1) {
             const SetBool notifying(m_notifying);
@@ -382,6 +398,14 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool addObserver(Notifier2& notifier) {
+            return addObserver(&notifier, &Notifier2::operator());
+        }
+        
+        bool removeObserver(Notifier2& notifier) {
+            return removeObserver(&notifier, &Notifier2::operator());
+        }
+
         void notify(A1 a1, A2 a2) {
             const SetBool notifying(m_notifying);
             
@@ -515,6 +539,14 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool addObserver(Notifier3& notifier) {
+            return addObserver(&notifier, &Notifier3::operator());
+        }
+        
+        bool removeObserver(Notifier3& notifier) {
+            return removeObserver(&notifier, &Notifier3::operator());
+        }
+
         void notify(A1 a1, A2 a2, A3 a3) {
             const SetBool notifying(m_notifying);
             

@@ -21,6 +21,7 @@
 #define __TrenchBroom__RecentDocuments__
 
 #include "CollectionUtils.h"
+#include "Notifier.h"
 #include "IO/Path.h"
 
 #include <vector>
@@ -43,6 +44,8 @@ namespace TrenchBroom {
             int m_baseId;
             size_t m_maxSize;
             IO::Path::List m_recentDocuments;
+        public:
+            Notifier0 didChangeNotifier;
         public:
             RecentDocuments(const int baseId, const size_t maxSize) :
             m_handler(NULL),
@@ -86,14 +89,21 @@ namespace TrenchBroom {
                 updateMenus();
                 updateBindings();
                 saveToConfig();
+                didChangeNotifier();
             }
             
             void removePath(const IO::Path& path) {
+                const size_t oldSize = m_recentDocuments.size();
+                
                 const IO::Path canonPath = path.makeCanonical();
                 VectorUtils::remove(m_recentDocuments, canonPath);
-                updateMenus();
-                updateBindings();
-                saveToConfig();
+                
+                if (oldSize > m_recentDocuments.size()) {
+                    updateMenus();
+                    updateBindings();
+                    saveToConfig();
+                    didChangeNotifier();
+                }
             }
         private:
             void loadFromConfig() {
