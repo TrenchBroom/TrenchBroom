@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis, const Vec3& normal, const float rotation) :
+        ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis) :
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
         
