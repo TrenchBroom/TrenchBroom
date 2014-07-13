@@ -91,19 +91,19 @@ namespace TrenchBroom {
             return parser.parseMap(worldBounds);
         }
         
-        Model::EntityList GameImpl::doParseEntities(const BBox3& worldBounds, const String& str) const {
+        Model::EntityList GameImpl::doParseEntities(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
             IO::QuakeMapParser parser(str);
-            return parser.parseEntities(worldBounds);
+            return parser.parseEntities(worldBounds, format);
         }
         
-        Model::BrushList GameImpl::doParseBrushes(const BBox3& worldBounds, const String& str) const {
+        Model::BrushList GameImpl::doParseBrushes(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
             IO::QuakeMapParser parser(str);
-            return parser.parseBrushes(worldBounds);
+            return parser.parseBrushes(worldBounds, format);
         }
         
-        Model::BrushFaceList GameImpl::doParseFaces(const BBox3& worldBounds, const String& str) const {
+        Model::BrushFaceList GameImpl::doParseFaces(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
             IO::QuakeMapParser parser(str);
-            return parser.parseFaces(worldBounds);
+            return parser.parseFaces(worldBounds, format);
         }
         
         void GameImpl::doWriteMap(Map& map, const IO::Path& path) const {

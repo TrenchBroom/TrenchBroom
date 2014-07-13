@@ -127,10 +127,11 @@ namespace TrenchBroom {
         private:
             TokenNameMap tokenNames() const;
             Model::Map* doParseMap(const BBox3& worldBounds);
-            Model::EntityList doParseEntities(const BBox3& worldBounds);
-            Model::BrushList doParseBrushes(const BBox3& worldBounds);
-            Model::BrushFaceList doParseFaces(const BBox3& worldBounds);
+            Model::EntityList doParseEntities(const BBox3& worldBounds, Model::MapFormat::Type format);
+            Model::BrushList doParseBrushes(const BBox3& worldBounds, Model::MapFormat::Type format);
+            Model::BrushFaceList doParseFaces(const BBox3& worldBounds, Model::MapFormat::Type format);
             
+            void setFormat(Model::MapFormat::Type format);
             Model::MapFormat::Type detectFormat();
             Model::Entity* parseEntity(const BBox3& worldBounds);
             void parseEntityProperty(Model::Entity* entity);

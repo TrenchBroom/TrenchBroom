@@ -54,16 +54,16 @@ namespace TrenchBroom {
             return doLoadMap(worldBounds, path);
         }
         
-        Model::EntityList Game::parseEntities(const BBox3& worldBounds, const String& str) const {
-            return doParseEntities(worldBounds, str);
+        Model::EntityList Game::parseEntities(const BBox3& worldBounds, MapFormat::Type format, const String& str) const {
+            return doParseEntities(worldBounds, format, str);
         }
         
-        Model::BrushList Game::parseBrushes(const BBox3& worldBounds, const String& str) const {
-            return doParseBrushes(worldBounds, str);
+        Model::BrushList Game::parseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const {
+            return doParseBrushes(worldBounds, format, str);
         }
         
-        Model::BrushFaceList Game::parseFaces(const BBox3& worldBounds, const String& str) const {
-            return doParseFaces(worldBounds, str);
+        Model::BrushFaceList Game::parseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const {
+            return doParseFaces(worldBounds, format, str);
         }
         
         void Game::writeMap(Map& map, const IO::Path& path) const {

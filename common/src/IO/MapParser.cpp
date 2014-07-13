@@ -27,16 +27,16 @@ namespace TrenchBroom {
             return doParseMap(worldBounds);
         }
 
-        Model::EntityList MapParser::parseEntities(const BBox3& worldBounds) {
-            return doParseEntities(worldBounds);
+        Model::EntityList MapParser::parseEntities(const BBox3& worldBounds, const Model::MapFormat::Type format) {
+            return doParseEntities(worldBounds, format);
         }
         
-        Model::BrushList MapParser::parseBrushes(const BBox3& worldBounds) {
-            return doParseBrushes(worldBounds);
+        Model::BrushList MapParser::parseBrushes(const BBox3& worldBounds, const Model::MapFormat::Type format) {
+            return doParseBrushes(worldBounds, format);
         }
         
-        Model::BrushFaceList MapParser::parseFaces(const BBox3& worldBounds) {
-            return doParseFaces(worldBounds);
+        Model::BrushFaceList MapParser::parseFaces(const BBox3& worldBounds, const Model::MapFormat::Type format) {
+            return doParseFaces(worldBounds, format);
         }
     }
 }

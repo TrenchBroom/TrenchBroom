@@ -178,10 +178,8 @@ namespace TrenchBroom {
         }
 
         Model::Map* QuakeMapParser::doParseMap(const BBox3& worldBounds) {
-            m_format = detectFormat();
-            m_tokenizer.reset();
+            setFormat(detectFormat());
             
-            m_factory = Model::ModelFactory(m_format);
             Model::Map* map = m_factory.createMap();
             try {
                 Model::Entity* entity = parseEntity(worldBounds);
@@ -196,15 +194,10 @@ namespace TrenchBroom {
             }
         }
 
-        Model::EntityList QuakeMapParser::doParseEntities(const BBox3& worldBounds) {
+        Model::EntityList QuakeMapParser::doParseEntities(const BBox3& worldBounds, const Model::MapFormat::Type format) {
             Model::EntityList entities;
             try {
-                m_format = detectFormat();
-                if (m_format == Model::MapFormat::Unknown)
-                    return entities;
-                
-                m_tokenizer.reset();
-
+                setFormat(format);
                 Model::Entity* entity = parseEntity(worldBounds);
                 while (entity != NULL) {
                     entities.push_back(entity);
@@ -216,15 +209,10 @@ namespace TrenchBroom {
             return entities;
         }
         
-        Model::BrushList QuakeMapParser::doParseBrushes(const BBox3& worldBounds) {
+        Model::BrushList QuakeMapParser::doParseBrushes(const BBox3& worldBounds, const Model::MapFormat::Type format) {
             Model::BrushList brushes;
             try {
-                m_format = detectFormat();
-                if (m_format == Model::MapFormat::Unknown)
-                    return brushes;
-
-                m_tokenizer.reset();
-
+                setFormat(format);
                 Model::Brush* brush = parseBrush(worldBounds);
                 while (brush != NULL) {
                     brushes.push_back(brush);
@@ -236,15 +224,10 @@ namespace TrenchBroom {
             return brushes;
         }
         
-        Model::BrushFaceList QuakeMapParser::doParseFaces(const BBox3& worldBounds) {
+        Model::BrushFaceList QuakeMapParser::doParseFaces(const BBox3& worldBounds, const Model::MapFormat::Type format) {
             Model::BrushFaceList faces;
             try {
-                m_format = detectFormat();
-                if (m_format == Model::MapFormat::Unknown)
-                    return faces;
-
-                m_tokenizer.reset();
-
+                setFormat(format);
                 Model::BrushFace* face = parseFace(worldBounds);
                 while (face != NULL) {
                     faces.push_back(face);
@@ -256,37 +239,58 @@ namespace TrenchBroom {
             return faces;
         }
 
+        void QuakeMapParser::setFormat(Model::MapFormat::Type format) {
+            assert(format != Model::MapFormat::Unknown);
+            m_format = format;
+            m_factory = Model::ModelFactory(format);
+        }
+
         Model::MapFormat::Type QuakeMapParser::detectFormat() {
+            Model::MapFormat::Type format = Model::MapFormat::Unknown;
+            
             // try to find an opening parenthesis
             Token token = m_tokenizer.nextToken();
             while (token.type() != QuakeMapToken::OParenthesis &&
                    token.type() != QuakeMapToken::Eof)
                 token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
-                return Model::MapFormat::Quake;
+                format = Model::MapFormat::Quake;
             
-            m_tokenizer.pushToken(token);
-            for (size_t i = 0; i < 3; ++i) {
-                expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
-                parseVector();
-                expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
+            if (format == Model::MapFormat::Unknown) {
+                m_tokenizer.pushToken(token);
+                for (size_t i = 0; i < 3; ++i) {
+                    expect(QuakeMapToken::OParenthesis, token = m_tokenizer.nextToken());
+                    parseVector();
+                    expect(QuakeMapToken::CParenthesis, token = m_tokenizer.nextToken());
+                }
+                
+                expect(QuakeMapToken::String, token = m_tokenizer.nextToken()); // texture name
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OBracket, token = m_tokenizer.nextToken());
+                if (token.type() == QuakeMapToken::OBracket)
+                    format = Model::MapFormat::Valve;
+            }
+
+            if (format == Model::MapFormat::Unknown) {
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y offset
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // rotation
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // x scale
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y scale
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
+                if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
+                    format = Model::MapFormat::Quake;
+            }
+
+            if (format == Model::MapFormat::Unknown) {
+                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken()); // unknown Hexen 2 flag or Quake 2 surface contents
+                if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
+                    format = Model::MapFormat::Hexen2;
             }
             
-            expect(QuakeMapToken::String, token = m_tokenizer.nextToken()); // texture name
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OBracket, token = m_tokenizer.nextToken());
-            if (token.type() == QuakeMapToken::OBracket)
-                return Model::MapFormat::Valve;
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y offset
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // rotation
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // x scale
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y scale
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
-            if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
-                return Model::MapFormat::Quake;
-            expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken()); // unknown Hexen 2 flag or Quake 2 surface contents
-            if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
-                return Model::MapFormat::Hexen2;
-            return Model::MapFormat::Quake2;
+            if (format == Model::MapFormat::Unknown)
+                format = Model::MapFormat::Quake2;
+            
+            m_tokenizer.reset();
+            return format;
         }
 
         Model::Entity* QuakeMapParser::parseEntity(const BBox3& worldBounds) {

@@ -860,7 +860,10 @@ namespace TrenchBroom {
                 Model::Object* object = *oIt;
                 if (object->type() == Model::Object::Type_Entity) {
                     Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    const Model::BrushList& brushes = entity->brushes();
+                    
+                    // we must make a copy of the brush list here because we might need to remove brushes from the
+                    // entity later on, which would result in invalid iterators
+                    const Model::BrushList brushes = entity->brushes();
                     if (!entity->worldspawn()) {
                         pastedObjects.push_back(Model::ObjectParentPair(entity));
                         if (brushes.empty())

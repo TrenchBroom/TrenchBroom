@@ -400,15 +400,15 @@ namespace TrenchBroom {
         }
 
         Model::EntityList MapDocument::parseEntities(const String& str) const {
-            return m_game->parseEntities(m_worldBounds, str);
+            return m_game->parseEntities(m_worldBounds, m_map->format(), str);
         }
         
         Model::BrushList MapDocument::parseBrushes(const String& str) const {
-            return m_game->parseBrushes(m_worldBounds, str);
+            return m_game->parseBrushes(m_worldBounds, m_map->format(), str);
         }
         
         Model::BrushFaceList MapDocument::parseFaces(const String& str) const {
-            return m_game->parseFaces(m_worldBounds, str);
+            return m_game->parseFaces(m_worldBounds, m_map->format(), str);
         }
         
         void MapDocument::writeObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) const {

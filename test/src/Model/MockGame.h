@@ -55,9 +55,9 @@ namespace TrenchBroom {
             
             MOCK_CONST_METHOD1(doNewMap, Map*(Model::MapFormat::Type));
             MOCK_CONST_METHOD2(doLoadMap, Map*(const BBox3&, const IO::Path&));
-            MOCK_CONST_METHOD2(doParseEntities, Model::EntityList(const BBox3&, const String&));
-            MOCK_CONST_METHOD2(doParseBrushes, Model::BrushList(const BBox3&, const String&));
-            MOCK_CONST_METHOD2(doParseFaces, Model::BrushFaceList(const BBox3&, const String&));
+            MOCK_CONST_METHOD3(doParseEntities, Model::EntityList(const BBox3&, Model::MapFormat::Type, const String&));
+            MOCK_CONST_METHOD3(doParseBrushes, Model::BrushList(const BBox3&, Model::MapFormat::Type, const String&));
+            MOCK_CONST_METHOD3(doParseFaces, Model::BrushFaceList(const BBox3&, Model::MapFormat::Type, const String&));
 
             MOCK_CONST_METHOD2(doWriteMap, void(Map&, const IO::Path&));
             MOCK_CONST_METHOD3(doWriteObjectsToStream, void(Model::MapFormat::Type, const Model::ObjectList&, std::ostream&));

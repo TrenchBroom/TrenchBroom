@@ -53,9 +53,9 @@ namespace TrenchBroom {
 
             Map* doNewMap(MapFormat::Type format) const;
             Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
-            EntityList doParseEntities(const BBox3& worldBounds, const String& str) const;
-            BrushList doParseBrushes(const BBox3& worldBounds, const String& str) const;
-            BrushFaceList doParseFaces(const BBox3& worldBounds, const String& str) const;
+            EntityList doParseEntities(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
+            BrushList doParseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
+            BrushFaceList doParseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
             
             void doWriteMap(Map& map, const IO::Path& path) const;
             void doWriteObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const;

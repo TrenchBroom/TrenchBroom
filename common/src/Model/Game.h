@@ -48,9 +48,9 @@ namespace TrenchBroom {
             
             Map* newMap(MapFormat::Type format) const;
             Map* loadMap(const BBox3& worldBounds, const IO::Path& path) const;
-            EntityList parseEntities(const BBox3& worldBounds, const String& str) const;
-            BrushList parseBrushes(const BBox3& worldBounds, const String& str) const;
-            BrushFaceList parseFaces(const BBox3& worldBounds, const String& str) const;
+            EntityList parseEntities(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
+            BrushList parseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
+            BrushFaceList parseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
             
             void writeMap(Map& map, const IO::Path& path) const;
             void writeObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const;
@@ -82,9 +82,9 @@ namespace TrenchBroom {
             
             virtual Map* doNewMap(MapFormat::Type format) const = 0;
             virtual Map* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const = 0;
-            virtual EntityList doParseEntities(const BBox3& worldBounds, const String& str) const = 0;
-            virtual BrushList doParseBrushes(const BBox3& worldBounds, const String& str) const = 0;
-            virtual BrushFaceList doParseFaces(const BBox3& worldBounds, const String& str) const = 0;
+            virtual EntityList doParseEntities(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
+            virtual BrushList doParseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
+            virtual BrushFaceList doParseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
             
             virtual void doWriteMap(Map& map, const IO::Path& path) const = 0;
             virtual void doWriteObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const = 0;
