@@ -54,30 +54,34 @@ namespace TrenchBroom {
         }
 
         void ClipTool::performClip() {
-            // need to make a copy here so that it is not affected by the deselection
+            // need to make a copies here so that we are not affected by the deselection
+            Model::EntityBrushesMap frontBrushes, backBrushes;
+            using std::swap;
+            swap(frontBrushes, m_frontBrushes);
+            swap(backBrushes, m_backBrushes);
+            
             const Model::ObjectList objects = document()->selectedObjects();
             
             const UndoableCommandGroup commandGroup(controller(), objects.size() == 1 ? "Clip Brush" : "Clip Brushes");
             controller()->deselectAll();
             controller()->removeObjects(objects);
 
-            if (!m_frontBrushes.empty() && m_clipper.keepFrontBrushes()) {
-                const Model::ObjectParentList frontBrushes = Model::makeObjectParentList(m_frontBrushes);
-                controller()->addObjects(frontBrushes);
-                controller()->selectObjects(makeObjectList(frontBrushes));
-                m_frontBrushes.clear();
+            if (!frontBrushes.empty() && m_clipper.keepFrontBrushes()) {
+                const Model::ObjectParentList brushes = Model::makeObjectParentList(frontBrushes);
+                controller()->addObjects(brushes);
+                controller()->selectObjects(makeObjectList(brushes));
+                frontBrushes.clear();
             } else {
-                clearAndDelete(m_frontBrushes);
+                clearAndDelete(frontBrushes);
             }
-            if (!m_backBrushes.empty() && m_clipper.keepBackBrushes()) {
-                const Model::ObjectParentList backBrushes = Model::makeObjectParentList(m_backBrushes);
-                controller()->addObjects(backBrushes);
-                controller()->selectObjects(makeObjectList(backBrushes));
-                m_backBrushes.clear();
+            if (!backBrushes.empty() && m_clipper.keepBackBrushes()) {
+                const Model::ObjectParentList brushes = Model::makeObjectParentList(backBrushes);
+                controller()->addObjects(brushes);
+                controller()->selectObjects(makeObjectList(brushes));
+                backBrushes.clear();
             } else {
-                clearAndDelete(m_backBrushes);
+                clearAndDelete(backBrushes);
             }
-            controller()->closeGroup();
             
             m_clipper.reset();
             updateBrushes();
