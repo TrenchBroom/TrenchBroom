@@ -19,6 +19,7 @@
 
 #include "InputState.h"
 
+#include "Macros.h"
 #include <wx/utils.h>
 
 namespace TrenchBroom {
@@ -72,6 +73,24 @@ namespace TrenchBroom {
             if (key3 != ModifierKeys::MKDontCare && modifierKeysPressed(key3))
                 return true;
             return false;
+        }
+        
+        bool InputState::checkModifierKeys(const ModifierKeyPressed ctrl, const ModifierKeyPressed alt, const ModifierKeyPressed shift) const {
+            return (checkModifierKey(ctrl, ModifierKeys::MKCtrlCmd) &&
+                    checkModifierKey(alt, ModifierKeys::MKAlt) &&
+                    checkModifierKey(shift, ModifierKeys::MKShift));
+        }
+
+        bool InputState::checkModifierKey(ModifierKeyPressed state, ModifierKeyState key) const {
+            switch (state) {
+                case MK_Yes:
+                    return modifierKeysDown(key);
+                case MK_No:
+                    return !modifierKeysDown(key);
+                case MK_DontCare:
+                    return true;
+                DEFAULT_SWITCH()
+            }
         }
 
         MouseButtonState InputState::mouseButtons() const {

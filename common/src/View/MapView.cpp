@@ -52,6 +52,7 @@
 #include "View/ResizeBrushesTool.h"
 #include "View/RotateObjectsTool.h"
 #include "View/SelectionTool.h"
+#include "View/SetFaceAttribsTool.h"
 #include "View/TextureTool.h"
 #include "View/VertexTool.h"
 #include "View/wxUtils.h"
@@ -80,6 +81,7 @@ namespace TrenchBroom {
         m_resizeBrushesTool(NULL),
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
+        m_setFaceAttribsTool(NULL),
         m_textureTool(NULL),
         m_flyModeHelper(this, camera),
         m_renderer(document, contextHolder()->fontManager()),
@@ -1071,6 +1073,7 @@ namespace TrenchBroom {
             m_resizeBrushesTool = new ResizeBrushesTool(m_document, m_controller, m_camera);
             m_rotateObjectsTool = new RotateObjectsTool(m_document, m_controller, m_camera, m_movementRestriction, font);
             m_selectionTool = new SelectionTool(m_document, m_controller);
+            m_setFaceAttribsTool = new SetFaceAttribsTool(m_document, m_controller);
             m_textureTool = new TextureTool(m_document, m_controller);
             m_vertexTool = new VertexTool(m_document, m_controller, m_movementRestriction, font);
             
@@ -1083,6 +1086,7 @@ namespace TrenchBroom {
             m_toolBox.addTool(m_createBrushTool);
             m_toolBox.addTool(m_moveObjectsTool);
             m_toolBox.addTool(m_resizeBrushesTool);
+            m_toolBox.addTool(m_setFaceAttribsTool);
             m_toolBox.addTool(m_selectionTool);
         }
         
@@ -1103,6 +1107,8 @@ namespace TrenchBroom {
             m_rotateObjectsTool = NULL;
             delete m_selectionTool;
             m_selectionTool = NULL;
+            delete m_setFaceAttribsTool;
+            m_setFaceAttribsTool = NULL;
             delete m_textureTool;
             m_textureTool = NULL;
             delete m_vertexTool;

@@ -68,6 +68,7 @@ namespace TrenchBroom {
         class ResizeBrushesTool;
         class RotateObjectsTool;
         class SelectionTool;
+        class SetFaceAttribsTool;
         class TextureTool;
         class VertexTool;
         
@@ -93,6 +94,7 @@ namespace TrenchBroom {
             ResizeBrushesTool* m_resizeBrushesTool;
             RotateObjectsTool* m_rotateObjectsTool;
             SelectionTool* m_selectionTool;
+            SetFaceAttribsTool* m_setFaceAttribsTool;
             TextureTool* m_textureTool;
 
             FlyModeHelper m_flyModeHelper;

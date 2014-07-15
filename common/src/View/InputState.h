@@ -35,6 +35,12 @@ namespace TrenchBroom {
             static const ModifierKeyState MKDontCare  = 1 << 3;
         }
         
+        typedef enum {
+            MK_Yes,
+            MK_No,
+            MK_DontCare
+        } ModifierKeyPressed;
+        
         typedef unsigned int MouseButtonState;
         namespace MouseButtons {
             static const MouseButtonState MBNone      = 0;
@@ -67,6 +73,8 @@ namespace TrenchBroom {
             bool modifierKeysDown(ModifierKeyState keys) const;
             bool modifierKeysPressed(ModifierKeyState keys) const;
             bool checkModifierKeys(ModifierKeyState key1, ModifierKeyState key2 = ModifierKeys::MKDontCare, ModifierKeyState key3 = ModifierKeys::MKDontCare, ModifierKeyState key4 = ModifierKeys::MKDontCare) const;
+            bool checkModifierKeys(ModifierKeyPressed ctrl, ModifierKeyPressed alt, ModifierKeyPressed shift) const;
+            bool checkModifierKey(ModifierKeyPressed state, ModifierKeyState key) const;
             
             MouseButtonState mouseButtons() const;
             bool mouseButtonsDown(MouseButtonState buttons) const;
