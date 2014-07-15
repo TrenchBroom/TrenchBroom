@@ -222,8 +222,10 @@ namespace TrenchBroom {
             void updateReparentBrushesMenuItem(wxUpdateUIEvent& event) const;
             void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
             Model::Entity* findNewBrushParent(const Model::BrushList& brushes) const;
+            void reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent);
             bool canReparentBrushes(const Model::BrushList& brushes, const Model::Entity* newParent) const;
-            void reparentBrushes(const Model::BrushList brushes, Model::Entity* newParent);
+            Model::BrushList filterReparentableBrushes(const Model::BrushList& brushes, Model::Entity* newParent);
+            
             Assets::EntityDefinition* findEntityDefinition(const Assets::EntityDefinitionGroups& groups, const size_t index) const;
             void createPointEntity(const Assets::PointEntityDefinition& definition);
             void createBrushEntity(const Assets::BrushEntityDefinition& definition);

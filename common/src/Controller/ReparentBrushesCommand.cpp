@@ -66,11 +66,13 @@ namespace TrenchBroom {
                 m_oldParents[brush] = oldParent;
                 
                 document->objectWillChangeNotifier(oldParent);
-                document->objectWillChangeNotifier(brush);
+
+                document->objectWillBeRemovedNotifier(brush);
                 oldParent->removeBrush(brush);
-                m_newParent->addBrush(brush);
-                document->objectDidChangeNotifier(brush);
                 document->objectDidChangeNotifier(oldParent);
+                
+                m_newParent->addBrush(brush);
+                document->objectWasAddedNotifier(brush);
                 
                 if (oldParent->brushes().empty() && !oldParent->worldspawn())
                     m_emptyEntities.push_back(oldParent);
