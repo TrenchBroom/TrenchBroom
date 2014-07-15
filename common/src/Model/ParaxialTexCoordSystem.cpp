@@ -109,16 +109,24 @@ namespace TrenchBroom {
         }
 
         void ParaxialTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture) {
-            if (!lockTexture || attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
+            
+            const Vec3 offset     = transformation * Vec3::Null;
+            const Vec3& oldNormal = oldBoundary.normal;
+                  Vec3 newNormal  = transformation * oldNormal - offset;
+            // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
+            if (newNormal.equals(oldNormal, 0.01))
+                newNormal = oldNormal;
+            
+            if (!lockTexture || attribs.xScale() == 0.0f || attribs.yScale() == 0.0f) {
+                setRotation(newNormal, attribs.rotation(), attribs.rotation());
                 return;
+            }
 
             // calculate the current texture coordinates of the origin
-            const Vec3& oldNormal = oldBoundary.normal;
             const Vec3 oldAnchor  = oldBoundary.anchor();
             const Vec2f oldAnchorTexCoords = computeTexCoords(oldAnchor, attribs.scale()) + attribs.offset();
             
             // compute the parameters of the transformed texture coordinate system
-            const Vec3 offset = transformation * Vec3::Null;
             const Vec3 newAnchor = transformation * oldAnchor;
             
             const Mat4x4 toBoundary        = planeProjectionMatrix(0.0, oldNormal, crossed(m_xAxis, m_yAxis).normalized());
@@ -128,12 +136,7 @@ namespace TrenchBroom {
             // compensate the translational part of the transformation for the directional vectors
             const Vec3 newXAxisOnBoundary = transformation * projectToBoundary * (m_xAxis * attribs.xScale()) - offset;
             const Vec3 newYAxisOnBoundary = transformation * projectToBoundary * (m_yAxis * attribs.yScale()) - offset;
-                  Vec3 newNormal          = transformation * oldNormal - offset;
             assert(Math::eq(newNormal.length(), 1.0));
-            
-            // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
-            if (newNormal.equals(oldNormal, 0.01))
-                newNormal = oldNormal;
             
             // obtain the new texture plane norm and the new base texture axes
             Vec3 newBaseXAxis, newBaseYAxis, newProjectionAxis;
