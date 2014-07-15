@@ -386,9 +386,10 @@ namespace TrenchBroom {
         }
         
         void ToolBox::renderTools(Renderer::RenderContext& renderContext) {
-            if (m_modalReceiver != NULL)
+            /* if (m_modalReceiver != NULL)
                 m_modalReceiver->renderOnly(m_inputState, renderContext);
-            else if (m_toolChain != NULL)
+            else */
+            if (m_toolChain != NULL)
                 m_toolChain->renderChain(m_inputState, renderContext);
         }
         
