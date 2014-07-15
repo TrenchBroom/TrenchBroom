@@ -19,6 +19,7 @@
 
 #include "ActionManager.h"
 
+#include "IO/Path.h"
 #include "View/CommandIds.h"
 #include "View/Menu.h"
 
@@ -53,6 +54,10 @@ namespace TrenchBroom {
             return m_menu->findAction(id);
         }
         
+        Menu& ActionManager::getMenu() {
+            return *m_menu;
+        }
+        
         wxMenuBar* ActionManager::createMenuBar() const {
             wxMenuBar* menuBar = new wxMenuBar();
             
@@ -67,8 +72,8 @@ namespace TrenchBroom {
             return menuBar;
         }
 
-        Menu& ActionManager::getMenu() {
-            return *m_menu;
+        bool ActionManager::isMenuShortcutPreference(const IO::Path& path) const {
+            return !path.isEmpty() && path.firstComponent().asString() == "Menu";
         }
 
         wxMenu* ActionManager::createMenu(const Menu& menu) const {
@@ -300,7 +305,7 @@ namespace TrenchBroom {
 #ifdef __APPLE__
             // these won't show up in the app menu if we don't add them here
             fileMenu.addUnmodifiableActionItem(wxID_ABOUT, Action::Context_Any, "About TrenchBroom");
-            fileMenu.addUnmodifiableActionItem(wxID_PREFERENCES, Action::Context_Any, "Preferences...", KeyboardShortcut(';', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_PREFERENCES, Action::Context_Any, "Preferences...", KeyboardShortcut(',', WXK_CONTROL));
             fileMenu.addUnmodifiableActionItem(wxID_EXIT, Action::Context_Any, "Exit");
 #else
             viewMenu.addSeparator();

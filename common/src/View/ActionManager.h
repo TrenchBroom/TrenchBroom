@@ -27,6 +27,10 @@ class wxMenu;
 class wxMenuBar;
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace View {
         class Menu;
         
@@ -43,6 +47,7 @@ namespace TrenchBroom {
 
             Menu& getMenu();
             wxMenuBar* createMenuBar() const;
+            bool isMenuShortcutPreference(const IO::Path& path) const;
             
             Action::List& mapViewActions();
             wxAcceleratorTable createMapViewAcceleratorTable(Action::Context context) const;

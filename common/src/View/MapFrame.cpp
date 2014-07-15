@@ -644,13 +644,23 @@ namespace TrenchBroom {
         }
 
         void MapFrame::bindObservers() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MapFrame::preferenceDidChange);
             m_controller->commandDoneNotifier.addObserver(this, &MapFrame::commandDone);
             m_controller->commandUndoneNotifier.addObserver(this, &MapFrame::commandUndone);
         }
         
         void MapFrame::unbindObservers() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapFrame::preferenceDidChange);
             m_controller->commandDoneNotifier.removeObserver(this, &MapFrame::commandDone);
             m_controller->commandUndoneNotifier.removeObserver(this, &MapFrame::commandUndone);
+        }
+
+        void MapFrame::preferenceDidChange(const IO::Path& path) {
+            const ActionManager& actionManager = ActionManager::instance();
+            if (actionManager.isMenuShortcutPreference(path))
+                rebuildMenuBar();
         }
 
         void MapFrame::commandDone(Controller::Command::Ptr command) {
@@ -754,6 +764,22 @@ namespace TrenchBroom {
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
             
             Bind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
+        }
+        
+        void MapFrame::rebuildMenuBar() {
+            wxMenuBar* oldMenuBar = GetMenuBar();
+            
+            const ActionManager& actionManager = ActionManager::instance();
+            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(oldMenuBar);
+            assert(recentDocumentsMenu != NULL);
+            
+            TrenchBroomApp& app = TrenchBroomApp::instance();
+            app.removeRecentDocumentMenu(recentDocumentsMenu);
+            
+            SetMenuBar(NULL);
+            delete oldMenuBar;
+            
+            createMenuBar();
         }
         
         void MapFrame::createMenuBar() {

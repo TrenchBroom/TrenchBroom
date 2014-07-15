@@ -186,6 +186,8 @@ namespace TrenchBroom {
             const ActionEntry::Ptr entry = m_entries[rowIndex];
             if (!entry->modifiable())
                 return false;
+            if (key == WXK_NONE)
+                return true;
             if (entry->requiresModifiers() && modifier1 != WXK_COMMAND && modifier2 != WXK_COMMAND && modifier3 != WXK_COMMAND)
                 return false;
             return true;

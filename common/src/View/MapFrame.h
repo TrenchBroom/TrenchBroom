@@ -135,12 +135,14 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
 
+            void preferenceDidChange(const IO::Path& path);
             void commandDone(Controller::Command::Ptr command);
             void commandUndone(Controller::Command::Ptr command);
 
             void createGui();
             void bindEvents();
 
+            void rebuildMenuBar();
             void createMenuBar();
             void updateTitle();
 
