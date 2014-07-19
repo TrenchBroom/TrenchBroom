@@ -40,6 +40,7 @@ namespace TrenchBroom {
             static const Hit::HitType YHandleHit;
         private:
             static const FloatType MaxPickDistance;
+            static const float OriginHandleRadius;
             
             typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
 
@@ -64,7 +65,11 @@ namespace TrenchBroom {
             void doCancelMouseDrag(const InputState& inputState);
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+            
+            void renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext);
             EdgeVertex::List getHandleVertices(const Hits& hits) const;
+            
+            void renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
     }
 }

@@ -112,7 +112,7 @@ public:
     };
     
     const PointDistance squaredDistanceToPoint(const Vec<T,S>& point) const {
-        const Vec3f originToPoint = point - origin;
+        const Vec<T,S> originToPoint = point - origin;
         PointDistance result;
         result.rayDistance = std::max(originToPoint.dot(direction), static_cast<T>(0.0));
         if (result.rayDistance == static_cast<T>(0.0))
