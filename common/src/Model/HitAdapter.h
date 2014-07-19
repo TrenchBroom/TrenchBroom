@@ -52,6 +52,7 @@ namespace TrenchBroom {
         };
 
         const Hit& findFirstHit(const Hits& hits, Hit::HitType type, const ModelFilter& filter, bool ignoreOccluders);
+        const Hit& findFirstHit(const Hits& hits, Hit::HitType type, const ModelFilter& filter, bool ignoreOccluders, bool selectedOnly);
     }
 }
 

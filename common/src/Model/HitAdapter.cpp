@@ -75,8 +75,15 @@ namespace TrenchBroom {
             return false;
         }
 
-        const Hit& findFirstHit(const Hits& hits, Hit::HitType type, const ModelFilter& filter, bool ignoreOccluders) {
-            return hits.findFirst(chainHitFilter(TypedHitFilter(type), DefaultHitFilter(filter)), ignoreOccluders);
+        const Hit& findFirstHit(const Hits& hits, const Hit::HitType type, const ModelFilter& filter, bool ignoreOccluders) {
+            return findFirstHit(hits, type, filter, ignoreOccluders, false);
+        }
+        
+        const Hit& findFirstHit(const Hits& hits, Hit::HitType type, const ModelFilter& filter, const bool ignoreOccluders, const bool selectedOnly) {
+            HitFilterChain hitFilter = chainHitFilter(TypedHitFilter(type), DefaultHitFilter(filter));
+            if (selectedOnly)
+                hitFilter = chainHitFilter(SelectionHitFilter(), hitFilter);
+            return hits.findFirst(hitFilter, ignoreOccluders);
         }
     }
 }
