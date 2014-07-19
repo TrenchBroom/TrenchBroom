@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVViewOriginTool__
-#define __TrenchBroom__UVViewOriginTool__
+#ifndef __TrenchBroom__UVOriginTool__
+#define __TrenchBroom__UVOriginTool__
 
 #include "Hit.h"
 #include "Renderer/VertexSpec.h"
@@ -34,7 +34,7 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVViewOriginTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class UVOriginTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         public:
             static const Hit::HitType XHandleHit;
             static const Hit::HitType YHandleHit;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             Vec2f m_lastPoint;
             Vec2f m_selector;
         public:
-            UVViewOriginTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
+            UVOriginTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:
             void doPick(const InputState& inputState, Hits& hits);
 
@@ -74,4 +74,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVViewOriginTool__) */
+#endif /* defined(__TrenchBroom__UVOriginTool__) */

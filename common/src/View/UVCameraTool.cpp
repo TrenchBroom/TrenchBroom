@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "UVViewCameraTool.h"
+#include "UVCameraTool.h"
 
 #include "VecMath.h"
 #include "View/InputState.h"
@@ -25,11 +25,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        UVViewCameraTool::UVViewCameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::OrthographicCamera& camera) :
+        UVCameraTool::UVCameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::OrthographicCamera& camera) :
         ToolImpl(document, controller),
         m_camera(camera) {}
         
-        void UVViewCameraTool::doScroll(const InputState& inputState) {
+        void UVCameraTool::doScroll(const InputState& inputState) {
             const Vec3f oldWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
                                                          static_cast<float>(inputState.mouseY()),
                                                          0.0f);
@@ -47,11 +47,11 @@ namespace TrenchBroom {
             m_camera.moveBy(delta);
         }
         
-        bool UVViewCameraTool::doStartMouseDrag(const InputState& inputState) {
+        bool UVCameraTool::doStartMouseDrag(const InputState& inputState) {
             return inputState.mouseButtonsPressed(MouseButtons::MBRight);
         }
         
-        bool UVViewCameraTool::doMouseDrag(const InputState& inputState) {
+        bool UVCameraTool::doMouseDrag(const InputState& inputState) {
             const int oldX = inputState.mouseX() - inputState.mouseDX();
             const int oldY = inputState.mouseY() - inputState.mouseDY();
             
@@ -66,8 +66,8 @@ namespace TrenchBroom {
             return true;
         }
         
-        void UVViewCameraTool::doEndMouseDrag(const InputState& inputState) {}
+        void UVCameraTool::doEndMouseDrag(const InputState& inputState) {}
         
-        void UVViewCameraTool::doCancelMouseDrag(const InputState& inputState) {}
+        void UVCameraTool::doCancelMouseDrag(const InputState& inputState) {}
     }
 }

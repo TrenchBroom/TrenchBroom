@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "UVViewShearTool.h"
+#include "UVShearTool.h"
 
 #include "Model/BrushFace.h"
 #include "View/InputState.h"
@@ -25,10 +25,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        UVViewShearTool::UVViewShearTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
-        UVViewTextureGridTool(document, controller, helper) {}
+        UVShearTool::UVShearTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
+        UVGridTool(document, controller, helper) {}
 
-        bool UVViewShearTool::checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const {
+        bool UVShearTool::checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const {
             if (!inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
@@ -39,17 +39,17 @@ namespace TrenchBroom {
             return true;
         }
         
-        String UVViewShearTool::getActionName() const {
+        String UVShearTool::getActionName() const {
             return "Shear Texture";
         }
         
-        void UVViewShearTool::startDrag(const Vec2f& pos) {
+        void UVShearTool::startDrag(const Vec2f& pos) {
             const Model::BrushFace* face = m_helper.face();
             m_axisLength[0] = face->textureXAxis().length();
             m_axisLength[1] = face->textureYAxis().length();
         }
 
-        Vec2f UVViewShearTool::performDrag(const Vec2f& delta) {
+        Vec2f UVShearTool::performDrag(const Vec2f& delta) {
             // all positions in unscaled and untranslated texture coordinates
             const Vec2f originPos = m_helper.originInFaceCoords();
             const Vec2f curHandlePos = getHandlePos();
@@ -57,11 +57,11 @@ namespace TrenchBroom {
             return Vec2f::Null;
         }
         
-        Vec2f UVViewShearTool::snap(const Vec2f& position) const {
+        Vec2f UVShearTool::snap(const Vec2f& position) const {
             return position;
         }
         
-        void UVViewShearTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+        void UVShearTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
         }
     }
 }

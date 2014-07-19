@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "UVViewOffsetTool.h"
+#include "UVOffsetTool.h"
 
 #include "Hit.h"
 #include "Model/BrushFace.h"
@@ -31,11 +31,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        UVViewOffsetTool::UVViewOffsetTool(MapDocumentWPtr document, ControllerWPtr controller, const UVViewHelper& helper) :
+        UVOffsetTool::UVOffsetTool(MapDocumentWPtr document, ControllerWPtr controller, const UVViewHelper& helper) :
         ToolImpl(document, controller),
         m_helper(helper) {}
         
-        bool UVViewOffsetTool::doStartMouseDrag(const InputState& inputState) {
+        bool UVOffsetTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
             
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool UVViewOffsetTool::doMouseDrag(const InputState& inputState) {
+        bool UVOffsetTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
 
             const Vec2f curPoint = computeHitPoint(inputState.pickRay());
@@ -68,15 +68,15 @@ namespace TrenchBroom {
             return true;
         }
         
-        void UVViewOffsetTool::doEndMouseDrag(const InputState& inputState) {
+        void UVOffsetTool::doEndMouseDrag(const InputState& inputState) {
             controller()->closeGroup();
         }
         
-        void UVViewOffsetTool::doCancelMouseDrag(const InputState& inputState) {
+        void UVOffsetTool::doCancelMouseDrag(const InputState& inputState) {
             controller()->rollbackGroup();
         }
 
-        Vec2f UVViewOffsetTool::computeHitPoint(const Ray3& ray) const {
+        Vec2f UVOffsetTool::computeHitPoint(const Ray3& ray) const {
             const Model::BrushFace* face = m_helper.face();
             const Plane3& boundary = face->boundary();
             const FloatType distance = boundary.intersectWithRay(ray);
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             return Vec2f(transform * hitPoint);
         }
 
-        Vec2f UVViewOffsetTool::snapDelta(const Vec2f& delta) const {
+        Vec2f UVOffsetTool::snapDelta(const Vec2f& delta) const {
             const Model::BrushFace* face = m_helper.face();
             assert(face != NULL);
             

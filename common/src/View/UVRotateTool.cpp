@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "UVViewRotateTool.h"
+#include "UVRotateTool.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -38,16 +38,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType UVViewRotateTool::AngleHandleHit = Hit::freeHitType();
-        const float UVViewRotateTool::CenterHandleRadius =  2.5f;
-        const float UVViewRotateTool::RotateHandleRadius = 32.0f;
-        const float UVViewRotateTool::RotateHandleWidth  =  5.0f;
+        const Hit::HitType UVRotateTool::AngleHandleHit = Hit::freeHitType();
+        const float UVRotateTool::CenterHandleRadius =  2.5f;
+        const float UVRotateTool::RotateHandleRadius = 32.0f;
+        const float UVRotateTool::RotateHandleWidth  =  5.0f;
 
-        UVViewRotateTool::UVViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
+        UVRotateTool::UVRotateTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
         ToolImpl(document, controller),
         m_helper(helper) {}
         
-        void UVViewRotateTool::doPick(const InputState& inputState, Hits& hits) {
+        void UVRotateTool::doPick(const InputState& inputState, Hits& hits) {
             if (!m_helper.valid())
                 return;
 
@@ -71,7 +71,7 @@ namespace TrenchBroom {
                 hits.addHit(Hit(AngleHandleHit, distance, hitPoint, 0, error));
         }
         
-        bool UVViewRotateTool::doStartMouseDrag(const InputState& inputState) {
+        bool UVRotateTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
             
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
@@ -95,7 +95,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool UVViewRotateTool::doMouseDrag(const InputState& inputState) {
+        bool UVRotateTool::doMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
             
             Model::BrushFace* face = m_helper.face();
@@ -131,13 +131,13 @@ namespace TrenchBroom {
             return true;
         }
         
-        float UVViewRotateTool::measureAngle(const Vec2f& point) const {
+        float UVRotateTool::measureAngle(const Vec2f& point) const {
             const Model::BrushFace* face = m_helper.face();
             const Vec2f origin = m_helper.originInFaceCoords();
             return Math::mod(face->measureTextureAngle(origin, point), 360.0f);
         }
         
-        float UVViewRotateTool::snapAngle(const float angle) const {
+        float UVRotateTool::snapAngle(const float angle) const {
             const Model::BrushFace* face = m_helper.face();
             
             const float angles[] = {
@@ -169,15 +169,15 @@ namespace TrenchBroom {
             return angle;
         }
 
-        void UVViewRotateTool::doEndMouseDrag(const InputState& inputState) {
+        void UVRotateTool::doEndMouseDrag(const InputState& inputState) {
             controller()->closeGroup();
         }
         
-        void UVViewRotateTool::doCancelMouseDrag(const InputState& inputState) {
+        void UVRotateTool::doCancelMouseDrag(const InputState& inputState) {
             controller()->rollbackGroup();
         }
 
-        void UVViewRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+        void UVRotateTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             if (!m_helper.valid())
                 return;
             

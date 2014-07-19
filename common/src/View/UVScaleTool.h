@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVViewScaleTool__
-#define __TrenchBroom__UVViewScaleTool__
+#ifndef __TrenchBroom__UVScaleTool__
+#define __TrenchBroom__UVScaleTool__
 
 #include "Hit.h"
 #include "Renderer/VertexSpec.h"
-#include "View/UVViewTextureGridTool.h"
+#include "View/UVGridTool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -37,11 +37,11 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVViewScaleTool : public UVViewTextureGridTool {
+        class UVScaleTool : public UVGridTool {
         private:
             typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
         public:
-            UVViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
+            UVScaleTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:
             bool checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const;
             String getActionName() const;
@@ -55,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__UVViewScaleTool__) */
+#endif /* defined(__TrenchBroom__UVScaleTool__) */

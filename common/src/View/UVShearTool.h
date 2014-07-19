@@ -17,33 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVViewOffsetTool__
-#define __TrenchBroom__UVViewOffsetTool__
+#ifndef __TrenchBroom__UVShearTool__
+#define __TrenchBroom__UVShearTool__
 
-#include "Model/ModelTypes.h"
-#include "View/Tool.h"
+#include "Hit.h"
+#include "View/UVGridTool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVViewOffsetTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class UVShearTool : public UVGridTool {
         private:
-            const UVViewHelper& m_helper;
-            Vec2f m_lastPoint;
+            Vec2 m_axisLength;
         public:
-            UVViewOffsetTool(MapDocumentWPtr document, ControllerWPtr controller, const UVViewHelper& helper);
+            UVShearTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:
-            bool doStartMouseDrag(const InputState& inputState);
-            bool doMouseDrag(const InputState& inputState);
-            void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag(const InputState& inputState);
+            bool checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const;
+            String getActionName() const;
             
-            Vec2f computeHitPoint(const Ray3& ray) const;
-            Vec2f snapDelta(const Vec2f& delta) const;
+            void startDrag(const Vec2f& pos);
+            Vec2f performDrag(const Vec2f& delta);
+            Vec2f snap(const Vec2f& position) const;
+            
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__UVViewOffsetTool__) */
+#endif /* defined(__TrenchBroom__UVShearTool__) */

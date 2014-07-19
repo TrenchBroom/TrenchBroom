@@ -27,7 +27,7 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVViewTextureGridTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class UVGridTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
         public:
             static const Hit::HitType XHandleHit;
             static const Hit::HitType YHandleHit;
@@ -38,7 +38,7 @@ namespace TrenchBroom {
             Vec2b m_selector;
             Vec2f m_lastHitPoint; // in non-scaled, non-translated texture coordinates
         protected:
-            UVViewTextureGridTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
+            UVGridTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:
             void doPick(const InputState& inputState, Hits& hits);
 

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "UVViewScaleTool.h"
+#include "UVScaleTool.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
@@ -29,14 +29,14 @@
 #include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
-#include "View/UVViewOriginTool.h"
+#include "View/UVOriginTool.h"
 
 namespace TrenchBroom {
     namespace View {
-        UVViewScaleTool::UVViewScaleTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
-        UVViewTextureGridTool(document, controller, helper) {}
+        UVScaleTool::UVScaleTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
+        UVGridTool(document, controller, helper) {}
 
-        bool UVViewScaleTool::checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const {
+        bool UVScaleTool::checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const {
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
@@ -47,11 +47,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        String UVViewScaleTool::getActionName() const {
+        String UVScaleTool::getActionName() const {
             return "Scale Texture";
         }
         
-        Vec2f UVViewScaleTool::performDrag(const Vec2f& dragDeltaFaceCoords) {
+        Vec2f UVScaleTool::performDrag(const Vec2f& dragDeltaFaceCoords) {
             const Vec2f curHandlePosTexCoords  = getScaledTranslatedHandlePos();
             const Vec2f newHandlePosFaceCoords = getHandlePos() + dragDeltaFaceCoords;
             const Vec2f newHandlePosSnapped    = snap(newHandlePosFaceCoords);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             return dragDeltaFaceCoords - (newHandlePosFaceCoords - newHandlePosSnapped);
         }
         
-        Vec2f UVViewScaleTool::snap(const Vec2f& position) const {
+        Vec2f UVScaleTool::snap(const Vec2f& position) const {
             const Model::BrushFace* face = m_helper.face();
             const Mat4x4 toTex = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
             
@@ -101,14 +101,14 @@ namespace TrenchBroom {
             return position - distance;
         }
         
-        void UVViewScaleTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+        void UVScaleTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             if (!m_helper.valid())
                 return;
             
             // don't overdraw the origin handles
             const Hits& hits = inputState.hits();
-            if (hits.findFirst(UVViewOriginTool::XHandleHit, true).isMatch() ||
-                hits.findFirst(UVViewOriginTool::YHandleHit, true).isMatch())
+            if (hits.findFirst(UVOriginTool::XHandleHit, true).isMatch() ||
+                hits.findFirst(UVOriginTool::YHandleHit, true).isMatch())
                 return;
                 
             EdgeVertex::List vertices = getHandleVertices(hits);
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             glLineWidth(1.0f);
         }
 
-        UVViewScaleTool::EdgeVertex::List UVViewScaleTool::getHandleVertices(const Hits& hits) const {
+        UVScaleTool::EdgeVertex::List UVScaleTool::getHandleVertices(const Hits& hits) const {
             const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
             const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
             const Vec2 stripeSize = m_helper.stripeSize();

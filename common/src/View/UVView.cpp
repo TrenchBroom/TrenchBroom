@@ -33,11 +33,11 @@
 #include "Renderer/VertexSpec.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
-#include "View/UVViewCameraTool.h"
-#include "View/UVViewOffsetTool.h"
-#include "View/UVViewRotateTool.h"
-#include "View/UVViewScaleTool.h"
-#include "View/UVViewOriginTool.h"
+#include "View/UVCameraTool.h"
+#include "View/UVOffsetTool.h"
+#include "View/UVRotateTool.h"
+#include "View/UVScaleTool.h"
+#include "View/UVOriginTool.h"
 
 #include <cassert>
 #include <iostream>
@@ -74,11 +74,11 @@ namespace TrenchBroom {
         }
 
         void UVView::createTools() {
-            m_rotateTool = new UVViewRotateTool(m_document, m_controller, m_helper);
-            m_originTool = new UVViewOriginTool(m_document, m_controller, m_helper);
-            m_scaleTool = new UVViewScaleTool(m_document, m_controller, m_helper);
-            m_offsetTool = new UVViewOffsetTool(m_document, m_controller, m_helper);
-            m_cameraTool = new UVViewCameraTool(m_document, m_controller, m_camera);
+            m_rotateTool = new UVRotateTool(m_document, m_controller, m_helper);
+            m_originTool = new UVOriginTool(m_document, m_controller, m_helper);
+            m_scaleTool = new UVScaleTool(m_document, m_controller, m_helper);
+            m_offsetTool = new UVOffsetTool(m_document, m_controller, m_helper);
+            m_cameraTool = new UVCameraTool(m_document, m_controller, m_camera);
 
             m_toolBox.addTool(m_rotateTool);
             m_toolBox.addTool(m_originTool);

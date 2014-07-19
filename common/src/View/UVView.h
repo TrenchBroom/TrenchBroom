@@ -43,11 +43,11 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class UVViewRotateTool;
-        class UVViewOriginTool;
-        class UVViewScaleTool;
-        class UVViewOffsetTool;
-        class UVViewCameraTool;
+        class UVRotateTool;
+        class UVOriginTool;
+        class UVScaleTool;
+        class UVOffsetTool;
+        class UVCameraTool;
         
         /**
          A view which allows the user to manipulate the texture projection interactively with the mouse. The user can 
@@ -66,11 +66,11 @@ namespace TrenchBroom {
 
             ToolBox m_toolBox;
             
-            UVViewRotateTool* m_rotateTool;
-            UVViewOriginTool* m_originTool;
-            UVViewScaleTool* m_scaleTool;
-            UVViewOffsetTool* m_offsetTool;
-            UVViewCameraTool* m_cameraTool;
+            UVRotateTool* m_rotateTool;
+            UVOriginTool* m_originTool;
+            UVScaleTool* m_scaleTool;
+            UVOffsetTool* m_offsetTool;
+            UVCameraTool* m_cameraTool;
         public:
             UVView(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
             ~UVView();

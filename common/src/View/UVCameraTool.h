@@ -17,49 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__UVViewRotateTool__
-#define __TrenchBroom__UVViewRotateTool__
+#ifndef __TrenchBroom__UVCameraTool__
+#define __TrenchBroom__UVCameraTool__
 
-#include "Hit.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class RenderContext;
+        class OrthographicCamera;
     }
-
+    
     namespace View {
-        class UVViewHelper;
-
-        class UVViewRotateTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
-        public:
-            static const Hit::HitType AngleHandleHit;
+        class UVCameraTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
         private:
-            static const float CenterHandleRadius;
-            static const float RotateHandleRadius;
-            static const float RotateHandleWidth;
-            
-            UVViewHelper& m_helper;
-
-            float m_initalAngle;
+            Renderer::OrthographicCamera& m_camera;
         public:
-            UVViewRotateTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
+            UVCameraTool(MapDocumentWPtr document, ControllerWPtr controller, Renderer::OrthographicCamera& camera);
         private:
-            void doPick(const InputState& inputState, Hits& hits);
-            
+            void doScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
-            
-            float measureAngle(const Vec2f& point) const;
-            float snapAngle(float angle) const;
-            
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag(const InputState& inputState);
-
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__UVViewRotateTool__) */
+#endif /* defined(__TrenchBroom__UVCameraTool__) */
