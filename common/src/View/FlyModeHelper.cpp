@@ -80,8 +80,7 @@ namespace TrenchBroom {
             CGGetLastMouseDelta(&dx, &dy);
 #else
             m_originalMousePos = m_window->ScreenToClient(::wxGetMousePosition());
-            const wxPoint center = windowCenter();
-            m_window->WarpPointer(center.x, center.y);
+            resetMouse();
 #endif
         }
         
@@ -147,7 +146,9 @@ namespace TrenchBroom {
         wxPoint FlyModeHelper::pollMouseDelta() {
 #ifndef __APPLE__
             const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
-            return currentMousePos - windowCenter();
+            const wxPoint delta = currentMousePos - windowCenter();
+            resetMouse();
+            return delta;
 #else
             int32_t dx, dy;
             CGGetLastMouseDelta(&dx, &dy);
