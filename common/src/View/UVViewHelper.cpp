@@ -60,8 +60,8 @@ namespace TrenchBroom {
             if (face != m_face) {
                 m_face = face;
                 if (m_face != NULL) {
-                    resetOrigin();
                     resetCamera();
+                    resetOrigin();
                 }
             }
         }
@@ -193,9 +193,26 @@ namespace TrenchBroom {
         void UVViewHelper::resetOrigin() {
             assert(valid());
             
-            const Mat4x4 toFace = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const BBox3 bounds(toFace * vertexPositions(m_face->vertices()));
-            m_origin = Vec2f(bounds.min);
+            const Mat4x4 toTex = m_face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const BBox3 bounds(toTex * vertexPositions(m_face->vertices()));
+            
+            const Vec3 vertices[] = {
+                bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Min, BBox3::Corner_Min),
+                bounds.vertex(BBox3::Corner_Min, BBox3::Corner_Max, BBox3::Corner_Min),
+                bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Max, BBox3::Corner_Min),
+                bounds.vertex(BBox3::Corner_Max, BBox3::Corner_Min, BBox3::Corner_Min)
+            };
+            
+            const Mat4x4 fromTex = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Mat4x4 toCam(m_camera.viewMatrix());
+            
+            for (size_t i = 0; i < 4; ++i) {
+                const Vec3 vertex = toCam * fromTex * vertices[i];
+                if (vertex.x() < 0.0 && vertex.y() < 0.0) {
+                    m_origin = Vec2f(vertices[i]);
+                    break;
+                }
+            }
         }
         
         void UVViewHelper::resetCamera() {
