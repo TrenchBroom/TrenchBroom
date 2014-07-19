@@ -349,8 +349,7 @@ namespace TrenchBroom {
             Renderer::SetVboState setVboState(m_vbo);
             setVboState.mapped();
             vertexArray.prepare(m_vbo);
-            
-            setVboState.mapped();
+            setVboState.active();
             vertexArray.render();
         }
         
@@ -358,9 +357,6 @@ namespace TrenchBroom {
             typedef std::map<Renderer::FontDescriptor, Renderer::VertexArray> StringRendererMap;
             StringRendererMap stringRenderers;
             
-            Renderer::SetVboState activateVbo(m_vbo);
-            activateVbo.mapped();
-
             { // create and upload all vertex arrays
                 Renderer::SetVboState mapVbo(m_vbo);
                 mapVbo.mapped();
