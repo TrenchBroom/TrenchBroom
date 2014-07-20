@@ -86,15 +86,19 @@ namespace TrenchBroom {
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
-            Vec2f newOffset = oldAnchorTechCoords - newAnchorTexCoords;
-            modOffset(newOffset, attribs.texture());
-            newOffset.correct(4);
-
+            const Vec2f newOffset = attribs.modOffset(oldAnchorTechCoords - newAnchorTexCoords).corrected(4);
             attribs.setOffset(newOffset);
         }
 
-        void ParallelTexCoordSystem::doShearTexture(const Vec3& normal, const Vec2f& factors) {
+        void ParallelTexCoordSystem::doShearTexture(const Vec3& normal, const Vec2f& f) {
+            const Mat4x4 shear( 1.0, f[0], 0.0, 0.0,
+                               f[1],  1.0, 0.0, 0.0,
+                                0.0,  0.0, 1.0, 0.0,
+                                0.0,  0.0, 0.0, 1.0);
             
+            const Mat4x4 transform = fromMatrix(Vec2f::Null, Vec2f::One) * shear * toMatrix(Vec2f::Null, Vec2f::One);
+            m_xAxis = transform * m_xAxis;
+            m_yAxis = transform * m_yAxis;
         }
 
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {

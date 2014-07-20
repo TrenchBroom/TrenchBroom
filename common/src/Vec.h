@@ -719,8 +719,21 @@ public:
         return *this;
     }
     
-    const Vec<T,S> corrected(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) const {
+    Vec<T,S> corrected(const size_t decimals = 0, const T epsilon = Math::Constants<T>::correctEpsilon()) const {
         return Vec<T,S>(*this).correct(decimals, epsilon);
+    }
+    
+    Vec<T,S-1> at(const size_t j, const T a) const {
+        assert(v[j] != 0.0f);
+        
+        const T f = a / v[j];
+        Vec<T,S-1> result;
+        size_t k = 0;
+        for (size_t i = 0; i < S; ++i) {
+            if (i != j)
+                result[k++] = v[i] * f;
+        }
+        return result;
     }
     
     struct EdgeDistance {
@@ -832,6 +845,18 @@ typename Vec<T,S>::List operator*(const T left, const typename Vec<T,S>::List& r
     return right * left;
 }
 
+template <typename T, size_t S>
+std::ostream& operator<< (std::ostream& stream, const Vec<T,S>& vec) {
+    stream << "(";
+    if (S > 0) {
+        stream << vec[0];
+        for (size_t i = 1; i < S; ++i)
+            stream << ", " << vec[i];
+    }
+    stream << ")";
+    return stream;
+}
+
 template <typename T>
 Vec<T,3>& cross(Vec<T,3>& left, const Vec<T,3>& right) {
     return left = crossed(left, right);
@@ -890,4 +915,5 @@ Vec<T,S> absMax(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
         result[i] = Math::absMax(lhs[i], rhs[i]);
     return result;
 }
+
 #endif

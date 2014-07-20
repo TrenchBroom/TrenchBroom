@@ -29,16 +29,14 @@ namespace TrenchBroom {
         class UVViewHelper;
         
         class UVShearTool : public UVGridTool {
-        private:
-            Vec2 m_axisLength;
         public:
             UVShearTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:
             bool checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const;
             String getActionName() const;
             
-            void startDrag(const Vec2f& pos);
             Vec2f performDrag(const Vec2f& delta);
+            Vec2f shearFactors(const Vec2f& delta) const;
             Vec2f snap(const Vec2f& position) const;
             
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);

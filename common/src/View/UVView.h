@@ -46,6 +46,7 @@ namespace TrenchBroom {
         class UVRotateTool;
         class UVOriginTool;
         class UVScaleTool;
+        class UVShearTool;
         class UVOffsetTool;
         class UVCameraTool;
         
@@ -69,6 +70,7 @@ namespace TrenchBroom {
             UVRotateTool* m_rotateTool;
             UVOriginTool* m_originTool;
             UVScaleTool* m_scaleTool;
+            UVShearTool* m_shearTool;
             UVOffsetTool* m_offsetTool;
             UVCameraTool* m_cameraTool;
         public:

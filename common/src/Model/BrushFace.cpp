@@ -69,6 +69,12 @@ namespace TrenchBroom {
             return m_offset.y();
         }
 
+        Vec2f BrushFaceAttribs::modOffset(const Vec2f& offset) const {
+            const Vec2f size = textureSize();
+            return Vec2f(Math::remainder(offset.x(), size.x()),
+                         Math::remainder(offset.y(), size.y()));
+        }
+
         const Vec2f& BrushFaceAttribs::scale() const {
             return m_scale;
         }
@@ -268,6 +274,10 @@ namespace TrenchBroom {
             return m_attribs.texture();
         }
         
+        Vec2f BrushFace::textureSize() const {
+            return m_attribs.textureSize();
+        }
+
         const Vec2f& BrushFace::offset() const {
             return m_attribs.offset();
         }
@@ -280,6 +290,10 @@ namespace TrenchBroom {
             return m_attribs.yOffset();
         }
         
+        Vec2f BrushFace::modOffset(const Vec2f& offset) const {
+            return m_attribs.modOffset(offset);
+        }
+
         const Vec2f& BrushFace::scale() const {
             return m_attribs.scale();
         }

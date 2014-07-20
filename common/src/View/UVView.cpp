@@ -37,6 +37,7 @@
 #include "View/UVOffsetTool.h"
 #include "View/UVRotateTool.h"
 #include "View/UVScaleTool.h"
+#include "View/UVShearTool.h"
 #include "View/UVOriginTool.h"
 
 #include <cassert>
@@ -55,6 +56,7 @@ namespace TrenchBroom {
         m_rotateTool(NULL),
         m_originTool(NULL),
         m_scaleTool(NULL),
+        m_shearTool(NULL),
         m_offsetTool(NULL),
         m_cameraTool(NULL) {
             m_toolBox.setClickToActivate(false);
@@ -77,12 +79,14 @@ namespace TrenchBroom {
             m_rotateTool = new UVRotateTool(m_document, m_controller, m_helper);
             m_originTool = new UVOriginTool(m_document, m_controller, m_helper);
             m_scaleTool = new UVScaleTool(m_document, m_controller, m_helper);
+            m_shearTool = new UVShearTool(m_document, m_controller, m_helper);
             m_offsetTool = new UVOffsetTool(m_document, m_controller, m_helper);
             m_cameraTool = new UVCameraTool(m_document, m_controller, m_camera);
 
             m_toolBox.addTool(m_rotateTool);
             m_toolBox.addTool(m_originTool);
             m_toolBox.addTool(m_scaleTool);
+            m_toolBox.addTool(m_shearTool);
             m_toolBox.addTool(m_offsetTool);
             m_toolBox.addTool(m_cameraTool);
         }
@@ -96,6 +100,8 @@ namespace TrenchBroom {
             m_originTool = NULL;
             delete m_scaleTool;
             m_scaleTool = NULL;
+            delete m_shearTool;
+            m_shearTool = NULL;
             delete m_rotateTool;
             m_rotateTool = NULL;
         }

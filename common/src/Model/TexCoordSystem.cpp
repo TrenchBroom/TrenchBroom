@@ -190,13 +190,6 @@ namespace TrenchBroom {
             return doMeasureAngle(currentAngle, center, point);
         }
 
-        void TexCoordSystem::modOffset(Vec2f& offset, const Assets::Texture* texture) const {
-            const float w = texture != NULL && texture->width() != 0.0f  ? static_cast<float>(texture->width()) : 1.0f;
-            const float h = texture != NULL && texture->height() != 0.0f ? static_cast<float>(texture->height()) : 1.0f;
-            offset[0] -= Math::round(offset[0] / w) * w;
-            offset[1] -= Math::round(offset[1] / h) * h;
-        }
-
         Vec2f TexCoordSystem::computeTexCoords(const Vec3& point, const Vec2f& scale) const {
             return Vec2f(point.dot(safeScaleAxis(getXAxis(), scale.x())),
                          point.dot(safeScaleAxis(getYAxis(), scale.y())));

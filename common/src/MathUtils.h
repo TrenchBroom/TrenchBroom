@@ -118,12 +118,6 @@ namespace Math {
     }
     
     template <typename T>
-    T remainder(const T v1, const T v2) {
-        const T n = round(v1 / v2);
-        return v1 - n * v2;
-    }
-    
-    template <typename T>
     T min(const T v1, const T v2) {
         return std::min(v1, v2);
     }
@@ -171,7 +165,7 @@ namespace Math {
     T round(const T v) {
         return v > 0.0 ? floor(v + static_cast<T>(0.5)) : ceil(v - static_cast<T>(0.5));
     }
-    
+
     template <typename T>
     T correct(const T v, const size_t decimals = 0, const T epsilon = Constants<T>::correctEpsilon()) {
         const T m = static_cast<T>(1 << decimals);
@@ -179,6 +173,12 @@ namespace Math {
         if (abs(v - r) <= epsilon)
             return r / m;
         return v;
+    }
+    
+    template <typename T>
+    T remainder(const T v1, const T v2) {
+        const T n = Math::round(v1 / v2);
+        return v1 - n * v2;
     }
 
     template <typename T>

@@ -61,9 +61,9 @@ namespace TrenchBroom {
 
         bool UVGridTool::doMouseDrag(const InputState& inputState) {
             const Vec2f curPoint = getHitPoint(inputState.pickRay());
-            const Vec2f actualDelta = performDrag(curPoint - m_lastHitPoint);
+            const Vec2f delta = performDrag(curPoint - m_lastHitPoint);
             
-            m_lastHitPoint += actualDelta;
+            m_lastHitPoint += delta;
             return true;
         }
         
@@ -91,6 +91,10 @@ namespace TrenchBroom {
             controller()->rollbackGroup();
         }
         
+        Vec2i UVGridTool::getHandle() const {
+            return m_handle;
+        }
+
         Vec2f UVGridTool::getHandlePos() const {
             const Model::BrushFace* face = m_helper.face();
             const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(face->offset(), face->scale(), true);

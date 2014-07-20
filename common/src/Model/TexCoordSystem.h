@@ -79,8 +79,6 @@ namespace TrenchBroom {
             Vec<T1,3> safeScaleAxis(const Vec<T1,3>& axis, const T2 factor) const {
                 return axis / safeScale(factor);
             }
-            
-            void modOffset(Vec2f& offset, const Assets::Texture* texture) const;
         };
     }
 }

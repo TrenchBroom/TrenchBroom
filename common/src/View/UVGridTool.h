@@ -56,6 +56,7 @@ namespace TrenchBroom {
             virtual void startDrag(const Vec2f& pos);
             virtual Vec2f performDrag(const Vec2f& delta) = 0;
         protected:
+            Vec2i getHandle() const;
             Vec2f getHandlePos() const;
             Vec2f getScaledTranslatedHandlePos() const;
         };

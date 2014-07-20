@@ -62,6 +62,7 @@ namespace TrenchBroom {
             const Vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
+            Vec2f modOffset(const Vec2f& offset) const;
             
             const Vec2f& scale() const;
             float xScale() const;
@@ -153,13 +154,19 @@ namespace TrenchBroom {
             
             const String& textureName() const;
             Assets::Texture* texture() const;
+            Vec2f textureSize() const;
+            
             const Vec2f& offset() const;
             float xOffset() const;
             float yOffset() const;
+            Vec2f modOffset(const Vec2f& offset) const;
+
             const Vec2f& scale() const;
             float xScale() const;
             float yScale() const;
+
             float rotation() const;
+
             int surfaceContents() const;
             int surfaceFlags() const;
             float surfaceValue() const;

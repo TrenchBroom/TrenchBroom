@@ -20,6 +20,7 @@
 #include "UVShearTool.h"
 
 #include "Model/BrushFace.h"
+#include "View/ControllerFacade.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 
@@ -33,7 +34,7 @@ namespace TrenchBroom {
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
-            if (!xHit.isMatch() && !yHit.isMatch())
+            if (!(xHit.isMatch() ^ yHit.isMatch()))
                 return false;
             
             return true;
@@ -43,20 +44,41 @@ namespace TrenchBroom {
             return "Shear Texture";
         }
         
-        void UVShearTool::startDrag(const Vec2f& pos) {
-            const Model::BrushFace* face = m_helper.face();
-            m_axisLength[0] = face->textureXAxis().length();
-            m_axisLength[1] = face->textureYAxis().length();
-        }
-
         Vec2f UVShearTool::performDrag(const Vec2f& delta) {
-            // all positions in unscaled and untranslated texture coordinates
-            const Vec2f originPos = m_helper.originInFaceCoords();
-            const Vec2f curHandlePos = getHandlePos();
-            const Vec2f newHandlePos = curHandlePos + delta;
-            return Vec2f::Null;
+            Model::BrushFace* face = m_helper.face();
+            const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            const Vec3 origin = toWorld * Vec3(m_helper.originInFaceCoords());
+            const Vec2f oldCoords = face->textureCoords(origin) * face->textureSize();
+
+            const UndoableCommandGroup group(controller());
+            const Model::BrushFaceList applyTo(1, face);
+            const Vec2f factors = shearFactors(delta);
+            controller()->shearTextures(applyTo, factors);
+            
+            const Vec2f newCoords = face->textureCoords(origin) * face->textureSize();
+            const Vec2f newOffset = face->modOffset(oldCoords - newCoords).corrected(4);
+            controller()->setFaceOffset(applyTo, newOffset, false);
+            
+            return delta;
         }
         
+        Vec2f UVShearTool::shearFactors(const Vec2f& delta) const {
+            Vec2f factors = delta;
+            
+            const Vec2f lastVec  = m_lastHitPoint - m_helper.originInFaceCoords();
+            const Vec2f curVec   = m_lastHitPoint + delta - m_helper.originInFaceCoords();
+            
+            assert(m_selector[0] ^ m_selector[1]);
+            if (m_selector[0]) {
+                factors[0] = 0.0f;
+                factors[1] = curVec.at(0, 1.0f)[0] - lastVec.at(0, 1.0f)[0];
+            } else {
+                factors[0] = curVec.at(1, 1.0f)[0] - lastVec.at(1, 1.0f)[0];
+                factors[1] = 0.0f;
+            }
+            return factors;
+        }
+
         Vec2f UVShearTool::snap(const Vec2f& position) const {
             return position;
         }
