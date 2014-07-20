@@ -139,9 +139,9 @@ namespace TrenchBroom {
                     } else {
                         dir = normal.firstAxis();
                     }
-                    m_points[0] = point.position.rounded();
-                    m_points[1] = point.position.rounded() + 128.0 * Vec3::PosZ;
-                    m_points[2] = point.position.rounded() + 128.0 * dir;
+                    m_points[0] = point.position;
+                    m_points[1] = point.position + 128.0 * Vec3::PosZ;
+                    m_points[2] = point.position + 128.0 * dir;
                     m_valid = true;
                 }
             } else if (numPoints == 2) {
@@ -152,13 +152,13 @@ namespace TrenchBroom {
                 assert(!point1.normals.empty());
                 
                 const Vec3 normal = selectNormal(point0.normals, point1.normals);
-                m_points[0] = point0.position.rounded();
-                m_points[1] = point0.position.rounded() + 128.0 * normal.firstAxis();
-                m_points[2] = point1.position.rounded();
+                m_points[0] = point0.position;
+                m_points[1] = point0.position + 128.0 * normal.firstAxis();
+                m_points[2] = point1.position;
                 m_valid = true;
             } else if (numPoints == 3) {
                 for (size_t i = 0; i < 3; ++i)
-                    m_points[i] = handlePoints[i].position.rounded();
+                    m_points[i] = handlePoints[i].position;
                 m_valid = true;
             }
         }
