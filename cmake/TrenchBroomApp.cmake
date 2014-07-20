@@ -69,9 +69,9 @@ SET_TARGET_PROPERTIES(TrenchBroom PROPERTIES COMPILE_DEFINITIONS "GLEW_STATIC")
 
 # Create the cmake script for version management
 FIND_PACKAGE(Git)
-CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/Version.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/Version.cmake @ONLY)
+CONFIGURE_FILE("${CMAKE_SOURCE_DIR}/cmake/Version.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/Version.cmake" @ONLY)
 ADD_TARGET_PROPERTY(TrenchBroom INCLUDE_DIRECTORIES ${CMAKE_CURRENT_BINARY_DIR})
-ADD_CUSTOM_TARGET(version ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/Version.cmake)
+ADD_CUSTOM_TARGET(version ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/Version.cmake")
 ADD_DEPENDENCIES(TrenchBroom version)
 
 # Copy some Windows-specific resources
