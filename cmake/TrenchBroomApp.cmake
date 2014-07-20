@@ -86,9 +86,6 @@ IF(WIN32)
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" $<TARGET_FILE_DIR:TrenchBroom>
 	)
-	ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" $<TARGET_FILE_DIR:TrenchBroom-Test>
-	)
 ENDIF()
 
 # Properly link to OpenGL libraries on Linux

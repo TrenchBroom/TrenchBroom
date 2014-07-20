@@ -78,7 +78,7 @@ if   (wxWidgets_FOUND)
 
   if   (wxWidgets_DEFINITIONS_DEBUG)
     set_property(DIRECTORY APPEND
-      PROPERTY COMPILE_DEFINITIONS_DEBUG ${wxWidgets_DEFINITIONS_DEBUG})
+      PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:${wxWidgets_DEFINITIONS_DEBUG}>)
     MSG("wxWidgets_DEFINITIONS_DEBUG=${wxWidgets_DEFINITIONS_DEBUG}")
   endif()
 
