@@ -60,16 +60,14 @@ namespace TrenchBroom {
             swap(frontBrushes, m_frontBrushes);
             swap(backBrushes, m_backBrushes);
             
-            const Model::ObjectList objects = document()->selectedObjects();
+            const Model::ObjectList toRemove = document()->selectedObjects();
+            Model::ObjectList addedObjects;
             
-            const UndoableCommandGroup commandGroup(controller(), objects.size() == 1 ? "Clip Brush" : "Clip Brushes");
-            controller()->deselectAll();
-            controller()->removeObjects(objects);
-
+            const UndoableCommandGroup commandGroup(controller(), toRemove.size() == 1 ? "Clip Brush" : "Clip Brushes");
             if (!frontBrushes.empty() && m_clipper.keepFrontBrushes()) {
                 const Model::ObjectParentList brushes = Model::makeObjectParentList(frontBrushes);
                 controller()->addObjects(brushes);
-                controller()->selectObjects(makeObjectList(brushes));
+                VectorUtils::append(addedObjects, makeObjectList(brushes));
                 frontBrushes.clear();
             } else {
                 clearAndDelete(frontBrushes);
@@ -77,12 +75,16 @@ namespace TrenchBroom {
             if (!backBrushes.empty() && m_clipper.keepBackBrushes()) {
                 const Model::ObjectParentList brushes = Model::makeObjectParentList(backBrushes);
                 controller()->addObjects(brushes);
-                controller()->selectObjects(makeObjectList(brushes));
+                VectorUtils::append(addedObjects, makeObjectList(brushes));
                 backBrushes.clear();
             } else {
                 clearAndDelete(backBrushes);
             }
             
+            controller()->deselectAll();
+            controller()->removeObjects(toRemove);
+            controller()->selectObjects(addedObjects);
+
             m_clipper.reset();
             updateBrushes();
         }
