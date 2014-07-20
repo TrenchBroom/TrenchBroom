@@ -211,6 +211,10 @@ namespace TrenchBroom {
             attribs.setRotation(newRotation);
         }
 
+        void ParaxialTexCoordSystem::doShearTexture(const Vec3& normal, const Vec2f& factors) {
+            // not supported
+        }
+
         float ParaxialTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
             const Vec3& zAxis = m_index % 2 == 0 ? Vec3::PosZ : Vec3::NegZ;
             const Quat3 rot(zAxis, -Math::radians(currentAngle));

@@ -180,6 +180,7 @@ namespace TrenchBroom {
             
             void moveTexture(const Vec3& up, const Vec3& right, const Vec2f& offset);
             void rotateTexture(float angle);
+            void shearTexture(const Vec2f& factors);
             
             void transform(const Mat4x4& transform, const bool lockTexture);
             void invert();

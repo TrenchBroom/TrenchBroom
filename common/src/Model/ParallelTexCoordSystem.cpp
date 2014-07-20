@@ -93,6 +93,10 @@ namespace TrenchBroom {
             attribs.setOffset(newOffset);
         }
 
+        void ParallelTexCoordSystem::doShearTexture(const Vec3& normal, const Vec2f& factors) {
+            
+        }
+
         float ParallelTexCoordSystem::doMeasureAngle(const float currentAngle, const Vec2f& center, const Vec2f& point) const {
             const Vec3 vec(point - center);
             const FloatType angleInRadians = angleBetween(vec.normalized(), Vec3::PosX, Vec3::PosZ);

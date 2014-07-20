@@ -171,6 +171,7 @@ namespace TrenchBroom {
             
             bool moveTextures(const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Vec2f& offset);
             bool rotateTextures(const Model::BrushFaceList& faces, float angle);
+            bool shearTextures(const Model::BrushFaceList& faces, const Vec2f& factors);
         };
     }
 }

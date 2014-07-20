@@ -406,6 +406,11 @@ namespace TrenchBroom {
             invalidate();
         }
 
+        void BrushFace::shearTexture(const Vec2f& factors) {
+            m_texCoordSystem->shearTexture(m_boundary.normal, factors);
+            invalidate();
+        }
+
         void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {
             using std::swap;
 

@@ -37,6 +37,7 @@
 #include "Controller/SelectionCommand.h"
 #include "Controller/SetEntityDefinitionFileCommand.h"
 #include "Controller/SetModsCommand.h"
+#include "Controller/ShearTexturesCommand.h"
 #include "Controller/SnapBrushVerticesCommand.h"
 #include "Controller/SplitBrushEdgesCommand.h"
 #include "Controller/SplitBrushFacesCommand.h"
@@ -637,6 +638,13 @@ namespace TrenchBroom {
             using namespace Controller;
             
             Command::Ptr command = RotateTexturesCommand::rotateTextures(m_document, faces, angle);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::shearTextures(const Model::BrushFaceList& faces, const Vec2f& factors) {
+            using namespace Controller;
+
+            Command::Ptr command = ShearTexturesCommand::shearTextures(m_document, faces, factors);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
     }

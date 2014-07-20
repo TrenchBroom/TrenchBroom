@@ -19,6 +19,7 @@
 
 #include "FaceAttributeCommand.h"
 
+#include "Model/BrushFace.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {

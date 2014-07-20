@@ -169,6 +169,10 @@ namespace TrenchBroom {
             attribs.setRotation(attribs.rotation() + actualAngle);
         }
 
+        void TexCoordSystem::shearTexture(const Vec3& normal, const Vec2f& factors) {
+            doShearTexture(normal, factors);
+        }
+
         Mat4x4 TexCoordSystem::toMatrix(const Vec2f& offset, const Vec2f& scale) const {
             const Vec3 xAxis(getXAxis() * scale.x());
             const Vec3 yAxis(getYAxis() * scale.y());

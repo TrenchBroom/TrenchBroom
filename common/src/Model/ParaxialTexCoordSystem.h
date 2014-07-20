@@ -53,7 +53,8 @@ namespace TrenchBroom {
             
             void doSetRotation(const Vec3& normal, float oldAngle, float newAngle);
             void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture);
-
+            void doShearTexture(const Vec3& normal, const Vec2f& factors);
+            
             float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
         private:
             void rotateAxes(Vec3& xAxis, Vec3& yAxis, FloatType angleInRadians, size_t planeNormIndex) const;
