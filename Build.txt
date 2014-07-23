@@ -67,24 +67,26 @@ http://www.wikihow.com/Install-Mesa-%28OpenGL%29-on-Linux-Mint
 - Some more detailed (possibly outdated) information about building TrenchBroom on Linux: http://andyp123.blogspot.de/2013/03/running-trenchbroom-quake-editor-on.html
 
 wxWidgets
-- Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
-- Move the unpacked directory someplace where you want to keep it.
-- Open a terminal and change into the wxwidgets directory.
-- Create two directories: build-release and build-debug (don't rename those!)
-- Change into wxwidgets/build-release
-- Run 
-  ../configure --disable-shared --with-opengl --with-gtk=2
-- Run make
-- Run sudo make install
-- Change into wxwidgets/build-debug
-- Run 
-  ../configure --enable-debug --with-opengl --with-gtk=2
-- Run make
-- Run sudo make install
+- You have two options here: Either install wxWidgets 3 using your package manager of choice, or download and build it yourself. For the latter, you may follow these instructions:
+  - Get the latest sources of wxWidgets 3 from wxwidgets.org and unpack them.
+  - Move the unpacked directory someplace where you want to keep it.
+  - Open a terminal and change into the wxwidgets directory.
+  - Create two directories: build-release and build-debug (don't rename those!)
+  - Change into wxwidgets/build-release
+  - Run 
+    ../configure --disable-shared --with-opengl --with-gtk=2
+  - Run make
+  - Run sudo make install
+  - Change into wxwidgets/build-debug
+  - Run 
+    ../configure --enable-debug --with-opengl --with-gtk=2
+  - Run make
+  - Run sudo make install
 
 CMake
 - Install CMake using your package manager: sudo apt-get install cmake
 
+Build TrenchBroom
 - Open a terminal and change into the directory where you unpacked the TrenchBroom sources
 - Create a new directory, e.g. "build", and change into it.
 - Run the following two commands
@@ -92,6 +94,10 @@ CMake
   cmake --build .
   You can replace "Release" with "Debug" if you want to create a debug build.
 
+Notes
+- On some systems, such as Xubuntu, you may have to pass the following extra paramter to cmake when creating the build scripts: -DFREETYPE_INCLUDE_PATH=/usr/include/freetype2/freetype
+  So the first cmake command should be
+  cmake .. -DCMAKE_BUILD_TYPE=Release -DFREETYPE_INCLUDE_PATH=/usr/include/freetype2/freetype
 
 ====== Mac OS X ======
 Build environment
