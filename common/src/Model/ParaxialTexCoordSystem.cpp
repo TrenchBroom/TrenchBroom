@@ -66,6 +66,10 @@ namespace TrenchBroom {
             return new ParaxialTexCoordSystem(*this);
         }
 
+        TexCoordSystemSnapshot* ParaxialTexCoordSystem::doTakeSnapshot() {
+            return NULL;
+        }
+
         Vec3 ParaxialTexCoordSystem::getXAxis() const {
             return m_xAxis;
         }

@@ -27,16 +27,31 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttribs;
+        class ParallelTexCoordSystem;
+        
+        class ParallelTexCoordSystemSnapshot : public TexCoordSystemSnapshot {
+        private:
+            ParallelTexCoordSystem* m_coordSystem;
+            Vec3 m_xAxis;
+            Vec3 m_yAxis;
+        public:
+            ParallelTexCoordSystemSnapshot(ParallelTexCoordSystem* coordSystem);
+        private:
+            void doRestore();
+        };
         
         class ParallelTexCoordSystem : public TexCoordSystem {
         private:
             Vec3 m_xAxis;
             Vec3 m_yAxis;
+            
+            friend class ParallelTexCoordSystemSnapshot;
         public:
             ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis);
             ParallelTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2);
         private:
             TexCoordSystem* doClone() const;
+            TexCoordSystemSnapshot* doTakeSnapshot();
             
             Vec3 getXAxis() const;
             Vec3 getYAxis() const;

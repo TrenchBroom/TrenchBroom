@@ -24,10 +24,20 @@
 
 namespace TrenchBroom {
     namespace Model {
+        TexCoordSystemSnapshot::~TexCoordSystemSnapshot() {}
+
+        void TexCoordSystemSnapshot::restore() {
+            doRestore();
+        }
+
         TexCoordSystem::~TexCoordSystem() {}
         
         TexCoordSystem* TexCoordSystem::clone() const {
             return doClone();
+        }
+
+        TexCoordSystemSnapshot* TexCoordSystem::takeSnapshot() {
+            return doTakeSnapshot();
         }
 
         Vec3 TexCoordSystem::xAxis() const {

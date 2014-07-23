@@ -27,8 +27,8 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttribs;
+
         class ParaxialTexCoordSystem : public TexCoordSystem {
-        
         private:
             static const Vec3 BaseAxes[];
             
@@ -43,6 +43,7 @@ namespace TrenchBroom {
             static void axes(size_t index, Vec3& xAxis, Vec3& yAxis, Vec3& projectionAxis);
         private:
             TexCoordSystem* doClone() const;
+            TexCoordSystemSnapshot* doTakeSnapshot();
 
             Vec3 getXAxis() const;
             Vec3 getYAxis() const;

@@ -149,12 +149,15 @@ namespace TrenchBroom {
             m_surfaceValue = surfaceValue;
         }
 
-        BrushFaceSnapshot::BrushFaceSnapshot(BrushFace& face) :
+        BrushFaceSnapshot::BrushFaceSnapshot(BrushFace& face, TexCoordSystem& coordSystem) :
         m_face(&face),
-        m_attribs(m_face->attribs()) {}
-        
+        m_attribs(m_face->attribs()),
+        m_coordSystem(coordSystem.takeSnapshot()) {}
+
         void BrushFaceSnapshot::restore() {
             m_face->setAttribs(m_attribs);
+            if (m_coordSystem != NULL)
+                m_coordSystem->restore();
         }
 
         const String BrushFace::NoTextureName = "__TB_empty";
@@ -204,7 +207,7 @@ namespace TrenchBroom {
         }
 
         BrushFaceSnapshot BrushFace::takeSnapshot() {
-            return BrushFaceSnapshot(*this);
+            return BrushFaceSnapshot(*this, *m_texCoordSystem);
         }
 
         Brush* BrushFace::parent() const {

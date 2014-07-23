@@ -89,10 +89,13 @@ namespace TrenchBroom {
         
         class BrushFaceSnapshot {
         private:
+            typedef std::tr1::shared_ptr<TexCoordSystemSnapshot> TexCoordSystemSnapshotPtr;
+            
             BrushFace* m_face;
             BrushFaceAttribs m_attribs;
+            TexCoordSystemSnapshotPtr m_coordSystem;
         public:
-            BrushFaceSnapshot(BrushFace& face);
+            BrushFaceSnapshot(BrushFace& face, TexCoordSystem& coordSystem);
             void restore();
         };
         

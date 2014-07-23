@@ -31,11 +31,20 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttribs;
         
+        class TexCoordSystemSnapshot {
+        public:
+            virtual ~TexCoordSystemSnapshot();
+            void restore();
+        private:
+            virtual void doRestore() = 0;
+        };
+        
         class TexCoordSystem {
         public:
             virtual ~TexCoordSystem();
             
             TexCoordSystem* clone() const;
+            TexCoordSystemSnapshot* takeSnapshot();
             
             Vec3 xAxis() const;
             Vec3 yAxis() const;
@@ -54,7 +63,8 @@ namespace TrenchBroom {
             float measureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;
         private:
             virtual TexCoordSystem* doClone() const = 0;
-
+            virtual TexCoordSystemSnapshot* doTakeSnapshot() = 0;
+            
             virtual Vec3 getXAxis() const = 0;
             virtual Vec3 getYAxis() const = 0;
             virtual Vec3 getZAxis() const = 0;

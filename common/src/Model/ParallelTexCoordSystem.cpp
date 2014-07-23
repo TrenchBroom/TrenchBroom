@@ -24,6 +24,16 @@
 
 namespace TrenchBroom {
     namespace Model {
+        ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(ParallelTexCoordSystem* coordSystem) :
+        m_coordSystem(coordSystem),
+        m_xAxis(m_coordSystem->xAxis()),
+        m_yAxis(m_coordSystem->yAxis()) {}
+        
+        void ParallelTexCoordSystemSnapshot::doRestore() {
+            m_coordSystem->m_xAxis = m_xAxis;
+            m_coordSystem->m_yAxis = m_yAxis;
+        }
+
         ParallelTexCoordSystem::ParallelTexCoordSystem(const Vec3& xAxis, const Vec3& yAxis) :
         m_xAxis(xAxis),
         m_yAxis(yAxis) {}
@@ -37,6 +47,10 @@ namespace TrenchBroom {
             return new ParallelTexCoordSystem(*this);
         }
         
+        TexCoordSystemSnapshot* ParallelTexCoordSystem::doTakeSnapshot() {
+            return new ParallelTexCoordSystemSnapshot(this);
+        }
+
         Vec3 ParallelTexCoordSystem::getXAxis() const {
             return m_xAxis;
         }
