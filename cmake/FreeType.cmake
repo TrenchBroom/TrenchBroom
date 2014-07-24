@@ -23,7 +23,7 @@ ELSEIF(MINGW)
 ELSE()
 	FIND_PATH( FREETYPE_INCLUDE_PATH ft2build.h
 		/usr/include
-		/usr/include/freetype2/freetype
+		/usr/include/freetype2
 		/usr/local/include
 		/sw/include
 		/opt/local/include
