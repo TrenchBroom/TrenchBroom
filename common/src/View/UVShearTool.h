@@ -21,23 +21,36 @@
 #define __TrenchBroom__UVShearTool__
 
 #include "Hit.h"
-#include "View/UVGridTool.h"
+#include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVShearTool : public UVGridTool {
+        class UVShearTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        private:
+            static const Hit::HitType XHandleHit;
+            static const Hit::HitType YHandleHit;
+        private:
+            UVViewHelper& m_helper;
+            
+            Vec2b m_selector;
+            Vec3 m_xAxis;
+            Vec3 m_yAxis;
+            Vec2f m_initialHit;
+            Vec2f m_lastHit;
         public:
             UVShearTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:
-            bool checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const;
-            String getActionName() const;
+            void doPick(const InputState& inputState, Hits& hits);
             
-            Vec2f performDrag(const Vec2f& delta);
-            Vec2f shearFactors(const Vec2f& delta) const;
-            Vec2f snap(const Vec2f& position) const;
+            bool doStartMouseDrag(const InputState& inputState);
+            bool doMouseDrag(const InputState& inputState);
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag(const InputState& inputState);
+            
+            Vec2f getHit(const Ray3& pickRay) const;
             
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };

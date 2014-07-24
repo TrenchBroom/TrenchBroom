@@ -183,13 +183,23 @@ namespace TrenchBroom {
             doShearTexture(normal, factors);
         }
 
-        Mat4x4 TexCoordSystem::toMatrix(const Vec2f& offset, const Vec2f& scale) const {
+        Mat4x4 TexCoordSystem::toMatrix(const Vec2f& o, const Vec2f& s) const {
+            const Vec3 x = safeScaleAxis(getXAxis(), s.x());
+            const Vec3 y = safeScaleAxis(getYAxis(), s.y());
+            const Vec3 z = getZAxis();
+            
+            return Mat4x4(x[0], x[1], x[2], o[0],
+                          y[0], y[1], y[2], o[1],
+                          z[0], z[1], z[2],  0.0,
+                           0.0,  0.0,  0.0,  1.0);
+/*
             const Vec3 xAxis(getXAxis() * scale.x());
             const Vec3 yAxis(getYAxis() * scale.y());
             const Vec3 zAxis(getZAxis());
             const Vec3 origin(xAxis * -offset.x() + yAxis * -offset.y());
             
             return coordinateSystemMatrix(xAxis, yAxis, zAxis, origin);
+ */
         }
 
         Mat4x4 TexCoordSystem::fromMatrix(const Vec2f& offset, const Vec2f& scale) const {

@@ -93,6 +93,13 @@ namespace TrenchBroom {
             m_subDivisions = subDivisions;
         }
         
+        const Vec3 UVViewHelper::origin() const {
+            assert(valid());
+
+            const Mat4x4 fromTex = m_face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
+            return fromTex * Vec3(m_origin);
+        }
+
         const Vec2f UVViewHelper::originInFaceCoords() const {
             return m_origin;
         }

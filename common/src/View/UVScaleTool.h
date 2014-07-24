@@ -22,7 +22,7 @@
 
 #include "Hit.h"
 #include "Renderer/VertexSpec.h"
-#include "View/UVGridTool.h"
+#include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -37,18 +37,35 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVScaleTool : public UVGridTool {
+        class UVScaleTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        private:
+            static const Hit::HitType XHandleHit;
+            static const Hit::HitType YHandleHit;
         private:
             typedef Renderer::VertexSpecs::P3C4::Vertex EdgeVertex;
+
+            UVViewHelper& m_helper;
+            
+            Vec2i m_handle;
+            Vec2b m_selector;
+            Vec2f m_lastHitPoint; // in non-scaled, non-translated texture coordinates
         public:
             UVScaleTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper);
         private:
-            bool checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const;
-            String getActionName() const;
+            void doPick(const InputState& inputState, Hits& hits);
             
-            Vec2f performDrag(const Vec2f& delta);
+            Vec2i getScaleHandle(const Hit& xHit, const Hit& yHit) const;
+            Vec2f getHitPoint(const Ray3& pickRay) const;
+            
+            bool doStartMouseDrag(const InputState& inputState);
+            bool doMouseDrag(const InputState& inputState);
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag(const InputState& inputState);
+            
+            Vec2f getScaledTranslatedHandlePos() const;
+            Vec2f getHandlePos() const;
             Vec2f snap(const Vec2f& position) const;
-            
+
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             EdgeVertex::List getHandleVertices(const Hits& hits) const;
         };

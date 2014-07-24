@@ -26,61 +26,81 @@
 
 namespace TrenchBroom {
     namespace View {
+        const Hit::HitType UVShearTool::XHandleHit = Hit::freeHitType();
+        const Hit::HitType UVShearTool::YHandleHit = Hit::freeHitType();
+        
         UVShearTool::UVShearTool(MapDocumentWPtr document, ControllerWPtr controller, UVViewHelper& helper) :
-        UVGridTool(document, controller, helper) {}
+        ToolImpl(document, controller),
+        m_helper(helper) {}
 
-        bool UVShearTool::checkIfDragApplies(const InputState& inputState, const Hit& xHit, const Hit& yHit) const {
+        void UVShearTool::doPick(const InputState& inputState, Hits& hits) {
+            static const Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
+            if (m_helper.valid())
+                m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, hits);
+        }
+        
+        bool UVShearTool::doStartMouseDrag(const InputState& inputState) {
+            assert(m_helper.valid());
+            
             if (!inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
+            const Hits& hits = inputState.hits();
+            const Hit& xHit = hits.findFirst(XHandleHit, true);
+            const Hit& yHit = hits.findFirst(YHandleHit, true);
+            
             if (!(xHit.isMatch() ^ yHit.isMatch()))
                 return false;
             
+            m_selector = Vec2b(xHit.isMatch(), yHit.isMatch());
+
+            const Model::BrushFace* face = m_helper.face();
+            m_xAxis = face->textureXAxis();
+            m_yAxis = face->textureYAxis();
+            m_initialHit = m_lastHit = getHit(inputState.pickRay());
+            
+            controller()->beginUndoableGroup("Shear texture");
             return true;
         }
         
-        String UVShearTool::getActionName() const {
-            return "Shear Texture";
-        }
-        
-        Vec2f UVShearTool::performDrag(const Vec2f& delta) {
-            Model::BrushFace* face = m_helper.face();
-            const Mat4x4 toWorld = face->fromTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const Vec3 origin = toWorld * Vec3(m_helper.originInFaceCoords());
-            const Vec2f oldCoords = face->textureCoords(origin) * face->textureSize();
+        bool UVShearTool::doMouseDrag(const InputState& inputState) {
+            const Vec2f currentHit = getHit(inputState.pickRay());
+            const Vec2f delta = currentHit - m_lastHit;
 
-            const UndoableCommandGroup group(controller());
-            const Model::BrushFaceList applyTo(1, face);
-            const Vec2f factors = shearFactors(delta);
-            controller()->shearTextures(applyTo, factors);
+            std::cout << delta << std::endl;
             
-            const Vec2f newCoords = face->textureCoords(origin) * face->textureSize();
-            const Vec2f newOffset = face->modOffset(oldCoords - newCoords).corrected(4);
-            controller()->setFaceOffset(applyTo, newOffset, false);
-            
-            return delta;
-        }
-        
-        Vec2f UVShearTool::shearFactors(const Vec2f& delta) const {
-            Vec2f factors = delta;
-            
-            const Vec2f lastVec  = m_lastHitPoint - m_helper.originInFaceCoords();
-            const Vec2f curVec   = m_lastHitPoint + delta - m_helper.originInFaceCoords();
-            
-            assert(m_selector[0] ^ m_selector[1]);
+            const Model::BrushFaceList applyTo(1, m_helper.face());
             if (m_selector[0]) {
-                factors[0] = 0.0f;
-                factors[1] = curVec.at(0, 1.0f)[0] - lastVec.at(0, 1.0f)[0];
-            } else {
-                factors[0] = curVec.at(1, 1.0f)[0] - lastVec.at(1, 1.0f)[0];
-                factors[1] = 0.0f;
+                const Vec2f factors = Vec2f(delta.y() / std::abs(m_initialHit.x()), 0.0f);
+                controller()->shearTextures(applyTo, factors);
+            } else if (m_selector[1]) {
+                const Vec2f factors = Vec2f(0.0f, delta.x() / std::abs(m_initialHit.y()));
+                controller()->shearTextures(applyTo, factors);
             }
-            return factors;
+            
+            m_lastHit = currentHit;
+            return true;
+        }
+        
+        void UVShearTool::doEndMouseDrag(const InputState& inputState) {
+            controller()->closeGroup();
+        }
+        
+        void UVShearTool::doCancelMouseDrag(const InputState& inputState) {
+            controller()->rollbackGroup();
+            controller()->closeGroup();
         }
 
-        Vec2f UVShearTool::snap(const Vec2f& position) const {
-            return position;
+        Vec2f UVShearTool::getHit(const Ray3& pickRay) const {
+            const Model::BrushFace* face = m_helper.face();
+            const Plane3& boundary = face->boundary();
+            const FloatType hitPointDist = boundary.intersectWithRay(pickRay);
+            const Vec3 hitPoint = pickRay.pointAtDistance(hitPointDist);
+            const Vec3 hitVec = hitPoint - m_helper.origin();
+            
+            return Vec2f(hitVec.dot(m_xAxis),
+                         hitVec.dot(m_yAxis));
         }
         
         void UVShearTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {

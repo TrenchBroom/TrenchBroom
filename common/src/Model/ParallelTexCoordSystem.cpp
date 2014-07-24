@@ -110,7 +110,10 @@ namespace TrenchBroom {
                                 0.0,  0.0, 1.0, 0.0,
                                 0.0,  0.0, 0.0, 1.0);
             
-            const Mat4x4 transform = fromMatrix(Vec2f::Null, Vec2f::One) * shear * toMatrix(Vec2f::Null, Vec2f::One);
+            const Mat4x4 toMatrix = coordinateSystemMatrix(m_xAxis, m_yAxis, getZAxis(), Vec3::Null);
+            const Mat4x4 fromMatrix = invertedMatrix(toMatrix);
+
+            const Mat4x4 transform = fromMatrix * shear * toMatrix;
             m_xAxis = transform * m_xAxis;
             m_yAxis = transform * m_yAxis;
         }
