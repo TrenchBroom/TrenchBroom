@@ -17,40 +17,37 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Font__
-#define __TrenchBroom__Font__
+#ifndef __TrenchBroom__FontGlyph__
+#define __TrenchBroom__FontGlyph__
 
 #include "VecMath.h"
-#include "FreeType.h"
-#include "Renderer/FontGlyph.h"
-#include "Renderer/FontGlyphBuilder.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontTexture;
-        
-        class TextureFont {
-        private:
-            FontTexture* m_texture;
-            FontGlyph::List m_glyphs;
-            size_t m_lineHeight;
-            
-            unsigned char m_firstChar;
-            unsigned char m_charCount;
+        class FontGlyph {
         public:
-            TextureFont(FontTexture* texture, const FontGlyph::List& glyphs, size_t lineHeight, unsigned char firstChar, unsigned char charCount);
-            ~TextureFont();
+            typedef std::vector<FontGlyph> List;
+        private:
+            float m_x;
+            float m_y;
+            float m_w;
+            float m_h;
+            int m_a;
+        public:
+            FontGlyph(float x, float y, float w, float h, int a);
             
-            Vec2f::List quads(const String& string, const bool clockwise, const Vec2f& offset = Vec2f::Null);
-            Vec2f measure(const String& string);
+            void appendVertices(Vec2f::List& vertices, float xOffset, float yOffset, float textureSize, bool clockwise) const;
             
-            void activate();
-            void deactivate();
+            int advance() const;
+        private:
+            float sMin(float textureSize) const;
+            float sMax(float textureSize) const;
+            float tMin(float textureSize) const;
+            float tMax(float textureSize) const;
         };
     }
 }
 
-
-#endif /* defined(__TrenchBroom__Font__) */
+#endif /* defined(__TrenchBroom__FontGlyph__) */

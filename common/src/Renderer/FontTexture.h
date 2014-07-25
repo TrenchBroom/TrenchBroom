@@ -22,29 +22,36 @@
 
 #include "FreeType.h"
 
+#include "Renderer/GL.h"
+
 #include <memory>
 
 namespace TrenchBroom {
     namespace Renderer {
+        class FontGlyphBuilder;
+        
         class FontTexture {
         public:
             typedef std::auto_ptr<FontTexture> Ptr;
         private:
-            size_t m_width;
-            size_t m_height;
+            size_t m_size;
             char* m_buffer;
+            GLuint m_textureId;
+            
+            friend class FontGlyphBuilder;
         public:
             FontTexture();
-            FontTexture(const size_t width, const size_t height);
+            FontTexture(size_t cellCount, size_t cellSize, size_t margin);
             FontTexture(const FontTexture& other);
             FontTexture& operator=(FontTexture other);
             ~FontTexture();
+
+            size_t size() const;
             
-            size_t width() const;
-            size_t height() const;
-            const char* buffer() const;
-            
-            void drawGlyph(const int x, const int y, const int maxAscend, const FT_GlyphSlot glyph);
+            void activate();
+            void deactivate();
+        private:
+            size_t computeTextureSize(size_t cellCount, size_t cellSize, size_t margin) const;
         };
     }
 }

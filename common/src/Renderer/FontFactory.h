@@ -17,32 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FontDescriptor__
-#define __TrenchBroom__FontDescriptor__
+#ifndef __TrenchBroom__FontFactory__
+#define __TrenchBroom__FontFactory__
 
-#include "StringUtils.h"
+#include <iostream>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontDescriptor {
-        private:
-            String m_name;
-            size_t m_size;
-            unsigned char m_minChar;
-            unsigned char m_maxChar;
+        class FontDescriptor;
+        class TextureFont;
+        
+        class FontFactory {
         public:
-            FontDescriptor(const String& name, const size_t size, unsigned char minChar = ' ', unsigned char maxChar = '~');
+            virtual ~FontFactory();
             
-            int compare(const FontDescriptor& other) const;
-            bool operator< (const FontDescriptor& other) const;
-            
-            const String& name() const;
-            size_t size() const;
-            unsigned char minChar() const;
-            unsigned char maxChar() const;
-            unsigned char charCount() const;
+            TextureFont* createFont(const FontDescriptor& fontDescriptor);
+        private:
+            virtual TextureFont* doCreateFont(const FontDescriptor& fontDescriptor) = 0;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__FontDescriptor__) */
+#endif /* defined(__TrenchBroom__FontFactory__) */

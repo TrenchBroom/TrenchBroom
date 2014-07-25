@@ -18,55 +18,28 @@
  */
 
 #include "FontManager.h"
-#include "Exceptions.h"
 #include "CollectionUtils.h"
-#include "IO/Path.h"
-#include "IO/SystemPaths.h"
+#include "Renderer/FreeTypeFontFactory.h"
 #include "Renderer/TextureFont.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         FontManager::FontManager() :
-        m_library(NULL) {
-            FT_Error error = FT_Init_FreeType(&m_library);
-            if (error != 0) {
-                m_library = NULL;
-                
-                RenderException e;
-                e << "Error initializing FreeType: " << error;
-                throw e;
-            }
-        }
+        m_factory(new FreeTypeFontFactory()) {}
         
         FontManager::~FontManager() {
             MapUtils::clearAndDelete(m_cache);
-            if (m_library != NULL) {
-                FT_Done_FreeType(m_library);
-                m_library = NULL;
-            }
+            delete m_factory;
+            m_factory = NULL;
         }
         
         TextureFont& FontManager::font(const FontDescriptor& fontDescriptor) {
             FontCache::iterator it = m_cache.lower_bound(fontDescriptor);
             if (it != m_cache.end() && it->first.compare(fontDescriptor) == 0)
                 return *it->second;
-            
-            const IO::Path fontPath = IO::SystemPaths::findFontFile(fontDescriptor.name());
-            
-            FT_Face face;
-            FT_Error error = FT_New_Face(m_library, fontPath.asString().c_str(), 0, &face);
-            if (error != 0) {
-                RenderException e;
-                e << "Error loading font '" << fontDescriptor.name() << "': " << error;
-                throw e;
-            }
-            
-            const FT_UInt fontSize = static_cast<FT_UInt>(fontDescriptor.size());
-            FT_Set_Pixel_Sizes(face, 0, fontSize);
-            
-            TextureFont* font = new TextureFont(face);
+
+            TextureFont* font = m_factory->createFont(fontDescriptor);;
             m_cache.insert(it, std::make_pair(fontDescriptor, font));
-            FT_Done_Face(face);
             return *font;
         }
         
