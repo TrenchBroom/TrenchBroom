@@ -36,16 +36,10 @@ namespace TrenchBroom {
             float m_h;
             int m_a;
         public:
-            FontGlyph(float x, float y, float w, float h, int a);
+            FontGlyph(size_t x, size_t y, size_t w, size_t h, size_t a);
             
-            void appendVertices(Vec2f::List& vertices, float xOffset, float yOffset, float textureSize, bool clockwise) const;
-            
+            void appendVertices(Vec2f::List& vertices, int xOffset, int yOffset, size_t textureSize, bool clockwise) const;
             int advance() const;
-        private:
-            float sMin(float textureSize) const;
-            float sMax(float textureSize) const;
-            float tMin(float textureSize) const;
-            float tMax(float textureSize) const;
         };
     }
 }

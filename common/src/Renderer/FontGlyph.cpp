@@ -21,59 +21,47 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        FontGlyph::FontGlyph(const float x, const float y, const float w, const float h, const int a) :
-        m_x(x),
-        m_y(y),
-        m_w(w),
-        m_h(h),
-        m_a(a) {}
+        FontGlyph::FontGlyph(const size_t x, const size_t y, const size_t w, const size_t h, const size_t a) :
+        m_x(static_cast<float>(x)),
+        m_y(static_cast<float>(y)),
+        m_w(static_cast<float>(w)),
+        m_h(static_cast<float>(h)),
+        m_a(static_cast<int>(a)) {}
         
-        void FontGlyph::appendVertices(Vec2f::List& vertices, const float xOffset, const float yOffset, const float textureSize, const bool clockwise) const {
+        void FontGlyph::appendVertices(Vec2f::List& vertices, const int xOffset, const int yOffset, const size_t textureSize, const bool clockwise) const {
+            const float fxOffset = static_cast<float>(xOffset);
+            const float fyOffset = static_cast<float>(yOffset);
+            const float ftextureSize = static_cast<float>(textureSize);
+            
             if (clockwise) {
-                vertices.push_back(Vec2f(xOffset, yOffset));
-                vertices.push_back(Vec2f(m_x, m_y + m_h) / textureSize);
+                vertices.push_back(Vec2f(fxOffset, fyOffset));
+                vertices.push_back(Vec2f(m_x, m_y + m_h) / ftextureSize);
                 
-                vertices.push_back(Vec2f(xOffset, yOffset + m_h));
-                vertices.push_back(Vec2f(m_x, m_y) / textureSize);
+                vertices.push_back(Vec2f(fxOffset, fyOffset + m_h));
+                vertices.push_back(Vec2f(m_x, m_y) / ftextureSize);
                 
-                vertices.push_back(Vec2f(xOffset + m_w, yOffset + m_h));
-                vertices.push_back(Vec2f(m_x + m_w, m_y) / textureSize);
+                vertices.push_back(Vec2f(fxOffset + m_w, fyOffset + m_h));
+                vertices.push_back(Vec2f(m_x + m_w, m_y) / ftextureSize);
                 
-                vertices.push_back(Vec2f(xOffset + m_w, yOffset));
-                vertices.push_back(Vec2f(m_x + m_w, m_y + m_h) / textureSize);
+                vertices.push_back(Vec2f(fxOffset + m_w, fyOffset));
+                vertices.push_back(Vec2f(m_x + m_w, m_y + m_h) / ftextureSize);
             } else {
-                vertices.push_back(Vec2f(xOffset, yOffset));
-                vertices.push_back(Vec2f(m_x, m_y + m_h) / textureSize);
+                vertices.push_back(Vec2f(fxOffset, fyOffset));
+                vertices.push_back(Vec2f(m_x, m_y + m_h) / ftextureSize);
                 
-                vertices.push_back(Vec2f(xOffset + m_w, yOffset));
-                vertices.push_back(Vec2f(m_x + m_w, m_y + m_h) / textureSize);
+                vertices.push_back(Vec2f(fxOffset + m_w, fyOffset));
+                vertices.push_back(Vec2f(m_x + m_w, m_y + m_h) / ftextureSize);
                 
-                vertices.push_back(Vec2f(xOffset + m_w, yOffset + m_h));
-                vertices.push_back(Vec2f(m_x + m_w, m_y) / textureSize);
+                vertices.push_back(Vec2f(fxOffset + m_w, fyOffset + m_h));
+                vertices.push_back(Vec2f(m_x + m_w, m_y) / ftextureSize);
                 
-                vertices.push_back(Vec2f(xOffset, yOffset + m_h));
-                vertices.push_back(Vec2f(m_x, m_y) / textureSize);
+                vertices.push_back(Vec2f(fxOffset, fyOffset + m_h));
+                vertices.push_back(Vec2f(m_x, m_y) / ftextureSize);
             }
         }
 
         int FontGlyph::advance() const {
             return m_a;
-        }
-
-        float FontGlyph::sMin(const float textureSize) const {
-            return m_x / textureSize;
-        }
-        
-        float FontGlyph::sMax(const float textureSize) const {
-            return m_x + m_w / textureSize;
-        }
-        
-        float FontGlyph::tMin(const float textureSize) const {
-            return m_y / textureSize;
-        }
-        
-        float FontGlyph::tMax(const float textureSize) const {
-            return m_y + m_h / textureSize;
         }
     }
 }

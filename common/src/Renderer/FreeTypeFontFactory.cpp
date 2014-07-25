@@ -48,7 +48,6 @@ namespace TrenchBroom {
         }
 
         TextureFont* FreeTypeFontFactory::doCreateFont(const FontDescriptor& fontDescriptor) {
-            
             FT_Face face = loadFont(fontDescriptor);
             TextureFont* font = buildFont(face, fontDescriptor.minChar(), fontDescriptor.charCount());
             FT_Done_Face(face);

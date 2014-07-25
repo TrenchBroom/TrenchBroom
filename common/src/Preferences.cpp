@@ -19,6 +19,7 @@
 
 #include "Preferences.h"
 #include "IO/Path.h"
+#include "IO/SystemPaths.h"
 
 namespace TrenchBroom {
     namespace Preferences {
@@ -80,11 +81,13 @@ namespace TrenchBroom {
         Preference<bool> GridCheckerboard(IO::Path("Renderer/Grid/Checkerboard"), false);
         Preference<bool> ShadeFaces(IO::Path("Renderer/ShadeFaces"), true);
         Preference<bool> UseFog(IO::Path("Renderer/UseFog"), false);
-        
+
 #if defined __APPLE__
-        Preference<IO::Path> RendererFontPath(IO::Path("Renderer/Font name"), IO::Path("/System/Library/Fonts/LucidaGrande.ttc"));
+        Preference<IO::Path> RendererFontPath(IO::Path("Renderer/Font name"), IO::SystemPaths::findFontFile("LucidaGrande"));
+#elif defined _WIN32
+        Preference<IO::Path> RendererFontPath(IO::Path("Renderer/Font name"), IO::SystemPaths::findFontFile("Tahoma"));
 #else
-        Preference<IO::Path> RendererFontPath(IO::Path("Renderer/Font name"), IO::Path("fonts/SourceCodePro-Regular.otf"));
+        Preference<IO::Path> RendererFontPath(IO::Path("Renderer/Font name"), IO::Path("fonts/SourceSansPro-Regular.otf"));
 #endif
         Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
         

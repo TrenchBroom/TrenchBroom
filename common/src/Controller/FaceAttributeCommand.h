@@ -149,7 +149,7 @@ namespace TrenchBroom {
                 }
             }
             
-            bool collateTextureOp(bool& mySet, Assets::Texture* myTexture, const bool theirSet, Assets::Texture* theirTexture) const {
+            bool collateTextureOp(bool& mySet, Assets::Texture*& myTexture, const bool theirSet, Assets::Texture*& theirTexture) const {
                 if (mySet) {
                     if (theirSet) {
                         myTexture = theirTexture;

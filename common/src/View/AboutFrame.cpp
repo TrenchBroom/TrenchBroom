@@ -70,7 +70,7 @@ namespace TrenchBroom {
             
             wxStaticText* creditsUrl = createURLText(creditsPanel, "kristianduske.com/trenchbroom", "TrenchBroom Website", "http://www.kristianduske.com/trenchbroom");
             
-            wxStaticText* thirdPartyHeader = new wxStaticText(creditsPanel, wxID_ANY, "3rd Party Libraries and Tools");
+            wxStaticText* thirdPartyHeader = new wxStaticText(creditsPanel, wxID_ANY, "3rd Party Libraries, Tools and Assets");
             thirdPartyHeader->SetFont(thirdPartyHeader->GetFont().Bold());
             
             wxStaticText* wxWidgetsText = createURLText(creditsPanel, "wxWidgets", "Cross-Platform GUI Library", "http://www.wxwidgets.org");
@@ -80,6 +80,7 @@ namespace TrenchBroom {
             wxStaticText* gtestText = createURLText(creditsPanel, "Google Test", "Google C++ Testing Framework", "http://code.google.com/p/googletest/");
             wxStaticText* gmockText = createURLText(creditsPanel, "Google Mock", "Google C++ Mocking Framework", "http://code.google.com/p/googlemock/");
             wxStaticText* cmakeText = createURLText(creditsPanel, "CMake", "Cross-Platform Make", "http://www.cmake.org");
+            wxStaticText* fontText = createURLText(creditsPanel, "Source Sans Pro", "Sans serif font family for user interface environments", "https://github.com/adobe/source-sans-pro");
             
             wxSizer* creditsSizer = new wxBoxSizer(wxVERTICAL);
             creditsSizer->AddSpacer(20);
@@ -94,6 +95,7 @@ namespace TrenchBroom {
             creditsSizer->Add(gtestText);
             creditsSizer->Add(gmockText);
             creditsSizer->Add(cmakeText);
+            creditsSizer->Add(fontText);
             creditsPanel->SetSizer(creditsSizer);
             
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
