@@ -23,8 +23,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        FontDescriptor::FontDescriptor(const String& name, const size_t size, const unsigned char minChar, const unsigned char maxChar) :
-        m_name(name),
+        FontDescriptor::FontDescriptor(const IO::Path& path, const size_t size, const unsigned char minChar, const unsigned char maxChar) :
+        m_path(path),
         m_size(size),
         m_minChar(minChar),
         m_maxChar(maxChar) {
@@ -44,15 +44,19 @@ namespace TrenchBroom {
                 return -1;
             if (m_maxChar > other.m_maxChar)
                 return +1;
-            return m_name.compare(other.m_name);
+            return m_path.compare(other.m_path);
         }
         
         bool FontDescriptor::operator< (const FontDescriptor& other) const {
             return compare(other) < 0;
         }
         
-        const String& FontDescriptor::name() const {
-            return m_name;
+        const IO::Path& FontDescriptor::path() const {
+            return m_path;
+        }
+        
+        String FontDescriptor::name() const {
+            return m_path.lastComponent().deleteExtension().asString();
         }
         
         size_t FontDescriptor::size() const {

@@ -47,7 +47,7 @@ namespace TrenchBroom {
             FontDescriptor actualDescriptor = fontDescriptor;
             Vec2f actualBounds = font(actualDescriptor).measure(string);
             while (actualBounds.x() > maxWidth && actualDescriptor.size() > minFontSize) {
-                actualDescriptor = FontDescriptor(actualDescriptor.name(), actualDescriptor.size() - 1);
+                actualDescriptor = FontDescriptor(actualDescriptor.path(), actualDescriptor.size() - 1);
                 actualBounds = font(actualDescriptor).measure(string);
             }
             return actualDescriptor;

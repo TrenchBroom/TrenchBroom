@@ -46,7 +46,7 @@ namespace TrenchBroom {
             }
 
             drawGlyph(left, top, width, height, glyphBuffer, pitch);
-            const FontGlyph glyph(m_x, m_y, m_cellSize, m_cellSize, advance);
+            const FontGlyph glyph(m_x, m_y, m_cellSize, m_cellSize, static_cast<int>(advance));
             m_x += m_cellSize + m_margin;
             return glyph;
         }
