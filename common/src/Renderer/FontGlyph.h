@@ -17,33 +17,37 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FontDescriptor__
-#define __TrenchBroom__FontDescriptor__
+#ifndef __TrenchBroom__FontGlyph__
+#define __TrenchBroom__FontGlyph__
 
-#include "IO/Path.h"
+#include "VecMath.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontDescriptor {
-        private:
-            IO::Path m_path;
-            size_t m_size;
-            unsigned char m_minChar;
-            unsigned char m_maxChar;
+        class FontGlyph {
         public:
-            FontDescriptor(const IO::Path& path, const size_t size, unsigned char minChar = ' ', unsigned char maxChar = '~');
+            typedef std::vector<FontGlyph> List;
+        private:
+            float m_x;
+            float m_y;
+            float m_w;
+            float m_h;
+            int m_a;
+        public:
+            FontGlyph(float x, float y, float w, float h, int a);
             
-            int compare(const FontDescriptor& other) const;
-            bool operator< (const FontDescriptor& other) const;
+            void appendVertices(Vec2f::List& vertices, float xOffset, float yOffset, float textureSize, bool clockwise) const;
             
-            const IO::Path& path() const;
-            String name() const;
-            size_t size() const;
-            unsigned char minChar() const;
-            unsigned char maxChar() const;
-            unsigned char charCount() const;
+            int advance() const;
+        private:
+            float sMin(float textureSize) const;
+            float sMax(float textureSize) const;
+            float tMin(float textureSize) const;
+            float tMax(float textureSize) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__FontDescriptor__) */
+#endif /* defined(__TrenchBroom__FontGlyph__) */

@@ -17,40 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Font__
-#define __TrenchBroom__Font__
+#ifndef __TrenchBroom__FontGlyphBuilder__
+#define __TrenchBroom__FontGlyphBuilder__
 
-#include "VecMath.h"
-#include "FreeType.h"
 #include "Renderer/FontGlyph.h"
-#include "Renderer/FontGlyphBuilder.h"
-
-#include <vector>
 
 namespace TrenchBroom {
     namespace Renderer {
         class FontTexture;
         
-        class TextureFont {
+        class FontGlyphBuilder {
         private:
-            FontTexture* m_texture;
-            FontGlyph::List m_glyphs;
-            size_t m_lineHeight;
+            size_t m_maxAscend;
+            size_t m_cellSize;
+            size_t m_margin;
+            size_t m_textureSize;
+            char* m_textureBuffer;
             
-            unsigned char m_firstChar;
-            unsigned char m_charCount;
+            size_t m_x;
+            size_t m_y;
         public:
-            TextureFont(FontTexture* texture, const FontGlyph::List& glyphs, size_t lineHeight, unsigned char firstChar, unsigned char charCount);
-            ~TextureFont();
+            FontGlyphBuilder(size_t maxAscend, size_t cellSize, size_t margin, FontTexture& texture);
             
-            Vec2f::List quads(const String& string, const bool clockwise, const Vec2f& offset = Vec2f::Null);
-            Vec2f measure(const String& string);
-            
-            void activate();
-            void deactivate();
+            FontGlyph createGlyph(size_t left, size_t top, size_t width, size_t height, size_t advance, const char* glyphBuffer, size_t pitch);
+        private:
+            void drawGlyph(size_t left, size_t top, size_t width, size_t height, const char* glyphBuffer, size_t pitch);
         };
     }
 }
 
-
-#endif /* defined(__TrenchBroom__Font__) */
+#endif /* defined(__TrenchBroom__FontGlyphBuilder__) */

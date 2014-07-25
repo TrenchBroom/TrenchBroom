@@ -259,9 +259,9 @@ namespace TrenchBroom {
 
         TextureFont& EntityRenderer::font(FontManager& fontManager) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const String& fontName = prefs.get(Preferences::RendererFontName);
+            const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath);
             const size_t fontSize = static_cast<size_t>(prefs.get(Preferences::RendererFontSize));
-            return fontManager.font(FontDescriptor(fontName, fontSize));
+            return fontManager.font(FontDescriptor(fontPath, fontSize));
         }
 
         struct BuildColoredSolidBoundsVertices {

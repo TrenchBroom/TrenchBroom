@@ -17,33 +17,32 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FontDescriptor__
-#define __TrenchBroom__FontDescriptor__
+#ifndef __TrenchBroom__FreeTypeFontFactory__
+#define __TrenchBroom__FreeTypeFontFactory__
 
-#include "IO/Path.h"
+#include "FreeType.h"
+#include "Renderer/FontFactory.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontDescriptor {
+        class FontDescriptor;
+        class TextureFont;
+        
+        class FreeTypeFontFactory : public FontFactory {
         private:
-            IO::Path m_path;
-            size_t m_size;
-            unsigned char m_minChar;
-            unsigned char m_maxChar;
+            FT_Library m_library;
         public:
-            FontDescriptor(const IO::Path& path, const size_t size, unsigned char minChar = ' ', unsigned char maxChar = '~');
+            FreeTypeFontFactory();
+            ~FreeTypeFontFactory();
+        private:
+            TextureFont* doCreateFont(const FontDescriptor& fontDescriptor);
             
-            int compare(const FontDescriptor& other) const;
-            bool operator< (const FontDescriptor& other) const;
-            
-            const IO::Path& path() const;
-            String name() const;
-            size_t size() const;
-            unsigned char minChar() const;
-            unsigned char maxChar() const;
-            unsigned char charCount() const;
+            FT_Face loadFont(const FontDescriptor& fontDescriptor);
+            TextureFont* buildFont(FT_Face face, unsigned char firstChar, unsigned char charCount);
+
+            Metrics computeMetrics(FT_Face face, unsigned char firstChar, unsigned char charCount) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__FontDescriptor__) */
+#endif /* defined(__TrenchBroom__FreeTypeFontFactory__) */

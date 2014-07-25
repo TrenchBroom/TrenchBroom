@@ -107,12 +107,11 @@ namespace TrenchBroom {
         
         void TextureBrowserView::doReloadLayout(Layout& layout) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            
-            const String fontName = prefs.get(Preferences::RendererFontName);
+            const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath);
             int fontSize = prefs.get(Preferences::BrowserFontSize);
             assert(fontSize > 0);
             
-            const Renderer::FontDescriptor font(fontName, static_cast<size_t>(fontSize));
+            const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
             
             if (m_group) {
                 const Assets::TextureManager::GroupList& groups = m_textureManager.groups(m_sortOrder);
@@ -350,7 +349,7 @@ namespace TrenchBroom {
         
         TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(Layout& layout, const float y, const float height) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::FontDescriptor defaultDescriptor(prefs.get(Preferences::RendererFontName),
+            Renderer::FontDescriptor defaultDescriptor(prefs.get(Preferences::RendererFontPath),
                                                        static_cast<size_t>(prefs.get(Preferences::BrowserFontSize)));
             
             StringMap stringVertices;

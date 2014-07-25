@@ -81,10 +81,10 @@ namespace TrenchBroom {
         Preference<bool> ShadeFaces(IO::Path("Renderer/ShadeFaces"), true);
         Preference<bool> UseFog(IO::Path("Renderer/UseFog"), false);
         
-#ifdef __APPLE__
-        Preference<String> RendererFontName(IO::Path("Renderer/Font name"), "LucidaGrande");
+#if defined __APPLE__
+        Preference<IO::Path> RendererFontPath(IO::Path("Renderer/Font name"), IO::Path("/System/Library/Fonts/LucidaGrande.ttc"));
 #else
-        Preference<String> RendererFontName(IO::Path("Renderer/Font name"), "Arial");
+        Preference<IO::Path> RendererFontPath(IO::Path("Renderer/Font name"), IO::Path("fonts/SourceCodePro-Regular.otf"));
 #endif
         Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
         

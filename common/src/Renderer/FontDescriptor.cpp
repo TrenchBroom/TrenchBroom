@@ -19,48 +19,60 @@
 
 #include "FontDescriptor.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Renderer {
-        FontDescriptor::FontDescriptor(const String& name, const size_t size) :
-        m_name(name),
+        FontDescriptor::FontDescriptor(const IO::Path& path, const size_t size, const unsigned char minChar, const unsigned char maxChar) :
+        m_path(path),
         m_size(size),
-        m_nameHash(StringUtils::makeHash(m_name)) {}
+        m_minChar(minChar),
+        m_maxChar(maxChar) {
+            assert(m_minChar <= m_maxChar);
+        }
         
         int FontDescriptor::compare(const FontDescriptor& other) const {
-            if (m_nameHash < other.nameHash())
+            if (m_size < other.m_size)
                 return -1;
-            if (m_nameHash > other.nameHash())
+            if (m_size > other.m_size)
                 return +1;
-            
-            // hashes are the same, but it might be a collision
-            const int strOrder = m_name.compare(other.name());
-            if (strOrder < 0)
+            if (m_minChar < other.m_minChar)
                 return -1;
-            if (strOrder > 0)
+            if (m_minChar > other.m_minChar)
                 return +1;
-            
-            // names are the same, use the size
-            if (m_size < other.size())
+            if (m_maxChar < other.m_maxChar)
                 return -1;
-            if (m_size > other.size())
+            if (m_maxChar > other.m_maxChar)
                 return +1;
-            return 0;
+            return m_path.compare(other.m_path);
         }
         
         bool FontDescriptor::operator< (const FontDescriptor& other) const {
             return compare(other) < 0;
         }
         
-        long FontDescriptor::nameHash() const {
-            return m_nameHash;
+        const IO::Path& FontDescriptor::path() const {
+            return m_path;
         }
         
-        const String& FontDescriptor::name() const {
-            return m_name;
+        String FontDescriptor::name() const {
+            return m_path.lastComponent().deleteExtension().asString();
         }
         
         size_t FontDescriptor::size() const {
             return m_size;
+        }
+
+        unsigned char FontDescriptor::minChar() const {
+            return m_minChar;
+        }
+        
+        unsigned char FontDescriptor::maxChar() const {
+            return m_maxChar;
+        }
+
+        unsigned char FontDescriptor::charCount() const {
+            return m_maxChar - m_minChar + 1;
         }
     }
 }

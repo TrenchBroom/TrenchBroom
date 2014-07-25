@@ -17,32 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FontManager__
-#define __TrenchBroom__FontManager__
-
-#include "Renderer/FontDescriptor.h"
-
-#include <map>
+#include "FontFactory.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontFactory;
-        class TextureFont;
+        FontFactory::~FontFactory() {}
         
-        class FontManager {
-        private:
-            typedef std::map<FontDescriptor, TextureFont*> FontCache;
-            
-            FontFactory* m_factory;
-            FontCache m_cache;
-        public:
-            FontManager();
-            ~FontManager();
-            
-            TextureFont& font(const FontDescriptor& fontDescriptor);
-            FontDescriptor selectFontSize(const FontDescriptor& fontDescriptor, const String& string, const float maxWidth, const size_t minFontSize);
-        };
+        TextureFont* FontFactory::createFont(const FontDescriptor& fontDescriptor) {
+            return doCreateFont(fontDescriptor);
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__FontManager__) */

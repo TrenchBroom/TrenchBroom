@@ -26,67 +26,76 @@
 namespace TrenchBroom {
     namespace Renderer {
         FontTexture::FontTexture() :
-        m_width(0),
-        m_height(0),
-        m_buffer(NULL) {}
+        m_size(0),
+        m_buffer(NULL),
+        m_textureId(0) {}
         
-        FontTexture::FontTexture(const size_t width, const size_t height) :
-        m_width(width),
-        m_height(height),
-        m_buffer(NULL) {
-            assert(m_width > 0);
-            assert(m_height > 0);
-            m_buffer = new char[m_width * m_height];
-            std::memset(m_buffer, 0, m_width * m_height);
+        FontTexture::FontTexture(const size_t cellCount, const size_t cellSize, const size_t margin) :
+        m_size(computeTextureSize(cellCount, cellSize, margin)),
+        m_buffer(NULL),
+        m_textureId(0) {
+            m_buffer = new char[m_size * m_size];
+            std::memset(m_buffer, 0, m_size * m_size);
         }
         
         FontTexture::FontTexture(const FontTexture& other) :
-        m_width(other.m_width),
-        m_height(other.m_height),
-        m_buffer(NULL) {
-            m_buffer = new char[m_width * m_height];
-            std::memcpy(m_buffer, other.m_buffer, m_width * m_height);
+        m_size(other.m_size),
+        m_buffer(NULL),
+        m_textureId(0) {
+            m_buffer = new char[m_size * m_size];
+            std::memcpy(m_buffer, other.m_buffer, m_size * m_size);
         }
         
         FontTexture& FontTexture::operator=(FontTexture other) {
             using std::swap;
-            m_width = other.m_width;
-            m_height = other.m_height;
+            swap(m_size, other.m_size);
             swap(m_buffer, other.m_buffer);
+            swap(m_textureId, other.m_textureId);
             return *this;
         }
         
         FontTexture::~FontTexture() {
-            m_width = 0;
-            m_height = 0;
+            m_size = 0;
+            if (m_textureId != 0) {
+                glDeleteTextures(1, &m_textureId);
+                m_textureId = 0;
+            }
             delete [] m_buffer;
             m_buffer = NULL;
         }
         
-        size_t FontTexture::width() const {
-            return m_width;
+        size_t FontTexture::size() const {
+            return m_size;
         }
-        
-        size_t FontTexture::height() const {
-            return m_height;
-        }
-        
-        const char* FontTexture::buffer() const {
-            return m_buffer;
-        }
-        
-        void FontTexture::drawGlyph(const int x, const int y, const int maxAscend, const FT_GlyphSlot glyph) {
-            const size_t left = static_cast<size_t>(x + glyph->bitmap_left);
-            const size_t top = static_cast<size_t>(y + maxAscend - glyph->bitmap_top);
-            const size_t rows = static_cast<size_t>(glyph->bitmap.rows);
-            const size_t width = static_cast<size_t>(glyph->bitmap.width);
-            const size_t pitch = static_cast<size_t>(glyph->bitmap.pitch);
-            
-            for (size_t r = 0; r < rows; r++) {
-                const size_t index = (r + top) * m_width + left;
-                assert(index + width < m_width * m_height);
-                std::memcpy(m_buffer + index, glyph->bitmap.buffer + r * pitch, width);
+ 
+        void FontTexture::activate() {
+            if (m_textureId == 0) {
+                assert(m_buffer != NULL);
+                glGenTextures(1, &m_textureId);
+                glBindTexture(GL_TEXTURE_2D, m_textureId);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, static_cast<GLsizei>(m_size), static_cast<GLsizei>(m_size), 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, m_buffer);
+                delete [] m_buffer;
+                m_buffer = NULL;
             }
+            
+            assert(m_textureId > 0);
+            glBindTexture(GL_TEXTURE_2D, m_textureId);
+        }
+        
+        void FontTexture::deactivate() {
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        size_t FontTexture::computeTextureSize(const size_t cellCount, const size_t cellSize, const size_t margin) const {
+            const size_t minTextureSize = margin + cellCount * (cellSize + margin);
+            size_t textureSize = 1;
+            while (textureSize < minTextureSize)
+                textureSize = textureSize << 1;
+            return textureSize;
         }
     }
 }
