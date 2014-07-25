@@ -28,6 +28,12 @@ namespace TrenchBroom {
         class TextureFont;
         
         class FontFactory {
+        protected:
+            struct Metrics {
+                size_t cellSize;
+                size_t maxAscend;
+                size_t lineHeight;
+            };
         public:
             virtual ~FontFactory();
             

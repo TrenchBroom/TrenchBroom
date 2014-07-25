@@ -17,32 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FreeTypeFontFactory__
-#define __TrenchBroom__FreeTypeFontFactory__
+#ifndef __TrenchBroom__wxFontFactory__
+#define __TrenchBroom__wxFontFactory__
 
-#include "FreeType.h"
 #include "Renderer/FontFactory.h"
+
+class wxBitmap;
+class wxDC;
 
 namespace TrenchBroom {
     namespace Renderer {
         class FontDescriptor;
         class TextureFont;
         
-        class FreeTypeFontFactory : public FontFactory {
-        private:
-            FT_Library m_library;
-        public:
-            FreeTypeFontFactory();
-            ~FreeTypeFontFactory();
+        class wxFontFactory : public FontFactory {
         private:
             TextureFont* doCreateFont(const FontDescriptor& fontDescriptor);
-            
-            FT_Face loadFont(const FontDescriptor& fontDescriptor);
-            TextureFont* buildFont(FT_Face face, unsigned char firstChar, unsigned char charCount);
 
-            Metrics computeMetrics(FT_Face face, unsigned char firstChar, unsigned char charCount) const;
+            TextureFont* buildFont(wxDC& dc, wxBitmap& buffer, unsigned char firstChar, unsigned char charCount);
+            Metrics computeMetrics(wxDC& dc, unsigned char firstChar, unsigned char charCount) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__FreeTypeFontFactory__) */
+#endif /* defined(__TrenchBroom__wxFontFactory__) */
