@@ -69,21 +69,23 @@ namespace TrenchBroom {
             const Vec2f delta = currentHit - m_lastHit;
 
             Model::BrushFace* face = m_helper.face();
-            const Vec3 origin = face->textureCoords(m_helper.origin());
-            const Vec2f oldCoords = face->textureCoords(origin);
+            const Vec3 origin = m_helper.origin();
+            const Vec2f oldCoords = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale(), true) * origin;
             
             const Model::BrushFaceList applyTo(1, face);
             if (m_selector[0]) {
                 const Vec2f factors = Vec2f(-delta.y() / m_initialHit.x(), 0.0f);
-                controller()->shearTextures(applyTo, factors, origin);
+                controller()->shearTextures(applyTo, factors);
             } else if (m_selector[1]) {
                 const Vec2f factors = Vec2f(0.0f, -delta.x() / m_initialHit.y());
-                controller()->shearTextures(applyTo, factors, origin);
+                controller()->shearTextures(applyTo, factors);
             }
             
-            const Vec2f newCoords = face->textureCoords(origin);
-            const Vec2f newOffset = face->offset() - oldCoords + newCoords;
+            const Vec2f newCoords = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale(), true) * origin;
+            const Vec2f newOffset = face->offset() + oldCoords - newCoords;
             controller()->setFaceOffset(applyTo, newOffset, false);
+
+            m_helper.setOrigin(face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true) * origin);
             
             m_lastHit = currentHit;
             return true;
