@@ -44,6 +44,8 @@
 
 #include <vector>
 
+class wxBookCtrlBase;
+
 namespace TrenchBroom {
     class Logger;
     
@@ -103,7 +105,7 @@ namespace TrenchBroom {
             Renderer::Compass m_compass;
             Renderer::BoundsGuideRenderer m_selectionGuide;
         public:
-            MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
+            MapView(wxWindow* parent, Logger* logger, wxBookCtrlBase* toolBook, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
             ~MapView();
             
             void setToolboxDropTarget();
@@ -251,9 +253,12 @@ namespace TrenchBroom {
             void preferenceDidChange(const IO::Path& path);
             void cameraDidChange(const Renderer::Camera* camera);
             
-            void createTools();
+            void createTools(wxBookCtrlBase* toolBook);
             void deleteTools();
 
+            void toolActivated(Tool* tool);
+            void toolDeactivated(Tool* tool);
+            
             void doUpdateViewport(int x, int y, int width, int height);
             void doInitializeGL();
 

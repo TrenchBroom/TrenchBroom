@@ -34,6 +34,7 @@
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/RotateObjectsToolPage.h"
 
 #include <cassert>
 
@@ -47,6 +48,10 @@ namespace TrenchBroom {
         m_helper(NULL),
         m_moveHelper(movementRestriction, *this),
         m_rotateHelper(*this, font) {}
+
+        Vec3 RotateObjectsTool::center() const {
+            return m_handle.getPointHandlePosition(RotateObjectsHandle::HitArea_Center);
+        }
 
         bool RotateObjectsTool::initiallyActive() const {
             return false;
@@ -75,6 +80,11 @@ namespace TrenchBroom {
                 hits.addHit(Hit(HandleHit, hit.distance(), hit.point(), hit.area()));
         }
         
+        void RotateObjectsTool::doModifierKeyChange(const InputState& inputState) {
+            if (m_helper != NULL && dragging())
+                resetPlane(inputState);
+        }
+
         bool RotateObjectsTool::doMouseDown(const InputState& inputState) {
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             return hit.isMatch() && inputState.mouseButtonsPressed(MouseButtons::MBLeft);
@@ -125,6 +135,11 @@ namespace TrenchBroom {
             m_helper = NULL;
         }
         
+        void RotateObjectsTool::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+            assert(m_helper != NULL);
+            m_helper->resetPlane(inputState, plane, initialPoint);
+        }
+
         void RotateObjectsTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             if (dragging() || hit.isMatch())
@@ -249,6 +264,10 @@ namespace TrenchBroom {
         void RotateObjectsTool::doCancelRotate(const InputState& inputState) {
             controller()->rollbackGroup();
             controller()->closeGroup();
+        }
+
+        wxWindow* RotateObjectsTool::doCreatePage(wxWindow* parent) {
+            return new RotateObjectsToolPage(parent, document(), controller(), this);
         }
     }
 }

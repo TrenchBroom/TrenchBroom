@@ -97,7 +97,6 @@ namespace TrenchBroom {
         
         void PlaneDragPolicy::resetPlane(const InputState& inputState) {
             doResetPlane(inputState, m_plane, m_lastPoint);
-            m_refPoint = m_lastPoint;
         }
         
         DropPolicy::~DropPolicy() {}

@@ -27,6 +27,7 @@
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/MoveObjectsToolPage.h"
 
 #include <cassert>
 
@@ -107,6 +108,10 @@ namespace TrenchBroom {
 
         bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const {
             return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+        }
+
+        wxWindow* MoveObjectsTool::doCreatePage(wxWindow* parent) {
+            return new MoveObjectsToolPage(parent, document(), controller());
         }
     }
 }

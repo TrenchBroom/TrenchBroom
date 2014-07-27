@@ -22,36 +22,30 @@
 #include "View/ViewConstants.h"
 
 #include <wx/dcclient.h>
+#include <wx/simplebook.h>
 #include <wx/sizer.h>
 #include <wx/srchctrl.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
-        wxStaticText* NavBar::makeBreadcrump(const wxString& text, bool link) {
-            wxStaticText* staticText = new wxStaticText(m_navPanel, wxID_ANY, text);
-#ifdef __APPLE__
-            staticText->SetFont(*wxSMALL_FONT);
-#endif
-            if (link) {
-                staticText->SetForegroundColour(wxColour(10, 75, 220)); //wxSystemSettings::GetColour(wxSYS_COLOUR_HOTLIGHT));
-                staticText->SetCursor(wxCursor(wxCURSOR_HAND));
-            }
-            return staticText;
-        }
-        
         NavBar::NavBar(wxWindow* parent) :
         ContainerBar(parent, wxBOTTOM),
-        m_navPanel(new wxPanel(this, wxID_ANY)),
-        m_searchBox(new wxSearchCtrl(this, wxID_ANY)) {
-#ifdef __APPLE__
-            m_searchBox->SetFont(*wxSMALL_FONT);
+        m_toolBook(NULL),
+        m_searchBox(NULL) {
+            
+#if defined __APPLE__
+            SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
+
+            m_toolBook = new wxSimplebook(this);
+            m_searchBox = new wxSearchCtrl(this, wxID_ANY);
+            
             m_searchBox->Bind(wxEVT_COMMAND_TEXT_UPDATED, &NavBar::OnSearchPatternChanged, this);
             
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            hSizer->Add(m_navPanel, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
+            hSizer->Add(m_toolBook, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
             hSizer->AddSpacer(LayoutConstants::MediumHMargin);
             hSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_RIGHT | wxTOP);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
@@ -65,10 +59,11 @@ namespace TrenchBroom {
             SetSizer(vSizer);
         }
         
-        void NavBar::OnSearchPatternChanged(wxCommandEvent& event) {
+        wxBookCtrlBase* NavBar::toolBook() {
+            return m_toolBook;
         }
-        
-        void NavBar::updateBreadcrump() {
+
+        void NavBar::OnSearchPatternChanged(wxCommandEvent& event) {
         }
     }
 }

@@ -17,31 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__NavBar__
-#define __TrenchBroom__NavBar__
+#include "MapViewToolPage.h"
 
-#include "View/ContainerBar.h"
+#include <wx/bookctrl.h>
 
-class wxBookCtrlBase;
-class wxSearchCtrl;
-class wxStaticText;
+#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        class NavBar : public ContainerBar {
-        private:
-            wxBookCtrlBase* m_toolBook;
-            wxSearchCtrl* m_searchBox;
+        MapViewToolPage::MapViewToolPage() :
+        m_book(NULL),
+        m_pageIndex(0) {}
+        
+        MapViewToolPage::~MapViewToolPage() {}
+        
+        void MapViewToolPage::createPage(wxBookCtrlBase* book) {
+            assert(m_book == NULL);
             
-            wxStaticText* makeBreadcrump(const wxString& text, bool link);
-        public:
-            NavBar(wxWindow* parent);
-            
-            wxBookCtrlBase* toolBook();
-            
-            void OnSearchPatternChanged(wxCommandEvent& event);
-        };
+            m_book = book;
+            m_pageIndex = m_book->GetPageCount();
+            m_book->AddPage(doCreatePage(m_book), "");
+        }
+
+        void MapViewToolPage::showPage() {
+            m_book->SetSelection(m_pageIndex);
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__NavBar__) */

@@ -17,31 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__NavBar__
-#define __TrenchBroom__NavBar__
+#ifndef __TrenchBroom__MoveObjectsToolPage__
+#define __TrenchBroom__MoveObjectsToolPage__
 
-#include "View/ContainerBar.h"
+#include "View/ViewTypes.h"
 
-class wxBookCtrlBase;
-class wxSearchCtrl;
-class wxStaticText;
+#include <wx/panel.h>
+
+class wxButton;
+class wxTextCtrl;
 
 namespace TrenchBroom {
     namespace View {
-        class NavBar : public ContainerBar {
+        class MoveObjectsToolPage : public wxPanel {
         private:
-            wxBookCtrlBase* m_toolBook;
-            wxSearchCtrl* m_searchBox;
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
             
-            wxStaticText* makeBreadcrump(const wxString& text, bool link);
+            wxTextCtrl* m_offset;
+            wxButton* m_button;
         public:
-            NavBar(wxWindow* parent);
+            MoveObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
+        private:
+            void createGui();
             
-            wxBookCtrlBase* toolBook();
-            
-            void OnSearchPatternChanged(wxCommandEvent& event);
+            void OnUpdateButton(wxUpdateUIEvent& event);
+            void OnApply(wxCommandEvent& event);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__NavBar__) */
+#endif /* defined(__TrenchBroom__MoveObjectsToolPage__) */

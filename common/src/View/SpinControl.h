@@ -77,7 +77,7 @@ namespace TrenchBroom {
             bool InRange(double value);
             double AdjustToRange(double value);
             bool DoSetValue(double value);
-            void DoSendEvent(bool spin, double value);
+            bool DoSendEvent(bool spin, double value);
             bool SyncFromText();
             
             void OnTextKeyDown(wxKeyEvent& event);

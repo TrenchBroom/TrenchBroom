@@ -1,0 +1,59 @@
+/*
+ Copyright (C) 2010-2014 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef __TrenchBroom__RotateObjectsToolPage__
+#define __TrenchBroom__RotateObjectsToolPage__
+
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "View/ViewTypes.h"
+
+#include <wx/panel.h>
+
+class wxButton;
+class wxChoice;
+
+namespace TrenchBroom {
+    namespace View {
+        class RotateObjectsTool;
+        class SpinControl;
+        
+        class RotateObjectsToolPage : public wxPanel {
+        private:
+            MapDocumentWPtr m_document;
+            ControllerWPtr m_controller;
+            RotateObjectsTool* m_tool;
+
+            SpinControl* m_angle;
+            wxChoice* m_axis;
+            wxButton* m_button;
+        public:
+            RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, RotateObjectsTool* tool);
+        private:
+            void createGui();
+            
+            void OnIdle(wxIdleEvent& event);
+            void OnUpdateButton(wxUpdateUIEvent& event);
+            void OnApply(wxCommandEvent& event);
+            Vec3 getAxis() const;
+        };
+    }
+}
+
+#endif /* defined(__TrenchBroom__RotateObjectsToolPage__) */

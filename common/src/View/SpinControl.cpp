@@ -198,10 +198,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        void SpinControl::DoSendEvent(const bool spin, const double value) {
+        bool SpinControl::DoSendEvent(const bool spin, const double value) {
             SpinControlEvent event(EVT_SPINCONTROL_EVENT, GetId(), spin, value);
             event.SetEventObject( this );
             GetEventHandler()->ProcessEvent( event );
+            return event.IsAllowed();
         }
         
         bool SpinControl::SyncFromText() {
@@ -273,7 +274,9 @@ namespace TrenchBroom {
             }
             
             increment *= multiplier;
-            DoSendEvent(true, increment);
+            const double newValue = GetValue() + increment;
+            if (DoSendEvent(true, increment))
+                DoSetValue(newValue);
         }
         
         void SpinControl::OnSetFocus(wxFocusEvent& event) {

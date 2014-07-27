@@ -241,7 +241,7 @@ namespace TrenchBroom {
         }
         
         int SplitterWindow::sashSize() const {
-            return 1;
+            return 2;
         }
     }
 }

@@ -25,9 +25,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        BorderPanel::BorderPanel(wxWindow* parent, const int borders) :
+        BorderPanel::BorderPanel(wxWindow* parent, const int borders, const int thickness) :
         wxPanel(parent, wxID_ANY),
-        m_borders(borders) {
+        m_borders(borders),
+        m_thickness(thickness) {
             Bind(wxEVT_PAINT, &BorderPanel::OnPaint, this);
         }
         
@@ -52,13 +53,13 @@ namespace TrenchBroom {
         wxSize BorderPanel::DoGetBestSize() const {
             wxSize size = wxPanel::DoGetBestSize();
             if ((m_borders & wxLEFT) != 0)
-                ++size.x;
+                size.x += m_thickness;
             if ((m_borders & wxTOP) != 0)
-                ++size.y;
+                size.y += m_thickness;
             if ((m_borders & wxRIGHT) != 0)
-                ++size.x;
+                size.x += m_thickness;
             if ((m_borders & wxBOTTOM) != 0)
-                ++size.y;
+                size.y += m_thickness;
             return size;
         }
     }

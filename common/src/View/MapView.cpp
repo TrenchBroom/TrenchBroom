@@ -64,7 +64,7 @@ namespace TrenchBroom {
     namespace View {
         const int MapView::FlyTimerId = wxID_HIGHEST + 1;
         
-        MapView::MapView(wxWindow* parent, Logger* logger, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
+        MapView::MapView(wxWindow* parent, Logger* logger, wxBookCtrlBase* toolBook, View::MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) :
         RenderView(parent, attribs()),
         m_logger(logger),
         m_document(document),
@@ -87,7 +87,7 @@ namespace TrenchBroom {
         m_renderer(document, contextHolder()->fontManager()),
         m_compass(),
         m_selectionGuide(defaultFont(contextHolder()->fontManager())) {
-            createTools();
+            createTools(toolBook);
             bindEvents();
             bindObservers();
             updateAcceleratorTable();
@@ -984,6 +984,9 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapView::preferenceDidChange);
             
             m_camera.cameraDidChangeNotifier.addObserver(this, &MapView::cameraDidChange);
+            
+            m_toolBox.toolActivatedNotifier.addObserver(this, &MapView::toolActivated);
+            m_toolBox.toolDeactivatedNotifier.addObserver(this, &MapView::toolDeactivated);
         }
         
         void MapView::unbindObservers() {
@@ -1013,6 +1016,9 @@ namespace TrenchBroom {
             // Unfortunately due to the order in which objects and their fields are destroyed by the runtime system,
             // the camera has already been destroyed at this point.
             // m_camera.cameraDidChangeNotifier.removeObserver(this, &MapView::cameraDidChange);
+
+            m_toolBox.toolActivatedNotifier.removeObserver(this, &MapView::toolActivated);
+            m_toolBox.toolDeactivatedNotifier.removeObserver(this, &MapView::toolDeactivated);
         }
         
         void MapView::documentWasNewedOrLoaded() {
@@ -1062,7 +1068,7 @@ namespace TrenchBroom {
             Refresh();
         }
         
-        void MapView::createTools() {
+        void MapView::createTools(wxBookCtrlBase* toolBook) {
             Renderer::TextureFont& font = defaultFont(contextHolder()->fontManager());
             
             m_cameraTool = new CameraTool(m_document, m_controller, m_camera);
@@ -1088,6 +1094,9 @@ namespace TrenchBroom {
             m_toolBox.addTool(m_resizeBrushesTool);
             m_toolBox.addTool(m_setFaceAttribsTool);
             m_toolBox.addTool(m_selectionTool);
+            
+            m_moveObjectsTool->createPage(toolBook);
+            m_rotateObjectsTool->createPage(toolBook);
         }
         
         void MapView::deleteTools() {
@@ -1115,6 +1124,15 @@ namespace TrenchBroom {
             m_vertexTool = NULL;
         }
         
+        void MapView::toolActivated(Tool* tool) {
+            if (tool == m_rotateObjectsTool)
+                m_rotateObjectsTool->showPage();
+        }
+        
+        void MapView::toolDeactivated(Tool* tool) {
+            m_moveObjectsTool->showPage();
+        }
+
         void MapView::doUpdateViewport(int x, int y, int width, int height) {
             const Renderer::Camera::Viewport viewport(x, y, width, height);
             m_camera.setViewport(viewport);

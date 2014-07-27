@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Hit.h"
+#include "View/MapViewToolPage.h"
 #include "View/MoveToolHelper.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateToolHelper.h"
@@ -36,7 +37,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class RotateObjectsTool : public ToolImpl<ActivationPolicy, PickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy>, public MoveDelegate, public RotateDelegate {
+        class RotateObjectsTool : public ToolImpl<ActivationPolicy, PickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy>, public MoveDelegate, public RotateDelegate, public MapViewToolPage {
         private:
             static const Hit::HitType HandleHit;
 
@@ -47,6 +48,8 @@ namespace TrenchBroom {
             RotateHelper m_rotateHelper;
         public:
             RotateObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
+            
+            Vec3 center() const;
         private:
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);
@@ -54,6 +57,7 @@ namespace TrenchBroom {
             
             void doPick(const InputState& inputState, Hits& hits);
 
+            void doModifierKeyChange(const InputState& inputState);
             bool doMouseDown(const InputState& inputState);
             bool doMouseUp(const InputState& inputState);
             void doMouseMove(const InputState& inputState);
@@ -62,6 +66,7 @@ namespace TrenchBroom {
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
             void doEndPlaneDrag(const InputState& inputState);
             void doCancelPlaneDrag(const InputState& inputState);
+            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
@@ -88,6 +93,8 @@ namespace TrenchBroom {
             bool doRotate(const Vec3& center, const Vec3& axis, const FloatType angle);
             void doEndRotate(const InputState& inputState);
             void doCancelRotate(const InputState& inputState);
+
+            wxWindow* doCreatePage(wxWindow* parent);
         };
     }
 }

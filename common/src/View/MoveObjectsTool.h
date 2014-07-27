@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "View/MapViewToolPage.h"
 #include "View/MoveTool.h"
 #include "View/Tool.h"
 
@@ -30,7 +31,7 @@ namespace TrenchBroom {
         class InputState;
         class MovementRestriction;
         
-        class MoveObjectsTool : public MoveTool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoDropPolicy, RenderPolicy> {
+        class MoveObjectsTool : public MoveTool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoDropPolicy, RenderPolicy>, public MapViewToolPage {
         private:
             bool m_duplicateObjects;
         public:
@@ -48,6 +49,8 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
 
             bool duplicateObjects(const InputState& inputState) const;
+            
+            wxWindow* doCreatePage(wxWindow* parent);
         };
     }
 }

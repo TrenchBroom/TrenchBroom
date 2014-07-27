@@ -27,8 +27,9 @@ namespace TrenchBroom {
         class BorderPanel : public wxPanel {
         private:
             int m_borders;
+            int m_thickness;
         public:
-            BorderPanel(wxWindow* parent, int borders);
+            BorderPanel(wxWindow* parent, int borders, int thickness = 1);
             virtual ~BorderPanel();
             
             void OnPaint(wxPaintEvent& event);

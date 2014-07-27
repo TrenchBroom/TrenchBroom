@@ -343,21 +343,26 @@ namespace TrenchBroom {
             if (tool == NULL) {
                 if (m_modalReceiver != NULL) {
                     m_modalReceiver->deactivate(m_inputState);
+                    toolDeactivatedNotifier(m_modalReceiver);
                     m_modalReceiver = NULL;
                 }
             } else {
                 if (m_modalReceiver == tool) {
                     assert(m_modalReceiver->active());
                     m_modalReceiver->deactivate(m_inputState);
+                    toolDeactivatedNotifier(m_modalReceiver);
                     m_modalReceiver = NULL;
                 } else {
                     if (m_modalReceiver != NULL) {
                         assert(m_modalReceiver->active());
                         m_modalReceiver->deactivate(m_inputState);
+                        toolDeactivatedNotifier(m_modalReceiver);
                         m_modalReceiver = NULL;
                     }
-                    if (tool->activate(m_inputState))
+                    if (tool->activate(m_inputState)) {
                         m_modalReceiver = tool;
+                        toolActivatedNotifier(m_modalReceiver);
+                    }
                 }
             }
             m_window->Refresh();

@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "StringUtils.h"
 #include "Hit.h"
+#include "Notifier.h"
 #include "View/InputState.h"
 
 #include <wx/wx.h>
@@ -72,6 +73,9 @@ namespace TrenchBroom {
             
             bool m_enabled;
             bool m_ignoreMotionEvents;
+        public:
+            Notifier1<Tool*> toolActivatedNotifier;
+            Notifier1<Tool*> toolDeactivatedNotifier;
         public:
             ToolBox(wxWindow* window, ToolBoxHelper* helper);
             ~ToolBox();
