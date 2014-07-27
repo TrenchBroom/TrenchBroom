@@ -49,7 +49,7 @@ namespace TrenchBroom {
             sizer->Add(text, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_offset, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::WideHMargin);
+            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_button, 0);
             
             SetSizer(sizer);

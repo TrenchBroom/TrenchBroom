@@ -105,7 +105,7 @@ namespace TrenchBroom {
             
             wxSizer* controlSizer = new wxBoxSizer(wxHORIZONTAL);
             controlSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
-            controlSizer->Add(m_sortOrderChoice);
+            controlSizer->Add(m_sortOrderChoice, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
             controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             controlSizer->Add(m_groupButton);
             controlSizer->AddSpacer(LayoutConstants::NarrowHMargin);

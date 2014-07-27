@@ -64,10 +64,10 @@ namespace TrenchBroom {
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(text2, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_axis);
+            sizer->Add(m_axis, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(text3, 0, wxALIGN_CENTER_VERTICAL);
-            sizer->AddSpacer(LayoutConstants::WideHMargin);
+            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_button, 0);
             sizer->SetItemMinSize(m_angle, 50, wxDefaultCoord);
 

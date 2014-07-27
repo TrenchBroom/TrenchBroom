@@ -191,9 +191,10 @@ namespace TrenchBroom {
             
             wxBoxSizer* mapFormatSizer = new wxBoxSizer(wxHORIZONTAL);
             mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
-            mapFormatSizer->Add(header, 0, wxEXPAND);
+            mapFormatSizer->Add(header, 0, wxALIGN_CENTRE_VERTICAL);
             mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
-            mapFormatSizer->Add(m_mapFormatChoice);
+            mapFormatSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
+            mapFormatSizer->Add(m_mapFormatChoice, 0, wxTOP, LayoutConstants::ChoiceTopMargin);
             mapFormatSizer->AddSpacer(LayoutConstants::WideHMargin);
             
             wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
