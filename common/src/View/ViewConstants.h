@@ -31,8 +31,8 @@ namespace TrenchBroom {
             static const int DialogButtonSideMargin             = 7;
             static const int DialogButtonBottomMargin           = 10;
             static const int WideHMargin                        = 8;
-            static const int MediumHMargin                      = 4;
-            static const int NarrowHMargin                      = 2;
+            static const int MediumHMargin                      = 6;
+            static const int NarrowHMargin                      = 4;
             static const int WideVMargin                        = 4;
             static const int NarrowVMargin                      = 2;
             static const int StaticBoxSideMargin                = 15;
