@@ -32,6 +32,7 @@
 
 #include <wx/event.h>
 #include <wx/notebook.h>
+#include <wx/persist.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -49,6 +50,7 @@ namespace TrenchBroom {
         void EntityInspector::createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller) {
             SplitterWindow* splitter = new SplitterWindow(this);
             splitter->setSashGravity(0.0);
+            splitter->SetName("EntityInspectorSplitter");
             
             splitter->splitHorizontally(createPropertyEditor(splitter),
                                         createEntityBrowser(splitter, sharedContext),
@@ -59,6 +61,8 @@ namespace TrenchBroom {
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             outerSizer->Add(createEntityDefinitionFileChooser(this, document, controller), 0, wxEXPAND);
             SetSizer(outerSizer);
+            
+            wxPersistenceManager::Get().RegisterAndRestore(splitter);
         }
         
         wxWindow* EntityInspector::createPropertyEditor(wxWindow* parent) {

@@ -35,6 +35,7 @@
 #include "View/TitledPanel.h"
 
 #include <wx/notebook.h>
+#include <wx/persist.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -60,6 +61,8 @@ namespace TrenchBroom {
         void FaceInspector::createGui(GLContextHolder::Ptr sharedContext) {
             SplitterWindow* splitter = new SplitterWindow(this);
             splitter->setSashGravity(1.0f);
+            splitter->SetName("FaceInspectorSplitter");
+
             splitter->splitHorizontally(createFaceAttribsEditor(splitter, sharedContext),
                                         createTextureBrowser(splitter, sharedContext),
                                         wxSize(100, 250), wxSize(100, 250));
@@ -69,6 +72,8 @@ namespace TrenchBroom {
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             outerSizer->Add(createTextureCollectionEditor(this), 0, wxEXPAND);
             SetSizer(outerSizer);
+
+            wxPersistenceManager::Get().RegisterAndRestore(splitter);
         }
 
         wxWindow* FaceInspector::createFaceAttribsEditor(wxWindow* parent, GLContextHolder::Ptr sharedContext) {

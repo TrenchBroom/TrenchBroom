@@ -24,8 +24,12 @@
 
 #include <wx/panel.h>
 
+class wxPersistentObject;
+
 namespace TrenchBroom {
     namespace View {
+        class PersistentSplitterWindow;
+        
         class SplitterWindow : public wxPanel {
         private:
             static const size_t NumWindows = 2;
@@ -43,11 +47,14 @@ namespace TrenchBroom {
             wxSize m_minSizes[NumWindows];
             
             float m_sashGravity;
+            int m_initialSashPosition;
             int m_sashPosition;
             
             bool m_sashCursorSet;
             
             wxSize m_oldSize;
+            
+            friend class PersistentSplitterWindow;
         public:
             SplitterWindow(wxWindow* parent);
             
@@ -75,7 +82,7 @@ namespace TrenchBroom {
         private:
             void updateSashPosition(const wxSize& oldSize, const wxSize& newSize);
             void initSashPosition();
-            void setSashPosition(int position);
+            bool setSashPosition(int position);
             void sizeWindows();
             int sashSize() const;
             
@@ -143,5 +150,7 @@ namespace TrenchBroom {
         };
     }
 }
+
+wxPersistentObject* wxCreatePersistentObject(TrenchBroom::View::SplitterWindow* window);
 
 #endif /* defined(__TrenchBroom__SplitterWindow__) */

@@ -47,6 +47,7 @@
 
 #include <wx/clipbrd.h>
 #include <wx/display.h>
+#include <wx/persist.h>
 #include <wx/sizer.h>
 #include <wx/splitter.h>
 #include <wx/textctrl.h>
@@ -70,7 +71,7 @@ namespace TrenchBroom {
         };
         
         MapFrame::MapFrame() :
-        wxFrame(NULL, wxID_ANY, ""),
+        wxFrame(NULL, wxID_ANY, "MapFrame"),
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
@@ -79,7 +80,7 @@ namespace TrenchBroom {
         m_mapView(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
-        wxFrame(NULL, wxID_ANY, ""),
+        wxFrame(NULL, wxID_ANY, "MapFrame"),
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
@@ -680,9 +681,11 @@ namespace TrenchBroom {
         void MapFrame::createGui() {
             SplitterWindow* horizontalSplitter = new SplitterWindow(this);
             horizontalSplitter->setSashGravity(1.0f);
+            horizontalSplitter->SetName("MapFrameHSplitter");
             
             SplitterWindow* verticalSplitter = new SplitterWindow(horizontalSplitter);
             verticalSplitter->setSashGravity(1.0f);
+            verticalSplitter->SetName("MapFrameVSplitter");
 
             m_infoPanel = new InfoPanel(verticalSplitter, m_document, m_controller);
 
@@ -706,6 +709,9 @@ namespace TrenchBroom {
             outerSizer->Add(horizontalSplitter, 1, wxEXPAND);
             outerSizer->Add(m_statusBar, 0, wxEXPAND);
             SetSizer(outerSizer);
+
+            wxPersistenceManager::Get().RegisterAndRestore(horizontalSplitter);
+            wxPersistenceManager::Get().RegisterAndRestore(verticalSplitter);
         }
         
         void MapFrame::bindEvents() {

@@ -27,6 +27,8 @@
 #include <cassert>
 
 #include <wx/display.h>
+#include <wx/persist.h>
+#include <wx/persist/toplevel.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -72,7 +74,10 @@ namespace TrenchBroom {
 
         MapFrame* FrameManager::createFrame(MapDocumentSPtr document) {
             MapFrame* frame = new MapFrame(this, document);
-            frame->positionOnScreen(m_topFrame);
+            frame->SetName("MapFrame");
+            if (!wxPersistenceManager::Get().RegisterAndRestore(frame))
+               frame->positionOnScreen(m_topFrame);
+            
             frame->Bind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
             frame->Show();
             frame->Raise();
@@ -101,6 +106,7 @@ namespace TrenchBroom {
                 m_topFrame = NULL;
 
             frame->Unbind(wxEVT_ACTIVATE, &FrameManager::OnFrameActivate, this);
+            // wxPersistenceManager::Get().SaveAndUnregister(frame);
             frame->Destroy();
         }
     }

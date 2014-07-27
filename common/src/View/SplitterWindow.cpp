@@ -20,6 +20,7 @@
 #include "SplitterWindow.h"
 
 #include "View/BorderLine.h"
+#include "View/PersistentSplitterWindow.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
@@ -37,6 +38,7 @@ namespace TrenchBroom {
         m_splitMode(SplitMode_Unset),
         m_sash(NULL),
         m_sashGravity(0.5f),
+        m_initialSashPosition(-1),
         m_sashPosition(-1),
         m_sashCursorSet(0),
         m_oldSize(GetSize()) {
@@ -187,10 +189,15 @@ namespace TrenchBroom {
             initSashPosition();
             
             if (m_splitMode != SplitMode_Unset) {
-                const wxSize diff = newSize - oldSize;
-                const int actualDiff = wxRound(m_sashGravity * h(diff));
-                if (actualDiff != 0)
-                    setSashPosition(m_sashPosition + actualDiff);
+                if (m_initialSashPosition != -1) {
+                    if (setSashPosition(m_initialSashPosition))
+                        m_initialSashPosition = -1;
+                } else {
+                    const wxSize diff = newSize - oldSize;
+                    const int actualDiff = wxRound(m_sashGravity * h(diff));
+                    if (actualDiff != 0)
+                        setSashPosition(m_sashPosition + actualDiff);
+                }
             }
         }
         
@@ -199,14 +206,17 @@ namespace TrenchBroom {
                 setSashPosition(h(m_minSizes[0]) + wxRound(m_sashGravity * (h(m_minSizes[1]) - h(m_minSizes[0]))) + 1);
         }
         
-        void SplitterWindow::setSashPosition(const int position) {
+        bool SplitterWindow::setSashPosition(const int position) {
             if (position == m_sashPosition)
-                return;
+                return true;
             m_sashPosition = position;
             m_sashPosition = std::max(m_sashPosition, h(m_minSizes[0]));
             m_sashPosition = std::min(m_sashPosition, h(GetClientSize()) - h(m_minSizes[1]) - sashSize());
-            if (m_sashPosition < 0)
-                m_sashPosition = h(GetClientSize()) / 2;
+            if (m_sashPosition < 0) {
+                m_sashPosition = -1;
+                return false;
+            }
+            return true;
         }
         
         void SplitterWindow::sizeWindows() {
@@ -244,4 +254,8 @@ namespace TrenchBroom {
             return 2;
         }
     }
+}
+
+wxPersistentObject* wxCreatePersistentObject(TrenchBroom::View::SplitterWindow* window) {
+    return new TrenchBroom::View::PersistentSplitterWindow(window);
 }
