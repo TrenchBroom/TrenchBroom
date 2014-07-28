@@ -161,6 +161,7 @@ namespace TrenchBroom {
             document->faceDidChangeNotifier.addObserver(this, &MapRenderer::faceDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
             document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
+            document->textureCollectionsDidChangeNotifier.addObserver(this, &MapRenderer::textureCollectionsDidChange);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapRenderer::entityDefinitionsDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -181,6 +182,7 @@ namespace TrenchBroom {
                 document->faceDidChangeNotifier.removeObserver(this, &MapRenderer::faceDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
+                document->textureCollectionsDidChangeNotifier.removeObserver(this, &MapRenderer::textureCollectionsDidChange);
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapRenderer::entityDefinitionsDidChange);
             }
             
@@ -281,6 +283,11 @@ namespace TrenchBroom {
         void MapRenderer::entityDefinitionsDidChange() {
             m_unselectedEntityRenderer.reloadModels();
             m_selectedEntityRenderer.reloadModels();
+        }
+
+        void MapRenderer::textureCollectionsDidChange() {
+            m_unselectedBrushRenderer.invalidate();
+            m_selectedBrushRenderer.invalidate();
         }
 
         void MapRenderer::preferenceDidChange(const IO::Path& path) {
