@@ -63,6 +63,8 @@ namespace TrenchBroom {
             int OnExit();
             void OnUnhandledException();
             
+            int OnRun();
+            
             void OnFileNew(wxCommandEvent& event);
             void OnFileOpen(wxCommandEvent& event);
             void OnFileOpenRecent(wxCommandEvent& event);
