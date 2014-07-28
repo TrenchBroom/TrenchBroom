@@ -292,7 +292,7 @@ namespace TrenchBroom {
 #ifdef __APPLE__
         void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
             if (m_frameManager->closeAllFrames())
-                Exit();
+                ExitMainLoop();
         }
 
         void TrenchBroomApp::OnUpdateUI(wxUpdateUIEvent& event) {

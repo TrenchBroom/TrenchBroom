@@ -32,8 +32,7 @@ namespace TrenchBroom {
         
         void PersistentSplitterWindow::Save() const {
             const SplitterWindow* window = Get();
-            if (window->m_sashPosition > 0)
-                SaveValue("SashPosition", window->m_sashPosition);
+            SaveValue("SashPosition", window->m_sashPosition);
         }
         
         bool PersistentSplitterWindow::Restore() {
