@@ -104,6 +104,8 @@ namespace TrenchBroom {
             bool keepFrontBrushes() const;
             bool keepBackBrushes() const;
 
+            void setPoints(const Vec3& position, const Model::BrushFace& face);
+            
             bool canAddClipPoint(const Vec3& position) const;
             void addClipPoint(const Vec3& position, const Model::BrushFace& face);
 

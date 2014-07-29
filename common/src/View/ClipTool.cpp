@@ -137,16 +137,22 @@ namespace TrenchBroom {
         }
 
         bool ClipTool::doMouseUp(const InputState& inputState) {
-            if (inputState.mouseButtons() != MouseButtons::MBLeft ||
-                inputState.modifierKeys() != ModifierKeys::MKNone)
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
+                !inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
                 return false;
 
             const Hit& hit = findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
             if (hit.isMatch()) {
-                const Vec3 point = clipPoint(hit);
-                if (m_clipper.canAddClipPoint(point)) {
-                    m_clipper.addClipPoint(point, *Model::hitAsFace(hit));
+                const Model::BrushFace* face = Model::hitAsFace(hit);
+                if (inputState.modifierKeysPressed(ModifierKeys::MKShift)) {
+                    m_clipper.setPoints(hit.hitPoint(), *face);
                     updateBrushes();
+                } else {
+                    const Vec3 point = clipPoint(hit);
+                    if (m_clipper.canAddClipPoint(point)) {
+                        m_clipper.addClipPoint(point, *face);
+                        updateBrushes();
+                    }
                 }
             }
             

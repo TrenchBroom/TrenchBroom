@@ -230,6 +230,24 @@ namespace TrenchBroom {
             return m_clipSide != ClipSide_Front;
         }
         
+        void Clipper::setPoints(const Vec3& p1, const Model::BrushFace& face) {
+            const Plane3& boundary = face.boundary();
+            const Mat4x4 toPlane = planeProjectionMatrix(boundary.distance, boundary.normal);
+            const Mat4x4 fromPlane = invertedMatrix(toPlane);
+            
+            const Vec3 p1OnPlane = toPlane * p1;
+            const Vec3 p2OnPlane = p1OnPlane + Vec3::PosX * 16.0;
+            const Vec3 p3OnPlane = p1OnPlane + Vec3::PosY * 16.0;
+            
+            const Vec3 p2 = fromPlane * p2OnPlane;
+            const Vec3 p3 = fromPlane * p3OnPlane;
+            
+            m_handlePoints.deleteAllPoints();
+            addClipPoint(p1, face);
+            addClipPoint(p2, face);
+            addClipPoint(p3, face);
+        }
+
         bool Clipper::canAddClipPoint(const Vec3& position) const {
             return m_handlePoints.canAddPoint(position);
         }
