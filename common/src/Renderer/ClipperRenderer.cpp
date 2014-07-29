@@ -97,8 +97,13 @@ namespace TrenchBroom {
             setupBrushRenderer(m_frontRenderer, m_clipper.keepFrontBrushes());
             setupBrushRenderer(m_backRenderer, m_clipper.keepBackBrushes());
             
-            m_frontRenderer.render(renderContext);
-            m_backRenderer.render(renderContext);
+            if (m_clipper.keepFrontBrushes()) {
+                m_backRenderer.render(renderContext);
+                m_frontRenderer.render(renderContext);
+            } else {
+                m_frontRenderer.render(renderContext);
+                m_backRenderer.render(renderContext);
+            }
         }
         
         void ClipperRenderer::renderCurrentPoint(RenderContext& renderContext, const Vec3& position) {
