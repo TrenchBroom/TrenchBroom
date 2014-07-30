@@ -19,12 +19,16 @@
 
 #include <gtest/gtest.h>
 
-#include <algorithm>
+#include "TestUtils.h"
 
 #include "Hit.h"
 #include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
+#include "Model/Map.h"
 #include "Model/Picker.h"
+
+#include <algorithm>
 
 namespace TrenchBroom {
     namespace Model {
@@ -355,6 +359,24 @@ namespace TrenchBroom {
             assertHasFace(brush, *back);
             assertHasFace(brush, *top);
             assertHasFace(brush, *bottom);
+        }
+        
+        TEST(BrushTest, moveVertex) {
+            Map map(MapFormat::Quake);
+            const BBox3 worldBounds(4096.0);
+            BrushBuilder builder(&map, worldBounds);
+            Brush* brush = builder.createCube(64.0, "asdf");
+
+            const Vec3 vertex(32.0, 32.0, 32.0);
+            Vec3::List newVertexPositions = brush->moveVertices(worldBounds, Vec3::List(1, vertex), Vec3(-16.0, -16.0, 0.0));
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(Vec3(16.0, 16.0, 32.0), newVertexPositions[0]);
+            
+            newVertexPositions = brush->moveVertices(worldBounds, Vec3::List(1, newVertexPositions[0]), Vec3(16.0, 16.0, 0.0));
+            ASSERT_EQ(1u, newVertexPositions.size());
+            ASSERT_VEC_EQ(Vec3(32.0, 32.0, 32.0), newVertexPositions[0]);
+
+            delete brush;
         }
     }
 }

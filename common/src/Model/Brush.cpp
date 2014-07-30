@@ -478,6 +478,7 @@ namespace TrenchBroom {
             
             BrushFaceList::const_iterator it, end;
             detachFaces(result.droppedFaces);
+            VectorUtils::removeAll(m_faces, result.droppedFaces);
             VectorUtils::deleteAll(result.droppedFaces);
             
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {

@@ -255,6 +255,19 @@ namespace VectorUtils {
         delete item;
     }
     
+    template <typename I, typename C>
+    I removeAll(const I vecBegin, const I vecEnd, C curItem, C endItem) {
+        I last = vecEnd;
+        while (curItem != endItem)
+            last = std::remove(vecBegin, last, *curItem++);
+        return last;
+    }
+    
+    template <typename T>
+    void removeAll(std::vector<T*>& vec, const std::vector<T*>& items) {
+        vec.erase(removeAll(vec.begin(), vec.end(), items.begin(), items.end()), vec.end());
+    }
+    
     template <typename T1, typename T2, typename R>
     void concatenate(const std::vector<T1>& vec1, const std::vector<T2>& vec2, std::vector<R>& result) {
         result.clear();
