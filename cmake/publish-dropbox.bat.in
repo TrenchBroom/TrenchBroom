@@ -11,6 +11,10 @@ cd ..
 cmake --build . --config Release --target package
 cmake --build . --config Release --target publish
 
+GOTO end
+
 :error
 ECHO "Unit tests failed, aborting build."
 EXIT /B 1
+
+:end
