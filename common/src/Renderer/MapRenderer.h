@@ -79,6 +79,7 @@ namespace TrenchBroom {
             void selectionDidChange(const Model::SelectionResult& result);
             void modsDidChange();
             void entityDefinitionsDidChange();
+            void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
             
             void clearState();

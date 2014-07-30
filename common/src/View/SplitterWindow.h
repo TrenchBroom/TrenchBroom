@@ -78,6 +78,7 @@ namespace TrenchBroom {
             void unsetSashCursor();
             wxCursor sizeCursor() const;
         public:
+            void OnIdle(wxIdleEvent& event);
             void OnSize(wxSizeEvent& event);
         private:
             void updateSashPosition(const wxSize& oldSize, const wxSize& newSize);

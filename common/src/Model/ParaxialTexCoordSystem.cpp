@@ -167,14 +167,15 @@ namespace TrenchBroom {
             // WARNING: the texture plane norm is not the rotation axis of the texture (it's always the absolute axis)
             
             // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
-            float cosX = static_cast<float>(newBaseXAxis.dot(newXAxis));
-            assert(!Math::isnan(cosX));
-            float radX = std::acos(cosX);
-            if (crossed(newBaseXAxis, newXAxis).dot(newProjectionAxis) < 0.0)
-                radX *= -1.0f;
+            // we prefer the Y axis over the X axis because this usually gives better results on most brushes
+            float cosY = static_cast<float>(newBaseYAxis.dot(newYAxis));
+            assert(!Math::isnan(cosY));
+            float radY = std::acos(cosY);
+            if (crossed(newBaseYAxis, newYAxis).dot(newProjectionAxis) < 0.0)
+                radY *= -1.0f;
             
             // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
-            float rad = radX;
+            float rad = radY;
             if (newIndex == 4)
                 rad *= -1.0f;
             

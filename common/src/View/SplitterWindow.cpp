@@ -49,6 +49,7 @@ namespace TrenchBroom {
             
             Bind(wxEVT_MOUSE_CAPTURE_LOST, &SplitterWindow::OnMouseCaptureLost, this);
             Bind(wxEVT_SIZE, &SplitterWindow::OnSize, this);
+            Bind(wxEVT_IDLE, &SplitterWindow::OnIdle, this);
         }
         
         void SplitterWindow::splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin, const wxSize& rightMin) {
@@ -178,6 +179,14 @@ namespace TrenchBroom {
             }
         }
         
+        void SplitterWindow::OnIdle(wxIdleEvent& event) {
+            if (IsShownOnScreen()) {
+                Unbind(wxEVT_IDLE, &SplitterWindow::OnIdle, this);
+                
+                // if the initial sash position could not be set until now, then it probably cannot be set at all
+                m_initialSashPosition = -1;
+            }
+        }
         void SplitterWindow::OnSize(wxSizeEvent& event) {
             updateSashPosition(m_oldSize, event.GetSize());
             sizeWindows();
@@ -189,15 +198,10 @@ namespace TrenchBroom {
             initSashPosition();
             
             if (m_splitMode != SplitMode_Unset) {
-                if (m_initialSashPosition != -1) {
-                    if (setSashPosition(m_initialSashPosition))
-                        m_initialSashPosition = -1;
-                } else {
-                    const wxSize diff = newSize - oldSize;
-                    const int actualDiff = wxRound(m_sashGravity * h(diff));
-                    if (actualDiff != 0)
-                        setSashPosition(m_sashPosition + actualDiff);
-                }
+                const wxSize diff = newSize - oldSize;
+                const int actualDiff = wxRound(m_sashGravity * h(diff));
+                if (actualDiff != 0)
+                    setSashPosition(m_sashPosition + actualDiff);
             }
         }
         
@@ -206,7 +210,9 @@ namespace TrenchBroom {
                 setSashPosition(h(m_minSizes[0]) + wxRound(m_sashGravity * (h(m_minSizes[1]) - h(m_minSizes[0]))) + 1);
         }
         
-        bool SplitterWindow::setSashPosition(const int position) {
+        bool SplitterWindow::setSashPosition(int position) {
+            if (m_initialSashPosition != -1)
+                position = m_initialSashPosition;
             if (position == m_sashPosition)
                 return true;
             m_sashPosition = position;

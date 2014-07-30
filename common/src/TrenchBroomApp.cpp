@@ -65,10 +65,6 @@ namespace TrenchBroom {
             // we must delete the recent documents here instead of in OnExit because they might still be used by the frame destructors
             delete m_recentDocuments;
             m_recentDocuments = NULL;
-            
-            // The config manager is deleted before the persistence manager has a chance to save its data. This leads
-            // to the config manager getting recreated, but not flushed, so we explicitly delete it again here.
-            delete wxConfig::Set(NULL);
         }
 
         FrameManager* TrenchBroomApp::frameManager() {
@@ -242,6 +238,12 @@ namespace TrenchBroom {
             }
         }
 
+        int TrenchBroomApp::OnRun() {
+            const int result = wxApp::OnRun();
+            DeletePendingObjects();
+            return result;
+        }
+
         void TrenchBroomApp::OnFileNew(wxCommandEvent& event) {
             newDocument();
         }
@@ -292,7 +294,7 @@ namespace TrenchBroom {
 #ifdef __APPLE__
         void TrenchBroomApp::OnFileExit(wxCommandEvent& event) {
             if (m_frameManager->closeAllFrames())
-                Exit();
+                ExitMainLoop();
         }
 
         void TrenchBroomApp::OnUpdateUI(wxUpdateUIEvent& event) {
