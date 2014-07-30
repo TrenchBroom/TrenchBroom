@@ -1,5 +1,15 @@
 #!/bin/bash
 
 cmake -G "@CMAKE_GENERATOR@" "@CMAKE_SOURCE_DIR@"
+cmake --build . --config Release -- $1 $2 $3 $4 $5
+
+cd Release
+./TrenchBroom-Test
+if [ $? -ne 0 ]; then
+    echo "Unit tests failed, aborting build."
+    exit 1
+fi
+
+cd ..
 cmake --build . --config Release --target package -- $1 $2 $3 $4 $5
 cmake --build . --config Release --target publish -- $1 $2 $3 $4 $5

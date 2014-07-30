@@ -1,5 +1,15 @@
 @ECHO OFF
 
 cmake -G "@CMAKE_GENERATOR@" "@CMAKE_SOURCE_DIR@"
+
+cd Release
+TrenchBroom-Test
+IF NOT ERRORLEVEL 0 GOTO error
+cd ..
+
 cmake --build . --config Release --target package
 cmake --build . --config Release --target publish
+
+:error
+ECHO "Unit tests failed, aborting build."
+EXIT /B 1

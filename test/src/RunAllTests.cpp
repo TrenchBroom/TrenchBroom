@@ -33,8 +33,7 @@ int main(int argc, char **argv) {
     wxEntryStart(argc, argv);
 
     // use an empty file config so that we always use the default preferences
-    wxFileConfig* config = new wxFileConfig("TrenchBroom-Test");
-    wxConfig::Set(config);
+    wxConfig::Set(new wxFileConfig("TrenchBroom-Test"));
     
     ::testing::InitGoogleTest(&argc, argv);
 
@@ -43,7 +42,7 @@ int main(int argc, char **argv) {
     const int result = RUN_ALL_TESTS();
     
     wxEntryCleanup();
-    delete config;
+    delete wxConfig::Set(NULL);
 
 #if defined _WIN32
     std::cout << "Press enter to exit" << std::endl;
