@@ -1,6 +1,7 @@
 @ECHO OFF
 
 cmake -G "@CMAKE_GENERATOR@" "@CMAKE_SOURCE_DIR@"
+cmake --build . --config Release
 
 cd Release
 TrenchBroom-Test
