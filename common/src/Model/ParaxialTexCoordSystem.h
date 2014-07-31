@@ -37,6 +37,7 @@ namespace TrenchBroom {
             Vec3 m_yAxis;
         public:
             ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2);
+            ParaxialTexCoordSystem(const Vec3& normal);
 
             static size_t planeNormalIndex(const Vec3& normal);
             static void axes(size_t index, Vec3& xAxis, Vec3& yAxis);
@@ -53,7 +54,7 @@ namespace TrenchBroom {
             Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;
             
             void doSetRotation(const Vec3& normal, float oldAngle, float newAngle);
-            void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture);
+            void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture, const Vec3& invariant);
             void doShearTexture(const Vec3& normal, const Vec2f& factors);
             
             float doMeasureAngle(float currentAngle, const Vec2f& center, const Vec2f& point) const;

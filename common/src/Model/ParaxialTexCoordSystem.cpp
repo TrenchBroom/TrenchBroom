@@ -38,6 +38,10 @@ namespace TrenchBroom {
             setRotation(normal, 0.0f, 0.0f);
         }
 
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& normal) {
+            setRotation(normal, 0.0f, 0.0f);
+        }
+        
         size_t ParaxialTexCoordSystem::planeNormalIndex(const Vec3& normal) {
             size_t bestIndex = 0;
             FloatType bestDot = static_cast<FloatType>(0.0);
@@ -112,7 +116,7 @@ namespace TrenchBroom {
             rotateAxes(m_xAxis, m_yAxis, Math::radians(newAngle), m_index);
         }
 
-        void ParaxialTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture) {
+        void ParaxialTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture, const Vec3& oldInvariant) {
             
             const Vec3 offset     = transformation * Vec3::Null;
             const Vec3& oldNormal = oldBoundary.normal;
@@ -120,6 +124,7 @@ namespace TrenchBroom {
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
             if (newNormal.equals(oldNormal, 0.01))
                 newNormal = oldNormal;
+            assert(Math::eq(newNormal.length(), 1.0));
             
             if (!lockTexture || attribs.xScale() == 0.0f || attribs.yScale() == 0.0f) {
                 setRotation(newNormal, attribs.rotation(), attribs.rotation());
@@ -127,20 +132,18 @@ namespace TrenchBroom {
             }
 
             // calculate the current texture coordinates of the origin
-            const Vec3 oldAnchor  = oldBoundary.anchor();
-            const Vec2f oldAnchorTexCoords = computeTexCoords(oldAnchor, attribs.scale()) + attribs.offset();
+            const Vec2f oldInvariantTexCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
             
             // compute the parameters of the transformed texture coordinate system
-            const Vec3 newAnchor = transformation * oldAnchor;
+            const Vec3 newInvariant = transformation * oldInvariant;
             
-            const Mat4x4 toBoundary        = planeProjectionMatrix(0.0, oldNormal, crossed(m_xAxis, m_yAxis).normalized());
+            const Mat4x4 toBoundary        = planeProjectionMatrix(0.0, oldNormal, getZAxis());
             const Mat4x4 fromBoundary      = invertedMatrix(toBoundary);
             const Mat4x4 projectToBoundary = fromBoundary * Mat4x4::ZerZ * toBoundary;
             
             // compensate the translational part of the transformation for the directional vectors
-            const Vec3 newXAxisOnBoundary = transformation * projectToBoundary * (m_xAxis * attribs.xScale()) - offset;
-            const Vec3 newYAxisOnBoundary = transformation * projectToBoundary * (m_yAxis * attribs.yScale()) - offset;
-            assert(Math::eq(newNormal.length(), 1.0));
+            const Vec3 newXAxisOnBoundary = transformation * projectToBoundary * safeScaleAxis(m_xAxis, attribs.xScale()) - offset;
+            const Vec3 newYAxisOnBoundary = transformation * projectToBoundary * safeScaleAxis(m_yAxis, attribs.yScale()) - offset;
             
             // obtain the new texture plane norm and the new base texture axes
             Vec3 newBaseXAxis, newBaseYAxis, newProjectionAxis;
@@ -205,11 +208,11 @@ namespace TrenchBroom {
             doSetRotation(newNormal, attribs.rotation(), newRotation);
             
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            const Vec2f newAnchorTexCoords = computeTexCoords(newAnchor, newScale);
+            const Vec2f newInvariantTexCoords = computeTexCoords(newInvariant, newScale);
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
-            const Vec2f newOffset = attribs.modOffset(oldAnchorTexCoords - newAnchorTexCoords).corrected(4);
+            const Vec2f newOffset = attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords).corrected(4);
             
             assert(!newOffset.nan());
             assert(!newScale.nan());

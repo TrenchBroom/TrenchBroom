@@ -85,22 +85,21 @@ namespace TrenchBroom {
             m_yAxis = rot * m_yAxis;
         }
         
-        void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture) {
+        void ParallelTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture, const Vec3& oldInvariant) {
             // calculate the current texture coordinates of the face's center
-            const Vec3 oldAnchor = oldBoundary.anchor();
-            const Vec2f oldAnchorTechCoords = computeTexCoords(oldAnchor, attribs.scale()) + attribs.offset();
+            const Vec2f oldInvariantTechCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
             
             const Vec3 offset = transformation * Vec3::Null;
             m_xAxis           = transformation * m_xAxis - offset;
             m_yAxis           = transformation * m_yAxis - offset;
 
             // determine the new texture coordinates of the transformed center of the face, sans offsets
-            const Vec3 newAnchor = transformation * oldAnchor;
-            const Vec2f newAnchorTexCoords = computeTexCoords(newAnchor, attribs.scale());
+            const Vec3 newInvariant = transformation * oldInvariant;
+            const Vec2f newInvariantTexCoords = computeTexCoords(newInvariant, attribs.scale());
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
             // the original texture coordinates of the center
-            const Vec2f newOffset = attribs.modOffset(oldAnchorTechCoords - newAnchorTexCoords).corrected(4);
+            const Vec2f newOffset = attribs.modOffset(oldInvariantTechCoords - newInvariantTexCoords).corrected(4);
             attribs.setOffset(newOffset);
         }
 
