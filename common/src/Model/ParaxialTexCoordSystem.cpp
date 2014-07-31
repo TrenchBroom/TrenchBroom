@@ -121,6 +121,7 @@ namespace TrenchBroom {
             const Vec3 offset     = transformation * Vec3::Null;
             const Vec3& oldNormal = oldBoundary.normal;
                   Vec3 newNormal  = transformation * oldNormal - offset;
+            
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
             if (newNormal.equals(oldNormal, 0.01))
                 newNormal = oldNormal;
@@ -133,58 +134,58 @@ namespace TrenchBroom {
 
             // calculate the current texture coordinates of the origin
             const Vec2f oldInvariantTexCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
+
+            // project the texture axes onto the boundary plane along the texture Z axis
+            const Vec3 boundaryOffset     = oldBoundary.project(Vec3::Null, getZAxis());
+            const Vec3 oldXAxisOnBoundary = oldBoundary.project(m_xAxis * attribs.xScale(), getZAxis()) - boundaryOffset;
+            const Vec3 oldYAxisOnBoundary = oldBoundary.project(m_yAxis * attribs.yScale(), getZAxis()) - boundaryOffset;
+            /*
+            const Vec3 oldXAxisOnBoundary = oldBoundary.project(safeScaleAxis(m_xAxis, attribs.xScale()), getZAxis()) - boundaryOffset;
+            const Vec3 oldYAxisOnBoundary = oldBoundary.project(safeScaleAxis(m_yAxis, attribs.yScale()), getZAxis()) - boundaryOffset;
+             */
             
-            // compute the parameters of the transformed texture coordinate system
-            const Vec3 newInvariant = transformation * oldInvariant;
-            
-            const Mat4x4 toBoundary        = planeProjectionMatrix(0.0, oldNormal, getZAxis());
-            const Mat4x4 fromBoundary      = invertedMatrix(toBoundary);
-            const Mat4x4 projectToBoundary = fromBoundary * Mat4x4::ZerZ * toBoundary;
-            
-            // compensate the translational part of the transformation for the directional vectors
-            const Vec3 newXAxisOnBoundary = transformation * projectToBoundary * safeScaleAxis(m_xAxis, attribs.xScale()) - offset;
-            const Vec3 newYAxisOnBoundary = transformation * projectToBoundary * safeScaleAxis(m_yAxis, attribs.yScale()) - offset;
+            // transform the projected texture axes and compensate the translational component
+            const Vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;
+            const Vec3 transformedYAxis = transformation * oldYAxisOnBoundary - offset;
             
             // obtain the new texture plane norm and the new base texture axes
             Vec3 newBaseXAxis, newBaseYAxis, newProjectionAxis;
             const size_t newIndex = planeNormalIndex(newNormal);
             axes(newIndex, newBaseXAxis, newBaseYAxis, newProjectionAxis);
             
+            const Plane3 newTexturePlane(0.0, newProjectionAxis);
+            
             // project the transformed texture axes onto the new texture projection plane
-            const Mat4x4 toTexPlane        = planeProjectionMatrix(0.0, newProjectionAxis);
-            const Mat4x4 fromTexPlane      = invertedMatrix(toTexPlane);
-            const Mat4x4 projectToTexPlane = fromTexPlane * Mat4x4::ZerZ * toTexPlane;
-            Vec3 newXAxis = projectToTexPlane * newXAxisOnBoundary;
-            Vec3 newYAxis = projectToTexPlane * newYAxisOnBoundary;
+            const Vec3 projectedTransformedXAxis = newTexturePlane.project(transformedXAxis);
+            const Vec3 projectedTransformedYAxis = newTexturePlane.project(transformedYAxis);
+            assert(!projectedTransformedXAxis.nan() &&
+                   !projectedTransformedYAxis.nan());
 
-            assert(!newXAxis.nan() && !newYAxis.nan());
+            const Vec3 normalizedXAxis = projectedTransformedXAxis.normalized();
+            const Vec3 normalizedYAxis = projectedTransformedYAxis.normalized();
             
-            // the new scaling factors are the lengths of the transformed texture axes
-            Vec2f newScale = Vec2f(newXAxis.length(),
-                                   newYAxis.length());
-            
-            // normalize the transformed texture axes
-            newXAxis /= newScale.x();
-            newYAxis /= newScale.y();
-            
-            // WARNING: the texture plane norm is not the rotation axis of the texture (it's always the absolute axis)
-            
-            // determine the rotation angle from the dot product of the new base axes and the transformed texture axes
-            float cosX = static_cast<float>(newBaseXAxis.dot(newXAxis));
-            float cosY = static_cast<float>(newBaseYAxis.dot(newYAxis));
+            // determine the rotation angle from the dot product of the new base axes and the transformed, projected and normalized texture axes
+            float cosX = static_cast<float>(newBaseXAxis.dot(normalizedXAxis.normalized()));
+            float cosY = static_cast<float>(newBaseYAxis.dot(normalizedYAxis.normalized()));
             assert(!Math::isnan(cosX));
             assert(!Math::isnan(cosY));
 
             float radX = std::acos(cosX);
-            if (crossed(newBaseXAxis, newXAxis).dot(newProjectionAxis) < 0.0)
+            if (crossed(newBaseXAxis, normalizedXAxis).dot(newProjectionAxis) < 0.0)
                 radX *= -1.0f;
 
             float radY = std::acos(cosY);
-            if (crossed(newBaseYAxis, newYAxis).dot(newProjectionAxis) < 0.0)
+            if (crossed(newBaseYAxis, normalizedYAxis).dot(newProjectionAxis) < 0.0)
                 radY *= -1.0f;
             
-            // we prefer the Y axis over the X axis because this usually gives better results on most brushes
-            float rad = radX;
+            // we prefer the X axis over the Y axis
+            // TODO: be smarter about choosing between the X and Y axis rotations - sometimes either
+            // one can be better
+            float rad;
+            if (Math::abs(radX) < Math::abs(radY))
+                rad = radX;
+            else
+                rad = radY;
 
             // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
             if (newIndex == 4)
@@ -196,10 +197,15 @@ namespace TrenchBroom {
             // apply the rotation to the new base axes
             rotateAxes(newBaseXAxis, newBaseYAxis, rad, newIndex);
             
+            // finally compute the scaling factors
+            Vec2f newScale = Vec2f(projectedTransformedXAxis.dot(newBaseXAxis),
+                                   projectedTransformedYAxis.dot(newBaseYAxis));
+            
+            
             // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
-            if (newBaseXAxis.dot(newXAxis) < 0.0)
+            if (newBaseXAxis.dot(normalizedXAxis) < 0.0)
                 newScale[0] *= -1.0f;
-            if (newBaseYAxis.dot(newYAxis) < 0.0)
+            if (newBaseYAxis.dot(normalizedYAxis) < 0.0)
                 newScale[1] *= -1.0f;
             
             // correct rounding errors
@@ -207,11 +213,14 @@ namespace TrenchBroom {
             
             doSetRotation(newNormal, attribs.rotation(), newRotation);
             
+            // compute the parameters of the transformed texture coordinate system
+            const Vec3 newInvariant = transformation * oldInvariant;
+
             // determine the new texture coordinates of the transformed center of the face, sans offsets
             const Vec2f newInvariantTexCoords = computeTexCoords(newInvariant, newScale);
             
             // since the center should be invariant, the offsets are determined by the difference of the current and
-            // the original texture coordinates of the center
+            // the original texture coordiknates of the center
             const Vec2f newOffset = attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords).corrected(4);
             
             assert(!newOffset.nan());
