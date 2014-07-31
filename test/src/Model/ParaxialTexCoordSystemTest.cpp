@@ -23,18 +23,21 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
 namespace TrenchBroom {
     namespace Model {
         TEST(ParaxialTexCoordSystemTest, transform) {
+            Assets::Texture texture("texture", 64, 64);
             const FloatType oldDistance(-583.10490580282567);
             const Vec3 oldNormal(0.62449286425754114, -0.63673782238023802, -0.45229814065711621);
             const Plane3 oldBoundary(oldDistance, oldNormal);
             ParaxialTexCoordSystem coordSystem(oldNormal);
             
             BrushFaceAttribs attribs("texture");
+            attribs.setTexture(&texture);
             const Vec3 center(16.0, 32.0, -12.0);
             const Mat4x4 transform = translationMatrix(center) * rotationMatrix(Vec3::PosZ, Math::radians(15.0)) * translationMatrix(-center);
             const Vec3 invariant(-184.65096673000929, 632.60193647633696, 143.68866328257172);
@@ -44,7 +47,7 @@ namespace TrenchBroom {
             const Vec2f newTexCoords = coordSystem.getTexCoords(transform * invariant, attribs);
             
             ASSERT_VEC_EQ(oldTexCoords, newTexCoords);
-            ASSERT_VEC_EQ(Vec2f::One, attribs.scale());
+            ASSERT_VEC_EQ(Vec2f(1.20616937, 1.0), attribs.scale());
         }
     }
 }

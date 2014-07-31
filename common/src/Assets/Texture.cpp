@@ -64,6 +64,16 @@ namespace TrenchBroom {
             }
         }
         
+        Texture::Texture(const String& name, const size_t width, const size_t height) :
+        m_collection(NULL),
+        m_name(name),
+        m_width(width),
+        m_height(height),
+        m_averageColor(Color(0.0f, 0.0f, 0.0f, 1.0f)),
+        m_usageCount(0),
+        m_overridden(false),
+        m_textureId(0) {}
+
         Texture::~Texture() {
             if (m_collection == NULL && m_textureId != 0)
                 glDeleteTextures(1, &m_textureId);

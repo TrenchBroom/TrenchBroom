@@ -107,7 +107,7 @@ namespace TrenchBroom {
         Vec2f ParaxialTexCoordSystem::doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const {
             const Vec2f texSize = attribs.textureSize();
             const Vec2f coords = computeTexCoords(point, attribs.scale());
-            return (coords + attribs.offset()) / texSize;
+            return (coords + attribs.offset()).remainder(texSize) / texSize;
         }
         
         void ParaxialTexCoordSystem::doSetRotation(const Vec3& normal, const float oldAngle, const float newAngle) {
@@ -178,7 +178,6 @@ namespace TrenchBroom {
             if (crossed(newBaseYAxis, normalizedYAxis).dot(newProjectionAxis) < 0.0)
                 radY *= -1.0f;
             
-            // we prefer the X axis over the Y axis
             // TODO: be smarter about choosing between the X and Y axis rotations - sometimes either
             // one can be better
             float rad;

@@ -165,6 +165,16 @@ namespace Math {
     T round(const T v) {
         return v > 0.0 ? floor(v + static_cast<T>(0.5)) : ceil(v - static_cast<T>(0.5));
     }
+    
+    template <typename T>
+    T down(const T v) {
+        return v > 0.0 ? floor(v) : ceil(v);
+    }
+    
+    template <typename T>
+    T up(const T v) {
+        return v < 0.0 ? floor(v) : ceil(v);
+    }
 
     template <typename T>
     T correct(const T v, const size_t decimals = 0, const T epsilon = Constants<T>::correctEpsilon()) {

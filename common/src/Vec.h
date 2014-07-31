@@ -495,8 +495,15 @@ public:
             result[i] = v[i] / v[S-1];
         return result;
     }
+    
+    Vec<T,S> remainder(const Vec<T,S>& d) const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = Math::remainder(v[i], d[i]);
+        return result;
+    }
 
-    const T dot(const Vec<T,S>& right) const {
+    T dot(const Vec<T,S>& right) const {
         T result = static_cast<T>(0.0);
         for (size_t i = 0; i < S; ++i)
             result += (v[i] * right[i]);
