@@ -82,14 +82,18 @@ namespace TrenchBroom {
         Preference<bool> ShadeFaces(IO::Path("Renderer/ShadeFaces"), true);
         Preference<bool> UseFog(IO::Path("Renderer/UseFog"), false);
 
+        Preference<IO::Path>& RendererFontPath() {
 #if defined __APPLE__
-        Preference<IO::Path> RendererFontPath(IO::Path("Renderer/Font name"), IO::SystemPaths::findFontFile("LucidaGrande"));
+            static Preference<IO::Path> fontPath(IO::Path("Renderer/Font name"), IO::SystemPaths::findFontFile("LucidaGrande"));
 #elif defined _WIN32
-        Preference<IO::Path> RendererFontPath(IO::Path("Renderer/Font name"), IO::SystemPaths::findFontFile("Tahoma"));
+            static Preference<IO::Path> fontPath(IO::Path("Renderer/Font name"), IO::SystemPaths::findFontFile("Tahoma"));
 #else
-        Preference<IO::Path> RendererFontPath(IO::Path("Renderer/Font name"), IO::Path("fonts/SourceSansPro-Regular.otf"));
+            static Preference<IO::Path> fontPath(IO::Path("Renderer/Font name"), IO::Path("fonts/SourceSansPro-Regular.otf"));
 #endif
-        Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
+            return fontPath;
+        }
+    
+    Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
         
         Preference<int> BrowserFontSize(IO::Path("Browser/Font size"), 13);
         Preference<Color> BrowserTextColor(IO::Path("Browser/Text color"), Color(0.0f, 0.0f, 0.0f, 1.0f));

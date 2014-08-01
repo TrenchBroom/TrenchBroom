@@ -1458,7 +1458,7 @@ namespace TrenchBroom {
         
         Renderer::TextureFont& MapView::defaultFont(Renderer::FontManager& fontManager) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath);
+            const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath());
             const size_t fontSize = static_cast<size_t>(prefs.get(Preferences::RendererFontSize));
             return fontManager.font(Renderer::FontDescriptor(fontPath, fontSize));
         }

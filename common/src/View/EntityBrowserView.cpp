@@ -116,7 +116,7 @@ namespace TrenchBroom {
         
         void EntityBrowserView::doReloadLayout(Layout& layout) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath);
+            const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath());
             int fontSize = prefs.get(Preferences::BrowserFontSize);
             assert(fontSize > 0);
             
@@ -389,7 +389,7 @@ namespace TrenchBroom {
         
         EntityBrowserView::StringMap EntityBrowserView::collectStringVertices(Layout& layout, const float y, const float height) {
             PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::FontDescriptor defaultDescriptor(prefs.get(Preferences::RendererFontPath),
+            Renderer::FontDescriptor defaultDescriptor(prefs.get(Preferences::RendererFontPath()),
                                                        static_cast<size_t>(prefs.get(Preferences::BrowserFontSize)));
             
             StringMap stringVertices;

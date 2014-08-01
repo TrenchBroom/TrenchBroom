@@ -87,7 +87,7 @@ namespace TrenchBroom {
         extern Preference<bool> ShadeFaces;
         extern Preference<bool> UseFog;
         
-        extern Preference<IO::Path> RendererFontPath;
+        Preference<IO::Path>& RendererFontPath();
         extern Preference<int> RendererFontSize;
         
         extern Preference<int> BrowserFontSize;
