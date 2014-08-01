@@ -29,6 +29,9 @@
 
 #include <wx/wx.h>
 
+#include <map>
+#include <vector>
+
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
@@ -63,6 +66,10 @@ namespace TrenchBroom {
             Tool* m_modalReceiver;
             Tool* m_dropReceiver;
             Tool* m_savedDropReceiver;
+            
+            typedef std::vector<Tool*> ToolList;
+            typedef std::map<Tool*, ToolList> ToolMap;
+            ToolMap m_deactivateWhen;
             
             wxPoint m_clickDelta;
             wxPoint m_lastMousePos;
@@ -103,6 +110,7 @@ namespace TrenchBroom {
             void OnKillFocus(wxFocusEvent& event);
             
             void addTool(Tool* tool);
+            void deactivateWhen(Tool* master, Tool* slave);
             
             bool anyToolActive() const;
             bool toolActive(const Tool* tool) const;
@@ -116,9 +124,11 @@ namespace TrenchBroom {
             void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderTools(Renderer::RenderContext& renderContext);
         private:
+            bool activateTool(Tool* tool, const InputState& inputState);
+            void deactivateTool(Tool* tool);
+            
             void captureMouse();
             void releaseMouse();
-            
             void cancelDrag();
 
             ModifierKeyState modifierKeys();

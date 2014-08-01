@@ -66,6 +66,8 @@ namespace TrenchBroom {
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
             
+            bool setPlaneShortcutPressed(const InputState& inputState) const;
+            
             Vec3 clipPoint(const Hit& hit) const;
             void updateBrushes();
             void clearAndDelete(Model::EntityBrushesMap& brushes);

@@ -38,7 +38,6 @@ namespace TrenchBroom {
         public:
             virtual ~ActivationPolicy();
             
-            virtual bool activatable() const;
             virtual bool initiallyActive() const;
             virtual bool doActivate(const InputState& inputState) = 0;
             virtual bool doDeactivate(const InputState& inputState) = 0;
@@ -48,7 +47,6 @@ namespace TrenchBroom {
         public:
             ~NoActivationPolicy();
             
-            bool activatable() const;
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
@@ -228,21 +226,16 @@ namespace TrenchBroom {
             }
             
             bool activate(const InputState& inputState) {
-                if (static_cast<ActivationPolicyType&>(*this).activatable()) {
-                    assert(!active());
-                    if (static_cast<ActivationPolicyType&>(*this).doActivate(inputState))
-                        m_active = true;
-                    return m_active;
-                }
-                return false;
+                assert(!active());
+                if (static_cast<ActivationPolicyType&>(*this).doActivate(inputState))
+                    m_active = true;
+                return m_active;
             }
             
             void deactivate(const InputState& inputState) {
-                if (static_cast<ActivationPolicyType&>(*this).activatable()) {
-                    assert(active());
-                    if (static_cast<ActivationPolicyType&>(*this).doDeactivate(inputState))
-                        m_active = false;
-                }
+                assert(active());
+                if (static_cast<ActivationPolicyType&>(*this).doDeactivate(inputState))
+                    m_active = false;
             }
             
             void pick(const InputState& inputState, Hits& hits) {

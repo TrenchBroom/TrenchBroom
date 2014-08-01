@@ -138,7 +138,7 @@ namespace TrenchBroom {
 
         bool ClipTool::doMouseUp(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
-                !inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
+                !setPlaneShortcutPressed(inputState))
                 return false;
 
             const Hit& hit = findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
@@ -197,25 +197,31 @@ namespace TrenchBroom {
 
         void ClipTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
             m_renderer.renderBrushes(renderContext);
-            m_renderer.renderClipPoints(renderContext);
-            
-            if (dragging()) {
-                m_renderer.renderHighlight(renderContext, m_dragPointIndex);
-            } else {
-                const Hit& brushHit = findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
-                const Hit& handleHit = inputState.hits().findFirst(HandleHit, true);
-
-                if (handleHit.isMatch()) {
-                    const size_t index = handleHit.target<size_t>();
-                    m_renderer.renderHighlight(renderContext, index);
-                } else if (brushHit.isMatch()) {
-                    const Vec3 point = clipPoint(brushHit);
-                    if (m_clipper.canAddClipPoint(point))
-                        m_renderer.renderCurrentPoint(renderContext, point);
+            if (!setPlaneShortcutPressed(inputState)) {
+                m_renderer.renderClipPoints(renderContext);
+                
+                if (dragging()) {
+                    m_renderer.renderHighlight(renderContext, m_dragPointIndex);
+                } else {
+                    const Hit& brushHit = findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
+                    const Hit& handleHit = inputState.hits().findFirst(HandleHit, true);
+                    
+                    if (handleHit.isMatch()) {
+                        const size_t index = handleHit.target<size_t>();
+                        m_renderer.renderHighlight(renderContext, index);
+                    } else if (brushHit.isMatch()) {
+                        const Vec3 point = clipPoint(brushHit);
+                        if (m_clipper.canAddClipPoint(point))
+                            m_renderer.renderCurrentPoint(renderContext, point);
+                    }
                 }
             }
         }
         
+        bool ClipTool::setPlaneShortcutPressed(const InputState& inputState) const {
+            return inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare);
+        }
+
         Vec3 ClipTool::clipPoint(const Hit& hit) const {
             const Model::BrushFace& face = *Model::hitAsFace(hit);
             const Vec3& point = hit.hitPoint();

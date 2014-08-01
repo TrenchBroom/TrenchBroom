@@ -26,11 +26,9 @@
 namespace TrenchBroom {
     namespace View {
         ActivationPolicy::~ActivationPolicy() {}
-        bool ActivationPolicy::activatable() const { return true; }
         bool ActivationPolicy::initiallyActive() const { return false; }
 
         NoActivationPolicy::~NoActivationPolicy() {}
-        bool NoActivationPolicy::activatable() const { return false; }
         bool NoActivationPolicy::initiallyActive() const { return true; }
         bool NoActivationPolicy::doActivate(const InputState& inputState) { return true; }
         bool NoActivationPolicy::doDeactivate(const InputState& inputState) { return true; }

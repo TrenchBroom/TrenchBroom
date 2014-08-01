@@ -331,6 +331,13 @@ namespace TrenchBroom {
                 m_toolChain->appendTool(tool);
         }
         
+        void ToolBox::deactivateWhen(Tool* master, Tool* slave) {
+            assert(master != NULL);
+            assert(slave != NULL);
+            assert(master != slave);
+            m_deactivateWhen[master].push_back(slave);
+        }
+
         bool ToolBox::anyToolActive() const {
             return m_modalReceiver != NULL;
         }
@@ -342,27 +349,20 @@ namespace TrenchBroom {
         void ToolBox::toggleTool(Tool* tool) {
             if (tool == NULL) {
                 if (m_modalReceiver != NULL) {
-                    m_modalReceiver->deactivate(m_inputState);
-                    toolDeactivatedNotifier(m_modalReceiver);
+                    deactivateTool(m_modalReceiver);
                     m_modalReceiver = NULL;
                 }
             } else {
                 if (m_modalReceiver == tool) {
-                    assert(m_modalReceiver->active());
-                    m_modalReceiver->deactivate(m_inputState);
-                    toolDeactivatedNotifier(m_modalReceiver);
+                    deactivateTool(m_modalReceiver);
                     m_modalReceiver = NULL;
                 } else {
                     if (m_modalReceiver != NULL) {
-                        assert(m_modalReceiver->active());
-                        m_modalReceiver->deactivate(m_inputState);
-                        toolDeactivatedNotifier(m_modalReceiver);
+                        deactivateTool(m_modalReceiver);
                         m_modalReceiver = NULL;
                     }
-                    if (tool->activate(m_inputState)) {
+                    if (activateTool(tool, m_inputState))
                         m_modalReceiver = tool;
-                        toolActivatedNotifier(m_modalReceiver);
-                    }
                 }
             }
             m_window->Refresh();
@@ -398,6 +398,43 @@ namespace TrenchBroom {
                 m_toolChain->renderChain(m_inputState, renderContext);
         }
         
+        bool ToolBox::activateTool(Tool* tool, const InputState& inputState) {
+            if (!tool->activate(inputState))
+                return false;
+            
+            ToolMap::iterator mapIt = m_deactivateWhen.find(tool);
+            if (mapIt != m_deactivateWhen.end()) {
+                const ToolList& slaves = mapIt->second;
+                ToolList::const_iterator listIt, listEnd;
+                for (listIt = slaves.begin(), listEnd = slaves.end(); listIt != listEnd; ++listIt) {
+                    Tool* slave = *listIt;
+                    
+                    slave->deactivate(m_inputState);
+                    toolDeactivatedNotifier(slave);
+                }
+            }
+        
+            toolActivatedNotifier(tool);
+            return true;
+        }
+        
+        void ToolBox::deactivateTool(Tool* tool) {
+            tool->deactivate(m_inputState);
+            toolDeactivatedNotifier(tool);
+
+            ToolMap::iterator mapIt = m_deactivateWhen.find(tool);
+            if (mapIt != m_deactivateWhen.end()) {
+                const ToolList& slaves = mapIt->second;
+                ToolList::const_iterator listIt, listEnd;
+                for (listIt = slaves.begin(), listEnd = slaves.end(); listIt != listEnd; ++listIt) {
+                    Tool* slave = *listIt;
+                    
+                    slave->activate(m_inputState);
+                    toolActivatedNotifier(slave);
+                }
+            }
+        }
+
         void ToolBox::captureMouse() {
             if (!m_window->HasCapture() && m_dragReceiver == NULL)
                 m_window->CaptureMouse();
