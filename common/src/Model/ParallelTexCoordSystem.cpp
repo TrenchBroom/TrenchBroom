@@ -68,9 +68,7 @@ namespace TrenchBroom {
         }
         
         Vec2f ParallelTexCoordSystem::doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const {
-            const Vec2f texSize = attribs.textureSize();
-            const Vec2f coords = computeTexCoords(point, attribs.scale());
-            return (coords + attribs.offset()).remainder(texSize) / texSize;
+            return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / attribs.textureSize();
         }
         
         void ParallelTexCoordSystem::doSetRotation(const Vec3& normal, const float oldAngle, const float newAngle) {

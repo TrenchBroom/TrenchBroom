@@ -32,6 +32,15 @@ namespace TrenchBroom {
             Vec3( 0.0,  1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
             Vec3( 0.0, -1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
         };
+        
+        const bool ParaxialTexCoordSystem::Orientations[] = {
+            true,  // 0
+            false, // 1
+            true,  // 2
+            false, // 3
+            false, // 4
+            true   // 5
+        };
 
         ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
@@ -105,9 +114,7 @@ namespace TrenchBroom {
         }
 
         Vec2f ParaxialTexCoordSystem::doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const {
-            const Vec2f texSize = attribs.textureSize();
-            const Vec2f coords = computeTexCoords(point, attribs.scale());
-            return (coords + attribs.offset()).remainder(texSize) / texSize;
+            return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / attribs.textureSize();
         }
         
         void ParaxialTexCoordSystem::doSetRotation(const Vec3& normal, const float oldAngle, const float newAngle) {
@@ -121,17 +128,17 @@ namespace TrenchBroom {
             const Vec3 offset     = transformation * Vec3::Null;
             const Vec3& oldNormal = oldBoundary.normal;
                   Vec3 newNormal  = transformation * oldNormal - offset;
+            assert(Math::eq(newNormal.length(), 1.0));
             
             // fix some rounding errors - if the old and new texture axes are almost the same, use the old axis
             if (newNormal.equals(oldNormal, 0.01))
                 newNormal = oldNormal;
-            assert(Math::eq(newNormal.length(), 1.0));
             
             if (!lockTexture || attribs.xScale() == 0.0f || attribs.yScale() == 0.0f) {
                 setRotation(newNormal, attribs.rotation(), attribs.rotation());
                 return;
             }
-
+            
             // calculate the current texture coordinates of the origin
             const Vec2f oldInvariantTexCoords = computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
 
@@ -143,16 +150,26 @@ namespace TrenchBroom {
             const Vec3 oldXAxisOnBoundary = oldBoundary.project(safeScaleAxis(m_xAxis, attribs.xScale()), getZAxis()) - boundaryOffset;
             const Vec3 oldYAxisOnBoundary = oldBoundary.project(safeScaleAxis(m_yAxis, attribs.yScale()), getZAxis()) - boundaryOffset;
              */
-            
+
             // transform the projected texture axes and compensate the translational component
             const Vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;
             const Vec3 transformedYAxis = transformation * oldYAxisOnBoundary - offset;
+            
+            const Vec2f textureSize = attribs.textureSize();
+            const bool preferX = textureSize.x() >= textureSize.y();
+
+            /*
+            const FloatType dotX = transformedXAxis.normalized().dot(oldXAxisOnBoundary.normalized());
+            const FloatType dotY = transformedYAxis.normalized().dot(oldYAxisOnBoundary.normalized());
+            const bool preferX = Math::abs(dotX) < Math::abs(dotY);
+            */
             
             // obtain the new texture plane norm and the new base texture axes
             Vec3 newBaseXAxis, newBaseYAxis, newProjectionAxis;
             const size_t newIndex = planeNormalIndex(newNormal);
             axes(newIndex, newBaseXAxis, newBaseYAxis, newProjectionAxis);
-            
+
+            const bool flipX = flipXAxis(m_index, newIndex);
             const Plane3 newTexturePlane(0.0, newProjectionAxis);
             
             // project the transformed texture axes onto the new texture projection plane
@@ -171,21 +188,19 @@ namespace TrenchBroom {
             assert(!Math::isnan(cosY));
 
             float radX = std::acos(cosX);
+            if (flipX)
+                radX -= Math::Cf::pi();
             if (crossed(newBaseXAxis, normalizedXAxis).dot(newProjectionAxis) < 0.0)
                 radX *= -1.0f;
-
+            
             float radY = std::acos(cosY);
             if (crossed(newBaseYAxis, normalizedYAxis).dot(newProjectionAxis) < 0.0)
                 radY *= -1.0f;
             
             // TODO: be smarter about choosing between the X and Y axis rotations - sometimes either
             // one can be better
-            float rad;
-            if (Math::abs(radX) < Math::abs(radY))
-                rad = radX;
-            else
-                rad = radY;
-
+            float rad = preferX ? radX : radY;
+            
             // for some reason, when the texture plane normal is the Y axis, we must rotation clockwise
             if (newIndex == 4)
                 rad *= -1.0f;
@@ -193,24 +208,19 @@ namespace TrenchBroom {
             float newRotation = Math::degrees(rad);
             newRotation = Math::correct(newRotation, 4);
             
-            // apply the rotation to the new base axes
-            rotateAxes(newBaseXAxis, newBaseYAxis, rad, newIndex);
+            doSetRotation(newNormal, newRotation, newRotation);
             
             // finally compute the scaling factors
-            Vec2f newScale = Vec2f(projectedTransformedXAxis.dot(newBaseXAxis),
-                                   projectedTransformedYAxis.dot(newBaseYAxis));
-            
-            
+            const Vec2f newScale = Vec2f(projectedTransformedXAxis.dot(m_xAxis),
+                                         projectedTransformedYAxis.dot(m_yAxis)).corrected(4);
+
             // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
+            /*
             if (newBaseXAxis.dot(normalizedXAxis) < 0.0)
                 newScale[0] *= -1.0f;
             if (newBaseYAxis.dot(normalizedYAxis) < 0.0)
                 newScale[1] *= -1.0f;
-            
-            // correct rounding errors
-            newScale.correct(4);
-            
-            doSetRotation(newNormal, attribs.rotation(), newRotation);
+             */
             
             // compute the parameters of the transformed texture coordinate system
             const Vec3 newInvariant = transformation * oldInvariant;
@@ -231,6 +241,10 @@ namespace TrenchBroom {
             attribs.setOffset(newOffset);
             attribs.setScale(newScale);
             attribs.setRotation(newRotation);
+        }
+        
+        bool ParaxialTexCoordSystem::flipXAxis(const size_t oldIndex, const size_t newIndex) const {
+            return Orientations[oldIndex] != Orientations[newIndex];
         }
 
         void ParaxialTexCoordSystem::doShearTexture(const Vec3& normal, const Vec2f& factors) {

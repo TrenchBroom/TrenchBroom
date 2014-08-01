@@ -807,6 +807,7 @@ TEST(MatTest, rotationMatrixWithAngleAndAxis) {
     ASSERT_MAT_EQ(Mat4x4d::Rot90XCCW, rotationMatrix(Vec3d::PosX, Math::radians(90.0)));
     ASSERT_MAT_EQ(Mat4x4d::Rot90YCCW, rotationMatrix(Vec3d::PosY, Math::radians(90.0)));
     ASSERT_MAT_EQ(Mat4x4d::Rot90ZCCW, rotationMatrix(Vec3d::PosZ, Math::radians(90.0)));
+    ASSERT_VEC_EQ(Vec3d::PosY, rotationMatrix(Vec3d::PosZ, Math::radians(90.0)) * Vec3d::PosX);
 }
 
 TEST(MatTest, rotationMatrixWithQuaternion) {

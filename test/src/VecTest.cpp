@@ -185,6 +185,12 @@ TEST(VecTest, vec4fOverLast) {
     ASSERT_EQ(Vec3f(1.0f, 2.0f, 4.0f), v.overLast());
 }
 
+TEST(VecTest, vec2Remainder) {
+    ASSERT_EQ(Vec2f( 3.0f, -3.0f), Vec2f( 7.0f, -3.0f).remainder(Vec2f( 4.0f, 12.0f)));
+    ASSERT_EQ(Vec2f( 3.0f, -1.0f), Vec2f( 7.0f, -5.0f).remainder(Vec2f(-4.0f, -2.0f)));
+    ASSERT_EQ(Vec2f(-3.0f,  1.0f), Vec2f(-7.0f,  5.0f).remainder(Vec2f(-4.0f, -2.0f)));
+}
+
 TEST(VecTest, vec3fDot) {
     ASSERT_FLOAT_EQ(-748013.6097f, Vec3f(2.3f, 8.7878f, -2323.0f).dot(Vec3f(4.333f, -2.0f, 322.0f)));
 }

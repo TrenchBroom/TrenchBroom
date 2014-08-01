@@ -38,7 +38,7 @@ namespace TrenchBroom {
             
             BrushFaceAttribs attribs("texture");
             attribs.setTexture(&texture);
-            const Vec3 center(16.0, 32.0, -12.0);
+            const Vec3 center(32.0, -48.0, 0.0);
             const Mat4x4 transform = translationMatrix(center) * rotationMatrix(Vec3::PosZ, Math::radians(15.0)) * translationMatrix(-center);
             const Vec3 invariant(-184.65096673000929, 632.60193647633696, 143.68866328257172);
             const Vec2f oldTexCoords = coordSystem.getTexCoords(invariant, attribs);
@@ -46,7 +46,7 @@ namespace TrenchBroom {
             coordSystem.transform(oldBoundary, transform, attribs, true, invariant);
             const Vec2f newTexCoords = coordSystem.getTexCoords(transform * invariant, attribs);
             
-            ASSERT_VEC_EQ(oldTexCoords, newTexCoords);
+            ASSERT_TC_EQ(oldTexCoords, newTexCoords);
             ASSERT_VEC_EQ(Vec2f(1.20616937, 1.0), attribs.scale());
         }
     }
