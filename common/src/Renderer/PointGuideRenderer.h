@@ -38,6 +38,7 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             Vbo m_vbo;
             
+            Color m_color;
             Vec3 m_position;
             SpikeGuideRenderer m_spikeRenderer;
         public:

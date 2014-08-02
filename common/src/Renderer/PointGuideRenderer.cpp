@@ -29,7 +29,11 @@ namespace TrenchBroom {
         m_spikeRenderer(m_vbo) {}
         
         void PointGuideRenderer::setColor(const Color& color) {
+            if (color == m_color)
+                return;
+            
             m_spikeRenderer.setColor(color);
+            m_color = color;
         }
         
         void PointGuideRenderer::setPosition(const Vec3& position) {

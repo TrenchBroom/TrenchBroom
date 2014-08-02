@@ -26,9 +26,11 @@
 #include "Model/BrushGeometryTypes.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/PointGuideRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/TextRenderer.h"
 #include "Renderer/Vbo.h"
+#include "View/ViewTypes.h"
 
 #include <map>
 
@@ -66,6 +68,7 @@ namespace TrenchBroom {
             Vec3f::List m_selectedHandlePositions;
             
             Renderer::PointHandleRenderer m_handleRenderer;
+            Renderer::PointGuideRenderer m_guideRenderer;
             Renderer::EdgeRenderer m_edgeRenderer;
             Renderer::TextRenderer<Vec3> m_textRenderer;
             Renderer::TextRenderer<Vec3>::SimpleTextRendererFilter m_textFilter;
@@ -73,7 +76,7 @@ namespace TrenchBroom {
             
             bool m_renderStateValid;
         public:
-            VertexHandleManager(Renderer::TextureFont& font);
+            VertexHandleManager(View::MapDocumentWPtr document, Renderer::TextureFont& font);
             
             const Model::VertexToBrushesMap& unselectedVertexHandles() const;
             const Model::VertexToBrushesMap& selectedVertexHandles() const;

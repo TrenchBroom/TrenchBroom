@@ -37,7 +37,7 @@ namespace TrenchBroom {
         const Hit::HitType VertexHandleManager::EdgeHandleHit = Hit::freeHitType();
         const Hit::HitType VertexHandleManager::FaceHandleHit = Hit::freeHitType();
         
-        VertexHandleManager::VertexHandleManager(Renderer::TextureFont& font) :
+        VertexHandleManager::VertexHandleManager(View::MapDocumentWPtr document, Renderer::TextureFont& font) :
         m_vbo(0xFF),
         m_totalVertexCount(0),
         m_selectedVertexCount(0),
@@ -46,6 +46,7 @@ namespace TrenchBroom {
         m_totalFaceCount(0),
         m_selectedFaceCount(0),
         m_handleRenderer(m_vbo),
+        m_guideRenderer(document),
         m_textRenderer(font),
         m_textColorProvider(Preferences::InfoOverlayTextColor, Preferences::InfoOverlayBackgroundColor),
         m_renderStateValid(false) {
@@ -531,6 +532,10 @@ namespace TrenchBroom {
             m_handleRenderer.setHighlightColor(prefs.get(Preferences::SelectedHandleColor));
             m_handleRenderer.renderHandleHighlight(renderContext, Vec3f(position));
 
+            m_guideRenderer.setPosition(position);
+            m_guideRenderer.setColor(prefs.get(Preferences::HandleColor));
+            m_guideRenderer.render(renderContext);
+            
             Renderer::TextAnchor::Ptr anchor(new Renderer::SimpleTextAnchor(position, Renderer::Alignment::Bottom, Vec2f(0.0f, 16.0f)));
             m_textRenderer.renderOnce(position, position.asString(), anchor);
             

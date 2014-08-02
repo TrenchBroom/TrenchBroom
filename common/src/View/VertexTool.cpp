@@ -48,7 +48,7 @@ namespace TrenchBroom {
         
         VertexTool::VertexTool(MapDocumentWPtr document, ControllerWPtr controller, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
         MoveTool(document, controller, movementRestriction),
-        m_handleManager(font),
+        m_handleManager(document, font),
         m_mode(Mode_Move),
         m_changeCount(0),
         m_ignoreObjectChangeNotifications(false) {}
