@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Hit.h"
+#include "Renderer/PointGuideRenderer.h"
 #include "View/MapViewToolPage.h"
 #include "View/MoveToolHelper.h"
 #include "View/RotateObjectsHandle.h"
@@ -46,6 +47,8 @@ namespace TrenchBroom {
             PlaneDragHelper* m_helper;
             MoveHelper m_moveHelper;
             RotateHelper m_rotateHelper;
+            
+            Renderer::PointGuideRenderer m_centerGuideRenderer;
         public:
             RotateObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
             

@@ -47,7 +47,11 @@ namespace TrenchBroom {
         m_camera(camera),
         m_helper(NULL),
         m_moveHelper(movementRestriction, *this),
-        m_rotateHelper(*this, font) {}
+        m_rotateHelper(*this, font),
+        m_centerGuideRenderer(document) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            m_centerGuideRenderer.setColor(prefs.get(Preferences::HandleColor));
+        }
 
         Vec3 RotateObjectsTool::center() const {
             return m_handle.getPointHandlePosition(RotateObjectsHandle::HitArea_Center);
@@ -152,10 +156,17 @@ namespace TrenchBroom {
             m_handle.renderHandle(renderContext, highlightHandleArea(inputState));
             
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
-            if (m_helper != NULL)
+            if (m_helper != NULL) {
                 m_helper->render(inputState, dragging(), renderContext);
-            else if (hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea_Center)
+                if (m_helper == &m_moveHelper) {
+                    m_centerGuideRenderer.setPosition(center());
+                    m_centerGuideRenderer.render(renderContext);
+                }
+            } else if (hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea_Center) {
                 m_moveHelper.render(inputState, dragging(), renderContext);
+                m_centerGuideRenderer.setPosition(center());
+                m_centerGuideRenderer.render(renderContext);
+            }
         }
 
         RotateObjectsHandle::HitArea RotateObjectsTool::highlightHandleArea(const InputState& inputState) const {
