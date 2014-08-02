@@ -138,7 +138,7 @@ namespace TrenchBroom {
 
         bool ClipTool::doMouseUp(const InputState& inputState) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
-                !setPlaneShortcutPressed(inputState))
+                !inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
                 return false;
 
             const Hit& hit = findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
@@ -219,7 +219,7 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::setPlaneShortcutPressed(const InputState& inputState) const {
-            return inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare);
+            return inputState.modifierKeysPressed(ModifierKeys::MKShift);
         }
 
         Vec3 ClipTool::clipPoint(const Hit& hit) const {
