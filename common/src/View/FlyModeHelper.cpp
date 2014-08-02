@@ -35,36 +35,34 @@ namespace TrenchBroom {
         FlyModeHelper::FlyModeHelper(wxWindow* window, Renderer::Camera& camera) :
         m_window(window),
         m_camera(camera),
-        m_enabled(false) {}
+        m_enabled(false) {
+            m_window->Bind(wxEVT_KEY_DOWN, &FlyModeHelper::OnKeyDown, this);
+            m_window->Bind(wxEVT_KEY_UP, &FlyModeHelper::OnKeyUp, this);
+
+            m_forward = m_backward = m_left = m_right = false;
+            m_lastPollTime = ::wxGetLocalTimeMillis();
+            Start(20);
+        }
         
         FlyModeHelper::~FlyModeHelper() {
+            Stop();
+            m_window->Unbind(wxEVT_KEY_DOWN, &FlyModeHelper::OnKeyDown, this);
+            m_window->Unbind(wxEVT_KEY_UP, &FlyModeHelper::OnKeyUp, this);
+
             if (enabled())
                 disable();
         }
         
         void FlyModeHelper::enable() {
             assert(!enabled());
-            
-            m_forward = m_backward = m_left = m_right = false;
-            
-            m_window->Bind(wxEVT_KEY_DOWN, &FlyModeHelper::OnKeyDown, this);
-            m_window->Bind(wxEVT_KEY_UP, &FlyModeHelper::OnKeyUp, this);
-
             lockMouse();
-            
-            m_lastPollTime = ::wxGetLocalTimeMillis();
-            Start(20);
             m_enabled = true;
         }
         
         void FlyModeHelper::disable() {
             assert(enabled());
-
-            Stop();
             unlockMouse();
             m_enabled = false;
-            m_window->Unbind(wxEVT_KEY_DOWN, &FlyModeHelper::OnKeyDown, this);
-            m_window->Unbind(wxEVT_KEY_UP, &FlyModeHelper::OnKeyUp, this);
         }
         
         bool FlyModeHelper::enabled() const {
@@ -96,9 +94,11 @@ namespace TrenchBroom {
         void FlyModeHelper::Notify() {
             const Vec3f delta = moveDelta(pollTime());
             m_camera.moveBy(delta);
-            
-            const Vec2f angles = lookDelta(pollMouseDelta());
-            m_camera.rotate(angles.x(), angles.y());
+
+            if (m_enabled) {
+                const Vec2f angles = lookDelta(pollMouseDelta());
+                m_camera.rotate(angles.x(), angles.y());
+            }
         }
         
         Vec3f FlyModeHelper::moveDelta(const float time) const {
@@ -169,13 +169,11 @@ namespace TrenchBroom {
         }
 
         void FlyModeHelper::OnKeyDown(wxKeyEvent& event) {
-            if (enabled())
-                onKey(event, true);
+            onKey(event, true);
         }
         
         void FlyModeHelper::OnKeyUp(wxKeyEvent& event) {
-            if (enabled())
-                onKey(event, false);
+            onKey(event, false);
         }
 
         void FlyModeHelper::onKey(wxKeyEvent& event, const bool down) {
