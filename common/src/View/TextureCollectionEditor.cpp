@@ -155,7 +155,7 @@ namespace TrenchBroom {
             m_addTextureCollectionsButton->SetToolTip("Add texture collections from the file system");
             m_addTextureCollectionsButton->SetBackgroundColour(*wxWHITE);
             m_removeTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_removeTextureCollectionsButton->SetToolTip("Remove the selected texture collection(s)");
+            m_removeTextureCollectionsButton->SetToolTip("Remove the selected texture collections");
             m_removeTextureCollectionsButton->SetBackgroundColour(*wxWHITE);
             m_moveTextureCollectionUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_moveTextureCollectionUpButton->SetToolTip("Move the selected texture collection up in the list");

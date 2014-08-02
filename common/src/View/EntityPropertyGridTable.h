@@ -92,7 +92,7 @@ namespace TrenchBroom {
                 bool subset(size_t rowIndex) const;
                 const StringList keys(size_t rowIndex, size_t count) const;
                 
-                void updateRows(const Model::EntityList& entities);
+                void updateRows(const Model::EntityList& entities, bool showDefaultProperties);
                 StringList insertRows(size_t rowIndex, size_t count, const Model::EntityList& entities);
                 void deleteRows(size_t rowIndex, size_t count);
             private:
@@ -116,6 +116,7 @@ namespace TrenchBroom {
             ControllerWPtr m_controller;
             RowManager m_rows;
             bool m_ignoreUpdates;
+            bool m_showDefaultRows;
             wxColor m_readonlyCellColor;
             wxColor m_specialCellColor;
         public:
@@ -140,6 +141,9 @@ namespace TrenchBroom {
             String tooltip(wxGridCellCoords cellCoords) const;
             Model::PropertyKey propertyKey(int row) const;
             int rowForKey(const Model::PropertyKey& key) const;
+            
+            bool showDefaultRows() const;
+            void setShowDefaultRows(bool showDefaultRows);
         private:
             void renameProperty(size_t rowIndex, const String& newKey, const Model::EntityList& entities);
             void updateProperty(size_t rowIndex, const String& newValue, const Model::EntityList& entities);

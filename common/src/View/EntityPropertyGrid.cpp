@@ -20,12 +20,16 @@
 #include "EntityPropertyGrid.h"
 
 #include "Model/Object.h"
+#include "IO/Path.h"
+#include "IO/ResourceUtils.h"
 #include "View/EntityPropertyGridTable.h"
 #include "View/EntityPropertySelectedCommand.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 
-#include <wx/button.h>
+#include <wx/bitmap.h>
+#include <wx/bmpbuttn.h>
+#include <wx/checkbox.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
@@ -139,6 +143,46 @@ namespace TrenchBroom {
             event.Enable(document->hasSelectedObjects());
         }
 
+        void EntityPropertyGrid::OnAddPropertyButton(wxCommandEvent& event) {
+            m_grid->AppendRows();
+            
+            m_grid->SetFocus();
+            int row = m_table->GetNumberPropertyRows() - 1;
+            m_grid->SelectRow(row);
+            m_grid->GoToCell(row, 0);
+            m_grid->ShowCellEditControl();
+        }
+        
+        void EntityPropertyGrid::OnRemovePropertiesButton(wxCommandEvent& event) {
+            int firstRowIndex = m_grid->GetNumberRows();
+            wxArrayInt selectedRows = m_grid->GetSelectedRows();
+            wxArrayInt::reverse_iterator it, end;
+            for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
+                m_grid->DeleteRows(*it, 1);
+                firstRowIndex = std::min(*it, firstRowIndex);
+            }
+            
+            if (firstRowIndex < m_grid->GetNumberRows())
+                m_grid->SelectRow(firstRowIndex);
+        }
+        
+        void EntityPropertyGrid::OnShowDefaultPropertiesCheckBox(wxCommandEvent& event) {
+            m_table->setShowDefaultRows(event.IsChecked());
+        }
+        
+        void EntityPropertyGrid::OnUpdateAddPropertyButton(wxUpdateUIEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            event.Enable(document->hasSelectedObjects());
+        }
+        
+        void EntityPropertyGrid::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
+            event.Enable(!m_grid->GetSelectedRows().IsEmpty());
+        }
+
+        void EntityPropertyGrid::OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event) {
+            event.Check(m_table->showDefaultRows());
+        }
+
         /*
          void EntityPropertyGrid::OnAddPropertyPressed(wxCommandEvent& event) {
          m_grid->AppendRows();
@@ -179,6 +223,8 @@ namespace TrenchBroom {
          */
         
         void EntityPropertyGrid::createGui(MapDocumentWPtr document, ControllerWPtr controller) {
+            SetBackgroundColour(*wxWHITE);
+            
             m_table = new EntityPropertyGridTable(document, controller);
             
             m_grid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
@@ -197,8 +243,28 @@ namespace TrenchBroom {
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
             
-            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+            const wxBitmap addBitmap = IO::loadImageResource(IO::Path("images/Add.png"));
+            const wxBitmap removeBitmap = IO::loadImageResource(IO::Path("images/Remove.png"));
+
+            m_addPropertyButton = new wxBitmapButton(this, wxID_ANY, addBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            m_addPropertyButton->SetToolTip("Add a new property");
+            m_addPropertyButton->SetBackgroundColour(*wxWHITE);
+            m_removePropertiesButton = new wxBitmapButton(this, wxID_ANY, removeBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            m_removePropertiesButton->SetToolTip("Remove the selected properties");
+            m_removePropertiesButton->SetBackgroundColour(*wxWHITE);
+
+            m_showDefaultPropertiesCheckBox = new wxCheckBox(this, wxID_ANY, "Show default properties");
+            
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(m_addPropertyButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(m_removePropertiesButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->Add(m_showDefaultPropertiesCheckBox, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->AddStretchSpacer();
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_grid, 1, wxEXPAND);
+            sizer->Add(buttonSizer, 0, wxEXPAND);
             SetSizer(sizer);
         }
         
@@ -210,6 +276,13 @@ namespace TrenchBroom {
             m_grid->Bind(wxEVT_KEY_UP, &EntityPropertyGrid::OnPropertyGridKeyUp, this);
             m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityPropertyGrid::OnPropertyGridMouseMove, this);
             m_grid->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdatePropertyView, this);
+            
+            m_addPropertyButton->Bind(wxEVT_BUTTON, &EntityPropertyGrid::OnAddPropertyButton, this);
+            m_addPropertyButton->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdateAddPropertyButton, this);
+            m_removePropertiesButton->Bind(wxEVT_BUTTON, &EntityPropertyGrid::OnRemovePropertiesButton, this);
+            m_removePropertiesButton->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdateRemovePropertiesButton, this);
+            m_showDefaultPropertiesCheckBox->Bind(wxEVT_CHECKBOX, &EntityPropertyGrid::OnShowDefaultPropertiesCheckBox, this);
+            m_showDefaultPropertiesCheckBox->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdateShowDefaultPropertiesCheckBox, this);
         }
         
         void EntityPropertyGrid::bindObservers() {

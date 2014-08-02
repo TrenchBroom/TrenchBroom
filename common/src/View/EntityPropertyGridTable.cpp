@@ -140,7 +140,7 @@ namespace TrenchBroom {
             return defaultRow(rowIndex).tooltip();
         }
 
-        bool EntityPropertyGridTable::RowManager::multi(size_t rowIndex) const {
+        bool EntityPropertyGridTable::RowManager::multi(const size_t rowIndex) const {
             if (!isPropertyRow(rowIndex))
                 return false;
             const PropertyRow& row = propertyRow(rowIndex);
@@ -163,9 +163,11 @@ namespace TrenchBroom {
             return result;
         }
 
-        void EntityPropertyGridTable::RowManager::updateRows(const Model::EntityList& entities) {
+        void EntityPropertyGridTable::RowManager::updateRows(const Model::EntityList& entities, const bool showDefaultRows) {
             PropertyRow::List newPropertyRows = collectPropertyRows(entities);
-            DefaultRow::List newDefaultRows = collectDefaultRows(entities, newPropertyRows);
+            DefaultRow::List newDefaultRows;
+            if (showDefaultRows)
+                newDefaultRows = collectDefaultRows(entities, newPropertyRows);
             
             using std::swap;
             swap(m_propertyRows, newPropertyRows);
@@ -346,6 +348,7 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller),
         m_ignoreUpdates(false),
+        m_showDefaultRows(true),
         m_readonlyCellColor(wxColor(224, 224, 224)),
         m_specialCellColor(wxColor(128, 128, 128)) {}
         
@@ -522,7 +525,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             const size_t oldRowCount = m_rows.rowCount();
-            m_rows.updateRows(document->allSelectedEntities());
+            m_rows.updateRows(document->allSelectedEntities(), m_showDefaultRows);
             const size_t newRowCount = m_rows.rowCount();
             
             if (oldRowCount < newRowCount)
@@ -553,13 +556,24 @@ namespace TrenchBroom {
             return static_cast<int>(index);
         }
 
+        bool EntityPropertyGridTable::showDefaultRows() const {
+            return m_showDefaultRows;
+        }
+        
+        void EntityPropertyGridTable::setShowDefaultRows(const bool showDefaultRows) {
+            if (showDefaultRows == m_showDefaultRows)
+                return;
+            m_showDefaultRows = showDefaultRows;
+            update();
+        }
+
         void EntityPropertyGridTable::renameProperty(size_t rowIndex, const String& newKey, const Model::EntityList& entities) {
             assert(rowIndex < m_rows.propertyCount());
             
             ControllerSPtr controller = lock(m_controller);
             const String& oldKey = m_rows.key(rowIndex);
             if (controller->renameEntityProperty(entities, oldKey, newKey)) {
-                m_rows.updateRows(entities);
+                m_rows.updateRows(entities, m_showDefaultRows);
                 notifyRowsUpdated(0, m_rows.rowCount());
             }
         }
@@ -570,7 +584,7 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             const String& key = m_rows.key(rowIndex);
             if (controller->setEntityProperty(entities, key, newValue)) {
-                m_rows.updateRows(entities);
+                m_rows.updateRows(entities, m_showDefaultRows);
                 notifyRowsUpdated(0, m_rows.rowCount());
             }
         }

@@ -27,6 +27,7 @@
 #include <wx/panel.h>
 
 class wxButton;
+class wxCheckBox;
 class wxWindow;
 
 namespace TrenchBroom {
@@ -45,6 +46,10 @@ namespace TrenchBroom {
             EntityPropertyGridTable* m_table;
             wxGrid* m_grid;
             wxGridCellCoords m_lastHoveredCell;
+            
+            wxButton* m_addPropertyButton;
+            wxButton* m_removePropertiesButton;
+            wxCheckBox* m_showDefaultPropertiesCheckBox;
             
             bool m_ignoreSelection;
             Model::PropertyKey m_lastSelectedKey;
@@ -66,6 +71,13 @@ namespace TrenchBroom {
             void OnPropertyGridMouseMove(wxMouseEvent& event);
 
             void OnUpdatePropertyView(wxUpdateUIEvent& event);
+
+            void OnAddPropertyButton(wxCommandEvent& event);
+            void OnRemovePropertiesButton(wxCommandEvent& event);
+            void OnShowDefaultPropertiesCheckBox(wxCommandEvent& event);
+            void OnUpdateAddPropertyButton(wxUpdateUIEvent& event);
+            void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
+            void OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event);
         private:
             void createGui(MapDocumentWPtr document, ControllerWPtr controller);
             void bindEvents();
