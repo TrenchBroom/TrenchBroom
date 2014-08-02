@@ -71,7 +71,7 @@ namespace TrenchBroom {
             typedef std::map<Tool*, ToolList> ToolMap;
             ToolMap m_deactivateWhen;
             
-            wxPoint m_clickDelta;
+            wxPoint m_clickPos;
             wxPoint m_lastMousePos;
             bool m_ignoreNextDrag;
             bool m_clickToActivate;

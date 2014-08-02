@@ -188,7 +188,7 @@ namespace TrenchBroom {
             updateModifierKeys();
             if (event.ButtonDown()) {
                 captureMouse();
-                m_clickDelta = wxPoint(0, 0);
+                m_clickPos = event.GetPosition();
                 m_inputState.mouseDown(button);
                 m_toolChain->mouseDown(m_inputState);
             } else {
@@ -226,7 +226,7 @@ namespace TrenchBroom {
             const MouseButtonState button = mouseButton(event);
             updateModifierKeys();
             
-            m_clickDelta = wxPoint(0, 0);
+            m_clickPos = event.GetPosition();
             m_inputState.mouseDown(button);
             m_toolChain->mouseDoubleClick(m_inputState);
             m_inputState.mouseUp(button);
@@ -251,20 +251,22 @@ namespace TrenchBroom {
                     m_ignoreNextDrag = true;
                 }
             } else if (!m_ignoreNextDrag) {
-                if (m_inputState.mouseButtons() != MouseButtons::MBNone &&
-                    (std::abs(m_clickDelta.x) > 1 ||
-                     std::abs(m_clickDelta.y) > 1)) {
-                        updateHits();
+                if (m_inputState.mouseButtons() != MouseButtons::MBNone) {
+                    if (std::abs(event.GetPosition().x - m_clickPos.x) > 1 ||
+                        std::abs(event.GetPosition().y - m_clickPos.y) > 1) {
                         m_dragReceiver = m_toolChain->startMouseDrag(m_inputState);
                         if (m_dragReceiver == NULL)
                             m_ignoreNextDrag = true;
+                        mouseMoved(event.GetPosition());
+                        updateHits();
+                        if (m_dragReceiver != NULL)
+                            m_dragReceiver->mouseDrag(m_inputState);
                     }
-                mouseMoved(event.GetPosition());
-                updateHits();
-                if (m_dragReceiver != NULL)
-                    m_dragReceiver->mouseDrag(m_inputState);
-                else
+                } else {
+                    mouseMoved(event.GetPosition());
+                    updateHits();
                     m_toolChain->mouseMove(m_inputState);
+                }
             }
             
             m_window->Refresh();
@@ -501,7 +503,6 @@ namespace TrenchBroom {
             const wxPoint delta = position - m_lastMousePos;
             m_inputState.mouseMove(position.x, position.y, delta.x, delta.y);
             m_lastMousePos = position;
-            m_clickDelta += delta;
         }
         
         void ToolBox::showPopupMenu() {
