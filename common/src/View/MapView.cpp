@@ -86,7 +86,7 @@ namespace TrenchBroom {
         m_flyModeHelper(this, camera),
         m_renderer(document, contextHolder()->fontManager()),
         m_compass(),
-        m_selectionGuide(defaultFont(contextHolder()->fontManager())) {
+        m_selectionGuide(document, defaultFont(contextHolder()->fontManager())) {
             createTools(toolBook);
             bindEvents();
             bindObservers();
@@ -1228,7 +1228,7 @@ namespace TrenchBroom {
                     PreferenceManager& prefs = PreferenceManager::instance();
                     const Color& color = prefs.get(Preferences::HandleColor);
                     m_selectionGuide.setColor(color);
-                    m_selectionGuide.render(context, document);
+                    m_selectionGuide.render(context);
                 }
             }
         }

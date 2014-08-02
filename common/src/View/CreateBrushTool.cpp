@@ -45,7 +45,7 @@ namespace TrenchBroom {
         ToolImpl(document, controller),
         m_camera(camera),
         m_brushRenderer(RendererFilter()),
-        m_guideRenderer(font),
+        m_guideRenderer(document, font),
         m_brush(NULL) {}
 
         void CreateBrushTool::doModifierKeyChange(const InputState& inputState) {
@@ -142,7 +142,7 @@ namespace TrenchBroom {
                 m_brushRenderer.render(renderContext);
                 
                 m_guideRenderer.setColor(prefs.get(Preferences::HandleColor));
-                m_guideRenderer.render(renderContext, document());
+                m_guideRenderer.render(renderContext);
             }
         }
 

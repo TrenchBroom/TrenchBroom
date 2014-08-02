@@ -40,6 +40,7 @@ namespace TrenchBroom {
     Func2<void, GLclampd, GLclampd> glDepthRange;
     
     Func1<void, GLfloat> glLineWidth;
+    Func1<void, GLfloat> glPointSize;
     Func2<void, GLenum, GLenum> glPolygonMode;
     Func1<void, GLenum> glFrontFace;
     

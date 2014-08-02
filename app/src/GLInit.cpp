@@ -44,6 +44,7 @@ namespace TrenchBroom {
     static Func2<void, GLclampd, GLclampd>& _glDepthRange = glDepthRange;
     
     static Func1<void, GLfloat>& _glLineWidth = glLineWidth;
+    static Func1<void, GLfloat>& _glPointSize = glPointSize;
     static Func2<void, GLenum, GLenum>& _glPolygonMode = glPolygonMode;
     static Func1<void, GLenum>& _glFrontFace = glFrontFace;
     
@@ -165,6 +166,7 @@ namespace TrenchBroom {
         _glDepthRange.bindFunc(&::glDepthRange);
         
         _glLineWidth.bindFunc(&::glLineWidth);
+        _glPointSize.bindFunc(&::glPointSize);
         _glPolygonMode.bindFunc(&::glPolygonMode);
         _glFrontFace.bindFunc(&::glFrontFace);
         

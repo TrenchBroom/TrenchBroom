@@ -17,16 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BoundsGuideRenderer__
-#define __TrenchBroom__BoundsGuideRenderer__
+#ifndef __TrenchBroom__SpikeGuideRenderer__
+#define __TrenchBroom__SpikeGuideRenderer__
 
 #include "Color.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Renderer/BoundsInfoRenderer.h"
-#include "Renderer/SpikeGuideRenderer.h"
-#include "Renderer/Vbo.h"
 #include "Renderer/VertexArray.h"
+#include "Renderer/VertexSpec.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -36,39 +34,38 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class RenderContext;
-        class TextureFont;
+        class Vbo;
         
-        class BoundsGuideRenderer {
+        class SpikeGuideRenderer {
         private:
-            static const FloatType SpikeLength;
-
-            View::MapDocumentWPtr m_document;
+            Vbo& m_vbo;
             Color m_color;
-            BBox3 m_bounds;
-
-            bool m_showSizes;
             
-            Vbo m_vbo;
-            VertexArray m_boxArray;
-            SpikeGuideRenderer m_spikeRenderer;
-            BoundsInfoRenderer m_infoRenderer;
+            typedef VertexSpecs::P3C4::Vertex SpikeVertex;
+            typedef VertexSpecs::P3C4::Vertex PointVertex;
+            
+            SpikeVertex::List m_spikeVertices;
+            PointVertex::List m_pointVertices;
+            
+            VertexArray m_spikeArray;
+            VertexArray m_pointArray;
             
             bool m_valid;
         public:
-            BoundsGuideRenderer(View::MapDocumentWPtr document, TextureFont& font);
+            SpikeGuideRenderer(Vbo& vbo);
             
             void setColor(const Color& color);
-            void setBounds(const BBox3& bounds);
-            void setShowSizes(bool showSizes);
+            void add(const Ray3& ray, FloatType length, View::MapDocumentSPtr document);
+            void clear();
             
             void render(RenderContext& renderContext);
         private:
-            void validate(View::MapDocumentSPtr document);
-            void validateBox();
-            void validateSpikes(View::MapDocumentSPtr document);
-            void addSpike(const Vec3& origin, const Vec3& direction, FloatType length, View::MapDocumentSPtr document);
+            void addPoint(const Vec3& position);
+            void addSpike(const Ray3& ray, FloatType length, FloatType maxLength);
+            
+            void validate();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__BoundsGuideRenderer__) */
+#endif /* defined(__TrenchBroom__SpikeGuideRenderer__) */

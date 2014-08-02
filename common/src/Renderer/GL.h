@@ -187,6 +187,7 @@ namespace TrenchBroom {
     extern Func2<void, GLclampd, GLclampd> glDepthRange;
     
     extern Func1<void, GLfloat> glLineWidth;
+    extern Func1<void, GLfloat> glPointSize;
     extern Func2<void, GLenum, GLenum> glPolygonMode;
     extern Func1<void, GLenum> glFrontFace;
     

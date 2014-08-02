@@ -27,14 +27,13 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        void addSpike(const Vec3& origin, const Vec3& direction, const FloatType length, const Color& color, VertexSpecs::P3C4::Vertex::List& vertices);
-        void addPoint(const Vec3& origin, const Vec3& direction, const FloatType length, View::MapDocumentSPtr document, VertexSpecs::P3::Vertex::List& vertices);
-
         const FloatType BoundsGuideRenderer::SpikeLength = 512.0;
 
-        BoundsGuideRenderer::BoundsGuideRenderer(TextureFont& font) :
+        BoundsGuideRenderer::BoundsGuideRenderer(View::MapDocumentWPtr document, TextureFont& font) :
+        m_document(document),
         m_showSizes(true),
         m_vbo(0xFFF),
+        m_spikeRenderer(m_vbo),
         m_infoRenderer(font),
         m_valid(false) {}
         
@@ -42,6 +41,7 @@ namespace TrenchBroom {
             if (color == m_color)
                 return;
             m_color = color;
+            m_spikeRenderer.setColor(m_color);
             m_valid = false;
         }
         
@@ -57,9 +57,11 @@ namespace TrenchBroom {
             m_showSizes = showSizes;
         }
         
-        void BoundsGuideRenderer::render(RenderContext& renderContext, View::MapDocumentSPtr document) {
+        void BoundsGuideRenderer::render(RenderContext& renderContext) {
             SetVboState activateVbo(m_vbo);
             activateVbo.active();
+            
+            View::MapDocumentSPtr document = lock(m_document);
             
             if (!m_valid)
                 validate(document);
@@ -67,26 +69,20 @@ namespace TrenchBroom {
             ActiveShader staticColorShader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
             staticColorShader.set("Color", m_color);
             m_boxArray.render();
-            m_pointArray.render();
             
-            ActiveShader dynamicColorShader(renderContext.shaderManager(), Shaders::VaryingPCShader);
-            m_spikeArray.render();
-            
+            m_spikeRenderer.render(renderContext);
+
             if (m_showSizes)
                 m_infoRenderer.render(renderContext);
         }
 
         void BoundsGuideRenderer::validate(View::MapDocumentSPtr document) {
             validateBox();
-            validateSpikes();
-            validatePoints(document);
+            validateSpikes(document);
 
             SetVboState mapVbo(m_vbo);
             mapVbo.mapped();
-            
             m_boxArray.prepare(m_vbo);
-            m_spikeArray.prepare(m_vbo);
-            m_pointArray.prepare(m_vbo);
 
             m_valid = true;
         }
@@ -147,105 +143,44 @@ namespace TrenchBroom {
             m_boxArray = VertexArray::swap(GL_LINES, vertices);
         }
         
-        void addSpike(const Vec3& origin, const Vec3& direction, const FloatType length, const Color& color, VertexSpecs::P3C4::Vertex::List& vertices) {
-            typedef VertexSpecs::P3C4::Vertex Vertex;
-            
-            vertices.push_back(Vertex(origin, color));
-            vertices.push_back(Vertex(origin + length * direction, Color(color, color.a() / 2.0f)));
-        }
+        void BoundsGuideRenderer::validateSpikes(View::MapDocumentSPtr document) {
+            m_spikeRenderer.clear();
 
-        void BoundsGuideRenderer::validateSpikes() {
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegX, SpikeLength, document);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegY, SpikeLength, document);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, document);
             
-            typedef VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices;
-            vertices.reserve(2 * 24);
-
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegX, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegY, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, m_color, vertices);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::NegX, SpikeLength, document);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::NegY, SpikeLength, document);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, document);
             
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::NegX, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::NegY, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, m_color, vertices);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::NegX, SpikeLength, document);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::PosY, SpikeLength, document);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, document);
             
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::NegX, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::PosY, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, m_color, vertices);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::NegX, SpikeLength, document);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosY, SpikeLength, document);
+            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, document);
             
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::NegX, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosY, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, m_color, vertices);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::PosX, SpikeLength, document);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegY, SpikeLength, document);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, document);
             
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::PosX, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegY, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, m_color, vertices);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::PosX, SpikeLength, document);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::NegY, SpikeLength, document);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, document);
             
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::PosX, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::NegY, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, m_color, vertices);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::PosX, SpikeLength, document);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::PosY, SpikeLength, document);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, document);
             
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::PosX, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::PosY, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, m_color, vertices);
-            
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosX, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosY, SpikeLength, m_color, vertices);
-            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, m_color, vertices);
-
-            m_spikeArray = VertexArray::swap(GL_LINES, vertices);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosX, SpikeLength, document);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosY, SpikeLength, document);
+            addSpike(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, document);
         }
         
-        void addPoint(const Vec3& origin, const Vec3& direction, const FloatType length, View::MapDocumentSPtr document, VertexSpecs::P3::Vertex::List& vertices) {
-            typedef VertexSpecs::P3::Vertex Vertex;
-
-            const Hits hits = document->pick(Ray3(origin, direction));
-            const Hits::List brushHits = hits.filter(Model::Brush::BrushHit);
-
-            Hits::List::const_iterator it, end;
-            for (it = brushHits.begin(), end = brushHits.end(); it != end; ++it) {
-                const Hit& hit = *it;
-                if (Math::abs(hit.distance()) < length)
-                    vertices.push_back(Vertex(hit.hitPoint() - direction / 10.0f));
-            }
-        }
-        
-        void BoundsGuideRenderer::validatePoints(View::MapDocumentSPtr document) {
-            typedef VertexSpecs::P3::Vertex Vertex;
-            Vertex::List vertices;
-            
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegX, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegY, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, document, vertices);
-            
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::NegX, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::NegY, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, document, vertices);
-            
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::NegX, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::PosY, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, document, vertices);
-            
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::NegX, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosY, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.min.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, document, vertices);
-            
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::PosX, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegY, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, document, vertices);
-            
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::PosX, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::NegY, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.min.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, document, vertices);
-            
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::PosX, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::PosY, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()), Vec3::NegZ, SpikeLength, document, vertices);
-            
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosX, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosY, SpikeLength, document, vertices);
-            addPoint(Vec3(m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()), Vec3::PosZ, SpikeLength, document, vertices);
-            
-            m_pointArray = VertexArray::swap(GL_POINTS, vertices);
+        void BoundsGuideRenderer::addSpike(const Vec3& origin, const Vec3& direction, const FloatType length, View::MapDocumentSPtr document) {
+            m_spikeRenderer.add(Ray3(origin, direction), length, document);
         }
     }
 }
