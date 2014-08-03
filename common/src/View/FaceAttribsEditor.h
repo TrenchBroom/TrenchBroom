@@ -44,7 +44,7 @@ namespace TrenchBroom {
         class FlagsPopupEditor;
         class SpinControl;
         class SpinControlEvent;
-        class TexturingEditor;
+        class UVEditor;
 
         class FaceAttribsEditor : public wxPanel {
         private:
@@ -52,7 +52,7 @@ namespace TrenchBroom {
             ControllerWPtr m_controller;
             Model::BrushFaceList m_faces;
 
-            TexturingEditor* m_texturingEditor;
+            UVEditor* m_uvEditor;
             SpinControl* m_xOffsetEditor;
             SpinControl* m_yOffsetEditor;
             SpinControl* m_xScaleEditor;

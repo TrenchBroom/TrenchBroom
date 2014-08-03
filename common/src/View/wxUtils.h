@@ -25,6 +25,7 @@
 #include <iostream>
 #include <wx/colour.h>
 
+class wxBitmapButton;
 class wxCursor;
 class wxFrame;
 class wxSizer;
@@ -38,6 +39,8 @@ namespace TrenchBroom {
         wxFrame* findFrame(wxWindow* window);
         Color fromWxColor(const wxColor& color);
         wxColor toWxColor(const Color& color);
+        
+        wxBitmapButton* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip);
         
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
 

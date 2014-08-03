@@ -19,10 +19,14 @@
 
 #include "wxUtils.h"
 
+#include "IO/Path.h"
+#include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
 
+#include <wx/bitmap.h>
+#include <wx/bmpbuttn.h>
 #include <wx/frame.h>
 #include <wx/sizer.h>
 #include <wx/window.h>
@@ -55,6 +59,16 @@ namespace TrenchBroom {
             const unsigned char b = static_cast<unsigned char>(color.b() * 255.0f);
             const unsigned char a = static_cast<unsigned char>(color.a() * 255.0f);
             return wxColor(r, g, b, a);
+        }
+
+        wxBitmapButton* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip) {
+            wxBitmap bitmap = IO::loadImageResource(IO::Path("images") + IO::Path(image));
+            assert(bitmap.IsOk());
+            
+            wxBitmapButton* button = new wxBitmapButton(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            button->SetToolTip(tooltip);
+            button->wxWindowBase::SetBackgroundColour(*wxWHITE);
+            return button;
         }
 
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent) {

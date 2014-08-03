@@ -48,7 +48,7 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
-        m_texturingEditor(NULL),
+        m_uvEditor(NULL),
         m_xOffsetEditor(NULL),
         m_yOffsetEditor(NULL),
         m_xScaleEditor(NULL),
@@ -128,7 +128,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::createGui(GLContextHolder::Ptr sharedContext) {
-            m_texturingEditor = new TexturingEditor(this, sharedContext, m_document, m_controller);
+            m_uvEditor = new UVEditor(this, sharedContext, m_document, m_controller);
             
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             
             m_faceAttribsSizer->AddGrowableCol(1);
             m_faceAttribsSizer->AddGrowableCol(3);
-            m_faceAttribsSizer->SetItemMinSize(m_texturingEditor, 100, 100);
+            m_faceAttribsSizer->SetItemMinSize(m_uvEditor, 100, 100);
             m_faceAttribsSizer->SetItemMinSize(m_xOffsetEditor, 50, m_xOffsetEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_yOffsetEditor, 50, m_yOffsetEditor->GetSize().y);
             m_faceAttribsSizer->SetItemMinSize(m_xScaleEditor, 50, m_xScaleEditor->GetSize().y);
@@ -223,7 +223,7 @@ namespace TrenchBroom {
             m_faceAttribsSizer->SetItemMinSize(m_surfaceValueEditor, 50, m_rotationEditor->GetSize().y);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(m_texturingEditor, 1, wxEXPAND);
+            outerSizer->Add(m_uvEditor, 1, wxEXPAND);
             outerSizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             outerSizer->AddSpacer(LayoutConstants::WideVMargin);
             outerSizer->Add(m_faceAttribsSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::MediumHMargin);

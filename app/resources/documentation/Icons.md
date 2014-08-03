@@ -32,6 +32,7 @@ These icons are to be used in several places all over the editor and therefore s
 - Flip vertically
 - Move left / right, up / down, forward / backward (i.e., towards or away from the camera)
 - Increase / decrease grid size
+- Reset 
 
 # View switch icons (16x16)
 These icons need to come in two version: active and inactive, and they must be very distinctive.

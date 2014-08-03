@@ -25,15 +25,13 @@
 #include "Model/Entity.h"
 #include "Model/Game.h"
 #include "Model/Object.h"
-#include "IO/Path.h"
-#include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
 #include "View/ControllerFacade.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
+#include "View/wxUtils.h"
 
-#include <wx/bitmap.h>
 #include <wx/bmpbuttn.h>
 #include <wx/gbsizer.h>
 #include <wx/listbox.h>
@@ -204,23 +202,10 @@ namespace TrenchBroom {
             filterBoxSizer->Add(m_filterBox, 0, wxEXPAND);
             filterBoxSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
-            const wxBitmap addBitmap    = IO::loadImageResource(IO::Path("images/Add.png"));
-            const wxBitmap removeBitmap = IO::loadImageResource(IO::Path("images/Remove.png"));
-            const wxBitmap upBitmap     = IO::loadImageResource(IO::Path("images/Up.png"));
-            const wxBitmap downBitmap   = IO::loadImageResource(IO::Path("images/Down.png"));
-            
-            m_addModsButton = new wxBitmapButton(this, wxID_ANY, addBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_addModsButton->SetToolTip("Add the selected available mods to the list of enabled mods");
-            m_addModsButton->SetBackgroundColour(*wxWHITE);
-            m_removeModsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_removeModsButton->SetToolTip("Remove the selected items from the list of enabled mods");
-            m_removeModsButton->SetBackgroundColour(*wxWHITE);
-            m_moveModUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_moveModUpButton->SetToolTip("Move the selected mod up in the list of enabled mods");
-            m_moveModUpButton->SetBackgroundColour(*wxWHITE);
-            m_moveModDownButton = new wxBitmapButton(this, wxID_ANY, downBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_moveModDownButton->SetToolTip("Move the selected mod down in the list of enabled mods");
-            m_moveModDownButton->SetBackgroundColour(*wxWHITE);
+            m_addModsButton = createBitmapButton(this, "Add.png", "Enable the selected mods");
+            m_removeModsButton = createBitmapButton(this, "Remove.png", "Disable the selected mods");
+            m_moveModUpButton = createBitmapButton(this, "Up.png", "Move the selected mod up");
+            m_moveModDownButton = createBitmapButton(this, "Down.png", "Move the selected mod down");
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(m_addModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);

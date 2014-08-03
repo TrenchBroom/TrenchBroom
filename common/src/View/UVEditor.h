@@ -17,14 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__TexturingEditor__
-#define __TrenchBroom__TexturingEditor__
+#ifndef __TrenchBroom__UVEditor__
+#define __TrenchBroom__UVEditor__
 
 #include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
+class wxButton;
 class wxSpinCtrl;
 class wxSpinEvent;
 class wxWindow;
@@ -33,17 +34,29 @@ namespace TrenchBroom {
     namespace View {
         class UVView;
         
-        class TexturingEditor : public wxPanel {
+        class UVEditor : public wxPanel {
         private:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
 
             UVView* m_uvView;
+            wxButton* m_resetTextureButton;
+            wxButton* m_flipTextureHButton;
+            wxButton* m_flipTextureVButton;
+            wxButton* m_rotateTextureCCWButton;
+            wxButton* m_rotateTextureCWButton;
             wxSpinCtrl* m_xSubDivisionEditor;
             wxSpinCtrl* m_ySubDivisionEditor;
         public:
-            TexturingEditor(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
+            UVEditor(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller);
 
+            void OnResetTexture(wxCommandEvent& event);
+            void OnFlipTextureH(wxCommandEvent& event);
+            void OnFlipTextureV(wxCommandEvent& event);
+            void OnRotateTextureCCW(wxCommandEvent& event);
+            void OnRotateTextureCW(wxCommandEvent& event);
+            void OnUpdateButtonUI(wxUpdateUIEvent& event);
+            
             void OnSubDivisionChanged(wxSpinEvent& event);
         private:
             void createGui(GLContextHolder::Ptr sharedContext);
@@ -52,4 +65,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__TexturingEditor__) */
+#endif /* defined(__TrenchBroom__UVEditor__) */

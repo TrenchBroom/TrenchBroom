@@ -20,14 +20,12 @@
 #include "EntityPropertyGrid.h"
 
 #include "Model/Object.h"
-#include "IO/Path.h"
-#include "IO/ResourceUtils.h"
 #include "View/EntityPropertyGridTable.h"
 #include "View/EntityPropertySelectedCommand.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
+#include "View/wxUtils.h"
 
-#include <wx/bitmap.h>
 #include <wx/bmpbuttn.h>
 #include <wx/checkbox.h>
 #include <wx/sizer.h>
@@ -243,15 +241,8 @@ namespace TrenchBroom {
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
             
-            const wxBitmap addBitmap = IO::loadImageResource(IO::Path("images/Add.png"));
-            const wxBitmap removeBitmap = IO::loadImageResource(IO::Path("images/Remove.png"));
-
-            m_addPropertyButton = new wxBitmapButton(this, wxID_ANY, addBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_addPropertyButton->SetToolTip("Add a new property");
-            m_addPropertyButton->SetBackgroundColour(*wxWHITE);
-            m_removePropertiesButton = new wxBitmapButton(this, wxID_ANY, removeBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_removePropertiesButton->SetToolTip("Remove the selected properties");
-            m_removePropertiesButton->SetBackgroundColour(*wxWHITE);
+            m_addPropertyButton = createBitmapButton(this, "Add.png", "Add a new property");
+            m_removePropertiesButton = createBitmapButton(this, "Remove.png", "Remove the selected properties");
 
             m_showDefaultPropertiesCheckBox = new wxCheckBox(this, wxID_ANY, "Show default properties");
             

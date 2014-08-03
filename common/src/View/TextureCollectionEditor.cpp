@@ -22,8 +22,6 @@
 #include "PreferenceManager.h"
 #include "Assets/TextureManager.h"
 #include "Assets/TextureCollection.h"
-#include "IO/Path.h"
-#include "IO/ResourceUtils.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
@@ -31,8 +29,8 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
+#include "View/wxUtils.h"
 
-#include <wx/bitmap.h>
 #include <wx/bmpbuttn.h>
 #include <wx/filedlg.h>
 #include <wx/listbox.h>
@@ -146,23 +144,10 @@ namespace TrenchBroom {
 
             m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
 
-            const wxBitmap addBitmap = IO::loadImageResource(IO::Path("images/Add.png"));
-            const wxBitmap removeBitmap = IO::loadImageResource(IO::Path("images/Remove.png"));
-            const wxBitmap upBitmap = IO::loadImageResource(IO::Path("images/Up.png"));
-            const wxBitmap downBitmap = IO::loadImageResource(IO::Path("images/Down.png"));
-            
-            m_addTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, addBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_addTextureCollectionsButton->SetToolTip("Add texture collections from the file system");
-            m_addTextureCollectionsButton->SetBackgroundColour(*wxWHITE);
-            m_removeTextureCollectionsButton = new wxBitmapButton(this, wxID_ANY, removeBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_removeTextureCollectionsButton->SetToolTip("Remove the selected texture collections");
-            m_removeTextureCollectionsButton->SetBackgroundColour(*wxWHITE);
-            m_moveTextureCollectionUpButton = new wxBitmapButton(this, wxID_ANY, upBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_moveTextureCollectionUpButton->SetToolTip("Move the selected texture collection up in the list");
-            m_moveTextureCollectionUpButton->SetBackgroundColour(*wxWHITE);
-            m_moveTextureCollectionDownButton = new wxBitmapButton(this, wxID_ANY, downBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_moveTextureCollectionDownButton->SetToolTip("Move the selected texture collection down in the list");
-            m_moveTextureCollectionDownButton->SetBackgroundColour(*wxWHITE);
+            m_addTextureCollectionsButton = createBitmapButton(this, "Add.png", "Add texture collections from the file system");
+            m_removeTextureCollectionsButton = createBitmapButton(this, "Remove.png", "Remove the selected texture collections");
+            m_moveTextureCollectionUpButton = createBitmapButton(this, "Up.png", "Move the selected texture collection up");
+            m_moveTextureCollectionDownButton = createBitmapButton(this, "Down.png", "Move the selected texture collection down");
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(m_addTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
