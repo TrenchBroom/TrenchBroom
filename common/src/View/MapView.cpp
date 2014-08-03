@@ -46,6 +46,7 @@
 #include "View/CommandIds.h"
 #include "View/CreateBrushTool.h"
 #include "View/CreateEntityTool.h"
+#include "View/FlashSelectionAnimation.h"
 #include "View/MapDocument.h"
 #include "View/ToolBoxDropTarget.h"
 #include "View/MoveObjectsTool.h"
@@ -127,6 +128,11 @@ namespace TrenchBroom {
             m_animationManager->runAnimation(animation, true);
         }
         
+        void MapView::flashSelection() {
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, *this, 180);
+            m_animationManager->runAnimation(animation, true);
+        }
+
         bool MapView::cameraFlyModeActive() const {
             return m_flyModeHelper.enabled();
         }
@@ -427,6 +433,12 @@ namespace TrenchBroom {
             duplicateAndMoveObjects(Math::Direction_Down);
         }
         
+        void MapView::OnDuplicateObjects(wxCommandEvent& event) {
+            ControllerSPtr controller = lock(m_controller);
+            const UndoableCommandGroup commandGroup(controller, "Duplicate Objects");
+            duplicateObjects();
+        }
+
         void MapView::rotateObjects(const RotationAxis axisSpec, const bool clockwise) {
             MapDocumentSPtr document = lock(m_document);
             const Model::ObjectList& objects = document->selectedObjects();
@@ -486,6 +498,7 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             const Model::ObjectList duplicates = controller->duplicateObjects(objects, document->worldBounds());
             controller->deselectAllAndSelectObjects(duplicates);
+            flashSelection();
         }
         
         void MapView::moveObjects(const Math::Direction direction) {
@@ -1341,6 +1354,7 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsRight,    this, CommandIds::Actions::DuplicateObjectsRight);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsUp,       this, CommandIds::Actions::DuplicateObjectsUp);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsDown,     this, CommandIds::Actions::DuplicateObjectsDown);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjects,         this, CommandIds::Actions::DuplicateObjects);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesUp,           this, CommandIds::Actions::MoveTexturesUp);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesDown,         this, CommandIds::Actions::MoveTexturesDown);

@@ -212,6 +212,8 @@ namespace TrenchBroom {
             createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 15", KeyboardShortcut(WXK_PAGEDOWN));
             createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 90", KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT));
             createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 1", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
+
+            createMapViewAction(CommandIds::Actions::DuplicateObjects, Action::Context_ObjectSelection, "Duplicate Objects", KeyboardShortcut('D', WXK_CONTROL));
         }
 
         void ActionManager::createMapViewAction(const int id, const int context, const String& name, const KeyboardShortcut& defaultShortcut) {

@@ -125,12 +125,14 @@ namespace TrenchBroom {
                 const int DuplicateObjectsUp                 = Lowest +  26;
                 const int DuplicateObjectsDown               = Lowest +  27;
                 
-                const int MoveTexturesUp                     = Lowest +  28;
-                const int MoveTexturesRight                  = Lowest +  29;
-                const int MoveTexturesDown                   = Lowest +  30;
-                const int MoveTexturesLeft                   = Lowest +  31;
-                const int RotateTexturesCW                   = Lowest +  32;
-                const int RotateTexturesCCW                  = Lowest +  33;
+                const int DuplicateObjects                   = Lowest +  28;
+
+                const int MoveTexturesUp                     = Lowest +  29;
+                const int MoveTexturesRight                  = Lowest +  30;
+                const int MoveTexturesDown                   = Lowest +  31;
+                const int MoveTexturesLeft                   = Lowest +  32;
+                const int RotateTexturesCW                   = Lowest +  33;
+                const int RotateTexturesCCW                  = Lowest +  34;
 
                 /*
                 const int CorrectVertices                    = Lowest +  82;

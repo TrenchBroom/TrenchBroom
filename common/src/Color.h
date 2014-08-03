@@ -38,6 +38,18 @@ public:
     float b() const;
     float a() const;
     
+    Color& mix(const Color& other, const float f) {
+        const float c = std::max(0.0f, std::min(1.0f, f));
+        const float d = 1.0f - c;
+        for (size_t i = 0; i < 4; i++)
+            v[i] = d*v[i] + c*other[i];
+        return *this;
+    }
+    
+    const Color mixed(const Color& other, const float f) const {
+        return Color(*this).mix(other, f);
+    }
+
     static void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
 };
 

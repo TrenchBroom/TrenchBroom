@@ -57,8 +57,13 @@ namespace TrenchBroom {
             MapRenderer(View::MapDocumentWPtr document, FontManager& fontManager);
             ~MapRenderer();
             
+            void overrideSelectionColors(const Color& color, float mix);
+            void restoreSelectionColors();
+            
             void render(RenderContext& context);
         private:
+            void setupRendererColors();
+            
             void setupGL(RenderContext& context);
             void renderGeometry(RenderContext& context);
             void renderEntities(RenderContext& context);

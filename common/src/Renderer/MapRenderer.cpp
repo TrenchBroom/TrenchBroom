@@ -100,10 +100,27 @@ namespace TrenchBroom {
         m_unselectedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()),
         m_selectedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()) {
             bindObservers();
+            setupRendererColors();
         }
         
         MapRenderer::~MapRenderer() {
             unbindObservers();
+        }
+
+        void MapRenderer::overrideSelectionColors(const Color& color, const float mix) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+
+            m_selectedEntityRenderer.setBoundsColor(prefs.get(Preferences::SelectedEdgeColor).mixed(color, mix));
+            m_selectedEntityRenderer.setOccludedBoundsColor(prefs.get(Preferences::OccludedSelectedEdgeColor).mixed(color, mix));
+            m_selectedEntityRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor).mixed(color, mix));
+            
+            m_selectedBrushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor).mixed(color, mix));
+            m_selectedBrushRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor).mixed(color, mix));
+            m_selectedBrushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor).mixed(color, mix));
+        }
+        
+        void MapRenderer::restoreSelectionColors() {
+            setupRendererColors();
         }
 
         void MapRenderer::render(RenderContext& context) {
@@ -115,6 +132,32 @@ namespace TrenchBroom {
             renderPointFile(context);
         }
 
+        void MapRenderer::setupRendererColors() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            
+            m_unselectedEntityRenderer.setOverlayTextColor(prefs.get(Preferences::InfoOverlayTextColor));
+            m_unselectedEntityRenderer.setOverlayBackgroundColor(prefs.get(Preferences::InfoOverlayBackgroundColor));
+            m_unselectedEntityRenderer.setBoundsColor(prefs.get(Preferences::UndefinedEntityColor));
+            m_unselectedEntityRenderer.setApplyTinting(false);
+            
+            m_selectedEntityRenderer.setOverlayTextColor(prefs.get(Preferences::SelectedInfoOverlayTextColor));
+            m_selectedEntityRenderer.setOverlayBackgroundColor(prefs.get(Preferences::SelectedInfoOverlayBackgroundColor));
+            m_selectedEntityRenderer.setOverrideBoundsColor(true);
+            m_selectedEntityRenderer.setRenderOccludedBounds(true);
+            m_selectedEntityRenderer.setBoundsColor(prefs.get(Preferences::SelectedEdgeColor));
+            m_selectedEntityRenderer.setOccludedBoundsColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
+            m_selectedEntityRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
+            
+            m_unselectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
+            m_unselectedBrushRenderer.setEdgeColor(prefs.get(Preferences::EdgeColor));
+            
+            m_selectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
+            m_selectedBrushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor));
+            m_selectedBrushRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
+            m_selectedBrushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
+            m_selectedBrushRenderer.setRenderOccludedEdges(true);
+        }
+        
         void MapRenderer::setupGL(RenderContext& context) {
             glDisableClientState(GL_VERTEX_ARRAY);
             glDisableClientState(GL_COLOR_ARRAY);
@@ -129,23 +172,71 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::renderGeometry(RenderContext& context) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-
-            m_unselectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
-            m_unselectedBrushRenderer.setEdgeColor(prefs.get(Preferences::EdgeColor));
             m_unselectedBrushRenderer.render(context);
-            
             if (!context.hideSelection()) {
                 const bool applyTinting = context.tintSelection(); // && lock(m_document)->selectedFaces().empty();
-                
-                m_selectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
-                m_selectedBrushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor));
                 m_selectedBrushRenderer.setTintFaces(applyTinting);
-                m_selectedBrushRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
-                m_selectedBrushRenderer.setRenderOccludedEdges(true);
-                m_selectedBrushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
                 m_selectedBrushRenderer.render(context);
             }
+        }
+
+        void MapRenderer::renderEntities(RenderContext& context) {
+            m_unselectedEntityRenderer.render(context);
+            if (!context.hideSelection()) {
+                const bool applyTinting = context.tintSelection();
+                m_selectedEntityRenderer.setApplyTinting(applyTinting);
+                m_selectedEntityRenderer.render(context);
+            }
+        }
+        
+        class EntityLinkFilter : public EntityLinkRenderer::Filter {
+        private:
+            Color m_selectedColor;
+            Color m_linkColor;
+            Color m_killColor;
+        public:
+            EntityLinkFilter() :
+            m_selectedColor(1.0f, 0.0f, 0.0f, 1.0f),
+            m_linkColor(0.0f, 1.0f, 0.0f, 1.0f),
+            m_killColor(0.0f, 0.0f, 1.0f, 1.0f) {}
+            
+            bool doGetShowLink(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
+                return source->selected() || target->selected() || isConnectedToSelected;
+            }
+            
+            const Color& doGetLinkColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
+                if (source->selected() || target->selected() || isConnectedToSelected)
+                    return m_selectedColor;
+                return m_linkColor;
+            }
+            
+            const Color& doGetKillColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
+                if (source->selected() || target->selected() || isConnectedToSelected)
+                    return m_selectedColor;
+                return m_killColor;
+            }
+        };
+        
+        void MapRenderer::renderEntityLinks(RenderContext& context) {
+            View::MapDocumentSPtr document = lock(m_document);
+            
+            if (!m_entityLinkRenderer.valid() && document->map() != NULL)
+                m_entityLinkRenderer.validate(EntityLinkFilter(), document->map()->entities());
+            
+            if (m_entityLinkRenderer.valid())
+                m_entityLinkRenderer.render(context);
+        }
+        
+        void MapRenderer::renderPointFile(RenderContext& context) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            m_pointFileRenderer.setUseColor(true);
+            
+            glDisable(GL_DEPTH_TEST);
+            m_pointFileRenderer.setColor(Color(prefs.get(Preferences::PointFileColor), 0.35f));
+            m_pointFileRenderer.render(context);
+            glEnable(GL_DEPTH_TEST);
+            m_pointFileRenderer.setColor(prefs.get(Preferences::PointFileColor));
+            m_pointFileRenderer.render(context);
         }
 
         void MapRenderer::bindObservers() {
@@ -295,80 +386,8 @@ namespace TrenchBroom {
             if (document->isGamePathPreference(path)) {
                 m_unselectedEntityRenderer.reloadModels();
                 m_selectedEntityRenderer.reloadModels();
+                setupRendererColors();
             }
-        }
-
-        class EntityLinkFilter : public EntityLinkRenderer::Filter {
-        private:
-            Color m_selectedColor;
-            Color m_linkColor;
-            Color m_killColor;
-        public:
-            EntityLinkFilter() :
-            m_selectedColor(1.0f, 0.0f, 0.0f, 1.0f),
-            m_linkColor(0.0f, 1.0f, 0.0f, 1.0f),
-            m_killColor(0.0f, 0.0f, 1.0f, 1.0f) {}
-            
-            bool doGetShowLink(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
-                return source->selected() || target->selected() || isConnectedToSelected;
-            }
-            
-            const Color& doGetLinkColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
-                if (source->selected() || target->selected() || isConnectedToSelected)
-                    return m_selectedColor;
-                return m_linkColor;
-            }
-            
-            const Color& doGetKillColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
-                if (source->selected() || target->selected() || isConnectedToSelected)
-                    return m_selectedColor;
-                return m_killColor;
-            }
-        };
-        
-        void MapRenderer::renderEntities(RenderContext& context) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
-            m_unselectedEntityRenderer.setOverlayTextColor(prefs.get(Preferences::InfoOverlayTextColor));
-            m_unselectedEntityRenderer.setOverlayBackgroundColor(prefs.get(Preferences::InfoOverlayBackgroundColor));
-            m_unselectedEntityRenderer.setBoundsColor(prefs.get(Preferences::UndefinedEntityColor));
-            m_unselectedEntityRenderer.setApplyTinting(false);
-            m_unselectedEntityRenderer.render(context);
-            
-            if (!context.hideSelection()) {
-                const bool applyTinting = context.tintSelection();
-                m_selectedEntityRenderer.setOverlayTextColor(prefs.get(Preferences::SelectedInfoOverlayTextColor));
-                m_selectedEntityRenderer.setOverlayBackgroundColor(prefs.get(Preferences::SelectedInfoOverlayBackgroundColor));
-                m_selectedEntityRenderer.setOverrideBoundsColor(true);
-                m_selectedEntityRenderer.setBoundsColor(prefs.get(Preferences::SelectedEdgeColor));
-                m_selectedEntityRenderer.setRenderOccludedBounds(true);
-                m_selectedEntityRenderer.setOccludedBoundsColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
-                m_selectedEntityRenderer.setApplyTinting(applyTinting);
-                m_selectedEntityRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
-                m_selectedEntityRenderer.render(context);
-            }
-        }
-        
-        void MapRenderer::renderEntityLinks(RenderContext& context) {
-            View::MapDocumentSPtr document = lock(m_document);
-            
-            if (!m_entityLinkRenderer.valid() && document->map() != NULL)
-                m_entityLinkRenderer.validate(EntityLinkFilter(), document->map()->entities());
-            
-            if (m_entityLinkRenderer.valid())
-                m_entityLinkRenderer.render(context);
-        }
-
-        void MapRenderer::renderPointFile(RenderContext& context) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            m_pointFileRenderer.setUseColor(true);
-            
-            glDisable(GL_DEPTH_TEST);
-            m_pointFileRenderer.setColor(Color(prefs.get(Preferences::PointFileColor), 0.35f));
-            m_pointFileRenderer.render(context);
-            glEnable(GL_DEPTH_TEST);
-            m_pointFileRenderer.setColor(prefs.get(Preferences::PointFileColor));
-            m_pointFileRenderer.render(context);
         }
 
         void MapRenderer::clearState() {

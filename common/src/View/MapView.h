@@ -114,11 +114,14 @@ namespace TrenchBroom {
             void centerCameraOnSelection();
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
             
+            void flashSelection();
+
             bool cameraFlyModeActive() const;
             void toggleCameraFlyMode();
             
             void toggleMovementRestriction();
 
+            
             bool anyToolActive() const;
             void toggleClipTool();
             bool clipToolActive() const;
@@ -189,6 +192,8 @@ namespace TrenchBroom {
             void OnDuplicateObjectsRight(wxCommandEvent& event);
             void OnDuplicateObjectsUp(wxCommandEvent& event);
             void OnDuplicateObjectsDown(wxCommandEvent& event);
+            
+            void OnDuplicateObjects(wxCommandEvent& event);
         private:
             void rotateObjects(RotationAxis axis, bool clockwise);
             void flipObjects(Math::Direction direction);
