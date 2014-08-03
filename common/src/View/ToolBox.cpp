@@ -177,7 +177,6 @@ namespace TrenchBroom {
                 return;
             
             const MouseButtonState button = mouseButton(event);
-            
             if (m_ignoreNextClick && button == MouseButtons::MBLeft) {
                 if (event.ButtonUp())
                     m_ignoreNextClick = false;
@@ -185,6 +184,10 @@ namespace TrenchBroom {
                 return;
             }
             
+            m_window->SetFocus();
+            if (event.ButtonUp())
+                m_ignoreNextClick = false;
+
             updateModifierKeys();
             if (event.ButtonDown()) {
                 captureMouse();
