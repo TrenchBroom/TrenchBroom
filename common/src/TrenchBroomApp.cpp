@@ -40,6 +40,7 @@
 #include "View/wxUtils.h"
 
 #include <wx/choicdlg.h>
+#include <wx/cmdline.h>
 #include <wx/filedlg.h>
 
 namespace TrenchBroom {
@@ -52,17 +53,71 @@ namespace TrenchBroom {
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
         m_frameManager(NULL),
-        m_recentDocuments(NULL) {
-            /*
+        m_recentDocuments(NULL),
+        m_lastActivation(0) {
+            // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
+            std::setlocale(LC_NUMERIC, "C");
+            
+            // load image handlers
+            wxImage::AddHandler(new wxPNGHandler());
+
             SetAppName("TrenchBroom");
             SetAppDisplayName("TrenchBroom");
             SetVendorDisplayName("Kristian Duske");
             SetVendorName("Kristian Duske");
-             */
+            
+            initGLFunctions();
+            
+            // these must be initialized here and not earlier
+            m_frameManager = new FrameManager(useSDI());
+            m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
+            m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
+            
+#ifdef __APPLE__
+            SetExitOnFrameDelete(false);
+            const ActionManager& actionManager = ActionManager::instance();
+            wxMenuBar* menuBar = actionManager.createMenuBar();
+            wxMenuBar::MacSetCommonMenuBar(menuBar);
+            
+            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
+            assert(recentDocumentsMenu != NULL);
+            addRecentDocumentMenu(recentDocumentsMenu);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
+            
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_NEW);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_OPEN);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_SAVE);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_SAVEAS);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_CLOSE);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_UNDO);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_REDO);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_CUT);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_COPY);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PASTE);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_DELETE);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PREFERENCES);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_ABOUT);
+            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
+#endif
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
+            
+            Bind(EVT_EXECUTABLE_EVENT, EVT_EXECUTABLE_EVENT_HANDLER(TrenchBroomApp::OnExecutableEvent), this);
+            
+            m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
         }
 
         TrenchBroomApp::~TrenchBroomApp() {
-            // we must delete the recent documents here instead of in OnExit because they might still be used by the frame destructors
+            wxImage::CleanUpHandlers();
+
+            delete m_frameManager;
+            m_frameManager = NULL;
+            
+            m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
             delete m_recentDocuments;
             m_recentDocuments = NULL;
         }
@@ -147,85 +202,13 @@ namespace TrenchBroom {
         bool TrenchBroomApp::OnInit() {
             if (!wxApp::OnInit())
                 return false;
-
-            // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
-            std::setlocale(LC_NUMERIC, "C");
-
+            
             SetAppName("TrenchBroom");
             SetAppDisplayName("TrenchBroom");
             SetVendorDisplayName("Kristian Duske");
             SetVendorName("Kristian Duske");
-
-            // load image handlers
-            wxImage::AddHandler(new wxPNGHandler());
-
-            initGLFunctions();
-
-            assert(m_frameManager == NULL);
-            m_frameManager = new FrameManager(useSDI());
-
-            m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
-            m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
-
-#ifdef __APPLE__
-            SetExitOnFrameDelete(false);
-            const ActionManager& actionManager = ActionManager::instance();
-            wxMenuBar* menuBar = actionManager.createMenuBar();
-            wxMenuBar::MacSetCommonMenuBar(menuBar);
-
-            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
-            assert(recentDocumentsMenu != NULL);
-            addRecentDocumentMenu(recentDocumentsMenu);
-
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
-
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_NEW);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_OPEN);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_SAVE);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_SAVEAS);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_CLOSE);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_UNDO);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_REDO);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_CUT);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_COPY);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PASTE);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_DELETE);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PREFERENCES);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_ABOUT);
-            Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
-#endif
-
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
-
-            Bind(EVT_EXECUTABLE_EVENT, EVT_EXECUTABLE_EVENT_HANDLER(TrenchBroomApp::OnExecutableEvent), this);
-
-            m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
             
-#ifndef __APPLE__
-            if (wxApp::argc > 1) {
-                const wxString filename = wxApp::argv[1];
-                if (!openDocument(filename.ToStdString()))
-                    return false;
-            } else {
-                showWelcomeFrame();
-            }
-#endif
-
-            m_lastActivation = 0;
             return true;
-        }
-
-        int TrenchBroomApp::OnExit() {
-            m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
-
-            delete m_frameManager;
-            m_frameManager = NULL;
-
-            wxImage::CleanUpHandlers();
-            return wxApp::OnExit();
         }
 
         void TrenchBroomApp::OnUnhandledException() {
@@ -327,6 +310,34 @@ namespace TrenchBroom {
                 const wxString& filename = *it;
                 openDocument(filename.ToStdString());
             }
+        }
+#else
+        void TrenchBroomApp::OnInitCmdLine(wxCmdLineParser& parser) {
+            static const wxCmdLineEntryDesc cmdLineDesc[] =
+            {
+                { wxCMD_LINE_PARAM,  NULL, NULL, "input file", wxCMD_LINE_VAL_STRING, useSDI() ? wxCMD_LINE_PARAM_OPTIONAL : (wxCMD_LINE_PARAM_OPTIONAL | wxCMD_LINE_PARAM_MULTIPLE) },
+                { wxCMD_LINE_NONE, NULL, NULL, NULL, wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL }
+            };
+            
+            parser.SetDesc(cmdLineDesc);
+            parser.SetSwitchChars("-");
+        }
+        
+        bool TrenchBroomApp::OnCmdLineParsed(wxCmdLineParser& parser) {
+            if (parser.GetParamCount() > 0) {
+                if (useSDI()) {
+                    const wxString param = parser.GetParam(0);
+                    openDocument(param.ToStdString());
+                } else {
+                    for (size_t i = 0; i < parser.GetParamCount(); ++i) {
+                        const wxString param = parser.GetParam(i);
+                        openDocument(param.ToStdString());
+                    }
+                }
+            } else {
+                showWelcomeFrame();
+            }
+            return true;
         }
 #endif
 

@@ -60,7 +60,6 @@ namespace TrenchBroom {
             void openAbout();
 
             bool OnInit();
-            int OnExit();
             void OnUnhandledException();
             
             int OnRun();
@@ -80,8 +79,10 @@ namespace TrenchBroom {
 
             void MacNewFile();
             void MacOpenFiles(const wxArrayString& filenames);
+#else
+            void OnInitCmdLine(wxCmdLineParser& parser);
+            bool OnCmdLineParsed(wxCmdLineParser& parser);
 #endif
-            
         private:
             static bool useSDI();
             void showWelcomeFrame();
