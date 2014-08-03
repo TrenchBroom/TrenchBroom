@@ -431,7 +431,8 @@ namespace TrenchBroom {
         void BrushFace::transform(const Mat4x4& transform, const bool lockTexture) {
             using std::swap;
 
-            m_texCoordSystem->transform(m_boundary, transform, m_attribs, lockTexture, center());
+            const Vec3 invariant = m_side != NULL ? center() : m_boundary.anchor();
+            m_texCoordSystem->transform(m_boundary, transform, m_attribs, lockTexture, invariant);
             
             m_boundary.transform(transform);
             for (size_t i = 0; i < 3; ++i)
