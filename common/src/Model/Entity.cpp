@@ -21,7 +21,6 @@
 
 #include "CollectionUtils.h"
 #include "Hit.h"
-#include "Assets/EntityDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
@@ -111,6 +110,7 @@ namespace TrenchBroom {
             if (m_definition != NULL)
                 m_definition->decUsageCount();
             m_definition = definition;
+            m_properties.updateDefinitions(m_definition);
             if (m_definition != NULL)
                 m_definition->incUsageCount();
             invalidateBounds();
@@ -141,6 +141,7 @@ namespace TrenchBroom {
         
         void Entity::setProperties(const EntityProperty::List& properties) {
             m_properties.setProperties(properties);
+            m_properties.updateDefinitions(m_definition);
             invalidateBounds();
             setIsWorldspawn();
         }
@@ -164,13 +165,12 @@ namespace TrenchBroom {
             if (valuePtr == NULL)
                 return;
             
+            const Assets::PropertyDefinition* newDefinition = Assets::EntityDefinition::safeGetPropertyDefinition(m_definition, newKey);
             const PropertyValue value = *valuePtr;
-            m_properties.renameProperty(key, newKey);
+            m_properties.renameProperty(key, newKey, newDefinition);
             
-            const EntityProperty oldProperty(key, value);
-            const EntityProperty newProperty(newKey, value);
-            updatePropertyIndex(oldProperty, newProperty);
-            updateLinks(oldProperty, newProperty);
+            updatePropertyIndex(key, value, newKey, value);
+            updateLinks(key, value, newKey, value);
             invalidateBounds();
         }
 
@@ -180,10 +180,9 @@ namespace TrenchBroom {
                 return;
             const PropertyValue value = *valuePtr;
             m_properties.removeProperty(key);
-            
-            const EntityProperty property(key, value);
-            removePropertyFromIndex(property);
-            removeLinks(property);
+
+            removePropertyFromIndex(key, value);
+            removeLinks(key, value);
             invalidateBounds();
         }
 
@@ -271,46 +270,46 @@ namespace TrenchBroom {
             return result;
         }
 
-        void Entity::addPropertyToIndex(const EntityProperty& property) {
+        void Entity::addPropertyToIndex(const PropertyKey& key, const PropertyValue& value) {
             if (m_map != NULL)
-                m_map->addEntityPropertyToIndex(this, property);
+                m_map->addEntityPropertyToIndex(this, key, value);
         }
         
-        void Entity::removePropertyFromIndex(const EntityProperty& property) {
+        void Entity::removePropertyFromIndex(const PropertyKey& key, const PropertyValue& value) {
             if (m_map != NULL)
-                m_map->removeEntityPropertyFromIndex(this, property);
+                m_map->removeEntityPropertyFromIndex(this, key, value);
         }
 
-        void Entity::updatePropertyIndex(const EntityProperty& oldProperty, const EntityProperty& newProperty) {
-            removePropertyFromIndex(oldProperty);
-            addPropertyToIndex(newProperty);
+        void Entity::updatePropertyIndex(const PropertyKey& oldKey, const PropertyValue& oldValue, const PropertyKey& newKey, const PropertyValue& newValue) {
+            removePropertyFromIndex(oldKey, oldValue);
+            addPropertyToIndex(newKey, newValue);
         }
 
-        void Entity::addLinks(const EntityProperty& property) {
-            if (isNumberedProperty(PropertyKeys::Target, property.key)) {
-                addLinkTargets(property.value);
-            } else if (isNumberedProperty(PropertyKeys::Killtarget, property.key)) {
-                addKillTargets(property.value);
-            } else if (property.key == PropertyKeys::Targetname) {
-                addAllLinkSources(property.value);
-                addAllKillSources(property.value);
+        void Entity::addLinks(const PropertyKey& key, const PropertyValue& value) {
+            if (isNumberedProperty(PropertyKeys::Target, key)) {
+                addLinkTargets(value);
+            } else if (isNumberedProperty(PropertyKeys::Killtarget, key)) {
+                addKillTargets(value);
+            } else if (key == PropertyKeys::Targetname) {
+                addAllLinkSources(value);
+                addAllKillSources(value);
             }
         }
         
-        void Entity::removeLinks(const EntityProperty& property) {
-            if (isNumberedProperty(PropertyKeys::Target, property.key)) {
-                removeLinkTargets(property.value);
-            } else if (isNumberedProperty(PropertyKeys::Killtarget, property.key)) {
-                removeKillTargets(property.value);
-            } else if (property.key == PropertyKeys::Targetname) {
+        void Entity::removeLinks(const PropertyKey& key, const PropertyValue& value) {
+            if (isNumberedProperty(PropertyKeys::Target, key)) {
+                removeLinkTargets(value);
+            } else if (isNumberedProperty(PropertyKeys::Killtarget, key)) {
+                removeKillTargets(value);
+            } else if (key == PropertyKeys::Targetname) {
                 removeAllLinkSources();
                 removeAllKillSources();
             }
         }
         
-        void Entity::updateLinks(const EntityProperty& oldProperty, const EntityProperty& newProperty) {
-            removeLinks(oldProperty);
-            addLinks(newProperty);
+        void Entity::updateLinks(const PropertyKey& oldKey, const PropertyValue& oldValue, const PropertyKey& newKey, const PropertyValue& newValue) {
+            removeLinks(oldKey, oldValue);
+            addLinks(newKey, newValue);
         }
 
         void Entity::addLinkTargets(const PropertyValue& targetname) {
@@ -386,7 +385,7 @@ namespace TrenchBroom {
             EntityProperty::List::const_iterator pIt, pEnd;
             for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
                 const EntityProperty& property = *pIt;
-                const String& targetname = property.value;
+                const String& targetname = property.value();
                 if (!targetname.empty()) {
                     const EntityList& linkTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
                     VectorUtils::append(m_linkTargets, linkTargets);
@@ -418,7 +417,7 @@ namespace TrenchBroom {
                 EntityProperty::List::const_iterator pIt, pEnd;
                 for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
                     const EntityProperty& property = *pIt;
-                    const String& targetname = property.value;
+                    const String& targetname = property.value();
                     if (!targetname.empty()) {
                         const EntityList& killTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
                         VectorUtils::append(m_killTargets, killTargets);
@@ -475,13 +474,13 @@ namespace TrenchBroom {
                 EntityProperty::List::const_iterator pIt, pEnd;
                 for (pIt = properties.begin(), pEnd = properties.end(); pIt != pEnd; ++pIt) {
                     const EntityProperty& property = *pIt;
-                    const String& targetname = property.value;
+                    const String& targetname = property.value();
                     if (targetname.empty()) {
-                        result.push_back(property.key);
+                        result.push_back(property.key());
                     } else {
                         const EntityList& linkTargets = m_map->findEntitiesWithProperty(PropertyKeys::Targetname, targetname);
                         if (linkTargets.empty())
-                            result.push_back(property.key);
+                            result.push_back(property.key());
                     }
                 }
             }

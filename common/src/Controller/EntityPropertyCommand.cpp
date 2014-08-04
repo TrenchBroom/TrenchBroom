@@ -28,6 +28,10 @@ namespace TrenchBroom {
     namespace Controller {
         const Command::CommandType EntityPropertyCommand::Type = Command::freeType();
 
+        EntityPropertyCommand::PropertySnapshot::PropertySnapshot(const Model::PropertyKey& i_key, const Model::PropertyValue& i_value) :
+        key(i_key),
+        value(i_value) {}
+
         void EntityPropertyCommand::setKey(const Model::PropertyKey& key) {
             m_oldKey = key;
         }
@@ -174,34 +178,28 @@ namespace TrenchBroom {
                 Model::Entity* entity = *entityIt;
                 if (entity->hasProperty(key())) {
                     const Model::PropertyValue& value = entity->property(key());
-                    const Model::EntityProperty before(key(), value);
-                    const Model::EntityProperty after(newKey(), value);
+                    m_snapshot.insert(std::make_pair(entity, PropertySnapshot(key(), value)));
                     
-                    m_snapshot[entity] = before;
-                    entity->renameProperty(before.key, after.key);
-                    document->entityPropertyDidChangeNotifier(entity, before, after);
+                    entity->renameProperty(key(), value);
+                    document->entityPropertyDidChangeNotifier(entity, key(), value, newKey(), value);
                 }
             }
         }
         
         void EntityPropertyCommand::doSetValue(View::MapDocumentSPtr document) {
             m_definitionAffected = (key() == Model::PropertyKeys::Classname);
-            const Model::EntityProperty empty;
-            const Model::EntityProperty after(key(), newValue());
-            
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity* entity = *entityIt;
                 if (entity->hasProperty(key())) {
                     const Model::PropertyValue& oldValue = entity->property(key());
-                    const Model::EntityProperty before(key(), oldValue);
                     
-                    m_snapshot[entity] = before;
-                    entity->addOrUpdateProperty(after.key, after.value);
-                    document->entityPropertyDidChangeNotifier(entity, before, after);
+                    m_snapshot.insert(std::make_pair(entity, PropertySnapshot(key(), oldValue)));
+                    entity->addOrUpdateProperty(key(), newValue());
+                    document->entityPropertyDidChangeNotifier(entity, key(), oldValue, key(), newValue());
                 } else {
-                    entity->addOrUpdateProperty(after.key, after.value);
-                    document->entityPropertyDidChangeNotifier(entity, empty, after);
+                    entity->addOrUpdateProperty(key(), newValue());
+                    document->entityPropertyDidChangeNotifier(entity, "", "", key(), newValue());
                 }
             }
         }
@@ -214,11 +212,10 @@ namespace TrenchBroom {
                 Model::Entity* entity = *entityIt;
                 if (entity->hasProperty(key())) {
                     const Model::PropertyValue& oldValue = entity->property(key());
-                    const Model::EntityProperty before(key(), oldValue);
 
-                    m_snapshot[entity] = before;
+                    m_snapshot.insert(std::make_pair(entity, PropertySnapshot(key(), oldValue)));
                     entity->removeProperty(key());
-                    document->entityPropertyDidChangeNotifier(entity, before, empty);
+                    document->entityPropertyDidChangeNotifier(entity, key(), oldValue, "", "");
                 }
             }
         }
@@ -227,33 +224,31 @@ namespace TrenchBroom {
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity* entity = *entityIt;
-                PropertySnapshot::iterator snapshotIt = m_snapshot.find(entity);
+                PropertySnapshotMap::iterator snapshotIt = m_snapshot.find(entity);
                 if (snapshotIt != m_snapshot.end()) {
                     const Model::PropertyValue& value = snapshotIt->second.value;
-                    const Model::EntityProperty before(key(), value);
-                    const Model::EntityProperty after(newKey(), value);
                     
                     entity->renameProperty(newKey(), key());
-                    document->entityPropertyDidChangeNotifier(entity, after, before);
+                    document->entityPropertyDidChangeNotifier(entity, newKey(), value, key(), value);
                 }
             }
         }
         
         void EntityPropertyCommand::undoSetValue(View::MapDocumentSPtr document) {
-            const Model::EntityProperty empty;
-            const Model::EntityProperty after(key(), newValue());
+            // const Model::EntityProperty empty;
+            // const Model::EntityProperty after(key(), newValue());
 
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity* entity = *entityIt;
-                PropertySnapshot::iterator snapshotIt = m_snapshot.find(entity);
+                PropertySnapshotMap::iterator snapshotIt = m_snapshot.find(entity);
                 if (snapshotIt == m_snapshot.end()) {
                     entity->removeProperty(key());
-                    document->entityPropertyDidChangeNotifier(entity, after, empty);
+                    document->entityPropertyDidChangeNotifier(entity, key(), newValue(), "", "");
                 } else {
-                    const Model::EntityProperty& before = snapshotIt->second;
+                    const PropertySnapshot& before = snapshotIt->second;
                     entity->addOrUpdateProperty(before.key, before.value);
-                    document->entityPropertyDidChangeNotifier(entity, after, before);
+                    document->entityPropertyDidChangeNotifier(entity, key(), newValue(), before.key, before.value);
                 }
             }
         }
@@ -264,11 +259,11 @@ namespace TrenchBroom {
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = m_entities.begin(), entityEnd = m_entities.end(); entityIt != entityEnd; ++entityIt) {
                 Model::Entity* entity = *entityIt;
-                PropertySnapshot::iterator snapshotIt = m_snapshot.find(entity);
+                PropertySnapshotMap::iterator snapshotIt = m_snapshot.find(entity);
                 if (snapshotIt != m_snapshot.end()) {
-                    const Model::EntityProperty& before = snapshotIt->second;
-                    entity->addOrUpdateProperty(before.key, before.value);
-                    document->entityPropertyDidChangeNotifier(entity, empty, before);
+                    const PropertySnapshot& snapshot = snapshotIt->second;
+                    entity->addOrUpdateProperty(snapshot.key, snapshot.value);
+                    document->entityPropertyDidChangeNotifier(entity, "", "", snapshot.key, snapshot.value);
                 }
             }
         }

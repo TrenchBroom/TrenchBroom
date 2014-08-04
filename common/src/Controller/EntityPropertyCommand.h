@@ -42,7 +42,14 @@ namespace TrenchBroom {
                 Action_Remove
             } Action;
 
-            typedef std::map<Model::Entity*, Model::EntityProperty> PropertySnapshot;
+            struct PropertySnapshot {
+                Model::PropertyKey key;
+                Model::PropertyValue value;
+                
+                PropertySnapshot(const Model::PropertyKey& i_key, const Model::PropertyValue& i_value);
+            };
+            
+            typedef std::map<Model::Entity*, PropertySnapshot> PropertySnapshotMap;
             
             const Action m_action;
             View::MapDocumentWPtr m_document;
@@ -52,7 +59,7 @@ namespace TrenchBroom {
             Model::PropertyKey m_newKey;
             Model::PropertyValue m_newValue;
             bool m_definitionAffected;
-            PropertySnapshot m_snapshot;
+            PropertySnapshotMap m_snapshot;
 
             void setKey(const Model::PropertyKey& key);
             void setKeys(const Model::PropertyKeyList& newKeys);

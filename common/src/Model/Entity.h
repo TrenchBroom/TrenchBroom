@@ -26,6 +26,7 @@
 #include "Allocator.h"
 #include "Hit.h"
 #include "Assets/AssetTypes.h"
+#include "Assets/EntityDefinition.h"
 #include "Model/EntityProperties.h"
 #include "Model/ModelTypes.h"
 #include "Model/Object.h"
@@ -97,32 +98,32 @@ namespace TrenchBroom {
             
             template <typename T>
             void addOrUpdateProperty(const PropertyKey& key, const T& value) {
+                const Assets::PropertyDefinition* definition = Assets::EntityDefinition::safeGetPropertyDefinition(m_definition, key);
                 const PropertyValue* oldValue = m_properties.property(key);
                 if (oldValue != NULL) {
-                    const EntityProperty oldProperty(key, *oldValue);
-                    removePropertyFromIndex(oldProperty);
-                    removeLinks(oldProperty);
+                    removePropertyFromIndex(key, *oldValue);
+                    removeLinks(key, *oldValue);
                 }
                 
-                const EntityProperty& newProperty = m_properties.addOrUpdateProperty(key, value);
-                addPropertyToIndex(newProperty);
-                addLinks(newProperty);
+                const EntityProperty& newProperty = m_properties.addOrUpdateProperty(key, value, definition);
+                addPropertyToIndex(newProperty.key(), newProperty.value());
+                addLinks(newProperty.key(), newProperty.value());
                 invalidateBounds();
                 setIsWorldspawn();
             }
             
             template <typename T, size_t S>
             void addOrUpdateProperty(const PropertyKey& key, const Vec<T,S> value) {
+                const Assets::PropertyDefinition* definition = Assets::EntityDefinition::safeGetPropertyDefinition(m_definition, key);
                 const PropertyValue* oldValue = m_properties.property(key);
                 if (oldValue != NULL) {
-                    const EntityProperty oldProperty(key, *oldValue);
-                    removePropertyFromIndex(oldProperty);
-                    removeLinks(oldProperty);
+                    removePropertyFromIndex(key, *oldValue);
+                    removeLinks(key, *oldValue);
                 }
 
-                const EntityProperty& newProperty = m_properties.addOrUpdateProperty(key, value.asString());
-                addPropertyToIndex(newProperty);
-                addLinks(newProperty);
+                const EntityProperty& newProperty = m_properties.addOrUpdateProperty(key, value.asString(), definition);
+                addPropertyToIndex(newProperty.key(), newProperty.value());
+                addLinks(newProperty.key(), newProperty.value());
                 invalidateBounds();
                 setIsWorldspawn();
             }
@@ -149,12 +150,12 @@ namespace TrenchBroom {
             PropertyKeyList findMissingLinkTargets() const;
             PropertyKeyList findMissingKillTargets() const;
         private:
-            void addPropertyToIndex(const EntityProperty& property);
-            void removePropertyFromIndex(const EntityProperty& property);
-            void updatePropertyIndex(const EntityProperty& oldProperty, const EntityProperty& newProperty);
-            void addLinks(const EntityProperty& property);
-            void removeLinks(const EntityProperty& property);
-            void updateLinks(const EntityProperty& oldProperty, const EntityProperty& newProperty);
+            void addPropertyToIndex(const PropertyKey& key, const PropertyValue& value);
+            void removePropertyFromIndex(const PropertyKey& key, const PropertyValue& value);
+            void updatePropertyIndex(const PropertyKey& oldKey, const PropertyValue& oldValue, const PropertyKey& newKey, const PropertyValue& newValue);
+            void addLinks(const PropertyKey& key, const PropertyValue& value);
+            void removeLinks(const PropertyKey& key, const PropertyValue& value);
+            void updateLinks(const PropertyKey& oldKey, const PropertyValue& oldValue, const PropertyKey& newKey, const PropertyValue& newValue);
             
             void addLinkTargets(const PropertyValue& targetname);
             void addKillTargets(const PropertyValue& targetname);

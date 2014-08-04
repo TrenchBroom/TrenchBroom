@@ -103,7 +103,7 @@ namespace TrenchBroom {
             index.addEntity(entity2);
             
             entity2->addOrUpdateProperty("other", "someothervalue");
-            index.addEntityProperty(entity2, Model::EntityProperty("other", "someothervalue"));
+            index.addEntityProperty(entity2, "other", "someothervalue");
             
             ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
             
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             index.addEntity(entity1);
             index.addEntity(entity2);
             
-            index.removeEntityProperty(entity2, EntityProperty("other", "someothervalue"));
+            index.removeEntityProperty(entity2, "other", "someothervalue");
             
             const EntityList& entities = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, entities.size());
@@ -177,7 +177,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, entities.size());
             ASSERT_TRUE(VectorUtils::contains(entities, entity1));
             
-            index.removeEntityProperty(entity1, EntityProperty("delay", "3.5"));
+            index.removeEntityProperty(entity1, "delay", "3.5");
             
             delete entity1;
         }

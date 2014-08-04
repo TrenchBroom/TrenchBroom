@@ -66,7 +66,7 @@ namespace TrenchBroom {
             EntityProperty::List::const_iterator it, end;
             for (it = properties.begin(), end = properties.end(); it != end; ++it) {
                 const EntityProperty& property = *it;
-                addEntityProperty(entity, property);
+                addEntityProperty(entity, property.key(), property.value());
             }
         }
         
@@ -75,18 +75,18 @@ namespace TrenchBroom {
             EntityProperty::List::const_iterator it, end;
             for (it = properties.begin(), end = properties.end(); it != end; ++it) {
                 const EntityProperty& property = *it;
-                removeEntityProperty(entity, property);
+                removeEntityProperty(entity, property.key(), property.value());
             }
         }
 
-        void EntityPropertyIndex::addEntityProperty(Entity* entity, const EntityProperty& property) {
-            m_keyIndex.insert(property.key, entity);
-            m_valueIndex.insert(property.value, entity);
+        void EntityPropertyIndex::addEntityProperty(Entity* entity, const PropertyKey& key, const PropertyValue& value) {
+            m_keyIndex.insert(key, entity);
+            m_valueIndex.insert(value, entity);
         }
         
-        void EntityPropertyIndex::removeEntityProperty(Entity* entity, const EntityProperty& property) {
-            m_keyIndex.remove(property.key, entity);
-            m_valueIndex.remove(property.value, entity);
+        void EntityPropertyIndex::removeEntityProperty(Entity* entity, const PropertyKey& key, const PropertyValue& value) {
+            m_keyIndex.remove(key, entity);
+            m_valueIndex.remove(value, entity);
         }
 
         EntityList EntityPropertyIndex::findEntities(const EntityPropertyQuery& keyQuery, const EntityPropertyQuery& valueQuery) const {

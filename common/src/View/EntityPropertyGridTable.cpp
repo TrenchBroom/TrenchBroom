@@ -229,20 +229,19 @@ namespace TrenchBroom {
             Model::EntityList::const_iterator entityIt, entityEnd;
             for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
                 const Model::Entity& entity = **entityIt;
-                const Assets::EntityDefinition* entityDefinition = entity.definition();
                 
                 const Model::EntityProperty::List& properties = entity.properties();
                 Model::EntityProperty::List::const_iterator propertyIt, propertyEnd;
                 for (propertyIt = properties.begin(), propertyEnd = properties.end(); propertyIt != propertyEnd; ++propertyIt) {
                     const Model::EntityProperty& property = *propertyIt;
-                    const Assets::PropertyDefinition* propertyDefinition = entityDefinition != NULL ? entityDefinition->propertyDefinition(property.key) : NULL;
+                    const Assets::PropertyDefinition* propertyDefinition = property.definition();
                     
-                    PropertyRow::List::iterator rowIt = findPropertyRow(rows, property.key);
+                    PropertyRow::List::iterator rowIt = findPropertyRow(rows, property.key());
                     if (rowIt != rows.end()) {
-                        rowIt->compareValue(property.value);
+                        rowIt->compareValue(property.value());
                     } else {
                         const String& tooltip = propertyDefinition != NULL ? propertyDefinition->description() : EmptyString;
-                        rows.push_back(PropertyRow(property.key, property.value, tooltip, entities.size()));
+                        rows.push_back(PropertyRow(property.key(), property.value(), tooltip, entities.size()));
                     }
                 }
             }

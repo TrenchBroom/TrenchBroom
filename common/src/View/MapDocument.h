@@ -90,7 +90,7 @@ namespace TrenchBroom {
             Notifier1<Model::Object*> objectWillChangeNotifier;
             Notifier1<Model::Object*> objectDidChangeNotifier;
             
-            Notifier3<Model::Entity*, const Model::EntityProperty&, const Model::EntityProperty&> entityPropertyDidChangeNotifier;
+            Notifier5<Model::Entity*, const Model::PropertyKey&, const Model::PropertyValue&, const Model::PropertyKey&, const Model::PropertyValue&> entityPropertyDidChangeNotifier;
             
             Notifier1<Model::BrushFace*> faceWillChangeNotifier;
             Notifier1<Model::BrushFace*> faceDidChangeNotifier;
@@ -163,7 +163,7 @@ namespace TrenchBroom {
             bool hasSelectedBrushes() const;
             bool hasSelectedFaces() const;
             bool hasSelection() const;
-            BBox3 selectionBounds() const;
+            const BBox3& selectionBounds() const;
             
             const Model::ObjectList& selectedObjects() const;
             const Model::EntityList& selectedEntities() const;
@@ -211,7 +211,7 @@ namespace TrenchBroom {
             void objectDidChange(Model::Object* object);
             void updateLinkSourcesInIssueManager(Model::Entity* entity);
             
-            void entityPropertyDidChange(Model::Entity* entity, const Model::EntityProperty& before, const Model::EntityProperty& after);
+            void entityPropertyDidChange(Model::Entity* entity, const Model::PropertyKey& oldKey, const Model::PropertyValue& oldValue, const Model::PropertyKey& newKey, const Model::PropertyValue& newValue);
             
             void faceDidChange(Model::BrushFace* face);
             

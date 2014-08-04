@@ -59,8 +59,8 @@ namespace TrenchBroom {
             
             const EntityProperty::List& properties = entity.properties();
             ASSERT_EQ(1u, properties.size());
-            ASSERT_EQ(key, properties[0].key);
-            ASSERT_EQ(value, properties[0].value);
+            ASSERT_EQ(key, properties[0].key());
+            ASSERT_EQ(value, properties[0].value());
         }
         
         TEST(EntityTest, updateProperty) {
@@ -74,8 +74,8 @@ namespace TrenchBroom {
             
             const EntityProperty::List& properties = entity.properties();
             ASSERT_EQ(1u, properties.size());
-            ASSERT_EQ(key, properties[0].key);
-            ASSERT_EQ(newValue, properties[0].value);
+            ASSERT_EQ(key, properties[0].key());
+            ASSERT_EQ(newValue, properties[0].value());
         }
         
         TEST(EntityTest, getClassname) {

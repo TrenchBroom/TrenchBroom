@@ -30,8 +30,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        struct EntityProperty;
-        
         class Map {
         private:
             MapFormat::Type m_format;
@@ -55,8 +53,8 @@ namespace TrenchBroom {
             Entity* worldspawn() const;
             Object* findObjectByFilePosition(const size_t position) const;
             
-            void addEntityPropertyToIndex(Entity* entity, const EntityProperty& property);
-            void removeEntityPropertyFromIndex(Entity* entity, const EntityProperty& property);
+            void addEntityPropertyToIndex(Entity* entity, const PropertyKey& key, const PropertyValue& value);
+            void removeEntityPropertyFromIndex(Entity* entity, const PropertyKey& key, const PropertyValue& value);
             
             EntityList findEntitiesWithProperty(const PropertyKey& key, const PropertyValue& value) const;
             EntityList findEntitiesWithNumberedProperty(const PropertyKey& prefix, const PropertyValue& value) const;

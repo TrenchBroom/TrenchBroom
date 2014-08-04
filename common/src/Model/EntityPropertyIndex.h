@@ -21,7 +21,6 @@
 #define __TrenchBroom__EntityPropertyIndex__
 
 #include "StringUtils.h"
-#include "Model/EntityProperties.h"
 #include "Model/ModelTypes.h"
 #include "StringIndex.h"
 
@@ -59,8 +58,8 @@ namespace TrenchBroom {
             void addEntity(Entity* entity);
             void removeEntity(Entity* entity);
             
-            void addEntityProperty(Entity* entity, const EntityProperty& property);
-            void removeEntityProperty(Entity* entity, const EntityProperty& property);
+            void addEntityProperty(Entity* entity, const PropertyKey& key, const PropertyValue& value);
+            void removeEntityProperty(Entity* entity, const PropertyKey& key, const PropertyValue& value);
             
             EntityList findEntities(const EntityPropertyQuery& keyQuery, const EntityPropertyQuery& valueQuery) const;
         };

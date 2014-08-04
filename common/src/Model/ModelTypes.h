@@ -82,7 +82,7 @@ namespace TrenchBroom {
         typedef std::set<Entity*> EntitySet;
         static const EntitySet EmptyEntitySet;
         
-        struct EntityProperty;
+        class EntityProperty;
         
         typedef std::map<Entity*, BrushList> EntityBrushesMap;
         typedef std::map<Brush*, Entity*> BrushEntityMap;

@@ -96,6 +96,10 @@ namespace TrenchBroom {
             return VectorUtils::findIf(m_propertyDefinitions, FindPropertyDefinitionByName(propertyKey)).get();
         }
 
+        const PropertyDefinition* EntityDefinition::safeGetPropertyDefinition(const EntityDefinition* entityDefinition, const Model::PropertyKey& propertyKey) {
+            return entityDefinition != NULL ? entityDefinition->propertyDefinition(propertyKey) : NULL;
+        }
+
         EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinitionList& propertyDefinitions) :
         m_name(name),
         m_color(color),

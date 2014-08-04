@@ -53,10 +53,10 @@ namespace TrenchBroom {
             Model::EntityProperties properties;
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(key, "blah");
+            properties.addOrUpdateProperty(key, "blah", NULL);
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(key, value);
+            properties.addOrUpdateProperty(key, value, NULL);
             ASSERT_TRUE(definition->matches(properties));
             
             const ModelSpecification spec = definition->modelSpecification(properties);
@@ -76,16 +76,16 @@ namespace TrenchBroom {
             Model::EntityProperties properties;
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(key, "blah");
+            properties.addOrUpdateProperty(key, "blah", NULL);
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(key, "1");
+            properties.addOrUpdateProperty(key, "1", NULL);
             ASSERT_FALSE(definition->matches(properties));
 
-            properties.addOrUpdateProperty(key, "4");
+            properties.addOrUpdateProperty(key, "4", NULL);
             ASSERT_TRUE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(key, "5");
+            properties.addOrUpdateProperty(key, "5", NULL);
             ASSERT_TRUE(definition->matches(properties));
 
             const ModelSpecification spec = definition->modelSpecification(properties);
@@ -104,10 +104,10 @@ namespace TrenchBroom {
             Model::EntityProperties properties;
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(pathKey, "");
+            properties.addOrUpdateProperty(pathKey, "", NULL);
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(pathKey, pathValue);
+            properties.addOrUpdateProperty(pathKey, pathValue, NULL);
             ASSERT_TRUE(definition->matches(properties));
             
             const ModelSpecification spec = definition->modelSpecification(properties);
@@ -130,13 +130,13 @@ namespace TrenchBroom {
             Model::EntityProperties properties;
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(pathKey, pathValue);
+            properties.addOrUpdateProperty(pathKey, pathValue, NULL);
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(skinKey, "");
+            properties.addOrUpdateProperty(skinKey, "", NULL);
             ASSERT_FALSE(definition->matches(properties));
 
-            properties.addOrUpdateProperty(skinKey, skinValue);
+            properties.addOrUpdateProperty(skinKey, skinValue, NULL);
             ASSERT_TRUE(definition->matches(properties));
             
             const ModelSpecification spec = definition->modelSpecification(properties);
@@ -162,16 +162,16 @@ namespace TrenchBroom {
             Model::EntityProperties properties;
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(pathKey, pathValue);
+            properties.addOrUpdateProperty(pathKey, pathValue, NULL);
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(skinKey, skinValue);
+            properties.addOrUpdateProperty(skinKey, skinValue, NULL);
             ASSERT_FALSE(definition->matches(properties));
             
-            properties.addOrUpdateProperty(frameKey, "");
+            properties.addOrUpdateProperty(frameKey, "", NULL);
             ASSERT_FALSE(definition->matches(properties));
 
-            properties.addOrUpdateProperty(frameKey, frameValue);
+            properties.addOrUpdateProperty(frameKey, frameValue, NULL);
             ASSERT_TRUE(definition->matches(properties));
 
             const ModelSpecification spec = definition->modelSpecification(properties);

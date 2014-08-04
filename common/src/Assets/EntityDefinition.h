@@ -61,6 +61,8 @@ namespace TrenchBroom {
             const FlagsPropertyDefinition* spawnflags() const;
             const PropertyDefinitionList& propertyDefinitions() const;
             const PropertyDefinition* propertyDefinition(const Model::PropertyKey& propertyKey) const;
+            
+            static const PropertyDefinition* safeGetPropertyDefinition(const EntityDefinition* entityDefinition, const Model::PropertyKey& propertyKey);
         protected:
             EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinitionList& propertyDefinitions);
         };

@@ -173,7 +173,7 @@ namespace TrenchBroom {
         }
 
         size_t MapWriter::writeEntityProperty(const Model::EntityProperty& property, FILE* stream) {
-            std::fprintf(stream, "\"%s\" \"%s\"\n", property.key.c_str(), property.value.c_str());;
+            std::fprintf(stream, "\"%s\" \"%s\"\n", property.key().c_str(), property.value().c_str());;
             return 1;
         }
 
@@ -218,7 +218,7 @@ namespace TrenchBroom {
         }
         
         void MapWriter::writeEntityProperty(const Model::EntityProperty& property, std::ostream& stream) {
-            stream << "\"" << property.key << "\" \"" << property.value << "\"" << "\n";
+            stream << "\"" << property.key() << "\" \"" << property.value() << "\"" << "\n";
         }
 
         void MapWriter::writeEntityFooter(std::ostream& stream) {

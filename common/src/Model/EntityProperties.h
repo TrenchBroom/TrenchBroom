@@ -26,6 +26,11 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinition;
+        class PropertyDefinition;
+    }
+    
     namespace Model {
         namespace PropertyKeys {
             extern const PropertyKey Classname;
@@ -53,16 +58,23 @@ namespace TrenchBroom {
         String numberedPropertyPrefix(const String& key);
         bool isNumberedProperty(const String& prefix, const PropertyKey& key);
         
-        struct EntityProperty {
+        class EntityProperty {
+        private:
+            PropertyKey m_key;
+            PropertyValue m_value;
+            const Assets::PropertyDefinition* m_definition;
         public:
             typedef std::vector<EntityProperty> List;
-
-            PropertyKey key;
-            PropertyValue value;
-            
             EntityProperty();
-            EntityProperty(const PropertyKey& i_key, const PropertyValue& i_value);
+            EntityProperty(const PropertyKey& key, const PropertyValue& value, const Assets::PropertyDefinition* definition);
             bool operator<(const EntityProperty& rhs) const;
+            
+            const PropertyKey& key() const;
+            const PropertyValue& value() const;
+            const Assets::PropertyDefinition* definition() const;
+            
+            void setKey(const PropertyKey& key, const Assets::PropertyDefinition* definition);
+            void setValue(const PropertyValue& value);
         };
         
 
@@ -75,15 +87,17 @@ namespace TrenchBroom {
             void setProperties(const EntityProperty::List& properties);
 
             template <typename T>
-            const EntityProperty& addOrUpdateProperty(const PropertyKey& key, const T& value) {
+            const EntityProperty& addOrUpdateProperty(const PropertyKey& key, const T& value, const Assets::PropertyDefinition* definition) {
                 StringStream str;
                 str << value;
-                return addOrUpdateProperty(key, str.str());
+                return addOrUpdateProperty(key, str.str(), definition);
             }
             
-            const EntityProperty& addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value);
-            void renameProperty(const PropertyKey& key, const PropertyKey& newKey);
+            const EntityProperty& addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value, const Assets::PropertyDefinition* definition);
+            void renameProperty(const PropertyKey& key, const PropertyKey& newKey, const Assets::PropertyDefinition* newDefinition);
             void removeProperty(const PropertyKey& key);
+            void updateDefinitions(const Assets::EntityDefinition* entityDefinition);
+            
             bool hasProperty(const PropertyKey& key) const;
             const PropertyValue* property(const PropertyKey& key) const;
             const PropertyValue safeProperty(const PropertyKey& key, const PropertyValue& defaultValue) const;

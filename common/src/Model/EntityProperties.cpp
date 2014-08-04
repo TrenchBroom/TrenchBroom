@@ -20,6 +20,7 @@
 #include "EntityProperties.h"
 
 #include "Exceptions.h"
+#include "Assets/EntityDefinition.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -97,19 +98,42 @@ namespace TrenchBroom {
             return true;
         }
 
-        EntityProperty::EntityProperty() {}
+        EntityProperty::EntityProperty() :
+        m_definition(NULL) {}
         
-        EntityProperty::EntityProperty(const PropertyKey& i_key, const PropertyValue& i_value) :
-        key(i_key),
-        value(i_value) {}
+        EntityProperty::EntityProperty(const PropertyKey& key, const PropertyValue& value, const Assets::PropertyDefinition* definition) :
+        m_key(key),
+        m_value(value),
+        m_definition(definition) {}
         
         bool EntityProperty::operator<(const EntityProperty& rhs) const {
-            const int keyCmp = key.compare(rhs.key);
+            const int keyCmp = m_key.compare(rhs.m_key);
             if (keyCmp < 0)
                 return true;
             if (keyCmp > 0)
                 return false;
-            return value.compare(rhs.value) < 0;
+            return m_value.compare(rhs.m_value) < 0;
+        }
+
+        const PropertyKey& EntityProperty::key() const {
+            return m_key;
+        }
+        
+        const PropertyValue& EntityProperty::value() const {
+            return m_value;
+        }
+        
+        const Assets::PropertyDefinition* EntityProperty::definition() const {
+            return m_definition;
+        }
+
+        void EntityProperty::setKey(const PropertyKey& key, const Assets::PropertyDefinition* definition) {
+            m_key = key;
+            m_definition = definition;
+        }
+        
+        void EntityProperty::setValue(const PropertyValue& value) {
+            m_value = value;
         }
 
         const EntityProperty::List& EntityProperties::properties() const {
@@ -120,22 +144,23 @@ namespace TrenchBroom {
             m_properties = properties;
         }
 
-        const EntityProperty& EntityProperties::addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value) {
+        const EntityProperty& EntityProperties::addOrUpdateProperty(const PropertyKey& key, const PropertyValue& value, const Assets::PropertyDefinition* definition) {
             EntityProperty::List::iterator it = findProperty(key);
             if (it != m_properties.end()) {
-                it->value = value;
+                assert(it->definition() == definition);
+                it->setValue(value);
                 return *it;
             } else {
-                m_properties.push_back(EntityProperty(key, value));
+                m_properties.push_back(EntityProperty(key, value, definition));
                 return m_properties.back();
             }
         }
 
-        void EntityProperties::renameProperty(const PropertyKey& key, const PropertyKey& newKey) {
+        void EntityProperties::renameProperty(const PropertyKey& key, const PropertyKey& newKey, const Assets::PropertyDefinition* newDefinition) {
             EntityProperty::List::iterator it = findProperty(key);
             if (it == m_properties.end())
                 return;
-            it->key = newKey;
+            it->setKey(newKey, newDefinition);
         }
 
         void EntityProperties::removeProperty(const PropertyKey& key) {
@@ -143,6 +168,16 @@ namespace TrenchBroom {
             if (it == m_properties.end())
                 return;
             m_properties.erase(it);
+        }
+
+        void EntityProperties::updateDefinitions(const Assets::EntityDefinition* entityDefinition) {
+            EntityProperty::List::iterator it, end;
+            for (it = m_properties.begin(), end = m_properties.end(); it != end; ++it) {
+                EntityProperty& property = *it;
+                const PropertyKey& key = property.key();
+                const Assets::PropertyDefinition* propertyDefinition = Assets::EntityDefinition::safeGetPropertyDefinition(entityDefinition, key);
+                property.setKey(key, propertyDefinition);
+            }
         }
 
         bool EntityProperties::hasProperty(const PropertyKey& key) const {
@@ -153,7 +188,7 @@ namespace TrenchBroom {
             EntityProperty::List::const_iterator it = findProperty(key);
             if (it == m_properties.end())
                 return NULL;
-            return &it->value;
+            return &it->value();
         }
 
         const PropertyValue EntityProperties::safeProperty(const PropertyKey& key, const PropertyValue& defaultValue) const {
@@ -169,7 +204,7 @@ namespace TrenchBroom {
             EntityProperty::List::const_iterator it, end;
             for (it = m_properties.begin(), end = m_properties.end(); it != end; ++it) {
                 const EntityProperty& property = *it;
-                if (isNumberedProperty(prefix, property.key))
+                if (isNumberedProperty(prefix, property.key()))
                     result.push_back(property);
             }
             
@@ -180,7 +215,7 @@ namespace TrenchBroom {
             EntityProperty::List::const_iterator it, end;
             for (it = m_properties.begin(), end = m_properties.end(); it != end; ++it) {
                 const EntityProperty& property = *it;
-                if (property.key == key)
+                if (property.key() == key)
                     return it;
             }
             
@@ -191,7 +226,7 @@ namespace TrenchBroom {
             EntityProperty::List::iterator it, end;
             for (it = m_properties.begin(), end = m_properties.end(); it != end; ++it) {
                 const EntityProperty& property = *it;
-                if (property.key == key)
+                if (property.key() == key)
                     return it;
             }
             

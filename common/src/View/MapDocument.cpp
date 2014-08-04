@@ -518,7 +518,7 @@ namespace TrenchBroom {
             return m_selection.hasSelection();
         }
         
-        BBox3 MapDocument::selectionBounds() const {
+        const BBox3& MapDocument::selectionBounds() const {
             return m_selection.bounds();
         }
 
@@ -759,14 +759,14 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::entityPropertyDidChange(Model::Entity* entity, const Model::EntityProperty& before, const Model::EntityProperty& after) {
-            if (before.key == Model::PropertyKeys::Targetname ||
-                after.key == Model::PropertyKeys::Targetname) {
+        void MapDocument::entityPropertyDidChange(Model::Entity* entity, const Model::PropertyKey& oldKey, const Model::PropertyValue& oldValue, const Model::PropertyKey& newKey, const Model::PropertyValue& newValue) {
+            if (oldKey == Model::PropertyKeys::Targetname ||
+                newKey == Model::PropertyKeys::Targetname) {
                 
-                const Model::EntityList oldLinkSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Target, before.value);
-                const Model::EntityList oldKillSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Killtarget, before.value);
-                const Model::EntityList newLinkSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Target, after.value);
-                const Model::EntityList newKillSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Killtarget, after.value);
+                const Model::EntityList oldLinkSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Target, oldValue);
+                const Model::EntityList oldKillSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Killtarget, oldValue);
+                const Model::EntityList newLinkSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Target, newValue);
+                const Model::EntityList newKillSources = m_map->findEntitiesWithNumberedProperty(Model::PropertyKeys::Killtarget, newValue);
                 
                 Model::EntitySet entities;
                 entities.insert(oldLinkSources.begin(), oldLinkSources.end());
