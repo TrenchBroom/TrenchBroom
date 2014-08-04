@@ -90,8 +90,9 @@ namespace TrenchBroom {
             
             template <typename T>
             T toFloat() const {
-                static char buffer[64];
-                assert(length() < 64);
+                static const size_t BufferSize = 256;
+                static char buffer[BufferSize];
+                assert(length() < BufferSize);
                 
                 memcpy(buffer, m_begin, length());
                 buffer[length()] = 0;
