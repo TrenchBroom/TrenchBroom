@@ -109,8 +109,9 @@ namespace TrenchBroom {
             if (IO::Disk::fileExists(IO::Disk::fixPath(path)) && !overwrite)
                 throw FileSystemException("File already exists: " + path.asString());
             
+            // ensure that the directory actually exists or is created if it doesn't
             const Path directoryPath = path.deleteLastComponent();
-            WritableDiskFileSystem fs(directoryPath, true); // ensures that the directory actually exists or is created if it doesn't
+            WritableDiskFileSystem fs(directoryPath, true);
             
             FILE* stream = fopen(path.asString().c_str(), "w");
             if (stream == NULL)
