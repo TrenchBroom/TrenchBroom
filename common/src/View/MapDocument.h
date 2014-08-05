@@ -84,11 +84,11 @@ namespace TrenchBroom {
             Notifier0 pointFileWasLoadedNotifier;
             Notifier0 pointFileWasUnloadedNotifier;
 
-            Notifier1<Model::Object*> objectWasAddedNotifier;
-            Notifier1<Model::Object*> objectWillBeRemovedNotifier;
-            Notifier1<Model::Object*> objectWasRemovedNotifier;
-            Notifier1<Model::Object*> objectWillChangeNotifier;
-            Notifier1<Model::Object*> objectDidChangeNotifier;
+            Notifier1<const Model::ObjectList&> objectsWereAddedNotifier;
+            Notifier1<const Model::ObjectList&> objectsWillBeRemovedNotifier;
+            Notifier1<const Model::ObjectList&> objectsWereRemovedNotifier;
+            Notifier1<const Model::ObjectList&> objectsWillChangeNotifier;
+            Notifier1<const Model::ObjectList&> objectsDidChangeNotifier;
             
             Notifier5<Model::Entity*, const Model::PropertyKey&, const Model::PropertyValue&, const Model::PropertyKey&, const Model::PropertyValue&> entityPropertyDidChangeNotifier;
             
@@ -155,7 +155,9 @@ namespace TrenchBroom {
             void moveExternalTextureCollectionDown(const String& name);
             void updateExternalTextureCollectionProperty();
 
+            void addObjects(const Model::ObjectParentList& objects);
             void addObject(Model::Object* object, Model::Object* parent = NULL);
+            void removeObjects(const Model::ObjectList& objects);
             void removeObject(Model::Object* object);
 
             bool hasSelectedObjects() const;
@@ -204,11 +206,11 @@ namespace TrenchBroom {
             void registerIssueGenerators();
             void reloadIssues();
             
-            void objectWasAdded(Model::Object* object);
-            void objectWillBeRemoved(Model::Object* object);
-            void objectWasRemoved(Model::Object* object);
-            void objectWillChange(Model::Object* object);
-            void objectDidChange(Model::Object* object);
+            void objectsWereAdded(const Model::ObjectList& objects);
+            void objectsWillBeRemoved(const Model::ObjectList& objects);
+            void objectsWereRemoved(const Model::ObjectList& objects);
+            void objectsWillChange(const Model::ObjectList& objects);
+            void objectsDidChange(const Model::ObjectList& objects);
             void updateLinkSourcesInIssueManager(Model::Entity* entity);
             
             void entityPropertyDidChange(Model::Entity* entity, const Model::PropertyKey& oldKey, const Model::PropertyValue& oldValue, const Model::PropertyKey& newKey, const Model::PropertyValue& newValue);

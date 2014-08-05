@@ -24,6 +24,7 @@
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
+#include "Model/ModelUtils.h"
 #include "View/MapDocument.h"
 #include "View/VertexHandleManager.h"
 
@@ -54,10 +55,12 @@ namespace TrenchBroom {
             m_snapshot = Model::Snapshot(m_brushes);
             m_newVertexPositions.clear();
             
+            const Model::ObjectList objects = Model::makeParentChildList(m_brushes);
+            document->objectsWillChangeNotifier(objects);
+
             BrushEdgesMap::const_iterator mapIt, mapEnd;
             for (mapIt = m_brushEdges.begin(), mapEnd = m_brushEdges.end(); mapIt != mapEnd; ++mapIt) {
                 Model::Brush* brush = mapIt->first;
-                document->objectWillChangeNotifier(brush);
                 
                 const Edge3::List& oldEdgePositions = mapIt->second;
                 for (size_t i = 0; i < oldEdgePositions.size(); ++i) {
@@ -65,9 +68,9 @@ namespace TrenchBroom {
                     const Vec3 newVertexPosition = brush->splitEdge(worldBounds, edgePosition, m_delta);
                     m_newVertexPositions.push_back(newVertexPosition);
                 }
-                document->objectDidChangeNotifier(brush);
             }
             
+            document->objectsDidChangeNotifier(objects);
             return true;
         }
         
@@ -90,9 +93,10 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
             
-            document->objectWillChangeNotifier(m_brushes.begin(), m_brushes.end());
+            const Model::ObjectList objects = Model::makeParentChildList(m_brushes);
+            document->objectsWillChangeNotifier(objects);
             m_snapshot.restore(worldBounds);
-            document->objectDidChangeNotifier(m_brushes.begin(), m_brushes.end());
+            document->objectsDidChangeNotifier(objects);
             
             return true;
         }

@@ -60,8 +60,6 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
-            void notifyBefore(View::MapDocumentSPtr document);
-            void notifyAfter(View::MapDocumentSPtr document);
             bool doCollateWith(Command::Ptr command);
         };
     }

@@ -78,12 +78,15 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
 
-            notifyBefore(document);
+            Model::ObjectList allChangedObjects = Model::makeParentList(m_objects);
+            VectorUtils::append(allChangedObjects, m_objects);
+            document->objectsWillChangeNotifier(allChangedObjects);
+            
             Model::each(m_objects.begin(), m_objects.end(),
                         Model::Transform(m_transformation, m_lockTextures, worldBounds),
                         Model::MatchAll());
             assert(Model::each(m_objects.begin(), m_objects.end(), Model::CheckBounds(worldBounds)));
-            notifyAfter(document);
+            document->objectsDidChangeNotifier(allChangedObjects);
             
             return true;
         }
@@ -91,26 +94,14 @@ namespace TrenchBroom {
         bool TransformObjectsCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lock(m_document);
             
-            notifyBefore(document);
+            Model::ObjectList allChangedObjects = Model::makeParentList(m_objects);
+            VectorUtils::append(allChangedObjects, m_objects);
+            document->objectsWillChangeNotifier(allChangedObjects);
+            
             m_snapshot.restore(document->worldBounds());
-            notifyAfter(document);
-            return true;
-        }
+            document->objectsDidChangeNotifier(allChangedObjects);
 
-        void TransformObjectsCommand::notifyBefore(View::MapDocumentSPtr document) {
-            Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
-            Model::each(m_objects.begin(), m_objects.end(), parentWillChange, Model::MatchAll());
-            
-            Model::NotifyObject objectWillChange(document->objectWillChangeNotifier);
-            Model::each(m_objects.begin(), m_objects.end(), objectWillChange, Model::MatchAll());
-        }
-        
-        void TransformObjectsCommand::notifyAfter(View::MapDocumentSPtr document) {
-            Model::NotifyObject objectDidChange(document->objectDidChangeNotifier);
-            Model::each(m_objects.begin(), m_objects.end(), objectDidChange, Model::MatchAll());
-            
-            Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
-            Model::each(m_objects.begin(), m_objects.end(), parentDidChange, Model::MatchAll());
+            return true;
         }
 
         bool TransformObjectsCommand::doCollateWith(Command::Ptr command) {

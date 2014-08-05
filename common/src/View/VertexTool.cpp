@@ -30,6 +30,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushVertex.h"
 #include "Model/HitAdapter.h"
+#include "Model/ModelUtils.h"
 #include "Model/Picker.h"
 #include "Model/Object.h"
 #include "Model/SelectionResult.h"
@@ -162,13 +163,15 @@ namespace TrenchBroom {
             
             m_handleManager.removeBrushes(brushes);
             
-            document()->objectWillChangeNotifier(brushes.begin(), brushes.end());
+            const Model::ObjectList objects = Model::makeObjectList(brushes);
+            document()->objectsWillChangeNotifier(objects);
+            
             Model::BrushList::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
                 Model::Brush* brush = *it;
                 brush->rebuildGeometry(worldBounds);
             }
-            document()->objectDidChangeNotifier(brushes.begin(), brushes.end());
+            document()->objectsDidChangeNotifier(objects);
 
             m_handleManager.addBrushes(brushes);
             
@@ -563,8 +566,8 @@ namespace TrenchBroom {
 
         void VertexTool::bindObservers() {
             document()->selectionDidChangeNotifier.addObserver(this, &VertexTool::selectionDidChange);
-            document()->objectWillChangeNotifier.addObserver(this, &VertexTool::objectWillChange);
-            document()->objectDidChangeNotifier.addObserver(this, &VertexTool::objectDidChange);
+            document()->objectsWillChangeNotifier.addObserver(this, &VertexTool::objectsWillChange);
+            document()->objectsDidChangeNotifier.addObserver(this, &VertexTool::objectsDidChange);
             controller()->commandDoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
             controller()->commandDoneNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
             controller()->commandDoFailedNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
@@ -576,8 +579,8 @@ namespace TrenchBroom {
         void VertexTool::unbindObservers() {
             if (!expired(document())) {
                 document()->selectionDidChangeNotifier.removeObserver(this, &VertexTool::selectionDidChange);
-                document()->objectWillChangeNotifier.removeObserver(this, &VertexTool::objectWillChange);
-                document()->objectDidChangeNotifier.removeObserver(this, &VertexTool::objectDidChange);
+                document()->objectsWillChangeNotifier.removeObserver(this, &VertexTool::objectsWillChange);
+                document()->objectsDidChangeNotifier.removeObserver(this, &VertexTool::objectsDidChange);
             }
             if (!expired(controller())) {
                 controller()->commandDoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
@@ -611,20 +614,28 @@ namespace TrenchBroom {
             }
         }
 
-        void VertexTool::objectWillChange(Model::Object* object) {
+        void VertexTool::objectsWillChange(const Model::ObjectList& objects) {
             if (!m_ignoreObjectChangeNotifications) {
-                if (object->type() == Model::Object::Type_Brush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    m_handleManager.removeBrush(brush);
+                Model::ObjectList::const_iterator it, end;
+                for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                    Model::Object* object = *it;
+                    if (object->type() == Model::Object::Type_Brush) {
+                        Model::Brush* brush = static_cast<Model::Brush*>(object);
+                        m_handleManager.removeBrush(brush);
+                    }
                 }
             }
         }
-
-        void VertexTool::objectDidChange(Model::Object* object) {
+        
+        void VertexTool::objectsDidChange(const Model::ObjectList& objects) {
             if (!m_ignoreObjectChangeNotifications) {
-                if (object->type() == Model::Object::Type_Brush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    m_handleManager.addBrush(brush);
+                Model::ObjectList::const_iterator it, end;
+                for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                    Model::Object* object = *it;
+                    if (object->type() == Model::Object::Type_Brush) {
+                        Model::Brush* brush = static_cast<Model::Brush*>(object);
+                        m_handleManager.addBrush(brush);
+                    }
                 }
             }
         }

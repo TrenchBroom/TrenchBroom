@@ -22,6 +22,10 @@
 
 #include "Model/ModelTypes.h"
 #include "Notifier.h"
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/Issue.h"
+#include "Model/Object.h"
 
 #include <map>
 #include <vector>
@@ -54,8 +58,8 @@ namespace TrenchBroom {
             IssueMap m_issueMap;
             int m_defaultHiddenGenerators;
         public:
-            Notifier1<Issue*> issueWasAddedNotifier;
-            Notifier1<Issue*> issueWillBeRemovedNotifier;
+            Notifier2<Issue*, Issue*> issuesWereAddedNotifier;
+            Notifier2<Issue*, Issue*> issuesWillBeRemovedNotifier;
             Notifier1<Issue*> issueIgnoreChangedNotifier;
             Notifier0 issuesClearedNotifier;
         public:
@@ -69,9 +73,73 @@ namespace TrenchBroom {
             size_t issueCount() const;
             Issue* issues() const;
             
-            void objectAdded(Object* object);
-            void objectChanged(Object* object);
-            void objectRemoved(Object* object);
+            template <typename I>
+            void addObjects(I cur, I end) {
+                if (cur == end)
+                    return;
+                
+                Issue* firstIssue = NULL;
+                Issue* lastIssue = NULL;
+
+                while (cur != end) {
+                    Object* object = *cur;
+                    Issue* currentFirst = findIssues(object);
+                    if (currentFirst != NULL) {
+                        Issue* currentLast = Issue::lastIssue(currentFirst);
+                        if (firstIssue == NULL)
+                            firstIssue = currentFirst;
+                        else
+                            currentFirst->insertAfter(lastIssue);
+                        lastIssue = currentLast;
+                        
+                        assert(m_issueMap.count(object) == 0);
+                        m_issueMap.insert(std::make_pair(object, IssuePair(currentFirst, currentLast)));
+                    }
+                    ++cur;
+                }
+                
+                if (firstIssue != NULL && lastIssue != NULL) {
+                    lastIssue->insertBefore(m_issueList);
+                    m_issueList = firstIssue;
+                    issuesWereAddedNotifier(firstIssue, lastIssue);
+                }
+            }
+            
+            template <typename I>
+            void removeObjects(I cur, I end) {
+                if (cur == end)
+                    return;
+                
+                while (cur != end) {
+                    Object* object = *cur;
+                    IssueMap::iterator issIt = m_issueMap.find(object);
+                    if (issIt != m_issueMap.end()) {
+                        Issue* first = issIt->second.first;
+                        Issue* last  = issIt->second.last;
+                        
+                        issuesWillBeRemovedNotifier(first, last);
+                        
+                        if (m_issueList == first)
+                            m_issueList = last->next();
+                        first->remove(last);
+                        while (first != NULL) {
+                            Issue* tmp = first;
+                            first = first->next();
+                            delete tmp;
+                        }
+                        
+                        m_issueMap.erase(issIt);
+                    }
+                    ++cur;
+                }
+            }
+            
+            template <typename I>
+            void updateObjects(I cur, I end) {
+                removeObjects(cur, end);
+                addObjects(cur, end);
+            }
+            
             void setIssueHidden(Issue* issue, bool hidden);
             
             void clearIssues();

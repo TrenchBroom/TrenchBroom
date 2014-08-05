@@ -25,6 +25,7 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
+#include "Model/ModelUtils.h"
 #include "Model/Object.h"
 #include "View/ControllerFacade.h"
 #include "View/ViewConstants.h"
@@ -174,9 +175,9 @@ namespace TrenchBroom {
                 document->documentWasClearedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasCleared);
                 document->documentWasNewedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
-                document->objectWasAddedNotifier.addObserver(this, &MapTreeViewDataModel::objectWasAdded);
-                document->objectWillBeRemovedNotifier.addObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
-                document->objectDidChangeNotifier.addObserver(this, &MapTreeViewDataModel::objectDidChange);
+                document->objectsWereAddedNotifier.addObserver(this, &MapTreeViewDataModel::objectsWereAdded);
+                document->objectsWillBeRemovedNotifier.addObserver(this, &MapTreeViewDataModel::objectsWillBeRemoved);
+                document->objectsDidChangeNotifier.addObserver(this, &MapTreeViewDataModel::objectsDidChange);
             }
 
             void unbindObservers() {
@@ -185,9 +186,9 @@ namespace TrenchBroom {
                     document->documentWasClearedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasCleared);
                     document->documentWasNewedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
                     document->documentWasLoadedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
-                    document->objectWasAddedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWasAdded);
-                    document->objectWillBeRemovedNotifier.removeObserver(this, &MapTreeViewDataModel::objectWillBeRemoved);
-                    document->objectDidChangeNotifier.removeObserver(this, &MapTreeViewDataModel::objectDidChange);
+                    document->objectsWereAddedNotifier.removeObserver(this, &MapTreeViewDataModel::objectsWereAdded);
+                    document->objectsWillBeRemovedNotifier.removeObserver(this, &MapTreeViewDataModel::objectsWillBeRemoved);
+                    document->objectsDidChangeNotifier.removeObserver(this, &MapTreeViewDataModel::objectsDidChange);
                 }
             }
 
@@ -225,35 +226,43 @@ namespace TrenchBroom {
                 }
             }
 
-            void objectWasAdded(Model::Object* object) {
-                if (object->type() == Model::Object::Type_Entity) {
-                    Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    ItemAdded(wxDataViewItem(NULL),
-                              wxDataViewItem(reinterpret_cast<void*>(entity)));
-                } else if (object->type() == Model::Object::Type_Brush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    Model::Entity* parent = brush->parent();
-                    assert(parent != NULL);
-                    ItemAdded(wxDataViewItem(reinterpret_cast<void*>(parent)),
-                              wxDataViewItem(reinterpret_cast<void*>(brush)));
+            void objectsWereAdded(const Model::ObjectList& objects) {
+                const Model::ObjectChildrenMap map = Model::makeObjectChildrenMap(objects);
+                
+                Model::ObjectChildrenMap::const_iterator it, end;
+                for (it = map.begin(), end = map.end(); it != end; ++it) {
+                    Model::Object* parent = it->first;
+                    const Model::ObjectList& children = it->second;
+                    
+                    wxDataViewItem parentItem(parent);
+                    wxDataViewItemArray childItems;
+                    AddObjectToItemArray addObjects(childItems);
+                    Model::each(children.begin(), children.end(), addObjects, Model::MatchAll());
+                    ItemsAdded(parentItem, childItems);
                 }
             }
 
-            void objectWillBeRemoved(Model::Object* object) {
-                if (object->type() == Model::Object::Type_Entity) {
-                    Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    ItemDeleted(wxDataViewItem(NULL),
-                                wxDataViewItem(reinterpret_cast<void*>(entity)));
-                } else if (object->type() == Model::Object::Type_Brush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    Model::Entity* parent = brush->parent();
-                    ItemDeleted(wxDataViewItem(reinterpret_cast<void*>(parent)),
-                                wxDataViewItem(reinterpret_cast<void*>(brush)));
+            void objectsWillBeRemoved(const Model::ObjectList& objects) {
+                const Model::ObjectChildrenMap map = Model::makeObjectChildrenMap(objects);
+                
+                Model::ObjectChildrenMap::const_iterator it, end;
+                for (it = map.begin(), end = map.end(); it != end; ++it) {
+                    Model::Object* parent = it->first;
+                    const Model::ObjectList& children = it->second;
+                    
+                    wxDataViewItem parentItem(parent);
+                    wxDataViewItemArray childItems;
+                    AddObjectToItemArray addObjects(childItems);
+                    Model::each(children.begin(), children.end(), addObjects, Model::MatchAll());
+                    ItemsDeleted(parentItem, childItems);
                 }
             }
 
-            void objectDidChange(Model::Object* object) {
-                ItemChanged(wxDataViewItem(reinterpret_cast<void*>(object)));
+            void objectsDidChange(const Model::ObjectList& objects) {
+                wxDataViewItemArray items;
+                AddObjectToItemArray addObjects(items);
+                Model::each(objects.begin(), objects.end(), addObjects, Model::MatchAll());
+                ItemsChanged(items);
             }
         };
 

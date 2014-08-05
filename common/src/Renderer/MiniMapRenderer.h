@@ -73,9 +73,9 @@ namespace TrenchBroom {
             void documentWasCleared();
             void documentWasNewedOrLoaded();
             
-            void objectWasAdded(Model::Object* object);
-            void objectWillBeRemoved(Model::Object* object);
-            void objectDidChange(Model::Object* object);
+            void objectsWereAdded(const Model::ObjectList& objects);
+            void objectsWillBeRemoved(const Model::ObjectList& objects);
+            void objectsDidChange(const Model::ObjectList& objects);
             void selectionDidChange(const Model::SelectionResult& result);
         };
     }

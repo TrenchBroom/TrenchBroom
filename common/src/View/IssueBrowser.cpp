@@ -36,6 +36,7 @@
 #include <wx/simplebook.h>
 #include <wx/sizer.h>
 #include <wx/variant.h>
+#include <wx/wupdlock.h>
 
 #include <cassert>
 
@@ -49,13 +50,8 @@ namespace TrenchBroom {
         public:
             IssueBrowserDataModel(MapDocumentWPtr document) :
             m_document(document),
-            m_showHiddenIssues(false) {
-                bindObservers();
-            }
+            m_showHiddenIssues(false) {}
             
-            ~IssueBrowserDataModel() {
-                unbindObservers();
-            }
             
             unsigned int GetColumnCount() const {
                 return 2;
@@ -143,49 +139,55 @@ namespace TrenchBroom {
                     }
                 }
             }
-        private:
-            void bindObservers() {
-                MapDocumentSPtr document = lock(m_document);
-                Model::IssueManager& issueManager = document->issueManager();
-                issueManager.issueWasAddedNotifier.addObserver(this, &IssueBrowserDataModel::issueWasAdded);
-                issueManager.issueWillBeRemovedNotifier.addObserver(this, &IssueBrowserDataModel::issueWillBeRemoved);
-                issueManager.issueIgnoreChangedNotifier.addObserver(this, &IssueBrowserDataModel::issueIgnoreChanged);
-                issueManager.issuesClearedNotifier.addObserver(this, &IssueBrowserDataModel::issuesCleared);
+
+            void addIssues(Model::Issue* first, Model::Issue* last) {
+                wxDataViewItemArray items;
+                Model::Issue* issue = first;
+                Model::Issue* previous = NULL;
+                do {
+                    if (showIssue(issue))
+                        items.Add(wxDataViewItem(reinterpret_cast<void*>(issue)));
+                    previous = issue;
+                    issue = issue->next();
+                } while (previous != last);
+                
+                const bool success = ItemsAdded(wxDataViewItem(NULL), items);
+                _UNUSED(success);
+                assert(success);
             }
             
-            void unbindObservers() {
-                if (!expired(m_document)) {
-                    MapDocumentSPtr document = lock(m_document);
-                    Model::IssueManager& issueManager = document->issueManager();
-                    issueManager.issueWasAddedNotifier.removeObserver(this, &IssueBrowserDataModel::issueWasAdded);
-                    issueManager.issueWillBeRemovedNotifier.removeObserver(this, &IssueBrowserDataModel::issueWillBeRemoved);
-                    issueManager.issueIgnoreChangedNotifier.removeObserver(this, &IssueBrowserDataModel::issueIgnoreChanged);
-                    issueManager.issuesClearedNotifier.removeObserver(this, &IssueBrowserDataModel::issuesCleared);
+            void addIssue(Model::Issue* issue) {
+                if (showIssue(issue)) {
+                    const bool success = ItemAdded(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
+                    _UNUSED(success);
+                    assert(success);
                 }
             }
             
-            void issueWasAdded(Model::Issue* issue) {
-                assert(issue != NULL);
-                addIssue(issue);
+            void removeIssues(Model::Issue* first, Model::Issue* last) {
+                wxDataViewItemArray items;
+                Model::Issue* issue = first;
+                Model::Issue* previous = NULL;
+                do {
+                    if (showIssue(issue))
+                        items.Add(wxDataViewItem(reinterpret_cast<void*>(issue)));
+                    previous = issue;
+                    issue = issue->next();
+                } while (previous != last);
+                
+                const bool success = ItemsDeleted(wxDataViewItem(NULL), items);
+                _UNUSED(success);
+                assert(success);
             }
             
-            void issueWillBeRemoved(Model::Issue* issue) {
-                assert(issue != NULL);
-                removeIssue(issue);
+            void removeIssue(Model::Issue* issue) {
+                if (showIssue(issue)) {
+                    const bool success = ItemDeleted(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
+                    _UNUSED(success);
+                    assert(success);
+                }
             }
-            
-            void issueIgnoreChanged(Model::Issue* issue) {
-                assert(issue != NULL);
-                if (issue->isHidden())
-                    removeIssue(issue);
-                else
-                    addIssue(issue);
-            }
-            
-            void issuesCleared() {
-                Cleared();
-            }
-            
+        private:
             void reload() {
                 Cleared();
                 
@@ -204,23 +206,7 @@ namespace TrenchBroom {
                     ItemsAdded(wxDataViewItem(NULL), items);
                 }
             }
-
-            void addIssue(Model::Issue* issue) {
-                if (showIssue(issue)) {
-                    const bool success = ItemAdded(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
-                    _UNUSED(success);
-                    assert(success);
-                }
-            }
             
-            void removeIssue(Model::Issue* issue) {
-                if (showIssue(issue)) {
-                    const bool success = ItemDeleted(wxDataViewItem(NULL), wxDataViewItem(reinterpret_cast<void*>(issue)));
-                    _UNUSED(success);
-                    assert(success);
-                }
-            }
-
             bool showIssue(Model::Issue* issue) const {
                 return !issue->hasType(m_hiddenGenerators) && (m_showHiddenIssues || !issue->isHidden());
             }
@@ -290,10 +276,12 @@ namespace TrenchBroom {
         }
         
         void IssueBrowser::OnShowHiddenIssuesChanged(wxCommandEvent& event) {
+            wxWindowUpdateLocker locker(m_tree);
             m_model->setShowHiddenIssues(m_showHiddenIssuesCheckBox->IsChecked());
         }
 
         void IssueBrowser::OnFilterChanged(FlagChangedCommand& command) {
+            wxWindowUpdateLocker locker(m_tree);
             m_model->setHiddenGenerators(~command.flagSetValue());
         }
 
@@ -352,6 +340,8 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::OnApplyQuickFix(wxCommandEvent& event) {
+            wxWindowUpdateLocker locker(m_tree);
+
             wxDataViewItemArray selections;
             m_tree->GetSelections(selections);
             assert(!selections.empty());
@@ -386,8 +376,9 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::selectIssueObjects(const wxDataViewItemArray& selections, View::ControllerSPtr controller) {
+            wxWindowUpdateLocker locker(m_tree);
+
             controller->deselectAll();
-            
             for (size_t i = 0; i < selections.size(); ++i) {
                 const wxDataViewItem& item = selections[i];
                 void* data = item.GetID();
@@ -402,6 +393,12 @@ namespace TrenchBroom {
             document->documentWasSavedNotifier.addObserver(this, &IssueBrowser::documentWasSaved);
             document->documentWasNewedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
+
+            Model::IssueManager& issueManager = document->issueManager();
+            issueManager.issuesWereAddedNotifier.addObserver(this, &IssueBrowser::issuesWereAdded);
+            issueManager.issuesWillBeRemovedNotifier.addObserver(this, &IssueBrowser::issuesWillBeRemoved);
+            issueManager.issueIgnoreChangedNotifier.addObserver(this, &IssueBrowser::issueIgnoreChanged);
+            issueManager.issuesClearedNotifier.addObserver(this, &IssueBrowser::issuesCleared);
         }
         
         void IssueBrowser::unbindObservers() {
@@ -410,6 +407,12 @@ namespace TrenchBroom {
                 document->documentWasSavedNotifier.removeObserver(this, &IssueBrowser::documentWasSaved);
                 document->documentWasNewedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &IssueBrowser::documentWasNewedOrLoaded);
+
+                Model::IssueManager& issueManager = document->issueManager();
+                issueManager.issuesWereAddedNotifier.removeObserver(this, &IssueBrowser::issuesWereAdded);
+                issueManager.issuesWillBeRemovedNotifier.removeObserver(this, &IssueBrowser::issuesWillBeRemoved);
+                issueManager.issueIgnoreChangedNotifier.removeObserver(this, &IssueBrowser::issueIgnoreChanged);
+                issueManager.issuesClearedNotifier.removeObserver(this, &IssueBrowser::issuesCleared);
             }
         }
         
@@ -418,9 +421,39 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::documentWasSaved() {
+            wxWindowUpdateLocker locker(m_tree);
             m_model->refreshLineNumbers();
         }
 
+        void IssueBrowser::issuesWereAdded(Model::Issue* first, Model::Issue* last) {
+            assert(first != NULL);
+            assert(last != NULL);
+            
+            wxWindowUpdateLocker locker(m_tree);
+            m_model->addIssues(first, last);
+        }
+        
+        void IssueBrowser::issuesWillBeRemoved(Model::Issue* first, Model::Issue* last) {
+            assert(first != NULL);
+            assert(last != NULL);
+
+            wxWindowUpdateLocker locker(m_tree);
+            m_model->removeIssues(first, last);
+        }
+        
+        void IssueBrowser::issueIgnoreChanged(Model::Issue* issue) {
+            assert(issue != NULL);
+            
+            if (issue->isHidden())
+                m_model->removeIssue(issue);
+            else
+                m_model->addIssue(issue);
+        }
+        
+        void IssueBrowser::issuesCleared() {
+            m_model->Cleared();
+        }
+        
         void IssueBrowser::updateFilterFlags() {
             MapDocumentSPtr document = lock(m_document);
             Model::IssueManager& issueManager = document->issueManager();
@@ -439,12 +472,15 @@ namespace TrenchBroom {
                 labels.push_back(description);
             }
             
+            wxWindowUpdateLocker locker(m_tree);
             m_filterEditor->setFlags(flags, labels);
             m_model->setHiddenGenerators(issueManager.defaultHiddenGenerators());
             m_filterEditor->setFlagValue(~issueManager.defaultHiddenGenerators());
         }
 
         void IssueBrowser::setIssueVisibility(const bool show) {
+            wxWindowUpdateLocker locker(m_tree);
+
             wxDataViewItemArray selections;
             m_tree->GetSelections(selections);
             

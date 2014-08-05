@@ -254,15 +254,15 @@ namespace TrenchBroom {
 
         void ClipTool::bindObservers() {
             document()->selectionDidChangeNotifier.addObserver(this, &ClipTool::selectionDidChange);
-            document()->objectWillChangeNotifier.addObserver(this, &ClipTool::objectWillChange);
-            document()->objectDidChangeNotifier.addObserver(this, &ClipTool::objectDidChange);
+            document()->objectsWillChangeNotifier.addObserver(this, &ClipTool::objectsWillChange);
+            document()->objectsDidChangeNotifier.addObserver(this, &ClipTool::objectsDidChange);
         }
         
         void ClipTool::unbindObservers() {
             if (!expired(document())) {
                 document()->selectionDidChangeNotifier.removeObserver(this, &ClipTool::selectionDidChange);
-                document()->objectWillChangeNotifier.removeObserver(this, &ClipTool::objectWillChange);
-                document()->objectDidChangeNotifier.removeObserver(this, &ClipTool::objectDidChange);
+                document()->objectsWillChangeNotifier.removeObserver(this, &ClipTool::objectsWillChange);
+                document()->objectsDidChangeNotifier.removeObserver(this, &ClipTool::objectsDidChange);
             }
         }
         
@@ -270,11 +270,11 @@ namespace TrenchBroom {
             updateBrushes();
         }
         
-        void ClipTool::objectWillChange(Model::Object* object) {
+        void ClipTool::objectsWillChange(const Model::ObjectList& objects) {
             updateBrushes();
         }
         
-        void ClipTool::objectDidChange(Model::Object* object) {
+        void ClipTool::objectsDidChange(const Model::ObjectList& objects) {
             updateBrushes();
         }
     }

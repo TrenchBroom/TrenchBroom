@@ -23,6 +23,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Model/ModelUtils.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -87,25 +88,34 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
             
+            Model::ObjectSet entitySet;
+            Model::ObjectList entities;
+            Model::ObjectList brushes;
+            
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 Model::Brush* brush = face->parent();
                 if (!brush->canMoveBoundary(worldBounds, *face, delta))
                     return false;
+                brushes.push_back(brush);
+                
+                Model::Entity* entity = brush->parent();
+                if (entitySet.insert(entity).second)
+                    entities.push_back(entity);
             }
 
+            document->objectsWillChangeNotifier(entities);
+            document->objectsWillChangeNotifier(brushes);
+            
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 Model::Brush* brush = face->parent();
-                Model::Entity* entity = brush->parent();
-                
-                document->objectWillChangeNotifier(entity);
-                document->objectWillChangeNotifier(brush);
                 brush->moveBoundary(worldBounds, *face, delta, m_lockTextures);
-                document->objectDidChangeNotifier(brush);
-                document->objectDidChangeNotifier(entity);
             }
+
+            document->objectsDidChangeNotifier(brushes);
+            document->objectsDidChangeNotifier(entities);
             return true;
         }
     }

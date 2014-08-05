@@ -20,7 +20,6 @@
 #include "IssueManager.h"
 
 #include "CollectionUtils.h"
-#include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
 
 #include <cassert>
@@ -78,52 +77,6 @@ namespace TrenchBroom {
         
         Issue* IssueManager::issues() const {
             return m_issueList;
-        }
-
-        void IssueManager::objectAdded(Object* object) {
-            Issue* first = findIssues(object);
-            if (first != NULL) {
-                Issue* last = first;
-                while (last->next() != NULL)
-                    last = last->next();
-                
-                assert(m_issueMap.count(object) == 0);
-                m_issueMap.insert(std::make_pair(object, IssuePair(first, last)));
-                
-                first->insertBefore(m_issueList);
-                m_issueList = first;
-
-                while (first != last) {
-                    issueWasAddedNotifier(first);
-                    first = first->next();
-                }
-                issueWasAddedNotifier(last);
-            }
-        }
-        
-        void IssueManager::objectChanged(Object* object) {
-            objectRemoved(object);
-            objectAdded(object);
-        }
-        
-        void IssueManager::objectRemoved(Object* object) {
-            IssueMap::iterator it = m_issueMap.find(object);
-            if (it != m_issueMap.end()) {
-                Issue* first = it->second.first;
-                Issue* last = it->second.last;
-                
-                if (m_issueList == first)
-                    m_issueList = last->next();
-
-                first->remove(last);
-                while (first != NULL) {
-                    issueWillBeRemovedNotifier(first);
-                    Issue* tmp = first;
-                    first = first->next();
-                    delete tmp;
-                }
-                m_issueMap.erase(it);
-            }
         }
 
         void IssueManager::setIssueHidden(Issue* issue, const bool hidden) {

@@ -75,7 +75,6 @@ namespace TrenchBroom {
         
         bool TextureCollectionCommand::doPerformDo() {
             View::MapDocumentSPtr document = lock(m_document);
-            Model::Entity* worldspawn = document->worldspawn();
             
             switch (m_action) {
                 case Action_Add:
@@ -92,17 +91,13 @@ namespace TrenchBroom {
                     break;
             }
 
-            document->objectWillChangeNotifier(worldspawn);
             document->updateExternalTextureCollectionProperty();
-            document->objectDidChangeNotifier(worldspawn);
             document->textureCollectionsDidChangeNotifier();
             return true;
         }
         
         bool TextureCollectionCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lock(m_document);
-            Model::Entity* worldspawn = document->worldspawn();
-
             switch (m_action) {
                 case Action_Add:
                     document->removeExternalTextureCollections(m_names);
@@ -118,9 +113,7 @@ namespace TrenchBroom {
                     break;
             }
 
-            document->objectWillChangeNotifier(worldspawn);
             document->updateExternalTextureCollectionProperty();
-            document->objectDidChangeNotifier(worldspawn);
             document->textureCollectionsDidChangeNotifier();
             return true;
         }

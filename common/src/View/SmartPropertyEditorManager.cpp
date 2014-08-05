@@ -69,14 +69,14 @@ namespace TrenchBroom {
         void SmartPropertyEditorManager::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::selectionDidChange);
-            document->objectDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::objectDidChange);
+            document->objectsDidChangeNotifier.addObserver(this, &SmartPropertyEditorManager::objectsDidChange);
         }
         
         void SmartPropertyEditorManager::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::selectionDidChange);
-                document->objectDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::objectDidChange);
+                document->objectsDidChangeNotifier.removeObserver(this, &SmartPropertyEditorManager::objectsDidChange);
             }
         }
 
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             switchEditor(m_key, document->allSelectedEntities());
         }
         
-        void SmartPropertyEditorManager::objectDidChange(Model::Object* object) {
+        void SmartPropertyEditorManager::objectsDidChange(const Model::ObjectList& objects) {
             MapDocumentSPtr document = lock(m_document);
             switchEditor(m_key, document->allSelectedEntities());
         }

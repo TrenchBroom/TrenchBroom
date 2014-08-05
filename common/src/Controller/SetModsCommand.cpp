@@ -39,10 +39,11 @@ namespace TrenchBroom {
         bool SetModsCommand::doPerformDo() {
             View::MapDocumentSPtr document = lock(m_document);
             Model::Entity* worldspawn = document->worldspawn();
-            document->objectWillChangeNotifier(worldspawn);
             m_oldMods = document->mods();
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::Mods, StringUtils::join(m_newMods, ';'));
-            document->objectDidChangeNotifier(worldspawn);
+            document->entityPropertyDidChangeNotifier(worldspawn,
+                                                      Model::PropertyKeys::Mods, StringUtils::join(m_oldMods, ';'),
+                                                      Model::PropertyKeys::Mods, StringUtils::join(m_newMods, ';'));
             document->modsDidChangeNotifier();
             return true;
         }
@@ -50,9 +51,10 @@ namespace TrenchBroom {
         bool SetModsCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lock(m_document);
             Model::Entity* worldspawn = document->worldspawn();
-            document->objectWillChangeNotifier(worldspawn);
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::Mods, StringUtils::join(m_oldMods, ';'));
-            document->objectDidChangeNotifier(worldspawn);
+            document->entityPropertyDidChangeNotifier(worldspawn,
+                                                      Model::PropertyKeys::Mods, StringUtils::join(m_newMods, ';'),
+                                                      Model::PropertyKeys::Mods, StringUtils::join(m_oldMods, ';'));
             document->modsDidChangeNotifier();
             return true;
         }

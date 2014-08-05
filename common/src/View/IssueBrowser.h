@@ -75,6 +75,10 @@ namespace TrenchBroom {
             void unbindObservers();
             void documentWasNewedOrLoaded();
             void documentWasSaved();
+            void issuesWereAdded(Model::Issue* first, Model::Issue* last);
+            void issuesWillBeRemoved(Model::Issue* first, Model::Issue* last);
+            void issueIgnoreChanged(Model::Issue* issue);
+            void issuesCleared();
 
             void updateFilterFlags();
             

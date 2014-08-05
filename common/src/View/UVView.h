@@ -86,7 +86,7 @@ namespace TrenchBroom {
             void unbindObservers();
             
             void selectionDidChange(const Model::SelectionResult& result);
-            void objectDidChange(Model::Object* object);
+            void objectsDidChange(const Model::ObjectList& objects);
             void faceDidChange(Model::BrushFace* face);
             void gridDidChange();
             void cameraDidChange(const Renderer::Camera* camera);

@@ -81,10 +81,13 @@ namespace TrenchBroom {
             m_snapshot = Model::Snapshot(m_brushes);
             
             View::MapDocumentSPtr document = lock(m_document);
-            Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
-            Model::each(m_brushes.begin(), m_brushes.end(), parentWillChange, Model::MatchAll());
             
-            document->objectWillChangeNotifier(m_brushes.begin(), m_brushes.end());
+            Model::ObjectList parents, objects;
+            Model::makeParentChildLists(m_brushes, parents, objects);
+            
+            document->objectsWillChangeNotifier(parents);
+            document->objectsWillChangeNotifier(objects);
+            
             switch (m_action) {
                 case Action_SnapPoints:
                     Model::each(m_brushes.begin(), m_brushes.end(), SnapPlanePoints(document->worldBounds()), Model::MatchAll());
@@ -93,24 +96,25 @@ namespace TrenchBroom {
                     Model::each(m_brushes.begin(), m_brushes.end(), FindPlanePoints(document->worldBounds()), Model::MatchAll());
                     break;
             }
-            document->objectDidChangeNotifier(m_brushes.begin(), m_brushes.end());
             
-            Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
-            Model::each(m_brushes.begin(), m_brushes.end(), parentDidChange, Model::MatchAll());
+            document->objectsDidChangeNotifier(objects);
+            document->objectsDidChangeNotifier(parents);
             return true;
         }
         
         bool FixPlanePointsCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lock(m_document);
-            Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
-            Model::each(m_brushes.begin(), m_brushes.end(), parentWillChange, Model::MatchAll());
+
+            Model::ObjectList parents, objects;
+            Model::makeParentChildLists(m_brushes, parents, objects);
             
-            document->objectWillChangeNotifier(m_brushes.begin(), m_brushes.end());
+            document->objectsWillChangeNotifier(parents);
+            document->objectsWillChangeNotifier(objects);
+            
             m_snapshot.restore(document->worldBounds());
-            document->objectDidChangeNotifier(m_brushes.begin(), m_brushes.end());
             
-            Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
-            Model::each(m_brushes.begin(), m_brushes.end(), parentDidChange, Model::MatchAll());
+            document->objectsDidChangeNotifier(objects);
+            document->objectsDidChangeNotifier(parents);
             return true;
         }
 

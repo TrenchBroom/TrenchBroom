@@ -38,21 +38,19 @@ namespace TrenchBroom {
             void addObject(Pickable* object);
             void removeObject(Pickable* object);
 
-            template <typename Object>
-            void addObjects(const std::vector<Object>& objects) {
-                typename std::vector<Object>::const_iterator it, end;
-                for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                    const Object& object = *it;
-                    addObject(object);
+            template <typename I>
+            void addObjects(I cur, I end) {
+                while (cur != end) {
+                    addObject(*cur);
+                    ++cur;
                 }
             }
             
-            template <typename Object>
-            void removeObjects(const std::vector<Object>& objects) {
-                typename std::vector<Object>::const_iterator it, end;
-                for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                    const Object& object = *it;
-                    removeObject(object);
+            template <typename I>
+            void removeObjects(I cur, I end) {
+                while (cur != end) {
+                    removeObject(*cur);
+                    ++cur;
                 }
             }
             

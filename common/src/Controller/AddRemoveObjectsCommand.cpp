@@ -150,64 +150,30 @@ namespace TrenchBroom {
             return false;
         }
 
-        struct AddObjectToDocument {
-        private:
-            View::MapDocumentSPtr m_document;
-            Model::ObjectList& m_addedObjects;
-        public:
-            AddObjectToDocument(View::MapDocumentSPtr document, Model::ObjectList& addedObjects) :
-            m_document(document),
-            m_addedObjects(addedObjects) {}
-            
-            void operator()(const Model::ObjectParentPair& pair) {
-                m_document->addObject(pair.object, pair.parent);
-                m_document->objectWasAddedNotifier(pair.object);
-                m_addedObjects.push_back(pair.object);
-            }
-        };
-        
-        struct RemoveObjectFromDocument {
-        private:
-            View::MapDocumentSPtr m_document;
-            Model::ObjectList& m_removedObjects;
-        public:
-            RemoveObjectFromDocument(View::MapDocumentSPtr document, Model::ObjectList& removedObjects) :
-            m_document(document),
-            m_removedObjects(removedObjects) {}
-            
-            void operator()(const Model::ObjectParentPair& pair) {
-                m_document->objectWillBeRemovedNotifier(pair.object);
-                m_document->removeObject(pair.object);
-                m_document->objectWasRemovedNotifier(pair.object);
-                m_removedObjects.push_back(pair.object);
-            }
-        };
-        
         void AddRemoveObjectsCommand::addObjects(const Model::ObjectParentList& objects) {
             View::MapDocumentSPtr document = lock(m_document);
 
-            Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
-            Model::each(objects.begin(), objects.end(), parentWillChange, Model::MatchAll());
-            
-            AddObjectToDocument addObjectToDocument(document, m_addedObjects);
-            Model::each(objects.begin(), objects.end(), addObjectToDocument, Model::MatchAll());
+            Model::ObjectList parents, children;
+            makeParentChildLists(objects, parents, children);
 
-            Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
-            Model::each(objects.begin(), objects.end(), parentDidChange, Model::MatchAll());
-            
+            document->objectsWillChangeNotifier(parents);
+            document->addObjects(objects);
+            document->objectsWereAddedNotifier(children);
+            document->objectsDidChangeNotifier(parents);
+            m_addedObjects = children;
         }
         
         void AddRemoveObjectsCommand::removeObjects(const Model::ObjectParentList& objects) {
             View::MapDocumentSPtr document = lock(m_document);
 
-            Model::NotifyParent parentWillChange(document->objectWillChangeNotifier);
-            Model::each(objects.begin(), objects.end(), parentWillChange, Model::MatchAll());
-            
-            RemoveObjectFromDocument removeObjectFromDocument(document, m_removedObjects);
-            Model::each(objects.begin(), objects.end(), removeObjectFromDocument, Model::MatchAll());
-            
-            Model::NotifyParent parentDidChange(document->objectDidChangeNotifier);
-            Model::each(objects.begin(), objects.end(), parentDidChange, Model::MatchAll());
+            Model::ObjectList parents, children;
+            makeParentChildLists(objects, parents, children);
+            document->objectsWillChangeNotifier(parents);
+            document->objectsWillBeRemovedNotifier(children);
+            document->removeObjects(children);
+            document->objectsWereRemovedNotifier(children);
+            document->objectsDidChangeNotifier(parents);
+            m_removedObjects = children;
         }
     }
 }

@@ -280,7 +280,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &EntityPropertyGrid::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &EntityPropertyGrid::documentWasLoaded);
-            document->objectDidChangeNotifier.addObserver(this, &EntityPropertyGrid::objectDidChange);
+            document->objectsDidChangeNotifier.addObserver(this, &EntityPropertyGrid::objectsDidChange);
             document->selectionWillChangeNotifier.addObserver(this, &EntityPropertyGrid::selectionWillChange);
             document->selectionDidChangeNotifier.addObserver(this, &EntityPropertyGrid::selectionDidChange);
         }
@@ -290,7 +290,7 @@ namespace TrenchBroom {
                 MapDocumentSPtr document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &EntityPropertyGrid::documentWasLoaded);
-                document->objectDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::objectDidChange);
+                document->objectsDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::objectsDidChange);
                 document->selectionWillChangeNotifier.removeObserver(this, &EntityPropertyGrid::selectionWillChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &EntityPropertyGrid::selectionDidChange);
             }
@@ -304,9 +304,8 @@ namespace TrenchBroom {
             updateControls();
         }
         
-        void EntityPropertyGrid::objectDidChange(Model::Object* object) {
-            if (object->type() == Model::Object::Type_Entity)
-                updateControls();
+        void EntityPropertyGrid::objectsDidChange(const Model::ObjectList& objects) {
+            updateControls();
         }
         
         void EntityPropertyGrid::selectionWillChange() {
@@ -320,6 +319,7 @@ namespace TrenchBroom {
         
         void EntityPropertyGrid::updateControls() {
             const SetBool ignoreSelection(m_ignoreSelection);
+            wxGridUpdateLocker lockGrid(m_grid);
             m_table->update();
             
             const int row = m_table->rowForKey(m_lastSelectedKey);

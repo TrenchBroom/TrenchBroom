@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "Macros.h"
 #include "Model/Entity.h"
+#include "Model/ModelUtils.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -121,7 +122,8 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             m_snapshot.clear();
             
-            document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
+            const Model::ObjectList objects = Model::makeObjectList(m_entities);
+            document->objectsWillChangeNotifier(objects);
             switch (m_action) {
                 case Action_Rename:
                     doRename(document);
@@ -133,7 +135,7 @@ namespace TrenchBroom {
                     doRemove(document);
                     break;
             }
-            document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());
+            document->objectsDidChangeNotifier(objects);
             
             return true;
         }
@@ -141,7 +143,8 @@ namespace TrenchBroom {
         bool EntityPropertyCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lock(m_document);
             
-            document->objectWillChangeNotifier(m_entities.begin(), m_entities.end());
+            const Model::ObjectList objects = Model::makeObjectList(m_entities);
+            document->objectsWillChangeNotifier(objects);
             switch(m_action) {
                 case Action_Rename:
                     undoRename(document);
@@ -153,7 +156,7 @@ namespace TrenchBroom {
                     undoRemove(document);
                     break;
             };
-            document->objectDidChangeNotifier(m_entities.begin(), m_entities.end());
+            document->objectsDidChangeNotifier(objects);
             m_snapshot.clear();
             
             return true;

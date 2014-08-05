@@ -39,10 +39,9 @@ namespace TrenchBroom {
         bool SetEntityDefinitionFileCommand::doPerformDo() {
             View::MapDocumentSPtr document = lock(m_document);
             Model::Entity* worldspawn = document->worldspawn();
-            document->objectWillChangeNotifier(worldspawn);
             m_oldSpec = document->entityDefinitionFile();
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_newSpec.asString());
-            document->objectDidChangeNotifier(worldspawn);
+            document->entityPropertyDidChangeNotifier(worldspawn, Model::PropertyKeys::EntityDefinitions, m_oldSpec.asString(), Model::PropertyKeys::EntityDefinitions, m_newSpec.asString());
             document->entityDefinitionsDidChangeNotifier();
             return true;
         }
@@ -50,9 +49,8 @@ namespace TrenchBroom {
         bool SetEntityDefinitionFileCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lock(m_document);
             Model::Entity* worldspawn = document->worldspawn();
-            document->objectWillChangeNotifier(worldspawn);
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_oldSpec.asString());
-            document->objectDidChangeNotifier(worldspawn);
+            document->entityPropertyDidChangeNotifier(worldspawn, Model::PropertyKeys::EntityDefinitions, m_newSpec.asString(), Model::PropertyKeys::EntityDefinitions, m_oldSpec.asString());
             document->entityDefinitionsDidChangeNotifier();
             return true;
         }

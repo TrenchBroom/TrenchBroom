@@ -109,8 +109,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void selectionDidChange(const Model::SelectionResult& selection);
-            void objectWillChange(Model::Object* object);
-            void objectDidChange(Model::Object* object);
+            void objectsWillChange(const Model::ObjectList& objects);
+            void objectsDidChange(const Model::ObjectList& objects);
             void commandDoOrUndo(Controller::Command::Ptr command);
             void commandDoneOrUndoFailed(Controller::Command::Ptr command);
             void commandDoFailedOrUndone(Controller::Command::Ptr command);

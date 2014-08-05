@@ -168,9 +168,9 @@ namespace TrenchBroom {
             document->documentWasClearedNotifier.addObserver(this, &MiniMapBaseView::documentWasCleared);
             document->documentWasNewedNotifier.addObserver(this, &MiniMapBaseView::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MiniMapBaseView::documentWasNewedOrLoaded);
-            document->objectWasAddedNotifier.addObserver(this, &MiniMapBaseView::objectWasAdded);
-            document->objectWillBeRemovedNotifier.addObserver(this, &MiniMapBaseView::objectWillBeRemoved);
-            document->objectDidChangeNotifier.addObserver(this, &MiniMapBaseView::objectDidChange);
+            document->objectsWereAddedNotifier.addObserver(this, &MiniMapBaseView::objectsWereAdded);
+            document->objectsWillBeRemovedNotifier.addObserver(this, &MiniMapBaseView::objectsWillBeRemoved);
+            document->objectsDidChangeNotifier.addObserver(this, &MiniMapBaseView::objectsDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MiniMapBaseView::selectionDidChange);
             m_camera3D.cameraDidChangeNotifier.addObserver(this, &MiniMapBaseView::cameraDidChange);
         }
@@ -181,9 +181,9 @@ namespace TrenchBroom {
                 document->documentWasClearedNotifier.removeObserver(this, &MiniMapBaseView::documentWasCleared);
                 document->documentWasNewedNotifier.removeObserver(this, &MiniMapBaseView::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &MiniMapBaseView::documentWasNewedOrLoaded);
-                document->objectWasAddedNotifier.removeObserver(this, &MiniMapBaseView::objectWasAdded);
-                document->objectWillBeRemovedNotifier.removeObserver(this, &MiniMapBaseView::objectWillBeRemoved);
-                document->objectDidChangeNotifier.removeObserver(this, &MiniMapBaseView::objectDidChange);
+                document->objectsWereAddedNotifier.removeObserver(this, &MiniMapBaseView::objectsWereAdded);
+                document->objectsWillBeRemovedNotifier.removeObserver(this, &MiniMapBaseView::objectsWillBeRemoved);
+                document->objectsDidChangeNotifier.removeObserver(this, &MiniMapBaseView::objectsDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MiniMapBaseView::selectionDidChange);
             }
 
@@ -200,15 +200,15 @@ namespace TrenchBroom {
             Refresh();
         }
         
-        void MiniMapBaseView::objectWasAdded(Model::Object* object) {
+        void MiniMapBaseView::objectsWereAdded(const Model::ObjectList& objects) {
             Refresh();
         }
         
-        void MiniMapBaseView::objectWillBeRemoved(Model::Object* object) {
+        void MiniMapBaseView::objectsWillBeRemoved(const Model::ObjectList& objects) {
             Refresh();
         }
         
-        void MiniMapBaseView::objectDidChange(Model::Object* object) {
+        void MiniMapBaseView::objectsDidChange(const Model::ObjectList& objects) {
             Refresh();
         }
         

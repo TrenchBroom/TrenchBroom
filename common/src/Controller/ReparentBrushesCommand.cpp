@@ -22,6 +22,7 @@
 #include "StringUtils.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Model/ModelUtils.h"
 #include "View/MapDocument.h"
 
 #include <cassert>
@@ -57,47 +58,53 @@ namespace TrenchBroom {
             m_oldParents.clear();
             m_emptyEntities.clear();
             
+            Model::ObjectList allChangedParents = Model::makeParentList(m_brushes);
+            allChangedParents.push_back(m_newParent);
+            const Model::ObjectList allChangedBrushes = Model::makeObjectList(m_brushes);
+            
             View::MapDocumentSPtr document = lock(m_document);
-            document->objectWillChangeNotifier(m_newParent);
+            document->objectsWillChangeNotifier(allChangedParents);
+            document->objectsWillBeRemovedNotifier(allChangedBrushes);
+            
             Model::BrushList::const_iterator it, end;
             for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
                 Model::Brush* brush = *it;
                 Model::Entity* oldParent = brush->parent();
                 m_oldParents[brush] = oldParent;
                 
-                document->objectWillChangeNotifier(oldParent);
-
-                document->objectWillBeRemovedNotifier(brush);
                 oldParent->removeBrush(brush);
-                document->objectDidChangeNotifier(oldParent);
-                
                 m_newParent->addBrush(brush);
-                document->objectWasAddedNotifier(brush);
                 
                 if (oldParent->brushes().empty() && !oldParent->worldspawn())
                     m_emptyEntities.push_back(oldParent);
             }
-            document->objectDidChangeNotifier(m_newParent);
+
+            document->objectsWereAddedNotifier(allChangedBrushes);
+            document->objectsDidChangeNotifier(allChangedParents);
             
             return true;
         }
         
         bool ReparentBrushesCommand::doPerformUndo() {
+            Model::ObjectList allChangedParents = Model::makeParentList(m_brushes);
+            allChangedParents.push_back(m_newParent);
+            const Model::ObjectList allChangedBrushes = Model::makeObjectList(m_brushes);
+
             View::MapDocumentSPtr document = lock(m_document);
-            document->objectWillChangeNotifier(m_newParent);
+            document->objectsWillChangeNotifier(allChangedParents);
+            document->objectsWillBeRemovedNotifier(allChangedBrushes);
+
             Model::BrushEntityMap::const_iterator it, end;
             for (it = m_oldParents.begin(), end = m_oldParents.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 Model::Entity* oldParent = it->second;
 
-                document->objectWillChangeNotifier(oldParent);
-                document->objectWillChangeNotifier(brush);
                 m_newParent->removeBrush(brush);
                 oldParent->addBrush(brush);
-                document->objectDidChangeNotifier(brush);
-                document->objectDidChangeNotifier(oldParent);
             }
-            document->objectDidChangeNotifier(m_newParent);
+
+            document->objectsWereAddedNotifier(allChangedBrushes);
+            document->objectsDidChangeNotifier(allChangedParents);
             return true;
         }
 

@@ -87,7 +87,7 @@ namespace TrenchBroom {
             
             void documentWasNewed();
             void documentWasLoaded();
-            void objectDidChange(Model::Object* object);
+            void objectsDidChange(const Model::ObjectList& objects);
             void selectionWillChange();
             void selectionDidChange(const Model::SelectionResult& result);
             

@@ -108,7 +108,7 @@ namespace TrenchBroom {
 
         void UVView::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
-            document->objectDidChangeNotifier.addObserver(this, &UVView::objectDidChange);
+            document->objectsDidChangeNotifier.addObserver(this, &UVView::objectsDidChange);
             document->faceDidChangeNotifier.addObserver(this, &UVView::faceDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &UVView::selectionDidChange);
             document->grid().gridDidChangeNotifier.addObserver(this, &UVView::gridDidChange);
@@ -122,7 +122,7 @@ namespace TrenchBroom {
         void UVView::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
-                document->objectDidChangeNotifier.removeObserver(this, &UVView::objectDidChange);
+                document->objectsDidChangeNotifier.removeObserver(this, &UVView::objectsDidChange);
                 document->faceDidChangeNotifier.removeObserver(this, &UVView::faceDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &UVView::selectionDidChange);
                 document->grid().gridDidChangeNotifier.removeObserver(this, &UVView::gridDidChange);
@@ -149,7 +149,7 @@ namespace TrenchBroom {
             Refresh();
         }
         
-        void UVView::objectDidChange(Model::Object* object) {
+        void UVView::objectsDidChange(const Model::ObjectList& objects) {
             Refresh();
         }
 

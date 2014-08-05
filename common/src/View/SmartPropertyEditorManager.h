@@ -64,7 +64,7 @@ namespace TrenchBroom {
             void unbindObservers();
             
             void selectionDidChange(const Model::SelectionResult& result);
-            void objectDidChange(Model::Object* object);
+            void objectsDidChange(const Model::ObjectList& objects);
 
             EditorPtr selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities) const;
             EditorPtr defaultEditor() const;

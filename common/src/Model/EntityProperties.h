@@ -76,7 +76,6 @@ namespace TrenchBroom {
             void setKey(const PropertyKey& key, const Assets::PropertyDefinition* definition);
             void setValue(const PropertyValue& value);
         };
-        
 
         class EntityProperties {
         private:

@@ -42,9 +42,9 @@ namespace TrenchBroom {
         class BrushVertex;
         class Map;
         
-        Assets::EntityDefinition* selectEntityDefinition(const Model::EntityList& entities);
-        const Assets::PropertyDefinition* selectPropertyDefinition(const Model::PropertyKey& key, const Model::EntityList& entities);
-        Model::PropertyValue selectPropertyValue(const Model::PropertyKey& key, const Model::EntityList& entities);
+        Assets::EntityDefinition* selectEntityDefinition(const EntityList& entities);
+        const Assets::PropertyDefinition* selectPropertyDefinition(const PropertyKey& key, const EntityList& entities);
+        PropertyValue selectPropertyValue(const PropertyKey& key, const EntityList& entities);
         
         Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName);
         
@@ -54,7 +54,20 @@ namespace TrenchBroom {
         ObjectParentList makeObjectParentList(const EntityList& list);
         ObjectParentList makeObjectParentList(const BrushList& list);
         ObjectParentList makeObjectParentList(const BrushList& list, Entity* parent);
+
+        ObjectList makeChildList(const ObjectParentList& list);
+        ObjectList makeParentList(const ObjectParentList& list);
+        ObjectList makeParentList(const ObjectList& list);
+        ObjectList makeParentList(const BrushList& list);
+        void makeParentChildLists(const ObjectParentList& list, ObjectList& parents, ObjectList& children);
+        void makeParentChildLists(const BrushList& list, ObjectList& parents, ObjectList& children);
+        ObjectList makeParentChildList(const ObjectParentList& list);
+        ObjectList makeParentChildList(const BrushList& list);
+        ObjectList makeObjectList(const EntityList& list);
+        ObjectList makeObjectList(const BrushList& list);
         ObjectList makeObjectList(const ObjectParentList& list);
+
+        ObjectChildrenMap makeObjectChildrenMap(const ObjectList& list);
         
         struct MatchAll {
             bool operator()(const ObjectParentPair& pair) const;
@@ -89,8 +102,8 @@ namespace TrenchBroom {
             const BBox3& m_worldBounds;
         public:
             Transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
-            void operator()(Model::Object* object) const;
-            void operator()(Model::BrushFace* face) const;
+            void operator()(Object* object) const;
+            void operator()(BrushFace* face) const;
         };
         
         struct CheckBounds {
@@ -98,7 +111,7 @@ namespace TrenchBroom {
             const BBox3& m_bounds;
         public:
             CheckBounds(const BBox3& bounds);
-            bool operator()(const Model::Pickable* object) const;
+            bool operator()(const Pickable* object) const;
         };
         
         struct NotifyParent {
