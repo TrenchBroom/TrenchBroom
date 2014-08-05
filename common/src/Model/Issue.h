@@ -35,24 +35,30 @@
 namespace TrenchBroom {
     namespace Model {
         class Issue;
-        class IssueGroup;
+        class Object;
         
         typedef int IssueType;
+        
+        class IssueQuery {
+        private:
+            Object* m_object;
+        public:
+            IssueQuery(Object* object);
+            int compare(const Issue* issue) const;
+        };
         
         class Issue {
         private:
             IssueType m_type;
-            Issue* m_previous;
-            Issue* m_next;
             QuickFix::List m_quickFixes;
             QuickFix::List m_deletableFixes;
         public:
-            friend class IssueGroup;
             friend class QuickFix;
-            
             virtual ~Issue();
-            
             static IssueType freeType();
+
+            int compare(const Issue* issue) const;
+            int compare(const Object* object) const;
 
             IssueType type() const;
             bool hasType(IssueType mask) const;
@@ -65,25 +71,24 @@ namespace TrenchBroom {
 
             bool isHidden() const;
             void setHidden(bool hidden);
-            
-            Issue* previous() const;
-            Issue* next() const;
-            Issue* parent() const;
-
-            static Issue* lastIssue(Issue* issue);
-            
-            static Issue* insert(Issue* previous, Issue* next);
-            void insertAfter(Issue* previous);
-            void insertBefore(Issue* next);
-            void remove(Issue* last = NULL);
         protected:
             Issue(IssueType type);
             void addSharedQuickFix(const QuickFix& quickFix);
             void addDeletableQuickFix(const QuickFix* quickFix);
+        private:
             virtual bool doIsHidden(IssueType type) const = 0;
             virtual void doSetHidden(IssueType type, bool hidden) = 0;
+            virtual int doCompare(const Issue* issue) const = 0;
+            virtual int doCompare(const Object* object) const = 0;
         };
 
+        class IssueCmp {
+        public:
+            bool operator()(const Issue* issue1, const Issue* issue2) const;
+            bool operator()(const Issue* issue, const IssueQuery& query) const;
+            bool operator()(const IssueQuery& query, const Issue* issue) const;
+        };
+        
         class Entity;
         class EntityIssue : public Issue {
         private:
@@ -97,6 +102,8 @@ namespace TrenchBroom {
         private:
             bool doIsHidden(IssueType type) const;
             void doSetHidden(IssueType type, bool hidden);
+            int doCompare(const Issue* issue) const;
+            int doCompare(const Object* object) const;
         };
 
         class Brush;
@@ -112,6 +119,8 @@ namespace TrenchBroom {
         private:
             bool doIsHidden(IssueType type) const;
             void doSetHidden(IssueType type, bool hidden);
+            int doCompare(const Issue* issue) const;
+            int doCompare(const Object* object) const;
         };
     }
 }

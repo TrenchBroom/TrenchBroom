@@ -67,23 +67,20 @@ namespace TrenchBroom {
             return description;
         }
 
-        Issue* EntityLinkTargetIssueGenerator::generate(Entity* entity) const {
+        void EntityLinkTargetIssueGenerator::generate(Entity* entity, IssueList& issues) const {
             assert(entity != NULL);
             const Model::PropertyKeyList missingLinkTargets = entity->findMissingLinkTargets();
             const Model::PropertyKeyList missingKillTargets = entity->findMissingKillTargets();
             
-            Issue* issue = NULL;
-            processKeys(entity, missingLinkTargets, issue);
-            processKeys(entity, missingKillTargets, issue);
-            
-            return issue;
+            processKeys(entity, missingLinkTargets, issues);
+            processKeys(entity, missingKillTargets, issues);
         }
 
-        void EntityLinkTargetIssueGenerator::processKeys(Entity* entity, const Model::PropertyKeyList& keys, Issue*& issue) const {
+        void EntityLinkTargetIssueGenerator::processKeys(Entity* entity, const Model::PropertyKeyList& keys, IssueList& issues) const {
             Model::PropertyKeyList::const_iterator it, end;
             for (it = keys.begin(), end = keys.end(); it != end; ++it) {
                 const Model::PropertyKey& key = *it;
-                issue = Issue::insert(issue, new EntityLinkTargetIssue(entity, key));
+                issues.push_back(new EntityLinkTargetIssue(entity, key));
             }
         }
     }

@@ -97,7 +97,7 @@ namespace TrenchBroom {
         MixedBrushContentsIssueGenerator::MixedBrushContentsIssueGenerator(const GameConfig::FlagsConfig& flagsConfig) :
         m_flagsConfig(flagsConfig) {}
 
-        Issue* MixedBrushContentsIssueGenerator::generate(Brush* brush) const {
+        void MixedBrushContentsIssueGenerator::generate(Brush* brush, IssueList& issues) const {
             assert(brush != NULL);
             const BrushFaceList& faces = brush->faces();
             BrushFaceList::const_iterator it = faces.begin();
@@ -108,11 +108,9 @@ namespace TrenchBroom {
             ++it;
             while (it != end) {
                 if ((*it)->surfaceContents() != contentFlags)
-                    return new MixedBrushContentsIssue(brush, m_flagsConfig);
+                    issues.push_back(new MixedBrushContentsIssue(brush, m_flagsConfig));
                 ++it;
             }
-
-            return NULL;
         }
     }
 }

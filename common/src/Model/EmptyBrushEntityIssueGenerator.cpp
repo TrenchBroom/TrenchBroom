@@ -65,14 +65,13 @@ namespace TrenchBroom {
             return description;
         }
         
-        Issue* EmptyBrushEntityIssueGenerator::generate(Entity* entity) const {
+        void EmptyBrushEntityIssueGenerator::generate(Entity* entity, IssueList& issues) const {
             assert(entity != NULL);
             if (!entity->worldspawn()) {
                 const Assets::EntityDefinition* definition = entity->definition();
                 if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_BrushEntity && entity->brushes().empty())
-                    return new EmptyBrushEntityIssue(entity);
+                    issues.push_back(new EmptyBrushEntityIssue(entity));
             }
-            return NULL;
         }
     }
 }

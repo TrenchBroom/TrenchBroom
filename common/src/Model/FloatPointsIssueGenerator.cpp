@@ -65,7 +65,7 @@ namespace TrenchBroom {
             return description;
         }
 
-        Issue* FloatPointsIssueGenerator::generate(Brush* brush) const {
+        void FloatPointsIssueGenerator::generate(Brush* brush, IssueList& issues) const {
             assert(brush != NULL);
             const BrushFaceList& faces = brush->faces();
             BrushFaceList::const_iterator it, end;
@@ -75,11 +75,9 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < 3; ++i) {
                     const Vec3& point = points[i];
                     if (!point.isInteger())
-                        return new FloatPointsIssue(brush);
+                        issues.push_back(new FloatPointsIssue(brush));
                 }
             }
-            
-            return NULL;
         }
     }
 }

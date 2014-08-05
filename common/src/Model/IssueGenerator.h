@@ -21,13 +21,10 @@
 #define __TrenchBroom__IssueGenerator__
 
 #include "Model/Issue.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        class Entity;
-        class Object;
-        
         class IssueGenerator {
         public:
             virtual ~IssueGenerator();
@@ -35,9 +32,9 @@ namespace TrenchBroom {
             virtual IssueType type() const = 0;
             virtual const String& description() const = 0;
 
-            Issue* generate(Object* object) const;
-            virtual Issue* generate(Entity* entity) const;
-            virtual Issue* generate(Brush* brush) const;
+            void generate(Object* object, IssueList& issues) const;
+            virtual void generate(Entity* entity, IssueList& issues) const;
+            virtual void generate(Brush* brush, IssueList& issues) const;
         };
     }
 }

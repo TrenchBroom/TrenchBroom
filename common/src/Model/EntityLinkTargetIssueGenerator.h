@@ -32,9 +32,9 @@ namespace TrenchBroom {
             IssueType type() const;
             const String& description() const;
 
-            Issue* generate(Entity* entity) const;
+            void generate(Entity* entity, IssueList& issues) const;
         private:
-            void processKeys(Entity* entity, const Model::PropertyKeyList& keys, Issue*& issue) const;
+            void processKeys(Entity* entity, const Model::PropertyKeyList& keys, IssueList& issues) const;
         };
     }
 }

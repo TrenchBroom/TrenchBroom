@@ -64,11 +64,10 @@ namespace TrenchBroom {
             return description;
         }
         
-        Issue* MissingEntityDefinitionIssueGenerator::generate(Entity* entity) const {
+        void MissingEntityDefinitionIssueGenerator::generate(Entity* entity, IssueList& issues) const {
             assert(entity != NULL);
             if (entity->definition() == NULL)
-                return new MissingEntityDefinitionIssue(entity);
-            return NULL;
+                issues.push_back(new MissingEntityDefinitionIssue(entity));
         }
     }
 }

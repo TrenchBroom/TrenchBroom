@@ -20,14 +20,9 @@
 #ifndef __TrenchBroom__IssueManager__
 #define __TrenchBroom__IssueManager__
 
-#include "Model/ModelTypes.h"
 #include "Notifier.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Issue.h"
-#include "Model/Object.h"
+#include "Model/ModelTypes.h"
 
-#include <map>
 #include <vector>
 
 namespace TrenchBroom {
@@ -39,29 +34,13 @@ namespace TrenchBroom {
         public:
             typedef std::vector<IssueGenerator*> GeneratorList;
         private:
-            struct IssuePair {
-                Issue* first;
-                Issue* last;
-                
-                IssuePair();
-                IssuePair(Issue* i_first, Issue* i_last);
-                
-                void preprend(Issue* issue);
-                void append(Issue* issue);
-            };
-            
-            typedef std::map<Object*, IssuePair> IssueMap;
-            
             GeneratorList m_generators;
+            IssueList m_issues;
             
-            Issue* m_issueList;
-            IssueMap m_issueMap;
             int m_defaultHiddenGenerators;
         public:
-            Notifier2<Issue*, Issue*> issuesWereAddedNotifier;
-            Notifier2<Issue*, Issue*> issuesWillBeRemovedNotifier;
+            Notifier1<size_t> issueCountDidChangeNotifier;
             Notifier1<Issue*> issueIgnoreChangedNotifier;
-            Notifier0 issuesClearedNotifier;
         public:
             IssueManager();
             ~IssueManager();
@@ -71,67 +50,35 @@ namespace TrenchBroom {
             int defaultHiddenGenerators() const;
             
             size_t issueCount() const;
-            Issue* issues() const;
+            const IssueList& issues() const;
             
             template <typename I>
             void addObjects(I cur, I end) {
-                if (cur == end)
-                    return;
-                
-                Issue* firstIssue = NULL;
-                Issue* lastIssue = NULL;
-
+                const size_t oldCount = m_issues.size();
                 while (cur != end) {
                     Object* object = *cur;
-                    Issue* currentFirst = findIssues(object);
-                    if (currentFirst != NULL) {
-                        Issue* currentLast = Issue::lastIssue(currentFirst);
-                        if (firstIssue == NULL)
-                            firstIssue = currentFirst;
-                        else
-                            currentFirst->insertAfter(lastIssue);
-                        lastIssue = currentLast;
-                        
-                        assert(m_issueMap.count(object) == 0);
-                        m_issueMap.insert(std::make_pair(object, IssuePair(currentFirst, currentLast)));
-                    }
+                    const IssueList objectIssues = findIssues(object);
+                    if (!objectIssues.empty())
+                        insertIssues(object, objectIssues);
                     ++cur;
                 }
-                
-                if (firstIssue != NULL && lastIssue != NULL) {
-                    lastIssue->insertBefore(m_issueList);
-                    m_issueList = firstIssue;
-                    issuesWereAddedNotifier(firstIssue, lastIssue);
-                }
+
+                const size_t newCount = m_issues.size();
+                if (newCount != oldCount)
+                    issueCountDidChangeNotifier(newCount);
             }
             
             template <typename I>
             void removeObjects(I cur, I end) {
-                if (cur == end)
-                    return;
-                
+                const size_t oldCount = m_issues.size();
                 while (cur != end) {
-                    Object* object = *cur;
-                    IssueMap::iterator issIt = m_issueMap.find(object);
-                    if (issIt != m_issueMap.end()) {
-                        Issue* first = issIt->second.first;
-                        Issue* last  = issIt->second.last;
-                        
-                        issuesWillBeRemovedNotifier(first, last);
-                        
-                        if (m_issueList == first)
-                            m_issueList = last->next();
-                        first->remove(last);
-                        while (first != NULL) {
-                            Issue* tmp = first;
-                            first = first->next();
-                            delete tmp;
-                        }
-                        
-                        m_issueMap.erase(issIt);
-                    }
+                    removeIssues(*cur);
                     ++cur;
                 }
+                
+                const size_t newCount = m_issues.size();
+                if (newCount != oldCount)
+                    issueCountDidChangeNotifier(newCount);
             }
             
             template <typename I>
@@ -145,7 +92,9 @@ namespace TrenchBroom {
             void clearIssues();
             void clearGenerators();
         private:
-            Issue* findIssues(Object* object);
+            IssueList findIssues(Object* object);
+            void insertIssues(Object* object, const IssueList& issues);
+            void removeIssues(Object* object);
         };
     }
 }

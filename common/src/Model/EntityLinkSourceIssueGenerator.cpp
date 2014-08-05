@@ -61,12 +61,10 @@ namespace TrenchBroom {
             return description;
         }
         
-        Issue* EntityLinkSourceIssueGenerator::generate(Entity* entity) const {
+        void EntityLinkSourceIssueGenerator::generate(Entity* entity, IssueList& issues) const {
             assert(entity != NULL);
-            
             if (entity->hasMissingSources())
-                return new EntityLinkSourceIssue(entity);
-            return NULL;
+                issues.push_back(new EntityLinkSourceIssue(entity));
         }
     }
 }

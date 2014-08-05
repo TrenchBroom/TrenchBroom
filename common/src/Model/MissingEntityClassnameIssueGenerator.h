@@ -31,7 +31,7 @@ namespace TrenchBroom {
         public:
             IssueType type() const;
             const String& description() const;
-            Issue* generate(Entity* entity) const;
+            void generate(Entity* entity, IssueList& issues) const;
         };
     }
 }

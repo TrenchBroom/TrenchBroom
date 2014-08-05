@@ -29,6 +29,13 @@
 
 namespace TrenchBroom {
     namespace Model {
+        IssueQuery::IssueQuery(Object* object) :
+        m_object(object) {}
+
+        int IssueQuery::compare(const Issue* issue) const {
+            return issue->compare(m_object) > 0;
+        }
+
         Issue::~Issue() {
             VectorUtils::clearAndDelete(m_deletableFixes);
         }
@@ -37,6 +44,14 @@ namespace TrenchBroom {
             static size_t index = 0;
             assert(index < sizeof(IssueType) * 8);
             return 1 << index++;
+        }
+
+        int Issue::compare(const Issue* issue) const {
+            return doCompare(issue);
+        }
+
+        int Issue::compare(const Object* object) const {
+            return doCompare(object);
         }
 
         IssueType Issue::type() const {
@@ -61,79 +76,8 @@ namespace TrenchBroom {
             doSetHidden(m_type, hidden);
         }
 
-        Issue* Issue::previous() const {
-            return m_previous;
-        }
-        
-        Issue* Issue::next() const {
-            return m_next;
-        }
-
-        Issue* Issue::lastIssue(Issue* issue) {
-            Issue* last = issue;
-            while (last->next() != NULL)
-                last = last->next();
-            return last;
-        }
-
-        Issue* Issue::insert(Issue* previous, Issue* next) {
-            assert(next != NULL);
-            if (previous == NULL)
-                return next;
-            next->insertAfter(previous);
-            return previous;
-        }
-
-        void Issue::insertAfter(Issue* previous) {
-            if (previous != NULL) {
-                Issue* next = previous->m_next;
-                
-                Issue* lastSuccessor = this;
-                while (lastSuccessor->next() != NULL)
-                    lastSuccessor = lastSuccessor->next();
-                
-                m_previous = previous;
-                m_previous->m_next = this;
-                
-                lastSuccessor->m_next = next;
-                if (next != NULL)
-                    next->m_previous = lastSuccessor;
-            }
-        }
-        
-        void Issue::insertBefore(Issue* next) {
-            if (next != NULL) {
-                Issue* previous = next->m_previous;
-                
-                Issue* lastSuccessor = this;
-                while (lastSuccessor->next() != NULL)
-                    lastSuccessor = lastSuccessor->next();
-                
-                if (previous != NULL)
-                    previous->m_next = this;
-                m_previous = previous;
-                
-                next->m_previous = lastSuccessor;
-                lastSuccessor->m_next = next;
-            }
-        }
-        
-        void Issue::remove(Issue* last) {
-            if (last == NULL)
-                last = this;
-            
-            if (m_previous != NULL)
-                m_previous->m_next = last->m_next;
-            if (last->m_next != NULL)
-                last->m_next->m_previous = m_previous;
-            m_previous = NULL;
-            last->m_next = NULL;
-        }
-
         Issue::Issue(const IssueType type) :
-        m_type(type),
-        m_previous(NULL),
-        m_next(NULL) {}
+        m_type(type) {}
         
         void Issue::addSharedQuickFix(const QuickFix& quickFix) {
             m_quickFixes.push_back(&quickFix);
@@ -142,6 +86,18 @@ namespace TrenchBroom {
         void Issue::addDeletableQuickFix(const QuickFix* quickFix) {
             m_quickFixes.push_back(quickFix);
             m_deletableFixes.push_back(quickFix);
+        }
+
+        bool IssueCmp::operator()(const Issue* issue1, const Issue* issue2) const {
+            return issue1->compare(issue2) < 0;
+        }
+        
+        bool IssueCmp::operator()(const Issue* issue, const IssueQuery& query) const {
+            return query.compare(issue) > 0;
+        }
+        
+        bool IssueCmp::operator()(const IssueQuery& query, const Issue* issue) const {
+            return query.compare(issue) < 0;
         }
 
         size_t EntityIssue::filePosition() const {
@@ -174,6 +130,18 @@ namespace TrenchBroom {
             entity()->setIssueHidden(type, hidden);
         }
         
+        int EntityIssue::doCompare(const Issue* issue) const {
+            return issue->compare(m_entity) > 0;
+        }
+        
+        int EntityIssue::doCompare(const Object* object) const {
+            if (m_entity < object)
+                return -1;
+            if (m_entity > object)
+                return 1;
+            return 0;
+        }
+
         size_t BrushIssue::filePosition() const {
             return brush()->filePosition();
         }
@@ -198,6 +166,18 @@ namespace TrenchBroom {
         
         void BrushIssue::doSetHidden(const IssueType type, const bool hidden) {
             brush()->setIssueHidden(type, hidden);
+        }
+        
+        int BrushIssue::doCompare(const Issue* issue) const {
+            return issue->compare(m_brush) > 0;
+        }
+        
+        int BrushIssue::doCompare(const Object* object) const {
+            if (m_brush < object)
+                return -1;
+            if (m_brush > object)
+                return 1;
+            return 0;
         }
     }
 }

@@ -20,35 +20,18 @@
 #include "IssueManager.h"
 
 #include "CollectionUtils.h"
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/Issue.h"
 #include "Model/IssueGenerator.h"
+#include "Model/Object.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
-        IssueManager::IssuePair::IssuePair() :
-        first(NULL),
-        last(NULL) {}
-        
-        IssueManager::IssuePair::IssuePair(Issue* i_first, Issue* i_last) :
-        first(i_first),
-        last(i_last) {
-            assert(first != NULL);
-            assert(last != NULL);
-        }
-        
-        void IssueManager::IssuePair::preprend(Issue* issue) {
-            issue->insertBefore(first);
-            first = issue;
-        }
-        
-        void IssueManager::IssuePair::append(Issue* issue) {
-            issue->insertAfter(last);
-            last = issue;
-        }
-
         IssueManager::IssueManager() :
-        m_issueList(NULL),
         m_defaultHiddenGenerators(0) {}
 
         IssueManager::~IssueManager() {
@@ -72,11 +55,11 @@ namespace TrenchBroom {
         }
 
         size_t IssueManager::issueCount() const {
-            return m_issueMap.size();
+            return m_issues.size();
         }
         
-        Issue* IssueManager::issues() const {
-            return m_issueList;
+        const IssueList& IssueManager::issues() const {
+            return m_issues;
         }
 
         void IssueManager::setIssueHidden(Issue* issue, const bool hidden) {
@@ -87,15 +70,7 @@ namespace TrenchBroom {
         }
 
         void IssueManager::clearIssues() {
-            Issue* issue = m_issueList;
-            while (issue != NULL) {
-                Issue* next = issue->next();
-                delete issue;
-                issue = next;
-            }
-            m_issueList = NULL;
-            m_issueMap.clear();
-            issuesClearedNotifier();
+            VectorUtils::clearAndDelete(m_issues);
         }
         
         void IssueManager::clearGenerators() {
@@ -103,20 +78,29 @@ namespace TrenchBroom {
             m_defaultHiddenGenerators = 0;
         }
         
-        Issue* IssueManager::findIssues(Object* object) {
-            Issue* issue = NULL;
+        IssueList IssueManager::findIssues(Object* object) {
+            IssueList result;
             GeneratorList::const_iterator it,end;
             for (it = m_generators.begin(), end = m_generators.end(); it != end; ++it) {
                 const IssueGenerator* generator = *it;
-                Issue* newIssue = generator->generate(object);
-                if (newIssue != NULL) {
-                    if (issue != NULL)
-                        newIssue->insertAfter(issue);
-                    else
-                        issue = newIssue;
-               }
+                generator->generate(object, result);
             }
-            return issue;
+            return result;
+        }
+
+        void IssueManager::insertIssues(Object* object, const IssueList& issues) {
+            const IssueQuery query(object);
+            IssueCmp cmp;
+            IssueList::iterator it = std::lower_bound(m_issues.begin(), m_issues.end(), query, cmp);
+            m_issues.insert(it, issues.begin(), issues.end());
+        }
+        
+        void IssueManager::removeIssues(Object* object) {
+            const IssueQuery query(object);
+            IssueCmp cmp;
+            IssueList::iterator begin = std::lower_bound(m_issues.begin(), m_issues.end(), query, cmp);
+            IssueList::iterator end   = std::upper_bound(m_issues.begin(), m_issues.end(), query, cmp);
+            m_issues.erase(begin, end);
         }
     }
 }

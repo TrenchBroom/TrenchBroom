@@ -25,9 +25,6 @@
 
 class wxCheckBox;
 class wxCommandEvent;
-class wxDataViewCtrl;
-class wxDataViewEvent;
-class wxDataViewItemArray;
 class wxMouseEvent;
 class wxSimplebook;
 class wxSizeEvent;
@@ -41,7 +38,7 @@ namespace TrenchBroom {
     namespace View {
         class FlagChangedCommand;
         class FlagsPopupEditor;
-        class IssueBrowserDataModel;
+        class IssueBrowserView;
         
         class IssueBrowser : public TabBookPage {
         private:
@@ -52,8 +49,7 @@ namespace TrenchBroom {
 
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
-            IssueBrowserDataModel* m_model;
-            wxDataViewCtrl* m_tree;
+            IssueBrowserView* m_view;
             wxCheckBox* m_showHiddenIssuesCheckBox;
             FlagsPopupEditor* m_filterEditor;
         public:
@@ -64,25 +60,20 @@ namespace TrenchBroom {
             
             void OnShowHiddenIssuesChanged(wxCommandEvent& event);
             void OnFilterChanged(FlagChangedCommand& command);
-            void OnTreeViewContextMenu(wxDataViewEvent& event);
             void OnSelectIssues(wxCommandEvent& event);
             void OnShowIssues(wxCommandEvent& event);
             void OnHideIssues(wxCommandEvent& event);
             void OnApplyQuickFix(wxCommandEvent& event);
-            void OnTreeViewSize(wxSizeEvent& event);
         private:
             void bindObservers();
             void unbindObservers();
             void documentWasNewedOrLoaded();
             void documentWasSaved();
-            void issuesWereAdded(Model::Issue* first, Model::Issue* last);
-            void issuesWillBeRemoved(Model::Issue* first, Model::Issue* last);
             void issueIgnoreChanged(Model::Issue* issue);
-            void issuesCleared();
 
             void updateFilterFlags();
             
-            void selectIssueObjects(const wxDataViewItemArray& selections, View::ControllerSPtr controller);
+            // void selectIssueObjects(const wxDataViewItemArray& selections, View::ControllerSPtr controller);
             void setIssueVisibility(bool show);
         };
     }
