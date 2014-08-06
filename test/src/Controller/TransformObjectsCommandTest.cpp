@@ -45,27 +45,27 @@ namespace TrenchBroom {
             ASSERT_EQ(Vec3::Null, brush->bounds().center());
             
             doc->addObject(brush);
-            doc->objectWasAddedNotifier(brush);
+            doc->objectsWereAddedNotifier(Model::ObjectList(1, brush));
             
             Model::ObjectList objects(1, brush);
             
             TransformObjectsCommand::Ptr command = TransformObjectsCommand::translateObjects(doc, offset, true, objects);
             
-            MockObserver1<Model::Object*> objectWillChange(doc->objectWillChangeNotifier);
-            MockObserver1<Model::Object*> objectDidChange(doc->objectDidChangeNotifier);
+            MockObserver1<const Model::ObjectList&> objectsWillChange(doc->objectsWillChangeNotifier);
+            MockObserver1<const Model::ObjectList&> objectsDidChange(doc->objectsDidChangeNotifier);
 
-            objectWillChange.expect(brush->parent());
-            objectWillChange.expect(brush);
-            objectDidChange.expect(brush->parent());
-            objectDidChange.expect(brush);
+            Model::ObjectList changedObjects;
+            changedObjects.push_back(brush->parent());
+            changedObjects.push_back(brush);
+            
+            objectsWillChange.expect(changedObjects);
+            objectsDidChange.expect(changedObjects);
 
             ASSERT_TRUE(command->performDo());
             ASSERT_EQ(offset, brush->bounds().center());
 
-            objectWillChange.expect(brush->parent());
-            objectWillChange.expect(brush);
-            objectDidChange.expect(brush->parent());
-            objectDidChange.expect(brush);
+            objectsWillChange.expect(changedObjects);
+            objectsDidChange.expect(changedObjects);
 
             ASSERT_TRUE(command->performUndo());
             ASSERT_EQ(Vec3::Null, brush->bounds().center());
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             ASSERT_EQ(Vec3::Null, brush->bounds().center());
             
             doc->addObject(brush);
-            doc->objectWasAddedNotifier(brush);
+            doc->objectsWereAddedNotifier(Model::ObjectList(1, brush));
             Model::ObjectList objects(1, brush);
             
             TransformObjectsCommand::Ptr translate1 = TransformObjectsCommand::translateObjects(doc, Vec3::PosX, true, objects);
