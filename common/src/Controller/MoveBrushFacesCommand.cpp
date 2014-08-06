@@ -24,7 +24,7 @@
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
-#include "Model/MOdelUtils.h"
+#include "Model/ModelUtils.h"
 #include "View/MapDocument.h"
 #include "View/VertexHandleManager.h"
 
