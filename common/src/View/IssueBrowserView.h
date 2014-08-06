@@ -92,7 +92,7 @@ namespace TrenchBroom {
             
             void bindObservers();
             void unbindObservers();
-            void issueCountDidChange(size_t count);
+            void issuesDidChange();
             
             void bindEvents();
         };

@@ -80,6 +80,7 @@ namespace TrenchBroom {
         void IssueBrowserView::reset() {
             updateIssues();
             SetItemCount(static_cast<long>(m_issues.size()));
+            Refresh();
         }
 
         void IssueBrowserView::OnSize(wxSizeEvent& event) {
@@ -264,7 +265,7 @@ namespace TrenchBroom {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
                 Model::IssueManager& issueManager = document->issueManager();
-                issueManager.issueCountDidChangeNotifier.addObserver(this, &IssueBrowserView::issueCountDidChange);
+                issueManager.issuesDidChangeNotifier.addObserver(this, &IssueBrowserView::issuesDidChange);
             }
         }
         
@@ -272,11 +273,11 @@ namespace TrenchBroom {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
                 Model::IssueManager& issueManager = document->issueManager();
-                issueManager.issueCountDidChangeNotifier.removeObserver(this, &IssueBrowserView::issueCountDidChange);
+                issueManager.issuesDidChangeNotifier.removeObserver(this, &IssueBrowserView::issuesDidChange);
             }
         }
         
-        void IssueBrowserView::issueCountDidChange(const size_t count) {
+        void IssueBrowserView::issuesDidChange() {
             reset();
         }
         

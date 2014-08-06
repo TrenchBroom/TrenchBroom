@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             int m_defaultHiddenGenerators;
         public:
-            Notifier1<size_t> issueCountDidChangeNotifier;
+            Notifier0 issuesDidChangeNotifier;
             Notifier1<Issue*> issueIgnoreChangedNotifier;
         public:
             IssueManager();
@@ -61,7 +61,6 @@ namespace TrenchBroom {
             
             template <typename I>
             void addObjects(I cur, I end) {
-                const size_t oldCount = m_issues.size();
                 while (cur != end) {
                     Object* object = *cur;
                     const IssueList objectIssues = findIssues(object);
@@ -69,23 +68,16 @@ namespace TrenchBroom {
                         insertIssues(object, objectIssues);
                     ++cur;
                 }
-
-                const size_t newCount = m_issues.size();
-                if (newCount != oldCount)
-                    issueCountDidChangeNotifier(newCount);
+                issuesDidChangeNotifier();
             }
             
             template <typename I>
             void removeObjects(I cur, I end) {
-                const size_t oldCount = m_issues.size();
                 while (cur != end) {
                     removeIssues(*cur);
                     ++cur;
                 }
-                
-                const size_t newCount = m_issues.size();
-                if (newCount != oldCount)
-                    issueCountDidChangeNotifier(newCount);
+                issuesDidChangeNotifier();
             }
             
             template <typename I>
