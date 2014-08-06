@@ -22,7 +22,11 @@
 
 #include "View/ViewTypes.h"
 
+#include "Model/Issue.h"
+
 #include <wx/listctrl.h>
+
+#include <vector>
 
 class wxWindow;
 
@@ -30,6 +34,13 @@ namespace TrenchBroom {
     namespace View {
         class IssueBrowserView : public wxListCtrl {
         private:
+            static const int SelectObjectsCommandId = 1;
+            static const int ShowIssuesCommandId = 2;
+            static const int HideIssuesCommandId = 3;
+            static const int FixObjectsBaseId = 4;
+            
+            typedef std::vector<size_t> IndexList;
+            
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
         public:
@@ -37,7 +48,20 @@ namespace TrenchBroom {
             ~IssueBrowserView();
             
             void OnSize(wxSizeEvent& event);
+            void OnItemRightClick(wxListEvent& event);
+            void OnSelectIssues(wxCommandEvent& event);
+            void OnShowIssues(wxCommandEvent& event);
+            void OnHideIssues(wxCommandEvent& event);
+            void OnApplyQuickFix(wxCommandEvent& event);
         private:
+            Model::QuickFix::List collectQuickFixes(const IndexList& selection) const;
+            void setIssueVisibility(bool show);
+            void selectIssueObjects(const IndexList& selection, View::ControllerSPtr controller);
+            
+            IndexList getSelection() const;
+            void select(const IndexList& indices);
+            void deselectAll();
+            
             wxString OnGetItemText(long item, long column) const;
             
             void bindObservers();

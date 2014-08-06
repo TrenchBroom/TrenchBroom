@@ -32,7 +32,8 @@
 namespace TrenchBroom {
     namespace Model {
         IssueManager::IssueManager() :
-        m_defaultHiddenGenerators(0) {}
+        m_defaultHiddenGenerators(0),
+        m_hiddenGenerators(m_defaultHiddenGenerators) {}
 
         IssueManager::~IssueManager() {
             clearIssues();
@@ -42,16 +43,26 @@ namespace TrenchBroom {
         void IssueManager::registerGenerator(IssueGenerator* generator, const bool showByDefault) {
             assert(!VectorUtils::contains(m_generators, generator));
             m_generators.push_back(generator);
-            if (!showByDefault)
+            if (!showByDefault) {
                 m_defaultHiddenGenerators |= generator->type();
+                m_hiddenGenerators |= generator->type();
+            }
         }
 
         const IssueManager::GeneratorList& IssueManager::registeredGenerators() const {
             return m_generators;
         }
 
-        int IssueManager::defaultHiddenGenerators() const {
-            return m_defaultHiddenGenerators;
+        int IssueManager::hiddenGenerators() const {
+            return m_hiddenGenerators;
+        }
+
+        void IssueManager::setHiddenGenerators(const int value) {
+            m_hiddenGenerators = value;
+        }
+
+        void IssueManager::resetHiddenGenerators() {
+            m_hiddenGenerators = m_defaultHiddenGenerators;
         }
 
         size_t IssueManager::issueCount() const {
@@ -76,6 +87,7 @@ namespace TrenchBroom {
         void IssueManager::clearGenerators() {
             VectorUtils::clearAndDelete(m_generators);
             m_defaultHiddenGenerators = 0;
+            m_hiddenGenerators = m_defaultHiddenGenerators;
         }
         
         IssueList IssueManager::findIssues(Object* object) {

@@ -60,10 +60,6 @@ namespace TrenchBroom {
             
             void OnShowHiddenIssuesChanged(wxCommandEvent& event);
             void OnFilterChanged(FlagChangedCommand& command);
-            void OnSelectIssues(wxCommandEvent& event);
-            void OnShowIssues(wxCommandEvent& event);
-            void OnHideIssues(wxCommandEvent& event);
-            void OnApplyQuickFix(wxCommandEvent& event);
         private:
             void bindObservers();
             void unbindObservers();
@@ -72,9 +68,6 @@ namespace TrenchBroom {
             void issueIgnoreChanged(Model::Issue* issue);
 
             void updateFilterFlags();
-            
-            // void selectIssueObjects(const wxDataViewItemArray& selections, View::ControllerSPtr controller);
-            void setIssueVisibility(bool show);
         };
     }
 }

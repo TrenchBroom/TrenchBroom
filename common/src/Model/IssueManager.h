@@ -38,6 +38,7 @@ namespace TrenchBroom {
             IssueList m_issues;
             
             int m_defaultHiddenGenerators;
+            int m_hiddenGenerators;
         public:
             Notifier1<size_t> issueCountDidChangeNotifier;
             Notifier1<Issue*> issueIgnoreChangedNotifier;
@@ -47,7 +48,10 @@ namespace TrenchBroom {
             
             void registerGenerator(IssueGenerator* generator, bool showByDefault);
             const GeneratorList& registeredGenerators() const;
-            int defaultHiddenGenerators() const;
+            
+            int hiddenGenerators() const;
+            void setHiddenGenerators(int value);
+            void resetHiddenGenerators();
             
             size_t issueCount() const;
             const IssueList& issues() const;

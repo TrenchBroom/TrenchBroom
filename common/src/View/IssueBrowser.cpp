@@ -76,23 +76,6 @@ namespace TrenchBroom {
             return barPage;
         }
 
-        /*
-        Model::QuickFix::List collectQuickFixes(const wxDataViewItemArray& selections);
-        Model::QuickFix::List collectQuickFixes(const wxDataViewItemArray& selections) {
-            assert(!selections.empty());
-            const Model::Issue* issue = reinterpret_cast<const Model::Issue*>(selections[0].GetID());
-            const Model::IssueType type = issue->type();
-            Model::QuickFix::List result = issue->quickFixes();
-            
-            for (size_t i = 1; i < selections.size(); ++i) {
-                issue = reinterpret_cast<const Model::Issue*>(selections[i].GetID());
-                if (issue->type() != type)
-                    return Model::QuickFix::List(0);
-            }
-            return result;
-        }
-         */
-        
         void IssueBrowser::OnShowHiddenIssuesChanged(wxCommandEvent& event) {
             // m_model->setShowHiddenIssues(m_showHiddenIssuesCheckBox->IsChecked());
         }
@@ -100,110 +83,6 @@ namespace TrenchBroom {
         void IssueBrowser::OnFilterChanged(FlagChangedCommand& command) {
             // m_model->setHiddenGenerators(~command.flagSetValue());
         }
-
-        /*
-        void IssueBrowser::OnTreeViewContextMenu(wxDataViewEvent& event) {
-            const wxDataViewItem& item = event.GetItem();
-            if (!item.IsOk())
-                return;
-            if (!m_tree->IsSelected(item))
-                return;
-            
-            wxDataViewItemArray selections;
-            m_tree->GetSelections(selections);
-            assert(!selections.empty());
-
-            wxMenu popupMenu;
-            popupMenu.Append(SelectObjectsCommandId, "Select");
-            popupMenu.Append(ShowIssuesCommandId, "Show");
-            popupMenu.Append(HideIssuesCommandId, "Hide");
-            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnSelectIssues, this, SelectObjectsCommandId);
-            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnShowIssues, this, ShowIssuesCommandId);
-            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnHideIssues, this, HideIssuesCommandId);
-
-            const Model::QuickFix::List quickFixes = collectQuickFixes(selections);
-            if (!quickFixes.empty()) {
-                wxMenu* quickFixMenu = new wxMenu();
-                for (size_t i = 0; i < quickFixes.size(); ++i) {
-                    const Model::QuickFix* quickFix = quickFixes[i];
-                    const int quickFixId = FixObjectsBaseId + static_cast<int>(i);
-                    quickFixMenu->Append(quickFixId, quickFix->description());
-                }
-                popupMenu.AppendSubMenu(quickFixMenu, "Fix");
-                
-                const int firstId = FixObjectsBaseId;
-                const int lastId = firstId + static_cast<int>(quickFixes.size());
-                quickFixMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowser::OnApplyQuickFix, this, firstId, lastId);
-            }
-            
-            PopupMenu(&popupMenu);
-        }
-         */
-        
-        void IssueBrowser::OnSelectIssues(wxCommandEvent& event) {
-            /*
-            View::ControllerSPtr controller = lock(m_controller);
-            const UndoableCommandGroup commandGroup(controller);
-
-            wxDataViewItemArray selections;
-            m_tree->GetSelections(selections);
-            selectIssueObjects(selections, controller);
-             */
-        }
-        
-        void IssueBrowser::OnShowIssues(wxCommandEvent& event) {
-            setIssueVisibility(true);
-        }
-        
-        void IssueBrowser::OnHideIssues(wxCommandEvent& event) {
-            setIssueVisibility(false);
-        }
-
-        void IssueBrowser::OnApplyQuickFix(wxCommandEvent& event) {
-            /*
-            wxWindowUpdateLocker locker(m_tree);
-
-            wxDataViewItemArray selections;
-            m_tree->GetSelections(selections);
-            assert(!selections.empty());
-            
-            Model::QuickFix::List quickFixes = collectQuickFixes(selections);
-            const size_t index = static_cast<size_t>(event.GetId()) - FixObjectsBaseId;
-            assert(index < quickFixes.size());
-            const Model::QuickFix* quickFix = quickFixes[index];
-            
-            View::ControllerSPtr controller = lock(m_controller);
-            const UndoableCommandGroup commandGroup(controller);
-
-            selectIssueObjects(selections, controller);
-            
-            for (size_t i = 0; i < selections.size(); ++i) {
-                const wxDataViewItem& item = selections[i];
-                void* data = item.GetID();
-                assert(data != NULL);
-                Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
-                issue->applyQuickFix(quickFix, controller);
-            }
-            
-            m_tree->UnselectAll();
-            m_tree->SetSelections(selections);
-             */
-        }
-
-        /*
-        void IssueBrowser::selectIssueObjects(const wxDataViewItemArray& selections, View::ControllerSPtr controller) {
-            wxWindowUpdateLocker locker(m_tree);
-
-            controller->deselectAll();
-            for (size_t i = 0; i < selections.size(); ++i) {
-                const wxDataViewItem& item = selections[i];
-                void* data = item.GetID();
-                assert(data != NULL);
-                Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
-                issue->select(controller);
-            }
-        }
-         */
 
         void IssueBrowser::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
@@ -257,35 +136,9 @@ namespace TrenchBroom {
                 labels.push_back(description);
             }
 
-            /*
-            wxWindowUpdateLocker locker(m_tree);
             m_filterEditor->setFlags(flags, labels);
             m_model->setHiddenGenerators(issueManager.defaultHiddenGenerators());
             m_filterEditor->setFlagValue(~issueManager.defaultHiddenGenerators());
-             */
-        }
-
-        void IssueBrowser::setIssueVisibility(const bool show) {
-            /*
-            wxWindowUpdateLocker locker(m_tree);
-
-            wxDataViewItemArray selections;
-            m_tree->GetSelections(selections);
-            
-            MapDocumentSPtr document = lock(m_document);
-            Model::IssueManager& issueManager = document->issueManager();
-            
-            for (size_t i = 0; i < selections.size(); ++i) {
-                const wxDataViewItem& item = selections[i];
-                void* data = item.GetID();
-                assert(data != NULL);
-                Model::Issue* issue = reinterpret_cast<Model::Issue*>(data);
-                issueManager.setIssueHidden(issue, !show);
-            }
-            
-            document->incModificationCount();
-            m_tree->UnselectAll();
-             */
         }
     }
 }
