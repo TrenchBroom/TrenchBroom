@@ -263,6 +263,11 @@ namespace VectorUtils {
         return last;
     }
     
+    template <typename T, class P>
+    void removeIf(std::vector<T>& vec, const P& pred) {
+        vec.erase(std::remove_if(vec.begin(), vec.end(), pred), vec.end());
+    }
+    
     template <typename T>
     void removeAll(std::vector<T*>& vec, const std::vector<T*>& items) {
         vec.erase(removeAll(vec.begin(), vec.end(), items.begin(), items.end()), vec.end());
@@ -291,6 +296,11 @@ namespace VectorUtils {
     template <typename T>
     void sort(std::vector<T>& vec) {
         std::sort(vec.begin(), vec.end());
+    }
+    
+    template <typename T, class Cmp>
+    void sort(std::vector<T>& vec, const Cmp& cmp) {
+        std::sort(vec.begin(), vec.end(), cmp);
     }
     
     template <typename T>

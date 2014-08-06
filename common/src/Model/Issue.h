@@ -49,6 +49,7 @@ namespace TrenchBroom {
         
         class Issue {
         private:
+            size_t m_seqIndex;
             IssueType m_type;
             QuickFix::List m_quickFixes;
             QuickFix::List m_deletableFixes;
@@ -60,6 +61,7 @@ namespace TrenchBroom {
             int compare(const Issue* issue) const;
             int compare(const Object* object) const;
 
+            size_t seqIndex() const;
             IssueType type() const;
             bool hasType(IssueType mask) const;
             
@@ -82,13 +84,6 @@ namespace TrenchBroom {
             virtual int doCompare(const Object* object) const = 0;
         };
 
-        class IssueCmp {
-        public:
-            bool operator()(const Issue* issue1, const Issue* issue2) const;
-            bool operator()(const Issue* issue, const IssueQuery& query) const;
-            bool operator()(const IssueQuery& query, const Issue* issue) const;
-        };
-        
         class Entity;
         class EntityIssue : public Issue {
         private:

@@ -77,11 +77,11 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::OnShowHiddenIssuesChanged(wxCommandEvent& event) {
-            // m_model->setShowHiddenIssues(m_showHiddenIssuesCheckBox->IsChecked());
+            m_view->setShowHiddenIssues(m_showHiddenIssuesCheckBox->IsChecked());
         }
 
         void IssueBrowser::OnFilterChanged(FlagChangedCommand& command) {
-            // m_model->setHiddenGenerators(~command.flagSetValue());
+            m_view->setHiddenGenerators(~command.flagSetValue());
         }
 
         void IssueBrowser::bindObservers() {
@@ -137,7 +137,7 @@ namespace TrenchBroom {
             }
 
             m_filterEditor->setFlags(flags, labels);
-            m_model->setHiddenGenerators(issueManager.defaultHiddenGenerators());
+            m_view->setHiddenGenerators(issueManager.defaultHiddenGenerators());
             m_filterEditor->setFlagValue(~issueManager.defaultHiddenGenerators());
         }
     }

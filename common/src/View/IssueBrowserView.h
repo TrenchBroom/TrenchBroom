@@ -23,6 +23,7 @@
 #include "View/ViewTypes.h"
 
 #include "Model/Issue.h"
+#include "Model/ModelTypes.h"
 
 #include <wx/listctrl.h>
 
@@ -34,6 +35,19 @@ namespace TrenchBroom {
     namespace View {
         class IssueBrowserView : public wxListCtrl {
         private:
+            struct IssueCmp {
+                bool operator()(const Model::Issue* issue1, const Model::Issue* issue2) const;
+            };
+            
+            class IssueFilter {
+            private:
+                int m_hiddenTypes;
+                bool m_showHiddenIssues;
+            public:
+                IssueFilter(int hiddenTypes, bool showHiddenIssues);
+                bool operator()(const Model::Issue* issue) const;
+            };
+            
             static const int SelectObjectsCommandId = 1;
             static const int ShowIssuesCommandId = 2;
             static const int HideIssuesCommandId = 3;
@@ -43,9 +57,18 @@ namespace TrenchBroom {
             
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
+            Model::IssueList m_issues;
+            
+            int m_hiddenGenerators;
+            bool m_showHiddenIssues;
         public:
             IssueBrowserView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~IssueBrowserView();
+            
+            int hiddenGenerators() const;
+            void setHiddenGenerators(int hiddenGenerators);
+            void setShowHiddenIssues(bool show);
+            void reset();
             
             void OnSize(wxSizeEvent& event);
             void OnItemRightClick(wxListEvent& event);
@@ -54,6 +77,8 @@ namespace TrenchBroom {
             void OnHideIssues(wxCommandEvent& event);
             void OnApplyQuickFix(wxCommandEvent& event);
         private:
+            void updateIssues();
+            
             Model::QuickFix::List collectQuickFixes(const IndexList& selection) const;
             void setIssueVisibility(bool show);
             void selectIssueObjects(const IndexList& selection, View::ControllerSPtr controller);
@@ -62,6 +87,7 @@ namespace TrenchBroom {
             void select(const IndexList& indices);
             void deselectAll();
             
+            wxListItemAttr* OnGetItemAttr(long item) const;
             wxString OnGetItemText(long item, long column) const;
             
             void bindObservers();

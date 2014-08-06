@@ -27,18 +27,23 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Issue;
+        class IssueQuery;
         class IssueGenerator;
         
         class IssueManager {
         public:
             typedef std::vector<IssueGenerator*> GeneratorList;
         private:
+            struct IssueCmp {
+                bool operator()(const Issue* issue1, const Issue* issue2) const;
+                bool operator()(const Issue* issue, const IssueQuery& query) const;
+                bool operator()(const IssueQuery& query, const Issue* issue) const;
+            };
+            
             GeneratorList m_generators;
             IssueList m_issues;
             
             int m_defaultHiddenGenerators;
-            int m_hiddenGenerators;
         public:
             Notifier1<size_t> issueCountDidChangeNotifier;
             Notifier1<Issue*> issueIgnoreChangedNotifier;
@@ -49,9 +54,7 @@ namespace TrenchBroom {
             void registerGenerator(IssueGenerator* generator, bool showByDefault);
             const GeneratorList& registeredGenerators() const;
             
-            int hiddenGenerators() const;
-            void setHiddenGenerators(int value);
-            void resetHiddenGenerators();
+            int defaultHiddenGenerators() const;
             
             size_t issueCount() const;
             const IssueList& issues() const;

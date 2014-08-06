@@ -54,6 +54,10 @@ namespace TrenchBroom {
             return doCompare(object);
         }
 
+        size_t Issue::seqIndex() const {
+            return m_seqIndex;
+        }
+
         IssueType Issue::type() const {
             return m_type;
         }
@@ -77,7 +81,10 @@ namespace TrenchBroom {
         }
 
         Issue::Issue(const IssueType type) :
-        m_type(type) {}
+        m_type(type) {
+            static size_t seqIndex = 0;
+            m_seqIndex = seqIndex++;
+        }
         
         void Issue::addSharedQuickFix(const QuickFix& quickFix) {
             m_quickFixes.push_back(&quickFix);
@@ -86,18 +93,6 @@ namespace TrenchBroom {
         void Issue::addDeletableQuickFix(const QuickFix* quickFix) {
             m_quickFixes.push_back(quickFix);
             m_deletableFixes.push_back(quickFix);
-        }
-
-        bool IssueCmp::operator()(const Issue* issue1, const Issue* issue2) const {
-            return issue1->compare(issue2) < 0;
-        }
-        
-        bool IssueCmp::operator()(const Issue* issue, const IssueQuery& query) const {
-            return query.compare(issue) > 0;
-        }
-        
-        bool IssueCmp::operator()(const IssueQuery& query, const Issue* issue) const {
-            return query.compare(issue) < 0;
         }
 
         size_t EntityIssue::filePosition() const {

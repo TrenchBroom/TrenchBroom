@@ -31,9 +31,20 @@
 
 namespace TrenchBroom {
     namespace Model {
+        bool IssueManager::IssueCmp::operator()(const Issue* issue1, const Issue* issue2) const {
+            return issue1->compare(issue2) < 0;
+        }
+        
+        bool IssueManager::IssueCmp::operator()(const Issue* issue, const IssueQuery& query) const {
+            return query.compare(issue) > 0;
+        }
+        
+        bool IssueManager::IssueCmp::operator()(const IssueQuery& query, const Issue* issue) const {
+            return query.compare(issue) < 0;
+        }
+
         IssueManager::IssueManager() :
-        m_defaultHiddenGenerators(0),
-        m_hiddenGenerators(m_defaultHiddenGenerators) {}
+        m_defaultHiddenGenerators(0) {}
 
         IssueManager::~IssueManager() {
             clearIssues();
@@ -43,26 +54,16 @@ namespace TrenchBroom {
         void IssueManager::registerGenerator(IssueGenerator* generator, const bool showByDefault) {
             assert(!VectorUtils::contains(m_generators, generator));
             m_generators.push_back(generator);
-            if (!showByDefault) {
+            if (!showByDefault)
                 m_defaultHiddenGenerators |= generator->type();
-                m_hiddenGenerators |= generator->type();
-            }
         }
 
         const IssueManager::GeneratorList& IssueManager::registeredGenerators() const {
             return m_generators;
         }
 
-        int IssueManager::hiddenGenerators() const {
-            return m_hiddenGenerators;
-        }
-
-        void IssueManager::setHiddenGenerators(const int value) {
-            m_hiddenGenerators = value;
-        }
-
-        void IssueManager::resetHiddenGenerators() {
-            m_hiddenGenerators = m_defaultHiddenGenerators;
+        int IssueManager::defaultHiddenGenerators() const {
+            return m_defaultHiddenGenerators;
         }
 
         size_t IssueManager::issueCount() const {
@@ -87,7 +88,6 @@ namespace TrenchBroom {
         void IssueManager::clearGenerators() {
             VectorUtils::clearAndDelete(m_generators);
             m_defaultHiddenGenerators = 0;
-            m_hiddenGenerators = m_defaultHiddenGenerators;
         }
         
         IssueList IssueManager::findIssues(Object* object) {

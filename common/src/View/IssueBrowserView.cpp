@@ -29,15 +29,29 @@
 
 namespace TrenchBroom {
     namespace View {
+        bool IssueBrowserView::IssueCmp::operator()(const Model::Issue* issue1, const Model::Issue* issue2) const {
+            return issue1->seqIndex() > issue2->seqIndex();
+        }
+        
+        IssueBrowserView::IssueFilter::IssueFilter(const int hiddenTypes, const bool showHiddenIssues) :
+        m_hiddenTypes(hiddenTypes),
+        m_showHiddenIssues(showHiddenIssues) {}
+        
+        bool IssueBrowserView::IssueFilter::operator()(const Model::Issue* issue) const {
+            return (issue->isHidden() && !m_showHiddenIssues) || (issue->type() & m_hiddenTypes) != 0;
+        }
+
         IssueBrowserView::IssueBrowserView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
         wxListCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_VIRTUAL | wxLC_HRULES | wxLC_VRULES | wxBORDER_NONE),
         m_document(document),
-        m_controller(controller) {
+        m_controller(controller),
+        m_showHiddenIssues(false) {
             AppendColumn("Line");
             AppendColumn("Description");
             
             Model::IssueManager& issueManager = lock(m_document)->issueManager();
-            issueCountDidChange(issueManager.issueCount());
+            m_hiddenGenerators = issueManager.defaultHiddenGenerators();
+            reset();
             
             bindObservers();
             bindEvents();
@@ -47,6 +61,27 @@ namespace TrenchBroom {
             unbindObservers();
         }
         
+        int IssueBrowserView::hiddenGenerators() const {
+            return m_hiddenGenerators;
+        }
+        
+        void IssueBrowserView::setHiddenGenerators(const int hiddenGenerators) {
+            if (hiddenGenerators == m_hiddenGenerators)
+                return;
+            m_hiddenGenerators = hiddenGenerators;
+            reset();
+        }
+
+        void IssueBrowserView::setShowHiddenIssues(const bool show) {
+            m_showHiddenIssues = show;
+            reset();
+        }
+
+        void IssueBrowserView::reset() {
+            updateIssues();
+            SetItemCount(static_cast<long>(m_issues.size()));
+        }
+
         void IssueBrowserView::OnSize(wxSizeEvent& event) {
             const int newWidth = std::max(1, GetClientSize().x - GetColumnWidth(0));
             SetColumnWidth(1, newWidth);
@@ -102,6 +137,13 @@ namespace TrenchBroom {
             setIssueVisibility(false);
         }
         
+        void IssueBrowserView::updateIssues() {
+            Model::IssueManager& issueManager = lock(m_document)->issueManager();
+            m_issues = issueManager.issues();
+            VectorUtils::removeIf(m_issues, IssueFilter(m_hiddenGenerators, m_showHiddenIssues));
+            VectorUtils::sort(m_issues, IssueCmp());
+        }
+
         void IssueBrowserView::OnApplyQuickFix(wxCommandEvent& event) {
             const IndexList selection = getSelection();
             deselectAll();
@@ -114,13 +156,11 @@ namespace TrenchBroom {
             const Model::QuickFix* quickFix = quickFixes[index];
             
             View::ControllerSPtr controller = lock(m_controller);
-            Model::IssueManager& issueManager = lock(m_document)->issueManager();
             const UndoableCommandGroup commandGroup(controller);
-            
             selectIssueObjects(selection, controller);
             
             for (size_t i = 0; i < selection.size(); ++i) {
-                Model::Issue* issue = issueManager.issues()[selection[i]];
+                Model::Issue* issue = m_issues[selection[i]];
                 issue->applyQuickFix(quickFix, controller);
             }
             
@@ -130,14 +170,12 @@ namespace TrenchBroom {
             if (selection.empty())
                 return Model::QuickFix::List(0);
             
-            Model::IssueManager& issueManager = lock(m_document)->issueManager();
-            const Model::Issue* issue = issueManager.issues()[selection[0]];
-            
+            const Model::Issue* issue = m_issues[selection[0]];
             const Model::IssueType type = issue->type();
             Model::QuickFix::List result = issue->quickFixes();
             
             for (size_t i = 1; i < selection.size(); ++i) {
-                issue = issueManager.issues()[selection[i]];
+                issue = m_issues[selection[i]];
                 if (issue->type() != type)
                     return Model::QuickFix::List(0);
             }
@@ -151,21 +189,18 @@ namespace TrenchBroom {
             Model::IssueManager& issueManager = document->issueManager();
             
             for (size_t i = 0; i < selection.size(); ++i) {
-                Model::Issue* issue = issueManager.issues()[selection[i]];
+                Model::Issue* issue = m_issues[selection[i]];
                 issueManager.setIssueHidden(issue, !show);
             }
             
             document->incModificationCount();
-            deselectAll();
+            reset();
         }
         
         void IssueBrowserView::selectIssueObjects(const IndexList& selection, View::ControllerSPtr controller) {
-            MapDocumentSPtr document = lock(m_document);
-            Model::IssueManager& issueManager = document->issueManager();
-
             controller->deselectAll();
             for (size_t i = 0; i < selection.size(); ++i) {
-                Model::Issue* issue = issueManager.issues()[selection[i]];
+                Model::Issue* issue = m_issues[selection[i]];
                 issue->select(controller);
             }
         }
@@ -197,12 +232,25 @@ namespace TrenchBroom {
             }
         }
         
+        wxListItemAttr* IssueBrowserView::OnGetItemAttr(const long item) const {
+            assert(item >= 0 && static_cast<size_t>(item) < m_issues.size());
+
+            static wxListItemAttr attr;
+            
+            Model::Issue* issue = m_issues[static_cast<size_t>(item)];
+            if (issue->isHidden()) {
+                attr.SetFont(GetFont().Italic());
+                return &attr;
+            }
+            
+            return NULL;
+        }
+
         wxString IssueBrowserView::OnGetItemText(const long item, const long column) const {
-            Model::IssueManager& issueManager = lock(m_document)->issueManager();
-            assert(item >= 0 && static_cast<size_t>(item) < issueManager.issueCount());
+            assert(item >= 0 && static_cast<size_t>(item) < m_issues.size());
             assert(column >= 0 && column < 2);
             
-            Model::Issue* issue = issueManager.issues()[static_cast<size_t>(item)];
+            Model::Issue* issue = m_issues[static_cast<size_t>(item)];
             if (column == 0) {
                 wxString result;
                 result << issue->filePosition();
@@ -229,7 +277,7 @@ namespace TrenchBroom {
         }
         
         void IssueBrowserView::issueCountDidChange(const size_t count) {
-            SetItemCount(static_cast<long>(count));
+            reset();
         }
         
         void IssueBrowserView::bindEvents() {
