@@ -19,6 +19,7 @@
 
 #include "QuakeMapWriter.h"
 
+#include "StringUtils.h"
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {
@@ -68,30 +69,25 @@ namespace TrenchBroom {
             const String& textureName = face.textureName().empty() ? Model::BrushFace::NoTextureName : face.textureName();
             const Model::BrushFace::Points& points = face.points();
             
-            stream.precision(FloatPrecision);
             stream <<
             "( " <<
-            points[0].x() << " " <<
-            points[0].y() << " " <<
-            points[0].z() <<
-            " ) ( "           <<
-            points[1].x() << " " <<
-            points[1].y() << " " <<
-            points[1].z() <<
-            " ) ( "           <<
-            points[2].x() << " " <<
-            points[2].y() << " " <<
-            points[2].z() <<
-            " ) ";
+            StringUtils::ftos(points[0].x(), FloatPrecision) << " " <<
+            StringUtils::ftos(points[0].y(), FloatPrecision) << " " <<
+            StringUtils::ftos(points[0].z(), FloatPrecision) <<" ) ( " <<
+            StringUtils::ftos(points[1].x(), FloatPrecision) << " " <<
+            StringUtils::ftos(points[1].y(), FloatPrecision) << " " <<
+            StringUtils::ftos(points[1].z(), FloatPrecision) << " ) ( " <<
+            StringUtils::ftos(points[2].x(), FloatPrecision) << " " <<
+            StringUtils::ftos(points[2].y(), FloatPrecision) << " " <<
+            StringUtils::ftos(points[2].z(), FloatPrecision) << " ) ";
             
-            stream.precision(6);
             stream <<
-            textureName     << " " <<
-            face.xOffset()  << " " <<
-            face.yOffset()  << " " <<
-            face.rotation() << " " <<
-            face.xScale()   << " " <<
-            face.yScale()   << "\n";
+            textureName << " " <<
+            StringUtils::ftos(face.xOffset(), FloatPrecision)  << " " <<
+            StringUtils::ftos(face.yOffset(), FloatPrecision)  << " " <<
+            StringUtils::ftos(face.rotation(), FloatPrecision) << " " <<
+            StringUtils::ftos(face.xScale(), FloatPrecision)   << " " <<
+            StringUtils::ftos(face.yScale(), FloatPrecision)   << "\n";
         }
     }
 }

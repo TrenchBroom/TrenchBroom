@@ -116,6 +116,19 @@ namespace StringUtils {
         return prefix + safePlural(count, singular, plural) + suffix;
     }
     
+    template <typename T, typename P>
+    String ftos(const T v, const P precision) {
+        std::ostringstream strout;
+        strout.precision(static_cast<std::streamsize>(precision));
+        strout << std::fixed  << v;
+        
+        String str = strout.str() ;
+        size_t end = str.find_last_not_of('0');
+        if (str[end] == '.')
+            --end;
+        return str.erase(end + 1);
+    }
+    
     String formatString(const char* format, ...);
     String formatStringV(const char* format, va_list arguments);
     String trim(const String& str, const String& chars = " \n\t\r");
