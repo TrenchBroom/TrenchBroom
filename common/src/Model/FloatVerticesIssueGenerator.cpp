@@ -68,8 +68,10 @@ namespace TrenchBroom {
             BrushVertexList::const_iterator it, end;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
                 const BrushVertex* vertex = *it;
-                    if (!vertex->position.isInteger())
-                        issues.push_back(new FloatVerticesIssue(brush));
+                if (!vertex->position.isInteger()) {
+                    issues.push_back(new FloatVerticesIssue(brush));
+                    return;
+                }
             }
         }
     }

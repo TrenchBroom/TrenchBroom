@@ -275,11 +275,6 @@ namespace TrenchBroom {
                         return 2;
                 }
             } else {
-                const Vec3 edgeVector3 = edges[2]->vector();
-                assert(!edgeVector1.parallelTo(edgeVector3));
-                assert(!edgeVector2.parallelTo(edgeVector3));
-                _UNUSED(edgeVector3);
-                
                 return edges.size();
             }
         }

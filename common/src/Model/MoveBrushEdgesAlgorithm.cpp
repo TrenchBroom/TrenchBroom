@@ -55,8 +55,6 @@ namespace TrenchBroom {
                 }
                 
                 BrushVertex* vertex = *vertexIt;
-                assert(vertex != NULL);
-                
                 const Vec3 start = vertex->position;
                 const Vec3 end = start + m_delta;
                 

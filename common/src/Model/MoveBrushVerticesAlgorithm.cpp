@@ -49,9 +49,8 @@ namespace TrenchBroom {
                 const Vec3& vertexPosition = *positionIt;
                 BrushVertexList::iterator vertexIt = findBrushVertex(testGeometry.vertices, vertexPosition);
                 assert(vertexIt != testGeometry.vertices.end());
+
                 BrushVertex* vertex = *vertexIt;
-                assert(vertex != NULL);
-                
                 const Vec3 start = vertex->position;
                 const Vec3 end = start + m_delta;
                 

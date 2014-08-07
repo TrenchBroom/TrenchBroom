@@ -90,24 +90,24 @@ namespace TrenchBroom {
             return positions;
         }
 
-        BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position) {
+        BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position, const FloatType epsilon) {
             BrushVertexList::iterator it = vertices.begin();
             const BrushVertexList::iterator end = vertices.end();
             while (it != end) {
                 const BrushVertex& vertex = **it;
-                if (vertex.position == position)
+                if (vertex.position.equals(position, epsilon))
                     return it;
                 ++it;
             }
             return end;
         }
         
-        BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position) {
+        BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position, const FloatType epsilon) {
             BrushVertexList::const_iterator it = vertices.begin();
             const BrushVertexList::const_iterator end = vertices.end();
             while (it != end) {
                 const BrushVertex& vertex = **it;
-                if (vertex.position == position)
+                if (vertex.position.equals(position, epsilon))
                     return it;
                 ++it;
             }
