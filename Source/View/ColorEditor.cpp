@@ -143,7 +143,15 @@ namespace TrenchBroom {
                 const Model::Entity& entity = **entityIt;
                 const Model::PropertyValue* value = entity.propertyForKey(property());
                 if (value != NULL)
-                    colorSet.insert(Vec3f(*value));
+				{
+					Vec3f color = Vec3f(*value);
+					
+					// YIQOrder requires color values in the range [0..1]
+					if (color.x() > 1.0f || color.y() > 1.0f || color.z() > 1.0f)
+						color /= 255.0f;
+
+                    colorSet.insert(color);
+				}
             }
 
             m_colorHistory->setColors(Utility::makeList(colorSet));
