@@ -35,7 +35,7 @@ std::tr1::shared_ptr<T> lock(std::tr1::shared_ptr<T> ptr) {
 
 template <typename T>
 bool expired(std::tr1::shared_ptr<T> ptr) {
-    return true;
+    return false;
 }
 
 template <typename T>
