@@ -502,13 +502,13 @@ namespace TrenchBroom {
             m_handleRenderer.setRenderOccluded(true);
 
             if (m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty() && !splitMode)
-                m_handleRenderer.renderMultipleHandles(renderContext, m_unselectedVertexHandlePositions);
+                m_handleRenderer.renderMultipleHandles(renderContext, VectorUtils::cast<Vec3f>(m_unselectedVertexHandlePositions));
             
             if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode)
-                m_handleRenderer.renderMultipleHandles(renderContext, m_unselectedEdgeHandlePositions);
+                m_handleRenderer.renderMultipleHandles(renderContext, VectorUtils::cast<Vec3f>(m_unselectedEdgeHandlePositions));
             
             if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode)
-                m_handleRenderer.renderMultipleHandles(renderContext, m_unselectedFaceHandlePositions);
+                m_handleRenderer.renderMultipleHandles(renderContext, VectorUtils::cast<Vec3f>(m_unselectedFaceHandlePositions));
             
             if ((!m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty()) && !splitMode) {
                 Renderer::glSetEdgeOffset(0.025f);
@@ -524,7 +524,7 @@ namespace TrenchBroom {
             
             m_handleRenderer.setColor(prefs.get(Preferences::SelectedHandleColor));
             m_handleRenderer.setOccludedColor(prefs.get(Preferences::OccludedSelectedHandleColor));
-            m_handleRenderer.renderMultipleHandles(renderContext, m_selectedHandlePositions);
+            m_handleRenderer.renderMultipleHandles(renderContext, VectorUtils::cast<Vec3f>(m_selectedHandlePositions));
         }
 
         void VertexHandleManager::renderHighlight(Renderer::RenderContext& renderContext, const Vec3& position) {

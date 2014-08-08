@@ -314,18 +314,14 @@ namespace TrenchBroom {
                         }
                     }
                     
-                    // If any of the incident sides has become colinear, we abort the operation.
+                    // If any of the incident sides has become colinear, we delete them.
                     affectedSides = geometry.incidentSides(vertex);
                     for (size_t i = 0; i < affectedSides.size(); ++i) {
                         BrushFaceGeometry* side = affectedSides[i];
-                        if (side->isColinearTriangle() < side->edges.size()) {
-                            vertex->position = lastPosition;
-                            return cancel(geometry, vertex);
-                        }
+                        const size_t longestEdgeIndex = side->isColinearTriangle();
+                        if (longestEdgeIndex < side->edges.size())
+                            deleteColinearTriangle(geometry, side, longestEdgeIndex);
                     }
-                    
-                    // affectedSides = incidentSides(vertex);
-                    // deleteCollinearTriangles(affectedSides, newFaces, droppedFaces);
                     
                     assert(geometry.sanityCheck());
                     
@@ -390,24 +386,23 @@ namespace TrenchBroom {
             }
             
             void mergeSides(BrushGeometry& geometry) {
-                for (size_t i = 0; i < geometry.sides.size(); ++i) {
-                    BrushFaceGeometry* side = geometry.sides[i];
+                size_t i = 0;
+                bool success;
+                _UNUSED(success);
+                
+                while (i < geometry.sides.size()) {
+                    BrushFaceGeometry* side = geometry.sides[i++];
                     
                     Plane3 sideBoundary;
-                    setPlanePoints(sideBoundary,
-                                   side->vertices[0]->position,
-                                   side->vertices[1]->position,
-                                   side->vertices[2]->position);
+                    success = findAndSetPlanePoints(side->vertices, sideBoundary);
+                    assert(success);
                     
                     for (size_t j = 0; j < side->edges.size(); ++j) {
                         BrushEdge* edge = side->edges[j];
                         BrushFaceGeometry* neighbour = edge->left != side ? edge->left : edge->right;
                         
                         Plane3 neighbourBoundary;
-                        setPlanePoints(neighbourBoundary,
-                                       neighbour->vertices[0]->position,
-                                       neighbour->vertices[1]->position,
-                                       neighbour->vertices[2]->position);
+                        success = findAndSetPlanePoints(neighbour->vertices, neighbourBoundary);
                         
                         if (sideBoundary.equals(neighbourBoundary, Math::C::colinearEpsilon())) {
                             mergeNeighbours(geometry, side, j);
@@ -416,6 +411,17 @@ namespace TrenchBroom {
                         }
                     }
                 }
+            }
+            
+            bool findAndSetPlanePoints(const BrushVertexList& vertices, Plane3& plane) const {
+                for (size_t i = 0; i < vertices.size() - 2; ++i) {
+                    const Vec3& p1 = vertices[i + 0]->position;
+                    const Vec3& p2 = vertices[i + 1]->position;
+                    const Vec3& p3 = vertices[i + 2]->position;
+                    if (setPlanePoints(plane, p1, p2, p3))
+                        return true;
+                }
+                return false;
             }
             
             void mergeNeighbours(BrushGeometry& geometry, BrushFaceGeometry* side, const size_t edgeIndex) {
@@ -592,20 +598,43 @@ namespace TrenchBroom {
                 assert(edge != NULL);
                 assert(side->edges.size() == 3);
                 
-                side->shift(VectorUtils::indexOf(side->edges, edge));
+                const size_t edgeIndex = VectorUtils::indexOf(side->edges, edge);
+                side->shift(edgeIndex);
                 
                 BrushEdge* keepEdge = side->edges[1];
                 BrushEdge* dropEdge = side->edges[2];
                 BrushFaceGeometry* neighbour = dropEdge->left == side ? dropEdge->right : dropEdge->left;
-                
-                if (keepEdge->left == side)
-                    keepEdge->left = neighbour;
-                else
-                    keepEdge->right = neighbour;
+                keepEdge->replaceSide(side, neighbour);
                 
                 const size_t deleteIndex = VectorUtils::indexOf(neighbour->edges, dropEdge);
                 const size_t nextIndex = Math::succ(deleteIndex, neighbour->edges.size());
                 neighbour->replaceEdgesWithEdge(deleteIndex, nextIndex, keepEdge);
+                
+                m_faceManager.dropFace(side);
+                VectorUtils::eraseAndDelete(geometry.sides, side);
+                VectorUtils::eraseAndDelete(geometry.edges, dropEdge);
+            }
+            
+            void deleteColinearTriangle(BrushGeometry& geometry, BrushFaceGeometry* side, const size_t edgeIndex) {
+                assert(side != NULL);
+                assert(edgeIndex < 3);
+                assert(side->edges.size() == 3);
+                
+                side->shift(edgeIndex);
+
+                BrushEdge* dropEdge  = side->edges[0];
+                BrushEdge* keepEdge1 = side->edges[1];
+                BrushEdge* keepEdge2 = side->edges[2];
+                BrushFaceGeometry* neighbour = dropEdge->left == side ? dropEdge->right : dropEdge->left;
+                keepEdge1->replaceSide(side, neighbour);
+                keepEdge2->replaceSide(side, neighbour);
+
+                const size_t deleteIndex = VectorUtils::indexOf(neighbour->edges, dropEdge);
+                const size_t nextIndex   = Math::succ(deleteIndex, neighbour->edges.size());
+                BrushEdgeList::iterator first = side->edges.begin();
+                BrushEdgeList::iterator end   = side->edges.end();
+                std::advance(first, 1);
+                neighbour->replaceEdgesWithEdges(deleteIndex, nextIndex, first, end);
                 
                 m_faceManager.dropFace(side);
                 VectorUtils::eraseAndDelete(geometry.sides, side);

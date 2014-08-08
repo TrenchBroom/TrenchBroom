@@ -50,8 +50,8 @@ namespace TrenchBroom {
         
         Vec3 centerOfVertices(const BrushVertexList& vertices);
         Vec3::List vertexPositions(const BrushVertexList& vertices);
-        BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position, FloatType epsilon = Math::Constants<FloatType>::almostZero());
-        BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position, FloatType epsilon = Math::Constants<FloatType>::almostZero());
+        BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position, FloatType epsilon = 0.0);
+        BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position, FloatType epsilon = 0.0);
         Math::PointStatus::Type pointStatus(const Plane3& plane, const BrushVertexList& vertices);
     }
 }

@@ -66,11 +66,13 @@ namespace TrenchBroom {
             void chop(size_t vertexIndex, BrushFaceGeometry*& newSide, BrushEdge*& newEdge);
             void shift(size_t offset);
             void replaceEdgesWithEdge(size_t index1, size_t index2, BrushEdge* edge);
+            void replaceEdgesWithEdges(size_t index1, size_t index2, BrushEdgeList::iterator rIt1, BrushEdgeList::iterator rIt2);
             
             Polygon3 faceInfo() const;
         private:
-            void replaceEdgesWithBackwardEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge);
-            void replaceEdgesWithEdge(const BrushEdgeList::iterator it1, const BrushEdgeList::iterator it2, BrushEdge* edge);
+            void replaceEdgesWithBackwardEdge(BrushEdgeList::iterator it1, BrushEdgeList::iterator it2, BrushEdge* edge);
+            void replaceEdgesWithEdge(BrushEdgeList::iterator it1, BrushEdgeList::iterator it2, BrushEdge* edge);
+            void replaceEdgesWithEdges(BrushEdgeList::iterator it1, BrushEdgeList::iterator it2, BrushEdgeList::iterator rIt1, BrushEdgeList::iterator rIt2);
             void updateVerticesFromEdges();
         };
         

@@ -337,7 +337,7 @@ namespace VectorUtils {
         std::vector<O> output;
         typename std::vector<I>::const_iterator it, end;
         for (it = input.begin(), end = input.end(); it != end; ++it)
-            output.push_back(static_cast<O>(*it));
+            output.push_back(O(*it));
         return output;
     }
 

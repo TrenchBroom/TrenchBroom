@@ -67,6 +67,7 @@ namespace TrenchBroom {
             void flip();
             void setLeftNull();
             void setRightNull();
+            void replaceSide(BrushFaceGeometry* oldSide, BrushFaceGeometry* newSide);
             
             const BrushVertex* startVertex(const BrushFaceGeometry* side) const;
             BrushVertex* startVertex(const BrushFaceGeometry* side);

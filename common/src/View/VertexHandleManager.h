@@ -62,10 +62,10 @@ namespace TrenchBroom {
             size_t m_totalFaceCount;
             size_t m_selectedFaceCount;
             
-            Vec3f::List m_unselectedVertexHandlePositions;
-            Vec3f::List m_unselectedEdgeHandlePositions;
-            Vec3f::List m_unselectedFaceHandlePositions;
-            Vec3f::List m_selectedHandlePositions;
+            Vec3::List m_unselectedVertexHandlePositions;
+            Vec3::List m_unselectedEdgeHandlePositions;
+            Vec3::List m_unselectedFaceHandlePositions;
+            Vec3::List m_selectedHandlePositions;
             
             Renderer::PointHandleRenderer m_handleRenderer;
             Renderer::PointGuideRenderer m_guideRenderer;
@@ -154,7 +154,7 @@ namespace TrenchBroom {
             }
             
             template <typename Element>
-            inline size_t moveHandle(const Vec3f& position, std::map<Vec3, std::vector<Element*>, Vec3::LexicographicOrder >& from, std::map<Vec3, std::vector<Element*>, Vec3::LexicographicOrder >& to) {
+            inline size_t moveHandle(const Vec3& position, std::map<Vec3, std::vector<Element*>, Vec3::LexicographicOrder >& from, std::map<Vec3, std::vector<Element*>, Vec3::LexicographicOrder >& to) {
                 typedef std::vector<Element*> List;
                 typedef std::map<Vec3, List, Vec3::LexicographicOrder> Map;
                 

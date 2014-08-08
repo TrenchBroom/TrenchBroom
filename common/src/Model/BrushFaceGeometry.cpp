@@ -342,6 +342,14 @@ namespace TrenchBroom {
             replaceEdgesWithEdge(it1, it2, edge);
         }
 
+        void BrushFaceGeometry::replaceEdgesWithEdges(const size_t index1, const size_t index2, const BrushEdgeList::iterator rIt1, const BrushEdgeList::iterator rIt2) {
+            BrushEdgeList::iterator it1 = edges.begin();
+            BrushEdgeList::iterator it2 = edges.begin();
+            std::advance(it1, index1);
+            std::advance(it2, index2);
+            replaceEdgesWithEdges(it1, it2, rIt1, rIt2);
+        }
+
         Polygon3 BrushFaceGeometry::faceInfo() const {
             Vec3::List positions(vertices.size());
             for (size_t i = 0; i < vertices.size(); ++i)
@@ -368,6 +376,26 @@ namespace TrenchBroom {
                 BrushEdgeList newEdges;
                 newEdges.insert(newEdges.end(), it2, it1);
                 newEdges.push_back(edge);
+                swap(edges, newEdges);
+            }
+            assert(edges.size() >= 3);
+            updateVerticesFromEdges();
+        }
+
+        void BrushFaceGeometry::replaceEdgesWithEdges(BrushEdgeList::iterator it1, BrushEdgeList::iterator it2, BrushEdgeList::iterator rIt1, BrushEdgeList::iterator rIt2) {
+            using std::swap;
+            if (it1 == it2) {
+                edges.insert(it1, rIt1, rIt2);
+            } else if (it1 < it2) {
+                BrushEdgeList newEdges;
+                newEdges.insert(newEdges.end(), edges.begin(), it1);
+                newEdges.insert(newEdges.end(), rIt1, rIt2);
+                newEdges.insert(newEdges.end(), it2, edges.end());
+                swap(edges, newEdges);
+            } else {
+                BrushEdgeList newEdges;
+                newEdges.insert(newEdges.end(), it2, it1);
+                newEdges.insert(newEdges.end(), rIt1, rIt2);
                 swap(edges, newEdges);
             }
             assert(edges.size() >= 3);

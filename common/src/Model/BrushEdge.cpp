@@ -152,6 +152,14 @@ namespace TrenchBroom {
             right = NULL;
         }
 
+        void BrushEdge::replaceSide(BrushFaceGeometry* oldSide, BrushFaceGeometry* newSide) {
+            assert(left == oldSide || right == oldSide);
+            if (left == oldSide)
+                left = newSide;
+            else
+                right = newSide;
+        }
+
         const BrushVertex* BrushEdge::startVertex(const BrushFaceGeometry* side) const {
             if (side == right)
                 return start;
