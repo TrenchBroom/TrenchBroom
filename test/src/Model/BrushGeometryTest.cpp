@@ -21,11 +21,14 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "IO/QuakeMapParser.h"
+#include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFaceGeometry.h"
+#include "Model/MoveBrushVerticesAlgorithm.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
 namespace TrenchBroom {
@@ -308,6 +311,37 @@ namespace TrenchBroom {
             
             const MoveVerticesResult result = geometry.moveVertices(worldBounds, Vec3::List(1, vertex), delta);
             ASSERT_EQ(1u, result.newVertexPositions.size());
+        }
+        
+        TEST(BrushGeometryTest, moveSingleVertexWithNonIntegerCoords) {
+            // from Issue https://github.com/kduske/TrenchBroom/issues/809
+            const String faceStr("( -256 -132 240 ) ( -256 -132 368 ) ( -256 -112 240 ) wall_xbar2 -49.9999 -16 180 1 -1\n"
+                                 "( -272 -132 240 ) ( -272 -112 240 ) ( -272 -132 368 ) wall_xbar2 -49.9999 -16 180 1 -1\n"
+                                 "( -270.27524959124833 -106.82163545535455 360.74819533200025 ) ( -270.27524959124833 -106.82163545535455 344.74819533200025 ) ( -268.8807577072858 -90.882520285886628 360.74819533200025 ) wall_xbar2 -49.9999 -16 180 1 -1\n"
+                                 "( -272 -120 240 ) ( -256 -120 240 ) ( -272 -120 368 ) kjwall2 0 -32 0 1 1\n"
+                                 "( -272 -132 368 ) ( -256 -132 368 ) ( -272 -132 240 ) wbord05 79.0007 0 -89.9999 1 1\n"
+                                 "( -256 -132 368 ) ( -272 -132 368 ) ( -256 -112 368 ) skip 0 48 0 1 -1\n"
+                                 "( -272 -132 256 ) ( -256 -132 256 ) ( -272 -112 256 ) skip 0 48 0 1 -1\n");
+            const BBox3 worldBounds(-8192.0, 8192.0);
+            
+            IO::QuakeMapParser parser(faceStr);
+            const BrushFaceList faces = parser.parseFaces(worldBounds, MapFormat::Quake);
+            assert(faces.size() == 7);
+            
+            BrushGeometry geometry(worldBounds);
+            geometry.addFaces(faces);
+            geometry.restoreFaceGeometries();
+
+            BrushVertex* vertex = geometry.vertices[2];
+            const Vec3 position = vertex->position;
+            const Vec3 delta = Vec3(-272.0, -120.0, 368.0) - position;
+            Vec3::List positions;
+            positions.push_back(position);
+            
+            MoveBrushVerticesAlgorithm alg(geometry, worldBounds, positions, delta);
+            ASSERT_TRUE(alg.canExecute());
+
+            VectorUtils::deleteAll(faces);
         }
     }
 }
