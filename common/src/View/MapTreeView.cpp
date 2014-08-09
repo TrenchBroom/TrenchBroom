@@ -233,9 +233,6 @@ namespace TrenchBroom {
                 for (it = map.begin(), end = map.end(); it != end; ++it) {
                     Model::Object* parent = it->first;
                     const Model::ObjectList& children = it->second;
-                    
-                    for (size_t i = 0; i < children.size(); ++i)
-                        lock(m_document)->debug("Adding object %p -> %p", parent, children[i]);
 
                     wxDataViewItem parentItem(parent);
                     wxDataViewItemArray childItems;
@@ -252,9 +249,6 @@ namespace TrenchBroom {
                 for (it = map.begin(), end = map.end(); it != end; ++it) {
                     Model::Object* parent = it->first;
                     const Model::ObjectList& children = it->second;
-                    
-                    for (size_t i = 0; i < children.size(); ++i)
-                        lock(m_document)->debug("Deleting object %p -> %p", parent, children[i]);
 
                     wxDataViewItem parentItem(parent);
                     wxDataViewItemArray childItems;
@@ -265,9 +259,6 @@ namespace TrenchBroom {
             }
 
             void objectsDidChange(const Model::ObjectList& objects) {
-                for (size_t i = 0; i < objects.size(); ++i)
-                    lock(m_document)->debug("Updating object %p", objects[i]);
-                
                 wxDataViewItemArray items;
                 AddObjectToItemArray addObjects(items);
                 Model::each(objects.begin(), objects.end(), addObjects, Model::MatchAll());
