@@ -755,6 +755,10 @@ namespace TrenchBroom {
                 entities.insert(newKillSources.begin(), newKillSources.end());
                 
                 m_issueManager.updateObjects(entities.begin(), entities.end());
+            } else if (oldKey == Model::PropertyKeys::Classname ||
+                       newKey == Model::PropertyKeys::Classname) {
+                updateEntityDefinition(entity);
+                updateEntityModel(entity);
             }
         }
         

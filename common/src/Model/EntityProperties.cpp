@@ -58,8 +58,6 @@ namespace TrenchBroom {
         }
         
         bool isPropertyValueMutable(const PropertyKey& key) {
-            if (key == PropertyKeys::Classname)
-                return false;
             if (key == PropertyKeys::Origin)
                 return false;
             if (key == PropertyKeys::Mods)
