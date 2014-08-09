@@ -171,7 +171,7 @@ namespace TrenchBroom {
             document->objectsWillChangeNotifier(parents);
             document->objectsWillBeRemovedNotifier(children);
             document->removeObjects(children);
-            document->objectsWereRemovedNotifier(children);
+            document->objectsWereRemovedNotifier(objects);
             document->objectsDidChangeNotifier(parents);
             m_removedObjects = children;
         }

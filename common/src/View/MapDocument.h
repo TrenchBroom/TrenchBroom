@@ -86,7 +86,7 @@ namespace TrenchBroom {
 
             Notifier1<const Model::ObjectList&> objectsWereAddedNotifier;
             Notifier1<const Model::ObjectList&> objectsWillBeRemovedNotifier;
-            Notifier1<const Model::ObjectList&> objectsWereRemovedNotifier;
+            Notifier1<const Model::ObjectParentList&> objectsWereRemovedNotifier;
             Notifier1<const Model::ObjectList&> objectsWillChangeNotifier;
             Notifier1<const Model::ObjectList&> objectsDidChangeNotifier;
             
@@ -208,7 +208,7 @@ namespace TrenchBroom {
             
             void objectsWereAdded(const Model::ObjectList& objects);
             void objectsWillBeRemoved(const Model::ObjectList& objects);
-            void objectsWereRemoved(const Model::ObjectList& objects);
+            void objectsWereRemoved(const Model::ObjectParentList& objects);
             void objectsWillChange(const Model::ObjectList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
             void updateLinkSourcesInIssueManager(Model::Entity* entity);

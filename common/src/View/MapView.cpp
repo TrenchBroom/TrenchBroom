@@ -980,8 +980,8 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &MapView::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapView::documentWasNewedOrLoaded);
-            document->objectsWereAddedNotifier.addObserver(this, &MapView::objectsWereAddedOrRemoved);
-            document->objectsWereRemovedNotifier.addObserver(this, &MapView::objectsWereAddedOrRemoved);
+            document->objectsWereAddedNotifier.addObserver(this, &MapView::objectsWereAdded);
+            document->objectsWereRemovedNotifier.addObserver(this, &MapView::objectsWereRemoved);
             document->objectsDidChangeNotifier.addObserver(this, &MapView::objectsDidChange);
             document->faceDidChangeNotifier.addObserver(this, &MapView::faceDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
@@ -1007,8 +1007,8 @@ namespace TrenchBroom {
                 MapDocumentSPtr document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &MapView::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapView::documentWasNewedOrLoaded);
-                document->objectsWereAddedNotifier.removeObserver(this, &MapView::objectsWereAddedOrRemoved);
-                document->objectsWereRemovedNotifier.removeObserver(this, &MapView::objectsWereAddedOrRemoved);
+                document->objectsWereAddedNotifier.removeObserver(this, &MapView::objectsWereAdded);
+                document->objectsWereRemovedNotifier.removeObserver(this, &MapView::objectsWereRemoved);
                 document->objectsDidChangeNotifier.removeObserver(this, &MapView::objectsDidChange);
                 document->faceDidChangeNotifier.removeObserver(this, &MapView::faceDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
@@ -1038,10 +1038,14 @@ namespace TrenchBroom {
             resetCamera();
         }
         
-        void MapView::objectsWereAddedOrRemoved(const Model::ObjectList& objects) {
+        void MapView::objectsWereAdded(const Model::ObjectList& objects) {
             Refresh();
         }
         
+        void MapView::objectsWereRemoved(const Model::ObjectParentList& objects) {
+            Refresh();
+        }
+
         void MapView::objectsDidChange(const Model::ObjectList& objects) {
             View::MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedObjects())

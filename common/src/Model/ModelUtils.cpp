@@ -277,7 +277,7 @@ namespace TrenchBroom {
             }
         }
 
-        ObjectList makeParentChildList(const ObjectParentList& list) {
+        /*ObjectList makeParentChildList(const ObjectParentList& list) {
             ObjectList result;
             makeParentChildLists(list, result, result);
             return result;
@@ -288,6 +288,7 @@ namespace TrenchBroom {
             makeParentChildLists(list, result, result);
             return result;
         }
+         */
 
         ObjectList makeObjectList(const EntityList& list) {
             return VectorUtils::cast<Object*>(list);
@@ -324,6 +325,18 @@ namespace TrenchBroom {
             return map;
         }
 
+        ObjectChildrenMap makeObjectChildrenMap(const ObjectParentList& list) {
+            ObjectChildrenMap map;
+            
+            ObjectParentList::const_iterator it, end;
+            for (it = list.begin(), end = list.end(); it != end; ++it) {
+                Object* object = it->object;
+                Object* parent = it->parent;
+                map[parent].push_back(object);
+            }
+            return map;
+        }
+        
         bool MatchAll::operator()(const ObjectParentPair& pair) const {
             return true;
         }

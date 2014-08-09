@@ -176,7 +176,7 @@ namespace TrenchBroom {
                 document->documentWasNewedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.addObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
                 document->objectsWereAddedNotifier.addObserver(this, &MapTreeViewDataModel::objectsWereAdded);
-                document->objectsWillBeRemovedNotifier.addObserver(this, &MapTreeViewDataModel::objectsWillBeRemoved);
+                document->objectsWereRemovedNotifier.addObserver(this, &MapTreeViewDataModel::objectsWereRemoved);
                 document->objectsDidChangeNotifier.addObserver(this, &MapTreeViewDataModel::objectsDidChange);
             }
 
@@ -187,7 +187,7 @@ namespace TrenchBroom {
                     document->documentWasNewedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
                     document->documentWasLoadedNotifier.removeObserver(this, &MapTreeViewDataModel::documentWasNewedOrLoaded);
                     document->objectsWereAddedNotifier.removeObserver(this, &MapTreeViewDataModel::objectsWereAdded);
-                    document->objectsWillBeRemovedNotifier.removeObserver(this, &MapTreeViewDataModel::objectsWillBeRemoved);
+                    document->objectsWereRemovedNotifier.removeObserver(this, &MapTreeViewDataModel::objectsWereRemoved);
                     document->objectsDidChangeNotifier.removeObserver(this, &MapTreeViewDataModel::objectsDidChange);
                 }
             }
@@ -234,6 +234,9 @@ namespace TrenchBroom {
                     Model::Object* parent = it->first;
                     const Model::ObjectList& children = it->second;
                     
+                    for (size_t i = 0; i < children.size(); ++i)
+                        lock(m_document)->debug("Adding object %p -> %p", parent, children[i]);
+
                     wxDataViewItem parentItem(parent);
                     wxDataViewItemArray childItems;
                     AddObjectToItemArray addObjects(childItems);
@@ -242,7 +245,7 @@ namespace TrenchBroom {
                 }
             }
 
-            void objectsWillBeRemoved(const Model::ObjectList& objects) {
+            void objectsWereRemoved(const Model::ObjectParentList& objects) {
                 const Model::ObjectChildrenMap map = Model::makeObjectChildrenMap(objects);
                 
                 Model::ObjectChildrenMap::const_iterator it, end;
@@ -250,6 +253,9 @@ namespace TrenchBroom {
                     Model::Object* parent = it->first;
                     const Model::ObjectList& children = it->second;
                     
+                    for (size_t i = 0; i < children.size(); ++i)
+                        lock(m_document)->debug("Deleting object %p -> %p", parent, children[i]);
+
                     wxDataViewItem parentItem(parent);
                     wxDataViewItemArray childItems;
                     AddObjectToItemArray addObjects(childItems);
@@ -259,6 +265,9 @@ namespace TrenchBroom {
             }
 
             void objectsDidChange(const Model::ObjectList& objects) {
+                for (size_t i = 0; i < objects.size(); ++i)
+                    lock(m_document)->debug("Updating object %p", objects[i]);
+                
                 wxDataViewItemArray items;
                 AddObjectToItemArray addObjects(items);
                 Model::each(objects.begin(), objects.end(), addObjects, Model::MatchAll());

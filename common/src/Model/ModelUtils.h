@@ -61,13 +61,14 @@ namespace TrenchBroom {
         ObjectList makeParentList(const BrushList& list);
         void makeParentChildLists(const ObjectParentList& list, ObjectList& parents, ObjectList& children);
         void makeParentChildLists(const BrushList& list, ObjectList& parents, ObjectList& children);
-        ObjectList makeParentChildList(const ObjectParentList& list);
-        ObjectList makeParentChildList(const BrushList& list);
+        // ObjectList makeParentChildList(const ObjectParentList& list);
+        // ObjectList makeParentChildList(const BrushList& list);
         ObjectList makeObjectList(const EntityList& list);
         ObjectList makeObjectList(const BrushList& list);
         ObjectList makeObjectList(const ObjectParentList& list);
 
         ObjectChildrenMap makeObjectChildrenMap(const ObjectList& list);
+        ObjectChildrenMap makeObjectChildrenMap(const ObjectParentList& list);
         
         struct MatchAll {
             bool operator()(const ObjectParentPair& pair) const;

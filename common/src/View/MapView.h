@@ -248,7 +248,8 @@ namespace TrenchBroom {
             void unbindObservers();
             
             void documentWasNewedOrLoaded();
-            void objectsWereAddedOrRemoved(const Model::ObjectList& objects);
+            void objectsWereAdded(const Model::ObjectList& objects);
+            void objectsWereRemoved(const Model::ObjectParentList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
             void faceDidChange(Model::BrushFace* face);
             void selectionDidChange(const Model::SelectionResult& result);

@@ -57,8 +57,10 @@ namespace TrenchBroom {
             m_snapshot = Model::Snapshot(m_brushes);
             m_newVertexPositions.clear();
             
-            const Model::ObjectList objects = Model::makeParentChildList(m_brushes);
-            document->objectsWillChangeNotifier(objects);
+            Model::ObjectList parents, children;
+            Model::makeParentChildLists(m_brushes, parents, children);
+            document->objectsWillChangeNotifier(parents);
+            document->objectsWillChangeNotifier(children);
 
             BrushVerticesMap::const_iterator mapIt, mapEnd;
             for (mapIt = m_brushVertices.begin(), mapEnd = m_brushVertices.end(); mapIt != mapEnd; ++mapIt) {
@@ -68,7 +70,8 @@ namespace TrenchBroom {
                 VectorUtils::append(m_newVertexPositions, newVertexPositions);
             }
 
-            document->objectsDidChangeNotifier(objects);
+            document->objectsDidChangeNotifier(children);
+            document->objectsDidChangeNotifier(parents);
             VectorUtils::sort(m_newVertexPositions);
             
             return true;
@@ -90,10 +93,13 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             const BBox3& worldBounds = document->worldBounds();
 
-            const Model::ObjectList objects = Model::makeParentChildList(m_brushes);
-            document->objectsWillChangeNotifier(objects);
+            Model::ObjectList parents, children;
+            Model::makeParentChildLists(m_brushes, parents, children);
+            document->objectsWillChangeNotifier(parents);
+            document->objectsWillChangeNotifier(children);
             m_snapshot.restore(worldBounds);
-            document->objectsDidChangeNotifier(objects);
+            document->objectsDidChangeNotifier(children);
+            document->objectsDidChangeNotifier(parents);
 
             return true;
         }

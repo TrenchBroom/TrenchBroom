@@ -694,10 +694,10 @@ namespace TrenchBroom {
             }
         }
         
-        void MapDocument::objectsWereRemoved(const Model::ObjectList& objects) {
-            Model::ObjectList::const_iterator it, end;
+        void MapDocument::objectsWereRemoved(const Model::ObjectParentList& objects) {
+            Model::ObjectParentList::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
+                Model::Object* object = it->object;
                 if (object->type() == Model::Object::Type_Entity) {
                     Model::Entity* entity = static_cast<Model::Entity*>(object);
                     updateLinkSourcesInIssueManager(entity);
