@@ -448,6 +448,18 @@ namespace TrenchBroom {
         }
         
         void VertexTool::vertexHandleClicked(const InputState& inputState, const Hits::List& hits) {
+            if (inputState.modifierKeysPressed(ModifierKeys::MKShift) &&
+                m_handleManager.selectedVertexCount() == 1) {
+                const Hit& hit = hits.front();
+                if (hit.type() == VertexHandleManager::VertexHandleHit) {
+                    const Vec3 targetPosition = hit.target<Vec3>();
+                    const Vec3 originalPosition = m_handleManager.selectedVertexHandlePositions().front();
+                    const Vec3 delta = targetPosition - originalPosition;
+                    moveVerticesAndRebuildBrushGeometry(delta);
+                }
+                return;
+            }
+            
             m_handleManager.deselectAllEdgeHandles();
             m_handleManager.deselectAllFaceHandles();
             
