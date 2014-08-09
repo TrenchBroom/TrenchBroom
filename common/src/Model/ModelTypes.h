@@ -67,6 +67,8 @@ namespace TrenchBroom {
             
             ObjectParentPair(Object* i_object, Object* i_parent);
             ObjectParentPair(Object* i_object);
+            
+            bool operator==(const ObjectParentPair& other) const;
         };
         
         typedef std::vector<ObjectParentPair> ObjectParentList;

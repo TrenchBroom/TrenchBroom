@@ -343,5 +343,40 @@ namespace TrenchBroom {
 
             VectorUtils::deleteAll(faces);
         }
+        
+        TEST(BrushGeometryTest, moveAndMergeSingleVertex) {
+            // from Issue https://github.com/kduske/TrenchBroom/issues/818
+            const String faceStr("( -558.72829778450921 -608 256 ) ( -558.72829778450921 -608 240 ) ( -544 -620 256 ) wbord05 0 0 0 1 1\n"
+                                 "( -544 -660 256 ) ( -544 -660 240 ) ( -558.72829778451012 -672 256 ) wbord05 0 0 0 1 1\n"
+                                 "( -544 -620 240 ) ( -544 -660 240 ) ( -544 -620 256 ) wbord05 0 0 0 1 1\n"
+                                 "( -560 -622.53562283659812 256 ) ( -560 -657.46437716340256 256 ) ( -560 -622.53562283659812 240 ) wbord05 0 0 0 1 1\n"
+                                 "( -558.72829778451012 -672 256 ) ( -558.72829778451023 -672 240 ) ( -560 -657.46437716340256 256 ) wbord05 0 0 0 1 1\n"
+                                 "( -560 -622.53562283659812 256 ) ( -560 -622.53562283659812 240 ) ( -558.72829778450921 -608 256 ) wbord05 0 0 0 1 1\n"
+                                 "( -558.72829778450921 -608 256 ) ( -544 -620 256 ) ( -560 -622.53562283659812 256 ) wbord05 0 0 0 1 1\n"
+                                 "( -558.72829778450921 -608 240 ) ( -560 -622.53562283659812 240 ) ( -544 -620 240 ) wbord05 0 0 0 1 1\n"
+                                 );
+            
+            const BBox3 worldBounds(-8192.0, 8192.0);
+            
+            IO::QuakeMapParser parser(faceStr);
+            const BrushFaceList faces = parser.parseFaces(worldBounds, MapFormat::Quake);
+            assert(faces.size() == 8);
+            
+            BrushGeometry geometry(worldBounds);
+            geometry.addFaces(faces);
+            geometry.restoreFaceGeometries();
+            
+            BrushVertex* vertex = geometry.vertices[2];
+            BrushVertex* target = geometry.vertices[1];
+            const Vec3 position = vertex->position;
+            const Vec3 delta = target->position - position;
+            Vec3::List positions;
+            positions.push_back(position);
+            
+            MoveBrushVerticesAlgorithm alg(geometry, worldBounds, positions, delta);
+            ASSERT_TRUE(alg.canExecute());
+            
+            VectorUtils::deleteAll(faces);
+        }
     }
 }

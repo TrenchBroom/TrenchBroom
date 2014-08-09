@@ -50,5 +50,9 @@ namespace TrenchBroom {
                 assert(parent != NULL);
             }
         }
+
+        bool ObjectParentPair::operator==(const ObjectParentPair& other) const {
+            return object == other.object && parent == other.parent;
+        }
     }
 }

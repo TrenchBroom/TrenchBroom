@@ -164,7 +164,7 @@ namespace TrenchBroom {
                                 chopFace(geometry, side, vertexIndex);
                             } else {
                                 // Vertex will move above or parallel to the boundary: Create a triangle fan.
-                                for (size_t j = 1; j < side->vertices.size() - 1; ++j) {
+                                while (side->vertices.size() > 3) {
                                     const size_t vertexIndex = VectorUtils::indexOf(side->vertices, vertex);
                                     chopFace(geometry, side, Math::succ(vertexIndex, side->vertices.size()));
                                 }
@@ -172,6 +172,7 @@ namespace TrenchBroom {
                         }
                     }
                     affectedSides = geometry.incidentSides(vertex);
+                    assert(checkIfTriangles(affectedSides));
                     
                     // Now all sides incident to the vertex are triangles. We need to compute the next point to which the
                     // vertex can be moved without making the brush convex. For that, we consider each incident side
@@ -639,6 +640,16 @@ namespace TrenchBroom {
                 m_faceManager.dropFace(side);
                 VectorUtils::eraseAndDelete(geometry.sides, side);
                 VectorUtils::eraseAndDelete(geometry.edges, dropEdge);
+            }
+            
+            bool checkIfTriangles(const BrushFaceGeometryList& sides) const {
+                BrushFaceGeometryList::const_iterator it, end;
+                for (it = sides.begin(), end = sides.end(); it != end; ++it) {
+                    const BrushFaceGeometry* side = *it;
+                    if (side->edges.size() != 3)
+                        return false;
+                }
+                return true;
             }
         };
     }

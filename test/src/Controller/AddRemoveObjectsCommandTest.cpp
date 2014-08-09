@@ -47,14 +47,14 @@ namespace TrenchBroom {
             
             MockObserver1<const Model::ObjectList&> objectsWereAdded(doc->objectsWereAddedNotifier);
             MockObserver1<const Model::ObjectList&> objectsWillBeRemoved(doc->objectsWillBeRemovedNotifier);
-            MockObserver1<const Model::ObjectList&> objectsWereRemoved(doc->objectsWereRemovedNotifier);
+            MockObserver1<const Model::ObjectParentList&> objectsWereRemoved(doc->objectsWereRemovedNotifier);
             
             objectsWereAdded.expect(Model::ObjectList(1, entity));
             ASSERT_TRUE(command->performDo());
             ASSERT_TRUE(VectorUtils::contains(doc->map()->entities(), entity));
             
             objectsWillBeRemoved.expect(Model::ObjectList(1, entity));
-            objectsWereRemoved.expect(Model::ObjectList(1, entity));
+            objectsWereRemoved.expect(objects);
             ASSERT_TRUE(command->performUndo());
             ASSERT_FALSE(VectorUtils::contains(doc->map()->entities(), entity));
         }
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             
             MockObserver1<const Model::ObjectList&> objectsWereAdded(doc->objectsWereAddedNotifier);
             MockObserver1<const Model::ObjectList&> objectsWillBeRemoved(doc->objectsWillBeRemovedNotifier);
-            MockObserver1<const Model::ObjectList&> objectsWereRemoved(doc->objectsWereRemovedNotifier);
+            MockObserver1<const Model::ObjectParentList&> objectsWereRemoved(doc->objectsWereRemovedNotifier);
 
             objectsWillChange.expect(Model::ObjectList(1, doc->worldspawn()));
             objectsWereAdded.expect(addedObjects);
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             
             objectsWillChange.expect(Model::ObjectList(1, doc->worldspawn()));
             objectsWillBeRemoved.expect(addedObjects);
-            objectsWereRemoved.expect(addedObjects);
+            objectsWereRemoved.expect(objects);
             objectsDidChange.expect(Model::ObjectList(1, doc->worldspawn()));
             ASSERT_TRUE(command->performUndo());
             ASSERT_FALSE(VectorUtils::contains(doc->map()->worldspawn()->brushes(), brush1));
@@ -123,7 +123,7 @@ namespace TrenchBroom {
 
             MockObserver1<const Model::ObjectList&> objectsWereAdded(doc->objectsWereAddedNotifier);
             MockObserver1<const Model::ObjectList&> objectsWillBeRemoved(doc->objectsWillBeRemovedNotifier);
-            MockObserver1<const Model::ObjectList&> objectsWereRemoved(doc->objectsWereRemovedNotifier);
+            MockObserver1<const Model::ObjectParentList&> objectsWereRemoved(doc->objectsWereRemovedNotifier);
             
             objectsWillChange.expect(Model::ObjectList(1, entity));
             objectsWereAdded.expect(Model::ObjectList(1, brush));
@@ -133,7 +133,7 @@ namespace TrenchBroom {
             
             objectsWillChange.expect(Model::ObjectList(1, entity));
             objectsWillBeRemoved.expect(Model::ObjectList(1, brush));
-            objectsWereRemoved.expect(Model::ObjectList(1, brush));
+            objectsWereRemoved.expect(objects);
             objectsDidChange.expect(Model::ObjectList(1, entity));
             ASSERT_TRUE(command->performUndo());
             ASSERT_FALSE(VectorUtils::contains(entity->brushes(), brush));
