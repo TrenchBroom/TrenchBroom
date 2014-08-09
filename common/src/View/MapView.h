@@ -225,7 +225,7 @@ namespace TrenchBroom {
             void OnPopupCreateBrushEntity(wxCommandEvent& event);
             void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
         private:
-            void updateAcceleratorTable();
+            void updateAcceleratorTable(bool hasFocus);
             Action::Context actionContext() const;
             
             void updateReparentBrushesMenuItem(wxUpdateUIEvent& event) const;

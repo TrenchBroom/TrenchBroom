@@ -91,7 +91,7 @@ namespace TrenchBroom {
             createTools(toolBook);
             bindEvents();
             bindObservers();
-            updateAcceleratorTable();
+            updateAcceleratorTable(HasFocus());
         }
         
         MapView::~MapView() {
@@ -145,13 +145,13 @@ namespace TrenchBroom {
                 m_flyModeHelper.disable();
                 m_toolBox.enable();
             }
-            updateAcceleratorTable();
+            updateAcceleratorTable(HasFocus());
             Refresh();
         }
         
         void MapView::toggleMovementRestriction() {
             m_movementRestriction.toggleHorizontalRestriction(m_camera);
-            updateAcceleratorTable();
+            updateAcceleratorTable(HasFocus());
             Refresh();
         }
         
@@ -161,7 +161,7 @@ namespace TrenchBroom {
         
         void MapView::toggleClipTool() {
             m_toolBox.toggleTool(m_clipTool);
-            updateAcceleratorTable();
+            updateAcceleratorTable(HasFocus());
         }
         
         bool MapView::clipToolActive() const {
@@ -206,7 +206,7 @@ namespace TrenchBroom {
         
         void MapView::toggleRotateObjectsTool() {
             m_toolBox.toggleTool(m_rotateObjectsTool);
-            updateAcceleratorTable();
+            updateAcceleratorTable(HasFocus());
         }
         
         bool MapView::rotateObjectsToolActive() const {
@@ -215,7 +215,7 @@ namespace TrenchBroom {
         
         void MapView::toggleVertexTool() {
             m_toolBox.toggleTool(m_vertexTool);
-            updateAcceleratorTable();
+            updateAcceleratorTable(HasFocus());
         }
         
         bool MapView::vertexToolActive() const {
@@ -238,7 +238,7 @@ namespace TrenchBroom {
         
         void MapView::toggleTextureTool() {
             m_toolBox.toggleTool(m_textureTool);
-            updateAcceleratorTable();
+            updateAcceleratorTable(HasFocus());
         }
         
         bool MapView::textureToolActive() const {
@@ -607,14 +607,16 @@ namespace TrenchBroom {
         }
         
         void MapView::OnSetFocus(wxFocusEvent& event) {
-            updateAcceleratorTable();
+            m_logger->debug("Map View Got Focus");
+            updateAcceleratorTable(true);
             event.Skip();
         }
         
         void MapView::OnKillFocus(wxFocusEvent& event) {
+            m_logger->debug("Map View Lost Focus");
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
-            updateAcceleratorTable();
+            updateAcceleratorTable(false);
             event.Skip();
         }
         
@@ -655,8 +657,8 @@ namespace TrenchBroom {
             createBrushEntity(*static_cast<const Assets::BrushEntityDefinition*>(definition));
         }
         
-        void MapView::updateAcceleratorTable() {
-            if (HasFocus()) {
+        void MapView::updateAcceleratorTable(const bool hasFocus) {
+            if (hasFocus) {
                 const ActionManager& actionManager = ActionManager::instance();
                 const Action::Context context = actionContext();
                 const wxAcceleratorTable acceleratorTable = actionManager.createMapViewAcceleratorTable(context);
@@ -1060,7 +1062,7 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedObjects())
                 m_selectionGuide.setBounds(lock(m_document)->selectionBounds());
-            updateAcceleratorTable();
+            updateAcceleratorTable(HasFocus());
             Refresh();
         }
         
