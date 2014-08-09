@@ -65,8 +65,10 @@ namespace TrenchBroom {
             void setupRendererColors();
             
             void setupGL(RenderContext& context);
-            void renderGeometry(RenderContext& context);
-            void renderEntities(RenderContext& context);
+            void renderUnselectedGeometry(RenderContext& context);
+            void renderSelectedGeometry(RenderContext& context);
+            void renderUnselectedEntities(RenderContext& context);
+            void renderSelectedEntities(RenderContext& context);
             void renderEntityLinks(RenderContext& context);
             void renderPointFile(RenderContext& context);
             

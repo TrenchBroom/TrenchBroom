@@ -126,10 +126,12 @@ namespace TrenchBroom {
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
             
-            renderGeometry(context);
-            renderEntities(context);
             renderEntityLinks(context);
             renderPointFile(context);
+            renderUnselectedGeometry(context);
+            renderUnselectedEntities(context);
+            renderSelectedGeometry(context);
+            renderSelectedEntities(context);
         }
         
         void MapRenderer::setupRendererColors() {
@@ -171,8 +173,11 @@ namespace TrenchBroom {
             glResetEdgeOffset();
         }
         
-        void MapRenderer::renderGeometry(RenderContext& context) {
+        void MapRenderer::renderUnselectedGeometry(RenderContext& context) {
             m_unselectedBrushRenderer.render(context);
+        }
+        
+        void MapRenderer::renderSelectedGeometry(RenderContext& context) {
             if (!context.hideSelection()) {
                 const bool applyTinting = context.tintSelection(); // && lock(m_document)->selectedFaces().empty();
                 m_selectedBrushRenderer.setTintFaces(applyTinting);
@@ -180,8 +185,11 @@ namespace TrenchBroom {
             }
         }
         
-        void MapRenderer::renderEntities(RenderContext& context) {
+        void MapRenderer::renderUnselectedEntities(RenderContext& context) {
             m_unselectedEntityRenderer.render(context);
+        }
+        
+        void MapRenderer::renderSelectedEntities(RenderContext& context) {
             if (!context.hideSelection()) {
                 const bool applyTinting = context.tintSelection();
                 m_selectedEntityRenderer.setApplyTinting(applyTinting);
