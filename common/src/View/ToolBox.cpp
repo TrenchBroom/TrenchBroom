@@ -207,8 +207,15 @@ namespace TrenchBroom {
                     m_inputState.mouseUp(button);
                     releaseMouse();
                     
-                    if (button == MouseButtons::MBRight && !handled)
+                    if (button == MouseButtons::MBRight && !handled) {
+                        // We miss mouse events when a popup menu is already open, so we must make sure that the input
+                        // state is up to date.
+                        
+                        mouseMoved(event.GetPosition());
+                        updateHits();
+                        
                         showPopupMenu();
+                    }
                 } else {
                     m_inputState.mouseUp(button);
                     releaseMouse();
