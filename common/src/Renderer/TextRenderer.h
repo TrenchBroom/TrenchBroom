@@ -304,7 +304,7 @@ namespace TrenchBroom {
                 rectArray.prepare(m_vbo);
                 vboState.active();
                 
-                glDepthMask(GL_FALSE);
+                // glDepthMask(GL_FALSE);
                 glDisable(GL_TEXTURE_2D);
                 
                 ActiveShader backgroundShader(context.shaderManager(), backgroundProgram);
@@ -317,7 +317,7 @@ namespace TrenchBroom {
                 fontArray.render();
                 m_font.deactivate();
                 
-                glDepthMask(GL_TRUE);
+                // glDepthMask(GL_TRUE);
                 
                 clearRenderOnce();
             }
