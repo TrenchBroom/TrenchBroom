@@ -152,7 +152,6 @@ namespace TrenchBroom {
             
             updateHits();
             const bool success = m_dropReceiver->dragDrop(m_inputState);
-            m_dropReceiver->deactivate(m_inputState);
             m_dropReceiver = NULL;
             m_savedDropReceiver = NULL;
             m_window->Refresh();
