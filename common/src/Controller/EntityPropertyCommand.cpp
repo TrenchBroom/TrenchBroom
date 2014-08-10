@@ -183,7 +183,7 @@ namespace TrenchBroom {
                     const Model::PropertyValue& value = entity->property(key());
                     m_snapshot.insert(std::make_pair(entity, PropertySnapshot(key(), value)));
                     
-                    entity->renameProperty(key(), value);
+                    entity->renameProperty(key(), newKey());
                     document->entityPropertyDidChangeNotifier(entity, key(), value, newKey(), value);
                 }
             }
