@@ -86,7 +86,9 @@ namespace TrenchBroom {
         m_boundsValid(false),
         m_overrideBoundsColor(false),
         m_renderOccludedBounds(false),
-        m_applyTinting(false) {
+        m_applyTinting(false),
+        m_vbo(0xFFF),
+        m_renderAngles(false) {
             m_classnameRenderer.setFadeDistance(500.0f);
         }
         
@@ -142,6 +144,7 @@ namespace TrenchBroom {
             renderBounds(context);
             renderModels(context);
             renderClassnames(context);
+            renderAngles(context);
         }
 
         const Color& EntityRenderer::overlayTextColor() const {
@@ -213,6 +216,19 @@ namespace TrenchBroom {
         void EntityRenderer::setTintColor(const Color& tintColor) {
             m_tintColor = tintColor;
         }
+        
+        bool EntityRenderer::renderAngles() const {
+            return m_renderAngles;
+        }
+        
+        void EntityRenderer::setRenderAngles(const bool renderAngles) {
+            m_renderAngles = renderAngles;
+        }
+        
+        void EntityRenderer::setAngleColors(const Color& fillColor, const Color& outlineColor) {
+            m_angleFillColor = fillColor;
+            m_angleOutlineColor = outlineColor;
+        }
 
         void EntityRenderer::renderBounds(RenderContext& context) {
             if (!m_boundsValid)
@@ -255,6 +271,79 @@ namespace TrenchBroom {
             m_modelRenderer.setApplyTinting(m_applyTinting);
             m_modelRenderer.setTintColor(m_tintColor);
             m_modelRenderer.render(context);
+        }
+
+        void EntityRenderer::renderAngles(RenderContext& context) {
+            if (!m_renderAngles)
+                return;
+            
+            static const float maxDistance2 = 200.0f * 200.0f;
+            typedef VertexSpecs::P3::Vertex Vertex;
+            const Vec3f::List arrow = arrowHead(9.0f, 6.0f);
+            
+            Vertex::List vertices;
+            Model::EntitySet::const_iterator it, end;
+            for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                const Model::Entity* entity = *it;
+                const Quatf rotation = Quatf(entity->rotation());
+                const Vec3f direction = rotation * Vec3f::PosX;
+                const Vec3f center = Vec3f(entity->bounds().center());
+                
+                const Vec3f toCam = context.camera().position() - center;
+                if (toCam.squaredLength() > maxDistance2)
+                    continue;
+
+                Vec3f onPlane = toCam - toCam.dot(direction) * direction;
+                if (onPlane.null())
+                    continue;
+                
+                onPlane.normalize();
+                
+                const Vec3f rotZ = rotation * Vec3f::PosZ;
+                const float angle = -angleBetween(rotZ, onPlane, direction);
+                const Mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotationMatrix(rotation) * translationMatrix(16.0f * Vec3f::PosX);
+                
+                for (size_t i = 0; i < 3; ++i)
+                    vertices.push_back(Vertex(matrix * arrow[i]));
+            }
+            
+            const size_t vertexCount = vertices.size();
+            if (vertexCount == 0)
+                return;
+            
+            VertexArray array = VertexArray::swap(GL_TRIANGLES, vertices);
+            SetVboState vboState(m_vbo);
+            vboState.mapped();
+            array.prepare(m_vbo);
+            vboState.active();
+            
+            ActiveShader shader(context.shaderManager(), Shaders::HandleShader);
+
+            glDepthMask(GL_FALSE);
+
+            glDisable(GL_DEPTH_TEST);
+            glPolygonMode(GL_FRONT, GL_LINE);
+            shader.set("Color", Color(m_angleOutlineColor, 0.5f * m_angleOutlineColor.a()));
+            array.render();
+
+            glEnable(GL_DEPTH_TEST);
+            shader.set("Color", m_angleOutlineColor);
+            array.render();
+
+            glPolygonMode(GL_FRONT, GL_FILL);
+            shader.set("Color", m_angleFillColor);
+            array.render();
+            
+            glDepthMask(GL_TRUE);
+        }
+
+        Vec3f::List EntityRenderer::arrowHead(const float length, const float width) const {
+            // clockwise winding
+            Vec3f::List result(3);
+            result[0] = Vec3f(0.0f,    width / 2.0f, 0.0f);
+            result[1] = Vec3f(length,          0.0f, 0.0f);
+            result[2] = Vec3f(0.0f,   -width / 2.0f, 0.0f);
+            return result;
         }
 
         TextureFont& EntityRenderer::font(FontManager& fontManager) {

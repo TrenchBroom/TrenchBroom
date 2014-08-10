@@ -27,6 +27,7 @@
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/TextRenderer.h"
 #include "Renderer/TriangleRenderer.h"
+#include "Renderer/Vbo.h"
 
 #include <map>
 
@@ -94,6 +95,11 @@ namespace TrenchBroom {
             Color m_occludedBoundsColor;
             bool m_applyTinting;
             Color m_tintColor;
+            
+            Vbo m_vbo;
+            bool m_renderAngles;
+            Color m_angleOutlineColor;
+            Color m_angleFillColor;
         public:
             EntityRenderer(Assets::EntityModelManager& entityModelManager, FontManager& m_fontManager, const Model::ModelFilter& filter);
             ~EntityRenderer();
@@ -148,12 +154,18 @@ namespace TrenchBroom {
             void setApplyTinting(const bool applyTinting);
             const Color& tintColor() const;
             void setTintColor(const Color& tintColor);
+            
+            bool renderAngles() const;
+            void setRenderAngles(bool renderAngles);
+            void setAngleColors(const Color& fillColor, const Color& outlineColor);
         private:
             void renderBounds(RenderContext& context);
             void renderWireframeBounds(RenderContext& context);
             void renderSolidBounds(RenderContext& renderContext);
             void renderClassnames(RenderContext& context);
             void renderModels(RenderContext& context);
+            void renderAngles(RenderContext& context);
+            Vec3f::List arrowHead(float length, float width) const;
             static TextureFont& font(FontManager& fontManager);
             void invalidateBounds();
             void validateBounds();
