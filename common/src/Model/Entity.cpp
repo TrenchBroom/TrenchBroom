@@ -591,9 +591,7 @@ namespace TrenchBroom {
         m_isWorldspawn(false) {}
         
         void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
-            const Mat4x4 translation = translationMatrix(transformation);
-            const Vec3 orig = origin();
-            setOrigin(translation * orig);
+            setOrigin(transformation * origin());
             
             const Mat4x4 rotation = stripTranslation(transformation);
             applyRotation(rotation);
