@@ -297,6 +297,8 @@ namespace TrenchBroom {
             clearModificationCount();
             loadAndUpdateEntityDefinitions();
             loadBuiltinTextures();
+
+            m_selectionBoundsValid = false;
         }
         
         void MapDocument::openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
@@ -323,6 +325,8 @@ namespace TrenchBroom {
                                 Model::MapObjectsIterator::end(*m_map));
             m_issueManager.addObjects(Model::MapObjectsIterator::begin(*m_map),
                                       Model::MapObjectsIterator::end(*m_map));
+
+            m_selectionBoundsValid = false;
         }
         
         void MapDocument::saveDocument() {
@@ -491,7 +495,11 @@ namespace TrenchBroom {
         }
         
         const BBox3& MapDocument::selectionBounds() const {
-            return m_selection.bounds();
+            if (!m_selectionBoundsValid) {
+                m_selectionBounds = m_selection.computeBounds();
+                m_selectionBoundsValid = true;
+            }
+            return m_selectionBounds;
         }
 
         const Model::ObjectList& MapDocument::selectedObjects() const {
@@ -595,6 +603,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::bindObservers() {
+            selectionDidChangeNotifier.addObserver(this, &MapDocument::selectionDidChange);
             objectsWereAddedNotifier.addObserver(this, &MapDocument::objectsWereAdded);
             objectsWillBeRemovedNotifier.addObserver(this, &MapDocument::objectsWillBeRemoved);
             objectsWereRemovedNotifier.addObserver(this, &MapDocument::objectsWereRemoved);
@@ -612,6 +621,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::unbindObservers() {
+            selectionDidChangeNotifier.removeObserver(this, &MapDocument::selectionDidChange);
             objectsWereAddedNotifier.removeObserver(this, &MapDocument::objectsWereAdded);
             objectsWillBeRemovedNotifier.removeObserver(this, &MapDocument::objectsWillBeRemoved);
             objectsWereRemovedNotifier.removeObserver(this, &MapDocument::objectsWereRemoved);
@@ -627,6 +637,10 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
         }
         
+        void MapDocument::selectionDidChange(const Model::SelectionResult& selection) {
+            m_selectionBoundsValid = false;
+        }
+
         void MapDocument::objectsWereAdded(const Model::ObjectList& objects) {
             SetTexture setTexture(m_textureManager);
             
@@ -723,6 +737,8 @@ namespace TrenchBroom {
                     updateEntityModel(entity);
                 }
             }
+            
+            m_selectionBoundsValid = false;
         }
         
         void MapDocument::updateLinkSourcesInIssueManager(Model::Entity* entity) {
@@ -809,6 +825,7 @@ namespace TrenchBroom {
         m_textureManager(this),
         m_picker(m_worldBounds),
         m_selection(m_filter),
+        m_selectionBoundsValid(false),
         m_grid(5),
         m_textureLock(true),
         m_modificationCount(0) {

@@ -69,6 +69,8 @@ namespace TrenchBroom {
             Model::Picker m_picker;
             Model::ModelFilter m_filter;
             Model::Selection m_selection;
+            mutable BBox3 m_selectionBounds;
+            mutable bool m_selectionBoundsValid;
             Model::IssueManager m_issueManager;
             Model::PointFile m_pointFile;
             View::Grid m_grid;
@@ -205,6 +207,8 @@ namespace TrenchBroom {
             
             void registerIssueGenerators();
             void reloadIssues();
+            
+            void selectionDidChange(const Model::SelectionResult& selection);
             
             void objectsWereAdded(const Model::ObjectList& objects);
             void objectsWillBeRemoved(const Model::ObjectList& objects);

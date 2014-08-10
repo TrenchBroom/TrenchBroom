@@ -183,8 +183,7 @@ namespace TrenchBroom {
 
         Selection::Selection(const ModelFilter& filter) :
         m_filter(filter),
-        m_lastSelectedFace(NULL),
-        m_boundsValid(false) {}
+        m_lastSelectedFace(NULL) {}
 
         bool Selection::hasSelectedObjects() const {
             return !m_selectedObjects.empty();
@@ -267,15 +266,8 @@ namespace TrenchBroom {
             return m_lastSelectedFace;
         }
         
-        const BBox3& Selection::bounds() const {
-            assert(hasSelectedObjects());
-            
-            if (!m_boundsValid) {
-                m_bounds = Object::bounds(m_selectedObjects);
-                m_boundsValid = true;
-            }
-            
-            return m_bounds;
+        const BBox3 Selection::computeBounds() const {
+            return Object::bounds(m_selectedObjects);
         }
 
         SelectionResult Selection::selectObjects(const ObjectList& objects) {
@@ -288,7 +280,6 @@ namespace TrenchBroom {
                      MatchAll());
                 applyResult(result);
             }
-            m_boundsValid = false;
             return result;
         }
         
@@ -301,7 +292,6 @@ namespace TrenchBroom {
                      MatchAll());
                 applyResult(result);
             }
-            m_boundsValid = false;
             return result;
         }
         
@@ -312,7 +302,6 @@ namespace TrenchBroom {
                  SetSelection(true, m_filter, result),
                  MatchUnselected());
             applyResult(result);
-            m_boundsValid = false;
             return result;
         }
         
@@ -402,7 +391,6 @@ namespace TrenchBroom {
                  m_selectedObjects.end(),
                  SetSelection(false, m_filter, result),
                  MatchSelected());
-            m_boundsValid = false;
         }
         
         void Selection::deselectAllFaces(SelectionResult& result) {
