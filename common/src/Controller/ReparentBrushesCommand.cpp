@@ -60,6 +60,8 @@ namespace TrenchBroom {
             
             Model::ObjectList allChangedParents = Model::makeParentList(m_brushes);
             allChangedParents.push_back(m_newParent);
+            VectorUtils::sortAndRemoveDuplicates(allChangedParents);
+            
             const Model::ObjectList allChangedBrushes = Model::makeObjectList(m_brushes);
             
             View::MapDocumentSPtr document = lock(m_document);
@@ -87,14 +89,17 @@ namespace TrenchBroom {
         
         bool ReparentBrushesCommand::doPerformUndo() {
             Model::ObjectList allChangedParents = Model::makeParentList(m_brushes);
-            allChangedParents.push_back(m_newParent);
+            Model::BrushEntityMap::const_iterator it, end;
+            for (it = m_oldParents.begin(), end = m_oldParents.end(); it != end; ++it)
+                allChangedParents.push_back(it->second);
+            VectorUtils::sortAndRemoveDuplicates(allChangedParents);
+            
             const Model::ObjectList allChangedBrushes = Model::makeObjectList(m_brushes);
 
             View::MapDocumentSPtr document = lock(m_document);
             document->objectsWillChangeNotifier(allChangedParents);
             document->objectsWillBeRemovedNotifier(allChangedBrushes);
 
-            Model::BrushEntityMap::const_iterator it, end;
             for (it = m_oldParents.begin(), end = m_oldParents.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 Model::Entity* oldParent = it->second;
