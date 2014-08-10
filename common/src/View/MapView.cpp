@@ -607,13 +607,11 @@ namespace TrenchBroom {
         }
         
         void MapView::OnSetFocus(wxFocusEvent& event) {
-            m_logger->debug("Map View Got Focus");
             updateAcceleratorTable(true);
             event.Skip();
         }
         
         void MapView::OnKillFocus(wxFocusEvent& event) {
-            m_logger->debug("Map View Lost Focus");
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
             updateAcceleratorTable(false);
