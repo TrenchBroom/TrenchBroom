@@ -1,5 +1,5 @@
-SET(APP_DIR ${CMAKE_SOURCE_DIR}/app)
-SET(APP_SOURCE_DIR ${APP_DIR}/src)
+SET(APP_DIR "${CMAKE_SOURCE_DIR}/app")
+SET(APP_SOURCE_DIR "${APP_DIR}/src")
 FILE(GLOB_RECURSE APP_SOURCE
     "${APP_SOURCE_DIR}/*.h"
     "${APP_SOURCE_DIR}/*.cpp"
@@ -63,7 +63,7 @@ ENDIF()
 
 # Set up resource compilation for Windows
 IF(WIN32)
-    # CONFIGURE_FILE(${APP_SOURCE_DIR}/TrenchBroom.rc.in ${CMAKE_CURRENT_BINARY_DIR}/TrenchBroom.rc @ONLY)
+    # CONFIGURE_FILE("${APP_SOURCE_DIR}/TrenchBroom.rc.in" "${CMAKE_CURRENT_BINARY_DIR}/TrenchBroom.rc" @ONLY)
     IF(MSVC)
         SET(APP_SOURCE ${APP_SOURCE} "${APP_SOURCE_DIR}/TrenchBroom.rc")
     ELSEIF(MINGW)
@@ -88,13 +88,13 @@ ADD_DEPENDENCIES(TrenchBroom version)
 IF(WIN32)
 	# Copy Windows icons to target dir
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroom.ico" $CMAKE_CURRENT_BINARY_DIR
-        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroomDoc.ico" $CMAKE_CURRENT_BINARY_DIR
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroom.ico" "$CMAKE_CURRENT_BINARY_DIR"
+        COMMAND ${CMAKE_COMMAND} -E copy "${APP_DIR}/resources/graphics/icons/TrenchBroomDoc.ico" "$CMAKE_CURRENT_BINARY_DIR"
 	)
 	
     # Copy DLLs to app directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" $<TARGET_FILE_DIR:TrenchBroom>
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "$<TARGET_FILE_DIR:TrenchBroom>"
 	)
 ENDIF()
 
@@ -108,22 +108,22 @@ ENDIF()
 IF(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	# Copy button images to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/graphics/images" $<TARGET_FILE_DIR:TrenchBroom>/Resources/images
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/graphics/images" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/images"
 	)
 
     # Copy fonts to resources directory
     ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/fonts" $<TARGET_FILE_DIR:TrenchBroom>/Resources/fonts
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/fonts" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/fonts"
     )
 
 	# Copy game files to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games/" $<TARGET_FILE_DIR:TrenchBroom>/Resources/games
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/games/" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/games"
 	)
 
 	# Copy shader files to resources directory
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/shader" $<TARGET_FILE_DIR:TrenchBroom>/Resources/shader
+        COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_DIR}/resources/shader" "$<TARGET_FILE_DIR:TrenchBroom>/Resources/shader"
 	)
 ENDIF()
 
@@ -136,7 +136,8 @@ IF(APPLE)
 ENDIF()
 
 # Common CPack configuration
-GET_APP_VERSION(${APP_DIR} CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
+    MESSAGE(STATUS "App dir: $APP_DIR")
+GET_APP_VERSION("${APP_DIR}" CPACK_PACKAGE_VERSION_MAJOR CPACK_PACKAGE_VERSION_MINOR CPACK_PACKAGE_VERSION_PATCH)
 GET_BUILD_ID("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" APP_VERSION_BUILD_ID)
 GET_BUILD_PLATFORM(APP_PLATFORM_NAME)
 SET(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${APP_VERSION_BUILD_ID}-${CMAKE_BUILD_TYPE}")

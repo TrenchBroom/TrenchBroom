@@ -1,4 +1,4 @@
-SET(TEST_SOURCE_DIR ${CMAKE_SOURCE_DIR}/test/src)
+SET(TEST_SOURCE_DIR "${CMAKE_SOURCE_DIR}/test/src")
 
 FILE(GLOB_RECURSE TEST_SOURCE
     "${TEST_SOURCE_DIR}/*.h"
@@ -6,18 +6,18 @@ FILE(GLOB_RECURSE TEST_SOURCE
 )
 
 ADD_EXECUTABLE(TrenchBroom-Test ${TEST_SOURCE})
-ADD_TARGET_PROPERTY(TrenchBroom-Test INCLUDE_DIRECTORIES ${TEST_SOURCE_DIR})
+ADD_TARGET_PROPERTY(TrenchBroom-Test INCLUDE_DIRECTORIES "${TEST_SOURCE_DIR}")
 TARGET_LINK_LIBRARIES(TrenchBroom-Test common gtest gmock ${wxWidgets_LIBRARIES} ${FREETYPE_LIBRARIES} ${FREEIMAGE_LIBRARIES})
 
 # Copy some Windows-specific resources
 IF(WIN32)
 	ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" $<TARGET_FILE_DIR:TrenchBroom-Test>
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${LIB_BIN_DIR}/win32" "$<TARGET_FILE_DIR:TrenchBroom-Test>"
 	)
 ENDIF()
 
 ADD_CUSTOM_COMMAND(TARGET TrenchBroom-Test POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/test/data" $<TARGET_FILE_DIR:TrenchBroom-Test>/data
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/test/data" "$<TARGET_FILE_DIR:TrenchBroom-Test>/data"
 )
 
 SET_XCODE_ATTRIBUTES(TrenchBroom-Test)

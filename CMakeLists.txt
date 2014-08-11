@@ -13,10 +13,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
 PROJECT(TrenchBroom)
 
 # Library configuration
-SET(LIB_DIR ${CMAKE_SOURCE_DIR}/lib)
-SET(LIB_BIN_DIR ${LIB_DIR}/bin)
-SET(LIB_INCLUDE_DIR ${LIB_DIR}/include)
-SET(LIB_SOURCE_DIR ${LIB_DIR}/src)
+SET(LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
+SET(LIB_BIN_DIR "${LIB_DIR}/bin")
+SET(LIB_INCLUDE_DIR "${LIB_DIR}/include")
+SET(LIB_SOURCE_DIR "${LIB_DIR}/src")
 
 INCLUDE(cmake/wxWidgets.cmake)
 INCLUDE(cmake/FreeType.cmake)
