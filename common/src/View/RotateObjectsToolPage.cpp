@@ -51,11 +51,14 @@ namespace TrenchBroom {
             
             wxString axes[] = { "X", "Y", "Z" };
             m_axis = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, axes);
-            m_button = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_rotateButton = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_resetButton = new wxButton(this, wxID_ANY, "Reset", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_resetButton->SetToolTip("Reset the position of the rotate handle to the center of the current selection.");
             
             Bind(wxEVT_IDLE, &RotateObjectsToolPage::OnIdle, this);
-            m_button->Bind(wxEVT_UPDATE_UI, &RotateObjectsToolPage::OnUpdateButton, this);
-            m_button->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnApply, this);
+            m_rotateButton->Bind(wxEVT_UPDATE_UI, &RotateObjectsToolPage::OnUpdateRotateButton, this);
+            m_rotateButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnRotate, this);
+            m_resetButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnReset, this);
             
             wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(text1, 0, wxALIGN_CENTER_VERTICAL);
@@ -68,7 +71,9 @@ namespace TrenchBroom {
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(text3, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_button, 0);
+            sizer->Add(m_rotateButton);
+            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            sizer->Add(m_resetButton);
             sizer->SetItemMinSize(m_angle, 50, wxDefaultCoord);
 
             SetSizer(sizer);
@@ -79,12 +84,12 @@ namespace TrenchBroom {
             m_angle->SetIncrements(Math::degrees(grid.angle()), 90.0, 1.0);
         }
 
-        void RotateObjectsToolPage::OnUpdateButton(wxUpdateUIEvent& event) {
+        void RotateObjectsToolPage::OnUpdateRotateButton(wxUpdateUIEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->hasSelectedObjects());
         }
         
-        void RotateObjectsToolPage::OnApply(wxCommandEvent& event) {
+        void RotateObjectsToolPage::OnRotate(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             ControllerSPtr controller = lock(m_controller);
             
@@ -94,6 +99,10 @@ namespace TrenchBroom {
             const FloatType angle = Math::radians(m_angle->GetValue());
             const bool lockTextures = document->textureLock();
             controller->rotateObjects(objects, center, axis, angle, lockTextures);
+        }
+        
+        void RotateObjectsToolPage::OnReset(wxCommandEvent& event) {
+            m_tool->resetHandlePosition();
         }
 
         Vec3 RotateObjectsToolPage::getAxis() const {

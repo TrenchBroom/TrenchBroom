@@ -42,15 +42,17 @@ namespace TrenchBroom {
 
             SpinControl* m_angle;
             wxChoice* m_axis;
-            wxButton* m_button;
+            wxButton* m_rotateButton;
+            wxButton* m_resetButton;
         public:
             RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, RotateObjectsTool* tool);
         private:
             void createGui();
             
             void OnIdle(wxIdleEvent& event);
-            void OnUpdateButton(wxUpdateUIEvent& event);
-            void OnApply(wxCommandEvent& event);
+            void OnUpdateRotateButton(wxUpdateUIEvent& event);
+            void OnRotate(wxCommandEvent& event);
+            void OnReset(wxCommandEvent& event);
             Vec3 getAxis() const;
         };
     }

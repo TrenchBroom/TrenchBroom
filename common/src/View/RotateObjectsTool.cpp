@@ -56,6 +56,14 @@ namespace TrenchBroom {
         Vec3 RotateObjectsTool::center() const {
             return m_handle.getPointHandlePosition(RotateObjectsHandle::HitArea_Center);
         }
+        
+        void RotateObjectsTool::resetHandlePosition() {
+            const Model::ObjectList& objects = document()->selectedObjects();
+            assert(!objects.empty());
+            const BBox3 bounds = Model::Object::bounds(objects);
+            const Vec3 position = document()->grid().snap(bounds.center());
+            m_handle.setPosition(position);
+        }
 
         bool RotateObjectsTool::initiallyActive() const {
             return false;
@@ -64,7 +72,6 @@ namespace TrenchBroom {
         bool RotateObjectsTool::doActivate(const InputState& inputState) {
             if (!document()->hasSelectedObjects())
                 return false;
-            resetHandlePosition();
             updateHandleAxes(inputState);
             return true;
         }
@@ -177,14 +184,6 @@ namespace TrenchBroom {
             if (!hit.isMatch())
                 return RotateObjectsHandle::HitArea_None;
             return hit.target<RotateObjectsHandle::HitArea>();
-        }
-
-        void RotateObjectsTool::resetHandlePosition() {
-            const Model::ObjectList& objects = document()->selectedObjects();
-            assert(!objects.empty());
-            const BBox3 bounds = Model::Object::bounds(objects);
-            const Vec3 position = document()->grid().snap(bounds.center());
-            m_handle.setPosition(position);
         }
 
         void RotateObjectsTool::updateHandleAxes(const InputState& inputState) {

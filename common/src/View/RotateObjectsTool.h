@@ -53,6 +53,7 @@ namespace TrenchBroom {
             RotateObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
             
             Vec3 center() const;
+            void resetHandlePosition();
         private:
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);
@@ -76,7 +77,6 @@ namespace TrenchBroom {
             bool renderHandle(const InputState& inputState) const;
             RotateObjectsHandle::HitArea highlightHandleArea(const InputState& inputState) const;
             
-            void resetHandlePosition();
             void updateHandleAxes(const InputState& inputState);
 
             // MoveDelegate protocol
