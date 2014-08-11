@@ -127,6 +127,7 @@ namespace TrenchBroom {
             void selectFaceHandles(const Polygon3::List& faces);
             void deselectAllFaceHandles();
             
+            bool hasSelectedHandles() const;
             void deselectAllHandles();
             
             void pick(const Ray3& ray, Hits& hits, bool splitMode) const;

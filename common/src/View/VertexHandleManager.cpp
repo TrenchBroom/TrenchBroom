@@ -432,6 +432,10 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
+        bool VertexHandleManager::hasSelectedHandles() const {
+            return !m_selectedVertexHandles.empty() || !m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty();
+        }
+
         void VertexHandleManager::deselectAllHandles() {
             deselectAllVertexHandles();
             deselectAllEdgeHandles();

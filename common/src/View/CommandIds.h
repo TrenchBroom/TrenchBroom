@@ -87,53 +87,55 @@ namespace TrenchBroom {
                 const int DeleteLastClipPoint                = Lowest +   4;
 
                 const int ToggleVertexTool                   = Lowest +   5;
-                const int MoveVerticesForward                = Lowest +  34;
-                const int MoveVerticesBackward               = Lowest +  35;
-                const int MoveVerticesLeft                   = Lowest +  36;
-                const int MoveVerticesRight                  = Lowest +  37;
-                const int MoveVerticesUp                     = Lowest +  38;
-                const int MoveVerticesDown                   = Lowest +  39;
+                const int MoveVerticesForward                = Lowest +   6;
+                const int MoveVerticesBackward               = Lowest +   7;
+                const int MoveVerticesLeft                   = Lowest +   8;
+                const int MoveVerticesRight                  = Lowest +   9;
+                const int MoveVerticesUp                     = Lowest +  10;
+                const int MoveVerticesDown                   = Lowest +  11;
 
-                const int ToggleRotateObjectsTool            = Lowest +   6;
-                const int ToggleFlyMode                      = Lowest +  40;
+                const int ToggleRotateObjectsTool            = Lowest +  12;
+                const int ToggleFlyMode                      = Lowest +  13;
                 
-                const int ToggleMovementRestriction          = Lowest +   7;
+                const int ToggleMovementRestriction          = Lowest +  14;
 
-                const int DeleteObjects                      = Lowest +  41;
+                const int DeleteObjects                      = Lowest +  15;
                 
-                const int MoveObjectsForward                 = Lowest +   8;
-                const int MoveObjectsRight                   = Lowest +   9;
-                const int MoveObjectsBackward                = Lowest +  10;
-                const int MoveObjectsLeft                    = Lowest +  11;
-                const int MoveObjectsUp                      = Lowest +  12;
-                const int MoveObjectsDown                    = Lowest +  13;
+                const int MoveObjectsForward                 = Lowest +  16;
+                const int MoveObjectsRight                   = Lowest +  17;
+                const int MoveObjectsBackward                = Lowest +  18;
+                const int MoveObjectsLeft                    = Lowest +  19;
+                const int MoveObjectsUp                      = Lowest +  20;
+                const int MoveObjectsDown                    = Lowest +  21;
                 
-                const int RollObjectsCW                      = Lowest +  14;
-                const int RollObjectsCCW                     = Lowest +  15;
-                const int PitchObjectsCW                     = Lowest +  16;
-                const int PitchObjectsCCW                    = Lowest +  17;
-                const int YawObjectsCW                       = Lowest +  18;
-                const int YawObjectsCCW                      = Lowest +  19;
+                const int RollObjectsCW                      = Lowest +  22;
+                const int RollObjectsCCW                     = Lowest +  23;
+                const int PitchObjectsCW                     = Lowest +  24;
+                const int PitchObjectsCCW                    = Lowest +  25;
+                const int YawObjectsCW                       = Lowest +  26;
+                const int YawObjectsCCW                      = Lowest +  27;
                 
-                const int FlipObjectsHorizontally            = Lowest +  20;
-                const int FlipObjectsVertically              = Lowest +  21;
+                const int FlipObjectsHorizontally            = Lowest +  30;
+                const int FlipObjectsVertically              = Lowest +  31;
                 
-                const int DuplicateObjectsForward            = Lowest +  22;
-                const int DuplicateObjectsRight              = Lowest +  23;
-                const int DuplicateObjectsBackward           = Lowest +  24;
-                const int DuplicateObjectsLeft               = Lowest +  25;
-                const int DuplicateObjectsUp                 = Lowest +  26;
-                const int DuplicateObjectsDown               = Lowest +  27;
-                
-                const int DuplicateObjects                   = Lowest +  28;
+                const int DuplicateObjectsForward            = Lowest +  32;
+                const int DuplicateObjectsRight              = Lowest +  33;
+                const int DuplicateObjectsBackward           = Lowest +  34;
+                const int DuplicateObjectsLeft               = Lowest +  35;
+                const int DuplicateObjectsUp                 = Lowest +  36;
+                const int DuplicateObjectsDown               = Lowest +  37;
+            
+                const int DuplicateObjects                   = Lowest +  38;
 
-                const int MoveTexturesUp                     = Lowest +  29;
-                const int MoveTexturesRight                  = Lowest +  30;
-                const int MoveTexturesDown                   = Lowest +  31;
-                const int MoveTexturesLeft                   = Lowest +  32;
-                const int RotateTexturesCW                   = Lowest +  33;
-                const int RotateTexturesCCW                  = Lowest +  34;
+                const int MoveTexturesUp                     = Lowest +  39;
+                const int MoveTexturesRight                  = Lowest +  40;
+                const int MoveTexturesDown                   = Lowest +  41;
+                const int MoveTexturesLeft                   = Lowest +  42;
+                const int RotateTexturesCW                   = Lowest +  43;
+                const int RotateTexturesCCW                  = Lowest +  44;
 
+                const int Cancel                             = Lowest +  45;
+                
                 /*
                 const int CorrectVertices                    = Lowest +  82;
                  */

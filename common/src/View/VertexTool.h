@@ -92,6 +92,8 @@ namespace TrenchBroom {
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
             
+            bool doCancel(const InputState& inputState);
+            
             void doPick(const InputState& inputState, Hits& hits);
 
             bool doMouseDown(const InputState& inputState);

@@ -118,6 +118,15 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool ClipTool::cancel(const InputState& inputState) {
+            if (m_clipper.numPoints() > 0) {
+                m_clipper.reset();
+                updateBrushes();
+                return true;
+            }
+            return false;
+        }
+
         void ClipTool::doPick(const InputState& inputState, Hits& hits) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const FloatType radius = 2.0 * prefs.get(Preferences::HandleRadius);

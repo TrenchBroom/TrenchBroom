@@ -54,6 +54,8 @@ namespace TrenchBroom {
             bool doActivate(const InputState& inputState);
             bool doDeactivate(const InputState& inputState);
             
+            bool cancel(const InputState& inputState);
+            
             void doPick(const InputState& inputState, Hits& hits);
 
             bool doMouseUp(const InputState& inputState);

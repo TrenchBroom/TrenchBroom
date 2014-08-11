@@ -372,6 +372,15 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool VertexTool::doCancel(const InputState& inputState) {
+            if (m_handleManager.hasSelectedHandles()) {
+                m_handleManager.deselectAllHandles();
+                return true;
+            }
+            
+            return false;
+        }
+
         void VertexTool::doPick(const InputState& inputState, Hits& hits) {
             m_handleManager.pick(inputState.pickRay(), hits, m_mode == Mode_Split);
         }

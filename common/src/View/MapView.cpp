@@ -592,6 +592,12 @@ namespace TrenchBroom {
             controller->rotateTextures(faces, angle);
         }
         
+        void MapView::OnCancel(wxCommandEvent& event) {
+            if (m_toolBox.cancel())
+                return;
+            lock(m_controller)->deselectAll();
+        }
+
         void MapView::OnKey(wxKeyEvent& event) {
             m_movementRestriction.setVerticalRestriction(event.AltDown());
             Refresh();
@@ -1359,6 +1365,8 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsUp,       this, CommandIds::Actions::DuplicateObjectsUp);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsDown,     this, CommandIds::Actions::DuplicateObjectsDown);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjects,         this, CommandIds::Actions::DuplicateObjects);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnCancel,                   this, CommandIds::Actions::Cancel);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesUp,           this, CommandIds::Actions::MoveTexturesUp);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesDown,         this, CommandIds::Actions::MoveTexturesDown);

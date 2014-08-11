@@ -396,6 +396,24 @@ namespace TrenchBroom {
             m_enabled = false;
         }
         
+        bool ToolBox::cancel() {
+            if (m_dragReceiver != NULL) {
+                m_dragReceiver->cancelMouseDrag(m_inputState);
+                m_dragReceiver = NULL;
+                return true;
+            }
+            
+            if (m_toolChain->cancel(m_inputState))
+                return true;
+            
+            if (anyToolActive()) {
+                deactivateAllTools();
+                return true;
+            }
+            
+            return false;
+        }
+        
         void ToolBox::setRenderOptions(Renderer::RenderContext& renderContext) {
             if (m_toolChain != NULL)
                 m_toolChain->setRenderOptions(m_inputState, renderContext);

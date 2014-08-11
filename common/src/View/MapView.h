@@ -214,6 +214,8 @@ namespace TrenchBroom {
             float rotateTextureAngle(bool clockwise) const;
             void rotateTextures(float angle);
         public:
+            void OnCancel(wxCommandEvent& event);
+            
             void OnKey(wxKeyEvent& event);
 
             void OnActivateFrame(wxActivateEvent& event);

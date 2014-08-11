@@ -177,6 +177,8 @@ namespace TrenchBroom {
             virtual bool activate(const InputState& inputState) = 0;
             virtual void deactivate(const InputState& inputState) = 0;
             
+            virtual bool cancel(const InputState& inputState) = 0;
+            
             virtual void pick(const InputState& inputState, Hits& hits) = 0;
             
             virtual void modifierKeyChange(const InputState& inputState) = 0;
@@ -236,6 +238,14 @@ namespace TrenchBroom {
                 assert(active());
                 if (static_cast<ActivationPolicyType&>(*this).doDeactivate(inputState))
                     m_active = false;
+            }
+            
+            bool cancel(const InputState& inputState) {
+                if (active() && doCancel(inputState))
+                    return true;
+                if (next())
+                    return next()->cancel(inputState);
+                return false;
             }
             
             void pick(const InputState& inputState, Hits& hits) {
@@ -382,6 +392,10 @@ namespace TrenchBroom {
             
             bool dragging() const {
                 return m_dragging;
+            }
+        private:
+            virtual bool doCancel(const InputState& inputState) {
+                return false;
             }
         };
     }

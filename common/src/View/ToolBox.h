@@ -121,6 +121,8 @@ namespace TrenchBroom {
             void enable();
             void disable();
             
+            bool cancel();
+            
             void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderTools(Renderer::RenderContext& renderContext);
         private:
