@@ -46,7 +46,7 @@ namespace TrenchBroom {
             mutable ValueMap m_values;
             mutable NodeSet m_children;
         public:
-            Node(const String& key) :
+            explicit Node(const String& key) :
             m_key(key) {}
             
             bool operator<(const Node& rhs) const {
@@ -111,7 +111,8 @@ namespace TrenchBroom {
                     if (firstDiff < key.size()) {
                         // the given key is longer than this node's key, so we must continue at the appropriate child node
                         const String remainder(key.substr(firstDiff));
-                        typename NodeSet::iterator it = m_children.find(remainder);
+                        const Node query(remainder);
+                        typename NodeSet::iterator it = m_children.find(query);
                         assert(it != m_children.end());
                         const Node& child = *it;
                         if (child.remove(remainder, value))
@@ -138,7 +139,8 @@ namespace TrenchBroom {
                 } else if (firstDiff < key.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
                     const String remainder(key.substr(firstDiff));
-                    typename NodeSet::iterator it = m_children.find(remainder);
+                    const Node query(remainder);
+                    typename NodeSet::iterator it = m_children.find(query);
                     if (it != m_children.end()) {
                         const Node& child = *it;
                         child.queryExact(remainder, result);
@@ -158,7 +160,8 @@ namespace TrenchBroom {
                 } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
                     const String remainder(prefix.substr(firstDiff));
-                    typename NodeSet::iterator it = m_children.find(remainder);
+                    const Node query(remainder);
+                    typename NodeSet::iterator it = m_children.find(query);
                     if (it != m_children.end()) {
                         const Node& child = *it;
                         child.queryPrefix(remainder, result);
@@ -196,7 +199,8 @@ namespace TrenchBroom {
                 } else if (firstDiff < prefix.size() && firstDiff == m_key.size()) {
                     // this node is only a partial match, try to find a child to continue searching
                     const String remainder(prefix.substr(firstDiff));
-                    typename NodeSet::iterator it = m_children.find(remainder);
+                    const Node query(remainder);
+                    typename NodeSet::iterator it = m_children.find(query);
                     if (it != m_children.end()) {
                         const Node& child = *it;
                         child.queryNumbered(remainder, result);

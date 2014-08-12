@@ -105,12 +105,14 @@ namespace TrenchBroom {
         m_definition(definition) {}
         
         bool EntityProperty::operator<(const EntityProperty& rhs) const {
+            return compare(rhs) < 0;
+        }
+        
+        int EntityProperty::compare(const EntityProperty& rhs) const {
             const int keyCmp = m_key.compare(rhs.m_key);
-            if (keyCmp < 0)
-                return true;
-            if (keyCmp > 0)
-                return false;
-            return m_value.compare(rhs.m_value) < 0;
+            if (keyCmp != 0)
+                return keyCmp;
+            return m_value.compare(rhs.m_value);
         }
 
         const PropertyKey& EntityProperty::key() const {

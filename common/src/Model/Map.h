@@ -53,6 +53,8 @@ namespace TrenchBroom {
             Entity* worldspawn() const;
             Object* findObjectByFilePosition(const size_t position) const;
             
+            void addEntityPropertiesToIndex(Entity* entity);
+            void removeEntityPropertiesFromIndex(Entity* entity);
             void addEntityPropertyToIndex(Entity* entity, const PropertyKey& key, const PropertyValue& value);
             void removeEntityPropertyFromIndex(Entity* entity, const PropertyKey& key, const PropertyValue& value);
             

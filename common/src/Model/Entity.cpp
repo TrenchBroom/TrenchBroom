@@ -140,6 +140,7 @@ namespace TrenchBroom {
         }
         
         void Entity::setProperties(const EntityProperty::List& properties) {
+            updatePropertyIndex(properties);
             m_properties.setProperties(properties);
             m_properties.updateDefinitions(m_definition);
             invalidateBounds();
@@ -268,6 +269,47 @@ namespace TrenchBroom {
             PropertyKeyList result;
             findMissingTargets(PropertyKeys::Killtarget, result);
             return result;
+        }
+
+        void Entity::updatePropertyIndex(const EntityProperty::List& newProperties) {
+            if (m_map == NULL)
+                return;
+            
+            EntityProperty::List oldSorted = m_properties.properties();
+            EntityProperty::List newSorted = newProperties;
+            
+            VectorUtils::sort(oldSorted);
+            VectorUtils::sort(newSorted);
+            
+            size_t i = 0, j = 0;
+            while (i < oldSorted.size() && j < newSorted.size()) {
+                const EntityProperty& oldProp = oldSorted[i];
+                const EntityProperty& newProp = newSorted[j];
+                
+                const int cmp = oldProp.compare(newProp);
+                if (cmp < 0) {
+                    removePropertyFromIndex(oldProp.key(), oldProp.value());
+                    ++i;
+                } else if (cmp > 0) {
+                    addPropertyToIndex(newProp.key(), newProp.value());
+                    ++j;
+                } else {
+                    updatePropertyIndex(oldProp.key(), oldProp.value(), newProp.key(), newProp.value());
+                    ++i; ++j;
+                }
+            }
+            
+            while (i < oldSorted.size()) {
+                const EntityProperty& oldProp = oldSorted[i];
+                removePropertyFromIndex(oldProp.key(), oldProp.value());
+                ++i;
+            }
+            
+            while (j < newSorted.size()) {
+                const EntityProperty& newProp = newSorted[j];
+                addPropertyToIndex(newProp.key(), newProp.value());
+                ++j;
+            }
         }
 
         void Entity::addPropertyToIndex(const PropertyKey& key, const PropertyValue& value) {

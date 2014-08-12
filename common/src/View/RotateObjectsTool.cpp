@@ -48,7 +48,8 @@ namespace TrenchBroom {
         m_helper(NULL),
         m_moveHelper(movementRestriction, *this),
         m_rotateHelper(*this, font),
-        m_centerGuideRenderer(document) {
+        m_centerGuideRenderer(document),
+        m_firstActivation(true) {
             PreferenceManager& prefs = PreferenceManager::instance();
             m_centerGuideRenderer.setColor(prefs.get(Preferences::HandleColor));
         }
@@ -72,6 +73,10 @@ namespace TrenchBroom {
         bool RotateObjectsTool::doActivate(const InputState& inputState) {
             if (!document()->hasSelectedObjects())
                 return false;
+            if (m_firstActivation) {
+                resetHandlePosition();
+                m_firstActivation = false;
+            }
             updateHandleAxes(inputState);
             return true;
         }

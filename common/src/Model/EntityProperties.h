@@ -68,6 +68,7 @@ namespace TrenchBroom {
             EntityProperty();
             EntityProperty(const PropertyKey& key, const PropertyValue& value, const Assets::PropertyDefinition* definition);
             bool operator<(const EntityProperty& rhs) const;
+            int compare(const EntityProperty& rhs) const;
             
             const PropertyKey& key() const;
             const PropertyValue& value() const;

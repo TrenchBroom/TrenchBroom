@@ -49,6 +49,8 @@ namespace TrenchBroom {
             RotateHelper m_rotateHelper;
             
             Renderer::PointGuideRenderer m_centerGuideRenderer;
+            
+            bool m_firstActivation;
         public:
             RotateObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
             

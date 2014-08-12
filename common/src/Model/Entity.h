@@ -150,9 +150,11 @@ namespace TrenchBroom {
             PropertyKeyList findMissingLinkTargets() const;
             PropertyKeyList findMissingKillTargets() const;
         private:
+            void updatePropertyIndex(const EntityProperty::List& newProperties);
             void addPropertyToIndex(const PropertyKey& key, const PropertyValue& value);
             void removePropertyFromIndex(const PropertyKey& key, const PropertyValue& value);
             void updatePropertyIndex(const PropertyKey& oldKey, const PropertyValue& oldValue, const PropertyKey& newKey, const PropertyValue& newValue);
+            
             void addLinks(const PropertyKey& key, const PropertyValue& value);
             void removeLinks(const PropertyKey& key, const PropertyValue& value);
             void updateLinks(const PropertyKey& oldKey, const PropertyValue& oldValue, const PropertyKey& newKey, const PropertyValue& newValue);
