@@ -247,6 +247,10 @@ namespace TrenchBroom {
             return Orientations[oldIndex] != Orientations[newIndex];
         }
 
+        void ParaxialTexCoordSystem::doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttribs& attribs) {
+            setRotation(newNormal, attribs.rotation(), attribs.rotation());
+        }
+
         void ParaxialTexCoordSystem::doShearTexture(const Vec3& normal, const Vec2f& factors) {
             // not supported
         }

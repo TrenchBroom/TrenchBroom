@@ -477,9 +477,12 @@ namespace TrenchBroom {
                 }
             }
             
+            const Vec3 oldNormal = m_boundary.normal;
             setPoints(m_side->vertices[best]->position,
                       m_side->vertices[Math::succ(best, vertexCount)]->position,
                       m_side->vertices[Math::pred(best, vertexCount)]->position);
+            
+            m_texCoordSystem->updateNormal(oldNormal, m_boundary.normal, m_attribs);
             invalidateVertexCache();
         }
 

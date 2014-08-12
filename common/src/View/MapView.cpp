@@ -1119,6 +1119,7 @@ namespace TrenchBroom {
             m_toolBox.addTool(m_selectionTool);
             
             m_toolBox.deactivateWhen(m_clipTool, m_resizeBrushesTool);
+            m_toolBox.deactivateWhen(m_vertexTool, m_resizeBrushesTool);
             
             m_moveObjectsTool->createPage(toolBook);
             m_rotateObjectsTool->createPage(toolBook);

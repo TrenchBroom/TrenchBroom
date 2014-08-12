@@ -101,6 +101,20 @@ namespace TrenchBroom {
             attribs.setOffset(newOffset);
         }
 
+        void ParallelTexCoordSystem::doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttribs& attribs) {
+            Quat3 rotation;
+            const Vec3 cross = crossed(oldNormal, newNormal);
+            if (cross.null()) {
+                rotation = Quat3(oldNormal.makePerpendicular(), Math::C::pi());
+            } else {
+                const Vec3 axis = cross.normalized();
+                const FloatType angle = angleBetween(newNormal, oldNormal, axis);
+                rotation = Quat3(axis, angle);
+            }
+            m_xAxis = rotation * m_xAxis;
+            m_yAxis = rotation * m_yAxis;
+        }
+
         void ParallelTexCoordSystem::doShearTexture(const Vec3& normal, const Vec2f& f) {
             const Mat4x4 shear( 1.0, f[0], 0.0, 0.0,
                                f[1],  1.0, 0.0, 0.0,
