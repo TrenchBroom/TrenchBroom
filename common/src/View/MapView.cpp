@@ -598,6 +598,18 @@ namespace TrenchBroom {
             lock(m_controller)->deselectAll();
         }
 
+#ifdef _WIN32
+        void MapView::OnCharHook(wxKeyEvent& event) {
+            if (event.GetKeyCode() == WXK_ESCAPE && !event.HasAnyModifiers()) {
+                if (m_toolBox.cancel())
+                    return;
+                lock(m_controller)->deselectAll();
+            } else {
+                event.Skip();
+            }
+        }
+#endif
+
         void MapView::OnKey(wxKeyEvent& event) {
             m_movementRestriction.setVerticalRestriction(event.AltDown());
             Refresh();
@@ -1317,6 +1329,9 @@ namespace TrenchBroom {
         }
         
         void MapView::bindEvents() {
+#ifdef _WIN32
+            Bind(wxEVT_CHAR_HOOK, &MapView::OnCharHook, this);
+#endif
             Bind(wxEVT_KEY_DOWN, &MapView::OnKey, this);
             Bind(wxEVT_KEY_UP, &MapView::OnKey, this);
             
