@@ -77,6 +77,10 @@ namespace TrenchBroom {
             return m_requiresModifiers;
         }
 
+        bool Action::hasShortcut(const KeyboardShortcut& shortcut) const {
+            return Action::shortcut() == shortcut;
+        }
+
         wxAcceleratorEntry Action::acceleratorEntry() const {
             return shortcut().acceleratorEntry(m_id);
         }
