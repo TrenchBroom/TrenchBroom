@@ -182,7 +182,9 @@ namespace TrenchBroom {
             if (!m_valid)
                 validate(renderContext);
 
+            glDisable(GL_DEPTH_TEST);
             m_textRenderer.render(renderContext, m_textFilter, m_textColorProvider, Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
+            glEnable(GL_DEPTH_TEST);
         }
 
         void BoundsInfoRenderer::validate(RenderContext& renderContext) {
