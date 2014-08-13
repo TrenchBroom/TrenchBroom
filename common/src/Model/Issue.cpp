@@ -33,7 +33,7 @@ namespace TrenchBroom {
         m_object(object) {}
 
         int IssueQuery::compare(const Issue* issue) const {
-            return issue->compare(m_object) > 0;
+            return -issue->compare(m_object);
         }
 
         Issue::~Issue() {
@@ -126,7 +126,7 @@ namespace TrenchBroom {
         }
         
         int EntityIssue::doCompare(const Issue* issue) const {
-            return issue->compare(m_entity) > 0;
+            return -issue->compare(m_entity);
         }
         
         int EntityIssue::doCompare(const Object* object) const {
@@ -164,7 +164,7 @@ namespace TrenchBroom {
         }
         
         int BrushIssue::doCompare(const Issue* issue) const {
-            return issue->compare(m_brush) > 0;
+            return -issue->compare(m_brush);
         }
         
         int BrushIssue::doCompare(const Object* object) const {

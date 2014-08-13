@@ -151,7 +151,9 @@ namespace TrenchBroom {
 
             assert(!selection.empty());
             
-            Model::QuickFix::List quickFixes = collectQuickFixes(selection);
+            const Model::IssueList issues = collectIssues(selection);
+            const Model::QuickFix::List quickFixes = collectQuickFixes(selection);
+            
             const size_t index = static_cast<size_t>(event.GetId()) - FixObjectsBaseId;
             assert(index < quickFixes.size());
             const Model::QuickFix* quickFix = quickFixes[index];
@@ -160,23 +162,30 @@ namespace TrenchBroom {
             const UndoableCommandGroup commandGroup(controller);
             selectIssueObjects(selection, controller);
             
-            for (size_t i = 0; i < selection.size(); ++i) {
-                Model::Issue* issue = m_issues[selection[i]];
+            Model::IssueList::const_iterator it, end;
+            for (it = issues.begin(), end = issues.end(); it != end; ++it) {
+                Model::Issue* issue = *it;
                 issue->applyQuickFix(quickFix, controller);
             }
-            
         }
         
-        Model::QuickFix::List IssueBrowserView::collectQuickFixes(const IndexList& selection) const {
-            if (selection.empty())
+        Model::IssueList IssueBrowserView::collectIssues(const IndexList& indices) const {
+            Model::IssueList result;
+            for (size_t i = 0; i < indices.size(); ++i)
+                result.push_back(m_issues[indices[i]]);
+            return result;
+        }
+
+        Model::QuickFix::List IssueBrowserView::collectQuickFixes(const IndexList& indices) const {
+            if (indices.empty())
                 return Model::QuickFix::List(0);
             
-            const Model::Issue* issue = m_issues[selection[0]];
+            const Model::Issue* issue = m_issues[indices[0]];
             const Model::IssueType type = issue->type();
             Model::QuickFix::List result = issue->quickFixes();
             
-            for (size_t i = 1; i < selection.size(); ++i) {
-                issue = m_issues[selection[i]];
+            for (size_t i = 1; i < indices.size(); ++i) {
+                issue = m_issues[indices[i]];
                 if (issue->type() != type)
                     return Model::QuickFix::List(0);
             }
