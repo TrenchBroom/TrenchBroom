@@ -59,6 +59,16 @@ namespace TrenchBroom {
 #endif
                 return col;
             }
+            
+            const wxColour& separatorColor() {
+                static const wxColour col =
+#if defined __APPLE__
+                wxColour(183, 183, 183);
+#else
+                *wxLIGHT_GREY;
+#endif
+                return col;
+            }
         }
     }
 }

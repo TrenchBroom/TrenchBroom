@@ -19,6 +19,7 @@
 
 #include "RotateObjectsToolPage.h"
 
+#include "View/BorderLine.h"
 #include "View/ControllerFacade.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -51,8 +52,10 @@ namespace TrenchBroom {
             
             wxString axes[] = { "X", "Y", "Z" };
             m_axis = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, axes);
+            m_axis->SetSelection(2);
+            
             m_rotateButton = new wxButton(this, wxID_ANY, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-            m_resetButton = new wxButton(this, wxID_ANY, "Reset", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_resetButton = new wxButton(this, wxID_ANY, "Reset Center", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
             m_resetButton->SetToolTip("Reset the position of the rotate handle to the center of the current selection.");
             
             Bind(wxEVT_IDLE, &RotateObjectsToolPage::OnIdle, this);
@@ -60,7 +63,14 @@ namespace TrenchBroom {
             m_rotateButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnRotate, this);
             m_resetButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnReset, this);
             
+            BorderLine* separator = new BorderLine(this, BorderLine::Direction_Vertical);
+            separator->SetForegroundColour(Colors::separatorColor());
+            
             wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+            sizer->Add(m_resetButton);
+            sizer->AddSpacer(LayoutConstants::MediumHMargin);
+            sizer->Add(separator, 0, wxEXPAND | wxTOP | wxBOTTOM, 2);
+            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(text1, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_angle);
@@ -72,9 +82,7 @@ namespace TrenchBroom {
             sizer->Add(text3, 0, wxALIGN_CENTER_VERTICAL);
             sizer->AddSpacer(LayoutConstants::NarrowHMargin);
             sizer->Add(m_rotateButton);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_resetButton);
-            sizer->SetItemMinSize(m_angle, 50, wxDefaultCoord);
+            sizer->SetItemMinSize(m_angle, 80, wxDefaultCoord);
 
             SetSizer(sizer);
         }

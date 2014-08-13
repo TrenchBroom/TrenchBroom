@@ -27,6 +27,7 @@ namespace TrenchBroom {
     namespace View {
         BorderLine::BorderLine(wxWindow* parent, Direction direction, const int thickness) :
         wxWindow(parent, wxID_ANY) {
+            SetForegroundColour(Colors::borderColor());
             SetBackgroundStyle(wxBG_STYLE_PAINT);
             Bind(wxEVT_PAINT, &BorderLine::OnPaint, this);
             if (direction == Direction_Horizontal) {
@@ -42,8 +43,8 @@ namespace TrenchBroom {
         
         void BorderLine::OnPaint(wxPaintEvent& event) {
             wxPaintDC dc(this);
-            dc.SetPen(wxPen(Colors::borderColor()));
-            dc.SetBrush(wxBrush(Colors::borderColor()));
+            dc.SetPen(wxPen(GetForegroundColour()));
+            dc.SetBrush(wxBrush(GetForegroundColour()));
 
             dc.DrawRectangle(GetClientRect());
             event.Skip();

@@ -92,6 +92,7 @@ namespace TrenchBroom {
             const wxColour& highlightText();
             const wxColour& disabledText();
             const wxColour& borderColor();
+            const wxColour& separatorColor();
         }
     }
 }
