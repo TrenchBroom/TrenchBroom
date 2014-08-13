@@ -909,7 +909,6 @@ namespace TrenchBroom {
                             pastedObjects.push_back(Model::ObjectParentPair(brush, worldspawn));
                             selectableObjects.push_back(brush);
                         }
-                        VectorUtils::append(selectableObjects, brushes);
                         delete entity;
                     }
                 } else {

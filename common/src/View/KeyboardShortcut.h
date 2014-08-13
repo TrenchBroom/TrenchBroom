@@ -71,7 +71,9 @@ namespace TrenchBroom {
             KeyboardShortcut(int key = WXK_NONE, int modifier1 = WXK_NONE, int modifier2 = WXK_NONE, int modifier3 = WXK_NONE);
             KeyboardShortcut(const wxString& string);
             
-            bool operator== (const KeyboardShortcut& other) const;
+            bool operator<(const KeyboardShortcut& other) const;
+            bool operator==(const KeyboardShortcut& other) const;
+            int compare(const KeyboardShortcut& other) const;
             
             int key() const;
             bool hasKey() const;

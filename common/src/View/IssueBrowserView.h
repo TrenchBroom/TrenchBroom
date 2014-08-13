@@ -79,7 +79,8 @@ namespace TrenchBroom {
         private:
             void updateIssues();
             
-            Model::QuickFix::List collectQuickFixes(const IndexList& selection) const;
+            Model::IssueList collectIssues(const IndexList& indices) const;
+            Model::QuickFix::List collectQuickFixes(const IndexList& indices) const;
             void setIssueVisibility(bool show);
             void selectIssueObjects(const IndexList& selection, View::ControllerSPtr controller);
             

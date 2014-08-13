@@ -520,11 +520,32 @@ namespace TrenchBroom {
             sortModifierKeys(m_modifier1, m_modifier2, m_modifier3);
         }
         
-        bool KeyboardShortcut::operator== (const KeyboardShortcut& other) const {
-            return (m_key == other.m_key &&
-                    m_modifier1 == other.m_modifier1 &&
-                    m_modifier2 == other.m_modifier2 &&
-                    m_modifier3 == other.m_modifier3);
+        bool KeyboardShortcut::operator<(const KeyboardShortcut& other) const {
+            return compare(other) < 0;
+        }
+        
+        bool KeyboardShortcut::operator==(const KeyboardShortcut& other) const {
+            return compare(other) == 0;
+        }
+
+        int KeyboardShortcut::compare(const KeyboardShortcut& other) const {
+            if (m_key < other.m_key)
+                return -1;
+            if (m_key > other.m_key)
+                return 1;
+            if (m_modifier1 < other.m_modifier1)
+                return -1;
+            if (m_modifier1 > other.m_modifier1)
+                return 1;
+            if (m_modifier2 < other.m_modifier2)
+                return -1;
+            if (m_modifier2 > other.m_modifier2)
+                return 1;
+            if (m_modifier3 < other.m_modifier3)
+                return -1;
+            if (m_modifier3 > other.m_modifier3)
+                return 1;
+            return 0;
         }
 
         int KeyboardShortcut::key() const {

@@ -66,9 +66,11 @@ namespace TrenchBroom {
             const String& name() const;
             String displayName() const;
             String contextName() const;
+            
             bool modifiable() const;
             bool requiresModifiers() const;
-
+            bool hasShortcut(const KeyboardShortcut& shortcut) const;
+            
             wxAcceleratorEntry acceleratorEntry() const;
             bool appliesToContext(int context) const;
             
