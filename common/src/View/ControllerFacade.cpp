@@ -142,6 +142,10 @@ namespace TrenchBroom {
             return m_commandProcessor.redoNextCommand();
         }
 
+        bool ControllerFacade::repeatLastCommand() {
+            return m_commandProcessor.repeatLastCommand(m_document);
+        }
+
         bool ControllerFacade::selectObjects(const Model::ObjectList& objects) {
             using namespace Controller;
             

@@ -65,6 +65,19 @@ namespace TrenchBroom {
             return true;
         }
 
+        Command* CommandGroup::doClone(View::MapDocumentSPtr document) const {
+            Command::List clones;
+            Command::List::const_iterator it, end;
+            for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
+                Command::Ptr command = *it;
+                Command::Ptr clone = command->clone(document);
+                if (clone == NULL)
+                    return NULL;
+                clones.push_back(clone);
+            }
+            return new CommandGroup(name(), undoable(), clones, m_commandDoNotifier, m_commandDoneNotifier, m_commandUndoNotifier, m_commandUndoneNotifier);
+        }
+
         bool CommandGroup::doCollateWith(Ptr command) {
             return false;
         }
@@ -128,13 +141,7 @@ namespace TrenchBroom {
         }
         
         bool CommandProcessor::submitAndStoreCommand(Command::Ptr command) {
-            if (!submitCommand(command))
-                return false;
-            if (command->undoable())
-                storeCommand(command);
-            if (!m_nextCommandStack.empty())
-                m_nextCommandStack.clear();
-            return true;
+            return submitAndStoreCommand(command, true);
         }
 
         bool CommandProcessor::undoLastCommand() {
@@ -155,10 +162,27 @@ namespace TrenchBroom {
             
             Command::Ptr command = popNextCommand();
             if (doCommand(command)) {
-                pushLastCommand(command);
+                pushLastCommand(command, false);
                 return true;
             }
             return false;
+        }
+
+        bool CommandProcessor::repeatLastCommand(View::MapDocumentWPtr document) {
+            Command::Ptr clone = makeRepeatableCommand(document);
+            if (clone == NULL)
+                return false;
+            return submitAndStoreCommand(clone, false);
+        }
+
+        bool CommandProcessor::submitAndStoreCommand(Command::Ptr command, const bool collate) {
+            if (!submitCommand(command))
+                return false;
+            if (command->undoable())
+                storeCommand(command, collate);
+            if (!m_nextCommandStack.empty())
+                m_nextCommandStack.clear();
+            return true;
         }
 
         bool CommandProcessor::doCommand(Command::Ptr command) {
@@ -187,9 +211,9 @@ namespace TrenchBroom {
             return false;
         }
 
-        void CommandProcessor::storeCommand(Command::Ptr command) {
+        void CommandProcessor::storeCommand(Command::Ptr command, const bool collate) {
             if (m_groupLevel == 0)
-                pushLastCommand(command);
+                pushLastCommand(command, collate);
             else
                 pushGroupedCommand(command);
         }
@@ -235,17 +259,17 @@ namespace TrenchBroom {
                                                                    commandUndoNotifier,
                                                                    commandUndoneNotifier));
                 m_groupedCommands.clear();
-                pushLastCommand(group);
+                pushLastCommand(group, false);
             }
             m_groupName = "";
             m_groupUndoable = false;
         }
 
-        void CommandProcessor::pushLastCommand(Command::Ptr command) {
+        void CommandProcessor::pushLastCommand(Command::Ptr command, const bool collate) {
             assert(m_groupLevel == 0);
             
             const wxLongLong timestamp = ::wxGetLocalTimeMillis();
-            if (!m_lastCommandStack.empty() && timestamp - m_lastCommandTimestamp <= CollationInterval) {
+            if (collate && !m_lastCommandStack.empty() && timestamp - m_lastCommandTimestamp <= CollationInterval) {
                 Command::Ptr lastCommand = m_lastCommandStack.back();
                 if (!lastCommand->collateWith(command))
                     m_lastCommandStack.push_back(command);
@@ -276,6 +300,18 @@ namespace TrenchBroom {
             Command::Ptr nextCommand = m_nextCommandStack.back();
             m_nextCommandStack.pop_back();
             return nextCommand;
+        }
+
+        Command::Ptr CommandProcessor::makeRepeatableCommand(View::MapDocumentWPtr document) const {
+            View::MapDocumentSPtr doc = lock(document);
+            CommandStack::const_reverse_iterator it, end;
+            for (it = m_lastCommandStack.rbegin(), end = m_lastCommandStack.rend(); it != end; ++it) {
+                Command::Ptr command = *it;
+                Command::Ptr clone = command->clone(doc);
+                if (clone != NULL)
+                    return clone;
+            }
+            return Command::Ptr();
         }
     }
 }

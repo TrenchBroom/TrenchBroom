@@ -31,13 +31,12 @@ namespace TrenchBroom {
         }
 
         ShearTexturesCommand::ShearTexturesCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec2f& factors) :
-        Command(Type, "Shear texture", true, true),
-        m_document(document),
+        DocumentCommand(Type, "Shear texture", true, document),
         m_faces(faces),
         m_factors(factors) {}
         
         bool ShearTexturesCommand::doPerformDo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             m_snapshot = Model::Snapshot(m_faces);
             
             Model::BrushFaceList::const_iterator it, end;
@@ -51,7 +50,7 @@ namespace TrenchBroom {
         }
         
         bool ShearTexturesCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             
             document->faceWillChangeNotifier(m_faces.begin(), m_faces.end());
             m_snapshot.restore(document->worldBounds());
@@ -59,6 +58,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        Command* ShearTexturesCommand::doClone(View::MapDocumentSPtr document) const {
+            return new ShearTexturesCommand(document, document->selectedFaces(), m_factors);
+        }
+
         bool ShearTexturesCommand::doCollateWith(Command::Ptr command) {
             Ptr other = Command::cast<ShearTexturesCommand>(command);
             m_factors += other->m_factors;

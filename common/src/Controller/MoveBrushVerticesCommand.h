@@ -22,7 +22,7 @@
 
 #include "StringUtils.h"
 #include "SharedPointer.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "Controller/BrushVertexHandleCommand.h"
 #include "Model/ModelTypes.h"
 #include "Model/Snapshot.h"
@@ -36,8 +36,6 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<MoveBrushVerticesCommand> Ptr;
         private:
             typedef std::map<Model::Brush*, Vec3::List> BrushVerticesMap;
-
-            View::MapDocumentWPtr m_document;
             
             Model::BrushList m_brushes;
             BrushVerticesMap m_brushVertices;

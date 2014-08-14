@@ -22,13 +22,13 @@
 
 #include "StringUtils.h"
 #include "SharedPointer.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "Model/Snapshot.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class FixPlanePointsCommand : public Command {
+        class FixPlanePointsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
             typedef std::tr1::shared_ptr<FixPlanePointsCommand> Ptr;
@@ -38,7 +38,6 @@ namespace TrenchBroom {
                 Action_FindPoints
             } Action;
             
-            View::MapDocumentWPtr m_document;
             Action m_action;
             Model::BrushList m_brushes;
             Model::Snapshot m_snapshot;
@@ -51,6 +50,8 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
+            
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Command::Ptr command);
         };
     }

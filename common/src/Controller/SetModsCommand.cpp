@@ -32,12 +32,11 @@ namespace TrenchBroom {
         }
         
         SetModsCommand::SetModsCommand(View::MapDocumentWPtr document, const StringList& mods) :
-        Command(Type, "Set Mods", true, true),
-        m_document(document),
+        DocumentCommand(Type, "Set Mods", true, document),
         m_newMods(mods) {}
         
         bool SetModsCommand::doPerformDo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             Model::Entity* worldspawn = document->worldspawn();
             m_oldMods = document->mods();
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::Mods, StringUtils::join(m_newMods, ';'));
@@ -49,7 +48,7 @@ namespace TrenchBroom {
         }
         
         bool SetModsCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             Model::Entity* worldspawn = document->worldspawn();
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::Mods, StringUtils::join(m_oldMods, ';'));
             document->entityPropertyDidChangeNotifier(worldspawn,
@@ -57,6 +56,10 @@ namespace TrenchBroom {
                                                       Model::PropertyKeys::Mods, StringUtils::join(m_oldMods, ';'));
             document->modsDidChangeNotifier();
             return true;
+        }
+
+        Command* SetModsCommand::doClone(View::MapDocumentSPtr document) const {
+            return NULL;
         }
 
         bool SetModsCommand::doCollateWith(Command::Ptr command) {

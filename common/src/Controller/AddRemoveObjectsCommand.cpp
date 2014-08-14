@@ -53,8 +53,7 @@ namespace TrenchBroom {
         }
 
         AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects) :
-        Command(Type, makeName(action, objects), true, true),
-        m_document(document),
+        DocumentCommand(Type, makeName(action, objects), true, document),
         m_action(action) {
             if (action == Action_Add)
                 m_objectsToAdd = objects;
@@ -146,12 +145,16 @@ namespace TrenchBroom {
             return true;
         }
 
+        Command* AddRemoveObjectsCommand::doClone(View::MapDocumentSPtr document) const {
+            return NULL;
+        }
+
         bool AddRemoveObjectsCommand::doCollateWith(Command::Ptr command) {
             return false;
         }
 
         void AddRemoveObjectsCommand::addObjects(const Model::ObjectParentList& objects) {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
 
             Model::ObjectList parents, children;
             makeParentChildLists(objects, parents, children);
@@ -164,7 +167,7 @@ namespace TrenchBroom {
         }
         
         void AddRemoveObjectsCommand::removeObjects(const Model::ObjectParentList& objects) {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
 
             Model::ObjectList parents, children;
             makeParentChildLists(objects, parents, children);

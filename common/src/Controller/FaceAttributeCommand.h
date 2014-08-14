@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "Model/ModelTypes.h"
 #include "Model/Snapshot.h"
 #include "View/ViewTypes.h"
@@ -34,7 +34,7 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        class FaceAttributeCommand : public Command {
+        class FaceAttributeCommand : public DocumentCommand {
         public:
             static const CommandType Type;
             typedef std::tr1::shared_ptr<FaceAttributeCommand> Ptr;
@@ -53,7 +53,6 @@ namespace TrenchBroom {
                 FlagOp_Unset
             } FlagOp;
             
-            View::MapDocumentWPtr m_document;
             const Model::BrushFaceList m_faces;
             Model::Snapshot m_snapshot;
 
@@ -117,6 +116,8 @@ namespace TrenchBroom {
 
             bool doPerformDo();
             bool doPerformUndo();
+
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Command::Ptr command);
             
             template <typename T>

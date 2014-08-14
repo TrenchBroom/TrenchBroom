@@ -96,6 +96,7 @@ namespace TrenchBroom {
             
             bool undoLastCommand();
             bool redoNextCommand();
+            bool repeatLastCommand();
 
             bool selectObjects(const Model::ObjectList& objects);
             bool selectObject(Model::Object* object);

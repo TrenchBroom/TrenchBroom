@@ -215,6 +215,8 @@ namespace TrenchBroom {
             void rotateTextures(float angle);
         public:
             void OnCancel(wxCommandEvent& event);
+            void OnRepeatLastCommand(wxCommandEvent& event);
+            
 #ifdef _WIN32
             void OnCharHook(wxKeyEvent& event);
 #endif

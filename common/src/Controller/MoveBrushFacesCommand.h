@@ -22,7 +22,6 @@
 
 #include "StringUtils.h"
 #include "SharedPointer.h"
-#include "Controller/Command.h"
 #include "Controller/BrushVertexHandleCommand.h"
 #include "Model/ModelTypes.h"
 #include "Model/Snapshot.h"
@@ -36,8 +35,6 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<MoveBrushFacesCommand> Ptr;
         private:
             typedef std::map<Model::Brush*, Polygon3::List> BrushFacesMap;
-            
-            View::MapDocumentWPtr m_document;
             
             Model::BrushList m_brushes;
             BrushFacesMap m_brushFaces;

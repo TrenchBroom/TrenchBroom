@@ -23,18 +23,17 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "SharedPointer.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class ResizeBrushesCommand : public Command {
+        class ResizeBrushesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
             typedef std::tr1::shared_ptr<ResizeBrushesCommand> Ptr;
         private:
-            View::MapDocumentWPtr m_document;
             Model::BrushFaceList m_faces;
             Model::BrushList m_brushes;
             Vec3 m_delta;
@@ -50,6 +49,8 @@ namespace TrenchBroom {
 
             bool doPerformDo();
             bool doPerformUndo();
+            
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Command::Ptr command);
             
             bool moveBoundary(const Vec3& delta);

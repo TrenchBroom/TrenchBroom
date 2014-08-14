@@ -40,8 +40,7 @@ namespace TrenchBroom {
         }
 
         ReparentBrushesCommand::ReparentBrushesCommand(View::MapDocumentWPtr document, const Model::BrushList& brushes, Model::Entity* newParent) :
-        Command(Type, makeName(brushes, newParent), true, true),
-        m_document(document),
+        DocumentCommand(Type, makeName(brushes, newParent), true, document),
         m_brushes(brushes),
         m_newParent(newParent) {
             assert(!brushes.empty());
@@ -64,7 +63,7 @@ namespace TrenchBroom {
             
             const Model::ObjectList allChangedBrushes = Model::makeObjectList(m_brushes);
             
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             document->objectsWillChangeNotifier(allChangedParents);
             document->objectsWillBeRemovedNotifier(allChangedBrushes);
             
@@ -96,7 +95,7 @@ namespace TrenchBroom {
             
             const Model::ObjectList allChangedBrushes = Model::makeObjectList(m_brushes);
 
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             document->objectsWillChangeNotifier(allChangedParents);
             document->objectsWillBeRemovedNotifier(allChangedBrushes);
 
@@ -111,6 +110,10 @@ namespace TrenchBroom {
             document->objectsWereAddedNotifier(allChangedBrushes);
             document->objectsDidChangeNotifier(allChangedParents);
             return true;
+        }
+
+        Command* ReparentBrushesCommand::doClone(View::MapDocumentSPtr document) const {
+            return new ReparentBrushesCommand(document, document->selectedBrushes(), m_newParent);
         }
 
         bool ReparentBrushesCommand::doCollateWith(Command::Ptr command) {

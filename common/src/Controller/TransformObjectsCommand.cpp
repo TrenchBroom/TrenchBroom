@@ -45,8 +45,7 @@ namespace TrenchBroom {
         }
         
         TransformObjectsCommand::TransformObjectsCommand(View::MapDocumentWPtr document, const Action action, const Mat4x4& transformation, const bool lockTextures, const Model::ObjectList& objects) :
-        Command(Type, makeName(action, objects), true, true),
-        m_document(document),
+        DocumentCommand(Type, makeName(action, objects), true, document),
         m_action(action),
         m_transformation(transformation),
         m_lockTextures(lockTextures),
@@ -75,7 +74,7 @@ namespace TrenchBroom {
         bool TransformObjectsCommand::doPerformDo() {
             m_snapshot = Model::Snapshot(m_objects);
 
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             const BBox3& worldBounds = document->worldBounds();
 
             Model::ObjectList allChangedObjects = Model::makeParentList(m_objects);
@@ -92,7 +91,7 @@ namespace TrenchBroom {
         }
         
         bool TransformObjectsCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             
             Model::ObjectList allChangedObjects = Model::makeParentList(m_objects);
             VectorUtils::append(allChangedObjects, m_objects);
@@ -102,6 +101,10 @@ namespace TrenchBroom {
             document->objectsDidChangeNotifier(allChangedObjects);
 
             return true;
+        }
+
+        Command* TransformObjectsCommand::doClone(View::MapDocumentSPtr document) const {
+            return new TransformObjectsCommand(document, m_action, m_transformation, m_lockTextures, document->selectedObjects());
         }
 
         bool TransformObjectsCommand::doCollateWith(Command::Ptr command) {

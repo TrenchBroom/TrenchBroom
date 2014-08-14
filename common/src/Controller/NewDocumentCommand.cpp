@@ -44,6 +44,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        Command* NewDocumentCommand::doClone(View::MapDocumentSPtr document) const {
+            return NULL;
+        }
+
         bool NewDocumentCommand::doCollateWith(Command::Ptr command) {
             return false;
         }

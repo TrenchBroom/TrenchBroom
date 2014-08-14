@@ -21,10 +21,14 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        BrushVertexHandleCommand::BrushVertexHandleCommand(const CommandType type, const String& name, const bool undoable, const bool modifiesDocument) :
-        Command(type, name, undoable, modifiesDocument) {}
-        
+        BrushVertexHandleCommand::BrushVertexHandleCommand(const CommandType type, const String& name, const bool undoable, View::MapDocumentWPtr document) :
+        DocumentCommand(type, name, undoable, document) {}
+
         BrushVertexHandleCommand::~BrushVertexHandleCommand() {}
+
+        Command* BrushVertexHandleCommand::doClone(View::MapDocumentSPtr document) const {
+            return NULL;
+        }
 
         void BrushVertexHandleCommand::removeBrushes(View::VertexHandleManager& manager) {
             doRemoveBrushes(manager);

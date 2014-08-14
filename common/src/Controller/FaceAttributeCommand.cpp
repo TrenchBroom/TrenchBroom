@@ -27,8 +27,7 @@ namespace TrenchBroom {
         const Command::CommandType FaceAttributeCommand::Type = Command::freeType();
 
         FaceAttributeCommand::FaceAttributeCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces) :
-        Command(Type, "Change face attributes", true, true),
-        m_document(document),
+        DocumentCommand(Type, "Change face attributes", true, document),
         m_faces(faces),
         m_texture(NULL),
         m_xOffset(0.0f),
@@ -191,7 +190,7 @@ namespace TrenchBroom {
         }
 
         bool FaceAttributeCommand::doPerformDo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             m_snapshot = Model::Snapshot(m_faces);
             
             Model::BrushFaceList::const_iterator it, end;
@@ -214,12 +213,38 @@ namespace TrenchBroom {
         }
         
         bool FaceAttributeCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
 
             document->faceWillChangeNotifier(m_faces.begin(), m_faces.end());
             m_snapshot.restore(document->worldBounds());
             document->faceDidChangeNotifier(m_faces.begin(), m_faces.end());
             return true;
+        }
+
+        Command* FaceAttributeCommand::doClone(View::MapDocumentSPtr document) const {
+            FaceAttributeCommand* clone = new FaceAttributeCommand(document, document->selectedFaces());
+            
+            clone->m_texture = m_texture;
+            clone->m_xOffset = m_xOffset;
+            clone->m_yOffset = m_yOffset;
+            clone->m_rotation = m_rotation;
+            clone->m_xScale = m_xScale;
+            clone->m_yScale = m_yScale;
+            clone->m_surfaceFlags = m_surfaceFlags;
+            clone->m_contentFlags = m_contentFlags;
+            clone->m_surfaceValue = m_surfaceValue;
+            
+            clone->m_setTexture = m_setTexture;
+            clone->m_xOffsetOp = m_xOffsetOp;
+            clone->m_yOffsetOp = m_yOffsetOp;
+            clone->m_rotationOp = m_rotationOp;
+            clone->m_xScaleOp = m_xScaleOp;
+            clone->m_yScaleOp = m_yScaleOp;
+            clone->m_surfaceFlagsOp = m_surfaceFlagsOp;
+            clone->m_contentFlagsOp = m_contentFlagsOp;
+            clone->m_surfaceValueOp = m_surfaceValueOp;
+            
+            return clone;
         }
 
         bool FaceAttributeCommand::doCollateWith(Command::Ptr command) {

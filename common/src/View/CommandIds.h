@@ -135,6 +135,7 @@ namespace TrenchBroom {
                 const int RotateTexturesCCW                  = Lowest +  44;
 
                 const int Cancel                             = Lowest +  45;
+                const int Repeat                             = Lowest +  46;
                 
                 /*
                 const int CorrectVertices                    = Lowest +  82;

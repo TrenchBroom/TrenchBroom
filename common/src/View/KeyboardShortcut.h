@@ -86,6 +86,7 @@ namespace TrenchBroom {
             wxAcceleratorEntry acceleratorEntry(int id) const;
             int acceleratorFlags() const;
             
+            bool matches(const wxKeyEvent& event) const;
             bool matches(const int key, const int modifier1 = WXK_NONE, const int modifier2 = WXK_NONE, const int modifier3 = WXK_NONE) const;
             bool alwaysShowModifier() const;
             

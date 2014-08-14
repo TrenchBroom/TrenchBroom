@@ -39,8 +39,7 @@ namespace TrenchBroom {
         }
 
         ResizeBrushesCommand::ResizeBrushesCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Model::BrushList& brushes, const Vec3& delta, const bool lockTextures) :
-        Command(Type, makeName(brushes), true, true),
-        m_document(document),
+        DocumentCommand(Type, makeName(brushes), true, document),
         m_faces(faces),
         m_brushes(brushes),
         m_delta(delta),
@@ -75,6 +74,10 @@ namespace TrenchBroom {
             return moveBoundary(-m_delta);
         }
 
+        Command* ResizeBrushesCommand::doClone(View::MapDocumentSPtr document) const {
+            return NULL;
+        }
+
         bool ResizeBrushesCommand::doCollateWith(Command::Ptr command) {
             Ptr other = Command::cast<ResizeBrushesCommand>(command);
             if (other->m_lockTextures != m_lockTextures)
@@ -85,7 +88,7 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesCommand::moveBoundary(const Vec3& delta) {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             const BBox3& worldBounds = document->worldBounds();
             
             Model::ObjectSet entitySet;

@@ -39,15 +39,14 @@ namespace TrenchBroom {
         }
         
         MoveBrushEdgesCommand::MoveBrushEdgesCommand(View::MapDocumentWPtr document, const Model::VertexToEdgesMap& edges, const Vec3& delta) :
-        BrushVertexHandleCommand(Type, makeName(edges), true, true),
-        m_document(document),
+        BrushVertexHandleCommand(Type, makeName(edges), true, document),
         m_delta(delta) {
             assert(!delta.null());
             extractEdges(edges);
         }
         
         bool MoveBrushEdgesCommand::doPerformDo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             if (!canPerformDo(document))
                 return false;
             
@@ -88,7 +87,7 @@ namespace TrenchBroom {
         }
         
         bool MoveBrushEdgesCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             const BBox3& worldBounds = document->worldBounds();
             
             Model::ObjectList parents, children;

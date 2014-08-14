@@ -38,23 +38,20 @@ namespace TrenchBroom {
         }
 
         SnapBrushVerticesCommand::SnapBrushVerticesCommand(View::MapDocumentWPtr document, const Model::VertexToBrushesMap& vertices, const size_t snapTo) :
-        BrushVertexHandleCommand(Type, vertices.size() == 1 ? "Snap Brush Vertex" : "Snap Brush Vertices", true, true),
-        m_document(document),
+        BrushVertexHandleCommand(Type, vertices.size() == 1 ? "Snap Brush Vertex" : "Snap Brush Vertices", true, document),
         m_snapTo(snapTo) {
             extractVertices(vertices);
         }
         
         SnapBrushVerticesCommand::SnapBrushVerticesCommand(View::MapDocumentWPtr document, const Model::BrushList& brushes, const size_t snapTo) :
-        BrushVertexHandleCommand(Type, "Snap Brush Vertices", true, true),
-        m_document(document),
+        BrushVertexHandleCommand(Type, "Snap Brush Vertices", true, document),
         m_brushes(brushes),
         m_snapTo(snapTo) {
             extractAllVertices();
         }
         
-        
         bool SnapBrushVerticesCommand::doPerformDo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             const BBox3& worldBounds = document->worldBounds();
             m_snapshot = Model::Snapshot(m_brushes);
             m_newVertexPositions.clear();
@@ -78,7 +75,7 @@ namespace TrenchBroom {
         }
         
         bool SnapBrushVerticesCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             const BBox3& worldBounds = document->worldBounds();
             
             Model::ObjectList parents, children;
@@ -92,6 +89,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        Command* SnapBrushVerticesCommand::doClone(View::MapDocumentSPtr document) const {
+            return NULL;
+        }
+
         bool SnapBrushVerticesCommand::doCollateWith(Command::Ptr command) {
             return false;
         }

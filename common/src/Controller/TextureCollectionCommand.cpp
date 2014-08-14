@@ -58,8 +58,7 @@ namespace TrenchBroom {
         }
 
         TextureCollectionCommand::TextureCollectionCommand(View::MapDocumentWPtr document, const String& name, const Action action, const StringList& names) :
-        Command(Type, name, true, true),
-        m_document(document),
+        DocumentCommand(Type, name, true, document),
         m_action(action),
         m_names(names) {
             switch (m_action) {
@@ -74,7 +73,7 @@ namespace TrenchBroom {
         }
         
         bool TextureCollectionCommand::doPerformDo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             
             switch (m_action) {
                 case Action_Add:
@@ -97,7 +96,8 @@ namespace TrenchBroom {
         }
         
         bool TextureCollectionCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
+
             switch (m_action) {
                 case Action_Add:
                     document->removeExternalTextureCollections(m_names);
@@ -116,6 +116,10 @@ namespace TrenchBroom {
             document->updateExternalTextureCollectionProperty();
             document->textureCollectionsDidChangeNotifier();
             return true;
+        }
+
+        Command* TextureCollectionCommand::doClone(View::MapDocumentSPtr document) const {
+            return NULL;
         }
 
         bool TextureCollectionCommand::doCollateWith(Command::Ptr command) {

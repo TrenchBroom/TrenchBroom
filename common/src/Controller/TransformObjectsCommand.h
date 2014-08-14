@@ -24,14 +24,14 @@
 #include "VecMath.h"
 #include "StringUtils.h"
 #include "SharedPointer.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "Model/ModelTypes.h"
 #include "Model/Snapshot.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class TransformObjectsCommand : public Command {
+        class TransformObjectsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
             typedef std::tr1::shared_ptr<TransformObjectsCommand> Ptr;
@@ -42,7 +42,6 @@ namespace TrenchBroom {
                 Action_Flip
             } Action;
             
-            View::MapDocumentWPtr m_document;
             Action m_action;
             Mat4x4 m_transformation;
             bool m_lockTextures;
@@ -60,6 +59,8 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
+
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Command::Ptr command);
         };
     }

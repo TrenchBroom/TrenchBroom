@@ -80,6 +80,10 @@ namespace TrenchBroom {
             return m_modifiesDocument;
         }
 
+        Command::Ptr Command::clone(View::MapDocumentSPtr document) const {
+            return Ptr(doClone(document));
+        }
+
         bool Command::collateWith(Ptr command) {
             assert(command.get() != this);
             if (command->type() != m_type)

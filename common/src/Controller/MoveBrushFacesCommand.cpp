@@ -39,15 +39,14 @@ namespace TrenchBroom {
         }
         
         MoveBrushFacesCommand::MoveBrushFacesCommand(View::MapDocumentWPtr document, const Model::VertexToFacesMap& faces, const Vec3& delta) :
-        BrushVertexHandleCommand(Type, makeName(faces), true, true),
-        m_document(document),
+        BrushVertexHandleCommand(Type, makeName(faces), true, document),
         m_delta(delta) {
             assert(!delta.null());
             extractFaces(faces);
         }
         
         bool MoveBrushFacesCommand::doPerformDo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             if (!canPerformDo(document))
                 return false;
             
@@ -88,7 +87,7 @@ namespace TrenchBroom {
         }
         
         bool MoveBrushFacesCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             const BBox3& worldBounds = document->worldBounds();
             
             Model::ObjectList parents, children;

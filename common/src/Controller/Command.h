@@ -23,6 +23,7 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
+#include "View/ViewTypes.h"
 
 #include <vector>
 
@@ -56,11 +57,13 @@ namespace TrenchBroom {
             CommandState state() const;
             const String& name() const;
             bool undoable() const;
+            
             bool performDo();
             bool performUndo();
             
             bool modifiesDocument() const;
             
+            Ptr clone(View::MapDocumentSPtr document) const;
             bool collateWith(Ptr command);
             
             template <class T>
@@ -70,6 +73,7 @@ namespace TrenchBroom {
         private:
             virtual bool doPerformDo() = 0;
             virtual bool doPerformUndo();
+            virtual Command* doClone(View::MapDocumentSPtr document) const = 0;
             virtual bool doCollateWith(Ptr command) = 0;
         };
     }

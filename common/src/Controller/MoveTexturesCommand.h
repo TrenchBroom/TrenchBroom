@@ -22,19 +22,18 @@
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "Model/ModelTypes.h"
 #include "Model/Snapshot.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class MoveTexturesCommand : public Command {
+        class MoveTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
             typedef std::tr1::shared_ptr<MoveTexturesCommand> Ptr;
         private:
-            View::MapDocumentWPtr m_document;
             Model::BrushFaceList m_faces;
             const Vec3 m_up;
             const Vec3 m_right;
@@ -46,6 +45,8 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
+            
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Command::Ptr command);
             
             void moveTextures(const Vec2f& offset);

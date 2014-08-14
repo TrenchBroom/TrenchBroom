@@ -31,8 +31,7 @@ namespace TrenchBroom {
         }
         
         RotateTexturesCommand::RotateTexturesCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const float angle) :
-        Command(Type, makeName(faces), true, true),
-        m_document(document),
+        DocumentCommand(Type, makeName(faces), true, document),
         m_faces(faces),
         m_angle(angle) {}
         
@@ -46,6 +45,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        Command* RotateTexturesCommand::doClone(View::MapDocumentSPtr document) const {
+            return new RotateTexturesCommand(document, document->selectedFaces(), m_angle);
+        }
+
         bool RotateTexturesCommand::doCollateWith(Command::Ptr command) {
             Ptr other = Command::cast<RotateTexturesCommand>(command);
             m_angle += other->m_angle;
@@ -53,7 +56,7 @@ namespace TrenchBroom {
         }
 
         void RotateTexturesCommand::rotateTextures(const float angle) {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;

@@ -22,17 +22,16 @@
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class SetModsCommand : public Command {
+        class SetModsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
             typedef std::tr1::shared_ptr<SetModsCommand> Ptr;
         private:
-            View::MapDocumentWPtr m_document;
             StringList m_newMods;
             StringList m_oldMods;
         public:
@@ -42,6 +41,8 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
+
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Command::Ptr command);
         };
     }

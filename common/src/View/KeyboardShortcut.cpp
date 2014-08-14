@@ -599,6 +599,14 @@ namespace TrenchBroom {
             return flags;
         }
 
+        bool KeyboardShortcut::matches(const wxKeyEvent& event) const {
+            const int key = event.GetKeyCode();
+            const int modifier1 = event.ControlDown() ? WXK_CONTROL : 0;
+            const int modifier2 = event.AltDown() ? WXK_ALT : 0;
+            const int modifier3 = event.ShiftDown() ? WXK_SHIFT : 0;
+            return matches(key, modifier1, modifier2, modifier3);
+        }
+
         bool KeyboardShortcut::matches(const int key, const int modifier1, const int modifier2, const int modifier3) const {
             if (key != m_key)
                 return false;

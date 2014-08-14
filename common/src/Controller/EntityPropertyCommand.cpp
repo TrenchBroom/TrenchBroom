@@ -46,9 +46,8 @@ namespace TrenchBroom {
         }
         
         EntityPropertyCommand::EntityPropertyCommand(View::MapDocumentWPtr document, const Action command, const Model::EntityList& entities, const bool force) :
-        Command(Type, makeName(command), true, true),
+        DocumentCommand(Type, makeName(command), true, document),
         m_action(command),
-        m_document(document),
         m_entities(entities),
         m_force(force) {}
 
@@ -119,7 +118,7 @@ namespace TrenchBroom {
                 if (!canSetKey() || (!m_force && affectsImmutablePropertyKey()))
                     return false;
             
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             m_snapshot.clear();
             
             const Model::ObjectList objects = Model::makeObjectList(m_entities);
@@ -141,7 +140,7 @@ namespace TrenchBroom {
         }
         
         bool EntityPropertyCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             
             const Model::ObjectList objects = Model::makeObjectList(m_entities);
             document->objectsWillChangeNotifier(objects);
@@ -160,6 +159,11 @@ namespace TrenchBroom {
             m_snapshot.clear();
             
             return true;
+        }
+
+        Command* EntityPropertyCommand::doClone(View::MapDocumentSPtr document) const {
+            const Model::EntityList& entities = document->selectedEntities();
+            return new EntityPropertyCommand(document, m_action, entities, m_force);
         }
 
         bool EntityPropertyCommand::doCollateWith(Command::Ptr command) {

@@ -22,18 +22,17 @@
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "Model/EntityDefinitionFileSpec.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class SetEntityDefinitionFileCommand : public Command {
+        class SetEntityDefinitionFileCommand : public DocumentCommand {
         public:
             static const CommandType Type;
             typedef std::tr1::shared_ptr<SetEntityDefinitionFileCommand> Ptr;
         private:
-            View::MapDocumentWPtr m_document;
             Model::EntityDefinitionFileSpec m_newSpec;
             Model::EntityDefinitionFileSpec m_oldSpec;
         public:
@@ -43,6 +42,8 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
+
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Command::Ptr command);
         };
     }

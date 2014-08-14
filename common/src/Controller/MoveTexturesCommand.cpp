@@ -31,8 +31,7 @@ namespace TrenchBroom {
         }
         
         MoveTexturesCommand::MoveTexturesCommand(View::MapDocumentWPtr document, const Model::BrushFaceList& faces, const Vec3& up, const Vec3& right, const Vec2f& offset) :
-        Command(Type, StringUtils::safePlural("Move ", faces.size(), "Texture", "Textures"), true, true),
-        m_document(document),
+        DocumentCommand(Type, StringUtils::safePlural("Move ", faces.size(), "Texture", "Textures"), true, document),
         m_faces(faces),
         m_up(up),
         m_right(right),
@@ -48,6 +47,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        Command* MoveTexturesCommand::doClone(View::MapDocumentSPtr document) const {
+            return new MoveTexturesCommand(document, document->selectedFaces(), m_up, m_right, m_offset);
+        }
+
         bool MoveTexturesCommand::doCollateWith(Command::Ptr command) {
             const Ptr other = cast<MoveTexturesCommand>(command);
             if (other->m_up != m_up ||
@@ -59,7 +62,7 @@ namespace TrenchBroom {
         }
 
         void MoveTexturesCommand::moveTextures(const Vec2f& offset) {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;

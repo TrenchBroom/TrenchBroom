@@ -36,8 +36,7 @@ namespace TrenchBroom {
         }
 
         FixPlanePointsCommand::FixPlanePointsCommand(View::MapDocumentWPtr document, const Action action, const Model::BrushList& brushes) :
-        Command(Type, makeName(action, brushes), true, true),
-        m_document(document),
+        DocumentCommand(Type, makeName(action, brushes), true, document),
         m_action(action),
         m_brushes(brushes) {
             assert(!brushes.empty());
@@ -79,8 +78,7 @@ namespace TrenchBroom {
 
         bool FixPlanePointsCommand::doPerformDo() {
             m_snapshot = Model::Snapshot(m_brushes);
-            
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             
             Model::ObjectList parents, objects;
             Model::makeParentChildLists(m_brushes, parents, objects);
@@ -103,7 +101,7 @@ namespace TrenchBroom {
         }
         
         bool FixPlanePointsCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
 
             Model::ObjectList parents, objects;
             Model::makeParentChildLists(m_brushes, parents, objects);
@@ -116,6 +114,10 @@ namespace TrenchBroom {
             document->objectsDidChangeNotifier(objects);
             document->objectsDidChangeNotifier(parents);
             return true;
+        }
+
+        Command* FixPlanePointsCommand::doClone(View::MapDocumentSPtr document) const {
+            return new FixPlanePointsCommand(document, m_action, document->selectedBrushes());
         }
 
         bool FixPlanePointsCommand::doCollateWith(Command::Ptr command) {

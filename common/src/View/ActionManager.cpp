@@ -215,6 +215,7 @@ namespace TrenchBroom {
 
             createMapViewAction(CommandIds::Actions::DuplicateObjects, Action::Context_ObjectSelection, "Duplicate Objects", KeyboardShortcut('D', WXK_CONTROL));
             createMapViewAction(CommandIds::Actions::Cancel, Action::Context_Any, "Cancel", KeyboardShortcut(WXK_ESCAPE));
+            createMapViewAction(CommandIds::Actions::Repeat, Action::Context_Any, "Repeat Last Command", KeyboardShortcut('.'));
         }
 
         void ActionManager::createMapViewAction(const int id, const int context, const String& name, const KeyboardShortcut& defaultShortcut) {

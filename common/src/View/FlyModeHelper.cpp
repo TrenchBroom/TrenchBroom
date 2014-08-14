@@ -183,13 +183,13 @@ namespace TrenchBroom {
             const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
             const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
             
-            if (forward.matches(event.GetKeyCode()))
+            if (forward.matches(event))
                 m_forward = down;
-            else if (backward.matches(event.GetKeyCode()))
+            else if (backward.matches(event))
                 m_backward = down;
-            else if (left.matches(event.GetKeyCode()))
+            else if (left.matches(event))
                 m_left = down;
-            else if (right.matches(event.GetKeyCode()))
+            else if (right.matches(event))
                 m_right = down;
             else
                 event.Skip();

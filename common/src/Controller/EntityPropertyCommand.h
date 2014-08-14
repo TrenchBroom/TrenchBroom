@@ -22,7 +22,7 @@
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "Model/EntityProperties.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        class EntityPropertyCommand : public Command {
+        class EntityPropertyCommand : public DocumentCommand {
         public:
             static const CommandType Type;
             typedef std::tr1::shared_ptr<EntityPropertyCommand> Ptr;
@@ -52,7 +52,6 @@ namespace TrenchBroom {
             typedef std::map<Model::Entity*, PropertySnapshot> PropertySnapshotMap;
             
             const Action m_action;
-            View::MapDocumentWPtr m_document;
             const Model::EntityList m_entities;
             bool m_force;
             Model::PropertyKey m_oldKey;
@@ -86,6 +85,8 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
+            
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Command::Ptr command);
             
             void doRename(View::MapDocumentSPtr document);

@@ -24,6 +24,7 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Controller/Command.h"
+#include "View/ViewTypes.h"
 
 // unfortunately we must depend on wx Widgets for time stamps here
 #include <wx/longlong.h>
@@ -51,6 +52,7 @@ namespace TrenchBroom {
         private:
             bool doPerformDo();
             bool doPerformUndo();
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Ptr command);
         };
         
@@ -91,21 +93,26 @@ namespace TrenchBroom {
             bool submitAndStoreCommand(Command::Ptr command);
             bool undoLastCommand();
             bool redoNextCommand();
+            
+            bool repeatLastCommand(View::MapDocumentWPtr document);
         private:
+            bool submitAndStoreCommand(Command::Ptr command, bool collate);
             bool doCommand(Command::Ptr command);
             bool undoCommand(Command::Ptr command);
-            void storeCommand(Command::Ptr command);
+            void storeCommand(Command::Ptr command, bool collate);
             
             void beginGroup(const String& name, const bool undoable);
             void pushGroupedCommand(Command::Ptr command);
             Command::Ptr popGroupedCommand();
             void createAndStoreCommandGroup();
 
-            void pushLastCommand(Command::Ptr command);
+            void pushLastCommand(Command::Ptr command, bool collate);
             void pushNextCommand(Command::Ptr command);
             
             Command::Ptr popLastCommand();
             Command::Ptr popNextCommand();
+
+            Command::Ptr makeRepeatableCommand(View::MapDocumentWPtr document) const;
         };
     }
 }

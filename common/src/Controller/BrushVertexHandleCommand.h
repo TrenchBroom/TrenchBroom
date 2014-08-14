@@ -21,7 +21,7 @@
 #define __TrenchBroom__BrushVertexHandleCommand__
 
 #include "SharedPointer.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -29,18 +29,20 @@ namespace TrenchBroom {
     }
     
     namespace Controller {
-        class BrushVertexHandleCommand : public Command {
+        class BrushVertexHandleCommand : public DocumentCommand {
         public:
             typedef std::tr1::shared_ptr<BrushVertexHandleCommand> Ptr;
         public:
-            BrushVertexHandleCommand(CommandType type, const String& name, bool undoable, bool modifiesDocument);
-            ~BrushVertexHandleCommand();
+            BrushVertexHandleCommand(CommandType type, const String& name, bool undoable, View::MapDocumentWPtr document);
+            virtual ~BrushVertexHandleCommand();
 
             void removeBrushes(View::VertexHandleManager& manager);
             void addBrushes(View::VertexHandleManager& manager);
             void selectNewHandlePositions(View::VertexHandleManager& manager);
             void selectOldHandlePositions(View::VertexHandleManager& manager);
         private:
+            Command* doClone(View::MapDocumentSPtr document) const;
+            
             virtual void doRemoveBrushes(View::VertexHandleManager& manager) = 0;
             virtual void doAddBrushes(View::VertexHandleManager& manager) = 0;
             virtual void doSelectNewHandlePositions(View::VertexHandleManager& manager) = 0;

@@ -22,7 +22,7 @@
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "IO/Path.h"
 #include "View/ViewTypes.h"
 
@@ -30,7 +30,7 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        class TextureCollectionCommand : public Command {
+        class TextureCollectionCommand : public DocumentCommand {
         public:
             static const CommandType Type;
             typedef std::tr1::shared_ptr<TextureCollectionCommand> Ptr;
@@ -41,9 +41,7 @@ namespace TrenchBroom {
                 Action_MoveUp,
                 Action_MoveDown
             } Action;
-            
-            
-            View::MapDocumentWPtr m_document;
+
             Action m_action;
             StringList m_names;
         public:
@@ -56,6 +54,8 @@ namespace TrenchBroom {
             
             bool doPerformDo();
             bool doPerformUndo();
+
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Command::Ptr command);
         };
     }

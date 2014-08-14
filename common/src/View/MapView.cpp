@@ -598,6 +598,10 @@ namespace TrenchBroom {
             lock(m_controller)->deselectAll();
         }
 
+        void MapView::OnRepeatLastCommand(wxCommandEvent& event) {
+            lock(m_controller)->repeatLastCommand();
+        }
+
 #ifdef _WIN32
         void MapView::OnCharHook(wxKeyEvent& event) {
             if (event.GetKeyCode() == WXK_ESCAPE && !event.HasAnyModifiers()) {
@@ -1383,6 +1387,7 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjects,         this, CommandIds::Actions::DuplicateObjects);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnCancel,                   this, CommandIds::Actions::Cancel);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRepeatLastCommand,        this, CommandIds::Actions::Repeat);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesUp,           this, CommandIds::Actions::MoveTexturesUp);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesDown,         this, CommandIds::Actions::MoveTexturesDown);

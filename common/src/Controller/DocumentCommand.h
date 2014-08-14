@@ -17,43 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__OpenDocumentCommand__
-#define __TrenchBroom__OpenDocumentCommand__
+#ifndef __TrenchBroom__DocumentCommand__
+#define __TrenchBroom__DocumentCommand__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
 #include "SharedPointer.h"
 #include "Controller/Command.h"
-#include "IO/Path.h"
-#include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class Game;
-        class Map;
-    }
-    
     namespace Controller {
-        class OpenDocumentCommand : public Command {
+        class DocumentCommand : public Command {
         public:
-            static const CommandType Type;
-            typedef std::tr1::shared_ptr<OpenDocumentCommand> Ptr;
+            typedef std::tr1::shared_ptr<DocumentCommand> Ptr;
         private:
             View::MapDocumentWPtr m_document;
-            BBox3 m_worldBounds;
-            Model::GamePtr m_game;
-            IO::Path m_path;
         public:
-            OpenDocumentCommand(View::MapDocumentWPtr document, const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
+            virtual ~DocumentCommand();
+        protected:
+            DocumentCommand(CommandType type, const String& name, bool undoable, View::MapDocumentWPtr document);
             
-            Model::Map* map() const;
-        private:
-            bool doPerformDo();
-            Command* doClone(View::MapDocumentSPtr document) const;
-            bool doCollateWith(Command::Ptr command);
+            View::MapDocumentSPtr lockDocument();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__OpenDocumentCommand__) */
+#endif /* defined(__TrenchBroom__DocumentCommand__) */

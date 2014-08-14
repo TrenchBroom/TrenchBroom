@@ -144,6 +144,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        Command* SelectionCommand::doClone(View::MapDocumentSPtr document) const {
+            return NULL;
+        }
+
         bool SelectionCommand::doCollateWith(Command::Ptr command) {
             return false;
         }

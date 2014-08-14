@@ -32,12 +32,11 @@ namespace TrenchBroom {
         }
 
         SetEntityDefinitionFileCommand::SetEntityDefinitionFileCommand(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec) :
-        Command(Type, "Set Entity Definition File", true, true),
-        m_document(document),
+        DocumentCommand(Type, "Set Entity Definition File", true, document),
         m_newSpec(spec) {}
         
         bool SetEntityDefinitionFileCommand::doPerformDo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             Model::Entity* worldspawn = document->worldspawn();
             m_oldSpec = document->entityDefinitionFile();
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_newSpec.asString());
@@ -47,12 +46,16 @@ namespace TrenchBroom {
         }
         
         bool SetEntityDefinitionFileCommand::doPerformUndo() {
-            View::MapDocumentSPtr document = lock(m_document);
+            View::MapDocumentSPtr document = lockDocument();
             Model::Entity* worldspawn = document->worldspawn();
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_oldSpec.asString());
             document->entityPropertyDidChangeNotifier(worldspawn, Model::PropertyKeys::EntityDefinitions, m_newSpec.asString(), Model::PropertyKeys::EntityDefinitions, m_oldSpec.asString());
             document->entityDefinitionsDidChangeNotifier();
             return true;
+        }
+
+        Command* SetEntityDefinitionFileCommand::doClone(View::MapDocumentSPtr document) const {
+            return NULL;
         }
 
         bool SetEntityDefinitionFileCommand::doCollateWith(Command::Ptr command) {

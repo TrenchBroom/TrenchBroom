@@ -21,13 +21,13 @@
 #define __TrenchBroom__AddRemoveObjectsCommand__
 
 #include "SharedPointer.h"
-#include "Controller/Command.h"
+#include "Controller/DocumentCommand.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Controller {
-        class AddRemoveObjectsCommand : public Command {
+        class AddRemoveObjectsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
             typedef std::tr1::shared_ptr<AddRemoveObjectsCommand> Ptr;
@@ -37,7 +37,6 @@ namespace TrenchBroom {
                 Action_Remove
             } Action;
             
-            View::MapDocumentWPtr m_document;
             Action m_action;
             Model::ObjectParentList m_objectsToAdd;
             Model::ObjectParentList m_objectsToRemove;
@@ -58,6 +57,8 @@ namespace TrenchBroom {
 
             bool doPerformDo();
             bool doPerformUndo();
+
+            Command* doClone(View::MapDocumentSPtr document) const;
             bool doCollateWith(Command::Ptr command);
             
             void addObjects(const Model::ObjectParentList& objects);
