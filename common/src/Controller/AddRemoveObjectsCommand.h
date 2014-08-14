@@ -58,7 +58,8 @@ namespace TrenchBroom {
             bool doPerformDo();
             bool doPerformUndo();
 
-            Command* doClone(View::MapDocumentSPtr document) const;
+            bool doIsRepeatable() const;
+
             bool doCollateWith(Command::Ptr command);
             
             void addObjects(const Model::ObjectParentList& objects);

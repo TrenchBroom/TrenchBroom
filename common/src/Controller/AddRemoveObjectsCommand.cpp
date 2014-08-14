@@ -145,8 +145,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* AddRemoveObjectsCommand::doClone(View::MapDocumentSPtr document) const {
-            return NULL;
+        bool AddRemoveObjectsCommand::doIsRepeatable() const {
+            return false;
         }
 
         bool AddRemoveObjectsCommand::doCollateWith(Command::Ptr command) {

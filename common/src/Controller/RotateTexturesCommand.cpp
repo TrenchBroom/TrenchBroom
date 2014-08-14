@@ -45,7 +45,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        Command* RotateTexturesCommand::doClone(View::MapDocumentSPtr document) const {
+        bool RotateTexturesCommand::doIsRepeatable() const {
+            return true;
+        }
+        
+        Command* RotateTexturesCommand::doRepeat(View::MapDocumentSPtr document) const {
             return new RotateTexturesCommand(document, document->selectedFaces(), m_angle);
         }
 

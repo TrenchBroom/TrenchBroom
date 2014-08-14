@@ -118,8 +118,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* TextureCollectionCommand::doClone(View::MapDocumentSPtr document) const {
-            return NULL;
+        bool TextureCollectionCommand::doIsRepeatable() const {
+            return false;
         }
 
         bool TextureCollectionCommand::doCollateWith(Command::Ptr command) {

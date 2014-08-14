@@ -161,7 +161,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* EntityPropertyCommand::doClone(View::MapDocumentSPtr document) const {
+        bool EntityPropertyCommand::doIsRepeatable() const {
+            return true;
+        }
+        
+        Command* EntityPropertyCommand::doRepeat(View::MapDocumentSPtr document) const {
             const Model::EntityList& entities = document->selectedEntities();
             return new EntityPropertyCommand(document, m_action, entities, m_force);
         }

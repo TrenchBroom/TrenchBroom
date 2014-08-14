@@ -50,7 +50,8 @@ namespace TrenchBroom {
         private:
             bool doPerformDo();
 
-            Command* doClone(View::MapDocumentSPtr document) const;
+            bool doIsRepeatable() const;
+
             bool doCollateWith(Command::Ptr command);
         };
     }

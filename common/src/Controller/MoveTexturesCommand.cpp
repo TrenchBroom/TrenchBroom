@@ -47,7 +47,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* MoveTexturesCommand::doClone(View::MapDocumentSPtr document) const {
+        bool MoveTexturesCommand::doIsRepeatable() const {
+            return true;
+        }
+        
+        Command* MoveTexturesCommand::doRepeat(View::MapDocumentSPtr document) const {
             return new MoveTexturesCommand(document, document->selectedFaces(), m_up, m_right, m_offset);
         }
 

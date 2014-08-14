@@ -58,8 +58,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* SetModsCommand::doClone(View::MapDocumentSPtr document) const {
-            return NULL;
+        bool SetModsCommand::doIsRepeatable() const {
+            return false;
         }
 
         bool SetModsCommand::doCollateWith(Command::Ptr command) {

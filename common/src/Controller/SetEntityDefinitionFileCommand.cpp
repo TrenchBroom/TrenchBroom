@@ -54,8 +54,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* SetEntityDefinitionFileCommand::doClone(View::MapDocumentSPtr document) const {
-            return NULL;
+        bool SetEntityDefinitionFileCommand::doIsRepeatable() const {
+            return false;
         }
 
         bool SetEntityDefinitionFileCommand::doCollateWith(Command::Ptr command) {

@@ -83,8 +83,10 @@ namespace TrenchBroom {
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;
+            bool hasRepeatableCommand() const;
             const String& lastCommandName() const;
             const String& nextCommandName() const;
+            const String& nextRepeatableCommandName() const;
 
             bool newDocument(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             bool openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);

@@ -112,7 +112,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* ReparentBrushesCommand::doClone(View::MapDocumentSPtr document) const {
+        bool ReparentBrushesCommand::doIsRepeatable() const {
+            return true;
+        }
+        
+        Command* ReparentBrushesCommand::doRepeat(View::MapDocumentSPtr document) const {
             return new ReparentBrushesCommand(document, document->selectedBrushes(), m_newParent);
         }
 

@@ -80,8 +80,12 @@ namespace TrenchBroom {
             return m_modifiesDocument;
         }
 
-        Command::Ptr Command::clone(View::MapDocumentSPtr document) const {
-            return Ptr(doClone(document));
+        bool Command::isRepeatable() const {
+            return doIsRepeatable();
+        }
+        
+        Command::Ptr Command::repeat(View::MapDocumentSPtr document) const {
+            return Ptr(doRepeat(document));
         }
 
         bool Command::collateWith(Ptr command) {
@@ -95,10 +99,8 @@ namespace TrenchBroom {
             throw CommandProcessorException("Undo not implemented");
         }
         
-        /*
-        bool Command::doCollateWith(Command::Ptr command) {
-            return false;
+        Command* Command::doRepeat(View::MapDocumentSPtr document) const {
+            throw CommandProcessorException("Command is not repeatable");
         }
-         */
     }
 }

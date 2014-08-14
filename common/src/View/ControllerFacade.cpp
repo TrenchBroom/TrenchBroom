@@ -92,12 +92,20 @@ namespace TrenchBroom {
             return m_commandProcessor.hasNextCommand();
         }
         
+        bool ControllerFacade::hasRepeatableCommand() const {
+            return m_commandProcessor.hasRepeatableCommand();
+        }
+
         const String& ControllerFacade::lastCommandName() const {
             return m_commandProcessor.lastCommandName();
         }
         
         const String& ControllerFacade::nextCommandName() const {
             return m_commandProcessor.nextCommandName();
+        }
+
+        const String& ControllerFacade::nextRepeatableCommandName() const {
+            return m_commandProcessor.nextRepeatableCommandName();
         }
 
         bool ControllerFacade::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {

@@ -44,7 +44,9 @@ namespace TrenchBroom {
             bool doPerformDo();
             bool doPerformUndo();
 
-            Command* doClone(View::MapDocumentSPtr document) const;
+            bool doIsRepeatable() const;
+            Command* doRepeat(View::MapDocumentSPtr document) const;
+
             bool doCollateWith(Command::Ptr command);
             
             void rotateTextures(float angle);

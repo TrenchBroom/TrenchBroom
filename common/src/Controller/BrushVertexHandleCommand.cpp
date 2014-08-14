@@ -26,8 +26,8 @@ namespace TrenchBroom {
 
         BrushVertexHandleCommand::~BrushVertexHandleCommand() {}
 
-        Command* BrushVertexHandleCommand::doClone(View::MapDocumentSPtr document) const {
-            return NULL;
+        bool BrushVertexHandleCommand::doIsRepeatable() const {
+            return false;
         }
 
         void BrushVertexHandleCommand::removeBrushes(View::VertexHandleManager& manager) {

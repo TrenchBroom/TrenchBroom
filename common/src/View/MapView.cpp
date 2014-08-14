@@ -599,7 +599,9 @@ namespace TrenchBroom {
         }
 
         void MapView::OnRepeatLastCommand(wxCommandEvent& event) {
-            lock(m_controller)->repeatLastCommand();
+            ControllerSPtr controller = lock(m_controller);
+            if (controller->hasRepeatableCommand())
+                controller->repeatLastCommand();
         }
 
 #ifdef _WIN32

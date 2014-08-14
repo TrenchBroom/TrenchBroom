@@ -43,8 +43,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* OpenDocumentCommand::doClone(View::MapDocumentSPtr document) const {
-            return NULL;
+        bool OpenDocumentCommand::doIsRepeatable() const {
+            return false;
         }
 
         bool OpenDocumentCommand::doCollateWith(Command::Ptr command) {

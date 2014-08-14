@@ -89,8 +89,8 @@ namespace TrenchBroom {
             return true;
         }
         
-        Command* SnapBrushVerticesCommand::doClone(View::MapDocumentSPtr document) const {
-            return NULL;
+        bool SnapBrushVerticesCommand::doIsRepeatable() const {
+            return false;
         }
 
         bool SnapBrushVerticesCommand::doCollateWith(Command::Ptr command) {

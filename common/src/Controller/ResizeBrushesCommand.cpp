@@ -74,8 +74,8 @@ namespace TrenchBroom {
             return moveBoundary(-m_delta);
         }
 
-        Command* ResizeBrushesCommand::doClone(View::MapDocumentSPtr document) const {
-            return NULL;
+        bool ResizeBrushesCommand::doIsRepeatable() const {
+            return false;
         }
 
         bool ResizeBrushesCommand::doCollateWith(Command::Ptr command) {

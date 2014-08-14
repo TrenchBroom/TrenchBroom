@@ -221,7 +221,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* FaceAttributeCommand::doClone(View::MapDocumentSPtr document) const {
+        bool FaceAttributeCommand::doIsRepeatable() const {
+            return true;
+        }
+        
+        Command* FaceAttributeCommand::doRepeat(View::MapDocumentSPtr document) const {
             FaceAttributeCommand* clone = new FaceAttributeCommand(document, document->selectedFaces());
             
             clone->m_texture = m_texture;

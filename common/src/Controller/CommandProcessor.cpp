@@ -65,14 +65,23 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* CommandGroup::doClone(View::MapDocumentSPtr document) const {
+        bool CommandGroup::doIsRepeatable() const {
+            Command::List::const_iterator it, end;
+            for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
+                Command::Ptr command = *it;
+                if (!command->isRepeatable())
+                    return false;
+            }
+            return true;
+        }
+        
+        Command* CommandGroup::doRepeat(View::MapDocumentSPtr document) const {
             Command::List clones;
             Command::List::const_iterator it, end;
             for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
                 Command::Ptr command = *it;
-                Command::Ptr clone = command->clone(document);
-                if (clone == NULL)
-                    return NULL;
+                assert(command->isRepeatable());
+                Command::Ptr clone = command->repeat(document);
                 clones.push_back(clone);
             }
             return new CommandGroup(name(), undoable(), clones, m_commandDoNotifier, m_commandDoneNotifier, m_commandUndoNotifier, m_commandUndoneNotifier);
@@ -86,6 +95,7 @@ namespace TrenchBroom {
         
         CommandProcessor::CommandProcessor() :
         m_lastCommandTimestamp(0),
+        m_nextRepeatableCommand(0),
         m_groupUndoable(false),
         m_groupLevel(0) {}
 
@@ -96,17 +106,27 @@ namespace TrenchBroom {
         bool CommandProcessor::hasNextCommand() const {
             return !m_nextCommandStack.empty();
         }
+        
+        bool CommandProcessor::hasRepeatableCommand() const {
+            return m_nextRepeatableCommand < m_lastCommandStack.size();
+        }
 
         const String& CommandProcessor::lastCommandName() const {
-            if (m_lastCommandStack.empty())
+            if (!hasLastCommand())
                 throw CommandProcessorException("Command stack is empty");
             return m_lastCommandStack.back()->name();
         }
         
         const String& CommandProcessor::nextCommandName() const {
-            if (m_nextCommandStack.empty())
+            if (!hasNextCommand())
                 throw CommandProcessorException("Undo stack is empty");
             return m_nextCommandStack.back()->name();
+        }
+
+        const String& CommandProcessor::nextRepeatableCommandName() const {
+            if (!hasRepeatableCommand())
+                throw CommandProcessorException("No repeatable command");
+            return m_lastCommandStack[m_nextRepeatableCommand]->name();
         }
 
         void CommandProcessor::beginUndoableGroup(const String& name) {
@@ -121,8 +141,10 @@ namespace TrenchBroom {
             if (m_groupLevel == 0)
                 throw CommandProcessorException("Group stack is empty");
             --m_groupLevel;
-            if (m_groupLevel == 0)
+            if (m_groupLevel == 0) {
                 createAndStoreCommandGroup();
+                m_nextRepeatableCommand = findFirstRepeatableCommand();
+            }
         }
 
         void CommandProcessor::undoGroup() {
@@ -136,12 +158,18 @@ namespace TrenchBroom {
             if (!command->undoable()) {
                 m_lastCommandStack.clear();
                 m_nextCommandStack.clear();
+                m_nextRepeatableCommand = findFirstRepeatableCommand();
             }
             return true;
         }
         
         bool CommandProcessor::submitAndStoreCommand(Command::Ptr command) {
-            return submitAndStoreCommand(command, true);
+            if (submitAndStoreCommand(command, true)) {
+                if (m_groupLevel == 0 && command->isRepeatable())
+                    m_nextRepeatableCommand = findFirstRepeatableCommand();
+                return true;
+            }
+            return false;
         }
 
         bool CommandProcessor::undoLastCommand() {
@@ -151,6 +179,7 @@ namespace TrenchBroom {
             Command::Ptr command = popLastCommand();
             if (undoCommand(command)) {
                 pushNextCommand(command);
+                m_nextRepeatableCommand = findFirstRepeatableCommand();
                 return true;
             }
             return false;
@@ -163,16 +192,28 @@ namespace TrenchBroom {
             Command::Ptr command = popNextCommand();
             if (doCommand(command)) {
                 pushLastCommand(command, false);
+                m_nextRepeatableCommand = findFirstRepeatableCommand();
                 return true;
             }
             return false;
         }
 
         bool CommandProcessor::repeatLastCommand(View::MapDocumentWPtr document) {
-            Command::Ptr clone = makeRepeatableCommand(document);
-            if (clone == NULL)
-                return false;
-            return submitAndStoreCommand(clone, false);
+            assert(hasRepeatableCommand());
+            
+            Command::Ptr command = m_lastCommandStack[m_nextRepeatableCommand];
+            assert(command->isRepeatable());
+            
+            Command::Ptr clone = command->repeat(lock(document));
+            assert(clone != NULL);
+            
+            if (submitAndStoreCommand(clone, false)) {
+                m_nextRepeatableCommand = findNextRepeatableCommand(m_nextRepeatableCommand);
+                if (m_nextRepeatableCommand == m_lastCommandStack.size())
+                    --m_nextRepeatableCommand;
+                return true;
+            }
+            return false;
         }
 
         bool CommandProcessor::submitAndStoreCommand(Command::Ptr command, const bool collate) {
@@ -302,16 +343,21 @@ namespace TrenchBroom {
             return nextCommand;
         }
 
-        Command::Ptr CommandProcessor::makeRepeatableCommand(View::MapDocumentWPtr document) const {
-            View::MapDocumentSPtr doc = lock(document);
-            CommandStack::const_reverse_iterator it, end;
-            for (it = m_lastCommandStack.rbegin(), end = m_lastCommandStack.rend(); it != end; ++it) {
-                Command::Ptr command = *it;
-                Command::Ptr clone = command->clone(doc);
-                if (clone != NULL)
-                    return clone;
+        size_t CommandProcessor::findFirstRepeatableCommand() const {
+            return findNextRepeatableCommand(m_lastCommandStack.size());
+        }
+
+        size_t CommandProcessor::findNextRepeatableCommand(const size_t from) const {
+            assert(from <= m_lastCommandStack.size());
+            size_t index = from;
+            while (index > 0) {
+                --index;
+                Command::Ptr command = m_lastCommandStack[index];
+                if (command->isRepeatable())
+                    return index;
             }
-            return Command::Ptr();
+
+            return m_lastCommandStack.size();
         }
     }
 }

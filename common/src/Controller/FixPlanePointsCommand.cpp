@@ -116,8 +116,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* FixPlanePointsCommand::doClone(View::MapDocumentSPtr document) const {
-            return new FixPlanePointsCommand(document, m_action, document->selectedBrushes());
+        bool FixPlanePointsCommand::doIsRepeatable() const {
+            return false;
         }
 
         bool FixPlanePointsCommand::doCollateWith(Command::Ptr command) {

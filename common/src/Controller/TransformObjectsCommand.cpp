@@ -103,7 +103,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        Command* TransformObjectsCommand::doClone(View::MapDocumentSPtr document) const {
+        bool TransformObjectsCommand::doIsRepeatable() const {
+            return true;
+        }
+        
+        Command* TransformObjectsCommand::doRepeat(View::MapDocumentSPtr document) const {
             return new TransformObjectsCommand(document, m_action, m_transformation, m_lockTextures, document->selectedObjects());
         }
 

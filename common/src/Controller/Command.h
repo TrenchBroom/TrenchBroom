@@ -63,7 +63,8 @@ namespace TrenchBroom {
             
             bool modifiesDocument() const;
             
-            Ptr clone(View::MapDocumentSPtr document) const;
+            bool isRepeatable() const;
+            Ptr repeat(View::MapDocumentSPtr document) const;
             bool collateWith(Ptr command);
             
             template <class T>
@@ -73,7 +74,8 @@ namespace TrenchBroom {
         private:
             virtual bool doPerformDo() = 0;
             virtual bool doPerformUndo();
-            virtual Command* doClone(View::MapDocumentSPtr document) const = 0;
+            virtual bool doIsRepeatable() const = 0;
+            virtual Command* doRepeat(View::MapDocumentSPtr document) const;
             virtual bool doCollateWith(Ptr command) = 0;
         };
     }

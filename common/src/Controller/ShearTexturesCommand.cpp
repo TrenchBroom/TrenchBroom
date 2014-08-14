@@ -58,7 +58,11 @@ namespace TrenchBroom {
             return true;
         }
         
-        Command* ShearTexturesCommand::doClone(View::MapDocumentSPtr document) const {
+        bool ShearTexturesCommand::doIsRepeatable() const {
+            return true;
+        }
+        
+        Command* ShearTexturesCommand::doRepeat(View::MapDocumentSPtr document) const {
             return new ShearTexturesCommand(document, document->selectedFaces(), m_factors);
         }
 

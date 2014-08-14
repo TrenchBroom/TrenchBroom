@@ -52,7 +52,8 @@ namespace TrenchBroom {
         private:
             bool doPerformDo();
             bool doPerformUndo();
-            Command* doClone(View::MapDocumentSPtr document) const;
+            bool doIsRepeatable() const;
+            Command* doRepeat(View::MapDocumentSPtr document) const;
             bool doCollateWith(Ptr command);
         };
         
@@ -64,6 +65,7 @@ namespace TrenchBroom {
             CommandStack m_lastCommandStack;
             CommandStack m_nextCommandStack;
             wxLongLong m_lastCommandTimestamp;
+            size_t m_nextRepeatableCommand;
             
             String m_groupName;
             bool m_groupUndoable;
@@ -81,8 +83,11 @@ namespace TrenchBroom {
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;
+            bool hasRepeatableCommand() const;
+
             const String& lastCommandName() const;
             const String& nextCommandName() const;
+            const String& nextRepeatableCommandName() const;
             
             void beginUndoableGroup(const String& name = "");
             void beginOneShotGroup(const String& name = "");
@@ -112,7 +117,8 @@ namespace TrenchBroom {
             Command::Ptr popLastCommand();
             Command::Ptr popNextCommand();
 
-            Command::Ptr makeRepeatableCommand(View::MapDocumentWPtr document) const;
+            size_t findFirstRepeatableCommand() const;
+            size_t findNextRepeatableCommand(size_t from) const;
         };
     }
 }
