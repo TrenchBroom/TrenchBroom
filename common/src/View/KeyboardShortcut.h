@@ -26,6 +26,7 @@
 
 #include <set>
 
+class wxKeyEvent;
 
 namespace TrenchBroom {
     namespace View {
