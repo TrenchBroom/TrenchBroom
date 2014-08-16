@@ -604,7 +604,7 @@
 	item(string) : "Spawn Item"
 ]
 
-@PointClass base(Monsters) = monster_berserk : "Berserker" []
+@PointClass base(Monsters) model(":models/monsters/berserk/tris.md2") = monster_berserk : "Berserker" []
 @PointClass base(Monsters) size(-56 -56 0, 56 56 80) = monster_boss2 : "Boss2" []
 
 // Just fidgets in one spot and teleports away when triggered
@@ -612,7 +612,7 @@
 // 0221 - removed Monsters class inheritance
 @PointClass base(Appearflags, Targetname) size(-32 -32 0, 32 32 90) = monster_boss3_stand : "Stationnary Makron" []
 
-@PointClass base(Monsters) model(":models/monsters/berserk/tris.md2") = monster_brain : "Brains" []
+@PointClass base(Monsters) model(":models/monsters/brain/tris.md2") = monster_brain : "Brains" []
 @PointClass base(Monsters) model(":models/monsters/bitch/tris.md2") = monster_chick : "Iron Maiden" []
 @PointClass base(Appearflags, Targetname) color(255 128 0) size(-32 -32 0, 32 32 48) model(":models/monsters/commandr/tris.md2") = monster_commander_body : "Tank commander's decapitated body" []
 @PointClass base(Monsters) model(":models/monsters/flipper/tris.md2") = monster_flipper : "Barracuda shark" []
