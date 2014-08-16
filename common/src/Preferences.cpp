@@ -74,6 +74,8 @@ namespace TrenchBroom {
         Preference<Color> MoveIndicatorOutlineColor(IO::Path("Renderer/Colors/Move indicator outline"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> MoveIndicatorFillColor(IO::Path("Renderer/Colors/Move indicator fill"), Color(0.0f, 0.0f, 0.0f, 0.5f));
         
+        Preference<Color> AngleIndicatorColor(IO::Path("Renderer/Colors/Angle indicator"), Color(1.0f, 1.0f, 1.0f, 1.0f));
+
         Preference<Color> TextureSeamColor(IO::Path("Renderer/Colors/Texture seam"), Color(1.0f, 1.0f, 0.0f, 1.0f));
 
         Preference<float> Brightness(IO::Path("Renderer/Brightness"), 1.4f);

@@ -35,6 +35,14 @@ namespace TrenchBroom {
             return m_deselectedObjects;
         }
             
+        const ObjectSet& SelectionResult::partiallySelectedObjects() const {
+            return m_partiallySelectedObjects;
+        }
+    
+        const ObjectSet& SelectionResult::partiallyDeselectedObjects() const {
+            return m_partiallyDeselectedObjects;
+        }
+
         const BrushFaceSet& SelectionResult::selectedFaces() const {
             return m_selectedFaces;
         }
@@ -51,6 +59,16 @@ namespace TrenchBroom {
         void SelectionResult::addDeselectedObject(Object* object) {
             m_selectedObjects.erase(object);
             m_deselectedObjects.insert(object);
+        }
+        
+        void SelectionResult::addPartiallySelectedObject(Object* object) {
+            m_partiallyDeselectedObjects.erase(object);
+            m_partiallySelectedObjects.insert(object);
+        }
+        
+        void SelectionResult::addPartiallyDeselectedObject(Object* object) {
+            m_partiallySelectedObjects.erase(object);
+            m_partiallyDeselectedObjects.insert(object);
         }
         
         void SelectionResult::addSelectedFace(BrushFace* face) {
@@ -83,6 +101,8 @@ namespace TrenchBroom {
             
             const Model::ObjectSet& otherSelectedObjects = other.selectedObjects();
             const Model::ObjectSet& otherDeselectedObjects = other.deselectedObjects();
+            const Model::ObjectSet& otherPartiallySelectedObjects = other.partiallySelectedObjects();
+            const Model::ObjectSet& otherPartiallyDeselectedObjects = other.partiallyDeselectedObjects();
             const Model::BrushFaceSet& otherSelectedFaces = other.selectedFaces();
             const Model::BrushFaceSet& otherDeselectedFaces = other.deselectedFaces();
             
@@ -90,6 +110,11 @@ namespace TrenchBroom {
             m_selectedObjects = SetUtils::minus(m_selectedObjects, otherDeselectedObjects);
             m_selectedObjects.insert(otherSelectedObjects.begin(), otherSelectedObjects.end());
             m_deselectedObjects.insert(otherDeselectedObjects.begin(), otherDeselectedObjects.end());
+            
+            m_partiallyDeselectedObjects = SetUtils::minus(m_partiallyDeselectedObjects, otherPartiallySelectedObjects);
+            m_partiallySelectedObjects = SetUtils::minus(m_partiallySelectedObjects, otherPartiallyDeselectedObjects);
+            m_partiallySelectedObjects.insert(otherPartiallySelectedObjects.begin(), otherPartiallySelectedObjects.end());
+            m_partiallyDeselectedObjects.insert(otherPartiallyDeselectedObjects.begin(), otherPartiallyDeselectedObjects.end());
             
             m_deselectedFaces = SetUtils::minus(m_deselectedFaces, otherSelectedFaces);
             m_selectedFaces = SetUtils::minus(m_selectedFaces, otherDeselectedFaces);

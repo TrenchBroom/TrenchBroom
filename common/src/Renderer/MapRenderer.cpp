@@ -150,7 +150,7 @@ namespace TrenchBroom {
             m_selectedEntityRenderer.setOccludedBoundsColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
             m_selectedEntityRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
             m_selectedEntityRenderer.setRenderAngles(true);
-            m_selectedEntityRenderer.setAngleColors(prefs.get(Preferences::SelectedFaceColor), prefs.get(Preferences::SelectedEdgeColor));
+            m_selectedEntityRenderer.setAngleColor(prefs.get(Preferences::AngleIndicatorColor));
             
             m_unselectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
             m_unselectedBrushRenderer.setEdgeColor(prefs.get(Preferences::EdgeColor));
@@ -379,12 +379,21 @@ namespace TrenchBroom {
             
             m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
                                                       Model::entityIterator(result.selectedObjects().end()));
+            m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.partiallySelectedObjects().begin(), result.partiallySelectedObjects().end()),
+                                                      Model::entityIterator(result.partiallySelectedObjects().end()));
             m_unselectedEntityRenderer.addEntities(Model::entityIterator(result.deselectedObjects().begin(), result.deselectedObjects().end()),
                                                    Model::entityIterator(result.deselectedObjects().end()));
+            m_unselectedEntityRenderer.addEntities(Model::entityIterator(result.partiallyDeselectedObjects().begin(), result.partiallyDeselectedObjects().end()),
+                                                   Model::entityIterator(result.partiallyDeselectedObjects().end()));
+            
             m_selectedEntityRenderer.removeEntities(Model::entityIterator(result.deselectedObjects().begin(), result.deselectedObjects().end()),
                                                     Model::entityIterator(result.deselectedObjects().end()));
+            m_selectedEntityRenderer.removeEntities(Model::entityIterator(result.partiallyDeselectedObjects().begin(), result.partiallyDeselectedObjects().end()),
+                                                    Model::entityIterator(result.partiallyDeselectedObjects().end()));
             m_selectedEntityRenderer.addEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
                                                  Model::entityIterator(result.selectedObjects().end()));
+            m_selectedEntityRenderer.addEntities(Model::entityIterator(result.partiallySelectedObjects().begin(), result.partiallySelectedObjects().end()),
+                                                 Model::entityIterator(result.partiallySelectedObjects().end()));
             m_entityLinkRenderer.invalidate();
         }
         

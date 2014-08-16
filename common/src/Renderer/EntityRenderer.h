@@ -98,8 +98,7 @@ namespace TrenchBroom {
             
             Vbo m_vbo;
             bool m_renderAngles;
-            Color m_angleOutlineColor;
-            Color m_angleFillColor;
+            Color m_angleColor;
         public:
             EntityRenderer(Assets::EntityModelManager& entityModelManager, FontManager& m_fontManager, const Model::ModelFilter& filter);
             ~EntityRenderer();
@@ -157,7 +156,7 @@ namespace TrenchBroom {
             
             bool renderAngles() const;
             void setRenderAngles(bool renderAngles);
-            void setAngleColors(const Color& fillColor, const Color& outlineColor);
+            void setAngleColor(const Color& color);
         private:
             void renderBounds(RenderContext& context);
             void renderWireframeBounds(RenderContext& context);

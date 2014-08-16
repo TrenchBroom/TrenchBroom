@@ -166,7 +166,7 @@ namespace TrenchBroom {
         }
         
         Command* EntityPropertyCommand::doRepeat(View::MapDocumentSPtr document) const {
-            const Model::EntityList& entities = document->selectedEntities();
+            const Model::EntityList& entities = document->allSelectedEntities();
             return new EntityPropertyCommand(document, m_action, entities, m_force);
         }
 

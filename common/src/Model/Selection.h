@@ -82,6 +82,8 @@ namespace TrenchBroom {
             void applyResult(const SelectionResult& result);
             void applySelectedObjects(const ObjectSet& objects);
             void applyDeselectedObjects(const ObjectSet& objects);
+            void applyPartiallySelectedObjects(const ObjectSet& objects);
+            void applyPartiallyDeselectedObjects(const ObjectSet& objects);
             void applySelectedFaces(const BrushFaceSet& faces);
             void applyDeselectedFaces(const BrushFaceSet& faces);
         };

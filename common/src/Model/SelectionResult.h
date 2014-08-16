@@ -31,6 +31,8 @@ namespace TrenchBroom {
         private:
             ObjectSet m_selectedObjects;
             ObjectSet m_deselectedObjects;
+            ObjectSet m_partiallySelectedObjects;
+            ObjectSet m_partiallyDeselectedObjects;
             BrushFaceSet m_selectedFaces;
             BrushFaceSet m_deselectedFaces;
             BrushFace* m_lastSelectedFace;
@@ -39,11 +41,15 @@ namespace TrenchBroom {
             
             const ObjectSet& selectedObjects() const;
             const ObjectSet& deselectedObjects() const;
+            const ObjectSet& partiallySelectedObjects() const;
+            const ObjectSet& partiallyDeselectedObjects() const;
             const BrushFaceSet& selectedFaces() const;
             const BrushFaceSet& deselectedFaces() const;
             
             void addSelectedObject(Object* object);
             void addDeselectedObject(Object* object);
+            void addPartiallySelectedObject(Object* object);
+            void addPartiallyDeselectedObject(Object* object);
             void addSelectedFace(BrushFace* face);
             void addDeselectedFace(BrushFace* face);
             

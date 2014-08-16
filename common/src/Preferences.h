@@ -79,6 +79,8 @@ namespace TrenchBroom {
         extern Preference<Color> MoveIndicatorOutlineColor;
         extern Preference<Color> MoveIndicatorFillColor;
         
+        extern Preference<Color> AngleIndicatorColor;
+        
         extern Preference<Color> TextureSeamColor;
         
         extern Preference<float> Brightness;

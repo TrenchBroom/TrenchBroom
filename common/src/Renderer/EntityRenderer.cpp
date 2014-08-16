@@ -225,9 +225,8 @@ namespace TrenchBroom {
             m_renderAngles = renderAngles;
         }
         
-        void EntityRenderer::setAngleColors(const Color& fillColor, const Color& outlineColor) {
-            m_angleFillColor = fillColor;
-            m_angleOutlineColor = outlineColor;
+        void EntityRenderer::setAngleColor(const Color& color) {
+            m_angleColor = color;
         }
 
         void EntityRenderer::renderBounds(RenderContext& context) {
@@ -277,7 +276,7 @@ namespace TrenchBroom {
             if (!m_renderAngles)
                 return;
             
-            static const float maxDistance2 = 200.0f * 200.0f;
+            static const float maxDistance2 = 500.0f * 500.0f;
             typedef VertexSpecs::P3::Vertex Vertex;
             const Vec3f::List arrow = arrowHead(9.0f, 6.0f);
             
@@ -323,17 +322,10 @@ namespace TrenchBroom {
 
             glDisable(GL_DEPTH_TEST);
             glPolygonMode(GL_FRONT, GL_LINE);
-            shader.set("Color", Color(m_angleOutlineColor, 0.5f * m_angleOutlineColor.a()));
-            array.render();
-
-            glEnable(GL_DEPTH_TEST);
-            shader.set("Color", m_angleOutlineColor);
+            shader.set("Color", m_angleColor);
             array.render();
 
             glPolygonMode(GL_FRONT, GL_FILL);
-            shader.set("Color", m_angleFillColor);
-            array.render();
-            
             glDepthMask(GL_TRUE);
         }
 
@@ -415,7 +407,7 @@ namespace TrenchBroom {
                     const Model::Entity* entity = *it;
                     if (m_filter.visible(entity)) {
                         eachBBoxEdge(entity->bounds(), wireframeBoundsBuilder);
-                        if (entity->model() == NULL) {
+                        if (entity->brushes().empty() && entity->model() == NULL) {
                             BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(*entity));
                             eachBBoxFace(entity->bounds(), solidBoundsBuilder);
                         }
