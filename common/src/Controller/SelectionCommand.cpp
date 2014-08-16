@@ -144,7 +144,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SelectionCommand::doIsRepeatable() const {
+        bool SelectionCommand::doIsRepeatDelimiter() const {
+            return true;
+        }
+
+        bool SelectionCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 

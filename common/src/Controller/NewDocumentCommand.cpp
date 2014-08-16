@@ -44,7 +44,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool NewDocumentCommand::doIsRepeatable() const {
+        bool NewDocumentCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
         

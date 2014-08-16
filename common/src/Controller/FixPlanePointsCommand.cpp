@@ -116,7 +116,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool FixPlanePointsCommand::doIsRepeatable() const {
+        bool FixPlanePointsCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 

@@ -63,7 +63,8 @@ namespace TrenchBroom {
             
             bool modifiesDocument() const;
             
-            bool isRepeatable() const;
+            bool isRepeatDelimiter() const;
+            bool isRepeatable(View::MapDocumentSPtr document) const;
             Ptr repeat(View::MapDocumentSPtr document) const;
             bool collateWith(Ptr command);
             
@@ -74,7 +75,9 @@ namespace TrenchBroom {
         private:
             virtual bool doPerformDo() = 0;
             virtual bool doPerformUndo();
-            virtual bool doIsRepeatable() const = 0;
+            
+            virtual bool doIsRepeatDelimiter() const;
+            virtual bool doIsRepeatable(View::MapDocumentSPtr document) const = 0;
             virtual Command* doRepeat(View::MapDocumentSPtr document) const;
             virtual bool doCollateWith(Ptr command) = 0;
         };

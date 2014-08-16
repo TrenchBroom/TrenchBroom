@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool OpenDocumentCommand::doIsRepeatable() const {
+        bool OpenDocumentCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 

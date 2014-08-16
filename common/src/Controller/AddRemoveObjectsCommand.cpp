@@ -145,7 +145,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool AddRemoveObjectsCommand::doIsRepeatable() const {
+        bool AddRemoveObjectsCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 

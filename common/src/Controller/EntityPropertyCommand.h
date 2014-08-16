@@ -86,7 +86,7 @@ namespace TrenchBroom {
             bool doPerformDo();
             bool doPerformUndo();
             
-            bool doIsRepeatable() const;
+            bool doIsRepeatable(View::MapDocumentSPtr document) const;
             Command* doRepeat(View::MapDocumentSPtr document) const;
 
             bool doCollateWith(Command::Ptr command);

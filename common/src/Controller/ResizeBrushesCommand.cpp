@@ -74,7 +74,7 @@ namespace TrenchBroom {
             return moveBoundary(-m_delta);
         }
 
-        bool ResizeBrushesCommand::doIsRepeatable() const {
+        bool ResizeBrushesCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 

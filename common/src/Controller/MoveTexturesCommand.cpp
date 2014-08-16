@@ -47,8 +47,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool MoveTexturesCommand::doIsRepeatable() const {
-            return true;
+        bool MoveTexturesCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
+            return document->hasSelectedFaces();
         }
         
         Command* MoveTexturesCommand::doRepeat(View::MapDocumentSPtr document) const {

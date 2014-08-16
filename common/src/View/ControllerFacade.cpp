@@ -91,10 +91,6 @@ namespace TrenchBroom {
         bool ControllerFacade::hasNextCommand() const {
             return m_commandProcessor.hasNextCommand();
         }
-        
-        bool ControllerFacade::hasRepeatableCommand() const {
-            return m_commandProcessor.hasRepeatableCommand();
-        }
 
         const String& ControllerFacade::lastCommandName() const {
             return m_commandProcessor.lastCommandName();
@@ -102,10 +98,6 @@ namespace TrenchBroom {
         
         const String& ControllerFacade::nextCommandName() const {
             return m_commandProcessor.nextCommandName();
-        }
-
-        const String& ControllerFacade::nextRepeatableCommandName() const {
-            return m_commandProcessor.nextRepeatableCommandName();
         }
 
         bool ControllerFacade::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
@@ -150,8 +142,12 @@ namespace TrenchBroom {
             return m_commandProcessor.redoNextCommand();
         }
 
-        bool ControllerFacade::repeatLastCommand() {
-            return m_commandProcessor.repeatLastCommand(m_document);
+        bool ControllerFacade::repeatLastCommands() {
+            return m_commandProcessor.repeatLastCommands(m_document);
+        }
+
+        void ControllerFacade::clearRepeatableCommands() {
+            m_commandProcessor.clearRepeatableCommands();
         }
 
         bool ControllerFacade::selectObjects(const Model::ObjectList& objects) {

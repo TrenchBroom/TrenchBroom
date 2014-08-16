@@ -93,6 +93,8 @@ namespace TrenchBroom {
             
             void OnEditUndo(wxCommandEvent& event);
             void OnEditRedo(wxCommandEvent& event);
+            void OnEditRepeat(wxCommandEvent& event);
+            void OnEditClearRepeat(wxCommandEvent& event);
             void OnEditCut(wxCommandEvent& event);
             void OnEditCopy(wxCommandEvent& event);
             void OnEditPaste(wxCommandEvent& event);

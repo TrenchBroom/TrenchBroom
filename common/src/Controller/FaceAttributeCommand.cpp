@@ -221,8 +221,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool FaceAttributeCommand::doIsRepeatable() const {
-            return true;
+        bool FaceAttributeCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
+            return document->hasSelectedFaces();
         }
         
         Command* FaceAttributeCommand::doRepeat(View::MapDocumentSPtr document) const {

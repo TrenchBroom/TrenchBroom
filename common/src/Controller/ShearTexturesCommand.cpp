@@ -58,8 +58,8 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool ShearTexturesCommand::doIsRepeatable() const {
-            return true;
+        bool ShearTexturesCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
+            return document->hasSelectedFaces();
         }
         
         Command* ShearTexturesCommand::doRepeat(View::MapDocumentSPtr document) const {

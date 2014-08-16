@@ -80,8 +80,12 @@ namespace TrenchBroom {
             return m_modifiesDocument;
         }
 
-        bool Command::isRepeatable() const {
-            return doIsRepeatable();
+        bool Command::isRepeatDelimiter() const {
+            return doIsRepeatDelimiter();
+        }
+
+        bool Command::isRepeatable(View::MapDocumentSPtr document) const {
+            return doIsRepeatable(document);
         }
         
         Command::Ptr Command::repeat(View::MapDocumentSPtr document) const {
@@ -99,6 +103,10 @@ namespace TrenchBroom {
             throw CommandProcessorException("Undo not implemented");
         }
         
+        bool Command::doIsRepeatDelimiter() const {
+            return false;
+        }
+
         Command* Command::doRepeat(View::MapDocumentSPtr document) const {
             throw CommandProcessorException("Command is not repeatable");
         }

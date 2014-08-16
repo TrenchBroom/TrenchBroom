@@ -89,7 +89,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool SnapBrushVerticesCommand::doIsRepeatable() const {
+        bool SnapBrushVerticesCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 

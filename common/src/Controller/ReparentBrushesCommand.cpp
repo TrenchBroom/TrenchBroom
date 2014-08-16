@@ -112,8 +112,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool ReparentBrushesCommand::doIsRepeatable() const {
-            return true;
+        bool ReparentBrushesCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
+            return document->hasSelectedBrushes() && !document->hasSelectedEntities();
         }
         
         Command* ReparentBrushesCommand::doRepeat(View::MapDocumentSPtr document) const {

@@ -213,6 +213,14 @@ namespace TrenchBroom {
             m_controller->redoNextCommand();
         }
 
+        void MapFrame::OnEditRepeat(wxCommandEvent& event) {
+            m_controller->repeatLastCommands();
+        }
+        
+        void MapFrame::OnEditClearRepeat(wxCommandEvent& event) {
+            m_controller->clearRepeatableCommands();
+        }
+
         void MapFrame::OnEditCut(wxCommandEvent& event) {
             OnEditCopy(event);
             m_controller->deleteSelectedObjects();
@@ -512,6 +520,10 @@ namespace TrenchBroom {
                     }
                     break;
                 }
+                case CommandIds::Menu::EditRepeat:
+                case CommandIds::Menu::EditClearRepeat:
+                    event.Enable(true);
+                    break;
                 case wxID_CUT:
                 case wxID_COPY:
                     event.Enable(document->hasSelectedObjects() ||

@@ -26,7 +26,7 @@ namespace TrenchBroom {
 
         BrushVertexHandleCommand::~BrushVertexHandleCommand() {}
 
-        bool BrushVertexHandleCommand::doIsRepeatable() const {
+        bool BrushVertexHandleCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 

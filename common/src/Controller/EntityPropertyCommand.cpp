@@ -161,8 +161,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool EntityPropertyCommand::doIsRepeatable() const {
-            return true;
+        bool EntityPropertyCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
+            return document->hasSelectedEntities();
         }
         
         Command* EntityPropertyCommand::doRepeat(View::MapDocumentSPtr document) const {

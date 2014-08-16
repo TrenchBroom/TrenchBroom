@@ -271,7 +271,6 @@ namespace TrenchBroom {
         }
         
         void MapView::OnToggleClipTool(wxCommandEvent& event) {
-            assert(lock(m_document)->hasSelectedBrushes());
             toggleClipTool();
         }
         
@@ -596,12 +595,6 @@ namespace TrenchBroom {
             if (m_toolBox.cancel())
                 return;
             lock(m_controller)->deselectAll();
-        }
-
-        void MapView::OnRepeatLastCommand(wxCommandEvent& event) {
-            ControllerSPtr controller = lock(m_controller);
-            if (controller->hasRepeatableCommand())
-                controller->repeatLastCommand();
         }
 
 #ifdef _WIN32
@@ -1389,7 +1382,6 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjects,         this, CommandIds::Actions::DuplicateObjects);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnCancel,                   this, CommandIds::Actions::Cancel);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRepeatLastCommand,        this, CommandIds::Actions::Repeat);
             
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesUp,           this, CommandIds::Actions::MoveTexturesUp);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesDown,         this, CommandIds::Actions::MoveTexturesDown);

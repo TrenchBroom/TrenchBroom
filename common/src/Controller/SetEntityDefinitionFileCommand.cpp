@@ -54,7 +54,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetEntityDefinitionFileCommand::doIsRepeatable() const {
+        bool SetEntityDefinitionFileCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 

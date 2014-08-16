@@ -118,7 +118,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool TextureCollectionCommand::doIsRepeatable() const {
+        bool TextureCollectionCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 

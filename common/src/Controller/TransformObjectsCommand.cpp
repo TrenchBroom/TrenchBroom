@@ -103,8 +103,8 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool TransformObjectsCommand::doIsRepeatable() const {
-            return true;
+        bool TransformObjectsCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
+            return document->hasSelectedObjects();
         }
         
         Command* TransformObjectsCommand::doRepeat(View::MapDocumentSPtr document) const {

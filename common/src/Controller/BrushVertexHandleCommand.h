@@ -41,7 +41,7 @@ namespace TrenchBroom {
             void selectNewHandlePositions(View::VertexHandleManager& manager);
             void selectOldHandlePositions(View::VertexHandleManager& manager);
         private:
-            bool doIsRepeatable() const;
+            bool doIsRepeatable(View::MapDocumentSPtr document) const;
             
             virtual void doRemoveBrushes(View::VertexHandleManager& manager) = 0;
             virtual void doAddBrushes(View::VertexHandleManager& manager) = 0;

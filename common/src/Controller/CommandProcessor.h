@@ -52,8 +52,11 @@ namespace TrenchBroom {
         private:
             bool doPerformDo();
             bool doPerformUndo();
-            bool doIsRepeatable() const;
+
+            bool doIsRepeatDelimiter() const;
+            bool doIsRepeatable(View::MapDocumentSPtr document) const;
             Command* doRepeat(View::MapDocumentSPtr document) const;
+
             bool doCollateWith(Ptr command);
         };
         
@@ -64,8 +67,9 @@ namespace TrenchBroom {
             typedef Command::List CommandStack;
             CommandStack m_lastCommandStack;
             CommandStack m_nextCommandStack;
+            CommandStack m_repeatableCommandStack;
+            bool m_clearRepeatableCommandStack;
             wxLongLong m_lastCommandTimestamp;
-            size_t m_nextRepeatableCommand;
             
             String m_groupName;
             bool m_groupUndoable;
@@ -83,11 +87,9 @@ namespace TrenchBroom {
             
             bool hasLastCommand() const;
             bool hasNextCommand() const;
-            bool hasRepeatableCommand() const;
 
             const String& lastCommandName() const;
             const String& nextCommandName() const;
-            const String& nextRepeatableCommandName() const;
             
             void beginUndoableGroup(const String& name = "");
             void beginOneShotGroup(const String& name = "");
@@ -99,7 +101,8 @@ namespace TrenchBroom {
             bool undoLastCommand();
             bool redoNextCommand();
             
-            bool repeatLastCommand(View::MapDocumentWPtr document);
+            bool repeatLastCommands(View::MapDocumentWPtr document);
+            void clearRepeatableCommands();
         private:
             bool submitAndStoreCommand(Command::Ptr command, bool collate);
             bool doCommand(Command::Ptr command);
@@ -110,15 +113,15 @@ namespace TrenchBroom {
             void pushGroupedCommand(Command::Ptr command);
             Command::Ptr popGroupedCommand();
             void createAndStoreCommandGroup();
+            Command::Ptr createCommandGroup(const String& name, bool undoable, const Command::List& commands);
 
             void pushLastCommand(Command::Ptr command, bool collate);
             void pushNextCommand(Command::Ptr command);
+            void pushRepeatableCommand(Command::Ptr command);
             
             Command::Ptr popLastCommand();
             Command::Ptr popNextCommand();
-
-            size_t findFirstRepeatableCommand() const;
-            size_t findNextRepeatableCommand(size_t from) const;
+            void popLastRepeatableCommand(Command::Ptr command);
         };
     }
 }

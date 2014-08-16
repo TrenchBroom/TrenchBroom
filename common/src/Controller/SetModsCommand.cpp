@@ -58,7 +58,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetModsCommand::doIsRepeatable() const {
+        bool SetModsCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 

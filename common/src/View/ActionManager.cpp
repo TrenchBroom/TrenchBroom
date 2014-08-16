@@ -215,7 +215,6 @@ namespace TrenchBroom {
 
             createMapViewAction(CommandIds::Actions::DuplicateObjects, Action::Context_ObjectSelection | Action::Context_AnyTool, "Duplicate Objects", KeyboardShortcut('D', WXK_CONTROL));
             createMapViewAction(CommandIds::Actions::Cancel, Action::Context_Any, "Cancel", KeyboardShortcut(WXK_ESCAPE));
-            createMapViewAction(CommandIds::Actions::Repeat, Action::Context_Any, "Repeat Last Command", KeyboardShortcut('.'));
         }
 
         void ActionManager::createMapViewAction(const int id, const int context, const String& name, const KeyboardShortcut& defaultShortcut) {
@@ -242,6 +241,9 @@ namespace TrenchBroom {
             Menu& editMenu = m_menu->addMenu(wxID_ANY, "Edit");
             editMenu.addModifiableActionItem(wxID_UNDO, Action::Context_Any, "Undo", KeyboardShortcut('Z', WXK_CONTROL));
             editMenu.addModifiableActionItem(wxID_REDO, Action::Context_Any, "Redo", KeyboardShortcut('Z', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addSeparator();
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditRepeat, Action::Context_Any, "Repeat", KeyboardShortcut('R', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditClearRepeat, Action::Context_Any, "Clear Repeatable Commands", KeyboardShortcut('R', WXK_CONTROL, WXK_SHIFT));
             editMenu.addSeparator();
             editMenu.addModifiableActionItem(wxID_CUT, Action::Context_Any, "Cut", KeyboardShortcut('X', WXK_CONTROL));
             editMenu.addModifiableActionItem(wxID_COPY, Action::Context_Any, "Copy", KeyboardShortcut('C', WXK_CONTROL));
