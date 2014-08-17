@@ -33,6 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class RotateObjectsTool;
         class SpinControl;
+        class SpinControlEvent;
         
         class RotateObjectsToolPage : public wxPanel {
         private:
@@ -50,6 +51,7 @@ namespace TrenchBroom {
             void createGui();
             
             void OnIdle(wxIdleEvent& event);
+            void OnAngleChanged(SpinControlEvent& event);
             void OnUpdateRotateButton(wxUpdateUIEvent& event);
             void OnRotate(wxCommandEvent& event);
             void OnReset(wxCommandEvent& event);

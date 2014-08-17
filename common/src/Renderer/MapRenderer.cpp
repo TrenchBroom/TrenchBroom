@@ -350,7 +350,7 @@ namespace TrenchBroom {
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
                 Model::Object* object = *it;
                 if (object->type() == Model::Object::Type_Entity) {
-                    if (object->selected())
+                    if (object->selected() || object->partiallySelected())
                         m_selectedEntityRenderer.updateEntity(static_cast<Model::Entity*>(object));
                     else
                         m_unselectedEntityRenderer.updateEntity(static_cast<Model::Entity*>(object));

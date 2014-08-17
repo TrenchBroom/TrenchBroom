@@ -154,6 +154,13 @@ namespace TrenchBroom {
             createMapViewAction(CommandIds::Actions::MoveVerticesDown, Action::Context_VertexTool, "Move Vertices Down", KeyboardShortcut(WXK_PAGEDOWN));
             
             createMapViewAction(CommandIds::Actions::ToggleRotateObjectsTool, Action::Context_ObjectSelection | Action::Context_AnyTool, "Toggle Rotate Tool", KeyboardShortcut('R'));
+            createMapViewAction(CommandIds::Actions::MoveRotationCenterForward, Action::Context_RotateTool, "Move Rotation Center Forward", KeyboardShortcut(WXK_UP, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveRotationCenterBackward, Action::Context_RotateTool, "Move Rotation Center Backward", KeyboardShortcut(WXK_DOWN, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveRotationCenterLeft, Action::Context_RotateTool, "Move Rotation Center Left", KeyboardShortcut(WXK_LEFT, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveRotationCenterRight, Action::Context_RotateTool, "Move Rotation Center Right", KeyboardShortcut(WXK_RIGHT, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveRotationCenterUp, Action::Context_RotateTool, "Move Rotation Center Up", KeyboardShortcut(WXK_PAGEUP, WXK_SHIFT));
+            createMapViewAction(CommandIds::Actions::MoveRotationCenterDown, Action::Context_RotateTool, "Move Rotation Center Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT));
+            
 
             createMapViewAction(CommandIds::Actions::ToggleFlyMode, Action::Context_Any | Action::Context_FlyMode, "Toggle Fly Mode", KeyboardShortcut('F'));
             
@@ -165,29 +172,29 @@ namespace TrenchBroom {
             createMapViewAction(CommandIds::Actions::DeleteObjects, Action::Context_ObjectSelection | Action::Context_AnyTool, "Delete Objects", KeyboardShortcut(WXK_DELETE));
 #endif
 
-            createMapViewAction(CommandIds::Actions::MoveObjectsForward, Action::Context_ObjectSelection, "Move Objects Forward", KeyboardShortcut(WXK_UP));
-            createMapViewAction(CommandIds::Actions::MoveObjectsBackward, Action::Context_ObjectSelection, "Move Objects Backward", KeyboardShortcut(WXK_DOWN));
-            createMapViewAction(CommandIds::Actions::MoveObjectsLeft, Action::Context_ObjectSelection, "Move Objects Left", KeyboardShortcut(WXK_LEFT));
-            createMapViewAction(CommandIds::Actions::MoveObjectsRight, Action::Context_ObjectSelection, "Move Objects Right", KeyboardShortcut(WXK_RIGHT));
-            createMapViewAction(CommandIds::Actions::MoveObjectsUp, Action::Context_ObjectSelection, "Move Objects Up", KeyboardShortcut(WXK_PAGEUP));
-            createMapViewAction(CommandIds::Actions::MoveObjectsDown, Action::Context_ObjectSelection, "Move Objects Down", KeyboardShortcut(WXK_PAGEDOWN));
+            createMapViewAction(CommandIds::Actions::MoveObjectsForward, Action::Context_ObjectSelection | Action::Context_RotateTool, "Move Objects Forward", KeyboardShortcut(WXK_UP));
+            createMapViewAction(CommandIds::Actions::MoveObjectsBackward, Action::Context_ObjectSelection | Action::Context_RotateTool, "Move Objects Backward", KeyboardShortcut(WXK_DOWN));
+            createMapViewAction(CommandIds::Actions::MoveObjectsLeft, Action::Context_ObjectSelection | Action::Context_RotateTool, "Move Objects Left", KeyboardShortcut(WXK_LEFT));
+            createMapViewAction(CommandIds::Actions::MoveObjectsRight, Action::Context_ObjectSelection | Action::Context_RotateTool, "Move Objects Right", KeyboardShortcut(WXK_RIGHT));
+            createMapViewAction(CommandIds::Actions::MoveObjectsUp, Action::Context_ObjectSelection | Action::Context_RotateTool, "Move Objects Up", KeyboardShortcut(WXK_PAGEUP));
+            createMapViewAction(CommandIds::Actions::MoveObjectsDown, Action::Context_ObjectSelection | Action::Context_RotateTool, "Move Objects Down", KeyboardShortcut(WXK_PAGEDOWN));
             
-            createMapViewAction(CommandIds::Actions::RollObjectsCW, Action::Context_ObjectSelection, "Rotate Clockwise by 90", KeyboardShortcut(WXK_UP, WXK_ALT));
-            createMapViewAction(CommandIds::Actions::RollObjectsCCW, Action::Context_ObjectSelection, "Rotate Counterclockwise by 90", KeyboardShortcut(WXK_DOWN, WXK_ALT));
-            createMapViewAction(CommandIds::Actions::YawObjectsCW, Action::Context_ObjectSelection, "Rotate Left by 90", KeyboardShortcut(WXK_LEFT, WXK_ALT));
-            createMapViewAction(CommandIds::Actions::YawObjectsCCW, Action::Context_ObjectSelection, "Rotate Right by 90", KeyboardShortcut(WXK_RIGHT, WXK_ALT));
-            createMapViewAction(CommandIds::Actions::YawObjectsCW, Action::Context_ObjectSelection, "Rotate Up by 90", KeyboardShortcut(WXK_PAGEUP, WXK_ALT));
-            createMapViewAction(CommandIds::Actions::YawObjectsCCW, Action::Context_ObjectSelection, "Rotate Down by 90", KeyboardShortcut(WXK_PAGEDOWN, WXK_ALT));
+            createMapViewAction(CommandIds::Actions::RollObjectsCW, Action::Context_ObjectSelection | Action::Context_RotateTool, "Rotate Clockwise", KeyboardShortcut(WXK_UP, WXK_ALT));
+            createMapViewAction(CommandIds::Actions::RollObjectsCCW, Action::Context_ObjectSelection | Action::Context_RotateTool, "Rotate Counterclockwise", KeyboardShortcut(WXK_DOWN, WXK_ALT));
+            createMapViewAction(CommandIds::Actions::YawObjectsCW, Action::Context_ObjectSelection | Action::Context_RotateTool, "Rotate Left", KeyboardShortcut(WXK_LEFT, WXK_ALT));
+            createMapViewAction(CommandIds::Actions::YawObjectsCCW, Action::Context_ObjectSelection | Action::Context_RotateTool, "Rotate Right", KeyboardShortcut(WXK_RIGHT, WXK_ALT));
+            createMapViewAction(CommandIds::Actions::PitchObjectsCW, Action::Context_ObjectSelection | Action::Context_RotateTool, "Rotate Up", KeyboardShortcut(WXK_PAGEUP, WXK_ALT));
+            createMapViewAction(CommandIds::Actions::PitchObjectsCCW, Action::Context_ObjectSelection | Action::Context_RotateTool, "Rotate Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_ALT));
 
             createMapViewAction(CommandIds::Actions::FlipObjectsHorizontally, Action::Context_ObjectSelection, "Flip Horizontally", KeyboardShortcut('F', WXK_CONTROL));
             createMapViewAction(CommandIds::Actions::FlipObjectsVertically, Action::Context_ObjectSelection, "Flip Vertically", KeyboardShortcut('F', WXK_CONTROL, WXK_ALT));
 
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsForward, Action::Context_ObjectSelection, "Duplicate & Move Objects Forward", KeyboardShortcut(WXK_UP, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsBackward, Action::Context_ObjectSelection, "Duplicate & Move Objects Backward", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsLeft, Action::Context_ObjectSelection, "Duplicate & Move Objects Left", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsRight, Action::Context_ObjectSelection, "Duplicate & Move Objects Right", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsUp, Action::Context_ObjectSelection, "Duplicate & Move Objects Up", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsDown, Action::Context_ObjectSelection, "Duplicate & Move Objects Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsForward, Action::Context_ObjectSelection | Action::Context_RotateTool, "Duplicate & Move Objects Forward", KeyboardShortcut(WXK_UP, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsBackward, Action::Context_ObjectSelection | Action::Context_RotateTool, "Duplicate & Move Objects Backward", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsLeft, Action::Context_ObjectSelection | Action::Context_RotateTool, "Duplicate & Move Objects Left", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsRight, Action::Context_ObjectSelection | Action::Context_RotateTool, "Duplicate & Move Objects Right", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsUp, Action::Context_ObjectSelection | Action::Context_RotateTool, "Duplicate & Move Objects Up", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
+            createMapViewAction(CommandIds::Actions::DuplicateObjectsDown, Action::Context_ObjectSelection | Action::Context_RotateTool, "Duplicate & Move Objects Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
             
             createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Textures Up by Grid Size", KeyboardShortcut(WXK_UP));
             createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Textures Up by 2 * Grid Size", KeyboardShortcut(WXK_UP, WXK_SHIFT));

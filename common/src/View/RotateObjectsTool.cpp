@@ -48,10 +48,19 @@ namespace TrenchBroom {
         m_helper(NULL),
         m_moveHelper(movementRestriction, *this),
         m_rotateHelper(*this, font),
+        m_angle(Math::radians(15.0)),
         m_centerGuideRenderer(document),
         m_firstActivation(true) {
             PreferenceManager& prefs = PreferenceManager::instance();
             m_centerGuideRenderer.setColor(prefs.get(Preferences::HandleColor));
+        }
+
+        double RotateObjectsTool::angle() const {
+            return m_angle;
+        }
+        
+        void RotateObjectsTool::setAngle(const double angle) {
+            m_angle = angle;
         }
 
         Vec3 RotateObjectsTool::center() const {
@@ -64,6 +73,10 @@ namespace TrenchBroom {
             const BBox3 bounds = Model::Object::bounds(objects);
             const Vec3 position = document()->grid().snap(bounds.center());
             m_handle.setPosition(position);
+        }
+
+        void RotateObjectsTool::moveCenter(const Vec3& delta) {
+            m_handle.setPosition(center() + delta);
         }
 
         bool RotateObjectsTool::initiallyActive() const {

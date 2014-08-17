@@ -138,6 +138,13 @@ namespace TrenchBroom {
 
                 const int Cancel                             = Lowest +  45;
                 
+                const int MoveRotationCenterForward          = Lowest +  46;
+                const int MoveRotationCenterBackward         = Lowest +  47;
+                const int MoveRotationCenterLeft             = Lowest +  48;
+                const int MoveRotationCenterRight            = Lowest +  49;
+                const int MoveRotationCenterUp               = Lowest +  50;
+                const int MoveRotationCenterDown             = Lowest +  51;
+
                 /*
                 const int CorrectVertices                    = Lowest +  82;
                  */

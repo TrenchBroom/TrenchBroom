@@ -443,11 +443,22 @@ namespace TrenchBroom {
             const Model::ObjectList& objects = document->selectedObjects();
             if (objects.empty())
                 return;
+
+            const Vec3 axis = rotationAxis(axisSpec, clockwise);
+            const double angle = rotateObjectsToolActive() ? std::abs(m_rotateObjectsTool->angle()) : Math::C::piOverTwo();
+
+            const Grid& grid = document->grid();
+            const Vec3 center = rotateObjectsToolActive() ? m_rotateObjectsTool->center() : grid.referencePoint(document->selectionBounds());
             
+            ControllerSPtr controller = lock(m_controller);
+            controller->rotateObjects(objects, center, axis, angle, document->textureLock());
+        }
+        
+        Vec3 MapView::rotationAxis(const RotationAxis axisSpec, const bool clockwise) const {
             Vec3 axis;
             switch (axisSpec) {
                 case RotationAxis_Roll:
-                    axis = moveDirection(Math::Direction_Forward);
+                    axis = -moveDirection(Math::Direction_Forward);
                     break;
                 case RotationAxis_Pitch:
                     axis = moveDirection(Math::Direction_Right);
@@ -458,15 +469,11 @@ namespace TrenchBroom {
                     DEFAULT_SWITCH()
             }
             
-            if (!clockwise)
-                axis *= -1.0;
-            
-            ControllerSPtr controller = lock(m_controller);
-            const Grid& grid = document->grid();
-            const Vec3 center = grid.referencePoint(document->selectionBounds());
-            controller->rotateObjects(objects, center, axis, Math::C::piOverTwo(), document->textureLock());
+            if (clockwise)
+                axis = -axis;
+            return axis;
         }
-        
+
         void MapView::flipObjects(const Math::Direction direction) {
             MapDocumentSPtr document = lock(m_document);
             const Model::ObjectList& objects = document->selectedObjects();
@@ -591,6 +598,38 @@ namespace TrenchBroom {
             controller->rotateTextures(faces, angle);
         }
         
+        void MapView::OnMoveRotationCenterForward(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Forward);
+        }
+        
+        void MapView::OnMoveRotationCenterBackward(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Backward);
+        }
+        
+        void MapView::OnMoveRotationCenterLeft(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Left);
+        }
+        
+        void MapView::OnMoveRotationCenterRight(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Right);
+        }
+        
+        void MapView::OnMoveRotationCenterUp(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Up);
+        }
+        
+        void MapView::OnMoveRotationCenterDown(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Down);
+        }
+
+        void MapView::moveRotationCenter(const Math::Direction direction) {
+            assert(rotateObjectsToolActive());
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            m_rotateObjectsTool->moveCenter(delta);
+        }
+
         void MapView::OnCancel(wxCommandEvent& event) {
             if (m_toolBox.cancel())
                 return;
@@ -1131,6 +1170,7 @@ namespace TrenchBroom {
             
             m_toolBox.deactivateWhen(m_clipTool, m_resizeBrushesTool);
             m_toolBox.deactivateWhen(m_vertexTool, m_resizeBrushesTool);
+            m_toolBox.deactivateWhen(m_rotateObjectsTool, m_resizeBrushesTool);
             
             m_moveObjectsTool->createPage(toolBook);
             m_rotateObjectsTool->createPage(toolBook);
@@ -1337,64 +1377,71 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapView::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapView::OnKillFocus, this);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipTool,           this, CommandIds::Actions::ToggleClipTool);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipSide,           this, CommandIds::Actions::ToggleClipSide);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPerformClip,              this, CommandIds::Actions::PerformClip);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDeleteLastClipPoint,      this, CommandIds::Actions::DeleteLastClipPoint);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipTool,               this, CommandIds::Actions::ToggleClipTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDeleteLastClipPoint,          this, CommandIds::Actions::DeleteLastClipPoint);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleVertexTool,         this, CommandIds::Actions::ToggleVertexTool);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesForward,      this, CommandIds::Actions::MoveVerticesForward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesBackward,     this, CommandIds::Actions::MoveVerticesBackward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesLeft,         this, CommandIds::Actions::MoveVerticesLeft);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesRight,        this, CommandIds::Actions::MoveVerticesRight);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesUp,           this, CommandIds::Actions::MoveVerticesUp);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesDown,         this, CommandIds::Actions::MoveVerticesDown);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleVertexTool,             this, CommandIds::Actions::ToggleVertexTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesBackward,         this, CommandIds::Actions::MoveVerticesBackward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesLeft,             this, CommandIds::Actions::MoveVerticesLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesRight,            this, CommandIds::Actions::MoveVerticesRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesUp,               this, CommandIds::Actions::MoveVerticesUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleRotateObjectsTool,  this, CommandIds::Actions::ToggleRotateObjectsTool);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleFlyMode,            this, CommandIds::Actions::ToggleFlyMode);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleRotateObjectsTool,      this, CommandIds::Actions::ToggleRotateObjectsTool);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleFlyMode,                this, CommandIds::Actions::ToggleFlyMode);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleMovementRestriction,this, CommandIds::Actions::ToggleMovementRestriction);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDeleteObjects,            this, CommandIds::Actions::DeleteObjects);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDeleteObjects,                this, CommandIds::Actions::DeleteObjects);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsForward,       this, CommandIds::Actions::MoveObjectsForward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsBackward,      this, CommandIds::Actions::MoveObjectsBackward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsLeft,          this, CommandIds::Actions::MoveObjectsLeft);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsRight,         this, CommandIds::Actions::MoveObjectsRight);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsUp,            this, CommandIds::Actions::MoveObjectsUp);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsDown,          this, CommandIds::Actions::MoveObjectsDown);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRollObjectsCW,            this, CommandIds::Actions::RollObjectsCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRollObjectsCCW,           this, CommandIds::Actions::RollObjectsCCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPitchObjectsCW,           this, CommandIds::Actions::PitchObjectsCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPitchObjectsCCW,          this, CommandIds::Actions::PitchObjectsCCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnYawObjectsCW,             this, CommandIds::Actions::YawObjectsCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnYawObjectsCCW,            this, CommandIds::Actions::YawObjectsCCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsForward,           this, CommandIds::Actions::MoveObjectsForward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsBackward,          this, CommandIds::Actions::MoveObjectsBackward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsLeft,              this, CommandIds::Actions::MoveObjectsLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsRight,             this, CommandIds::Actions::MoveObjectsRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsUp,                this, CommandIds::Actions::MoveObjectsUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveObjectsDown,              this, CommandIds::Actions::MoveObjectsDown);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRollObjectsCW,                this, CommandIds::Actions::RollObjectsCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRollObjectsCCW,               this, CommandIds::Actions::RollObjectsCCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPitchObjectsCW,               this, CommandIds::Actions::PitchObjectsCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPitchObjectsCCW,              this, CommandIds::Actions::PitchObjectsCCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnYawObjectsCW,                 this, CommandIds::Actions::YawObjectsCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnYawObjectsCCW,                this, CommandIds::Actions::YawObjectsCCW);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnFlipObjectsH,             this, CommandIds::Actions::FlipObjectsHorizontally);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnFlipObjectsV,             this, CommandIds::Actions::FlipObjectsVertically);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnFlipObjectsH,                 this, CommandIds::Actions::FlipObjectsHorizontally);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnFlipObjectsV,                 this, CommandIds::Actions::FlipObjectsVertically);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsForward,  this, CommandIds::Actions::DuplicateObjectsForward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsBackward, this, CommandIds::Actions::DuplicateObjectsBackward);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsLeft,     this, CommandIds::Actions::DuplicateObjectsLeft);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsRight,    this, CommandIds::Actions::DuplicateObjectsRight);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsUp,       this, CommandIds::Actions::DuplicateObjectsUp);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsDown,     this, CommandIds::Actions::DuplicateObjectsDown);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjects,         this, CommandIds::Actions::DuplicateObjects);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsForward,      this, CommandIds::Actions::DuplicateObjectsForward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsBackward,     this, CommandIds::Actions::DuplicateObjectsBackward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsLeft,         this, CommandIds::Actions::DuplicateObjectsLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsRight,        this, CommandIds::Actions::DuplicateObjectsRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsUp,           this, CommandIds::Actions::DuplicateObjectsUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjectsDown,         this, CommandIds::Actions::DuplicateObjectsDown);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnDuplicateObjects,             this, CommandIds::Actions::DuplicateObjects);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnCancel,                   this, CommandIds::Actions::Cancel);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnCancel,                       this, CommandIds::Actions::Cancel);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesUp,           this, CommandIds::Actions::MoveTexturesUp);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesDown,         this, CommandIds::Actions::MoveTexturesDown);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesLeft,         this, CommandIds::Actions::MoveTexturesLeft);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesRight,        this, CommandIds::Actions::MoveTexturesRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveRotationCenterForward,    this, CommandIds::Actions::MoveRotationCenterForward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveRotationCenterBackward,   this, CommandIds::Actions::MoveRotationCenterBackward);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveRotationCenterLeft,       this, CommandIds::Actions::MoveRotationCenterLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveRotationCenterRight,      this, CommandIds::Actions::MoveRotationCenterRight);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveRotationCenterUp,         this, CommandIds::Actions::MoveRotationCenterUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveRotationCenterDown,       this, CommandIds::Actions::MoveRotationCenterDown);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRotateTexturesCW,         this, CommandIds::Actions::RotateTexturesCW);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRotateTexturesCCW,        this, CommandIds::Actions::RotateTexturesCCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesUp,               this, CommandIds::Actions::MoveTexturesUp);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesDown,             this, CommandIds::Actions::MoveTexturesDown);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesLeft,             this, CommandIds::Actions::MoveTexturesLeft);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnMoveTexturesRight,            this, CommandIds::Actions::MoveTexturesRight);
             
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupReparentBrushes,     this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupMoveBrushesToWorld,  this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupCreatePointEntity,   this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupCreateBrushEntity,   this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRotateTexturesCW,             this, CommandIds::Actions::RotateTexturesCW);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnRotateTexturesCCW,            this, CommandIds::Actions::RotateTexturesCCW);
+            
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupReparentBrushes,         this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupMoveBrushesToWorld,      this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupCreatePointEntity,       this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapView::OnPopupCreateBrushEntity,       this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
             
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
             Bind(wxEVT_UPDATE_UI, &MapView::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);

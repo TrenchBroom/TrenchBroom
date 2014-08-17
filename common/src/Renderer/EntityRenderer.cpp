@@ -284,6 +284,9 @@ namespace TrenchBroom {
             Model::EntitySet::const_iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                 const Model::Entity* entity = *it;
+                if (!m_filter.visible(entity))
+                    continue;
+                
                 const Quatf rotation = Quatf(entity->rotation());
                 const Vec3f direction = rotation * Vec3f::PosX;
                 const Vec3f center = Vec3f(entity->bounds().center());

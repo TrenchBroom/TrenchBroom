@@ -95,7 +95,7 @@ namespace TrenchBroom {
             }
             m_zAxis = viewDir.z() > 0.0 ? Vec3::NegZ : Vec3::PosZ;
         }
-        
+
         RotateObjectsHandle::Hit RotateObjectsHandle::pick(const Ray3& pickRay) const {
             Hit hit = pickPointHandle(pickRay, m_position, HitArea_Center);
             hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(m_xAxis), HitArea_XAxis));

@@ -25,6 +25,7 @@
 #include "Color.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/PointHandleRenderer.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {

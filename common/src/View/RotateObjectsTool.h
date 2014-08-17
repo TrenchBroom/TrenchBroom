@@ -47,6 +47,7 @@ namespace TrenchBroom {
             PlaneDragHelper* m_helper;
             MoveHelper m_moveHelper;
             RotateHelper m_rotateHelper;
+            double m_angle;
             
             Renderer::PointGuideRenderer m_centerGuideRenderer;
             
@@ -54,8 +55,13 @@ namespace TrenchBroom {
         public:
             RotateObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, MovementRestriction& movementRestriction, Renderer::TextureFont& font);
             
+            double angle() const;
+            void setAngle(double angle);
+            
             Vec3 center() const;
             void resetHandlePosition();
+
+            void moveCenter(const Vec3& delta);
         private:
             bool initiallyActive() const;
             bool doActivate(const InputState& inputState);

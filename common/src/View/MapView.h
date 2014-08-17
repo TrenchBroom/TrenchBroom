@@ -196,6 +196,7 @@ namespace TrenchBroom {
             void OnDuplicateObjects(wxCommandEvent& event);
         private:
             void rotateObjects(RotationAxis axis, bool clockwise);
+            Vec3 rotationAxis(RotationAxis axis, bool clockwise) const;
             void flipObjects(Math::Direction direction);
             
             void duplicateAndMoveObjects(Math::Direction direction);
@@ -213,6 +214,15 @@ namespace TrenchBroom {
             void moveTextures(const Vec2f& offset);
             float rotateTextureAngle(bool clockwise) const;
             void rotateTextures(float angle);
+        public:
+            void OnMoveRotationCenterForward(wxCommandEvent& event);
+            void OnMoveRotationCenterBackward(wxCommandEvent& event);
+            void OnMoveRotationCenterLeft(wxCommandEvent& event);
+            void OnMoveRotationCenterRight(wxCommandEvent& event);
+            void OnMoveRotationCenterUp(wxCommandEvent& event);
+            void OnMoveRotationCenterDown(wxCommandEvent& event);
+        private:
+            void moveRotationCenter(Math::Direction direction);
         public:
             void OnCancel(wxCommandEvent& event);
             

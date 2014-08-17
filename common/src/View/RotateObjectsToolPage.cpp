@@ -49,6 +49,7 @@ namespace TrenchBroom {
             wxStaticText* text3 = new wxStaticText(this, wxID_ANY, "axis");
             m_angle = new SpinControl(this);
             m_angle->SetRange(-360.0, 360.0);
+            m_angle->SetValue(Math::degrees(m_tool->angle()));
             
             wxString axes[] = { "X", "Y", "Z" };
             m_axis = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, axes);
@@ -59,6 +60,7 @@ namespace TrenchBroom {
             m_resetButton->SetToolTip("Reset the position of the rotate handle to the center of the current selection.");
             
             Bind(wxEVT_IDLE, &RotateObjectsToolPage::OnIdle, this);
+            m_angle->Bind(EVT_SPINCONTROL_EVENT, EVT_SPINCONTROL_HANDLER(RotateObjectsToolPage::OnAngleChanged), this);
             m_rotateButton->Bind(wxEVT_UPDATE_UI, &RotateObjectsToolPage::OnUpdateRotateButton, this);
             m_rotateButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnRotate, this);
             m_resetButton->Bind(wxEVT_BUTTON, &RotateObjectsToolPage::OnReset, this);
@@ -90,6 +92,13 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnIdle(wxIdleEvent& event) {
             const Grid& grid = lock(m_document)->grid();
             m_angle->SetIncrements(Math::degrees(grid.angle()), 90.0, 1.0);
+            
+            if (!Math::eq(m_tool->angle(), Math::degrees(m_angle->GetValue())))
+                m_angle->SetValue(Math::degrees(m_tool->angle()));
+        }
+
+        void RotateObjectsToolPage::OnAngleChanged(SpinControlEvent& event) {
+            m_tool->setAngle(Math::radians(event.GetValue()));
         }
 
         void RotateObjectsToolPage::OnUpdateRotateButton(wxUpdateUIEvent& event) {
