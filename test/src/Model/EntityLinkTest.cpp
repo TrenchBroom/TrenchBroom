@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(EntityLinkTest, testCreateLink) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             map.addEntity(source);
@@ -46,7 +46,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityLinkTest, testCreateMultiSourceLink) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source1 = map.createEntity();
             Entity* source2 = map.createEntity();
             Entity* target = map.createEntity();
@@ -74,7 +74,7 @@ namespace TrenchBroom {
         
         
         TEST(EntityLinkTest, testCreateMultiTargetLink) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target1 = map.createEntity();
             Entity* target2 = map.createEntity();
@@ -105,7 +105,7 @@ namespace TrenchBroom {
         }
 
         TEST(EntityLinkTest, testLoadLink) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             
@@ -125,7 +125,7 @@ namespace TrenchBroom {
         }
 
         TEST(EntityLinkTest, testRemoveLinkByChangingSource) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             
@@ -145,7 +145,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityLinkTest, testRemoveLinkByChangingTarget) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             
@@ -165,7 +165,7 @@ namespace TrenchBroom {
         }
 
         TEST(EntityLinkTest, testRemoveLinkByRemovingSource) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             
@@ -187,7 +187,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityLinkTest, testRemoveLinkByRemovingTarget) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             
@@ -209,7 +209,7 @@ namespace TrenchBroom {
         }
 
         TEST(EntityLinkTest, testCreateKillLink) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             map.addEntity(source);
@@ -228,7 +228,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityLinkTest, testLoadKillLink) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             
@@ -248,7 +248,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityLinkTest, testRemoveKillLinkByChangingSource) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             
@@ -268,7 +268,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityLinkTest, testRemoveKillLinkByChangingTarget) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             
@@ -288,7 +288,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityLinkTest, testRemoveKillLinkByRemovingSource) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             
@@ -310,7 +310,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityLinkTest, testRemoveKillLinkByRemovingTarget) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             Entity* source = map.createEntity();
             Entity* target = map.createEntity();
             

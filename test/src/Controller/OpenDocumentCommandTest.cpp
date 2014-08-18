@@ -39,7 +39,7 @@ namespace TrenchBroom {
             Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path("data/Controller/OpenDocumentCommandTest/Cube.map");
             
-            Model::Map* map = new Model::Map(Model::MapFormat::Quake);
+            Model::Map* map = new Model::Map(Model::MapFormat::Standard);
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doContentFlags()).WillOnce(ReturnRef(contentFlags));
             EXPECT_CALL(*game, doExtractEnabledMods(map)).WillOnce(Return(StringList()));
@@ -74,8 +74,8 @@ namespace TrenchBroom {
             const IO::Path path1("data/Controller/OpenDocumentCommandTest/2Cubes.map");
             const IO::Path path2("data/Controller/OpenDocumentCommandTest/Cube.map");
 
-            Model::Map* map1 = new Model::Map(Model::MapFormat::Quake);
-            Model::Map* map2 = new Model::Map(Model::MapFormat::Quake);
+            Model::Map* map1 = new Model::Map(Model::MapFormat::Standard);
+            Model::Map* map2 = new Model::Map(Model::MapFormat::Standard);
             EXPECT_CALL(*game, doLoadMap(worldBounds, path1)).WillOnce(Return(map1));
             EXPECT_CALL(*game, doContentFlags()).WillOnce(ReturnRef(contentFlags));
             EXPECT_CALL(*game, doExtractEnabledMods(map1)).WillOnce(Return(StringList()));

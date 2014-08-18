@@ -31,14 +31,14 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(MapObjectsIteratorTest, emptyMap) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             MapObjectsIterator::OuterIterator it = MapObjectsIterator::begin(map);
             MapObjectsIterator::OuterIterator end = MapObjectsIterator::end(map);
             ASSERT_TRUE(it == end);
         }
 
         TEST(MapObjectsIteratorTest, oneEmptyEntityMap) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
 
             Entity* entity = new ConfigurableEntity<QuakeEntityRotationPolicy>();
             map.addEntity(entity);
@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
         
         TEST(MapObjectsIteratorTest, severalEntitiesMap) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             
             const BBox3 worldbounds(8192.0);
             Brush* brush1 = new Brush(worldbounds, EmptyBrushFaceList);

@@ -27,7 +27,7 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(BrushBuilderTest, createCube) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             const BBox3d worldBounds(-8192.0, 8192.0);
             
             BrushBuilder builder(&map, worldBounds);

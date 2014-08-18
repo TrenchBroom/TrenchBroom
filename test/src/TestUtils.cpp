@@ -28,9 +28,9 @@ namespace TrenchBroom {
         using namespace testing;
         
         Model::MockGamePtr game = Model::MockGame::newGame();
-        const Model::MapFormat::Type mapFormat = Model::MapFormat::Quake;
+        const Model::MapFormat::Type mapFormat = Model::MapFormat::Standard;
         
-        EXPECT_CALL(*game, doNewMap(Model::MapFormat::Quake)).WillOnce(Return(new Model::Map(Model::MapFormat::Quake)));
+        EXPECT_CALL(*game, doNewMap(Model::MapFormat::Standard)).WillOnce(Return(new Model::Map(Model::MapFormat::Standard)));
         const Model::GameConfig::FlagsConfig contentFlags;
         EXPECT_CALL(*game, doContentFlags()).WillOnce(ReturnRef(contentFlags));
         EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));

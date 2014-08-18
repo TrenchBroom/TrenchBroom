@@ -325,7 +325,7 @@ namespace TrenchBroom {
             const BBox3 worldBounds(-8192.0, 8192.0);
             
             IO::QuakeMapParser parser(faceStr);
-            const BrushFaceList faces = parser.parseFaces(worldBounds, MapFormat::Quake);
+            const BrushFaceList faces = parser.parseFaces(worldBounds, MapFormat::Standard);
             assert(faces.size() == 7);
             
             BrushGeometry geometry(worldBounds);
@@ -359,7 +359,7 @@ namespace TrenchBroom {
             const BBox3 worldBounds(-8192.0, 8192.0);
             
             IO::QuakeMapParser parser(faceStr);
-            const BrushFaceList faces = parser.parseFaces(worldBounds, MapFormat::Quake);
+            const BrushFaceList faces = parser.parseFaces(worldBounds, MapFormat::Standard);
             assert(faces.size() == 8);
             
             BrushGeometry geometry(worldBounds);

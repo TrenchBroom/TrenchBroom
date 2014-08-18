@@ -39,7 +39,7 @@ namespace TrenchBroom {
             const Model::GameConfig::FlagsConfig contentFlags;
 
             Model::MockGamePtr game = Model::MockGame::newGame();
-            EXPECT_CALL(*game, doNewMap(Model::MapFormat::Quake)).WillOnce(Return(new Model::Map(Model::MapFormat::Quake)));
+            EXPECT_CALL(*game, doNewMap(Model::MapFormat::Standard)).WillOnce(Return(new Model::Map(Model::MapFormat::Standard)));
             EXPECT_CALL(*game, doContentFlags()).WillOnce(ReturnRef(contentFlags));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));
             EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("")));
@@ -48,7 +48,7 @@ namespace TrenchBroom {
             EXPECT_CALL(*game, doFindBuiltinTextureCollections()).WillOnce(Return(IO::Path::List()));
 
             MapDocumentSPtr document = MapDocument::newMapDocument();
-            const Model::MapFormat::Type format = Model::MapFormat::Quake;
+            const Model::MapFormat::Type format = Model::MapFormat::Standard;
 
             document->newDocument(worldBounds, game, format);
             
@@ -65,7 +65,7 @@ namespace TrenchBroom {
             Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path("data/View/FrameManager/TestDoc1.map");
             
-            Model::Map* map = new Model::Map(Model::MapFormat::Quake);
+            Model::Map* map = new Model::Map(Model::MapFormat::Standard);
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doContentFlags()).WillOnce(ReturnRef(contentFlags));
             EXPECT_CALL(*game, doExtractEnabledMods(map)).WillOnce(Return(StringList()));

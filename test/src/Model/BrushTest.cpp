@@ -362,7 +362,7 @@ namespace TrenchBroom {
         }
         
         TEST(BrushTest, moveVertex) {
-            Map map(MapFormat::Quake);
+            Map map(MapFormat::Standard);
             const BBox3 worldBounds(4096.0);
             BrushBuilder builder(&map, worldBounds);
             Brush* brush = builder.createCube(64.0, "asdf");
