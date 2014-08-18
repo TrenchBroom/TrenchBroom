@@ -33,6 +33,16 @@
 
 namespace TrenchBroom {
     namespace View {
+        static const size_t NumTextureModes = 6;
+        static const std::pair<String,int> TextureModes[] = {
+            std::make_pair("GL_NEAREST",                0x2600),
+            std::make_pair("GL_LINEAR",                 0x2601),
+            std::make_pair("GL_NEAREST_MIPMAP_NEAREST", 0x2700),
+            std::make_pair("GL_LINEAR_MIPMAP_NEAREST",  0x2701),
+            std::make_pair("GL_NEAREST_MIPMAP_LINEAR",  0x2702),
+            std::make_pair("GL_LINEAR_MIPMAP_LINEAR",   0x2703)
+        };
+        
         ViewPreferencePane::ViewPreferencePane(wxWindow* parent) :
         PreferencePane(parent) {
             createGui();
@@ -54,6 +64,18 @@ namespace TrenchBroom {
             const int max = m_gridAlphaSlider->GetMax();
             const float floatValue = static_cast<float>(value) / static_cast<float>(max);
             prefs.set(Preferences::GridAlpha, floatValue);
+        }
+
+        void ViewPreferencePane::OnTextureModeChanged(wxCommandEvent& event) {
+            const int selection = m_textureModeChoice->GetSelection();
+            assert(selection >= 0);
+            
+            const size_t index = static_cast<size_t>(selection);
+            assert(index < NumTextureModes);
+            const int mode = TextureModes[index].second;
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::TextureMode, mode);
         }
 
         void ViewPreferencePane::OnTextureBrowserIconSizeChanged(wxCommandEvent& event) {
@@ -110,12 +132,19 @@ namespace TrenchBroom {
             wxStaticText* gridLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
             m_gridAlphaSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
+            wxString textureModeNames[NumTextureModes];
+            for (size_t i = 0; i < NumTextureModes; ++i)
+                textureModeNames[i] = TextureModes[i].first;
+            wxStaticText* textureModeLabel = new wxStaticText(viewBox, wxID_ANY, "Texture Mode");
+            m_textureModeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumTextureModes, textureModeNames);
+
             wxStaticText* textureBrowserPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Texture Browser");
             textureBrowserPrefsHeader->SetFont(textureBrowserPrefsHeader->GetFont().Bold());
             wxStaticText* textureBrowserIconSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Icon Size");
             wxString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
             m_textureBrowserIconSizeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, 7, iconSizes);
             m_textureBrowserIconSizeChoice->SetToolTip("Sets the icon size in the texture browser.");
+            
             
             const int HMargin       = LayoutConstants::WideHMargin;
             const int LMargin       = LayoutConstants::WideVMargin;
@@ -127,17 +156,23 @@ namespace TrenchBroom {
             
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
             sizer->Add(_3dViewPrefsHeader,                  wxGBPosition( 0, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+
             sizer->Add(brightnessLabel,                     wxGBPosition( 1, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_brightnessSlider,                  wxGBPosition( 1, 1), wxDefaultSpan, SliderFlags, HMargin);
-            
+
             sizer->Add(gridLabel,                           wxGBPosition( 2, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_gridAlphaSlider,                   wxGBPosition( 2, 1), wxDefaultSpan, SliderFlags, HMargin);
-            sizer->Add(new BorderLine(viewBox),             wxGBPosition( 3, 0), wxGBSpan(1,2), LineFlags, LMargin);
             
-            sizer->Add(textureBrowserPrefsHeader,           wxGBPosition( 4, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            sizer->Add(textureBrowserIconSizeLabel,         wxGBPosition( 5, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_textureBrowserIconSizeChoice,      wxGBPosition( 5, 1), wxDefaultSpan, ChoiceFlags, HMargin);
-            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( 6, 0), wxGBSpan(1,2));
+            sizer->Add(textureModeLabel,                    wxGBPosition( 3, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_textureModeChoice,                 wxGBPosition( 3, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( 4, 0), wxGBSpan(1,2));
+
+            sizer->Add(new BorderLine(viewBox),             wxGBPosition( 5, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            
+            sizer->Add(textureBrowserPrefsHeader,           wxGBPosition( 6, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(textureBrowserIconSizeLabel,         wxGBPosition( 7, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_textureBrowserIconSizeChoice,      wxGBPosition( 7, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( 8, 0), wxGBSpan(1,2));
             
             sizer->AddGrowableCol(1);
             sizer->SetMinSize(500, wxDefaultCoord);
@@ -146,6 +181,7 @@ namespace TrenchBroom {
         }
         
         void ViewPreferencePane::bindEvents() {
+            m_textureModeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureModeChanged, this);
             m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureBrowserIconSizeChanged, this);
             
             bindSliderEvents(m_brightnessSlider, &ViewPreferencePane::OnBrightnessChanged, this);
@@ -157,6 +193,10 @@ namespace TrenchBroom {
             
             m_brightnessSlider->SetValue(static_cast<int>(prefs.get(Preferences::Brightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(prefs.get(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
+            
+            const size_t textureModeIndex = findTextureMode(prefs.get(Preferences::TextureMode));
+            assert(textureModeIndex < NumTextureModes);
+            m_textureModeChoice->SetSelection(static_cast<int>(textureModeIndex));
             
             const float textureBrowserIconSize = prefs.get(Preferences::TextureBrowserIconSize);
             if (textureBrowserIconSize == 0.25f)
@@ -177,6 +217,13 @@ namespace TrenchBroom {
 
         bool ViewPreferencePane::doValidate() {
             return true;
+        }
+
+        size_t ViewPreferencePane::findTextureMode(const int value) const {
+            for (size_t i = 0; i < NumTextureModes; ++i)
+                if (TextureModes[i].second == value)
+                    return i;
+            return NumTextureModes;
         }
 	}
 }

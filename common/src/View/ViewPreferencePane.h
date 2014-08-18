@@ -31,12 +31,14 @@ namespace TrenchBroom {
         private:
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
+            wxChoice* m_textureModeChoice;
             wxChoice* m_textureBrowserIconSizeChoice;
         public:
             ViewPreferencePane(wxWindow* parent);
 
             void OnBrightnessChanged(wxScrollEvent& event);
             void OnGridAlphaChanged(wxScrollEvent& event);
+            void OnTextureModeChanged(wxCommandEvent& event);
             void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
         private:
             void createGui();
@@ -46,6 +48,7 @@ namespace TrenchBroom {
             
             void doUpdateControls();
             bool doValidate();
+            size_t findTextureMode(int value) const;
         };
     }
 }

@@ -85,9 +85,10 @@ namespace TrenchBroom {
         
         extern Preference<float> Brightness;
         extern Preference<float> GridAlpha;
-        extern Preference<bool> GridCheckerboard;
         extern Preference<bool> ShadeFaces;
         extern Preference<bool> UseFog;
+        
+        extern Preference<int> TextureMode;
         
         Preference<IO::Path>& RendererFontPath();
         extern Preference<int> RendererFontSize;

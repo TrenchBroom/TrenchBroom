@@ -80,9 +80,10 @@ namespace TrenchBroom {
 
         Preference<float> Brightness(IO::Path("Renderer/Brightness"), 1.4f);
         Preference<float> GridAlpha(IO::Path("Renderer/Grid/Alpha"), 0.5f);
-        Preference<bool> GridCheckerboard(IO::Path("Renderer/Grid/Checkerboard"), false);
-        Preference<bool> ShadeFaces(IO::Path("Renderer/ShadeFaces"), true);
-        Preference<bool> UseFog(IO::Path("Renderer/UseFog"), false);
+        Preference<bool> ShadeFaces(IO::Path("Renderer/Shade faces"), true);
+        Preference<bool> UseFog(IO::Path("Renderer/Use fog"), false);
+
+        Preference<int> TextureMode(IO::Path("Renderer/Texture mode"), 0x2700);
 
         Preference<IO::Path>& RendererFontPath() {
 #if defined __APPLE__
