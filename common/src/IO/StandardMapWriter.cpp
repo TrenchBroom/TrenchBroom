@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "QuakeMapWriter.h"
+#include "StandardMapWriter.h"
 
 #include "StringUtils.h"
 #include "Model/BrushFace.h"
 
 namespace TrenchBroom {
     namespace IO {
-        QuakeMapWriter::QuakeMapWriter() {
+        StandardMapWriter::StandardMapWriter() {
             StringStream str;
             str <<
             "( %." << FloatPrecision << "g " <<
@@ -36,36 +36,62 @@ namespace TrenchBroom {
             "( %." << FloatPrecision << "g " <<
             "%." << FloatPrecision << "g " <<
             "%." << FloatPrecision << "g ) " <<
-            "%s %.6g %.6g %.6g %.6g %.6g\n";
+            "%s %.6g %.6g %.6g %.6g %.6g";
+            ShortFaceFormat = str.str();
             
-            FaceFormat = str.str();
+            str <<
+            " %d %d %.6g";
+            LongFaceFormat = str.str();
         }
 
-        size_t QuakeMapWriter::writeFace(Model::BrushFace& face, const size_t lineNumber, FILE* stream) {
+        size_t StandardMapWriter::writeFace(Model::BrushFace& face, const size_t lineNumber, FILE* stream) {
             const String& textureName = face.textureName().empty() ? Model::BrushFace::NoTextureName : face.textureName();
             const Model::BrushFace::Points& points = face.points();
             
-            std::fprintf(stream, FaceFormat.c_str(),
-                         points[0].x(),
-                         points[0].y(),
-                         points[0].z(),
-                         points[1].x(),
-                         points[1].y(),
-                         points[1].z(),
-                         points[2].x(),
-                         points[2].y(),
-                         points[2].z(),
-                         textureName.c_str(),
-                         face.xOffset(),
-                         face.yOffset(),
-                         face.rotation(),
-                         face.xScale(),
-                         face.yScale());
+            if (face.hasSurfaceAttributes()) {
+                std::fprintf(stream, LongFaceFormat.c_str(),
+                             points[0].x(),
+                             points[0].y(),
+                             points[0].z(),
+                             points[1].x(),
+                             points[1].y(),
+                             points[1].z(),
+                             points[2].x(),
+                             points[2].y(),
+                             points[2].z(),
+                             textureName.c_str(),
+                             face.xOffset(),
+                             face.yOffset(),
+                             face.rotation(),
+                             face.xScale(),
+                             face.yScale(),
+                             face.surfaceContents(),
+                             face.surfaceFlags(),
+                             face.surfaceValue());
+            } else {
+                std::fprintf(stream, ShortFaceFormat.c_str(),
+                             points[0].x(),
+                             points[0].y(),
+                             points[0].z(),
+                             points[1].x(),
+                             points[1].y(),
+                             points[1].z(),
+                             points[2].x(),
+                             points[2].y(),
+                             points[2].z(),
+                             textureName.c_str(),
+                             face.xOffset(),
+                             face.yOffset(),
+                             face.rotation(),
+                             face.xScale(),
+                             face.yScale());
+            }
+            std::fprintf(stream, "\n");
             face.setFilePosition(lineNumber, 1);
             return 1;
         }
         
-        void QuakeMapWriter::writeFace(const Model::BrushFace& face, std::ostream& stream) {
+        void StandardMapWriter::writeFace(const Model::BrushFace& face, std::ostream& stream) {
             const String& textureName = face.textureName().empty() ? Model::BrushFace::NoTextureName : face.textureName();
             const Model::BrushFace::Points& points = face.points();
             
@@ -86,8 +112,17 @@ namespace TrenchBroom {
             StringUtils::ftos(face.xOffset(), FloatPrecision)  << " " <<
             StringUtils::ftos(face.yOffset(), FloatPrecision)  << " " <<
             StringUtils::ftos(face.rotation(), FloatPrecision) << " " <<
-            StringUtils::ftos(face.xScale(), FloatPrecision)   << " " <<
-            StringUtils::ftos(face.yScale(), FloatPrecision)   << "\n";
+            StringUtils::ftos(face.xScale(), FloatPrecision)   << " ";
+            StringUtils::ftos(face.yScale(), FloatPrecision);
+            
+            if (face.hasSurfaceAttributes()) {
+                stream << " " <<
+                face.surfaceContents()  << " " <<
+                face.surfaceFlags()     << " " <<
+                StringUtils::ftos(face.surfaceValue(), FloatPrecision);
+            }
+            
+            stream << "\n";
         }
     }
 }

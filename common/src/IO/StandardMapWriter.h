@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__QuakeMapWriter__
-#define __TrenchBroom__QuakeMapWriter__
+#ifndef __TrenchBroom__StandardMapWriter__
+#define __TrenchBroom__StandardMapWriter__
 
 #include "IO/MapWriter.h"
 #include "Model/ModelTypes.h"
@@ -28,12 +28,13 @@
 
 namespace TrenchBroom {
     namespace IO {
-        class QuakeMapWriter : public MapWriter {
+        class StandardMapWriter : public MapWriter {
         private:
             static const int FloatPrecision = 100;
-            String FaceFormat;
+            String ShortFaceFormat;
+            String LongFaceFormat;
         public:
-            QuakeMapWriter();
+            StandardMapWriter();
         private:
             size_t writeFace(Model::BrushFace& face, const size_t lineNumber, FILE* stream);
             void writeFace(const Model::BrushFace& face, std::ostream& stream);
@@ -41,4 +42,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__QuakeMapWriter__) */
+#endif /* defined(__TrenchBroom__StandardMapWriter__) */

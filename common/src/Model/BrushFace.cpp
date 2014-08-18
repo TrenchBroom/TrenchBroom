@@ -325,6 +325,10 @@ namespace TrenchBroom {
             return m_attribs.surfaceValue();
         }
 
+        bool BrushFace::hasSurfaceAttributes() const {
+            return surfaceContents() != 0 || surfaceFlags() != 0 || surfaceValue() != 0.0f;
+        }
+
         void BrushFace::setTexture(Assets::Texture* texture) {
             if (texture == m_attribs.texture())
                 return;

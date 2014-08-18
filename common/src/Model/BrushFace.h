@@ -173,6 +173,7 @@ namespace TrenchBroom {
             int surfaceContents() const;
             int surfaceFlags() const;
             float surfaceValue() const;
+            bool hasSurfaceAttributes() const;
             
             void setTexture(Assets::Texture* texture);
             void setXOffset(float xOffset);

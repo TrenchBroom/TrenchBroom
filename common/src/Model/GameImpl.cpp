@@ -31,8 +31,7 @@
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
 #include "IO/QuakeMapParser.h"
-#include "IO/QuakeMapWriter.h"
-#include "IO/Quake2MapWriter.h"
+#include "IO/StandardMapWriter.h"
 #include "IO/SystemPaths.h"
 #include "IO/ValveMapWriter.h"
 #include "IO/WadTextureLoader.h"
@@ -270,10 +269,8 @@ namespace TrenchBroom {
         
         GameImpl::MapWriterPtr GameImpl::mapWriter(const MapFormat::Type format) const {
             switch (format) {
-                case MapFormat::Quake:
-                    return MapWriterPtr(new IO::QuakeMapWriter());
-                case MapFormat::Quake2:
-                    return MapWriterPtr(new IO::Quake2MapWriter());
+                case MapFormat::Standard:
+                    return MapWriterPtr(new IO::StandardMapWriter());
                 case MapFormat::Hexen2:
                     return MapWriterPtr(new IO::Hexen2MapWriter());
                 case MapFormat::Valve:

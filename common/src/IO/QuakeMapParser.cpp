@@ -254,7 +254,7 @@ namespace TrenchBroom {
                    token.type() != QuakeMapToken::Eof)
                 token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
-                format = Model::MapFormat::Quake;
+                format = Model::MapFormat::Standard;
             
             if (format == Model::MapFormat::Unknown) {
                 m_tokenizer.pushToken(token);
@@ -277,7 +277,7 @@ namespace TrenchBroom {
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken()); // y scale
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
                 if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
-                    format = Model::MapFormat::Quake;
+                    format = Model::MapFormat::Standard;
             }
 
             if (format == Model::MapFormat::Unknown) {
@@ -287,7 +287,7 @@ namespace TrenchBroom {
             }
             
             if (format == Model::MapFormat::Unknown)
-                format = Model::MapFormat::Quake2;
+                format = Model::MapFormat::Standard;
             
             m_tokenizer.reset();
             return format;
@@ -451,21 +451,24 @@ namespace TrenchBroom {
             
             Model::BrushFace* face = m_factory.createFaceWithAxes(p1, p2, p3, textureName, texAxisX, texAxisY);
 
-            if (m_format == Model::MapFormat::Quake2) {
-                expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
-                surfaceContents = token.toInteger<int>();
-                expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
-                surfaceFlags = token.toInteger<int>();
-                expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                surfaceValue = token.toFloat<float>();
-            } else if (m_format == Model::MapFormat::Hexen2) {
+            if (m_format == Model::MapFormat::Hexen2) {
                 // noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
                 surfaceContents = surfaceFlags = 0;
                 surfaceValue = 0.0f;
             } else {
-                surfaceContents = surfaceFlags = 0;
-                surfaceValue = 0.0f;
+                // if there is are additional values, then these are content and surface flags and surface value
+                if (m_tokenizer.peekToken().type() == QuakeMapToken::Integer) {
+                    token = m_tokenizer.nextToken();
+                    surfaceContents = token.toInteger<int>();
+                    expect(QuakeMapToken::Integer, token = m_tokenizer.nextToken());
+                    surfaceFlags = token.toInteger<int>();
+                    expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
+                    surfaceValue = token.toFloat<float>();
+                } else {
+                    surfaceContents = surfaceFlags = 0;
+                    surfaceValue = 0.0f;
+                }
             }
             
             face->setXOffset(xOffset);
