@@ -237,5 +237,29 @@ namespace TrenchBroom {
             ASSERT_EQ(String("fourth"), static_cast<const String&>(nested["fourth"]));
             ASSERT_EQ(String("fifth"), static_cast<const String&>(nested["fifth"]));
         }
+        
+        TEST(ConfigParserTest, testParseSerializedConfig) {
+            const ConfigEntry::Ptr config = ConfigParser("  { first = \"firstValue\", second=\"secondValue\", third = {\"fourth\",\"fifth\"} } ").parse();
+            const String serialized = config->asString();
+            const ConfigEntry::Ptr deserialized = ConfigParser(serialized).parse();
+            
+            ASSERT_TRUE(deserialized != NULL);
+            ASSERT_TRUE(deserialized->type() == ConfigEntry::Type_Table);
+            
+            const ConfigTable& table = *deserialized;
+            ASSERT_EQ(3u, table.count());
+            ASSERT_TRUE(ConfigEntry::Type_Value == table["first"].type());
+            ASSERT_TRUE(ConfigEntry::Type_Value == table["second"].type());
+            ASSERT_TRUE(ConfigEntry::Type_List == table["third"].type());
+            ASSERT_EQ(String("firstValue"), static_cast<const String&>(table["first"]));
+            ASSERT_EQ(String("secondValue"), static_cast<const String&>(table["second"]));
+            
+            const ConfigList& nested = table["third"];
+            ASSERT_EQ(2u, nested.count());
+            ASSERT_TRUE(ConfigEntry::Type_Value == nested[0].type());
+            ASSERT_TRUE(ConfigEntry::Type_Value == nested[1].type());
+            ASSERT_EQ(String("fourth"), static_cast<const String&>(nested[0]));
+            ASSERT_EQ(String("fifth"), static_cast<const String&>(nested[1]));
+        }
     }
 }

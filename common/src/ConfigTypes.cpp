@@ -50,15 +50,39 @@ namespace TrenchBroom {
         return static_cast<const ConfigTable&>(*this);
     }
 
+    void ConfigEntry::appendToStream(std::ostream& stream) const {
+        doAppendToStream(stream);
+    }
+
+    String ConfigEntry::asString() const {
+        StringStream stream;
+        stream << this;
+        return stream.str();
+    }
+
     ConfigEntry::ConfigEntry(const Type type) :
     m_type(type) {}
 
+    std::ostream& operator<<(std::ostream& stream, const ConfigEntry::Ptr entry) {
+        entry->appendToStream(stream);
+        return stream;
+    }
+
+    std::ostream& operator<<(std::ostream& stream, const ConfigEntry* entry) {
+        entry->appendToStream(stream);
+        return stream;
+    }
+    
     ConfigValue::ConfigValue(const String& value) :
     ConfigEntry(Type_Value),
     m_value(value) {}
     
     ConfigValue::operator const String&() const {
         return m_value;
+    }
+
+    void ConfigValue::doAppendToStream(std::ostream& stream) const {
+        stream << "\"" << m_value << "\"";
     }
 
     ConfigList::ConfigList() :
@@ -75,6 +99,16 @@ namespace TrenchBroom {
     
     void ConfigList::addEntry(ConfigEntry::Ptr entry) {
         m_entries.push_back(entry);
+    }
+
+    void ConfigList::doAppendToStream(std::ostream& stream) const {
+        stream << "{";
+        if (!m_entries.empty()) {
+            for (size_t i = 0; i < m_entries.size() - 1; ++i)
+                stream << m_entries[i] << ",";
+            stream << m_entries.back();
+        }
+        stream << "}";
     }
 
     ConfigTable::ConfigTable() :
@@ -101,5 +135,20 @@ namespace TrenchBroom {
     void ConfigTable::addEntry(const String& key, ConfigEntry::Ptr entry) {
         if (MapUtils::insertOrReplace(m_entries, key, entry))
             m_keys.insert(key);
+    }
+
+    void ConfigTable::doAppendToStream(std::ostream& stream) const {
+        stream << "{";
+        EntryMap::const_iterator it = m_entries.begin();
+        EntryMap::const_iterator end = m_entries.end();
+        while (it != end) {
+            const String& key = it->first;
+            const ConfigEntry::Ptr entry = it->second;
+            stream << key << "=" << entry;
+            ++it;
+            if (it != end)
+                stream << ",";
+        }
+        stream << "}";
     }
 }

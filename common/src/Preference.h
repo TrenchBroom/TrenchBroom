@@ -21,9 +21,11 @@
 #define __TrenchBroom__Preference__
 
 #include "Color.h"
+#include "ConfigTypes.h"
 #include "Exceptions.h"
 #include "Macros.h"
 #include "StringUtils.h"
+#include "IO/ConfigParser.h"
 #include "IO/Path.h"
 #include "View/KeyboardShortcut.h"
 
@@ -160,8 +162,22 @@ namespace TrenchBroom {
         }
     };
 
+    template <>
+    class Converter<ConfigEntry::Ptr> {
+    public:
+        wxString toWxString(const ConfigEntry::Ptr entry) const {
+            StringStream stream;
+            stream << entry;
+            return stream.str();
+        }
+        
+        ConfigEntry::Ptr fromWxString(const wxString& string) const {
+            return IO::ConfigParser(string.ToStdString()).parse();
+        }
+    };
+
     template<>
-    class Converter<StringMap > {
+    class Converter<StringMap> {
     public:
         wxString toWxString(const StringMap& values) const {
             wxString result("{ ");

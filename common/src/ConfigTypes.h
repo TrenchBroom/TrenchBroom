@@ -51,9 +51,17 @@ namespace TrenchBroom {
         operator const ConfigValue&() const;
         operator const ConfigList&() const;
         operator const ConfigTable&() const;
+        
+        void appendToStream(std::ostream& stream) const;
+        String asString() const;
+    private:
+        virtual void doAppendToStream(std::ostream& stream) const = 0;
     protected:
         ConfigEntry(const Type type);
     };
+    
+    std::ostream& operator<<(std::ostream& stream, const ConfigEntry::Ptr entry);
+    std::ostream& operator<<(std::ostream& stream, const ConfigEntry* entry);
     
     class ConfigValue : public ConfigEntry {
     public:
@@ -64,6 +72,8 @@ namespace TrenchBroom {
         ConfigValue(const String& value);
 
         operator const String&() const;
+    private:
+        void doAppendToStream(std::ostream& stream) const;
     };
     
     class ConfigList : public ConfigEntry {
@@ -79,6 +89,8 @@ namespace TrenchBroom {
         size_t count() const;
         
         void addEntry(ConfigEntry::Ptr entry);
+    private:
+        void doAppendToStream(std::ostream& stream) const;
     };
     
     class ConfigTable : public ConfigEntry {
@@ -97,6 +109,8 @@ namespace TrenchBroom {
         bool contains(const String& key) const;
         
         void addEntry(const String& key, ConfigEntry::Ptr entry);
+    private:
+        void doAppendToStream(std::ostream& stream) const;
     };
 }
 
