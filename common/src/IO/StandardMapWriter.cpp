@@ -112,7 +112,7 @@ namespace TrenchBroom {
             StringUtils::ftos(face.xOffset(), FloatPrecision)  << " " <<
             StringUtils::ftos(face.yOffset(), FloatPrecision)  << " " <<
             StringUtils::ftos(face.rotation(), FloatPrecision) << " " <<
-            StringUtils::ftos(face.xScale(), FloatPrecision)   << " ";
+            StringUtils::ftos(face.xScale(), FloatPrecision)   << " " <<
             StringUtils::ftos(face.yScale(), FloatPrecision);
             
             if (face.hasSurfaceAttributes()) {

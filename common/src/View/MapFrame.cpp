@@ -272,7 +272,7 @@ namespace TrenchBroom {
                     logMsg << "Pasted face attributes to " << selectedFaces.size() << (selectedFaces.size() == 1 ? " face" : " faces") << " from clipboard";
                     logger()->info(logMsg.str());
                 } else {
-                    logger()->error("Could parse clipboard contents");
+                    logger()->error("Could not parse clipboard contents");
                 }
             } else {
                 logger()->error("Clipboard is empty");
@@ -296,7 +296,7 @@ namespace TrenchBroom {
                                                                                VectorUtils::cast<Model::Object*>(brushes));
                     pasteObjects(objects, Vec3::Null);
                 } else {
-                    logger()->error("Could parse clipboard contents");
+                    logger()->error("Could not parse clipboard contents");
                 }
             } else {
                 logger()->error("Clipboard is empty");
