@@ -53,6 +53,7 @@ namespace TrenchBroom {
             Model::BrushFaceList m_faces;
 
             UVEditor* m_uvEditor;
+            wxStaticText* m_textureName;
             SpinControl* m_xOffsetEditor;
             SpinControl* m_yOffsetEditor;
             SpinControl* m_xScaleEditor;

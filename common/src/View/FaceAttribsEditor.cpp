@@ -20,6 +20,7 @@
 #include "FaceAttribsEditor.h"
 
 #include "Assets/AssetTypes.h"
+#include "Assets/Texture.h"
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/BrushFace.h"
@@ -130,6 +131,10 @@ namespace TrenchBroom {
         void FaceAttribsEditor::createGui(GLContextHolder::Ptr sharedContext) {
             m_uvEditor = new UVEditor(this, sharedContext, m_document, m_controller);
             
+            wxStaticText* textureNameLabel = new wxStaticText(this, wxID_ANY, "Texture");
+            textureNameLabel->SetFont(textureNameLabel->GetFont().Bold());
+            m_textureName = new wxStaticText(this, wxID_ANY, "none");
+            
             const double max = std::numeric_limits<double>::max();
             const double min = -max;
             
@@ -186,6 +191,10 @@ namespace TrenchBroom {
             int c = 0;
             
             m_faceAttribsSizer = new wxGridBagSizer(RowMargin);
+            m_faceAttribsSizer->Add(textureNameLabel,     wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
+            m_faceAttribsSizer->Add(m_textureName,        wxGBPosition(r,c++), wxGBSpan(1,3), Editor2Flags, EditorMargin);
+            ++r, c = 0;
+
             m_faceAttribsSizer->Add(xOffsetLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
             m_faceAttribsSizer->Add(m_xOffsetEditor,      wxGBPosition(r,c++), wxDefaultSpan, Editor1Flags, EditorMargin);
             m_faceAttribsSizer->Add(yOffsetLabel,         wxGBPosition(r,c++), wxDefaultSpan, LabelFlags,   LabelMargin);
@@ -328,7 +337,6 @@ namespace TrenchBroom {
                 bool surfaceValueMulti = false;
                 
                 Assets::Texture* texture = m_faces[0]->texture();
-                // const String& textureName = m_faces[0]->textureName();
                 const float xOffset = m_faces[0]->xOffset();
                 const float yOffset = m_faces[0]->yOffset();
                 const float rotation = m_faces[0]->rotation();
@@ -364,9 +372,16 @@ namespace TrenchBroom {
                 m_contentFlagsEditor->Enable();
                 
                 if (textureMulti) {
-                    // m_textureView->setTexture(NULL);
+                    m_textureName->SetLabel("multi");
+                    m_textureName->SetForegroundColour(*wxLIGHT_GREY);
                 } else {
-                    // m_textureView->setTexture(texture);
+                    if (texture == NULL) {
+                        m_textureName->SetLabel("none");
+                        m_textureName->SetForegroundColour(*wxLIGHT_GREY);
+                    } else {
+                        m_textureName->SetLabel(texture->name());
+                        m_textureName->SetForegroundColour(GetForegroundColour());
+                    }
                 }
                 if (xOffsetMulti) {
                     m_xOffsetEditor->SetHint("multi");
