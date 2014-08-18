@@ -75,7 +75,6 @@ namespace TrenchBroom {
         private:
             bool dragging() const;
             void setSashCursor();
-            void unsetSashCursor();
             wxCursor sizeCursor() const;
         public:
             void OnIdle(wxIdleEvent& event);

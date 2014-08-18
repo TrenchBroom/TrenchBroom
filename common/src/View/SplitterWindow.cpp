@@ -70,7 +70,7 @@ namespace TrenchBroom {
             m_windows[0] = window1;
             m_windows[1] = window2;
             m_splitMode = splitMode;
-
+            
             if (m_splitMode == SplitMode_Horizontal)
                 m_sash = new BorderLine(this, BorderLine::Direction_Vertical, sashSize());
             else
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             setMinSize(window1, min1);
             setMinSize(window2, min2);
         }
-
+        
         void SplitterWindow::bindMouseEvents(wxWindow* window) {
             window->Bind(wxEVT_ENTER_WINDOW, &SplitterWindow::OnMouseEnter, this);
             window->Bind(wxEVT_LEAVE_WINDOW, &SplitterWindow::OnMouseLeave, this);
@@ -88,7 +88,7 @@ namespace TrenchBroom {
             window->Bind(wxEVT_LEFT_UP, &SplitterWindow::OnMouseButton, this);
             window->Bind(wxEVT_MOTION, &SplitterWindow::OnMouseMotion, this);
         }
-
+        
         void SplitterWindow::setMinSize(wxWindow* window, const wxSize& minSize) {
             assert(m_splitMode != SplitMode_Unset);
             assert(minSize.x >= 0 && minSize.y != 0);
@@ -115,20 +115,17 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow::OnMouseLeave(wxMouseEvent& event) {
-            if (!dragging())
-                unsetSashCursor();
+            setSashCursor();
         }
-
+        
         void SplitterWindow::OnMouseButton(wxMouseEvent& event) {
             assert(m_splitMode != SplitMode_Unset);
             
-            if (event.LeftDown()) {
+            if (event.LeftDown())
                 m_sash->CaptureMouse();
-                setSashCursor();
-            } else if (event.LeftUp() && dragging()) {
+            else if (event.LeftUp() && dragging())
                 m_sash->ReleaseMouse();
-                unsetSashCursor();
-            }
+			setSashCursor();
             Refresh();
         }
         
@@ -141,12 +138,12 @@ namespace TrenchBroom {
             if (dragging()) {
                 setSashPosition(h(clientPos));
                 sizeWindows();
-                setSashCursor();
             }
+            setSashCursor();
         }
-
+        
         void SplitterWindow::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
-            unsetSashCursor();
+            setSashCursor();
         }
         
         bool SplitterWindow::dragging() const {
@@ -154,19 +151,12 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow::setSashCursor() {
-            if (!m_sashCursorSet) {
-                wxSetCursor(sizeCursor());
-                m_sashCursorSet = true;
-            }
+			if (dragging() || m_sash->HitTest(m_sash->ScreenToClient(wxGetMousePosition())) != wxHT_WINDOW_OUTSIDE)
+				wxSetCursor(sizeCursor());
+			else
+				wxSetCursor(wxCursor(wxCURSOR_ARROW));
         }
         
-        void SplitterWindow::unsetSashCursor() {
-            if (m_sashCursorSet && m_sash->HitTest(m_sash->ScreenToClient(wxGetMousePosition())) == wxHT_WINDOW_OUTSIDE) {
-                wxSetCursor(wxCursor(wxCURSOR_ARROW));
-                m_sashCursorSet = false;
-            }
-        }
-
         wxCursor SplitterWindow::sizeCursor() const {
             switch (m_splitMode) {
                 case SplitMode_Horizontal:
@@ -175,7 +165,7 @@ namespace TrenchBroom {
                     return wxCursor(wxCURSOR_SIZEWE);
                 case SplitMode_Unset:
                     return wxCursor();
-                DEFAULT_SWITCH()
+                    DEFAULT_SWITCH()
             }
         }
         
@@ -244,7 +234,7 @@ namespace TrenchBroom {
                 
                 for (size_t i = 0; i < NumWindows; ++i)
                     m_windows[i]->SetSize(wxRect(pos[i], size[i]));
-
+                
                 wxPoint sashPos;
                 wxSize sashSize;
                 
