@@ -819,6 +819,7 @@ namespace TrenchBroom {
 #else
             SetTitle(wxString(m_document->filename()) + wxString(m_document->modified() ? "*" : ""));
 #endif
+            SetRepresentedFilename(m_document->path().asString());
         }
 
         bool MapFrame::confirmOrDiscardChanges() {
