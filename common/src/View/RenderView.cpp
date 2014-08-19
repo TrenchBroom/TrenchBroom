@@ -99,6 +99,7 @@ namespace TrenchBroom {
             if (m_contextHolder->setCurrent(this)) {
                 m_contextHolder->initialize();
                 doInitializeGL();
+                GL_CHECK_ERROR()
             }
             m_initialized = true;
         }
@@ -112,6 +113,7 @@ namespace TrenchBroom {
             clearBackground();
             doRender();
             renderFocusIndicator();
+            GL_CHECK_ERROR()
         }
         
         void RenderView::clearBackground() {

@@ -67,16 +67,14 @@ namespace TrenchBroom {
             bool overridden() const;
             void setOverridden(const bool overridden);
 
+            bool isPrepared() const;
+            void prepare(GLuint textureId, int minFilter, int magFilter);
+            void setMode(int minFilter, int magFilter);
+            
             void activate() const;
             void deactivate() const;
         private:
             void setCollection(TextureCollection* collection);
-            
-            bool isPrepared() const;
-            void prepare() const;
-            GLuint createTexture() const;
-            void doUploadTextureBuffer(const GLuint textureId) const;
-            
             friend class TextureCollection;
         };
     }

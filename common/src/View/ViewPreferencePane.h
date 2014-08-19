@@ -48,7 +48,7 @@ namespace TrenchBroom {
             
             void doUpdateControls();
             bool doValidate();
-            size_t findTextureMode(int value) const;
+            size_t findTextureMode(int minFilter, int magFilter) const;
         };
     }
 }

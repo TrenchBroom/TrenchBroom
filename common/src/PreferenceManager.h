@@ -78,6 +78,12 @@ namespace TrenchBroom {
     };
     
     template <typename T>
+    const T& pref(const Preference<T>& preference) {
+        const PreferenceManager& prefs = PreferenceManager::instance();
+        return prefs.get(preference);
+    }
+    
+    template <typename T>
     class SetTemporaryPreference {
     private:
         Preference<T>& m_pref;

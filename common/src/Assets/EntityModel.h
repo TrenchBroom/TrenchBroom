@@ -29,15 +29,22 @@ namespace TrenchBroom {
     
     namespace Assets {
         class EntityModel {
+        private:
+            bool m_prepared;
         public:
+            EntityModel();
             virtual ~EntityModel();
+            
             Renderer::MeshRenderer* buildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f bounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
+            
+            void prepare();
         private:
             virtual Renderer::MeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const = 0;
             virtual BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const = 0;
             virtual BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const = 0;
+            virtual void doPrepare() = 0;
         };
     }
 }

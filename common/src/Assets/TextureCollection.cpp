@@ -60,7 +60,7 @@ namespace TrenchBroom {
             return m_textures;
         }
 
-        void TextureCollection::prepare() {
+        void TextureCollection::prepare(const int minFilter, const int magFilter) {
             assert(m_textureIds.empty());
             
             const size_t textureCount = m_textures.size();
@@ -70,7 +70,14 @@ namespace TrenchBroom {
 
             for (size_t i = 0; i < textureCount; ++i) {
                 Texture* texture = m_textures[i];
-                texture->doUploadTextureBuffer(m_textureIds[i]);
+                texture->prepare(m_textureIds[i], minFilter, magFilter);
+            }
+        }
+
+        void TextureCollection::setTextureMode(const int minFilter, const int magFilter) {
+            for (size_t i = 0; i < m_textures.size(); ++i) {
+                Texture* texture = m_textures[i];
+                texture->setMode(minFilter, magFilter);
             }
         }
     }

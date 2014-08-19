@@ -163,6 +163,8 @@ namespace TrenchBroom {
         void TextureBrowserView::doClear() {}
         
         void TextureBrowserView::doRender(Layout& layout, const float y, const float height) {
+            m_textureManager.commitChanges();
+            
             const float viewLeft      = static_cast<float>(GetClientRect().GetLeft());
             const float viewTop       = static_cast<float>(GetClientRect().GetBottom());
             const float viewRight     = static_cast<float>(GetClientRect().GetRight());

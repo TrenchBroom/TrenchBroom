@@ -21,6 +21,7 @@
 
 #include "Logger.h"
 #include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/Texture.h"
 #include "Assets/ModelDefinition.h"
@@ -813,6 +814,9 @@ namespace TrenchBroom {
                 loadBuiltinTextures();
                 updateTextures();
                 reloadIssues();
+            } else if (path == Preferences::TextureMinFilter.path() ||
+                       path == Preferences::TextureMagFilter.path()) {
+                m_textureManager.setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
             }
         }
 
@@ -822,7 +826,7 @@ namespace TrenchBroom {
         m_path(""),
         m_map(NULL),
         m_entityModelManager(this),
-        m_textureManager(this),
+        m_textureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)),
         m_picker(m_worldBounds),
         m_selection(m_filter),
         m_selectionBoundsValid(false),

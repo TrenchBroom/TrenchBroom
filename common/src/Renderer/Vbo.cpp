@@ -145,7 +145,7 @@ namespace TrenchBroom {
             } else {
                 glBindBuffer(m_type, m_vboId);
             }
-            assert(glGetError() == GL_NO_ERROR);
+            GL_CHECK_ERROR()
             m_state = VboState::Active;
         }
         
@@ -154,7 +154,7 @@ namespace TrenchBroom {
             if (isMapped())
                 unmap();
             glBindBuffer(m_type, 0);
-            assert(glGetError() == GL_NO_ERROR);
+            GL_CHECK_ERROR()
             m_state = VboState::Inactive;
         }
         
@@ -171,7 +171,7 @@ namespace TrenchBroom {
             glFinishObjectAPPLE(GL_BUFFER_OBJECT_APPLE, static_cast<GLint>(m_vboId));
 #endif
             m_buffer = reinterpret_cast<unsigned char *>(glMapBuffer(m_type, GL_WRITE_ONLY));
-            assert(glGetError() == GL_NO_ERROR);
+            GL_CHECK_ERROR()
             assert(m_buffer != NULL);
             m_state = VboState::Mapped;
         }
@@ -180,7 +180,7 @@ namespace TrenchBroom {
             assert(isMapped());
             glUnmapBuffer(m_type);
 			m_buffer = NULL;
-            assert(glGetError() == GL_NO_ERROR);
+            GL_CHECK_ERROR()
             m_state = VboState::Active;
         }
 

@@ -73,6 +73,7 @@ namespace TrenchBroom {
             Renderer::MeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
+            void doPrepare();
         };
     }
 }

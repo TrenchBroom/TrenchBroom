@@ -127,5 +127,10 @@ namespace TrenchBroom {
             const Frame* frame = m_frames[frameIndex];
             return frame->transformedBounds(transformation);
         }
+
+        
+        void Md2Model::doPrepare() {
+            m_skins->prepare(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+        }
     }
 }

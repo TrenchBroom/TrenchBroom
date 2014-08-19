@@ -21,6 +21,9 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        EntityModel::EntityModel() :
+        m_prepared(false) {}
+
         EntityModel::~EntityModel() {}
         
         Renderer::MeshRenderer* EntityModel::buildRenderer(const size_t skinIndex, const size_t frameIndex) const {
@@ -33,6 +36,13 @@ namespace TrenchBroom {
 
         BBox3f EntityModel::transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const {
             return doGetTransformedBounds(skinIndex, frameIndex, transformation);
+        }
+
+        void EntityModel::prepare() {
+            if (!m_prepared) {
+                doPrepare();
+                m_prepared = true;
+            }
         }
     }
 }

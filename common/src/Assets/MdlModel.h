@@ -24,6 +24,7 @@
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityModel.h"
+#include "Assets/TextureCollection.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/Vertex.h"
 
@@ -40,13 +41,13 @@ namespace TrenchBroom {
         
         class MdlSkin {
         private:
-            TextureList m_textures;
+            TextureCollection m_textures;
             MdlTimeList m_times;
         public:
             MdlSkin(Texture* texture);
             MdlSkin(const TextureList& textures, const MdlTimeList times);
-            ~MdlSkin();
             
+            void prepare(int minFilter, int magFilter);
             const Texture* firstPicture() const;
         };
 
@@ -104,6 +105,7 @@ namespace TrenchBroom {
             Renderer::MeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
+            void doPrepare();
         };
     }
 }

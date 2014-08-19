@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_GL_h
 #define TrenchBroom_GL_h
 
+#include "Exceptions.h"
 #include "Functor.h"
 
 #include <cstddef>
@@ -145,6 +146,8 @@ namespace TrenchBroom {
 #define GL_INFO_LOG_LENGTH 0x8B84
 #define GL_CURRENT_PROGRAM 0x8B8D
 
+#define GL_CHECK_ERROR() if (glGetError() != GL_NO_ERROR) { RenderException e; e << "OpenGL Error: " << glGetError(); throw e; }
+    
     typedef unsigned int GLenum;
     typedef unsigned int GLbitfield;
     typedef unsigned int GLuint;

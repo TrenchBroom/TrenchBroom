@@ -30,23 +30,23 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        MdlSkin::MdlSkin(Texture* texture) {
-            m_textures.push_back(texture);
+        MdlSkin::MdlSkin(Texture* texture) :
+        m_textures("", TextureList(1, texture)) {
             m_times.push_back(0.0f);
         }
         
         MdlSkin::MdlSkin(const TextureList& textures, const MdlTimeList times) :
-        m_textures(textures),
+        m_textures("", textures),
         m_times(times) {
             assert(textures.size() == times.size());
         }
         
-        MdlSkin::~MdlSkin() {
-            VectorUtils::clearAndDelete(m_textures);
+        void MdlSkin::prepare(const int minFilter, const int magFilter) {
+            m_textures.prepare(minFilter, magFilter);
         }
 
         const Texture* MdlSkin::firstPicture() const {
-            return m_textures.front();
+            return m_textures.textures().front();
         }
 
         MdlBaseFrame::~MdlBaseFrame() {}
@@ -146,6 +146,12 @@ namespace TrenchBroom {
                 return BBox3f(-8.0f, 8.0f);
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
             return frame->transformedBounds(transformation);
+        }
+
+        
+        void MdlModel::doPrepare() {
+            for (size_t i = 0; i < m_skins.size(); ++i)
+                m_skins[i]->prepare(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
         }
     }
 }

@@ -78,7 +78,7 @@ namespace TrenchBroom {
             const WadEntryList& allEntries() const;
             const WadEntryList entriesWithType(const char type) const;
             const MipSize mipSize(const WadEntry& entry) const;
-            const MipData mipData(const WadEntry& entry, const size_t mipLevel);
+            const MipData mipData(const WadEntry& entry, const size_t mipLevel) const;
         private:
             void loadEntries();
         };

@@ -83,7 +83,8 @@ namespace TrenchBroom {
         Preference<bool> ShadeFaces(IO::Path("Renderer/Shade faces"), true);
         Preference<bool> UseFog(IO::Path("Renderer/Use fog"), false);
 
-        Preference<int> TextureMode(IO::Path("Renderer/Texture mode"), 0x2700);
+        Preference<int> TextureMinFilter(IO::Path("Renderer/Texture mode min filter"), 0x2700);
+        Preference<int> TextureMagFilter(IO::Path("Renderer/Texture mode mag filter"), 0x2600);
 
         Preference<IO::Path>& RendererFontPath() {
 #if defined __APPLE__

@@ -25,6 +25,7 @@
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
 
+#include "Renderer/GL.h"
 #include <wx/choice.h>
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
@@ -33,14 +34,25 @@
 
 namespace TrenchBroom {
     namespace View {
+        struct TextureMode {
+            int minFilter;
+            int magFilter;
+            String name;
+            
+            TextureMode(const int i_minFilter, const int i_magFilter, const String& i_name) :
+            minFilter(i_minFilter),
+            magFilter(i_magFilter),
+            name(i_name) {}
+        };
+        
         static const size_t NumTextureModes = 6;
-        static const std::pair<String,int> TextureModes[] = {
-            std::make_pair("GL_NEAREST",                0x2600),
-            std::make_pair("GL_LINEAR",                 0x2601),
-            std::make_pair("GL_NEAREST_MIPMAP_NEAREST", 0x2700),
-            std::make_pair("GL_LINEAR_MIPMAP_NEAREST",  0x2701),
-            std::make_pair("GL_NEAREST_MIPMAP_LINEAR",  0x2702),
-            std::make_pair("GL_LINEAR_MIPMAP_LINEAR",   0x2703)
+        static const TextureMode TextureModes[] = {
+            TextureMode(GL_NEAREST,                 GL_NEAREST, "Nearest"),
+            TextureMode(GL_NEAREST_MIPMAP_NEAREST,  GL_NEAREST, "Nearest (mipmapped)"),
+            TextureMode(GL_NEAREST_MIPMAP_LINEAR,   GL_NEAREST, "Nearest (mipmaps, interpolated)"),
+            TextureMode(GL_LINEAR,                  GL_LINEAR,  "Linear"),
+            TextureMode(GL_LINEAR_MIPMAP_NEAREST,   GL_LINEAR,  "Linear (mipmapped)"),
+            TextureMode(GL_LINEAR_MIPMAP_LINEAR,    GL_LINEAR,  "Linear (mipmapped, interpolated")
         };
         
         ViewPreferencePane::ViewPreferencePane(wxWindow* parent) :
@@ -72,10 +84,12 @@ namespace TrenchBroom {
             
             const size_t index = static_cast<size_t>(selection);
             assert(index < NumTextureModes);
-            const int mode = TextureModes[index].second;
+            const int minFilter = TextureModes[index].minFilter;
+            const int magFilter = TextureModes[index].magFilter;
             
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::TextureMode, mode);
+            prefs.set(Preferences::TextureMinFilter, minFilter);
+            prefs.set(Preferences::TextureMagFilter, magFilter);
         }
 
         void ViewPreferencePane::OnTextureBrowserIconSizeChanged(wxCommandEvent& event) {
@@ -134,7 +148,7 @@ namespace TrenchBroom {
             
             wxString textureModeNames[NumTextureModes];
             for (size_t i = 0; i < NumTextureModes; ++i)
-                textureModeNames[i] = TextureModes[i].first;
+                textureModeNames[i] = TextureModes[i].name;
             wxStaticText* textureModeLabel = new wxStaticText(viewBox, wxID_ANY, "Texture Mode");
             m_textureModeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumTextureModes, textureModeNames);
 
@@ -189,16 +203,14 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::doUpdateControls() {
-            PreferenceManager& prefs = PreferenceManager::instance();
+            m_brightnessSlider->SetValue(static_cast<int>(pref(Preferences::Brightness) * 40.0f));
+            m_gridAlphaSlider->SetValue(static_cast<int>(pref(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
             
-            m_brightnessSlider->SetValue(static_cast<int>(prefs.get(Preferences::Brightness) * 40.0f));
-            m_gridAlphaSlider->SetValue(static_cast<int>(prefs.get(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
-            
-            const size_t textureModeIndex = findTextureMode(prefs.get(Preferences::TextureMode));
+            const size_t textureModeIndex = findTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
             assert(textureModeIndex < NumTextureModes);
             m_textureModeChoice->SetSelection(static_cast<int>(textureModeIndex));
             
-            const float textureBrowserIconSize = prefs.get(Preferences::TextureBrowserIconSize);
+            const float textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
             if (textureBrowserIconSize == 0.25f)
                 m_textureBrowserIconSizeChoice->SetSelection(0);
             else if (textureBrowserIconSize == 0.5f)
@@ -219,9 +231,10 @@ namespace TrenchBroom {
             return true;
         }
 
-        size_t ViewPreferencePane::findTextureMode(const int value) const {
+        size_t ViewPreferencePane::findTextureMode(const int minFilter, const int magFilter) const {
             for (size_t i = 0; i < NumTextureModes; ++i)
-                if (TextureModes[i].second == value)
+                if (TextureModes[i].minFilter == minFilter &&
+                    TextureModes[i].magFilter == magFilter)
                     return i;
             return NumTextureModes;
         }

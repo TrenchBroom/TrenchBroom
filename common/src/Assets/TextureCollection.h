@@ -44,9 +44,9 @@ namespace TrenchBroom {
             bool loaded() const;
             const String& name() const;
             const TextureList& textures() const;
-        private:
-            void prepare();
-            friend class Texture;
+
+            void prepare(int minFilter, int magFilter);
+            void setTextureMode(int minFilter, int magFilter);
         };
     }
 }

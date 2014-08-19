@@ -122,5 +122,9 @@ namespace TrenchBroom {
             const SubModel& model = m_subModels.front();
             return model.transformedBounds(transformation);
         }
+
+        void Bsp29Model::doPrepare() {
+            m_textureCollection->prepare(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+        }
     }
 }

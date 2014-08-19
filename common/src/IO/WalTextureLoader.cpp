@@ -19,6 +19,7 @@
 
 #include "WalTextureLoader.h"
 
+#include "CollectionUtils.h"
 #include "Color.h"
 #include "ByteBuffer.h"
 #include "Exceptions.h"
@@ -37,7 +38,7 @@ namespace TrenchBroom {
         WalTextureLoader::WalTextureLoader(const FileSystem& fs, const Assets::Palette& palette) :
         m_fs(fs),
         m_palette(palette) {}
-
+        
         Assets::TextureCollection* WalTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) {
             Path::List texturePaths = m_fs.findItems(spec.path(), FileSystem::ExtensionMatcher("wal"));
             std::sort(texturePaths.begin(), texturePaths.end());
@@ -45,14 +46,19 @@ namespace TrenchBroom {
             Assets::TextureList textures;
             textures.reserve(texturePaths.size());
             
-            Path::List::const_iterator it, end;
-            for (it = texturePaths.begin(), end = texturePaths.end(); it != end; ++it) {
-                const Path& texturePath = *it;
-                Assets::Texture* texture = readTexture(texturePath);
-                textures.push_back(texture);
+            try {
+                Path::List::const_iterator it, end;
+                for (it = texturePaths.begin(), end = texturePaths.end(); it != end; ++it) {
+                    const Path& texturePath = *it;
+                    Assets::Texture* texture = readTexture(texturePath);
+                    textures.push_back(texture);
+                }
+                
+                return new Assets::TextureCollection(spec.name(), textures);
+            } catch (...) {
+                VectorUtils::clearAndDelete(textures);
+                throw;
             }
-            
-            return new Assets::TextureCollection(spec.name(), textures);
         }
         
         Assets::Texture* WalTextureLoader::readTexture(const IO::Path& path) {
@@ -60,9 +66,9 @@ namespace TrenchBroom {
             const char* cursor = file->begin();
             
             /*
-            char textureNameC[33];
-            textureNameC[32] = 0;
-            readBytes(cursor, textureNameC, 32);
+             char textureNameC[33];
+             textureNameC[32] = 0;
+             readBytes(cursor, textureNameC, 32);
              */
             
             advance<char[32]>(cursor);

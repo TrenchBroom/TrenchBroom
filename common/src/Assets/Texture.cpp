@@ -117,50 +117,21 @@ namespace TrenchBroom {
             m_overridden = overridden;
         }
         
-        void Texture::activate() const {
-            if (!isPrepared())
-                prepare();
-            
-            assert(m_textureId != 0);
-            glBindTexture(GL_TEXTURE_2D, m_textureId);
-        }
-        
-        void Texture::deactivate() const {
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-
-        void Texture::setCollection(TextureCollection* collection) {
-            m_collection = collection;
-        }
-
         bool Texture::isPrepared() const {
             return m_textureId != 0;
         }
 
-        void Texture::prepare() const {
-            assert(!isPrepared());
-            
-            if (m_collection != NULL)
-                m_collection->prepare();
-            else
-                doUploadTextureBuffer(createTexture());
-        }
-        
-        GLuint Texture::createTexture() const {
-            GLuint textureId = 0;
-            glGenTextures(1, &textureId);
-            return textureId;
-        }
-
-        void Texture::doUploadTextureBuffer(const GLuint textureId) const {
+        void Texture::prepare(const GLuint textureId, const int minFilter, const int magFilter) {
+            assert(textureId > 0);
             assert(!m_buffers.empty());
             
             glBindTexture(GL_TEXTURE_2D, textureId);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1));
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            GL_CHECK_ERROR()
             
             size_t mipWidth = m_width;
             size_t mipHeight = m_height;
@@ -173,9 +144,33 @@ namespace TrenchBroom {
                 mipWidth  /= 2;
                 mipHeight /= 2;
             }
+            GL_CHECK_ERROR()
             
             m_buffers.clear();
             m_textureId = textureId;
+        }
+        
+        void Texture::setMode(const int minFilter, const int magFilter) {
+            activate();
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+            GL_CHECK_ERROR()
+            deactivate();
+        }
+
+        void Texture::activate() const {
+            assert(isPrepared());
+            glBindTexture(GL_TEXTURE_2D, m_textureId);
+            GL_CHECK_ERROR()
+        }
+        
+        void Texture::deactivate() const {
+            glBindTexture(GL_TEXTURE_2D, 0);
+            GL_CHECK_ERROR()
+        }
+
+        void Texture::setCollection(TextureCollection* collection) {
+            m_collection = collection;
         }
     }
 }

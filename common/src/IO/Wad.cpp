@@ -151,7 +151,7 @@ namespace TrenchBroom {
             return MipSize(width, height);
         }
 
-        const MipData Wad::mipData(const WadEntry& entry, const size_t mipLevel) {
+        const MipData Wad::mipData(const WadEntry& entry, const size_t mipLevel) const {
             assert(mipLevel < 4);
             
             if (entry.type() != WadEntryType::WEMip)

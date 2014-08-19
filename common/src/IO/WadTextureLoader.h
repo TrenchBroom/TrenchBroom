@@ -25,8 +25,9 @@
 
 namespace TrenchBroom {
     namespace IO {
-        struct MipData;
         class Path;
+        class Wad;
+        class WadEntry;
         
         class WadTextureLoader : public TextureLoader {
         private:
@@ -37,6 +38,7 @@ namespace TrenchBroom {
             static const size_t InitialBufferSize = 3 * 512 * 512;
             
             Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec);
+            Assets::Texture* loadTexture(const Wad& wad, const WadEntry& entry);
         };
     }
 }

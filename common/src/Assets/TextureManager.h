@@ -55,6 +55,8 @@ namespace TrenchBroom {
             
             TextureCollectionList m_externalCollections;
             TextureCollectionMap m_externalCollectionsByName;
+            
+            TextureCollectionMap m_toPrepare;
             TextureCollectionMap m_toRemove;
             
             TextureCollectionList m_allCollections;
@@ -62,8 +64,12 @@ namespace TrenchBroom {
             GroupList m_sortedGroups[2];
             
             TextureMap m_texturesByName;
+            
+            int m_minFilter;
+            int m_magFilter;
+            bool m_resetTextureMode;
         public:
-            TextureManager(Logger* logger);
+            TextureManager(Logger* logger, int minFilter, int magFilter);
             ~TextureManager();
 
             void setBuiltinTextureCollections(const IO::Path::List& paths);
@@ -73,6 +79,7 @@ namespace TrenchBroom {
             void moveExternalTextureCollectionUp(const String& name);
             void moveExternalTextureCollectionDown(const String& name);
             
+            void setTextureMode(int minFilter, int magFilter);
             void reset(Model::GamePtr game);
             void commitChanges();
             
@@ -82,10 +89,12 @@ namespace TrenchBroom {
             const TextureCollectionList& collections() const;
             const StringList externalCollectionNames() const;
         private:
-            void doAddTextureCollection(const TextureCollectionSpec& spec, TextureCollectionList& collections, TextureCollectionMap& collectionsByName);
+            void addTextureCollection(const TextureCollectionSpec& spec, TextureCollectionList& collections, TextureCollectionMap& collectionsByName);
             
-            void doRemoveTextureCollection(const String& name, TextureCollectionList& collections, TextureCollectionMap& collectionsByName, TextureCollectionMap& toRemove);
+            void removeTextureCollection(const String& name, TextureCollectionList& collections, TextureCollectionMap& collectionsByName);
             
+            void resetTextureMode();
+            void prepare();
             void clear();
             void clearBuiltinTextureCollections();
             void clearExternalTextureCollections();

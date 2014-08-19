@@ -20,6 +20,7 @@
 #include "WadTextureLoader.h"
 
 #include "ByteBuffer.h"
+#include "CollectionUtils.h"
 #include "Color.h"
 #include "Exceptions.h"
 #include "Renderer/GL.h"
@@ -35,36 +36,44 @@ namespace TrenchBroom {
     namespace IO {
         WadTextureLoader::WadTextureLoader(const Assets::Palette& palette) :
         m_palette(palette) {}
-
+        
         Assets::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) {
             Wad wad(spec.path());
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
             const size_t textureCount = mipEntries.size();
-
+            
             Assets::TextureList textures;
             textures.reserve(textureCount);
-
-            Color tempColor, averageColor;
-
-            for (size_t i = 0; i < textureCount; ++i) {
-                const WadEntry& entry = mipEntries[i];
-                const MipSize mipSize = wad.mipSize(entry);
-
-                Assets::TextureBuffer::List buffers(4);
-                Assets::setMipBufferSize(buffers, mipSize.width, mipSize.height);
-
-                for (size_t j = 0; j < 4; ++j) {
-                    const MipData mipData = wad.mipData(entry, j);
-                    const size_t size = static_cast<size_t>(std::distance(mipData.begin, mipData.end));
-                    m_palette.indexedToRgb(mipData.begin, size, buffers[j], tempColor);
-                    if (j == 0)
-                        averageColor = tempColor;
+            
+            try {
+                for (size_t i = 0; i < textureCount; ++i) {
+                    const WadEntry& entry = mipEntries[i];
+                    Assets::Texture* texture = loadTexture(wad, entry);
+                    textures.push_back(texture);
                 }
+                return new Assets::TextureCollection(spec.name(), textures);
+            } catch (...) {
+                VectorUtils::clearAndDelete(textures);
+                throw;
+            }
+        }
 
-                textures.push_back(new Assets::Texture(entry.name(), mipSize.width, mipSize.height, averageColor, buffers));
+        Assets::Texture* WadTextureLoader::loadTexture(const Wad& wad, const WadEntry& entry) {
+            static Color tempColor, averageColor;
+            static Assets::TextureBuffer::List buffers(4);
+
+            const MipSize mipSize = wad.mipSize(entry);
+            Assets::setMipBufferSize(buffers, mipSize.width, mipSize.height);
+            
+            for (size_t j = 0; j < 4; ++j) {
+                const MipData mipData = wad.mipData(entry, j);
+                const size_t size = static_cast<size_t>(std::distance(mipData.begin, mipData.end));
+                m_palette.indexedToRgb(mipData.begin, size, buffers[j], tempColor);
+                if (j == 0)
+                    averageColor = tempColor;
             }
             
-            return new Assets::TextureCollection(spec.name(), textures);
+            return new Assets::Texture(entry.name(), mipSize.width, mipSize.height, averageColor, buffers);
         }
     }
 }
