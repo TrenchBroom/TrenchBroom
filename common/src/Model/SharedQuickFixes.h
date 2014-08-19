@@ -33,8 +33,7 @@ namespace TrenchBroom {
             static const QuickFixType Type;
             static const DeleteObjectQuickFix& instance();
             
-            void apply(Entity* entity, View::ControllerSPtr controller) const;
-            void apply(Brush* brush, View::ControllerSPtr controller) const;
+            void apply(Object* object, View::ControllerSPtr controller) const;
         private:
             DeleteObjectQuickFix();
         };

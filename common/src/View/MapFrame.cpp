@@ -346,7 +346,7 @@ namespace TrenchBroom {
             m_controller->selectObjects(selectObjects);
         }
         
-        void MapFrame::OnEditSelectContained(wxCommandEvent& event) {
+        void MapFrame::OnEditSelectInside(wxCommandEvent& event) {
             const Model::BrushList& selectedBrushes = m_document->selectedBrushes();
             assert(selectedBrushes.size() == 1 && !m_document->hasSelectedEntities());
             
@@ -542,7 +542,7 @@ namespace TrenchBroom {
                     event.Enable(document->hasSelectedBrushes());
                     break;
                 case CommandIds::Menu::EditSelectTouching:
-                case CommandIds::Menu::EditSelectContained:
+                case CommandIds::Menu::EditSelectInside:
                     event.Enable(!document->hasSelectedEntities() &&
                                  document->selectedBrushes().size() == 1);
                     break;
@@ -746,7 +746,7 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectAll, this, CommandIds::Menu::EditSelectAll);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectSiblings, this, CommandIds::Menu::EditSelectSiblings);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectTouching, this, CommandIds::Menu::EditSelectTouching);
-            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectContained, this, CommandIds::Menu::EditSelectContained);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectInside, this, CommandIds::Menu::EditSelectInside);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
 

@@ -95,6 +95,42 @@ namespace TrenchBroom {
             m_deletableFixes.push_back(quickFix);
         }
 
+        size_t ObjectIssue::filePosition() const {
+            return object()->filePosition();
+        }
+        
+        void ObjectIssue::select(View::ControllerSPtr controller) {
+            controller->selectObject(object());
+        }
+
+        ObjectIssue::ObjectIssue(IssueType type, Object* object) :
+        Issue(type),
+        m_object(object) {}
+        
+        Object* ObjectIssue::object() const {
+            return m_object;
+        }
+
+        bool ObjectIssue::doIsHidden(const IssueType type) const {
+            return object()->isIssueHidden(this);
+        }
+        
+        void ObjectIssue::doSetHidden(const IssueType type, const bool hidden) {
+            object()->setIssueHidden(type, hidden);
+        }
+        
+        int ObjectIssue::doCompare(const Issue* issue) const {
+            return -issue->compare(m_object);
+        }
+        
+        int ObjectIssue::doCompare(const Object* object) const {
+            if (m_object < object)
+                return -1;
+            if (m_object > object)
+                return 1;
+            return 0;
+        }
+
         size_t EntityIssue::filePosition() const {
             return entity()->filePosition();
         }

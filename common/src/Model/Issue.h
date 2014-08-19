@@ -84,6 +84,23 @@ namespace TrenchBroom {
             virtual int doCompare(const Object* object) const = 0;
         };
 
+        class Object;
+        class ObjectIssue : public Issue {
+        private:
+            Object* m_object;
+        public:
+            size_t filePosition() const;
+            void select(View::ControllerSPtr controller);
+        protected:
+            ObjectIssue(IssueType type, Object* pbkect);
+            Object* object() const;
+        private:
+            bool doIsHidden(IssueType type) const;
+            void doSetHidden(IssueType type, bool hidden);
+            int doCompare(const Issue* issue) const;
+            int doCompare(const Object* object) const;
+        };
+        
         class Entity;
         class EntityIssue : public Issue {
         private:

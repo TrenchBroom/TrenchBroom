@@ -32,16 +32,10 @@ namespace TrenchBroom {
             return instance;
         }
 
-        void DeleteObjectQuickFix::apply(Entity* entity, View::ControllerSPtr controller) const {
-            assert(entity != NULL);
-            controller->deselectObject(entity);
-            controller->removeObject(entity);
-        }
-        
-        void DeleteObjectQuickFix::apply(Brush* brush, View::ControllerSPtr controller) const {
-            assert(brush != NULL);
-            controller->deselectObject(brush);
-            controller->removeObject(brush);
+        void DeleteObjectQuickFix::apply(Object* object, View::ControllerSPtr controller) const {
+            assert(object != NULL);
+            controller->deselectObject(object);
+            controller->removeObject(object);
         }
         
         DeleteObjectQuickFix::DeleteObjectQuickFix() :

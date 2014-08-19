@@ -47,6 +47,7 @@
 #include "Model/ModelUtils.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/SelectionResult.h"
+#include "Model/WorldBoundsIssueGenerator.h"
 #include "View/MapFrame.h"
 #include "View/ViewUtils.h"
 
@@ -847,6 +848,7 @@ namespace TrenchBroom {
             m_issueManager.registerGenerator(new Model::MissingEntityDefinitionIssueGenerator(), true);
             m_issueManager.registerGenerator(new Model::EmptyBrushEntityIssueGenerator(), true);
             m_issueManager.registerGenerator(new Model::PointEntityWithBrushesIssueGenerator(), true);
+            m_issueManager.registerGenerator(new Model::WorldBoundsIssueGenerator(m_worldBounds), true);
         }
 
         void MapDocument::reloadIssues() {

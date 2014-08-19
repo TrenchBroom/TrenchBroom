@@ -261,7 +261,7 @@ namespace TrenchBroom {
             editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectAll, Action::Context_Any, "Select All", KeyboardShortcut('A', WXK_CONTROL));
             editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, Action::Context_Any, "Select Siblings", KeyboardShortcut('A', WXK_CONTROL, WXK_ALT));
             editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectTouching, Action::Context_Any, "Select Touching", KeyboardShortcut('T', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectContained, Action::Context_Any, "Select Contained", KeyboardShortcut('T', WXK_CONTROL, WXK_ALT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectInside, Action::Context_Any, "Select Inside", KeyboardShortcut('I', WXK_CONTROL));
             editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectByFilePosition, Action::Context_Any, "Select by Line Number");
             editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectNone, Action::Context_Any, "Select None", KeyboardShortcut('A', WXK_CONTROL, WXK_SHIFT));
             editMenu.addSeparator();

@@ -73,7 +73,7 @@ namespace TrenchBroom {
                 const int EditNavigateUp                     = Lowest +  95;
                 const int FileOpenRecent                     = Lowest +  96;
                 const int EditPrintFilePositions             = Lowest + 101;
-                const int EditSelectContained                = Lowest + 103;
+                const int EditSelectInside                   = Lowest + 103;
                 const int ViewToggleCameraFlyMode            = Lowest + 106;
                 const int EditRepeat                         = Lowest + 107;
                 const int EditClearRepeat                    = Lowest + 108;
