@@ -43,6 +43,10 @@ namespace TrenchBroom {
             createGui();
         }
         
+        void RotateObjectsToolPage::setAxis(const Math::Axis::Type axis) {
+            m_axis->SetSelection(static_cast<int>(axis));
+        }
+
         void RotateObjectsToolPage::createGui() {
             wxStaticText* text1 = new wxStaticText(this, wxID_ANY, "Rotate objects");
             wxStaticText* text2 = new wxStaticText(this, wxID_ANY, "degs about");

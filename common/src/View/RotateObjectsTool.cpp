@@ -44,6 +44,7 @@ namespace TrenchBroom {
 
         RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, MovementRestriction& movementRestriction, Renderer::TextureFont& font) :
         ToolImpl(document, controller),
+        m_toolPage(NULL),
         m_camera(camera),
         m_helper(NULL),
         m_moveHelper(movementRestriction, *this),
@@ -116,7 +117,17 @@ namespace TrenchBroom {
 
         bool RotateObjectsTool::doMouseDown(const InputState& inputState) {
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
-            return hit.isMatch() && inputState.mouseButtonsPressed(MouseButtons::MBLeft);
+            if (hit.isMatch() && inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
+                const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
+                if (area == RotateObjectsHandle::HitArea_XAxis)
+                    m_toolPage->setAxis(Math::Axis::AX);
+                else if (area == RotateObjectsHandle::HitArea_YAxis)
+                    m_toolPage->setAxis(Math::Axis::AY);
+                else if (area == RotateObjectsHandle::HitArea_ZAxis)
+                    m_toolPage->setAxis(Math::Axis::AZ);
+                return true;
+            }
+            return false;
         }
         
         bool RotateObjectsTool::doMouseUp(const InputState& inputState) {
@@ -295,7 +306,9 @@ namespace TrenchBroom {
         }
 
         wxWindow* RotateObjectsTool::doCreatePage(wxWindow* parent) {
-            return new RotateObjectsToolPage(parent, document(), controller(), this);
+            assert(m_toolPage == NULL);
+            m_toolPage = new RotateObjectsToolPage(parent, document(), controller(), this);
+            return m_toolPage;
         }
     }
 }

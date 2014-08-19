@@ -47,6 +47,7 @@ namespace TrenchBroom {
             wxButton* m_resetButton;
         public:
             RotateObjectsToolPage(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller, RotateObjectsTool* tool);
+            void setAxis(Math::Axis::Type axis);
         private:
             void createGui();
             

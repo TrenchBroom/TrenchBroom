@@ -38,10 +38,13 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class RotateObjectsToolPage;
         class RotateObjectsTool : public ToolImpl<ActivationPolicy, PickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy>, public MoveDelegate, public RotateDelegate, public MapViewToolPage {
         private:
             static const Hit::HitType HandleHit;
-
+            
+            RotateObjectsToolPage* m_toolPage;
+            
             const Renderer::Camera& m_camera;
             RotateObjectsHandle m_handle;
             PlaneDragHelper* m_helper;
