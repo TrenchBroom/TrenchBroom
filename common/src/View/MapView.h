@@ -111,8 +111,9 @@ namespace TrenchBroom {
             void setToolboxDropTarget();
             void clearToolboxDropTarget();
             
+            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
             void centerCameraOnSelection();
-            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration);
+            void moveCameraToPosition(const Vec3& position);
             
             void flashSelection();
 
@@ -121,8 +122,8 @@ namespace TrenchBroom {
             
             void toggleMovementRestriction();
 
-            
             bool anyToolActive() const;
+            
             void toggleClipTool();
             bool clipToolActive() const;
             bool canToggleClipSide() const;

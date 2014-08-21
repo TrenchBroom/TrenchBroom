@@ -112,7 +112,12 @@ namespace TrenchBroom {
         void MapView::clearToolboxDropTarget() {
             SetDropTarget(NULL);
         }
-
+        
+        void MapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
+            CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
+            m_animationManager->runAnimation(animation, true);
+        }
+        
         void MapView::centerCameraOnSelection() {
             MapDocumentSPtr document = lock(m_document);
             const Model::EntityList& entities = document->selectedEntities();
@@ -120,14 +125,13 @@ namespace TrenchBroom {
             assert(!entities.empty() || !brushes.empty());
             
             const Vec3 newPosition = centerCameraOnObjectsPosition(entities, brushes);
-            animateCamera(newPosition, m_camera.direction(), m_camera.up(), 150);
+            animateCamera(newPosition, m_camera.direction(), m_camera.up());
         }
         
-        void MapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
-            CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
-            m_animationManager->runAnimation(animation, true);
+        void MapView::moveCameraToPosition(const Vec3& position) {
+            animateCamera(position, m_camera.direction(), m_camera.up());
         }
-        
+
         void MapView::flashSelection() {
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, *this, 180);
             m_animationManager->runAnimation(animation, true);

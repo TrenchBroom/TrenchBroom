@@ -467,6 +467,15 @@ namespace TrenchBroom {
             m_mapView->centerCameraOnSelection();
         }
 
+        void MapFrame::OnViewMoveCameraToPosition(wxCommandEvent& event) {
+            wxTextEntryDialog dialog(this, "Enter a position (x y z) for the camera.", "Move Camera", "0.0 0.0 0.0");
+            if (dialog.ShowModal() == wxID_OK) {
+                const wxString str = dialog.GetValue();
+                const Vec3 position = Vec3::parse(str.ToStdString());
+                m_mapView->moveCameraToPosition(position);
+            }
+        }
+
         void MapFrame::OnViewSwitchToMapInspector(wxCommandEvent& event) {
             m_inspector->switchToPage(InspectorPage_Map);
         }
@@ -618,6 +627,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewCenterCameraOnSelection:
                     event.Enable(document->hasSelectedObjects());
                     break;
+                case CommandIds::Menu::ViewMoveCameraToPosition:
+                    event.Enable(true);
+                    break;
                 case CommandIds::Menu::ViewToggleCameraFlyMode:
                     event.Enable(true);
                     event.Check(m_mapView->cameraFlyModeActive());
@@ -763,6 +775,7 @@ namespace TrenchBroom {
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToNextPoint, this, CommandIds::Menu::ViewMoveCameraToNextPoint);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewCenterCameraOnSelection, this, CommandIds::Menu::ViewCenterCameraOnSelection);
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewMoveCameraToPosition, this, CommandIds::Menu::ViewMoveCameraToPosition);
 
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewSwitchToMapInspector, this, CommandIds::Menu::ViewSwitchToMapInspector);
             Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnViewSwitchToEntityInspector, this, CommandIds::Menu::ViewSwitchToEntityInspector);

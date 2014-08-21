@@ -301,6 +301,7 @@ namespace TrenchBroom {
             cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, Action::Context_Any, "Move to Next Point", KeyboardShortcut('+', WXK_SHIFT, WXK_CONTROL));
             cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, Action::Context_Any, "Move to Previous Point", KeyboardShortcut('-', WXK_SHIFT, WXK_CONTROL));
             cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewCenterCameraOnSelection, Action::Context_Any, "Center on Selection", KeyboardShortcut('C', WXK_CONTROL, WXK_SHIFT));
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPosition, Action::Context_Any, "Move Camera to...");
             
             /*
              cameraMenu.addSeparator();
