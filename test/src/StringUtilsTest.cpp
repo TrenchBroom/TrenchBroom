@@ -155,6 +155,34 @@ namespace StringUtils {
         ASSERT_EQ(String("bambam"), strs[5]);
     }
     
+    TEST(StringUtilsTest, caseSensitivePrefix) {
+        ASSERT_TRUE(caseSensitivePrefix("", ""));
+        ASSERT_TRUE(caseSensitivePrefix("asdf", "a"));
+        ASSERT_TRUE(caseSensitivePrefix("asdf", "as"));
+        ASSERT_TRUE(caseSensitivePrefix("asdf", "asd"));
+        ASSERT_TRUE(caseSensitivePrefix("asdf", "asdf"));
+        ASSERT_FALSE(caseSensitivePrefix("asdf", "asdfa"));
+
+        ASSERT_FALSE(caseSensitivePrefix("asdf", "A"));
+        ASSERT_FALSE(caseSensitivePrefix("asdf", "As"));
+        ASSERT_FALSE(caseSensitivePrefix("asdf", "Asd"));
+        ASSERT_FALSE(caseSensitivePrefix("asdf", "Asdf"));
+    }
+    
+    TEST(StringUtilsTest, caseSensitiveSuffix) {
+        ASSERT_TRUE(caseSensitiveSuffix("", ""));
+        ASSERT_TRUE(caseSensitiveSuffix("asdf", "f"));
+        ASSERT_TRUE(caseSensitiveSuffix("asdf", "df"));
+        ASSERT_TRUE(caseSensitiveSuffix("asdf", "sdf"));
+        ASSERT_TRUE(caseSensitiveSuffix("asdf", "asdf"));
+        ASSERT_FALSE(caseSensitiveSuffix("asdf", "asdfa"));
+
+        ASSERT_FALSE(caseSensitiveSuffix("asdf", "F"));
+        ASSERT_FALSE(caseSensitiveSuffix("asdf", "dF"));
+        ASSERT_FALSE(caseSensitiveSuffix("asdf", "sdF"));
+        ASSERT_FALSE(caseSensitiveSuffix("asdf", "asdF"));
+    }
+    
     TEST(StringUtilsTest, escape) {
         ASSERT_EQ(String(""), StringUtils::escape("", ""));
         ASSERT_EQ(String(""), StringUtils::escape("", ";"));

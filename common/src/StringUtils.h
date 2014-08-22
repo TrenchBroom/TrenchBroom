@@ -136,15 +136,23 @@ namespace StringUtils {
     size_t findFirstDifference(const String& str1, const String& str2);
     bool isPrefix(const String& str, const String& prefix);
     bool isNumber(const String& str);
+    
     bool containsCaseSensitive(const String& haystack, const String& needle);
     bool containsCaseInsensitive(const String& haystack, const String& needle);
     void sortCaseSensitive(StringList& strs);
     void sortCaseInsensitive(StringList& strs);
     bool caseSensitiveEqual(const String& str1, const String& str2);
     bool caseInsensitiveEqual(const String& str1, const String& str2);
+
+    bool caseSensitivePrefix(const String& str, const String& prefix);
+    bool caseInsensitivePrefix(const String& str, const String& prefix);
+    bool caseSensitiveSuffix(const String& str, const String& suffix);
+    bool caseInsensitiveSuffix(const String& str, const String& suffix);
+
     long makeHash(const String& str);
     String toLower(const String& str);
     String replaceChars(const String& str, const String& needles, const String& replacements);
+    String replaceAll(const String& str, const String& needle, const String& replacement);
     String capitalize(const String& str);
     String escape(const String& str, const String& chars);
     String unescape(const String& str, const String& chars);
