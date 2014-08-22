@@ -60,7 +60,9 @@ namespace TrenchBroom {
                 if (pattern[0] == '*') {
                     m_mode = Mode_Suffix;
                     m_pattern = pattern.substr(1);
-                } else if (pattern[pattern.size() - 1] == '*') {
+                } else if (pattern.size() > 1 &&
+                           pattern[pattern.size() - 1] == '*' &&
+                           pattern[pattern.size() - 2] != '\\') {
                     m_mode = Mode_Prefix;
                     m_pattern = pattern.substr(0, pattern.size() - 1);
                 } else {
