@@ -25,6 +25,7 @@
 #include "NestedIterator.h"
 #include "Model/ModelTypes.h"
 #include "Model/Brush.h"
+#include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFacesIterator.h"
 
@@ -58,7 +59,7 @@ namespace TrenchBroom {
         faces.push_back(bottom);
         
         BBox3 worldBounds(-8192.0, 8192.0);
-        return new Model::Brush(worldBounds, faces);
+        return new Model::Brush(worldBounds, Model::BrushContentTypeBuilder(), faces);
     }
     
     TEST(NestedIteratorTest, testEmptyBrushFaceIterator) {
@@ -74,7 +75,7 @@ namespace TrenchBroom {
         Model::BrushList brushes;
         
         BBox3 worldBounds(-8192.0, 8192.0);
-        brushes.push_back(new Model::Brush(worldBounds, Model::EmptyBrushFaceList));
+        brushes.push_back(new Model::Brush(worldBounds, Model::BrushContentTypeBuilder(), Model::EmptyBrushFaceList));
         
         Model::BrushFacesIterator::OuterIterator begin = Model::BrushFacesIterator::begin(brushes);
         Model::BrushFacesIterator::OuterIterator end = Model::BrushFacesIterator::end(brushes);
@@ -147,14 +148,14 @@ namespace TrenchBroom {
         BBox3 worldBounds(-8192.0, 8192.0);
         
         Model::BrushList brushes;
-        brushes.push_back(new Model::Brush(worldBounds, Model::EmptyBrushFaceList));
-        brushes.push_back(new Model::Brush(worldBounds, Model::EmptyBrushFaceList));
+        brushes.push_back(new Model::Brush(worldBounds, Model::BrushContentTypeBuilder(), Model::EmptyBrushFaceList));
+        brushes.push_back(new Model::Brush(worldBounds, Model::BrushContentTypeBuilder(), Model::EmptyBrushFaceList));
         brushes.push_back(makeBrush());
-        brushes.push_back(new Model::Brush(worldBounds, Model::EmptyBrushFaceList));
-        brushes.push_back(new Model::Brush(worldBounds, Model::EmptyBrushFaceList));
+        brushes.push_back(new Model::Brush(worldBounds, Model::BrushContentTypeBuilder(), Model::EmptyBrushFaceList));
+        brushes.push_back(new Model::Brush(worldBounds, Model::BrushContentTypeBuilder(), Model::EmptyBrushFaceList));
         brushes.push_back(makeBrush());
-        brushes.push_back(new Model::Brush(worldBounds, Model::EmptyBrushFaceList));
-        brushes.push_back(new Model::Brush(worldBounds, Model::EmptyBrushFaceList));
+        brushes.push_back(new Model::Brush(worldBounds, Model::BrushContentTypeBuilder(), Model::EmptyBrushFaceList));
+        brushes.push_back(new Model::Brush(worldBounds, Model::BrushContentTypeBuilder(), Model::EmptyBrushFaceList));
         
         Model::BrushFacesIterator::OuterIterator begin = Model::BrushFacesIterator::begin(brushes);
         Model::BrushFacesIterator::OuterIterator end = Model::BrushFacesIterator::end(brushes);

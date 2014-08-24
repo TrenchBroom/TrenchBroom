@@ -26,6 +26,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "Model/Map.h"
+#include "Model/MockGame.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -45,7 +46,11 @@ namespace TrenchBroom {
             const String data("");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             ASSERT_TRUE(map->entities().empty());
@@ -55,7 +60,11 @@ namespace TrenchBroom {
             const String data("{}");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
 
             ASSERT_EQ(1u, map->entities().size());
@@ -67,7 +76,11 @@ namespace TrenchBroom {
                               "}");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();
@@ -89,7 +102,11 @@ namespace TrenchBroom {
                               "}");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();
@@ -122,7 +139,11 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();
@@ -160,7 +181,11 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();
@@ -200,7 +225,11 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();
@@ -238,7 +267,11 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();
@@ -276,7 +309,11 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();
@@ -304,7 +341,11 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();
@@ -332,7 +373,11 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();
@@ -360,7 +405,11 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();
@@ -395,7 +444,11 @@ namespace TrenchBroom {
                               "}");
             BBox3 worldBounds(-8192, 8192);
             
-            QuakeMapParser parser(data);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            QuakeMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();

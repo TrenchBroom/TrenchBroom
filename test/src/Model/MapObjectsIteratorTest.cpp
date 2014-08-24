@@ -22,6 +22,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/Brush.h"
+#include "Model/BrushContentTypeBuilder.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
 #include "Model/MapObjectsIterator.h"
@@ -56,11 +57,11 @@ namespace TrenchBroom {
             Map map(MapFormat::Standard);
             
             const BBox3 worldbounds(8192.0);
-            Brush* brush1 = new Brush(worldbounds, EmptyBrushFaceList);
-            Brush* brush2 = new Brush(worldbounds, EmptyBrushFaceList);
-            Brush* brush3 = new Brush(worldbounds, EmptyBrushFaceList);
-            Brush* brush4 = new Brush(worldbounds, EmptyBrushFaceList);
-            Brush* brush5 = new Brush(worldbounds, EmptyBrushFaceList);
+            Brush* brush1 = new Brush(worldbounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            Brush* brush2 = new Brush(worldbounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            Brush* brush3 = new Brush(worldbounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            Brush* brush4 = new Brush(worldbounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            Brush* brush5 = new Brush(worldbounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
             
 
             Entity* entity1 = new ConfigurableEntity<QuakeEntityRotationPolicy>();

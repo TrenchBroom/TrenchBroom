@@ -46,43 +46,13 @@ namespace TrenchBroom {
         
         class TextureNameEvaluator : public BrushFaceEvaluator {
         private:
-            typedef enum {
-                Mode_Exact,
-                Mode_Prefix,
-                Mode_Suffix
-            } Mode;
-            
-            Mode m_mode;
-            String m_pattern;
+            StringUtils::CaseSensitiveStringMatcher m_matcher;
         public:
-            TextureNameEvaluator(const String& pattern) {
-                assert(!pattern.empty());
-                if (pattern[0] == '*') {
-                    m_mode = Mode_Suffix;
-                    m_pattern = pattern.substr(1);
-                } else if (pattern.size() > 1 &&
-                           pattern[pattern.size() - 1] == '*' &&
-                           pattern[pattern.size() - 2] != '\\') {
-                    m_mode = Mode_Prefix;
-                    m_pattern = pattern.substr(0, pattern.size() - 1);
-                } else {
-                    m_mode = Mode_Exact;
-                    m_pattern = pattern;
-                }
-                m_pattern = StringUtils::replaceAll(m_pattern, "\\*", "*");
-                assert(!m_pattern.empty());
-            }
+            TextureNameEvaluator(const String& pattern) :
+            m_matcher(pattern) {}
         private:
             bool doEvaluate(const BrushFace* face) const {
-                switch (m_mode) {
-                    case Mode_Exact:
-                        return StringUtils::caseInsensitiveEqual(face->textureName(), m_pattern);
-                    case Mode_Prefix:
-                        return StringUtils::caseInsensitivePrefix(face->textureName(), m_pattern);
-                    case Mode_Suffix:
-                        return StringUtils::caseInsensitiveSuffix(face->textureName(), m_pattern);
-                    DEFAULT_SWITCH()
-                }
+                return m_matcher.matches(face->textureName());
             }
         };
         
@@ -98,21 +68,6 @@ namespace TrenchBroom {
             }
         };
         
-        class EntityClassnameEvaluator : public BrushContentTypeEvaluator {
-        private:
-            String m_classname;
-        public:
-            EntityClassnameEvaluator(const String& classname) :
-            m_classname(classname) {}
-        private:
-            bool doEvaluate(const Brush* brush) const {
-                const Entity* entity = brush->parent();
-                if (entity == NULL)
-                    return false;
-                return entity->classname() == m_classname;
-            }
-        };
-        
         BrushContentTypeEvaluator::~BrushContentTypeEvaluator() {}
    
         BrushContentTypeEvaluator* BrushContentTypeEvaluator::textureNameEvaluator(const String& pattern) {
@@ -121,10 +76,6 @@ namespace TrenchBroom {
         
         BrushContentTypeEvaluator* BrushContentTypeEvaluator::contentFlagsEvaluator(const int value) {
             return new ContentFlagsEvaluator(value);
-        }
-        
-        BrushContentTypeEvaluator* BrushContentTypeEvaluator::entityClassnameEvaluator(const String& classname) {
-            return new EntityClassnameEvaluator(classname);
         }
 
         bool BrushContentTypeEvaluator::evaluate(const Brush* brush) const {

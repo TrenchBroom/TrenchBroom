@@ -23,6 +23,8 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "StringUtils.h"
+#include "Model/BrushContentTypeBuilder.h"
+#include "Model/BrushContentType.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
@@ -30,10 +32,13 @@ namespace TrenchBroom {
         class ModelFactory {
         private:
             MapFormat::Type m_format;
+            BrushContentTypeBuilder m_brushContentTypeBuilder;
         public:
             ModelFactory();
-            ModelFactory(const MapFormat::Type format);
+            ModelFactory(MapFormat::Type format, const BrushContentType::List& brushContentTypes = BrushContentType::EmptyList);
 
+            MapFormat::Type format() const;
+            
             Map* createMap() const;
             Entity* createEntity() const;
             Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;

@@ -81,27 +81,27 @@ namespace TrenchBroom {
         }
 
         Map* GameImpl::doNewMap(const MapFormat::Type format) const {
-            return new Map(format);
+            return new Map(ModelFactory(format, brushContentTypes()));
         }
         
         Map* GameImpl::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {
             const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
-            IO::QuakeMapParser parser(file->begin(), file->end());
+            IO::QuakeMapParser parser(file->begin(), file->end(), this);
             return parser.parseMap(worldBounds);
         }
         
         Model::EntityList GameImpl::doParseEntities(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
-            IO::QuakeMapParser parser(str);
+            IO::QuakeMapParser parser(str, this);
             return parser.parseEntities(worldBounds, format);
         }
         
         Model::BrushList GameImpl::doParseBrushes(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
-            IO::QuakeMapParser parser(str);
+            IO::QuakeMapParser parser(str, this);
             return parser.parseBrushes(worldBounds, format);
         }
         
         Model::BrushFaceList GameImpl::doParseFaces(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
-            IO::QuakeMapParser parser(str);
+            IO::QuakeMapParser parser(str, this);
             return parser.parseFaces(worldBounds, format);
         }
         
@@ -320,6 +320,10 @@ namespace TrenchBroom {
             
             IO::Md2Parser parser(name, file->begin(), file->end(), *m_palette, m_fs);
             return parser.parseModel();
+        }
+
+        const BrushContentType::List& GameImpl::doBrushContentTypes() const {
+            return m_config.brushContentTypes();
         }
 
         StringList GameImpl::doAvailableMods() const {

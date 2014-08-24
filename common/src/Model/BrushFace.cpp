@@ -267,6 +267,9 @@ namespace TrenchBroom {
 
             m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
             invalidate();
+
+            if (m_parent != NULL)
+                m_parent->invalidateContentType();
         }
 
         const String& BrushFace::textureName() const {
@@ -338,6 +341,8 @@ namespace TrenchBroom {
             invalidateVertexCache();
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->incUsageCount();
+            if (m_parent != NULL)
+                m_parent->invalidateContentType();
         }
         
         void BrushFace::setXOffset(const float i_xOffset) {
@@ -383,6 +388,8 @@ namespace TrenchBroom {
             if (surfaceContents == m_attribs.surfaceContents())
                 return;
             m_attribs.setSurfaceContents(surfaceContents);
+            if (m_parent != NULL)
+                m_parent->invalidateContentType();
         }
         
         void BrushFace::setSurfaceFlags(const int surfaceFlags) {

@@ -24,6 +24,7 @@
 #include "Hit.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
+#include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/Map.h"
 #include "Model/Picker.h"
@@ -47,7 +48,7 @@ namespace TrenchBroom {
                                                       Vec3(1.0, 0.0, 0.0),
                                                       Vec3(0.0, 1.0, 0.0)));
             
-            Brush brush(worldBounds, faces);
+            Brush brush(worldBounds, Model::BrushContentTypeBuilder(), faces);
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(1u, brushFaces.size());
             ASSERT_EQ(faces[0], brushFaces[0]);
@@ -85,7 +86,7 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
             
-            Brush brush(worldBounds, faces);
+            Brush brush(worldBounds, Model::BrushContentTypeBuilder(), faces);
             const BrushFaceList& brushFaces = brush.faces();
             ASSERT_EQ(6u, brushFaces.size());
             for (size_t i = 0; i < faces.size(); i++)
@@ -124,7 +125,7 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
             
-            Brush brush(worldBounds, faces);
+            Brush brush(worldBounds, Model::BrushContentTypeBuilder(), faces);
             
             Hits hits1;
             brush.pick(Ray3(Vec3(8.0, -8.0, 8.0), Vec3::PosY), hits1);
@@ -172,7 +173,7 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
             
-            Brush brush(worldBounds, faces);
+            Brush brush(worldBounds, Model::BrushContentTypeBuilder(), faces);
             ASSERT_FALSE(brush.partiallySelected());
             left->select();
             ASSERT_TRUE(brush.partiallySelected());
@@ -218,7 +219,7 @@ namespace TrenchBroom {
             left->select();
             right->select();
             
-            Brush brush(worldBounds, faces);
+            Brush brush(worldBounds, Model::BrushContentTypeBuilder(), faces);
             ASSERT_TRUE(brush.partiallySelected());
             left->deselect();
             ASSERT_TRUE(brush.partiallySelected());
@@ -301,7 +302,7 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
             
-            Brush original(worldBounds, faces);
+            Brush original(worldBounds, Model::BrushContentTypeBuilder(), faces);
             Brush* clone = original.clone(worldBounds);
             
             assertHasFace(*clone, *left);
@@ -349,7 +350,7 @@ namespace TrenchBroom {
             faces.push_back(top);
             faces.push_back(bottom);
             
-            Brush brush(worldBounds, faces);
+            Brush brush(worldBounds, Model::BrushContentTypeBuilder(), faces);
             ASSERT_TRUE(brush.clip(worldBounds, clip));
             
             ASSERT_EQ(6u, brush.faces().size());

@@ -19,6 +19,7 @@
 
 #include "GameConfig.h"
 
+#include "CollectionUtils.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/SystemPaths.h"
 
@@ -86,7 +87,15 @@ namespace TrenchBroom {
         m_textureConfig("", "", IO::Path(""), IO::Path("")),
         m_entityConfig(IO::Path(""), StringSet(), Color()) {}
 
-        GameConfig::GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringList& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig) :
+        GameConfig::GameConfig(const String& name,
+                               const IO::Path& path,
+                               const IO::Path& icon,
+                               const StringList& fileFormats,
+                               const FileSystemConfig& fileSystemConfig,
+                               const TextureConfig& textureConfig,
+                               const EntityConfig& entityConfig,
+                               const FaceAttribsConfig& faceAttribsConfig,
+                               const BrushContentType::List& brushContentTypes) :
         m_name(name),
         m_path(path),
         m_icon(icon),
@@ -94,7 +103,8 @@ namespace TrenchBroom {
         m_fileSystemConfig(fileSystemConfig),
         m_textureConfig(textureConfig),
         m_entityConfig(entityConfig),
-        m_faceAttribsConfig(faceAttribsConfig) {
+        m_faceAttribsConfig(faceAttribsConfig),
+        m_brushContentTypes(brushContentTypes) {
             assert(!StringUtils::trim(m_name).empty());
             assert(m_path.isEmpty() || m_path.isAbsolute());
         }
@@ -129,6 +139,10 @@ namespace TrenchBroom {
 
         const GameConfig::FaceAttribsConfig& GameConfig::faceAttribsConfig() const {
             return m_faceAttribsConfig;
+        }
+
+        const BrushContentType::List& GameConfig::brushContentTypes() const {
+            return m_brushContentTypes;
         }
 
         const IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const {

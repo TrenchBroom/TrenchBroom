@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "IO/ConfigParser.h"
 #include "IO/Path.h"
+#include "Model/BrushContentType.h"
 #include "Model/GameConfig.h"
 
 #include <iostream>
@@ -44,6 +45,7 @@ namespace TrenchBroom {
             Model::GameConfig::EntityConfig parseEntityConfig(const ConfigTable& table) const;
             Model::GameConfig::FaceAttribsConfig parseFaceAttribsConfig(const ConfigTable& table) const;
             Model::GameConfig::FlagConfigList parseFlagConfig(const ConfigList& list) const;
+            Model::BrushContentType::List parseBrushContentTypes(const ConfigList& list) const;
             StringSet parseSet(const ConfigList& list) const;
             StringList parseList(const ConfigList& list) const;
             

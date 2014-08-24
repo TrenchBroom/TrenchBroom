@@ -28,6 +28,7 @@
 #include "Model/BrushVertex.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFaceGeometry.h"
+#include "Model/MockGame.h"
 #include "Model/MoveBrushVerticesAlgorithm.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
@@ -324,7 +325,11 @@ namespace TrenchBroom {
                                  "( -272 -132 256 ) ( -256 -132 256 ) ( -272 -112 256 ) skip 0 48 0 1 -1\n");
             const BBox3 worldBounds(-8192.0, 8192.0);
             
-            IO::QuakeMapParser parser(faceStr);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            IO::QuakeMapParser parser(faceStr, game.get());
             const BrushFaceList faces = parser.parseFaces(worldBounds, MapFormat::Standard);
             assert(faces.size() == 7);
             
@@ -358,7 +363,11 @@ namespace TrenchBroom {
             
             const BBox3 worldBounds(-8192.0, 8192.0);
             
-            IO::QuakeMapParser parser(faceStr);
+            using namespace testing;
+            Model::MockGamePtr game = Model::MockGame::newGame();
+            EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+            
+            IO::QuakeMapParser parser(faceStr, game.get());
             const BrushFaceList faces = parser.parseFaces(worldBounds, MapFormat::Standard);
             assert(faces.size() == 8);
             

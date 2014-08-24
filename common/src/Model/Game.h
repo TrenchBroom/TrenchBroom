@@ -25,6 +25,7 @@
 #include "SharedPointer.h"
 #include "Assets/AssetTypes.h"
 #include "IO/GameFileSystem.h"
+#include "Model/BrushContentType.h"
 #include "Model/EntityDefinitionFileSpec.h"
 #include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
@@ -69,6 +70,8 @@ namespace TrenchBroom {
             IO::Path findEntityDefinitionFile(const EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
             Assets::EntityModel* loadModel(const IO::Path& path) const;
             
+            const BrushContentType::List& brushContentTypes() const;
+            
             StringList availableMods() const;
             StringList extractEnabledMods(const Map* map) const;
             
@@ -102,6 +105,8 @@ namespace TrenchBroom {
             virtual EntityDefinitionFileSpec doExtractEntityDefinitionFile(const Map* map) const = 0;
             virtual IO::Path doFindEntityDefinitionFile(const EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const = 0;
             virtual Assets::EntityModel* doLoadModel(const IO::Path& path) const = 0;
+            
+            virtual const BrushContentType::List& doBrushContentTypes() const = 0;
             
             virtual StringList doAvailableMods() const = 0;
             virtual StringList doExtractEnabledMods(const Map* map) const = 0;

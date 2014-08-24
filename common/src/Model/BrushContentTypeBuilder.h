@@ -17,27 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushContentTypeEvaluator__
-#define __TrenchBroom__BrushContentTypeEvaluator__
+#ifndef __TrenchBroom__BrushContentTypeBuilder__
+#define __TrenchBroom__BrushContentTypeBuilder__
 
+#include "Model/BrushContentType.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush;
-        
-        class BrushContentTypeEvaluator {
-        public:
-            virtual ~BrushContentTypeEvaluator();
-            
-            static BrushContentTypeEvaluator* textureNameEvaluator(const String& pattern);
-            static BrushContentTypeEvaluator* contentFlagsEvaluator(int value);
-            
-            bool evaluate(const Brush* brush) const;
+        class BrushContentTypeBuilder {
         private:
-            virtual bool doEvaluate(const Brush* brush) const = 0;
+            BrushContentType::List m_contentTypes;
+        public:
+            BrushContentTypeBuilder(const BrushContentType::List contentTypes = BrushContentType::EmptyList);
+            BrushContentType::FlagType buildContentType(const Brush* brush) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushContentTypeEvaluator__) */
+#endif /* defined(__TrenchBroom__BrushContentTypeBuilder__) */

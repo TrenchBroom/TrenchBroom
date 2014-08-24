@@ -32,13 +32,12 @@ namespace TrenchBroom {
     namespace Model {
         class Map {
         private:
-            MapFormat::Type m_format;
             ModelFactory m_factory;
             EntityList m_entities;
             EntityPropertyIndex m_entityPropertyIndex;
             mutable Entity* m_worldspawn;
         public:
-            Map(MapFormat::Type format);
+            Map(const ModelFactory& factory);
             ~Map();
             
             MapFormat::Type format() const;

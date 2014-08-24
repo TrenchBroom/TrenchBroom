@@ -122,6 +122,10 @@ namespace TrenchBroom {
             return doLoadModel(path);
         }
 
+        const BrushContentType::List& Game::brushContentTypes() const {
+            return doBrushContentTypes();
+        }
+
         StringList Game::availableMods() const {
             return doAvailableMods();
         }

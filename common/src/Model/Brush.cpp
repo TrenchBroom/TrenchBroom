@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Hit.h"
+#include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
@@ -50,10 +51,13 @@ namespace TrenchBroom {
 
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
         
-        Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
+        Brush::Brush(const BBox3& worldBounds, const BrushContentTypeBuilder& contentTypeBuilder, const BrushFaceList& faces) :
         Object(Type_Brush),
+        m_contentTypeBuilder(contentTypeBuilder),
         m_parent(NULL),
-        m_geometry(NULL) {
+        m_geometry(NULL),
+        m_contentType(0),
+        m_contentTypeValid(true) {
             addFaces(faces);
             rebuildGeometry(worldBounds);
         }
@@ -331,6 +335,23 @@ namespace TrenchBroom {
             notifyParent();
         }
         
+        bool Brush::hasContentType(const BrushContentType& contentType) const {
+            return (contentTypeFlags() & contentType.flagValue()) != 0;
+        }
+
+        void Brush::invalidateContentType() {
+            m_contentTypeValid = false;
+        }
+        
+        BrushContentType::FlagType Brush::contentTypeFlags() const {
+            if (!m_contentTypeValid) {
+                m_contentType = m_contentTypeBuilder.buildContentType(this);
+                m_contentTypeValid = true;
+            }
+            
+            return m_contentType;
+        }
+
         void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, worldBounds), MatchAll());
             rebuildGeometry(worldBounds);
@@ -443,7 +464,7 @@ namespace TrenchBroom {
                 newFaces.push_back(newFace);
             }
             
-            return new Brush(worldBounds, newFaces);
+            return new Brush(worldBounds, m_contentTypeBuilder, newFaces);
         }
         
         bool Brush::containsPoint(const Vec3& point) const {
@@ -502,6 +523,7 @@ namespace TrenchBroom {
             face->setParent(this);
             if (face->selected())
                 incChildSelectionCount();
+            invalidateContentType();
         }
 
         void Brush::detachFaces(const BrushFaceList& faces) {

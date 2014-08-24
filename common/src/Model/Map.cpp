@@ -26,9 +26,8 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Map::Map(const MapFormat::Type format) :
-        m_format(format),
-        m_factory(m_format),
+        Map::Map(const ModelFactory& factory) :
+        m_factory(factory),
         m_worldspawn(NULL) {}
         
         Map::~Map() {
@@ -37,7 +36,7 @@ namespace TrenchBroom {
         }
 
         MapFormat::Type Map::format() const {
-            return m_format;
+            return m_factory.format();
         }
 
         Entity* Map::createEntity() const {

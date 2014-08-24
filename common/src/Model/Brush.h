@@ -25,6 +25,7 @@
 #include "Allocator.h"
 #include "Hit.h"
 #include "SharedPointer.h"
+#include "Model/BrushContentType.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/ModelTypes.h"
@@ -36,6 +37,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushContentTypeBuilder;
         class BrushGeometry;
         struct BrushAlgorithmResult;
         class Entity;
@@ -63,11 +65,16 @@ namespace TrenchBroom {
 
             static const Hit::HitType BrushHit;
         private:
+            const BrushContentTypeBuilder& m_contentTypeBuilder;
+
             Entity* m_parent;
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
+            
+            mutable BrushContentType::FlagType m_contentType;
+            mutable bool m_contentTypeValid;
         public:
-            Brush(const BBox3& worldBounds, const BrushFaceList& faces);
+            Brush(const BBox3& worldBounds, const BrushContentTypeBuilder& contentTypeBuilder, const BrushFaceList& faces);
             Brush(const BBox3& worldBounds, const Brush& other);
             ~Brush();
             
@@ -114,7 +121,12 @@ namespace TrenchBroom {
             void snapPlanePointsToInteger(const BBox3& worldBounds);
             void findIntegerPlanePoints(const BBox3& worldBounds);
             void rebuildGeometry(const BBox3& worldBounds);
+            
+            bool hasContentType(const BrushContentType& contentType) const;
+            void invalidateContentType();
         private:
+            BrushContentType::FlagType contentTypeFlags() const;
+            
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Object& object) const;
             bool doContains(const Entity& entity) const;

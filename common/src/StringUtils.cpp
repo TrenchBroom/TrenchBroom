@@ -108,28 +108,11 @@ namespace StringUtils {
     }
     
     bool caseSensitiveEqual(const String& str1, const String& str2) {
-        StringEqual<CaseSensitiveCharCompare> equality;
-        return equality(str1, str2);
+        return isEqual(str1, str2, CaseSensitiveCharCompare());
     }
     
     bool caseInsensitiveEqual(const String& str1, const String& str2) {
-        StringEqual<CaseInsensitiveCharCompare> equality;
-        return equality(str1, str2);
-    }
-    
-    template <class Cmp>
-    bool isPrefix(const String& str, const String& prefix, const Cmp& cmp);
-    
-    template <class Cmp>
-    bool isPrefix(const String& str, const String& prefix, const Cmp& cmp) {
-        if (prefix.length() > str.length())
-            return false;
-        
-        for (size_t i = 0; i < prefix.length(); ++i) {
-            if (cmp(str[i], prefix[i]) != 0)
-                return false;
-        }
-        return true;
+        return isEqual(str1, str2, CaseInsensitiveCharCompare());
     }
     
     bool caseSensitivePrefix(const String& str, const String& prefix) {
@@ -138,22 +121,6 @@ namespace StringUtils {
     
     bool caseInsensitivePrefix(const String& str, const String& prefix) {
         return isPrefix(str, prefix, CaseInsensitiveCharCompare());
-    }
-    
-    template <class Cmp>
-    bool isSuffix(const String& str, const String& suffix, const Cmp& cmp);
-    
-    template <class Cmp>
-    bool isSuffix(const String& str, const String& suffix, const Cmp& cmp) {
-        if (suffix.length() > str.length())
-            return false;
-
-        const size_t n = str.length() - suffix.length();
-        for (size_t i = suffix.length(); i > 0; --i) {
-            if (cmp(str[n + i - 1], suffix[i - 1]) != 0)
-                return false;
-        }
-        return true;
     }
     
     bool caseSensitiveSuffix(const String& str, const String& suffix) {

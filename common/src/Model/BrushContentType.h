@@ -21,7 +21,10 @@
 #define __TrenchBroom__BrushContentType__
 
 #include "StringUtils.h"
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,13 +33,16 @@ namespace TrenchBroom {
         class BrushContentType {
         public:
             typedef int FlagType;
+            typedef std::vector<BrushContentType> List;
+            static const List EmptyList;
         private:
+            typedef std::tr1::shared_ptr<BrushContentTypeEvaluator> EvaluatorPtr;
+            
             String m_name;
             FlagType m_flagValue;
-            BrushContentTypeEvaluator* m_evaluator;
+            EvaluatorPtr m_evaluator;
         public:
             BrushContentType(const String& name, FlagType flagValue, BrushContentTypeEvaluator* evaluator);
-            ~BrushContentType();
             
             const String& name() const;
             FlagType flagValue() const;

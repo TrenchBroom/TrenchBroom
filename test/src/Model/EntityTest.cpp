@@ -20,8 +20,9 @@
 #include <gtest/gtest.h>
 
 #include "Model/Brush.h"
-#include "Model/Entity.h"
+#include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
+#include "Model/Entity.h"
 #include "Model/QuakeEntityRotationPolicy.h"
 
 namespace TrenchBroom {
@@ -95,7 +96,7 @@ namespace TrenchBroom {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
             QuakeEntity entity;
-            Brush* brush = new Brush(worldBounds, EmptyBrushFaceList);
+            Brush* brush = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
             
             entity.addBrush(brush);
             
@@ -108,7 +109,7 @@ namespace TrenchBroom {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
             QuakeEntity entity;
-            Brush* brush = new Brush(worldBounds, EmptyBrushFaceList);
+            Brush* brush = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
             entity.addBrush(brush);
             
             entity.removeBrush(brush);
@@ -121,8 +122,8 @@ namespace TrenchBroom {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
             QuakeEntity entity;
-            Brush* brush1 = new Brush(worldBounds, EmptyBrushFaceList);
-            Brush* brush2 = new Brush(worldBounds, EmptyBrushFaceList);
+            Brush* brush1 = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            Brush* brush2 = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
             entity.addBrush(brush1);
             entity.addBrush(brush2);
             ASSERT_FALSE(entity.partiallySelected());
@@ -140,8 +141,8 @@ namespace TrenchBroom {
             const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
                                     Vec3( 4096.0,  4096.0,  4096.0));
             QuakeEntity entity;
-            Brush* brush1 = new Brush(worldBounds, EmptyBrushFaceList);
-            Brush* brush2 = new Brush(worldBounds, EmptyBrushFaceList);
+            Brush* brush1 = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            Brush* brush2 = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
             brush1->select();
             entity.addBrush(brush1);
             entity.addBrush(brush2);

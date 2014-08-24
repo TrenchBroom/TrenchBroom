@@ -25,6 +25,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Model/Game.h"
 #include "Model/Issue.h"
 #include "Model/Map.h"
 #include "Model/QuakeEntityRotationPolicy.h"
@@ -149,14 +150,16 @@ namespace TrenchBroom {
             return m_planeOrder(lhs->boundary(), rhs->boundary());
         }
 
-        QuakeMapParser::QuakeMapParser(const char* begin, const char* end, Logger* logger) :
-        m_logger(logger),
+        QuakeMapParser::QuakeMapParser(const char* begin, const char* end, const Model::Game* game, Logger* logger) :
         m_tokenizer(QuakeMapTokenizer(begin, end)),
+        m_game(game),
+        m_logger(logger),
         m_format(Model::MapFormat::Unknown) {}
                     
-        QuakeMapParser::QuakeMapParser(const String& str, Logger* logger) :
-        m_logger(logger),
+        QuakeMapParser::QuakeMapParser(const String& str, const Model::Game* game, Logger* logger) :
         m_tokenizer(QuakeMapTokenizer(str)),
+        m_game(game),
+        m_logger(logger),
         m_format(Model::MapFormat::Unknown) {}
         
         QuakeMapParser::TokenNameMap QuakeMapParser::tokenNames() const {
@@ -242,7 +245,7 @@ namespace TrenchBroom {
         void QuakeMapParser::setFormat(Model::MapFormat::Type format) {
             assert(format != Model::MapFormat::Unknown);
             m_format = format;
-            m_factory = Model::ModelFactory(format);
+            m_factory = Model::ModelFactory(format, m_game->brushContentTypes());
         }
 
         Model::MapFormat::Type QuakeMapParser::detectFormat() {

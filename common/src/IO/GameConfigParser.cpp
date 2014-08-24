@@ -20,6 +20,7 @@
 #include "GameConfigParser.h"
 
 #include "Exceptions.h"
+#include "Model/BrushContentTypeEvaluator.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -68,7 +69,13 @@ namespace TrenchBroom {
                 faceAttribsConfig = parseFaceAttribsConfig(rootTable["faceattribs"]);
             }
             
-            return GameConfig(name, m_path, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig);
+            Model::BrushContentType::List brushContentTypes;
+            if (rootTable.contains("brushtypes")) {
+                expectTableEntry("brushtypes", ConfigEntry::Type_List, rootTable);
+                brushContentTypes = parseBrushContentTypes(rootTable["brushtypes"]);
+            }
+            
+            return GameConfig(name, m_path, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig, brushContentTypes);
         }
 
         Model::GameConfig::FileSystemConfig GameConfigParser::parseFileSystemConfig(const ConfigTable& table) const {
@@ -173,6 +180,39 @@ namespace TrenchBroom {
             }
             
             return flags;
+        }
+
+        Model::BrushContentType::List GameConfigParser::parseBrushContentTypes(const ConfigList& list) const {
+            Model::BrushContentType::List contentTypes;
+            for (size_t i = 0; i < list.count(); ++i) {
+                const ConfigEntry& entry = list[i];
+                expectEntry(ConfigEntry::Type_Table, entry);
+                const ConfigTable& table = static_cast<const ConfigTable&>(entry);
+                
+                expectTableEntry("name", ConfigEntry::Type_Value, table);
+                const String name = table["name"];
+                
+                expectTableEntry("match", ConfigEntry::Type_Value, table);
+                const String match = table["match"];
+
+                const Model::BrushContentType::FlagType flag = 1 << i;
+                
+                if (match == "texture") {
+                    expectTableEntry("pattern", ConfigEntry::Type_Value, table);
+                    const String pattern = table["pattern"];
+                    Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::textureNameEvaluator(pattern);
+                    contentTypes.push_back(Model::BrushContentType(name, flag, evaluator));
+                } else if (match == "contentflag") {
+                    expectTableEntry("value", ConfigEntry::Type_Value, table);
+                    const String valueStr = table["value"];
+                    const int value = std::atoi(valueStr.c_str());
+                    Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::contentFlagsEvaluator(value);
+                    contentTypes.push_back(Model::BrushContentType(name, flag, evaluator));
+                } else {
+                    throw ParserException("Unexpected brush content type '" + match + "'");
+                }
+            }
+            return contentTypes;
         }
 
         StringSet GameConfigParser::parseSet(const ConfigList& list) const {

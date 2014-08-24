@@ -32,16 +32,22 @@
 namespace TrenchBroom {
     namespace Model {
         ModelFactory::ModelFactory() :
-        m_format(MapFormat::Unknown) {}
+        m_format(MapFormat::Unknown),
+        m_brushContentTypeBuilder(Model::BrushContentType::EmptyList) {}
         
-        ModelFactory::ModelFactory(const MapFormat::Type format) :
-        m_format(format) {
+        ModelFactory::ModelFactory(const MapFormat::Type format, const BrushContentType::List& brushContentTypes) :
+        m_format(format),
+        m_brushContentTypeBuilder(brushContentTypes) {
             assert(m_format != MapFormat::Unknown);
+        }
+
+        MapFormat::Type ModelFactory::format() const {
+            return m_format;
         }
 
         Map* ModelFactory::createMap() const {
             assert(m_format != MapFormat::Unknown);
-            return new Map(m_format);
+            return new Map(*this);
         }
 
         Entity* ModelFactory::createEntity() const {
@@ -51,7 +57,7 @@ namespace TrenchBroom {
         
         Brush* ModelFactory::createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
             assert(m_format != MapFormat::Unknown);
-            return new Brush(worldBounds, faces);
+            return new Brush(worldBounds, m_brushContentTypeBuilder, faces);
         }
 
         BrushFace* ModelFactory::createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName) const {

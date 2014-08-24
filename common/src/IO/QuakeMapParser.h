@@ -117,13 +117,15 @@ namespace TrenchBroom {
             
             typedef std::map<String, ExtraProperty> ExtraProperties;
             
-            Logger* m_logger;
             QuakeMapTokenizer m_tokenizer;
+            const Model::Game* m_game;
+            Logger* m_logger;
+            
             Model::MapFormat::Type m_format;
             Model::ModelFactory m_factory;
         public:
-            QuakeMapParser(const char* begin, const char* end, Logger* logger = NULL);
-            QuakeMapParser(const String& str, Logger* logger = NULL);
+            QuakeMapParser(const char* begin, const char* end, const Model::Game* game, Logger* logger = NULL);
+            QuakeMapParser(const String& str, const Model::Game* game, Logger* logger = NULL);
         private:
             TokenNameMap tokenNames() const;
             Model::Map* doParseMap(const BBox3& worldBounds);

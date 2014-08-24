@@ -23,6 +23,7 @@
 #include "Color.h"
 #include "StringUtils.h"
 #include "IO/Path.h"
+#include "Model/BrushContentType.h"
 #include "Model/ModelTypes.h"
 
 #include <vector>
@@ -92,9 +93,10 @@ namespace TrenchBroom {
             TextureConfig m_textureConfig;
             EntityConfig m_entityConfig;
             FaceAttribsConfig m_faceAttribsConfig;
+            BrushContentType::List m_brushContentTypes;
         public:
             GameConfig();
-            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringList& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig);
+            GameConfig(const String& name, const IO::Path& path, const IO::Path& icon, const StringList& fileFormats, const FileSystemConfig& fileSystemConfig, const TextureConfig& textureConfig, const EntityConfig& entityConfig, const FaceAttribsConfig& faceAttribsConfig, const BrushContentType::List& brushContentTypes);
             
             const String& name() const;
             const IO::Path& path() const;
@@ -104,6 +106,7 @@ namespace TrenchBroom {
             const TextureConfig& textureConfig() const;
             const EntityConfig& entityConfig() const;
             const FaceAttribsConfig& faceAttribsConfig() const;
+            const BrushContentType::List& brushContentTypes() const;
             const IO::Path findConfigFile(const IO::Path& filePath) const;
         };
     }

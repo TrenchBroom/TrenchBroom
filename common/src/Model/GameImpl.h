@@ -84,6 +84,8 @@ namespace TrenchBroom {
             Assets::EntityModel* loadMdlModel(const String& name, const IO::MappedFile::Ptr file) const;
             Assets::EntityModel* loadMd2Model(const String& name, const IO::MappedFile::Ptr file) const;
             
+            const BrushContentType::List& doBrushContentTypes() const;
+
             StringList doAvailableMods() const;
             StringList doExtractEnabledMods(const Map* map) const;
             
