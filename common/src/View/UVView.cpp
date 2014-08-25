@@ -180,7 +180,7 @@ namespace TrenchBroom {
                 document->commitPendingRenderStateChanges();
                 
                 const View::Grid& grid = document->grid();
-                Renderer::RenderContext renderContext(m_camera, contextHolder()->shaderManager(), grid.visible(), grid.actualSize());
+                Renderer::RenderContext renderContext(m_camera, contextHolder()->shaderManager(), document->renderConfig(), grid.visible(), grid.actualSize());
                 
                 setupGL(renderContext);
                 renderTexture(renderContext);

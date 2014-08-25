@@ -27,8 +27,9 @@ namespace TrenchBroom {
     namespace Model {
         const BrushContentType::List BrushContentType::EmptyList = BrushContentType::EmptyList;
         
-        BrushContentType::BrushContentType(const String& name, FlagType flagValue, BrushContentTypeEvaluator* evaluator) :
+        BrushContentType::BrushContentType(const String& name, const bool transparent, const FlagType flagValue, BrushContentTypeEvaluator* evaluator) :
         m_name(name),
+        m_transparent(transparent),
         m_flagValue(flagValue),
         m_evaluator(evaluator) {
             assert(m_evaluator != NULL);
@@ -36,6 +37,10 @@ namespace TrenchBroom {
         
         const String& BrushContentType::name() const {
             return m_name;
+        }
+        
+        bool BrushContentType::transparent() const {
+            return m_transparent;
         }
         
         BrushContentType::FlagType BrushContentType::flagValue() const {

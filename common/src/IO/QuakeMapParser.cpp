@@ -245,7 +245,7 @@ namespace TrenchBroom {
         void QuakeMapParser::setFormat(Model::MapFormat::Type format) {
             assert(format != Model::MapFormat::Unknown);
             m_format = format;
-            m_factory = Model::ModelFactory(format, m_game->brushContentTypes());
+            m_factory = Model::ModelFactory(format, m_game->brushContentTypeBuilder());
         }
 
         Model::MapFormat::Type QuakeMapParser::detectFormat() {

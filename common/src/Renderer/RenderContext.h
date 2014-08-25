@@ -25,6 +25,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
+        class RenderConfig;
         class ShaderManager;
         
         class RenderContext {
@@ -39,20 +40,23 @@ namespace TrenchBroom {
             const Camera& m_camera;
             Transformation m_transformation;
             ShaderManager& m_shaderManager;
+            const RenderConfig& m_renderConfig;
             
-            bool m_gridVisible;
+            bool m_showGrid;
             size_t m_gridSize;
             bool m_hideSelection;
             bool m_tintSelection;
             ShowSelectionGuide m_showSelectionGuide;
             bool m_showMouseIndicators;
         public:
-            RenderContext(const Camera& camera, ShaderManager& shaderManager, const bool gridVisible, const size_t gridSize);
+            RenderContext(const Camera& camera, ShaderManager& shaderManager, const RenderConfig& renderConfig, const bool showGrid, const size_t gridSize);
             
             const Camera& camera() const;
             Transformation& transformation();
             ShaderManager& shaderManager();
-            bool gridVisible() const;
+            const RenderConfig& renderConfig() const;
+            
+            bool showGrid() const;
             size_t gridSize() const;
             
             bool hideSelection() const;

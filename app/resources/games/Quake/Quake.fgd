@@ -144,13 +144,13 @@
 	]
 ]
 
-@PointClass base(Item, Appearflags) model(":progs/suit.mdl") = 
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/suit.mdl") =
 	item_artifact_envirosuit : "Environmental protection suit" []
-@PointClass base(Item, Appearflags) model(":progs/quaddama.mdl") = 
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/quaddama.mdl") =
 	item_artifact_super_damage : "Quad damage" []
-@PointClass base(Item, Appearflags) model(":progs/invulner.mdl") = 
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/invulner.mdl") =
 	item_artifact_invulnerability : "Pentagram of Protection" []
-@PointClass base(Item, Appearflags) model(":progs/invisibl.mdl") = 
+@PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/invisibl.mdl") = 
 	item_artifact_invisibility : "Ring of Shadows" []
 
 @PointClass size(-16 -16 0, 16 16 56) base(Item, Appearflags) model(":progs/armor.mdl" 2) = 
@@ -211,7 +211,7 @@
 @PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/shambler.mdl") = monster_shambler : "Shambler" []
 @PointClass base(Monster) size(-128 -128 -24, 128 128 256) model(":progs/boss.mdl") = monster_boss : "Chthon" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl") = monster_enforcer : "Enforcer" []
-@PointClass base(Monster) size(-32 -32 -24, 32 32 48) model(":progs/shalrath.mdl") = monster_shalrath : "Vore" []
+@PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/shalrath.mdl") = monster_shalrath : "Vore" []
 @PointClass base(Monster) size(32 32 48) model(":progs/tarbaby.mdl") = monster_tarbaby : "Spawn" []
 @PointClass base(Monster) size(32 32 48) model(":progs/fish.mdl") = monster_fish : "Rotfish" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/oldone.mdl") = monster_oldone : "Shub-Niggurath" []

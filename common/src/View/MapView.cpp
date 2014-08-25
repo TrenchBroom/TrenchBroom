@@ -1044,6 +1044,8 @@ namespace TrenchBroom {
             document->objectsWereRemovedNotifier.addObserver(this, &MapView::objectsWereRemoved);
             document->objectsDidChangeNotifier.addObserver(this, &MapView::objectsDidChange);
             document->faceDidChangeNotifier.addObserver(this, &MapView::faceDidChange);
+            document->modelFilterDidChangeNotifier.addObserver(this, &MapView::filterDidChange);
+            document->renderConfigDidChangeNotifier.addObserver(this, &MapView::renderConfigDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
             document->modsDidChangeNotifier.addObserver(this, &MapView::modsDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
@@ -1071,6 +1073,8 @@ namespace TrenchBroom {
                 document->objectsWereRemovedNotifier.removeObserver(this, &MapView::objectsWereRemoved);
                 document->objectsDidChangeNotifier.removeObserver(this, &MapView::objectsDidChange);
                 document->faceDidChangeNotifier.removeObserver(this, &MapView::faceDidChange);
+                document->modelFilterDidChangeNotifier.removeObserver(this, &MapView::filterDidChange);
+                document->renderConfigDidChangeNotifier.removeObserver(this, &MapView::renderConfigDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &MapView::modsDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
@@ -1116,6 +1120,14 @@ namespace TrenchBroom {
             Refresh();
         }
         
+        void MapView::filterDidChange() {
+            Refresh();
+        }
+
+        void MapView::renderConfigDidChange() {
+            Refresh();
+        }
+
         void MapView::selectionDidChange(const Model::SelectionResult& result) {
             View::MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedObjects())
@@ -1242,7 +1254,7 @@ namespace TrenchBroom {
             document->commitPendingRenderStateChanges();
             
             const View::Grid& grid = document->grid();
-            Renderer::RenderContext context(m_camera, contextHolder()->shaderManager(), grid.visible(), grid.actualSize());
+            Renderer::RenderContext context(m_camera, contextHolder()->shaderManager(), document->renderConfig(), grid.visible(), grid.actualSize());
             
             setupGL(context);
             setRenderOptions(context);

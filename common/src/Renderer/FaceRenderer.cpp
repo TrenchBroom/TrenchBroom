@@ -24,6 +24,7 @@
 #include "PreferenceManager.h"
 #include "Assets/Texture.h"
 #include "Renderer/Camera.h"
+#include "Renderer/RenderConfig.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderProgram.h"
 #include "Renderer/ShaderManager.h"
@@ -50,6 +51,11 @@ namespace TrenchBroom {
                 }
             }
         };
+        
+        FaceRenderer::Config::Config() :
+        alpha(1.0f),
+        grayscale(false),
+        tinted(false) {}
         
         FaceRenderer::FaceRenderer() :
         m_prepared(true) {}
@@ -80,15 +86,11 @@ namespace TrenchBroom {
             swap(left.m_prepared, right.m_prepared);
         }
 
-        void FaceRenderer::render(RenderContext& context, const bool grayscale) {
-            render(context, grayscale, NULL);
-        }
-        
-        void FaceRenderer::render(RenderContext& context, const bool grayscale, const Color& tintColor) {
-            render(context, grayscale, &tintColor);
+        void FaceRenderer::render(RenderContext& context, const Config& config) {
+            render(context, config.alpha, config.grayscale, config.tinted ? &config.tintColor : NULL);
         }
 
-        void FaceRenderer::render(RenderContext& context, bool grayscale, const Color* tintColor) {
+        void FaceRenderer::render(RenderContext& context, const float alpha, const bool grayscale, const Color* tintColor) {
             if (m_meshRenderer.empty())
                 return;
             
@@ -101,12 +103,14 @@ namespace TrenchBroom {
             ActiveShader shader(shaderManager, Shaders::FaceShader);
             PreferenceManager& prefs = PreferenceManager::instance();
             
+            const bool applyTexture = context.renderConfig().showTextures();
+            const bool shadeFaces = context.renderConfig().shadeFaces();
+            const bool useFog = context.renderConfig().useFog();
+
             glEnable(GL_TEXTURE_2D);
             glActiveTexture(GL_TEXTURE0);
-            const bool applyTexture = true;
             shader.set("Brightness", prefs.get(Preferences::Brightness));
-            shader.set("Alpha", 1.0f);
-            shader.set("RenderGrid", context.gridVisible());
+            shader.set("RenderGrid", context.showGrid());
             shader.set("GridSize", static_cast<float>(context.gridSize()));
             shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
             shader.set("ApplyTexture", applyTexture);
@@ -116,22 +120,17 @@ namespace TrenchBroom {
                 shader.set("TintColor", *tintColor);
             shader.set("GrayScale", grayscale);
             shader.set("CameraPosition", context.camera().position());
-            shader.set("ShadeFaces", prefs.get(Preferences::ShadeFaces));
-            shader.set("UseFog", prefs.get(Preferences::UseFog));
+            shader.set("ShadeFaces", shadeFaces);
+            shader.set("UseFog", useFog);
             
-            renderOpaqueFaces(shader, applyTexture);
-            renderTransparentFaces(shader, applyTexture);
-        }
-        
-        void FaceRenderer::renderOpaqueFaces(ActiveShader& shader, const bool applyTexture) {
-            m_meshRenderer.render(SetShaderParms(shader, applyTexture, m_faceColor));
-        }
-        
-        void FaceRenderer::renderTransparentFaces(ActiveShader& shader, const bool applyTexture) {
-            /*
-            glDepthMask(GL_FALSE);
-            glDepthMask(GL_TRUE);
-             */
+            shader.set("Alpha", alpha);
+            if (alpha < 1.0f) {
+                glDepthMask(GL_FALSE);
+                m_meshRenderer.render(SetShaderParms(shader, applyTexture, m_faceColor));
+                glDepthMask(GL_TRUE);
+            } else {
+                m_meshRenderer.render(SetShaderParms(shader, applyTexture, m_faceColor));
+            }
         }
 
         void FaceRenderer::prepare() {

@@ -32,10 +32,10 @@ namespace TrenchBroom {
         class ModelFactory {
         private:
             MapFormat::Type m_format;
-            BrushContentTypeBuilder m_brushContentTypeBuilder;
+            BrushContentTypeBuilder::Ptr m_brushContentTypeBuilder;
         public:
             ModelFactory();
-            ModelFactory(MapFormat::Type format, const BrushContentType::List& brushContentTypes = BrushContentType::EmptyList);
+            ModelFactory(MapFormat::Type format, BrushContentTypeBuilder::Ptr brushContentTypeBuilder);
 
             MapFormat::Type format() const;
             

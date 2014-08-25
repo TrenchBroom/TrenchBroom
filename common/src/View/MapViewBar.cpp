@@ -17,8 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NavBar.h"
+#include "MapViewBar.h"
 
+#include "View/MapDocument.h"
+#include "View/ModelFilterPopupEditor.h"
 #include "View/ViewConstants.h"
 
 #include <wx/dcclient.h>
@@ -29,19 +31,32 @@
 
 namespace TrenchBroom {
     namespace View {
-        NavBar::NavBar(wxWindow* parent) :
+        MapViewBar::MapViewBar(wxWindow* parent, MapDocumentWPtr document) :
         ContainerBar(parent, wxBOTTOM),
+        m_document(document),
         m_toolBook(NULL),
-        m_searchBox(NULL) {
-            
+        m_searchBox(NULL),
+        m_filterEditor(NULL) {
 #if defined __APPLE__
             SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
+            createGui(document);
+        }
+        
+        wxBookCtrlBase* MapViewBar::toolBook() {
+            return m_toolBook;
+        }
 
+        void MapViewBar::OnSearchPatternChanged(wxCommandEvent& event) {
+        }
+
+        void MapViewBar::createGui(MapDocumentWPtr document) {
             m_toolBook = new wxSimplebook(this);
             m_searchBox = new wxSearchCtrl(this, wxID_ANY);
             
-            m_searchBox->Bind(wxEVT_COMMAND_TEXT_UPDATED, &NavBar::OnSearchPatternChanged, this);
+            m_searchBox->Bind(wxEVT_COMMAND_TEXT_UPDATED, &MapViewBar::OnSearchPatternChanged, this);
+            
+            m_filterEditor = new ModelFilterPopupEditor(this, document);
             
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
@@ -49,21 +64,16 @@ namespace TrenchBroom {
             hSizer->AddSpacer(LayoutConstants::MediumHMargin);
             hSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_RIGHT | wxTOP);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            hSizer->Add(m_filterEditor, 0, wxALIGN_CENTRE_VERTICAL);
+            hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             hSizer->SetItemMinSize(m_searchBox, 200, wxDefaultSize.y);
             
             wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
             vSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             vSizer->Add(hSizer, 1, wxEXPAND);
             vSizer->AddSpacer(LayoutConstants::NarrowVMargin);
-
+            
             SetSizer(vSizer);
-        }
-        
-        wxBookCtrlBase* NavBar::toolBook() {
-            return m_toolBook;
-        }
-
-        void NavBar::OnSearchPatternChanged(wxCommandEvent& event) {
         }
     }
 }

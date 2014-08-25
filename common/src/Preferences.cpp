@@ -41,6 +41,7 @@ namespace TrenchBroom {
         
         Preference<Color> FaceColor(IO::Path("Renderer/Colors/Faces"), Color(0.2f,  0.2f,  0.2f,  1.0f));
         Preference<Color> SelectedFaceColor(IO::Path("Renderer/Colors/Selected faces"), Color(0.7f,  0.45f, 0.45f, 1.0f));
+        Preference<float> TransparentFaceAlpha(IO::Path("Renderer/Colors/Transparent faces"), 0.4f);
         Preference<Color> EdgeColor(IO::Path("Renderer/Colors/Edges"), Color(0.7f,  0.7f,  0.7f,  1.0f));
         Preference<Color> SelectedEdgeColor(IO::Path("Renderer/Colors/Selected edges"), Color(1.0f,  0.0f,  0.0f,  1.0f));
         Preference<Color> OccludedSelectedEdgeColor(IO::Path("Renderer/Colors/Occluded selected edges"), Color(1.0f,  0.0f,  0.0f,  0.5f));
@@ -80,8 +81,6 @@ namespace TrenchBroom {
 
         Preference<float> Brightness(IO::Path("Renderer/Brightness"), 1.4f);
         Preference<float> GridAlpha(IO::Path("Renderer/Grid/Alpha"), 0.5f);
-        Preference<bool> ShadeFaces(IO::Path("Renderer/Shade faces"), true);
-        Preference<bool> UseFog(IO::Path("Renderer/Use fog"), false);
 
         Preference<int> TextureMinFilter(IO::Path("Renderer/Texture mode min filter"), 0x2700);
         Preference<int> TextureMagFilter(IO::Path("Renderer/Texture mode mag filter"), 0x2600);

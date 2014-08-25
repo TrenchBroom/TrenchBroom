@@ -81,7 +81,7 @@ namespace TrenchBroom {
         }
 
         Map* GameImpl::doNewMap(const MapFormat::Type format) const {
-            return new Map(ModelFactory(format, brushContentTypes()));
+            return new Map(ModelFactory(format, brushContentTypeBuilder()));
         }
         
         Map* GameImpl::doLoadMap(const BBox3& worldBounds, const IO::Path& path) const {

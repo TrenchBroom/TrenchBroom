@@ -68,6 +68,22 @@ namespace TrenchBroom {
             }
         };
         
+        class EntityClassnameEvaluator : public BrushContentTypeEvaluator {
+        private:
+            StringUtils::CaseSensitiveStringMatcher m_matcher;
+        public:
+            EntityClassnameEvaluator(const String& pattern) :
+            m_matcher(pattern) {}
+        private:
+            bool doEvaluate(const Brush* brush) const {
+                const Entity* entity = brush->parent();
+                if (entity == NULL)
+                    return false;
+                
+                return m_matcher.matches(entity->classname());
+            }
+        };
+        
         BrushContentTypeEvaluator::~BrushContentTypeEvaluator() {}
    
         BrushContentTypeEvaluator* BrushContentTypeEvaluator::textureNameEvaluator(const String& pattern) {
@@ -76,6 +92,10 @@ namespace TrenchBroom {
         
         BrushContentTypeEvaluator* BrushContentTypeEvaluator::contentFlagsEvaluator(const int value) {
             return new ContentFlagsEvaluator(value);
+        }
+
+        BrushContentTypeEvaluator* BrushContentTypeEvaluator::entityClassnameEvaluator(const String& pattern) {
+            return new EntityClassnameEvaluator(pattern);
         }
 
         bool BrushContentTypeEvaluator::evaluate(const Brush* brush) const {

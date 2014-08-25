@@ -38,6 +38,7 @@
 #include "Model/Picker.h"
 #include "Model/PointFile.h"
 #include "Model/Selection.h"
+#include "Renderer/RenderConfig.h"
 #include "View/CachingLogger.h"
 #include "View/Grid.h"
 #include "View/ViewTypes.h"
@@ -73,6 +74,7 @@ namespace TrenchBroom {
             mutable bool m_selectionBoundsValid;
             Model::IssueManager m_issueManager;
             Model::PointFile m_pointFile;
+            Renderer::RenderConfig m_renderConfig;
             View::Grid m_grid;
             
             bool m_textureLock;
@@ -86,6 +88,9 @@ namespace TrenchBroom {
             Notifier0 pointFileWasLoadedNotifier;
             Notifier0 pointFileWasUnloadedNotifier;
 
+            Notifier0 modelFilterDidChangeNotifier;
+            Notifier0 renderConfigDidChangeNotifier;
+            
             Notifier1<const Model::ObjectList&> objectsWereAddedNotifier;
             Notifier1<const Model::ObjectList&> objectsWillBeRemovedNotifier;
             Notifier1<const Model::ObjectParentList&> objectsWereRemovedNotifier;
@@ -120,6 +125,7 @@ namespace TrenchBroom {
             Assets::TextureManager& textureManager();
             Model::IssueManager& issueManager();
             Model::PointFile& pointFile();
+            Renderer::RenderConfig& renderConfig();
             View::Grid& grid();
             
             bool isGamePathPreference(const IO::Path& path) const;

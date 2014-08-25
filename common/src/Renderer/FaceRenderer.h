@@ -36,6 +36,14 @@ namespace TrenchBroom {
         class Vbo;
         
         class FaceRenderer {
+        public:
+            struct Config {
+                float alpha;
+                bool grayscale;
+                bool tinted;
+                Color tintColor;
+                Config();
+            };
         private:
             Vbo::Ptr m_vbo;
             MeshRenderer m_meshRenderer;
@@ -49,14 +57,10 @@ namespace TrenchBroom {
             
             friend void swap(FaceRenderer& left, FaceRenderer& right);
 
-            void render(RenderContext& context, const bool grayscale);
-            void render(RenderContext& context, const bool grayscale, const Color& tintColor);
-
+            void render(RenderContext& context, const Config& config);
         private:
+            void render(RenderContext& context, float alpha, bool grayscale, const Color* tintColor);
             void prepare();
-            void render(RenderContext& context, bool grayscale, const Color* tintColor);
-            void renderOpaqueFaces(ActiveShader& shader, const bool applyTexture);
-            void renderTransparentFaces(ActiveShader& shader, const bool applyTexture);
         };
 
         void swap(FaceRenderer& left, FaceRenderer& right);

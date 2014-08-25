@@ -29,6 +29,8 @@
 #include "Model/BrushVertex.h"
 #include "Model/ModelFilter.h"
 #include "Model/ModelUtils.h"
+#include "Renderer/RenderConfig.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/VertexSpec.h"
 
@@ -50,7 +52,11 @@ namespace TrenchBroom {
         }
         
         bool BrushRenderer::BuildBrushFaceMesh::operator()(Model::BrushFace* face) {
-            face->addToMesh(mesh);
+            const Model::Brush* brush = face->parent();
+            if (brush->transparent())
+                face->addToMesh(transparentMesh);
+            else
+                face->addToMesh(opaqueMesh);
             return true;
         }
         
@@ -89,10 +95,16 @@ namespace TrenchBroom {
             if (!m_valid)
                 validate();
             
-            if (tintFaces())
-                m_faceRenderer.render(context, grayscale(), tintColor());
-            else
-                m_faceRenderer.render(context, grayscale());
+            if (context.renderConfig().showFaces()) {
+                FaceRenderer::Config config;
+                config.grayscale = grayscale();
+                config.tinted = tintFaces();
+                config.tintColor = tintColor();
+                m_opaqueFaceRenderer.render(context, config);
+                
+                config.alpha = transparencyAlpha();
+                m_transparentFaceRenderer.render(context, config);
+            }
             
             if (renderOccludedEdges()) {
                 glDisable(GL_DEPTH_TEST);
@@ -165,6 +177,14 @@ namespace TrenchBroom {
             m_occludedEdgeColor = occludedEdgeColor;
         }
 
+        float BrushRenderer::transparencyAlpha() const {
+            return m_transparencyAlpha;
+        }
+        
+        void BrushRenderer::setTransparencyAlpha(const float transparencyAlpha) {
+            m_transparencyAlpha = transparencyAlpha;
+        }
+
         void BrushRenderer::validate() {
             BuildBrushFaceMesh buildFaces;
             each(Model::BrushFacesIterator::begin(m_brushes),
@@ -178,7 +198,8 @@ namespace TrenchBroom {
                  buildEdges,
                  *m_filter);
             
-            m_faceRenderer = FaceRenderer(buildFaces.mesh, faceColor());
+            m_opaqueFaceRenderer = FaceRenderer(buildFaces.opaqueMesh, faceColor());
+            m_transparentFaceRenderer = FaceRenderer(buildFaces.transparentMesh, faceColor());
             m_edgeRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, buildEdges.vertices));
             
             m_valid = true;

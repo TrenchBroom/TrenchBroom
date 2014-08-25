@@ -20,17 +20,25 @@
 #ifndef __TrenchBroom__BrushContentTypeBuilder__
 #define __TrenchBroom__BrushContentTypeBuilder__
 
+#include "SharedPointer.h"
 #include "Model/BrushContentType.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
         class BrushContentTypeBuilder {
+        public:
+            struct Result {
+                BrushContentType::FlagType contentType;
+                bool transparent;
+                Result(BrushContentType::FlagType i_contentType, bool i_transparent);
+            };
+            typedef std::tr1::shared_ptr<BrushContentTypeBuilder> Ptr;
         private:
             BrushContentType::List m_contentTypes;
         public:
             BrushContentTypeBuilder(const BrushContentType::List contentTypes = BrushContentType::EmptyList);
-            BrushContentType::FlagType buildContentType(const Brush* brush) const;
+            Result buildContentType(const Brush* brush) const;
         };
     }
 }

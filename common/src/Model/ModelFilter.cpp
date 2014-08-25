@@ -27,51 +27,102 @@
 
 namespace TrenchBroom {
     namespace Model {
+        ModelFilter::ModelFilter() :
+        m_showPointEntities(true),
+        m_showBrushes(true),
+        m_hiddenBrushContentTypes(0) {}
+        
         ModelFilter::~ModelFilter() {}
         
+        bool ModelFilter::showPointEntities() const {
+            return m_showPointEntities;
+        }
+        
+        void ModelFilter::setShowPointEntities(const bool showPointEntities) {
+            if (showPointEntities == m_showPointEntities)
+                return;
+            m_showPointEntities = showPointEntities;
+            filterDidChangeNotifier();
+        }
+        
+        bool ModelFilter::showBrushes() const {
+            return m_showBrushes;
+        }
+        
+        void ModelFilter::setShowBrushes(const bool showBrushes) {
+            if (showBrushes == m_showBrushes)
+                return;
+            m_showBrushes = showBrushes;
+            filterDidChangeNotifier();
+        }
+        
+        BrushContentType::FlagType ModelFilter::hiddenBrushContentTypes() const {
+            return m_hiddenBrushContentTypes;
+        }
+        
+        void ModelFilter::setHiddenBrushContentTypes(BrushContentType::FlagType brushContentTypes) {
+            if (brushContentTypes == m_hiddenBrushContentTypes)
+                return;
+            m_hiddenBrushContentTypes = brushContentTypes;
+            filterDidChangeNotifier();
+        }
+
         bool ModelFilter::visible(const Object* object) const {
             if (object->type() == Object::Type_Entity) {
                 const Entity* entity = static_cast<const Entity*>(object);
                 if (entity->worldspawn())
+                    return false;
+                if (entity->pointEntity() && !m_showPointEntities)
+                    return false;
+            } else if (object->type() == Object::Type_Brush) {
+                if (!m_showBrushes)
+                    return false;
+                const Brush* brush = static_cast<const Brush*>(object);
+                if (brush->hasContentType(m_hiddenBrushContentTypes))
                     return false;
             }
             return true;
         }
         
         bool ModelFilter::visible(const BrushFace* face) const {
-            return true;
+            return visible(face->parent());
         }
         
         bool ModelFilter::pickable(const Object* object) const {
+            if (!visible(object))
+                return false;
+            
             if (object->type() == Object::Type_Entity) {
                 const Entity* entity = static_cast<const Entity*>(object);
-                if (entity->worldspawn())
-                    return false;
                 if (!entity->brushes().empty())
+                    return false;
+                if (entity->pointEntity() && !m_showPointEntities)
+                    return false;
+            } else if (object->type() == Object::Type_Brush) {
+                if (!m_showBrushes)
                     return false;
             }
             return true;
         }
         
         bool ModelFilter::pickable(const BrushFace* face) const {
-            return true;
+            return visible(face);
         }
 
         bool ModelFilter::selectable(const Object* object) const {
+            if (!pickable(object))
+                return false;
+            
             if (object->type() == Object::Type_Entity) {
                 const Entity* entity = static_cast<const Entity*>(object);
-                if (entity->worldspawn())
-                    return false;
                 if (!entity->brushes().empty())
                     return false;
             }
-            if (!visible(object))
-                return false;
             return true;
         }
         
         bool ModelFilter::selectable(const BrushFace* face) const {
-            return visible(face);
+            return pickable(face);
         }
     }
 }

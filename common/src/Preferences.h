@@ -46,6 +46,7 @@ namespace TrenchBroom {
         
         extern Preference<Color> FaceColor;
         extern Preference<Color> SelectedFaceColor;
+        extern Preference<float> TransparentFaceAlpha;
         extern Preference<Color> EdgeColor;
         extern Preference<Color> SelectedEdgeColor;
         extern Preference<Color> OccludedSelectedEdgeColor;
@@ -85,8 +86,6 @@ namespace TrenchBroom {
         
         extern Preference<float> Brightness;
         extern Preference<float> GridAlpha;
-        extern Preference<bool> ShadeFaces;
-        extern Preference<bool> UseFog;
         
         extern Preference<int> TextureMinFilter;
         extern Preference<int> TextureMagFilter;

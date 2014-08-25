@@ -36,6 +36,10 @@ namespace TrenchBroom {
             wxFrame* frame = findFrame(this);
             m_window = new wxPopupTransientWindow(frame);
 
+#if defined __APPLE__
+            m_window->SetWindowVariant(wxWINDOW_VARIANT_SMALL);
+#endif
+
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_button);
 #ifdef __APPLE__

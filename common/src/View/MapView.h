@@ -269,6 +269,8 @@ namespace TrenchBroom {
             void objectsWereRemoved(const Model::ObjectParentList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
             void faceDidChange(Model::BrushFace* face);
+            void filterDidChange();
+            void renderConfigDidChange();
             void selectionDidChange(const Model::SelectionResult& result);
             void gridDidChange();
             void commandDoneOrUndone(Controller::Command::Ptr command);

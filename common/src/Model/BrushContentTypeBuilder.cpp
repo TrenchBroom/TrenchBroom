@@ -21,19 +21,26 @@
 
 namespace TrenchBroom {
     namespace Model {
+        BrushContentTypeBuilder::Result::Result(const BrushContentType::FlagType i_contentType, const bool i_transparent) :
+        contentType(i_contentType),
+        transparent(i_transparent) {}
+
         BrushContentTypeBuilder::BrushContentTypeBuilder(const BrushContentType::List contentTypes) :
         m_contentTypes(contentTypes) {}
         
-        BrushContentType::FlagType BrushContentTypeBuilder::buildContentType(const Brush* brush) const {
+        BrushContentTypeBuilder::Result BrushContentTypeBuilder::buildContentType(const Brush* brush) const {
             BrushContentType::FlagType flags = 0;
+            bool transparent = false;
             
             BrushContentType::List::const_iterator it, end;
             for (it = m_contentTypes.begin(), end = m_contentTypes.end(); it != end; ++it) {
                 const BrushContentType& contentType = *it;
-                if (contentType.evaluate(brush))
+                if (contentType.evaluate(brush)) {
                     flags |= contentType.flagValue();
+                    transparent |= contentType.transparent();
+                }
             }
-            return flags;
+            return Result(flags, transparent);
         }
     }
 }

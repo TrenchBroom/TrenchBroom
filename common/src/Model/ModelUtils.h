@@ -26,6 +26,7 @@
 #include "FilterIterator.h"
 #include "Notifier.h"
 #include "Model/Entity.h"
+#include "Model/ModelFilter.h"
 #include "Model/ModelTypes.h"
 #include "Model/Object.h"
 
@@ -71,6 +72,21 @@ namespace TrenchBroom {
         ObjectChildrenMap makeObjectChildrenMap(const ObjectParentList& list);
         
         struct MatchAll {
+            bool operator()(const ObjectParentPair& pair) const;
+            bool operator()(const Object* object) const;
+            bool operator()(const Entity* entity) const;
+            bool operator()(const Brush* brush) const;
+            bool operator()(const BrushFace* face) const;
+            bool operator()(const BrushEdge* edge) const;
+            bool operator()(const BrushVertex* vertex) const;
+        };
+        
+        class MatchVisibleObjects {
+        private:
+            const ModelFilter& m_filter;
+        public:
+            MatchVisibleObjects(const ModelFilter& filter);
+            
             bool operator()(const ObjectParentPair& pair) const;
             bool operator()(const Object* object) const;
             bool operator()(const Entity* entity) const;

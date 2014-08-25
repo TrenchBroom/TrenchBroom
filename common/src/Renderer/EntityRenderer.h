@@ -106,6 +106,7 @@ namespace TrenchBroom {
             void addEntity(Model::Entity* entity);
             void updateEntity(Model::Entity* entity);
             void removeEntity(Model::Entity* entity);
+            void invalidate();
             void clear();
             void reloadModels();
 

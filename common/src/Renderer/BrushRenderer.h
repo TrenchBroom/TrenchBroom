@@ -53,14 +53,16 @@ namespace TrenchBroom {
             };
             
             struct BuildBrushFaceMesh {
-                Model::BrushFace::Mesh mesh;
+                Model::BrushFace::Mesh opaqueMesh;
+                Model::BrushFace::Mesh transparentMesh;
                 
                 bool operator()(Model::BrushFace* face);
             };
         private:
             Filter* m_filter;
             Model::BrushList m_brushes;
-            FaceRenderer m_faceRenderer;
+            FaceRenderer m_opaqueFaceRenderer;
+            FaceRenderer m_transparentFaceRenderer;
             EdgeRenderer m_edgeRenderer;
             bool m_valid;
             
@@ -71,6 +73,7 @@ namespace TrenchBroom {
             Color m_edgeColor;
             Color m_tintColor;
             Color m_occludedEdgeColor;
+            float m_transparencyAlpha;
         public:
             template <typename FilterT>
             BrushRenderer(const FilterT& filter) :
@@ -78,7 +81,8 @@ namespace TrenchBroom {
             m_valid(false),
             m_grayscale(false),
             m_tintFaces(false),
-            m_renderOccludedEdges(false) {}
+            m_renderOccludedEdges(false),
+            m_transparencyAlpha(1.0f) {}
             
             ~BrushRenderer();
 
@@ -125,6 +129,9 @@ namespace TrenchBroom {
             void setRenderOccludedEdges(const bool renderOccludedEdges);
             const Color& occludedEdgeColor() const;
             void setOccludedEdgeColor(const Color& occludedEdgeColor);
+            
+            float transparencyAlpha() const;
+            void setTransparencyAlpha(float transparencyAlpha);
         private:
             void validate();
         };

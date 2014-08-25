@@ -48,7 +48,7 @@ namespace TrenchBroom {
         class Inspector;
         class KeyboardShortcut;
         class MapView;
-        class NavBar;
+        class MapViewBar;
         class StatusBar;
         
         class MapFrame : public wxFrame {
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             wxTimer* m_autosaveTimer;
 
             InfoPanel* m_infoPanel;
-            NavBar* m_navBar;
+            MapViewBar* m_mapViewBar;
             MapView* m_mapView;
             Inspector* m_inspector;
             StatusBar* m_statusBar;
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             void setMapViewDropTarget();
             void clearMapViewDropTarget();
             
-            void OnNavBarSize(wxSizeEvent& event);
+            void OnMapViewBarSize(wxSizeEvent& event);
             
             void OnClose(wxCloseEvent& event);
             

@@ -365,6 +365,37 @@ namespace TrenchBroom {
             return true;
         }
 
+        MatchVisibleObjects::MatchVisibleObjects(const ModelFilter& filter) :
+        m_filter(filter) {}
+        
+        bool MatchVisibleObjects::operator()(const ObjectParentPair& pair) const {
+            return m_filter.visible(pair.object);
+        }
+        
+        bool MatchVisibleObjects::operator()(const Object* object) const {
+            return m_filter.visible(object);
+        }
+        
+        bool MatchVisibleObjects::operator()(const Entity* entity) const {
+            return m_filter.visible(entity);
+        }
+        
+        bool MatchVisibleObjects::operator()(const Brush* brush) const {
+            return m_filter.visible(brush);
+        }
+        
+        bool MatchVisibleObjects::operator()(const BrushFace* face) const {
+            return m_filter.visible(face);
+        }
+        
+        bool MatchVisibleObjects::operator()(const BrushEdge* edge) const {
+            return true;
+        }
+        
+        bool MatchVisibleObjects::operator()(const BrushVertex* vertex) const {
+            return true;
+        }
+
         MatchObjectByType::MatchObjectByType(const Object::Type type) :
         m_type(type) {}
         

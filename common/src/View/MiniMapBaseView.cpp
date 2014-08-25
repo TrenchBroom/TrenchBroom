@@ -171,6 +171,8 @@ namespace TrenchBroom {
             document->objectsWereAddedNotifier.addObserver(this, &MiniMapBaseView::objectsWereAdded);
             document->objectsWillBeRemovedNotifier.addObserver(this, &MiniMapBaseView::objectsWillBeRemoved);
             document->objectsDidChangeNotifier.addObserver(this, &MiniMapBaseView::objectsDidChange);
+            document->modelFilterDidChangeNotifier.addObserver(this, &MiniMapBaseView::filterDidChange);
+            document->renderConfigDidChangeNotifier.addObserver(this, &MiniMapBaseView::renderConfigDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MiniMapBaseView::selectionDidChange);
             m_camera3D.cameraDidChangeNotifier.addObserver(this, &MiniMapBaseView::cameraDidChange);
         }
@@ -184,6 +186,8 @@ namespace TrenchBroom {
                 document->objectsWereAddedNotifier.removeObserver(this, &MiniMapBaseView::objectsWereAdded);
                 document->objectsWillBeRemovedNotifier.removeObserver(this, &MiniMapBaseView::objectsWillBeRemoved);
                 document->objectsDidChangeNotifier.removeObserver(this, &MiniMapBaseView::objectsDidChange);
+                document->modelFilterDidChangeNotifier.removeObserver(this, &MiniMapBaseView::filterDidChange);
+                document->renderConfigDidChangeNotifier.removeObserver(this, &MiniMapBaseView::renderConfigDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MiniMapBaseView::selectionDidChange);
             }
 
@@ -212,6 +216,14 @@ namespace TrenchBroom {
             Refresh();
         }
         
+        void MiniMapBaseView::filterDidChange() {
+            Refresh();
+        }
+
+        void MiniMapBaseView::renderConfigDidChange() {
+            Refresh();
+        }
+
         void MiniMapBaseView::selectionDidChange(const Model::SelectionResult& result) {
             Refresh();
         }
@@ -265,7 +277,8 @@ namespace TrenchBroom {
         }
         
         void MiniMapBaseView::doRender() {
-            Renderer::RenderContext context(viewCamera(), contextHolder()->shaderManager(), false, 16);
+            MapDocumentSPtr document = lock(m_document);
+            Renderer::RenderContext context(viewCamera(), contextHolder()->shaderManager(), document->renderConfig(), false, 16);
             setupGL(context);
             clearBackground(context);
             renderMap(context);

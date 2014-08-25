@@ -257,6 +257,10 @@ namespace TrenchBroom {
             return m_pointFile;
         }
 
+        Renderer::RenderConfig& MapDocument::renderConfig() {
+            return m_renderConfig;
+        }
+
         View::Grid& MapDocument::grid() {
             return m_grid;
         }
@@ -433,6 +437,8 @@ namespace TrenchBroom {
         }
 
         void MapDocument::updateExternalTextureCollectionProperty() {
+            // make sure that worldspawn exists
+            worldspawn();
             m_game->updateExternalTextureCollections(m_map, m_textureManager.externalCollectionNames());
         }
 
@@ -605,6 +611,8 @@ namespace TrenchBroom {
         }
         
         void MapDocument::bindObservers() {
+            m_filter.filterDidChangeNotifier.addObserver(modelFilterDidChangeNotifier);
+            m_renderConfig.renderConfigDidChangeNotifier.addObserver(renderConfigDidChangeNotifier);
             selectionDidChangeNotifier.addObserver(this, &MapDocument::selectionDidChange);
             objectsWereAddedNotifier.addObserver(this, &MapDocument::objectsWereAdded);
             objectsWillBeRemovedNotifier.addObserver(this, &MapDocument::objectsWillBeRemoved);
@@ -623,6 +631,8 @@ namespace TrenchBroom {
         }
         
         void MapDocument::unbindObservers() {
+            m_filter.filterDidChangeNotifier.removeObserver(modelFilterDidChangeNotifier);
+            m_renderConfig.renderConfigDidChangeNotifier.removeObserver(renderConfigDidChangeNotifier);
             selectionDidChangeNotifier.removeObserver(this, &MapDocument::selectionDidChange);
             objectsWereAddedNotifier.removeObserver(this, &MapDocument::objectsWereAdded);
             objectsWillBeRemovedNotifier.removeObserver(this, &MapDocument::objectsWillBeRemoved);
@@ -638,7 +648,7 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
         }
-        
+
         void MapDocument::selectionDidChange(const Model::SelectionResult& selection) {
             m_selectionBoundsValid = false;
         }
@@ -831,6 +841,7 @@ namespace TrenchBroom {
         m_picker(m_worldBounds),
         m_selection(m_filter),
         m_selectionBoundsValid(false),
+        m_renderConfig(m_filter),
         m_grid(5),
         m_textureLock(true),
         m_modificationCount(0) {

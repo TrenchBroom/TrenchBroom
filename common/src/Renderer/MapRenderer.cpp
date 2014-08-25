@@ -36,6 +36,7 @@
 #include "Model/SelectionResult.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Mesh.h"
+#include "Renderer/RenderConfig.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
@@ -128,8 +129,10 @@ namespace TrenchBroom {
             
             renderEntityLinks(context);
             renderPointFile(context);
+            
             renderUnselectedGeometry(context);
             renderUnselectedEntities(context);
+            
             renderSelectedGeometry(context);
             renderSelectedEntities(context);
         }
@@ -154,12 +157,14 @@ namespace TrenchBroom {
             
             m_unselectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
             m_unselectedBrushRenderer.setEdgeColor(prefs.get(Preferences::EdgeColor));
+            m_unselectedBrushRenderer.setTransparencyAlpha(prefs.get(Preferences::TransparentFaceAlpha));
             
             m_selectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
             m_selectedBrushRenderer.setEdgeColor(prefs.get(Preferences::SelectedEdgeColor));
             m_selectedBrushRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
             m_selectedBrushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
             m_selectedBrushRenderer.setRenderOccludedEdges(true);
+            m_selectedBrushRenderer.setTransparencyAlpha(prefs.get(Preferences::TransparentFaceAlpha));
         }
         
         void MapRenderer::setupGL(RenderContext& context) {
@@ -176,11 +181,12 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderUnselectedGeometry(RenderContext& context) {
-            m_unselectedBrushRenderer.render(context);
+            if (context.renderConfig().showBrushes())
+                m_unselectedBrushRenderer.render(context);
         }
         
         void MapRenderer::renderSelectedGeometry(RenderContext& context) {
-            if (!context.hideSelection()) {
+            if (context.renderConfig().showBrushes() &&!context.hideSelection()) {
                 const bool applyTinting = context.tintSelection(); // && lock(m_document)->selectedFaces().empty();
                 m_selectedBrushRenderer.setTintFaces(applyTinting);
                 m_selectedBrushRenderer.render(context);
@@ -264,6 +270,8 @@ namespace TrenchBroom {
             document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &MapRenderer::textureCollectionsDidChange);
             document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapRenderer::entityDefinitionsDidChange);
+            document->modelFilterDidChangeNotifier.addObserver(this, &MapRenderer::modelFilterDidChange);
+            document->renderConfigDidChangeNotifier.addObserver(this, &MapRenderer::renderConfigDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapRenderer::preferenceDidChange);
@@ -285,6 +293,8 @@ namespace TrenchBroom {
                 document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &MapRenderer::textureCollectionsDidChange);
                 document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapRenderer::entityDefinitionsDidChange);
+                document->modelFilterDidChangeNotifier.removeObserver(this, &MapRenderer::modelFilterDidChange);
+                document->renderConfigDidChangeNotifier.removeObserver(this, &MapRenderer::renderConfigDidChange);
             }
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -311,6 +321,20 @@ namespace TrenchBroom {
             }
         }
         
+        void MapRenderer::modelFilterDidChange() {
+            m_unselectedBrushRenderer.invalidate();
+            m_selectedBrushRenderer.invalidate();
+            m_unselectedEntityRenderer.invalidate();
+            m_selectedEntityRenderer.invalidate();
+        }
+
+        void MapRenderer::renderConfigDidChange() {
+            m_unselectedBrushRenderer.invalidate();
+            m_selectedBrushRenderer.invalidate();
+            m_unselectedEntityRenderer.invalidate();
+            m_selectedEntityRenderer.invalidate();
+        }
+
         void MapRenderer::objectsWereAdded(const Model::ObjectList& objects) {
             Model::ObjectList::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {

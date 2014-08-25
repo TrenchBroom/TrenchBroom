@@ -39,12 +39,14 @@ namespace TrenchBroom {
             typedef std::tr1::shared_ptr<BrushContentTypeEvaluator> EvaluatorPtr;
             
             String m_name;
+            bool m_transparent;
             FlagType m_flagValue;
             EvaluatorPtr m_evaluator;
         public:
-            BrushContentType(const String& name, FlagType flagValue, BrushContentTypeEvaluator* evaluator);
+            BrushContentType(const String& name, bool transparent, FlagType flagValue, BrushContentTypeEvaluator* evaluator);
             
             const String& name() const;
+            bool transparent() const;
             FlagType flagValue() const;
             
             bool evaluate(const Brush* brush) const;

@@ -17,10 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__NavBar__
-#define __TrenchBroom__NavBar__
+#ifndef __TrenchBroom__MapViewBar__
+#define __TrenchBroom__MapViewBar__
 
 #include "View/ContainerBar.h"
+#include "View/ViewTypes.h"
 
 class wxBookCtrlBase;
 class wxSearchCtrl;
@@ -28,20 +29,24 @@ class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
-        class NavBar : public ContainerBar {
+        class ModelFilterPopupEditor;
+        
+        class MapViewBar : public ContainerBar {
         private:
+            MapDocumentWPtr m_document;
             wxBookCtrlBase* m_toolBook;
             wxSearchCtrl* m_searchBox;
-            
-            wxStaticText* makeBreadcrump(const wxString& text, bool link);
+            ModelFilterPopupEditor* m_filterEditor;
         public:
-            NavBar(wxWindow* parent);
+            MapViewBar(wxWindow* parent, MapDocumentWPtr document);
             
             wxBookCtrlBase* toolBook();
             
             void OnSearchPatternChanged(wxCommandEvent& event);
+        private:
+            void createGui(MapDocumentWPtr document);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__NavBar__) */
+#endif /* defined(__TrenchBroom__MapViewBar__) */

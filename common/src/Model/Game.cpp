@@ -122,6 +122,12 @@ namespace TrenchBroom {
             return doLoadModel(path);
         }
 
+        BrushContentTypeBuilder::Ptr Game::brushContentTypeBuilder() const {
+            if (m_brushContentTypeBuilder == NULL)
+                m_brushContentTypeBuilder = BrushContentTypeBuilder::Ptr(new BrushContentTypeBuilder(brushContentTypes()));
+            return m_brushContentTypeBuilder;
+        }
+
         const BrushContentType::List& Game::brushContentTypes() const {
             return doBrushContentTypes();
         }

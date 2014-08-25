@@ -21,7 +21,6 @@
 
 #include "CollectionUtils.h"
 #include "Hit.h"
-#include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
@@ -51,12 +50,13 @@ namespace TrenchBroom {
 
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
         
-        Brush::Brush(const BBox3& worldBounds, const BrushContentTypeBuilder& contentTypeBuilder, const BrushFaceList& faces) :
+        Brush::Brush(const BBox3& worldBounds, BrushContentTypeBuilder::Ptr contentTypeBuilder, const BrushFaceList& faces) :
         Object(Type_Brush),
         m_contentTypeBuilder(contentTypeBuilder),
         m_parent(NULL),
         m_geometry(NULL),
         m_contentType(0),
+        m_transparent(false),
         m_contentTypeValid(true) {
             addFaces(faces);
             rebuildGeometry(worldBounds);
@@ -335,8 +335,17 @@ namespace TrenchBroom {
             notifyParent();
         }
         
+        bool Brush::transparent() const {
+            validateContentType();
+            return m_transparent;
+        }
+
         bool Brush::hasContentType(const BrushContentType& contentType) const {
-            return (contentTypeFlags() & contentType.flagValue()) != 0;
+            return hasContentType(contentType.flagValue());
+        }
+
+        bool Brush::hasContentType(const BrushContentType::FlagType contentTypeMask) const {
+            return (contentTypeFlags() & contentTypeMask) != 0;
         }
 
         void Brush::invalidateContentType() {
@@ -344,12 +353,17 @@ namespace TrenchBroom {
         }
         
         BrushContentType::FlagType Brush::contentTypeFlags() const {
+            validateContentType();
+            return m_contentType;
+        }
+
+        void Brush::validateContentType() const {
             if (!m_contentTypeValid) {
-                m_contentType = m_contentTypeBuilder.buildContentType(this);
+                const BrushContentTypeBuilder::Result result = m_contentTypeBuilder->buildContentType(this);
+                m_contentType = result.contentType;
+                m_transparent = result.transparent;
                 m_contentTypeValid = true;
             }
-            
-            return m_contentType;
         }
 
         void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {

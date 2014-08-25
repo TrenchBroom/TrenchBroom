@@ -26,6 +26,7 @@
 #include "Assets/AssetTypes.h"
 #include "IO/GameFileSystem.h"
 #include "Model/BrushContentType.h"
+#include "Model/BrushContentTypeBuilder.h"
 #include "Model/EntityDefinitionFileSpec.h"
 #include "Model/GameConfig.h"
 #include "Model/ModelTypes.h"
@@ -37,6 +38,8 @@ namespace TrenchBroom {
     
     namespace Model {
         class Game {
+        private:
+            mutable BrushContentTypeBuilder::Ptr m_brushContentTypeBuilder;
         public:
             virtual ~Game();
 
@@ -70,6 +73,7 @@ namespace TrenchBroom {
             IO::Path findEntityDefinitionFile(const EntityDefinitionFileSpec& spec, const IO::Path::List& searchPaths) const;
             Assets::EntityModel* loadModel(const IO::Path& path) const;
             
+            BrushContentTypeBuilder::Ptr brushContentTypeBuilder() const;
             const BrushContentType::List& brushContentTypes() const;
             
             StringList availableMods() const;

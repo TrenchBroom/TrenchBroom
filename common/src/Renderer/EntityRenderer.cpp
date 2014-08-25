@@ -31,6 +31,7 @@
 #include "Model/ModelFilter.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
+#include "Renderer/RenderConfig.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Vbo.h"
@@ -127,6 +128,10 @@ namespace TrenchBroom {
             invalidateBounds();
         }
         
+        void EntityRenderer::invalidate() {
+            invalidateBounds();
+        }
+
         void EntityRenderer::clear() {
             m_entities.clear();
             m_wireframeBoundsRenderer = EdgeRenderer();
@@ -142,8 +147,14 @@ namespace TrenchBroom {
 
         void EntityRenderer::render(RenderContext& context) {
             renderBounds(context);
-            renderModels(context);
-            renderClassnames(context);
+            
+            if (context.renderConfig().showPointEntities() &&
+                context.renderConfig().showPointEntityModels())
+                renderModels(context);
+            
+            if (context.renderConfig().showEntityClassnames())
+                renderClassnames(context);
+            
             renderAngles(context);
         }
 
@@ -233,8 +244,10 @@ namespace TrenchBroom {
             if (!m_boundsValid)
                 validateBounds();
 
-            renderWireframeBounds(context);
-            renderSolidBounds(context);
+            if (context.renderConfig().showEntityBounds())
+                renderWireframeBounds(context);
+            if (context.renderConfig().showPointEntities())
+                renderSolidBounds(context);
         }
         
         void EntityRenderer::renderWireframeBounds(RenderContext& context) {

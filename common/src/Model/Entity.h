@@ -86,6 +86,7 @@ namespace TrenchBroom {
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
             bool worldspawn() const;
+            bool pointEntity() const;
             
             Assets::ModelSpecification modelSpecification() const;
             Assets::EntityModel* model() const;

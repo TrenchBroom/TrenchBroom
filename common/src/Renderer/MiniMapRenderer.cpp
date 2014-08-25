@@ -99,8 +99,7 @@ namespace TrenchBroom {
                 mapVbo.mapped();
 
                 if (!m_unselectedValid) {
-                    const Model::BrushList brushes = document->unselectedBrushes();
-                    m_unselectedEdgeArray = buildVertexArray(brushes);
+                    m_unselectedEdgeArray = buildVertexArray(document->unselectedBrushes());
                     m_unselectedEdgeArray.prepare(m_vbo);
                     m_unselectedValid = true;
                 }
@@ -113,8 +112,9 @@ namespace TrenchBroom {
         }
         
         VertexArray MiniMapRenderer::buildVertexArray(const Model::BrushList& brushes) const {
+            const Model::ModelFilter& filter = lock(m_document)->filter();
             BuildBrushEdges buildEdges;
-            Model::each(brushes.begin(), brushes.end(), buildEdges, Model::MatchAll());
+            Model::each(brushes.begin(), brushes.end(), buildEdges, Model::MatchVisibleObjects(filter));
             return VertexArray::swap(GL_LINES, buildEdges.vertices);
         }
 
@@ -126,6 +126,7 @@ namespace TrenchBroom {
             document->objectsWereAddedNotifier.addObserver(this, &MiniMapRenderer::objectsWereAdded);
             document->objectsWillBeRemovedNotifier.addObserver(this, &MiniMapRenderer::objectsWillBeRemoved);
             document->objectsDidChangeNotifier.addObserver(this, &MiniMapRenderer::objectsDidChange);
+            document->modelFilterDidChangeNotifier.addObserver(this, &MiniMapRenderer::filterDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MiniMapRenderer::selectionDidChange);
         }
         
@@ -138,6 +139,7 @@ namespace TrenchBroom {
                 document->objectsWereAddedNotifier.removeObserver(this, &MiniMapRenderer::objectsWereAdded);
                 document->objectsWillBeRemovedNotifier.removeObserver(this, &MiniMapRenderer::objectsWillBeRemoved);
                 document->objectsDidChangeNotifier.removeObserver(this, &MiniMapRenderer::objectsDidChange);
+                document->modelFilterDidChangeNotifier.removeObserver(this, &MiniMapRenderer::filterDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MiniMapRenderer::selectionDidChange);
             }
         }
@@ -164,6 +166,11 @@ namespace TrenchBroom {
             m_selectedValid = false;
         }
         
+        void MiniMapRenderer::filterDidChange() {
+            m_unselectedValid = false;
+            m_selectedValid = false;
+        }
+
         void MiniMapRenderer::selectionDidChange(const Model::SelectionResult& result) {
             m_unselectedValid = false;
             m_selectedValid = false;

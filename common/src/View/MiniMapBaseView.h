@@ -83,6 +83,8 @@ namespace TrenchBroom {
             void objectsWereAdded(const Model::ObjectList& objects);
             void objectsWillBeRemoved(const Model::ObjectList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
+            void filterDidChange();
+            void renderConfigDidChange();
             void selectionDidChange(const Model::SelectionResult& result);
             
             void cameraDidChange(const Renderer::Camera* camera);

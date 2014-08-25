@@ -79,6 +79,9 @@ namespace TrenchBroom {
             void documentWasNewedOrLoaded();
             void pointFileWasLoadedOrUnloaded();
             
+            void modelFilterDidChange();
+            void renderConfigDidChange();
+            
             void objectsWereAdded(const Model::ObjectList& objects);
             void objectsWillBeRemoved(const Model::ObjectList& objects);
             void objectsDidChange(const Model::ObjectList& objects);

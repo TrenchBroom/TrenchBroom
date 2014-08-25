@@ -192,6 +192,13 @@ namespace TrenchBroom {
                 expectTableEntry("name", ConfigEntry::Type_Value, table);
                 const String name = table["name"];
                 
+                bool transparent = false;
+                if (table.contains("attribs")) {
+                    expectTableEntry("attribs", ConfigEntry::Type_List, table);
+                    const StringSet attribs = parseSet(table["attribs"]);
+                    transparent = attribs.count("transparent") > 0;
+                }
+                
                 expectTableEntry("match", ConfigEntry::Type_Value, table);
                 const String match = table["match"];
 
@@ -201,13 +208,17 @@ namespace TrenchBroom {
                     expectTableEntry("pattern", ConfigEntry::Type_Value, table);
                     const String pattern = table["pattern"];
                     Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::textureNameEvaluator(pattern);
-                    contentTypes.push_back(Model::BrushContentType(name, flag, evaluator));
+                    contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
                 } else if (match == "contentflag") {
                     expectTableEntry("value", ConfigEntry::Type_Value, table);
                     const String valueStr = table["value"];
                     const int value = std::atoi(valueStr.c_str());
                     Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::contentFlagsEvaluator(value);
-                    contentTypes.push_back(Model::BrushContentType(name, flag, evaluator));
+                    contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
+                } else if (match == "classname") {
+                    const String pattern = table["pattern"];
+                    Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::entityClassnameEvaluator(pattern);
+                    contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
                 } else {
                     throw ParserException("Unexpected brush content type '" + match + "'");
                 }

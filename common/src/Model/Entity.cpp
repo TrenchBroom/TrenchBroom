@@ -120,8 +120,14 @@ namespace TrenchBroom {
             return m_isWorldspawn;
         }
 
+        bool Entity::pointEntity() const {
+            if (m_definition == NULL)
+                return  m_brushes.empty();
+            return m_definition->type() == Assets::EntityDefinition::Type_PointEntity;
+        }
+
         Assets::ModelSpecification Entity::modelSpecification() const {
-            if (m_definition == NULL || m_definition->type() != Assets::EntityDefinition::Type_PointEntity)
+            if (m_definition == NULL || !pointEntity())
                 return Assets::ModelSpecification();
             Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
             return pointDefinition->model(m_properties);

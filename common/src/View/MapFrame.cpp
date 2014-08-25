@@ -41,7 +41,7 @@
 #include "View/MapFrameDropTarget.h"
 #include "View/MapView.h"
 #include "View/Menu.h"
-#include "View/NavBar.h"
+#include "View/MapViewBar.h"
 #include "View/SplitterWindow.h"
 #include "View/StatusBar.h"
 
@@ -76,7 +76,7 @@ namespace TrenchBroom {
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
         m_infoPanel(NULL),
-        m_navBar(NULL),
+        m_mapViewBar(NULL),
         m_mapView(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
@@ -85,7 +85,7 @@ namespace TrenchBroom {
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
         m_infoPanel(NULL),
-        m_navBar(NULL),
+        m_mapViewBar(NULL),
         m_mapView(NULL) {
             Create(frameManager, document);
         }
@@ -170,7 +170,7 @@ namespace TrenchBroom {
             SetDropTarget(new MapFrameDropTarget(m_document, m_controller, this));
         }
 
-        void MapFrame::OnNavBarSize(wxSizeEvent& event) {
+        void MapFrame::OnMapViewBarSize(wxSizeEvent& event) {
             m_inspector->setTabBarHeight(event.GetSize().y);
             event.Skip();
         }
@@ -714,11 +714,11 @@ namespace TrenchBroom {
             m_infoPanel = new InfoPanel(verticalSplitter, m_document, m_controller);
 
             wxPanel* mapViewContainer = new wxPanel(verticalSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_navBar = new NavBar(mapViewContainer);
-            m_mapView = new MapView(mapViewContainer, logger(), m_navBar->toolBook(), m_document, m_controller, m_camera3D);
+            m_mapViewBar = new MapViewBar(mapViewContainer, m_document);
+            m_mapView = new MapView(mapViewContainer, logger(), m_mapViewBar->toolBook(), m_document, m_controller, m_camera3D);
 
             wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
-            containerSizer->Add(m_navBar, 0, wxEXPAND);
+            containerSizer->Add(m_mapViewBar, 0, wxEXPAND);
             containerSizer->Add(m_mapView, 1, wxEXPAND);
             mapViewContainer->SetSizer(containerSizer);
             
@@ -739,7 +739,7 @@ namespace TrenchBroom {
         }
         
         void MapFrame::bindEvents() {
-            m_navBar->Bind(wxEVT_SIZE, &MapFrame::OnNavBarSize, this);
+            m_mapViewBar->Bind(wxEVT_SIZE, &MapFrame::OnMapViewBarSize, this);
             
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             
