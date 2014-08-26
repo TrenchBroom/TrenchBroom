@@ -43,6 +43,17 @@ namespace TrenchBroom {
                 virtual bool operator()(const Model::BrushFace* face) const = 0;
                 virtual bool operator()(const Model::BrushEdge* edge) const = 0;
             };
+            
+            class FilterWrapper : public Filter {
+            private:
+                const Filter& m_filter;
+                bool m_showHiddenBrushes;
+            public:
+                FilterWrapper(const Filter& filter, bool showHiddenBrushes);
+                bool operator()(const Model::Brush* brush) const;
+                bool operator()(const Model::BrushFace* face) const;
+                bool operator()(const Model::BrushEdge* edge) const;
+            };
         private:
             struct BuildBrushEdges {
                 VertexSpecs::P3::Vertex::List vertices;
@@ -74,6 +85,8 @@ namespace TrenchBroom {
             Color m_tintColor;
             Color m_occludedEdgeColor;
             float m_transparencyAlpha;
+            
+            bool m_showHiddenBrushes;
         public:
             template <typename FilterT>
             BrushRenderer(const FilterT& filter) :
@@ -82,7 +95,8 @@ namespace TrenchBroom {
             m_grayscale(false),
             m_tintFaces(false),
             m_renderOccludedEdges(false),
-            m_transparencyAlpha(1.0f) {}
+            m_transparencyAlpha(1.0f),
+            m_showHiddenBrushes(false) {}
             
             ~BrushRenderer();
 
@@ -132,6 +146,9 @@ namespace TrenchBroom {
             
             float transparencyAlpha() const;
             void setTransparencyAlpha(float transparencyAlpha);
+            
+            bool showHiddenBrushes() const;
+            void setShowHiddenBrushes(bool showHiddenBrushes);
         private:
             void renderFaces(RenderContext& renderContext);
             void renderEdges(RenderContext& renderContext);

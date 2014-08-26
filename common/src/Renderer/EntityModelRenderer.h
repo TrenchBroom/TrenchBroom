@@ -51,6 +51,8 @@ namespace TrenchBroom {
             
             bool m_applyTinting;
             Color m_tintColor;
+            
+            bool m_showHiddenEntities;
         public:
             EntityModelRenderer(Assets::EntityModelManager& entityModelManager, const Model::ModelFilter& filter);
             ~EntityModelRenderer();
@@ -68,6 +70,9 @@ namespace TrenchBroom {
             void setApplyTinting(const bool applyTinting);
             const Color& tintColor() const;
             void setTintColor(const Color& tintColor);
+            
+            bool showHiddenEntities() const;
+            void setShowHiddenEntities(bool showHiddenEntities);
             
             void render(RenderContext& context);
         };

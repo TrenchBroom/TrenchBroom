@@ -37,7 +37,8 @@ namespace TrenchBroom {
     namespace Renderer {
         EntityModelRenderer::EntityModelRenderer(Assets::EntityModelManager& entityModelManager, const Model::ModelFilter& filter) :
         m_entityModelManager(entityModelManager),
-        m_filter(filter) {}
+        m_filter(filter),
+        m_showHiddenEntities(false) {}
 
         EntityModelRenderer::~EntityModelRenderer() {
             clear();
@@ -103,6 +104,14 @@ namespace TrenchBroom {
             m_tintColor = tintColor;
         }
         
+        bool EntityModelRenderer::showHiddenEntities() const {
+            return m_showHiddenEntities;
+        }
+        
+        void EntityModelRenderer::setShowHiddenEntities(const bool showHiddenEntities) {
+            m_showHiddenEntities = showHiddenEntities;
+        }
+
         void EntityModelRenderer::render(RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
             
@@ -120,7 +129,7 @@ namespace TrenchBroom {
             EntityMap::iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                 Model::Entity* entity = it->first;
-                if (!m_filter.visible(entity))
+                if (!m_showHiddenEntities && !m_filter.visible(entity))
                     continue;
                 
                 MeshRenderer* renderer = it->second;

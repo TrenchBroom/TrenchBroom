@@ -102,6 +102,8 @@ namespace TrenchBroom {
         m_selectedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()) {
             bindObservers();
             setupRendererColors();
+            m_selectedEntityRenderer.setShowHiddenEntities(true);
+            m_selectedBrushRenderer.setShowHiddenBrushes(true);
         }
         
         MapRenderer::~MapRenderer() {
@@ -186,7 +188,7 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderSelectedGeometry(RenderContext& context) {
-            if (context.renderConfig().showBrushes() &&!context.hideSelection()) {
+            if (!context.hideSelection()) {
                 const bool applyTinting = context.tintSelection(); // && lock(m_document)->selectedFaces().empty();
                 m_selectedBrushRenderer.setTintFaces(applyTinting);
                 m_selectedBrushRenderer.render(context);
@@ -323,16 +325,12 @@ namespace TrenchBroom {
         
         void MapRenderer::modelFilterDidChange() {
             m_unselectedBrushRenderer.invalidate();
-            m_selectedBrushRenderer.invalidate();
             m_unselectedEntityRenderer.invalidate();
-            m_selectedEntityRenderer.invalidate();
         }
 
         void MapRenderer::renderConfigDidChange() {
             m_unselectedBrushRenderer.invalidate();
-            m_selectedBrushRenderer.invalidate();
             m_unselectedEntityRenderer.invalidate();
-            m_selectedEntityRenderer.invalidate();
         }
 
         void MapRenderer::objectsWereAdded(const Model::ObjectList& objects) {

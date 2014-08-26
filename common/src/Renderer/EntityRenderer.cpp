@@ -61,11 +61,12 @@ namespace TrenchBroom {
             return Alignment::Bottom;
         }
 
-        EntityRenderer::EntityClassnameFilter::EntityClassnameFilter(const Model::ModelFilter& filter) :
-        m_filter(filter) {}
+        EntityRenderer::EntityClassnameFilter::EntityClassnameFilter(const Model::ModelFilter& filter, const bool showHiddenEntities) :
+        m_filter(filter),
+        m_showHiddenEntities(showHiddenEntities) {}
 
         bool EntityRenderer::EntityClassnameFilter::stringVisible(RenderContext& context, const Key& entity) const {
-            return m_filter.visible(entity);
+            return m_showHiddenEntities || m_filter.visible(entity);
         }
 
         EntityRenderer::EntityClassnameColorProvider::EntityClassnameColorProvider(const Color& textColor, const Color& backgroundColor) :
@@ -88,6 +89,7 @@ namespace TrenchBroom {
         m_overrideBoundsColor(false),
         m_renderOccludedBounds(false),
         m_applyTinting(false),
+        m_showHiddenEntities(false),
         m_vbo(0xFFF),
         m_renderAngles(false) {
             m_classnameRenderer.setFadeDistance(500.0f);
@@ -148,8 +150,8 @@ namespace TrenchBroom {
         void EntityRenderer::render(RenderContext& context) {
             renderBounds(context);
             
-            if (context.renderConfig().showPointEntities() &&
-                context.renderConfig().showPointEntityModels())
+            if (m_showHiddenEntities || (context.renderConfig().showPointEntities() &&
+                context.renderConfig().showPointEntityModels()))
                 renderModels(context);
             
             if (context.renderConfig().showEntityClassnames())
@@ -240,13 +242,24 @@ namespace TrenchBroom {
             m_angleColor = color;
         }
 
+        bool EntityRenderer::showHiddenEntities() const {
+            return m_showHiddenEntities;
+        }
+        
+        void EntityRenderer::setShowHiddenEntities(const bool showHiddenEntities) {
+            if (showHiddenEntities == m_showHiddenEntities)
+                return;
+            m_showHiddenEntities = showHiddenEntities;
+            invalidate();
+        }
+
         void EntityRenderer::renderBounds(RenderContext& context) {
             if (!m_boundsValid)
                 validateBounds();
 
             if (context.renderConfig().showEntityBounds())
                 renderWireframeBounds(context);
-            if (context.renderConfig().showPointEntities())
+            if (m_showHiddenEntities || context.renderConfig().showPointEntities())
                 renderSolidBounds(context);
         }
         
@@ -273,7 +286,7 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderClassnames(RenderContext& context) {
-            EntityClassnameFilter textFilter(m_filter);
+            EntityClassnameFilter textFilter(m_filter, m_showHiddenEntities);
             EntityClassnameColorProvider colorProvider(overlayTextColor(), overlayBackgroundColor());
             m_classnameRenderer.render(context, textFilter, colorProvider,
                                        Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
@@ -282,6 +295,7 @@ namespace TrenchBroom {
         void EntityRenderer::renderModels(RenderContext& context) {
             m_modelRenderer.setApplyTinting(m_applyTinting);
             m_modelRenderer.setTintColor(m_tintColor);
+            m_modelRenderer.setShowHiddenEntities(m_showHiddenEntities);
             m_modelRenderer.render(context);
         }
 
@@ -297,7 +311,7 @@ namespace TrenchBroom {
             Model::EntitySet::const_iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                 const Model::Entity* entity = *it;
-                if (!m_filter.visible(entity))
+                if (!m_showHiddenEntities && !m_filter.visible(entity))
                     continue;
                 
                 const Quatf rotation = Quatf(entity->rotation());

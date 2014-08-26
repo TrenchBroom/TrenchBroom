@@ -36,6 +36,22 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        BrushRenderer::FilterWrapper::FilterWrapper(const Filter& filter, const bool showHiddenBrushes) :
+        m_filter(filter),
+        m_showHiddenBrushes(showHiddenBrushes) {}
+        
+        bool BrushRenderer::FilterWrapper::operator()(const Model::Brush* brush) const {
+            return m_showHiddenBrushes || m_filter(brush);
+        }
+        
+        bool BrushRenderer::FilterWrapper::operator()(const Model::BrushFace* face) const {
+            return m_showHiddenBrushes || m_filter(face);
+        }
+        
+        bool BrushRenderer::FilterWrapper::operator()(const Model::BrushEdge* edge) const {
+            return m_showHiddenBrushes || m_filter(edge);
+        }
+
         BrushRenderer::BuildBrushEdges::BuildBrushEdges(BrushRenderer::Filter& i_filter) :
         filter(i_filter) {}
         
@@ -162,6 +178,17 @@ namespace TrenchBroom {
             return m_transparencyAlpha;
         }
         
+        bool BrushRenderer::showHiddenBrushes() const {
+            return m_showHiddenBrushes;
+        }
+        
+        void BrushRenderer::setShowHiddenBrushes(const bool showHiddenBrushes) {
+            if (showHiddenBrushes == m_showHiddenBrushes)
+                return;
+            m_showHiddenBrushes = showHiddenBrushes;
+            invalidate();
+        }
+        
         void BrushRenderer::setTransparencyAlpha(const float transparencyAlpha) {
             m_transparencyAlpha = transparencyAlpha;
         }
@@ -194,17 +221,19 @@ namespace TrenchBroom {
         }
 
         void BrushRenderer::validate() {
+            FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
+            
             BuildBrushFaceMesh buildFaces;
             each(Model::BrushFacesIterator::begin(m_brushes),
                  Model::BrushFacesIterator::end(m_brushes),
                  buildFaces,
-                 *m_filter);
+                 wrapper);
             
             BuildBrushEdges buildEdges(*m_filter);
             each(m_brushes.begin(),
                  m_brushes.end(),
                  buildEdges,
-                 *m_filter);
+                 wrapper);
             
             m_opaqueFaceRenderer = FaceRenderer(buildFaces.opaqueMesh, faceColor());
             m_transparentFaceRenderer = FaceRenderer(buildFaces.transparentMesh, faceColor());

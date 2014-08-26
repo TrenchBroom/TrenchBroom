@@ -63,8 +63,9 @@ namespace TrenchBroom {
             class EntityClassnameFilter : public ClassnameRenderer::TextRendererFilter {
             private:
                 const Model::ModelFilter& m_filter;
+                bool m_showHiddenEntities;
             public:
-                EntityClassnameFilter(const Model::ModelFilter& filter);
+                EntityClassnameFilter(const Model::ModelFilter& filter, bool showHiddenEntities);
                 bool stringVisible(RenderContext& context, const Key& entity) const;
             };
 
@@ -95,6 +96,8 @@ namespace TrenchBroom {
             Color m_occludedBoundsColor;
             bool m_applyTinting;
             Color m_tintColor;
+            
+            bool m_showHiddenEntities;
             
             Vbo m_vbo;
             bool m_renderAngles;
@@ -158,6 +161,9 @@ namespace TrenchBroom {
             bool renderAngles() const;
             void setRenderAngles(bool renderAngles);
             void setAngleColor(const Color& color);
+            
+            bool showHiddenEntities() const;
+            void setShowHiddenEntities(bool showHiddenEntities);
         private:
             void renderBounds(RenderContext& context);
             void renderWireframeBounds(RenderContext& context);
