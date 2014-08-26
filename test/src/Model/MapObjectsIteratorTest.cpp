@@ -32,14 +32,16 @@
 namespace TrenchBroom {
     namespace Model {
         TEST(MapObjectsIteratorTest, emptyMap) {
-            Map map(MapFormat::Standard);
+            ModelFactory factory(MapFormat::Standard, BrushContentTypeBuilder::Ptr(new BrushContentTypeBuilder()));
+            Map map(factory);
             MapObjectsIterator::OuterIterator it = MapObjectsIterator::begin(map);
             MapObjectsIterator::OuterIterator end = MapObjectsIterator::end(map);
             ASSERT_TRUE(it == end);
         }
 
         TEST(MapObjectsIteratorTest, oneEmptyEntityMap) {
-            Map map(MapFormat::Standard);
+            ModelFactory factory(MapFormat::Standard, BrushContentTypeBuilder::Ptr(new BrushContentTypeBuilder()));
+            Map map(factory);
 
             Entity* entity = new ConfigurableEntity<QuakeEntityRotationPolicy>();
             map.addEntity(entity);
@@ -54,14 +56,15 @@ namespace TrenchBroom {
         }
         
         TEST(MapObjectsIteratorTest, severalEntitiesMap) {
-            Map map(MapFormat::Standard);
+            ModelFactory factory(MapFormat::Standard, BrushContentTypeBuilder::Ptr(new BrushContentTypeBuilder()));
+            Map map(factory);
             
             const BBox3 worldbounds(8192.0);
-            Brush* brush1 = new Brush(worldbounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
-            Brush* brush2 = new Brush(worldbounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
-            Brush* brush3 = new Brush(worldbounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
-            Brush* brush4 = new Brush(worldbounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
-            Brush* brush5 = new Brush(worldbounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            Brush* brush1 = factory.createBrush(worldbounds, EmptyBrushFaceList);
+            Brush* brush2 = factory.createBrush(worldbounds, EmptyBrushFaceList);
+            Brush* brush3 = factory.createBrush(worldbounds, EmptyBrushFaceList);
+            Brush* brush4 = factory.createBrush(worldbounds, EmptyBrushFaceList);
+            Brush* brush5 = factory.createBrush(worldbounds, EmptyBrushFaceList);
             
 
             Entity* entity1 = new ConfigurableEntity<QuakeEntityRotationPolicy>();

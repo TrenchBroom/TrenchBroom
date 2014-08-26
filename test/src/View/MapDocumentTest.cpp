@@ -39,7 +39,8 @@ namespace TrenchBroom {
             const Model::GameConfig::FlagsConfig contentFlags;
 
             Model::MockGamePtr game = Model::MockGame::newGame();
-            EXPECT_CALL(*game, doNewMap(Model::MapFormat::Standard)).WillOnce(Return(new Model::Map(Model::MapFormat::Standard)));
+            Model::ModelFactory factory(Model::MapFormat::Standard, Model::BrushContentTypeBuilder::Ptr(new Model::BrushContentTypeBuilder()));
+            EXPECT_CALL(*game, doNewMap(Model::MapFormat::Standard)).WillOnce(Return(new Model::Map(factory)));
             EXPECT_CALL(*game, doContentFlags()).WillOnce(ReturnRef(contentFlags));
             EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));
             EXPECT_CALL(*game, doGamePath()).WillOnce(Return(IO::Path("")));
@@ -65,7 +66,8 @@ namespace TrenchBroom {
             Model::MockGamePtr game = Model::MockGame::newGame();
             const IO::Path path("data/View/FrameManager/TestDoc1.map");
             
-            Model::Map* map = new Model::Map(Model::MapFormat::Standard);
+            Model::ModelFactory factory(Model::MapFormat::Standard, Model::BrushContentTypeBuilder::Ptr(new Model::BrushContentTypeBuilder()));
+            Model::Map* map = new Model::Map(factory);
             EXPECT_CALL(*game, doLoadMap(worldBounds, path)).WillOnce(Return(map));
             EXPECT_CALL(*game, doContentFlags()).WillOnce(ReturnRef(contentFlags));
             EXPECT_CALL(*game, doExtractEnabledMods(map)).WillOnce(Return(StringList()));

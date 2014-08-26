@@ -30,7 +30,8 @@ namespace TrenchBroom {
         Model::MockGamePtr game = Model::MockGame::newGame();
         const Model::MapFormat::Type mapFormat = Model::MapFormat::Standard;
         
-        EXPECT_CALL(*game, doNewMap(Model::MapFormat::Standard)).WillOnce(Return(new Model::Map(Model::MapFormat::Standard)));
+        Model::ModelFactory* factory = new Model::ModelFactory(Model::MapFormat::Standard, Model::BrushContentTypeBuilder::Ptr(new Model::BrushContentTypeBuilder()));
+        EXPECT_CALL(*game, doNewMap(Model::MapFormat::Standard)).WillOnce(Return(new Model::Map(*factory)));
         const Model::GameConfig::FlagsConfig contentFlags;
         EXPECT_CALL(*game, doContentFlags()).WillOnce(ReturnRef(contentFlags));
         EXPECT_CALL(*game, doExtractEntityDefinitionFile(_)).WillOnce(Return(Model::EntityDefinitionFileSpec::external(IO::Path("/somefile.def"))));

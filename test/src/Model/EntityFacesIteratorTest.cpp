@@ -50,7 +50,8 @@ namespace TrenchBroom {
         }
         
         TEST(EntityFacesIteratorTest, testNonEmptyEntityIterator) {
-            Map map(MapFormat::Standard);
+            ModelFactory factory(MapFormat::Standard, BrushContentTypeBuilder::Ptr(new BrushContentTypeBuilder()));
+            Map map(factory);
             Brush* brush = createBrushFromBounds(map, BBox3(4096), BBox3(32), "");
             Entity* entity = map.createEntity();
             entity->addBrush(brush);
@@ -72,7 +73,8 @@ namespace TrenchBroom {
         }
         
         TEST(EntityFacesIteratorTest, testEntitiesWithEmptyEntityFirst) {
-            Map map(MapFormat::Standard);
+            ModelFactory factory(MapFormat::Standard, BrushContentTypeBuilder::Ptr(new BrushContentTypeBuilder()));
+            Map map(factory);
             Entity* entity1 = map.createEntity();
             map.addEntity(entity1);
             
@@ -110,7 +112,8 @@ namespace TrenchBroom {
         }
         
         TEST(EntityFacesIteratorTest, testEntitiesWithEmptyEntityInMiddle) {
-            Map map(MapFormat::Standard);
+            ModelFactory factory(MapFormat::Standard, BrushContentTypeBuilder::Ptr(new BrushContentTypeBuilder()));
+            Map map(factory);
             Brush* brush1 = createBrushFromBounds(map, BBox3(4096), BBox3(32), "");
             Entity* entity1 = map.createEntity();
             entity1->addBrush(brush1);
@@ -148,7 +151,8 @@ namespace TrenchBroom {
         }
         
         TEST(EntityFacesIteratorTest, testEntitiesWithEmptyEntityLast) {
-            Map map(MapFormat::Standard);
+            ModelFactory factory(MapFormat::Standard, BrushContentTypeBuilder::Ptr(new BrushContentTypeBuilder()));
+            Map map(factory);
             Brush* brush1 = createBrushFromBounds(map, BBox3(4096), BBox3(32), "");
             Entity* entity1 = map.createEntity();
             entity1->addBrush(brush1);

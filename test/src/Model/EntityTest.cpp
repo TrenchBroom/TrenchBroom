@@ -93,10 +93,10 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, addBrush) {
-            const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
-                                    Vec3( 4096.0,  4096.0,  4096.0));
+            const BBox3 worldBounds(4096.0);
             QuakeEntity entity;
-            Brush* brush = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            BrushContentTypeBuilder::Ptr bctBuilder(new Model::BrushContentTypeBuilder());
+            Brush* brush = new Brush(worldBounds, bctBuilder, EmptyBrushFaceList);
             
             entity.addBrush(brush);
             
@@ -106,10 +106,10 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, removeBrush) {
-            const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
-                                    Vec3( 4096.0,  4096.0,  4096.0));
+            const BBox3 worldBounds(4096.0);
             QuakeEntity entity;
-            Brush* brush = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            BrushContentTypeBuilder::Ptr bctBuilder(new Model::BrushContentTypeBuilder());
+            Brush* brush = new Brush(worldBounds, bctBuilder, EmptyBrushFaceList);
             entity.addBrush(brush);
             
             entity.removeBrush(brush);
@@ -119,11 +119,12 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, partialSelectionAfterAdd) {
-            const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
-                                    Vec3( 4096.0,  4096.0,  4096.0));
+            const BBox3 worldBounds(4096.0);
+            BrushContentTypeBuilder::Ptr bctBuilder(new Model::BrushContentTypeBuilder());
+
             QuakeEntity entity;
-            Brush* brush1 = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
-            Brush* brush2 = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            Brush* brush1 = new Brush(worldBounds, bctBuilder, EmptyBrushFaceList);
+            Brush* brush2 = new Brush(worldBounds, bctBuilder, EmptyBrushFaceList);
             entity.addBrush(brush1);
             entity.addBrush(brush2);
             ASSERT_FALSE(entity.partiallySelected());
@@ -138,11 +139,11 @@ namespace TrenchBroom {
         }
         
         TEST(EntityTest, partialSelectionBeforeAdd) {
-            const BBox3 worldBounds(Vec3(-4096.0, -4096.0, -4096.0),
-                                    Vec3( 4096.0,  4096.0,  4096.0));
+            const BBox3 worldBounds(4096.0);
             QuakeEntity entity;
-            Brush* brush1 = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
-            Brush* brush2 = new Brush(worldBounds, BrushContentTypeBuilder(), EmptyBrushFaceList);
+            BrushContentTypeBuilder::Ptr bctBuilder(new Model::BrushContentTypeBuilder());
+            Brush* brush1 = new Brush(worldBounds, bctBuilder, EmptyBrushFaceList);
+            Brush* brush2 = new Brush(worldBounds, bctBuilder, EmptyBrushFaceList);
             brush1->select();
             entity.addBrush(brush1);
             entity.addBrush(brush2);
