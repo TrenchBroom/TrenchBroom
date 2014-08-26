@@ -22,20 +22,22 @@
 #include "Model/Game.h"
 #include "Model/ModelFilter.h"
 #include "Renderer/RenderConfig.h"
-#include "View/BorderLine.h"
+#include "View/BorderPanel.h"
 #include "View/MapDocument.h"
 #include "View/PopupButton.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include <wx/checkbox.h>
+#include <wx/choice.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
         ModelFilterEditor::ModelFilterEditor(wxWindow* parent, MapDocumentWPtr document) :
-        BorderPanel(parent, wxALL),
+        wxPanel(parent),
         m_document(document) {
             bindObservers();
         }
@@ -94,6 +96,41 @@ namespace TrenchBroom {
             }
         }
 
+        void ModelFilterEditor::OnFaceRenderModeChanged(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            Renderer::RenderConfig& config = document->renderConfig();
+            
+            switch (event.GetSelection()) {
+                case 1:
+                    config.setFaceRenderMode(Renderer::RenderConfig::FaceRenderMode_Flat);
+                    break;
+                case 2:
+                    config.setFaceRenderMode(Renderer::RenderConfig::FaceRenderMode_Skip);
+                    break;
+                default:
+                    config.setFaceRenderMode(Renderer::RenderConfig::FaceRenderMode_Textured);
+                    break;
+            }
+        }
+        
+        void ModelFilterEditor::OnShadeFacesChanged(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            Renderer::RenderConfig& config = document->renderConfig();
+            config.setShadeFaces(event.IsChecked());
+        }
+        
+        void ModelFilterEditor::OnUseFogChanged(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            Renderer::RenderConfig& config = document->renderConfig();
+            config.setUseFog(event.IsChecked());
+        }
+        
+        void ModelFilterEditor::OnShowEdgesChanged(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            Renderer::RenderConfig& config = document->renderConfig();
+            config.setShowEdges(event.IsChecked());
+        }
+
         void ModelFilterEditor::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &ModelFilterEditor::documentWasNewedOrLoaded);
@@ -130,17 +167,19 @@ namespace TrenchBroom {
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(createEntitiesPanel(), 0, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
+            sizer->AddSpacer(LayoutConstants::WideVMargin);
             sizer->Add(createBrushesPanel(), 0, wxEXPAND);
+            sizer->AddSpacer(LayoutConstants::WideVMargin);
+            sizer->Add(createRendererPanel(), 0, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::NarrowVMargin);
             SetSizerAndFit(sizer);
-            
+
             GetParent()->Fit();
+            GetParent()->GetParent()->Fit();
         }
 
         wxWindow* ModelFilterEditor::createEntitiesPanel() {
-            TitledPanel* panel = new TitledPanel(this, "Entities");
+            TitledPanel* panel = new TitledPanel(this, "Entities", false);
 
             m_showEntityClassnamesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show entity classnames");
             m_showEntityBoundsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show entity bounds");
@@ -163,7 +202,7 @@ namespace TrenchBroom {
         }
         
         wxWindow* ModelFilterEditor::createBrushesPanel() {
-            TitledPanel* panel = new TitledPanel(this, "Brushes");
+            TitledPanel* panel = new TitledPanel(this, "Brushes", false);
             wxWindow* inner = panel->getPanel();
             createBrushContentTypeFilter(inner);
             
@@ -220,15 +259,49 @@ namespace TrenchBroom {
                 wxCheckBox* checkBox = new wxCheckBox(parent, wxID_ANY, label);
                 m_brushContentTypeCheckBoxes.push_back(checkBox);
                 
-                sizer->Add(checkBox, 0, wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+                sizer->Add(checkBox);
                 checkBox->Bind(wxEVT_CHECKBOX, &ModelFilterEditor::OnShowBrushContentTypeChanged, this);
             }
             parent->SetSizerAndFit(sizer);
         }
         
+        wxWindow* ModelFilterEditor::createRendererPanel() {
+            TitledPanel* panel = new TitledPanel(this, "Renderer", false);
+            wxWindow* inner = panel->getPanel();
+            
+            static const wxString FaceRenderModes[] = { "Textured", "Flat", "Hidden" };
+            m_faceRenderModeChoice = new wxChoice(inner, wxID_ANY, wxDefaultPosition, wxDefaultSize, 3, FaceRenderModes);
+            m_shadeFacesCheckBox = new wxCheckBox(inner, wxID_ANY, "Shade faces");
+            m_useFogCheckBox = new wxCheckBox(inner, wxID_ANY, "Use fog");
+            m_showEdgesCheckBox = new wxCheckBox(inner, wxID_ANY, "Show edges");
+
+            m_faceRenderModeChoice->Bind(wxEVT_CHOICE, &ModelFilterEditor::OnFaceRenderModeChanged, this);
+            m_shadeFacesCheckBox->Bind(wxEVT_CHECKBOX, &ModelFilterEditor::OnShadeFacesChanged, this);
+            m_useFogCheckBox->Bind(wxEVT_CHECKBOX, &ModelFilterEditor::OnUseFogChanged, this);
+            m_showEdgesCheckBox->Bind(wxEVT_CHECKBOX, &ModelFilterEditor::OnShowEdgesChanged, this);
+            
+            wxSizer* choiceSizer = new wxBoxSizer(wxHORIZONTAL);
+            choiceSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
+            choiceSizer->Add(m_faceRenderModeChoice);
+            choiceSizer->Add(new wxStaticText(inner, wxID_ANY, "faces"), 0, wxALIGN_CENTER_VERTICAL);
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->AddSpacer(LayoutConstants::ChoiceTopMargin);
+            sizer->Add(choiceSizer);
+            sizer->AddSpacer(LayoutConstants::ChoiceSizeDelta);
+            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
+            sizer->Add(m_shadeFacesCheckBox);
+            sizer->Add(m_useFogCheckBox);
+            sizer->Add(m_showEdgesCheckBox);
+            
+            inner->SetSizerAndFit(sizer);
+            return panel;
+        }
+
         void ModelFilterEditor::refreshGui() {
             refreshEntitiesPanel();
             refreshBrushesPanel();
+            refreshRendererPanel();
         }
 
         void ModelFilterEditor::refreshEntitiesPanel() {
@@ -261,6 +334,16 @@ namespace TrenchBroom {
             }
         }
 
+        void ModelFilterEditor::refreshRendererPanel() {
+            MapDocumentSPtr document = lock(m_document);
+            const Renderer::RenderConfig& config = document->renderConfig();
+            
+            m_faceRenderModeChoice->SetSelection(config.faceRenderMode());
+            m_shadeFacesCheckBox->SetValue(config.shadeFaces());
+            m_useFogCheckBox->SetValue(config.useFog());
+            m_showEdgesCheckBox->SetValue(config.showEdges());
+        }
+
         ModelFilterPopupEditor::ModelFilterPopupEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_button(NULL),
@@ -268,11 +351,16 @@ namespace TrenchBroom {
             m_button = new PopupButton(this, "View");
             m_button->SetToolTip("Click to edit view settings");
             
-            m_editor = new ModelFilterEditor(m_button->GetPopupWindow(), document);
+            BorderPanel* editorContainer = new BorderPanel(m_button->GetPopupWindow(), wxALL);
+            m_editor = new ModelFilterEditor(editorContainer, document);
+            
+            wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
+            containerSizer->Add(m_editor, 1, wxEXPAND | wxALL, LayoutConstants::DialogOuterMargin);
+            editorContainer->SetSizer(containerSizer);
             
             wxSizer* popupSizer = new wxBoxSizer(wxVERTICAL);
-            popupSizer->Add(m_editor, 1, wxEXPAND);
-            m_button->GetPopupWindow()->SetSizerAndFit(popupSizer);
+            popupSizer->Add(editorContainer, 1, wxEXPAND);
+            m_button->GetPopupWindow()->SetSizer(popupSizer);
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
             sizer->Add(m_button, 0, wxALIGN_CENTER_VERTICAL);

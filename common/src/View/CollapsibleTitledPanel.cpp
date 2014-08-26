@@ -30,7 +30,7 @@ wxDEFINE_EVENT(TITLE_BAR_CLICK, wxCommandEvent);
 namespace TrenchBroom {
     namespace View {
         CollapsibleTitleBar::CollapsibleTitleBar(wxWindow* parent, const wxString& title, const wxString& stateText) :
-        TitleBar(parent, title),
+        TitleBar(parent, title, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin),
         m_stateText(new wxStaticText(this, wxID_ANY, stateText)) {
             m_stateText->SetFont(m_titleText->GetFont());
             m_stateText->SetForegroundColour(*wxLIGHT_GREY);

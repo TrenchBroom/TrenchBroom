@@ -25,14 +25,28 @@
 
 namespace TrenchBroom {
     namespace View {
+        IMPLEMENT_DYNAMIC_CLASS(BorderPanel, wxPanel)
+
+        BorderPanel::BorderPanel() :
+        wxPanel(),
+        m_borders(0),
+        m_thickness(1) {}
+        
         BorderPanel::BorderPanel(wxWindow* parent, const int borders, const int thickness) :
-        wxPanel(parent, wxID_ANY),
-        m_borders(borders),
-        m_thickness(thickness) {
-            Bind(wxEVT_PAINT, &BorderPanel::OnPaint, this);
+        wxPanel(),
+        m_borders(0),
+        m_thickness(1) {
+            Create(parent, borders, thickness);
         }
         
         BorderPanel::~BorderPanel() {}
+
+        void BorderPanel::Create(wxWindow* parent, int borders, int thickness) {
+            wxPanel::Create(parent);
+            m_borders = borders;
+            m_thickness = thickness;
+            Bind(wxEVT_PAINT, &BorderPanel::OnPaint, this);
+        }
 
         void BorderPanel::OnPaint(wxPaintEvent& event) {
             wxPaintDC dc(this);

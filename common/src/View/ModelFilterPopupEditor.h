@@ -21,7 +21,6 @@
 #define __TrenchBroom__ModelFilterPopupEditor__
 
 #include "Model/BrushContentType.h"
-#include "View/BorderPanel.h"
 #include "View/ViewTypes.h"
 
 #include "wx/panel.h"
@@ -29,13 +28,14 @@
 #include <vector>
 
 class wxCheckBox;
+class wxChoice;
 class wxWindow;
 
 namespace TrenchBroom {
     namespace View {
         class PopupButton;
         
-        class ModelFilterEditor : public BorderPanel {
+        class ModelFilterEditor : public wxPanel {
         private:
             typedef std::vector<wxCheckBox*> CheckBoxList;
             
@@ -48,6 +48,11 @@ namespace TrenchBroom {
             
             wxCheckBox* m_showBrushesCheckBox;
             CheckBoxList m_brushContentTypeCheckBoxes;
+            
+            wxChoice* m_faceRenderModeChoice;
+            wxCheckBox* m_shadeFacesCheckBox;
+            wxCheckBox* m_useFogCheckBox;
+            wxCheckBox* m_showEdgesCheckBox;
         public:
             ModelFilterEditor(wxWindow* parent, MapDocumentWPtr document);
             ~ModelFilterEditor();
@@ -58,6 +63,10 @@ namespace TrenchBroom {
             void OnShowPointEntityModelsChanged(wxCommandEvent& event);
             void OnShowBrushesChanged(wxCommandEvent& event);
             void OnShowBrushContentTypeChanged(wxCommandEvent& event);
+            void OnFaceRenderModeChanged(wxCommandEvent& event);
+            void OnShadeFacesChanged(wxCommandEvent& event);
+            void OnUseFogChanged(wxCommandEvent& event);
+            void OnShowEdgesChanged(wxCommandEvent& event);
         private:
             void bindObservers();
             void unbindObservers();
@@ -74,9 +83,12 @@ namespace TrenchBroom {
             void createEmptyBrushContentTypeFilter(wxWindow* parent);
             void createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::List& contentTypes);
             
+            wxWindow* createRendererPanel();
+            
             void refreshGui();
             void refreshEntitiesPanel();
             void refreshBrushesPanel();
+            void refreshRendererPanel();
         };
         
         class ModelFilterPopupEditor : public wxPanel {

@@ -26,16 +26,16 @@
 
 namespace TrenchBroom {
     namespace View {
-        TitleBar::TitleBar(wxWindow* parent, const wxString& title) :
+        TitleBar::TitleBar(wxWindow* parent, const wxString& title, const int hMargin, const int vMargin) :
         wxPanel(parent),
         m_titleText(new wxStaticText(this, wxID_ANY, title)) {
             m_titleText->SetFont(m_titleText->GetFont().Bold());
             
             wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            sizer->Add(m_titleText, 0, wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            sizer->AddSpacer(hMargin);
+            sizer->Add(m_titleText, 0, wxTOP | wxBOTTOM, vMargin);
             sizer->AddStretchSpacer();
-            sizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            sizer->AddSpacer(hMargin);
 
             SetSizer(sizer);
         }

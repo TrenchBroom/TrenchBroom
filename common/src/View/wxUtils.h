@@ -37,6 +37,8 @@ namespace TrenchBroom {
         
         MapFrame* findMapFrame(wxWindow* window);
         wxFrame* findFrame(wxWindow* window);
+        bool isNonOwned(wxWindow* window);
+
         Color fromWxColor(const wxColor& color);
         wxColor toWxColor(const Color& color);
         

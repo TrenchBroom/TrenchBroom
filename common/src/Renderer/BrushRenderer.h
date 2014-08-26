@@ -109,7 +109,7 @@ namespace TrenchBroom {
             void invalidate();
             void clear();
             
-            void render(RenderContext& context);
+            void render(RenderContext& renderContext);
 
             const Color& faceColor() const;
             void setFaceColor(const Color& faceColor);
@@ -133,6 +133,8 @@ namespace TrenchBroom {
             float transparencyAlpha() const;
             void setTransparencyAlpha(float transparencyAlpha);
         private:
+            void renderFaces(RenderContext& renderContext);
+            void renderEdges(RenderContext& renderContext);
             void validate();
         };
     }
