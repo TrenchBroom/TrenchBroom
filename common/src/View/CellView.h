@@ -234,8 +234,8 @@ namespace TrenchBroom {
             virtual void doInitLayout(Layout& layout) = 0;
             virtual void doReloadLayout(Layout& layout) = 0;
             virtual void doClear() {}
-            virtual void doRender(Layout& layout, const float y, const float height) = 0;
-            virtual void doLeftClick(Layout& layout, const float x, const float y) {}
+            virtual void doRender(Layout& layout, float y, float height) = 0;
+            virtual void doLeftClick(Layout& layout, float x, float y) {}
             
             virtual bool dndEnabled() { return false; }
             virtual void dndWillStart() {}

@@ -83,16 +83,16 @@ namespace TrenchBroom {
             void addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font);
             
             void doClear();
-            void doRender(Layout& layout, const float y, const float height);
-            void renderBounds(Layout& layout, const float y, const float height);
+            void doRender(Layout& layout, float y, float height);
+            void renderBounds(Layout& layout, float y, float height);
             const Color& textureColor(const Assets::Texture& texture) const;
-            void renderTextures(Layout& layout, const float y, const float height);
-            void renderNames(Layout& layout, const float y, const float height);
-            void renderGroupTitleBackgrounds(Layout& layout, const float y, const float height);
-            void renderStrings(Layout& layout, const float y, const float height);
-            StringMap collectStringVertices(Layout& layout, const float y, const float height);
+            void renderTextures(Layout& layout, float y, float height);
+            void renderNames(Layout& layout, float y, float height);
+            void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
+            void renderStrings(Layout& layout, float y, float height);
+            StringMap collectStringVertices(Layout& layout, float y, float height);
             
-            void doLeftClick(Layout& layout, const float x, const float y);
+            void doLeftClick(Layout& layout, float x, float y);
             wxString tooltip(const Layout::Group::Row::Cell& cell);
         };
     }
