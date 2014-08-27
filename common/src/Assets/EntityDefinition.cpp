@@ -146,6 +146,7 @@ namespace TrenchBroom {
         }
 
         EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinitionList& propertyDefinitions) :
+        m_index(0),
         m_name(name),
         m_color(color),
         m_description(description),

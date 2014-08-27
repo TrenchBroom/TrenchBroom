@@ -62,6 +62,30 @@ namespace Utils {
     };
 }
 
+class Bitset {
+private:
+    std::vector<bool> m_bits;
+public:
+    Bitset(const size_t initialSize = 64) :
+    m_bits(initialSize, false) {}
+    
+    bool operator[](const size_t index) const {
+        if (index >= m_bits.size())
+            return false;
+        return m_bits[index];
+    }
+    
+    std::vector<bool>::reference operator[](const size_t index) {
+        if (index >= m_bits.size())
+            m_bits.insert(m_bits.end(), index - m_bits.size() + 1, false);
+        return m_bits[index];
+    }
+    
+    void reset() {
+        m_bits = std::vector<bool>(64, false);
+    }
+};
+
 namespace ListUtils {
     template <typename T>
     void remove(std::vector<T*>& list, const T* item) {

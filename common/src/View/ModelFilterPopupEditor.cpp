@@ -19,6 +19,9 @@
 
 #include "ModelFilterPopupEditor.h"
 
+#include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionGroup.h"
+#include "Assets/EntityDefinitionManager.h"
 #include "Model/Game.h"
 #include "Model/ModelFilter.h"
 #include "Renderer/RenderConfig.h"
@@ -29,13 +32,156 @@
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
+#include <wx/button.h>
 #include <wx/checkbox.h>
 #include <wx/choice.h>
+#include <wx/scrolwin.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
     namespace View {
+        EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(wxWindow* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::ModelFilter& filter) :
+        wxPanel(parent),
+        m_entityDefinitionManager(entityDefinitionManager),
+        m_filter(filter) {
+            createGui();
+            refresh();
+        }
+        
+        void EntityDefinitionCheckBoxList::refresh() {
+            size_t defIndex = 0;
+            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            for (size_t i = 0; i < groups.size(); ++i) {
+                const Assets::EntityDefinitionGroup& group = groups[i];
+                const Assets::EntityDefinitionList& definitions = group.definitions();
+                
+                if (!definitions.empty()) {
+                    const bool firstHidden = m_filter.entityDefinitionHidden(definitions[0]);
+                    bool mixed = false;
+                    for (size_t j = 0; j < definitions.size(); ++j) {
+                        const bool hidden = m_filter.entityDefinitionHidden(definitions[j]);
+                        mixed |= (hidden != firstHidden);
+                        m_defCheckBoxes[defIndex++]->SetValue(!hidden);
+                    }
+                    
+                    if (mixed)
+                        m_groupCheckBoxes[i]->Set3StateValue(wxCHK_UNDETERMINED);
+                    else
+                        m_groupCheckBoxes[i]->SetValue(!firstHidden);
+                    m_groupCheckBoxes[i]->Enable();
+                } else {
+                    m_groupCheckBoxes[i]->SetValue(true);
+                    m_groupCheckBoxes[i]->Disable();
+                }
+            }
+        }
+        
+        void EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged(wxCommandEvent& event) {
+            const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
+            const size_t groupIndex = static_cast<size_t>(variant->GetLong());
+
+            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            assert(groupIndex < m_entityDefinitionManager.groups().size());
+            const Assets::EntityDefinitionGroup& group = groups[groupIndex];
+            
+            const Assets::EntityDefinitionList& definitions = group.definitions();
+            for (size_t i = 0; i < definitions.size(); ++i) {
+                const Assets::EntityDefinition* definition = definitions[i];
+                m_filter.setEntityDefinitionHidden(definition, !event.IsChecked());
+            }
+            
+            refresh();
+        }
+        
+        void EntityDefinitionCheckBoxList::OnDefCheckBoxChanged(wxCommandEvent& event) {
+            const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
+            const Assets::EntityDefinition* definition = reinterpret_cast<const Assets::EntityDefinition*>(variant->GetVoidPtr());
+            m_filter.setEntityDefinitionHidden(definition, !event.IsChecked());
+            refresh();
+        }
+
+        void EntityDefinitionCheckBoxList::OnShowAllClicked(wxCommandEvent& event) {
+            hideAll(false);
+        }
+        
+        void EntityDefinitionCheckBoxList::OnHideAllClicked(wxCommandEvent& event) {
+            hideAll(true);
+        }
+
+        void EntityDefinitionCheckBoxList::hideAll(const bool hidden) {
+            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            for (size_t i = 0; i < groups.size(); ++i) {
+                const Assets::EntityDefinitionGroup& group = groups[i];
+                const Assets::EntityDefinitionList& definitions = group.definitions();
+                for (size_t j = 0; j < definitions.size(); ++j) {
+                    const Assets::EntityDefinition* definition = definitions[j];
+                    m_filter.setEntityDefinitionHidden(definition, hidden);
+                }
+            }
+        }
+
+        void EntityDefinitionCheckBoxList::createGui() {
+            wxScrolledWindow* scrollWindow = new wxScrolledWindow(this);
+            
+            wxSizer* scrollWindowSizer = new wxBoxSizer(wxVERTICAL);
+            int yScrollRate = 0;
+            
+            const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+            for (size_t i = 0; i < groups.size(); ++i) {
+                const Assets::EntityDefinitionGroup& group = groups[i];
+                const Assets::EntityDefinitionList& definitions = group.definitions();
+                const String& groupName = group.displayName();
+                
+                wxCheckBox* groupCB = new wxCheckBox(scrollWindow, wxID_ANY, groupName, wxDefaultPosition, wxDefaultSize, wxCHK_3STATE);
+                groupCB->SetFont(groupCB->GetFont().Bold());
+                groupCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(static_cast<long>(i)));
+                m_groupCheckBoxes.push_back(groupCB);
+                
+                scrollWindowSizer->Add(groupCB);
+                yScrollRate = groupCB->GetSize().y;
+                
+                Assets::EntityDefinitionList::const_iterator defIt, defEnd;
+                for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
+                    Assets::EntityDefinition* definition = *defIt;
+                    const String defName = definition->name();
+                    
+                    wxCheckBox* defCB = new wxCheckBox(scrollWindow, wxID_ANY, defName);
+                    defCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxList::OnDefCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(reinterpret_cast<void*>(definition)));
+                    
+                    m_defCheckBoxes.push_back(defCB);
+                    scrollWindowSizer->Add(defCB, 0, wxLEFT, 10);
+                }
+            }
+            
+            scrollWindow->SetSizer(scrollWindowSizer);
+            scrollWindow->SetScrollRate(10, yScrollRate);
+            
+            wxButton* showAllButton = new wxButton(this, wxID_ANY, "Show all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            showAllButton->SetFont(showAllButton->GetFont().Bold());
+            wxButton* hideAllButton = new wxButton(this, wxID_ANY, "Hide all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            hideAllButton->SetFont(hideAllButton->GetFont().Bold());
+            
+            showAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxList::OnShowAllClicked, this);
+            hideAllButton->Bind(wxEVT_BUTTON, &EntityDefinitionCheckBoxList::OnHideAllClicked, this);
+
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            buttonSizer->Add(showAllButton);
+            buttonSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            buttonSizer->Add(hideAllButton);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(scrollWindow, 1, wxEXPAND
+#ifdef __APPLE__
+                            | wxTOP | wxRIGHT, 1
+#endif
+                            );
+            outerSizer->Add(buttonSizer, 0, wxTOP | wxBOTTOM, 1);
+            
+            SetSizer(outerSizer);
+        }
+        
         ModelFilterEditor::ModelFilterEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document) {
@@ -63,13 +209,13 @@ namespace TrenchBroom {
             Model::ModelFilter& filter = document->filter();
             filter.setShowPointEntities(event.IsChecked());
         }
-
+        
         void ModelFilterEditor::OnShowPointEntityModelsChanged(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             Renderer::RenderConfig& config = document->renderConfig();
             config.setShowPointEntityModels(event.IsChecked());
         }
-
+        
         void ModelFilterEditor::OnShowBrushesChanged(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             Model::ModelFilter& filter = document->filter();
@@ -95,7 +241,7 @@ namespace TrenchBroom {
                 filter.setHiddenBrushContentTypes(hiddenFlags);
             }
         }
-
+        
         void ModelFilterEditor::OnFaceRenderModeChanged(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             Renderer::RenderConfig& config = document->renderConfig();
@@ -130,7 +276,7 @@ namespace TrenchBroom {
             Renderer::RenderConfig& config = document->renderConfig();
             config.setShowEdges(event.IsChecked());
         }
-
+        
         void ModelFilterEditor::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &ModelFilterEditor::documentWasNewedOrLoaded);
@@ -157,30 +303,58 @@ namespace TrenchBroom {
         void ModelFilterEditor::modelFilterDidChange() {
             refreshGui();
         }
-
+        
         void ModelFilterEditor::renderConfigDidChange() {
             refreshGui();
         }
-
+        
         void ModelFilterEditor::createGui() {
             DestroyChildren();
-
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(createEntitiesPanel(), 0, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
-            sizer->Add(createBrushesPanel(), 0, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::WideVMargin);
-            sizer->Add(createRendererPanel(), 0, wxEXPAND);
-            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
-            SetSizerAndFit(sizer);
-
+            
+            wxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
+            rightSizer->Add(createEntitiesPanel(), 0, wxEXPAND);
+            rightSizer->AddSpacer(LayoutConstants::WideVMargin);
+            rightSizer->Add(createBrushesPanel(), 0, wxEXPAND);
+            rightSizer->AddSpacer(LayoutConstants::WideVMargin);
+            rightSizer->Add(createRendererPanel(), 0, wxEXPAND);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
+            outerSizer->Add(createEntityDefinitionsPanel(), 1, wxEXPAND);
+            outerSizer->AddSpacer(LayoutConstants::WideHMargin);
+            outerSizer->Add(rightSizer);
+            
+            SetSizerAndFit(outerSizer);
+            
             GetParent()->Fit();
             GetParent()->GetParent()->Fit();
         }
-
+        
+        wxWindow* ModelFilterEditor::createEntityDefinitionsPanel() {
+            TitledPanel* panel = new TitledPanel(this, "Entity Definitions", false);
+            
+            BorderPanel* container = new BorderPanel(panel->getPanel(), wxALL);
+            container->SetBackgroundColour(*wxWHITE);
+            
+            MapDocumentSPtr document = lock(m_document);
+            Assets::EntityDefinitionManager& entityDefinitionManager = document->entityDefinitionManager();
+            Model::ModelFilter& filter = document->filter();
+            m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(container, entityDefinitionManager, filter);
+            
+            wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
+            containerSizer->Add(m_entityDefinitionCheckBoxList, 1, wxEXPAND);
+            containerSizer->SetItemMinSize(m_entityDefinitionCheckBoxList, 200, wxDefaultCoord);
+            container->SetSizer(containerSizer);
+            
+            wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+            panelSizer->Add(container, 1, wxEXPAND);
+            
+            panel->getPanel()->SetSizer(panelSizer);
+            return panel;
+        }
+        
         wxWindow* ModelFilterEditor::createEntitiesPanel() {
             TitledPanel* panel = new TitledPanel(this, "Entities", false);
-
+            
             m_showEntityClassnamesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show entity classnames");
             m_showEntityBoundsCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show entity bounds");
             m_showPointEntitiesCheckBox = new wxCheckBox(panel->getPanel(), wxID_ANY, "Show point entities");
@@ -214,10 +388,10 @@ namespace TrenchBroom {
             
             return panel;
         }
-
+        
         void ModelFilterEditor::createBrushContentTypeFilter(wxWindow* parent) {
             m_brushContentTypeCheckBoxes.clear();
-
+            
             MapDocumentSPtr document = lock(m_document);
             Model::GamePtr game = document->game();
             if (game == NULL) {
@@ -231,7 +405,7 @@ namespace TrenchBroom {
                 }
             }
         }
-
+        
         void ModelFilterEditor::createEmptyBrushContentTypeFilter(wxWindow* parent) {
             wxStaticText* msg = new wxStaticText(parent, wxID_ANY, "No brush content types found");
             msg->SetForegroundColour(*wxLIGHT_GREY);
@@ -245,7 +419,7 @@ namespace TrenchBroom {
             
             parent->SetSizerAndFit(sizer);
         }
-
+        
         void ModelFilterEditor::createBrushContentTypeFilter(wxWindow* parent, const Model::BrushContentType::List& contentTypes) {
             assert(!contentTypes.empty());
             
@@ -274,7 +448,7 @@ namespace TrenchBroom {
             m_shadeFacesCheckBox = new wxCheckBox(inner, wxID_ANY, "Shade faces");
             m_useFogCheckBox = new wxCheckBox(inner, wxID_ANY, "Use fog");
             m_showEdgesCheckBox = new wxCheckBox(inner, wxID_ANY, "Show edges");
-
+            
             m_faceRenderModeChoice->Bind(wxEVT_CHOICE, &ModelFilterEditor::OnFaceRenderModeChanged, this);
             m_shadeFacesCheckBox->Bind(wxEVT_CHECKBOX, &ModelFilterEditor::OnShadeFacesChanged, this);
             m_useFogCheckBox->Bind(wxEVT_CHECKBOX, &ModelFilterEditor::OnUseFogChanged, this);
@@ -297,13 +471,18 @@ namespace TrenchBroom {
             inner->SetSizerAndFit(sizer);
             return panel;
         }
-
+        
         void ModelFilterEditor::refreshGui() {
+            refreshEntityDefinitionsPanel();
             refreshEntitiesPanel();
             refreshBrushesPanel();
             refreshRendererPanel();
         }
-
+        
+        void ModelFilterEditor::refreshEntityDefinitionsPanel() {
+            m_entityDefinitionCheckBoxList->refresh();
+        }
+        
         void ModelFilterEditor::refreshEntitiesPanel() {
             MapDocumentSPtr document = lock(m_document);
             const Renderer::RenderConfig& config = document->renderConfig();
@@ -313,13 +492,13 @@ namespace TrenchBroom {
             m_showPointEntitiesCheckBox->SetValue(config.showPointEntities());
             m_showPointEntityModelsCheckBox->SetValue(config.showPointEntityModels());
         }
-
+        
         void ModelFilterEditor::refreshBrushesPanel() {
             MapDocumentSPtr document = lock(m_document);
-
+            
             const Renderer::RenderConfig& config = document->renderConfig();
             m_showBrushesCheckBox->SetValue(config.showBrushes());
-
+            
             const Model::ModelFilter& filter = document->filter();
             const Model::BrushContentType::FlagType hiddenFlags = filter.hiddenBrushContentTypes();
             
@@ -333,7 +512,7 @@ namespace TrenchBroom {
                 }
             }
         }
-
+        
         void ModelFilterEditor::refreshRendererPanel() {
             MapDocumentSPtr document = lock(m_document);
             const Renderer::RenderConfig& config = document->renderConfig();
@@ -343,7 +522,7 @@ namespace TrenchBroom {
             m_useFogCheckBox->SetValue(config.useFog());
             m_showEdgesCheckBox->SetValue(config.showEdges());
         }
-
+        
         ModelFilterPopupEditor::ModelFilterPopupEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_button(NULL),

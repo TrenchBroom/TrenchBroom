@@ -21,14 +21,9 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        EntityDefinitionGroup::EntityDefinitionGroup(const size_t index, const String& name, const EntityDefinitionList& definitions) :
-        m_index(index),
+        EntityDefinitionGroup::EntityDefinitionGroup(const String& name, const EntityDefinitionList& definitions) :
         m_name(name),
         m_definitions(definitions) {}
-        
-        size_t EntityDefinitionGroup::index() const {
-            return m_index;
-        }
         
         const String& EntityDefinitionGroup::name() const {
             return m_name;

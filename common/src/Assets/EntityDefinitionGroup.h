@@ -32,11 +32,10 @@ namespace TrenchBroom {
         public:
             typedef std::vector<EntityDefinitionGroup> List;
         private:
-            size_t m_index;
             String m_name;
             EntityDefinitionList m_definitions;
         public:
-            EntityDefinitionGroup(size_t index, const String& name, const EntityDefinitionList& definitions);
+            EntityDefinitionGroup(const String& name, const EntityDefinitionList& definitions);
             
             size_t index() const;
             const String& name() const;

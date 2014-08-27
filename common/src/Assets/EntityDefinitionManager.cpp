@@ -85,14 +85,11 @@ namespace TrenchBroom {
                 groupMap[groupName].push_back(definition);
             }
             
-            size_t index = 1;
             GroupMap::const_iterator it, end;
             for (it = groupMap.begin(), end = groupMap.end(); it != end; ++it) {
                 const String& groupName = it->first;
                 const EntityDefinitionList& definitions = it->second;
-                
-                m_groups.push_back(EntityDefinitionGroup(index, groupName, definitions));
-                ++index;
+                m_groups.push_back(EntityDefinitionGroup(groupName, definitions));
             }
         }
 

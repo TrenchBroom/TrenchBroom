@@ -23,7 +23,7 @@
 #include "Model/BrushContentType.h"
 #include "View/ViewTypes.h"
 
-#include "wx/panel.h"
+#include <wx/panel.h>
 
 #include <vector>
 
@@ -32,8 +32,38 @@ class wxChoice;
 class wxWindow;
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinitionManager;
+    }
+    
+    namespace Model {
+        class ModelFilter;
+    }
+    
     namespace View {
         class PopupButton;
+        
+        class EntityDefinitionCheckBoxList : public wxPanel {
+        private:
+            typedef std::vector<wxCheckBox*> CheckBoxList;
+
+            Assets::EntityDefinitionManager& m_entityDefinitionManager;
+            Model::ModelFilter& m_filter;
+            
+            CheckBoxList m_groupCheckBoxes;
+            CheckBoxList m_defCheckBoxes;
+        public:
+            EntityDefinitionCheckBoxList(wxWindow* parent, Assets::EntityDefinitionManager& entityDefinitionManager, Model::ModelFilter& filter);
+            void refresh();
+            
+            void OnGroupCheckBoxChanged(wxCommandEvent& event);
+            void OnDefCheckBoxChanged(wxCommandEvent& event);
+            void OnShowAllClicked(wxCommandEvent& event);
+            void OnHideAllClicked(wxCommandEvent& event);
+        private:
+            void hideAll(bool hidden);
+            void createGui();
+        };
         
         class ModelFilterEditor : public wxPanel {
         private:
@@ -45,6 +75,8 @@ namespace TrenchBroom {
             wxCheckBox* m_showEntityBoundsCheckBox;
             wxCheckBox* m_showPointEntitiesCheckBox;
             wxCheckBox* m_showPointEntityModelsCheckBox;
+            
+            EntityDefinitionCheckBoxList* m_entityDefinitionCheckBoxList;
             
             wxCheckBox* m_showBrushesCheckBox;
             CheckBoxList m_brushContentTypeCheckBoxes;
@@ -77,6 +109,7 @@ namespace TrenchBroom {
             
             void createGui();
             
+            wxWindow* createEntityDefinitionsPanel();
             wxWindow* createEntitiesPanel();
             wxWindow* createBrushesPanel();
             void createBrushContentTypeFilter(wxWindow* parent);
@@ -86,6 +119,7 @@ namespace TrenchBroom {
             wxWindow* createRendererPanel();
             
             void refreshGui();
+            void refreshEntityDefinitionsPanel();
             void refreshEntitiesPanel();
             void refreshBrushesPanel();
             void refreshRendererPanel();

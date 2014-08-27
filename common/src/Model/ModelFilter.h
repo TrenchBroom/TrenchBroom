@@ -24,13 +24,21 @@
 #include "Model/BrushContentType.h"
 #include "Model/ModelTypes.h"
 
+#include <vector>
+
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityDefinition;
+        class EntityDefinitionGroup;
+    }
+    
     namespace Model {
         class ModelFilter {
         private:
             bool m_showPointEntities;
             bool m_showBrushes;
             BrushContentType::FlagType m_hiddenBrushContentTypes;
+            Bitset m_hiddenEntityDefinitions;
         public:
             Notifier0 filterDidChangeNotifier;
         public:
@@ -45,6 +53,9 @@ namespace TrenchBroom {
             
             BrushContentType::FlagType hiddenBrushContentTypes() const;
             void setHiddenBrushContentTypes(BrushContentType::FlagType brushContentTypes);
+            
+            bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;
+            void setEntityDefinitionHidden(const Assets::EntityDefinition* definition, bool hidden);
             
             virtual bool visible(const Object* object) const;
             virtual bool visible(const BrushFace* face) const;

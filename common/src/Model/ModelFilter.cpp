@@ -19,6 +19,8 @@
 
 #include "ModelFilter.h"
 
+#include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionGroup.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
@@ -66,6 +68,19 @@ namespace TrenchBroom {
             m_hiddenBrushContentTypes = brushContentTypes;
             filterDidChangeNotifier();
         }
+        
+        bool ModelFilter::entityDefinitionHidden(const Assets::EntityDefinition* definition) const {
+            if (definition == NULL)
+                return false;
+            return m_hiddenEntityDefinitions[definition->index()];
+        }
+        
+        void ModelFilter::setEntityDefinitionHidden(const Assets::EntityDefinition* definition, const bool hidden) {
+            if (definition == NULL || entityDefinitionHidden(definition) == hidden)
+                return;
+            m_hiddenEntityDefinitions[definition->index()] = hidden;
+            filterDidChangeNotifier();
+        }
 
         bool ModelFilter::visible(const Object* object) const {
             if (object->type() == Object::Type_Entity) {
@@ -74,11 +89,16 @@ namespace TrenchBroom {
                     return false;
                 if (entity->pointEntity() && !m_showPointEntities)
                     return false;
+                if (entityDefinitionHidden(entity->definition()))
+                    return false;
             } else if (object->type() == Object::Type_Brush) {
                 if (!m_showBrushes)
                     return false;
                 const Brush* brush = static_cast<const Brush*>(object);
                 if (brush->hasContentType(m_hiddenBrushContentTypes))
+                    return false;
+                const Entity* entity = brush->parent();
+                if (entityDefinitionHidden(entity->definition()))
                     return false;
             }
             return true;
@@ -96,11 +116,6 @@ namespace TrenchBroom {
                 const Entity* entity = static_cast<const Entity*>(object);
                 if (!entity->brushes().empty())
                     return false;
-                if (entity->pointEntity() && !m_showPointEntities)
-                    return false;
-            } else if (object->type() == Object::Type_Brush) {
-                if (!m_showBrushes)
-                    return false;
             }
             return true;
         }
@@ -110,15 +125,7 @@ namespace TrenchBroom {
         }
 
         bool ModelFilter::selectable(const Object* object) const {
-            if (!pickable(object))
-                return false;
-            
-            if (object->type() == Object::Type_Entity) {
-                const Entity* entity = static_cast<const Entity*>(object);
-                if (!entity->brushes().empty())
-                    return false;
-            }
-            return true;
+            return pickable(object);
         }
         
         bool ModelFilter::selectable(const BrushFace* face) const {
