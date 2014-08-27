@@ -35,11 +35,17 @@ namespace TrenchBroom {
         
         class EntityDefinition {
         public:
+            enum SortOrder {
+                Name,
+                Usage
+            };
+
             typedef enum {
                 Type_PointEntity,
                 Type_BrushEntity
             } Type;
         private:
+            size_t m_index;
             String m_name;
             Color m_color;
             String m_description;
@@ -47,6 +53,9 @@ namespace TrenchBroom {
             PropertyDefinitionList m_propertyDefinitions;
         public:
             virtual ~EntityDefinition();
+            
+            size_t index() const;
+            void setIndex(size_t index);
             
             virtual Type type() const = 0;
             const String& name() const;
@@ -63,6 +72,8 @@ namespace TrenchBroom {
             const PropertyDefinition* propertyDefinition(const Model::PropertyKey& propertyKey) const;
             
             static const PropertyDefinition* safeGetPropertyDefinition(const EntityDefinition* entityDefinition, const Model::PropertyKey& propertyKey);
+
+            static EntityDefinitionList filterAndSort(const EntityDefinitionList& definitions, EntityDefinition::Type type, SortOrder prder = Name);
         protected:
             EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinitionList& propertyDefinitions);
         };

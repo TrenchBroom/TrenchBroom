@@ -26,6 +26,8 @@
 #include "Color.h"
 #include "Notifier.h"
 #include "Assets/AssetTypes.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/EntityDefinitionGroup.h"
 #include "Controller/Command.h"
 #include "Renderer/BoundsGuideRenderer.h"
 #include "Renderer/Compass.h"
@@ -252,7 +254,7 @@ namespace TrenchBroom {
             bool canReparentBrushes(const Model::BrushList& brushes, const Model::Entity* newParent) const;
             Model::BrushList filterReparentableBrushes(const Model::BrushList& brushes, Model::Entity* newParent);
             
-            Assets::EntityDefinition* findEntityDefinition(const Assets::EntityDefinitionGroups& groups, const size_t index) const;
+            Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
             void createPointEntity(const Assets::PointEntityDefinition& definition);
             void createBrushEntity(const Assets::BrushEntityDefinition& definition);
             
@@ -300,7 +302,7 @@ namespace TrenchBroom {
             Ray3 doGetPickRay(int x, int y) const;
             Hits doPick(const Ray3& pickRay) const;
             void doShowPopupMenu();
-            wxMenu* makeEntityGroupsMenu(const Assets::EntityDefinitionGroups& groups, int id);
+            wxMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
 
             void bindEvents();
 

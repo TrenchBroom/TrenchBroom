@@ -61,7 +61,7 @@ namespace TrenchBroom {
         m_logger(logger),
         m_group(false),
         m_hideUnused(false),
-        m_sortOrder(Assets::EntityDefinitionManager::Name),
+        m_sortOrder(Assets::EntityDefinition::Name),
         m_vbo(0xFFFF) {
             const Quatf hRotation = Quatf(Vec3f::PosZ, Math::radians(-30.0f));
             const Quatf vRotation = Quatf(Vec3f::PosY, Math::radians(20.0f));
@@ -72,7 +72,7 @@ namespace TrenchBroom {
             clear();
         }
         
-        void EntityBrowserView::setSortOrder(const Assets::EntityDefinitionManager::SortOrder sortOrder) {
+        void EntityBrowserView::setSortOrder(const Assets::EntityDefinition::SortOrder sortOrder) {
             if (sortOrder == m_sortOrder)
                 return;
             m_sortOrder = sortOrder;
@@ -123,19 +123,22 @@ namespace TrenchBroom {
             const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
             
             if (m_group) {
-                Assets::EntityDefinitionGroups groups = m_entityDefinitionManager.groups(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
-                Assets::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
+                const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
+                Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
                 
                 for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
-                    const String& groupName = groupIt->first;
-                    const Assets::EntityDefinitionList& definitions = groupIt->second;
+                    const Assets::EntityDefinitionGroup& group = *groupIt;
+                    const Assets::EntityDefinitionList& definitions = group.definitions(Assets::EntityDefinition::Type_PointEntity, m_sortOrder);
                     
-                    layout.addGroup(groupName, fontSize + 2.0f);
-                    
-                    Assets::EntityDefinitionList::const_iterator defIt, defEnd;
-                    for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
-                        Assets::PointEntityDefinition* definition = static_cast<Assets::PointEntityDefinition*>(*defIt);
-                        addEntityToLayout(layout, definition, font);
+                    if (!definitions.empty()) {
+                        const String displayName = group.displayName();
+                        layout.addGroup(displayName, fontSize + 2.0f);
+                        
+                        Assets::EntityDefinitionList::const_iterator defIt, defEnd;
+                        for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
+                            Assets::PointEntityDefinition* definition = static_cast<Assets::PointEntityDefinition*>(*defIt);
+                            addEntityToLayout(layout, definition, font);
+                        }
                     }
                 }
             } else {

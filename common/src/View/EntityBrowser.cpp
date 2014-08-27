@@ -53,7 +53,7 @@ namespace TrenchBroom {
         }
         
         void EntityBrowser::OnSortOrderChanged(wxCommandEvent& event) {
-            const Assets::EntityDefinitionManager::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::EntityDefinitionManager::Name : Assets::EntityDefinitionManager::Usage;
+            const Assets::EntityDefinition::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::EntityDefinition::Name : Assets::EntityDefinition::Usage;
             m_view->setSortOrder(sortOrder);
         }
         

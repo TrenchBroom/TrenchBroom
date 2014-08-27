@@ -67,7 +67,7 @@ namespace TrenchBroom {
             
             bool m_group;
             bool m_hideUnused;
-            Assets::EntityDefinitionManager::SortOrder m_sortOrder;
+            Assets::EntityDefinition::SortOrder m_sortOrder;
             String m_filterText;
             
             Renderer::Vbo m_vbo;
@@ -80,9 +80,9 @@ namespace TrenchBroom {
                               Logger& logger);
             ~EntityBrowserView();
             
-            void setSortOrder(const Assets::EntityDefinitionManager::SortOrder sortOrder);
-            void setGroup(const bool group);
-            void setHideUnused(const bool hideUnused);
+            void setSortOrder(Assets::EntityDefinition::SortOrder sortOrder);
+            void setGroup(bool group);
+            void setHideUnused(bool hideUnused);
             void setFilterText(const String& filterText);
         private:
             void doInitLayout(Layout& layout);
@@ -96,16 +96,16 @@ namespace TrenchBroom {
             void addEntityToLayout(Layout& layout, Assets::PointEntityDefinition* definition, const Renderer::FontDescriptor& font);
             
             void doClear();
-            void doRender(Layout& layout, const float y, const float height);
+            void doRender(Layout& layout, float y, float height);
 
-            void renderBounds(Layout& layout, const float y, const float height);
-            void renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation);
-            void renderNames(Layout& layout, const float y, const float height, const Mat4x4f& projection);
-            void renderGroupTitleBackgrounds(Layout& layout, const float y, const float height);
-            void renderStrings(Layout& layout, const float y, const float height);
-            StringMap collectStringVertices(Layout& layout, const float y, const float height);
+            void renderBounds(Layout& layout, float y, float height);
+            void renderModels(Layout& layout, float y, float height, Renderer::Transformation& transformation);
+            void renderNames(Layout& layout, float y, float height, const Mat4x4f& projection);
+            void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
+            void renderStrings(Layout& layout, float y, float height);
+            StringMap collectStringVertices(Layout& layout, float y, float height);
             
-            Mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, const float y, const float height) const;
+            Mat4x4f itemTransformation(const Layout::Group::Row::Cell& cell, float y, float height) const;
             
             wxString tooltip(const Layout::Group::Row::Cell& cell);
         };

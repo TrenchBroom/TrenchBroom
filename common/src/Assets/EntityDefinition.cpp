@@ -27,8 +27,38 @@
 
 namespace TrenchBroom {
     namespace Assets {
+        class CompareByName {
+        private:
+            bool m_shortName;
+        public:
+            CompareByName(const bool shortName) :
+            m_shortName(shortName) {}
+            bool operator() (const EntityDefinition* left, const EntityDefinition* right) const {
+                if (m_shortName)
+                    return left->shortName() < right->shortName();
+                return left->name() < right->name();
+            }
+        };
+        
+        class CompareByUsage {
+        public:
+            bool operator() (const EntityDefinition* left, const EntityDefinition* right) const {
+                if (left->usageCount() == right->usageCount())
+                    return left->name() < right->name();
+                return left->usageCount() > right->usageCount();
+            }
+        };
+
         EntityDefinition::~EntityDefinition() {}
         
+        size_t EntityDefinition::index() const {
+            return m_index;
+        }
+        
+        void EntityDefinition::setIndex(const size_t index) {
+            m_index = index;
+        }
+
         const String& EntityDefinition::name() const {
             return m_name;
         }
@@ -98,6 +128,21 @@ namespace TrenchBroom {
 
         const PropertyDefinition* EntityDefinition::safeGetPropertyDefinition(const EntityDefinition* entityDefinition, const Model::PropertyKey& propertyKey) {
             return entityDefinition != NULL ? entityDefinition->propertyDefinition(propertyKey) : NULL;
+        }
+
+        EntityDefinitionList EntityDefinition::filterAndSort(const EntityDefinitionList& definitions, const EntityDefinition::Type type, const SortOrder order) {
+            EntityDefinitionList result;
+            EntityDefinitionList::const_iterator it, end;
+            for (it = definitions.begin(), end = definitions.end(); it != end; ++it) {
+                EntityDefinition* definition = *it;
+                if (definition->type() == type)
+                    result.push_back(definition);
+            }
+            if (order == Usage)
+                std::sort(result.begin(), result.end(), CompareByUsage());
+            else
+                std::sort(result.begin(), result.end(), CompareByName(false));
+            return result;
         }
 
         EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinitionList& propertyDefinitions) :

@@ -17,47 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityDefinitionManager__
-#define __TrenchBroom__EntityDefinitionManager__
+#ifndef __TrenchBroom__EntityDefinitionGroup__
+#define __TrenchBroom__EntityDefinitionGroup__
 
+#include "StringUtils.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
-#include "Assets/EntityDefinitionGroup.h"
-#include "Model/ModelTypes.h"
 
-#include <map>
+#include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-    
     namespace Assets {
-        class EntityDefinitionManager {
-        private:
-            typedef std::map<String, EntityDefinition*> Cache;
-            EntityDefinitionList m_definitions;
-            EntityDefinitionGroup::List m_groups;
-            Cache m_cache;
+        class EntityDefinitionGroup {
         public:
-            ~EntityDefinitionManager();
-
-            void loadDefinitions(Model::GamePtr game, const IO::Path& path);
-            void clear();
-            
-            EntityDefinition* definition(const Model::Entity* entity) const;
-            EntityDefinition* definition(const Model::PropertyValue& classname) const;
-            EntityDefinitionList definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
-
-            const EntityDefinitionGroup::List& groups() const;
+            typedef std::vector<EntityDefinitionGroup> List;
         private:
-            void updateIndices();
-            void updateGroups();
-            void updateCache();
-            void clearCache();
-            void clearGroups();
+            size_t m_index;
+            String m_name;
+            EntityDefinitionList m_definitions;
+        public:
+            EntityDefinitionGroup(size_t index, const String& name, const EntityDefinitionList& definitions);
+            
+            size_t index() const;
+            const String& name() const;
+            const String displayName() const;
+            const EntityDefinitionList& definitions() const;
+            EntityDefinitionList definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityDefinitionManager__) */
+#endif /* defined(__TrenchBroom__EntityDefinitionGroup__) */

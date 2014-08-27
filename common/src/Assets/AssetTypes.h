@@ -42,7 +42,6 @@ namespace TrenchBroom {
         class PointEntityDefinition;
         class BrushEntityDefinition;
         typedef std::vector<EntityDefinition*> EntityDefinitionList;
-        typedef std::map<String, EntityDefinitionList> EntityDefinitionGroups;
         
         class PropertyDefinition;
         typedef std::tr1::shared_ptr<PropertyDefinition> PropertyDefinitionPtr;

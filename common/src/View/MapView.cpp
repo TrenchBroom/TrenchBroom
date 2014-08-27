@@ -695,10 +695,8 @@ namespace TrenchBroom {
         
         void MapView::OnPopupCreatePointEntity(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
-            Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
-            const Assets::EntityDefinitionGroups groups = manager.groups(Assets::EntityDefinition::Type_PointEntity);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestPointEntityItem);
-            const Assets::EntityDefinition* definition = findEntityDefinition(groups, index);
+            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_PointEntity, index);
             assert(definition != NULL);
             assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
             createPointEntity(*static_cast<const Assets::PointEntityDefinition*>(definition));
@@ -706,10 +704,8 @@ namespace TrenchBroom {
         
         void MapView::OnPopupCreateBrushEntity(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
-            Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
-            const Assets::EntityDefinitionGroups groups = manager.groups(Assets::EntityDefinition::Type_BrushEntity);
             const size_t index = static_cast<size_t>(event.GetId() - CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem);
-            const Assets::EntityDefinition* definition = findEntityDefinition(groups, index);
+            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_BrushEntity, index);
             assert(definition != NULL);
             assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
             createBrushEntity(*static_cast<const Assets::BrushEntityDefinition*>(definition));
@@ -850,13 +846,13 @@ namespace TrenchBroom {
             return result;
         }
 
-        Assets::EntityDefinition* MapView::findEntityDefinition(const Assets::EntityDefinitionGroups& groups, const size_t index) const {
-            Assets::EntityDefinitionGroups::const_iterator groupIt, groupEnd;
-            Assets::EntityDefinitionList::const_iterator defIt, defEnd;
-            
+        Assets::EntityDefinition* MapView::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
             size_t count = 0;
+            const Assets::EntityDefinitionGroup::List& groups = lock(m_document)->entityDefinitionManager().groups();
+            Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
             for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
-                const Assets::EntityDefinitionList& definitions = groupIt->second;
+                const Assets::EntityDefinitionGroup& group = *groupIt;
+                const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
                 if (index < count + definitions.size())
                     return definitions[index - count];
                 count += definitions.size();
@@ -1344,42 +1340,43 @@ namespace TrenchBroom {
         }
         
         void MapView::doShowPopupMenu() {
-            MapDocumentSPtr document = lock(m_document);
-            Assets::EntityDefinitionManager& manager = document->entityDefinitionManager();
-            const Assets::EntityDefinitionGroups pointGroups = manager.groups(Assets::EntityDefinition::Type_PointEntity);
-            const Assets::EntityDefinitionGroups brushGroups = manager.groups(Assets::EntityDefinition::Type_BrushEntity);
-            
             wxMenu menu;
             menu.SetEventHandler(this);
             menu.Append(CommandIds::CreateEntityPopupMenu::ReparentBrushes, "Move Brushes to...");
             menu.Append(CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld, "Move Brushes to World");
             menu.AppendSeparator();
-            menu.AppendSubMenu(makeEntityGroupsMenu(pointGroups, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem), "Create Point Entity");
-            menu.AppendSubMenu(makeEntityGroupsMenu(brushGroups, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
+            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_PointEntity, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem), "Create Point Entity");
+            menu.AppendSubMenu(makeEntityGroupsMenu(Assets::EntityDefinition::Type_BrushEntity, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem), "Create Brush Entity");
             
             menu.UpdateUI(this);
             PopupMenu(&menu);
         }
         
-        wxMenu* MapView::makeEntityGroupsMenu(const Assets::EntityDefinitionGroups& groups, int id) {
+        wxMenu* MapView::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type, int id) {
             wxMenu* menu = new wxMenu();
-            Assets::EntityDefinitionGroups::const_iterator gIt, gEnd;
-            for (gIt = groups.begin(), gEnd = groups.end(); gIt != gEnd; ++gIt) {
-                const String& groupName = gIt->first;
-                const Assets::EntityDefinitionList& definitions = gIt->second;
-                
-                wxMenu* groupMenu = new wxMenu();
-                groupMenu->SetEventHandler(this);
-                
-                Assets::EntityDefinitionList::const_iterator dIt, dEnd;
-                for (dIt = definitions.begin(), dEnd = definitions.end(); dIt != dEnd; ++dIt) {
-                    const Assets::EntityDefinition* definition = *dIt;
-                    if (definition->name() != Model::PropertyValues::WorldspawnClassname)
-                        groupMenu->Append(id++, definition->shortName());
+            
+            const Assets::EntityDefinitionGroup::List& groups = lock(m_document)->entityDefinitionManager().groups();
+            Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
+            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                const Assets::EntityDefinitionGroup& group = *groupIt;
+                const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
+                if (!definitions.empty()) {
+                    const String groupName = group.displayName();
+                    
+                    wxMenu* groupMenu = new wxMenu();
+                    groupMenu->SetEventHandler(this);
+                    
+                    Assets::EntityDefinitionList::const_iterator dIt, dEnd;
+                    for (dIt = definitions.begin(), dEnd = definitions.end(); dIt != dEnd; ++dIt) {
+                        const Assets::EntityDefinition* definition = *dIt;
+                        if (definition->name() != Model::PropertyValues::WorldspawnClassname)
+                            groupMenu->Append(id++, definition->shortName());
+                    }
+                    
+                    menu->AppendSubMenu(groupMenu, groupName);
                 }
-                
-                menu->AppendSubMenu(groupMenu, groupName);
             }
+
             return menu;
         }
         
