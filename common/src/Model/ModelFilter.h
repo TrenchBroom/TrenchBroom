@@ -34,11 +34,19 @@ namespace TrenchBroom {
     
     namespace Model {
         class ModelFilter {
+        public:
+            typedef enum {
+                EntityLinkMode_All,
+                EntityLinkMode_Transitive,
+                EntityLinkMode_Direct,
+                EntityLinkMode_None
+            } EntityLinkMode;
         private:
             bool m_showPointEntities;
             bool m_showBrushes;
             BrushContentType::FlagType m_hiddenBrushContentTypes;
             Bitset m_hiddenEntityDefinitions;
+            EntityLinkMode m_entityLinkMode;
         public:
             Notifier0 filterDidChangeNotifier;
         public:
@@ -56,6 +64,9 @@ namespace TrenchBroom {
             
             bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;
             void setEntityDefinitionHidden(const Assets::EntityDefinition* definition, bool hidden);
+            
+            EntityLinkMode entityLinkMode() const;
+            void setEntityLinkMode(EntityLinkMode entityLinkMode);
             
             virtual bool visible(const Object* object) const;
             virtual bool visible(const BrushFace* face) const;

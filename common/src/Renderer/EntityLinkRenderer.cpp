@@ -19,88 +19,57 @@
 
 #include "EntityLinkRenderer.h"
 
+#include "Macros.h"
 #include "Model/Entity.h"
+#include "Model/Map.h"
+#include "Model/ModelFilter.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/ShaderProgram.h"
+#include "View/MapDocument.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityLinkRenderer::Filter::~Filter() {}
-        
-        bool EntityLinkRenderer::Filter::showLink(const Model::Entity* source, const Model::Entity* target, const bool isConnectedToSelected) const {
-            return doGetShowLink(source, target, isConnectedToSelected);
-        }
-        
-        const Color& EntityLinkRenderer::Filter::linkColor(const Model::Entity* source, const Model::Entity* target, const bool isConnectedToSelected) const {
-            return doGetLinkColor(source, target, isConnectedToSelected);
-        }
-        
-        const Color& EntityLinkRenderer::Filter::killColor(const Model::Entity* source, const Model::Entity* target, const bool isConnectedToSelected) const {
-            return doGetKillColor(source, target, isConnectedToSelected);
-        }
-
-        EntityLinkRenderer::EntityLinkRenderer() :
+        EntityLinkRenderer::EntityLinkRenderer(View::MapDocumentWPtr document) :
+        m_document(document),
+        m_defaultColor(1.0f, 1.0f, 1.0f, 1.0f),
+        m_selectedColor(1.0f, 0.0f, 0.0f, 1.0f),
         m_vbo(0xFFFF),
         m_valid(false) {}
         
-        bool EntityLinkRenderer::valid() const {
-            return m_valid;
+        void EntityLinkRenderer::setDefaultColor(const Color& color) {
+            if (color == m_defaultColor)
+                return;
+            m_defaultColor = color;
+            invalidate();
         }
 
+        void EntityLinkRenderer::setSelectedColor(const Color& color) {
+            if (color == m_selectedColor)
+                return;
+            m_selectedColor = color;
+            invalidate();
+        }
+        
         void EntityLinkRenderer::invalidate() {
             m_valid = false;
         }
-        
-        void EntityLinkRenderer::validate(const Filter& filter, const Model::EntityList& entities) {
-            assert(!m_valid);
-            
-            if (entities.empty()) {
-                m_entityLinks = VertexArray();
-                m_valid = true;
-                return;
-            }
-            
-            Model::EntitySet visitedEntities;
-            Vertex::List vertices;
-            Model::EntityList::const_iterator it, end;
-            
-            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                Model::Entity* entity = *it;
-                if (entity->selected() || entity->partiallySelected())
-                    buildLinks(filter, visitedEntities, entity, true, vertices);
-            }
-            
-            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                Model::Entity* entity = *it;
-                if (!entity->selected() && !entity->partiallySelected())
-                    buildLinks(filter, visitedEntities, entity, false, vertices);
-            }
-            
-            SetVboState mapVbo(m_vbo);
-            mapVbo.mapped();
-            
-            m_entityLinks = VertexArray::swap(GL_LINES, vertices);
-            m_valid = true;
-        }
-        
+
         void EntityLinkRenderer::render(RenderContext& renderContext) {
-            assert(m_valid);
+            if (!m_valid)
+                validate();
             
             ActiveShader shader(renderContext.shaderManager(), Shaders::EntityLinkShader);
             shader.set("CameraPosition", renderContext.camera().position());
-            shader.set("MaxDistance", 1000.0f);
+            shader.set("MaxDistance", 6000.0f);
 
             SetVboState activateVbo(m_vbo);
             activateVbo.active();
-            if (!m_entityLinks.prepared()) {
-                SetVboState mapVbo(m_vbo);
-                mapVbo.mapped();
-                m_entityLinks.prepare(m_vbo);
-            }
+            if (!m_valid)
+                validate();
 
             glDisable(GL_DEPTH_TEST);
             shader.set("Alpha", 0.4f);
@@ -111,19 +80,69 @@ namespace TrenchBroom {
             m_entityLinks.render();
         }
 
-        void EntityLinkRenderer::buildLinks(const Filter& filter, Model::EntitySet& visitedEntities, Model::Entity* entity, const bool isConnectedToSelected, Vertex::List& vertices) const {
+        void EntityLinkRenderer::validate() {
+            Vertex::List vertices;
+
+            View::MapDocumentSPtr document = lock(m_document);
+            const Model::ModelFilter& filter = document->filter();
+            switch (filter.entityLinkMode()) {
+                case Model::ModelFilter::EntityLinkMode_All:
+                    addAllLinks(document, vertices);
+                    break;
+                case Model::ModelFilter::EntityLinkMode_Transitive:
+                    addTransitiveSelectedLinks(document, vertices);
+                    break;
+                case Model::ModelFilter::EntityLinkMode_Direct:
+                    addDirectSelectedLinks(document, vertices);
+                    break;
+                case Model::ModelFilter::EntityLinkMode_None:
+                    break;
+                DEFAULT_SWITCH()
+            }
+
+            SetVboState mapVbo(m_vbo);
+            mapVbo.mapped();
+            m_entityLinks = VertexArray::swap(GL_LINES, vertices);
+            m_entityLinks.prepare(m_vbo);
+            m_valid = true;
+        }
+        
+        void EntityLinkRenderer::addTransitiveSelectedLinks(View::MapDocumentSPtr document, Vertex::List& vertices) const {
+            const Model::EntityList& entities = document->map()->entities();
+            Model::EntitySet visitedEntities;
+            Model::EntityList::const_iterator it, end;
+            
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                Model::Entity* entity = *it;
+                if (entity->selected() || entity->partiallySelected())
+                    buildLinks(document->filter(), visitedEntities, entity, true, vertices);
+            }
+            
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                Model::Entity* entity = *it;
+                if (!entity->selected() && !entity->partiallySelected())
+                    buildLinks(document->filter(), visitedEntities, entity, false, vertices);
+            }
+        }
+        
+        void EntityLinkRenderer::buildLinks(const Model::ModelFilter& filter, Model::EntitySet& visitedEntities, Model::Entity* entity, const bool isConnectedToSelected, Vertex::List& vertices) const {
+            if (!filter.visible(entity))
+                return;
+            
             const bool visited = visitedEntities.insert(entity).second;
             if (!visited)
                 return;
             
             Model::EntityList::const_iterator it, end;
-
+            
             const Model::EntityList& linkTargets = entity->linkTargets();
             for (it = linkTargets.begin(), end = linkTargets.end(); it != end; ++it) {
                 Model::Entity* target = *it;
-                if (filter.showLink(entity, target, isConnectedToSelected)) {
-                    const Color& color = filter.linkColor(entity, target, isConnectedToSelected);
-                    addLink(entity, target, color, vertices);
+                if (filter.visible(target) &&
+                    (entity->selected() || entity->partiallySelected() ||
+                     target->selected() || target->partiallySelected() ||
+                     isConnectedToSelected)) {
+                    addLink(entity, target, vertices);
                     buildLinks(filter, visitedEntities, target, isConnectedToSelected, vertices);
                 }
             }
@@ -131,29 +150,79 @@ namespace TrenchBroom {
             const Model::EntityList& linkSources = entity->linkSources();
             for (it = linkSources.begin(), end = linkSources.end(); it != end; ++it) {
                 Model::Entity* source = *it;
-                if (filter.showLink(source, entity, isConnectedToSelected))
+                if (filter.visible(source) &&
+                    (source->selected() || source->partiallySelected() ||
+                     entity->selected() || entity->partiallySelected() ||
+                     isConnectedToSelected))
                     buildLinks(filter, visitedEntities, source, isConnectedToSelected, vertices);
             }
             
             const Model::EntityList& killTargets = entity->killTargets();
             for (it = killTargets.begin(), end = killTargets.end(); it != end; ++it) {
                 Model::Entity* target = *it;
-                if (filter.showLink(entity, target, isConnectedToSelected)) {
-                    const Color& color = filter.killColor(entity, target, isConnectedToSelected);
-                    addLink(entity, target, color, vertices);
+                if (filter.visible(target) &&
+                    (entity->selected() || entity->partiallySelected() ||
+                     target->selected() || target->partiallySelected() ||
+                     isConnectedToSelected)) {
+                    addLink(entity, target, vertices);
                     buildLinks(filter, visitedEntities, target, isConnectedToSelected, vertices);
                 }
             }
-
+            
             const Model::EntityList& killSources = entity->killSources();
             for (it = killSources.begin(), end = killSources.end(); it != end; ++it) {
                 Model::Entity* source = *it;
-                if (filter.showLink(source, entity, isConnectedToSelected))
+                if (filter.visible(source) &&
+                    (source->selected() || source->partiallySelected() ||
+                     entity->selected() || entity->partiallySelected() ||
+                     isConnectedToSelected))
                     buildLinks(filter, visitedEntities, source, isConnectedToSelected, vertices);
             }
         }
+        
+        void EntityLinkRenderer::addAllLinks(View::MapDocumentSPtr document, Vertex::List& vertices) const {
+            addSourceLinks(document->filter(), document->map()->entities(), vertices);
+        }
+        
+        void EntityLinkRenderer::addDirectSelectedLinks(View::MapDocumentSPtr document, Vertex::List& vertices) const {
+            addSourceLinks(document->filter(), document->allSelectedEntities(), vertices);
+            addTargetLinks(document->filter(), document->allSelectedEntities(), vertices);
+        }
+        
+        void EntityLinkRenderer::addSourceLinks(const Model::ModelFilter& filter, const Model::EntityList& entities, Vertex::List& vertices) const {
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                const Model::Entity* entity = *it;
+                if (filter.visible(entity)) {
+                    addLinks(filter, entity, entity->linkTargets(), vertices);
+                    addLinks(filter, entity, entity->killTargets(), vertices);
+                }
+            }
+        }
 
-        void EntityLinkRenderer::addLink(const Model::Entity* source, const Model::Entity* target, const Color& color, Vertex::List& vertices) const {
+        void EntityLinkRenderer::addTargetLinks(const Model::ModelFilter& filter, const Model::EntityList& entities, Vertex::List& vertices) const {
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                const Model::Entity* entity = *it;
+                if (filter.visible(entity)) {
+                    addLinks(filter, entity, entity->linkSources(), vertices);
+                    addLinks(filter, entity, entity->killSources(), vertices);
+                }
+            }
+        }
+        
+        void EntityLinkRenderer::addLinks(const Model::ModelFilter& filter, const Model::Entity* source, const Model::EntityList& targets, Vertex::List& vertices) const {
+            Model::EntityList::const_iterator it, end;
+            for (it = targets.begin(), end = targets.end(); it != end; ++it) {
+                const Model::Entity* target = *it;
+                if (filter.visible(target))
+                    addLink(source, target, vertices);
+            }
+        }
+
+        void EntityLinkRenderer::addLink(const Model::Entity* source, const Model::Entity* target, Vertex::List& vertices) const {
+            
+            const Color& color = source->selected() || source->partiallySelected() || target->selected() || target->partiallySelected() ? m_selectedColor : m_defaultColor;
             vertices.push_back(Vertex(source->bounds().center(), color));
             vertices.push_back(Vertex(target->bounds().center(), color));
         }

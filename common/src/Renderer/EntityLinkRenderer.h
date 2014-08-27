@@ -25,41 +25,49 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class ModelFilter;
+    }
+    
     namespace Renderer {
         class RenderContext;
         
         class EntityLinkRenderer {
-        public:
-            class Filter {
-            public:
-                virtual ~Filter();
-                
-                bool showLink(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const;
-                const Color& linkColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const;
-                const Color& killColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const;
-            private:
-                virtual bool doGetShowLink(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const = 0;
-                virtual const Color& doGetLinkColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const = 0;
-                virtual const Color& doGetKillColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const = 0;
-            };
         private:
             typedef VertexSpecs::P3C4::Vertex Vertex;
+            
+            View::MapDocumentWPtr m_document;
+            
+            Color m_defaultColor;
+            Color m_selectedColor;
             
             Vbo m_vbo;
             VertexArray m_entityLinks;
             bool m_valid;
         public:
-            EntityLinkRenderer();
+            EntityLinkRenderer(View::MapDocumentWPtr document);
             
-            bool valid() const;
+            void setDefaultColor(const Color& color);
+            void setSelectedColor(const Color& color);
+            
             void invalidate();
-            void validate(const Filter& filter, const Model::EntityList& entities);
             void render(RenderContext& renderContext);
         private:
-            void buildLinks(const Filter& filter, Model::EntitySet& visitedEntities, Model::Entity* source, bool isConnectedToSelected, Vertex::List& vertices) const;
-            void addLink(const Model::Entity* source, const Model::Entity* target, const Color& color, Vertex::List& vertices) const;
+            void validate();
+            
+            void addTransitiveSelectedLinks(View::MapDocumentSPtr document, Vertex::List& vertices) const;
+            void buildLinks(const Model::ModelFilter& filter, Model::EntitySet& visitedEntities, Model::Entity* source, bool isConnectedToSelected, Vertex::List& vertices) const;
+
+            void addAllLinks(View::MapDocumentSPtr document, Vertex::List& vertices) const;
+            void addDirectSelectedLinks(View::MapDocumentSPtr document, Vertex::List& vertices) const;
+            
+            void addSourceLinks(const Model::ModelFilter& filter, const Model::EntityList& entities, Vertex::List& vertices) const;
+            void addTargetLinks(const Model::ModelFilter& filter, const Model::EntityList& entities, Vertex::List& vertices) const;
+            void addLinks(const Model::ModelFilter& filter, const Model::Entity* source, const Model::EntityList& targets, Vertex::List& vertices) const;
+            void addLink(const Model::Entity* source, const Model::Entity* target, Vertex::List& vertices) const;
             
             EntityLinkRenderer(const EntityLinkRenderer& other);
             EntityLinkRenderer& operator=(const EntityLinkRenderer& other);

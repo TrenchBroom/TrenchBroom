@@ -32,7 +32,8 @@ namespace TrenchBroom {
         ModelFilter::ModelFilter() :
         m_showPointEntities(true),
         m_showBrushes(true),
-        m_hiddenBrushContentTypes(0) {}
+        m_hiddenBrushContentTypes(0),
+        m_entityLinkMode(EntityLinkMode_Direct) {}
         
         ModelFilter::~ModelFilter() {}
         
@@ -82,6 +83,17 @@ namespace TrenchBroom {
             filterDidChangeNotifier();
         }
 
+        ModelFilter::EntityLinkMode ModelFilter::entityLinkMode() const {
+            return m_entityLinkMode;
+        }
+        
+        void ModelFilter::setEntityLinkMode(const EntityLinkMode entityLinkMode) {
+            if (entityLinkMode == m_entityLinkMode)
+                return;
+            m_entityLinkMode = entityLinkMode;
+            filterDidChangeNotifier();
+        }
+        
         bool ModelFilter::visible(const Object* object) const {
             if (object->type() == Object::Type_Entity) {
                 const Entity* entity = static_cast<const Entity*>(object);

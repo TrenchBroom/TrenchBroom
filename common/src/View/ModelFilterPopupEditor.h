@@ -85,6 +85,7 @@ namespace TrenchBroom {
             wxCheckBox* m_shadeFacesCheckBox;
             wxCheckBox* m_useFogCheckBox;
             wxCheckBox* m_showEdgesCheckBox;
+            wxChoice* m_entityLinkModeChoice;
         public:
             ModelFilterEditor(wxWindow* parent, MapDocumentWPtr document);
             ~ModelFilterEditor();
@@ -99,6 +100,7 @@ namespace TrenchBroom {
             void OnShadeFacesChanged(wxCommandEvent& event);
             void OnUseFogChanged(wxCommandEvent& event);
             void OnShowEdgesChanged(wxCommandEvent& event);
+            void OnEntityLinkModeChanged(wxCommandEvent& event);
         private:
             void bindObservers();
             void unbindObservers();

@@ -99,7 +99,8 @@ namespace TrenchBroom {
         m_unselectedBrushRenderer(UnselectedBrushRendererFilter(lock(document)->filter())),
         m_selectedBrushRenderer(SelectedBrushRendererFilter(lock(document)->filter())),
         m_unselectedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()),
-        m_selectedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()) {
+        m_selectedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()),
+        m_entityLinkRenderer(m_document) {
             bindObservers();
             setupRendererColors();
             m_selectedEntityRenderer.setShowHiddenEntities(true);
@@ -129,14 +130,14 @@ namespace TrenchBroom {
         void MapRenderer::render(RenderContext& context) {
             setupGL(context);
             
-            renderEntityLinks(context);
-            renderPointFile(context);
-            
             renderUnselectedGeometry(context);
             renderUnselectedEntities(context);
             
             renderSelectedGeometry(context);
             renderSelectedEntities(context);
+
+            renderEntityLinks(context);
+            renderPointFile(context);
         }
         
         void MapRenderer::setupRendererColors() {
@@ -206,43 +207,9 @@ namespace TrenchBroom {
                 m_selectedEntityRenderer.render(context);
             }
         }
-        
-        class EntityLinkFilter : public EntityLinkRenderer::Filter {
-        private:
-            Color m_selectedColor;
-            Color m_linkColor;
-            Color m_killColor;
-        public:
-            EntityLinkFilter() :
-            m_selectedColor(1.0f, 0.0f, 0.0f, 1.0f),
-            m_linkColor(0.0f, 1.0f, 0.0f, 1.0f),
-            m_killColor(0.0f, 0.0f, 1.0f, 1.0f) {}
-            
-            bool doGetShowLink(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
-                return source->selected() || target->selected() || isConnectedToSelected;
-            }
-            
-            const Color& doGetLinkColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
-                if (source->selected() || target->selected() || isConnectedToSelected)
-                    return m_selectedColor;
-                return m_linkColor;
-            }
-            
-            const Color& doGetKillColor(const Model::Entity* source, const Model::Entity* target, bool isConnectedToSelected) const {
-                if (source->selected() || target->selected() || isConnectedToSelected)
-                    return m_selectedColor;
-                return m_killColor;
-            }
-        };
-        
+
         void MapRenderer::renderEntityLinks(RenderContext& context) {
-            View::MapDocumentSPtr document = lock(m_document);
-            
-            if (!m_entityLinkRenderer.valid() && document->map() != NULL)
-                m_entityLinkRenderer.validate(EntityLinkFilter(), document->map()->entities());
-            
-            if (m_entityLinkRenderer.valid())
-                m_entityLinkRenderer.render(context);
+            m_entityLinkRenderer.render(context);
         }
         
         void MapRenderer::renderPointFile(RenderContext& context) {
@@ -326,6 +293,7 @@ namespace TrenchBroom {
         void MapRenderer::modelFilterDidChange() {
             m_unselectedBrushRenderer.invalidate();
             m_unselectedEntityRenderer.invalidate();
+            m_entityLinkRenderer.invalidate();
         }
 
         void MapRenderer::renderConfigDidChange() {
@@ -348,6 +316,8 @@ namespace TrenchBroom {
                     m_unselectedBrushRenderer.addBrush(static_cast<Model::Brush*>(object));
                 }
             }
+            
+            m_entityLinkRenderer.invalidate();
         }
         
         void MapRenderer::objectsWillBeRemoved(const Model::ObjectList& objects) {
@@ -365,6 +335,8 @@ namespace TrenchBroom {
                     m_unselectedBrushRenderer.removeBrush(static_cast<Model::Brush*>(object));
                 }
             }
+
+            m_entityLinkRenderer.invalidate();
         }
         
         void MapRenderer::objectsDidChange(const Model::ObjectList& objects) {
@@ -384,6 +356,8 @@ namespace TrenchBroom {
                         m_unselectedBrushRenderer.invalidate();
                 }
             }
+
+            m_entityLinkRenderer.invalidate();
         }
         
         void MapRenderer::faceDidChange(Model::BrushFace* face) {
@@ -416,6 +390,8 @@ namespace TrenchBroom {
                                                  Model::entityIterator(result.selectedObjects().end()));
             m_selectedEntityRenderer.addEntities(Model::entityIterator(result.partiallySelectedObjects().begin(), result.partiallySelectedObjects().end()),
                                                  Model::entityIterator(result.partiallySelectedObjects().end()));
+            m_entityLinkRenderer.invalidate();
+
             m_entityLinkRenderer.invalidate();
         }
         

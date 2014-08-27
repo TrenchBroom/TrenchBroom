@@ -277,6 +277,26 @@ namespace TrenchBroom {
             config.setShowEdges(event.IsChecked());
         }
         
+        void ModelFilterEditor::OnEntityLinkModeChanged(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::ModelFilter& filter = document->filter();
+            
+            switch (event.GetSelection()) {
+                case 0:
+                    filter.setEntityLinkMode(Model::ModelFilter::EntityLinkMode_All);
+                    break;
+                case 1:
+                    filter.setEntityLinkMode(Model::ModelFilter::EntityLinkMode_Transitive);
+                    break;
+                case 2:
+                    filter.setEntityLinkMode(Model::ModelFilter::EntityLinkMode_Direct);
+                    break;
+                default:
+                    filter.setEntityLinkMode(Model::ModelFilter::EntityLinkMode_None);
+                    break;
+            }
+        }
+
         void ModelFilterEditor::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &ModelFilterEditor::documentWasNewedOrLoaded);
@@ -449,24 +469,37 @@ namespace TrenchBroom {
             m_useFogCheckBox = new wxCheckBox(inner, wxID_ANY, "Use fog");
             m_showEdgesCheckBox = new wxCheckBox(inner, wxID_ANY, "Show edges");
             
+            static const wxString EntityLinkModes[] = { "All", "Transitive selected", "Direct selected", "No" };
+            m_entityLinkModeChoice = new wxChoice(inner, wxID_ANY, wxDefaultPosition, wxDefaultSize, 4, EntityLinkModes);
+            
             m_faceRenderModeChoice->Bind(wxEVT_CHOICE, &ModelFilterEditor::OnFaceRenderModeChanged, this);
             m_shadeFacesCheckBox->Bind(wxEVT_CHECKBOX, &ModelFilterEditor::OnShadeFacesChanged, this);
             m_useFogCheckBox->Bind(wxEVT_CHECKBOX, &ModelFilterEditor::OnUseFogChanged, this);
             m_showEdgesCheckBox->Bind(wxEVT_CHECKBOX, &ModelFilterEditor::OnShowEdgesChanged, this);
+            m_entityLinkModeChoice->Bind(wxEVT_CHOICE, &ModelFilterEditor::OnEntityLinkModeChanged, this);
             
-            wxSizer* choiceSizer = new wxBoxSizer(wxHORIZONTAL);
-            choiceSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
-            choiceSizer->Add(m_faceRenderModeChoice);
-            choiceSizer->Add(new wxStaticText(inner, wxID_ANY, "faces"), 0, wxALIGN_CENTER_VERTICAL);
+            wxSizer* faceRenderModeSizer = new wxBoxSizer(wxHORIZONTAL);
+            faceRenderModeSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
+            faceRenderModeSizer->Add(m_faceRenderModeChoice);
+            faceRenderModeSizer->Add(new wxStaticText(inner, wxID_ANY, "faces"), 0, wxALIGN_CENTER_VERTICAL);
+            
+            wxSizer* entityLinkModeSizer = new wxBoxSizer(wxHORIZONTAL);
+            entityLinkModeSizer->AddSpacer(LayoutConstants::ChoiceLeftMargin);
+            entityLinkModeSizer->Add(m_entityLinkModeChoice);
+            entityLinkModeSizer->Add(new wxStaticText(inner, wxID_ANY, "entity links"), 0, wxALIGN_CENTER_VERTICAL);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->AddSpacer(LayoutConstants::ChoiceTopMargin);
-            sizer->Add(choiceSizer);
+            sizer->Add(faceRenderModeSizer);
             sizer->AddSpacer(LayoutConstants::ChoiceSizeDelta);
             sizer->AddSpacer(LayoutConstants::NarrowVMargin);
             sizer->Add(m_shadeFacesCheckBox);
             sizer->Add(m_useFogCheckBox);
             sizer->Add(m_showEdgesCheckBox);
+            sizer->AddSpacer(LayoutConstants::ChoiceTopMargin);
+            sizer->Add(entityLinkModeSizer);
+            sizer->AddSpacer(LayoutConstants::ChoiceSizeDelta);
+            sizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
             inner->SetSizerAndFit(sizer);
             return panel;
@@ -516,11 +549,13 @@ namespace TrenchBroom {
         void ModelFilterEditor::refreshRendererPanel() {
             MapDocumentSPtr document = lock(m_document);
             const Renderer::RenderConfig& config = document->renderConfig();
+            const Model::ModelFilter& filter = document->filter();
             
             m_faceRenderModeChoice->SetSelection(config.faceRenderMode());
             m_shadeFacesCheckBox->SetValue(config.shadeFaces());
             m_useFogCheckBox->SetValue(config.useFog());
             m_showEdgesCheckBox->SetValue(config.showEdges());
+            m_entityLinkModeChoice->SetSelection(filter.entityLinkMode());
         }
         
         ModelFilterPopupEditor::ModelFilterPopupEditor(wxWindow* parent, MapDocumentWPtr document) :
