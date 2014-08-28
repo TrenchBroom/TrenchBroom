@@ -70,9 +70,9 @@ namespace TrenchBroom {
                                Assets::TextureManager& textureManager);
             ~TextureBrowserView();
 
-            void setSortOrder(const Assets::TextureManager::SortOrder sortOrder);
-            void setGroup(const bool group);
-            void setHideUnused(const bool hideUnused);
+            void setSortOrder(Assets::TextureManager::SortOrder sortOrder);
+            void setGroup(bool group);
+            void setHideUnused(bool hideUnused);
             void setFilterText(const String& filterText);
 
             Assets::Texture* selectedTexture() const;
@@ -84,6 +84,8 @@ namespace TrenchBroom {
             
             void doClear();
             void doRender(Layout& layout, float y, float height);
+            bool doShouldRenderFocusIndicator() const;
+            
             void renderBounds(Layout& layout, float y, float height);
             const Color& textureColor(const Assets::Texture& texture) const;
             void renderTextures(Layout& layout, float y, float height);

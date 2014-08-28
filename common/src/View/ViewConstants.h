@@ -57,7 +57,7 @@ namespace TrenchBroom {
             static const int StaticBoxSideMargin                = 10;
             static const int StaticBoxTopMargin                 = 10;
             static const int StaticBoxBottomMargin              = 10;
-            static const int ChoiceTopMargin                    = 0;
+            static const int ChoiceTopMargin                    = 1;
             static const int ChoiceLeftMargin                   = 1;
             static const int ChoiceSizeDelta                    = 1;
             static const int TextBoxInnerMargin                 = 0;

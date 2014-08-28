@@ -268,6 +268,7 @@ namespace TrenchBroom {
             editMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, Action::Context_Any, "Texture Lock");
             editMenu.addSeparator();
             editMenu.addModifiableActionItem(CommandIds::Menu::EditSnapVertices, Action::Context_ObjectSelection | Action::Context_VertexTool, "Snap Vertices", KeyboardShortcut('V', WXK_SHIFT, WXK_ALT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, Action::Context_Any, "Replace Texture...");
 
             /*
              editMenu.addModifiableActionItem(CommandIds::Menu::EditHideSelected, Action::Context_Any, "Hide Selected", KeyboardShortcut('H', WXK_CONTROL));

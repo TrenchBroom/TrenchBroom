@@ -140,13 +140,13 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < m_recentDocuments.size(); ++i) {
                     wxVariant* data = new wxVariant(wxString(m_recentDocuments[i].asString()));
                     const int windowId = m_baseId + static_cast<int>(i);
-                    m_handler->Bind(wxEVT_COMMAND_MENU_SELECTED, m_function, m_handler, windowId, windowId, data);
+                    m_handler->Bind(wxEVT_MENU, m_function, m_handler, windowId, windowId, data);
                 }
             }
             
             void clearBindings() {
                 for (int i = 0; i < static_cast<int>(m_maxSize); ++i)
-                    m_handler->Unbind(wxEVT_COMMAND_MENU_SELECTED, m_function, m_handler, m_baseId + i);
+                    m_handler->Unbind(wxEVT_MENU, m_function, m_handler, m_baseId + i);
             }
             
             void insertPath(const IO::Path& path) {

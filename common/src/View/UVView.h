@@ -94,6 +94,8 @@ namespace TrenchBroom {
             
             void doUpdateViewport(int x, int y, int width, int height);
             void doRender();
+            bool doShouldRenderFocusIndicator() const;
+
             void setupGL(Renderer::RenderContext& renderContext);
 
             void renderTexture(Renderer::RenderContext& renderContext);

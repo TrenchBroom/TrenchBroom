@@ -190,6 +190,10 @@ namespace TrenchBroom {
             }
         }
         
+        bool UVView::doShouldRenderFocusIndicator() const {
+            return false;
+        }
+
         void UVView::setupGL(Renderer::RenderContext& renderContext) {
             const Renderer::Camera::Viewport& viewport = renderContext.camera().viewport();
             glViewport(viewport.x, viewport.y, viewport.width, viewport.height);

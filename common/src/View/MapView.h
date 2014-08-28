@@ -290,6 +290,8 @@ namespace TrenchBroom {
             void doInitializeGL();
 
             void doRender();
+            bool doShouldRenderFocusIndicator() const;
+            
             void setupGL(Renderer::RenderContext& context);
             void setRenderOptions(Renderer::RenderContext& context);
             void renderCoordinateSystem(Renderer::RenderContext& context);

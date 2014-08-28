@@ -285,6 +285,10 @@ namespace TrenchBroom {
             render3DCamera(context);
         }
         
+        bool MiniMapBaseView::doShouldRenderFocusIndicator() const {
+            return false;
+        }
+
         void MiniMapBaseView::render3DCamera(Renderer::RenderContext& context) {
             doRender3DCamera(context, m_auxVbo, m_camera3D);
         }

@@ -88,9 +88,13 @@ namespace TrenchBroom {
             const wxString sortOrders[2] = { "Name", "Usage" };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
-            
+            m_sortOrderChoice->SetToolTip("Select ordering criterion");
+
             m_groupButton = new wxToggleButton(this, wxID_ANY, "Group", wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_groupButton->SetToolTip("Group entity definitions by category");
+            
             m_usedButton = new wxToggleButton(this, wxID_ANY, "Used", wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_usedButton->SetToolTip("Only show entity definitions currently in use");
             
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->ShowCancelButton(true);

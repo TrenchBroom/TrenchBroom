@@ -94,6 +94,8 @@ namespace TrenchBroom {
             void fireChangeEvent();
             
             void doRender();
+            bool doShouldRenderFocusIndicator() const;
+            
             void setupGL(Renderer::RenderContext& context);
             void clearBackground(Renderer::RenderContext& context);
             void renderMap(Renderer::RenderContext& context);

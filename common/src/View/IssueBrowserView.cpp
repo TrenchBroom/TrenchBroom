@@ -98,9 +98,9 @@ namespace TrenchBroom {
             popupMenu.AppendSeparator();
             popupMenu.Append(ShowIssuesCommandId, "Show");
             popupMenu.Append(HideIssuesCommandId, "Hide");
-            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowserView::OnSelectIssues, this, SelectObjectsCommandId);
-            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowserView::OnShowIssues, this, ShowIssuesCommandId);
-            popupMenu.Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowserView::OnHideIssues, this, HideIssuesCommandId);
+            popupMenu.Bind(wxEVT_MENU, &IssueBrowserView::OnSelectIssues, this, SelectObjectsCommandId);
+            popupMenu.Bind(wxEVT_MENU, &IssueBrowserView::OnShowIssues, this, ShowIssuesCommandId);
+            popupMenu.Bind(wxEVT_MENU, &IssueBrowserView::OnHideIssues, this, HideIssuesCommandId);
             
             const Model::QuickFix::List quickFixes = collectQuickFixes(getSelection());
             if (!quickFixes.empty()) {
@@ -116,7 +116,7 @@ namespace TrenchBroom {
                 
                 const int firstId = FixObjectsBaseId;
                 const int lastId = firstId + static_cast<int>(quickFixes.size());
-                quickFixMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, &IssueBrowserView::OnApplyQuickFix, this, firstId, lastId);
+                quickFixMenu->Bind(wxEVT_MENU, &IssueBrowserView::OnApplyQuickFix, this, firstId, lastId);
             }
             
             PopupMenu(&popupMenu);

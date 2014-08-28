@@ -224,6 +224,10 @@ namespace TrenchBroom {
             renderNames(layout, y, height, projection);
         }
 
+        bool EntityBrowserView::doShouldRenderFocusIndicator() const {
+            return false;
+        }
+
         template <typename Vertex>
         struct CollectBoundsVertices {
             const Mat4x4f& transformation;

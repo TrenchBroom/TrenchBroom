@@ -41,6 +41,7 @@ namespace TrenchBroom {
             createGui(sharedContext);
             bindEvents();
             bindObservers();
+            reload();
         }
         
         TextureBrowser::~TextureBrowser() {
@@ -53,6 +54,35 @@ namespace TrenchBroom {
         
         void TextureBrowser::setSelectedTexture(Assets::Texture* selectedTexture) {
             m_view->setSelectedTexture(selectedTexture);
+        }
+
+        void TextureBrowser::setSortOrder(const Assets::TextureManager::SortOrder sortOrder) {
+            m_view->setSortOrder(sortOrder);
+            switch (sortOrder) {
+                case Assets::TextureManager::SortOrder_Name:
+                    m_sortOrderChoice->SetSelection(0);
+                    break;
+                case Assets::TextureManager::SortOrder_Usage:
+                    m_sortOrderChoice->SetSelection(1);
+                    break;
+                DEFAULT_SWITCH()
+            }
+            
+        }
+        
+        void TextureBrowser::setGroup(const bool group) {
+            m_view->setGroup(group);
+            m_groupButton->SetValue(group);
+        }
+        
+        void TextureBrowser::setHideUnused(const bool hideUnused) {
+            m_view->setHideUnused(hideUnused);
+            m_usedButton->SetValue(hideUnused);
+        }
+        
+        void TextureBrowser::setFilterText(const String& filterText) {
+            m_view->setFilterText(filterText);
+            m_filterBox->ChangeValue(filterText);
         }
 
         void TextureBrowser::OnSortOrderChanged(wxCommandEvent& event) {
@@ -96,9 +126,13 @@ namespace TrenchBroom {
             const wxString sortOrders[2] = { "Name", "Usage" };
             m_sortOrderChoice = new wxChoice(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 2, sortOrders);
             m_sortOrderChoice->SetSelection(0);
+            m_sortOrderChoice->SetToolTip("Select ordering criterion");
             
             m_groupButton = new wxToggleButton(this, wxID_ANY, "Group", wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_groupButton->SetToolTip("Group textures by texture collection");
+
             m_usedButton = new wxToggleButton(this, wxID_ANY, "Used", wxDefaultPosition, wxDefaultSize, LayoutConstants::ToggleButtonStyle | wxBU_EXACTFIT);
+            m_usedButton->SetToolTip("Only show textures currently in use");
             
             m_filterBox = new wxSearchCtrl(this, wxID_ANY);
             m_filterBox->ShowCancelButton(true);

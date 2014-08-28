@@ -185,6 +185,10 @@ namespace TrenchBroom {
             renderNames(layout, y, height);
         }
 
+        bool TextureBrowserView::doShouldRenderFocusIndicator() const {
+            return false;
+        }
+
         void TextureBrowserView::renderBounds(Layout& layout, const float y, const float height) {
             typedef Renderer::VertexSpecs::P2C4::Vertex BoundsVertex;
             BoundsVertex::List vertices;

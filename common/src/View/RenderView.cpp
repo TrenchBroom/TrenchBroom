@@ -118,7 +118,7 @@ namespace TrenchBroom {
         
         void RenderView::clearBackground() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const bool focus = HasFocus();
+            const bool focus = doShouldRenderFocusIndicator() && HasFocus();
             const Color& backgroundColor = focus ? prefs.get(Preferences::ActiveBackgroundColor) : prefs.get(Preferences::BackgroundColor);
 
             glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a());
@@ -126,7 +126,7 @@ namespace TrenchBroom {
         }
 
         void RenderView::renderFocusIndicator() {
-            if (!HasFocus())
+            if (!doShouldRenderFocusIndicator() || !HasFocus())
                 return;
             
             const Color& outer = m_focusColor;

@@ -21,6 +21,7 @@
 #define __TrenchBroom__TextureBrowser__
 
 #include "StringUtils.h"
+#include "Assets/TextureManager.h"
 #include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
@@ -59,6 +60,11 @@ namespace TrenchBroom {
             
             Assets::Texture* selectedTexture() const;
             void setSelectedTexture(Assets::Texture* selectedTexture);
+            
+            void setSortOrder(Assets::TextureManager::SortOrder sortOrder);
+            void setGroup(bool group);
+            void setHideUnused(bool hideUnused);
+            void setFilterText(const String& filterText);
             
             void OnSortOrderChanged(wxCommandEvent& event);
             void OnGroupButtonToggled(wxCommandEvent& event);

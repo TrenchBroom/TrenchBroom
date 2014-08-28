@@ -78,6 +78,7 @@ namespace TrenchBroom {
                 const int EditRepeat                         = Lowest + 107;
                 const int EditClearRepeat                    = Lowest + 108;
                 const int ViewMoveCameraToPosition           = Lowest + 109;
+                const int EditReplaceTexture                 = Lowest + 110;
 
                 const int FileRecentDocuments                = Lowest + 190;
 

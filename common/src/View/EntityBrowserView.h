@@ -97,6 +97,7 @@ namespace TrenchBroom {
             
             void doClear();
             void doRender(Layout& layout, float y, float height);
+            bool doShouldRenderFocusIndicator() const;
 
             void renderBounds(Layout& layout, float y, float height);
             void renderModels(Layout& layout, float y, float height, Renderer::Transformation& transformation);
