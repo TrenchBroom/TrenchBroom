@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Assets/TextureManager.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
 #include "Model/Map.h"
@@ -172,7 +173,21 @@ namespace TrenchBroom {
             Model::Map& map = *document()->map();
             const BBox3& worldBounds = document()->worldBounds();
             const String textureName = document()->currentTextureName();
-            return Model::createBrushFromBounds(map, worldBounds, bounds, textureName);
+            
+            Model::Brush* brush = Model::createBrushFromBounds(map, worldBounds, bounds, textureName);
+            setTexture(brush);
+            return brush;
+        }
+
+        void CreateBrushTool::setTexture(Model::Brush* brush) const {
+            Assets::TextureManager& textureManager = document()->textureManager();
+            const Model::BrushFaceList& faces = brush->faces();
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                Assets::Texture* texture = textureManager.texture(face->textureName());
+                face->setTexture(texture);
+            }
         }
 
         void CreateBrushTool::updateBrushRenderer() {

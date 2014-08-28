@@ -67,6 +67,7 @@ namespace TrenchBroom {
             Assets::EntityDefinitionManager m_entityDefinitionManager;
             Assets::EntityModelManager m_entityModelManager;
             Assets::TextureManager m_textureManager;
+            Assets::Texture* m_currentTexture;
             Model::Picker m_picker;
             Model::ModelFilter m_filter;
             Model::Selection m_selection;
@@ -194,8 +195,10 @@ namespace TrenchBroom {
             Model::SelectionResult selectFaces(const Model::BrushFaceList& faces, bool keepBrushSelection);
             Model::SelectionResult deselectFaces(const Model::BrushFaceList& faces);
             Model::SelectionResult deselectAll();
+            
             Assets::Texture* currentTexture() const;
             String currentTextureName() const;
+            void setCurrentTexture(Assets::Texture* texture);
             
             bool textureLock() const;
             void setTextureLock(const bool textureLock);

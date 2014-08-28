@@ -40,7 +40,6 @@ namespace TrenchBroom {
             BrushList m_partiallySelectedBrushes;
             BrushFaceList m_selectedFaces;
             BrushFaceList m_selectedBrushFaces;
-            BrushFace* m_lastSelectedFace;
         public:
             Selection(const ModelFilter& filter);
 
@@ -63,7 +62,6 @@ namespace TrenchBroom {
             BrushList unselectedBrushes(Map& map) const;
             BrushFaceList unselectedFaces(Map& map) const;
 
-            BrushFace* lastSelectedFace() const;
             const BBox3 computeBounds() const;
             
             SelectionResult selectObjects(const ObjectList& objects);

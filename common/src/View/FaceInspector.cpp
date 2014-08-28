@@ -56,6 +56,8 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             if (!controller->setTexture(document->allSelectedFaces(), event.texture()))
                 event.Veto();
+            else
+                document->setCurrentTexture(event.texture());
         }
 
         void FaceInspector::createGui(GLContextHolder::Ptr sharedContext) {

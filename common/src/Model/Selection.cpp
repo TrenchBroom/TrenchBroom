@@ -188,8 +188,7 @@ namespace TrenchBroom {
         };
 
         Selection::Selection(const ModelFilter& filter) :
-        m_filter(filter),
-        m_lastSelectedFace(NULL) {}
+        m_filter(filter) {}
 
         bool Selection::hasSelectedObjects() const {
             return !m_selectedObjects.empty();
@@ -268,10 +267,6 @@ namespace TrenchBroom {
             return result;
         }
 
-        BrushFace* Selection::lastSelectedFace() const {
-            return m_lastSelectedFace;
-        }
-        
         const BBox3 Selection::computeBounds() const {
             return Object::bounds(m_selectedObjects);
         }
@@ -340,9 +335,6 @@ namespace TrenchBroom {
                 applyResult(result);
             }
             
-            if (result.lastSelectedFace() != NULL)
-                m_lastSelectedFace = result.lastSelectedFace();
-            
             return result;
         }
         
@@ -382,7 +374,6 @@ namespace TrenchBroom {
             m_selectedBrushFaces.clear();
             m_partiallySelectedEntities.clear(),
             m_partiallySelectedBrushes.clear();
-            m_lastSelectedFace = NULL;
         }
 
         void Selection::convertToFaceSelection(SelectionResult& result) {

@@ -297,6 +297,7 @@ namespace TrenchBroom {
             
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
+            m_currentTexture = NULL;
 
             registerIssueGenerators();
             setDocumentPath(IO::Path("unnamed.map"));
@@ -318,7 +319,8 @@ namespace TrenchBroom {
             
             m_entityModelManager.reset(m_game);
             m_textureManager.reset(m_game);
-            
+            m_currentTexture = NULL;
+
             registerIssueGenerators();
             setDocumentPath(path);
             clearModificationCount();
@@ -579,9 +581,7 @@ namespace TrenchBroom {
         }
         
         Assets::Texture* MapDocument::currentTexture() const {
-            if (m_selection.lastSelectedFace() == NULL)
-                return NULL;
-            return m_selection.lastSelectedFace()->texture();
+            return m_currentTexture;
         }
         
         String MapDocument::currentTextureName() const {
@@ -590,6 +590,10 @@ namespace TrenchBroom {
             return Model::BrushFace::NoTextureName;
         }
         
+        void MapDocument::setCurrentTexture(Assets::Texture* texture) {
+            m_currentTexture = texture;
+        }
+
         bool MapDocument::textureLock() const {
             return m_textureLock;
         }
@@ -651,6 +655,8 @@ namespace TrenchBroom {
 
         void MapDocument::selectionDidChange(const Model::SelectionResult& selection) {
             m_selectionBoundsValid = false;
+            if (selection.lastSelectedFace() != NULL && selection.lastSelectedFace()->texture() != NULL)
+                m_currentTexture = selection.lastSelectedFace()->texture();
         }
 
         void MapDocument::objectsWereAdded(const Model::ObjectList& objects) {
@@ -838,6 +844,7 @@ namespace TrenchBroom {
         m_map(NULL),
         m_entityModelManager(this),
         m_textureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)),
+        m_currentTexture(NULL),
         m_picker(m_worldBounds),
         m_selection(m_filter),
         m_selectionBoundsValid(false),
@@ -986,6 +993,8 @@ namespace TrenchBroom {
                         Model::MapFacesIterator::end(*m_map),
                         SetTexture(m_textureManager),
                         Model::MatchAll());
+            if (m_currentTexture != NULL)
+                m_currentTexture = m_textureManager.texture(m_currentTexture->name());
         }
         
         void MapDocument::doAddExternalTextureCollections(const StringList& names) {

@@ -62,6 +62,7 @@ namespace TrenchBroom {
             BBox3 computeBounds(const Vec3& point1, const Vec3& point2) const;
             bool checkBounds(const BBox3& bounds) const;
             Model::Brush* createBrush(const BBox3& bounds) const;
+            void setTexture(Model::Brush* brush) const;
             void updateBrushRenderer();
             void updateGuideRenderer(const BBox3& bounds);
             void addBrushToMap(Model::Brush* brush);
