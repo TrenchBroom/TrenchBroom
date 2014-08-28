@@ -132,7 +132,7 @@ namespace TrenchBroom {
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(upperSizer, 1, wxEXPAND);
-            outerSizer->Add(buttonSizer, 0, wxEXPAND);
+            outerSizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
             SetSizer(outerSizer);
             
             wxAcceleratorEntry entries[] = {
@@ -141,8 +141,8 @@ namespace TrenchBroom {
             SetAcceleratorTable(wxAcceleratorTable(1, entries));
             Bind(wxEVT_MENU, &ReplaceTextureFrame::OnClose, this, wxID_CLOSE);
             
-            SetMinSize(wxSize(600, 450));
-            SetSize(wxSize(600, 450));
+            SetMinSize(wxSize(650, 450));
+            SetSize(wxSize(650, 450));
         }
     }
 }
