@@ -119,8 +119,12 @@ namespace TrenchBroom {
 
     class RenderException : public ExceptionStream<RenderException> {
     public:
-        RenderException() throw() {}
-        RenderException(const String& str) throw() : ExceptionStream(str) {}
+        RenderException() throw() {
+			bool b = true;
+		}
+        RenderException(const String& str) throw() : ExceptionStream(str) {
+			bool b = true;
+		}
         ~RenderException() throw() {}
     };
             

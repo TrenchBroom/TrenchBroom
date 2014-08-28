@@ -414,7 +414,9 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             if (document->isGamePathPreference(path)) {
                 m_unselectedEntityRenderer.reloadModels();
+				m_unselectedEntityRenderer.invalidate();
                 m_selectedEntityRenderer.reloadModels();
+				m_selectedEntityRenderer.invalidate();
                 setupRendererColors();
             }
         }

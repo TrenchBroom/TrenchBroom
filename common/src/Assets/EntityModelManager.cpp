@@ -79,7 +79,7 @@ namespace TrenchBroom {
             } catch (const GameException& e) {
                 m_modelMismatches.insert(path);
                 if (m_logger != NULL)
-                    m_logger->debug("Failed to load entity model %s: %s", path.asString().c_str(), e.what());
+                    m_logger->debug(e.what());
                 throw;
             }
         }
