@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace Renderer {
         EntityLinkRenderer::EntityLinkRenderer(View::MapDocumentWPtr document) :
         m_document(document),
-        m_defaultColor(1.0f, 1.0f, 1.0f, 1.0f),
+        m_defaultColor(0.5f, 1.0f, 0.5f, 1.0f),
         m_selectedColor(1.0f, 0.0f, 0.0f, 1.0f),
         m_vbo(0xFFFF),
         m_valid(false) {}
@@ -221,10 +221,14 @@ namespace TrenchBroom {
         }
 
         void EntityLinkRenderer::addLink(const Model::Entity* source, const Model::Entity* target, Vertex::List& vertices) const {
+            const bool anySelected = source->selected() || source->partiallySelected() || target->selected() || target->partiallySelected();
+            const Color& sourceColor = anySelected ? m_selectedColor : m_defaultColor;
+            Color targetColor = anySelected ? m_selectedColor : m_defaultColor;
+            for (size_t i = 0; i < 3; ++i)
+                targetColor[i] *= 0.5f;
             
-            const Color& color = source->selected() || source->partiallySelected() || target->selected() || target->partiallySelected() ? m_selectedColor : m_defaultColor;
-            vertices.push_back(Vertex(source->bounds().center(), color));
-            vertices.push_back(Vertex(target->bounds().center(), color));
+            vertices.push_back(Vertex(source->bounds().center(), sourceColor));
+            vertices.push_back(Vertex(target->bounds().center(), targetColor));
         }
     }
 }
