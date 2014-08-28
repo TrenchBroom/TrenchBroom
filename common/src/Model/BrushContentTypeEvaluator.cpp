@@ -52,7 +52,11 @@ namespace TrenchBroom {
             m_matcher(pattern) {}
         private:
             bool doEvaluate(const BrushFace* face) const {
-                return m_matcher.matches(face->textureName());
+                const String& textureName = face->textureName();
+                const size_t pos = textureName.find_last_of('/');
+                if (pos == String::npos)
+                    return m_matcher.matches(textureName);
+                return m_matcher.matches(textureName.substr(pos + 1));
             }
         };
         

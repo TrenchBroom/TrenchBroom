@@ -57,6 +57,14 @@ namespace TrenchBroom {
         GameConfig::FlagsConfig::FlagsConfig(const FlagConfigList& i_flags) :
         flags(i_flags) {}
 
+        int GameConfig::FlagsConfig::flagValue(const String& flagName) const {
+            for (size_t i = 0; i < flags.size(); ++i) {
+                if (flags[i].name == flagName)
+                    return static_cast<int>(1 << i);
+            }
+            return 0;
+        }
+
         String GameConfig::FlagsConfig::flagName(const size_t index) const {
             assert(index < flags.size());
             return flags[index].name;

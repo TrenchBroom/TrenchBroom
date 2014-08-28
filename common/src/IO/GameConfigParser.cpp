@@ -72,7 +72,7 @@ namespace TrenchBroom {
             Model::BrushContentType::List brushContentTypes;
             if (rootTable.contains("brushtypes")) {
                 expectTableEntry("brushtypes", ConfigEntry::Type_List, rootTable);
-                brushContentTypes = parseBrushContentTypes(rootTable["brushtypes"]);
+                brushContentTypes = parseBrushContentTypes(rootTable["brushtypes"], faceAttribsConfig);
             }
             
             return GameConfig(name, m_path, icon, fileFormats, fileSystemConfig, textureConfig, entityConfig, faceAttribsConfig, brushContentTypes);
@@ -182,7 +182,7 @@ namespace TrenchBroom {
             return flags;
         }
 
-        Model::BrushContentType::List GameConfigParser::parseBrushContentTypes(const ConfigList& list) const {
+        Model::BrushContentType::List GameConfigParser::parseBrushContentTypes(const ConfigList& list, const Model::GameConfig::FaceAttribsConfig& faceAttribsConfig) const {
             Model::BrushContentType::List contentTypes;
             for (size_t i = 0; i < list.count(); ++i) {
                 const ConfigEntry& entry = list[i];
@@ -210,9 +210,17 @@ namespace TrenchBroom {
                     Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::textureNameEvaluator(pattern);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
                 } else if (match == "contentflag") {
-                    expectTableEntry("value", ConfigEntry::Type_Value, table);
-                    const String valueStr = table["value"];
-                    const int value = std::atoi(valueStr.c_str());
+                    expectTableEntry("flags", ConfigEntry::Type_List, table);
+                    const StringSet flagSet = parseSet(table["flags"]);
+                    int value = 0;
+
+                    StringSet::const_iterator it, end;
+                    for (it = flagSet.begin(), end = flagSet.end(); it != end; ++it) {
+                        const String& flagName = *it;
+                        const int flagValue = faceAttribsConfig.contentFlags.flagValue(flagName);
+                        value |= flagValue;
+                    }
+                    
                     Model::BrushContentTypeEvaluator* evaluator = Model::BrushContentTypeEvaluator::contentFlagsEvaluator(value);
                     contentTypes.push_back(Model::BrushContentType(name, transparent, flag, evaluator));
                 } else if (match == "classname") {

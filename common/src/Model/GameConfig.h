@@ -72,6 +72,7 @@ namespace TrenchBroom {
                 FlagsConfig();
                 FlagsConfig(const FlagConfigList& i_flags);
 
+                int flagValue(const String& flagName) const;
                 String flagName(size_t index) const;
                 StringList flagNames(int mask = ~0) const;
             };
