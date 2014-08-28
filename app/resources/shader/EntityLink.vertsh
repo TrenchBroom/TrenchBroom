@@ -21,11 +21,11 @@
 
 uniform vec3 CameraPosition;
 
-varying float distance;
+varying float distanceFromCamera;
 varying vec4 color;
 
 void main(void) {
     gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
-    distance = length(CameraPosition - gl_Vertex.xyz);
+    distanceFromCamera = length(CameraPosition - gl_Vertex.xyz);
     color = gl_Color;
 }
