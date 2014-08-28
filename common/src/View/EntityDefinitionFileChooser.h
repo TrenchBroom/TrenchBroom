@@ -38,12 +38,15 @@ namespace TrenchBroom {
             wxListBox* m_builtin;
             wxStaticText* m_external;
             wxButton* m_chooseExternal;
+            wxButton* m_reloadExternal;
         public:
             EntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~EntityDefinitionFileChooser();
             
             void OnBuiltinSelectionChanged(wxCommandEvent& event);
             void OnChooseExternalClicked(wxCommandEvent& event);
+            void OnReloadExternalClicked(wxCommandEvent& event);
+            void OnUpdateReloadExternal(wxUpdateUIEvent& event);
         private:
             void createGui();
             void bindEvents();

@@ -245,6 +245,7 @@ namespace TrenchBroom {
             void updateGameSearchPaths();
             void loadAndUpdateEntityDefinitions();
             void loadEntityDefinitions();
+            void unloadEntityDefinitions();
             void clearEntityModels();
             void updateEntityDefinitions(const Model::EntityList& entities);
             void updateEntityDefinition(Model::Entity* entity);

@@ -922,8 +922,8 @@ namespace TrenchBroom {
         }
 
         void MapDocument::loadAndUpdateEntityDefinitions() {
+            unloadEntityDefinitions();
             loadEntityDefinitions();
-            clearEntityModels();
             updateEntityDefinitions(m_map->entities());
             updateEntityModels(m_map->entities());
         }
@@ -933,6 +933,17 @@ namespace TrenchBroom {
             const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
             m_entityDefinitionManager.loadDefinitions(m_game, path);
             info("Loaded entity definition file " + path.lastComponent().asString());
+        }
+        
+        void MapDocument::unloadEntityDefinitions() {
+            const Model::EntityList& entities = m_map->entities();
+            Model::each(entities.begin(),
+                        entities.end(),
+                        UnsetEntityDefinition(),
+                        Model::MatchAll());
+            m_entityDefinitionManager.clear();
+            clearEntityModels();
+            info("Unloaded entity definitions");
         }
         
         void MapDocument::clearEntityModels() {

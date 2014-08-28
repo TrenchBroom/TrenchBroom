@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SetEntityDefinitionFileCommand.h"
+#include "EntityDefinitionFileCommand.h"
 
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
@@ -25,17 +25,21 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        const Command::CommandType SetEntityDefinitionFileCommand::Type = Command::freeType();
+        const Command::CommandType EntityDefinitionFileCommand::Type = Command::freeType();
 
-        SetEntityDefinitionFileCommand::Ptr SetEntityDefinitionFileCommand::setEntityDefinitionFileSpec(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec) {
-            return Ptr(new SetEntityDefinitionFileCommand(document, spec));
+        EntityDefinitionFileCommand::Ptr EntityDefinitionFileCommand::setEntityDefinitionFileSpec(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec) {
+            return Ptr(new EntityDefinitionFileCommand(document, spec));
         }
 
-        SetEntityDefinitionFileCommand::SetEntityDefinitionFileCommand(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec) :
+        EntityDefinitionFileCommand::Ptr EntityDefinitionFileCommand::reloadEntityDefinitionFile(View::MapDocumentWPtr document) {
+            return setEntityDefinitionFileSpec(document, lock(document)->entityDefinitionFile());
+        }
+
+        EntityDefinitionFileCommand::EntityDefinitionFileCommand(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec) :
         DocumentCommand(Type, "Set Entity Definition File", true, document),
         m_newSpec(spec) {}
         
-        bool SetEntityDefinitionFileCommand::doPerformDo() {
+        bool EntityDefinitionFileCommand::doPerformDo() {
             View::MapDocumentSPtr document = lockDocument();
             Model::Entity* worldspawn = document->worldspawn();
             m_oldSpec = document->entityDefinitionFile();
@@ -45,7 +49,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool SetEntityDefinitionFileCommand::doPerformUndo() {
+        bool EntityDefinitionFileCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lockDocument();
             Model::Entity* worldspawn = document->worldspawn();
             worldspawn->addOrUpdateProperty(Model::PropertyKeys::EntityDefinitions, m_oldSpec.asString());
@@ -54,11 +58,11 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool SetEntityDefinitionFileCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
+        bool EntityDefinitionFileCommand::doIsRepeatable(View::MapDocumentSPtr document) const {
             return false;
         }
 
-        bool SetEntityDefinitionFileCommand::doCollateWith(Command::Ptr command) {
+        bool EntityDefinitionFileCommand::doCollateWith(Command::Ptr command) {
             return false;
         }
     }

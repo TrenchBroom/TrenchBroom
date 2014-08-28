@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SetEntityDefinitionFileCommand__
-#define __TrenchBroom__SetEntityDefinitionFileCommand__
+#ifndef __TrenchBroom__EntityDefinitionFileCommand__
+#define __TrenchBroom__EntityDefinitionFileCommand__
 
 #include "SharedPointer.h"
 #include "StringUtils.h"
@@ -28,17 +28,18 @@
 
 namespace TrenchBroom {
     namespace Controller {
-        class SetEntityDefinitionFileCommand : public DocumentCommand {
+        class EntityDefinitionFileCommand : public DocumentCommand {
         public:
             static const CommandType Type;
-            typedef std::tr1::shared_ptr<SetEntityDefinitionFileCommand> Ptr;
+            typedef std::tr1::shared_ptr<EntityDefinitionFileCommand> Ptr;
         private:
             Model::EntityDefinitionFileSpec m_newSpec;
             Model::EntityDefinitionFileSpec m_oldSpec;
         public:
             static Ptr setEntityDefinitionFileSpec(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec);
+            static Ptr reloadEntityDefinitionFile(View::MapDocumentWPtr document);
         private:
-            SetEntityDefinitionFileCommand(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec);
+            EntityDefinitionFileCommand(View::MapDocumentWPtr document, const Model::EntityDefinitionFileSpec& spec);
             
             bool doPerformDo();
             bool doPerformUndo();
@@ -50,4 +51,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SetEntityDefinitionFileCommand__) */
+#endif /* defined(__TrenchBroom__EntityDefinitionFileCommand__) */

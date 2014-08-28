@@ -82,6 +82,14 @@ namespace TrenchBroom {
             loadEntityDefinitionFile(m_document, m_controller, this, pathWxStr);
         }
 
+        void EntityDefinitionFileChooser::OnReloadExternalClicked(wxCommandEvent& event) {
+            lock(m_controller)->reloadEntityDefinitionFile();
+        }
+        
+        void EntityDefinitionFileChooser::OnUpdateReloadExternal(wxUpdateUIEvent& event) {
+            event.Enable(lock(m_document)->entityDefinitionFile().external());
+        }
+
         void EntityDefinitionFileChooser::createGui() {
             static const int ListBoxMargin =
 #ifdef __APPLE__
@@ -98,12 +106,17 @@ namespace TrenchBroom {
             externalHeader->SetFont(externalHeader->GetFont().Bold());
             m_external = new wxStaticText(this, wxID_ANY, "use builtin", wxDefaultPosition, wxDefaultSize, wxST_ELLIPSIZE_MIDDLE);
             m_chooseExternal = new wxButton(this, wxID_ANY, "Browse...", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_chooseExternal->SetToolTip("Click to browse for an entity definition file");
+            m_reloadExternal = new wxButton(this, wxID_ANY, "Reload", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+            m_reloadExternal->SetToolTip("Reload the currently loaded entity definition file");
 
             wxSizer* externalSizer = new wxBoxSizer(wxHORIZONTAL);
             externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             externalSizer->Add(m_external, 1, wxEXPAND | wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             externalSizer->Add(m_chooseExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            externalSizer->Add(m_reloadExternal, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             externalSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -123,6 +136,8 @@ namespace TrenchBroom {
         void EntityDefinitionFileChooser::bindEvents() {
             m_builtin->Bind(wxEVT_LISTBOX, &EntityDefinitionFileChooser::OnBuiltinSelectionChanged, this);
             m_chooseExternal->Bind(wxEVT_BUTTON, &EntityDefinitionFileChooser::OnChooseExternalClicked, this);
+            m_reloadExternal->Bind(wxEVT_BUTTON, &EntityDefinitionFileChooser::OnReloadExternalClicked, this);
+            m_reloadExternal->Bind(wxEVT_UPDATE_UI, &EntityDefinitionFileChooser::OnUpdateReloadExternal, this);
         }
 
         void EntityDefinitionFileChooser::bindObservers() {

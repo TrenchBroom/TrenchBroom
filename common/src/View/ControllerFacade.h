@@ -134,6 +134,7 @@ namespace TrenchBroom {
             
             bool setMods(const StringList& mods);
             bool setEntityDefinitionFile(const Model::EntityDefinitionFileSpec& spec);
+            bool reloadEntityDefinitionFile();
 
             bool addTextureCollection(const String& name);
             bool removeTextureCollections(const StringList& names);

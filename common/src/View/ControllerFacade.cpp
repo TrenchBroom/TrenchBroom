@@ -35,7 +35,7 @@
 #include "Controller/ResizeBrushesCommand.h"
 #include "Controller/RotateTexturesCommand.h"
 #include "Controller/SelectionCommand.h"
-#include "Controller/SetEntityDefinitionFileCommand.h"
+#include "Controller/EntityDefinitionFileCommand.h"
 #include "Controller/SetModsCommand.h"
 #include "Controller/ShearTexturesCommand.h"
 #include "Controller/SnapBrushVerticesCommand.h"
@@ -369,7 +369,14 @@ namespace TrenchBroom {
         bool ControllerFacade::setEntityDefinitionFile(const Model::EntityDefinitionFileSpec& spec) {
             using namespace Controller;
             
-            Command::Ptr command = SetEntityDefinitionFileCommand::setEntityDefinitionFileSpec(m_document, spec);
+            Command::Ptr command = EntityDefinitionFileCommand::setEntityDefinitionFileSpec(m_document, spec);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::reloadEntityDefinitionFile() {
+            using namespace Controller;
+            
+            Command::Ptr command = EntityDefinitionFileCommand::reloadEntityDefinitionFile(m_document);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
