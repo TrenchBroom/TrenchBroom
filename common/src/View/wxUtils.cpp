@@ -75,7 +75,7 @@ namespace TrenchBroom {
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(new BorderLine(parent, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::DialogButtonTopMargin);
-            sizer->Add(buttonSizer, 0, wxEXPAND | wxRIGHT, LayoutConstants::DialogButtonSideMargin);
+            sizer->Add(buttonSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::DialogButtonSideMargin);
             sizer->AddSpacer(LayoutConstants::DialogButtonBottomMargin);
             return sizer;
         }

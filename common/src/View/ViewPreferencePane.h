@@ -50,8 +50,11 @@ namespace TrenchBroom {
 
             void bindEvents();
             
+            bool doCanResetToDefaults();
+            void doResetToDefaults();
             void doUpdateControls();
             bool doValidate();
+            
             size_t findTextureMode(int minFilter, int magFilter) const;
         };
     }

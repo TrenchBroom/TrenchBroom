@@ -108,6 +108,12 @@ namespace TrenchBroom {
             m_chooseGamePathButton->Bind(wxEVT_BUTTON, &GamesPreferencePane::OnChooseGamePathClicked, this);
         }
         
+        bool GamesPreferencePane::doCanResetToDefaults() {
+            return false;
+        }
+
+        void GamesPreferencePane::doResetToDefaults() {}
+
         void GamesPreferencePane::doUpdateControls() {
             const String gameName = m_gameListBox->selectedGameName();
             Model::GameFactory& gameFactory = Model::GameFactory::instance();

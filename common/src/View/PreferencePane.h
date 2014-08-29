@@ -29,7 +29,9 @@ namespace TrenchBroom {
         public:
             PreferencePane(wxWindow* parent);
             virtual ~PreferencePane();
-            
+
+            bool canResetToDefaults();
+            void resetToDefaults();
             void updateControls();
             bool validate();
         protected:
@@ -44,6 +46,8 @@ namespace TrenchBroom {
                 slider->Bind(wxEVT_SCROLL_THUMBTRACK, function, handler);
             }
         private:
+            virtual bool doCanResetToDefaults() = 0;
+            virtual void doResetToDefaults() = 0;
             virtual void doUpdateControls() = 0;
             virtual bool doValidate() = 0;
         };

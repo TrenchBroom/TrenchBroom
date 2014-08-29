@@ -48,6 +48,8 @@ namespace TrenchBroom {
             
             void bindEvents();
             
+            bool doCanResetToDefaults();
+            void doResetToDefaults();
             void doUpdateControls();
             bool doValidate();
         };

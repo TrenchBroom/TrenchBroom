@@ -322,6 +322,35 @@ namespace TrenchBroom {
                                    this);
         }
         
+        bool CameraPreferencePane::doCanResetToDefaults() {
+            return true;
+        }
+        
+        void CameraPreferencePane::doResetToDefaults() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.resetToDefault(Preferences::CameraLookSpeed);
+            prefs.resetToDefault(Preferences::CameraLookInvertH);
+            prefs.resetToDefault(Preferences::CameraLookInvertV);
+            
+            prefs.resetToDefault(Preferences::CameraPanSpeed);
+            prefs.resetToDefault(Preferences::CameraPanInvertH);
+            prefs.resetToDefault(Preferences::CameraPanInvertV);
+            
+            prefs.resetToDefault(Preferences::CameraMoveSpeed);
+            prefs.resetToDefault(Preferences::CameraEnableAltMove);
+            prefs.resetToDefault(Preferences::CameraAltMoveInvert);
+            prefs.resetToDefault(Preferences::CameraMoveInCursorDir);
+            
+            prefs.resetToDefault(Preferences::CameraFlySpeed);
+            prefs.resetToDefault(Preferences::CameraFlyInvertV);
+            
+            prefs.resetToDefault(Preferences::CameraFlyForward);
+            prefs.resetToDefault(Preferences::CameraFlyBackward);
+            prefs.resetToDefault(Preferences::CameraFlyLeft);
+            prefs.resetToDefault(Preferences::CameraLookSpeed);
+            prefs.resetToDefault(Preferences::CameraFlyRight);
+        }
+
         void CameraPreferencePane::doUpdateControls() {
             PreferenceManager& prefs = PreferenceManager::instance();
             

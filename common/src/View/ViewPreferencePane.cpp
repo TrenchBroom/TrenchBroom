@@ -233,6 +233,20 @@ namespace TrenchBroom {
             m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureBrowserIconSizeChanged, this);
         }
 
+        bool ViewPreferencePane::doCanResetToDefaults() {
+            return true;
+        }
+        
+        void ViewPreferencePane::doResetToDefaults() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.resetToDefault(Preferences::Brightness);
+            prefs.resetToDefault(Preferences::GridAlpha);
+            prefs.resetToDefault(Preferences::BackgroundColor);
+            prefs.resetToDefault(Preferences::TextureMinFilter);
+            prefs.resetToDefault(Preferences::TextureMagFilter);
+            prefs.resetToDefault(Preferences::TextureBrowserIconSize);
+        }
+
         void ViewPreferencePane::doUpdateControls() {
             m_brightnessSlider->SetValue(static_cast<int>(pref(Preferences::Brightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(pref(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));

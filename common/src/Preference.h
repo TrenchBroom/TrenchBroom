@@ -313,6 +313,7 @@ namespace TrenchBroom {
         
         Converter<T> m_converter;
         IO::Path m_path;
+        T m_defaultValue;
         mutable T m_value;
         mutable bool m_initialized;
         bool m_modified;
@@ -351,7 +352,8 @@ namespace TrenchBroom {
     public:
         Preference(const IO::Path& path, const T& defaultValue) :
         m_path(path),
-        m_value(defaultValue),
+        m_defaultValue(defaultValue),
+        m_value(m_defaultValue),
         m_initialized(false),
         m_modified(false) {
             m_modified = m_initialized;
@@ -359,6 +361,10 @@ namespace TrenchBroom {
         
         const IO::Path& path() const {
             return m_path;
+        }
+        
+        const T& defaultValue() const {
+            return m_defaultValue;
         }
         
         const T& value() const {

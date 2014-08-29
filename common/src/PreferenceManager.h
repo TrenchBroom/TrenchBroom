@@ -70,6 +70,11 @@ namespace TrenchBroom {
                 markAsUnsaved(&preference, new ValueHolder<T>(previousValue));
             }
         }
+        
+        template <typename T>
+        void resetToDefault(Preference<T>& preference) {
+            set(preference, preference.defaultValue());
+        }
     private:
         PreferenceManager();
         

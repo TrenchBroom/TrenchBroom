@@ -495,6 +495,15 @@ namespace TrenchBroom {
             return container;
         }
         
+        bool KeyboardPreferencePane::doCanResetToDefaults() {
+            return true;
+        }
+        
+        void KeyboardPreferencePane::doResetToDefaults() {
+            // TODO: implement
+            assert(false);
+        }
+
         void KeyboardPreferencePane::doUpdateControls() {}
         
         bool KeyboardPreferencePane::doValidate() {

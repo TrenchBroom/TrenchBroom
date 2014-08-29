@@ -32,6 +32,7 @@
 #include "View/PreferencePane.h"
 #include "View/wxUtils.h"
 
+#include <wx/button.h>
 #include <wx/panel.h>
 #include <wx/sizer.h>
 #include <wx/simplebook.h>
@@ -139,6 +140,8 @@ namespace TrenchBroom {
             m_book->AddPage(new CameraPreferencePane(m_book), "Camera");
             m_book->AddPage(new KeyboardPreferencePane(m_book), "Keyboard");
             
+            wxButton* resetButton = new wxButton(this, wxID_ANY, "Reset to defaults");
+            
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_toolBar, 0, wxEXPAND);
 #if !defined __APPLE__
@@ -148,10 +151,14 @@ namespace TrenchBroom {
 #endif
             sizer->Add(m_book, 1, wxEXPAND);
             
+            wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
+            bottomSizer->Add(resetButton, 0, wxALIGN_LEFT | wxALL, LayoutConstants::DialogOuterMargin);
+            bottomSizer->AddStretchSpacer();
+            
 #if !defined __APPLE__
-            wxSizer* buttonSizer = CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL);
-            sizer->Add(wrapDialogButtonSizer(buttonSizer, this), 0, wxEXPAND);
+            bottomSizer->Add(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
 #endif
+            sizer->Add(wrapDialogButtonSizer(bottomSizer, this), 0, wxEXPAND);
             
             SetSizer(sizer);
         }

@@ -138,6 +138,8 @@ namespace TrenchBroom {
         private:
             wxWindow* createMenuShortcutGrid();
             
+            bool doCanResetToDefaults();
+            void doResetToDefaults();
             void doUpdateControls();
             bool doValidate();
         };
