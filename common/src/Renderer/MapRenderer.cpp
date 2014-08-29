@@ -417,8 +417,8 @@ namespace TrenchBroom {
 				m_unselectedEntityRenderer.invalidate();
                 m_selectedEntityRenderer.reloadModels();
 				m_selectedEntityRenderer.invalidate();
-                setupRendererColors();
             }
+            setupRendererColors();
         }
         
         void MapRenderer::clearState() {

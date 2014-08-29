@@ -33,16 +33,20 @@
 #include <wx/event.h>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-        class MiniMapRenderer;
-        class RenderContext;
+    namespace IO {
+        class Path;
     }
     
     namespace Model {
         class SelectionResult;
     }
 
+    namespace Renderer {
+        class Camera;
+        class MiniMapRenderer;
+        class RenderContext;
+    }
+    
     namespace View {
         class MiniMapBaseView : public RenderView {
         private:
@@ -85,6 +89,7 @@ namespace TrenchBroom {
             void objectsDidChange(const Model::ObjectList& objects);
             void filterDidChange();
             void renderConfigDidChange();
+            void preferenceDidChange(const IO::Path& path);
             void selectionDidChange(const Model::SelectionResult& result);
             
             void cameraDidChange(const Renderer::Camera* camera);

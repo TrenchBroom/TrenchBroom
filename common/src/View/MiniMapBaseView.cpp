@@ -224,6 +224,10 @@ namespace TrenchBroom {
             Refresh();
         }
 
+        void MiniMapBaseView::preferenceDidChange(const IO::Path& path) {
+            Refresh();
+        }
+
         void MiniMapBaseView::selectionDidChange(const Model::SelectionResult& result) {
             Refresh();
         }
