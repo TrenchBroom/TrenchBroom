@@ -122,6 +122,15 @@ namespace TrenchBroom {
             Close();
         }
 
+        void PreferenceDialog::OnResetClicked(wxCommandEvent& event) {
+            assert(currentPane()->canResetToDefaults());
+            currentPane()->resetToDefaults();
+        }
+        
+        void PreferenceDialog::OnUpdateReset(wxUpdateUIEvent& event) {
+            event.Enable(currentPane()->canResetToDefaults());
+        }
+
         void PreferenceDialog::createGui() {
             const wxBitmap gamesImage = IO::loadImageResource(IO::Path("images/GeneralPreferences.png"));
             const wxBitmap generalImage = IO::loadImageResource(IO::Path("images/GeneralPreferences.png"));
@@ -141,6 +150,8 @@ namespace TrenchBroom {
             m_book->AddPage(new KeyboardPreferencePane(m_book), "Keyboard");
             
             wxButton* resetButton = new wxButton(this, wxID_ANY, "Reset to defaults");
+            resetButton->Bind(wxEVT_BUTTON, &PreferenceDialog::OnResetClicked, this);
+            resetButton->Bind(wxEVT_UPDATE_UI, &PreferenceDialog::OnUpdateReset, this);
             
             wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_toolBar, 0, wxEXPAND);

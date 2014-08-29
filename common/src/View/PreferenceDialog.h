@@ -55,6 +55,9 @@ namespace TrenchBroom {
             void OnClose(wxCloseEvent& event);
             void OnFileClose(wxCommandEvent& event);
 
+            void OnResetClicked(wxCommandEvent& event);
+            void OnUpdateReset(wxUpdateUIEvent& event);
+            
             DECLARE_DYNAMIC_CLASS(PreferenceDialog)
         private:
             void createGui();
