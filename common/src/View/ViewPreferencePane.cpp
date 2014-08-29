@@ -24,9 +24,11 @@
 #include "Preferences.h"
 #include "View/BorderLine.h"
 #include "View/ViewConstants.h"
+#include "View/wxUtils.h"
 
 #include "Renderer/GL.h"
 #include <wx/choice.h>
+#include <wx/clrpicker.h>
 #include <wx/gbsizer.h>
 #include <wx/sizer.h>
 #include <wx/slider.h>
@@ -76,6 +78,13 @@ namespace TrenchBroom {
             const int max = m_gridAlphaSlider->GetMax();
             const float floatValue = static_cast<float>(value) / static_cast<float>(max);
             prefs.set(Preferences::GridAlpha, floatValue);
+        }
+
+        void ViewPreferencePane::OnBackgroundColorChanged(wxColourPickerEvent& event) {
+            Color value = fromWxColor(event.GetColour());
+            value[3] = 1.0f;
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::BackgroundColor, value);
         }
 
         void ViewPreferencePane::OnTextureModeChanged(wxCommandEvent& event) {
@@ -146,6 +155,9 @@ namespace TrenchBroom {
             wxStaticText* gridLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
             m_gridAlphaSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             
+            wxStaticText* backgroundColorLabel = new wxStaticText(viewBox, wxID_ANY, "Background Color");
+            m_backgroundColorPicker = new wxColourPickerCtrl(viewBox, wxID_ANY);
+            
             wxString textureModeNames[NumTextureModes];
             for (size_t i = 0; i < NumTextureModes; ++i)
                 textureModeNames[i] = TextureModes[i].name;
@@ -160,33 +172,51 @@ namespace TrenchBroom {
             m_textureBrowserIconSizeChoice->SetToolTip("Sets the icon size in the texture browser.");
             
             
-            const int HMargin       = LayoutConstants::WideHMargin;
-            const int LMargin       = LayoutConstants::WideVMargin;
-            const int HeaderFlags   = wxLEFT;
-            const int LabelFlags    = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxLEFT;
-            const int SliderFlags   = wxEXPAND | wxRIGHT;
-            const int ChoiceFlags   = wxRIGHT;
-            const int LineFlags     = wxEXPAND | wxTOP;
+            const int HMargin           = LayoutConstants::WideHMargin;
+            const int LMargin           = LayoutConstants::WideVMargin;
+            const int HeaderFlags       = wxLEFT;
+            const int LabelFlags        = wxALIGN_RIGHT | wxALIGN_CENTER_VERTICAL | wxLEFT;
+            const int SliderFlags       = wxEXPAND | wxRIGHT;
+            const int ChoiceFlags       = wxRIGHT;
+            const int ColorPickerFlags  = wxRIGHT;
+            const int LineFlags         = wxEXPAND | wxTOP;
+            
+            int r = 0;
             
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
-            sizer->Add(_3dViewPrefsHeader,                  wxGBPosition( 0, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-
-            sizer->Add(brightnessLabel,                     wxGBPosition( 1, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_brightnessSlider,                  wxGBPosition( 1, 1), wxDefaultSpan, SliderFlags, HMargin);
-
-            sizer->Add(gridLabel,                           wxGBPosition( 2, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_gridAlphaSlider,                   wxGBPosition( 2, 1), wxDefaultSpan, SliderFlags, HMargin);
+            sizer->Add(_3dViewPrefsHeader,                  wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
             
-            sizer->Add(textureModeLabel,                    wxGBPosition( 3, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_textureModeChoice,                 wxGBPosition( 3, 1), wxDefaultSpan, ChoiceFlags, HMargin);
-            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( 4, 0), wxGBSpan(1,2));
+            sizer->Add(brightnessLabel,                     wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_brightnessSlider,                  wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            ++r;
 
-            sizer->Add(new BorderLine(viewBox),             wxGBPosition( 5, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            sizer->Add(gridLabel,                           wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_gridAlphaSlider,                   wxGBPosition( r, 1), wxDefaultSpan, SliderFlags, HMargin);
+            ++r;
             
-            sizer->Add(textureBrowserPrefsHeader,           wxGBPosition( 6, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
-            sizer->Add(textureBrowserIconSizeLabel,         wxGBPosition( 7, 0), wxDefaultSpan, LabelFlags, HMargin);
-            sizer->Add(m_textureBrowserIconSizeChoice,      wxGBPosition( 7, 1), wxDefaultSpan, ChoiceFlags, HMargin);
-            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( 8, 0), wxGBSpan(1,2));
+            sizer->Add(backgroundColorLabel,                wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_backgroundColorPicker,             wxGBPosition( r, 1), wxDefaultSpan, ColorPickerFlags, HMargin);
+            ++r;
+            
+            sizer->Add(textureModeLabel,                    wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_textureModeChoice,                 wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            ++r;
+
+            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
+            ++r;
+
+            sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            ++r;
+            
+            sizer->Add(textureBrowserPrefsHeader,           wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
+
+            sizer->Add(textureBrowserIconSizeLabel,         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_textureBrowserIconSizeChoice,      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            ++r;
+
+            sizer->Add(0, LayoutConstants::ChoiceSizeDelta, wxGBPosition( r, 0), wxGBSpan(1,2));
             
             sizer->AddGrowableCol(1);
             sizer->SetMinSize(500, wxDefaultCoord);
@@ -195,16 +225,18 @@ namespace TrenchBroom {
         }
         
         void ViewPreferencePane::bindEvents() {
-            m_textureModeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureModeChanged, this);
-            m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureBrowserIconSizeChanged, this);
-            
             bindSliderEvents(m_brightnessSlider, &ViewPreferencePane::OnBrightnessChanged, this);
             bindSliderEvents(m_gridAlphaSlider, &ViewPreferencePane::OnGridAlphaChanged, this);
+            m_backgroundColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnBackgroundColorChanged, this);
+            
+            m_textureModeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureModeChanged, this);
+            m_textureBrowserIconSizeChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnTextureBrowserIconSizeChanged, this);
         }
 
         void ViewPreferencePane::doUpdateControls() {
             m_brightnessSlider->SetValue(static_cast<int>(pref(Preferences::Brightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(pref(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
+            m_backgroundColorPicker->SetColour(toWxColor(pref(Preferences::BackgroundColor)));
             
             const size_t textureModeIndex = findTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
             assert(textureModeIndex < NumTextureModes);

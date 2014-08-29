@@ -22,6 +22,8 @@
 
 #include "View/PreferencePane.h"
 
+class wxColourPickerCtrl;
+class wxColourPickerEvent;
 class wxChoice;
 class wxSlider;
 
@@ -31,6 +33,7 @@ namespace TrenchBroom {
         private:
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
+            wxColourPickerCtrl* m_backgroundColorPicker;
             wxChoice* m_textureModeChoice;
             wxChoice* m_textureBrowserIconSizeChoice;
         public:
@@ -38,6 +41,7 @@ namespace TrenchBroom {
 
             void OnBrightnessChanged(wxScrollEvent& event);
             void OnGridAlphaChanged(wxScrollEvent& event);
+            void OnBackgroundColorChanged(wxColourPickerEvent& event);
             void OnTextureModeChanged(wxCommandEvent& event);
             void OnTextureBrowserIconSizeChanged(wxCommandEvent& event);
         private:

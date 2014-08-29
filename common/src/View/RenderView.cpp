@@ -118,8 +118,7 @@ namespace TrenchBroom {
         
         void RenderView::clearBackground() {
             PreferenceManager& prefs = PreferenceManager::instance();
-            const bool focus = doShouldRenderFocusIndicator() && HasFocus();
-            const Color& backgroundColor = focus ? prefs.get(Preferences::ActiveBackgroundColor) : prefs.get(Preferences::BackgroundColor);
+            const Color& backgroundColor = prefs.get(Preferences::BackgroundColor);
 
             glClearColor(backgroundColor.r(), backgroundColor.g(), backgroundColor.b(), backgroundColor.a());
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

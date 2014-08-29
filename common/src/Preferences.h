@@ -31,7 +31,6 @@ namespace TrenchBroom {
         extern Preference<StringMap> GamePaths;
         
         extern Preference<Color> BackgroundColor;
-        extern Preference<Color> ActiveBackgroundColor;
         extern Preference<float> AxisLength;
         extern Preference<Color> XAxisColor;
         extern Preference<Color> YAxisColor;

@@ -26,7 +26,6 @@ namespace TrenchBroom {
         Preference<StringMap> GamePaths(IO::Path("Game Paths"), StringMap());
         
         Preference<Color> BackgroundColor(IO::Path("Renderer/Colors/Background"), Color(255, 255, 255));
-        Preference<Color> ActiveBackgroundColor(IO::Path("Renderer/Colors/Active Background"), Color(230, 235, 240));
         Preference<float> AxisLength(IO::Path("Renderer/Axis length"), 128.0f);
         Preference<Color> XAxisColor(IO::Path("Renderer/Colors/X axis"), Color(0xFF, 0x3D, 0x00, 0.7f));
         Preference<Color> YAxisColor(IO::Path("Renderer/Colors/Y axis"), Color(0x4B, 0x95, 0x00, 0.7f));
