@@ -175,6 +175,9 @@ namespace TrenchBroom {
             document->renderConfigDidChangeNotifier.addObserver(this, &MiniMapBaseView::renderConfigDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MiniMapBaseView::selectionDidChange);
             m_camera3D.cameraDidChangeNotifier.addObserver(this, &MiniMapBaseView::cameraDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MiniMapBaseView::preferenceDidChange);
         }
         
         void MiniMapBaseView::unbindObservers() {
@@ -190,6 +193,9 @@ namespace TrenchBroom {
                 document->renderConfigDidChangeNotifier.removeObserver(this, &MiniMapBaseView::renderConfigDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MiniMapBaseView::selectionDidChange);
             }
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MiniMapBaseView::preferenceDidChange);
 
             // Unfortunately due to the order in which objects and their fields are destroyed by the runtime system,
             // the camera has already been destroyed at this point.
