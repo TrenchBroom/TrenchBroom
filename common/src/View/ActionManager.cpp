@@ -130,6 +130,16 @@ namespace TrenchBroom {
             return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
         }
         
+        void ActionManager::resetShortcutsToDefaults() {
+            m_menu->resetShortcutsToDefaults();
+            
+            Action::List::iterator it, end;
+            for (it = m_mapViewActions.begin(), end = m_mapViewActions.end(); it != end; ++it) {
+                Action& action = *it;
+                action.resetShortcut();
+            }
+        }
+
         ActionManager::ActionManager() {
             createMapViewActions();
             createMenu();

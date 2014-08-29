@@ -48,13 +48,17 @@ namespace TrenchBroom {
             Menu& getMenu();
             wxMenuBar* createMenuBar() const;
             bool isMenuShortcutPreference(const IO::Path& path) const;
-            
-            Action::List& mapViewActions();
-            wxAcceleratorTable createMapViewAcceleratorTable(Action::Context context) const;
         private:
             wxMenu* createMenu(const Menu& menu) const;
+        public:
+            Action::List& mapViewActions();
+            wxAcceleratorTable createMapViewAcceleratorTable(Action::Context context) const;
+            
+            void resetShortcutsToDefaults();
         private:
             ActionManager();
+            ActionManager(const ActionManager&);
+            ActionManager& operator=(const ActionManager&);
             
             void createMapViewActions();
             void createMapViewAction(int id, int context, const String& name, const KeyboardShortcut& defaultShortcut);

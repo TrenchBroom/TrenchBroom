@@ -500,11 +500,13 @@ namespace TrenchBroom {
         }
         
         void KeyboardPreferencePane::doResetToDefaults() {
-            // TODO: implement
-            assert(false);
+            ActionManager& actionManager = ActionManager::instance();
+            actionManager.resetShortcutsToDefaults();
         }
 
-        void KeyboardPreferencePane::doUpdateControls() {}
+        void KeyboardPreferencePane::doUpdateControls() {
+            m_table->update();
+        }
         
         bool KeyboardPreferencePane::doValidate() {
             m_grid->SaveEditControlValue();

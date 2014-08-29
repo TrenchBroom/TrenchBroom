@@ -47,6 +47,12 @@ namespace TrenchBroom {
             return NULL;
         }
 
+        void MenuItem::resetShortcutsToDefaults() {
+            doResetShortcutsToDefaults();
+        }
+
+        void MenuItem::doResetShortcutsToDefaults() {}
+
         MenuItemWithCaption::MenuItemWithCaption(const Type type, MenuItemParent* parent) :
         MenuItem(type, parent) {}
         
@@ -82,6 +88,10 @@ namespace TrenchBroom {
             return NULL;
         }
         
+        void ActionMenuItem::doResetShortcutsToDefaults() {
+            m_action.resetShortcut();
+        }
+
         IO::Path ActionMenuItem::path(const String& text) const {
             IO::Path path(text);
             
@@ -132,6 +142,14 @@ namespace TrenchBroom {
         m_text(text) {}
 
         MenuItemParent::~MenuItemParent() {}
+
+        void MenuItemParent::doResetShortcutsToDefaults() {
+            MenuItem::List::const_iterator it, end;
+            for (it = m_items.begin(), end = m_items.end(); it != end; ++it) {
+                const MenuItem::Ptr item = *it;
+                item->resetShortcutsToDefaults();
+            }
+        }
 
         Menu::Menu(MenuItemParent* parent, const int id, const String& text) :
         MenuItemParent(Type_Menu, parent, id, text) {}

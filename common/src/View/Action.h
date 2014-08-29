@@ -80,6 +80,7 @@ namespace TrenchBroom {
             wxString menuItemString(const wxString& suffix = "") const;
 
             void updateShortcut(const KeyboardShortcut& shortcut);
+            void resetShortcut();
             bool conflictsWith(const Action& action) const;
         private:
             const KeyboardShortcut& shortcut() const;

@@ -58,6 +58,10 @@ namespace TrenchBroom {
             const MenuItemParent* parent() const;
             
             virtual const Action* findAction(int id) const;
+
+            void resetShortcutsToDefaults();
+        private:
+            virtual void doResetShortcutsToDefaults();
         };
 
         class MenuItemWithCaption : public MenuItem {
@@ -84,6 +88,7 @@ namespace TrenchBroom {
 
             const Action* findAction(int id) const;
         private:
+            void doResetShortcutsToDefaults();
             IO::Path path(const String& text) const;
         };
         
@@ -107,6 +112,8 @@ namespace TrenchBroom {
         protected:
             MenuItemParent(Type type, MenuItemParent* parent, int id, const String& text);
             virtual ~MenuItemParent();
+        private:
+            void doResetShortcutsToDefaults();
         };
         
         class Menu : public MenuItemParent {
@@ -123,7 +130,6 @@ namespace TrenchBroom {
 
             void addSeparator();
             Menu& addMenu(int id, const String& text);
-            
         private:
             MenuItem::Ptr addActionItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
             MenuItem::Ptr addCheckItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);

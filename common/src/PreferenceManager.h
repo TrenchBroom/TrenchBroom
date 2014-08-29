@@ -77,9 +77,8 @@ namespace TrenchBroom {
         }
     private:
         PreferenceManager();
-        
-        PreferenceManager(const PreferenceManager& other);
-        PreferenceManager& operator= (const PreferenceManager& other);
+        PreferenceManager(const PreferenceManager&);
+        PreferenceManager& operator=(const PreferenceManager&);
     };
     
     template <typename T>

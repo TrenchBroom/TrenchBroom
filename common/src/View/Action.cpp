@@ -114,6 +114,11 @@ namespace TrenchBroom {
             prefs.set(m_preference, shortcut);
         }
         
+        void Action::resetShortcut() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.resetToDefault(m_preference);
+        }
+
         bool Action::conflictsWith(const Action& action) const {
             if (m_id == action.m_id)
                 return false;
