@@ -32,6 +32,7 @@ namespace TrenchBroom {
 
         void PreferencePane::resetToDefaults() {
             doResetToDefaults();
+			updateControls();
         }
 
         void PreferencePane::updateControls() {

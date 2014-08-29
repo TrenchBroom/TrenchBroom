@@ -161,14 +161,17 @@ namespace TrenchBroom {
             sizer->SetItemMinSize(line, wxSize(wxDefaultCoord, 1));
 #endif
             sizer->Add(m_book, 1, wxEXPAND);
-            
+
             wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
-            bottomSizer->Add(resetButton, 0, wxALIGN_LEFT | wxALL, LayoutConstants::DialogOuterMargin);
-            bottomSizer->AddStretchSpacer();
-            
 #if !defined __APPLE__
+			bottomSizer->Add(resetButton, 0, wxALIGN_CENTER_VERTICAL);
+			bottomSizer->AddStretchSpacer();
             bottomSizer->Add(CreateButtonSizer(wxOK | wxAPPLY | wxCANCEL));
+#else
+			bottomSizer->Add(resetButton, 0, wxALL, LayoutConstants::DialogOuterMargin);
+			bottomSizer->AddStretchSpacer();
 #endif
+
             sizer->Add(wrapDialogButtonSizer(bottomSizer, this), 0, wxEXPAND);
             
             SetSizer(sizer);
