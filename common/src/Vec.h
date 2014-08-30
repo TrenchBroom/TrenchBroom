@@ -703,6 +703,13 @@ public:
         return Vec<T,S>(*this).makeAbsolute();
     }
     
+    Vec<T,S> max(const Vec<T,S>& o) const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = std::max(v[i], o[i]);
+        return result;
+    }
+    
     Vec<T,S>& round() {
         for (size_t i = 0; i < S; ++i)
             v[i] = Math::round(v[i]);

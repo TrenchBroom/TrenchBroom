@@ -90,6 +90,7 @@ namespace TrenchBroom {
         m_renderOccludedBounds(false),
         m_applyTinting(false),
         m_showHiddenEntities(false),
+        m_showClassnamesOnTop(false),
         m_vbo(0xFFF),
         m_renderAngles(false) {
             m_classnameRenderer.setFadeDistance(500.0f);
@@ -103,7 +104,7 @@ namespace TrenchBroom {
             assert(entity != NULL);
             assert(m_entities.count(entity) == 0);
             m_entities.insert(entity);
-            m_classnameRenderer.addString(entity, entity->classname(), TextAnchor::Ptr(new EntityClassnameAnchor(entity)));
+            m_classnameRenderer.addString(entity, entityString(entity), TextAnchor::Ptr(new EntityClassnameAnchor(entity)));
             m_modelRenderer.addEntity(entity);
             
             invalidateBounds();
@@ -113,7 +114,7 @@ namespace TrenchBroom {
             assert(entity != NULL);
             assert(m_entities.count(entity) == 1);
             
-            m_classnameRenderer.updateString(entity, entity->classname());
+            m_classnameRenderer.updateString(entity, entityString(entity));
             m_modelRenderer.updateEntity(entity);
             invalidateBounds();
         }
@@ -253,6 +254,14 @@ namespace TrenchBroom {
             invalidate();
         }
 
+        bool EntityRenderer::showClassnamesOnTop() const {
+            return m_showClassnamesOnTop;
+        }
+        
+        void EntityRenderer::setShowClassnamesOnTop(const bool showClassnamesOnTop) {
+            m_showClassnamesOnTop = showClassnamesOnTop;
+        }
+
         void EntityRenderer::renderBounds(RenderContext& context) {
             if (!m_boundsValid)
                 validateBounds();
@@ -286,10 +295,14 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderClassnames(RenderContext& context) {
+            if (m_showClassnamesOnTop)
+                glDisable(GL_DEPTH_TEST);
             EntityClassnameFilter textFilter(m_filter, m_showHiddenEntities);
             EntityClassnameColorProvider colorProvider(overlayTextColor(), overlayBackgroundColor());
             m_classnameRenderer.render(context, textFilter, colorProvider,
                                        Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
+            if (m_showClassnamesOnTop)
+                glEnable(GL_DEPTH_TEST);
         }
         
         void EntityRenderer::renderModels(RenderContext& context) {
@@ -468,6 +481,17 @@ namespace TrenchBroom {
             
             m_solidBoundsRenderer = TriangleRenderer(VertexArray::swap(GL_TRIANGLES, solidVertices));
             m_boundsValid = true;
+        }
+
+        AttrString EntityRenderer::entityString(const Model::Entity* entity) const {
+            const Model::PropertyValue& classname = entity->classname();
+            const Model::PropertyValue& targetname = entity->property(Model::PropertyKeys::Targetname);
+            
+            AttrString str;
+            str.appendCentered(classname);
+            if (!targetname.empty())
+                str.appendCentered(targetname);
+            return str;
         }
 
         const Color& EntityRenderer::boundsColor(const Model::Entity& entity) const {

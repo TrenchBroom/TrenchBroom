@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EntityRenderer__
 #define __TrenchBroom__EntityRenderer__
 
+#include "AttrString.h"
 #include "Color.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
@@ -98,6 +99,7 @@ namespace TrenchBroom {
             Color m_tintColor;
             
             bool m_showHiddenEntities;
+            bool m_showClassnamesOnTop;
             
             Vbo m_vbo;
             bool m_renderAngles;
@@ -164,6 +166,9 @@ namespace TrenchBroom {
             
             bool showHiddenEntities() const;
             void setShowHiddenEntities(bool showHiddenEntities);
+            
+            bool showClassnamesOnTop() const;
+            void setShowClassnamesOnTop(bool showClassnamesOnTop);
         private:
             void renderBounds(RenderContext& context);
             void renderWireframeBounds(RenderContext& context);
@@ -176,6 +181,7 @@ namespace TrenchBroom {
             void invalidateBounds();
             void validateBounds();
             
+            AttrString entityString(const Model::Entity* entity) const;
             const Color& boundsColor(const Model::Entity& entity) const;
         };
     }

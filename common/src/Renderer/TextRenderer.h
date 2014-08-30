@@ -22,6 +22,7 @@
 
 #include "Color.h"
 #include "VecMath.h"
+#include "AttrString.h"
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Renderer/Camera.h"
@@ -184,13 +185,13 @@ namespace TrenchBroom {
                 clear();
             }
             
-            void renderOnce(Key key, const String& string, TextAnchor::Ptr anchor) {
+            void renderOnce(Key key, const AttrString& string, TextAnchor::Ptr anchor) {
                 const Vec2f::List vertices = m_font.quads(string, true);
                 const Vec2f size = m_font.measure(string);
                 addString(key, vertices, size, anchor, m_renderOnce);
             }
             
-            void addString(Key key, const String& string, TextAnchor::Ptr anchor) {
+            void addString(Key key, const AttrString& string, TextAnchor::Ptr anchor) {
                 const Vec2f::List vertices = m_font.quads(string, true);
                 const Vec2f size = m_font.measure(string);
                 addString(key, vertices, size, anchor, m_entries);
@@ -203,7 +204,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void updateString(Key key, const String& string) {
+            void updateString(Key key, const AttrString& string) {
                 typename TextMap::iterator it = m_entries.find(key);
                 if (it != m_entries.end()) {
                     TextEntry& entry = it->second;

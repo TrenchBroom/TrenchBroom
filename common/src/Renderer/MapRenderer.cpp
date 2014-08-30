@@ -157,6 +157,7 @@ namespace TrenchBroom {
             m_selectedEntityRenderer.setTintColor(prefs.get(Preferences::SelectedFaceColor));
             m_selectedEntityRenderer.setRenderAngles(true);
             m_selectedEntityRenderer.setAngleColor(prefs.get(Preferences::AngleIndicatorColor));
+            m_selectedEntityRenderer.setShowClassnamesOnTop(true);
             
             m_unselectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
             m_unselectedBrushRenderer.setEdgeColor(prefs.get(Preferences::EdgeColor));
