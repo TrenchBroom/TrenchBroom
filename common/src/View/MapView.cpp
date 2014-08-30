@@ -1254,6 +1254,7 @@ namespace TrenchBroom {
             
             setupGL(context);
             setRenderOptions(context);
+            renderWorldBounds(context);
             renderMap(context);
             renderSelectionGuide(context);
             renderToolBox(context);
@@ -1281,6 +1282,59 @@ namespace TrenchBroom {
                 context.setHideMouseIndicators();
         }
         
+        class BuildWorldBoundsQuads {
+        public:
+            typedef Renderer::VertexSpecs::P3N::Vertex Vertex;
+        private:
+            Vertex::List m_vertices;
+        public:
+            BuildWorldBoundsQuads() {
+                m_vertices.reserve(6 * 4);
+            }
+            
+            const Vertex::List& vertices() const {
+                return m_vertices;
+            }
+            
+            void operator()(const Vec3& v1, const Vec3& v2, const Vec3& v3, const Vec3& v4, const Vec3& n) {
+                m_vertices.push_back(Vertex(v4, n));
+                m_vertices.push_back(Vertex(v3, n));
+                m_vertices.push_back(Vertex(v2, n));
+                m_vertices.push_back(Vertex(v1, n));
+            }
+        };
+        
+        void MapView::renderWorldBounds(Renderer::RenderContext& context) {
+            MapDocumentSPtr document = lock(m_document);
+            const BBox3& worldBounds = document->worldBounds();
+            BuildWorldBoundsQuads buildQuads;
+            eachBBoxFace(worldBounds, buildQuads);
+
+            Renderer::VertexArray vertexArray = Renderer::VertexArray::ref(GL_QUADS, buildQuads.vertices());
+            
+            Renderer::SetVboState setVboState(m_vbo);
+            setVboState.mapped();
+            vertexArray.prepare(m_vbo);
+            setVboState.active();
+            
+            const Grid& grid = document->grid();
+            Renderer::ActiveShader shader(context.shaderManager(), Renderer::Shaders::FaceShader);
+            shader.set("Color", Color(0.7f, 0.7f, 0.7f, 1.0f));
+            shader.set("CameraPosition", m_camera.position());
+            shader.set("Brightness", pref(Preferences::Brightness));
+            shader.set("Alpha", 0.5f);
+            shader.set("ApplyTexture", false);
+            shader.set("ApplyTinting", false);
+            shader.set("GrayScale", false);
+            shader.set("RenderGrid", grid.visible());
+            shader.set("GridSize", static_cast<float>(grid.size()));
+            shader.set("GridAlpha", pref(Preferences::GridAlpha));
+            shader.set("ShadeFaces", context.renderConfig().shadeFaces());
+            shader.set("UseFog", context.renderConfig().useFog());
+            
+            vertexArray.render();
+        }
+
         void MapView::renderCoordinateSystem(Renderer::RenderContext& context) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const Color& xColor = prefs.get(Preferences::XAxisColor);

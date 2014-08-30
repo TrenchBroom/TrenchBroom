@@ -205,6 +205,7 @@ namespace TrenchBroom {
             Mat4x4 fromTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale, bool project) const;
             float measureTextureAngle(const Vec2f& center, const Vec2f& point) const;
             
+            size_t vertexCount() const;
             const BrushEdgeList& edges() const;
             const BrushVertexList& vertices() const;
             

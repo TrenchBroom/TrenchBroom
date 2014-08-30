@@ -29,7 +29,6 @@ uniform bool GrayScale;
 uniform bool RenderGrid;
 uniform float GridSize;
 uniform float GridAlpha;
-uniform bool GridCheckerboard;
 uniform bool ShadeFaces;
 uniform bool UseFog;
 
@@ -37,16 +36,6 @@ varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
 varying vec3 viewVector;
-
-void gridCheckerboard(vec2 inCoords) {
-    bool evenA = mod(floor(inCoords.x / GridSize), 2) == 0;
-    bool evenB = mod(floor(inCoords.y / GridSize), 2) == 0;
-    
-    if (evenA == evenB)
-        gl_FragColor.rgb += vec3(GridAlpha * 0.1);
-    else
-        gl_FragColor.rgb -= vec3(GridAlpha * 0.1);
-}
 
 float getSoftStripes(float value, float gridSize, float stripeSize) {
 	float mainVal = value * gridSize;
@@ -173,10 +162,6 @@ void main() {
 			baseCoords = modelCoordinates.xy;
 		}
 
-		if (GridCheckerboard) {
-			gridCheckerboard(baseCoords);
-		} else {
-			gridLinesSoft(baseCoords, gridRatio, gridRatio2, gridThickness, gridBlend);
-		}
+		gridLinesSoft(baseCoords, gridRatio, gridRatio2, gridThickness, gridBlend);
 	}
 }

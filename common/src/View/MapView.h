@@ -294,6 +294,7 @@ namespace TrenchBroom {
             
             void setupGL(Renderer::RenderContext& context);
             void setRenderOptions(Renderer::RenderContext& context);
+            void renderWorldBounds(Renderer::RenderContext& context);
             void renderCoordinateSystem(Renderer::RenderContext& context);
             void renderCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor);
             void renderMap(Renderer::RenderContext& context);

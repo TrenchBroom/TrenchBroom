@@ -534,6 +534,10 @@ namespace TrenchBroom {
             return m_texCoordSystem->measureAngle(m_attribs.rotation(), center, point);
         }
 
+        size_t BrushFace::vertexCount() const {
+            return m_side->vertices.size();
+        }
+
         const BrushEdgeList& BrushFace::edges() const {
             assert(m_side != NULL);
             return m_side->edges;
