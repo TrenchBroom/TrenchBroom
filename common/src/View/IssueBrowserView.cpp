@@ -23,6 +23,7 @@
 #include "Model/IssueManager.h"
 #include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
+#include "View/wxUtils.h"
 
 #include <wx/menu.h>
 #include <wx/settings.h>
@@ -216,15 +217,7 @@ namespace TrenchBroom {
         }
 
         IssueBrowserView::IndexList IssueBrowserView::getSelection() const {
-            IndexList result(static_cast<size_t>(GetSelectedItemCount()));
-            
-            size_t i = 0;
-            long itemIndex = GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-            while (itemIndex >= 0) {
-                result[i++] = static_cast<size_t>(itemIndex);
-                itemIndex = GetNextItem(itemIndex, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-            }
-            return result;
+            return getListCtrlSelection(this);
         }
         
         void IssueBrowserView::select(const IndexList& selection) {

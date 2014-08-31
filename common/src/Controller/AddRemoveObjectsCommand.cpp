@@ -37,11 +37,11 @@ namespace TrenchBroom {
         }
 
         AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects) {
-            return AddRemoveObjectsCommand::Ptr(new AddRemoveObjectsCommand(document, Action_Add, objects));
+            return Ptr(new AddRemoveObjectsCommand(document, Action_Add, objects));
         }
 
         AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::removeObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects) {
-            return AddRemoveObjectsCommand::Ptr(new AddRemoveObjectsCommand(document, Action_Remove, objects));
+            return Ptr(new AddRemoveObjectsCommand(document, Action_Remove, objects));
         }
 
         const Model::ObjectList& AddRemoveObjectsCommand::addedObjects() const {

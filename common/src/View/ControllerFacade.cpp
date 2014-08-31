@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "TrenchBroomApp.h"
+#include "Controller/AddRemoveLayersCommand.h"
 #include "Controller/AddRemoveObjectsCommand.h"
 #include "Controller/EntityPropertyCommand.h"
 #include "Controller/FaceAttributeCommand.h"
@@ -312,6 +313,20 @@ namespace TrenchBroom {
             if (!deselectAll())
                 return false;
             return removeObjects(objects);
+        }
+
+        bool ControllerFacade::addLayer(Model::Layer* layer) {
+            using namespace Controller;
+            
+            Command::Ptr command = AddRemoveLayersCommand::addLayers(m_document, Model::LayerList(1, layer));
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+        
+        bool ControllerFacade::removeLayer(Model::Layer* layer) {
+            using namespace Controller;
+            
+            Command::Ptr command = AddRemoveLayersCommand::removeLayers(m_document, Model::LayerList(1, layer));
+            return m_commandProcessor.submitAndStoreCommand(command);
         }
 
         bool ControllerFacade::moveBrushesToWorldspawn(const Model::BrushList& brushes) {

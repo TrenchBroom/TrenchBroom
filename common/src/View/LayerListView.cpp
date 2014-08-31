@@ -22,11 +22,12 @@
 #include "Model/Layer.h"
 #include "Model/Map.h"
 #include "View/MapDocument.h"
+#include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
         LayerListView::LayerListView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
-        wxListCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_VIRTUAL | wxLC_HRULES | wxLC_VRULES | wxBORDER_NONE),
+        wxListCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_VIRTUAL | wxLC_HRULES | wxLC_VRULES | wxBORDER_NONE),
         m_document(document),
         m_controller(controller) {
             AppendColumn("Name");
@@ -41,6 +42,11 @@ namespace TrenchBroom {
             unbindObservers();
         }
 
+        size_t LayerListView::getSelection() const {
+            assert(GetSelectedItemCount() > 0);
+            return getListCtrlSelection(this).front();
+        }
+        
         void LayerListView::OnSize(wxSizeEvent& event) {
             const int newWidth = std::max(1, GetClientSize().x - GetColumnWidth(1));
             SetColumnWidth(0, newWidth);

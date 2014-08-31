@@ -471,6 +471,22 @@ namespace TrenchBroom {
                 removeObject(*it);
         }
 
+        void MapDocument::addLayers(const Model::LayerList& layers) {
+            Model::LayerList::const_iterator it, end;
+            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
+                Model::Layer* layer = *it;
+                m_map->addLayer(layer);
+            }
+        }
+        
+        void MapDocument::removeLayers(const Model::LayerList& layers) {
+            Model::LayerList::const_iterator it, end;
+            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
+                Model::Layer* layer = *it;
+                m_map->removeLayer(layer);
+            }
+        }
+
         void MapDocument::removeObject(Model::Object* object) {
             assert(object != NULL);
             assert(object->type() == Model::Object::Type_Entity ||

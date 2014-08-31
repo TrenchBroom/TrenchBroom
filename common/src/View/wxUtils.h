@@ -22,12 +22,14 @@
 
 #include "Color.h"
 
-#include <iostream>
+#include <vector>
+
 #include <wx/colour.h>
 
 class wxBitmapButton;
 class wxCursor;
 class wxFrame;
+class wxListCtrl;
 class wxSizer;
 class wxWindow;
 
@@ -41,6 +43,8 @@ namespace TrenchBroom {
 
         Color fromWxColor(const wxColor& color);
         wxColor toWxColor(const Color& color);
+
+        std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl);
         
         wxBitmapButton* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip);
         

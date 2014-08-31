@@ -36,6 +36,10 @@ namespace TrenchBroom {
             LayerListView* m_layerList;
         public:
             LayerEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
+            
+            void OnAddLayerClicked(wxCommandEvent& event);
+            void OnRemoveLayerClicked(wxCommandEvent& event);
+            void OnUpdateRemoveLayerUI(wxUpdateUIEvent& event);
         private:
             void createGui();
         };

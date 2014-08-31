@@ -28,6 +28,7 @@
 #include <wx/bitmap.h>
 #include <wx/bmpbuttn.h>
 #include <wx/frame.h>
+#include <wx/listctrl.h>
 #include <wx/sizer.h>
 #include <wx/window.h>
 
@@ -59,6 +60,21 @@ namespace TrenchBroom {
             const unsigned char b = static_cast<unsigned char>(color.b() * 255.0f);
             const unsigned char a = static_cast<unsigned char>(color.a() * 255.0f);
             return wxColor(r, g, b, a);
+        }
+
+        std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl) {
+            assert(listCtrl != NULL);
+            
+            
+            std::vector<size_t> result(static_cast<size_t>(listCtrl->GetSelectedItemCount()));
+            
+            size_t i = 0;
+            long itemIndex = listCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+            while (itemIndex >= 0) {
+                result[i++] = static_cast<size_t>(itemIndex);
+                itemIndex = listCtrl->GetNextItem(itemIndex, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+            }
+            return result;
         }
 
         wxBitmapButton* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip) {

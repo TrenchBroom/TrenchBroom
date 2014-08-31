@@ -34,10 +34,13 @@ namespace TrenchBroom {
             LayerListView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~LayerListView();
 
+            size_t getSelection() const;
+
             void OnSize(wxSizeEvent& event);
         private:
             wxListItemAttr* OnGetItemAttr(long item) const;
             wxString OnGetItemText(long item, long column) const;
+            
             
             void bindObservers();
             void unbindObservers();

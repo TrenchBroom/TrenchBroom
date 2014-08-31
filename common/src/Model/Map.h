@@ -43,8 +43,10 @@ namespace TrenchBroom {
             
             MapFormat::Type format() const;
 
-            Layer* createLayer(const String& name);
-            void deleteLayer(Layer* layer);
+            Layer* createLayer(const String& name) const;
+            void addLayer(Layer* layer);
+            bool canRemoveLayer(const Layer* layer) const;
+            void removeLayer(Layer* layer);
 
             Layer* defaultLayer() const;
             const LayerList& layers() const;

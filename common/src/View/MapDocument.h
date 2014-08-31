@@ -103,6 +103,12 @@ namespace TrenchBroom {
             Notifier1<const Model::BrushFaceList&> facesWillChangeNotifier;
             Notifier1<const Model::BrushFaceList&> facesDidChangeNotifier;
             
+            Notifier1<const Model::LayerList&> layersWereAddedNotifier;
+            Notifier1<const Model::LayerList&> layersWillBeRemovedNotifier;
+            Notifier1<const Model::LayerList&> layersWereRemovedNotifier;
+            Notifier1<const Model::LayerList&> layersWillChangeNotifier;
+            Notifier1<const Model::LayerList&> layersDidChangeNotifier;
+            
             Notifier0 modsDidChangeNotifier;
             Notifier0 entityDefinitionsDidChangeNotifier;
             Notifier0 textureCollectionsDidChangeNotifier;
@@ -169,6 +175,9 @@ namespace TrenchBroom {
             void removeObjects(const Model::ObjectList& objects);
             void removeObject(Model::Object* object);
 
+            void addLayers(const Model::LayerList& layers);
+            void removeLayers(const Model::LayerList& layers);
+            
             bool hasSelectedObjects() const;
             bool hasSelectedEntities() const;
             bool hasSelectedBrushes() const;

@@ -124,6 +124,9 @@ namespace TrenchBroom {
             Model::ObjectList duplicateObjects(const Model::ObjectList& objects, const BBox3& worldBounds);
             bool deleteSelectedObjects();
             
+            bool addLayer(Model::Layer* layer);
+            bool removeLayer(Model::Layer* layer);
+            
             bool moveBrushesToWorldspawn(const Model::BrushList& brushes);
             bool reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent);
             

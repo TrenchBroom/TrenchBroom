@@ -30,7 +30,7 @@ namespace TrenchBroom {
         Map::Map(const ModelFactory& factory) :
         m_factory(factory),
         m_worldspawn(NULL) {
-            m_layers.push_back(new Layer("Default Layer"));
+            addLayer(createLayer("Default Layer"));
         }
         
         Map::~Map() {
@@ -43,19 +43,26 @@ namespace TrenchBroom {
             return m_factory.format();
         }
 
-        Layer* Map::createLayer(const String& name) {
-            Layer* layer = new Layer(name);
-            m_layers.push_back(layer);
-            return layer;
+        Layer* Map::createLayer(const String& name) const {
+            return new Layer(name);
         }
         
-        void Map::deleteLayer(Layer* layer) {
+        void Map::addLayer(Layer* layer) {
             assert(layer != NULL);
-            assert(layer != defaultLayer()); // don't delete default layer
+            m_layers.push_back(layer);
+        }
+        
+        bool Map::canRemoveLayer(const Layer* layer) const {
+            assert(layer != NULL);
+            return layer != defaultLayer();
+        }
+
+        void Map::removeLayer(Layer* layer) {
+            assert(canRemoveLayer(layer));
+            assert(layer->objects().empty());
             
             const bool found = VectorUtils::erase(m_layers, layer);
             assert(found);
-            delete layer;
         }
         
         Layer* Map::defaultLayer() const {
