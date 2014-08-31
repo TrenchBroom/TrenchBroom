@@ -100,8 +100,8 @@ namespace TrenchBroom {
             
             Notifier5<Model::Entity*, const Model::PropertyKey&, const Model::PropertyValue&, const Model::PropertyKey&, const Model::PropertyValue&> entityPropertyDidChangeNotifier;
             
-            Notifier1<Model::BrushFace*> faceWillChangeNotifier;
-            Notifier1<Model::BrushFace*> faceDidChangeNotifier;
+            Notifier1<const Model::BrushFaceList&> facesWillChangeNotifier;
+            Notifier1<const Model::BrushFaceList&> facesDidChangeNotifier;
             
             Notifier0 modsDidChangeNotifier;
             Notifier0 entityDefinitionsDidChangeNotifier;
@@ -228,7 +228,7 @@ namespace TrenchBroom {
             
             void entityPropertyDidChange(Model::Entity* entity, const Model::PropertyKey& oldKey, const Model::PropertyValue& oldValue, const Model::PropertyKey& newKey, const Model::PropertyValue& newValue);
             
-            void faceDidChange(Model::BrushFace* face);
+            void facesDidChange(const Model::BrushFaceList& faces);
             
             void modsDidChange();
             void entityDefinitionsDidChange();

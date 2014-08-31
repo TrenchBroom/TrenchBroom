@@ -89,7 +89,7 @@ namespace TrenchBroom {
             
             void documentWasNewed();
             void documentWasLoaded();
-            void faceDidChange(Model::BrushFace* face);
+            void facesDidChange(const Model::BrushFaceList& faces);
             void selectionDidChange(const Model::SelectionResult& result);
             void textureCollectionsDidChange();
             

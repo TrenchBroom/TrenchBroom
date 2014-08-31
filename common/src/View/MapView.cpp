@@ -1039,7 +1039,7 @@ namespace TrenchBroom {
             document->objectsWereAddedNotifier.addObserver(this, &MapView::objectsWereAdded);
             document->objectsWereRemovedNotifier.addObserver(this, &MapView::objectsWereRemoved);
             document->objectsDidChangeNotifier.addObserver(this, &MapView::objectsDidChange);
-            document->faceDidChangeNotifier.addObserver(this, &MapView::faceDidChange);
+            document->facesDidChangeNotifier.addObserver(this, &MapView::facesDidChange);
             document->modelFilterDidChangeNotifier.addObserver(this, &MapView::filterDidChange);
             document->renderConfigDidChangeNotifier.addObserver(this, &MapView::renderConfigDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
@@ -1068,7 +1068,7 @@ namespace TrenchBroom {
                 document->objectsWereAddedNotifier.removeObserver(this, &MapView::objectsWereAdded);
                 document->objectsWereRemovedNotifier.removeObserver(this, &MapView::objectsWereRemoved);
                 document->objectsDidChangeNotifier.removeObserver(this, &MapView::objectsDidChange);
-                document->faceDidChangeNotifier.removeObserver(this, &MapView::faceDidChange);
+                document->facesDidChangeNotifier.removeObserver(this, &MapView::facesDidChange);
                 document->modelFilterDidChangeNotifier.removeObserver(this, &MapView::filterDidChange);
                 document->renderConfigDidChangeNotifier.removeObserver(this, &MapView::renderConfigDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapView::selectionDidChange);
@@ -1112,7 +1112,7 @@ namespace TrenchBroom {
                 m_selectionGuide.setBounds(lock(m_document)->selectionBounds());
         }
         
-        void MapView::faceDidChange(Model::BrushFace* face) {
+        void MapView::facesDidChange(const Model::BrushFaceList& faces) {
             Refresh();
         }
         

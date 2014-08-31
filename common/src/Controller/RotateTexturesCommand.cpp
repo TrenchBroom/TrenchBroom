@@ -61,13 +61,15 @@ namespace TrenchBroom {
 
         void RotateTexturesCommand::rotateTextures(const float angle) {
             View::MapDocumentSPtr document = lockDocument();
+
+            document->facesWillChangeNotifier(m_faces);
+
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
-                document->faceWillChangeNotifier(face);
                 face->rotateTexture(angle);
-                document->faceDidChangeNotifier(face);
             }
+            document->facesDidChangeNotifier(m_faces);
         }
         
         String RotateTexturesCommand::makeName(const Model::BrushFaceList& faces) {

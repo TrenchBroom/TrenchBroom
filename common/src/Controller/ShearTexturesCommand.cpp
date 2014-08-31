@@ -39,22 +39,23 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lockDocument();
             m_snapshot = Model::Snapshot(m_faces);
             
+            document->facesWillChangeNotifier(m_faces);
+
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
-                document->faceWillChangeNotifier(face);
                 face->shearTexture(m_factors);
-                document->faceDidChangeNotifier(face);
             }
+            document->facesDidChangeNotifier(m_faces);
             return true;
         }
         
         bool ShearTexturesCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lockDocument();
             
-            document->faceWillChangeNotifier(m_faces.begin(), m_faces.end());
+            document->facesWillChangeNotifier(m_faces);
             m_snapshot.restore(document->worldBounds());
-            document->faceDidChangeNotifier(m_faces.begin(), m_faces.end());
+            document->facesDidChangeNotifier(m_faces);
             return true;
         }
         

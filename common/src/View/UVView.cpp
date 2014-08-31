@@ -109,7 +109,7 @@ namespace TrenchBroom {
         void UVView::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->objectsDidChangeNotifier.addObserver(this, &UVView::objectsDidChange);
-            document->faceDidChangeNotifier.addObserver(this, &UVView::faceDidChange);
+            document->facesDidChangeNotifier.addObserver(this, &UVView::facesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &UVView::selectionDidChange);
             document->grid().gridDidChangeNotifier.addObserver(this, &UVView::gridDidChange);
             
@@ -123,7 +123,7 @@ namespace TrenchBroom {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
                 document->objectsDidChangeNotifier.removeObserver(this, &UVView::objectsDidChange);
-                document->faceDidChangeNotifier.removeObserver(this, &UVView::faceDidChange);
+                document->facesDidChangeNotifier.removeObserver(this, &UVView::facesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &UVView::selectionDidChange);
                 document->grid().gridDidChangeNotifier.removeObserver(this, &UVView::gridDidChange);
             }
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        void UVView::faceDidChange(Model::BrushFace* face) {
+        void UVView::facesDidChange(const Model::BrushFaceList& faces) {
             Refresh();
         }
 

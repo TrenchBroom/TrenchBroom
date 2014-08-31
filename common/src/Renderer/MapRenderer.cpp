@@ -235,7 +235,7 @@ namespace TrenchBroom {
             document->objectsWereAddedNotifier.addObserver(this, &MapRenderer::objectsWereAdded);
             document->objectsWillBeRemovedNotifier.addObserver(this, &MapRenderer::objectsWillBeRemoved);
             document->objectsDidChangeNotifier.addObserver(this, &MapRenderer::objectsDidChange);
-            document->faceDidChangeNotifier.addObserver(this, &MapRenderer::faceDidChange);
+            document->facesDidChangeNotifier.addObserver(this, &MapRenderer::facesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
             document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &MapRenderer::textureCollectionsDidChange);
@@ -258,7 +258,7 @@ namespace TrenchBroom {
                 document->objectsWereAddedNotifier.removeObserver(this, &MapRenderer::objectsWereAdded);
                 document->objectsWillBeRemovedNotifier.removeObserver(this, &MapRenderer::objectsWillBeRemoved);
                 document->objectsDidChangeNotifier.removeObserver(this, &MapRenderer::objectsDidChange);
-                document->faceDidChangeNotifier.removeObserver(this, &MapRenderer::faceDidChange);
+                document->facesDidChangeNotifier.removeObserver(this, &MapRenderer::facesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
                 document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &MapRenderer::textureCollectionsDidChange);
@@ -361,7 +361,7 @@ namespace TrenchBroom {
             m_entityLinkRenderer.invalidate();
         }
         
-        void MapRenderer::faceDidChange(Model::BrushFace* face) {
+        void MapRenderer::facesDidChange(const Model::BrushFaceList& faces) {
             m_selectedBrushRenderer.invalidate();
         }
         

@@ -68,12 +68,13 @@ namespace TrenchBroom {
         void MoveTexturesCommand::moveTextures(const Vec2f& offset) {
             View::MapDocumentSPtr document = lockDocument();
             Model::BrushFaceList::const_iterator it, end;
+
+            document->facesWillChangeNotifier(m_faces);
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
-                document->faceWillChangeNotifier(face);
                 face->moveTexture(m_up, m_right, offset);
-                document->faceDidChangeNotifier(face);
             }
+            document->facesDidChangeNotifier(m_faces);
         }
     }
 }

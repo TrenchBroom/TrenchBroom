@@ -91,19 +91,6 @@ namespace TrenchBroom {
 
         wxWindow* MapInspector::createModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
             CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(parent, "Mods", false);
-
-			/*
-#if defined _WIN32
-            // this is a hack to prevent the pane having the wrong background color on Windows 7
-            wxNotebook* book = static_cast<wxNotebook*>(GetParent());
-            wxColour col = book->GetThemeBackgroundColour();
-            if (col.IsOk()) {
-                collPane->SetBackgroundColour(col);
-                collPane->GetPane()->SetBackgroundColour(col);
-            }
-#endif
-			*/
-            
             ModEditor* modEditor = new ModEditor(titledPanel->getPanel(), document, controller);
 
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);

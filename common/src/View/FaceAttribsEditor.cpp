@@ -273,7 +273,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &FaceAttribsEditor::documentWasLoaded);
-            document->faceDidChangeNotifier.addObserver(this, &FaceAttribsEditor::faceDidChange);
+            document->facesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::facesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
         }
@@ -283,7 +283,7 @@ namespace TrenchBroom {
                 MapDocumentSPtr document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasLoaded);
-                document->faceDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::faceDidChange);
+                document->facesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::facesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::selectionDidChange);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
             }
@@ -301,7 +301,7 @@ namespace TrenchBroom {
             updateControls();
         }
         
-        void FaceAttribsEditor::faceDidChange(Model::BrushFace* face) {
+        void FaceAttribsEditor::facesDidChange(const Model::BrushFaceList& faces) {
             updateControls();
         }
         

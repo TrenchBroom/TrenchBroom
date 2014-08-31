@@ -270,7 +270,7 @@ namespace TrenchBroom {
             void objectsWereAdded(const Model::ObjectList& objects);
             void objectsWereRemoved(const Model::ObjectParentList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
-            void faceDidChange(Model::BrushFace* face);
+            void facesDidChange(const Model::BrushFaceList& faces);
             void filterDidChange();
             void renderConfigDidChange();
             void selectionDidChange(const Model::SelectionResult& result);

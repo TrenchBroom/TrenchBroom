@@ -624,7 +624,7 @@ namespace TrenchBroom {
             objectsWillChangeNotifier.addObserver(this, &MapDocument::objectsWillChange);
             objectsDidChangeNotifier.addObserver(this, &MapDocument::objectsDidChange);
             entityPropertyDidChangeNotifier.addObserver(this, &MapDocument::entityPropertyDidChange);
-            faceDidChangeNotifier.addObserver(this, &MapDocument::faceDidChange);
+            facesDidChangeNotifier.addObserver(this, &MapDocument::facesDidChange);
             modsDidChangeNotifier.addObserver(this, &MapDocument::modsDidChange);
             entityDefinitionsDidChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsDidChange);
             textureCollectionsDidChangeNotifier.addObserver(this, &MapDocument::textureCollectionsDidChange);
@@ -644,7 +644,7 @@ namespace TrenchBroom {
             objectsWillChangeNotifier.removeObserver(this, &MapDocument::objectsWillChange);
             objectsDidChangeNotifier.removeObserver(this, &MapDocument::objectsDidChange);
             entityPropertyDidChangeNotifier.removeObserver(this, &MapDocument::entityPropertyDidChange);
-            faceDidChangeNotifier.removeObserver(this, &MapDocument::faceDidChange);
+            facesDidChangeNotifier.removeObserver(this, &MapDocument::facesDidChange);
             modsDidChangeNotifier.removeObserver(this, &MapDocument::modsDidChange);
             entityDefinitionsDidChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsDidChange);
             textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsDidChange);
@@ -796,9 +796,13 @@ namespace TrenchBroom {
             }
         }
         
-        void MapDocument::faceDidChange(Model::BrushFace* face) {
-            Model::Brush* brush = face->parent();
-            m_issueManager.updateObjects(&brush, &brush + 1);
+        void MapDocument::facesDidChange(const Model::BrushFaceList& faces) {
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                Model::Brush* brush = face->parent();
+                m_issueManager.updateObjects(&brush, &brush + 1);
+            }
         }
 
         void MapDocument::modsDidChange() {

@@ -193,10 +193,11 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lockDocument();
             m_snapshot = Model::Snapshot(m_faces);
             
+            document->facesWillChangeNotifier(m_faces);
+
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
-                document->faceWillChangeNotifier(face);
                 if (m_setTexture)
                     face->setTexture(m_texture);
                 face->setXOffset(evaluate(face->xOffset(), m_xOffset, m_xOffsetOp));
@@ -207,17 +208,18 @@ namespace TrenchBroom {
                 face->setSurfaceFlags(evaluate(face->surfaceFlags(), m_surfaceFlags, m_surfaceFlagsOp));
                 face->setSurfaceContents(evaluate(face->surfaceContents(), m_contentFlags, m_contentFlagsOp));
                 face->setSurfaceValue(evaluate(face->surfaceValue(), m_surfaceValue, m_surfaceValueOp));
-                document->faceDidChangeNotifier(face);
             }
+
+            document->facesDidChangeNotifier(m_faces);
             return true;
         }
         
         bool FaceAttributeCommand::doPerformUndo() {
             View::MapDocumentSPtr document = lockDocument();
 
-            document->faceWillChangeNotifier(m_faces.begin(), m_faces.end());
+            document->facesWillChangeNotifier(m_faces);
             m_snapshot.restore(document->worldBounds());
-            document->faceDidChangeNotifier(m_faces.begin(), m_faces.end());
+            document->facesDidChangeNotifier(m_faces);
             return true;
         }
 
