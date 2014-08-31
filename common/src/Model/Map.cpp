@@ -20,6 +20,7 @@
 #include "Map.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/Layer.h"
 #include "Model/ModelUtils.h"
@@ -62,6 +63,7 @@ namespace TrenchBroom {
             assert(layer->objects().empty());
             
             const bool found = VectorUtils::erase(m_layers, layer);
+            _UNUSED(found);
             assert(found);
         }
         

@@ -56,6 +56,7 @@ namespace TrenchBroom {
         wxListItemAttr* LayerListView::OnGetItemAttr(const long item) const {
             const Model::Map* map = lock(m_document)->map();
             const Model::LayerList& layers = map->layers();
+            _UNUSED(layers);
             assert(item >= 0 && static_cast<size_t>(item) < layers.size());
             
             static wxListItemAttr attr;
