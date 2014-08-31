@@ -269,7 +269,7 @@ TEST(CollectionUtilsTest, vecRemove) {
     for (size_t i = 0; i < count; i++)
         vec.push_back(new TestObject(deleted[i]));
     
-    VectorUtils::remove(vec, vec[2]);
+    VectorUtils::erase(vec, vec[2]);
     ASSERT_EQ(count - 1, vec.size());
     ASSERT_FALSE(deleted[2]);
     VectorUtils::clearAndDelete(vec);
@@ -284,7 +284,7 @@ TEST(CollectionUtilsTest, vecRemoveAndDelete) {
     for (size_t i = 0; i < count; i++)
         vec.push_back(new TestObject(deleted[i]));
     
-    VectorUtils::removeAndDelete(vec, vec[2]);
+    VectorUtils::eraseAndDelete(vec, vec[2]);
     ASSERT_EQ(count - 1, vec.size());
     ASSERT_TRUE(deleted[2]);
     VectorUtils::clearAndDelete(vec);
