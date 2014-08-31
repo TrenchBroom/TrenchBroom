@@ -123,6 +123,7 @@ namespace TrenchBroom {
             
             Model::MapFormat::Type m_format;
             Model::ModelFactory m_factory;
+            Model::Layer* m_currentLayer;
         public:
             QuakeMapParser(const char* begin, const char* end, const Model::Game* game, Logger* logger = NULL);
             QuakeMapParser(const String& str, const Model::Game* game, Logger* logger = NULL);

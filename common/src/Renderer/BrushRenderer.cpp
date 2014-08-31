@@ -89,7 +89,7 @@ namespace TrenchBroom {
         }
         
         void BrushRenderer::removeBrush(Model::Brush* brush) {
-            VectorUtils::remove(m_brushes, brush);
+            VectorUtils::erase(m_brushes, brush);
         }
 
         void BrushRenderer::setBrushes(const Model::BrushList& brushes) {

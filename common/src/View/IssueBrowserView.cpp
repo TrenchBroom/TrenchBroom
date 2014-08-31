@@ -141,7 +141,7 @@ namespace TrenchBroom {
         void IssueBrowserView::updateIssues() {
             Model::IssueManager& issueManager = lock(m_document)->issueManager();
             m_issues = issueManager.issues();
-            VectorUtils::removeIf(m_issues, IssueFilter(m_hiddenGenerators, m_showHiddenIssues));
+            VectorUtils::eraseIf(m_issues, IssueFilter(m_hiddenGenerators, m_showHiddenIssues));
             VectorUtils::sort(m_issues, IssueCmp());
         }
 

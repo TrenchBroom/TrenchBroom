@@ -121,7 +121,7 @@ namespace TrenchBroom {
             edge->right->edges.push_back(newEdge2);
             
             // delete the split edge
-            VectorUtils::remove(geometry.edges, edge);
+            VectorUtils::erase(geometry.edges, edge);
             delete edge;
             
             return newVertex;

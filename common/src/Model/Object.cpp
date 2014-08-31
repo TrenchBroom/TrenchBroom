@@ -106,6 +106,15 @@ namespace TrenchBroom {
                 m_hiddenIssues &= ~type;
         }
 
+        Layer* Object::layer() const {
+            return m_layer;
+        }
+        
+        void Object::setLayer(Layer* layer) {
+            m_layer = layer;
+        }
+        
+
         Object* Object::clone(const BBox3& worldBounds) const {
             return doClone(worldBounds);
         }
@@ -160,7 +169,8 @@ namespace TrenchBroom {
         m_lineCount(0),
         m_selected(false),
         m_childSelectionCount(0),
-        m_hiddenIssues(0) {}
+        m_hiddenIssues(0),
+        m_layer(NULL) {}
 
         void Object::incChildSelectionCount() {
             ++m_childSelectionCount;

@@ -203,7 +203,7 @@ namespace TrenchBroom {
                 throw AssetException("Unknown external texture collection: '" + name + "'");
             
             TextureCollection* collection = it->second;
-            VectorUtils::remove(collections, collection);
+            VectorUtils::erase(collections, collection);
             
             collectionsByName.erase(it);
             m_toPrepare.erase(name);

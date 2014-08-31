@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Model/Brush.h"
+#include "Model/Layer.h"
 #include "Model/ModelUtils.h"
 #include "Model/Object.h"
 
@@ -28,15 +29,41 @@ namespace TrenchBroom {
     namespace Model {
         Map::Map(const ModelFactory& factory) :
         m_factory(factory),
-        m_worldspawn(NULL) {}
+        m_worldspawn(NULL) {
+            m_layers.push_back(new Layer("Default Layer"));
+        }
         
         Map::~Map() {
             m_worldspawn = NULL;
+            VectorUtils::clearAndDelete(m_layers);
             VectorUtils::clearAndDelete(m_entities);
         }
 
         MapFormat::Type Map::format() const {
             return m_factory.format();
+        }
+
+        Layer* Map::createLayer(const String& name) {
+            Layer* layer = new Layer(name);
+            m_layers.push_back(layer);
+            return layer;
+        }
+        
+        void Map::deleteLayer(Layer* layer) {
+            assert(layer != NULL);
+            assert(layer != defaultLayer()); // don't delete default layer
+            
+            const bool found = VectorUtils::erase(m_layers, layer);
+            assert(found);
+            delete layer;
+        }
+        
+        Layer* Map::defaultLayer() const {
+            return m_layers.front();
+        }
+        
+        const LayerList& Map::layers() const {
+            return m_layers;
         }
 
         Entity* Map::createEntity() const {
@@ -62,7 +89,7 @@ namespace TrenchBroom {
         }
 
         void Map::removeEntity(Entity* entity) {
-            VectorUtils::remove(m_entities, entity);
+            VectorUtils::erase(m_entities, entity);
             entity->setMap(NULL);
             removeEntityPropertiesFromIndex(entity);
         }

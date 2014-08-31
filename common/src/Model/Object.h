@@ -54,6 +54,8 @@ namespace TrenchBroom {
             bool m_selected;
             size_t m_childSelectionCount;
             IssueType m_hiddenIssues;
+            
+            Layer* m_layer;
         public:
             virtual ~Object();
             
@@ -89,6 +91,9 @@ namespace TrenchBroom {
             void setHiddenIssues(IssueType hiddenIssues);
             bool isIssueHidden(const Issue* issue) const;
             void setIssueHidden(IssueType type, bool hidden);
+            
+            Layer* layer() const;
+            void setLayer(Layer* layer);
             
             Object* clone(const BBox3& worldBounds) const;
             void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);

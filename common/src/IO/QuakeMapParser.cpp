@@ -27,6 +27,7 @@
 #include "Model/Entity.h"
 #include "Model/Game.h"
 #include "Model/Issue.h"
+#include "Model/Layer.h"
 #include "Model/Map.h"
 #include "Model/QuakeEntityRotationPolicy.h"
 #include "Model/ParallelTexCoordSystem.h"
@@ -154,13 +155,15 @@ namespace TrenchBroom {
         m_tokenizer(QuakeMapTokenizer(begin, end)),
         m_game(game),
         m_logger(logger),
-        m_format(Model::MapFormat::Unknown) {}
+        m_format(Model::MapFormat::Unknown),
+        m_currentLayer(NULL) {}
                     
         QuakeMapParser::QuakeMapParser(const String& str, const Model::Game* game, Logger* logger) :
         m_tokenizer(QuakeMapTokenizer(str)),
         m_game(game),
         m_logger(logger),
-        m_format(Model::MapFormat::Unknown) {}
+        m_format(Model::MapFormat::Unknown),
+        m_currentLayer(NULL) {}
         
         QuakeMapParser::TokenNameMap QuakeMapParser::tokenNames() const {
             using namespace QuakeMapToken;
@@ -184,6 +187,7 @@ namespace TrenchBroom {
             setFormat(detectFormat());
             
             Model::Map* map = m_factory.createMap();
+            m_currentLayer = map->defaultLayer();
             try {
                 Model::Entity* entity = parseEntity(worldBounds);
                 while (entity != NULL) {
@@ -325,8 +329,10 @@ namespace TrenchBroom {
                             bool moreBrushes = true;
                             while (moreBrushes) {
                                 Model::Brush* brush = parseBrush(worldBounds);
-                                if (brush != NULL)
+                                if (brush != NULL) {
                                     entity->addBrush(brush);
+                                    m_currentLayer->addObject(brush);
+                                }
                                 expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
                                 moreBrushes = (token.type() == QuakeMapToken::OBrace);
                                 m_tokenizer.pushToken(token);
@@ -346,7 +352,8 @@ namespace TrenchBroom {
                 delete entity;
                 throw;
             }
-            
+
+            m_currentLayer->addObject(entity);
             return entity;
         }
         

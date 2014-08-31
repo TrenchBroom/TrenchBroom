@@ -70,7 +70,7 @@ namespace TrenchBroom {
             void removeMenu(wxMenu* menu) {
                 assert(menu != NULL);
                 clearMenu(menu);
-                VectorUtils::remove(m_menus, menu);
+                VectorUtils::erase(m_menus, menu);
             }
             
             void setHandler(EventHandler* handler, Function function) {
@@ -96,7 +96,7 @@ namespace TrenchBroom {
                 const size_t oldSize = m_recentDocuments.size();
                 
                 const IO::Path canonPath = path.makeCanonical();
-                VectorUtils::remove(m_recentDocuments, canonPath);
+                VectorUtils::erase(m_recentDocuments, canonPath);
                 
                 if (oldSize > m_recentDocuments.size()) {
                     updateMenus();

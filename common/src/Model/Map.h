@@ -33,6 +33,7 @@ namespace TrenchBroom {
         class Map {
         private:
             ModelFactory m_factory;
+            LayerList m_layers;
             EntityList m_entities;
             EntityPropertyIndex m_entityPropertyIndex;
             mutable Entity* m_worldspawn;
@@ -42,6 +43,12 @@ namespace TrenchBroom {
             
             MapFormat::Type format() const;
 
+            Layer* createLayer(const String& name);
+            void deleteLayer(Layer* layer);
+
+            Layer* defaultLayer() const;
+            const LayerList& layers() const;
+            
             Entity* createEntity() const;
             Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
             BrushFace* createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;

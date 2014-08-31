@@ -139,7 +139,7 @@ namespace TrenchBroom {
             // delete the side that was split
             m_faceManager.dropFace(side);
             assert(VectorUtils::contains(geometry.sides, side));
-            VectorUtils::removeAndDelete(geometry.sides, side);
+            VectorUtils::eraseAndDelete(geometry.sides, side);
             
             return newVertex;
         }

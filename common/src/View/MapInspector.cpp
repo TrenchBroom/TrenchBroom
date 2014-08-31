@@ -21,6 +21,7 @@
 
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
+#include "View/LayerEditor.h"
 #include "View/MapTreeView.h"
 #include "View/MiniMap.h"
 #include "View/ModEditor.h"
@@ -47,13 +48,14 @@ namespace TrenchBroom {
 
         void MapInspector::createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) {
             wxWindow* miniMap = createMiniMap(this, sharedContext, document, camera);
-            wxWindow* mapTree = createMapTree(this, document, controller);
+            // wxWindow* mapTree = createMapTree(this, document, controller);
+            wxWindow* layerEditor = createLayerEditor(this, document, controller);
             wxWindow* modEditor = createModEditor(this, document, controller);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(miniMap, 0, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(mapTree, 1, wxEXPAND);
+            sizer->Add(layerEditor, 1, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(modEditor, 0, wxEXPAND);
             
@@ -76,6 +78,17 @@ namespace TrenchBroom {
             return titledPanel;
         }
         
+        wxWindow* MapInspector::createLayerEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
+            TitledPanel* titledPanel = new TitledPanel(parent, "Layers");
+            LayerEditor* layerEditor = new LayerEditor(titledPanel->getPanel(), document, controller);
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(layerEditor, 1, wxEXPAND);
+            titledPanel->getPanel()->SetSizer(sizer);
+            
+            return titledPanel;
+        }
+
         wxWindow* MapInspector::createModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
             CollapsibleTitledPanel* titledPanel = new CollapsibleTitledPanel(parent, "Mods", false);
 

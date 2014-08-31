@@ -232,12 +232,57 @@ namespace VectorUtils {
     }
     
     template <typename T>
-    bool eraseAndDelete(std::vector<T*>& vec, const T* item) {
-        typename std::vector<T*>::iterator it = find(vec, item);
+    void clearAndDelete(std::vector<T*>& vec) {
+        std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
+        vec.clear();
+    }
+    
+    template <typename T>
+    void deleteAll(const std::vector<T*>& vec) {
+        std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
+    }
+    
+    template <typename T>
+    bool erase(std::vector<T>& vec, const T& item) {
+        typename std::vector<T>::iterator it = std::remove(vec.begin(), vec.end(), item);
         if (it == vec.end())
             return false;
-        delete *it;
-        vec.erase(it);
+        vec.erase(it, vec.end());
+        return true;
+    }
+    
+    template <typename T>
+    bool erase(std::vector<T*>& vec, const T* item) {
+        typename std::vector<T*>::iterator it = std::remove(vec.begin(), vec.end(), item);
+        if (it == vec.end())
+            return false;
+        vec.erase(it, vec.end());
+        return true;
+    }
+    
+    template <typename I, typename C>
+    I removeAll(const I vecBegin, const I vecEnd, C curItem, C endItem) {
+        I last = vecEnd;
+        while (curItem != endItem)
+            last = std::remove(vecBegin, last, *curItem++);
+        return last;
+    }
+    
+    template <typename T, class P>
+    void eraseIf(std::vector<T>& vec, const P& pred) {
+        vec.erase(std::remove_if(vec.begin(), vec.end(), pred), vec.end());
+    }
+    
+    template <typename T>
+    void eraseAll(std::vector<T*>& vec, const std::vector<T*>& items) {
+        vec.erase(removeAll(vec.begin(), vec.end(), items.begin(), items.end()), vec.end());
+    }
+    
+    template <typename T>
+    bool eraseAndDelete(std::vector<T*>& vec, const T* item) {
+        if (!erase(vec, item))
+            return false;
+        delete item;
         return true;
     }
     
@@ -250,51 +295,6 @@ namespace VectorUtils {
     template <typename T>
     void eraseAndDelete(std::vector<T*>& vec, typename std::vector<T*>::iterator first) {
         eraseAndDelete(vec, first, vec.end());
-    }
-    
-    template <typename T>
-    void clearAndDelete(std::vector<T*>& vec) {
-        std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
-        vec.clear();
-    }
-    
-    template <typename T>
-    void deleteAll(const std::vector<T*>& vec) {
-        std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
-    }
-    
-    template <typename T>
-    void remove(std::vector<T>& vec, const T& item) {
-        vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
-    }
-    
-    template <typename T>
-    void remove(std::vector<T*>& vec, const T* item) {
-        vec.erase(std::remove(vec.begin(), vec.end(), item), vec.end());
-    }
-
-    template <typename T>
-    void removeAndDelete(std::vector<T*>& vec, const T* item) {
-        remove(vec, item);
-        delete item;
-    }
-    
-    template <typename I, typename C>
-    I removeAll(const I vecBegin, const I vecEnd, C curItem, C endItem) {
-        I last = vecEnd;
-        while (curItem != endItem)
-            last = std::remove(vecBegin, last, *curItem++);
-        return last;
-    }
-    
-    template <typename T, class P>
-    void removeIf(std::vector<T>& vec, const P& pred) {
-        vec.erase(std::remove_if(vec.begin(), vec.end(), pred), vec.end());
-    }
-    
-    template <typename T>
-    void removeAll(std::vector<T*>& vec, const std::vector<T*>& items) {
-        vec.erase(removeAll(vec.begin(), vec.end(), items.begin(), items.end()), vec.end());
     }
     
     template <typename T1, typename T2, typename R>

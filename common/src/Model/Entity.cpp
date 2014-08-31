@@ -223,7 +223,7 @@ namespace TrenchBroom {
 
         void Entity::removeBrush(Brush* brush) {
             assert(brush->parent() == this);
-            VectorUtils::remove(m_brushes, brush);
+            VectorUtils::erase(m_brushes, brush);
             brush->setParent(NULL);
             if (brush->selected())
                 decChildSelectionCount();
@@ -615,19 +615,19 @@ namespace TrenchBroom {
         }
         
         void Entity::removeLinkSource(Entity* entity) {
-            VectorUtils::remove(m_linkSources, entity);
+            VectorUtils::erase(m_linkSources, entity);
         }
         
         void Entity::removeLinkTarget(Entity* entity) {
-            VectorUtils::remove(m_linkTargets, entity);
+            VectorUtils::erase(m_linkTargets, entity);
         }
         
         void Entity::removeKillSource(Entity* entity) {
-            VectorUtils::remove(m_killSources, entity);
+            VectorUtils::erase(m_killSources, entity);
         }
         
         void Entity::removeKillTarget(Entity* entity) {
-            VectorUtils::remove(m_killTargets, entity);
+            VectorUtils::erase(m_killTargets, entity);
         }
         
         Entity::Entity() :
