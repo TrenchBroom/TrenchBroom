@@ -87,6 +87,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &LayerListView::documentWasChanged);
             document->documentWasLoadedNotifier.addObserver(this, &LayerListView::documentWasChanged);
+            document->layersWereAddedNotifier.addObserver(this, &LayerListView::layersWereAdded);
+            document->layersWereRemovedNotifier.addObserver(this, &LayerListView::layersWereRemoved);
+            document->layersDidChangeNotifier.addObserver(this, &LayerListView::layersDidChange);
         }
         
         void LayerListView::unbindObservers() {
@@ -94,6 +97,9 @@ namespace TrenchBroom {
                 MapDocumentSPtr document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &LayerListView::documentWasChanged);
                 document->documentWasLoadedNotifier.removeObserver(this, &LayerListView::documentWasChanged);
+                document->layersWereAddedNotifier.removeObserver(this, &LayerListView::layersWereAdded);
+                document->layersWereRemovedNotifier.removeObserver(this, &LayerListView::layersWereRemoved);
+                document->layersDidChangeNotifier.removeObserver(this, &LayerListView::layersDidChange);
             }
         }
         
@@ -101,6 +107,18 @@ namespace TrenchBroom {
             reload();
         }
         
+        void LayerListView::layersWereAdded(const Model::LayerList& layers) {
+            reload();
+        }
+        
+        void LayerListView::layersWereRemoved(const Model::LayerList& layers) {
+            reload();
+        }
+        
+        void LayerListView::layersDidChange(const Model::LayerList& layers) {
+            reload();
+        }
+
         void LayerListView::bindEvents() {
             Bind(wxEVT_SIZE, &LayerListView::OnSize, this);
         }
@@ -113,6 +131,7 @@ namespace TrenchBroom {
                 const Model::LayerList& layers = map->layers();
                 SetItemCount(static_cast<long>(layers.size()));
             }
+            Refresh();
         }
     }
 }

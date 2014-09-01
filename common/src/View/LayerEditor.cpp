@@ -20,13 +20,16 @@
 #include "LayerEditor.h"
 
 #include "Model/Map.h"
+#include "View/ControllerFacade.h"
 #include "View/LayerListView.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
 #include <wx/bmpbuttn.h>
+#include <wx/msgdlg.h>
 #include <wx/sizer.h>
+#include <wx/textdlg.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -39,9 +42,34 @@ namespace TrenchBroom {
         }
         
         void LayerEditor::OnAddLayerClicked(wxCommandEvent& event) {
+            wxTextEntryDialog dialog(this, "Enter a name for the new layer", "New Layer Name", "Unnamed");
+            dialog.CentreOnParent();
+            dialog.SetTextValidator(wxFILTER_EMPTY);
+            if (dialog.ShowModal() == wxID_OK) {
+                const String name = dialog.GetValue().ToStdString();
+
+                MapDocumentSPtr document = lock(m_document);
+                Model::Map* map = document->map();
+                Model::Layer* layer = map->createLayer(name);
+                
+                ControllerSPtr controller = lock(m_controller);
+                controller->addLayer(layer);
+            }
         }
         
         void LayerEditor::OnRemoveLayerClicked(wxCommandEvent& event) {
+            assert(m_layerList->GetSelectedItemCount() > 0);
+            const size_t index = m_layerList->getSelection();
+            
+            MapDocumentSPtr document = lock(m_document);
+            Model::Map* map = document->map();
+            const Model::LayerList& layers = map->layers();
+            assert(index < layers.size());
+            
+            Model::Layer* layer = layers[index];
+            
+            ControllerSPtr controller = lock(m_controller);
+            controller->removeLayer(layer);
         }
         
         void LayerEditor::OnUpdateRemoveLayerUI(wxUpdateUIEvent& event) {
@@ -63,8 +91,8 @@ namespace TrenchBroom {
 
             m_layerList = new LayerListView(this, m_document, m_controller);
             
-            wxBitmapButton* addLayerButton = createBitmapButton(this, "Add.png", "Add a new layer");
-            wxBitmapButton* removeLayerButton = createBitmapButton(this, "Remove.png", "Remove the selected layer");
+            wxBitmapButton* addLayerButton = createBitmapButton(this, "Add.png", "Add a new layer from the current selection");
+            wxBitmapButton* removeLayerButton = createBitmapButton(this, "Remove.png", "Remove the selected layer and move its objects to the default layer");
             
             addLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnAddLayerClicked, this);
             removeLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnRemoveLayerClicked, this);

@@ -173,7 +173,6 @@ namespace StringUtils {
     
     bool caseSensitivePrefix(const String& str, const String& prefix);
     bool caseInsensitivePrefix(const String& str, const String& prefix);
-
     
     template <class Cmp>
     bool isSuffix(const String& str, const String& suffix, const Cmp& cmp) {
@@ -191,6 +190,8 @@ namespace StringUtils {
     bool caseSensitiveSuffix(const String& str, const String& suffix);
     bool caseInsensitiveSuffix(const String& str, const String& suffix);
 
+    bool isBlank(const String& str);
+    
     long makeHash(const String& str);
     String toLower(const String& str);
     String replaceChars(const String& str, const String& needles, const String& replacements);

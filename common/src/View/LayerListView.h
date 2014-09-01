@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__LayerListView__
 #define __TrenchBroom__LayerListView__
 
+#include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
 #include <wx/listctrl.h>
@@ -45,6 +46,9 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void documentWasChanged();
+            void layersWereAdded(const Model::LayerList& layers);
+            void layersWereRemoved(const Model::LayerList& layers);
+            void layersDidChange(const Model::LayerList& layers);
             
             void bindEvents();
             

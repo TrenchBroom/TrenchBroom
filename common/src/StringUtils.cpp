@@ -131,6 +131,10 @@ namespace StringUtils {
         return isSuffix(str, suffix, CaseInsensitiveCharCompare());
     }
 
+    bool isBlank(const String& str) {
+        return str.find_first_not_of(" \t\n\r") == String::npos;
+    }
+
     long makeHash(const String& str) {
         long hash = 0;
         String::const_iterator it, end;
