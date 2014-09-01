@@ -92,8 +92,8 @@ namespace TrenchBroom {
             bool isIssueHidden(const Issue* issue) const;
             void setIssueHidden(IssueType type, bool hidden);
             
-            Layer* layer() const;
-            void setLayer(Layer* layer);
+            virtual Layer* layer() const;
+            virtual void setLayer(Layer* layer);
             
             Object* clone(const BBox3& worldBounds) const;
             void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);

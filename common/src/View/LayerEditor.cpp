@@ -19,6 +19,7 @@
 
 #include "LayerEditor.h"
 
+#include "Model/Layer.h"
 #include "Model/Map.h"
 #include "View/ControllerFacade.h"
 #include "View/LayerListView.h"
@@ -52,8 +53,14 @@ namespace TrenchBroom {
                 Model::Map* map = document->map();
                 Model::Layer* layer = map->createLayer(name);
                 
+                const Model::ObjectList& objects = document->selectedObjects();
+                
                 ControllerSPtr controller = lock(m_controller);
+                
+                UndoableCommandGroup group(controller);
                 controller->addLayer(layer);
+                if (!objects.empty())
+                    controller->moveSelectionToLayer(layer);
             }
         }
         
@@ -67,8 +74,12 @@ namespace TrenchBroom {
             assert(index < layers.size());
             
             Model::Layer* layer = layers[index];
+            const Model::ObjectList& objects = layer->objects();
             
             ControllerSPtr controller = lock(m_controller);
+            UndoableCommandGroup group(controller, "Remove Layer");
+            if (!objects.empty())
+                controller->moveObjectsToLayer(objects, map->defaultLayer());
             controller->removeLayer(layer);
         }
         

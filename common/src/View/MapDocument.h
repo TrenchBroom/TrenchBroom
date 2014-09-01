@@ -106,8 +106,6 @@ namespace TrenchBroom {
             Notifier1<const Model::LayerList&> layersWereAddedNotifier;
             Notifier1<const Model::LayerList&> layersWillBeRemovedNotifier;
             Notifier1<const Model::LayerList&> layersWereRemovedNotifier;
-            Notifier1<const Model::LayerList&> layersWillChangeNotifier;
-            Notifier1<const Model::LayerList&> layersDidChangeNotifier;
             
             Notifier0 modsDidChangeNotifier;
             Notifier0 entityDefinitionsDidChangeNotifier;
@@ -192,6 +190,7 @@ namespace TrenchBroom {
             
             Model::EntityList allSelectedEntities() const;
             Model::BrushList allSelectedBrushes() const;
+            Model::BrushList selectedWorldBrushes() const;
             const Model::BrushFaceList& allSelectedFaces() const;
 
             Model::EntityList unselectedEntities() const;

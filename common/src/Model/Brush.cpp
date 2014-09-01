@@ -24,6 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
+#include "Model/Layer.h"
 #include "Model/ModelUtils.h"
 
 namespace TrenchBroom {
@@ -69,6 +70,11 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_faces);
         }
 
+        void Brush::setLayer(Layer* layer) {
+            assert(m_parent == NULL || m_parent->worldspawn() || m_parent->layer() == layer);
+            Object::setLayer(layer);
+        }
+
         Brush* Brush::clone(const BBox3& worldBounds) const {
             return static_cast<Brush*>(doClone(worldBounds));
         }
@@ -82,7 +88,13 @@ namespace TrenchBroom {
         }
         
         void Brush::setParent(Entity* parent) {
+            if (parent == m_parent)
+                return;
             m_parent = parent;
+            if (m_parent == NULL)
+                setLayer(NULL);
+            else
+                setLayer(m_parent->layer());
         }
 
         void Brush::select() {

@@ -552,6 +552,26 @@ namespace TrenchBroom {
             return m_selection.allSelectedBrushes();
         }
         
+        Model::BrushList MapDocument::selectedWorldBrushes() const {
+            Model::BrushList brushes = selectedBrushes();
+
+            Model::BrushList::iterator it = brushes.begin();
+            Model::BrushList::iterator end = brushes.end();
+            while (it != end) {
+                Model::Brush* brush = *it;
+                Model::Entity* entity = brush->parent();
+                if (!entity->worldspawn()) {
+                    --end;
+                    std::iter_swap(it, end);
+                } else {
+                    ++it;
+                }
+            }
+            brushes.erase(end, brushes.end());
+            
+            return brushes;
+        }
+
         const Model::BrushFaceList& MapDocument::allSelectedFaces() const {
             return m_selection.allSelectedFaces();
         }

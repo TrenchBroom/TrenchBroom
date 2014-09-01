@@ -337,6 +337,17 @@ namespace TrenchBroom {
             return map;
         }
         
+        BrushList makeBrushList(const Model::EntityList& entities) {
+            BrushList result;
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                const Model::Entity* entity = *it;
+                const Model::BrushList& brushes = entity->brushes();
+                VectorUtils::append(result, brushes);
+            }
+            return result;
+        }
+
         bool MatchAll::operator()(const ObjectParentPair& pair) const {
             return true;
         }

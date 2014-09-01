@@ -89,7 +89,6 @@ namespace TrenchBroom {
             document->documentWasLoadedNotifier.addObserver(this, &LayerListView::documentWasChanged);
             document->layersWereAddedNotifier.addObserver(this, &LayerListView::layersWereAdded);
             document->layersWereRemovedNotifier.addObserver(this, &LayerListView::layersWereRemoved);
-            document->layersDidChangeNotifier.addObserver(this, &LayerListView::layersDidChange);
         }
         
         void LayerListView::unbindObservers() {
@@ -99,23 +98,39 @@ namespace TrenchBroom {
                 document->documentWasLoadedNotifier.removeObserver(this, &LayerListView::documentWasChanged);
                 document->layersWereAddedNotifier.removeObserver(this, &LayerListView::layersWereAdded);
                 document->layersWereRemovedNotifier.removeObserver(this, &LayerListView::layersWereRemoved);
-                document->layersDidChangeNotifier.removeObserver(this, &LayerListView::layersDidChange);
             }
         }
         
         void LayerListView::documentWasChanged() {
+            const Model::Map* map = lock(m_document)->map();
+            const Model::LayerList& layers = map->layers();
+            Model::LayerList::const_iterator it, end;
+            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
+                Model::Layer* layer = *it;
+                layer->layerDidChangeNotifier.addObserver(this, &LayerListView::layerDidChange);
+            }
             reload();
         }
         
         void LayerListView::layersWereAdded(const Model::LayerList& layers) {
+            Model::LayerList::const_iterator it, end;
+            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
+                Model::Layer* layer = *it;
+                layer->layerDidChangeNotifier.addObserver(this, &LayerListView::layerDidChange);
+            }
             reload();
         }
         
         void LayerListView::layersWereRemoved(const Model::LayerList& layers) {
+            Model::LayerList::const_iterator it, end;
+            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
+                Model::Layer* layer = *it;
+                layer->layerDidChangeNotifier.removeObserver(this, &LayerListView::layerDidChange);
+            }
             reload();
         }
         
-        void LayerListView::layersDidChange(const Model::LayerList& layers) {
+        void LayerListView::layerDidChange(Model::Layer* layer) {
             reload();
         }
 

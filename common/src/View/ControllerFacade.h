@@ -126,6 +126,8 @@ namespace TrenchBroom {
             
             bool addLayer(Model::Layer* layer);
             bool removeLayer(Model::Layer* layer);
+            bool moveSelectionToLayer(Model::Layer* layer);
+            bool moveObjectsToLayer(const Model::ObjectList& objects, Model::Layer* layer);
             
             bool moveBrushesToWorldspawn(const Model::BrushList& brushes);
             bool reparentBrushes(const Model::BrushList& brushes, Model::Entity* newParent);

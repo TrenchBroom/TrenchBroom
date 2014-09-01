@@ -48,7 +48,7 @@ namespace TrenchBroom {
             void documentWasChanged();
             void layersWereAdded(const Model::LayerList& layers);
             void layersWereRemoved(const Model::LayerList& layers);
-            void layersDidChange(const Model::LayerList& layers);
+            void layerDidChange(Model::Layer* layer);
             
             void bindEvents();
             

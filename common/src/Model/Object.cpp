@@ -18,8 +18,9 @@
  */
 
 #include "Object.h"
-#include "Model/Entity.h"
 #include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/Layer.h"
 
 #include <memory>
 
@@ -111,7 +112,13 @@ namespace TrenchBroom {
         }
         
         void Object::setLayer(Layer* layer) {
+            if (m_layer == layer)
+                return;
+            if (m_layer != NULL)
+                m_layer->removeObject(this);
             m_layer = layer;
+            if (m_layer != NULL)
+                m_layer->addObject(this);
         }
         
 

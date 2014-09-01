@@ -311,6 +311,8 @@ namespace TrenchBroom {
             
             ExtraProperties extraProperties;
             Model::Entity* entity = m_factory.createEntity();
+            entity->setLayer(m_currentLayer);
+
             const size_t firstLine = token.line();
             
             try {
@@ -331,7 +333,7 @@ namespace TrenchBroom {
                                 Model::Brush* brush = parseBrush(worldBounds);
                                 if (brush != NULL) {
                                     entity->addBrush(brush);
-                                    m_currentLayer->addObject(brush);
+                                    brush->setLayer(m_currentLayer);
                                 }
                                 expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
                                 moreBrushes = (token.type() == QuakeMapToken::OBrace);
@@ -349,11 +351,11 @@ namespace TrenchBroom {
                     }
                 }
             } catch (...) {
+                entity->setLayer(NULL);
                 delete entity;
                 throw;
             }
 
-            m_currentLayer->addObject(entity);
             return entity;
         }
         

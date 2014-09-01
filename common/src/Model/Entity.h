@@ -74,6 +74,8 @@ namespace TrenchBroom {
         public:
             virtual ~Entity();
             
+            void setLayer(Layer* layer);
+
             Map* map() const;
             void setMap(Map* map);
             

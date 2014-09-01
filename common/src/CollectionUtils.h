@@ -767,6 +767,17 @@ namespace MapUtils {
         std::for_each(map.begin(), map.end(), deleter);
         map.clear();
     }
+    
+    template <typename K, typename V>
+    std::vector<K> keyList(const std::map<K,V>& map) {
+        std::vector<K> result;
+        result.reserve(map.size());
+        
+        typename std::map<K,V>::const_iterator it, end;
+        for (it = map.begin(), end = map.end(); it != end; ++it)
+            result.push_back(it->first);
+        return result;
+    }
 }
 
 #endif

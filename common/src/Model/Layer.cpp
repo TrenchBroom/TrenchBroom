@@ -39,31 +39,23 @@ namespace TrenchBroom {
         const Model::ObjectList& Layer::objects() const {
             return m_objects;
         }
-        
-        void Layer::addObjects(const Model::ObjectList& objects) {
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                addObject(object);
-            }
-        }
-        
-        void Layer::addObject(Model::Object* object) {
-            object->setLayer(this);
-            m_objects.push_back(object);
-        }
 
-        void Layer::removeObjects(const Model::ObjectList& objects) {
-            Model::ObjectList::const_iterator it, end;
-            Model::ObjectList::iterator er = m_objects.end();
+        void Layer::addObject(Object* object) {
+            assert(object->layer() == this);
+            assert(!VectorUtils::contains(m_objects, object));
             
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                object->setLayer(NULL);
-                er = std::remove(m_objects.begin(), er, object);
-            }
-            
-            m_objects.erase(er, m_objects.end());
+            layerWillChangeNotifier(this);
+            m_objects.push_back(object);
+            layerDidChangeNotifier(this);
+        }
+        
+        void Layer::removeObject(Object* object) {
+            assert(object->layer() == this);
+            assert(VectorUtils::contains(m_objects, object));
+
+            layerWillChangeNotifier(this);
+            VectorUtils::erase(m_objects, object);
+            layerDidChangeNotifier(this);
         }
     }
 }

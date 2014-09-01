@@ -20,8 +20,10 @@
 #ifndef __TrenchBroom__Layer__
 #define __TrenchBroom__Layer__
 
+#include "Notifier.h"
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
+#include "Model/Object.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -30,15 +32,20 @@ namespace TrenchBroom {
             String m_name;
             Model::ObjectList m_objects;
         public:
+            Notifier1<Layer*> layerWillChangeNotifier;
+            Notifier1<Layer*> layerDidChangeNotifier;
+        public:
             Layer(const String& name);
             
             const String& name() const;
             void setName(const String& name);
             
             const Model::ObjectList& objects() const;
-            void addObjects(const Model::ObjectList& objects);
-            void addObject(Model::Object* object);
-            void removeObjects(const Model::ObjectList& objects);
+        private:
+            friend void Object::setLayer(Layer*);
+            
+            void addObject(Object* object);
+            void removeObject(Object* object);
         };
     }
 }

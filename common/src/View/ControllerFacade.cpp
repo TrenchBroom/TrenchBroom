@@ -29,6 +29,7 @@
 #include "Controller/MoveBrushEdgesCommand.h"
 #include "Controller/MoveBrushFacesCommand.h"
 #include "Controller/MoveBrushVerticesCommand.h"
+#include "Controller/MoveObjectsToLayerCommand.h"
 #include "Controller/MoveTexturesCommand.h"
 #include "Controller/NewDocumentCommand.h"
 #include "Controller/OpenDocumentCommand.h"
@@ -326,6 +327,41 @@ namespace TrenchBroom {
             using namespace Controller;
             
             Command::Ptr command = AddRemoveLayersCommand::removeLayers(m_document, Model::LayerList(1, layer));
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::moveSelectionToLayer(Model::Layer* layer) {
+            MapDocumentSPtr document = lock(m_document);
+            
+            const Model::EntityList entities = document->allSelectedEntities();
+            const Model::BrushList brushes = document->selectedWorldBrushes();
+            
+            Model::ObjectList objects;
+            Model::ObjectList selectObjects;
+            VectorUtils::append(selectObjects, brushes);
+            
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                Model::Entity* entity = *it;
+                if (!entity->worldspawn()) {
+                    if (!entity->brushes().empty())
+                        VectorUtils::append(selectObjects, entity->brushes());
+                    else
+                        selectObjects.push_back(entity);
+                    objects.push_back(entity);
+                }
+            }
+            objects.insert(objects.end(), brushes.begin(), brushes.end());
+
+            UndoableCommandGroup group(this, "Move Selected Objects to Layer");
+            deselectAllAndSelectObjects(selectObjects);
+            return moveObjectsToLayer(objects, layer);
+        }
+
+        bool ControllerFacade::moveObjectsToLayer(const Model::ObjectList& objects, Model::Layer* layer) {
+            using namespace Controller;
+            
+            Command::Ptr command = MoveObjectsToLayerCommand::moveObjects(m_document, layer, objects);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 

@@ -46,6 +46,19 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_brushes);
         }
 
+        void Entity::setLayer(Layer* layer) {
+            if (layer == Object::layer())
+                return;
+            Object::setLayer(layer);
+            if (!worldspawn()) {
+                BrushList::const_iterator it, end;
+                for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
+                    Brush* brush = *it;
+                    brush->setLayer(layer);
+                }
+            }
+        }
+
         Map* Entity::map() const {
             return m_map;
         }
