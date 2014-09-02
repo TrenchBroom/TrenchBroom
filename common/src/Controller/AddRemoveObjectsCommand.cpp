@@ -33,27 +33,30 @@ namespace TrenchBroom {
         const Command::CommandType AddRemoveObjectsCommand::Type = Command::freeType();
 
         AddRemoveObjectsCommand::~AddRemoveObjectsCommand() {
-            VectorUtils::clearAndDelete(m_removedObjects);
+            VectorUtils::deleteAll(Model::makeChildList(m_objectsToAdd));
         }
 
-        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects) {
-            return Ptr(new AddRemoveObjectsCommand(document, Action_Add, objects));
+        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects, Model::Layer* layer) {
+            Model::ObjectLayerMap layers;
+            Model::ObjectParentList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Model::Object* object = it->object;
+                layers[object] = layer;
+            }
+            return addObjects(document, objects, layers);
         }
 
-        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::removeObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects) {
-            return Ptr(new AddRemoveObjectsCommand(document, Action_Remove, objects));
-        }
-
-        const Model::ObjectList& AddRemoveObjectsCommand::addedObjects() const {
-            return m_addedObjects;
+        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers) {
+            return Ptr(new AddRemoveObjectsCommand(document, Action_Add, objects, layers));
         }
         
-        const Model::ObjectList& AddRemoveObjectsCommand::removedObjects() const {
-            return m_removedObjects;
+        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::removeObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects) {
+            return Ptr(new AddRemoveObjectsCommand(document, Action_Remove, objects, Model::ObjectLayerMap()));
         }
 
-        AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects) :
+        AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers) :
         DocumentCommand(Type, makeName(action, objects), true, document),
+        m_newLayers(layers),
         m_action(action) {
             if (action == Action_Add)
                 m_objectsToAdd = objects;
@@ -118,13 +121,15 @@ namespace TrenchBroom {
         }
 
         bool AddRemoveObjectsCommand::doPerformDo() {
-            m_addedObjects.clear();
-            m_removedObjects.clear();
+            m_oldLayers.clear();
             
-            if (m_action == Action_Add)
+            if (m_action == Action_Add) {
                 addObjects(m_objectsToAdd);
-            else
+                setLayers(m_objectsToAdd);
+            } else {
+                setLayers(m_objectsToRemove);
                 removeObjects(m_objectsToRemove);
+            }
             
             using std::swap;
             swap(m_objectsToAdd, m_objectsToRemove);
@@ -132,13 +137,13 @@ namespace TrenchBroom {
         }
         
         bool AddRemoveObjectsCommand::doPerformUndo() {
-            m_addedObjects.clear();
-            m_removedObjects.clear();
-            
-            if (m_action == Action_Add)
+            if (m_action == Action_Add) {
+                restoreLayers(m_objectsToRemove);
                 removeObjects(m_objectsToRemove);
-            else
+            } else {
                 addObjects(m_objectsToAdd);
+                restoreLayers(m_objectsToAdd);
+            }
 
             using std::swap;
             swap(m_objectsToAdd, m_objectsToRemove);
@@ -163,7 +168,6 @@ namespace TrenchBroom {
             document->addObjects(objects);
             document->objectsWereAddedNotifier(children);
             document->objectsDidChangeNotifier(parents);
-            m_addedObjects = children;
         }
         
         void AddRemoveObjectsCommand::removeObjects(const Model::ObjectParentList& objects) {
@@ -176,7 +180,24 @@ namespace TrenchBroom {
             document->removeObjects(children);
             document->objectsWereRemovedNotifier(objects);
             document->objectsDidChangeNotifier(parents);
-            m_removedObjects = children;
+        }
+
+        void AddRemoveObjectsCommand::setLayers(const Model::ObjectParentList& objects) {
+            Model::ObjectParentList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Model::Object* object = it->object;
+                m_oldLayers[object] = object->layer();
+                object->setLayer(m_newLayers[object]);
+            }
+        }
+
+        void AddRemoveObjectsCommand::restoreLayers(const Model::ObjectParentList& objects) {
+            Model::ObjectLayerMap::const_iterator it, end;
+            for (it = m_oldLayers.begin(), end = m_oldLayers.end(); it != end; ++it) {
+                Model::Object* object = it->first;
+                Model::Layer* layer = it->second;
+                object->setLayer(layer);
+            }
         }
     }
 }

@@ -337,13 +337,52 @@ namespace TrenchBroom {
             return map;
         }
         
-        BrushList makeBrushList(const Model::EntityList& entities) {
-            BrushList result;
-            Model::EntityList::const_iterator it, end;
+        void filterEntityList(const EntityList& entities, EntityList& pointEntities, EntityList& brushEntities, EntityList& untypedEntities) {
+            EntityList::const_iterator it, end;
             for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                const Model::Entity* entity = *it;
-                const Model::BrushList& brushes = entity->brushes();
+                Entity* entity = *it;
+                const Assets::EntityDefinition* definition = entity->definition();
+                if (definition == NULL) {
+                    untypedEntities.push_back(entity);
+                } else if (definition->type() == Assets::EntityDefinition::Type_PointEntity) {
+                    pointEntities.push_back(entity);
+                } else if (definition->type() == Assets::EntityDefinition::Type_BrushEntity) {
+                    brushEntities.push_back(entity);
+                }
+            }
+        }
+
+        void filterEntityList(const EntityList& entities, EntityList& emptyEntities, EntityList& brushEntities) {
+            EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                Entity* entity = *it;
+                if (entity->brushes().empty())
+                    emptyEntities.push_back(entity);
+                else
+                    brushEntities.push_back(entity);
+            }
+        }
+
+        BrushList makeBrushList(const EntityList& entities) {
+            BrushList result;
+            EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                const Entity* entity = *it;
+                const BrushList& brushes = entity->brushes();
                 VectorUtils::append(result, brushes);
+            }
+            return result;
+        }
+
+        BrushList makeBrushList(const ObjectList& objects) {
+            BrushList result;
+            ObjectList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Object* object = *it;
+                if (object->type() == Object::Type_Brush) {
+                    Brush* brush = static_cast<Brush*>(object);
+                    result.push_back(brush);
+                }
             }
             return result;
         }

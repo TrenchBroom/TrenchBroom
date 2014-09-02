@@ -71,7 +71,10 @@ namespace TrenchBroom {
         ObjectChildrenMap makeObjectChildrenMap(const ObjectList& list);
         ObjectChildrenMap makeObjectChildrenMap(const ObjectParentList& list);
 
-        BrushList makeBrushList(const Model::EntityList& entities);
+        void filterEntityList(const EntityList& entities, EntityList& pointEntities, EntityList& brushEntities, EntityList& untypedEntities);
+        void filterEntityList(const EntityList& entities, EntityList& emptyEntities, EntityList& brushEntities);
+        BrushList makeBrushList(const EntityList& entities);
+        BrushList makeBrushList(const ObjectList& objects);
         
         struct MatchAll {
             bool operator()(const ObjectParentPair& pair) const;

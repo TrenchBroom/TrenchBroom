@@ -265,6 +265,20 @@ namespace TrenchBroom {
             return m_grid;
         }
         
+        Model::Layer* MapDocument::currentLayer() const {
+            if (m_currentLayer == NULL)
+                return m_map->defaultLayer();
+            return m_currentLayer;
+        }
+        
+        Model::Layer* MapDocument::layerForDuplicateOf(const Model::Object* object) const {
+            return object->layer();
+        }
+
+        void MapDocument::setCurrentLayer(Model::Layer* currentLayer) {
+            m_currentLayer = currentLayer;
+        }
+
         bool MapDocument::isGamePathPreference(const IO::Path& path) const {
             return m_game != NULL && m_game->isGamePathPreference(path);
         }
@@ -890,6 +904,7 @@ namespace TrenchBroom {
         m_selectionBoundsValid(false),
         m_renderConfig(m_filter),
         m_grid(5),
+        m_currentLayer(NULL),
         m_textureLock(true),
         m_modificationCount(0) {
             bindObservers();
@@ -946,6 +961,7 @@ namespace TrenchBroom {
 
             delete m_map;
             m_map = NULL;
+            m_currentLayer = NULL;
             
             documentWasClearedNotifier();
         }

@@ -118,10 +118,13 @@ namespace TrenchBroom {
             bool addEntities(const Model::EntityList& entities);
             bool addBrushes(const Model::BrushList& brushes);
             bool addObjects(const Model::ObjectParentList& objects);
+            bool addObjects(const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers);
+            bool removeObject(Model::Object* object);
             bool removeObjects(const Model::ObjectList& objects);
             bool removeObjects(const Model::ObjectParentList& objects);
-            bool removeObject(Model::Object* object);
-            Model::ObjectList duplicateObjects(const Model::ObjectList& objects, const BBox3& worldBounds);
+
+            Model::BrushList duplicateBrushes(const Model::BrushList& brushes);
+            Model::ObjectList duplicateObjects(const Model::ObjectList& objects);
             bool deleteSelectedObjects();
             
             bool addLayer(Model::Layer* layer);

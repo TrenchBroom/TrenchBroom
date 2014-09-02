@@ -303,22 +303,27 @@ namespace TrenchBroom {
                 for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                     Model::Brush* brush = *bIt;
                     Model::Entity* entity = brush->parent();
+                    Model::Layer* newLayer = document->layerForDuplicateOf(brush);
                     
                     Model::BrushFace* frontFace = map.createFace(m_clipPoints[0], m_clipPoints[1], m_clipPoints[2], document->currentTextureName());
                     Model::BrushFace* backFace = map.createFace(m_clipPoints[0], m_clipPoints[2], m_clipPoints[1], document->currentTextureName());
                     setFaceAttributes(brush->faces(), *frontFace, *backFace);
                     
                     Model::Brush* frontBrush = brush->clone(worldBounds);
-                    if (frontBrush->clip(worldBounds, frontFace))
+                    if (frontBrush->clip(worldBounds, frontFace)) {
                         result.frontBrushes[entity].push_back(frontBrush);
-                    else
+                        result.frontLayers[frontBrush] = newLayer;
+                    } else {
                         delete frontBrush;
+                    }
                     
                     Model::Brush* backBrush = brush->clone(worldBounds);
-                    if (backBrush->clip(worldBounds, backFace))
+                    if (backBrush->clip(worldBounds, backFace)) {
                         result.backBrushes[entity].push_back(backBrush);
-                    else
+                        result.backLayers[backBrush] = newLayer;
+                    } else {
                         delete backBrush;
+                    }
                 }
             } else {
                 Model::BrushList::const_iterator bIt, bEnd;
@@ -328,6 +333,7 @@ namespace TrenchBroom {
                     
                     Model::Brush* frontBrush = brush->clone(worldBounds);
                     result.frontBrushes[entity].push_back(frontBrush);
+                    result.frontLayers[frontBrush] = brush->layer();
                 }
             }
             

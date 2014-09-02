@@ -34,7 +34,9 @@ namespace TrenchBroom {
     namespace View {
         struct ClipResult {
             Model::EntityBrushesMap frontBrushes;
+            Model::ObjectLayerMap frontLayers;
             Model::EntityBrushesMap backBrushes;
+            Model::ObjectLayerMap backLayers;
         };
         
         class Clipper {

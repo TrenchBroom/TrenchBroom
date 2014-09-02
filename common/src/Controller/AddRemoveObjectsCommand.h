@@ -25,6 +25,8 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
+#include <map>
+
 namespace TrenchBroom {
     namespace Controller {
         class AddRemoveObjectsCommand : public DocumentCommand {
@@ -37,21 +39,20 @@ namespace TrenchBroom {
                 Action_Remove
             } Action;
             
+            Model::ObjectLayerMap m_newLayers;
+            Model::ObjectLayerMap m_oldLayers;
+            
             Action m_action;
             Model::ObjectParentList m_objectsToAdd;
             Model::ObjectParentList m_objectsToRemove;
-            Model::ObjectList m_addedObjects;
-            Model::ObjectList m_removedObjects;
         public:
             ~AddRemoveObjectsCommand();
             
-            static AddRemoveObjectsCommand::Ptr addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects);
+            static AddRemoveObjectsCommand::Ptr addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects, Model::Layer* layer);
+            static AddRemoveObjectsCommand::Ptr addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers);
             static AddRemoveObjectsCommand::Ptr removeObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects);
-            
-            const Model::ObjectList& addedObjects() const;
-            const Model::ObjectList& removedObjects() const;
         private:
-            AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects);
+            AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers);
             Model::ObjectParentList addEmptyBrushEntities(const Model::ObjectParentList& objects) const;
             static String makeName(const Action action, const Model::ObjectParentList& objects);
 
@@ -64,6 +65,8 @@ namespace TrenchBroom {
             
             void addObjects(const Model::ObjectParentList& objects);
             void removeObjects(const Model::ObjectParentList& objects);
+            void setLayers(const Model::ObjectParentList& objects);
+            void restoreLayers(const Model::ObjectParentList& objects);
         };
     }
 }

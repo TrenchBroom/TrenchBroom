@@ -48,6 +48,7 @@ namespace TrenchBroom {
 
     namespace Model {
         class BrushFace;
+        class Layer;
         class Object;
         class Selection;
         class SelectionResult;
@@ -77,6 +78,7 @@ namespace TrenchBroom {
             Model::PointFile m_pointFile;
             Renderer::RenderConfig m_renderConfig;
             View::Grid m_grid;
+            Model::Layer* m_currentLayer;
             
             bool m_textureLock;
             size_t m_modificationCount;
@@ -132,6 +134,10 @@ namespace TrenchBroom {
             Model::PointFile& pointFile();
             Renderer::RenderConfig& renderConfig();
             View::Grid& grid();
+            
+            Model::Layer* currentLayer() const;
+            Model::Layer* layerForDuplicateOf(const Model::Object* object) const;
+            void setCurrentLayer(Model::Layer* currentLayer);
             
             bool isGamePathPreference(const IO::Path& path) const;
             

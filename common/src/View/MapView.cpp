@@ -506,7 +506,7 @@ namespace TrenchBroom {
                 return;
             
             ControllerSPtr controller = lock(m_controller);
-            const Model::ObjectList duplicates = controller->duplicateObjects(objects, document->worldBounds());
+            const Model::ObjectList duplicates = controller->duplicateObjects(objects);
             controller->deselectAllAndSelectObjects(duplicates);
             flashSelection();
         }

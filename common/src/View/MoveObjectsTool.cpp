@@ -80,7 +80,7 @@ namespace TrenchBroom {
                 return MoveResult_Deny;
             
             if (m_duplicateObjects) {
-                const Model::ObjectList& duplicates = controller()->duplicateObjects(document()->selectedObjects(), worldBounds);
+                const Model::ObjectList& duplicates = controller()->duplicateObjects(document()->selectedObjects());
                 if (duplicates.empty())
                     return MoveResult_Conclude;
                 

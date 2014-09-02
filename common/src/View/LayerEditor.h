@@ -24,6 +24,8 @@
 
 #include <wx/panel.h>
 
+class wxListEvent;
+
 namespace TrenchBroom {
     namespace View {
         class LayerListView;
@@ -36,6 +38,9 @@ namespace TrenchBroom {
             LayerListView* m_layerList;
         public:
             LayerEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
+            
+            void OnCurrentLayerSelected(wxListEvent& event);
+            void OnCurrentLayerDeselected(wxListEvent& event);
             
             void OnAddLayerClicked(wxCommandEvent& event);
             void OnRemoveLayerClicked(wxCommandEvent& event);

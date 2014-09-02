@@ -37,8 +37,7 @@ namespace TrenchBroom {
 
             Clipper m_clipper;
             Renderer::ClipperRenderer m_renderer;
-            Model::EntityBrushesMap m_frontBrushes;
-            Model::EntityBrushesMap m_backBrushes;
+            ClipResult m_clipResult;
             size_t m_dragPointIndex;
         public:
             ClipTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera);
@@ -72,6 +71,7 @@ namespace TrenchBroom {
             
             Vec3 clipPoint(const Hit& hit) const;
             void updateBrushes();
+            void clearClipResult();
             void clearAndDelete(Model::EntityBrushesMap& brushes);
 
             void bindObservers();

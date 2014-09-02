@@ -297,38 +297,43 @@ namespace TrenchBroom {
         }
 
         bool ResizeBrushesTool::splitBrushes(const Vec3& delta) {
+            MapDocumentSPtr doc = document();
+
             // first ensure that the drag can be applied at all
             Model::BrushFaceList::const_iterator fIt, fEnd;
             for (fIt = m_dragFaces.begin(), fEnd = m_dragFaces.end(); fIt != fEnd; ++fIt) {
                 const Model::BrushFace* face = *fIt;
                 const Model::Brush* brush = face->parent();
-                if (!brush->canMoveBoundary(document()->worldBounds(), *face, delta))
+                if (!brush->canMoveBoundary(doc->worldBounds(), *face, delta))
                     return false;
             }
 
             Model::ObjectParentList newObjects;
+            Model::ObjectLayerMap newLayers;
             Model::BrushFaceList newDragFaces;
             
             for (fIt = m_dragFaces.begin(), m_dragFaces.end(); fIt != fEnd; ++fIt) {
                 Model::BrushFace* dragFace = *fIt;
                 Model::Brush* brush = dragFace->parent();
+                Model::Layer* newLayer = doc->layerForDuplicateOf(brush);
                 
                 Model::Brush* newBrush = brush->clone(document()->worldBounds());
                 Model::BrushFace* newDragFace = findMatchingFace(*newBrush, *dragFace);
                 Model::BrushFace* clipFace = newDragFace->clone();
                 clipFace->invert();
                 
-                newBrush->moveBoundary(document()->worldBounds(), *newDragFace, delta, document()->textureLock());
-                const bool clipResult = newBrush->clip(document()->worldBounds(), clipFace);
+                newBrush->moveBoundary(doc->worldBounds(), *newDragFace, delta, doc->textureLock());
+                const bool clipResult = newBrush->clip(doc->worldBounds(), clipFace);
                 assert(clipResult);
                 _UNUSED(clipResult);
                 
                 newObjects.push_back(Model::ObjectParentPair(newBrush, brush->parent()));
+                newLayers[newBrush] = newLayer;
                 newDragFaces.push_back(newDragFace);
             }
             
             controller()->deselectAll();
-            controller()->addObjects(newObjects);
+            controller()->addObjects(newObjects, newLayers);
             controller()->selectObjects(Model::makeObjectList(newObjects));
             
             m_dragFaces = newDragFaces;

@@ -50,6 +50,7 @@
 #include "View/ViewTypes.h"
 
 #include <cassert>
+#include <iterator>
 
 namespace TrenchBroom {
     namespace View {
@@ -265,8 +266,20 @@ namespace TrenchBroom {
         bool ControllerFacade::addObjects(const Model::ObjectParentList& objects) {
             using namespace Controller;
             
-            Command::Ptr command = AddRemoveObjectsCommand::addObjects(m_document, objects);
+            Model::Layer* layer = lock(m_document)->currentLayer();
+            Command::Ptr command = AddRemoveObjectsCommand::addObjects(m_document, objects, layer);
             return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::addObjects(const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers) {
+            using namespace Controller;
+            
+            Command::Ptr command = AddRemoveObjectsCommand::addObjects(m_document, objects, layers);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::removeObject(Model::Object* object) {
+            return removeObjects(Model::ObjectList(1, object));
         }
 
         bool ControllerFacade::removeObjects(const Model::ObjectList& objects) {
@@ -280,27 +293,37 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
-        bool ControllerFacade::removeObject(Model::Object* object) {
-            return removeObjects(Model::ObjectList(1, object));
+        Model::BrushList ControllerFacade::duplicateBrushes(const Model::BrushList& brushes) {
+            return Model::makeBrushList(duplicateObjects(Model::makeObjectList(brushes)));
         }
 
-        Model::ObjectList ControllerFacade::duplicateObjects(const Model::ObjectList& objects, const BBox3& worldBounds) {
+        Model::ObjectList ControllerFacade::duplicateObjects(const Model::ObjectList& objects) {
             Model::ObjectParentList duplicates;
+            Model::ObjectLayerMap layers;
             Model::ObjectList result;
+            
+            MapDocumentSPtr document = lock(m_document);
+            const BBox3& worldBounds = document->worldBounds();
             
             Model::ObjectList::const_iterator it, end;
             for (it = objects.begin(), end = objects.end(); it != end; ++it) {
                 Model::Object* object = *it;
                 Model::Object* parent = NULL;
-                if (object->type() == Model::Object::Type_Brush)
-                    parent = static_cast<Model::Brush*>(object)->parent();
+                if (object->type() == Model::Object::Type_Brush) {
+                    Model::Brush* brush = static_cast<Model::Brush*>(object);
+                    parent = brush->parent();
+                }
                 
                 Model::Object* duplicate = object->clone(worldBounds);
-                result.push_back(duplicate);
                 duplicates.push_back(Model::ObjectParentPair(duplicate, parent));
+                layers[duplicate] = document->layerForDuplicateOf(object);
+                result.push_back(duplicate);
             }
             
-            if (!addObjects(duplicates))
+            using namespace Controller;
+            
+            Command::Ptr command = AddRemoveObjectsCommand::addObjects(m_document, duplicates, layers);
+            if (!m_commandProcessor.submitAndStoreCommand(command))
                 VectorUtils::clearAndDelete(result);
             return result;
         }
@@ -330,28 +353,41 @@ namespace TrenchBroom {
             return m_commandProcessor.submitAndStoreCommand(command);
         }
 
+        struct EmptyEntityFilter {
+            bool operator()(const Model::Entity* entity) const {
+                return !entity->worldspawn() && entity->brushes().empty();
+            }
+        };
+
+        struct BrushEntityFilter {
+            bool operator()(const Model::Entity* entity) const {
+                return !entity->worldspawn() && !entity->brushes().empty();
+            }
+        };
+        
         bool ControllerFacade::moveSelectionToLayer(Model::Layer* layer) {
             MapDocumentSPtr document = lock(m_document);
             
             const Model::EntityList entities = document->allSelectedEntities();
-            const Model::BrushList brushes = document->selectedWorldBrushes();
+            const Model::BrushList worldBrushes = document->selectedWorldBrushes();
+
+            Model::EntityList pointEntities;
+            Model::EntityList brushEntities;
+            
+            Model::filter(entities.begin(), entities.end(), EmptyEntityFilter(), std::back_inserter(pointEntities));
+            Model::filter(entities.begin(), entities.end(), BrushEntityFilter(), std::back_inserter(brushEntities));
+            
+            const Model::BrushList entityBrushes = Model::makeBrushList(brushEntities);
+            const Model::BrushList brushes = VectorUtils::concatenate(worldBrushes, entityBrushes);
             
             Model::ObjectList objects;
-            Model::ObjectList selectObjects;
-            VectorUtils::append(selectObjects, brushes);
+            VectorUtils::append(objects, pointEntities);
+            VectorUtils::append(objects, brushEntities);
+            VectorUtils::append(objects, brushes);
             
-            Model::EntityList::const_iterator it, end;
-            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                Model::Entity* entity = *it;
-                if (!entity->worldspawn()) {
-                    if (!entity->brushes().empty())
-                        VectorUtils::append(selectObjects, entity->brushes());
-                    else
-                        selectObjects.push_back(entity);
-                    objects.push_back(entity);
-                }
-            }
-            objects.insert(objects.end(), brushes.begin(), brushes.end());
+            Model::ObjectList selectObjects;
+            VectorUtils::append(selectObjects, pointEntities);
+            VectorUtils::append(selectObjects, brushes);
 
             UndoableCommandGroup group(this, "Move Selected Objects to Layer");
             deselectAllAndSelectObjects(selectObjects);

@@ -108,6 +108,8 @@ namespace TrenchBroom {
         class Layer;
         typedef std::vector<Layer*> LayerList;
         static const LayerList EmptyLayerList(0);
+
+        typedef std::map<Model::Object*, Model::Layer*> ObjectLayerMap;
     }
 }
 

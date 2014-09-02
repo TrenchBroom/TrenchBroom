@@ -55,31 +55,32 @@ namespace TrenchBroom {
 
         void ClipTool::performClip() {
             // need to make a copies here so that we are not affected by the deselection
-            Model::EntityBrushesMap frontBrushes, backBrushes;
+            ClipResult clipResult;
             using std::swap;
-            swap(frontBrushes, m_frontBrushes);
-            swap(backBrushes, m_backBrushes);
+            swap(clipResult, m_clipResult);
             
             const Model::ObjectList toRemove = document()->selectedObjects();
             Model::ObjectList addedObjects;
             
             const UndoableCommandGroup commandGroup(controller(), toRemove.size() == 1 ? "Clip Brush" : "Clip Brushes");
-            if (!frontBrushes.empty() && m_clipper.keepFrontBrushes()) {
-                const Model::ObjectParentList brushes = Model::makeObjectParentList(frontBrushes);
-                controller()->addObjects(brushes);
+            if (!clipResult.frontBrushes.empty() && m_clipper.keepFrontBrushes()) {
+                const Model::ObjectParentList brushes = Model::makeObjectParentList(clipResult.frontBrushes);
+                controller()->addObjects(brushes, clipResult.frontLayers);
                 VectorUtils::append(addedObjects, makeObjectList(brushes));
-                frontBrushes.clear();
+                clipResult.frontBrushes.clear();
             } else {
-                clearAndDelete(frontBrushes);
+                clearAndDelete(clipResult.frontBrushes);
             }
-            if (!backBrushes.empty() && m_clipper.keepBackBrushes()) {
-                const Model::ObjectParentList brushes = Model::makeObjectParentList(backBrushes);
-                controller()->addObjects(brushes);
+            clipResult.frontLayers.clear();
+            if (!clipResult.backBrushes.empty() && m_clipper.keepBackBrushes()) {
+                const Model::ObjectParentList brushes = Model::makeObjectParentList(clipResult.backBrushes);
+                controller()->addObjects(brushes, clipResult.backLayers);
                 VectorUtils::append(addedObjects, makeObjectList(brushes));
-                backBrushes.clear();
+                clipResult.backBrushes.clear();
             } else {
-                clearAndDelete(backBrushes);
+                clearAndDelete(clipResult.backBrushes);
             }
+            clipResult.backLayers.clear();
             
             controller()->deselectAll();
             controller()->removeObjects(toRemove);
@@ -112,8 +113,7 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::doDeactivate(const InputState& inputState) {
-            clearAndDelete(m_frontBrushes);
-            clearAndDelete(m_backBrushes);
+            clearClipResult();
             unbindObservers();
             return true;
         }
@@ -238,20 +238,24 @@ namespace TrenchBroom {
         }
 
         void ClipTool::updateBrushes() {
-            clearAndDelete(m_frontBrushes);
-            clearAndDelete(m_backBrushes);
+            clearClipResult();
             
             const Model::BrushList& brushes = document()->selectedBrushes();
             if (!brushes.empty()) {
-                const ClipResult result = m_clipper.clip(brushes, document());
-                m_frontBrushes = result.frontBrushes;
-                m_backBrushes = result.backBrushes;
+                m_clipResult = m_clipper.clip(brushes, document());
             } else {
                 m_clipper.reset();
             }
             
-            m_renderer.setBrushes(Model::mergeEntityBrushesMap(m_frontBrushes),
-                                  Model::mergeEntityBrushesMap(m_backBrushes));
+            m_renderer.setBrushes(Model::mergeEntityBrushesMap(m_clipResult.frontBrushes),
+                                  Model::mergeEntityBrushesMap(m_clipResult.backBrushes));
+        }
+
+        void ClipTool::clearClipResult() {
+            clearAndDelete(m_clipResult.frontBrushes);
+            clearAndDelete(m_clipResult.backBrushes);
+            m_clipResult.frontLayers.clear();
+            m_clipResult.backLayers.clear();
         }
 
         void ClipTool::clearAndDelete(Model::EntityBrushesMap& brushes) {

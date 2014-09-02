@@ -42,6 +42,21 @@ namespace TrenchBroom {
             createGui();
         }
         
+        void LayerEditor::OnCurrentLayerSelected(wxListEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::Map* map = document->map();
+            const Model::LayerList& layers = map->layers();
+            
+            const size_t index = static_cast<size_t>(event.GetIndex());
+            assert(index < layers.size());
+            
+            document->setCurrentLayer(layers[index]);
+        }
+        
+        void LayerEditor::OnCurrentLayerDeselected(wxListEvent& event) {
+            lock(m_document)->setCurrentLayer(NULL);
+        }
+
         void LayerEditor::OnAddLayerClicked(wxCommandEvent& event) {
             wxTextEntryDialog dialog(this, "Enter a name for the new layer", "New Layer Name", "Unnamed");
             dialog.CentreOnParent();
@@ -61,6 +76,9 @@ namespace TrenchBroom {
                 controller->addLayer(layer);
                 if (!objects.empty())
                     controller->moveSelectionToLayer(layer);
+                
+                const long index = static_cast<long>(map->layers().size() - 1);
+                m_layerList->SetItemState(index, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
             }
         }
         
@@ -101,6 +119,8 @@ namespace TrenchBroom {
             SetBackgroundColour(*wxWHITE);
 
             m_layerList = new LayerListView(this, m_document, m_controller);
+            m_layerList->Bind(wxEVT_LIST_ITEM_SELECTED, &LayerEditor::OnCurrentLayerSelected, this);
+            m_layerList->Bind(wxEVT_LIST_ITEM_DESELECTED, &LayerEditor::OnCurrentLayerDeselected, this);
             
             wxBitmapButton* addLayerButton = createBitmapButton(this, "Add.png", "Add a new layer from the current selection");
             wxBitmapButton* removeLayerButton = createBitmapButton(this, "Remove.png", "Remove the selected layer and move its objects to the default layer");

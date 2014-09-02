@@ -79,8 +79,6 @@ namespace TrenchBroom {
             Brush(const BBox3& worldBounds, const Brush& other);
             ~Brush();
             
-            void setLayer(Layer* layer);
-
             Brush* clone(const BBox3& worldBounds) const;
             BrushSnapshot takeSnapshot();
             
