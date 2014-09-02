@@ -412,6 +412,7 @@ namespace TrenchBroom {
                 worldspawn->addOrUpdateProperty(Model::PropertyKeys::Classname, Model::PropertyValues::WorldspawnClassname);
                 addEntity(worldspawn);
                 objectsWereAddedNotifier(Model::ObjectList(1, worldspawn));
+                worldspawn->setLayer(m_map->defaultLayer());
             }
             return worldspawn;
         }
