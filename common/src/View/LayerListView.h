@@ -42,7 +42,6 @@ namespace TrenchBroom {
             wxListItemAttr* OnGetItemAttr(long item) const;
             wxString OnGetItemText(long item, long column) const;
             
-            
             void bindObservers();
             void unbindObservers();
             void documentWasChanged();

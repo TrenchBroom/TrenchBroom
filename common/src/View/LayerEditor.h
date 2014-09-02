@@ -32,18 +32,26 @@ namespace TrenchBroom {
         
         class LayerEditor : public wxPanel {
         private:
+            static const int MoveSelectionToLayerCommandId = 1;
+            static const int SelectAllInLayerCommandId = 2;
+            static const int RemoveLayerCommandId = 3;
+
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
-            
             LayerListView* m_layerList;
         public:
             LayerEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             
             void OnCurrentLayerSelected(wxListEvent& event);
             void OnCurrentLayerDeselected(wxListEvent& event);
+            void OnLayerRightClick(wxListEvent& event);
             
-            void OnAddLayerClicked(wxCommandEvent& event);
-            void OnRemoveLayerClicked(wxCommandEvent& event);
+            void OnMoveSelectionToLayer(wxCommandEvent& event);
+            void OnUpdateMoveSelectionToLayerUI(wxUpdateUIEvent& event);
+            
+            void OnSelectAllInLayer(wxCommandEvent& event);
+            void OnAddLayer(wxCommandEvent& event);
+            void OnRemoveLayer(wxCommandEvent& event);
             void OnUpdateRemoveLayerUI(wxUpdateUIEvent& event);
         private:
             void createGui();

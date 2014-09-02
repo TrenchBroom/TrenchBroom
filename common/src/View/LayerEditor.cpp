@@ -28,6 +28,7 @@
 #include "View/wxUtils.h"
 
 #include <wx/bmpbuttn.h>
+#include <wx/menu.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/textdlg.h>
@@ -57,7 +58,83 @@ namespace TrenchBroom {
             lock(m_document)->setCurrentLayer(NULL);
         }
 
-        void LayerEditor::OnAddLayerClicked(wxCommandEvent& event) {
+        void LayerEditor::OnLayerRightClick(wxListEvent& event) {
+            if (event.GetIndex() < 0)
+                return;
+            
+            wxMenu popupMenu;
+            popupMenu.Append(MoveSelectionToLayerCommandId, "Move selection to layer");
+            popupMenu.Append(SelectAllInLayerCommandId, "Select all in layer");
+            popupMenu.AppendSeparator();
+            popupMenu.Append(RemoveLayerCommandId, "Remove layer");
+            
+            popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnMoveSelectionToLayer, this, MoveSelectionToLayerCommandId);
+            popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateMoveSelectionToLayerUI, this, MoveSelectionToLayerCommandId);
+            popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnSelectAllInLayer, this, SelectAllInLayerCommandId);
+            popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnRemoveLayer, this, RemoveLayerCommandId);
+            popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateRemoveLayerUI, this, RemoveLayerCommandId);
+            
+            PopupMenu(&popupMenu);
+        }
+
+        void LayerEditor::OnMoveSelectionToLayer(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::Map* map = document->map();
+            const Model::LayerList& layers = map->layers();
+            
+            const size_t index = m_layerList->getSelection();
+            assert(index < layers.size());
+            Model::Layer* layer = layers[index];
+
+            const Model::ObjectList& objects = document->selectedObjects();
+            assert(!objects.empty());
+            
+            ControllerSPtr controller = lock(m_controller);
+            controller->moveSelectionToLayer(layer);
+        }
+        
+        void LayerEditor::OnUpdateMoveSelectionToLayerUI(wxUpdateUIEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::ObjectList& objects = document->selectedObjects();
+            if (objects.empty()) {
+                event.Enable(false);
+                return;
+            }
+
+            Model::Map* map = document->map();
+            const Model::LayerList& layers = map->layers();
+            
+            const size_t index = m_layerList->getSelection();
+            assert(index < layers.size());
+            const Model::Layer* layer = layers[index];
+
+            Model::ObjectList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                const Model::Object* object = *it;
+                if (object->layer() != layer) {
+                    event.Enable(true);
+                    return;
+                }
+            }
+            
+            event.Enable(false);
+        }
+        
+        void LayerEditor::OnSelectAllInLayer(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            Model::Map* map = document->map();
+            const Model::LayerList& layers = map->layers();
+            
+            const size_t index = m_layerList->getSelection();
+            assert(index < layers.size());
+            Model::Layer* layer = layers[index];
+            const Model::ObjectList& objects = layer->objects();
+            
+            ControllerSPtr controller = lock(m_controller);
+            controller->deselectAllAndSelectObjects(objects);
+        }
+
+        void LayerEditor::OnAddLayer(wxCommandEvent& event) {
             wxTextEntryDialog dialog(this, "Enter a name for the new layer", "New Layer Name", "Unnamed");
             dialog.CentreOnParent();
             dialog.SetTextValidator(wxFILTER_EMPTY);
@@ -82,7 +159,7 @@ namespace TrenchBroom {
             }
         }
         
-        void LayerEditor::OnRemoveLayerClicked(wxCommandEvent& event) {
+        void LayerEditor::OnRemoveLayer(wxCommandEvent& event) {
             assert(m_layerList->GetSelectedItemCount() > 0);
             const size_t index = m_layerList->getSelection();
             
@@ -121,12 +198,13 @@ namespace TrenchBroom {
             m_layerList = new LayerListView(this, m_document, m_controller);
             m_layerList->Bind(wxEVT_LIST_ITEM_SELECTED, &LayerEditor::OnCurrentLayerSelected, this);
             m_layerList->Bind(wxEVT_LIST_ITEM_DESELECTED, &LayerEditor::OnCurrentLayerDeselected, this);
-            
+            m_layerList->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, &LayerEditor::OnLayerRightClick, this);
+
             wxBitmapButton* addLayerButton = createBitmapButton(this, "Add.png", "Add a new layer from the current selection");
             wxBitmapButton* removeLayerButton = createBitmapButton(this, "Remove.png", "Remove the selected layer and move its objects to the default layer");
             
-            addLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnAddLayerClicked, this);
-            removeLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnRemoveLayerClicked, this);
+            addLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnAddLayer, this);
+            removeLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnRemoveLayer, this);
             removeLayerButton->Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateRemoveLayerUI, this);
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
