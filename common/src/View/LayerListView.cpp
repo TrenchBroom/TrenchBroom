@@ -21,68 +21,33 @@
 
 #include "Model/Layer.h"
 #include "Model/Map.h"
+#include "View/BorderLine.h"
 #include "View/MapDocument.h"
+#include "View/ViewConstants.h"
 #include "View/wxUtils.h"
+
+#include <wx/scrolwin.h>
+#include <wx/sizer.h>
+#include <wx/stattext.h>
+#include <wx/tglbtn.h>
 
 namespace TrenchBroom {
     namespace View {
         LayerListView::LayerListView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
-        wxListCtrl(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_SINGLE_SEL | wxLC_VIRTUAL | wxLC_HRULES | wxLC_VRULES | wxBORDER_NONE),
+        wxPanel(parent),
         m_document(document),
-        m_controller(controller) {
-            AppendColumn("Name");
-            AppendColumn("#");
-            
-            reload();
-            bindObservers();
+        m_controller(controller),
+        m_scrollWindow(NULL) {
+            SetBackgroundColour(*wxWHITE);
+            createGui();
             bindEvents();
+            bindObservers();
         }
         
         LayerListView::~LayerListView() {
             unbindObservers();
         }
 
-        size_t LayerListView::getSelection() const {
-            assert(GetSelectedItemCount() > 0);
-            return getListCtrlSelection(this).front();
-        }
-        
-        void LayerListView::OnSize(wxSizeEvent& event) {
-            const int newWidth = std::max(1, GetClientSize().x - GetColumnWidth(1));
-            SetColumnWidth(0, newWidth);
-            event.Skip();
-        }
-
-        wxListItemAttr* LayerListView::OnGetItemAttr(const long item) const {
-            const Model::Map* map = lock(m_document)->map();
-            const Model::LayerList& layers = map->layers();
-            _UNUSED(layers);
-            assert(item >= 0 && static_cast<size_t>(item) < layers.size());
-            
-            static wxListItemAttr attr;
-            if (item == 0) {
-                attr.SetFont(GetFont().Italic());
-                return &attr;
-            }
-            
-            return NULL;
-        }
-        
-        wxString LayerListView::OnGetItemText(const long item, const long column) const {
-            const Model::Map* map = lock(m_document)->map();
-            const Model::LayerList& layers = map->layers();
-            assert(item >= 0 && static_cast<size_t>(item) < layers.size());
-            const Model::Layer* layer = layers[static_cast<size_t>(item)];
-            
-            assert(column >= 0 && column < 2);
-            wxString result;
-            if (column == 0)
-                result << layer->name();
-            else
-                result << layer->objects().size();
-            return result;
-        }
-        
         void LayerListView::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &LayerListView::documentWasChanged);
@@ -134,19 +99,66 @@ namespace TrenchBroom {
             reload();
         }
 
+        void LayerListView::createGui() {
+            m_scrollWindow = new wxScrolledWindow(this);
+            
+            wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
+            outerSizer->Add(m_scrollWindow, 1, wxEXPAND);
+            SetSizer(outerSizer);
+        }
+        
         void LayerListView::bindEvents() {
-            Bind(wxEVT_SIZE, &LayerListView::OnSize, this);
         }
 
         void LayerListView::reload() {
-            const Model::Map* map = lock(m_document)->map();
-            if (map == NULL) {
-                SetItemCount(0);
-            } else {
-                const Model::LayerList& layers = map->layers();
-                SetItemCount(static_cast<long>(layers.size()));
+            m_scrollWindow->DestroyChildren();
+            
+            wxSizer* scrollWindowSizer = new wxBoxSizer(wxVERTICAL);
+            
+            MapDocumentSPtr document = lock(m_document);
+            const Model::Map* map = document->map();
+            const Model::LayerList& layers = map->layers();
+            
+            for (size_t i = 0; i < layers.size(); ++i) {
+                Model::Layer* layer = layers[i];
+                const String& name = layer->name();
+                
+                wxPanel* itemPanel = new wxPanel(m_scrollWindow);
+                
+                wxStaticText* nameText = new wxStaticText(itemPanel, wxID_ANY, name);
+                nameText->SetFont(nameText->GetFont().Bold());
+                
+                wxBitmapToggleButton* visibleButton = createBitmapToggleButton(itemPanel, "Visibility.png", "Show or hide this layer");
+                wxBitmapToggleButton* lockButton = createBitmapToggleButton(itemPanel, "Locked.png", "Lock or unlock this layer");
+                
+                wxString info;
+                info << layer->objects().size() << " objects";
+                wxStaticText* infoText = new wxStaticText(itemPanel, wxID_ANY, info);
+
+                wxSizer* itemPanelBottomSizer = new wxBoxSizer(wxHORIZONTAL);
+                itemPanelBottomSizer->Add(visibleButton, 0, wxALIGN_CENTRE_VERTICAL);
+                itemPanelBottomSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+                itemPanelBottomSizer->Add(lockButton, 0, wxALIGN_CENTRE_VERTICAL);
+                itemPanelBottomSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+                itemPanelBottomSizer->Add(infoText, 0, wxALIGN_CENTRE_VERTICAL);
+                itemPanelBottomSizer->AddStretchSpacer();
+                itemPanelBottomSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+                
+                wxSizer* itemPanelSizer = new wxBoxSizer(wxVERTICAL);
+                itemPanelSizer->Add(nameText);
+                itemPanelSizer->Add(itemPanelBottomSizer);
+                
+                itemPanel->SetSizer(itemPanelSizer);
+                scrollWindowSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+                scrollWindowSizer->Add(itemPanel, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
+                scrollWindowSizer->AddSpacer(LayoutConstants::NarrowVMargin);
+                scrollWindowSizer->Add(new BorderLine(m_scrollWindow), 0, wxEXPAND);
             }
-            Refresh();
+            
+            scrollWindowSizer->AddStretchSpacer();
+            m_scrollWindow->SetSizer(scrollWindowSizer);
+            m_scrollWindow->SetScrollRate(0, 1);
+            Layout();
         }
     }
 }

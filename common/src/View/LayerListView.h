@@ -23,32 +23,30 @@
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
-#include <wx/listctrl.h>
+#include <wx/panel.h>
+
+class wxScrolledWindow;
 
 namespace TrenchBroom {
     namespace View {
-        class LayerListView : public wxListCtrl {
+        class LayerListView : public wxPanel {
         private:
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
+            
+            wxScrolledWindow* m_scrollWindow;
         public:
             LayerListView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~LayerListView();
-
-            size_t getSelection() const;
-
-            void OnSize(wxSizeEvent& event);
         private:
-            wxListItemAttr* OnGetItemAttr(long item) const;
-            wxString OnGetItemText(long item, long column) const;
-            
             void bindObservers();
             void unbindObservers();
             void documentWasChanged();
             void layersWereAdded(const Model::LayerList& layers);
             void layersWereRemoved(const Model::LayerList& layers);
             void layerDidChange(Model::Layer* layer);
-            
+
+            void createGui();
             void bindEvents();
             
             void reload();

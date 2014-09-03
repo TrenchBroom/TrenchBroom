@@ -27,6 +27,7 @@
 #include <wx/colour.h>
 
 class wxBitmapButton;
+class wxBitmapToggleButton;
 class wxCursor;
 class wxFrame;
 class wxListCtrl;
@@ -47,6 +48,7 @@ namespace TrenchBroom {
         std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl);
         
         wxBitmapButton* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip);
+        wxBitmapToggleButton* createBitmapToggleButton(wxWindow* parent, const String& image, const String& tooltip);
         
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
 

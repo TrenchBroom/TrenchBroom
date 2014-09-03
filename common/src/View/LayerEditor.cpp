@@ -42,7 +42,8 @@ namespace TrenchBroom {
         m_layerList(NULL) {
             createGui();
         }
-        
+
+        /*
         void LayerEditor::OnCurrentLayerSelected(wxListEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             Model::Map* map = document->map();
@@ -133,6 +134,7 @@ namespace TrenchBroom {
             ControllerSPtr controller = lock(m_controller);
             controller->deselectAllAndSelectObjects(objects);
         }
+        
 
         void LayerEditor::OnAddLayer(wxCommandEvent& event) {
             wxTextEntryDialog dialog(this, "Enter a name for the new layer", "New Layer Name", "Unnamed");
@@ -191,21 +193,26 @@ namespace TrenchBroom {
             const Model::Layer* layer = map->layers()[index];
             event.Enable(map->canRemoveLayer(layer));
         }
+         */
 
         void LayerEditor::createGui() {
             SetBackgroundColour(*wxWHITE);
 
             m_layerList = new LayerListView(this, m_document, m_controller);
+            /*
             m_layerList->Bind(wxEVT_LIST_ITEM_SELECTED, &LayerEditor::OnCurrentLayerSelected, this);
             m_layerList->Bind(wxEVT_LIST_ITEM_DESELECTED, &LayerEditor::OnCurrentLayerDeselected, this);
             m_layerList->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, &LayerEditor::OnLayerRightClick, this);
+             */
 
             wxBitmapButton* addLayerButton = createBitmapButton(this, "Add.png", "Add a new layer from the current selection");
             wxBitmapButton* removeLayerButton = createBitmapButton(this, "Remove.png", "Remove the selected layer and move its objects to the default layer");
             
+            /*
             addLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnAddLayer, this);
             removeLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnRemoveLayer, this);
             removeLayerButton->Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateRemoveLayerUI, this);
+            */
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(addLayerButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);

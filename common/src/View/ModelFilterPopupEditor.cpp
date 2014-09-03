@@ -125,8 +125,6 @@ namespace TrenchBroom {
             wxScrolledWindow* scrollWindow = new wxScrolledWindow(this);
             
             wxSizer* scrollWindowSizer = new wxBoxSizer(wxVERTICAL);
-            int yScrollRate = 0;
-            
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
@@ -139,7 +137,6 @@ namespace TrenchBroom {
                 m_groupCheckBoxes.push_back(groupCB);
                 
                 scrollWindowSizer->Add(groupCB);
-                yScrollRate = groupCB->GetSize().y;
                 
                 Assets::EntityDefinitionList::const_iterator defIt, defEnd;
                 for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
@@ -155,7 +152,7 @@ namespace TrenchBroom {
             }
             
             scrollWindow->SetSizer(scrollWindowSizer);
-            scrollWindow->SetScrollRate(10, yScrollRate);
+            scrollWindow->SetScrollRate(1, 1);
             
             wxButton* showAllButton = new wxButton(this, wxID_ANY, "Show all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             showAllButton->SetFont(showAllButton->GetFont().Bold());

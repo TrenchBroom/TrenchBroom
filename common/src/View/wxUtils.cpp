@@ -30,6 +30,7 @@
 #include <wx/frame.h>
 #include <wx/listctrl.h>
 #include <wx/sizer.h>
+#include <wx/tglbtn.h>
 #include <wx/window.h>
 
 #include <list>
@@ -83,7 +84,17 @@ namespace TrenchBroom {
             
             wxBitmapButton* button = new wxBitmapButton(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             button->SetToolTip(tooltip);
-            button->wxWindowBase::SetBackgroundColour(*wxWHITE);
+            button->SetBackgroundColour(*wxWHITE);
+            return button;
+        }
+
+        wxBitmapToggleButton* createBitmapToggleButton(wxWindow* parent, const String& image, const String& tooltip) {
+            wxBitmap bitmap = IO::loadImageResource(IO::Path("images") + IO::Path(image));
+            assert(bitmap.IsOk());
+            
+            wxBitmapToggleButton* button = new wxBitmapToggleButton(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            button->SetToolTip(tooltip);
+            button->SetBackgroundColour(*wxWHITE);
             return button;
         }
 
