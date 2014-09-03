@@ -35,6 +35,7 @@ namespace TrenchBroom {
             Model::BrushList m_brushes;
             Model::Entity* m_newParent;
             Model::BrushEntityMap m_oldParents;
+            Model::ObjectLayerMap m_oldLayers;
             Model::EntityList m_emptyEntities;
         public:
             static Ptr reparent(View::MapDocumentWPtr document, const Model::BrushList& brushes, Model::Entity* newParent);

@@ -55,6 +55,7 @@ namespace TrenchBroom {
         
         bool ReparentBrushesCommand::doPerformDo() {
             m_oldParents.clear();
+            m_oldLayers.clear();
             m_emptyEntities.clear();
             
             Model::ObjectList allChangedParents = Model::makeParentList(m_brushes);
@@ -72,9 +73,13 @@ namespace TrenchBroom {
                 Model::Brush* brush = *it;
                 Model::Entity* oldParent = brush->parent();
                 m_oldParents[brush] = oldParent;
+                m_oldLayers[brush] = brush->layer();
                 
                 oldParent->removeBrush(brush);
                 m_newParent->addBrush(brush);
+                
+                Model::Layer* newLayer = m_newParent->worldspawn() ? brush->layer() : m_newParent->layer();
+                brush->setLayer(newLayer);
                 
                 if (oldParent->brushes().empty() && !oldParent->worldspawn())
                     m_emptyEntities.push_back(oldParent);
@@ -102,9 +107,11 @@ namespace TrenchBroom {
             for (it = m_oldParents.begin(), end = m_oldParents.end(); it != end; ++it) {
                 Model::Brush* brush = it->first;
                 Model::Entity* oldParent = it->second;
+                Model::Layer* oldLayer = m_oldLayers[brush];
 
                 m_newParent->removeBrush(brush);
                 oldParent->addBrush(brush);
+                brush->setLayer(oldLayer);
             }
 
             document->objectsWereAddedNotifier(allChangedBrushes);
