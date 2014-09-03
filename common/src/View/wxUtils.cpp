@@ -88,11 +88,15 @@ namespace TrenchBroom {
             return button;
         }
 
-        wxBitmapToggleButton* createBitmapToggleButton(wxWindow* parent, const String& image, const String& tooltip) {
-            wxBitmap bitmap = IO::loadImageResource(IO::Path("images") + IO::Path(image));
-            assert(bitmap.IsOk());
+        wxBitmapToggleButton* createBitmapToggleButton(wxWindow* parent, const String& onImage, const String& offImage, const String& tooltip) {
+            wxBitmap onBitmap = IO::loadImageResource(IO::Path("images") + IO::Path(onImage));
+            assert(onBitmap.IsOk());
+
+            wxBitmap offBitmap = IO::loadImageResource(IO::Path("images") + IO::Path(offImage));
+            assert(offBitmap.IsOk());
             
-            wxBitmapToggleButton* button = new wxBitmapToggleButton(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            wxBitmapToggleButton* button = new wxBitmapToggleButton(parent, wxID_ANY, offBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            button->SetBitmapPressed(onBitmap);
             button->SetToolTip(tooltip);
             button->SetBackgroundColour(*wxWHITE);
             return button;
