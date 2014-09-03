@@ -25,6 +25,7 @@
 #include "View/MapTreeView.h"
 #include "View/MiniMap.h"
 #include "View/ModEditor.h"
+#include "View/SplitterWindow.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
@@ -47,19 +48,18 @@ namespace TrenchBroom {
         }
 
         void MapInspector::createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera) {
-            wxWindow* miniMap = createMiniMap(this, sharedContext, document, camera);
-            // wxWindow* mapTree = createMapTree(this, document, controller);
-            wxWindow* layerEditor = createLayerEditor(this, document, controller);
-            wxWindow* modEditor = createModEditor(this, document, controller);
+            SplitterWindow* splitter = new SplitterWindow(this);
+            splitter->setSashGravity(0.0);
+            splitter->SetName("EntityInspectorSplitter");
             
+            splitter->splitHorizontally(createMiniMap(splitter, sharedContext, document, camera),
+                                        createLayerEditor(splitter, document, controller),
+                                        wxSize(100, 150), wxSize(100, 150));
+
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(miniMap, 0, wxEXPAND);
+            sizer->Add(splitter, 1, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(layerEditor, 1, wxEXPAND);
-            sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
-            sizer->Add(modEditor, 0, wxEXPAND);
-            
-            sizer->SetItemMinSize(miniMap, wxDefaultSize.x, 180);
+            sizer->Add(createModEditor(this, document, controller), 0, wxEXPAND);
             SetSizer(sizer);
         }
 
