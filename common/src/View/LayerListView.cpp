@@ -147,8 +147,8 @@ namespace TrenchBroom {
                 wxSizer* itemPanelSizer = new wxBoxSizer(wxVERTICAL);
                 itemPanelSizer->Add(nameText, 0, wxEXPAND);
                 itemPanelSizer->Add(itemPanelBottomSizer, 0, wxEXPAND);
-                
                 itemPanel->SetSizer(itemPanelSizer);
+
                 scrollWindowSizer->AddSpacer(LayoutConstants::NarrowVMargin);
                 scrollWindowSizer->Add(itemPanel, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
                 scrollWindowSizer->AddSpacer(LayoutConstants::NarrowVMargin);
