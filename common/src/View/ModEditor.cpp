@@ -51,13 +51,8 @@ namespace TrenchBroom {
         m_availableModList(NULL),
         m_enabledModList(NULL),
         m_filterBox(NULL),
-        m_addModsButton(NULL),
-        m_removeModsButton(NULL),
-        m_moveModUpButton(NULL),
-        m_moveModDownButton(NULL),
         m_ignoreNotifier(false) {
             createGui();
-            bindEvents();
             bindObservers();
         }
 
@@ -154,22 +149,25 @@ namespace TrenchBroom {
             m_enabledModList->SetSelection(static_cast<int>(index + 1));
         }
 
-        void ModEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {
+        void ModEditor::OnUpdateAddButtonUI(wxUpdateUIEvent& event) {
             wxArrayInt selections;
-            if (event.GetEventObject() == m_addModsButton) {
-                event.Enable(m_availableModList->GetSelections(selections) > 0);
-            } else if (event.GetEventObject() == m_removeModsButton) {
-                event.Enable(m_enabledModList->GetSelections(selections) > 0);
-            } else {
-                if (m_enabledModList->GetSelections(selections) == 1) {
-                    if (event.GetEventObject() == m_moveModUpButton)
-                        event.Enable(selections.front() > 0);
-                    else
-                        event.Enable(selections.front() < static_cast<int>(m_enabledModList->GetCount()) - 1);
-                } else {
-                    event.Enable(false);
-                }
-            }
+            event.Enable(m_availableModList->GetSelections(selections) > 0);
+        }
+        
+        void ModEditor::OnUpdateRemoveButtonUI(wxUpdateUIEvent& event) {
+            wxArrayInt selections;
+            event.Enable(m_enabledModList->GetSelections(selections) > 0);
+        }
+
+        void ModEditor::OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event) {
+            wxArrayInt selections;
+            event.Enable(m_enabledModList->GetSelections(selections) == 1 && selections.front() > 0);
+        }
+        
+        void ModEditor::OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event) {
+            const int enabledModCount = static_cast<int>(m_enabledModList->GetCount());
+            wxArrayInt selections;
+            event.Enable(m_enabledModList->GetSelections(selections) == 1 && selections.front() < enabledModCount - 1);
         }
 
         void ModEditor::OnFilterBoxChanged(wxCommandEvent& event) {
@@ -202,17 +200,27 @@ namespace TrenchBroom {
             filterBoxSizer->Add(m_filterBox, 0, wxEXPAND);
             filterBoxSizer->AddSpacer(LayoutConstants::NarrowVMargin);
             
-            m_addModsButton = createBitmapButton(this, "Add.png", "Enable the selected mods");
-            m_removeModsButton = createBitmapButton(this, "Remove.png", "Disable the selected mods");
-            m_moveModUpButton = createBitmapButton(this, "Up.png", "Move the selected mod up");
-            m_moveModDownButton = createBitmapButton(this, "Down.png", "Move the selected mod down");
+            wxWindow* addModsButton = createBitmapButton(this, "Add.png", "Enable the selected mods");
+            wxWindow* removeModsButton = createBitmapButton(this, "Remove.png", "Disable the selected mods");
+            wxWindow* moveModUpButton = createBitmapButton(this, "Up.png", "Move the selected mod up");
+            wxWindow* moveModDownButton = createBitmapButton(this, "Down.png", "Move the selected mod down");
             
+            m_filterBox->Bind(wxEVT_TEXT, &ModEditor::OnFilterBoxChanged, this);
+            addModsButton->Bind(wxEVT_BUTTON, &ModEditor::OnAddModClicked, this);
+            removeModsButton->Bind(wxEVT_BUTTON, &ModEditor::OnRemoveModClicked, this);
+            moveModUpButton->Bind(wxEVT_BUTTON, &ModEditor::OnMoveModUpClicked, this);
+            moveModDownButton->Bind(wxEVT_BUTTON, &ModEditor::OnMoveModDownClicked, this);
+            addModsButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateAddButtonUI, this);
+            removeModsButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateRemoveButtonUI, this);
+            moveModUpButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateMoveUpButtonUI, this);
+            moveModDownButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateMoveDownButtonUI, this);
+
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(m_addModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(m_removeModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(addModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(removeModsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
-            buttonSizer->Add(m_moveModUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(m_moveModDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(moveModUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(moveModDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
             
             wxGridBagSizer* sizer = new wxGridBagSizer(0, 0);
@@ -231,18 +239,6 @@ namespace TrenchBroom {
 
             SetBackgroundColour(*wxWHITE);
             SetSizerAndFit(sizer);
-        }
-        
-        void ModEditor::bindEvents() {
-            m_filterBox->Bind(wxEVT_TEXT, &ModEditor::OnFilterBoxChanged, this);
-            m_addModsButton->Bind(wxEVT_BUTTON, &ModEditor::OnAddModClicked, this);
-            m_removeModsButton->Bind(wxEVT_BUTTON, &ModEditor::OnRemoveModClicked, this);
-            m_moveModUpButton->Bind(wxEVT_BUTTON, &ModEditor::OnMoveModUpClicked, this);
-            m_moveModDownButton->Bind(wxEVT_BUTTON, &ModEditor::OnMoveModDownClicked, this);
-            m_addModsButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateButtonUI, this);
-            m_removeModsButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateButtonUI, this);
-            m_moveModUpButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateButtonUI, this);
-            m_moveModDownButton->Bind(wxEVT_UPDATE_UI, &ModEditor::OnUpdateButtonUI, this);
         }
 
         void ModEditor::bindObservers() {

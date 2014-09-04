@@ -39,6 +39,5 @@ namespace TrenchBroom {
         wxEvent* TextureSelectedCommand::Clone() const {
             return new TextureSelectedCommand(*this);
         }
-        
     }
 }

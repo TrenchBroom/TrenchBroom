@@ -40,11 +40,6 @@ namespace TrenchBroom {
             ControllerWPtr m_controller;
 
             UVView* m_uvView;
-            wxButton* m_resetTextureButton;
-            wxButton* m_flipTextureHButton;
-            wxButton* m_flipTextureVButton;
-            wxButton* m_rotateTextureCCWButton;
-            wxButton* m_rotateTextureCWButton;
             wxSpinCtrl* m_xSubDivisionEditor;
             wxSpinCtrl* m_ySubDivisionEditor;
         public:
@@ -60,7 +55,6 @@ namespace TrenchBroom {
             void OnSubDivisionChanged(wxSpinEvent& event);
         private:
             void createGui(GLContextHolder::Ptr sharedContext);
-            void bindEvents();
         };
     }
 }

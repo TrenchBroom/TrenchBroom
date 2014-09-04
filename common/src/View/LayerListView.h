@@ -25,19 +25,61 @@
 
 #include <wx/panel.h>
 
+#include <vector>
+
 class wxScrolledWindow;
 
 namespace TrenchBroom {
     namespace View {
+        class LayerCommand;
+    }
+}
+
+typedef void (wxEvtHandler::*LayerCommandFunction)(TrenchBroom::View::LayerCommand &);
+
+wxDECLARE_EVENT(LAYER_SELECTED_EVENT, TrenchBroom::View::LayerCommand);
+#define LayeredSelectedHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
+
+wxDECLARE_EVENT(LAYER_RIGHT_CLICK_EVENT, TrenchBroom::View::LayerCommand);
+#define LayeredRightClickHandler(func) wxEVENT_HANDLER_CAST(LayerCommandFunction, func)
+
+namespace TrenchBroom {
+    namespace View {
+        class LayerEntry;
+        
+        class LayerCommand : public wxCommandEvent {
+        protected:
+            Model::Layer* m_layer;
+        public:
+            LayerCommand(wxEventType commandType, int id = 0);
+            
+            Model::Layer* layer() const;
+            void setLayer(Model::Layer* layer);
+            
+            virtual wxEvent* Clone() const;
+        };
+
         class LayerListView : public wxPanel {
         private:
+            typedef std::vector<LayerEntry*> LayerEntryList;
+            
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             
             wxScrolledWindow* m_scrollWindow;
+            LayerEntryList m_entries;
+            
+            int m_selection;
         public:
             LayerListView(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~LayerListView();
+            
+            Model::Layer* selectedLayer() const;
+            void setSelectedLayer(Model::Layer* layer);
+            
+            void OnMouseEntryDown(wxMouseEvent& event);
+            void OnMouseEntryRightUp(wxMouseEvent& event);
+            void OnMouseVoidDown(wxMouseEvent& event);
         private:
             void bindObservers();
             void unbindObservers();
@@ -47,9 +89,9 @@ namespace TrenchBroom {
             void layerDidChange(Model::Layer* layer);
 
             void createGui();
-            void bindEvents();
             
             void reload();
+            void refresh();
         };
     }
 }

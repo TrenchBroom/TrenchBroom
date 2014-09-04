@@ -26,14 +26,41 @@
 namespace TrenchBroom {
     namespace Model {
         Layer::Layer(const String& name) :
-        m_name(name) {}
+        m_name(name),
+        m_visible(true),
+        m_locked(false) {}
         
         const String& Layer::name() const {
             return m_name;
         }
         
         void Layer::setName(const String& name) {
+            if (name == m_name)
+                return;
             m_name = name;
+            layerDidChangeNotifier(this);
+        }
+        
+        bool Layer::visible() const {
+            return m_visible;
+        }
+        
+        void Layer::setVisible(const bool visible) {
+            if (visible == m_visible)
+                return;
+            m_visible = visible;
+            layerDidChangeNotifier(this);
+        }
+        
+        bool Layer::locked() const {
+            return m_locked;
+        }
+        
+        void Layer::setLocked(const bool locked) {
+            if (locked == m_locked)
+                return;
+            m_locked = locked;
+            layerDidChangeNotifier(this);
         }
         
         const Model::ObjectList& Layer::objects() const {

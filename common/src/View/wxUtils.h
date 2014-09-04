@@ -47,8 +47,8 @@ namespace TrenchBroom {
 
         std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl);
         
-        wxBitmapButton* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip);
-        wxBitmapToggleButton* createBitmapToggleButton(wxWindow* parent, const String& onImage, const String& offImage, const String& tooltip);
+        wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip);
+        wxWindow* createBitmapToggleButton(wxWindow* parent, const String& upImage, const String& downImage, const String& tooltip);
         
         wxSizer* wrapDialogButtonSizer(wxSizer* buttonSizer, wxWindow* parent);
 

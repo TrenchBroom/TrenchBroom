@@ -21,6 +21,7 @@
 
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
+#include "View/BitmapToggleButton.h"
 #include "View/BorderLine.h"
 #include "View/MapFrame.h"
 #include "View/ViewConstants.h"
@@ -78,7 +79,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        wxBitmapButton* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip) {
+        wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip) {
             wxBitmap bitmap = IO::loadImageResource(IO::Path("images") + IO::Path(image));
             assert(bitmap.IsOk());
             
@@ -88,15 +89,21 @@ namespace TrenchBroom {
             return button;
         }
 
-        wxBitmapToggleButton* createBitmapToggleButton(wxWindow* parent, const String& onImage, const String& offImage, const String& tooltip) {
-            wxBitmap onBitmap = IO::loadImageResource(IO::Path("images") + IO::Path(onImage));
-            assert(onBitmap.IsOk());
+        wxWindow* createBitmapToggleButton(wxWindow* parent, const String& upImage, const String& downImage, const String& tooltip) {
+            wxBitmap upBitmap = IO::loadImageResource(IO::Path("images") + IO::Path(upImage));
+            assert(upBitmap.IsOk());
 
-            wxBitmap offBitmap = IO::loadImageResource(IO::Path("images") + IO::Path(offImage));
-            assert(offBitmap.IsOk());
+            wxBitmap downBitmap = IO::loadImageResource(IO::Path("images") + IO::Path(downImage));
+            assert(downBitmap.IsOk());
             
+            /*
             wxBitmapToggleButton* button = new wxBitmapToggleButton(parent, wxID_ANY, offBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxBU_EXACTFIT);
             button->SetBitmapPressed(onBitmap);
+            button->SetToolTip(tooltip);
+            button->SetBackgroundColour(*wxWHITE);
+            */
+            
+            BitmapToggleButton* button = new BitmapToggleButton(parent, wxID_ANY, upBitmap, downBitmap);
             button->SetToolTip(tooltip);
             button->SetBackgroundColour(*wxWHITE);
             return button;

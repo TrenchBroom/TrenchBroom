@@ -39,10 +39,6 @@ namespace TrenchBroom {
             ControllerWPtr m_controller;
             
             wxListBox* m_collections;
-            wxBitmapButton* m_addTextureCollectionsButton;
-            wxBitmapButton* m_removeTextureCollectionsButton;
-            wxBitmapButton* m_moveTextureCollectionUpButton;
-            wxBitmapButton* m_moveTextureCollectionDownButton;
         public:
             TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             ~TextureCollectionEditor();
@@ -51,10 +47,11 @@ namespace TrenchBroom {
             void OnRemoveTextureCollectionsClicked(wxCommandEvent& event);
             void OnMoveTextureCollectionUpClicked(wxCommandEvent& event);
             void OnMoveTextureCollectionDownClicked(wxCommandEvent& event);
-            void OnUpdateButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateRemoveButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event);
         private:
             void createGui();
-            void bindEvents();
             
             void bindObservers();
             void unbindObservers();
