@@ -83,6 +83,7 @@ namespace TrenchBroom {
             bool m_textureLock;
             size_t m_modificationCount;
         public:
+            Notifier0 documentWillBeClearedNotifier;
             Notifier0 documentWasClearedNotifier;
             Notifier0 documentWasNewedNotifier;
             Notifier0 documentWasLoadedNotifier;

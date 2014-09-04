@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-
+#include "LayerObserver.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/Camera.h"
@@ -52,6 +52,8 @@ namespace TrenchBroom {
         private:
             View::MapDocumentWPtr m_document;
             Renderer::Camera& m_camera3D;
+            
+            LayerObserver m_layerObserver;
             
             Renderer::MiniMapRenderer& m_renderer;
             Renderer::Vbo m_auxVbo;
@@ -87,6 +89,11 @@ namespace TrenchBroom {
             void objectsWereAdded(const Model::ObjectList& objects);
             void objectsWillBeRemoved(const Model::ObjectList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
+
+            void layersWereAdded(const Model::LayerList& layers);
+            void layersWereRemoved(const Model::LayerList& layers);
+            void layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr);
+            
             void filterDidChange();
             void renderConfigDidChange();
             void preferenceDidChange(const IO::Path& path);

@@ -95,6 +95,7 @@ namespace TrenchBroom {
         
         MapRenderer::MapRenderer(View::MapDocumentWPtr document, FontManager& fontManager) :
         m_document(document),
+        m_layerObserver(m_document),
         m_fontManager(fontManager),
         m_unselectedBrushRenderer(UnselectedBrushRendererFilter(lock(document)->filter())),
         m_selectedBrushRenderer(SelectedBrushRendererFilter(lock(document)->filter())),
@@ -243,6 +244,8 @@ namespace TrenchBroom {
             document->modelFilterDidChangeNotifier.addObserver(this, &MapRenderer::modelFilterDidChange);
             document->renderConfigDidChangeNotifier.addObserver(this, &MapRenderer::renderConfigDidChange);
             
+            m_layerObserver.layerDidChangeNotifier.addObserver(this, &MapRenderer::layerDidChange);
+
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapRenderer::preferenceDidChange);
         }
@@ -267,6 +270,8 @@ namespace TrenchBroom {
                 document->renderConfigDidChangeNotifier.removeObserver(this, &MapRenderer::renderConfigDidChange);
             }
             
+            m_layerObserver.layerDidChangeNotifier.addObserver(this, &MapRenderer::layerDidChange);
+
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
         }
@@ -277,7 +282,8 @@ namespace TrenchBroom {
         
         void MapRenderer::documentWasNewedOrLoaded() {
             View::MapDocumentSPtr document = lock(m_document);
-            loadMap(*document->map());
+            Model::Map* map = lock(m_document)->map();
+            loadMap(*map);
         }
         
         void MapRenderer::pointFileWasLoadedOrUnloaded() {
@@ -365,6 +371,14 @@ namespace TrenchBroom {
             m_selectedBrushRenderer.invalidate();
         }
         
+        void MapRenderer::layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr) {
+            if ((attr & Model::Layer::Attr_Editing) != 0) {
+                m_unselectedBrushRenderer.invalidate();
+                m_unselectedEntityRenderer.invalidate();
+                m_entityLinkRenderer.invalidate();
+            }
+        }
+
         void MapRenderer::selectionDidChange(const Model::SelectionResult& result) {
             View::MapDocumentSPtr document = lock(m_document);
             

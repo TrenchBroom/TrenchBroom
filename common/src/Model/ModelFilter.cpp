@@ -25,6 +25,7 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
+#include "Model/Layer.h"
 #include "Model/Object.h"
 
 namespace TrenchBroom {
@@ -95,6 +96,12 @@ namespace TrenchBroom {
         }
         
         bool ModelFilter::visible(const Object* object) const {
+            if (object->selected())
+                return true;
+            
+            if (!object->layer()->visible())
+                return false;
+            
             if (object->type() == Object::Type_Entity) {
                 const Entity* entity = static_cast<const Entity*>(object);
                 if (entity->worldspawn())
@@ -122,6 +129,9 @@ namespace TrenchBroom {
         
         bool ModelFilter::pickable(const Object* object) const {
             if (!visible(object))
+                return false;
+            
+            if (object->layer()->locked())
                 return false;
             
             if (object->type() == Object::Type_Entity) {

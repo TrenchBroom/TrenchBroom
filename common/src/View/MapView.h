@@ -22,6 +22,7 @@
 
 
 #include "TrenchBroom.h"
+#include "LayerObserver.h"
 #include "VecMath.h"
 #include "Color.h"
 #include "Notifier.h"
@@ -84,6 +85,8 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             Renderer::Camera& m_camera;
+            
+            LayerObserver m_layerObserver;
             
             MovementRestriction m_movementRestriction;
             AnimationManager* m_animationManager;
@@ -271,6 +274,11 @@ namespace TrenchBroom {
             void objectsWereRemoved(const Model::ObjectParentList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
             void facesDidChange(const Model::BrushFaceList& faces);
+            
+            void layersWereAdded(const Model::LayerList& layers);
+            void layersWereRemoved(const Model::LayerList& layers);
+            void layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr);
+
             void filterDidChange();
             void renderConfigDidChange();
             void selectionDidChange(const Model::SelectionResult& result);

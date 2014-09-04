@@ -138,6 +138,7 @@ namespace TrenchBroom {
         RenderView(parent, sharedContext),
         m_document(document),
         m_camera3D(camera3D),
+        m_layerObserver(m_document),
         m_renderer(renderer),
         m_auxVbo(0xFF) {
             bindEvents();
@@ -174,6 +175,11 @@ namespace TrenchBroom {
             document->modelFilterDidChangeNotifier.addObserver(this, &MiniMapBaseView::filterDidChange);
             document->renderConfigDidChangeNotifier.addObserver(this, &MiniMapBaseView::renderConfigDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MiniMapBaseView::selectionDidChange);
+
+            m_layerObserver.layersWereAddedNotifier.addObserver(this, &MiniMapBaseView::layersWereAdded);
+            m_layerObserver.layersWereRemovedNotifier.addObserver(this, &MiniMapBaseView::layersWereRemoved);
+            m_layerObserver.layerDidChangeNotifier.addObserver(this, &MiniMapBaseView::layerDidChange);
+            
             m_camera3D.cameraDidChangeNotifier.addObserver(this, &MiniMapBaseView::cameraDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -193,6 +199,10 @@ namespace TrenchBroom {
                 document->renderConfigDidChangeNotifier.removeObserver(this, &MiniMapBaseView::renderConfigDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MiniMapBaseView::selectionDidChange);
             }
+            
+            m_layerObserver.layersWereAddedNotifier.addObserver(this, &MiniMapBaseView::layersWereAdded);
+            m_layerObserver.layersWereRemovedNotifier.addObserver(this, &MiniMapBaseView::layersWereRemoved);
+            m_layerObserver.layerDidChangeNotifier.addObserver(this, &MiniMapBaseView::layerDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MiniMapBaseView::preferenceDidChange);
@@ -219,6 +229,18 @@ namespace TrenchBroom {
         }
         
         void MiniMapBaseView::objectsDidChange(const Model::ObjectList& objects) {
+            Refresh();
+        }
+        
+        void MiniMapBaseView::layersWereAdded(const Model::LayerList& layers) {
+            Refresh();
+        }
+        
+        void MiniMapBaseView::layersWereRemoved(const Model::LayerList& layers) {
+            Refresh();
+        }
+        
+        void MiniMapBaseView::layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr) {
             Refresh();
         }
         

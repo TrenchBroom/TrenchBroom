@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "LayerObserver.h"
 
 #include "Model/ModelTypes.h"
 #include "Renderer/Vbo.h"
@@ -50,6 +51,8 @@ namespace TrenchBroom {
             };
 
             View::MapDocumentWPtr m_document;
+            LayerObserver m_layerObserver;
+            
             Vbo m_vbo;
             VertexArray m_unselectedEdgeArray;
             VertexArray m_selectedEdgeArray;
@@ -76,6 +79,9 @@ namespace TrenchBroom {
             void objectsWereAdded(const Model::ObjectList& objects);
             void objectsWillBeRemoved(const Model::ObjectList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
+
+            void layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr);
+            
             void filterDidChange();
             void selectionDidChange(const Model::SelectionResult& result);
         };

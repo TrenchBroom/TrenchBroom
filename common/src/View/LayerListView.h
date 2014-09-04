@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__LayerListView__
 #define __TrenchBroom__LayerListView__
 
+#include "LayerObserver.h"
+#include "Model/Layer.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
@@ -66,6 +68,8 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
             
+            LayerObserver m_layerObserver;
+            
             wxScrolledWindow* m_scrollWindow;
             LayerEntryList m_entries;
             
@@ -83,10 +87,9 @@ namespace TrenchBroom {
         private:
             void bindObservers();
             void unbindObservers();
-            void documentWasChanged();
             void layersWereAdded(const Model::LayerList& layers);
             void layersWereRemoved(const Model::LayerList& layers);
-            void layerDidChange(Model::Layer* layer);
+            void layerDidChange(Model::Layer* layer, Model::Layer::Attr_Type attr);
 
             void createGui();
             

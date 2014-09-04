@@ -953,6 +953,8 @@ namespace TrenchBroom {
         }
 
         void MapDocument::clearMap() {
+            documentWillBeClearedNotifier();
+
             if (isPointFileLoaded())
                 unloadPointFile();
 

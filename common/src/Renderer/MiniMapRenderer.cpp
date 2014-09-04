@@ -45,6 +45,7 @@ namespace TrenchBroom {
         
         MiniMapRenderer::MiniMapRenderer(View::MapDocumentWPtr document) :
         m_document(document),
+        m_layerObserver(m_document),
         m_vbo(0xFFFF),
         m_unselectedValid(false),
         m_selectedValid(false) {
@@ -128,6 +129,8 @@ namespace TrenchBroom {
             document->objectsDidChangeNotifier.addObserver(this, &MiniMapRenderer::objectsDidChange);
             document->modelFilterDidChangeNotifier.addObserver(this, &MiniMapRenderer::filterDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MiniMapRenderer::selectionDidChange);
+            
+            m_layerObserver.layerDidChangeNotifier.addObserver(this, &MiniMapRenderer::layerDidChange);
         }
         
         void MiniMapRenderer::unbindObservers() {
@@ -142,6 +145,8 @@ namespace TrenchBroom {
                 document->modelFilterDidChangeNotifier.removeObserver(this, &MiniMapRenderer::filterDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MiniMapRenderer::selectionDidChange);
             }
+
+            m_layerObserver.layerDidChangeNotifier.removeObserver(this, &MiniMapRenderer::layerDidChange);
         }
         
         void MiniMapRenderer::documentWasCleared() {
@@ -166,6 +171,13 @@ namespace TrenchBroom {
             m_selectedValid = false;
         }
         
+        void MiniMapRenderer::layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr) {
+            if ((attr & Model::Layer::Attr_Editing) != 0) {
+                m_unselectedValid = false;
+                m_selectedValid = false;
+            }
+        }
+
         void MiniMapRenderer::filterDidChange() {
             m_unselectedValid = false;
             m_selectedValid = false;

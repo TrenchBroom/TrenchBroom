@@ -71,6 +71,7 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller),
         m_camera(camera),
+        m_layerObserver(m_document),
         m_animationManager(new AnimationManager()),
         m_toolBox(this, this),
         m_cameraTool(NULL),
@@ -1047,6 +1048,10 @@ namespace TrenchBroom {
             document->selectionDidChangeNotifier.addObserver(this, &MapView::selectionDidChange);
             document->grid().gridDidChangeNotifier.addObserver(this, &MapView::gridDidChange);
             
+            m_layerObserver.layersWereAddedNotifier.addObserver(this, &MapView::layersWereAdded);
+            m_layerObserver.layersWereRemovedNotifier.addObserver(this, &MapView::layersWereRemoved);
+            m_layerObserver.layerDidChangeNotifier.addObserver(this, &MapView::layerDidChange);
+            
             ControllerSPtr controller = lock(m_controller);
             controller->commandDoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
             controller->commandUndoneNotifier.addObserver(this, &MapView::commandDoneOrUndone);
@@ -1077,6 +1082,10 @@ namespace TrenchBroom {
                 document->grid().gridDidChangeNotifier.removeObserver(this, &MapView::gridDidChange);
             }
             
+            m_layerObserver.layersWereAddedNotifier.removeObserver(this, &MapView::layersWereAdded);
+            m_layerObserver.layersWereRemovedNotifier.removeObserver(this, &MapView::layersWereRemoved);
+            m_layerObserver.layerDidChangeNotifier.removeObserver(this, &MapView::layerDidChange);
+
             if (!expired(m_controller)) {
                 ControllerSPtr controller = lock(m_controller);
                 controller->commandDoneNotifier.removeObserver(this, &MapView::commandDoneOrUndone);
@@ -1116,6 +1125,18 @@ namespace TrenchBroom {
             Refresh();
         }
         
+        void MapView::layersWereAdded(const Model::LayerList& layers) {
+            Refresh();
+        }
+        
+        void MapView::layersWereRemoved(const Model::LayerList& layers) {
+            Refresh();
+        }
+        
+        void MapView::layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr) {
+            Refresh();
+        }
+
         void MapView::filterDidChange() {
             Refresh();
         }

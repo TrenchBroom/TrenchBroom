@@ -28,14 +28,21 @@
 namespace TrenchBroom {
     namespace Model {
         class Layer {
+        public:
+            typedef int Attr_Type;
+            static const Attr_Type Attr_Name        = 1 << 0;
+            static const Attr_Type Attr_Objects     = 1 << 1;
+            static const Attr_Type Attr_Visible     = 1 << 2;
+            static const Attr_Type Attr_Locked      = 1 << 3;
+            static const Attr_Type Attr_Any         = Attr_Name | Attr_Objects | Attr_Visible | Attr_Locked;
+            static const Attr_Type Attr_Editing     = Attr_Visible | Attr_Locked;
         private:
             String m_name;
             bool m_visible;
             bool m_locked;
-            Model::ObjectList m_objects;
+            ObjectList m_objects;
         public:
-            Notifier1<Layer*> layerWillChangeNotifier;
-            Notifier1<Layer*> layerDidChangeNotifier;
+            Notifier2<Layer*, Attr_Type> layerDidChangeNotifier;
         public:
             Layer(const String& name);
             
@@ -48,7 +55,7 @@ namespace TrenchBroom {
             bool locked() const;
             void setLocked(bool locked);
             
-            const Model::ObjectList& objects() const;
+            const ObjectList& objects() const;
         private:
             friend void Object::setLayer(Layer*);
             

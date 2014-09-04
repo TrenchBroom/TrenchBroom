@@ -38,7 +38,7 @@ namespace TrenchBroom {
             if (name == m_name)
                 return;
             m_name = name;
-            layerDidChangeNotifier(this);
+            layerDidChangeNotifier(this, Attr_Name);
         }
         
         bool Layer::visible() const {
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             if (visible == m_visible)
                 return;
             m_visible = visible;
-            layerDidChangeNotifier(this);
+            layerDidChangeNotifier(this, Attr_Visible);
         }
         
         bool Layer::locked() const {
@@ -60,10 +60,10 @@ namespace TrenchBroom {
             if (locked == m_locked)
                 return;
             m_locked = locked;
-            layerDidChangeNotifier(this);
+            layerDidChangeNotifier(this, Attr_Locked);
         }
         
-        const Model::ObjectList& Layer::objects() const {
+        const ObjectList& Layer::objects() const {
             return m_objects;
         }
 
@@ -71,18 +71,16 @@ namespace TrenchBroom {
             assert(object->layer() == this);
             assert(!VectorUtils::contains(m_objects, object));
             
-            layerWillChangeNotifier(this);
             m_objects.push_back(object);
-            layerDidChangeNotifier(this);
+            layerDidChangeNotifier(this, Attr_Objects);
         }
         
         void Layer::removeObject(Object* object) {
             assert(object->layer() == this);
             assert(VectorUtils::contains(m_objects, object));
 
-            layerWillChangeNotifier(this);
             VectorUtils::erase(m_objects, object);
-            layerDidChangeNotifier(this);
+            layerDidChangeNotifier(this, Attr_Objects);
         }
     }
 }

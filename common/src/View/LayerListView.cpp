@@ -19,7 +19,6 @@
 
 #include "LayerListView.h"
 
-#include "Model/Layer.h"
 #include "Model/Map.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
@@ -167,6 +166,7 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_document(document),
         m_controller(controller),
+        m_layerObserver(m_document),
         m_scrollWindow(NULL),
         m_selection(-1) {
             SetBackgroundColour(*wxWHITE);
@@ -249,52 +249,25 @@ namespace TrenchBroom {
 
         void LayerListView::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
-            document->documentWasNewedNotifier.addObserver(this, &LayerListView::documentWasChanged);
-            document->documentWasLoadedNotifier.addObserver(this, &LayerListView::documentWasChanged);
-            document->layersWereAddedNotifier.addObserver(this, &LayerListView::layersWereAdded);
-            document->layersWereRemovedNotifier.addObserver(this, &LayerListView::layersWereRemoved);
+            m_layerObserver.layersWereAddedNotifier.addObserver(this, &LayerListView::layersWereAdded);
+            m_layerObserver.layersWereRemovedNotifier.addObserver(this, &LayerListView::layersWereRemoved);
+            m_layerObserver.layerDidChangeNotifier.addObserver(this, &LayerListView::layerDidChange);
         }
         
         void LayerListView::unbindObservers() {
-            if (!expired(m_document)) {
-                MapDocumentSPtr document = lock(m_document);
-                document->documentWasNewedNotifier.removeObserver(this, &LayerListView::documentWasChanged);
-                document->documentWasLoadedNotifier.removeObserver(this, &LayerListView::documentWasChanged);
-                document->layersWereAddedNotifier.removeObserver(this, &LayerListView::layersWereAdded);
-                document->layersWereRemovedNotifier.removeObserver(this, &LayerListView::layersWereRemoved);
-            }
+            m_layerObserver.layersWereAddedNotifier.removeObserver(this, &LayerListView::layersWereAdded);
+            m_layerObserver.layersWereRemovedNotifier.removeObserver(this, &LayerListView::layersWereRemoved);
+            m_layerObserver.layerDidChangeNotifier.removeObserver(this, &LayerListView::layerDidChange);
         }
-        
-        void LayerListView::documentWasChanged() {
-            const Model::Map* map = lock(m_document)->map();
-            const Model::LayerList& layers = map->layers();
-            Model::LayerList::const_iterator it, end;
-            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
-                Model::Layer* layer = *it;
-                layer->layerDidChangeNotifier.addObserver(this, &LayerListView::layerDidChange);
-            }
-            reload();
-        }
-        
         void LayerListView::layersWereAdded(const Model::LayerList& layers) {
-            Model::LayerList::const_iterator it, end;
-            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
-                Model::Layer* layer = *it;
-                layer->layerDidChangeNotifier.addObserver(this, &LayerListView::layerDidChange);
-            }
             reload();
         }
         
         void LayerListView::layersWereRemoved(const Model::LayerList& layers) {
-            Model::LayerList::const_iterator it, end;
-            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
-                Model::Layer* layer = *it;
-                layer->layerDidChangeNotifier.removeObserver(this, &LayerListView::layerDidChange);
-            }
             reload();
         }
         
-        void LayerListView::layerDidChange(Model::Layer* layer) {
+        void LayerListView::layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr) {
             refresh();
         }
 

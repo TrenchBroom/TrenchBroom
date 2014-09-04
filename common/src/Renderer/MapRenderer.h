@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapRenderer__
 #define __TrenchBroom__MapRenderer__
 
+#include "LayerObserver.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EdgeRenderer.h"
@@ -46,6 +47,8 @@ namespace TrenchBroom {
         class MapRenderer {
         private:
             View::MapDocumentWPtr m_document;
+            LayerObserver m_layerObserver;
+            
             FontManager& m_fontManager;
             BrushRenderer m_unselectedBrushRenderer;
             BrushRenderer m_selectedBrushRenderer;
@@ -86,6 +89,9 @@ namespace TrenchBroom {
             void objectsWillBeRemoved(const Model::ObjectList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
             void facesDidChange(const Model::BrushFaceList& faces);
+            
+            void layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr);
+            
             void selectionDidChange(const Model::SelectionResult& result);
             void modsDidChange();
             void entityDefinitionsDidChange();
