@@ -128,7 +128,7 @@ namespace TrenchBroom {
                 wxStaticText* nameText = new wxStaticText(itemPanel, wxID_ANY, name);
                 nameText->SetFont(nameText->GetFont().Bold());
                 
-                wxBitmapToggleButton* visibleButton = createBitmapToggleButton(itemPanel, "Invisible.png", "Visible.png", "Show or hide this layer");
+                wxBitmapToggleButton* visibleButton = createBitmapToggleButton(itemPanel, "Invisible_White.png", "Visible_White.png", "Show or hide this layer");
                 wxBitmapToggleButton* lockButton = createBitmapToggleButton(itemPanel, "Locked.png", "Unlocked.png", "Lock or unlock this layer");
                 
                 wxString info;
