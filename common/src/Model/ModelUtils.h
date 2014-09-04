@@ -73,6 +73,8 @@ namespace TrenchBroom {
 
         void filterEntityList(const EntityList& entities, EntityList& pointEntities, EntityList& brushEntities, EntityList& untypedEntities);
         void filterEntityList(const EntityList& entities, EntityList& emptyEntities, EntityList& brushEntities);
+
+        EntityList makeEntityList(const ObjectList& objects);
         BrushList makeBrushList(const EntityList& entities);
         BrushList makeBrushList(const ObjectList& objects);
         

@@ -363,6 +363,19 @@ namespace TrenchBroom {
             }
         }
 
+        EntityList makeEntityList(const ObjectList& objects) {
+            EntityList result;
+            ObjectList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
+                Object* object = *it;
+                if (object->type() == Object::Type_Entity) {
+                    Entity* entity = static_cast<Entity*>(object);
+                    result.push_back(entity);
+                }
+            }
+            return result;
+        }
+
         BrushList makeBrushList(const EntityList& entities) {
             BrushList result;
             EntityList::const_iterator it, end;

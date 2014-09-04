@@ -45,10 +45,12 @@ namespace TrenchBroom {
         
         extern Preference<Color> FaceColor;
         extern Preference<Color> SelectedFaceColor;
+        extern Preference<Color> LockedFaceColor;
         extern Preference<float> TransparentFaceAlpha;
         extern Preference<Color> EdgeColor;
         extern Preference<Color> SelectedEdgeColor;
         extern Preference<Color> OccludedSelectedEdgeColor;
+        extern Preference<Color> LockedEdgeColor;
         extern Preference<Color> UndefinedEntityColor;
         
         extern Preference<Color> InfoOverlayTextColor;

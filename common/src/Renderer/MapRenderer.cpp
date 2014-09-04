@@ -46,50 +46,101 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        struct UnselectedBrushRendererFilter : public BrushRenderer::Filter {
+        struct BrushRendererFilter : public BrushRenderer::Filter {
         private:
             const Model::ModelFilter& m_filter;
         public:
-            UnselectedBrushRendererFilter(const Model::ModelFilter& filter) :
+            BrushRendererFilter(const Model::ModelFilter& filter) :
             m_filter(filter) {}
             
-            bool operator()(const Model::Brush* brush) const {
-                return !brush->selected() && m_filter.visible(brush);
+            virtual ~BrushRendererFilter() {}
+        protected:
+            bool visible(const Model::Brush* brush) const {
+                return m_filter.visible(brush);
             }
             
-            bool operator()(const Model::BrushFace* face) const {
-                return !face->selected() && m_filter.visible(face);
+            bool visible(const Model::BrushFace* face) const {
+                return m_filter.visible(face);
             }
             
-            bool operator()(const Model::BrushEdge* edge) const {
+            bool selected(const Model::Brush* brush) const {
+                return brush->selected();
+            }
+            
+            bool partiallySelected(const Model::Brush* brush) const {
+                return brush->partiallySelected() || selected(brush);
+            }
+            
+            bool selected(const Model::BrushFace* face) const {
+                return face->selected() || selected(face->parent());
+            }
+            
+            bool selected(const Model::BrushEdge* edge) const {
                 const Model::BrushFace* left = edge->left->face;
                 const Model::BrushFace* right = edge->right->face;
                 const Model::Brush* brush = left->parent();
-                return (!brush->selected() ||
-                        (!left->selected() && !right->selected()));
+                return selected(brush) || selected(left) || selected(right);
+            }
+            
+            bool locked(const Model::Brush* brush) const {
+                return m_filter.locked(brush);
+            }
+            
+            bool locked(const Model::BrushFace* face) const {
+                return locked(face->parent());
             }
         };
         
-        struct SelectedBrushRendererFilter : public BrushRenderer::Filter {
-            const Model::ModelFilter& m_filter;
-        public:
-            SelectedBrushRendererFilter(const Model::ModelFilter& filter) :
-            m_filter(filter) {}
+        struct UnselectedBrushRendererFilter : public BrushRendererFilter {
+            UnselectedBrushRendererFilter(const Model::ModelFilter& filter) :
+            BrushRendererFilter(filter) {}
             
             bool operator()(const Model::Brush* brush) const {
-                return (brush->selected() || brush->partiallySelected()) && m_filter.visible(brush);
+                return !locked(brush) && !selected(brush) && visible(brush);
             }
             
             bool operator()(const Model::BrushFace* face) const {
-                return (face->parent()->selected() || face->selected()) && m_filter.visible(face);
+                return !locked(face) && !selected(face) && visible(face);
             }
             
             bool operator()(const Model::BrushEdge* edge) const {
-                const Model::BrushFace* left = edge->left->face;
-                const Model::BrushFace* right = edge->right->face;
-                const Model::Brush* brush = left->parent();
-                return (brush->selected() ||
-                        left->selected() || right->selected());
+                return !selected(edge);
+            }
+        };
+        
+        struct SelectedBrushRendererFilter : public BrushRendererFilter {
+        public:
+            SelectedBrushRendererFilter(const Model::ModelFilter& filter) :
+            BrushRendererFilter(filter) {}
+            
+            bool operator()(const Model::Brush* brush) const {
+                return !locked(brush) && partiallySelected(brush) && visible(brush);
+            }
+            
+            bool operator()(const Model::BrushFace* face) const {
+                return !locked(face) && selected(face) && visible(face);
+            }
+            
+            bool operator()(const Model::BrushEdge* edge) const {
+                return selected(edge);
+            }
+        };
+        
+        struct LockedBrushRendererFilter : public BrushRendererFilter {
+        public:
+            LockedBrushRendererFilter(const Model::ModelFilter& filter) :
+            BrushRendererFilter(filter) {}
+            
+            bool operator()(const Model::Brush* brush) const {
+                return locked(brush) && visible(brush);
+            }
+            
+            bool operator()(const Model::BrushFace* face) const {
+                return locked(face) && visible(face);
+            }
+            
+            bool operator()(const Model::BrushEdge* edge) const {
+                return true;
             }
         };
         
@@ -99,8 +150,10 @@ namespace TrenchBroom {
         m_fontManager(fontManager),
         m_unselectedBrushRenderer(UnselectedBrushRendererFilter(lock(document)->filter())),
         m_selectedBrushRenderer(SelectedBrushRendererFilter(lock(document)->filter())),
+        m_lockedBrushRenderer(LockedBrushRendererFilter(lock(document)->filter())),
         m_unselectedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()),
         m_selectedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()),
+        m_lockedEntityRenderer(lock(document)->entityModelManager(), m_fontManager, lock(document)->filter()),
         m_entityLinkRenderer(m_document) {
             bindObservers();
             setupRendererColors();
@@ -134,6 +187,9 @@ namespace TrenchBroom {
             renderUnselectedGeometry(context);
             renderUnselectedEntities(context);
             
+            renderLockedGeometry(context);
+            renderLockedEntities(context);
+            
             renderSelectedGeometry(context);
             renderSelectedEntities(context);
 
@@ -160,6 +216,12 @@ namespace TrenchBroom {
             m_selectedEntityRenderer.setAngleColor(prefs.get(Preferences::AngleIndicatorColor));
             m_selectedEntityRenderer.setShowClassnamesOnTop(true);
             
+            m_lockedEntityRenderer.setOverlayTextColor(prefs.get(Preferences::InfoOverlayTextColor));
+            m_lockedEntityRenderer.setOverlayBackgroundColor(prefs.get(Preferences::InfoOverlayBackgroundColor));
+            m_lockedEntityRenderer.setBoundsColor(prefs.get(Preferences::UndefinedEntityColor));
+            m_lockedEntityRenderer.setApplyTinting(true);
+            m_lockedEntityRenderer.setTintColor(prefs.get(Preferences::LockedFaceColor));
+            
             m_unselectedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
             m_unselectedBrushRenderer.setEdgeColor(prefs.get(Preferences::EdgeColor));
             m_unselectedBrushRenderer.setTransparencyAlpha(prefs.get(Preferences::TransparentFaceAlpha));
@@ -170,6 +232,12 @@ namespace TrenchBroom {
             m_selectedBrushRenderer.setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
             m_selectedBrushRenderer.setRenderOccludedEdges(true);
             m_selectedBrushRenderer.setTransparencyAlpha(prefs.get(Preferences::TransparentFaceAlpha));
+
+            m_lockedBrushRenderer.setFaceColor(prefs.get(Preferences::FaceColor));
+            m_lockedBrushRenderer.setEdgeColor(prefs.get(Preferences::LockedEdgeColor));
+            m_lockedBrushRenderer.setTransparencyAlpha(prefs.get(Preferences::TransparentFaceAlpha));
+            m_lockedBrushRenderer.setTintFaces(true);
+            m_lockedBrushRenderer.setTintColor(prefs.get(Preferences::LockedFaceColor));
         }
         
         void MapRenderer::setupGL(RenderContext& context) {
@@ -198,6 +266,10 @@ namespace TrenchBroom {
             }
         }
         
+        void MapRenderer::renderLockedGeometry(RenderContext& context) {
+            m_lockedBrushRenderer.render(context);
+        }
+
         void MapRenderer::renderUnselectedEntities(RenderContext& context) {
             m_unselectedEntityRenderer.render(context);
         }
@@ -208,6 +280,10 @@ namespace TrenchBroom {
                 m_selectedEntityRenderer.setApplyTinting(applyTinting);
                 m_selectedEntityRenderer.render(context);
             }
+        }
+
+        void MapRenderer::renderLockedEntities(RenderContext& context) {
+            m_lockedEntityRenderer.render(context);
         }
 
         void MapRenderer::renderEntityLinks(RenderContext& context) {
@@ -373,9 +449,25 @@ namespace TrenchBroom {
         
         void MapRenderer::layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr) {
             if ((attr & Model::Layer::Attr_Editing) != 0) {
-                m_unselectedBrushRenderer.invalidate();
-                m_unselectedEntityRenderer.invalidate();
-                m_entityLinkRenderer.invalidate();
+                if (attr == Model::Layer::Attr_Locked) {
+                    const Model::ObjectList& objects = layer->objects();
+                    const Model::EntityList entities = Model::makeEntityList(objects);
+                    const Model::BrushList brushes = Model::makeBrushList(objects);
+                    if (layer->locked()) {
+                        m_unselectedEntityRenderer.removeEntities(entities.begin(), entities.end());
+                        m_lockedEntityRenderer.addEntities(entities.begin(), entities.end());
+                        m_unselectedBrushRenderer.removeBrushes(brushes.begin(), brushes.end());
+                        m_lockedBrushRenderer.addBrushes(brushes.begin(), brushes.end());
+                    } else {
+                        m_lockedEntityRenderer.removeEntities(entities.begin(), entities.end());
+                        m_unselectedEntityRenderer.addEntities(entities.begin(), entities.end());
+                        m_lockedBrushRenderer.removeBrushes(brushes.begin(), brushes.end());
+                        m_unselectedBrushRenderer.addBrushes(brushes.begin(), brushes.end());
+                    }
+                } else {
+                    m_unselectedBrushRenderer.invalidate();
+                    m_unselectedEntityRenderer.invalidate();
+                }
             }
         }
 

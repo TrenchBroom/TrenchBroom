@@ -127,11 +127,15 @@ namespace TrenchBroom {
             return visible(face->parent());
         }
         
+        bool ModelFilter::locked(const Object* object) const {
+            return object->layer()->locked();
+        }
+
         bool ModelFilter::pickable(const Object* object) const {
             if (!visible(object))
                 return false;
             
-            if (object->layer()->locked())
+            if (locked(object))
                 return false;
             
             if (object->type() == Object::Type_Entity) {
@@ -144,6 +148,14 @@ namespace TrenchBroom {
         
         bool ModelFilter::pickable(const BrushFace* face) const {
             return visible(face);
+        }
+
+        bool ModelFilter::occludes(const Object* object) const {
+            return locked(object);
+        }
+        
+        bool ModelFilter::occludes(const BrushFace* face) const {
+            return occludes(face->parent());
         }
 
         bool ModelFilter::selectable(const Object* object) const {

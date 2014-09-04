@@ -52,8 +52,10 @@ namespace TrenchBroom {
             FontManager& m_fontManager;
             BrushRenderer m_unselectedBrushRenderer;
             BrushRenderer m_selectedBrushRenderer;
+            BrushRenderer m_lockedBrushRenderer;
             EntityRenderer m_unselectedEntityRenderer;
             EntityRenderer m_selectedEntityRenderer;
+            EntityRenderer m_lockedEntityRenderer;
             EntityLinkRenderer m_entityLinkRenderer;
             EdgeRenderer m_pointFileRenderer;
         public:
@@ -70,8 +72,10 @@ namespace TrenchBroom {
             void setupGL(RenderContext& context);
             void renderUnselectedGeometry(RenderContext& context);
             void renderSelectedGeometry(RenderContext& context);
+            void renderLockedGeometry(RenderContext& context);
             void renderUnselectedEntities(RenderContext& context);
             void renderSelectedEntities(RenderContext& context);
+            void renderLockedEntities(RenderContext& context);
             void renderEntityLinks(RenderContext& context);
             void renderPointFile(RenderContext& context);
             
