@@ -30,6 +30,8 @@ namespace TrenchBroom {
         class Layer {
         private:
             String m_name;
+            bool m_visible;
+            bool m_locked;
             Model::ObjectList m_objects;
         public:
             Notifier1<Layer*> layerWillChangeNotifier;
@@ -39,6 +41,12 @@ namespace TrenchBroom {
             
             const String& name() const;
             void setName(const String& name);
+            
+            bool visible() const;
+            void setVisible(bool visible);
+            
+            bool locked() const;
+            void setLocked(bool locked);
             
             const Model::ObjectList& objects() const;
         private:

@@ -24,17 +24,18 @@
 
 #include <wx/panel.h>
 
-class wxListEvent;
-
 namespace TrenchBroom {
     namespace View {
+        class LayerCommand;
         class LayerListView;
         
         class LayerEditor : public wxPanel {
         private:
             static const int MoveSelectionToLayerCommandId = 1;
             static const int SelectAllInLayerCommandId = 2;
-            static const int RemoveLayerCommandId = 3;
+            static const int ToggleLayerVisibleCommandId = 3;
+            static const int ToggleLayerLockedCommandId = 4;
+            static const int RemoveLayerCommandId = 5;
 
             MapDocumentWPtr m_document;
             ControllerWPtr m_controller;
@@ -42,19 +43,19 @@ namespace TrenchBroom {
         public:
             LayerEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             
-            /*
-            void OnCurrentLayerSelected(wxListEvent& event);
-            void OnCurrentLayerDeselected(wxListEvent& event);
-            void OnLayerRightClick(wxListEvent& event);
+            void OnCurrentLayerSelected(LayerCommand& event);
+            void OnLayerRightClick(LayerCommand& event);
             
             void OnMoveSelectionToLayer(wxCommandEvent& event);
             void OnUpdateMoveSelectionToLayerUI(wxUpdateUIEvent& event);
             
+            void OnToggleLayerVisible(wxCommandEvent& event);
+            void OnToggleLayerLocked(wxCommandEvent& event);
+
             void OnSelectAllInLayer(wxCommandEvent& event);
             void OnAddLayer(wxCommandEvent& event);
             void OnRemoveLayer(wxCommandEvent& event);
             void OnUpdateRemoveLayerUI(wxUpdateUIEvent& event);
-             */
         private:
             void createGui();
         };

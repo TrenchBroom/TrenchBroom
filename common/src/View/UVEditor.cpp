@@ -36,15 +36,9 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller),
         m_uvView(NULL),
-        m_resetTextureButton(NULL),
-        m_flipTextureHButton(NULL),
-        m_flipTextureVButton(NULL),
-        m_rotateTextureCCWButton(NULL),
-        m_rotateTextureCWButton(NULL),
         m_xSubDivisionEditor(NULL),
         m_ySubDivisionEditor(NULL) {
             createGui(sharedContext);
-            bindEvents();
         }
 
         void UVEditor::OnResetTexture(wxCommandEvent& event) {
@@ -100,12 +94,23 @@ namespace TrenchBroom {
         void UVEditor::createGui(GLContextHolder::Ptr sharedContext) {
             m_uvView = new UVView(this, sharedContext, m_document, m_controller);
             
-            m_resetTextureButton = createBitmapButton(this, "ResetTexture.png", "Reset texture alignment");
-            m_flipTextureHButton = createBitmapButton(this, "FlipTextureH.png", "Flip texture X axis");
-            m_flipTextureVButton = createBitmapButton(this, "FlipTextureV.png", "Flip texture Y axis");
-            m_rotateTextureCCWButton = createBitmapButton(this, "RotateTextureCCW.png", "Rotate texture 90° counter-clockwise");
-            m_rotateTextureCWButton = createBitmapButton(this, "RotateTextureCW.png", "Rotate texture 90° clockwise");
+            wxWindow* resetTextureButton = createBitmapButton(this, "ResetTexture.png", "Reset texture alignment");
+            wxWindow* flipTextureHButton = createBitmapButton(this, "FlipTextureH.png", "Flip texture X axis");
+            wxWindow* flipTextureVButton = createBitmapButton(this, "FlipTextureV.png", "Flip texture Y axis");
+            wxWindow* rotateTextureCCWButton = createBitmapButton(this, "RotateTextureCCW.png", "Rotate texture 90° counter-clockwise");
+            wxWindow* rotateTextureCWButton = createBitmapButton(this, "RotateTextureCW.png", "Rotate texture 90° clockwise");
             
+            resetTextureButton->Bind(wxEVT_BUTTON, &UVEditor::OnResetTexture, this);
+            resetTextureButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
+            flipTextureHButton->Bind(wxEVT_BUTTON, &UVEditor::OnFlipTextureH, this);
+            flipTextureHButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
+            flipTextureVButton->Bind(wxEVT_BUTTON, &UVEditor::OnFlipTextureV, this);
+            flipTextureVButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
+            rotateTextureCCWButton->Bind(wxEVT_BUTTON, &UVEditor::OnRotateTextureCCW, this);
+            rotateTextureCCWButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
+            rotateTextureCWButton->Bind(wxEVT_BUTTON, &UVEditor::OnRotateTextureCW, this);
+            rotateTextureCWButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
+
             wxStaticText* gridLabel = new wxStaticText(this, wxID_ANY, "Grid ");
             gridLabel->SetFont(gridLabel->GetFont().Bold());
             m_xSubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
@@ -114,12 +119,15 @@ namespace TrenchBroom {
             m_ySubDivisionEditor = new wxSpinCtrl(this, wxID_ANY, "1", wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER | wxALIGN_RIGHT);
             m_ySubDivisionEditor->SetRange(1, 16);
             
+            m_xSubDivisionEditor->Bind(wxEVT_SPINCTRL, &UVEditor::OnSubDivisionChanged, this);
+            m_ySubDivisionEditor->Bind(wxEVT_SPINCTRL, &UVEditor::OnSubDivisionChanged, this);
+
             wxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
-            bottomSizer->Add(m_resetTextureButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->Add(m_flipTextureHButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->Add(m_flipTextureVButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->Add(m_rotateTextureCCWButton,               0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
-            bottomSizer->Add(m_rotateTextureCWButton,                0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
+            bottomSizer->Add(resetTextureButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
+            bottomSizer->Add(flipTextureHButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
+            bottomSizer->Add(flipTextureVButton,                   0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
+            bottomSizer->Add(rotateTextureCCWButton,               0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
+            bottomSizer->Add(rotateTextureCWButton,                0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
             bottomSizer->AddStretchSpacer();
             bottomSizer->Add(gridLabel,                              0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT);
             bottomSizer->Add(new wxStaticText(this, wxID_ANY, "X:"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, LayoutConstants::NarrowHMargin);
@@ -137,22 +145,6 @@ namespace TrenchBroom {
             
             SetBackgroundColour(*wxWHITE);
             SetSizer(outerSizer);
-        }
-        
-        void UVEditor::bindEvents() {
-            m_resetTextureButton->Bind(wxEVT_BUTTON, &UVEditor::OnResetTexture, this);
-            m_resetTextureButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
-            m_flipTextureHButton->Bind(wxEVT_BUTTON, &UVEditor::OnFlipTextureH, this);
-            m_flipTextureHButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
-            m_flipTextureVButton->Bind(wxEVT_BUTTON, &UVEditor::OnFlipTextureV, this);
-            m_flipTextureVButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
-            m_rotateTextureCCWButton->Bind(wxEVT_BUTTON, &UVEditor::OnRotateTextureCCW, this);
-            m_rotateTextureCCWButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
-            m_rotateTextureCWButton->Bind(wxEVT_BUTTON, &UVEditor::OnRotateTextureCW, this);
-            m_rotateTextureCWButton->Bind(wxEVT_UPDATE_UI, &UVEditor::OnUpdateButtonUI, this);
-            
-            m_xSubDivisionEditor->Bind(wxEVT_SPINCTRL, &UVEditor::OnSubDivisionChanged, this);
-            m_ySubDivisionEditor->Bind(wxEVT_SPINCTRL, &UVEditor::OnSubDivisionChanged, this);
         }
     }
 }

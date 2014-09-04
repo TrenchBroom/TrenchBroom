@@ -48,10 +48,6 @@ namespace TrenchBroom {
             wxListBox* m_availableModList;
             wxListBox* m_enabledModList;
             wxSearchCtrl* m_filterBox;
-            wxBitmapButton* m_addModsButton;
-            wxBitmapButton* m_removeModsButton;
-            wxBitmapButton* m_moveModUpButton;
-            wxBitmapButton* m_moveModDownButton;
             
             StringList m_availableMods;
             bool m_ignoreNotifier;
@@ -63,11 +59,13 @@ namespace TrenchBroom {
             void OnRemoveModClicked(wxCommandEvent& event);
             void OnMoveModUpClicked(wxCommandEvent& event);
             void OnMoveModDownClicked(wxCommandEvent& event);
-            void OnUpdateButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateAddButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateRemoveButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event);
+            void OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event);
             void OnFilterBoxChanged(wxCommandEvent& event);
         private:
             void createGui();
-            void bindEvents();
 
             void bindObservers();
             void unbindObservers();

@@ -39,7 +39,6 @@ namespace TrenchBroom {
         m_ignoreSelection(false),
         m_lastSelectedCol(0) {
             createGui(document, controller);
-            bindEvents();
             bindObservers();
         }
         
@@ -241,25 +240,6 @@ namespace TrenchBroom {
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
             
-            m_addPropertyButton = createBitmapButton(this, "Add.png", "Add a new property");
-            m_removePropertiesButton = createBitmapButton(this, "Remove.png", "Remove the selected properties");
-
-            m_showDefaultPropertiesCheckBox = new wxCheckBox(this, wxID_ANY, "Show default properties");
-            
-            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(m_addPropertyButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(m_removePropertiesButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
-            buttonSizer->Add(m_showDefaultPropertiesCheckBox, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->AddStretchSpacer();
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_grid, 1, wxEXPAND);
-            sizer->Add(buttonSizer, 0, wxEXPAND);
-            SetSizer(sizer);
-        }
-        
-        void EntityPropertyGrid::bindEvents() {
             m_grid->Bind(wxEVT_SIZE, &EntityPropertyGrid::OnPropertyGridSize, this);
             m_grid->Bind(wxEVT_GRID_SELECT_CELL, &EntityPropertyGrid::OnPropertyGridSelectCell, this);
             m_grid->Bind(wxEVT_GRID_TABBING, &EntityPropertyGrid::OnPropertyGridTab, this);
@@ -267,13 +247,30 @@ namespace TrenchBroom {
             m_grid->Bind(wxEVT_KEY_UP, &EntityPropertyGrid::OnPropertyGridKeyUp, this);
             m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityPropertyGrid::OnPropertyGridMouseMove, this);
             m_grid->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdatePropertyView, this);
+
+            wxWindow* addPropertyButton = createBitmapButton(this, "Add.png", "Add a new property");
+            wxWindow* removePropertiesButton = createBitmapButton(this, "Remove.png", "Remove the selected properties");
+
+            addPropertyButton->Bind(wxEVT_BUTTON, &EntityPropertyGrid::OnAddPropertyButton, this);
+            addPropertyButton->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdateAddPropertyButton, this);
+            removePropertiesButton->Bind(wxEVT_BUTTON, &EntityPropertyGrid::OnRemovePropertiesButton, this);
+            removePropertiesButton->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdateRemovePropertiesButton, this);
+
+            wxCheckBox* showDefaultPropertiesCheckBox = new wxCheckBox(this, wxID_ANY, "Show default properties");
+            showDefaultPropertiesCheckBox->Bind(wxEVT_CHECKBOX, &EntityPropertyGrid::OnShowDefaultPropertiesCheckBox, this);
+            showDefaultPropertiesCheckBox->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdateShowDefaultPropertiesCheckBox, this);
             
-            m_addPropertyButton->Bind(wxEVT_BUTTON, &EntityPropertyGrid::OnAddPropertyButton, this);
-            m_addPropertyButton->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdateAddPropertyButton, this);
-            m_removePropertiesButton->Bind(wxEVT_BUTTON, &EntityPropertyGrid::OnRemovePropertiesButton, this);
-            m_removePropertiesButton->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdateRemovePropertiesButton, this);
-            m_showDefaultPropertiesCheckBox->Bind(wxEVT_CHECKBOX, &EntityPropertyGrid::OnShowDefaultPropertiesCheckBox, this);
-            m_showDefaultPropertiesCheckBox->Bind(wxEVT_UPDATE_UI, &EntityPropertyGrid::OnUpdateShowDefaultPropertiesCheckBox, this);
+            wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+            buttonSizer->Add(addPropertyButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(removePropertiesButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
+            buttonSizer->Add(showDefaultPropertiesCheckBox, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->AddStretchSpacer();
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_grid, 1, wxEXPAND);
+            sizer->Add(buttonSizer, 0, wxEXPAND);
+            SetSizer(sizer);
         }
         
         void EntityPropertyGrid::bindObservers() {

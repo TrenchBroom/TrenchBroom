@@ -44,7 +44,6 @@ namespace TrenchBroom {
         m_document(document),
         m_controller(controller) {
             createGui();
-            bindEvents();
             bindObservers();
         }
         
@@ -114,26 +113,22 @@ namespace TrenchBroom {
             m_collections->SetSelection(static_cast<int>(index + 1));
         }
 
-        void TextureCollectionEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {
-            if (event.GetEventObject() == m_addTextureCollectionsButton) {
-                event.Enable(true);
-            } else {
+        void TextureCollectionEditor::OnUpdateRemoveButtonUI(wxUpdateUIEvent& event) {
                 wxArrayInt selections;
-                m_collections->GetSelections(selections);
-                if (event.GetEventObject() == m_removeTextureCollectionsButton) {
-                    event.Enable(selections.size() > 0);
-                } else if (selections.size() == 1) {
-                    if (event.GetEventObject() == m_moveTextureCollectionUpButton) {
-                        event.Enable(selections.front() > 0);
-                    } else if (event.GetEventObject() == m_moveTextureCollectionDownButton) {
-                        event.Enable(static_cast<size_t>(selections.front()) < m_collections->GetCount() - 1);
-                    }
-                } else {
-                    event.Enable(false);
-                }
-            }
+                event.Enable(m_collections->GetSelections(selections) > 0);
         }
-
+        
+        void TextureCollectionEditor::OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event) {
+            wxArrayInt selections;
+            event.Enable(m_collections->GetSelections(selections) == 1 && selections.front() > 0);
+        }
+        
+        void TextureCollectionEditor::OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event) {
+            const int collectionCount = static_cast<int>(m_collections->GetCount());
+            wxArrayInt selections;
+            event.Enable(m_collections->GetSelections(selections) == 1 && selections.front() < collectionCount - 1);
+        }
+        
         void TextureCollectionEditor::createGui() {
             static const int ListBoxMargin =
 #ifdef __APPLE__
@@ -144,17 +139,25 @@ namespace TrenchBroom {
 
             m_collections = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_MULTIPLE | wxBORDER_NONE);
 
-            m_addTextureCollectionsButton = createBitmapButton(this, "Add.png", "Add texture collections from the file system");
-            m_removeTextureCollectionsButton = createBitmapButton(this, "Remove.png", "Remove the selected texture collections");
-            m_moveTextureCollectionUpButton = createBitmapButton(this, "Up.png", "Move the selected texture collection up");
-            m_moveTextureCollectionDownButton = createBitmapButton(this, "Down.png", "Move the selected texture collection down");
+            wxWindow* addTextureCollectionsButton = createBitmapButton(this, "Add.png", "Add texture collections from the file system");
+            wxWindow* removeTextureCollectionsButton = createBitmapButton(this, "Remove.png", "Remove the selected texture collections");
+            wxWindow* moveTextureCollectionUpButton = createBitmapButton(this, "Up.png", "Move the selected texture collection up");
+            wxWindow* moveTextureCollectionDownButton = createBitmapButton(this, "Down.png", "Move the selected texture collection down");
             
+            addTextureCollectionsButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnAddTextureCollectionsClicked, this);
+            removeTextureCollectionsButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnRemoveTextureCollectionsClicked, this);
+            moveTextureCollectionUpButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnMoveTextureCollectionUpClicked, this);
+            moveTextureCollectionDownButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnMoveTextureCollectionDownClicked, this);
+            removeTextureCollectionsButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateRemoveButtonUI, this);
+            moveTextureCollectionUpButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateMoveUpButtonUI, this);
+            moveTextureCollectionDownButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateMoveDownButtonUI, this);
+
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(m_addTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(m_removeTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(addTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(removeTextureCollectionsButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
-            buttonSizer->Add(m_moveTextureCollectionUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
-            buttonSizer->Add(m_moveTextureCollectionDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(moveTextureCollectionUpButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(moveTextureCollectionDownButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -164,18 +167,6 @@ namespace TrenchBroom {
             
             SetBackgroundColour(*wxWHITE);
             SetSizerAndFit(sizer);
-        }
-        
-        void TextureCollectionEditor::bindEvents() {
-            m_addTextureCollectionsButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnAddTextureCollectionsClicked, this);
-            m_removeTextureCollectionsButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnRemoveTextureCollectionsClicked, this);
-            m_moveTextureCollectionUpButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnMoveTextureCollectionUpClicked, this);
-            m_moveTextureCollectionDownButton->Bind(wxEVT_BUTTON, &TextureCollectionEditor::OnMoveTextureCollectionDownClicked, this);
-            
-            m_addTextureCollectionsButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateButtonUI, this);
-            m_removeTextureCollectionsButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateButtonUI, this);
-            m_moveTextureCollectionUpButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateButtonUI, this);
-            m_moveTextureCollectionDownButton->Bind(wxEVT_UPDATE_UI, &TextureCollectionEditor::OnUpdateButtonUI, this);
         }
         
         void TextureCollectionEditor::bindObservers() {

@@ -47,10 +47,6 @@ namespace TrenchBroom {
             wxGrid* m_grid;
             wxGridCellCoords m_lastHoveredCell;
             
-            wxButton* m_addPropertyButton;
-            wxButton* m_removePropertiesButton;
-            wxCheckBox* m_showDefaultPropertiesCheckBox;
-            
             bool m_ignoreSelection;
             Model::PropertyKey m_lastSelectedKey;
             int m_lastSelectedCol;
@@ -80,7 +76,6 @@ namespace TrenchBroom {
             void OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event);
         private:
             void createGui(MapDocumentWPtr document, ControllerWPtr controller);
-            void bindEvents();
             
             void bindObservers();
             void unbindObservers();
