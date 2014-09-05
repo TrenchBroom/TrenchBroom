@@ -51,6 +51,8 @@ namespace TrenchBroom {
         }
 
         bool isPropertyKeyMutable(const PropertyKey& key) {
+            if (key == PropertyKeys::Classname)
+                return false;
             if (key == PropertyKeys::Mods)
                 return false;
             if (key == PropertyKeys::EntityDefinitions)
@@ -74,6 +76,14 @@ namespace TrenchBroom {
             if (key == PropertyKeys::Wal)
                 return false;
             return true;
+        }
+        
+        bool isPropertyKeyChangeAllowed(const PropertyKey& oldKey, const PropertyKey& newKey) {
+            return isPropertyKeyMutable(oldKey) && isPropertyKeyMutable(newKey);
+        }
+        
+        bool isPropertyValueChangeAllowed(const PropertyKey& key, const PropertyValue& oldValue, const PropertyValue& newValue) {
+            return isPropertyValueMutable(key) && oldValue != PropertyValues::WorldspawnClassname && newValue != PropertyValues::WorldspawnClassname;
         }
 
         String numberedPropertyPrefix(const String& key) {

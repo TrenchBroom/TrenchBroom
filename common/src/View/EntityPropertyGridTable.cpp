@@ -28,6 +28,8 @@
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
+#include <wx/msgdlg.h>
+
 namespace TrenchBroom {
     namespace View {
         EntityPropertyGridTable::PropertyRow::PropertyRow() :
@@ -569,8 +571,15 @@ namespace TrenchBroom {
         void EntityPropertyGridTable::renameProperty(size_t rowIndex, const String& newKey, const Model::EntityList& entities) {
             assert(rowIndex < m_rows.propertyCount());
             
-            ControllerSPtr controller = lock(m_controller);
             const String& oldKey = m_rows.key(rowIndex);
+            if (!Model::isPropertyKeyChangeAllowed(oldKey, newKey)) {
+                wxString msg;
+                msg << "Cannot rename property key '" << oldKey << "' to '" << newKey << "'";
+                wxMessageBox(msg, "Error", wxOK | wxICON_ERROR | wxCENTRE, GetView());
+                return;
+            }
+            
+            ControllerSPtr controller = lock(m_controller);
             if (controller->renameEntityProperty(entities, oldKey, newKey)) {
                 m_rows.updateRows(entities, m_showDefaultRows);
                 notifyRowsUpdated(0, m_rows.rowCount());
@@ -580,8 +589,22 @@ namespace TrenchBroom {
         void EntityPropertyGridTable::updateProperty(size_t rowIndex, const String& newValue, const Model::EntityList& entities) {
             assert(rowIndex < m_rows.rowCount());
 
-            ControllerSPtr controller = lock(m_controller);
             const String& key = m_rows.key(rowIndex);
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                const Model::Entity* entity = *it;
+                if (entity->hasProperty(key)) {
+                    const Model::PropertyValue& oldValue = entity->property(key);
+                    if (!Model::isPropertyValueChangeAllowed(key, oldValue, newValue)) {
+                        wxString msg;
+                        msg << "Cannot change property value '" << oldValue << "' to '" << newValue << "'";
+                        wxMessageBox(msg, "Error", wxOK | wxICON_ERROR | wxCENTRE, GetView());
+                        return;
+                    }
+                }
+            }
+
+            ControllerSPtr controller = lock(m_controller);
             if (controller->setEntityProperty(entities, key, newValue)) {
                 m_rows.updateRows(entities, m_showDefaultRows);
                 notifyRowsUpdated(0, m_rows.rowCount());

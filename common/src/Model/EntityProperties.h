@@ -60,6 +60,10 @@ namespace TrenchBroom {
 
         bool isPropertyKeyMutable(const PropertyKey& key);
         bool isPropertyValueMutable(const PropertyKey& key);
+
+        bool isPropertyKeyChangeAllowed(const PropertyKey& oldKey, const PropertyKey& newKey);
+        bool isPropertyValueChangeAllowed(const PropertyKey& key, const PropertyValue& oldValue, const PropertyValue& newValue);
+
         String numberedPropertyPrefix(const String& key);
         bool isNumberedProperty(const String& prefix, const PropertyKey& key);
         

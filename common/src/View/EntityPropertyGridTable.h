@@ -25,6 +25,7 @@
 #include "View/ViewTypes.h"
 
 #include <wx/grid.h>
+
 #include <vector>
 
 namespace TrenchBroom {
