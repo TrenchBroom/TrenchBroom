@@ -135,9 +135,6 @@ namespace TrenchBroom {
             if (!visible(object))
                 return false;
             
-            if (locked(object))
-                return false;
-            
             if (object->type() == Object::Type_Entity) {
                 const Entity* entity = static_cast<const Entity*>(object);
                 if (!entity->brushes().empty())
@@ -150,20 +147,12 @@ namespace TrenchBroom {
             return visible(face);
         }
 
-        bool ModelFilter::occludes(const Object* object) const {
-            return locked(object);
-        }
-        
-        bool ModelFilter::occludes(const BrushFace* face) const {
-            return occludes(face->parent());
-        }
-
         bool ModelFilter::selectable(const Object* object) const {
-            return pickable(object);
+            return !locked(object) && pickable(object);
         }
         
         bool ModelFilter::selectable(const BrushFace* face) const {
-            return pickable(face);
+            return !locked(face->parent()) && pickable(face);
         }
     }
 }

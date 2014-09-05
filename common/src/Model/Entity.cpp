@@ -24,6 +24,7 @@
 #include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
+#include "Model/Layer.h"
 #include "Model/Map.h"
 #include "Model/ModelUtils.h"
 
@@ -532,6 +533,14 @@ namespace TrenchBroom {
                     }
                 }
             }
+        }
+
+        void Entity::doAddToLayer(Layer* layer) {
+            layer->addEntity(this);
+        }
+        
+        void Entity::doRemoveFromLayer(Layer* layer) {
+            layer->removeEntity(this);
         }
 
         bool Entity::doContains(const Object& object) const {

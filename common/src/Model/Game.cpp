@@ -66,7 +66,7 @@ namespace TrenchBroom {
             return doParseFaces(worldBounds, format, str);
         }
         
-        void Game::writeMap(Map& map, const IO::Path& path) const {
+        void Game::writeMap(Map* map, const IO::Path& path) const {
             doWriteMap(map, path);
         }
         

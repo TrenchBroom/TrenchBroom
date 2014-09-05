@@ -19,7 +19,7 @@
 
 #include "Hexen2MapWriter.h"
 
-#include "Model/BrushFace.h"
+#include "Model/Brushface.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -40,9 +40,9 @@ namespace TrenchBroom {
             FaceFormat = str.str();
         }
         
-        size_t Hexen2MapWriter::writeFace(Model::BrushFace& face, const size_t lineNumber, FILE* stream) {
-            const String& textureName = face.textureName().empty() ? Model::BrushFace::NoTextureName : face.textureName();
-            const Model::BrushFace::Points& points = face.points();
+        size_t Hexen2MapWriter::writeFace(Model::BrushFace* face, const size_t lineNumber, FILE* stream) {
+            const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+            const Model::BrushFace::Points& points = face->points();
             
             std::fprintf(stream, FaceFormat.c_str(),
                          points[0].x(),
@@ -55,18 +55,18 @@ namespace TrenchBroom {
                          points[2].y(),
                          points[2].z(),
                          textureName.c_str(),
-                         face.xOffset(),
-                         face.yOffset(),
-                         face.rotation(),
-                         face.xScale(),
-                         face.yScale());
-            face.setFilePosition(lineNumber, 1);
+                         face->xOffset(),
+                         face->yOffset(),
+                         face->rotation(),
+                         face->xScale(),
+                         face->yScale());
+            face->setFilePosition(lineNumber, 1);
             return 1;
         }
         
-        void Hexen2MapWriter::writeFace(const Model::BrushFace& face, std::ostream& stream) {
-            const String& textureName = face.textureName().empty() ? Model::BrushFace::NoTextureName : face.textureName();
-            const Model::BrushFace::Points& points = face.points();
+        void Hexen2MapWriter::writeFace(const Model::BrushFace* face, std::ostream& stream) {
+            const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+            const Model::BrushFace::Points& points = face->points();
             
             stream.precision(FloatPrecision);
             stream <<
@@ -87,11 +87,11 @@ namespace TrenchBroom {
             stream.precision(6);
             stream <<
             textureName             << " " <<
-            face.xOffset()          << " " <<
-            face.yOffset()          << " " <<
-            face.rotation()         << " " <<
-            face.xScale()           << " " <<
-            face.yScale()           << "\n";
+            face->xOffset()          << " " <<
+            face->yOffset()          << " " <<
+            face->rotation()         << " " <<
+            face->xScale()           << " " <<
+            face->yScale()           << "\n";
         }
     }
 }

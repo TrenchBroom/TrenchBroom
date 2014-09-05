@@ -131,6 +131,9 @@ namespace TrenchBroom {
             BrushContentType::FlagType contentTypeFlags() const;
             void validateContentType() const;
             
+            void doAddToLayer(Layer* layer);
+            void doRemoveFromLayer(Layer* layer);
+
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Object& object) const;
             bool doContains(const Entity& entity) const;

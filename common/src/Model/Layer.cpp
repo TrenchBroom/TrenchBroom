@@ -19,6 +19,8 @@
 
 #include "Layer.h"
 
+#include "Model/Brush.h"
+#include "Model/Entity.h"
 #include "Model/Object.h"
 
 #include <algorithm>
@@ -37,6 +39,7 @@ namespace TrenchBroom {
         void Layer::setName(const String& name) {
             if (name == m_name)
                 return;
+            layerWillChangeNotifier(this, Attr_Name);
             m_name = name;
             layerDidChangeNotifier(this, Attr_Name);
         }
@@ -48,6 +51,7 @@ namespace TrenchBroom {
         void Layer::setVisible(const bool visible) {
             if (visible == m_visible)
                 return;
+            layerWillChangeNotifier(this, Attr_Visible);
             m_visible = visible;
             layerDidChangeNotifier(this, Attr_Visible);
         }
@@ -59,6 +63,7 @@ namespace TrenchBroom {
         void Layer::setLocked(const bool locked) {
             if (locked == m_locked)
                 return;
+            layerWillChangeNotifier(this, Attr_Locked);
             m_locked = locked;
             layerDidChangeNotifier(this, Attr_Locked);
         }
@@ -67,19 +72,70 @@ namespace TrenchBroom {
             return m_objects;
         }
 
-        void Layer::addObject(Object* object) {
-            assert(object->layer() == this);
-            assert(!VectorUtils::contains(m_objects, object));
+        const EntityList& Layer::entities() const {
+            return m_entities;
+        }
+        
+        const BrushList& Layer::worldBrushes() const {
+            return m_worldBrushes;
+        }
+
+        void Layer::addEntity(Entity* entity) {
+            assert(entity->layer() == this);
+            assert(!VectorUtils::contains(m_objects, entity));
+            assert(!VectorUtils::contains(m_entities, entity));
             
-            m_objects.push_back(object);
+            layerWillChangeNotifier(this, Attr_Objects);
+            m_objects.push_back(entity);
+            if (!entity->worldspawn())
+                m_entities.push_back(entity);
+            objectWasAddedNotifier(this, entity);
             layerDidChangeNotifier(this, Attr_Objects);
         }
         
-        void Layer::removeObject(Object* object) {
-            assert(object->layer() == this);
-            assert(VectorUtils::contains(m_objects, object));
+        void Layer::addBrush(Brush* brush) {
+            assert(brush->layer() == this);
+            assert(!VectorUtils::contains(m_objects, brush));
+            assert(!VectorUtils::contains(m_worldBrushes, brush));
+            
+            Model::Entity* entity = brush->parent();
+            assert(entity != NULL);
 
-            VectorUtils::erase(m_objects, object);
+            layerWillChangeNotifier(this, Attr_Objects);
+            m_objects.push_back(brush);
+            if (entity->worldspawn())
+                m_worldBrushes.push_back(brush);
+            objectWasAddedNotifier(this, brush);
+            layerDidChangeNotifier(this, Attr_Objects);
+        }
+        
+        void Layer::removeEntity(Entity* entity) {
+            assert(entity->layer() == this);
+            assert(VectorUtils::contains(m_objects, entity));
+            
+            layerDidChangeNotifier(this, Attr_Objects);
+            VectorUtils::erase(m_objects, entity);
+            if (!entity->worldspawn()) {
+                assert(VectorUtils::contains(m_entities, entity));
+                VectorUtils::erase(m_entities, entity);
+            }
+            objectWasRemovedNotifier(this, entity);
+            layerDidChangeNotifier(this, Attr_Objects);
+        }
+        
+        void Layer::removeBrush(Brush* brush) {
+            assert(brush->layer() == this);
+            assert(VectorUtils::contains(m_objects, brush));
+            
+            layerDidChangeNotifier(this, Attr_Objects);
+            VectorUtils::erase(m_objects, brush);
+            Model::Entity* entity = brush->parent();
+            assert(entity != NULL);
+            if (entity->worldspawn()) {
+                assert(VectorUtils::contains(m_worldBrushes, brush));
+                VectorUtils::erase(m_worldBrushes, brush);
+            }
+            objectWasRemovedNotifier(this, brush);
             layerDidChangeNotifier(this, Attr_Objects);
         }
     }

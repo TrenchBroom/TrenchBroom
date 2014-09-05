@@ -47,7 +47,7 @@ namespace TrenchBroom {
                         CaptureMouse();
                         doShowDrag3DCameraCursor();
                     }
-                } else if (event.RightIsDown()) {
+                } else if (event.RightIsDown() || event.MiddleIsDown()) {
                     if (!HasCapture())
                         CaptureMouse();
                     SetCursor(wxCursor(wxCURSOR_CLOSED_HAND));
@@ -76,7 +76,7 @@ namespace TrenchBroom {
             if (HasCapture()) {
                 if (event.LeftIsDown())
                     drag3DCamera(m_lastPos, currentPos);
-                else if (event.RightIsDown())
+                else if (event.RightIsDown() || event.MiddleIsDown())
                     panView(m_lastPos, currentPos);
                 m_lastPos = currentPos;
             } else {
@@ -268,6 +268,8 @@ namespace TrenchBroom {
             Bind(wxEVT_LEFT_DOWN, &MiniMapBaseView::OnMouseButton, this);
             Bind(wxEVT_LEFT_UP, &MiniMapBaseView::OnMouseButton, this);
             Bind(wxEVT_LEFT_DCLICK, &MiniMapBaseView::OnMouseDoubleClick, this);
+            Bind(wxEVT_MIDDLE_DOWN, &MiniMapBaseView::OnMouseButton, this);
+            Bind(wxEVT_MIDDLE_UP, &MiniMapBaseView::OnMouseButton, this);
             Bind(wxEVT_RIGHT_DOWN, &MiniMapBaseView::OnMouseButton, this);
             Bind(wxEVT_RIGHT_UP, &MiniMapBaseView::OnMouseButton, this);
             Bind(wxEVT_MOTION, &MiniMapBaseView::OnMouseMotion, this);

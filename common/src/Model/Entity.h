@@ -183,6 +183,9 @@ namespace TrenchBroom {
             void setOrigin(const Vec3& origin);
             virtual void applyRotation(const Mat4x4& rotation);
 
+            void doAddToLayer(Layer* layer);
+            void doRemoveFromLayer(Layer* layer);
+
             bool doContains(const Object& object) const;
             bool doContains(const Entity& entity) const;
             bool doContains(const Brush& brush) const;

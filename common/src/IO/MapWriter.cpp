@@ -24,8 +24,8 @@
 #include "IO/Path.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
-#include "Model/EntityProperties.h"
 #include "Model/Issue.h"
+#include "Model/Layer.h"
 #include "Model/Map.h"
 #include "Model/Object.h"
 
@@ -62,14 +62,14 @@ namespace TrenchBroom {
             // write worldspawn first
             Model::BrushList::const_iterator bIt, bEnd;
             if (worldspawn != NULL)
-                writeEntity(*worldspawn, brushEntities[worldspawn], stream);
+                writeEntity(worldspawn, brushEntities[worldspawn], stream);
             
             // write point entities
             Model::EntityList::const_iterator eIt, eEnd;
             for (eIt = pointEntities.begin(), eEnd = pointEntities.end(); eIt != eEnd; ++eIt) {
                 Model::Entity* entity = *eIt;
                 const Model::BrushList& brushes = entity->brushes(); // should be empty, but you never know
-                writeEntity(*entity, brushes, stream);
+                writeEntity(entity, brushes, stream);
             }
             
             // write brush entities except for worldspawn
@@ -78,7 +78,7 @@ namespace TrenchBroom {
                 Model::Entity* entity = ebIt->first;
                 if (entity != worldspawn) {
                     const Model::BrushList& brushes = ebIt->second;
-                    writeEntity(*entity, brushes, stream);
+                    writeEntity(entity, brushes, stream);
                 }
             }
         }
@@ -89,23 +89,47 @@ namespace TrenchBroom {
             
             Model::BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it)
-                writeFace(**it, stream);
+                writeFace(*it, stream);
         }
         
-        void MapWriter::writeToStream(const Model::Map& map, std::ostream& stream) {
+        void MapWriter::writeToStream(const Model::Map* map, std::ostream& stream) {
+            assert(map != NULL);
             assert(stream.good());
             stream.unsetf(std::ios::floatfield);
             
-            const Model::EntityList& entities = map.entities();
+            const Model::EntityList& entities = map->entities();
             Model::EntityList::const_iterator it, end;
             for (it = entities.begin(), end = entities.end(); it != end; ++it) {
                 Model::Entity* entity = *it;
                 const Model::BrushList& brushes = entity->brushes();
-                writeEntity(*entity, brushes, stream);
+                writeEntity(entity, brushes, stream);
             }
         }
         
-        void MapWriter::writeToFileAtPath(Model::Map& map, const Path& path, const bool overwrite) {
+        void MapWriter::writeToFileAtPath(Model::Map* map, const Path& path, const bool overwrite) {
+            assert(map != NULL);
+            
+            if (IO::Disk::fileExists(IO::Disk::fixPath(path)) && !overwrite)
+                throw FileSystemException("File already exists: " + path.asString());
+            
+            // ensure that the directory actually exists or is created if it doesn't
+            const Path directoryPath = path.deleteLastComponent();
+            WritableDiskFileSystem fs(directoryPath, true);
+            
+            FILE* stream = fopen(path.asString().c_str(), "w");
+            if (stream == NULL)
+                throw FileSystemException("Cannot open file: " + path.asString());
+            
+            try {
+                writeEntities(map->entities(), Model::EntityProperty::EmptyList, 1, stream);
+            } catch (...) {
+                fclose(stream);
+                throw;
+            }
+            fclose(stream);
+        }
+
+        void MapWriter::writeToFileAtPathWithLayers(Model::Map* map, const Path& path, const bool overwrite) {
             if (IO::Disk::fileExists(IO::Disk::fixPath(path)) && !overwrite)
                 throw FileSystemException("File already exists: " + path.asString());
             
@@ -119,12 +143,15 @@ namespace TrenchBroom {
             
             try {
                 size_t lineNumber = 1;
-                const Model::EntityList& entities = map.entities();
-                Model::EntityList::const_iterator it, end;
-                for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                    Model::Entity* entity = *it;
-                    lineNumber += writeEntity(*entity, entity->brushes(), lineNumber, stream);
-                }
+                
+                const Model::LayerList& layers = map->layers();
+                assert(!layers.empty());
+                
+                Model::Entity* worldspawn = map->worldspawn();
+                if (worldspawn != NULL)
+                    lineNumber += writeDefaultLayer(worldspawn, layers[0], lineNumber, stream);
+                for (size_t i = 1; i < layers.size(); ++i)
+                    lineNumber += writeLayer(layers[i], lineNumber, stream);
             } catch (...) {
                 fclose(stream);
                 throw;
@@ -132,40 +159,72 @@ namespace TrenchBroom {
             fclose(stream);
         }
 
-        size_t MapWriter::writeEntity(Model::Entity& entity, const Model::BrushList& brushes, const size_t lineNumber, FILE* stream) {
+        size_t MapWriter::writeDefaultLayer(Model::Entity* worldspawn, const Model::Layer* layer, const size_t lineNumber, FILE* stream) {
+            const Model::EntityList& entities = layer->entities();
+            const Model::BrushList& worldBrushes = layer->worldBrushes();
+            
+            Model::EntityProperty::List additionalProperties;
+            additionalProperties.push_back(Model::EntityProperty("_layer", layer->name(), NULL));
+            
             size_t lineCount = 0;
-            lineCount += writeEntityHeader(entity, stream);
-            
-            Model::BrushList::const_iterator it, end;
-            for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
-                lineCount += writeBrush(**it, lineNumber + lineCount, stream);
-            
-            lineCount += writeEntityFooter(stream);
-            entity.setFilePosition(lineNumber, lineCount);
-            return lineCount;
-        }
-
-        size_t MapWriter::writeBrush(Model::Brush& brush, const size_t lineNumber, FILE* stream) {
-            size_t lineCount = 0;
-            std::fprintf(stream, "{\n"); ++lineCount;
-            
-            const Model::BrushFaceList& faces = brush.faces();
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it)
-                lineCount += writeFace(**it, lineNumber + lineCount, stream);
-            
-            std::fprintf(stream, "}\n"); ++lineCount;
-
-            brush.setFilePosition(lineNumber, lineCount);
+            lineCount += writeEntity(worldspawn, Model::EntityProperty::EmptyList, worldBrushes, lineNumber + lineCount, stream);
+            lineCount += writeEntities(entities, additionalProperties, lineNumber + lineCount, stream);
             return lineCount;
         }
         
-        size_t MapWriter::writeEntityHeader(Model::Entity& entity, FILE* stream) {
-            size_t lineCount = 0;
-            std::fprintf(stream, "{\n"); ++lineCount;
-            lineCount += writeExtraProperties(entity, stream);
+        size_t MapWriter::writeLayer(const Model::Layer* layer, const size_t lineNumber, FILE* stream) {
+            const Model::EntityList& entities = layer->entities();
+            const Model::BrushList& worldBrushes = layer->worldBrushes();
             
-            const Model::EntityProperty::List& properties = entity.properties();
+            size_t lineCount = 0;
+            lineCount += writeEntityOpen(stream);
+            lineCount += writeKeyValuePair("classname", "func_group", stream);
+            lineCount += writeKeyValuePair("_type", "layer", stream);
+            lineCount += writeKeyValuePair("_name", layer->name(), stream);
+            lineCount += writeBrushes(worldBrushes, lineNumber + lineCount, stream);
+            lineCount += writeEntityClose(stream);
+            
+            Model::EntityProperty::List additionalProperties;
+            additionalProperties.push_back(Model::EntityProperty("_layer", layer->name(), NULL));
+            
+            lineCount += writeEntities(entities, additionalProperties, lineNumber + lineCount, stream);
+            return lineCount;
+        }
+
+        size_t MapWriter::writeEntities(const Model::EntityList& entities, const Model::EntityProperty::List& additionalProperties, size_t lineNumber, FILE* stream) {
+            Model::EntityList::const_iterator it, end;
+            size_t lineCount = 0;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                Model::Entity* entity = *it;
+                lineCount += writeEntity(entity, additionalProperties, entity->brushes(), lineNumber + lineCount, stream);
+            }
+            return lineCount;
+        }
+
+        size_t MapWriter::writeEntity(Model::Entity* entity, const Model::EntityProperty::List& additionalProperties, const Model::BrushList& brushes, const size_t lineNumber, FILE* stream) {
+            size_t lineCount = 0;
+            lineCount += writeEntityHeader(entity, additionalProperties, stream);
+            lineCount += writeBrushes(brushes, lineNumber + lineCount, stream);
+            lineCount += writeEntityFooter(stream);
+            entity->setFilePosition(lineNumber, lineCount);
+            return lineCount;
+        }
+
+        size_t MapWriter::writeEntityHeader(Model::Entity* entity, const Model::EntityProperty::List& additionalProperties, FILE* stream) {
+            size_t lineCount = writeEntityOpen(stream);
+            lineCount += writeExtraProperties(entity, stream);
+            lineCount += writeEntityProperties(entity->properties(), stream);
+            lineCount += writeEntityProperties(additionalProperties, stream);
+            return lineCount;
+        }
+
+        size_t MapWriter::writeEntityOpen(FILE* stream) {
+            std::fprintf(stream, "{\n");
+            return 1;
+        }
+
+        size_t MapWriter::writeEntityProperties(const Model::EntityProperty::List& properties, FILE* stream) {
+            size_t lineCount = 0;
             Model::EntityProperty::List::const_iterator it, end;
             for (it = properties.begin(), end = properties.end(); it != end; ++it)
                 lineCount += writeEntityProperty(*it, stream);
@@ -173,60 +232,95 @@ namespace TrenchBroom {
         }
 
         size_t MapWriter::writeEntityProperty(const Model::EntityProperty& property, FILE* stream) {
-            std::fprintf(stream, "\"%s\" \"%s\"\n", property.key().c_str(), property.value().c_str());;
+            return writeKeyValuePair(property.key(), property.value(), stream);
+        }
+
+        size_t MapWriter::writeKeyValuePair(const String& key, const String& value, FILE* stream) {
+            std::fprintf(stream, "\"%s\" \"%s\"\n", key.c_str(), value.c_str());
             return 1;
         }
 
         size_t MapWriter::writeEntityFooter(FILE* stream) {
+            return writeEntityClose(stream);
+        }
+
+        size_t MapWriter::writeEntityClose(FILE* stream) {
             std::fprintf(stream, "}\n");
             return 1;
         }
 
-        size_t MapWriter::writeExtraProperties(const Model::Object& object, FILE* stream) {
-            const Model::IssueType hiddenIssues = object.hiddenIssues();
+        size_t MapWriter::writeBrushes(const Model::BrushList& brushes, const size_t lineNumber, FILE* stream) {
+            size_t lineCount = 0;
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
+                lineCount += writeBrush(*it, lineNumber + lineCount, stream);
+            return lineCount;
+        }
+        
+        size_t MapWriter::writeBrush(Model::Brush* brush, const size_t lineNumber, FILE* stream) {
+            size_t lineCount = 0;
+            std::fprintf(stream, "{\n"); ++lineCount;
+            
+            const Model::BrushFaceList& faces = brush->faces();
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it)
+                lineCount += writeFace(*it, lineNumber + lineCount, stream);
+            
+            std::fprintf(stream, "}\n"); ++lineCount;
+            
+            brush->setFilePosition(lineNumber, lineCount);
+            return lineCount;
+        }
+        
+        size_t MapWriter::writeExtraProperties(const Model::Object* object, FILE* stream) {
+            const Model::IssueType hiddenIssues = object->hiddenIssues();
             if (hiddenIssues == 0)
                 return 0;
             std::fprintf(stream, "/// hideIssues %i\n", hiddenIssues);
             return 1;
         }
 
-        void MapWriter::writeEntity(const Model::Entity& entity, const Model::BrushList& brushes, std::ostream& stream) {
+        void MapWriter::writeEntity(const Model::Entity* entity, const Model::BrushList& brushes, std::ostream& stream) {
             writeEntityHeader(entity, stream);
             Model::BrushList::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
-                writeBrush(**it, stream);
+                writeBrush(*it, stream);
             writeEntityFooter(stream);
         }
 
-        void MapWriter::writeBrush(const Model::Brush& brush, std::ostream& stream) {
-            stream << "{\n";
-            const Model::BrushFaceList& faces = brush.faces();
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it)
-                writeFace(**it, stream);
-            stream << "}\n";
-        }
-        
-        void MapWriter::writeEntityHeader(const Model::Entity& entity, std::ostream& stream) {
+        void MapWriter::writeEntityHeader(const Model::Entity* entity, std::ostream& stream) {
             stream << "{\n";
             writeExtraProperties(entity, stream);
             
-            const Model::EntityProperty::List& properties = entity.properties();
+            const Model::EntityProperty::List& properties = entity->properties();
             Model::EntityProperty::List::const_iterator it, end;
             for (it = properties.begin(), end = properties.end(); it != end; ++it)
                 writeEntityProperty(*it, stream);
         }
         
         void MapWriter::writeEntityProperty(const Model::EntityProperty& property, std::ostream& stream) {
-            stream << "\"" << property.key() << "\" \"" << property.value() << "\"" << "\n";
+            writeKeyValuePair(property.key(), property.value(), stream);
+        }
+
+        void MapWriter::writeKeyValuePair(const String& key, const String& value, std::ostream& stream) {
+            stream << "\"" << key << "\" \"" << value << "\"" << "\n";
         }
 
         void MapWriter::writeEntityFooter(std::ostream& stream) {
             stream << "}\n";
         }
 
-        void MapWriter::writeExtraProperties(const Model::Object& object, std::ostream& stream) {
-            const Model::IssueType hiddenIssues = object.hiddenIssues();
+        void MapWriter::writeBrush(const Model::Brush* brush, std::ostream& stream) {
+            stream << "{\n";
+            const Model::BrushFaceList& faces = brush->faces();
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it)
+                writeFace(*it, stream);
+            stream << "}\n";
+        }
+        
+        void MapWriter::writeExtraProperties(const Model::Object* object, std::ostream& stream) {
+            const Model::IssueType hiddenIssues = object->hiddenIssues();
             if (hiddenIssues != 0)
                 stream << "/// hideIssues " << hiddenIssues << "\n";
         }

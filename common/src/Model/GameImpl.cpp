@@ -105,8 +105,8 @@ namespace TrenchBroom {
             return parser.parseFaces(worldBounds, format);
         }
         
-        void GameImpl::doWriteMap(Map& map, const IO::Path& path) const {
-            mapWriter(map.format())->writeToFileAtPath(map, path, true);
+        void GameImpl::doWriteMap(Map* map, const IO::Path& path) const {
+            mapWriter(map->format())->writeToFileAtPathWithLayers(map, path, true);
         }
 
         void GameImpl::doWriteObjectsToStream(const MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const {

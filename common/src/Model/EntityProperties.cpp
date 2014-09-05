@@ -96,6 +96,8 @@ namespace TrenchBroom {
             return true;
         }
 
+        const EntityProperty::List EntityProperty::EmptyList(0);
+        
         EntityProperty::EntityProperty() :
         m_definition(NULL) {}
         

@@ -99,7 +99,10 @@ namespace TrenchBroom {
         Model::LayerList::const_iterator it, end;
         for (it = layers.begin(), end = layers.end(); it != end; ++it) {
             Model::Layer* layer = *it;
+            layer->layerWillChangeNotifier.addObserver(layerWillChangeNotifier);
             layer->layerDidChangeNotifier.addObserver(layerDidChangeNotifier);
+            layer->objectWasAddedNotifier.addObserver(objectWasAddedNotifier);
+            layer->objectWasRemovedNotifier.addObserver(objectWasRemovedNotifier);
         }
     }
     
@@ -107,7 +110,10 @@ namespace TrenchBroom {
         Model::LayerList::const_iterator it, end;
         for (it = layers.begin(), end = layers.end(); it != end; ++it) {
             Model::Layer* layer = *it;
+            layer->layerWillChangeNotifier.removeObserver(layerWillChangeNotifier);
             layer->layerDidChangeNotifier.removeObserver(layerDidChangeNotifier);
+            layer->objectWasAddedNotifier.removeObserver(objectWasAddedNotifier);
+            layer->objectWasRemovedNotifier.removeObserver(objectWasRemovedNotifier);
         }
     }
 }

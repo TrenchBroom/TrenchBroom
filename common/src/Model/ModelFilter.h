@@ -73,8 +73,6 @@ namespace TrenchBroom {
             virtual bool locked(const Object* object) const;
             virtual bool pickable(const Object* object) const;
             virtual bool pickable(const BrushFace* face) const;
-            virtual bool occludes(const Object* object) const;
-            virtual bool occludes(const BrushFace* face) const;
             virtual bool selectable(const Object* object) const;
             virtual bool selectable(const BrushFace* face) const;
         private:

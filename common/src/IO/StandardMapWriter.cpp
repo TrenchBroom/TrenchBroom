@@ -20,7 +20,7 @@
 #include "StandardMapWriter.h"
 
 #include "StringUtils.h"
-#include "Model/BrushFace.h"
+#include "Model/Brushface.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -44,11 +44,11 @@ namespace TrenchBroom {
             LongFaceFormat = str.str();
         }
 
-        size_t StandardMapWriter::writeFace(Model::BrushFace& face, const size_t lineNumber, FILE* stream) {
-            const String& textureName = face.textureName().empty() ? Model::BrushFace::NoTextureName : face.textureName();
-            const Model::BrushFace::Points& points = face.points();
+        size_t StandardMapWriter::writeFace(Model::BrushFace* face, const size_t lineNumber, FILE* stream) {
+            const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+            const Model::BrushFace::Points& points = face->points();
             
-            if (face.hasSurfaceAttributes()) {
+            if (face->hasSurfaceAttributes()) {
                 std::fprintf(stream, LongFaceFormat.c_str(),
                              points[0].x(),
                              points[0].y(),
@@ -60,14 +60,14 @@ namespace TrenchBroom {
                              points[2].y(),
                              points[2].z(),
                              textureName.c_str(),
-                             face.xOffset(),
-                             face.yOffset(),
-                             face.rotation(),
-                             face.xScale(),
-                             face.yScale(),
-                             face.surfaceContents(),
-                             face.surfaceFlags(),
-                             face.surfaceValue());
+                             face->xOffset(),
+                             face->yOffset(),
+                             face->rotation(),
+                             face->xScale(),
+                             face->yScale(),
+                             face->surfaceContents(),
+                             face->surfaceFlags(),
+                             face->surfaceValue());
             } else {
                 std::fprintf(stream, ShortFaceFormat.c_str(),
                              points[0].x(),
@@ -80,20 +80,20 @@ namespace TrenchBroom {
                              points[2].y(),
                              points[2].z(),
                              textureName.c_str(),
-                             face.xOffset(),
-                             face.yOffset(),
-                             face.rotation(),
-                             face.xScale(),
-                             face.yScale());
+                             face->xOffset(),
+                             face->yOffset(),
+                             face->rotation(),
+                             face->xScale(),
+                             face->yScale());
             }
             std::fprintf(stream, "\n");
-            face.setFilePosition(lineNumber, 1);
+            face->setFilePosition(lineNumber, 1);
             return 1;
         }
         
-        void StandardMapWriter::writeFace(const Model::BrushFace& face, std::ostream& stream) {
-            const String& textureName = face.textureName().empty() ? Model::BrushFace::NoTextureName : face.textureName();
-            const Model::BrushFace::Points& points = face.points();
+        void StandardMapWriter::writeFace(const Model::BrushFace* face, std::ostream& stream) {
+            const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+            const Model::BrushFace::Points& points = face->points();
             
             stream <<
             "( " <<
@@ -109,17 +109,17 @@ namespace TrenchBroom {
             
             stream <<
             textureName << " " <<
-            StringUtils::ftos(face.xOffset(), FloatPrecision)  << " " <<
-            StringUtils::ftos(face.yOffset(), FloatPrecision)  << " " <<
-            StringUtils::ftos(face.rotation(), FloatPrecision) << " " <<
-            StringUtils::ftos(face.xScale(), FloatPrecision)   << " " <<
-            StringUtils::ftos(face.yScale(), FloatPrecision);
+            StringUtils::ftos(face->xOffset(), FloatPrecision)  << " " <<
+            StringUtils::ftos(face->yOffset(), FloatPrecision)  << " " <<
+            StringUtils::ftos(face->rotation(), FloatPrecision) << " " <<
+            StringUtils::ftos(face->xScale(), FloatPrecision)   << " " <<
+            StringUtils::ftos(face->yScale(), FloatPrecision);
             
-            if (face.hasSurfaceAttributes()) {
+            if (face->hasSurfaceAttributes()) {
                 stream << " " <<
-                face.surfaceContents()  << " " <<
-                face.surfaceFlags()     << " " <<
-                StringUtils::ftos(face.surfaceValue(), FloatPrecision);
+                face->surfaceContents()  << " " <<
+                face->surfaceFlags()     << " " <<
+                StringUtils::ftos(face->surfaceValue(), FloatPrecision);
             }
             
             stream << "\n";

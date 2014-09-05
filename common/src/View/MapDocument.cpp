@@ -662,7 +662,7 @@ namespace TrenchBroom {
         }
         
         void MapDocument::saveBackup(const IO::Path& path) {
-            m_game->writeMap(*m_map, path);
+            m_game->writeMap(m_map, path);
         }
         
         void MapDocument::bindObservers() {
@@ -1098,7 +1098,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::doSaveDocument(const IO::Path& path) {
-            m_game->writeMap(*m_map, path);
+            m_game->writeMap(m_map, path);
             clearModificationCount();
             setDocumentPath(path);
             documentWasSavedNotifier();

@@ -48,7 +48,7 @@ namespace TrenchBroom {
         }
         
         bool UVCameraTool::doStartMouseDrag(const InputState& inputState) {
-            return inputState.mouseButtonsPressed(MouseButtons::MBRight);
+            return inputState.mouseButtonsPressed(MouseButtons::MBRight) || inputState.mouseButtonsPressed(MouseButtons::MBMiddle);
         }
         
         bool UVCameraTool::doMouseDrag(const InputState& inputState) {

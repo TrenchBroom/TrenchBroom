@@ -59,12 +59,14 @@ namespace TrenchBroom {
         bool isNumberedProperty(const String& prefix, const PropertyKey& key);
         
         class EntityProperty {
+        public:
+            typedef std::vector<EntityProperty> List;
+            static const List EmptyList;
         private:
             PropertyKey m_key;
             PropertyValue m_value;
             const Assets::PropertyDefinition* m_definition;
         public:
-            typedef std::vector<EntityProperty> List;
             EntityProperty();
             EntityProperty(const PropertyKey& key, const PropertyValue& value, const Assets::PropertyDefinition* definition);
             bool operator<(const EntityProperty& rhs) const;

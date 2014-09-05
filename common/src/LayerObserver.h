@@ -35,7 +35,10 @@ namespace TrenchBroom {
         Notifier1<const Model::LayerList&> layersWereAddedNotifier;
         Notifier1<const Model::LayerList&> layersWillBeRemovedNotifier;
         Notifier1<const Model::LayerList&> layersWereRemovedNotifier;
+        Notifier2<Model::Layer*, Model::Layer::Attr_Type> layerWillChangeNotifier;
         Notifier2<Model::Layer*, Model::Layer::Attr_Type> layerDidChangeNotifier;
+        Notifier2<Model::Layer*, Model::Object*> objectWasAddedNotifier;
+        Notifier2<Model::Layer*, Model::Object*> objectWasRemovedNotifier;
     private:
         void bindObservers();
         void unbindObservers();

@@ -41,8 +41,13 @@ namespace TrenchBroom {
             bool m_visible;
             bool m_locked;
             ObjectList m_objects;
+            EntityList m_entities;
+            BrushList m_worldBrushes;
         public:
+            Notifier2<Layer*, Attr_Type> layerWillChangeNotifier;
             Notifier2<Layer*, Attr_Type> layerDidChangeNotifier;
+            Notifier2<Layer*, Object*> objectWasAddedNotifier;
+            Notifier2<Layer*, Object*> objectWasRemovedNotifier;
         public:
             Layer(const String& name);
             
@@ -56,11 +61,17 @@ namespace TrenchBroom {
             void setLocked(bool locked);
             
             const ObjectList& objects() const;
+            const EntityList& entities() const;
+            BrushList entityBrushes() const;
+            const BrushList& worldBrushes() const;
         private:
-            friend void Object::setLayer(Layer*);
+            friend class Brush;
+            friend class Entity;
             
-            void addObject(Object* object);
-            void removeObject(Object* object);
+            void addEntity(Entity* entity);
+            void addBrush(Brush* brush);
+            void removeEntity(Entity* entity);
+            void removeBrush(Brush* brush);
         };
     }
 }

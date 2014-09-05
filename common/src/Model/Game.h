@@ -56,7 +56,7 @@ namespace TrenchBroom {
             BrushList parseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
             BrushFaceList parseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
             
-            void writeMap(Map& map, const IO::Path& path) const;
+            void writeMap(Map* map, const IO::Path& path) const;
             void writeObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const;
             void writeFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const;
             
@@ -93,7 +93,7 @@ namespace TrenchBroom {
             virtual BrushList doParseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
             virtual BrushFaceList doParseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
             
-            virtual void doWriteMap(Map& map, const IO::Path& path) const = 0;
+            virtual void doWriteMap(Map* map, const IO::Path& path) const = 0;
             virtual void doWriteObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const = 0;
             virtual void doWriteFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const = 0;
             

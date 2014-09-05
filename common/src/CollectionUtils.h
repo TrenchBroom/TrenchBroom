@@ -187,9 +187,9 @@ namespace VectorUtils {
         return false;
     }
     
-    template <typename T>
-    bool contains(const std::vector<T>& vec, const T& item) {
-        return contains(vec, item, std::equal_to<T>());
+    template <typename T1, typename T2>
+    bool contains(const std::vector<T1>& vec, const T2& item) {
+        return std::find(vec.begin(), vec.end(), item) != vec.end();
     }
     
     template <typename T>
@@ -242,18 +242,18 @@ namespace VectorUtils {
         std::for_each(vec.begin(), vec.end(), Utils::Deleter<T>());
     }
     
-    template <typename T>
-    bool erase(std::vector<T>& vec, const T& item) {
-        typename std::vector<T>::iterator it = std::remove(vec.begin(), vec.end(), item);
+    template <typename T1, typename T2>
+    bool erase(std::vector<T1>& vec, const T2& item) {
+        typename std::vector<T1>::iterator it = std::remove(vec.begin(), vec.end(), item);
         if (it == vec.end())
             return false;
         vec.erase(it, vec.end());
         return true;
     }
     
-    template <typename T>
-    bool erase(std::vector<T*>& vec, const T* item) {
-        typename std::vector<T*>::iterator it = std::remove(vec.begin(), vec.end(), item);
+    template <typename T1, typename T2>
+    bool erase(std::vector<T1*>& vec, const T2* item) {
+        typename std::vector<T1*>::iterator it = std::remove(vec.begin(), vec.end(), item);
         if (it == vec.end())
             return false;
         vec.erase(it, vec.end());

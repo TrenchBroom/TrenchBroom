@@ -94,7 +94,10 @@ namespace TrenchBroom {
             void objectsDidChange(const Model::ObjectList& objects);
             void facesDidChange(const Model::BrushFaceList& faces);
             
+            void layerWillChange(Model::Layer* layer, const Model::Layer::Attr_Type attr);
             void layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr);
+            void objectWasAddedToLayer(Model::Layer* layer, Model::Object* object);
+            void objectWasRemovedFromLayer(Model::Layer* layer, Model::Object* object);
             
             void selectionDidChange(const Model::SelectionResult& result);
             void modsDidChange();
@@ -102,8 +105,37 @@ namespace TrenchBroom {
             void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
             
-            void clearState();
             void loadMap(Model::Map& map);
+            
+            template <typename I>
+            void addObjects(I it, I end) {
+                while (it != end) {
+                    addObject(*it);
+                    ++it;
+                }
+            }
+
+            template <typename I>
+            void updateObjects(I it, I end) {
+                while (it != end) {
+                    updateObject(*it);
+                    ++it;
+                }
+            }
+            
+            template <typename I>
+            void removeObjects(I it, I end) {
+                while (it != end) {
+                    removeObject(*it);
+                    ++it;
+                }
+            }
+            
+            void addObject(Model::Object* object);
+            void updateObject(Model::Object* object);
+            void removeObject(Model::Object* object);
+            
+            void clearState();
         };
     }
 }

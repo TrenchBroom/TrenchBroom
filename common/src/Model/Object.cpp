@@ -115,10 +115,10 @@ namespace TrenchBroom {
             if (m_layer == layer)
                 return;
             if (m_layer != NULL)
-                m_layer->removeObject(this);
+                doRemoveFromLayer(m_layer);
             m_layer = layer;
             if (m_layer != NULL)
-                m_layer->addObject(this);
+                doAddToLayer(m_layer);
         }
         
 

@@ -19,7 +19,7 @@
 
 #include "ValveMapWriter.h"
 
-#include "Model/BrushFace.h"
+#include "Model/Brushface.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -43,11 +43,11 @@ namespace TrenchBroom {
             FaceFormat = str.str();
         }
         
-        size_t ValveMapWriter::writeFace(Model::BrushFace& face, const size_t lineNumber, FILE* stream) {
-            const String& textureName = face.textureName().empty() ? Model::BrushFace::NoTextureName : face.textureName();
-            const Vec3 xAxis = face.textureXAxis();
-            const Vec3 yAxis = face.textureYAxis();
-            const Model::BrushFace::Points& points = face.points();
+        size_t ValveMapWriter::writeFace(Model::BrushFace* face, const size_t lineNumber, FILE* stream) {
+            const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+            const Vec3 xAxis = face->textureXAxis();
+            const Vec3 yAxis = face->textureYAxis();
+            const Model::BrushFace::Points& points = face->points();
             
             std::fprintf(stream, FaceFormat.c_str(),
                          points[0].x(),
@@ -65,25 +65,25 @@ namespace TrenchBroom {
                          xAxis.x(),
                          xAxis.y(),
                          xAxis.z(),
-                         face.xOffset(),
+                         face->xOffset(),
                          
                          yAxis.x(),
                          yAxis.y(),
                          yAxis.z(),
-                         face.yOffset(),
+                         face->yOffset(),
                          
-                         face.rotation(),
-                         face.xScale(),
-                         face.yScale());
-            face.setFilePosition(lineNumber, 1);
+                         face->rotation(),
+                         face->xScale(),
+                         face->yScale());
+            face->setFilePosition(lineNumber, 1);
             return 1;
         }
         
-        void ValveMapWriter::writeFace(const Model::BrushFace& face, std::ostream& stream) {
-            const String& textureName = face.textureName().empty() ? Model::BrushFace::NoTextureName : face.textureName();
-            const Vec3& xAxis = face.textureXAxis();
-            const Vec3& yAxis = face.textureYAxis();
-            const Model::BrushFace::Points& points = face.points();
+        void ValveMapWriter::writeFace(const Model::BrushFace* face, std::ostream& stream) {
+            const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
+            const Vec3& xAxis = face->textureXAxis();
+            const Vec3& yAxis = face->textureYAxis();
+            const Model::BrushFace::Points& points = face->points();
             
             stream.precision(FloatPrecision);
             stream <<
@@ -108,16 +108,16 @@ namespace TrenchBroom {
             xAxis.x() << " " <<
             xAxis.y() << " " <<
             xAxis.z() << " " <<
-            face.xOffset()   <<
+            face->xOffset()   <<
             " ] [ " <<
             yAxis.x() << " " <<
             yAxis.y() << " " <<
             yAxis.z() << " " <<
-            face.yOffset()   <<
+            face->yOffset()   <<
             " ] " <<
-            face.rotation() << " " <<
-            face.xScale()   << " " <<
-            face.yScale()   << "\n";
+            face->rotation() << " " <<
+            face->xScale()   << " " <<
+            face->yScale()   << "\n";
         }
     }
 }

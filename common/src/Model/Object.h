@@ -92,8 +92,8 @@ namespace TrenchBroom {
             bool isIssueHidden(const Issue* issue) const;
             void setIssueHidden(IssueType type, bool hidden);
             
-            virtual Layer* layer() const;
-            virtual void setLayer(Layer* layer);
+            Layer* layer() const;
+            void setLayer(Layer* layer);
             
             Object* clone(const BBox3& worldBounds) const;
             void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
@@ -115,6 +115,9 @@ namespace TrenchBroom {
             void incChildSelectionCount();
             void decChildSelectionCount();
         private:
+            virtual void doAddToLayer(Layer* layer) = 0;
+            virtual void doRemoveFromLayer(Layer* layer) = 0;
+            
             virtual void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) = 0;
             virtual bool doContains(const Object& object) const = 0;
             virtual bool doContains(const Entity& entity) const = 0;

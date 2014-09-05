@@ -367,6 +367,14 @@ namespace TrenchBroom {
             }
         }
 
+        void Brush::doAddToLayer(Layer* layer) {
+            layer->addBrush(this);
+        }
+        
+        void Brush::doRemoveFromLayer(Layer* layer) {
+            layer->removeBrush(this);
+        }
+
         void Brush::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             each(m_faces.begin(), m_faces.end(), Transform(transformation, lockTextures, worldBounds), MatchAll());
             rebuildGeometry(worldBounds);
