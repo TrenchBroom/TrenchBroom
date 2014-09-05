@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             Hexen2MapWriter();
         private:
-            size_t writeFace(Model::BrushFace* face, const size_t lineNumber, FILE* stream);
+            size_t writeFace(Model::BrushFace* face, size_t lineNumber, FILE* stream);
             void writeFace(const Model::BrushFace* face, std::ostream& stream);
         };
     }

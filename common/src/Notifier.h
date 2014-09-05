@@ -263,8 +263,7 @@ namespace TrenchBroom {
             return removeObserver(&notifier, &Notifier1::operator());
         }
 
-        template <typename A>
-        void notify(A a1) {
+        void notify(A1 a1) {
             const SetBool notifying(m_notifying);
             
             typename Observer::List::const_iterator it, end;
@@ -274,8 +273,7 @@ namespace TrenchBroom {
             }
         }
 
-        template <typename A>
-        void operator()(A a1) {
+        void operator()(A1 a1) {
             notify(a1);
         }
         

@@ -35,7 +35,7 @@ namespace TrenchBroom {
         public:
             ValveMapWriter();
         private:
-            virtual size_t writeFace(Model::BrushFace* face, const size_t lineNumber, FILE* stream);
+            virtual size_t writeFace(Model::BrushFace* face, size_t lineNumber, FILE* stream);
             virtual void writeFace(const Model::BrushFace* face, std::ostream& stream);
         };
     }
