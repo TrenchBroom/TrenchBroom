@@ -46,11 +46,16 @@ namespace TrenchBroom {
             extern const PropertyKey Target;
             extern const PropertyKey Targetname;
             extern const PropertyKey Killtarget;
+            extern const PropertyKey GroupType;
+            extern const PropertyKey LayerName;
+            extern const PropertyKey Layer;
         }
         
         namespace PropertyValues {
             extern const PropertyValue WorldspawnClassname;
             extern const PropertyValue NoClassname;
+            extern const PropertyValue LayerClassname;
+            extern const PropertyValue GroupTypeLayer;
         }
 
         bool isPropertyKeyMutable(const PropertyKey& key);

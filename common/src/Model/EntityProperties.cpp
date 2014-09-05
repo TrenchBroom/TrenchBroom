@@ -38,11 +38,16 @@ namespace TrenchBroom {
             const PropertyKey Target            = "target";
             const PropertyKey Targetname        = "targetname";
             const PropertyKey Killtarget        = "killtarget";
+            const PropertyKey GroupType         = "_type";
+            const PropertyKey LayerName         = "_name";
+            const PropertyKey Layer             = "_layer";
         }
         
         namespace PropertyValues {
             const PropertyValue WorldspawnClassname = "worldspawn";
             const PropertyValue NoClassname         = "undefined";
+            const PropertyValue LayerClassname      = "func_group";
+            const PropertyValue GroupTypeLayer      = "layer";
         }
 
         bool isPropertyKeyMutable(const PropertyKey& key) {

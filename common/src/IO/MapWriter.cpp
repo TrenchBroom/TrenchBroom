@@ -163,12 +163,9 @@ namespace TrenchBroom {
             const Model::EntityList& entities = layer->entities();
             const Model::BrushList& worldBrushes = layer->worldBrushes();
             
-            Model::EntityProperty::List additionalProperties;
-            additionalProperties.push_back(Model::EntityProperty("_layer", layer->name(), NULL));
-            
             size_t lineCount = 0;
             lineCount += writeEntity(worldspawn, Model::EntityProperty::EmptyList, worldBrushes, lineNumber + lineCount, stream);
-            lineCount += writeEntities(entities, additionalProperties, lineNumber + lineCount, stream);
+            lineCount += writeEntities(entities, Model::EntityProperty::EmptyList, lineNumber + lineCount, stream);
             return lineCount;
         }
         
@@ -178,14 +175,14 @@ namespace TrenchBroom {
             
             size_t lineCount = 0;
             lineCount += writeEntityOpen(stream);
-            lineCount += writeKeyValuePair("classname", "func_group", stream);
-            lineCount += writeKeyValuePair("_type", "layer", stream);
-            lineCount += writeKeyValuePair("_name", layer->name(), stream);
+            lineCount += writeKeyValuePair(Model::PropertyKeys::Classname, Model::PropertyValues::LayerClassname, stream);
+            lineCount += writeKeyValuePair(Model::PropertyKeys::GroupType, Model::PropertyValues::GroupTypeLayer, stream);
+            lineCount += writeKeyValuePair(Model::PropertyKeys::LayerName, layer->name(), stream);
             lineCount += writeBrushes(worldBrushes, lineNumber + lineCount, stream);
             lineCount += writeEntityClose(stream);
             
             Model::EntityProperty::List additionalProperties;
-            additionalProperties.push_back(Model::EntityProperty("_layer", layer->name(), NULL));
+            additionalProperties.push_back(Model::EntityProperty(Model::PropertyKeys::Layer, layer->name(), NULL));
             
             lineCount += writeEntities(entities, additionalProperties, lineNumber + lineCount, stream);
             return lineCount;

@@ -51,6 +51,12 @@ namespace TrenchBroom {
             Layer* defaultLayer() const;
             const LayerList& layers() const;
             
+            void resolveLayers();
+        private:
+            bool isLayerEntity(const Entity* entity) const;
+            void addBrushesToLayer(const BrushList& brushes, Layer* layer);
+        public:
+
             Entity* createEntity() const;
             Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
             BrushFace* createFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) const;

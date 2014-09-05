@@ -137,8 +137,13 @@ namespace TrenchBroom {
             virtual Quat3 rotation() const;
             
             const BrushList& brushes() const;
+            
+            void addBrushes(const BrushList& brushes);
             void addBrush(Brush* brush);
+            
             void removeBrush(Brush* brush);
+            void removeAllBrushes();
+            
             Brush* findBrushByFilePosition(const size_t position) const;
             void childBrushChanged();
             

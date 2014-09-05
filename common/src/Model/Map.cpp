@@ -75,6 +75,58 @@ namespace TrenchBroom {
             return m_layers;
         }
 
+        void Map::resolveLayers() {
+            typedef std::map<String, Layer*> LayerMap;
+            LayerMap layerMap;
+            
+            Entity* worldspawn = Map::worldspawn();
+            EntityList::iterator eIt = m_entities.begin();
+            while (eIt != m_entities.end()) {
+                Entity* entity = *eIt;
+                if (isLayerEntity(entity)) {
+                    const PropertyValue& layerName = entity->property(PropertyKeys::LayerName, "Unnamed");
+                    Layer* layer = createLayer(layerName);
+                    addLayer(layer);
+                    layerMap[layerName] = layer;
+                    
+                    const BrushList brushes = entity->brushes();
+                    entity->removeAllBrushes();
+                    worldspawn->addBrushes(brushes);
+                    addBrushesToLayer(brushes, layer);
+                    
+                    eIt = m_entities.erase(eIt);
+                } else {
+                    if (entity->hasProperty(PropertyKeys::Layer)) {
+                        const Model::PropertyValue& entityLayerName = entity->property(PropertyKeys::Layer);
+                        Layer* layer = layerMap[entityLayerName];
+                        assert(layer != NULL);
+                        
+                        entity->setLayer(layer);
+                        entity->removeProperty(PropertyKeys::Layer);
+                        addBrushesToLayer(entity->brushes(), layer);
+                    } else {
+                        Layer* layer = defaultLayer();
+                        entity->setLayer(layer);
+                        addBrushesToLayer(entity->brushes(), layer);
+                    }
+                    ++eIt;
+                }
+            }
+        }
+
+        bool Map::isLayerEntity(const Entity* entity) const {
+            return (entity->classname() == PropertyValues::LayerClassname &&
+                    entity->property(PropertyKeys::GroupType) == PropertyValues::GroupTypeLayer);
+        }
+
+        void Map::addBrushesToLayer(const BrushList& brushes, Layer* layer) {
+            BrushList::const_iterator bIt, bEnd;
+            for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                Brush* brush = *bIt;
+                brush->setLayer(layer);
+            }
+        }
+
         Entity* Map::createEntity() const {
             return m_factory.createEntity();
         }
@@ -151,7 +203,7 @@ namespace TrenchBroom {
             EntityList::const_iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                 const Entity* entity = *it;
-                const Model::BrushList& entityBrushes = entity->brushes();
+                const BrushList& entityBrushes = entity->brushes();
                 brushes.insert(brushes.end(), entityBrushes.begin(), entityBrushes.end());
             }
             return brushes;

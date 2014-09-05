@@ -123,7 +123,6 @@ namespace TrenchBroom {
             
             Model::MapFormat::Type m_format;
             Model::ModelFactory m_factory;
-            Model::Layer* m_currentLayer;
         public:
             QuakeMapParser(const char* begin, const char* end, const Model::Game* game, Logger* logger = NULL);
             QuakeMapParser(const String& str, const Model::Game* game, Logger* logger = NULL);
@@ -133,7 +132,7 @@ namespace TrenchBroom {
             Model::EntityList doParseEntities(const BBox3& worldBounds, Model::MapFormat::Type format);
             Model::BrushList doParseBrushes(const BBox3& worldBounds, Model::MapFormat::Type format);
             Model::BrushFaceList doParseFaces(const BBox3& worldBounds, Model::MapFormat::Type format);
-            
+
             void setFormat(Model::MapFormat::Type format);
             Model::MapFormat::Type detectFormat();
             Model::Entity* parseEntity(const BBox3& worldBounds);

@@ -155,15 +155,13 @@ namespace TrenchBroom {
         m_tokenizer(QuakeMapTokenizer(begin, end)),
         m_game(game),
         m_logger(logger),
-        m_format(Model::MapFormat::Unknown),
-        m_currentLayer(NULL) {}
+        m_format(Model::MapFormat::Unknown) {}
                     
         QuakeMapParser::QuakeMapParser(const String& str, const Model::Game* game, Logger* logger) :
         m_tokenizer(QuakeMapTokenizer(str)),
         m_game(game),
         m_logger(logger),
-        m_format(Model::MapFormat::Unknown),
-        m_currentLayer(NULL) {}
+        m_format(Model::MapFormat::Unknown) {}
         
         QuakeMapParser::TokenNameMap QuakeMapParser::tokenNames() const {
             using namespace QuakeMapToken;
@@ -187,13 +185,13 @@ namespace TrenchBroom {
             setFormat(detectFormat());
             
             Model::Map* map = m_factory.createMap();
-            m_currentLayer = map->defaultLayer();
             try {
                 Model::Entity* entity = parseEntity(worldBounds);
                 while (entity != NULL) {
                     map->addEntity(entity);
                     entity = parseEntity(worldBounds);
                 }
+                map->resolveLayers();
                 return map;
             } catch (...) {
                 delete map;
@@ -311,7 +309,6 @@ namespace TrenchBroom {
             
             ExtraProperties extraProperties;
             Model::Entity* entity = m_factory.createEntity();
-            entity->setLayer(m_currentLayer);
 
             const size_t firstLine = token.line();
             
@@ -333,7 +330,6 @@ namespace TrenchBroom {
                                 Model::Brush* brush = parseBrush(worldBounds);
                                 if (brush != NULL) {
                                     entity->addBrush(brush);
-                                    brush->setLayer(m_currentLayer);
                                 }
                                 expect(QuakeMapToken::OBrace | QuakeMapToken::CBrace, token = m_tokenizer.nextToken());
                                 moreBrushes = (token.type() == QuakeMapToken::OBrace);

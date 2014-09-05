@@ -102,6 +102,9 @@ namespace TrenchBroom {
         
         void EntityRenderer::addEntity(Model::Entity* entity) {
             assert(entity != NULL);
+            if (entity->worldspawn())
+                return;
+
             assert(m_entities.count(entity) == 0);
             m_entities.insert(entity);
             m_classnameRenderer.addString(entity, entityString(entity), TextAnchor::Ptr(new EntityClassnameAnchor(entity)));
@@ -112,8 +115,10 @@ namespace TrenchBroom {
         
         void EntityRenderer::updateEntity(Model::Entity* entity) {
             assert(entity != NULL);
-            assert(m_entities.count(entity) == 1);
+            if (entity->worldspawn())
+                return;
             
+            assert(m_entities.count(entity) == 1);
             m_classnameRenderer.updateString(entity, entityString(entity));
             m_modelRenderer.updateEntity(entity);
             invalidateBounds();
@@ -121,6 +126,8 @@ namespace TrenchBroom {
         
         void EntityRenderer::removeEntity(Model::Entity* entity) {
             assert(entity != NULL);
+            if (entity->worldspawn())
+                return;
             
             Model::EntitySet::iterator it = m_entities.find(entity);
             assert(it != m_entities.end());
