@@ -69,8 +69,10 @@ namespace TrenchBroom {
             if (event.GetSetEnabled())
                 Enable(event.GetEnabled());
             if (event.GetSetChecked()) {
-                m_state = event.GetChecked();
-                Refresh();
+                if (m_state != event.GetChecked()) {
+                    m_state = event.GetChecked();
+                    Refresh();
+                }
             }
         }
 
