@@ -58,10 +58,13 @@ namespace TrenchBroom {
         DocumentCommand(Type, makeName(action, objects), true, document),
         m_newLayers(layers),
         m_action(action) {
-            if (action == Action_Add)
+            if (action == Action_Add) {
                 m_objectsToAdd = objects;
-            else
+                m_oldLayers = collectLayers(m_objectsToAdd);
+            } else {
                 m_objectsToRemove = addEmptyBrushEntities(objects);
+                m_oldLayers = collectLayers(m_objectsToRemove);
+            }
         }
         
         Model::ObjectParentList AddRemoveObjectsCommand::addEmptyBrushEntities(const Model::ObjectParentList& objects) const {
@@ -113,6 +116,14 @@ namespace TrenchBroom {
             return result;
         }
 
+        Model::ObjectLayerMap AddRemoveObjectsCommand::collectLayers(const Model::ObjectParentList& objects) const {
+            Model::ObjectLayerMap result;
+            Model::ObjectParentList::const_iterator it, end;
+            for (it = objects.begin(), end = objects.end(); it != end; ++it)
+                result[it->object] = it->object->layer();
+            return result;
+        }
+
         String AddRemoveObjectsCommand::makeName(const Action action, const Model::ObjectParentList& objects) {
             StringStream name;
             name << (action == Action_Add ? "Add " : "Remove ");
@@ -121,15 +132,10 @@ namespace TrenchBroom {
         }
 
         bool AddRemoveObjectsCommand::doPerformDo() {
-            m_oldLayers.clear();
-            
-            if (m_action == Action_Add) {
-                addObjects(m_objectsToAdd);
-                setLayers(m_objectsToAdd);
-            } else {
-                setLayers(m_objectsToRemove);
-                removeObjects(m_objectsToRemove);
-            }
+            if (m_action == Action_Add)
+                addObjects(m_objectsToAdd, m_newLayers);
+            else
+                removeObjects(m_objectsToRemove, m_newLayers);
             
             using std::swap;
             swap(m_objectsToAdd, m_objectsToRemove);
@@ -137,13 +143,10 @@ namespace TrenchBroom {
         }
         
         bool AddRemoveObjectsCommand::doPerformUndo() {
-            if (m_action == Action_Add) {
-                restoreLayers(m_objectsToRemove);
-                removeObjects(m_objectsToRemove);
-            } else {
-                addObjects(m_objectsToAdd);
-                restoreLayers(m_objectsToAdd);
-            }
+            if (m_action == Action_Add)
+                removeObjects(m_objectsToRemove, m_oldLayers);
+            else
+                addObjects(m_objectsToAdd, m_oldLayers);
 
             using std::swap;
             swap(m_objectsToAdd, m_objectsToRemove);
@@ -158,7 +161,7 @@ namespace TrenchBroom {
             return false;
         }
 
-        void AddRemoveObjectsCommand::addObjects(const Model::ObjectParentList& objects) {
+        void AddRemoveObjectsCommand::addObjects(const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers) {
             View::MapDocumentSPtr document = lockDocument();
 
             Model::ObjectList parents, children;
@@ -166,34 +169,27 @@ namespace TrenchBroom {
 
             document->objectsWillChangeNotifier(parents);
             document->addObjects(objects);
+            setLayers(layers);
             document->objectsWereAddedNotifier(children);
             document->objectsDidChangeNotifier(parents);
         }
         
-        void AddRemoveObjectsCommand::removeObjects(const Model::ObjectParentList& objects) {
+        void AddRemoveObjectsCommand::removeObjects(const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers) {
             View::MapDocumentSPtr document = lockDocument();
 
             Model::ObjectList parents, children;
             makeParentChildLists(objects, parents, children);
             document->objectsWillChangeNotifier(parents);
             document->objectsWillBeRemovedNotifier(children);
+            setLayers(layers);
             document->removeObjects(children);
             document->objectsWereRemovedNotifier(objects);
             document->objectsDidChangeNotifier(parents);
         }
 
-        void AddRemoveObjectsCommand::setLayers(const Model::ObjectParentList& objects) {
-            Model::ObjectParentList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = it->object;
-                m_oldLayers[object] = object->layer();
-                object->setLayer(m_newLayers[object]);
-            }
-        }
-
-        void AddRemoveObjectsCommand::restoreLayers(const Model::ObjectParentList& objects) {
+        void AddRemoveObjectsCommand::setLayers(const Model::ObjectLayerMap& layers) {
             Model::ObjectLayerMap::const_iterator it, end;
-            for (it = m_oldLayers.begin(), end = m_oldLayers.end(); it != end; ++it) {
+            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
                 Model::Object* object = it->first;
                 Model::Layer* layer = it->second;
                 object->setLayer(layer);

@@ -54,6 +54,7 @@ namespace TrenchBroom {
         private:
             AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers);
             Model::ObjectParentList addEmptyBrushEntities(const Model::ObjectParentList& objects) const;
+            Model::ObjectLayerMap collectLayers(const Model::ObjectParentList& objects) const;
             static String makeName(const Action action, const Model::ObjectParentList& objects);
 
             bool doPerformDo();
@@ -63,10 +64,9 @@ namespace TrenchBroom {
 
             bool doCollateWith(Command::Ptr command);
             
-            void addObjects(const Model::ObjectParentList& objects);
-            void removeObjects(const Model::ObjectParentList& objects);
-            void setLayers(const Model::ObjectParentList& objects);
-            void restoreLayers(const Model::ObjectParentList& objects);
+            void addObjects(const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers);
+            void removeObjects(const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers);
+            void setLayers(const Model::ObjectLayerMap& layers);
         };
     }
 }
