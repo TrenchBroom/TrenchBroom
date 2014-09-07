@@ -83,11 +83,13 @@ namespace TrenchBroom {
 
         void AddRemoveObjectsCommand::addObjects() {
             View::MapDocumentSPtr document = lockDocument();
-            document->objectsWillChangeNotifier(m_addQuery.parents());
+            if (!m_addQuery.parents().empty())
+                document->objectsWillChangeNotifier(m_addQuery.parents());
             document->addEntities(m_addQuery.entities(), m_addQuery.layers());
             document->addBrushes(m_addQuery.brushes(), m_addQuery.layers());
             document->objectsWereAddedNotifier(m_addQuery.objects());
-            document->objectsDidChangeNotifier(m_addQuery.parents());
+            if (!m_addQuery.parents().empty())
+                document->objectsDidChangeNotifier(m_addQuery.parents());
             
             m_removeQuery = Model::RemoveObjectsQuery(m_addQuery);
             m_addQuery.clear();
@@ -98,12 +100,14 @@ namespace TrenchBroom {
             m_addQuery = Model::AddObjectsQuery(m_removeQuery);
 
             View::MapDocumentSPtr document = lockDocument();
-            document->objectsWillChangeNotifier(m_removeQuery.parents());
+            if (!m_removeQuery.parents().empty())
+                document->objectsWillChangeNotifier(m_removeQuery.parents());
             document->objectsWillBeRemovedNotifier(m_removeQuery.objects());
             document->removeBrushes(m_removeQuery.brushes());
             document->removeEntities(m_removeQuery.entities());
-            document->objectsWereRemovedNotifier(m_addQuery.objects());
-            document->objectsDidChangeNotifier(m_addQuery.parents());
+            document->objectsWereRemovedNotifier(m_removeQuery.objects());
+            if (!m_removeQuery.parents().empty())
+                document->objectsDidChangeNotifier(m_removeQuery.parents());
             
             m_removeQuery.clear();
         }

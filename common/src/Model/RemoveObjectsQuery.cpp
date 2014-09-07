@@ -84,13 +84,14 @@ namespace TrenchBroom {
             if (brushCount + 1 == entityBrushes.size() && !entity->worldspawn()) { // always remove empty brush entities
                 VectorUtils::removeAll(m_brushes.begin(), m_brushes.end(), entityBrushes.begin(), entityBrushes.end());
                 if (!VectorUtils::contains(m_entities, entity))
-                    m_entities.push_back(entity);
+                    removeEntity(entity);
                 m_brushCounts.erase(it);
                 
                 assert(VectorUtils::contains(m_parents, entity));
                 VectorUtils::erase(m_parents, entity);
             } else {
                 m_brushes.push_back(brush);
+                m_objects.push_back(brush);
                 ++brushCount;
             }
         }

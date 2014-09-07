@@ -339,6 +339,22 @@ namespace TrenchBroom {
             m_game->updateExternalTextureCollections(m_map, m_textureManager.externalCollectionNames());
         }
 
+        struct SetLayer : public Model::ObjectVisitor {
+        private:
+            Model::Layer* m_layer;
+        public:
+            SetLayer(Model::Layer* layer) :
+            m_layer(layer) {}
+            
+            void doVisit(Model::Entity* entity) {
+                entity->setLayer(m_layer);
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                brush->setLayer(m_layer);
+            }
+        };
+        
         void MapDocument::addEntities(const Model::EntityList& entities, const Model::ObjectLayerMap& layers) {
             Model::EntityList::const_iterator it, end;
             for (it = entities.begin(), end = entities.end(); it != end; ++it) {
@@ -353,7 +369,9 @@ namespace TrenchBroom {
             assert(layer != NULL);
             assert(!entity->worldspawn() || m_map->worldspawn() == NULL);
             m_map->addEntity(entity);
-            entity->setLayer(layer);
+            
+            SetLayer setLayer(layer);
+            entity->acceptRecursively(setLayer);
         }
         
         void MapDocument::removeEntities(const Model::EntityList& entities) {
@@ -366,30 +384,31 @@ namespace TrenchBroom {
             assert(entity != NULL);
             assert(!entity->worldspawn());
             
-            entity->setLayer(NULL);
+            SetLayer setLayer(NULL);
+            entity->acceptRecursively(setLayer);
             m_map->removeEntity(entity);
         }
         
         void MapDocument::addBrushes(const Model::EntityBrushesMap& brushes, const Model::ObjectLayerMap& layers) {
             Model::EntityBrushesMap::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
-                addBrushes(it->first, it->second, layers);
+                addBrushes(it->second, it->first, layers);
         }
         
-        void MapDocument::addBrushes(Model::Entity* entity, const Model::BrushList& brushes, const Model::ObjectLayerMap& layers) {
+        void MapDocument::addBrushes(const Model::BrushList& brushes, Model::Entity* entity, const Model::ObjectLayerMap& layers) {
             assert(entity != NULL);
             assert(entity->map() == m_map);
             Model::BrushList::const_iterator it, end;
             for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
                 Model::Brush* brush = *it;
                 Model::Layer* layer = MapUtils::find(layers, brush, static_cast<Model::Layer*>(NULL));
-                addBrush(entity, brush, layer);
+                addBrush(brush, entity, layer);
             }
         }
 
-        void MapDocument::addBrush(Model::Entity* entity, Model::Brush* brush, Model::Layer* layer) {
-            assert(entity != NULL);
+        void MapDocument::addBrush(Model::Brush* brush, Model::Entity* entity, Model::Layer* layer) {
             assert(brush != NULL);
+            assert(entity != NULL);
             assert(layer != NULL);
             assert(entity->map() == m_map);
             entity->addBrush(brush);

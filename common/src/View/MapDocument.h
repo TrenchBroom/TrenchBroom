@@ -181,8 +181,8 @@ namespace TrenchBroom {
             void removeEntity(Model::Entity* entity);
 
             void addBrushes(const Model::EntityBrushesMap& brushes, const Model::ObjectLayerMap& layers);
-            void addBrushes(Model::Entity* entity, const Model::BrushList& brushes, const Model::ObjectLayerMap& layers);
-            void addBrush(Model::Entity* entity, Model::Brush* brush, Model::Layer* layer);
+            void addBrushes(const Model::BrushList& brushes, Model::Entity* entity, const Model::ObjectLayerMap& layers);
+            void addBrush(Model::Brush* brush, Model::Entity* entity, Model::Layer* layer);
             void removeBrushes(const Model::BrushList& brushes);
             void removeBrush(Model::Brush* brush);
 
