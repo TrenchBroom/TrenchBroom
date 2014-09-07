@@ -22,8 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "CastIterator.h"
-#include "FilterIterator.h"
 #include "Notifier.h"
 #include "Model/Entity.h"
 #include "Model/ModelFilter.h"

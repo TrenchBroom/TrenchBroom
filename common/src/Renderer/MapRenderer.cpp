@@ -21,8 +21,6 @@
 
 #include "Color.h"
 #include "Preferences.h"
-#include "CastIterator.h"
-#include "FilterIterator.h"
 #include "Renderer/GL.h"
 #include "Model/Brush.h"
 #include "Model/BrushEdge.h"

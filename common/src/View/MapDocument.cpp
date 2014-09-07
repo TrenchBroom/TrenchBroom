@@ -28,10 +28,11 @@
 #include "Assets/TextureCollectionSpec.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/SystemPaths.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/EmptyBrushEntityIssueGenerator.h"
+#include "Model/Entity.h"
 #include "Model/EntityBrushesIterator.h"
-#include "Model/EntityFacesIterator.h"
 #include "Model/EntityLinkSourceIssueGenerator.h"
 #include "Model/EntityLinkTargetIssueGenerator.h"
 #include "Model/FloatPointsIssueGenerator.h"
@@ -39,8 +40,6 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/Map.h"
-#include "Model/MapFacesIterator.h"
-#include "Model/MapObjectsIterator.h"
 #include "Model/MissingEntityClassnameIssueGenerator.h"
 #include "Model/MissingEntityDefinitionIssueGenerator.h"
 #include "Model/MixedBrushContentsIssueGenerator.h"
@@ -185,6 +184,26 @@ namespace TrenchBroom {
             m_selectionBoundsValid = false;
         }
         
+        class LoadObjects : public Model::ObjectVisitor {
+        private:
+            Model::Picker& m_picker;
+            Model::IssueManager& m_issueManager;
+        public:
+            LoadObjects(Model::Picker& picker, Model::IssueManager& issueManager) :
+            m_picker(picker),
+            m_issueManager(issueManager) {}
+        private:
+            void doVisit(Model::Entity* entity) {
+                m_picker.addObject(entity);
+                m_issueManager.addObject(entity);
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                m_picker.addObject(brush);
+                m_issueManager.addObject(brush);
+            }
+        };
+        
         void MapDocument::openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
             assert(game != NULL);
             info("Opening document " + path.asString());
@@ -206,10 +225,9 @@ namespace TrenchBroom {
             loadAndUpdateEntityDefinitions();
             loadAndUpdateTextures();
             
-            m_picker.addObjects(Model::MapObjectsIterator::begin(*m_map),
-                                Model::MapObjectsIterator::end(*m_map));
-            m_issueManager.addObjects(Model::MapObjectsIterator::begin(*m_map),
-                                      Model::MapObjectsIterator::end(*m_map));
+            const Model::EntityList& entities = m_map->entities();
+            LoadObjects load(m_picker, m_issueManager);
+            Model::Object::acceptRecursively(entities.begin(), entities.end(), load);
 
             m_selectionBoundsValid = false;
         }
@@ -818,10 +836,28 @@ namespace TrenchBroom {
             m_issueManager.registerGenerator(new Model::WorldBoundsIssueGenerator(m_worldBounds), true);
         }
 
+        class LoadIssues : public Model::ObjectVisitor {
+        private:
+            Model::IssueManager& m_issueManager;
+        public:
+            LoadIssues(Model::IssueManager& issueManager) :
+            m_issueManager(issueManager) {}
+        private:
+            void doVisit(Model::Entity* entity) {
+                m_issueManager.addObject(entity);
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                m_issueManager.addObject(brush);
+            }
+        };
+        
         void MapDocument::reloadIssues() {
             m_issueManager.clearIssues();
-            m_issueManager.addObjects(Model::MapObjectsIterator::begin(*m_map),
-                                      Model::MapObjectsIterator::end(*m_map));
+
+            const Model::EntityList& entities = m_map->entities();
+            LoadIssues load(m_issueManager);
+            Model::Object::accept(entities.begin(), entities.end(), load);
         }
 
         void MapDocument::clearMap() {

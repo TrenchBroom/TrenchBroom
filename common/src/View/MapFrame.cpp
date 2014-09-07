@@ -28,7 +28,6 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
-#include "Model/MapObjectsIterator.h"
 #include "Model/Object.h"
 #include "Model/Selection.h"
 #include "View/Action.h"
@@ -326,48 +325,84 @@ namespace TrenchBroom {
                 m_controller->selectObjects(selectBrushes);
         }
         
+        class CollectIntersectingObjects : public Model::ObjectVisitor {
+        private:
+            const Model::Brush* m_brush;
+            Model::ObjectList m_objects;
+        public:
+            CollectIntersectingObjects(const Model::Brush* brush) :
+            m_brush(brush) {
+                assert(m_brush != NULL);
+            }
+            
+            const Model::ObjectList& objects() const {
+                return m_objects;
+            }
+        private:
+            void doVisit(Model::Entity* entity) {
+                if (entity->pointEntity() && m_brush->intersects(*entity))
+                    m_objects.push_back(entity);
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                if (brush != m_brush && m_brush->intersects(*brush))
+                    m_objects.push_back(brush);
+            }
+        };
+        
         void MapFrame::OnEditSelectTouching(wxCommandEvent& event) {
             const Model::BrushList& selectedBrushes = m_document->selectedBrushes();
             assert(selectedBrushes.size() == 1 && !m_document->hasSelectedEntities());
 
+            const Model::EntityList& entities = m_document->map()->entities();
             Model::Brush* selectionBrush = selectedBrushes.front();
-            Model::ObjectList selectObjects;
-            
-            Model::MapObjectsIterator::OuterIterator it = Model::MapObjectsIterator::begin(*m_document->map());
-            Model::MapObjectsIterator::OuterIterator end = Model::MapObjectsIterator::end(*m_document->map());
-            while (it != end) {
-                Model::Object* object = *it;
-                if (object != selectionBrush && selectionBrush->intersects(*object))
-                    selectObjects.push_back(object);
-                ++it;
-            }
+            CollectIntersectingObjects collect(selectionBrush);
+            Model::Object::acceptRecursively(entities.begin(), entities.end(), collect);
             
             const UndoableCommandGroup commandGroup(m_controller, "Select touching objects");
             m_controller->deselectAll();
             m_controller->removeObject(selectionBrush);
-            m_controller->selectObjects(selectObjects);
+            m_controller->selectObjects(collect.objects());
         }
         
+        class CollectContainedObjects : public Model::ObjectVisitor {
+        private:
+            const Model::Brush* m_brush;
+            Model::ObjectList m_objects;
+        public:
+            CollectContainedObjects(const Model::Brush* brush) :
+            m_brush(brush) {
+                assert(m_brush != NULL);
+            }
+            
+            const Model::ObjectList& objects() const {
+                return m_objects;
+            }
+        private:
+            void doVisit(Model::Entity* entity) {
+                if (entity->pointEntity() && m_brush->contains(*entity))
+                    m_objects.push_back(entity);
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                if (brush != m_brush && m_brush->contains(*brush))
+                    m_objects.push_back(brush);
+            }
+        };
+
         void MapFrame::OnEditSelectInside(wxCommandEvent& event) {
             const Model::BrushList& selectedBrushes = m_document->selectedBrushes();
             assert(selectedBrushes.size() == 1 && !m_document->hasSelectedEntities());
             
+            const Model::EntityList& entities = m_document->map()->entities();
             Model::Brush* selectionBrush = selectedBrushes.front();
-            Model::ObjectList selectObjects;
-            
-            Model::MapObjectsIterator::OuterIterator it = Model::MapObjectsIterator::begin(*m_document->map());
-            Model::MapObjectsIterator::OuterIterator end = Model::MapObjectsIterator::end(*m_document->map());
-            while (it != end) {
-                Model::Object* object = *it;
-                if (object != selectionBrush && selectionBrush->contains(*object))
-                    selectObjects.push_back(object);
-                ++it;
-            }
+            CollectContainedObjects collect(selectionBrush);
+            Model::Object::acceptRecursively(entities.begin(), entities.end(), collect);
             
             const UndoableCommandGroup commandGroup(m_controller, "Select contained objects");
             m_controller->deselectAll();
             m_controller->removeObject(selectionBrush);
-            m_controller->selectObjects(selectObjects);
+            m_controller->selectObjects(collect.objects());
         }
         
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {

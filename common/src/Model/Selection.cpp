@@ -26,7 +26,6 @@
 #include "Model/MapBrushesIterator.h"
 #include "Model/MapEntitiesIterator.h"
 #include "Model/MapFacesIterator.h"
-#include "Model/MapObjectsIterator.h"
 #include "Model/ModelFilter.h"
 #include "Model/ModelUtils.h"
 #include "Model/SelectionResult.h"
@@ -299,12 +298,10 @@ namespace TrenchBroom {
         }
         
         SelectionResult Selection::selectAllObjects(Map& map) {
+            const EntityList& entities = map.entities();
             SelectionResult result;
             SetSelection set(true, m_filter, result);
-            each(MapObjectsIterator::begin(map),
-                 MapObjectsIterator::end(map),
-                 set,
-                 MatchUnselected());
+            Object::accept(entities.begin(), entities.end(), set);
             applyResult(result);
             return result;
         }
