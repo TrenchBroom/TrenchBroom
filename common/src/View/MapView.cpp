@@ -1111,7 +1111,7 @@ namespace TrenchBroom {
             Refresh();
         }
         
-        void MapView::objectsWereRemoved(const Model::ObjectParentList& objects) {
+        void MapView::objectsWereRemoved(const Model::ObjectList& objects) {
             Refresh();
         }
 

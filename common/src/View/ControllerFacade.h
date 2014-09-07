@@ -36,8 +36,10 @@ namespace TrenchBroom {
     }
     
     namespace Model {
+        class AddObjectsQuery;
         class EntityDefinitionFileSpec;
         class Game;
+        class RemoveObjectsQuery;
     }
     
     namespace Controller {
@@ -112,16 +114,22 @@ namespace TrenchBroom {
             bool deselectAllAndSelectFaces(const Model::BrushFaceList& faces);
             bool deselectFace(Model::BrushFace* face);
             bool deselectAll();
-            
+
             bool addEntity(Model::Entity* entity);
             bool addBrush(Model::Brush* brush);
-            bool addEntities(const Model::EntityList& entities);
-            bool addBrushes(const Model::BrushList& brushes);
-            bool addObjects(const Model::ObjectParentList& objects);
-            bool addObjects(const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers);
+            bool addObjects(const Model::AddObjectsQuery& query);
+            
             bool removeObject(Model::Object* object);
             bool removeObjects(const Model::ObjectList& objects);
-            bool removeObjects(const Model::ObjectParentList& objects);
+            bool removeObjects(const Model::RemoveObjectsQuery& query);
+            
+            /*
+            bool addEntity(Model::Entity* entity, Model::Layer* layer);
+            bool addBrush(Model::Brush* brush, Model::Layer* layer);
+            bool addEntities(const Model::EntityList& entities, const Model::ObjectLayerMap& layers);
+            bool addBrushes(const Model::EntityBrushesMap& brushes, const Model::ObjectLayerMap& layers);
+            bool addObjects(const Model::EntityList& entities, const Model::EntityBrushesMap& brushes, const Model::ObjectLayerMap& layers);
+             */
 
             Model::BrushList duplicateBrushes(const Model::BrushList& brushes);
             Model::ObjectList duplicateObjects(const Model::ObjectList& objects);

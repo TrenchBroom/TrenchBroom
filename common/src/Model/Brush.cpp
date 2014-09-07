@@ -52,7 +52,6 @@ namespace TrenchBroom {
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
         
         Brush::Brush(const BBox3& worldBounds, BrushContentTypeBuilder::Ptr contentTypeBuilder, const BrushFaceList& faces) :
-        Object(Type_Brush),
         m_contentTypeBuilder(contentTypeBuilder),
         m_parent(NULL),
         m_geometry(NULL),
@@ -83,7 +82,10 @@ namespace TrenchBroom {
         }
         
         void Brush::setParent(Entity* parent) {
+            if (parent == m_parent)
+                return;
             m_parent = parent;
+            invalidateContentType();
         }
 
         void Brush::select() {
@@ -472,10 +474,22 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Brush::doVisit(ObjectVisitor& visitor) {
+        void Brush::doAccept(ObjectVisitor& visitor) {
             visitor.visit(this);
         }
 
+        void Brush::doAccept(ObjectQuery& query) const {
+            query.query(this);
+        }
+
+        void Brush::doAcceptRecursively(ObjectVisitor& visitor) {
+            visitor.visit(this);
+        }
+
+        void Brush::doAcceptRecursively(ObjectQuery& query) const {
+            query.query(this);
+        }
+        
         Object* Brush::doClone(const BBox3& worldBounds) const {
             BrushFaceList newFaces;
             newFaces.reserve(m_faces.size());

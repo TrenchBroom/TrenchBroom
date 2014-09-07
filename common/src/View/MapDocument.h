@@ -97,7 +97,7 @@ namespace TrenchBroom {
             
             Notifier1<const Model::ObjectList&> objectsWereAddedNotifier;
             Notifier1<const Model::ObjectList&> objectsWillBeRemovedNotifier;
-            Notifier1<const Model::ObjectParentList&> objectsWereRemovedNotifier;
+            Notifier1<const Model::ObjectList&> objectsWereRemovedNotifier;
             Notifier1<const Model::ObjectList&> objectsWillChangeNotifier;
             Notifier1<const Model::ObjectList&> objectsDidChangeNotifier;
             
@@ -175,10 +175,16 @@ namespace TrenchBroom {
             void moveExternalTextureCollectionDown(const String& name);
             void updateExternalTextureCollectionProperty();
 
-            void addObjects(const Model::ObjectParentList& objects);
-            void addObject(Model::Object* object, Model::Object* parent = NULL);
-            void removeObjects(const Model::ObjectList& objects);
-            void removeObject(Model::Object* object);
+            void addEntities(const Model::EntityList& entities, const Model::ObjectLayerMap& layers);
+            void addEntity(Model::Entity* entity, Model::Layer* layer);
+            void removeEntities(const Model::EntityList& entities);
+            void removeEntity(Model::Entity* entity);
+
+            void addBrushes(const Model::EntityBrushesMap& brushes, const Model::ObjectLayerMap& layers);
+            void addBrushes(Model::Entity* entity, const Model::BrushList& brushes, const Model::ObjectLayerMap& layers);
+            void addBrush(Model::Entity* entity, Model::Brush* brush, Model::Layer* layer);
+            void removeBrushes(const Model::BrushList& brushes);
+            void removeBrush(Model::Brush* brush);
 
             void addLayers(const Model::LayerList& layers);
             void removeLayers(const Model::LayerList& layers);
@@ -234,9 +240,54 @@ namespace TrenchBroom {
             
             void selectionDidChange(const Model::SelectionResult& selection);
             
+            class ObjectWasAdded : public Model::ObjectVisitor {
+            private:
+                MapDocument& m_document;
+            public:
+                ObjectWasAdded(MapDocument& document);
+                void doVisit(Model::Entity* entity);
+                void doVisit(Model::Brush* brush);
+            };
+            
+            class ObjectWillBeRemoved : public Model::ObjectVisitor {
+            private:
+                MapDocument& m_document;
+            public:
+                ObjectWillBeRemoved(MapDocument& document);
+                void doVisit(Model::Entity* entity);
+                void doVisit(Model::Brush* brush);
+            };
+
+            class ObjectWasRemoved : public Model::ObjectVisitor {
+            private:
+                MapDocument& m_document;
+            public:
+                ObjectWasRemoved(MapDocument& document);
+                void doVisit(Model::Entity* entity);
+                void doVisit(Model::Brush* brush);
+            };
+            
+            class ObjectWillChange : public Model::ObjectVisitor {
+            private:
+                MapDocument& m_document;
+            public:
+                ObjectWillChange(MapDocument& document);
+                void doVisit(Model::Entity* entity);
+                void doVisit(Model::Brush* brush);
+            };
+            
+            class ObjectDidChange : public Model::ObjectVisitor {
+            private:
+                MapDocument& m_document;
+            public:
+                ObjectDidChange(MapDocument& document);
+                void doVisit(Model::Entity* entity);
+                void doVisit(Model::Brush* brush);
+            };
+            
             void objectsWereAdded(const Model::ObjectList& objects);
             void objectsWillBeRemoved(const Model::ObjectList& objects);
-            void objectsWereRemoved(const Model::ObjectParentList& objects);
+            void objectsWereRemoved(const Model::ObjectList& objects);
             void objectsWillChange(const Model::ObjectList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
             void updateLinkSourcesInIssueManager(Model::Entity* entity);
@@ -250,11 +301,6 @@ namespace TrenchBroom {
             void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
             
-            void addEntity(Model::Entity* entity);
-            void addBrush(Model::Brush* brush, Model::Entity* entity);
-            void removeEntity(Model::Entity* entity);
-            void removeBrush(Model::Brush* brush, Model::Entity* entity);
-            
             void clearMap();
             
             void updateGameSearchPaths();
@@ -266,12 +312,19 @@ namespace TrenchBroom {
             void updateEntityDefinition(Model::Entity* entity);
             void updateEntityModels(const Model::EntityList& entities);
             void updateEntityModel(Model::Entity* entity);
+            void setEntityModel(Model::Entity* entity);
 
             void loadAndUpdateTextures();
             void loadTextures();
             void loadBuiltinTextures();
             void loadExternalTextures();
+            
             void updateTextures();
+            void setTextures(const Model::BrushFaceList& faces);
+            void setTexture(Model::BrushFace* face);
+            void unsetTextures(const Model::BrushFaceList& faces);
+            void unsetTexture(Model::BrushFace* face);
+            
             void doAddExternalTextureCollections(const StringList& names);
             IO::Path::List externalSearchPaths() const;
             

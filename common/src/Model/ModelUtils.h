@@ -49,6 +49,8 @@ namespace TrenchBroom {
         
         Brush* createBrushFromBounds(const Map& map, const BBox3& worldBounds, const BBox3& brushBounds, const String& textureName);
         
+        Object* getParent(const Model::Object* object);
+        
         BrushList mergeEntityBrushesMap(const EntityBrushesMap& map);
         ObjectParentList makeObjectParentList(const EntityBrushesMap& map);
         ObjectParentList makeObjectParentList(const ObjectList& list);
@@ -68,16 +70,50 @@ namespace TrenchBroom {
         ObjectList makeObjectList(const BrushList& list);
         ObjectList makeObjectList(const ObjectParentList& list);
 
+        void appendToObjectParentList(ObjectParentList& list, Object* parent, const ObjectList& children);
+        
         ObjectChildrenMap makeObjectChildrenMap(const ObjectList& list);
         ObjectChildrenMap makeObjectChildrenMap(const ObjectParentList& list);
 
         void filterEntityList(const EntityList& entities, EntityList& pointEntities, EntityList& brushEntities, EntityList& untypedEntities);
         void filterEntityList(const EntityList& entities, EntityList& emptyEntities, EntityList& brushEntities);
 
+        template <typename I1, typename I2>
+        struct FilterObjects : public ObjectVisitor {
+            I1 entityInserter;
+            I2 brushInserter;
+            
+            FilterObjects(I1 i_entityInserter, I2 i_brushInserter) :
+            entityInserter(i_entityInserter),
+            brushInserter(i_brushInserter) {}
+            
+            void doVisit(Entity* entity) {
+                entityInserter = entity;
+            }
+            
+            void doVisit(Brush* brush) {
+                brushInserter = brush;
+            }
+        };
+
+        void filterObjectList(const Model::ObjectList& objects, EntityList& entities, BrushList& brushes);
         EntityList makeEntityList(const ObjectList& objects);
-        BrushList makeBrushList(const EntityList& entities);
         BrushList makeBrushList(const ObjectList& objects);
+        BrushList makeBrushList(const EntityList& entities);
         
+        template <typename I>
+        void filterObjects(I cur, const I end, EntityList& entities, BrushList& brushes) {
+            filterObjects(cur, end,
+                          std::back_inserter(entities),
+                          std::back_inserter(brushes));
+        }
+
+        template <typename I, typename O1, typename O2>
+        void filterObjects(I cur, const I end, O1 entityInserter, O2 brushInserter) {
+            FilterObjects<O1,O2> visitor(entityInserter, brushInserter);
+            Object::accept(cur, end, visitor);
+        }
+
         struct MatchAll {
             bool operator()(const ObjectParentPair& pair) const;
             bool operator()(const Object* object) const;
@@ -101,14 +137,6 @@ namespace TrenchBroom {
             bool operator()(const BrushFace* face) const;
             bool operator()(const BrushEdge* edge) const;
             bool operator()(const BrushVertex* vertex) const;
-        };
-        
-        struct MatchObjectByType {
-        private:
-            Object::Type m_type;
-        public:
-            MatchObjectByType(const Object::Type type);
-            bool operator()(const Object* object) const;
         };
         
         struct MatchObjectByFilePosition {
@@ -136,24 +164,6 @@ namespace TrenchBroom {
         public:
             CheckBounds(const BBox3& bounds);
             bool operator()(const Pickable* object) const;
-        };
-        
-        struct NotifyParent {
-        private:
-            Notifier1<Object*>& m_notifier;
-            ObjectSet m_notified;
-        public:
-            NotifyParent(Notifier1<Object*>& notifier);
-            void operator()(const ObjectParentPair& pair);
-            void operator()(Object* object);
-        };
-        
-        struct NotifyObject {
-        private:
-            Notifier1<Object*>& m_notifier;
-        public:
-            NotifyObject(Notifier1<Object*>& notifier);
-            void operator()(Object* object);
         };
 
         template <typename Iter, class Operator, class Filter>
@@ -211,26 +221,6 @@ namespace TrenchBroom {
                 ++cur;
             }
             return end;
-        }
-        
-        template <typename Iter>
-        CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& cur, const Iter& end) {
-            return MakeCastIterator<Entity*>::castIterator(filterIterator(cur, end, MatchObjectByType(Object::Type_Entity)));
-        }
-
-        template <typename Iter>
-        CastIterator<FilterIterator<Iter, MatchObjectByType>, Entity*> entityIterator(const Iter& end) {
-            return MakeCastIterator<Entity*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::Type_Entity)));
-        }
-
-        template <typename Iter>
-        CastIterator<FilterIterator<Iter, MatchObjectByType>, Brush*> brushIterator(const Iter& cur, const Iter& end) {
-            return MakeCastIterator<Brush*>::castIterator(filterIterator(cur, end, MatchObjectByType(Object::Type_Brush)));
-        }
-        
-        template <typename Iter>
-        CastIterator<FilterIterator<Iter, MatchObjectByType>, Brush*> brushIterator(const Iter& end) {
-            return MakeCastIterator<Brush*>::castIterator(filterIterator(end, end, MatchObjectByType(Object::Type_Brush)));
         }
     }
 }

@@ -144,12 +144,17 @@ namespace TrenchBroom {
         }
 
         void Map::addEntity(Entity* entity) {
+            assert(entity != NULL);
+            assert(entity->map() == NULL);
+
             addEntityPropertiesToIndex(entity);
             m_entities.push_back(entity);
             entity->setMap(this);
         }
 
         void Map::removeEntity(Entity* entity) {
+            assert(entity != NULL);
+            assert(entity->map() == this);
             VectorUtils::erase(m_entities, entity);
             entity->setMap(NULL);
             removeEntityPropertiesFromIndex(entity);

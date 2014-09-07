@@ -95,32 +95,53 @@ namespace TrenchBroom {
             filterDidChangeNotifier();
         }
         
+        struct ObjectVisible : public ObjectQuery {
+            const ModelFilter& filter;
+            bool result;
+            
+            ObjectVisible(const ModelFilter& i_filter) :
+            filter(i_filter),
+            result(false) {}
+            
+            void doQuery(const Entity* entity) {
+                result = entityVisible(entity);
+            }
+            
+            void doQuery(const Brush* brush) {
+                result = brushVisible(brush);
+            }
+            
+            bool entityVisible(const Entity* entity) const {
+                if (entity->worldspawn())
+                    return false;
+                if (entity->pointEntity() && !filter.showPointEntities())
+                    return false;
+                if (filter.entityDefinitionHidden(entity->definition()))
+                    return false;
+                return true;
+            }
+            
+            bool brushVisible(const Brush* brush) const {
+                if (!filter.showBrushes())
+                    return false;
+                if (brush->hasContentType(filter.hiddenBrushContentTypes()))
+                    return false;
+                const Entity* entity = brush->parent();
+                if (filter.entityDefinitionHidden(entity->definition()))
+                    return false;
+                return true;
+            }
+        };
+        
         bool ModelFilter::visible(const Object* object) const {
             if (object->selected())
                 return true;
-            
             if (!object->layer()->visible())
                 return false;
-            
-            if (object->type() == Object::Type_Entity) {
-                const Entity* entity = static_cast<const Entity*>(object);
-                if (entity->worldspawn())
-                    return false;
-                if (entity->pointEntity() && !m_showPointEntities)
-                    return false;
-                if (entityDefinitionHidden(entity->definition()))
-                    return false;
-            } else if (object->type() == Object::Type_Brush) {
-                if (!m_showBrushes)
-                    return false;
-                const Brush* brush = static_cast<const Brush*>(object);
-                if (brush->hasContentType(m_hiddenBrushContentTypes))
-                    return false;
-                const Entity* entity = brush->parent();
-                if (entityDefinitionHidden(entity->definition()))
-                    return false;
-            }
-            return true;
+
+            ObjectVisible objectVisible(*this);
+            object->accept(objectVisible);
+            return objectVisible.result;
         }
         
         bool ModelFilter::visible(const BrushFace* face) const {
@@ -131,16 +152,39 @@ namespace TrenchBroom {
             return object->layer()->locked();
         }
 
+        struct ObjectPickable : public ObjectQuery {
+            const ModelFilter& filter;
+            bool result;
+            
+            ObjectPickable(const ModelFilter& i_filter) :
+            filter(i_filter),
+            result(false) {}
+            
+            void doQuery(const Entity* entity) {
+                result = entityPickable(entity);
+            }
+            
+            void doQuery(const Brush* brush) {
+                result = brushPickable(brush);
+            }
+
+            bool entityPickable(const Entity* entity) const {
+                if (!entity->brushes().empty())
+                    return false;
+                return true;
+            }
+            
+            bool brushPickable(const Brush* brush) const {
+                return true;
+            }
+        };
         bool ModelFilter::pickable(const Object* object) const {
             if (!visible(object))
                 return false;
             
-            if (object->type() == Object::Type_Entity) {
-                const Entity* entity = static_cast<const Entity*>(object);
-                if (!entity->brushes().empty())
-                    return false;
-            }
-            return true;
+            ObjectPickable objectPickable(*this);
+            object->accept(objectPickable);
+            return objectPickable.result;
         }
         
         bool ModelFilter::pickable(const BrushFace* face) const {

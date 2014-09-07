@@ -59,8 +59,8 @@ namespace TrenchBroom {
             m_emptyEntities.clear();
             
             Model::ObjectList allChangedParents = Model::makeParentList(m_brushes);
-            allChangedParents.push_back(m_newParent);
-            VectorUtils::sortAndRemoveDuplicates(allChangedParents);
+            if (!VectorUtils::contains(allChangedParents, m_newParent))
+                allChangedParents.push_back(m_newParent);
             
             const Model::ObjectList allChangedBrushes = Model::makeObjectList(m_brushes);
             
@@ -74,11 +74,11 @@ namespace TrenchBroom {
                 Model::Entity* oldParent = brush->parent();
                 m_oldParents[brush] = oldParent;
                 m_oldLayers[brush] = brush->layer();
-                
+
+                Model::Layer* newLayer = m_newParent->worldspawn() ? brush->layer() : m_newParent->layer();
+                brush->setLayer(NULL);
                 oldParent->removeBrush(brush);
                 m_newParent->addBrush(brush);
-                
-                Model::Layer* newLayer = m_newParent->worldspawn() ? brush->layer() : m_newParent->layer();
                 brush->setLayer(newLayer);
                 
                 if (oldParent->brushes().empty() && !oldParent->worldspawn())

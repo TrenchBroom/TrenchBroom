@@ -122,6 +122,24 @@ namespace TrenchBroom {
             return map.createBrush(worldBounds, faces);
         }
 
+        struct GetParent : public ObjectQuery {
+            Object* parent;
+            GetParent() :
+            parent(NULL) {}
+            
+            void doQuery(const Entity* entity) {}
+            void doQuery(const Brush* brush) {
+                parent = brush->parent();
+            }
+        };
+        
+        Object* getParent(const Model::Object* object) {
+            GetParent get;
+            object->accept(get);
+            return get.parent;
+        }
+        
+
         BrushList mergeEntityBrushesMap(const EntityBrushesMap& map) {
             BrushList result;
             EntityBrushesMap::const_iterator it, end;
@@ -224,12 +242,9 @@ namespace TrenchBroom {
             ObjectList::const_iterator it, end;
             for (it = list.begin(), end = list.end(); it != end; ++it) {
                 Object* object = *it;
-                if (object->type() == Object::Type_Brush) {
-                    Brush* brush = static_cast<Brush*>(object);
-                    Entity* entity = brush->parent();
-                    if (entity != NULL && set.insert(entity).second)
-                        result.push_back(entity);
-                }
+                Object* parent = getParent(object);
+                if (parent != NULL)
+                    result.push_back(parent);
             }
             return result;
         }
@@ -241,9 +256,10 @@ namespace TrenchBroom {
             
             BrushList::const_iterator it, end;
             for (it = list.begin(), end = list.end(); it != end; ++it) {
-                const ObjectParentPair& pair = *it;
-                if (pair.parent != NULL && set.insert(pair.parent).second)
-                    result.push_back(pair.parent);
+                Model::Brush* brush = *it;
+                Model::Entity* parent = brush->parent();
+                if (set.insert(parent).second)
+                    result.push_back(parent);
             }
             return result;
         }
@@ -308,19 +324,22 @@ namespace TrenchBroom {
             return result;
         }
 
+        void appendToObjectParentList(ObjectParentList& list, Object* parent, const ObjectList& children) {
+            ObjectList::const_iterator cIt, cEnd;
+            for (cIt = children.begin(), cEnd = children.end(); cIt != cEnd; ++cIt) {
+                Object* child = *cIt;
+                list.push_back(ObjectParentPair(child, parent));
+            }
+        }
+
         ObjectChildrenMap makeObjectChildrenMap(const ObjectList& list) {
             ObjectChildrenMap map;
             
             ObjectList::const_iterator it, end;
             for (it = list.begin(), end = list.end(); it != end; ++it) {
                 Object* object = *it;
-                if (object->type() == Object::Type_Entity) {
-                    map[NULL].push_back(object);
-                } else if (object->type() == Object::Type_Brush) {
-                    Brush* brush = static_cast<Brush*>(object);
-                    Entity* entity = brush->parent();
-                    map[entity].push_back(brush);
-                }
+                Object* parent = getParent(object);
+                map[parent].push_back(object);
             }
             return map;
         }
@@ -363,17 +382,26 @@ namespace TrenchBroom {
             }
         }
 
+        void filterObjectList(const Model::ObjectList& objects, EntityList& entities, BrushList& brushes) {
+            filterObjects(objects.begin(), objects.end(), entities, brushes);
+        }
+
+        template <typename C>
+        struct NopOutputIterator {
+        public:
+            NopOutputIterator<C>& operator=(const typename C::value_type& value) { return *this; }
+        };
+        
         EntityList makeEntityList(const ObjectList& objects) {
-            EntityList result;
-            ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Object* object = *it;
-                if (object->type() == Object::Type_Entity) {
-                    Entity* entity = static_cast<Entity*>(object);
-                    result.push_back(entity);
-                }
-            }
-            return result;
+            EntityList entities;
+            filterObjects(objects.begin(), objects.end(), std::back_inserter(entities), NopOutputIterator<BrushList>());
+            return entities;
+        }
+        
+        BrushList makeBrushList(const ObjectList& objects) {
+            BrushList brushes;
+            filterObjects(objects.begin(), objects.end(), NopOutputIterator<EntityList>(), std::back_inserter(brushes));
+            return brushes;
         }
 
         BrushList makeBrushList(const EntityList& entities) {
@@ -383,19 +411,6 @@ namespace TrenchBroom {
                 const Entity* entity = *it;
                 const BrushList& brushes = entity->brushes();
                 VectorUtils::append(result, brushes);
-            }
-            return result;
-        }
-
-        BrushList makeBrushList(const ObjectList& objects) {
-            BrushList result;
-            ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Object* object = *it;
-                if (object->type() == Object::Type_Brush) {
-                    Brush* brush = static_cast<Brush*>(object);
-                    result.push_back(brush);
-                }
             }
             return result;
         }
@@ -459,13 +474,6 @@ namespace TrenchBroom {
             return true;
         }
 
-        MatchObjectByType::MatchObjectByType(const Object::Type type) :
-        m_type(type) {}
-        
-        bool MatchObjectByType::operator()(const Object* object) const {
-            return object->type() == m_type;
-        }
-
         MatchObjectByFilePosition::MatchObjectByFilePosition(const size_t position) :
         m_position(position) {}
         
@@ -491,29 +499,6 @@ namespace TrenchBroom {
         
         bool CheckBounds::operator()(const Pickable* object) const {
             return m_bounds.contains(object->bounds());
-        }
-
-        NotifyParent::NotifyParent(Notifier1<Object*>& notifier) :
-        m_notifier(notifier) {}
-        
-        void NotifyParent::operator()(const ObjectParentPair& pair) {
-            if (pair.parent != NULL && m_notified.insert(pair.parent).second)
-                m_notifier(pair.parent);
-        }
-
-        void NotifyParent::operator()(Object* object) {
-            if (object->type() == Object::Type_Brush) {
-                Object* parent = static_cast<Brush*>(object)->parent();
-                if (parent != NULL && m_notified.insert(parent).second)
-                    m_notifier(parent);
-            }
-        }
-
-        NotifyObject::NotifyObject(Notifier1<Object*>& notifier) :
-        m_notifier(notifier) {}
-        
-        void NotifyObject::operator()(Object* object) {
-            m_notifier(object);
         }
     }
 }

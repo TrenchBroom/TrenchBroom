@@ -24,10 +24,11 @@
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 #include "Model/Object.h"
+#include "Model/ObjectSection.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer {
+        class Layer : public ObjectSection {
         public:
             typedef int Attr_Type;
             static const Attr_Type Attr_Name        = 1 << 0;
@@ -59,19 +60,15 @@ namespace TrenchBroom {
             
             bool locked() const;
             void setLocked(bool locked);
-            
-            const ObjectList& objects() const;
-            const EntityList& entities() const;
-            BrushList entityBrushes() const;
-            const BrushList& worldBrushes() const;
         private:
-            friend class Brush;
-            friend class Entity;
-            
-            void addEntity(Entity* entity);
-            void addBrush(Brush* brush);
-            void removeEntity(Entity* entity);
-            void removeBrush(Brush* brush);
+            void entityWillBeAdded(Entity* entity);
+            void entityWasAdded(Entity* entity);
+            void entityWillBeRemoved(Entity* entity);
+            void entityWasRemoved(Entity* entity);
+            void brushWillBeAdded(Brush* brush);
+            void brushWasAdded(Brush* brush);
+            void brushWillBeRemoved(Brush* brush);
+            void brushWasRemoved(Brush* brush);
         };
     }
 }

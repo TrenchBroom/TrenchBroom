@@ -144,7 +144,12 @@ namespace TrenchBroom {
             bool doIntersects(const Object& object) const;
             bool doIntersects(const Entity& entity) const;
             bool doIntersects(const Brush& brush) const;
-            void doVisit(ObjectVisitor& visitor);
+            
+            void doAccept(ObjectVisitor& visitor);
+            void doAccept(ObjectQuery& query) const;
+            void doAcceptRecursively(ObjectVisitor& visitor);
+            void doAcceptRecursively(ObjectQuery& visitor) const;
+
             Object* doClone(const BBox3& worldBounds) const;
         private:
             bool containsPoint(const Vec3& point) const;

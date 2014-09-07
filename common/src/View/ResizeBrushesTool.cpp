@@ -23,6 +23,7 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Model/AddObjectsQuery.h"
 #include "Model/Brush.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushEdgesIterator.h"
@@ -308,8 +309,7 @@ namespace TrenchBroom {
                     return false;
             }
 
-            Model::ObjectParentList newObjects;
-            Model::ObjectLayerMap newLayers;
+            Model::AddObjectsQuery query;
             Model::BrushFaceList newDragFaces;
             
             for (fIt = m_dragFaces.begin(), m_dragFaces.end(); fIt != fEnd; ++fIt) {
@@ -327,14 +327,13 @@ namespace TrenchBroom {
                 assert(clipResult);
                 _UNUSED(clipResult);
                 
-                newObjects.push_back(Model::ObjectParentPair(newBrush, brush->parent()));
-                newLayers[newBrush] = newLayer;
+                query.addBrush(newBrush, brush->parent(), newLayer);
                 newDragFaces.push_back(newDragFace);
             }
             
             controller()->deselectAll();
-            controller()->addObjects(newObjects, newLayers);
-            controller()->selectObjects(Model::makeObjectList(newObjects));
+            controller()->addObjects(query);
+            controller()->selectObjects(query.objects());
             
             m_dragFaces = newDragFaces;
             

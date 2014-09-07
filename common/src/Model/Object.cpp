@@ -36,14 +36,17 @@ namespace TrenchBroom {
             doVisit(brush);
         }
         
-        void ObjectVisitor::doVisit(Entity* entity) {}
-        void ObjectVisitor::doVisit(Brush* brush) {}
+        ObjectQuery::~ObjectQuery() {}
+        
+        void ObjectQuery::query(const Entity* entity) {
+            return doQuery(entity);
+        }
+        
+        void ObjectQuery::query(const Brush* brush) {
+            return doQuery(brush);
+        }
 
         Object::~Object() {}
-
-        Object::Type Object::type() const {
-            return m_type;
-        }
 
         size_t Object::filePosition() const {
             return m_lineNumber;
@@ -166,12 +169,23 @@ namespace TrenchBroom {
             return doIntersects(brush);
         }
         
-        void Object::visit(ObjectVisitor& visitor) {
-            doVisit(visitor);
+        void Object::accept(ObjectVisitor& visitor) {
+            doAccept(visitor);
         }
 
-        Object::Object(const Type type) :
-        m_type(type),
+        void Object::accept(ObjectQuery& query) const {
+            return doAccept(query);
+        }
+
+        void Object::acceptRecursively(ObjectVisitor& visitor) {
+            doAcceptRecursively(visitor);
+        }
+
+        void Object::acceptRecursively(ObjectQuery& visitor) const {
+            doAcceptRecursively(visitor);
+        }
+        
+        Object::Object() :
         m_lineNumber(0),
         m_lineCount(0),
         m_selected(false),

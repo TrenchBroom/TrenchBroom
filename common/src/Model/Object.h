@@ -37,18 +37,22 @@ namespace TrenchBroom {
             void visit(Entity* entity);
             void visit(Brush* brush);
         private:
-            virtual void doVisit(Entity* entity);
-            virtual void doVisit(Brush* entity);
+            virtual void doVisit(Entity* entity) = 0;
+            virtual void doVisit(Brush* brush) = 0;
+        };
+        
+        class ObjectQuery {
+        public:
+            virtual ~ObjectQuery();
+            void query(const Entity* entity);
+            void query(const Brush* brush);
+        private:
+            virtual void doQuery(const Entity* entity) = 0;
+            virtual void doQuery(const Brush* brush) = 0;
         };
         
         class Object : public Pickable {
-        public:
-            typedef enum {
-                Type_Entity,
-                Type_Brush
-            } Type;
         private:
-            Type m_type;
             size_t m_lineNumber;
             size_t m_lineCount;
             bool m_selected;
@@ -75,8 +79,7 @@ namespace TrenchBroom {
                     bounds.mergeWith((*it)->bounds());
                 return bounds;
             }
-            
-            Type type() const;
+        public:
             size_t filePosition() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
             bool containsLine(size_t line) const;
@@ -107,9 +110,31 @@ namespace TrenchBroom {
             bool intersects(const Object& object) const;
             bool intersects(const Entity& entity) const;
             bool intersects(const Brush& brush) const;
-            void visit(ObjectVisitor& visitor);
+            
+            template <typename I, typename V>
+            static void accept(I cur, I end, V& visitor) {
+                while (cur != end) {
+                    Object* object = *cur;
+                    object->accept(visitor);
+                    ++cur;
+                }
+            }
+            
+            template <typename I, typename V>
+            static void acceptRecursively(I cur, I end, V& visitor) {
+                while (cur != end) {
+                    Object* object = *cur;
+                    object->acceptRecursively(visitor);
+                    ++cur;
+                }
+            }
+
+            void accept(ObjectVisitor& visitor);
+            void accept(ObjectQuery& query) const;
+            void acceptRecursively(ObjectVisitor& visitor);
+            void acceptRecursively(ObjectQuery& visitor) const;
         protected:
-            Object(const Type type);
+            Object();
             virtual Object* doClone(const BBox3& worldBounds) const = 0;
 
             void incChildSelectionCount();
@@ -128,7 +153,11 @@ namespace TrenchBroom {
             virtual bool doIntersects(const Object& object) const = 0;
             virtual bool doIntersects(const Entity& entity) const = 0;
             virtual bool doIntersects(const Brush& brush) const = 0;
-            virtual void doVisit(ObjectVisitor& visitor) = 0;
+            
+            virtual void doAccept(ObjectVisitor& visitor) = 0;
+            virtual void doAccept(ObjectQuery& query) const = 0;
+            virtual void doAcceptRecursively(ObjectVisitor& visitor) = 0;
+            virtual void doAcceptRecursively(ObjectQuery& visitor) const = 0;
         };
     }
 }

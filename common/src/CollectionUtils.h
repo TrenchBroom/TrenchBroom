@@ -427,10 +427,10 @@ namespace VectorUtils {
         setCreate<T, std::less<T> >(vec);
     }
 
-    template <typename T, typename Compare>
-    bool setInsert(std::vector<T>& vec, const T& object) {
+    template <typename T1, typename T2, typename Compare>
+    bool setInsert(std::vector<T1>& vec, const T2& object) {
         Compare cmp;
-        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, cmp);
+        typename std::vector<T1>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, cmp);
         if (it == vec.end()) {
             vec.push_back(object);
             return true;
@@ -458,10 +458,10 @@ namespace VectorUtils {
         }
     }
     
-    template <typename T, typename Compare>
-    bool setRemove(std::vector<T>& vec, const T& object) {
+    template <typename T1, typename T2, typename Compare>
+    bool setRemove(std::vector<T1>& vec, const T2& object) {
         Compare cmp;
-        typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, cmp);
+        typename std::vector<T1>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, cmp);
         if (it != vec.end() && !cmp(*it, object) && !cmp(object, *it)) {
             vec.erase(it);
             return true;
@@ -480,9 +480,9 @@ namespace VectorUtils {
         }
     }
 
-    template <typename T>
-    bool setInsert(std::vector<T>& vec, const T& object) {
-        return setInsert<T, std::less<T> >(vec, object);
+    template <typename T1, typename T2>
+    bool setInsert(std::vector<T1>& vec, const T2& object) {
+        return setInsert<T1, T2, std::less<T1> >(vec, object);
     }
     
     template <typename T, typename I>
@@ -490,9 +490,9 @@ namespace VectorUtils {
         setInsert<T, I, std::less<T> >(vec, cur, end);
     }
     
-    template <typename T>
-    bool setRemove(std::vector<T>& vec, const T& object) {
-        return setRemove<T, std::less<T> >(vec, object);
+    template <typename T1, typename T2>
+    bool setRemove(std::vector<T1>& vec, const T2& object) {
+        return setRemove<T1, T2, std::less<T1> >(vec, object);
     }
 
     template <typename T, typename I>
@@ -686,6 +686,15 @@ namespace MapUtils {
             VectorUtils::clearAndDelete(entry.second);
         }
     };
+    
+    template <typename K, typename V, typename L>
+    const V& find(const std::map<K, V>& map, const L& key, const V& defaultValue) {
+        typedef std::map<K, V> Map;
+        typename Map::const_iterator it = map.find(key);
+        if (it == map.end())
+            return defaultValue;
+        return it->second;
+    }
     
     template <typename K, typename V, typename W>
     typename std::map<K, V>::iterator findOrInsert(std::map<K, V>& map, const K& key, const W& value) {

@@ -36,37 +36,41 @@ namespace TrenchBroom {
     namespace IO {
         MapWriter::~MapWriter() {}
         
-        void MapWriter::writeObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) {
-            assert(stream.good());
-            stream.unsetf(std::ios::floatfield);
-            
-            Model::Entity* worldspawn = NULL;
-            
+        struct CategorizeObjects : public Model::ObjectVisitor {
+            Model::Entity* worldspawn;
             Model::EntityList pointEntities;
             Model::EntityBrushesMap brushEntities;
             
-            Model::ObjectList::const_iterator oIt, oEnd;
-            for (oIt = objects.begin(), oEnd = objects.end(); oIt != oEnd; ++oIt) {
-                Model::Object* object = *oIt;
-                if (object->type() == Model::Object::Type_Entity) {
-                    pointEntities.push_back(static_cast<Model::Entity*>(object));
-                } else if (object->type() == Model::Object::Type_Brush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    Model::Entity* entity = brush->parent();
-                    brushEntities[entity].push_back(brush);
-                    if (entity->worldspawn())
-                        worldspawn = entity;
-                }
+            CategorizeObjects() :
+            worldspawn(NULL) {}
+            
+            void doVisit(Model::Entity* entity) {
+                pointEntities.push_back(entity);
             }
+            
+            void doVisit(Model::Brush* brush) {
+                Model::Entity* entity = brush->parent();
+                brushEntities[entity].push_back(brush);
+                if (entity->worldspawn())
+                    worldspawn = entity;
+            }
+        };
+        
+        void MapWriter::writeObjectsToStream(const Model::ObjectList& objects, std::ostream& stream) {
+            assert(stream.good());
+            stream.unsetf(std::ios::floatfield);
+
+            CategorizeObjects toWrite;
+            Model::Object::accept(objects.begin(), objects.end(), toWrite);
             
             // write worldspawn first
             Model::BrushList::const_iterator bIt, bEnd;
-            if (worldspawn != NULL)
-                writeEntity(worldspawn, brushEntities[worldspawn], stream);
+            if (toWrite.worldspawn != NULL)
+                writeEntity(toWrite.worldspawn, toWrite.brushEntities[toWrite.worldspawn], stream);
             
             // write point entities
             Model::EntityList::const_iterator eIt, eEnd;
-            for (eIt = pointEntities.begin(), eEnd = pointEntities.end(); eIt != eEnd; ++eIt) {
+            for (eIt = toWrite.pointEntities.begin(), eEnd = toWrite.pointEntities.end(); eIt != eEnd; ++eIt) {
                 Model::Entity* entity = *eIt;
                 const Model::BrushList& brushes = entity->brushes(); // should be empty, but you never know
                 writeEntity(entity, brushes, stream);
@@ -74,9 +78,9 @@ namespace TrenchBroom {
             
             // write brush entities except for worldspawn
             Model::EntityBrushesMap::const_iterator ebIt, ebEnd;
-            for (ebIt = brushEntities.begin(), ebEnd = brushEntities.end(); ebIt != ebEnd; ++ebIt) {
+            for (ebIt = toWrite.brushEntities.begin(), ebEnd = toWrite.brushEntities.end(); ebIt != ebEnd; ++ebIt) {
                 Model::Entity* entity = ebIt->first;
-                if (entity != worldspawn) {
+                if (entity != toWrite.worldspawn) {
                     const Model::BrushList& brushes = ebIt->second;
                     writeEntity(entity, brushes, stream);
                 }

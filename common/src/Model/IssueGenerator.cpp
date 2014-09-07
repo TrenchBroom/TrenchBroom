@@ -49,7 +49,7 @@ namespace TrenchBroom {
         
         void IssueGenerator::generate(Object* object, IssueList& issues) const {
             Visitor visitor(*this, issues);
-            object->visit(visitor);
+            object->accept(visitor);
         }
 
         void IssueGenerator::generate(Entity* entity, IssueList& issues) const {}

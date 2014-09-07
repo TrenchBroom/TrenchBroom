@@ -73,7 +73,7 @@ namespace TrenchBroom {
             m_result(result) {}
             
             void operator()(Object* object) {
-                object->visit(*this);
+                object->accept(*this);
             }
 
             void doVisit(Entity* entity) {
@@ -407,6 +407,60 @@ namespace TrenchBroom {
                  MatchSelected());
         }
 
+        Selection::ApplySelectedObjects::ApplySelectedObjects(Selection& i_selection) :
+        selection(i_selection) {}
+        
+        void Selection::ApplySelectedObjects::doVisit(Entity* entity) {
+            VectorUtils::setInsert(selection.m_selectedObjects, entity);
+            VectorUtils::setInsert(selection.m_selectedEntities, entity);
+        }
+        
+        void Selection::ApplySelectedObjects::doVisit(Brush* brush) {
+            VectorUtils::setInsert(selection.m_selectedObjects, brush);
+            VectorUtils::setInsert(selection.m_selectedBrushes, brush);
+
+            const BrushFaceList& faces = brush->faces();
+            VectorUtils::setInsert(selection.m_selectedBrushFaces, faces.begin(), faces.end());
+        }
+
+        Selection::ApplyDeselectedObjects::ApplyDeselectedObjects(Selection& i_selection) :
+        selection(i_selection) {}
+        
+        void Selection::ApplyDeselectedObjects::doVisit(Entity* entity) {
+            VectorUtils::setRemove(selection.m_selectedObjects, entity);
+            VectorUtils::setRemove(selection.m_selectedEntities, entity);
+        }
+        
+        void Selection::ApplyDeselectedObjects::doVisit(Brush* brush) {
+            VectorUtils::setRemove(selection.m_selectedObjects, brush);
+            VectorUtils::setRemove(selection.m_selectedBrushes, brush);
+            
+            const BrushFaceList& faces = brush->faces();
+            VectorUtils::setRemove(selection.m_selectedBrushFaces, faces.begin(), faces.end());
+        }
+        
+        Selection::ApplyPartiallySelectedObjects::ApplyPartiallySelectedObjects(Selection& i_selection) :
+        selection(i_selection) {}
+        
+        void Selection::ApplyPartiallySelectedObjects::doVisit(Entity* entity) {
+            VectorUtils::setInsert(selection.m_partiallySelectedEntities, entity);
+        }
+        
+        void Selection::ApplyPartiallySelectedObjects::doVisit(Brush* brush) {
+            VectorUtils::setInsert(selection.m_partiallySelectedBrushes, brush);
+        }
+        
+        Selection::ApplyPartiallyDeselectedObjects::ApplyPartiallyDeselectedObjects(Selection& i_selection) :
+        selection(i_selection) {}
+        
+        void Selection::ApplyPartiallyDeselectedObjects::doVisit(Entity* entity) {
+            VectorUtils::setRemove(selection.m_partiallySelectedEntities, entity);
+        }
+        
+        void Selection::ApplyPartiallyDeselectedObjects::doVisit(Brush* brush) {
+            VectorUtils::setRemove(selection.m_partiallySelectedBrushes, brush);
+        }
+        
         void Selection::applyResult(const SelectionResult& result) {
             applySelectedObjects(result.selectedObjects());
             applyDeselectedObjects(result.deselectedObjects());
@@ -417,69 +471,23 @@ namespace TrenchBroom {
         }
 
         void Selection::applySelectedObjects(const ObjectSet& objects) {
-            ObjectSet::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Object* object = *it;
-                VectorUtils::setInsert(m_selectedObjects, object);
-                
-                if (object->type() == Object::Type_Entity) {
-                    Entity* entity = static_cast<Entity*>(object);
-                    VectorUtils::setInsert(m_selectedEntities, entity);
-                } else {
-                    Brush* brush = static_cast<Brush*>(object);
-                    VectorUtils::setInsert(m_selectedBrushes, brush);
-                    
-                    const BrushFaceList& brushFaces = brush->faces();
-                    VectorUtils::setInsert(m_selectedBrushFaces, brushFaces.begin(), brushFaces.end());
-                }
-            }
+            ApplySelectedObjects apply(*this);
+            Object::accept(objects.begin(), objects.end(), apply);
         }
         
         void Selection::applyDeselectedObjects(const ObjectSet& objects) {
-            ObjectSet::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Object* object = *it;
-                VectorUtils::setRemove(m_selectedObjects, object);
-                
-                if (object->type() == Object::Type_Entity) {
-                    Entity* entity = static_cast<Entity*>(object);
-                    VectorUtils::setRemove(m_selectedEntities, entity);
-                } else {
-                    Brush* brush = static_cast<Brush*>(object);
-                    VectorUtils::setRemove(m_selectedBrushes, brush);
-                    
-                    const BrushFaceList& brushFaces = brush->faces();
-                    VectorUtils::setRemove(m_selectedBrushFaces, brushFaces.begin(), brushFaces.end());
-                }
-            }
+            ApplyDeselectedObjects apply(*this);
+            Object::accept(objects.begin(), objects.end(), apply);
         }
         
         void Selection::applyPartiallySelectedObjects(const ObjectSet& objects) {
-            ObjectSet::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Object* object = *it;
-                if (object->type() == Object::Type_Entity) {
-                    Entity* entity = static_cast<Entity*>(object);
-                    VectorUtils::setInsert(m_partiallySelectedEntities, entity);
-                } else {
-                    Brush* brush = static_cast<Brush*>(object);
-                    VectorUtils::setInsert(m_partiallySelectedBrushes, brush);
-                }
-            }
+            ApplyPartiallySelectedObjects apply(*this);
+            Object::accept(objects.begin(), objects.end(), apply);
         }
         
         void Selection::applyPartiallyDeselectedObjects(const ObjectSet& objects) {
-            ObjectSet::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Object* object = *it;
-                if (object->type() == Object::Type_Entity) {
-                    Entity* entity = static_cast<Entity*>(object);
-                    VectorUtils::setRemove(m_partiallySelectedEntities, entity);
-                } else {
-                    Brush* brush = static_cast<Brush*>(object);
-                    VectorUtils::setRemove(m_partiallySelectedBrushes, brush);
-                }
-            }
+            ApplyPartiallyDeselectedObjects apply(*this);
+            Object::accept(objects.begin(), objects.end(), apply);
         }
 
         void Selection::applySelectedFaces(const BrushFaceSet& faces) {

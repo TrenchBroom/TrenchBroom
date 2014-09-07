@@ -22,7 +22,9 @@
 
 #include "SharedPointer.h"
 #include "Controller/DocumentCommand.h"
+#include "Model/AddObjectsQuery.h"
 #include "Model/ModelTypes.h"
+#include "Model/RemoveObjectsQuery.h"
 #include "View/ViewTypes.h"
 
 #include <map>
@@ -39,21 +41,18 @@ namespace TrenchBroom {
                 Action_Remove
             } Action;
             
-            Model::ObjectLayerMap m_newLayers;
-            Model::ObjectLayerMap m_oldLayers;
-            
             Action m_action;
-            Model::ObjectParentList m_objectsToAdd;
-            Model::ObjectParentList m_objectsToRemove;
+            Model::AddObjectsQuery m_addQuery;
+            Model::RemoveObjectsQuery m_removeQuery;
         public:
             ~AddRemoveObjectsCommand();
             
-            static AddRemoveObjectsCommand::Ptr addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects, Model::Layer* layer);
-            static AddRemoveObjectsCommand::Ptr addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers);
-            static AddRemoveObjectsCommand::Ptr removeObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects);
+            static Ptr addObjects(View::MapDocumentWPtr document, const Model::AddObjectsQuery& addQuery);
+            static Ptr removeObjects(View::MapDocumentWPtr document, const Model::RemoveObjectsQuery& removeQuery);
         private:
-            AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers);
-            Model::ObjectParentList addEmptyBrushEntities(const Model::ObjectParentList& objects) const;
+            AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Model::AddObjectsQuery& addQuery);
+            AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Model::RemoveObjectsQuery& removeQuery);
+            
             static String makeName(const Action action, const Model::ObjectParentList& objects);
 
             bool doPerformDo();
@@ -62,11 +61,9 @@ namespace TrenchBroom {
             bool doIsRepeatable(View::MapDocumentSPtr document) const;
 
             bool doCollateWith(Command::Ptr command);
-            
-            void addObjects(const Model::ObjectParentList& objects);
-            void removeObjects(const Model::ObjectParentList& objects);
-            void setLayers(const Model::ObjectParentList& objects);
-            void restoreLayers(const Model::ObjectParentList& objects);
+
+            void addObjects();
+            void removeObjects();
         };
     }
 }

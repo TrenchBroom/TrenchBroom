@@ -271,7 +271,7 @@ namespace TrenchBroom {
             
             void documentWasNewedOrLoaded();
             void objectsWereAdded(const Model::ObjectList& objects);
-            void objectsWereRemoved(const Model::ObjectParentList& objects);
+            void objectsWereRemoved(const Model::ObjectList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
             void facesDidChange(const Model::BrushFaceList& faces);
             

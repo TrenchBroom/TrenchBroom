@@ -74,6 +74,21 @@ namespace TrenchBroom {
             return m_issues;
         }
 
+        void IssueManager::addObject(Object* object) {
+            const IssueList objectIssues = findIssues(object);
+            if (!objectIssues.empty())
+                insertIssues(object, objectIssues);
+        }
+        
+        void IssueManager::removeObject(Object* object) {
+            removeIssues(object);
+        }
+        
+        void IssueManager::updateObject(Object* object) {
+            removeObject(object);
+            addObject(object);
+        }
+
         void IssueManager::setIssueHidden(Issue* issue, const bool hidden) {
             if (issue->isHidden() != hidden) {
                 issue->setHidden(hidden);

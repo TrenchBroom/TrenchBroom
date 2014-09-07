@@ -220,7 +220,9 @@ namespace TrenchBroom {
         }
 
         void Entity::addBrush(Brush* brush) {
+            assert(brush != NULL);
             assert(brush->parent() == NULL);
+            
             m_brushes.push_back(brush);
             brush->setParent(this);
             if (brush->selected())
@@ -597,10 +599,24 @@ namespace TrenchBroom {
             return brush.intersects(*this);
         }
 
-        void Entity::doVisit(ObjectVisitor& visitor) {
+        void Entity::doAccept(ObjectVisitor& visitor) {
             visitor.visit(this);
         }
 
+        void Entity::doAccept(ObjectQuery& query) const {
+            query.query(this);
+        }
+
+        void Entity::doAcceptRecursively(ObjectVisitor& visitor) {
+            visitor.visit(this);
+            acceptRecursively(m_brushes.begin(), m_brushes.end(), visitor);
+        }
+
+        void Entity::doAcceptRecursively(ObjectQuery& query) const {
+            query.query(this);
+            acceptRecursively(m_brushes.begin(), m_brushes.end(), query);
+        }
+        
         void Entity::invalidateBounds() {
             m_boundsValid = false;
         }
@@ -658,7 +674,6 @@ namespace TrenchBroom {
         }
         
         Entity::Entity() :
-        Object(Type_Entity),
         m_map(NULL),
         m_definition(NULL),
         m_model(NULL),

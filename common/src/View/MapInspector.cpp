@@ -22,7 +22,6 @@
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/LayerEditor.h"
-#include "View/MapTreeView.h"
 #include "View/MiniMap.h"
 #include "View/ModEditor.h"
 #include "View/SplitterWindow.h"
@@ -65,17 +64,6 @@ namespace TrenchBroom {
 
         wxWindow* MapInspector::createMiniMap(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, Renderer::Camera& camera) {
             return new MiniMap(parent, sharedContext, document, camera);
-        }
-
-        wxWindow* MapInspector::createMapTree(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {
-            TitledPanel* titledPanel = new TitledPanel(parent, "Map Structure");
-            MapTreeView* treeView = new MapTreeView(titledPanel->getPanel(), document, controller);
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(treeView, 1, wxEXPAND);
-            titledPanel->getPanel()->SetSizer(sizer);
-            
-            return titledPanel;
         }
         
         wxWindow* MapInspector::createLayerEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) {

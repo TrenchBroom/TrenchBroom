@@ -21,6 +21,7 @@
 #define __TrenchBroom__MapRenderer__
 
 #include "LayerObserver.h"
+#include "Model/Object.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EdgeRenderer.h"
@@ -58,6 +59,33 @@ namespace TrenchBroom {
             EntityRenderer m_lockedEntityRenderer;
             EntityLinkRenderer m_entityLinkRenderer;
             EdgeRenderer m_pointFileRenderer;
+        private:
+            class AddObject : public Model::ObjectVisitor {
+            private:
+                MapRenderer& m_renderer;
+            public:
+                AddObject(MapRenderer& renderer);
+                void doVisit(Model::Entity* entity);
+                void doVisit(Model::Brush* brush);
+            };
+            
+            class UpdateObject : public Model::ObjectVisitor {
+            private:
+                MapRenderer& m_renderer;
+            public:
+                UpdateObject(MapRenderer& renderer);
+                void doVisit(Model::Entity* entity);
+                void doVisit(Model::Brush* brush);
+            };
+            
+            class RemoveObject : public Model::ObjectVisitor {
+            private:
+                MapRenderer& m_renderer;
+            public:
+                RemoveObject(MapRenderer& renderer);
+                void doVisit(Model::Entity* entity);
+                void doVisit(Model::Brush* brush);
+            };
         public:
             MapRenderer(View::MapDocumentWPtr document, FontManager& fontManager);
             ~MapRenderer();
@@ -89,8 +117,6 @@ namespace TrenchBroom {
             void modelFilterDidChange();
             void renderConfigDidChange();
             
-            void objectsWereAdded(const Model::ObjectList& objects);
-            void objectsWillBeRemoved(const Model::ObjectList& objects);
             void objectsDidChange(const Model::ObjectList& objects);
             void facesDidChange(const Model::BrushFaceList& faces);
             
@@ -106,36 +132,11 @@ namespace TrenchBroom {
             void preferenceDidChange(const IO::Path& path);
             
             void loadMap(Model::Map& map);
-            
-            template <typename I>
-            void addObjects(I it, I end) {
-                while (it != end) {
-                    addObject(*it);
-                    ++it;
-                }
-            }
-
-            template <typename I>
-            void updateObjects(I it, I end) {
-                while (it != end) {
-                    updateObject(*it);
-                    ++it;
-                }
-            }
-            
-            template <typename I>
-            void removeObjects(I it, I end) {
-                while (it != end) {
-                    removeObject(*it);
-                    ++it;
-                }
-            }
-            
-            void addObject(Model::Object* object);
-            void updateObject(Model::Object* object);
-            void removeObject(Model::Object* object);
-            
             void clearState();
+            
+            void addObjects(const Model::ObjectList& objects);
+            void updateObjects(const Model::ObjectList& objects);
+            void removeObjects(const Model::ObjectList& objects);
         };
     }
 }
