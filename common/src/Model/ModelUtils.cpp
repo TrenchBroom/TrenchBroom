@@ -243,7 +243,7 @@ namespace TrenchBroom {
             for (it = list.begin(), end = list.end(); it != end; ++it) {
                 Object* object = *it;
                 Object* parent = getParent(object);
-                if (parent != NULL)
+                if (parent != NULL && set.insert(parent).second)
                     result.push_back(parent);
             }
             return result;
