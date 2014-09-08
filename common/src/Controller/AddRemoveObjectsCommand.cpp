@@ -33,10 +33,7 @@ namespace TrenchBroom {
         const Command::CommandType AddRemoveObjectsCommand::Type = Command::freeType();
 
         AddRemoveObjectsCommand::~AddRemoveObjectsCommand() {
-            if (m_action == Action_Add)
-                m_addQuery.clearAndDelete();
-            else
-                m_removeQuery.clearAndDelete();
+            m_addQuery.clearAndDelete();
         }
 
         AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentWPtr document, const Model::AddObjectsQuery& addQuery) {
