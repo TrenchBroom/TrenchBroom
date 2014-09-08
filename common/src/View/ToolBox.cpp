@@ -168,7 +168,6 @@ namespace TrenchBroom {
                 m_toolChain->modifierKeyChange(m_inputState);
             }
             m_window->Refresh();
-            event.Skip();
         }
         
         void ToolBox::OnMouseButton(wxMouseEvent& event) {
@@ -225,7 +224,6 @@ namespace TrenchBroom {
             m_ignoreNextDrag = false;
             
             m_window->Refresh();
-            event.Skip();
         }
         
         void ToolBox::OnMouseDoubleClick(wxMouseEvent& event) {
@@ -243,7 +241,6 @@ namespace TrenchBroom {
             updateHits();
             
             m_window->Refresh();
-            event.Skip();
         }
         
         void ToolBox::OnMouseMotion(wxMouseEvent& event) {
@@ -279,7 +276,6 @@ namespace TrenchBroom {
             }
             
             m_window->Refresh();
-            event.Skip();
         }
         
         void ToolBox::OnMouseWheel(wxMouseEvent& event) {
@@ -296,7 +292,6 @@ namespace TrenchBroom {
             
             updateHits();
             m_window->Refresh();
-            event.Skip();
         }
         
         void ToolBox::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
