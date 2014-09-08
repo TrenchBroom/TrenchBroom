@@ -99,17 +99,10 @@ namespace TrenchBroom {
             void setLayer(Layer* layer);
             
             Object* clone(const BBox3& worldBounds) const;
-            void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             
+            void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool contains(const Object& object) const;
-            bool contains(const Entity& entity) const;
-            bool contains(const Brush& brush) const;
-            bool containedBy(const Object& object) const;
-            bool containedBy(const Entity& entity) const;
-            bool containedBy(const Brush& brush) const;
             bool intersects(const Object& object) const;
-            bool intersects(const Entity& entity) const;
-            bool intersects(const Brush& brush) const;
             
             template <typename I, typename V>
             static void accept(I cur, I end, V& visitor) {
@@ -140,19 +133,9 @@ namespace TrenchBroom {
             void incChildSelectionCount();
             void decChildSelectionCount();
         private:
-            virtual void doAddToLayer(Layer* layer) = 0;
-            virtual void doRemoveFromLayer(Layer* layer) = 0;
-            
             virtual void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) = 0;
             virtual bool doContains(const Object& object) const = 0;
-            virtual bool doContains(const Entity& entity) const = 0;
-            virtual bool doContains(const Brush& brush) const = 0;
-            virtual bool doContainedBy(const Object& object) const = 0;
-            virtual bool doContainedBy(const Entity& entity) const = 0;
-            virtual bool doContainedBy(const Brush& brush) const = 0;
             virtual bool doIntersects(const Object& object) const = 0;
-            virtual bool doIntersects(const Entity& entity) const = 0;
-            virtual bool doIntersects(const Brush& brush) const = 0;
             
             virtual void doAccept(ObjectVisitor& visitor) = 0;
             virtual void doAccept(ObjectQuery& query) const = 0;

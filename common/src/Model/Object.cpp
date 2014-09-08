@@ -114,14 +114,57 @@ namespace TrenchBroom {
             return m_layer;
         }
         
+        class AddToLayer : public ObjectVisitor {
+        private:
+            Layer* m_layer;
+        public:
+            AddToLayer(Layer* layer) :
+            m_layer(layer) {
+                assert(m_layer != NULL);
+            }
+            
+            void doVisit(Entity* entity) {
+                m_layer->addEntity(entity);
+            }
+            
+            void doVisit(Brush* brush) {
+                m_layer->addBrush(brush);
+            }
+        };
+        
+        class RemoveFromLayer : public ObjectVisitor {
+        private:
+            Layer* m_layer;
+        public:
+            RemoveFromLayer(Layer* layer) :
+            m_layer(layer) {
+                assert(m_layer != NULL);
+            }
+            
+            void doVisit(Entity* entity) {
+                m_layer->removeEntity(entity);
+            }
+            
+            void doVisit(Brush* brush) {
+                m_layer->removeBrush(brush);
+            }
+        };
+
         void Object::setLayer(Layer* layer) {
             if (m_layer == layer)
                 return;
-            if (m_layer != NULL)
-                doRemoveFromLayer(m_layer);
+            
+            if (m_layer != NULL) {
+                RemoveFromLayer remove(m_layer);
+                accept(remove);
+            }
+
             m_layer = layer;
-            if (m_layer != NULL)
-                doAddToLayer(m_layer);
+
+            if (m_layer != NULL) {
+                AddToLayer add(m_layer);
+                accept(add);
+            }
         }
         
 
@@ -137,36 +180,8 @@ namespace TrenchBroom {
             return doContains(object);
         }
         
-        bool Object::contains(const Entity& entity) const {
-            return doContains(entity);
-        }
-        
-        bool Object::contains(const Brush& brush) const {
-            return doContains(brush);
-        }
-
-        bool Object::containedBy(const Object& object) const {
-            return doContainedBy(object);
-        }
-        
-        bool Object::containedBy(const Entity& entity) const {
-            return doContainedBy(entity);
-        }
-        
-        bool Object::containedBy(const Brush& brush) const {
-            return doContainedBy(brush);
-        }
-
         bool Object::intersects(const Object& object) const {
             return doIntersects(object);
-        }
-        
-        bool Object::intersects(const Entity& entity) const {
-            return doIntersects(entity);
-        }
-        
-        bool Object::intersects(const Brush& brush) const {
-            return doIntersects(brush);
         }
         
         void Object::accept(ObjectVisitor& visitor) {
