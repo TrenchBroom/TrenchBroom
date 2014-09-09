@@ -483,12 +483,12 @@ namespace TrenchBroom {
 
         void MapRenderer::objectWasAddedToLayer(Model::Layer* layer, Model::Object* object) {
             AddObject visitor(*this);
-            object->acceptRecursively(visitor);
+            object->accept(visitor);
         }
         
         void MapRenderer::objectWasRemovedFromLayer(Model::Layer* layer, Model::Object* object) {
             RemoveObject visitor(*this);
-            object->acceptRecursively(visitor);
+            object->accept(visitor);
         }
 
         void MapRenderer::selectionDidChange(const Model::SelectionResult& result) {
