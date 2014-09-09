@@ -95,7 +95,7 @@ namespace TrenchBroom {
             filterDidChangeNotifier();
         }
         
-        struct ObjectVisible : public ObjectQuery {
+        struct ObjectVisible : public ConstObjectVisitor {
             const ModelFilter& filter;
             bool result;
             
@@ -103,11 +103,11 @@ namespace TrenchBroom {
             filter(i_filter),
             result(false) {}
             
-            void doQuery(const Entity* entity) {
+            void doVisit(const Entity* entity) {
                 result = entityVisible(entity);
             }
             
-            void doQuery(const Brush* brush) {
+            void doVisit(const Brush* brush) {
                 result = brushVisible(brush);
             }
             
@@ -152,7 +152,7 @@ namespace TrenchBroom {
             return object->layer()->locked();
         }
 
-        struct ObjectPickable : public ObjectQuery {
+        struct ObjectPickable : public ConstObjectVisitor {
             const ModelFilter& filter;
             bool result;
             
@@ -160,11 +160,11 @@ namespace TrenchBroom {
             filter(i_filter),
             result(false) {}
             
-            void doQuery(const Entity* entity) {
+            void doVisit(const Entity* entity) {
                 result = entityPickable(entity);
             }
             
-            void doQuery(const Brush* brush) {
+            void doVisit(const Brush* brush) {
                 result = brushPickable(brush);
             }
 

@@ -36,14 +36,14 @@ namespace TrenchBroom {
             doVisit(brush);
         }
         
-        ObjectQuery::~ObjectQuery() {}
+        ConstObjectVisitor::~ConstObjectVisitor() {}
         
-        void ObjectQuery::query(const Entity* entity) {
-            return doQuery(entity);
+        void ConstObjectVisitor::visit(const Entity* entity) {
+            return doVisit(entity);
         }
         
-        void ObjectQuery::query(const Brush* brush) {
-            return doQuery(brush);
+        void ConstObjectVisitor::visit(const Brush* brush) {
+            return doVisit(brush);
         }
 
         Object::~Object() {}
@@ -188,15 +188,15 @@ namespace TrenchBroom {
             doAccept(visitor);
         }
 
-        void Object::accept(ObjectQuery& query) const {
-            return doAccept(query);
+        void Object::accept(ConstObjectVisitor& visitor) const {
+            return doAccept(visitor);
         }
 
         void Object::acceptRecursively(ObjectVisitor& visitor) {
             doAcceptRecursively(visitor);
         }
 
-        void Object::acceptRecursively(ObjectQuery& visitor) const {
+        void Object::acceptRecursively(ConstObjectVisitor& visitor) const {
             doAcceptRecursively(visitor);
         }
         

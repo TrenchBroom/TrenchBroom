@@ -122,13 +122,13 @@ namespace TrenchBroom {
             return map.createBrush(worldBounds, faces);
         }
 
-        struct GetParent : public ObjectQuery {
+        struct GetParent : public ConstObjectVisitor {
             Object* parent;
             GetParent() :
             parent(NULL) {}
             
-            void doQuery(const Entity* entity) {}
-            void doQuery(const Brush* brush) {
+            void doVisit(const Entity* entity) {}
+            void doVisit(const Brush* brush) {
                 parent = brush->parent();
             }
         };

@@ -35,9 +35,9 @@ namespace TrenchBroom {
             bool doIntersects(const Object& object) const;
             
             void doAccept(ObjectVisitor& visitor);
-            void doAccept(ObjectQuery& query) const;
+            void doAccept(ConstObjectVisitor& visitor) const;
             void doAcceptRecursively(ObjectVisitor& visitor);
-            void doAcceptRecursively(ObjectQuery& visitor) const;
+            void doAcceptRecursively(ConstObjectVisitor& visitor) const;
         };
     }
 }

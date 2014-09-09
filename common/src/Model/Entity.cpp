@@ -556,7 +556,7 @@ namespace TrenchBroom {
             }
         }
 
-        class EntityContains : public ObjectQuery {
+        class EntityContains : public ConstObjectVisitor {
         private:
             const Entity* m_this;
             bool m_result;
@@ -569,11 +569,11 @@ namespace TrenchBroom {
                 return m_result;
             }
             
-            void doQuery(const Entity* entity) {
+            void doVisit(const Entity* entity) {
                 m_result = m_this->bounds().contains(entity->bounds());
             }
             
-            void doQuery(const Brush* brush) {
+            void doVisit(const Brush* brush) {
                 const BBox3& myBounds = m_this->bounds();
                 const BrushVertexList& vertices = brush->vertices();
                 for (size_t i = 0; i < vertices.size(); ++i) {
@@ -592,7 +592,7 @@ namespace TrenchBroom {
             return contains.result();
         }
 
-        class EntityIntersects : public ObjectQuery {
+        class EntityIntersects : public ConstObjectVisitor {
         private:
             const Entity* m_this;
             bool m_result;
@@ -605,11 +605,11 @@ namespace TrenchBroom {
                 return m_result;
             }
             
-            void doQuery(const Entity* entity) {
+            void doVisit(const Entity* entity) {
                 m_result = m_this->bounds().intersects(entity->bounds());
             }
             
-            void doQuery(const Brush* brush) {
+            void doVisit(const Brush* brush) {
                 const BBox3& myBounds = m_this->bounds();
                 const BrushVertexList& vertices = brush->vertices();
                 for (size_t i = 0; i < vertices.size(); ++i) {
@@ -632,8 +632,8 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void Entity::doAccept(ObjectQuery& query) const {
-            query.query(this);
+        void Entity::doAccept(ConstObjectVisitor& visitor) const {
+            visitor.visit(this);
         }
 
         void Entity::doAcceptRecursively(ObjectVisitor& visitor) {
@@ -641,9 +641,9 @@ namespace TrenchBroom {
             acceptRecursively(m_brushes.begin(), m_brushes.end(), visitor);
         }
 
-        void Entity::doAcceptRecursively(ObjectQuery& query) const {
-            query.query(this);
-            acceptRecursively(m_brushes.begin(), m_brushes.end(), query);
+        void Entity::doAcceptRecursively(ConstObjectVisitor& visitor) const {
+            visitor.visit(this);
+            acceptRecursively(m_brushes.begin(), m_brushes.end(), visitor);
         }
         
         void Entity::invalidateBounds() {

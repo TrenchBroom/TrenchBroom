@@ -33,13 +33,13 @@ namespace TrenchBroom {
         void Group::doAccept(ObjectVisitor& visitor) {
         }
         
-        void Group::doAccept(ObjectQuery& query) const {
+        void Group::doAccept(ConstObjectVisitor& visitor) const {
         }
         
         void Group::doAcceptRecursively(ObjectVisitor& visitor) {
         }
         
-        void Group::doAcceptRecursively(ObjectQuery& visitor) const {
+        void Group::doAcceptRecursively(ConstObjectVisitor& visitor) const {
         }
     }
 }

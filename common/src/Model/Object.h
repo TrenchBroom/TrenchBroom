@@ -41,14 +41,14 @@ namespace TrenchBroom {
             virtual void doVisit(Brush* brush) = 0;
         };
         
-        class ObjectQuery {
+        class ConstObjectVisitor {
         public:
-            virtual ~ObjectQuery();
-            void query(const Entity* entity);
-            void query(const Brush* brush);
+            virtual ~ConstObjectVisitor();
+            void visit(const Entity* entity);
+            void visit(const Brush* brush);
         private:
-            virtual void doQuery(const Entity* entity) = 0;
-            virtual void doQuery(const Brush* brush) = 0;
+            virtual void doVisit(const Entity* entity) = 0;
+            virtual void doVisit(const Brush* brush) = 0;
         };
         
         class Object : public Pickable {
@@ -123,9 +123,9 @@ namespace TrenchBroom {
             }
 
             void accept(ObjectVisitor& visitor);
-            void accept(ObjectQuery& query) const;
+            void accept(ConstObjectVisitor& visitor) const;
             void acceptRecursively(ObjectVisitor& visitor);
-            void acceptRecursively(ObjectQuery& visitor) const;
+            void acceptRecursively(ConstObjectVisitor& visitor) const;
         protected:
             Object();
             virtual Object* doClone(const BBox3& worldBounds) const = 0;
@@ -138,9 +138,9 @@ namespace TrenchBroom {
             virtual bool doIntersects(const Object& object) const = 0;
             
             virtual void doAccept(ObjectVisitor& visitor) = 0;
-            virtual void doAccept(ObjectQuery& query) const = 0;
+            virtual void doAccept(ConstObjectVisitor& visitor) const = 0;
             virtual void doAcceptRecursively(ObjectVisitor& visitor) = 0;
-            virtual void doAcceptRecursively(ObjectQuery& visitor) const = 0;
+            virtual void doAcceptRecursively(ConstObjectVisitor& visitor) const = 0;
         };
     }
 }

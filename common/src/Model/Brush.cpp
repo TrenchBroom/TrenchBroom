@@ -388,7 +388,7 @@ namespace TrenchBroom {
             notifyParent();
         }
 
-        class BrushContains : public ObjectQuery {
+        class BrushContains : public ConstObjectVisitor {
         private:
             const Brush* m_this;
             bool m_result;
@@ -401,7 +401,7 @@ namespace TrenchBroom {
                 return m_result;
             }
         private:
-            void doQuery(const Entity* entity) {
+            void doVisit(const Entity* entity) {
                 m_result = contains(entity);
             }
             
@@ -416,7 +416,7 @@ namespace TrenchBroom {
                 return true;
             }
             
-            void doQuery(const Brush* brush) {
+            void doVisit(const Brush* brush) {
                 m_result = contains(brush);
             }
             
@@ -438,7 +438,7 @@ namespace TrenchBroom {
             return contains.result();
         }
         
-        class BrushIntersects : public ObjectQuery {
+        class BrushIntersects : public ConstObjectVisitor {
         private:
             const Brush* m_this;
             bool m_result;
@@ -451,7 +451,7 @@ namespace TrenchBroom {
                 return m_result;
             }
         private:
-            void doQuery(const Entity* entity) {
+            void doVisit(const Entity* entity) {
                 m_result = intersects(entity);
             }
             
@@ -466,7 +466,7 @@ namespace TrenchBroom {
                 return false;
             }
             
-            void doQuery(const Brush* brush) {
+            void doVisit(const Brush* brush) {
                 m_result = intersects(brush);
             }
             
@@ -534,16 +534,16 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
 
-        void Brush::doAccept(ObjectQuery& query) const {
-            query.query(this);
+        void Brush::doAccept(ConstObjectVisitor& visitor) const {
+            visitor.visit(this);
         }
 
         void Brush::doAcceptRecursively(ObjectVisitor& visitor) {
             visitor.visit(this);
         }
 
-        void Brush::doAcceptRecursively(ObjectQuery& query) const {
-            query.query(this);
+        void Brush::doAcceptRecursively(ConstObjectVisitor& visitor) const {
+            visitor.visit(this);
         }
         
         Object* Brush::doClone(const BBox3& worldBounds) const {
