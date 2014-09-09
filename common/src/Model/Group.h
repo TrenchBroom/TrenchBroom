@@ -20,6 +20,26 @@
 #ifndef __TrenchBroom__Group__
 #define __TrenchBroom__Group__
 
-#include <iostream>
+#include "Model/Object.h"
+#include "Model/ObjectSection.h"
+
+namespace TrenchBroom {
+    namespace Model {
+        class Group : public Object, public ObjectSection {
+        private:
+            String m_name;
+        public:
+        private:
+            void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
+            bool doContains(const Object& object) const;
+            bool doIntersects(const Object& object) const;
+            
+            void doAccept(ObjectVisitor& visitor);
+            void doAccept(ObjectQuery& query) const;
+            void doAcceptRecursively(ObjectVisitor& visitor);
+            void doAcceptRecursively(ObjectQuery& visitor) const;
+        };
+    }
+}
 
 #endif /* defined(__TrenchBroom__Group__) */

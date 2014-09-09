@@ -19,15 +19,27 @@
 
 #include "Group.h"
 
-#include "Model/ModelTypes.h"
-#include "Model/Object.h"
-#include "Model/ObjectSection.h"
-
 namespace TrenchBroom {
     namespace Model {
-        class Group : public ObjectSection {
-        private:
-            String m_name;
-        };
+        void Group::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
+        }
+        
+        bool Group::doContains(const Object& object) const {
+        }
+        
+        bool Group::doIntersects(const Object& object) const {
+        }
+        
+        void Group::doAccept(ObjectVisitor& visitor) {
+        }
+        
+        void Group::doAccept(ObjectQuery& query) const {
+        }
+        
+        void Group::doAcceptRecursively(ObjectVisitor& visitor) {
+        }
+        
+        void Group::doAcceptRecursively(ObjectQuery& visitor) const {
+        }
     }
 }
