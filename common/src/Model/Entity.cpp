@@ -556,12 +556,12 @@ namespace TrenchBroom {
             }
         }
 
-        class Contains : public ObjectQuery {
+        class EntityContains : public ObjectQuery {
         private:
             const Entity* m_this;
             bool m_result;
         public:
-            Contains(const Entity* i_this) :
+            EntityContains(const Entity* i_this) :
             m_this(i_this),
             m_result(false) {}
             
@@ -587,17 +587,17 @@ namespace TrenchBroom {
         };
         
         bool Entity::doContains(const Object& object) const {
-            Contains contains(this);
+            EntityContains contains(this);
             object.accept(contains);
             return contains.result();
         }
 
-        class Intersects : public ObjectQuery {
+        class EntityIntersects : public ObjectQuery {
         private:
             const Entity* m_this;
             bool m_result;
         public:
-            Intersects(const Entity* i_this) :
+            EntityIntersects(const Entity* i_this) :
             m_this(i_this),
             m_result(false) {}
             
@@ -623,7 +623,7 @@ namespace TrenchBroom {
         };
         
         bool Entity::doIntersects(const Object& object) const {
-            Intersects intersects(this);
+            EntityIntersects intersects(this);
             object.accept(intersects);
             return intersects.result();
         }
