@@ -141,7 +141,7 @@ namespace TrenchBroom {
             }
             
             bool partiallySelected(const Model::Brush* brush) const {
-                return brush->partiallySelected() || selected(brush);
+                return brush->partiallySelected();
             }
             
             bool selected(const Model::BrushFace* face) const {
@@ -187,7 +187,7 @@ namespace TrenchBroom {
             BrushRendererFilter(filter) {}
             
             bool operator()(const Model::Brush* brush) const {
-                return !locked(brush) && partiallySelected(brush) && visible(brush);
+                return !locked(brush) && (selected(brush) || partiallySelected(brush)) && visible(brush);
             }
             
             bool operator()(const Model::BrushFace* face) const {
@@ -495,27 +495,34 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             
             Model::EntityList selectedEntities, deselectedEntities;
-            Model::BrushList selectedBrushes, deselectedBrushes;
+            Model::BrushList selectedBrushes, deselectedBrushes, partiallySelectedBrushes, partiallyDeselectedBrushes;
 
             Model::filterObjects(result.selectedObjects().begin(),
                                  result.selectedObjects().end(),
                                  selectedEntities, selectedBrushes);
             Model::filterObjects(result.partiallySelectedObjects().begin(),
                                  result.partiallySelectedObjects().end(),
-                                 selectedEntities, selectedBrushes);
+                                 selectedEntities, partiallySelectedBrushes);
             
             Model::filterObjects(result.deselectedObjects().begin(),
                                  result.deselectedObjects().end(),
                                  deselectedEntities, deselectedBrushes);
             Model::filterObjects(result.partiallyDeselectedObjects().begin(),
                                  result.partiallyDeselectedObjects().end(),
-                                 deselectedEntities, deselectedBrushes);
+                                 deselectedEntities, partiallyDeselectedBrushes);
 
             m_unselectedBrushRenderer.removeBrushes(selectedBrushes.begin(), selectedBrushes.end());
             m_unselectedBrushRenderer.addBrushes(deselectedBrushes.begin(), deselectedBrushes.end());
             m_selectedBrushRenderer.removeBrushes(deselectedBrushes.begin(), deselectedBrushes.end());
             m_selectedBrushRenderer.addBrushes(selectedBrushes.begin(), selectedBrushes.end());
+            m_selectedBrushRenderer.removeBrushes(partiallyDeselectedBrushes.begin(), partiallyDeselectedBrushes.end());
+            m_selectedBrushRenderer.addBrushes(partiallySelectedBrushes.begin(), partiallySelectedBrushes.end());
 
+            // If only faces are additionally selected with already selected siblings, no brushes get added or removed
+            // from the renderers, so we force them to be invalidated!
+            m_unselectedBrushRenderer.invalidate();
+            m_selectedBrushRenderer.invalidate();
+            
             m_unselectedEntityRenderer.removeEntities(selectedEntities.begin(), selectedEntities.end());
             m_unselectedEntityRenderer.addEntities(deselectedEntities.begin(), deselectedEntities.end());
             m_selectedEntityRenderer.removeEntities(deselectedEntities.begin(), deselectedEntities.end());

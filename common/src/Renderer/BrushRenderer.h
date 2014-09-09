@@ -66,7 +66,9 @@ namespace TrenchBroom {
             struct BuildBrushFaceMesh {
                 Model::BrushFace::Mesh opaqueMesh;
                 Model::BrushFace::Mesh transparentMesh;
+                BrushRenderer::Filter& filter;
                 
+                BuildBrushFaceMesh(BrushRenderer::Filter& i_filter);
                 bool operator()(Model::BrushFace* face);
             };
         private:
