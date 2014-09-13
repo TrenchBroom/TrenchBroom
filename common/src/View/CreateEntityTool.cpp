@@ -42,7 +42,6 @@ namespace TrenchBroom {
         CreateEntityTool::CreateEntityTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, Renderer::FontManager& fontManager) :
         ToolImpl(document, controller),
         m_camera(camera),
-        m_renderer(lock(document)->entityModelManager(), fontManager, lock(document)->filter()),
         m_entity(NULL) {}
 
         bool CreateEntityTool::doDragEnter(const InputState& inputState, const String& payload) {
@@ -65,14 +64,11 @@ namespace TrenchBroom {
             const Model::Map* map = document()->map();
             m_entity = map->createEntity();
             m_entity->addOrUpdateProperty(Model::PropertyKeys::Classname, definition->name());
-            m_entity->setDefinition(definition);
             
-            const Assets::ModelSpecification modelSpec = m_entity->modelSpecification();
-            const Assets::EntityModelManager& modelManager = document()->entityModelManager();
-            Assets::EntityModel* model = modelManager.model(modelSpec.path);
-            m_entity->setModel(model);
-            
-            m_renderer.addEntity(m_entity);
+            controller()->beginUndoableGroup("Create " + definition->name());
+            controller()->deselectAll();
+            controller()->addEntity(m_entity);
+            controller()->selectObject(m_entity);
             updateEntityPosition(inputState);
             
             return true;
@@ -86,24 +82,14 @@ namespace TrenchBroom {
         
         void CreateEntityTool::doDragLeave(const InputState& inputState) {
             assert(m_entity != NULL);
-            m_renderer.removeEntity(m_entity);
-            delete m_entity;
+            controller()->rollbackGroup();
+            controller()->closeGroup();
             m_entity = NULL;
         }
         
         bool CreateEntityTool::doDragDrop(const InputState& inputState) {
             assert(m_entity != NULL);
-            
-            m_renderer.removeEntity(m_entity);
-            m_entity->setModel(NULL);
-            m_entity->setDefinition(NULL);
-
-            controller()->beginUndoableGroup("Create " + m_entity->classname());
-            controller()->deselectAll();
-            controller()->addEntity(m_entity);
-            controller()->selectObject(m_entity);
             controller()->closeGroup();
-            
             m_entity = NULL;
             return true;
         }
@@ -125,18 +111,8 @@ namespace TrenchBroom {
             
             if (delta.null())
                 return;
-            
-            m_entity->addOrUpdateProperty(Model::PropertyKeys::Origin, m_entity->origin() + delta);
-            m_renderer.updateEntity(m_entity);
-        }
 
-        void CreateEntityTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
-            m_renderer.setOverlayTextColor(prefs.get(Preferences::InfoOverlayTextColor));
-            m_renderer.setOverlayBackgroundColor(prefs.get(Preferences::InfoOverlayBackgroundColor));
-            m_renderer.setApplyTinting(false);
-            m_renderer.render(renderContext);
+            controller()->moveObjects(Model::ObjectList(1, m_entity), delta, false);
         }
     }
 }

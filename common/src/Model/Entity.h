@@ -188,19 +188,13 @@ namespace TrenchBroom {
             void setOrigin(const Vec3& origin);
             virtual void applyRotation(const Mat4x4& rotation);
 
-            void doAddToLayer(Layer* layer);
-            void doRemoveFromLayer(Layer* layer);
-
             bool doContains(const Object& object) const;
-            bool doContains(const Entity& entity) const;
-            bool doContains(const Brush& brush) const;
-            bool doContainedBy(const Object& object) const;
-            bool doContainedBy(const Entity& entity) const;
-            bool doContainedBy(const Brush& brush) const;
             bool doIntersects(const Object& object) const;
-            bool doIntersects(const Entity& entity) const;
-            bool doIntersects(const Brush& brush) const;
-            void doVisit(ObjectVisitor& visitor);
+            
+            void doAccept(ObjectVisitor& visitor);
+            void doAccept(ConstObjectVisitor& visitor) const;
+            void doAcceptRecursively(ObjectVisitor& visitor);
+            void doAcceptRecursively(ConstObjectVisitor& visitor) const;
             
             void invalidateBounds();
             void validateBounds() const;

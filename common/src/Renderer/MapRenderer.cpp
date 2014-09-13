@@ -21,8 +21,6 @@
 
 #include "Color.h"
 #include "Preferences.h"
-#include "CastIterator.h"
-#include "FilterIterator.h"
 #include "Renderer/GL.h"
 #include "Model/Brush.h"
 #include "Model/BrushEdge.h"
@@ -46,6 +44,81 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        MapRenderer::AddObject::AddObject(MapRenderer& renderer) :
+        m_renderer(renderer) {}
+        
+        void MapRenderer::AddObject::doVisit(Model::Entity* entity) {
+            Model::Layer* layer = entity->layer();
+            if (layer->locked())
+                m_renderer.m_lockedEntityRenderer.addEntity(entity);
+            else if (entity->selected() || entity->partiallySelected())
+                m_renderer.m_selectedEntityRenderer.addEntity(entity);
+            else
+                m_renderer.m_unselectedEntityRenderer.addEntity(entity);
+            m_renderer.m_entityLinkRenderer.invalidate();
+        }
+        
+        void MapRenderer::AddObject::doVisit(Model::Brush* brush) {
+            Model::Layer* layer = brush->layer();
+            if (layer->locked())
+                m_renderer.m_lockedBrushRenderer.addBrush(brush);
+            else if (brush->selected() || brush->partiallySelected())
+                m_renderer.m_selectedBrushRenderer.addBrush(brush);
+            else
+                m_renderer.m_unselectedBrushRenderer.addBrush(brush);
+            m_renderer.m_entityLinkRenderer.invalidate();
+        }
+
+        MapRenderer::UpdateObject::UpdateObject(MapRenderer& renderer) :
+        m_renderer(renderer) {}
+        
+        void MapRenderer::UpdateObject::doVisit(Model::Entity* entity) {
+            Model::Layer* layer = entity->layer();
+            if (layer->locked())
+                m_renderer.m_lockedEntityRenderer.updateEntity(entity);
+            else if (entity->selected() || entity->partiallySelected())
+                m_renderer.m_selectedEntityRenderer.updateEntity(entity);
+            else
+                m_renderer.m_unselectedEntityRenderer.updateEntity(entity);
+            m_renderer.m_entityLinkRenderer.invalidate();
+        }
+        
+        void MapRenderer::UpdateObject::doVisit(Model::Brush* brush) {
+            Model::Layer* layer = brush->layer();
+            if (layer->locked())
+                m_renderer.m_lockedBrushRenderer.invalidate();
+            else if (brush->selected() || brush->partiallySelected())
+                m_renderer.m_selectedBrushRenderer.invalidate();
+            else
+                m_renderer.m_unselectedBrushRenderer.invalidate();
+            m_renderer.m_entityLinkRenderer.invalidate();
+        }
+
+        MapRenderer::RemoveObject::RemoveObject(MapRenderer& renderer) :
+        m_renderer(renderer) {}
+        
+        void MapRenderer::RemoveObject::doVisit(Model::Entity* entity) {
+            Model::Layer* layer = entity->layer();
+            if (layer->locked())
+                m_renderer.m_lockedEntityRenderer.removeEntity(entity);
+            else if (entity->selected() || entity->partiallySelected())
+                m_renderer.m_selectedEntityRenderer.removeEntity(entity);
+            else
+                m_renderer.m_unselectedEntityRenderer.removeEntity(entity);
+            m_renderer.m_entityLinkRenderer.invalidate();
+        }
+        
+        void MapRenderer::RemoveObject::doVisit(Model::Brush* brush) {
+            Model::Layer* layer = brush->layer();
+            if (layer->locked())
+                m_renderer.m_lockedBrushRenderer.removeBrush(brush);
+            else if (brush->selected() || brush->partiallySelected())
+                m_renderer.m_selectedBrushRenderer.removeBrush(brush);
+            else
+                m_renderer.m_unselectedBrushRenderer.removeBrush(brush);
+            m_renderer.m_entityLinkRenderer.invalidate();
+        }
+
         struct BrushRendererFilter : public BrushRenderer::Filter {
         private:
             const Model::ModelFilter& m_filter;
@@ -68,7 +141,7 @@ namespace TrenchBroom {
             }
             
             bool partiallySelected(const Model::Brush* brush) const {
-                return brush->partiallySelected() || selected(brush);
+                return brush->partiallySelected();
             }
             
             bool selected(const Model::BrushFace* face) const {
@@ -114,7 +187,7 @@ namespace TrenchBroom {
             BrushRendererFilter(filter) {}
             
             bool operator()(const Model::Brush* brush) const {
-                return !locked(brush) && partiallySelected(brush) && visible(brush);
+                return !locked(brush) && (selected(brush) || partiallySelected(brush)) && visible(brush);
             }
             
             bool operator()(const Model::BrushFace* face) const {
@@ -309,8 +382,6 @@ namespace TrenchBroom {
             document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
             document->pointFileWasLoadedNotifier.addObserver(this, &MapRenderer::pointFileWasLoadedOrUnloaded);
             document->pointFileWasUnloadedNotifier.addObserver(this, &MapRenderer::pointFileWasLoadedOrUnloaded);
-            document->objectsWereAddedNotifier.addObserver(this, &MapRenderer::objectsWereAdded);
-            document->objectsWillBeRemovedNotifier.addObserver(this, &MapRenderer::objectsWillBeRemoved);
             document->objectsDidChangeNotifier.addObserver(this, &MapRenderer::objectsDidChange);
             document->facesDidChangeNotifier.addObserver(this, &MapRenderer::facesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
@@ -337,8 +408,6 @@ namespace TrenchBroom {
                 document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
                 document->pointFileWasLoadedNotifier.removeObserver(this, &MapRenderer::pointFileWasLoadedOrUnloaded);
                 document->pointFileWasUnloadedNotifier.removeObserver(this, &MapRenderer::pointFileWasLoadedOrUnloaded);
-                document->objectsWereAddedNotifier.removeObserver(this, &MapRenderer::objectsWereAdded);
-                document->objectsWillBeRemovedNotifier.removeObserver(this, &MapRenderer::objectsWillBeRemoved);
                 document->objectsDidChangeNotifier.removeObserver(this, &MapRenderer::objectsDidChange);
                 document->facesDidChangeNotifier.removeObserver(this, &MapRenderer::facesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
@@ -389,35 +458,9 @@ namespace TrenchBroom {
             m_unselectedBrushRenderer.invalidate();
             m_unselectedEntityRenderer.invalidate();
         }
-
-        void MapRenderer::objectsWereAdded(const Model::ObjectList& objects) {
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                addObject(object);
-                if (object->type() == Model::Object::Type_Entity) {
-                    Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    const Model::BrushList& brushes = entity->brushes();
-                    addObjects(brushes.begin(), brushes.end());
-                }
-            }
-        }
-        
-        void MapRenderer::objectsWillBeRemoved(const Model::ObjectList& objects) {
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                removeObject(object);
-                if (object->type() == Model::Object::Type_Entity) {
-                    Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    const Model::BrushList& brushes = entity->brushes();
-                    removeObjects(brushes.begin(), brushes.end());
-                }
-            }
-        }
         
         void MapRenderer::objectsDidChange(const Model::ObjectList& objects) {
-            updateObjects(objects.begin(), objects.end());
+            updateObjects(objects);
         }
         
         void MapRenderer::facesDidChange(const Model::BrushFaceList& faces) {
@@ -425,10 +468,8 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::layerWillChange(Model::Layer* layer, const Model::Layer::Attr_Type attr) {
-            if (attr == Model::Layer::Attr_Locked) {
-                const Model::ObjectList& objects = layer->objects();
-                removeObjects(objects.begin(), objects.end());
-            }
+            if (attr == Model::Layer::Attr_Locked)
+                removeObjects(layer->objects());
         }
 
         void MapRenderer::layerDidChange(Model::Layer* layer, const Model::Layer::Attr_Type attr) {
@@ -436,47 +477,56 @@ namespace TrenchBroom {
                 m_unselectedBrushRenderer.invalidate();
                 m_unselectedEntityRenderer.invalidate();
             }
-            if (attr == Model::Layer::Attr_Locked) {
-                const Model::ObjectList& objects = layer->objects();
-                addObjects(objects.begin(), objects.end());
-            }
+            if (attr == Model::Layer::Attr_Locked)
+                addObjects(layer->objects());
         }
 
         void MapRenderer::objectWasAddedToLayer(Model::Layer* layer, Model::Object* object) {
-            addObject(object);
+            AddObject visitor(*this);
+            object->accept(visitor);
         }
         
         void MapRenderer::objectWasRemovedFromLayer(Model::Layer* layer, Model::Object* object) {
-            removeObject(object);
+            RemoveObject visitor(*this);
+            object->accept(visitor);
         }
 
         void MapRenderer::selectionDidChange(const Model::SelectionResult& result) {
             View::MapDocumentSPtr document = lock(m_document);
             
-            const Model::BrushList unselectedBrushes = document->unselectedBrushes();
-            const Model::BrushList& selectedBrushes = document->allSelectedBrushes();
+            Model::EntityList selectedEntities, deselectedEntities;
+            Model::BrushList selectedBrushes, deselectedBrushes, partiallySelectedBrushes, partiallyDeselectedBrushes;
+
+            Model::filterObjects(result.selectedObjects().begin(),
+                                 result.selectedObjects().end(),
+                                 selectedEntities, selectedBrushes);
+            Model::filterObjects(result.partiallySelectedObjects().begin(),
+                                 result.partiallySelectedObjects().end(),
+                                 selectedEntities, partiallySelectedBrushes);
             
-            m_unselectedBrushRenderer.setBrushes(unselectedBrushes);
-            m_selectedBrushRenderer.setBrushes(selectedBrushes);
+            Model::filterObjects(result.deselectedObjects().begin(),
+                                 result.deselectedObjects().end(),
+                                 deselectedEntities, deselectedBrushes);
+            Model::filterObjects(result.partiallyDeselectedObjects().begin(),
+                                 result.partiallyDeselectedObjects().end(),
+                                 deselectedEntities, partiallyDeselectedBrushes);
+
+            m_unselectedBrushRenderer.removeBrushes(selectedBrushes.begin(), selectedBrushes.end());
+            m_unselectedBrushRenderer.addBrushes(deselectedBrushes.begin(), deselectedBrushes.end());
+            m_selectedBrushRenderer.removeBrushes(deselectedBrushes.begin(), deselectedBrushes.end());
+            m_selectedBrushRenderer.addBrushes(selectedBrushes.begin(), selectedBrushes.end());
+            m_selectedBrushRenderer.removeBrushes(partiallyDeselectedBrushes.begin(), partiallyDeselectedBrushes.end());
+            m_selectedBrushRenderer.addBrushes(partiallySelectedBrushes.begin(), partiallySelectedBrushes.end());
+
+            // If only faces are additionally selected with already selected siblings, no brushes get added or removed
+            // from the renderers, so we force them to be invalidated!
+            m_unselectedBrushRenderer.invalidate();
+            m_selectedBrushRenderer.invalidate();
             
-            m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
-                                                      Model::entityIterator(result.selectedObjects().end()));
-            m_unselectedEntityRenderer.removeEntities(Model::entityIterator(result.partiallySelectedObjects().begin(), result.partiallySelectedObjects().end()),
-                                                      Model::entityIterator(result.partiallySelectedObjects().end()));
-            m_unselectedEntityRenderer.addEntities(Model::entityIterator(result.deselectedObjects().begin(), result.deselectedObjects().end()),
-                                                   Model::entityIterator(result.deselectedObjects().end()));
-            m_unselectedEntityRenderer.addEntities(Model::entityIterator(result.partiallyDeselectedObjects().begin(), result.partiallyDeselectedObjects().end()),
-                                                   Model::entityIterator(result.partiallyDeselectedObjects().end()));
-            
-            m_selectedEntityRenderer.removeEntities(Model::entityIterator(result.deselectedObjects().begin(), result.deselectedObjects().end()),
-                                                    Model::entityIterator(result.deselectedObjects().end()));
-            m_selectedEntityRenderer.removeEntities(Model::entityIterator(result.partiallyDeselectedObjects().begin(), result.partiallyDeselectedObjects().end()),
-                                                    Model::entityIterator(result.partiallyDeselectedObjects().end()));
-            m_selectedEntityRenderer.addEntities(Model::entityIterator(result.selectedObjects().begin(), result.selectedObjects().end()),
-                                                 Model::entityIterator(result.selectedObjects().end()));
-            m_selectedEntityRenderer.addEntities(Model::entityIterator(result.partiallySelectedObjects().begin(), result.partiallySelectedObjects().end()),
-                                                 Model::entityIterator(result.partiallySelectedObjects().end()));
-            m_entityLinkRenderer.invalidate();
+            m_unselectedEntityRenderer.removeEntities(selectedEntities.begin(), selectedEntities.end());
+            m_unselectedEntityRenderer.addEntities(deselectedEntities.begin(), deselectedEntities.end());
+            m_selectedEntityRenderer.removeEntities(deselectedEntities.begin(), deselectedEntities.end());
+            m_selectedEntityRenderer.addEntities(selectedEntities.begin(), selectedEntities.end());
 
             m_entityLinkRenderer.invalidate();
         }
@@ -515,84 +565,6 @@ namespace TrenchBroom {
             m_entityLinkRenderer.invalidate();
         }
 
-        void MapRenderer::addObject(Model::Object* object) {
-            if (object->type() == Model::Object::Type_Entity) {
-                Model::Entity* entity = static_cast<Model::Entity*>(object);
-                Model::Layer* layer = entity->layer();
-                if (layer->locked())
-                    m_lockedEntityRenderer.addEntity(entity);
-                else if (entity->selected() || entity->partiallySelected())
-                    m_selectedEntityRenderer.addEntity(entity);
-                else
-                    m_unselectedEntityRenderer.addEntity(entity);
-                
-                const Model::BrushList& brushes = entity->brushes();
-                m_unselectedBrushRenderer.addBrushes(brushes.begin(), brushes.end());
-            } else if (object->type() == Model::Object::Type_Brush) {
-                Model::Brush* brush = static_cast<Model::Brush*>(object);
-                Model::Layer* layer = brush->layer();
-                if (layer->locked())
-                    m_lockedBrushRenderer.addBrush(brush);
-                else if (brush->selected() || brush->partiallySelected())
-                    m_selectedBrushRenderer.addBrush(brush);
-                else
-                    m_unselectedBrushRenderer.addBrush(brush);
-            }
-            m_entityLinkRenderer.invalidate();
-        }
-        
-        void MapRenderer::updateObject(Model::Object* object) {
-            if (object->type() == Model::Object::Type_Entity) {
-                Model::Entity* entity = static_cast<Model::Entity*>(object);
-                Model::Layer* layer = entity->layer();
-                if (layer->locked())
-                    m_lockedEntityRenderer.updateEntity(entity);
-                else if (entity->selected() || entity->partiallySelected())
-                    m_selectedEntityRenderer.updateEntity(entity);
-                else
-                    m_unselectedEntityRenderer.updateEntity(entity);
-                
-                const Model::BrushList& brushes = entity->brushes();
-                m_unselectedBrushRenderer.addBrushes(brushes.begin(), brushes.end());
-            } else if (object->type() == Model::Object::Type_Brush) {
-                Model::Brush* brush = static_cast<Model::Brush*>(object);
-                Model::Layer* layer = brush->layer();
-                if (layer->locked())
-                    m_lockedBrushRenderer.invalidate();
-                else if (brush->selected() || brush->partiallySelected())
-                    m_selectedBrushRenderer.invalidate();
-                else
-                    m_unselectedBrushRenderer.invalidate();
-            }
-            m_entityLinkRenderer.invalidate();
-        }
-        
-        void MapRenderer::removeObject(Model::Object* object) {
-            if (object->type() == Model::Object::Type_Entity) {
-                Model::Entity* entity = static_cast<Model::Entity*>(object);
-                Model::Layer* layer = entity->layer();
-                if (layer->locked())
-                    m_lockedEntityRenderer.removeEntity(entity);
-                else if (entity->selected() || entity->partiallySelected())
-                    m_selectedEntityRenderer.removeEntity(entity);
-                else
-                    m_unselectedEntityRenderer.removeEntity(entity);
-                
-                const Model::BrushList& brushes = entity->brushes();
-                m_unselectedBrushRenderer.addBrushes(brushes.begin(), brushes.end());
-            } else if (object->type() == Model::Object::Type_Brush) {
-                Model::Brush* brush = static_cast<Model::Brush*>(object);
-                Model::Layer* layer = brush->layer();
-                if (layer->locked())
-                    m_lockedBrushRenderer.removeBrush(brush);
-                else if (brush->selected() || brush->partiallySelected())
-                    m_selectedBrushRenderer.removeBrush(brush);
-                else
-                    m_unselectedBrushRenderer.removeBrush(brush);
-            }
-            m_entityLinkRenderer.invalidate();
-        }
-
         void MapRenderer::clearState() {
             m_unselectedBrushRenderer.clear();
             m_selectedBrushRenderer.clear();
@@ -600,6 +572,22 @@ namespace TrenchBroom {
             m_selectedEntityRenderer.clear();
             m_entityLinkRenderer.invalidate();
             m_pointFileRenderer = EdgeRenderer();
+        }
+
+        
+        void MapRenderer::addObjects(const Model::ObjectList& objects) {
+            AddObject visitor(*this);
+            Model::Object::acceptRecursively(objects.begin(), objects.end(), visitor);
+        }
+        
+        void MapRenderer::updateObjects(const Model::ObjectList& objects) {
+            UpdateObject visitor(*this);
+            Model::Object::acceptRecursively(objects.begin(), objects.end(), visitor);
+        }
+        
+        void MapRenderer::removeObjects(const Model::ObjectList& objects) {
+            RemoveObject visitor(*this);
+            Model::Object::acceptRecursively(objects.begin(), objects.end(), visitor);
         }
     }
 }

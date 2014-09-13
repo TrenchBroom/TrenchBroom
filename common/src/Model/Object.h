@@ -37,18 +37,22 @@ namespace TrenchBroom {
             void visit(Entity* entity);
             void visit(Brush* brush);
         private:
-            virtual void doVisit(Entity* entity);
-            virtual void doVisit(Brush* entity);
+            virtual void doVisit(Entity* entity) = 0;
+            virtual void doVisit(Brush* brush) = 0;
+        };
+        
+        class ConstObjectVisitor {
+        public:
+            virtual ~ConstObjectVisitor();
+            void visit(const Entity* entity);
+            void visit(const Brush* brush);
+        private:
+            virtual void doVisit(const Entity* entity) = 0;
+            virtual void doVisit(const Brush* brush) = 0;
         };
         
         class Object : public Pickable {
-        public:
-            typedef enum {
-                Type_Entity,
-                Type_Brush
-            } Type;
         private:
-            Type m_type;
             size_t m_lineNumber;
             size_t m_lineCount;
             bool m_selected;
@@ -75,8 +79,7 @@ namespace TrenchBroom {
                     bounds.mergeWith((*it)->bounds());
                 return bounds;
             }
-            
-            Type type() const;
+        public:
             size_t filePosition() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
             bool containsLine(size_t line) const;
@@ -96,39 +99,48 @@ namespace TrenchBroom {
             void setLayer(Layer* layer);
             
             Object* clone(const BBox3& worldBounds) const;
-            void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             
+            void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool contains(const Object& object) const;
-            bool contains(const Entity& entity) const;
-            bool contains(const Brush& brush) const;
-            bool containedBy(const Object& object) const;
-            bool containedBy(const Entity& entity) const;
-            bool containedBy(const Brush& brush) const;
             bool intersects(const Object& object) const;
-            bool intersects(const Entity& entity) const;
-            bool intersects(const Brush& brush) const;
-            void visit(ObjectVisitor& visitor);
+            
+            template <typename I, typename V>
+            static void accept(I cur, I end, V& visitor) {
+                while (cur != end) {
+                    Object* object = *cur;
+                    object->accept(visitor);
+                    ++cur;
+                }
+            }
+            
+            template <typename I, typename V>
+            static void acceptRecursively(I cur, I end, V& visitor) {
+                while (cur != end) {
+                    Object* object = *cur;
+                    object->acceptRecursively(visitor);
+                    ++cur;
+                }
+            }
+
+            void accept(ObjectVisitor& visitor);
+            void accept(ConstObjectVisitor& visitor) const;
+            void acceptRecursively(ObjectVisitor& visitor);
+            void acceptRecursively(ConstObjectVisitor& visitor) const;
         protected:
-            Object(const Type type);
+            Object();
             virtual Object* doClone(const BBox3& worldBounds) const = 0;
 
             void incChildSelectionCount();
             void decChildSelectionCount();
         private:
-            virtual void doAddToLayer(Layer* layer) = 0;
-            virtual void doRemoveFromLayer(Layer* layer) = 0;
-            
             virtual void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) = 0;
             virtual bool doContains(const Object& object) const = 0;
-            virtual bool doContains(const Entity& entity) const = 0;
-            virtual bool doContains(const Brush& brush) const = 0;
-            virtual bool doContainedBy(const Object& object) const = 0;
-            virtual bool doContainedBy(const Entity& entity) const = 0;
-            virtual bool doContainedBy(const Brush& brush) const = 0;
             virtual bool doIntersects(const Object& object) const = 0;
-            virtual bool doIntersects(const Entity& entity) const = 0;
-            virtual bool doIntersects(const Brush& brush) const = 0;
-            virtual void doVisit(ObjectVisitor& visitor) = 0;
+            
+            virtual void doAccept(ObjectVisitor& visitor) = 0;
+            virtual void doAccept(ConstObjectVisitor& visitor) const = 0;
+            virtual void doAcceptRecursively(ObjectVisitor& visitor) = 0;
+            virtual void doAcceptRecursively(ConstObjectVisitor& visitor) const = 0;
         };
     }
 }

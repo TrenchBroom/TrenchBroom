@@ -67,12 +67,17 @@ namespace TrenchBroom {
             }
         }
         
+        BrushRenderer::BuildBrushFaceMesh::BuildBrushFaceMesh(BrushRenderer::Filter& i_filter) :
+        filter(i_filter) {}
+
         bool BrushRenderer::BuildBrushFaceMesh::operator()(Model::BrushFace* face) {
             const Model::Brush* brush = face->parent();
-            if (brush->transparent())
-                face->addToMesh(transparentMesh);
-            else
-                face->addToMesh(opaqueMesh);
+            if (filter(face)) {
+                if (brush->transparent())
+                    face->addToMesh(transparentMesh);
+                else
+                    face->addToMesh(opaqueMesh);
+            }
             return true;
         }
         
@@ -224,7 +229,7 @@ namespace TrenchBroom {
         void BrushRenderer::validate() {
             FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
             
-            BuildBrushFaceMesh buildFaces;
+            BuildBrushFaceMesh buildFaces(*m_filter);
             each(Model::BrushFacesIterator::begin(m_brushes),
                  Model::BrushFacesIterator::end(m_brushes),
                  buildFaces,

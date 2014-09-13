@@ -24,6 +24,7 @@
 #include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
 #include "Model/Brush.h"
+#include "Model/BrushVertex.h"
 #include "Model/Layer.h"
 #include "Model/Map.h"
 #include "Model/ModelUtils.h"
@@ -220,7 +221,9 @@ namespace TrenchBroom {
         }
 
         void Entity::addBrush(Brush* brush) {
+            assert(brush != NULL);
             assert(brush->parent() == NULL);
+            
             m_brushes.push_back(brush);
             brush->setParent(this);
             if (brush->selected())
@@ -553,54 +556,96 @@ namespace TrenchBroom {
             }
         }
 
-        void Entity::doAddToLayer(Layer* layer) {
-            layer->addEntity(this);
-        }
+        class EntityContains : public ConstObjectVisitor {
+        private:
+            const Entity* m_this;
+            bool m_result;
+        public:
+            EntityContains(const Entity* i_this) :
+            m_this(i_this),
+            m_result(false) {}
+            
+            bool result() const {
+                return m_result;
+            }
+            
+            void doVisit(const Entity* entity) {
+                m_result = m_this->bounds().contains(entity->bounds());
+            }
+            
+            void doVisit(const Brush* brush) {
+                const BBox3& myBounds = m_this->bounds();
+                const BrushVertexList& vertices = brush->vertices();
+                for (size_t i = 0; i < vertices.size(); ++i) {
+                    if (!myBounds.contains(vertices[i]->position)) {
+                        m_result = false;
+                        return;
+                    }
+                }
+                m_result = true;
+            }
+        };
         
-        void Entity::doRemoveFromLayer(Layer* layer) {
-            layer->removeEntity(this);
-        }
-
         bool Entity::doContains(const Object& object) const {
-            return object.containedBy(*this);
-        }
-        
-        bool Entity::doContains(const Entity& entity) const {
-            return bounds().contains(entity.bounds());
-        }
-        
-        bool Entity::doContains(const Brush& brush) const {
-            return brush.containedBy(*this);
+            EntityContains contains(this);
+            object.accept(contains);
+            return contains.result();
         }
 
-        bool Entity::doContainedBy(const Object& object) const {
-            return object.contains(*this);
-        }
+        class EntityIntersects : public ConstObjectVisitor {
+        private:
+            const Entity* m_this;
+            bool m_result;
+        public:
+            EntityIntersects(const Entity* i_this) :
+            m_this(i_this),
+            m_result(false) {}
+            
+            bool result() const {
+                return m_result;
+            }
+            
+            void doVisit(const Entity* entity) {
+                m_result = m_this->bounds().intersects(entity->bounds());
+            }
+            
+            void doVisit(const Brush* brush) {
+                const BBox3& myBounds = m_this->bounds();
+                const BrushVertexList& vertices = brush->vertices();
+                for (size_t i = 0; i < vertices.size(); ++i) {
+                    if (myBounds.contains(vertices[i]->position)) {
+                        m_result = true;
+                        return;
+                    }
+                }
+                m_result = false;
+            }
+        };
         
-        bool Entity::doContainedBy(const Entity& entity) const {
-            return entity.contains(*this);
-        }
-        
-        bool Entity::doContainedBy(const Brush& brush) const {
-            return brush.contains(*this);
-        }
-
         bool Entity::doIntersects(const Object& object) const {
-            return object.intersects(*this);
-        }
-        
-        bool Entity::doIntersects(const Entity& entity) const {
-            return bounds().intersects(entity.bounds());
-        }
-        
-        bool Entity::doIntersects(const Brush& brush) const {
-            return brush.intersects(*this);
+            EntityIntersects intersects(this);
+            object.accept(intersects);
+            return intersects.result();
         }
 
-        void Entity::doVisit(ObjectVisitor& visitor) {
+        void Entity::doAccept(ObjectVisitor& visitor) {
             visitor.visit(this);
         }
 
+        void Entity::doAccept(ConstObjectVisitor& visitor) const {
+            visitor.visit(this);
+        }
+
+        void Entity::doAcceptRecursively(ObjectVisitor& visitor) {
+            visitor.visit(this);
+            acceptRecursively(m_brushes.begin(), m_brushes.end(), visitor);
+        }
+
+        void Entity::doAcceptRecursively(ConstObjectVisitor& visitor) const {
+            visitor.visit(this);
+            acceptRecursively(m_brushes.begin(), m_brushes.end(), visitor);
+        }
+        
         void Entity::invalidateBounds() {
             m_boundsValid = false;
         }
@@ -658,7 +703,6 @@ namespace TrenchBroom {
         }
         
         Entity::Entity() :
-        Object(Type_Entity),
         m_map(NULL),
         m_definition(NULL),
         m_model(NULL),

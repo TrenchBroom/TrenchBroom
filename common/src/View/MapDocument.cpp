@@ -28,10 +28,11 @@
 #include "Assets/TextureCollectionSpec.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/SystemPaths.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/EmptyBrushEntityIssueGenerator.h"
+#include "Model/Entity.h"
 #include "Model/EntityBrushesIterator.h"
-#include "Model/EntityFacesIterator.h"
 #include "Model/EntityLinkSourceIssueGenerator.h"
 #include "Model/EntityLinkTargetIssueGenerator.h"
 #include "Model/FloatPointsIssueGenerator.h"
@@ -39,8 +40,6 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/Map.h"
-#include "Model/MapFacesIterator.h"
-#include "Model/MapObjectsIterator.h"
 #include "Model/MissingEntityClassnameIssueGenerator.h"
 #include "Model/MissingEntityDefinitionIssueGenerator.h"
 #include "Model/MixedBrushContentsIssueGenerator.h"
@@ -58,143 +57,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        class SetEntityDefinition {
-        private:
-            Assets::EntityDefinitionManager& m_definitionManager;
-        public:
-            SetEntityDefinition(Assets::EntityDefinitionManager& definitionManager) :
-            m_definitionManager(definitionManager) {}
-            
-            void operator()(Model::Entity* entity) const {
-                Assets::EntityDefinition* definition = m_definitionManager.definition(entity);
-                entity->setDefinition(definition);
-            }
-        };
-        
-        struct UnsetEntityDefinition {
-            void operator()(Model::Entity* entity) const {
-                entity->setDefinition(NULL);
-            }
-        };
-        
-        class SetEntityModel {
-        private:
-            Assets::EntityModelManager& m_modelManager;
-            Logger& m_logger;
-        public:
-            SetEntityModel(Assets::EntityModelManager& modelManager, Logger& logger) :
-            m_modelManager(modelManager),
-            m_logger(logger) {}
-            
-            void operator()(Model::Entity* entity) const {
-                const Assets::ModelSpecification spec = entity->modelSpecification();
-                if (spec.path.isEmpty()) {
-                    entity->setModel(NULL);
-                } else {
-                    Assets::EntityModel* model = safeGetModel(m_modelManager, spec, m_logger);
-                    entity->setModel(model);
-                }
-            }
-        };
-        
-        struct UnsetEntityModel {
-            void operator()(Model::Entity* entity) const {
-                entity->setModel(NULL);
-            }
-        };
-        
-        class SetTexture {
-        private:
-            Assets::TextureManager& m_textureManager;
-        public:
-            SetTexture(Assets::TextureManager& textureManager) :
-            m_textureManager(textureManager) {}
-            
-            void operator()(Model::BrushFace* face) const {
-                const String& textureName = face->textureName();
-                Assets::Texture* texture = m_textureManager.texture(textureName);
-                face->setTexture(texture);
-            }
-        };
-        
-        struct UnsetTexture {
-            void operator()(Model::BrushFace* face) const {
-                face->setTexture(NULL);
-            }
-        };
-        
-        class AddToPicker {
-        private:
-            Model::Picker& m_picker;
-        public:
-            AddToPicker(Model::Picker& picker) :
-            m_picker(picker) {}
-            
-            void operator()(Model::Object* object) const {
-                m_picker.addObject(object);
-            }
-        };
-        
-        class RemoveFromPicker {
-        private:
-            Model::Picker& m_picker;
-        public:
-            RemoveFromPicker(Model::Picker& picker) :
-            m_picker(picker) {}
-            
-            void operator()(Model::Object* object) const {
-                m_picker.removeObject(object);
-            }
-        };
-        
-        class AddToMap {
-        private:
-            Model::Map& m_map;
-        public:
-            AddToMap(Model::Map& map) :
-            m_map(map) {}
-            
-            void operator()(Model::Entity* entity) const {
-                m_map.addEntity(entity);
-            }
-        };
-        
-        class RemoveFromMap {
-        private:
-            Model::Map& m_map;
-        public:
-            RemoveFromMap(Model::Map& map) :
-            m_map(map) {}
-            
-            void operator()(Model::Entity* entity) const {
-                m_map.removeEntity(entity);
-            }
-        };
-        
-        class AddToEntity {
-        private:
-            Model::Entity& m_entity;
-        public:
-            AddToEntity(Model::Entity& entity) :
-            m_entity(entity) {}
-            
-            void operator()(Model::Brush* brush) const {
-                m_entity.addBrush(brush);
-            }
-        };
-        
-        class RemoveFromEntity {
-        private:
-            Model::Entity& m_entity;
-        public:
-            RemoveFromEntity(Model::Entity& entity) :
-            m_entity(entity) {}
-            
-            void operator()(Model::Brush* brush) const {
-                m_entity.removeBrush(brush);
-            }
-        };
-        
         const BBox3 MapDocument::DefaultWorldBounds(-16384.0, 16384.0);
         
         MapDocumentSPtr MapDocument::newMapDocument() {
@@ -322,6 +184,26 @@ namespace TrenchBroom {
             m_selectionBoundsValid = false;
         }
         
+        class LoadObjects : public Model::ObjectVisitor {
+        private:
+            Model::Picker& m_picker;
+            Model::IssueManager& m_issueManager;
+        public:
+            LoadObjects(Model::Picker& picker, Model::IssueManager& issueManager) :
+            m_picker(picker),
+            m_issueManager(issueManager) {}
+        private:
+            void doVisit(Model::Entity* entity) {
+                m_picker.addObject(entity);
+                m_issueManager.addObject(entity);
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                m_picker.addObject(brush);
+                m_issueManager.addObject(brush);
+            }
+        };
+        
         void MapDocument::openDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
             assert(game != NULL);
             info("Opening document " + path.asString());
@@ -343,10 +225,9 @@ namespace TrenchBroom {
             loadAndUpdateEntityDefinitions();
             loadAndUpdateTextures();
             
-            m_picker.addObjects(Model::MapObjectsIterator::begin(*m_map),
-                                Model::MapObjectsIterator::end(*m_map));
-            m_issueManager.addObjects(Model::MapObjectsIterator::begin(*m_map),
-                                      Model::MapObjectsIterator::end(*m_map));
+            const Model::EntityList& entities = m_map->entities();
+            LoadObjects load(m_picker, m_issueManager);
+            Model::Object::acceptRecursively(entities.begin(), entities.end(), load);
 
             m_selectionBoundsValid = false;
         }
@@ -410,8 +291,7 @@ namespace TrenchBroom {
             if (worldspawn == NULL) {
                 worldspawn = m_map->createEntity();
                 worldspawn->addOrUpdateProperty(Model::PropertyKeys::Classname, Model::PropertyValues::WorldspawnClassname);
-                addEntity(worldspawn);
-                worldspawn->setLayer(m_map->defaultLayer());
+                addEntity(worldspawn, m_map->defaultLayer());
                 objectsWereAddedNotifier(Model::ObjectList(1, worldspawn));
             }
             return worldspawn;
@@ -459,31 +339,95 @@ namespace TrenchBroom {
             m_game->updateExternalTextureCollections(m_map, m_textureManager.externalCollectionNames());
         }
 
-        void MapDocument::addObjects(const Model::ObjectParentList& objects) {
-            Model::ObjectParentList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it)
-                addObject(it->object, it->parent);
-        }
-
-        void MapDocument::addObject(Model::Object* object, Model::Object* parent) {
-            assert(object != NULL);
+        struct SetLayer : public Model::ObjectVisitor {
+        private:
+            Model::Layer* m_layer;
+        public:
+            SetLayer(Model::Layer* layer) :
+            m_layer(layer) {}
             
-            if (object->type() == Model::Object::Type_Entity)
-                addEntity(static_cast<Model::Entity*>(object));
-            else if (object->type() == Model::Object::Type_Brush) {
-                if (parent == NULL) {
-                    addBrush(static_cast<Model::Brush*>(object), worldspawn());
-                } else {
-                    assert(parent->type() == Model::Brush::Type_Entity);
-                    addBrush(static_cast<Model::Brush*>(object), static_cast<Model::Entity*>(parent));
-                }
+            void doVisit(Model::Entity* entity) {
+                entity->setLayer(m_layer);
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                brush->setLayer(m_layer);
+            }
+        };
+        
+        void MapDocument::addEntities(const Model::EntityList& entities, const Model::ObjectLayerMap& layers) {
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                Model::Entity* entity = *it;
+                Model::Layer* layer = MapUtils::find(layers, entity, static_cast<Model::Layer*>(NULL));
+                addEntity(entity, layer);
             }
         }
         
-        void MapDocument::removeObjects(const Model::ObjectList& objects) {
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it)
-                removeObject(*it);
+        void MapDocument::addEntity(Model::Entity* entity, Model::Layer* layer) {
+            assert(entity != NULL);
+            assert(layer != NULL);
+            assert(!entity->worldspawn() || m_map->worldspawn() == NULL);
+            m_map->addEntity(entity);
+            
+            SetLayer setLayer(layer);
+            entity->acceptRecursively(setLayer);
+        }
+        
+        void MapDocument::removeEntities(const Model::EntityList& entities) {
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it)
+                removeEntity(*it);
+        }
+        
+        void MapDocument::removeEntity(Model::Entity* entity) {
+            assert(entity != NULL);
+            assert(!entity->worldspawn());
+            
+            SetLayer setLayer(NULL);
+            entity->acceptRecursively(setLayer);
+            m_map->removeEntity(entity);
+        }
+        
+        void MapDocument::addBrushes(const Model::EntityBrushesMap& brushes, const Model::ObjectLayerMap& layers) {
+            Model::EntityBrushesMap::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
+                addBrushes(it->second, it->first, layers);
+        }
+        
+        void MapDocument::addBrushes(const Model::BrushList& brushes, Model::Entity* entity, const Model::ObjectLayerMap& layers) {
+            assert(entity != NULL);
+            assert(entity->map() == m_map);
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Model::Brush* brush = *it;
+                Model::Layer* layer = MapUtils::find(layers, brush, static_cast<Model::Layer*>(NULL));
+                addBrush(brush, entity, layer);
+            }
+        }
+
+        void MapDocument::addBrush(Model::Brush* brush, Model::Entity* entity, Model::Layer* layer) {
+            assert(brush != NULL);
+            assert(entity != NULL);
+            assert(layer != NULL);
+            assert(entity->map() == m_map);
+            entity->addBrush(brush);
+            brush->setLayer(layer);
+        }
+        
+        void MapDocument::removeBrushes(const Model::BrushList& brushes) {
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it)
+                removeBrush(*it);
+        }
+        
+        void MapDocument::removeBrush(Model::Brush* brush) {
+            assert(brush != NULL);
+            Model::Entity* entity = brush->parent();
+            assert(entity != NULL);
+            assert(entity->map() == m_map);
+            brush->setLayer(NULL);
+            entity->removeBrush(brush);
         }
 
         void MapDocument::addLayers(const Model::LayerList& layers) {
@@ -502,19 +446,6 @@ namespace TrenchBroom {
             }
         }
 
-        void MapDocument::removeObject(Model::Object* object) {
-            assert(object != NULL);
-            assert(object->type() == Model::Object::Type_Entity ||
-                   object->type() == Model::Object::Type_Brush);
-            
-            if (object->type() == Model::Object::Type_Entity)
-                removeEntity(static_cast<Model::Entity*>(object));
-            else if (object->type() == Model::Object::Type_Brush) {
-                Model::Brush* brush = static_cast<Model::Brush*>(object);
-                removeBrush(brush, brush->parent());
-            }
-        }
-        
         bool MapDocument::hasSelectedObjects() const {
             return m_selection.hasSelectedObjects();
         }
@@ -710,103 +641,102 @@ namespace TrenchBroom {
                 m_currentTexture = selection.lastSelectedFace()->texture();
         }
 
+        MapDocument::ObjectWasAdded::ObjectWasAdded(MapDocument& document) :
+        m_document(document) {}
+        
+        void MapDocument::ObjectWasAdded::doVisit(Model::Entity* entity) {
+            m_document.updateEntityDefinition(entity);
+            m_document.updateEntityModel(entity);
+            m_document.m_picker.addObject(entity);
+            m_document.m_issueManager.addObject(entity);
+            m_document.updateLinkSourcesInIssueManager(entity);
+        }
+        
+        void MapDocument::ObjectWasAdded::doVisit(Model::Brush* brush) {
+            m_document.m_picker.addObject(brush);
+            m_document.m_issueManager.addObject(brush);
+            m_document.setTextures(brush->faces());
+        }
+        
+        MapDocument::ObjectWillBeRemoved::ObjectWillBeRemoved(MapDocument& document) :
+        m_document(document) {}
+        
+        void MapDocument::ObjectWillBeRemoved::doVisit(Model::Entity* entity) {
+            m_document.m_issueManager.removeObject(entity);
+            m_document.m_picker.removeObject(entity);
+            entity->setDefinition(NULL);
+            entity->setModel(NULL);
+        }
+        
+        void MapDocument::ObjectWillBeRemoved::doVisit(Model::Brush* brush) {
+            m_document.m_issueManager.removeObject(brush);
+            m_document.m_picker.removeObject(brush);
+            m_document.unsetTextures(brush->faces());
+        }
+
+        MapDocument::ObjectWasRemoved::ObjectWasRemoved(MapDocument& document) :
+        m_document(document) {}
+        
+        void MapDocument::ObjectWasRemoved::doVisit(Model::Entity* entity) {
+            m_document.updateLinkSourcesInIssueManager(entity);
+        }
+        
+        void MapDocument::ObjectWasRemoved::doVisit(Model::Brush* brush) {}
+
+        MapDocument::ObjectWillChange::ObjectWillChange(MapDocument& document) :
+        m_document(document) {}
+        
+        void MapDocument::ObjectWillChange::doVisit(Model::Entity* entity) {
+            m_document.m_picker.removeObject(entity);
+            m_document.m_issueManager.removeObject(entity);
+        }
+        
+        void MapDocument::ObjectWillChange::doVisit(Model::Brush* brush) {
+            m_document.m_picker.removeObject(brush);
+            m_document.m_issueManager.removeObject(brush);
+        }
+
+        MapDocument::ObjectDidChange::ObjectDidChange(MapDocument& document) :
+        m_document(document) {}
+        
+        void MapDocument::ObjectDidChange::doVisit(Model::Entity* entity) {
+            m_document.m_picker.addObject(entity);
+            m_document.m_issueManager.addObject(entity);
+            m_document.updateEntityDefinition(entity);
+            m_document.updateEntityModel(entity);
+        }
+        
+        void MapDocument::ObjectDidChange::doVisit(Model::Brush* brush) {
+            m_document.m_picker.addObject(brush);
+            m_document.m_issueManager.addObject(brush);
+        }
+
         void MapDocument::objectsWereAdded(const Model::ObjectList& objects) {
-            SetTexture setTexture(m_textureManager);
-            
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                if (object->type() == Model::Object::Type_Entity) {
-                    Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    updateEntityDefinition(entity);
-                    updateEntityModel(entity);
-                    
-                    m_picker.addObjects(entity->brushes().begin(),
-                                        entity->brushes().end());
-                    m_issueManager.addObjects(entity->brushes().begin(),
-                                              entity->brushes().end());
-                    
-                    Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
-                                Model::BrushFacesIterator::end(entity->brushes()),
-                                setTexture, Model::MatchAll());
-                    updateLinkSourcesInIssueManager(entity);
-                } else if (object->type() == Model::Object::Type_Brush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    Model::each(brush->faces().begin(),
-                                brush->faces().end(),
-                                setTexture,
-                                Model::MatchAll());
-                }
-            }
-            
-            // do not move this to before the entity definition is set for an entity!
-            m_picker.addObjects(objects.begin(), objects.end());
-            m_issueManager.addObjects(objects.begin(), objects.end());
+            ObjectWasAdded visitor(*this);
+            Model::Object::acceptRecursively(objects.begin(), objects.end(), visitor);
+            m_issueManager.issuesDidChangeNotifier();
         }
         
         void MapDocument::objectsWillBeRemoved(const Model::ObjectList& objects) {
-            UnsetTexture unsetTexture;
-            
-            m_issueManager.removeObjects(objects.begin(), objects.end());
-            m_picker.removeObjects(objects.begin(), objects.end());
-
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                
-                if (object->type() == Model::Object::Type_Entity) {
-                    Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    entity->setDefinition(NULL);
-                    entity->setModel(NULL);
-                    
-                    m_picker.removeObjects(entity->brushes().begin(),
-                                           entity->brushes().end());
-                    m_issueManager.removeObjects(entity->brushes().begin(),
-                                              entity->brushes().end());
-                    
-                    Model::each(Model::BrushFacesIterator::begin(entity->brushes()),
-                                Model::BrushFacesIterator::end(entity->brushes()),
-                                unsetTexture, Model::MatchAll());
-                } else if (object->type() == Model::Object::Type_Brush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    Model::each(brush->faces().begin(),
-                                brush->faces().end(),
-                                unsetTexture,
-                                Model::MatchAll());
-                }
-            }
+            ObjectWillBeRemoved visitor(*this);
+            Model::Object::acceptRecursively(objects.begin(), objects.end(), visitor);
+            m_issueManager.issuesDidChangeNotifier();
         }
         
-        void MapDocument::objectsWereRemoved(const Model::ObjectParentList& objects) {
-            Model::ObjectParentList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = it->object;
-                if (object->type() == Model::Object::Type_Entity) {
-                    Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    updateLinkSourcesInIssueManager(entity);
-                }
-            }
+        void MapDocument::objectsWereRemoved(const Model::ObjectList& objects) {
+            ObjectWasRemoved visitor(*this);
+            Model::Object::acceptRecursively(objects.begin(), objects.end(), visitor);
         }
 
         void MapDocument::objectsWillChange(const Model::ObjectList& objects) {
-            m_picker.removeObjects(objects.begin(), objects.end());
-            m_issueManager.removeObjects(objects.begin(), objects.end());
+            ObjectWillChange visitor(*this);
+            Model::Object::accept(objects.begin(), objects.end(), visitor);
         }
         
         void MapDocument::objectsDidChange(const Model::ObjectList& objects) {
-            m_picker.addObjects(objects.begin(), objects.end());
-            m_issueManager.addObjects(objects.begin(), objects.end());
-            
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                if (object->type() == Model::Object::Type_Entity) {
-                    Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    updateEntityDefinition(entity);
-                    updateEntityModel(entity);
-                }
-            }
-            
+            ObjectDidChange visitor(*this);
+            Model::Object::accept(objects.begin(), objects.end(), visitor);
+            m_issueManager.issuesDidChangeNotifier();
             m_selectionBoundsValid = false;
         }
         
@@ -925,31 +855,28 @@ namespace TrenchBroom {
             m_issueManager.registerGenerator(new Model::WorldBoundsIssueGenerator(m_worldBounds), true);
         }
 
+        class LoadIssues : public Model::ObjectVisitor {
+        private:
+            Model::IssueManager& m_issueManager;
+        public:
+            LoadIssues(Model::IssueManager& issueManager) :
+            m_issueManager(issueManager) {}
+        private:
+            void doVisit(Model::Entity* entity) {
+                m_issueManager.addObject(entity);
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                m_issueManager.addObject(brush);
+            }
+        };
+        
         void MapDocument::reloadIssues() {
             m_issueManager.clearIssues();
-            m_issueManager.addObjects(Model::MapObjectsIterator::begin(*m_map),
-                                      Model::MapObjectsIterator::end(*m_map));
-        }
 
-        void MapDocument::addEntity(Model::Entity* entity) {
-            AddToMap addToMap(*m_map);
-            addToMap(entity);
-        }
-        
-        void MapDocument::addBrush(Model::Brush* brush, Model::Entity* entity) {
-            AddToEntity addToEntity(*entity);
-            addToEntity(brush);
-        }
-        
-        void MapDocument::removeEntity(Model::Entity* entity) {
-            assert(!entity->worldspawn());
-            RemoveFromMap removeFromMap(*m_map);
-            removeFromMap(entity);
-        }
-        
-        void MapDocument::removeBrush(Model::Brush* brush, Model::Entity* entity) {
-            RemoveFromEntity removeFromEntity(*entity);
-            removeFromEntity(brush);
+            const Model::EntityList& entities = m_map->entities();
+            LoadIssues load(m_issueManager);
+            Model::Object::accept(entities.begin(), entities.end(), load);
         }
 
         void MapDocument::clearMap() {
@@ -996,10 +923,12 @@ namespace TrenchBroom {
         
         void MapDocument::unloadEntityDefinitions() {
             const Model::EntityList& entities = m_map->entities();
-            Model::each(entities.begin(),
-                        entities.end(),
-                        UnsetEntityDefinition(),
-                        Model::MatchAll());
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
+                Model::Entity* entity = *it;
+                entity->setDefinition(NULL);
+            }
+            
             m_entityDefinitionManager.clear();
             clearEntityModels();
             info("Unloaded entity definitions");
@@ -1010,29 +939,39 @@ namespace TrenchBroom {
         }
         
         void MapDocument::updateEntityDefinitions(const Model::EntityList& entities) {
-            Model::each(entities.begin(),
-                        entities.end(),
-                        SetEntityDefinition(m_entityDefinitionManager),
-                        Model::MatchAll());
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it)
+                updateEntityDefinition(*it);
         }
         
         void MapDocument::updateEntityDefinition(Model::Entity* entity) {
-            SetEntityDefinition setDefinition(m_entityDefinitionManager);
-            setDefinition(entity);
+            assert(entity != NULL);
+            Assets::EntityDefinition* definition = m_entityDefinitionManager.definition(entity);
+            entity->setDefinition(definition);
         }
         
         void MapDocument::updateEntityModels(const Model::EntityList& entities) {
-            Model::each(entities.begin(),
-                        entities.end(),
-                        SetEntityModel(m_entityModelManager, *this),
-                        Model::MatchAll());
+            Model::EntityList::const_iterator it, end;
+            for (it = entities.begin(), end = entities.end(); it != end; ++it)
+                updateEntityModel(*it);
         }
         
         void MapDocument::updateEntityModel(Model::Entity* entity) {
-            SetEntityModel setModel(m_entityModelManager, *this);
-            setModel(entity);
+            setEntityModel(entity);
         }
         
+        void MapDocument::setEntityModel(Model::Entity* entity) {
+            assert(entity != NULL);
+            
+            const Assets::ModelSpecification spec = entity->modelSpecification();
+            if (spec.path.isEmpty()) {
+                entity->setModel(NULL);
+            } else {
+                Assets::EntityModel* model = safeGetModel(m_entityModelManager, spec, *this);
+                entity->setModel(model);
+            }
+        }
+
         void MapDocument::loadAndUpdateTextures() {
             loadTextures();
             updateTextures();
@@ -1059,14 +998,44 @@ namespace TrenchBroom {
         }
         
         void MapDocument::updateTextures() {
-            Model::each(Model::MapFacesIterator::begin(*m_map),
-                        Model::MapFacesIterator::end(*m_map),
-                        SetTexture(m_textureManager),
-                        Model::MatchAll());
+            const Model::EntityList& entities = m_map->entities();
+            Model::EntityList::const_iterator eIt, eEnd;
+            Model::BrushList::const_iterator bIt, bEnd;
+            for (eIt = entities.begin(), eEnd = entities.end(); eIt != eEnd; ++eIt) {
+                const Model::Entity* entity = *eIt;
+                const Model::BrushList& brushes = entity->brushes();
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    const Model::Brush* brush = *bIt;
+                    setTextures(brush->faces());
+                }
+            }
             if (m_currentTexture != NULL)
                 m_currentTexture = m_textureManager.texture(m_currentTexture->name());
         }
         
+        void MapDocument::setTextures(const Model::BrushFaceList& faces) {
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it)
+                setTexture(*it);
+        }
+        
+        void MapDocument::setTexture(Model::BrushFace* face) {
+            assert(face != NULL);
+            Assets::Texture* texture = m_textureManager.texture(face->textureName());
+            face->setTexture(texture);
+        }
+
+        void MapDocument::unsetTextures(const Model::BrushFaceList& faces) {
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it)
+                unsetTexture(*it);
+        }
+        
+        void MapDocument::unsetTexture(Model::BrushFace* face) {
+            assert(face != NULL);
+            face->setTexture(NULL);
+        }
+
         void MapDocument::doAddExternalTextureCollections(const StringList& names) {
             const IO::Path::List searchPaths = externalSearchPaths();
             

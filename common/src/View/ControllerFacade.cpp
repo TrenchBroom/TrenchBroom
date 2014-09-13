@@ -45,7 +45,9 @@
 #include "Controller/SplitBrushFacesCommand.h"
 #include "Controller/TextureCollectionCommand.h"
 #include "Controller/TransformObjectsCommand.h"
+#include "Model/AddObjectsQuery.h"
 #include "Model/ModelUtils.h"
+#include "Model/RemoveObjectsQuery.h"
 #include "View/MapDocument.h"
 #include "View/ViewTypes.h"
 
@@ -248,6 +250,49 @@ namespace TrenchBroom {
         }
 
         bool ControllerFacade::addEntity(Model::Entity* entity) {
+            MapDocumentSPtr document = lock(m_document);
+            
+            Model::AddObjectsQuery query;
+            query.addEntity(entity, document->currentLayer());
+            return addObjects(query);
+        }
+
+        bool ControllerFacade::addBrush(Model::Brush* brush) {
+            MapDocumentSPtr document = lock(m_document);
+            
+            Model::AddObjectsQuery query;
+            query.addBrush(brush, document->worldspawn(), document->currentLayer());
+            return addObjects(query);
+        }
+
+        bool ControllerFacade::addObjects(const Model::AddObjectsQuery& query) {
+            using namespace Controller;
+            
+            Command::Ptr command = AddRemoveObjectsCommand::addObjects(m_document, query);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        bool ControllerFacade::removeObject(Model::Object* object) {
+            Model::RemoveObjectsQuery query;
+            object->accept(query);
+            return removeObjects(query);
+        }
+        
+        bool ControllerFacade::removeObjects(const Model::ObjectList& objects) {
+            Model::RemoveObjectsQuery query;
+            Model::Object::accept(objects.begin(), objects.end(), query);
+            return removeObjects(query);
+        }
+        
+        bool ControllerFacade::removeObjects(const Model::RemoveObjectsQuery& query) {
+            using namespace Controller;
+            
+            Command::Ptr command = AddRemoveObjectsCommand::removeObjects(m_document, query);
+            return m_commandProcessor.submitAndStoreCommand(command);
+        }
+
+        /*
+        bool ControllerFacade::addEntity(Model::Entity* entity) {
             return addEntities(Model::EntityList(1, entity));
         }
         
@@ -292,40 +337,49 @@ namespace TrenchBroom {
             Command::Ptr command = AddRemoveObjectsCommand::removeObjects(m_document, objects);
             return m_commandProcessor.submitAndStoreCommand(command);
         }
-
+*/
+        
         Model::BrushList ControllerFacade::duplicateBrushes(const Model::BrushList& brushes) {
             return Model::makeBrushList(duplicateObjects(Model::makeObjectList(brushes)));
         }
 
-        Model::ObjectList ControllerFacade::duplicateObjects(const Model::ObjectList& objects) {
-            Model::ObjectParentList duplicates;
-            Model::ObjectLayerMap layers;
-            Model::ObjectList result;
-            
-            MapDocumentSPtr document = lock(m_document);
-            const BBox3& worldBounds = document->worldBounds();
-            
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                Model::Object* parent = NULL;
-                if (object->type() == Model::Object::Type_Brush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    parent = brush->parent();
-                }
-                
-                Model::Object* duplicate = object->clone(worldBounds);
-                duplicates.push_back(Model::ObjectParentPair(duplicate, parent));
-                layers[duplicate] = document->layerForDuplicateOf(object);
-                result.push_back(duplicate);
+        struct DuplicateObjectsQueryBuilder : public Model::ObjectVisitor {
+        private:
+            const BBox3& m_worldBounds;
+            Model::Layer* m_layer;
+            Model::AddObjectsQuery m_query;
+        public:
+            DuplicateObjectsQueryBuilder(const BBox3& worldBounds, Model::Layer* layer) :
+            m_worldBounds(worldBounds),
+            m_layer(layer) {
+                assert(m_layer != NULL);
             }
             
-            using namespace Controller;
+            const Model::AddObjectsQuery& query() const {
+                return m_query;
+            }
+        private:
+            void doVisit(Model::Entity* entity) {
+                Model::Entity* duplicate = entity->clone(m_worldBounds);
+                m_query.addEntity(duplicate, m_layer);
+            }
             
-            Command::Ptr command = AddRemoveObjectsCommand::addObjects(m_document, duplicates, layers);
-            if (!m_commandProcessor.submitAndStoreCommand(command))
-                VectorUtils::clearAndDelete(result);
-            return result;
+            void doVisit(Model::Brush* brush) {
+                Model::Entity* entity = brush->parent();
+                Model::Brush* duplicate = brush->clone(m_worldBounds);
+                m_query.addBrush(duplicate, entity, m_layer);
+            }
+        };
+        
+        Model::ObjectList ControllerFacade::duplicateObjects(const Model::ObjectList& objects) {
+            MapDocumentSPtr document = lock(m_document);
+            DuplicateObjectsQueryBuilder builder(document->worldBounds(), document->currentLayer());;
+            Model::Object::accept(objects.begin(), objects.end(), builder);
+
+            Model::AddObjectsQuery query = builder.query();
+            if (!addObjects(query))
+                query.clearAndDelete();
+            return query.objects();
         }
 
         bool ControllerFacade::deleteSelectedObjects() {

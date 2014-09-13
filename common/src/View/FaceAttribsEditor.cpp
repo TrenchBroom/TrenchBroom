@@ -375,11 +375,15 @@ namespace TrenchBroom {
                     m_textureName->SetLabel("multi");
                     m_textureName->SetForegroundColour(*wxLIGHT_GREY);
                 } else {
-                    if (texture == NULL) {
+                    const String& textureName = m_faces[0]->textureName();
+                    if (textureName == Model::BrushFace::NoTextureName) {
                         m_textureName->SetLabel("none");
                         m_textureName->SetForegroundColour(*wxLIGHT_GREY);
                     } else {
-                        m_textureName->SetLabel(texture->name());
+                        if (texture != NULL)
+                            m_textureName->SetLabel(textureName);
+                        else
+                            m_textureName->SetLabel(textureName + " (not found)");
                         m_textureName->SetForegroundColour(GetForegroundColour());
                     }
                 }

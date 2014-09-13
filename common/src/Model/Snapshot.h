@@ -37,6 +37,17 @@ namespace TrenchBroom {
             typedef std::vector<Model::BrushSnapshot> BrushSnapshotList;
             typedef std::vector<Model::BrushFaceSnapshot> BrushFaceSnapshotList;
             
+            class Builder : public ObjectVisitor {
+            private:
+                EntitySnapshotList& m_entitySnapshots;
+                BrushSnapshotList& m_brushSnapshots;
+            public:
+                Builder(EntitySnapshotList& entitySnapshots, BrushSnapshotList& brushSnapshots);
+                
+                void doVisit(Entity* entity);
+                void doVisit(Brush* brush);
+            };
+
             EntitySnapshotList m_entitySnapshots;
             BrushSnapshotList m_brushSnapshots;
             BrushFaceSnapshotList m_faceSnapshots;

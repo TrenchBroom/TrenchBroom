@@ -44,7 +44,6 @@ namespace TrenchBroom {
         private:
             void createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, ControllerWPtr controller, Renderer::Camera& camera);
             wxWindow* createMiniMap(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document, Renderer::Camera& camera);
-            wxWindow* createMapTree(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             wxWindow* createLayerEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
             wxWindow* createModEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
         };

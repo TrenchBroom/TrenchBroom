@@ -23,33 +23,33 @@
 
 namespace TrenchBroom {
     namespace Model {
+        Snapshot::Builder::Builder(EntitySnapshotList& entitySnapshots, BrushSnapshotList& brushSnapshots) :
+        m_entitySnapshots(entitySnapshots),
+        m_brushSnapshots(brushSnapshots) {}
+        
+        void Snapshot::Builder::doVisit(Entity* entity) {
+            m_entitySnapshots.push_back(entity->takeSnapshot());
+        }
+        
+        void Snapshot::Builder::doVisit(Brush* brush) {
+            m_brushSnapshots.push_back(brush->takeSnapshot());
+        }
+        
         Snapshot::Snapshot() {}
 
         Snapshot::Snapshot(const Model::ObjectList& objects) {
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object& object = **it;
-                if (object.type() == Model::Object::Type_Entity)
-                    m_entitySnapshots.push_back(static_cast<Model::Entity&>(object).takeSnapshot());
-                else if (object.type() == Model::Object::Type_Brush)
-                    m_brushSnapshots.push_back(static_cast<Model::Brush&>(object).takeSnapshot());
-            }
+            Builder builder(m_entitySnapshots, m_brushSnapshots);
+            Object::accept(objects.begin(), objects.end(), builder);
         }
 
         Snapshot::Snapshot(const Model::EntityList& entities) {
-            Model::EntityList::const_iterator it, end;
-            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                Model::Entity& entity = **it;
-                m_entitySnapshots.push_back(entity.takeSnapshot());
-            }
+            Builder builder(m_entitySnapshots, m_brushSnapshots);
+            Object::accept(entities.begin(), entities.end(), builder);
         }
         
         Snapshot::Snapshot(const Model::BrushList& brushes) {
-            Model::BrushList::const_iterator it, end;
-            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
-                Model::Brush& brush = **it;
-                m_brushSnapshots.push_back(brush.takeSnapshot());
-            }
+            Builder builder(m_entitySnapshots, m_brushSnapshots);
+            Object::accept(brushes.begin(), brushes.end(), builder);
         }
 
         Snapshot::Snapshot(const Model::BrushFaceList& faces) {

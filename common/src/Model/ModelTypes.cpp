@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Model/ModelUtils.h"
 #include "Model/Object.h"
 
 namespace TrenchBroom {
@@ -34,20 +35,14 @@ namespace TrenchBroom {
                 return MapFormat::Hexen2;
             return MapFormat::Unknown;
         }
-
+        
         ObjectParentPair::ObjectParentPair(Object* i_object, Object* i_parent) :
         object(i_object),
         parent(i_parent) {}
 
         ObjectParentPair::ObjectParentPair(Object* i_object) :
         object(i_object),
-        parent(NULL) {
-            if (object->type() == Object::Type_Brush) {
-                Model::Brush* brush = static_cast<Model::Brush*>(object);
-                parent = brush->parent();
-                assert(parent != NULL);
-            }
-        }
+        parent(getParent(i_object)) {}
 
         bool ObjectParentPair::operator==(const ObjectParentPair& other) const {
             return object == other.object && parent == other.parent;

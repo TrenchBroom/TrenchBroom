@@ -36,10 +36,9 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CreateEntityTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoMouseDragPolicy, DropPolicy, RenderPolicy> {
+        class CreateEntityTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoMouseDragPolicy, DropPolicy, NoRenderPolicy> {
         private:
             const Renderer::Camera& m_camera;
-            Renderer::EntityRenderer m_renderer;
             Model::Entity* m_entity;
         public:
             CreateEntityTool(MapDocumentWPtr document, ControllerWPtr controller, const Renderer::Camera& camera, Renderer::FontManager& fontManager);
@@ -49,8 +48,6 @@ namespace TrenchBroom {
             void doDragLeave(const InputState& inputState);
             bool doDragDrop(const InputState& inputState);
             void updateEntityPosition(const InputState& inputState);
-
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
         };
     }
 }

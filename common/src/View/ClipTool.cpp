@@ -21,6 +21,7 @@
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Model/AddObjectsQuery.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
@@ -64,18 +65,22 @@ namespace TrenchBroom {
             
             const UndoableCommandGroup commandGroup(controller(), toRemove.size() == 1 ? "Clip Brush" : "Clip Brushes");
             if (!clipResult.frontBrushes.empty() && m_clipper.keepFrontBrushes()) {
-                const Model::ObjectParentList brushes = Model::makeObjectParentList(clipResult.frontBrushes);
-                controller()->addObjects(brushes, clipResult.frontLayers);
-                VectorUtils::append(addedObjects, makeObjectList(brushes));
+                Model::AddObjectsQuery query;
+                query.addBrushes(clipResult.frontBrushes, clipResult.frontLayers);
+                VectorUtils::append(addedObjects, query.objects());
+                
+                controller()->addObjects(query);
                 clipResult.frontBrushes.clear();
             } else {
                 clearAndDelete(clipResult.frontBrushes);
             }
             clipResult.frontLayers.clear();
             if (!clipResult.backBrushes.empty() && m_clipper.keepBackBrushes()) {
-                const Model::ObjectParentList brushes = Model::makeObjectParentList(clipResult.backBrushes);
-                controller()->addObjects(brushes, clipResult.backLayers);
-                VectorUtils::append(addedObjects, makeObjectList(brushes));
+                Model::AddObjectsQuery query;
+                query.addBrushes(clipResult.backBrushes, clipResult.backLayers);
+                VectorUtils::append(addedObjects, query.objects());
+
+                controller()->addObjects(query);
                 clipResult.backBrushes.clear();
             } else {
                 clearAndDelete(clipResult.backBrushes);

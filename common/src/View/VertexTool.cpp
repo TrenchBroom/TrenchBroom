@@ -613,51 +613,53 @@ namespace TrenchBroom {
             }
         }
         
-        void VertexTool::selectionDidChange(const Model::SelectionResult& selection) {
-            Model::ObjectSet::const_iterator it, end;
-
-            const Model::ObjectSet& selectedObjects = selection.selectedObjects();
-            for (it = selectedObjects.begin(), end = selectedObjects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                if (object->type() == Model::Object::Type_Brush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    m_handleManager.addBrush(brush);
-                }
+        class AddToHandleManager : public Model::ObjectVisitor {
+        private:
+            VertexHandleManager& m_handleManager;
+        public:
+            AddToHandleManager(VertexHandleManager& handleManager) :
+            m_handleManager(handleManager) {}
+            
+            void doVisit(Model::Entity* entity) {}
+            void doVisit(Model::Brush* brush) {
+                m_handleManager.addBrush(brush);
             }
+        };
+        
+        class RemoveFromHandleManager : public Model::ObjectVisitor {
+        private:
+            VertexHandleManager& m_handleManager;
+        public:
+            RemoveFromHandleManager(VertexHandleManager& handleManager) :
+            m_handleManager(handleManager) {}
+            
+            void doVisit(Model::Entity* entity) {}
+            void doVisit(Model::Brush* brush) {
+                m_handleManager.removeBrush(brush);
+            }
+        };
+
+        void VertexTool::selectionDidChange(const Model::SelectionResult& selection) {
+            const Model::ObjectSet& selectedObjects = selection.selectedObjects();
+            AddToHandleManager addVisitor(m_handleManager);
+            Model::Object::accept(selectedObjects.begin(), selectedObjects.end(), addVisitor);
             
             const Model::ObjectSet& deselectedObjects = selection.deselectedObjects();
-            for (it = deselectedObjects.begin(), end = deselectedObjects.end(); it != end; ++it) {
-                Model::Object* object = *it;
-                if (object->type() == Model::Object::Type_Brush) {
-                    Model::Brush* brush = static_cast<Model::Brush*>(object);
-                    m_handleManager.removeBrush(brush);
-                }
-            }
+            RemoveFromHandleManager removeVisitor(m_handleManager);
+            Model::Object::accept(deselectedObjects.begin(), deselectedObjects.end(), removeVisitor);
         }
 
         void VertexTool::objectsWillChange(const Model::ObjectList& objects) {
             if (!m_ignoreObjectChangeNotifications) {
-                Model::ObjectList::const_iterator it, end;
-                for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                    Model::Object* object = *it;
-                    if (object->type() == Model::Object::Type_Brush) {
-                        Model::Brush* brush = static_cast<Model::Brush*>(object);
-                        m_handleManager.removeBrush(brush);
-                    }
-                }
+                RemoveFromHandleManager removeVisitor(m_handleManager);
+                Model::Object::accept(objects.begin(), objects.end(), removeVisitor);
             }
         }
         
         void VertexTool::objectsDidChange(const Model::ObjectList& objects) {
             if (!m_ignoreObjectChangeNotifications) {
-                Model::ObjectList::const_iterator it, end;
-                for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                    Model::Object* object = *it;
-                    if (object->type() == Model::Object::Type_Brush) {
-                        Model::Brush* brush = static_cast<Model::Brush*>(object);
-                        m_handleManager.addBrush(brush);
-                    }
-                }
+                AddToHandleManager addVisitor(m_handleManager);
+                Model::Object::accept(objects.begin(), objects.end(), addVisitor);
             }
         }
 

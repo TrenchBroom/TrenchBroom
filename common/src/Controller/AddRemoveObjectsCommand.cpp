@@ -33,123 +33,40 @@ namespace TrenchBroom {
         const Command::CommandType AddRemoveObjectsCommand::Type = Command::freeType();
 
         AddRemoveObjectsCommand::~AddRemoveObjectsCommand() {
-            VectorUtils::deleteAll(Model::makeChildList(m_objectsToAdd));
+            m_addQuery.clearAndDelete();
         }
 
-        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects, Model::Layer* layer) {
-            Model::ObjectLayerMap layers;
-            Model::ObjectParentList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* object = it->object;
-                layers[object] = layer;
-            }
-            return addObjects(document, objects, layers);
-        }
-
-        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers) {
-            return Ptr(new AddRemoveObjectsCommand(document, Action_Add, objects, layers));
+        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::addObjects(View::MapDocumentWPtr document, const Model::AddObjectsQuery& addQuery) {
+            return Ptr(new AddRemoveObjectsCommand(document, addQuery));
         }
         
-        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::removeObjects(View::MapDocumentWPtr document, const Model::ObjectParentList& objects) {
-            return Ptr(new AddRemoveObjectsCommand(document, Action_Remove, objects, Model::ObjectLayerMap()));
+        AddRemoveObjectsCommand::Ptr AddRemoveObjectsCommand::removeObjects(View::MapDocumentWPtr document, const Model::RemoveObjectsQuery& removeQuery) {
+            return Ptr(new AddRemoveObjectsCommand(document, removeQuery));
         }
 
-        AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Action action, const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers) :
-        DocumentCommand(Type, makeName(action, objects), true, document),
-        m_newLayers(layers),
-        m_action(action) {
-            if (action == Action_Add) {
-                m_objectsToAdd = objects;
-                m_oldLayers = collectLayers(m_objectsToAdd);
-            } else {
-                m_objectsToRemove = addEmptyBrushEntities(objects);
-                m_oldLayers = collectLayers(m_objectsToRemove);
-            }
-        }
+        AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Model::AddObjectsQuery& addQuery) :
+        DocumentCommand(Type, StringUtils::safePlural(addQuery.objectCount(), "Add object", "Add objects"), true, document),
+        m_action(Action_Add),
+        m_addQuery(addQuery) {}
         
-        Model::ObjectParentList AddRemoveObjectsCommand::addEmptyBrushEntities(const Model::ObjectParentList& objects) const {
-
-            /*
-             This method makes sure that brush entities which will have all their brushes removed get removed themselves instead of remaining in the map, but empty.
-             */
-            
-            // First we build a map of each parent object to its children.
-            Model::ObjectParentList result;
-            Model::ObjectChildrenMap map;
-            Model::ObjectParentList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                Model::Object* parent = it->parent;
-                Model::Object* object = it->object;
-                map[parent].push_back(object);
-            }
-            
-            // now we iterate the map, checking for every non-null parent whether all its children are removed
-            // if that is the case, we add that parent to the list of objects to be removed instead
-            // of all its children, which then get removed automatically
-            Model::ObjectChildrenMap::const_iterator mIt, mEnd;
-            for (mIt = map.begin(), mEnd = map.end(); mIt != mEnd; ++mIt) {
-                Model::Object* parent = mIt->first;
-                const Model::ObjectList& children = mIt->second;
-                
-                if (parent != NULL) {
-                    if (parent->type() == Model::Object::Type_Entity) {
-                        Model::Entity* entity = static_cast<Model::Entity*>(parent);
-                        if (entity->brushes().size() == children.size() && !entity->worldspawn()) {
-                            result.push_back(Model::ObjectParentPair(parent, NULL));
-                        } else {
-                            Model::ObjectList::const_iterator cIt, cEnd;
-                            for (cIt = children.begin(), cEnd = children.end(); cIt != cEnd; ++cIt) {
-                                Model::Object* child = *cIt;
-                                result.push_back(Model::ObjectParentPair(child, parent));
-                            }
-                        }
-                    }
-                } else {
-                    Model::ObjectList::const_iterator cIt, cEnd;
-                    for (cIt = children.begin(), cEnd = children.end(); cIt != cEnd; ++cIt) {
-                        Model::Object* child = *cIt;
-                        result.push_back(Model::ObjectParentPair(child, parent));
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        Model::ObjectLayerMap AddRemoveObjectsCommand::collectLayers(const Model::ObjectParentList& objects) const {
-            Model::ObjectLayerMap result;
-            Model::ObjectParentList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it)
-                result[it->object] = it->object->layer();
-            return result;
-        }
-
-        String AddRemoveObjectsCommand::makeName(const Action action, const Model::ObjectParentList& objects) {
-            StringStream name;
-            name << (action == Action_Add ? "Add " : "Remove ");
-            name << (objects.size() == 1 ? "object" : "objects");
-            return name.str();
-        }
+        AddRemoveObjectsCommand::AddRemoveObjectsCommand(View::MapDocumentWPtr document, const Model::RemoveObjectsQuery& removeQuery) :
+        DocumentCommand(Type, StringUtils::safePlural(removeQuery.objectCount(), "Remove object", "Remove objects"), true, document),
+        m_action(Action_Remove),
+        m_removeQuery(removeQuery) {}
 
         bool AddRemoveObjectsCommand::doPerformDo() {
             if (m_action == Action_Add)
-                addObjects(m_objectsToAdd, m_newLayers);
+                addObjects();
             else
-                removeObjects(m_objectsToRemove, m_newLayers);
-            
-            using std::swap;
-            swap(m_objectsToAdd, m_objectsToRemove);
+                removeObjects();
             return true;
         }
         
         bool AddRemoveObjectsCommand::doPerformUndo() {
             if (m_action == Action_Add)
-                removeObjects(m_objectsToRemove, m_oldLayers);
+                removeObjects();
             else
-                addObjects(m_objectsToAdd, m_oldLayers);
-
-            using std::swap;
-            swap(m_objectsToAdd, m_objectsToRemove);
+                addObjects();
             return true;
         }
 
@@ -161,39 +78,35 @@ namespace TrenchBroom {
             return false;
         }
 
-        void AddRemoveObjectsCommand::addObjects(const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers) {
+        void AddRemoveObjectsCommand::addObjects() {
             View::MapDocumentSPtr document = lockDocument();
-
-            Model::ObjectList parents, children;
-            makeParentChildLists(objects, parents, children);
-
-            document->objectsWillChangeNotifier(parents);
-            document->addObjects(objects);
-            setLayers(layers);
-            document->objectsWereAddedNotifier(children);
-            document->objectsDidChangeNotifier(parents);
+            if (!m_addQuery.parents().empty())
+                document->objectsWillChangeNotifier(m_addQuery.parents());
+            document->addEntities(m_addQuery.entities(), m_addQuery.layers());
+            document->addBrushes(m_addQuery.brushes(), m_addQuery.layers());
+            document->objectsWereAddedNotifier(m_addQuery.objects());
+            if (!m_addQuery.parents().empty())
+                document->objectsDidChangeNotifier(m_addQuery.parents());
+            
+            m_removeQuery = Model::RemoveObjectsQuery(m_addQuery);
+            m_addQuery.clear();
         }
         
-        void AddRemoveObjectsCommand::removeObjects(const Model::ObjectParentList& objects, const Model::ObjectLayerMap& layers) {
+        void AddRemoveObjectsCommand::removeObjects() {
+            // build the add query when the objects still have all required information, e.g. their layers
+            m_addQuery = Model::AddObjectsQuery(m_removeQuery);
+
             View::MapDocumentSPtr document = lockDocument();
-
-            Model::ObjectList parents, children;
-            makeParentChildLists(objects, parents, children);
-            document->objectsWillChangeNotifier(parents);
-            document->objectsWillBeRemovedNotifier(children);
-            setLayers(layers);
-            document->removeObjects(children);
-            document->objectsWereRemovedNotifier(objects);
-            document->objectsDidChangeNotifier(parents);
-        }
-
-        void AddRemoveObjectsCommand::setLayers(const Model::ObjectLayerMap& layers) {
-            Model::ObjectLayerMap::const_iterator it, end;
-            for (it = layers.begin(), end = layers.end(); it != end; ++it) {
-                Model::Object* object = it->first;
-                Model::Layer* layer = it->second;
-                object->setLayer(layer);
-            }
+            if (!m_removeQuery.parents().empty())
+                document->objectsWillChangeNotifier(m_removeQuery.parents());
+            document->objectsWillBeRemovedNotifier(m_removeQuery.objects());
+            document->removeBrushes(m_removeQuery.brushes());
+            document->removeEntities(m_removeQuery.entities());
+            document->objectsWereRemovedNotifier(m_removeQuery.objects());
+            if (!m_removeQuery.parents().empty())
+                document->objectsDidChangeNotifier(m_removeQuery.parents());
+            
+            m_removeQuery.clear();
         }
     }
 }

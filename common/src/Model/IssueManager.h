@@ -62,10 +62,7 @@ namespace TrenchBroom {
             template <typename I>
             void addObjects(I cur, I end) {
                 while (cur != end) {
-                    Object* object = *cur;
-                    const IssueList objectIssues = findIssues(object);
-                    if (!objectIssues.empty())
-                        insertIssues(object, objectIssues);
+                    addObject(*cur);
                     ++cur;
                 }
                 issuesDidChangeNotifier();
@@ -74,7 +71,7 @@ namespace TrenchBroom {
             template <typename I>
             void removeObjects(I cur, I end) {
                 while (cur != end) {
-                    removeIssues(*cur);
+                    removeObject(*cur);
                     ++cur;
                 }
                 issuesDidChangeNotifier();
@@ -82,9 +79,16 @@ namespace TrenchBroom {
             
             template <typename I>
             void updateObjects(I cur, I end) {
-                removeObjects(cur, end);
-                addObjects(cur, end);
+                while (cur != end) {
+                    updateObject(*cur);
+                    ++cur;
+                }
+                issuesDidChangeNotifier();
             }
+            
+            void addObject(Object* object);
+            void removeObject(Object* object);
+            void updateObject(Object* object);
             
             void setIssueHidden(Issue* issue, bool hidden);
             

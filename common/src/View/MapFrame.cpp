@@ -23,11 +23,11 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "IO/DiskFileSystem.h"
+#include "Model/AddObjectsQuery.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Map.h"
-#include "Model/MapObjectsIterator.h"
 #include "Model/Object.h"
 #include "Model/Selection.h"
 #include "View/Action.h"
@@ -325,48 +325,84 @@ namespace TrenchBroom {
                 m_controller->selectObjects(selectBrushes);
         }
         
+        class CollectIntersectingObjects : public Model::ObjectVisitor {
+        private:
+            const Model::Brush* m_brush;
+            Model::ObjectList m_objects;
+        public:
+            CollectIntersectingObjects(const Model::Brush* brush) :
+            m_brush(brush) {
+                assert(m_brush != NULL);
+            }
+            
+            const Model::ObjectList& objects() const {
+                return m_objects;
+            }
+        private:
+            void doVisit(Model::Entity* entity) {
+                if (entity->pointEntity() && m_brush->intersects(*entity))
+                    m_objects.push_back(entity);
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                if (brush != m_brush && m_brush->intersects(*brush))
+                    m_objects.push_back(brush);
+            }
+        };
+        
         void MapFrame::OnEditSelectTouching(wxCommandEvent& event) {
             const Model::BrushList& selectedBrushes = m_document->selectedBrushes();
             assert(selectedBrushes.size() == 1 && !m_document->hasSelectedEntities());
 
+            const Model::EntityList& entities = m_document->map()->entities();
             Model::Brush* selectionBrush = selectedBrushes.front();
-            Model::ObjectList selectObjects;
-            
-            Model::MapObjectsIterator::OuterIterator it = Model::MapObjectsIterator::begin(*m_document->map());
-            Model::MapObjectsIterator::OuterIterator end = Model::MapObjectsIterator::end(*m_document->map());
-            while (it != end) {
-                Model::Object* object = *it;
-                if (object != selectionBrush && selectionBrush->intersects(*object))
-                    selectObjects.push_back(object);
-                ++it;
-            }
+            CollectIntersectingObjects collect(selectionBrush);
+            Model::Object::acceptRecursively(entities.begin(), entities.end(), collect);
             
             const UndoableCommandGroup commandGroup(m_controller, "Select touching objects");
             m_controller->deselectAll();
             m_controller->removeObject(selectionBrush);
-            m_controller->selectObjects(selectObjects);
+            m_controller->selectObjects(collect.objects());
         }
         
+        class CollectContainedObjects : public Model::ObjectVisitor {
+        private:
+            const Model::Brush* m_brush;
+            Model::ObjectList m_objects;
+        public:
+            CollectContainedObjects(const Model::Brush* brush) :
+            m_brush(brush) {
+                assert(m_brush != NULL);
+            }
+            
+            const Model::ObjectList& objects() const {
+                return m_objects;
+            }
+        private:
+            void doVisit(Model::Entity* entity) {
+                if (entity->pointEntity() && m_brush->contains(*entity))
+                    m_objects.push_back(entity);
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                if (brush != m_brush && m_brush->contains(*brush))
+                    m_objects.push_back(brush);
+            }
+        };
+
         void MapFrame::OnEditSelectInside(wxCommandEvent& event) {
             const Model::BrushList& selectedBrushes = m_document->selectedBrushes();
             assert(selectedBrushes.size() == 1 && !m_document->hasSelectedEntities());
             
+            const Model::EntityList& entities = m_document->map()->entities();
             Model::Brush* selectionBrush = selectedBrushes.front();
-            Model::ObjectList selectObjects;
-            
-            Model::MapObjectsIterator::OuterIterator it = Model::MapObjectsIterator::begin(*m_document->map());
-            Model::MapObjectsIterator::OuterIterator end = Model::MapObjectsIterator::end(*m_document->map());
-            while (it != end) {
-                Model::Object* object = *it;
-                if (object != selectionBrush && selectionBrush->contains(*object))
-                    selectObjects.push_back(object);
-                ++it;
-            }
+            CollectContainedObjects collect(selectionBrush);
+            Model::Object::acceptRecursively(entities.begin(), entities.end(), collect);
             
             const UndoableCommandGroup commandGroup(m_controller, "Select contained objects");
             m_controller->deselectAll();
             m_controller->removeObject(selectionBrush);
-            m_controller->selectObjects(selectObjects);
+            m_controller->selectObjects(collect.objects());
         }
         
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
@@ -901,58 +937,72 @@ namespace TrenchBroom {
             }
         }
 
+        class ProcessPastedObjects : public Model::ObjectVisitor {
+        private:
+            Model::Entity* m_worldspawn;
+            Model::Layer* m_layer;
+            Model::AddObjectsQuery m_query;
+            Model::ObjectList m_selectableObjects;
+        public:
+            ProcessPastedObjects(Model::Entity* worldspawn, Model::Layer* layer) :
+            m_worldspawn(worldspawn),
+            m_layer(layer) {
+                assert(m_worldspawn != NULL);
+                assert(m_layer != NULL);
+            }
+            
+            const Model::AddObjectsQuery& query() const {
+                return m_query;
+            }
+            
+            const Model::ObjectList& selectableObjects() const {
+                return m_selectableObjects;
+            }
+        private:
+            void doVisit(Model::Entity* entity) {
+                // we must make a copy of the brush list here because we might need to remove brushes from the
+                // entity later on, which would result in invalid iterators
+                const Model::BrushList brushes = entity->brushes();
+                if (!entity->worldspawn()) {
+                    m_query.addEntity(entity, m_layer);
+                    if (brushes.empty())
+                        m_selectableObjects.push_back(entity);
+                    else
+                        VectorUtils::append(m_selectableObjects, brushes);
+                } else {
+                    m_query.addBrushes(entity->brushes(), m_worldspawn, m_layer);
+                    VectorUtils::append(m_selectableObjects, entity->brushes());
+                    entity->removeAllBrushes();
+                    delete entity;
+                }
+            }
+            
+            void doVisit(Model::Brush* brush) {
+                m_query.addBrush(brush, m_worldspawn, m_layer);
+                m_selectableObjects.push_back(brush);
+            }
+        };
+
         void MapFrame::pasteObjects(const Model::ObjectList& objects, const Vec3& delta) {
             assert(!objects.empty());
             
-            Model::ObjectParentList pastedObjects;
-            Model::ObjectList selectableObjects;
-            collectPastedObjects(objects, pastedObjects, selectableObjects);
+            ProcessPastedObjects pasted(m_document->worldspawn(), m_document->currentLayer());
+            Model::Object::accept(objects.begin(), objects.end(), pasted);
             
-            const UndoableCommandGroup commandGroup(m_controller, String("Paste ") + String(objects.size() == 1 ? "Object" : "Objects"));
+            const Model::AddObjectsQuery& query = pasted.query();
+            const size_t objectCount = query.objectCount();
+            const Model::ObjectList& selectableObjects = pasted.selectableObjects();
+            
+            const UndoableCommandGroup commandGroup(m_controller, String("Paste ") + StringUtils::safePlural(objectCount, "object", "objects"));
             m_controller->deselectAll();
-            m_controller->addObjects(pastedObjects);
+            m_controller->addObjects(query);
             m_controller->selectObjects(selectableObjects);
             if (!delta.null())
                 m_controller->moveObjects(selectableObjects, delta, m_document->textureLock());
             
             StringStream logMsg;
-            logMsg << "Pasted " << pastedObjects.size() << (pastedObjects.size() == 1 ? " object" : " objects") << " from clipboard";
+            logMsg << "Pasted " << objectCount << StringUtils::safePlural(objectCount, " object", " objects") << " from clipboard";
             logger()->info(logMsg.str());
-        }
-        
-        void MapFrame::collectPastedObjects(const Model::ObjectList& objects, Model::ObjectParentList& pastedObjects, Model::ObjectList& selectableObjects) {
-            Model::Entity* worldspawn = m_document->worldspawn();
-            Model::ObjectList::const_iterator oIt, oEnd;
-            Model::BrushList::const_iterator bIt, bEnd;
-            
-            for (oIt = objects.begin(), oEnd = objects.end(); oIt != oEnd; ++oIt) {
-                Model::Object* object = *oIt;
-                if (object->type() == Model::Object::Type_Entity) {
-                    Model::Entity* entity = static_cast<Model::Entity*>(object);
-                    
-                    // we must make a copy of the brush list here because we might need to remove brushes from the
-                    // entity later on, which would result in invalid iterators
-                    const Model::BrushList brushes = entity->brushes();
-                    if (!entity->worldspawn()) {
-                        pastedObjects.push_back(Model::ObjectParentPair(entity));
-                        if (brushes.empty())
-                            selectableObjects.push_back(entity);
-                        else
-                            VectorUtils::append(selectableObjects, brushes);
-                    } else {
-                        for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
-                            Model::Brush* brush = *bIt;
-                            entity->removeBrush(brush);
-                            pastedObjects.push_back(Model::ObjectParentPair(brush, worldspawn));
-                            selectableObjects.push_back(brush);
-                        }
-                        delete entity;
-                    }
-                } else {
-                    pastedObjects.push_back(Model::ObjectParentPair(object, worldspawn));
-                    selectableObjects.push_back(object);
-                }
-            }
         }
     }
 }

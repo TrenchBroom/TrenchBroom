@@ -127,28 +127,23 @@ namespace TrenchBroom {
             bool hasContentType(const BrushContentType& contentType) const;
             bool hasContentType(BrushContentType::FlagType contentTypeMask) const;
             void invalidateContentType();
+
+            bool containsPoint(const Vec3& point) const;
         private:
             BrushContentType::FlagType contentTypeFlags() const;
             void validateContentType() const;
-            
-            void doAddToLayer(Layer* layer);
-            void doRemoveFromLayer(Layer* layer);
 
             void doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Object& object) const;
-            bool doContains(const Entity& entity) const;
-            bool doContains(const Brush& brush) const;
-            bool doContainedBy(const Object& object) const;
-            bool doContainedBy(const Entity& entity) const;
-            bool doContainedBy(const Brush& brush) const;
             bool doIntersects(const Object& object) const;
-            bool doIntersects(const Entity& entity) const;
-            bool doIntersects(const Brush& brush) const;
-            void doVisit(ObjectVisitor& visitor);
+            
+            void doAccept(ObjectVisitor& visitor);
+            void doAccept(ConstObjectVisitor& visitor) const;
+            void doAcceptRecursively(ObjectVisitor& visitor);
+            void doAcceptRecursively(ConstObjectVisitor& visitor) const;
+
             Object* doClone(const BBox3& worldBounds) const;
         private:
-            bool containsPoint(const Vec3& point) const;
-            
             void notifyParent() const;
 
             friend class BrushSnapshot;

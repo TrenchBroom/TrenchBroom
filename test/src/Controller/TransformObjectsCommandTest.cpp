@@ -44,7 +44,7 @@ namespace TrenchBroom {
             Model::Brush* brush = builder.createCube(128.0, "someName");
             ASSERT_EQ(Vec3::Null, brush->bounds().center());
             
-            doc->addObject(brush);
+            doc->addBrush(brush, doc->worldspawn(), doc->currentLayer());
             doc->objectsWereAddedNotifier(Model::ObjectList(1, brush));
             
             Model::ObjectList objects(1, brush);
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             Model::Brush* brush = builder.createCube(128.0, "someName");
             ASSERT_EQ(Vec3::Null, brush->bounds().center());
             
-            doc->addObject(brush);
+            doc->addBrush(brush, doc->worldspawn(), doc->currentLayer());
             doc->objectsWereAddedNotifier(Model::ObjectList(1, brush));
             Model::ObjectList objects(1, brush);
             

@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/ModelTypes.h"
+#include "Model/Object.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -76,6 +77,34 @@ namespace TrenchBroom {
             void convertToFaceSelection(SelectionResult& result);
             void deselectAllObjects(SelectionResult& result);
             void deselectAllFaces(SelectionResult& result);
+            
+            struct ApplySelectedObjects : public ObjectVisitor {
+                Selection& selection;
+                ApplySelectedObjects(Selection& i_selection);
+                void doVisit(Entity* entity);
+                void doVisit(Brush* brush);
+            };
+            
+            struct ApplyDeselectedObjects : public ObjectVisitor {
+                Selection& selection;
+                ApplyDeselectedObjects(Selection& i_selection);
+                void doVisit(Entity* entity);
+                void doVisit(Brush* brush);
+            };
+            
+            struct ApplyPartiallySelectedObjects : public ObjectVisitor {
+                Selection& selection;
+                ApplyPartiallySelectedObjects(Selection& i_selection);
+                void doVisit(Entity* entity);
+                void doVisit(Brush* brush);
+            };
+            
+            struct ApplyPartiallyDeselectedObjects : public ObjectVisitor {
+                Selection& selection;
+                ApplyPartiallyDeselectedObjects(Selection& i_selection);
+                void doVisit(Entity* entity);
+                void doVisit(Brush* brush);
+            };
             
             void applyResult(const SelectionResult& result);
             void applySelectedObjects(const ObjectSet& objects);
