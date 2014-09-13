@@ -301,7 +301,7 @@ namespace TrenchBroom {
             const EntityList& entities = map.entities();
             SelectionResult result;
             SetSelection set(true, m_filter, result);
-            Object::accept(entities.begin(), entities.end(), set);
+            Object::acceptRecursively(entities.begin(), entities.end(), set);
             applyResult(result);
             return result;
         }

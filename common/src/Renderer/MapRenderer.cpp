@@ -582,7 +582,7 @@ namespace TrenchBroom {
         
         void MapRenderer::updateObjects(const Model::ObjectList& objects) {
             UpdateObject visitor(*this);
-            Model::Object::acceptRecursively(objects.begin(), objects.end(), visitor);
+            Model::Object::accept(objects.begin(), objects.end(), visitor);
         }
         
         void MapRenderer::removeObjects(const Model::ObjectList& objects) {
