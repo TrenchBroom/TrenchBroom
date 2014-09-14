@@ -67,7 +67,7 @@ namespace TrenchBroom {
         private:
             BrushContentTypeBuilder::Ptr m_contentTypeBuilder;
 
-            Entity* m_parent;
+            Entity* m_entity;
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
             
@@ -82,8 +82,8 @@ namespace TrenchBroom {
             Brush* clone(const BBox3& worldBounds) const;
             BrushSnapshot takeSnapshot();
             
-            Entity* parent() const;
-            void setParent(Entity* parent);
+            Entity* entity() const;
+            void setEntity(Entity* entity);
             
             void select();
             void deselect();

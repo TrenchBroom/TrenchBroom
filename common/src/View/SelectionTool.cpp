@@ -102,7 +102,7 @@ namespace TrenchBroom {
                 const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit, document()->filter(), true);
                 if (hit.isMatch()) {
                     Model::Brush* brush = Model::hitAsBrush(hit);
-                    Model::Entity* parent = brush->parent();
+                    Model::Entity* parent = brush->entity();
                     if (!parent->worldspawn()) {
                         const Model::ObjectList objects = VectorUtils::cast<Model::Object*>(parent->brushes());
                         if (isMultiClick(inputState))

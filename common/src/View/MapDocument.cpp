@@ -423,7 +423,7 @@ namespace TrenchBroom {
         
         void MapDocument::removeBrush(Model::Brush* brush) {
             assert(brush != NULL);
-            Model::Entity* entity = brush->parent();
+            Model::Entity* entity = brush->entity();
             assert(entity != NULL);
             assert(entity->map() == m_map);
             brush->setLayer(NULL);
@@ -505,7 +505,7 @@ namespace TrenchBroom {
             Model::BrushList::iterator end = brushes.end();
             while (it != end) {
                 Model::Brush* brush = *it;
-                Model::Entity* entity = brush->parent();
+                Model::Entity* entity = brush->entity();
                 if (!entity->worldspawn()) {
                     --end;
                     std::iter_swap(it, end);

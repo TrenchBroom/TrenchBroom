@@ -49,7 +49,7 @@ namespace TrenchBroom {
             }
             
             void doVisit(Model::Brush* brush) {
-                Model::Entity* entity = brush->parent();
+                Model::Entity* entity = brush->entity();
                 brushEntities[entity].push_back(brush);
                 if (entity->worldspawn())
                     worldspawn = entity;

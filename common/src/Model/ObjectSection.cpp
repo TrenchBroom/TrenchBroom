@@ -55,7 +55,7 @@ namespace TrenchBroom {
             assert(!VectorUtils::contains(m_objects, brush));
             assert(!VectorUtils::contains(m_worldBrushes, brush));
             
-            Model::Entity* entity = brush->parent();
+            Model::Entity* entity = brush->entity();
             assert(entity != NULL);
 
             brushWillBeAdded(brush);
@@ -82,7 +82,7 @@ namespace TrenchBroom {
 
             brushWillBeRemoved(brush);
             VectorUtils::erase(m_objects, brush);
-            Model::Entity* entity = brush->parent();
+            Model::Entity* entity = brush->entity();
             assert(entity != NULL);
             if (entity->worldspawn()) {
                 assert(VectorUtils::contains(m_worldBrushes, brush));

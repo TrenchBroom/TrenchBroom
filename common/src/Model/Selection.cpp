@@ -95,7 +95,7 @@ namespace TrenchBroom {
                         brush->select();
                         m_result.addSelectedObject(brush);
                         
-                        Entity* entity = brush->parent();
+                        Entity* entity = brush->entity();
                         if (entity->childSelectionCount() == 1)
                             m_result.addPartiallySelectedObject(entity);
                     }
@@ -104,7 +104,7 @@ namespace TrenchBroom {
                         brush->deselect();
                         m_result.addDeselectedObject(brush);
                         
-                        Entity* entity = brush->parent();
+                        Entity* entity = brush->entity();
                         if (entity->childSelectionCount() == 0)
                             m_result.addPartiallyDeselectedObject(entity);
                     }

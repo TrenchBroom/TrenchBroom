@@ -103,7 +103,7 @@ namespace TrenchBroom {
                     return false;
                 brushes.push_back(brush);
                 
-                Model::Entity* entity = brush->parent();
+                Model::Entity* entity = brush->entity();
                 if (entitySet.insert(entity).second)
                     entities.push_back(entity);
             }

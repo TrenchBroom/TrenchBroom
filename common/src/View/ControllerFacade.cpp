@@ -365,7 +365,7 @@ namespace TrenchBroom {
             }
             
             void doVisit(Model::Brush* brush) {
-                Model::Entity* entity = brush->parent();
+                Model::Entity* entity = brush->entity();
                 Model::Brush* duplicate = brush->clone(m_worldBounds);
                 m_query.addBrush(duplicate, entity, m_layer);
             }

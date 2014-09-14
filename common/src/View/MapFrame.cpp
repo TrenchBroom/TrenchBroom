@@ -316,7 +316,7 @@ namespace TrenchBroom {
             Model::BrushList::const_iterator it, end;
             for (it = alreadySelectedBrushes.begin(), end = alreadySelectedBrushes.end(); it != end; ++it) {
                 Model::Brush* brush = *it;
-                Model::Entity* entity = brush->parent();
+                Model::Entity* entity = brush->entity();
                 if (visitedEntities.insert(entity).second)
                     VectorUtils::append(selectBrushes, entity->brushes());
             }

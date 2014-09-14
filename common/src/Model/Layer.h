@@ -24,11 +24,12 @@
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 #include "Model/Object.h"
+#include "Model/ObjectParent.h"
 #include "Model/ObjectSection.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public ObjectSection {
+        class Layer : public ObjectSection, public ObjectParent {
         public:
             typedef int Attr_Type;
             static const Attr_Type Attr_Name        = 1 << 0;
@@ -69,6 +70,8 @@ namespace TrenchBroom {
             void brushWasAdded(Brush* brush);
             void brushWillBeRemoved(Brush* brush);
             void brushWasRemoved(Brush* brush);
+            
+            Layer* doGetLayerForChild();
         };
     }
 }

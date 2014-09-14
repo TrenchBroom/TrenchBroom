@@ -70,7 +70,7 @@ namespace TrenchBroom {
         
         void RemoveObjectsQuery::removeBrush(Brush* brush) {
             assert(brush != NULL);
-            Entity* entity = brush->parent();
+            Entity* entity = brush->entity();
             assert(entity != NULL);
             
             BrushCountMap::iterator it = MapUtils::findOrInsert(m_brushCounts, entity, 0);

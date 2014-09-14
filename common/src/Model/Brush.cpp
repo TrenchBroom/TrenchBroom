@@ -53,7 +53,7 @@ namespace TrenchBroom {
         
         Brush::Brush(const BBox3& worldBounds, BrushContentTypeBuilder::Ptr contentTypeBuilder, const BrushFaceList& faces) :
         m_contentTypeBuilder(contentTypeBuilder),
-        m_parent(NULL),
+        m_entity(NULL),
         m_geometry(NULL),
         m_contentType(0),
         m_transparent(false),
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
 
         Brush::~Brush() {
-            m_parent = NULL;
+            m_entity = NULL;
             delete m_geometry;
             m_geometry = NULL;
             VectorUtils::clearAndDelete(m_faces);
@@ -77,27 +77,27 @@ namespace TrenchBroom {
             return BrushSnapshot(*this);
         }
 
-        Entity* Brush::parent() const {
-            return m_parent;
+        Entity* Brush::entity() const {
+            return m_entity;
         }
         
-        void Brush::setParent(Entity* parent) {
-            if (parent == m_parent)
+        void Brush::setEntity(Entity* entity) {
+            if (entity == m_entity)
                 return;
-            m_parent = parent;
+            m_entity = entity;
             invalidateContentType();
         }
 
         void Brush::select() {
             Object::select();
-            if (m_parent != NULL)
-                m_parent->childSelectionChanged(selected());
+            if (m_entity != NULL)
+                m_entity->childSelectionChanged(selected());
         }
         
         void Brush::deselect() {
             Object::deselect();
-            if (m_parent != NULL)
-                m_parent->childSelectionChanged(selected());
+            if (m_entity != NULL)
+                m_entity->childSelectionChanged(selected());
         }
         
         const BBox3& Brush::bounds() const {
@@ -561,8 +561,8 @@ namespace TrenchBroom {
         }
         
         void Brush::notifyParent() const {
-            if (m_parent != NULL)
-                m_parent->childBrushChanged();
+            if (m_entity != NULL)
+                m_entity->childBrushChanged();
         }
         
         void Brush::restoreFaces(const BBox3& worldBounds, const BrushFaceList& faces) {

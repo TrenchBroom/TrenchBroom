@@ -129,7 +129,7 @@ namespace TrenchBroom {
             
             void doVisit(const Entity* entity) {}
             void doVisit(const Brush* brush) {
-                parent = brush->parent();
+                parent = brush->entity();
             }
         };
         
@@ -257,7 +257,7 @@ namespace TrenchBroom {
             BrushList::const_iterator it, end;
             for (it = list.begin(), end = list.end(); it != end; ++it) {
                 Model::Brush* brush = *it;
-                Model::Entity* parent = brush->parent();
+                Model::Entity* parent = brush->entity();
                 if (set.insert(parent).second)
                     result.push_back(parent);
             }
@@ -286,7 +286,7 @@ namespace TrenchBroom {
             BrushList::const_iterator it, end;
             for (it = list.begin(), end = list.end(); it != end; ++it) {
                 Brush* brush = *it;
-                Object* parent = brush->parent();
+                Object* parent = brush->entity();
                 if (parent != NULL && parentSet.insert(parent).second)
                     parents.push_back(parent);
                 children.push_back(brush);
