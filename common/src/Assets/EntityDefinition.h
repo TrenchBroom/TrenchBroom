@@ -25,13 +25,12 @@
 #include "Color.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
-#include "Model/EntityProperties.h"
 #include "Assets/ModelDefinition.h"
 
 namespace TrenchBroom {
     namespace Assets {
-        class PropertyDefinition;
-        class FlagsPropertyDefinition;
+        class AttributeDefinition;
+        class FlagsAttributeDefinition;
         
         class EntityDefinition {
         public:
@@ -50,7 +49,7 @@ namespace TrenchBroom {
             Color m_color;
             String m_description;
             size_t m_usageCount;
-            PropertyDefinitionList m_propertyDefinitions;
+            AttributeDefinitionList m_attributeDefinitions;
         public:
             virtual ~EntityDefinition();
             
@@ -67,15 +66,15 @@ namespace TrenchBroom {
             void incUsageCount();
             void decUsageCount();
             
-            const FlagsPropertyDefinition* spawnflags() const;
-            const PropertyDefinitionList& propertyDefinitions() const;
-            const PropertyDefinition* propertyDefinition(const Model::PropertyKey& propertyKey) const;
+            const FlagsAttributeDefinition* spawnflags() const;
+            const AttributeDefinitionList& attributeDefinitions() const;
+            const AttributeDefinition* attributeDefinition(const Model::AttributeName& attributeKey) const;
             
-            static const PropertyDefinition* safeGetPropertyDefinition(const EntityDefinition* entityDefinition, const Model::PropertyKey& propertyKey);
+            static const AttributeDefinition* safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeKey);
 
             static EntityDefinitionList filterAndSort(const EntityDefinitionList& definitions, EntityDefinition::Type type, SortOrder prder = Name);
         protected:
-            EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinitionList& propertyDefinitions);
+            EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions);
         };
         
         class PointEntityDefinition : public EntityDefinition {
@@ -83,18 +82,18 @@ namespace TrenchBroom {
             BBox3 m_bounds;
             ModelDefinitionList m_modelDefinitions;
         public:
-            PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const PropertyDefinitionList propertyDefinitions, const ModelDefinitionList& modelDefinitions = EmptyModelDefinitionList);
+            PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList attributeDefinitions, const ModelDefinitionList& modelDefinitions = EmptyModelDefinitionList);
             
             Type type() const;
             const BBox3& bounds() const;
-            ModelSpecification model(const Model::EntityProperties& properties) const;
+            ModelSpecification model(const Model::EntityAttributes& attributes) const;
             ModelSpecification defaultModel() const;
             const ModelDefinitionList& modelDefinitions() const;
         };
     
         class BrushEntityDefinition : public EntityDefinition {
         public:
-            BrushEntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinitionList& propertyDefinitions);
+            BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions);
             Type type() const;
         };
     }

@@ -81,14 +81,14 @@ namespace TrenchBroom {
             Assets::ModelDefinitionList parseModels();
             Assets::ModelDefinitionPtr parseStaticModel();
             Assets::ModelDefinitionPtr parseDynamicModel();
-            Assets::PropertyDefinitionMap parseProperties();
-            Assets::PropertyDefinitionPtr parseTargetSourceProperty(const String& name);
-            Assets::PropertyDefinitionPtr parseTargetDestinationProperty(const String& name);
-            Assets::PropertyDefinitionPtr parseStringProperty(const String& name);
-            Assets::PropertyDefinitionPtr parseIntegerProperty(const String& name);
-            Assets::PropertyDefinitionPtr parseFloatProperty(const String& name);
-            Assets::PropertyDefinitionPtr parseChoicesProperty(const String& name);
-            Assets::PropertyDefinitionPtr parseFlagsProperty(const String& name);
+            Assets::AttributeDefinitionMap parseProperties();
+            Assets::AttributeDefinitionPtr parseTargetSourceAttribute(const String& name);
+            Assets::AttributeDefinitionPtr parseTargetDestinationAttribute(const String& name);
+            Assets::AttributeDefinitionPtr parseStringAttribute(const String& name);
+            Assets::AttributeDefinitionPtr parseIntegerAttribute(const String& name);
+            Assets::AttributeDefinitionPtr parseFloatAttribute(const String& name);
+            Assets::AttributeDefinitionPtr parseChoicesAttribute(const String& name);
+            Assets::AttributeDefinitionPtr parseFlagsAttribute(const String& name);
             
             Vec3 parseVector();
             BBox3 parseSize();

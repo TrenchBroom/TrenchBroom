@@ -19,97 +19,57 @@
 
 #include "Layer.h"
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/Object.h"
-
-#include <algorithm>
+#include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
         Layer::Layer(const String& name) :
-        m_name(name),
-        m_visible(true),
-        m_locked(false) {}
+        m_name(name) {}
         
         const String& Layer::name() const {
             return m_name;
         }
         
         void Layer::setName(const String& name) {
-            if (name == m_name)
-                return;
-            layerWillChangeNotifier(this, Attr_Name);
             m_name = name;
-            layerDidChangeNotifier(this, Attr_Name);
-        }
-        
-        bool Layer::visible() const {
-            return m_visible;
-        }
-        
-        void Layer::setVisible(const bool visible) {
-            if (visible == m_visible)
-                return;
-            layerWillChangeNotifier(this, Attr_Visible);
-            m_visible = visible;
-            layerDidChangeNotifier(this, Attr_Visible);
-        }
-        
-        bool Layer::locked() const {
-            return m_locked;
-        }
-        
-        void Layer::setLocked(const bool locked) {
-            if (locked == m_locked)
-                return;
-            layerWillChangeNotifier(this, Attr_Locked);
-            m_locked = locked;
-            layerDidChangeNotifier(this, Attr_Locked);
         }
 
-        void Layer::entityWillBeAdded(Entity* entity) {
-            assert(entity->layer() == this);
-            layerWillChangeNotifier(this, Attr_Objects);
-        }
-        
-        void Layer::entityWasAdded(Entity* entity) {
-            objectWasAddedNotifier(this, entity);
-            layerDidChangeNotifier(this, Attr_Objects);
-        }
-        
-        void Layer::entityWillBeRemoved(Entity* entity) {
-            assert(entity->layer() == this);
-            layerDidChangeNotifier(this, Attr_Objects);
-        }
-        
-        void Layer::entityWasRemoved(Entity* entity) {
-            objectWasRemovedNotifier(this, entity);
-            layerDidChangeNotifier(this, Attr_Objects);
-        }
-        
-        void Layer::brushWillBeAdded(Brush* brush) {
-            assert(brush->layer() == this);
-            layerWillChangeNotifier(this, Attr_Objects);
-        }
-        
-        void Layer::brushWasAdded(Brush* brush) {
-            objectWasAddedNotifier(this, brush);
-            layerDidChangeNotifier(this, Attr_Objects);
-        }
-        
-        void Layer::brushWillBeRemoved(Brush* brush) {
-            assert(brush->layer() == this);
-            layerDidChangeNotifier(this, Attr_Objects);
-        }
-        
-        void Layer::brushWasRemoved(Brush* brush) {
-            objectWasRemovedNotifier(this, brush);
-            layerDidChangeNotifier(this, Attr_Objects);
-        }
+        class CanAddChildToLayer : public ConstNodeVisitor {
+        private:
+            bool m_result;
+        public:
+            CanAddChildToLayer() :
+            m_result(false) {}
+            
+            bool result() const {
+                return m_result;
+            }
+        private:
+            void doVisit(const World* world)   { m_result = false; }
+            void doVisit(const Layer* layer)   { m_result = false; }
+            void doVisit(const Group* group)   { m_result = true; }
+            void doVisit(const Entity* entity) { m_result = true; }
+            void doVisit(const Brush* brush)   { m_result = true; }
+        };
 
-        Layer* Layer::doGetLayerForChild() {
-            return this;
+        bool Layer::doCanAddChild(Node* child) const {
+            CanAddChildToLayer visitor;
+            child->accept(visitor);
+            return visitor.result();
+        }
+        
+        bool Layer::doCanRemoveChild(Node* child) const {
+            return true;
+        }
+        
+        void Layer::doAncestorDidChange() {}
+        
+        void Layer::doAccept(NodeVisitor& visitor) {
+            visitor.visit(this);
+        }
+        
+        void Layer::doAccept(ConstNodeVisitor& visitor) const {
+            visitor.visit(this);
         }
     }
 }

@@ -43,10 +43,10 @@ namespace TrenchBroom {
         class BrushEntityDefinition;
         typedef std::vector<EntityDefinition*> EntityDefinitionList;
         
-        class PropertyDefinition;
-        typedef std::tr1::shared_ptr<PropertyDefinition> PropertyDefinitionPtr;
-        typedef std::vector<PropertyDefinitionPtr> PropertyDefinitionList;
-        typedef std::map<String, PropertyDefinitionPtr> PropertyDefinitionMap;
+        class AttributeDefinition;
+        typedef std::tr1::shared_ptr<AttributeDefinition> AttributeDefinitionPtr;
+        typedef std::vector<AttributeDefinitionPtr> AttributeDefinitionList;
+        typedef std::map<String, AttributeDefinitionPtr> AttributeDefinitionMap;
         
         class ModelDefinition;
         typedef std::tr1::shared_ptr<ModelDefinition> ModelDefinitionPtr;

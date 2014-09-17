@@ -77,9 +77,9 @@ namespace TrenchBroom {
             Assets::EntityDefinitionList doParseDefinitions();
             
             Assets::EntityDefinition* parseDefinition();
-            Assets::PropertyDefinitionPtr parseSpawnflags();
-            void parseProperties(Assets::PropertyDefinitionMap& properties, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses);
-            bool parseProperty(Assets::PropertyDefinitionMap& properties, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses);
+            Assets::AttributeDefinitionPtr parseSpawnflags();
+            void parseProperties(Assets::AttributeDefinitionMap& attributes, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses);
+            bool parseAttribute(Assets::AttributeDefinitionMap& attributes, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses);
             String parseDescription();
 
             Vec3 parseVector();

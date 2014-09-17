@@ -22,7 +22,7 @@
 #include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "Assets/EntityDefinition.h"
-#include "Assets/PropertyDefinition.h"
+#include "Assets/AttributeDefinition.h"
 #include "Assets/ModelDefinition.h"
 
 namespace TrenchBroom {
@@ -193,16 +193,16 @@ namespace TrenchBroom {
                 
                 token = m_tokenizer.peekToken();
                 if (token.type() == DefToken::Word)
-                    classInfo.addPropertyDefinition(parseSpawnflags());
+                    classInfo.addAttributeDefinition(parseSpawnflags());
             }
             
             expect(DefToken::Newline, token = m_tokenizer.nextToken());
             
-            Assets::PropertyDefinitionMap properties;
+            Assets::AttributeDefinitionMap attributes;
             Assets::ModelDefinitionList models;
             StringList superClasses;
-            parseProperties(properties, models, superClasses);
-            classInfo.addPropertyDefinitions(properties);
+            parseProperties(attributes, models, superClasses);
+            classInfo.addAttributeDefinitions(attributes);
             classInfo.addModelDefinitions(models);
             
             classInfo.setDescription(StringUtils::trim(parseDescription()));
@@ -211,8 +211,8 @@ namespace TrenchBroom {
             if (classInfo.hasColor()) {
                 classInfo.resolveBaseClasses(m_baseClasses, superClasses);
                 if (classInfo.hasSize()) // point definition
-                    return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.propertyList(), classInfo.models());
-                return new Assets::BrushEntityDefinition(classInfo.name(), m_defaultEntityColor, classInfo.description(), classInfo.propertyList());
+                    return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeList(), classInfo.models());
+                return new Assets::BrushEntityDefinition(classInfo.name(), m_defaultEntityColor, classInfo.description(), classInfo.attributeList());
             }
             
             // base definition
@@ -220,8 +220,8 @@ namespace TrenchBroom {
             return parseDefinition();
         }
         
-        Assets::PropertyDefinitionPtr DefParser::parseSpawnflags() {
-            Assets::FlagsPropertyDefinition* definition = new Assets::FlagsPropertyDefinition(Model::PropertyKeys::Spawnflags, "Spawnflags");
+        Assets::AttributeDefinitionPtr DefParser::parseSpawnflags() {
+            Assets::FlagsAttributeDefinition* definition = new Assets::FlagsAttributeDefinition(Model::AttributeNames::Spawnflags, "Spawnflags");
             size_t numOptions = 0;
             
             try {
@@ -238,18 +238,18 @@ namespace TrenchBroom {
                 throw;
             }
             
-            return Assets::PropertyDefinitionPtr(definition);
+            return Assets::AttributeDefinitionPtr(definition);
         }
         
-        void DefParser::parseProperties(Assets::PropertyDefinitionMap& properties, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses) {
+        void DefParser::parseProperties(Assets::AttributeDefinitionMap& attributes, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses) {
             Token token = m_tokenizer.peekToken();
             if (token.type() == DefToken::OBrace) {
                 token = m_tokenizer.nextToken();
-                while (parseProperty(properties, modelDefinitions, superClasses));
+                while (parseAttribute(attributes, modelDefinitions, superClasses));
             }
         }
         
-        bool DefParser::parseProperty(Assets::PropertyDefinitionMap& properties, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses) {
+        bool DefParser::parseAttribute(Assets::AttributeDefinitionMap& attributes, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses) {
             Token token;
             expect(DefToken::Word | DefToken::CBrace, token = nextTokenIgnoringNewlines());
             if (token.type() != DefToken::Word)
@@ -258,25 +258,25 @@ namespace TrenchBroom {
             String typeName = token.data();
             if (typeName == "choice") {
                 expect(DefToken::QuotedString, token = m_tokenizer.nextToken());
-                const String propertyName = token.data();
+                const String attributeName = token.data();
                 
-                Assets::ChoicePropertyOption::List options;
+                Assets::ChoiceAttributeOption::List options;
                 expect(DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
                 token = nextTokenIgnoringNewlines();
                 while (token.type() == DefToken::OParenthesis) {
                     expect(DefToken::Integer, token = nextTokenIgnoringNewlines());
-                    const String key = token.data();
+                    const String name = token.data();
                     expect(DefToken::Comma, token = nextTokenIgnoringNewlines());
                     expect(DefToken::QuotedString, token = nextTokenIgnoringNewlines());
                     const String value = token.data();
-                    options.push_back(Assets::ChoicePropertyOption(key, value));
+                    options.push_back(Assets::ChoiceAttributeOption(name, value));
                     
                     expect(DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
                     token = nextTokenIgnoringNewlines();
                 }
                 
                 expect(DefToken::CParenthesis, token);
-                properties[propertyName] = Assets::PropertyDefinitionPtr(new Assets::ChoicePropertyDefinition(propertyName, "", options));
+                attributes[attributeName] = Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", options));
             } else if (typeName == "model") {
                 expect(DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
                 expect(DefToken::QuotedString | DefToken::Word | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
@@ -302,23 +302,23 @@ namespace TrenchBroom {
                             frameIndex = indices[1];
                     }
                     
-                    if (token.type() == DefToken::Word) { // parse property or flag
-                        const String propertyKey = token.data();
+                    if (token.type() == DefToken::Word) { // parse attribute or flag
+                        const String attributeKey = token.data();
                         
                         expect(DefToken::Equality, token = nextTokenIgnoringNewlines());
                         expect(DefToken::QuotedString | DefToken::Integer, token = nextTokenIgnoringNewlines());
                         if (token.type() == DefToken::QuotedString) {
-                            const String propertyValue = token.data();
+                            const String attributeValue = token.data();
                             modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(modelPath,
                                                                                                                     skinIndex,
                                                                                                                     frameIndex,
-                                                                                                                    propertyKey, propertyValue)));
+                                                                                                                    attributeKey, attributeValue)));
                         } else {
                             const int flagValue = token.toInteger<int>();
                             modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(modelPath,
                                                                                                                     skinIndex,
                                                                                                                     frameIndex,
-                                                                                                                    propertyKey, flagValue)));
+                                                                                                                    attributeKey, flagValue)));
                         }
                         expect(DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
                     } else {
@@ -366,13 +366,13 @@ namespace TrenchBroom {
             } else if (typeName == "default") {
                 expect(DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
                 expect(DefToken::QuotedString, token = nextTokenIgnoringNewlines());
-                const String propertyName = token.data();
+                const String attributeName = token.data();
                 expect(DefToken::Comma, token = nextTokenIgnoringNewlines());
                 expect(DefToken::QuotedString, token = nextTokenIgnoringNewlines());
-                const String propertyValue = token.data();
+                const String attributeValue = token.data();
                 expect(DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
                 
-                // ignore these properties
+                // ignore these attributes
             } else if (typeName == "base") {
                 expect(DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
                 expect(DefToken::QuotedString, token = nextTokenIgnoringNewlines());

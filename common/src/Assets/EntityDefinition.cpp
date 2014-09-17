@@ -20,7 +20,7 @@
 #include "EntityDefinition.h"
 
 #include "CollectionUtils.h"
-#include "Assets/PropertyDefinition.h"
+#include "Assets/AttributeDefinition.h"
 
 #include <algorithm>
 #include <cassert>
@@ -99,35 +99,35 @@ namespace TrenchBroom {
         }
         
         struct FindSpawnflagsDefinition {
-            bool operator()(const PropertyDefinitionPtr propertyDefinition) const {
-                return (propertyDefinition->type() == PropertyDefinition::Type_FlagsProperty &&
-                        propertyDefinition->name() == Model::PropertyKeys::Spawnflags);
+            bool operator()(const AttributeDefinitionPtr attributeDefinition) const {
+                return (attributeDefinition->type() == AttributeDefinition::Type_FlagsAttribute &&
+                        attributeDefinition->name() == Model::AttributeNames::Spawnflags);
             }
         };
 
-        const FlagsPropertyDefinition* EntityDefinition::spawnflags() const {
-            return static_cast<FlagsPropertyDefinition*>(VectorUtils::findIf(m_propertyDefinitions, FindSpawnflagsDefinition()).get());
+        const FlagsAttributeDefinition* EntityDefinition::spawnflags() const {
+            return static_cast<FlagsAttributeDefinition*>(VectorUtils::findIf(m_attributeDefinitions, FindSpawnflagsDefinition()).get());
         }
         
-        struct FindPropertyDefinitionByName {
+        struct FindAttributeDefinitionByName {
             String name;
-            FindPropertyDefinitionByName(const String& i_name) : name(i_name) {}
+            FindAttributeDefinitionByName(const String& i_name) : name(i_name) {}
             
-            bool operator()(const PropertyDefinitionPtr propertyDefinition) const {
-                return propertyDefinition->name() == name;
+            bool operator()(const AttributeDefinitionPtr attributeDefinition) const {
+                return attributeDefinition->name() == name;
             }
         };
 
-        const PropertyDefinitionList& EntityDefinition::propertyDefinitions() const {
-            return m_propertyDefinitions;
+        const AttributeDefinitionList& EntityDefinition::attributeDefinitions() const {
+            return m_attributeDefinitions;
         }
 
-        const PropertyDefinition* EntityDefinition::propertyDefinition(const Model::PropertyKey& propertyKey) const {
-            return VectorUtils::findIf(m_propertyDefinitions, FindPropertyDefinitionByName(propertyKey)).get();
+        const AttributeDefinition* EntityDefinition::attributeDefinition(const Model::AttributeName& attributeKey) const {
+            return VectorUtils::findIf(m_attributeDefinitions, FindAttributeDefinitionByName(attributeKey)).get();
         }
 
-        const PropertyDefinition* EntityDefinition::safeGetPropertyDefinition(const EntityDefinition* entityDefinition, const Model::PropertyKey& propertyKey) {
-            return entityDefinition != NULL ? entityDefinition->propertyDefinition(propertyKey) : NULL;
+        const AttributeDefinition* EntityDefinition::safeGetAttributeDefinition(const EntityDefinition* entityDefinition, const Model::AttributeName& attributeKey) {
+            return entityDefinition != NULL ? entityDefinition->attributeDefinition(attributeKey) : NULL;
         }
 
         EntityDefinitionList EntityDefinition::filterAndSort(const EntityDefinitionList& definitions, const EntityDefinition::Type type, const SortOrder order) {
@@ -145,16 +145,16 @@ namespace TrenchBroom {
             return result;
         }
 
-        EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinitionList& propertyDefinitions) :
+        EntityDefinition::EntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions) :
         m_index(0),
         m_name(name),
         m_color(color),
         m_description(description),
         m_usageCount(0),
-        m_propertyDefinitions(propertyDefinitions) {}
+        m_attributeDefinitions(attributeDefinitions) {}
 
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const PropertyDefinitionList propertyDefinitions, const ModelDefinitionList& modelDefinitions) :
-        EntityDefinition(name, color, description, propertyDefinitions),
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList attributeDefinitions, const ModelDefinitionList& modelDefinitions) :
+        EntityDefinition(name, color, description, attributeDefinitions),
         m_bounds(bounds),
         m_modelDefinitions(modelDefinitions) {}
         
@@ -166,12 +166,12 @@ namespace TrenchBroom {
             return m_bounds;
         }
         
-        ModelSpecification PointEntityDefinition::model(const Model::EntityProperties& properties) const {
+        ModelSpecification PointEntityDefinition::model(const Model::EntityAttributes& attributes) const {
             ModelDefinitionList::const_reverse_iterator it, end;
             for (it = m_modelDefinitions.rbegin(), end = m_modelDefinitions.rend(); it != end; ++it) {
                 ModelDefinitionPtr modelDefinition = *it;
-                if (modelDefinition->matches(properties))
-                    return modelDefinition->modelSpecification(properties);
+                if (modelDefinition->matches(attributes))
+                    return modelDefinition->modelSpecification(attributes);
             }
             return ModelSpecification(IO::Path(""), 0, 0);
         }
@@ -186,8 +186,8 @@ namespace TrenchBroom {
             return m_modelDefinitions;
         }
 
-        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const PropertyDefinitionList& propertyDefinitions) :
-        EntityDefinition(name, color, description, propertyDefinitions) {}
+        BrushEntityDefinition::BrushEntityDefinition(const String& name, const Color& color, const String& description, const AttributeDefinitionList& attributeDefinitions) :
+        EntityDefinition(name, color, description, attributeDefinitions) {}
         
         EntityDefinition::Type BrushEntityDefinition::type() const {
             return Type_BrushEntity;

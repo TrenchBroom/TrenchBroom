@@ -17,34 +17,32 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef __TrenchBroom__ComputeNodeBoundsVisitor__
+#define __TrenchBroom__ComputeNodeBoundsVisitor__
 
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
-#include "Model/Node.h"
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public Node {
+        class ComputeNodeBoundsVisitor : public ConstNodeVisitor {
         private:
-            String m_name;
+            bool m_initialized;
         public:
-            Layer(const String& name);
-            
-            const String& name() const;
-            void setName(const String& name);
-        private: // implement methods inherited from Node
-            bool doCanAddChild(Node* child) const;
-            bool doCanRemoveChild(Node* child) const;
-            void doAncestorDidChange();
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
+            BBox3 m_bounds;
+            ComputeNodeBoundsVisitor(const BBox3& defaultBounds);
+            const BBox3& bounds() const;
         private:
-            Layer(const Layer&);
-            Layer& operator=(const Layer&);
+            void doVisit(const World* world);
+            void doVisit(const Layer* layer);
+            void doVisit(const Group* group);
+            void doVisit(const Entity* entity);
+            void doVisit(const Brush* brush);
+            void mergeWith(const BBox3& bounds);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+
+#endif /* defined(__TrenchBroom__ComputeNodeBoundsVisitor__) */

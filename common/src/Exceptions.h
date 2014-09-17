@@ -62,11 +62,11 @@ namespace TrenchBroom {
         ~GeometryException() throw() {}
     };
             
-    class EntityPropertyException : public ExceptionStream<EntityPropertyException> {
+    class EntityAttributeException : public ExceptionStream<EntityAttributeException> {
     public:
-        EntityPropertyException() throw() {}
-        EntityPropertyException(const String& str) throw() : ExceptionStream(str) {}
-        ~EntityPropertyException() throw() {}
+        EntityAttributeException() throw() {}
+        EntityAttributeException(const String& str) throw() : ExceptionStream(str) {}
+        ~EntityAttributeException() throw() {}
     };
 
     class ParserException : public ExceptionStream<ParserException> {

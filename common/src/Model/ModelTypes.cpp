@@ -19,33 +19,7 @@
 
 #include "ModelTypes.h"
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/ModelUtils.h"
-#include "Model/Object.h"
-
 namespace TrenchBroom {
     namespace Model {
-        MapFormat::Type mapFormat(const String& formatName) {
-            if (formatName == "Standard")
-                return MapFormat::Standard;
-            if (formatName == "Valve")
-                return MapFormat::Valve;
-            if (formatName == "Hexen 2")
-                return MapFormat::Hexen2;
-            return MapFormat::Unknown;
-        }
-        
-        ObjectParentPair::ObjectParentPair(Object* i_object, Object* i_parent) :
-        object(i_object),
-        parent(i_parent) {}
-
-        ObjectParentPair::ObjectParentPair(Object* i_object) :
-        object(i_object),
-        parent(getParent(i_object)) {}
-
-        bool ObjectParentPair::operator==(const ObjectParentPair& other) const {
-            return object == other.object && parent == other.parent;
-        }
     }
 }

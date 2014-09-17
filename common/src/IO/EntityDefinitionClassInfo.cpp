@@ -19,8 +19,8 @@
 
 #include "EntityDefinitionClassInfo.h"
 
-#include "Assets/PropertyDefinition.h"
-#include "Model/EntityProperties.h"
+#include "Assets/AttributeDefinition.h"
+#include "Model/EntityAttributes.h"
 
 namespace TrenchBroom {
     namespace IO {
@@ -78,16 +78,16 @@ namespace TrenchBroom {
             return m_hasSize;
         }
 
-        Assets::PropertyDefinitionList EntityDefinitionClassInfo::propertyList() const {
-            Assets::PropertyDefinitionList list;
-            Assets::PropertyDefinitionMap::const_iterator propertyIt, propertyEnd;
-            for (propertyIt = m_properties.begin(), propertyEnd = m_properties.end(); propertyIt != propertyEnd; ++propertyIt)
-                list.push_back(propertyIt->second);
+        Assets::AttributeDefinitionList EntityDefinitionClassInfo::attributeList() const {
+            Assets::AttributeDefinitionList list;
+            Assets::AttributeDefinitionMap::const_iterator attributeIt, attributeEnd;
+            for (attributeIt = m_attributes.begin(), attributeEnd = m_attributes.end(); attributeIt != attributeEnd; ++attributeIt)
+                list.push_back(attributeIt->second);
             return list;
         }
         
-        const Assets::PropertyDefinitionMap& EntityDefinitionClassInfo::propertyMap() const {
-            return m_properties;
+        const Assets::AttributeDefinitionMap& EntityDefinitionClassInfo::attributeMap() const {
+            return m_attributes;
         }
         
         const Assets::ModelDefinitionList& EntityDefinitionClassInfo::models() const {
@@ -113,18 +113,18 @@ namespace TrenchBroom {
             m_hasSize = true;
         }
         
-        void EntityDefinitionClassInfo::addPropertyDefinition(Assets::PropertyDefinitionPtr propertyDefinition) {
-            m_properties[propertyDefinition->name()] = propertyDefinition;
+        void EntityDefinitionClassInfo::addAttributeDefinition(Assets::AttributeDefinitionPtr attributeDefinition) {
+            m_attributes[attributeDefinition->name()] = attributeDefinition;
         }
         
-        void EntityDefinitionClassInfo::addPropertyDefinitions(const Assets::PropertyDefinitionList& propertyDefinitions) {
-            Assets::PropertyDefinitionList::const_iterator it, end;
-            for (it = propertyDefinitions.begin(), end = propertyDefinitions.end(); it != end; ++it)
-                addPropertyDefinition(*it);
+        void EntityDefinitionClassInfo::addAttributeDefinitions(const Assets::AttributeDefinitionList& attributeDefinitions) {
+            Assets::AttributeDefinitionList::const_iterator it, end;
+            for (it = attributeDefinitions.begin(), end = attributeDefinitions.end(); it != end; ++it)
+                addAttributeDefinition(*it);
         }
 
-        void EntityDefinitionClassInfo::addPropertyDefinitions(const Assets::PropertyDefinitionMap& propertyDefinitions) {
-            m_properties.insert(propertyDefinitions.begin(), propertyDefinitions.end());
+        void EntityDefinitionClassInfo::addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions) {
+            m_attributes.insert(attributeDefinitions.begin(), attributeDefinitions.end());
         }
 
         void EntityDefinitionClassInfo::addModelDefinition(Assets::ModelDefinitionPtr modelDefinition) {
@@ -149,18 +149,18 @@ namespace TrenchBroom {
                     if (!hasSize() && baseClass.hasSize())
                         setSize(baseClass.size());
                     
-                    const Assets::PropertyDefinitionMap& baseProperties = baseClass.propertyMap();
-                    Assets::PropertyDefinitionMap::const_iterator propertyIt, propertyEnd;
-                    for (propertyIt = baseProperties.begin(), propertyEnd = baseProperties.end(); propertyIt != propertyEnd; ++propertyIt) {
-                        const Assets::PropertyDefinitionPtr baseProperty = propertyIt->second;
+                    const Assets::AttributeDefinitionMap& baseProperties = baseClass.attributeMap();
+                    Assets::AttributeDefinitionMap::const_iterator attributeIt, attributeEnd;
+                    for (attributeIt = baseProperties.begin(), attributeEnd = baseProperties.end(); attributeIt != attributeEnd; ++attributeIt) {
+                        const Assets::AttributeDefinitionPtr baseAttribute = attributeIt->second;
                         
-                        Assets::PropertyDefinitionMap::iterator classPropertyIt = m_properties.find(baseProperty->name());
-                        if (classPropertyIt != m_properties.end()) {
-                            // the class already has a definition for this property, attempt merging them
-                            mergeProperties(baseProperty.get(), classPropertyIt->second.get());
+                        Assets::AttributeDefinitionMap::iterator classAttributeIt = m_attributes.find(baseAttribute->name());
+                        if (classAttributeIt != m_attributes.end()) {
+                            // the class already has a definition for this attribute, attempt merging them
+                            mergeProperties(baseAttribute.get(), classAttributeIt->second.get());
                         } else {
-                            // the class doesn't have a definition for this property, add the base class property
-                            addPropertyDefinition(baseProperty);
+                            // the class doesn't have a definition for this attribute, add the base class attribute
+                            addAttributeDefinition(baseAttribute);
                         }
                     }
                     
@@ -174,19 +174,19 @@ namespace TrenchBroom {
             }
         }
 
-        void EntityDefinitionClassInfo::mergeProperties(Assets::PropertyDefinition* classProperty, const Assets::PropertyDefinition* baseclassProperty) {
+        void EntityDefinitionClassInfo::mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute) {
             // for now, only merge spawnflags
-            if (baseclassProperty->type() == Assets::PropertyDefinition::Type_FlagsProperty &&
-                classProperty->type() == Assets::PropertyDefinition::Type_FlagsProperty &&
-                baseclassProperty->name() == Model::PropertyKeys::Spawnflags &&
-                classProperty->name() == Model::PropertyKeys::Spawnflags) {
+            if (baseclassAttribute->type() == Assets::AttributeDefinition::Type_FlagsAttribute &&
+                classAttribute->type() == Assets::AttributeDefinition::Type_FlagsAttribute &&
+                baseclassAttribute->name() == Model::AttributeNames::Spawnflags &&
+                classAttribute->name() == Model::AttributeNames::Spawnflags) {
                 
-                const Assets::FlagsPropertyDefinition* baseclassFlags = static_cast<const Assets::FlagsPropertyDefinition*>(baseclassProperty);
-                Assets::FlagsPropertyDefinition* classFlags = static_cast<Assets::FlagsPropertyDefinition*>(classProperty);
+                const Assets::FlagsAttributeDefinition* baseclassFlags = static_cast<const Assets::FlagsAttributeDefinition*>(baseclassAttribute);
+                Assets::FlagsAttributeDefinition* classFlags = static_cast<Assets::FlagsAttributeDefinition*>(classAttribute);
                 
                 for (int i = 0; i < 24; i++) {
-                    const Assets::FlagsPropertyOption* baseclassFlag = baseclassFlags->option(static_cast<int>(1 << i));
-                    const Assets::FlagsPropertyOption* classFlag = classFlags->option(static_cast<int>(1 << i));
+                    const Assets::FlagsAttributeOption* baseclassFlag = baseclassFlags->option(static_cast<int>(1 << i));
+                    const Assets::FlagsAttributeOption* classFlag = classFlags->option(static_cast<int>(1 << i));
                     
                     if (baseclassFlag != NULL && classFlag == NULL)
                         classFlags->addOption(baseclassFlag->value(), baseclassFlag->description(), baseclassFlag->isDefault());

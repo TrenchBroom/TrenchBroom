@@ -23,21 +23,8 @@
 
 #include "GLInit.h"
 #include "IO/Path.h"
-#include "Model/Game.h"
-#include "Model/GameFactory.h"
-#include "Model/ModelTypes.h"
-#include "View/AboutFrame.h"
-#include "View/ActionManager.h"
 #include "View/CommandIds.h"
 #include "View/ExecutableEvent.h"
-#include "View/GameDialog.h"
-#include "View/MapDocument.h"
-#include "View/MapFrame.h"
-#include "View/MapView.h"
-#include "View/Menu.h"
-#include "View/PreferenceDialog.h"
-#include "View/WelcomeFrame.h"
-#include "View/wxUtils.h"
 
 #include <wx/choicdlg.h>
 #include <wx/cmdline.h>
@@ -52,8 +39,10 @@ namespace TrenchBroom {
 
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
+        /*
         m_frameManager(NULL),
         m_recentDocuments(NULL),
+         */
         m_lastActivation(0) {
             // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
             std::setlocale(LC_NUMERIC, "C");
@@ -69,10 +58,13 @@ namespace TrenchBroom {
             initGLFunctions();
             
             // these must be initialized here and not earlier
+            /*
             m_frameManager = new FrameManager(useSDI());
             m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
             m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
+             */
             
+            /*
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
             const ActionManager& actionManager = ActionManager::instance();
@@ -109,24 +101,28 @@ namespace TrenchBroom {
             Bind(EVT_EXECUTABLE_EVENT, EVT_EXECUTABLE_EVENT_HANDLER(TrenchBroomApp::OnExecutableEvent), this);
             
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
+             */
         }
 
         TrenchBroomApp::~TrenchBroomApp() {
             wxImage::CleanUpHandlers();
 
+            /*
             delete m_frameManager;
             m_frameManager = NULL;
             
             m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
             delete m_recentDocuments;
             m_recentDocuments = NULL;
+             */
         }
 
+        /*
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager;
         }
 
-        const IO::Path::List& TrenchBroomApp::recentDocuments() const {
+         const IO::Path::List& TrenchBroomApp::recentDocuments() const {
             return m_recentDocuments->recentDocuments();
         }
 
@@ -353,5 +349,6 @@ namespace TrenchBroom {
             WelcomeFrame* welcomeFrame = new WelcomeFrame();
             welcomeFrame->Show();
         }
+         */
     }
 }

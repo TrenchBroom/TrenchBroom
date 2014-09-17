@@ -24,7 +24,6 @@
 #include "VecMath.h"
 #include "StringUtils.h"
 #include "SharedPointer.h"
-#include "Model/BrushGeometryTypes.h"
 
 #include <map>
 #include <set>
@@ -32,84 +31,35 @@
 
 namespace TrenchBroom {
     namespace Model {
-        namespace MapFormat {
-            typedef size_t Type;
-            static const Type Unknown  = 1 << 0;
-            static const Type Standard = 1 << 1;
-            static const Type Valve    = 1 << 2;
-            static const Type Hexen2   = 1 << 3;
-        }
+        class Node;
+        typedef std::vector<Node*> NodeList;
+        static const NodeList EmptyNodeList(0);
         
-        MapFormat::Type mapFormat(const String& formatName);
+        class NodeVisitor;
+        class ConstNodeVisitor;
         
-        class Map;
+        class World;
         
-        typedef String PropertyKey;
-        typedef std::vector<PropertyKey> PropertyKeyList;
-        typedef std::set<PropertyKey> PropertyKeySet;
-        typedef String PropertyValue;
-        typedef std::vector<PropertyValue> PropertyValueList;
-
+        class Attributable;
+        typedef std::set<Attributable*> AttributableSet;
+        static const AttributableSet EmptyAttributableSet;
+        typedef std::vector<Attributable*> AttributableList;
+        static const AttributableList EmptyAttributableList(0);
+        
+        class Layer;
+        class Group;
+        class Entity;
+        class Brush;
+        
         class BrushFace;
         typedef std::vector<BrushFace*> BrushFaceList;
         static const BrushFaceList EmptyBrushFaceList(0);
-        typedef std::set<BrushFace*> BrushFaceSet;
         
-        class Object;
-        typedef std::vector<Object*> ObjectList;
-        static const ObjectList EmptyObjectList(0);
-        typedef std::set<Object*> ObjectSet;
-        
-        struct ObjectParentPair {
-            Object* object;
-            Object* parent;
-            
-            ObjectParentPair(Object* i_object, Object* i_parent);
-            ObjectParentPair(Object* i_object);
-            
-            bool operator==(const ObjectParentPair& other) const;
-        };
-        
-        typedef std::vector<ObjectParentPair> ObjectParentList;
-        typedef std::map<Object*, ObjectList> ObjectChildrenMap;
-        
-        class Brush;
-        typedef std::vector<Brush*> BrushList;
-        static const BrushList EmptyBrushList(0);
-        typedef std::set<Brush*> BrushSet;
-        
-        class Entity;
-        typedef std::vector<Entity*> EntityList;
-        static const EntityList EmptyEntityList(0);
-        typedef std::set<Entity*> EntitySet;
-        static const EntitySet EmptyEntitySet;
-        
-        class EntityProperty;
-        
-        typedef std::map<Entity*, BrushList> EntityBrushesMap;
-        typedef std::map<Brush*, Entity*> BrushEntityMap;
-        
-        class SelectionResult;
-        
-        class Pickable;
-        typedef std::vector<Pickable*> PickableList;
-        
-        class Game;
-        typedef std::tr1::shared_ptr<Game> GamePtr;
-
-        typedef std::map<Vec3, BrushList, Vec3::LexicographicOrder> VertexToBrushesMap;
-        typedef std::map<Vec3, BrushEdgeList, Vec3::LexicographicOrder> VertexToEdgesMap;
-        typedef std::map<Vec3, BrushFaceList, Vec3::LexicographicOrder> VertexToFacesMap;
-        
-        class Issue;
-        typedef std::vector<Issue*> IssueList;
-        static const IssueList EmptyIssueList(0);
-        
-        class Layer;
-        typedef std::vector<Layer*> LayerList;
-        static const LayerList EmptyLayerList(0);
-
-        typedef std::map<Model::Object*, Model::Layer*> ObjectLayerMap;
+        typedef String AttributeName;
+        typedef std::vector<AttributeName> AttributeNameList;
+        typedef std::set<AttributeName> AttributeNameSet;
+        typedef String AttributeValue;
+        typedef std::vector<AttributeValue> AttributeValueList;
     }
 }
 

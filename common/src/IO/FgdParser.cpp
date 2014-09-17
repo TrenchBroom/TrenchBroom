@@ -22,7 +22,7 @@
 #include "CollectionUtils.h"
 #include "Exceptions.h"
 #include "Assets/EntityDefinition.h"
-#include "Assets/PropertyDefinition.h"
+#include "Assets/AttributeDefinition.h"
 #include "Assets/ModelDefinition.h"
 
 namespace TrenchBroom {
@@ -166,12 +166,12 @@ namespace TrenchBroom {
                 throw ParserException(classInfo.line(), classInfo.column(), "Solid entity definition must not have a size");
             if (!classInfo.models().empty())
                 throw ParserException(classInfo.line(), classInfo.column(), "Solid entity definition must not have model definitions");
-            return new Assets::BrushEntityDefinition(classInfo.name(), classInfo.color(), classInfo.description(), classInfo.propertyList());
+            return new Assets::BrushEntityDefinition(classInfo.name(), classInfo.color(), classInfo.description(), classInfo.attributeList());
         }
         
         Assets::EntityDefinition* FgdParser::parsePointClass() {
             EntityDefinitionClassInfo classInfo = parseClass();
-            return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.propertyList(), classInfo.models());
+            return new Assets::PointEntityDefinition(classInfo.name(), classInfo.color(), classInfo.size(), classInfo.description(), classInfo.attributeList(), classInfo.models());
         }
         
         EntityDefinitionClassInfo FgdParser::parseBaseClass() {
@@ -192,22 +192,22 @@ namespace TrenchBroom {
                 const String typeName = token.data();
                 if (StringUtils::caseInsensitiveEqual(typeName, "base")) {
                     if (!superClasses.empty())
-                        throw ParserException(token.line(), token.column(), "Found multiple base properties");
+                        throw ParserException(token.line(), token.column(), "Found multiple base attributes");
                     superClasses = parseSuperClasses();
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "color")) {
                     if (classInfo.hasColor())
-                        throw ParserException(token.line(), token.column(), "Found multiple color properties");
+                        throw ParserException(token.line(), token.column(), "Found multiple color attributes");
                     classInfo.setColor(parseColor());
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "size")) {
                     if (classInfo.hasSize())
-                        throw ParserException(token.line(), token.column(), "Found multiple size properties");
+                        throw ParserException(token.line(), token.column(), "Found multiple size attributes");
                     classInfo.setSize(parseSize());
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "model")) {
                     if (!classInfo.models().empty())
-                        throw ParserException(token.line(), token.column(), "Found multiple model properties");
+                        throw ParserException(token.line(), token.column(), "Found multiple model attributes");
                     classInfo.addModelDefinitions(parseModels());
                 } else {
-                    throw ParserException(token.line(), token.column(), "Unknown entity definition header property '" + typeName + "'");
+                    throw ParserException(token.line(), token.column(), "Unknown entity definition header attribute '" + typeName + "'");
                 }
                 expect(FgdToken::Equality | FgdToken::Word, token = m_tokenizer.nextToken());
             }
@@ -223,7 +223,7 @@ namespace TrenchBroom {
                 m_tokenizer.pushToken(token);
             }
             
-            classInfo.addPropertyDefinitions(parseProperties());
+            classInfo.addAttributeDefinitions(parseProperties());
             classInfo.resolveBaseClasses(m_baseClasses, superClasses);
             return classInfo;
         }
@@ -290,15 +290,15 @@ namespace TrenchBroom {
             }
             
             if (token.type() == FgdToken::Word) {
-                const String propertyKey = token.data();
+                const String attributeKey = token.data();
                 expect(FgdToken::Equality, token = m_tokenizer.nextToken());
                 expect(FgdToken::String | FgdToken::Integer, token = m_tokenizer.nextToken());
                 if (token.type() == FgdToken::String) {
-                    const String propertyValue = token.data();
-                    return Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex, propertyKey, propertyValue));
+                    const String attributeValue = token.data();
+                    return Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex, attributeKey, attributeValue));
                 } else {
                     const int flagValue = token.toInteger<int>();
-                    return Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex, propertyKey, flagValue));
+                    return Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path, skinIndex, frameIndex, attributeKey, flagValue));
                 }
             } else {
                 m_tokenizer.pushToken(token);
@@ -345,14 +345,14 @@ namespace TrenchBroom {
             return Assets::ModelDefinitionPtr(new Assets::DynamicModelDefinition(pathKey, skinKey, frameKey));
         }
         
-        Assets::PropertyDefinitionMap FgdParser::parseProperties() {
-            Assets::PropertyDefinitionMap properties;
+        Assets::AttributeDefinitionMap FgdParser::parseProperties() {
+            Assets::AttributeDefinitionMap attributes;
             
             Token token;
             expect(FgdToken::OBracket, token = m_tokenizer.nextToken());
             expect(FgdToken::Word | FgdToken::CBracket, token = m_tokenizer.nextToken());
             while (token.type() != FgdToken::CBracket) {
-                const String propertyKey = token.data();
+                const String attributeKey = token.data();
                 
                 expect(FgdToken::OParenthesis, token = m_tokenizer.nextToken());
                 expect(FgdToken::Word, token = m_tokenizer.nextToken());
@@ -360,44 +360,44 @@ namespace TrenchBroom {
                 expect(FgdToken::CParenthesis, token = m_tokenizer.nextToken());
                 
                 if (StringUtils::caseInsensitiveEqual(typeName, "target_source")) {
-                    if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseTargetSourceProperty(propertyKey);
+                    if (attributes.count(attributeKey) > 0)
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
+                    attributes[attributeKey] = parseTargetSourceAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "target_destination")) {
-                    if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseTargetDestinationProperty(propertyKey);
+                    if (attributes.count(attributeKey) > 0)
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
+                    attributes[attributeKey] = parseTargetDestinationAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "string")) {
-                    if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseStringProperty(propertyKey);
+                    if (attributes.count(attributeKey) > 0)
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
+                    attributes[attributeKey] = parseStringAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "integer")) {
-                    if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseIntegerProperty(propertyKey);
+                    if (attributes.count(attributeKey) > 0)
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
+                    attributes[attributeKey] = parseIntegerAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "float")) {
-                    if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseFloatProperty(propertyKey);
+                    if (attributes.count(attributeKey) > 0)
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
+                    attributes[attributeKey] = parseFloatAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "choices")) {
-                    if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseChoicesProperty(propertyKey);
+                    if (attributes.count(attributeKey) > 0)
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
+                    attributes[attributeKey] = parseChoicesAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "flags")) {
-                    if (properties.count(propertyKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for property '" + propertyKey + "'");
-                    properties[propertyKey] = parseFlagsProperty(propertyKey);
+                    if (attributes.count(attributeKey) > 0)
+                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
+                    attributes[attributeKey] = parseFlagsAttribute(attributeKey);
                 } else {
-                    throw ParserException(token.line(), token.column(), "Unknown entity definition property '" + typeName + "'");
+                    throw ParserException(token.line(), token.column(), "Unknown entity definition attribute '" + typeName + "'");
                 }
                 
                 expect(FgdToken::Word | FgdToken::CBracket, token = m_tokenizer.nextToken());
             }
             
-            return properties;
+            return attributes;
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseTargetSourceProperty(const String& name) {
+        Assets::AttributeDefinitionPtr FgdParser::parseTargetSourceAttribute(const String& name) {
             String description;
             Token token = m_tokenizer.nextToken();
             if (token.type() == FgdToken::Colon) {
@@ -406,10 +406,10 @@ namespace TrenchBroom {
             } else {
                 m_tokenizer.pushToken(token);
             }
-            return Assets::PropertyDefinitionPtr(new Assets::PropertyDefinition(name, Assets::PropertyDefinition::Type_TargetSourceProperty, description));
+            return Assets::AttributeDefinitionPtr(new Assets::AttributeDefinition(name, Assets::AttributeDefinition::Type_TargetSourceAttribute, description));
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseTargetDestinationProperty(const String& name) {
+        Assets::AttributeDefinitionPtr FgdParser::parseTargetDestinationAttribute(const String& name) {
             String description;
             Token token = m_tokenizer.nextToken();
             if (token.type() == FgdToken::Colon) {
@@ -418,10 +418,10 @@ namespace TrenchBroom {
             } else {
                 m_tokenizer.pushToken(token);
             }
-            return Assets::PropertyDefinitionPtr(new Assets::PropertyDefinition(name, Assets::PropertyDefinition::Type_TargetDestinationProperty, description));
+            return Assets::AttributeDefinitionPtr(new Assets::AttributeDefinition(name, Assets::AttributeDefinition::Type_TargetDestinationAttribute, description));
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseStringProperty(const String& name) {
+        Assets::AttributeDefinitionPtr FgdParser::parseStringAttribute(const String& name) {
             String description;
             String defaultValue;
             bool hasDefaultValue = false;
@@ -444,11 +444,11 @@ namespace TrenchBroom {
             }
             
             if (hasDefaultValue)
-                return Assets::PropertyDefinitionPtr(new Assets::StringPropertyDefinition(name, description, defaultValue));
-            return Assets::PropertyDefinitionPtr(new Assets::StringPropertyDefinition(name, description));
+                return Assets::AttributeDefinitionPtr(new Assets::StringAttributeDefinition(name, description, defaultValue));
+            return Assets::AttributeDefinitionPtr(new Assets::StringAttributeDefinition(name, description));
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseIntegerProperty(const String& name) {
+        Assets::AttributeDefinitionPtr FgdParser::parseIntegerAttribute(const String& name) {
             String description;
             int defaultValue = 0;
             bool hasDefaultValue = false;
@@ -471,11 +471,11 @@ namespace TrenchBroom {
             }
             
             if (hasDefaultValue)
-                return Assets::PropertyDefinitionPtr(new Assets::IntegerPropertyDefinition(name, description, defaultValue));
-            return Assets::PropertyDefinitionPtr(new Assets::IntegerPropertyDefinition(name, description));
+                return Assets::AttributeDefinitionPtr(new Assets::IntegerAttributeDefinition(name, description, defaultValue));
+            return Assets::AttributeDefinitionPtr(new Assets::IntegerAttributeDefinition(name, description));
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseFloatProperty(const String& name) {
+        Assets::AttributeDefinitionPtr FgdParser::parseFloatAttribute(const String& name) {
             String description;
             float defaultValue = 0;
             bool hasDefaultValue = false;
@@ -499,11 +499,11 @@ namespace TrenchBroom {
             }
             
             if (hasDefaultValue)
-                return Assets::PropertyDefinitionPtr(new Assets::FloatPropertyDefinition(name, description, defaultValue));
-            return Assets::PropertyDefinitionPtr(new Assets::FloatPropertyDefinition(name, description));
+                return Assets::AttributeDefinitionPtr(new Assets::FloatAttributeDefinition(name, description, defaultValue));
+            return Assets::AttributeDefinitionPtr(new Assets::FloatAttributeDefinition(name, description));
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseChoicesProperty(const String& name) {
+        Assets::AttributeDefinitionPtr FgdParser::parseChoicesAttribute(const String& name) {
             String description;
             size_t defaultValue = 0;
             bool hasDefaultValue = false;
@@ -527,23 +527,23 @@ namespace TrenchBroom {
             expect(FgdToken::OBracket, token = m_tokenizer.nextToken());
             expect(FgdToken::Integer | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
             
-            Assets::ChoicePropertyOption::List options;
+            Assets::ChoiceAttributeOption::List options;
             
             while (token.type() != FgdToken::CBracket) {
                 const String value = token.data();
                 expect(FgdToken::Colon, token = m_tokenizer.nextToken());
                 expect(FgdToken::String, token = m_tokenizer.nextToken());
                 const String caption = token.data();
-                options.push_back(Assets::ChoicePropertyOption(value, caption));
+                options.push_back(Assets::ChoiceAttributeOption(value, caption));
                 expect(FgdToken::Integer | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
             }
             
             if (hasDefaultValue)
-                return Assets::PropertyDefinitionPtr(new Assets::ChoicePropertyDefinition(name, description, options, defaultValue));
-            return Assets::PropertyDefinitionPtr(new Assets::ChoicePropertyDefinition(name, description, options));
+                return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(name, description, options, defaultValue));
+            return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(name, description, options));
         }
         
-        Assets::PropertyDefinitionPtr FgdParser::parseFlagsProperty(const String& name) {
+        Assets::AttributeDefinitionPtr FgdParser::parseFlagsAttribute(const String& name) {
             String description;
             
             Token token;
@@ -556,7 +556,7 @@ namespace TrenchBroom {
             expect(FgdToken::OBracket, token = m_tokenizer.nextToken());
             expect(FgdToken::Integer | FgdToken::CBracket, token = m_tokenizer.nextToken());
             
-            Assets::FlagsPropertyDefinition* definition = new Assets::FlagsPropertyDefinition(name, description);
+            Assets::FlagsAttributeDefinition* definition = new Assets::FlagsAttributeDefinition(name, description);
             
             while (token.type() != FgdToken::CBracket) {
                 const int value = token.toInteger<int>();
@@ -578,7 +578,7 @@ namespace TrenchBroom {
                 expect(FgdToken::Integer | FgdToken::CBracket, token = m_tokenizer.nextToken());
             }
             
-            return Assets::PropertyDefinitionPtr(definition);
+            return Assets::AttributeDefinitionPtr(definition);
         }
         
         Vec3 FgdParser::parseVector() {

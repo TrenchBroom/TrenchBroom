@@ -23,7 +23,7 @@
 #include "IO/FgdParser.h"
 #include "Model/ModelTypes.h"
 #include "Assets/EntityDefinition.h"
-#include "Assets/PropertyDefinition.h"
+#include "Assets/AttributeDefinition.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {
@@ -105,8 +105,8 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("World entity"), definition->description());
             
-            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
-            ASSERT_EQ(6u, properties.size());
+            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            ASSERT_EQ(6u, attributes.size());
             
             VectorUtils::clearAndDelete(definitions);
         }
@@ -134,8 +134,8 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
 
-            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
-            ASSERT_EQ(5u, properties.size());
+            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            ASSERT_EQ(5u, attributes.size());
             
             VectorUtils::clearAndDelete(definitions);
         }
@@ -197,13 +197,13 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
-            ASSERT_EQ(9u, properties.size());
+            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            ASSERT_EQ(9u, attributes.size());
 
             VectorUtils::clearAndDelete(definitions);
         }
         
-        TEST(FgdParserTest, parseType_TargetSourceProperty) {
+        TEST(FgdParserTest, parseType_TargetSourceAttribute) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -222,18 +222,18 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
-            ASSERT_EQ(1u, properties.size());
+            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            ASSERT_EQ(1u, attributes.size());
             
-            Assets::PropertyDefinitionPtr property = properties[0];
-            ASSERT_EQ(Assets::PropertyDefinition::Type_TargetSourceProperty, property->type());
-            ASSERT_EQ(String("targetname"), property->name());
-            ASSERT_EQ(String("Source"), property->description());
+            Assets::AttributeDefinitionPtr attribute = attributes[0];
+            ASSERT_EQ(Assets::AttributeDefinition::Type_TargetSourceAttribute, attribute->type());
+            ASSERT_EQ(String("targetname"), attribute->name());
+            ASSERT_EQ(String("Source"), attribute->description());
             
             VectorUtils::clearAndDelete(definitions);
         }
 
-        TEST(FgdParserTest, parseType_TargetDestinationProperty) {
+        TEST(FgdParserTest, parseType_TargetDestinationAttribute) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -252,18 +252,18 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
-            ASSERT_EQ(1u, properties.size());
+            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            ASSERT_EQ(1u, attributes.size());
             
-            Assets::PropertyDefinitionPtr property = properties[0];
-            ASSERT_EQ(Assets::PropertyDefinition::Type_TargetDestinationProperty, property->type());
-            ASSERT_EQ(String("target"), property->name());
-            ASSERT_EQ(String("Target"), property->description());
+            Assets::AttributeDefinitionPtr attribute = attributes[0];
+            ASSERT_EQ(Assets::AttributeDefinition::Type_TargetDestinationAttribute, attribute->type());
+            ASSERT_EQ(String("target"), attribute->name());
+            ASSERT_EQ(String("Target"), attribute->description());
             
             VectorUtils::clearAndDelete(definitions);
         }
 
-        TEST(FgdParserTest, parseStringProperty) {
+        TEST(FgdParserTest, parseStringAttribute) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -283,31 +283,31 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            ASSERT_EQ(2u, definition->propertyDefinitions().size());
+            ASSERT_EQ(2u, definition->attributeDefinitions().size());
             
-            const Assets::PropertyDefinition* property1 = definition->propertyDefinition("message");
-            ASSERT_TRUE(property1 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::Type_StringProperty, property1->type());
+            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("message");
+            ASSERT_TRUE(attribute1 != NULL);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute1->type());
 
-            const Assets::StringPropertyDefinition* stringProperty1 = static_cast<const Assets::StringPropertyDefinition*>(property1);
-            ASSERT_EQ(String("message"), stringProperty1->name());
-            ASSERT_EQ(String("Text on entering the world"), stringProperty1->description());
-            ASSERT_FALSE(stringProperty1->hasDefaultValue());
+            const Assets::StringAttributeDefinition* stringAttribute1 = static_cast<const Assets::StringAttributeDefinition*>(attribute1);
+            ASSERT_EQ(String("message"), stringAttribute1->name());
+            ASSERT_EQ(String("Text on entering the world"), stringAttribute1->description());
+            ASSERT_FALSE(stringAttribute1->hasDefaultValue());
             
-            const Assets::PropertyDefinition* property2 = definition->propertyDefinition("message2");
-            ASSERT_TRUE(property2 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::Type_StringProperty, property2->type());
+            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("message2");
+            ASSERT_TRUE(attribute2 != NULL);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_StringAttribute, attribute2->type());
             
-            const Assets::StringPropertyDefinition* stringProperty2 = static_cast<const Assets::StringPropertyDefinition*>(property2);
-            ASSERT_EQ(String("message2"), stringProperty2->name());
-            ASSERT_EQ(String("With a default value"), stringProperty2->description());
-            ASSERT_TRUE(stringProperty2->hasDefaultValue());
-            ASSERT_EQ(String("DefaultValue"), stringProperty2->defaultValue());
+            const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
+            ASSERT_EQ(String("message2"), stringAttribute2->name());
+            ASSERT_EQ(String("With a default value"), stringAttribute2->description());
+            ASSERT_TRUE(stringAttribute2->hasDefaultValue());
+            ASSERT_EQ(String("DefaultValue"), stringAttribute2->defaultValue());
             
             VectorUtils::clearAndDelete(definitions);
         }
 
-        TEST(FgdParserTest, parseIntegerProperty) {
+        TEST(FgdParserTest, parseIntegerAttribute) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -327,36 +327,36 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            ASSERT_EQ(2u, definition->propertyDefinitions().size());
+            ASSERT_EQ(2u, definition->attributeDefinitions().size());
             
-            const Assets::PropertyDefinition* property1 = definition->propertyDefinition("sounds");
-            ASSERT_TRUE(property1 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::Type_IntegerProperty, property1->type());
+            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("sounds");
+            ASSERT_TRUE(attribute1 != NULL);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_IntegerAttribute, attribute1->type());
             
-            const Assets::IntegerPropertyDefinition* intProperty1 = static_cast<const Assets::IntegerPropertyDefinition*>(property1);
-            ASSERT_EQ(String("sounds"), intProperty1->name());
-            ASSERT_EQ(String("CD track to play"), intProperty1->description());
-            ASSERT_FALSE(intProperty1->hasDefaultValue());
+            const Assets::IntegerAttributeDefinition* intAttribute1 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute1);
+            ASSERT_EQ(String("sounds"), intAttribute1->name());
+            ASSERT_EQ(String("CD track to play"), intAttribute1->description());
+            ASSERT_FALSE(intAttribute1->hasDefaultValue());
             
-            const Assets::PropertyDefinition* property2 = definition->propertyDefinition("sounds2");
-            ASSERT_TRUE(property2 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::Type_IntegerProperty, property2->type());
+            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("sounds2");
+            ASSERT_TRUE(attribute2 != NULL);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_IntegerAttribute, attribute2->type());
             
-            const Assets::IntegerPropertyDefinition* intProperty2 = static_cast<const Assets::IntegerPropertyDefinition*>(property2);
-            ASSERT_EQ(String("sounds2"), intProperty2->name());
-            ASSERT_EQ(String("CD track to play with default"), intProperty2->description());
-            ASSERT_TRUE(intProperty2->hasDefaultValue());
-            ASSERT_EQ(2, intProperty2->defaultValue());
+            const Assets::IntegerAttributeDefinition* intAttribute2 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute2);
+            ASSERT_EQ(String("sounds2"), intAttribute2->name());
+            ASSERT_EQ(String("CD track to play with default"), intAttribute2->description());
+            ASSERT_TRUE(intAttribute2->hasDefaultValue());
+            ASSERT_EQ(2, intAttribute2->defaultValue());
             
             VectorUtils::clearAndDelete(definitions);
         }
 
-        TEST(FgdParserTest, parseFloatProperty) {
+        TEST(FgdParserTest, parseFloatAttribute) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
-            "   test(float) : \"Some test property\"\n"
-            "   test2(float) : \"Some test property with default\" : \"2.7\"\n"
+            "   test(float) : \"Some test attribute\"\n"
+            "   test2(float) : \"Some test attribute with default\" : \"2.7\"\n"
             "]\n";
             
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -371,31 +371,31 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            ASSERT_EQ(2u, definition->propertyDefinitions().size());
+            ASSERT_EQ(2u, definition->attributeDefinitions().size());
             
-            const Assets::PropertyDefinition* property1 = definition->propertyDefinition("test");
-            ASSERT_TRUE(property1 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::Type_FloatProperty, property1->type());
+            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("test");
+            ASSERT_TRUE(attribute1 != NULL);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, attribute1->type());
             
-            const Assets::FloatPropertyDefinition* floatProperty1 = static_cast<const Assets::FloatPropertyDefinition*>(property1);
-            ASSERT_EQ(String("test"), floatProperty1->name());
-            ASSERT_EQ(String("Some test property"), floatProperty1->description());
-            ASSERT_FALSE(floatProperty1->hasDefaultValue());
+            const Assets::FloatAttributeDefinition* floatAttribute1 = static_cast<const Assets::FloatAttributeDefinition*>(attribute1);
+            ASSERT_EQ(String("test"), floatAttribute1->name());
+            ASSERT_EQ(String("Some test attribute"), floatAttribute1->description());
+            ASSERT_FALSE(floatAttribute1->hasDefaultValue());
             
-            const Assets::PropertyDefinition* property2 = definition->propertyDefinition("test2");
-            ASSERT_TRUE(property2 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::Type_FloatProperty, property2->type());
+            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("test2");
+            ASSERT_TRUE(attribute2 != NULL);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_FloatAttribute, attribute2->type());
             
-            const Assets::FloatPropertyDefinition* floatProperty2 = static_cast<const Assets::FloatPropertyDefinition*>(property2);
-            ASSERT_EQ(String("test2"), floatProperty2->name());
-            ASSERT_EQ(String("Some test property with default"), floatProperty2->description());
-            ASSERT_TRUE(floatProperty2->hasDefaultValue());
-            ASSERT_FLOAT_EQ(2.7f, floatProperty2->defaultValue());
+            const Assets::FloatAttributeDefinition* floatAttribute2 = static_cast<const Assets::FloatAttributeDefinition*>(attribute2);
+            ASSERT_EQ(String("test2"), floatAttribute2->name());
+            ASSERT_EQ(String("Some test attribute with default"), floatAttribute2->description());
+            ASSERT_TRUE(floatAttribute2->hasDefaultValue());
+            ASSERT_FLOAT_EQ(2.7f, floatAttribute2->defaultValue());
             
             VectorUtils::clearAndDelete(definitions);
         }
 
-        TEST(FgdParserTest, parseChoiceProperty) {
+        TEST(FgdParserTest, parseChoiceAttribute) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -424,18 +424,18 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            ASSERT_EQ(2u, definition->propertyDefinitions().size());
+            ASSERT_EQ(2u, definition->attributeDefinitions().size());
             
-            const Assets::PropertyDefinition* property1 = definition->propertyDefinition("worldtype");
-            ASSERT_TRUE(property1 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::Type_ChoiceProperty, property1->type());
+            const Assets::AttributeDefinition* attribute1 = definition->attributeDefinition("worldtype");
+            ASSERT_TRUE(attribute1 != NULL);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, attribute1->type());
             
-            const Assets::ChoicePropertyDefinition* choiceProperty1 = static_cast<const Assets::ChoicePropertyDefinition*>(property1);
-            ASSERT_EQ(String("worldtype"), choiceProperty1->name());
-            ASSERT_EQ(String("Ambience"), choiceProperty1->description());
-            ASSERT_FALSE(choiceProperty1->hasDefaultValue());
+            const Assets::ChoiceAttributeDefinition* choiceAttribute1 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute1);
+            ASSERT_EQ(String("worldtype"), choiceAttribute1->name());
+            ASSERT_EQ(String("Ambience"), choiceAttribute1->description());
+            ASSERT_FALSE(choiceAttribute1->hasDefaultValue());
             
-            const Assets::ChoicePropertyOption::List& options1 = choiceProperty1->options();
+            const Assets::ChoiceAttributeOption::List& options1 = choiceAttribute1->options();
             ASSERT_EQ(3u, options1.size());
             ASSERT_EQ(String("0"), options1[0].value());
             ASSERT_EQ(String("Medieval"), options1[0].description());
@@ -444,17 +444,17 @@ namespace TrenchBroom {
             ASSERT_EQ(String("2"), options1[2].value());
             ASSERT_EQ(String("Base"), options1[2].description());
             
-            const Assets::PropertyDefinition* property2 = definition->propertyDefinition("worldtype2");
-            ASSERT_TRUE(property2 != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::Type_ChoiceProperty, property2->type());
+            const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("worldtype2");
+            ASSERT_TRUE(attribute2 != NULL);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, attribute2->type());
             
-            const Assets::ChoicePropertyDefinition* choiceProperty2 = static_cast<const Assets::ChoicePropertyDefinition*>(property2);
-            ASSERT_EQ(String("worldtype2"), choiceProperty2->name());
-            ASSERT_EQ(String("Ambience with default"), choiceProperty2->description());
-            ASSERT_TRUE(choiceProperty2->hasDefaultValue());
-            ASSERT_EQ(1u, choiceProperty2->defaultValue());
+            const Assets::ChoiceAttributeDefinition* choiceAttribute2 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute2);
+            ASSERT_EQ(String("worldtype2"), choiceAttribute2->name());
+            ASSERT_EQ(String("Ambience with default"), choiceAttribute2->description());
+            ASSERT_TRUE(choiceAttribute2->hasDefaultValue());
+            ASSERT_EQ(1u, choiceAttribute2->defaultValue());
             
-            const Assets::ChoicePropertyOption::List& options2 = choiceProperty1->options();
+            const Assets::ChoiceAttributeOption::List& options2 = choiceAttribute1->options();
             ASSERT_EQ(3u, options2.size());
             ASSERT_EQ(String("0"), options2[0].value());
             ASSERT_EQ(String("Medieval"), options2[0].description());
@@ -464,7 +464,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(definitions);
         }
 
-        TEST(FgdParserTest, parseFlagsProperty) {
+        TEST(FgdParserTest, parseFlagsAttribute) {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
@@ -489,18 +489,18 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Wildcard entity"), definition->description());
             
-            ASSERT_EQ(1u, definition->propertyDefinitions().size());
+            ASSERT_EQ(1u, definition->attributeDefinitions().size());
             
-            const Assets::PropertyDefinition* property = definition->propertyDefinition("spawnflags");
-            ASSERT_TRUE(property != NULL);
-            ASSERT_EQ(Assets::PropertyDefinition::Type_FlagsProperty, property->type());
+            const Assets::AttributeDefinition* attribute = definition->attributeDefinition("spawnflags");
+            ASSERT_TRUE(attribute != NULL);
+            ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
             
-            const Assets::FlagsPropertyDefinition* flagsProperty = static_cast<const Assets::FlagsPropertyDefinition*>(property);
-            ASSERT_EQ(String("spawnflags"), flagsProperty->name());
-            ASSERT_EQ(String(""), flagsProperty->description());
-            ASSERT_EQ(2560, flagsProperty->defaultValue());
+            const Assets::FlagsAttributeDefinition* flagsAttribute = static_cast<const Assets::FlagsAttributeDefinition*>(attribute);
+            ASSERT_EQ(String("spawnflags"), flagsAttribute->name());
+            ASSERT_EQ(String(""), flagsAttribute->description());
+            ASSERT_EQ(2560, flagsAttribute->defaultValue());
             
-            const Assets::FlagsPropertyOption::List& options = flagsProperty->options();
+            const Assets::FlagsAttributeOption::List& options = flagsAttribute->options();
             ASSERT_EQ(4u, options.size());
             ASSERT_EQ(256, options[0].value());
             ASSERT_EQ(String("Not on Easy"), options[0].description());
@@ -538,13 +538,13 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Shells"), definition->description());
             
-            ASSERT_TRUE(definition->propertyDefinitions().empty());
+            ASSERT_TRUE(definition->attributeDefinitions().empty());
             
             const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
             ASSERT_EQ(2u, models.size());
         }
 
-        TEST(FgdParserTest, parseDynamicModelProperty) {
+        TEST(FgdParserTest, parseDynamicModelAttribute) {
             const String file =
             "@PointClass\n"
             "    model(pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\") = item_shells : \"Shells\" []\n";
@@ -561,7 +561,7 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(defaultColor, definition->color());
             ASSERT_EQ(String("Shells"), definition->description());
             
-            ASSERT_TRUE(definition->propertyDefinitions().empty());
+            ASSERT_TRUE(definition->attributeDefinitions().empty());
             
             const Assets::ModelDefinitionList& models = static_cast<Assets::PointEntityDefinition*>(definition)->modelDefinitions();
             ASSERT_EQ(1u, models.size());

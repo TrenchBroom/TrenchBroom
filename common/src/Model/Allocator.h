@@ -17,32 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <gtest/gtest.h>
+#ifndef __TrenchBroom__Allocator__
+#define __TrenchBroom__Allocator__
 
-#include "TrenchBroomApp.h"
+#include <iostream>
 
-#include <wx/wx.h>
-#include <wx/config.h>
-#include <wx/fileconf.h>
-#include <clocale>
-
-int main(int argc, char **argv) {
-
-    wxApp* pApp = new TrenchBroom::View::TrenchBroomApp();
-    wxApp::SetInstance(pApp);
-    wxEntryStart(argc, argv);
-
-    // use an empty file config so that we always use the default preferences
-    wxConfig::Set(new wxFileConfig("TrenchBroom-Test"));
-    
-    ::testing::InitGoogleTest(&argc, argv);
-
-    // set the locale to US so that we can parse floats attribute
-    std::setlocale(LC_NUMERIC, "C");
-    const int result = RUN_ALL_TESTS();
-    
-    wxEntryCleanup();
-    delete wxConfig::Set(NULL);
-    
-    return result;
+namespace TrenchBroom {
+    namespace Model {
+        class World {
+        };
+    }
 }
+
+#endif /* defined(__TrenchBroom__Allocator__) */

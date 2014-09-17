@@ -17,20 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef __TrenchBroom__Group__
+#define __TrenchBroom__Group__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
+#include "Model/Object.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public Node {
+        class Group : public Node, public Object {
         private:
             String m_name;
+            mutable BBox3 m_bounds;
+            mutable bool m_boundsValid;
         public:
-            Layer(const String& name);
+            Group(const String& name);
             
             const String& name() const;
             void setName(const String& name);
@@ -40,11 +45,19 @@ namespace TrenchBroom {
             void doAncestorDidChange();
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
+        private: // implement methods inherited from Object
+            const BBox3& doGetBounds() const;
+            void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
+            bool doContains(const Node* node) const;
+            bool doIntersects(const Node* node) const;
         private:
-            Layer(const Layer&);
-            Layer& operator=(const Layer&);
+            void invalidateBounds();
+            void validateBounds() const;
+        private:
+            Group(const Group&);
+            Group& operator=(const Group&);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+#endif /* defined(__TrenchBroom__Group__) */

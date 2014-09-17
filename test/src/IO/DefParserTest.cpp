@@ -24,7 +24,7 @@
 #include "Assets/AssetTypes.h"
 #include "Model/ModelTypes.h"
 #include "Assets/EntityDefinition.h"
-#include "Assets/PropertyDefinition.h"
+#include "Assets/AttributeDefinition.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {
@@ -91,8 +91,8 @@ namespace TrenchBroom {
                              "Set sounds to the cd track to play. "
                              "\"worldtype\"	type of world"), definition->description());
             
-            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
-            ASSERT_EQ(1u, properties.size());
+            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            ASSERT_EQ(1u, attributes.size());
             
             VectorUtils::clearAndDelete(definitions);
         }
@@ -119,17 +119,17 @@ namespace TrenchBroom {
             ASSERT_VEC_EQ(Vec3(-16.0, -16.0, -24.0), pointDefinition->bounds().min);
             ASSERT_VEC_EQ(Vec3(16.0, 16.0, 32.0), pointDefinition->bounds().max);
             
-            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
-            ASSERT_EQ(1u, properties.size()); // spawnflags
+            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            ASSERT_EQ(1u, attributes.size()); // spawnflags
             
-            const Assets::PropertyDefinitionPtr property = properties[0];
-            ASSERT_EQ(Assets::PropertyDefinition::Type_FlagsProperty, property->type());
+            const Assets::AttributeDefinitionPtr attribute = attributes[0];
+            ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, attribute->type());
             
-            const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
+            const Assets::FlagsAttributeDefinition* spawnflags = definition->spawnflags();
             ASSERT_TRUE(spawnflags != NULL);
             ASSERT_EQ(0, spawnflags->defaultValue());
             
-            const Assets::FlagsPropertyOption::List& options = spawnflags->options();
+            const Assets::FlagsAttributeOption::List& options = spawnflags->options();
             ASSERT_EQ(2u, options.size());
             ASSERT_EQ(1, options[0].value());
             ASSERT_EQ(String("Crucified"), options[0].description());
@@ -184,18 +184,18 @@ namespace TrenchBroom {
             ASSERT_EQ(Assets::EntityDefinition::Type_PointEntity, definition->type());
             ASSERT_EQ(String("light"), definition->name());
             
-            const Assets::PropertyDefinitionList& properties = definition->propertyDefinitions();
-            ASSERT_EQ(2u, properties.size()); // spawn flags and style
+            const Assets::AttributeDefinitionList& attributes = definition->attributeDefinitions();
+            ASSERT_EQ(2u, attributes.size()); // spawn flags and style
             
-            Assets::PropertyDefinitionPtr spawnflags = properties[0];
-            ASSERT_EQ(Model::PropertyKeys::Spawnflags, spawnflags->name());
-            ASSERT_EQ(Assets::PropertyDefinition::Type_FlagsProperty, spawnflags->type());
+            Assets::AttributeDefinitionPtr spawnflags = attributes[0];
+            ASSERT_EQ(Model::AttributeNames::Spawnflags, spawnflags->name());
+            ASSERT_EQ(Assets::AttributeDefinition::Type_FlagsAttribute, spawnflags->type());
 
-            Assets::PropertyDefinitionPtr style = properties[1];
+            Assets::AttributeDefinitionPtr style = attributes[1];
             ASSERT_EQ(String("style"), style->name());
-            ASSERT_EQ(Assets::PropertyDefinition::Type_ChoiceProperty, style->type());
+            ASSERT_EQ(Assets::AttributeDefinition::Type_ChoiceAttribute, style->type());
             
-            const Assets::ChoicePropertyDefinition* choice = static_cast<const Assets::ChoicePropertyDefinition*>(definition->propertyDefinition("style"));
+            const Assets::ChoiceAttributeDefinition* choice = static_cast<const Assets::ChoiceAttributeDefinition*>(definition->attributeDefinition("style"));
             ASSERT_EQ(12u, choice->options().size());
             
             VectorUtils::clearAndDelete(definitions);
@@ -230,7 +230,7 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, models.size());
         }
         
-        TEST(DefParserTest, parseDynamicModelProperty) {
+        TEST(DefParserTest, parseDynamicModelAttribute) {
             const String file =
             "/*QUAKED item_cells (0 .5 .8) (0 0 0) (32 32 32) BIG\n"
             "{\n"

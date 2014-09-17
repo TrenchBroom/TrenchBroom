@@ -54,13 +54,13 @@ namespace TrenchBroom {
 
         ModelDefinition::~ModelDefinition() {}
         
-        bool ModelDefinition::matches(const Model::EntityProperties& properties) const {
-            return doMatches(properties);
+        bool ModelDefinition::matches(const Model::EntityAttributes& attributes) const {
+            return doMatches(attributes);
         }
         
-        ModelSpecification ModelDefinition::modelSpecification(const Model::EntityProperties& properties) const {
-            assert(matches(properties));
-            return doModelSpecification(properties);
+        ModelSpecification ModelDefinition::modelSpecification(const Model::EntityAttributes& attributes) const {
+            assert(matches(attributes));
+            return doModelSpecification(attributes);
         }
 
         ModelSpecification ModelDefinition::defaultModelSpecification() const {
@@ -71,33 +71,33 @@ namespace TrenchBroom {
 
         StaticModelDefinitionMatcher::~StaticModelDefinitionMatcher() {}
         
-        bool StaticModelDefinitionMatcher::matches(const Model::EntityProperties& properties) const {
-            return doMatches(properties);
+        bool StaticModelDefinitionMatcher::matches(const Model::EntityAttributes& attributes) const {
+            return doMatches(attributes);
         }
 
         StaticModelDefinitionMatcher::StaticModelDefinitionMatcher() {}
 
-        StaticModelDefinitionPropertyMatcher::StaticModelDefinitionPropertyMatcher(const Model::PropertyKey& key, const Model::PropertyValue& value) :
-        m_key(key),
-        m_value(value) {}
+        StaticModelDefinitionAttributeMatcher::StaticModelDefinitionAttributeMatcher(const Model::AttributeName& attributeName, const Model::AttributeValue& attributeValue) :
+        m_attributeName(attributeName),
+        m_attributeValue(attributeValue) {}
         
-        bool StaticModelDefinitionPropertyMatcher::doMatches(const Model::EntityProperties& properties) const {
-            const Model::PropertyValue* propertyValue = properties.property(m_key);
-            if (propertyValue == NULL)
+        bool StaticModelDefinitionAttributeMatcher::doMatches(const Model::EntityAttributes& attributes) const {
+            const Model::AttributeValue* attributeValue = attributes.attribute(m_attributeName);
+            if (attributeValue == NULL)
                 return false;
-            return *propertyValue == m_value;
+            return *attributeValue == m_attributeValue;
         }
 
-        StaticModelDefinitionFlagMatcher::StaticModelDefinitionFlagMatcher(const Model::PropertyKey& key, const int value) :
-        m_key(key),
-        m_value(value) {}
+        StaticModelDefinitionFlagMatcher::StaticModelDefinitionFlagMatcher(const Model::AttributeName& attributeName, const int attributeValue) :
+        m_attributeName(attributeName),
+        m_attributeValue(attributeValue) {}
         
-        bool StaticModelDefinitionFlagMatcher::doMatches(const Model::EntityProperties& properties) const {
-            const Model::PropertyValue* propertyValue = properties.property(m_key);
-            if (propertyValue == NULL)
+        bool StaticModelDefinitionFlagMatcher::doMatches(const Model::EntityAttributes& attributes) const {
+            const Model::AttributeValue* attributeValue = attributes.attribute(m_attributeName);
+            if (attributeValue == NULL)
                 return false;
-            const int flagValue = std::atoi(propertyValue->c_str());
-            return (flagValue & m_value) != 0;
+            const int flagValue = std::atoi(attributeValue->c_str());
+            return (flagValue & m_attributeValue) != 0;
         }
 
         StaticModelDefinition::StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex) :
@@ -106,30 +106,30 @@ namespace TrenchBroom {
         m_frameIndex(frameIndex),
         m_matcher(NULL) {}
         
-        StaticModelDefinition::StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex, const Model::PropertyKey& key, const Model::PropertyValue& value) :
+        StaticModelDefinition::StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex, const Model::AttributeName& attributeName, const Model::AttributeValue& attributeValue) :
         m_path(path),
         m_skinIndex(skinIndex),
         m_frameIndex(frameIndex),
-        m_matcher(new StaticModelDefinitionPropertyMatcher(key, value)) {}
+        m_matcher(new StaticModelDefinitionAttributeMatcher(attributeName, attributeValue)) {}
         
-        StaticModelDefinition::StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex, const Model::PropertyKey& key, const int value) :
+        StaticModelDefinition::StaticModelDefinition(const IO::Path& path, const size_t skinIndex, const size_t frameIndex, const Model::AttributeName& attributeName, const int attributeValue) :
         m_path(path),
         m_skinIndex(skinIndex),
         m_frameIndex(frameIndex),
-        m_matcher(new StaticModelDefinitionFlagMatcher(key, value)) {}
+        m_matcher(new StaticModelDefinitionFlagMatcher(attributeName, attributeValue)) {}
 
         StaticModelDefinition::~StaticModelDefinition() {
             delete m_matcher;
             m_matcher = NULL;
         }
 
-        bool StaticModelDefinition::doMatches(const Model::EntityProperties& properties) const {
+        bool StaticModelDefinition::doMatches(const Model::EntityAttributes& attributes) const {
             if (m_matcher == NULL)
                 return true;
-            return m_matcher->matches(properties);
+            return m_matcher->matches(attributes);
         }
         
-        ModelSpecification StaticModelDefinition::doModelSpecification(const Model::EntityProperties& properties) const {
+        ModelSpecification StaticModelDefinition::doModelSpecification(const Model::EntityAttributes& attributes) const {
             return ModelSpecification(m_path, m_skinIndex, m_frameIndex);
         }
 
@@ -137,45 +137,45 @@ namespace TrenchBroom {
             return ModelSpecification(m_path, m_skinIndex, m_frameIndex);
         }
         
-        DynamicModelDefinition::DynamicModelDefinition(const Model::PropertyKey& pathKey, const Model::PropertyKey& skinKey, const Model::PropertyKey& frameKey) :
-        m_pathKey(pathKey),
-        m_skinKey(skinKey),
-        m_frameKey(frameKey) {
-            assert(!m_pathKey.empty());
+        DynamicModelDefinition::DynamicModelDefinition(const Model::AttributeName& pathAttributeName, const Model::AttributeName& skinAttributeName, const Model::AttributeName& frameAttributeName) :
+        m_pathAttributeName(pathAttributeName),
+        m_skinAttributeName(skinAttributeName),
+        m_frameAttributeName(frameAttributeName) {
+            assert(!m_pathAttributeName.empty());
         }
 
-        bool DynamicModelDefinition::doMatches(const Model::EntityProperties& properties) const {
-            const Model::PropertyValue* pathValue = properties.property(m_pathKey);
+        bool DynamicModelDefinition::doMatches(const Model::EntityAttributes& attributes) const {
+            const Model::AttributeValue* pathValue = attributes.attribute(m_pathAttributeName);
             if (pathValue == NULL || pathValue->empty())
                 return false;
-            if (!m_skinKey.empty()) {
-                const Model::PropertyValue* skinValue = properties.property(m_skinKey);
+            if (!m_skinAttributeName.empty()) {
+                const Model::AttributeValue* skinValue = attributes.attribute(m_skinAttributeName);
                 if (skinValue == NULL || skinValue->empty())
                     return false;
             }
-            if (!m_frameKey.empty()) {
-                const Model::PropertyValue* frameValue = properties.property(m_frameKey);
+            if (!m_frameAttributeName.empty()) {
+                const Model::AttributeValue* frameValue = attributes.attribute(m_frameAttributeName);
                 if (frameValue == NULL || frameValue->empty())
                     return false;
             }
             return true;
         }
         
-        ModelSpecification DynamicModelDefinition::doModelSpecification(const Model::EntityProperties& properties) const {
-            const Model::PropertyValue* pathValue = properties.property(m_pathKey);
+        ModelSpecification DynamicModelDefinition::doModelSpecification(const Model::EntityAttributes& attributes) const {
+            const Model::AttributeValue* pathValue = attributes.attribute(m_pathAttributeName);
             assert(pathValue != NULL);
             const IO::Path path(*pathValue);
             
             size_t skinIndex = 0;
-            if (!m_skinKey.empty()) {
-                const Model::PropertyValue* skinValue = properties.property(m_skinKey);
+            if (!m_skinAttributeName.empty()) {
+                const Model::AttributeValue* skinValue = attributes.attribute(m_skinAttributeName);
                 assert(skinValue != NULL);
                 skinIndex = StringUtils::stringToSize(*skinValue);
             }
             
             size_t frameIndex = 0;
-            if (!m_frameKey.empty()) {
-                const Model::PropertyValue* frameValue = properties.property(m_frameKey);
+            if (!m_frameAttributeName.empty()) {
+                const Model::AttributeValue* frameValue = attributes.attribute(m_frameAttributeName);
                 assert(frameValue != NULL);
                 frameIndex = StringUtils::stringToSize(*frameValue);
             }

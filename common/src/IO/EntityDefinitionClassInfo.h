@@ -44,7 +44,7 @@ namespace TrenchBroom {
             bool m_hasColor;
             BBox3 m_size;
             bool m_hasSize;
-            Assets::PropertyDefinitionMap m_properties;
+            Assets::AttributeDefinitionMap m_attributes;
             Assets::ModelDefinitionList m_models;
         public:
             EntityDefinitionClassInfo();
@@ -59,23 +59,23 @@ namespace TrenchBroom {
             bool hasColor() const;
             const BBox3& size() const;
             bool hasSize() const;
-            Assets::PropertyDefinitionList propertyList() const;
-            const Assets::PropertyDefinitionMap& propertyMap() const;
+            Assets::AttributeDefinitionList attributeList() const;
+            const Assets::AttributeDefinitionMap& attributeMap() const;
             const Assets::ModelDefinitionList& models() const;
 
             void setName(const String& name);
             void setDescription(const String& description);
             void setColor(const Color& color);
             void setSize(const BBox3& size);
-            void addPropertyDefinition(Assets::PropertyDefinitionPtr propertyDefinition);
-            void addPropertyDefinitions(const Assets::PropertyDefinitionList& propertyDefinitions);
-            void addPropertyDefinitions(const Assets::PropertyDefinitionMap& propertyDefinitions);
+            void addAttributeDefinition(Assets::AttributeDefinitionPtr attributeDefinition);
+            void addAttributeDefinitions(const Assets::AttributeDefinitionList& attributeDefinitions);
+            void addAttributeDefinitions(const Assets::AttributeDefinitionMap& attributeDefinitions);
             void addModelDefinition(Assets::ModelDefinitionPtr modelDefinition);
             void addModelDefinitions(const Assets::ModelDefinitionList& modelDefinitions);
         
             void resolveBaseClasses(const EntityDefinitionClassInfoMap& baseClasses, const StringList& classnames);
         private:
-            static void mergeProperties(Assets::PropertyDefinition* classProperty, const Assets::PropertyDefinition* baseclassProperty);
+            static void mergeProperties(Assets::AttributeDefinition* classAttribute, const Assets::AttributeDefinition* baseclassAttribute);
         };
     }
 }

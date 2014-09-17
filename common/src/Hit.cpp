@@ -18,7 +18,6 @@
  */
 
 #include "Hit.h"
-#include "HitFilter.h"
 
 #include <algorithm>
 #include <limits>
@@ -77,6 +76,7 @@ namespace TrenchBroom {
         m_hits.insert(pos, hit);
     }
     
+    /*
     const Hit& Hits::findFirst(const Hit::HitType type, const bool ignoreOccluders) const {
         return findFirst(TypedHitFilter(type), ignoreOccluders);
     }
@@ -147,4 +147,5 @@ namespace TrenchBroom {
         }
         return result;
     }
+     */
 }

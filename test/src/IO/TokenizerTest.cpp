@@ -134,16 +134,16 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, simpleLanguageBlockWithStringProperty) {
+        TEST(TokenizerTest, simpleLanguageBlockWithStringAttribute) {
             const String testString("{\n"
-                                    "    property =value;\n"
+                                    "    attribute =value;\n"
                                     "}\n");
             
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("property", token.data().c_str());
+            ASSERT_STREQ("attribute", token.data().c_str());
             ASSERT_EQ(2u, token.line());
             ASSERT_EQ(5u, token.column());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
@@ -154,16 +154,16 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageBlockWithIntegerProperty) {
+        TEST(TokenizerTest, simpleLanguageBlockWithIntegerAttribute) {
             const String testString("{"
-                                    "    property =  12328;"
+                                    "    attribute =  12328;"
                                     "}");
             
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("property", token.data().c_str());
+            ASSERT_STREQ("attribute", token.data().c_str());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Integer, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(12328, token.toInteger<int>());
@@ -172,16 +172,16 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, simpleLanguageBlockWithNegativeIntegerProperty) {
+        TEST(TokenizerTest, simpleLanguageBlockWithNegativeIntegerAttribute) {
             const String testString("{"
-                                    "    property =  -12328;"
+                                    "    attribute =  -12328;"
                                     "}");
             
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("property", token.data().c_str());
+            ASSERT_STREQ("attribute", token.data().c_str());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Integer, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(-12328, token.toInteger<int>());
@@ -190,16 +190,16 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
 
-        TEST(TokenizerTest, simpleLanguageBlockWithDecimalProperty) {
+        TEST(TokenizerTest, simpleLanguageBlockWithDecimalAttribute) {
             const String testString("{"
-                                    "    property =  12328.38283;"
+                                    "    attribute =  12328.38283;"
                                     "}");
             
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("property", token.data().c_str());
+            ASSERT_STREQ("attribute", token.data().c_str());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Decimal, (token = tokenizer.nextToken()).type());
             ASSERT_DOUBLE_EQ(12328.38283, token.toFloat<double>());
@@ -208,16 +208,16 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, simpleLanguageBlockWithDecimalPropertyStartingWithDot) {
+        TEST(TokenizerTest, simpleLanguageBlockWithDecimalAttributeStartingWithDot) {
             const String testString("{"
-                                    "    property =  .38283;"
+                                    "    attribute =  .38283;"
                                     "}");
             
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("property", token.data().c_str());
+            ASSERT_STREQ("attribute", token.data().c_str());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Decimal, (token = tokenizer.nextToken()).type());
             ASSERT_DOUBLE_EQ(0.38283, token.toFloat<double>());
@@ -226,16 +226,16 @@ namespace TrenchBroom {
             ASSERT_EQ(SimpleToken::Eof, tokenizer.nextToken().type());
         }
         
-        TEST(TokenizerTest, simpleLanguageBlockWithNegativeDecimalProperty) {
+        TEST(TokenizerTest, simpleLanguageBlockWithNegativeDecimalAttribute) {
             const String testString("{"
-                                    "    property =  -343.38283;"
+                                    "    attribute =  -343.38283;"
                                     "}");
             
             SimpleTokenizer tokenizer(testString);
             SimpleTokenizer::Token token;
             ASSERT_EQ(SimpleToken::OBrace, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::String, (token = tokenizer.nextToken()).type());
-            ASSERT_STREQ("property", token.data().c_str());
+            ASSERT_STREQ("attribute", token.data().c_str());
             ASSERT_EQ(SimpleToken::Equals, (token = tokenizer.nextToken()).type());
             ASSERT_EQ(SimpleToken::Decimal, (token = tokenizer.nextToken()).type());
             ASSERT_DOUBLE_EQ(-343.38283, token.toFloat<double>());
