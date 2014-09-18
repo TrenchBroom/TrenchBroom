@@ -19,6 +19,7 @@
 
 #include "Entity.h"
 
+#include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/NodeVisitor.h"
 
@@ -28,6 +29,24 @@ namespace TrenchBroom {
 
         Entity::Entity() :
         m_boundsValid(false) {}
+
+        bool Entity::pointEntity() const {
+            if (definition() == NULL)
+                return !hasChildren();
+            return definition()->type() == Assets::EntityDefinition::Type_PointEntity;
+        }
+        
+        const Vec3 Entity::origin() const {
+            return Vec3::parse(attribute(AttributeNames::Origin));
+        }
+
+        void Entity::setOrigin(const Vec3& origin) {
+            addOrUpdateAttribute(AttributeNames::Origin, origin.rounded().asString());
+        }
+        
+        void Entity::applyRotation(const Mat4x4& transformation) {
+            EntityRotationPolicy::applyRotation(this, transformation);
+        }
 
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
@@ -61,12 +80,15 @@ namespace TrenchBroom {
         }
         
         bool Entity::doCanAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const {
+            return true;
         }
         
         bool Entity::doCanRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
+            return true;
         }
         
         bool Entity::doCanRemoveAttribute(const AttributeName& name) const {
+            return true;
         }
 
         const BBox3& Entity::doGetBounds() const {
@@ -75,7 +97,32 @@ namespace TrenchBroom {
             return m_bounds;
         }
         
-        void Entity::doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {
+        class TransformEntity : public NodeVisitor {
+        private:
+            const Mat4x4d& m_transformation;
+            bool m_lockTextures;
+            const BBox3& m_worldBounds;
+        public:
+            TransformEntity(const Mat4x4d& transformation, const bool lockTextures, const BBox3& worldBounds) :
+            m_transformation(transformation),
+            m_lockTextures(lockTextures),
+            m_worldBounds(worldBounds) {}
+        private:
+            void doVisit(World* world)   {}
+            void doVisit(Layer* layer)   {}
+            void doVisit(Group* group)   {}
+            void doVisit(Entity* entity) {}
+            void doVisit(Brush* brush)   { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
+        };
+
+        void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
+            if (hasChildren()) {
+                TransformEntity visitor(transformation, lockTextures, worldBounds);
+                iterate(visitor);
+            } else {
+                setOrigin(transformation * origin());
+                applyRotation(stripTranslation(transformation));
+            }
         }
         
         bool Entity::doContains(const Node* node) const {

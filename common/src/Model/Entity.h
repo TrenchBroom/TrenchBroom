@@ -24,10 +24,11 @@
 #include "VecMath.h"
 #include "Model/Attributable.h"
 #include "Model/Object.h"
+#include "Model/EntityRotationPolicy.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Entity : public Attributable, public Object {
+        class Entity : public Attributable, public Object, private EntityRotationPolicy {
         private:
             static const BBox3 DefaultBounds;
             mutable BBox3 m_bounds;
@@ -37,6 +38,9 @@ namespace TrenchBroom {
             
             bool pointEntity() const;
             const Vec3 origin() const;
+        private:
+            void setOrigin(const Vec3& origin);
+            void applyRotation(const Mat4x4& transformation);
         private: // implement Node interface
             bool doCanAddChild(Node* child) const;
             bool doCanRemoveChild(Node* child) const;

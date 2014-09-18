@@ -91,9 +91,9 @@ namespace TrenchBroom {
             void doVisit(Brush* brush)   {  brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
         };
         
-        void Group::doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {
+        void Group::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             TransformGroup visitor(transformation, lockTextures, worldBounds);
-            recurse(visitor);
+            iterate(visitor);
         }
         
         bool Group::doContains(const Node* node) const {
