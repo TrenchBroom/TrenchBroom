@@ -29,10 +29,23 @@ namespace TrenchBroom {
         Entity::Entity() :
         m_boundsValid(false) {}
 
+        class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
+        private:
+            void doVisit(const World* world)   { setResult(false); }
+            void doVisit(const Layer* layer)   { setResult(false); }
+            void doVisit(const Group* group)   { setResult(true); }
+            void doVisit(const Entity* entity) { setResult(true); }
+            void doVisit(const Brush* brush)   { setResult(true); }
+        };
+
         bool Entity::doCanAddChild(Node* child) const {
+            CanAddChildToEntity visitor;
+            child->accept(visitor);
+            return visitor.result();
         }
         
         bool Entity::doCanRemoveChild(Node* child) const {
+            return true;
         }
         
         void Entity::doAccept(NodeVisitor& visitor) {

@@ -43,8 +43,8 @@ namespace TrenchBroom {
             void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool contains(const Node* object) const;
             bool intersects(const Node* object) const;
-        private:
-            virtual const BBox3& doGetBounds() const;
+        private: // subclassing interface
+            virtual const BBox3& doGetBounds() const = 0;
             virtual void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) = 0;
             virtual bool doContains(const Node* node) const = 0;
             virtual bool doIntersects(const Node* node) const = 0;

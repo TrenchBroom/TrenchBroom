@@ -34,22 +34,13 @@ namespace TrenchBroom {
             m_name = name;
         }
 
-        class CanAddChildToLayer : public ConstNodeVisitor {
+        class CanAddChildToLayer : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            bool m_result;
-        public:
-            CanAddChildToLayer() :
-            m_result(false) {}
-            
-            bool result() const {
-                return m_result;
-            }
-        private:
-            void doVisit(const World* world)   { m_result = false; }
-            void doVisit(const Layer* layer)   { m_result = false; }
-            void doVisit(const Group* group)   { m_result = true; }
-            void doVisit(const Entity* entity) { m_result = true; }
-            void doVisit(const Brush* brush)   { m_result = true; }
+            void doVisit(const World* world)   { setResult(false); }
+            void doVisit(const Layer* layer)   { setResult(false); }
+            void doVisit(const Group* group)   { setResult(true); }
+            void doVisit(const Entity* entity) { setResult(true); }
+            void doVisit(const Brush* brush)   { setResult(true); }
         };
 
         bool Layer::doCanAddChild(Node* child) const {

@@ -19,7 +19,9 @@
 
 #include "Group.h"
 
+#include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
+#include "Model/Entity.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
@@ -36,22 +38,13 @@ namespace TrenchBroom {
             m_name = name;
         }
         
-        class CanAddChildToGroup : public ConstNodeVisitor {
+        class CanAddChildToGroup : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            bool m_result;
-        public:
-            CanAddChildToGroup() :
-            m_result(false) {}
-            
-            bool result() const {
-                return m_result;
-            }
-        private:
-            void doVisit(const World* world)   { m_result = false; }
-            void doVisit(const Layer* layer)   { m_result = false; }
-            void doVisit(const Group* group)   { m_result = true; }
-            void doVisit(const Entity* entity) { m_result = true; }
-            void doVisit(const Brush* brush)   { m_result = true; }
+            void doVisit(const World* world)   { setResult(false); }
+            void doVisit(const Layer* layer)   { setResult(false); }
+            void doVisit(const Group* group)   { setResult(true); }
+            void doVisit(const Entity* entity) { setResult(true); }
+            void doVisit(const Brush* brush)   { setResult(true); }
         };
         
         bool Group::doCanAddChild(Node* child) const {
@@ -93,9 +86,9 @@ namespace TrenchBroom {
         private:
             void doVisit(World* world)   {}
             void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   { group->transform(m_transformation, m_lockTextures, m_worldBounds); }
+            void doVisit(Group* group)   {  group->transform(m_transformation, m_lockTextures, m_worldBounds); }
             void doVisit(Entity* entity) { entity->transform(m_transformation, m_lockTextures, m_worldBounds); }
-            void doVisit(Brush* brush)   { brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
+            void doVisit(Brush* brush)   {  brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
         };
         
         void Group::doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {

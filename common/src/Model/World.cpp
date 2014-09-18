@@ -56,22 +56,13 @@ namespace TrenchBroom {
             return m_defaultLayer;
         }
 
-        class CanAddChildToWorld : public ConstNodeVisitor {
+        class CanAddChildToWorld : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
-            bool m_result;
-        public:
-            CanAddChildToWorld() :
-            m_result(false) {}
-            
-            bool result() const {
-                return m_result;
-            }
-        private:
-            void doVisit(const World* world)   { m_result = false; }
-            void doVisit(const Layer* layer)   { m_result = true; }
-            void doVisit(const Group* group)   { m_result = false; }
-            void doVisit(const Entity* entity) { m_result = false; }
-            void doVisit(const Brush* brush)   { m_result = false; }
+            void doVisit(const World* world)   { setResult(false); }
+            void doVisit(const Layer* layer)   { setResult(true); }
+            void doVisit(const Group* group)   { setResult(false); }
+            void doVisit(const Entity* entity) { setResult(false); }
+            void doVisit(const Brush* brush)   { setResult(false); }
         };
         
         bool World::doCanAddChild(Node* child) const {
@@ -80,24 +71,18 @@ namespace TrenchBroom {
             return visitor.result();
         }
         
-        class CanRemoveChildFromWorld : public ConstNodeVisitor {
+        class CanRemoveChildFromWorld : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
             const World* m_this;
-            bool m_result;
         public:
             CanRemoveChildFromWorld(const World* i_this) :
-            m_this(i_this),
-            m_result(false) {}
-            
-            bool result() const {
-                return m_result;
-            }
+            m_this(i_this) {}
         private:
-            void doVisit(const World* world)   { m_result = false; }
-            void doVisit(const Layer* layer)   { m_result = layer != m_this->defaultLayer(); }
-            void doVisit(const Group* group)   { m_result = false; }
-            void doVisit(const Entity* entity) { m_result = false; }
-            void doVisit(const Brush* brush)   { m_result = false; }
+            void doVisit(const World* world)   { setResult(false); }
+            void doVisit(const Layer* layer)   { setResult(layer != m_this->defaultLayer()); }
+            void doVisit(const Group* group)   { setResult(false); }
+            void doVisit(const Entity* entity) { setResult(false); }
+            void doVisit(const Brush* brush)   { setResult(false); }
         };
         
         bool World::doCanRemoveChild(Node* child) const {

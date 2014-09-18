@@ -67,7 +67,24 @@ namespace TrenchBroom {
             virtual void doVisit(const Group* group) = 0;
             virtual void doVisit(const Entity* entity) = 0;
             virtual void doVisit(const Brush* brush) = 0;
-        };    }
+        };
+        
+        template <typename T>
+        class NodeQuery {
+        private:
+            T m_result;
+        public:
+            virtual ~NodeQuery() {}
+            
+            T result() const {
+                return m_result;
+            }
+        protected:
+            void setResult(T result) {
+                m_result = result;
+            }
+        };
+    }
 }
 
 #endif /* defined(__TrenchBroom__NodeVisitor__) */
