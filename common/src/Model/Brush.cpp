@@ -112,6 +112,7 @@ namespace TrenchBroom {
             if (face->selected())
                 decFamilyMemberSelectionCount(1);
             face->setBrush(NULL);
+            invalidateContentType();
         }
         
         void Brush::rebuildGeometry(const BBox3& worldBounds) {
@@ -119,19 +120,21 @@ namespace TrenchBroom {
             m_geometry = new BrushGeometry(worldBounds);
             const AddFaceResult result = m_geometry->addFaces(m_faces);
             
-            // detach all faces and just clear the face list instead of removing all faces for better performance
-            detachFaces(m_faces);
-            m_faces.clear();
-            
+            detachFaces(result.droppedFaces);
             VectorUtils::deleteAll(result.droppedFaces);
+            m_faces.clear();
 
             BrushFaceList::const_iterator it, end;
             for (it = result.addedFaces.begin(), result.addedFaces.end(); it != end; ++it) {
                 BrushFace* face = *it;
-                addFace(face);
+                if (face->brush() == NULL)
+                    addFace(face);
+                else
+                    m_faces.push_back(face);
                 face->invalidate();
             }
 
+            invalidateContentType();
             childDidChange();
         }
 
