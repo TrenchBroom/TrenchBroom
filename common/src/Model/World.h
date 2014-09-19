@@ -46,7 +46,6 @@ namespace TrenchBroom {
         private: // implement Node interface
             bool doCanAddChild(Node* child) const;
             bool doCanRemoveChild(Node* child) const;
-            void doAncestorDidChange();
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
             void doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const;

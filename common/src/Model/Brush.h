@@ -22,20 +22,38 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/BrushContentType.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
+#include "Model/Selectable.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Brush : public Node, public Object {
+        class Brush : public Node, public Object, public Selectable {
         private:
+            class BrushGeometry;
+            
             BrushFaceList m_faces;
+            BrushGeometry* m_geometry;
+            
+            mutable BrushContentType::FlagType m_contentType;
+            mutable bool m_transparent;
+            mutable bool m_contentTypeValid;
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
+            ~Brush();
+            
+            Attributable* entity() const;
+        public: // face management:
+            const BrushFaceList& faces() const;
+            void faceDidChange();
+        private:
+            void invalidateContentType();
+            void validateContentType() const;
         private: // implement Node interface
             bool doCanAddChild(Node* child) const;
             bool doCanRemoveChild(Node* child) const;
-            void doAncestorDidChange();
+            void doParentWillChange();
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Object interface
@@ -43,6 +61,9 @@ namespace TrenchBroom {
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Node* node) const;
             bool doIntersects(const Node* node) const;
+        private: // implement Selectable interface
+            void wasSelected();
+            void wasDeselected();
         };
     }
 }

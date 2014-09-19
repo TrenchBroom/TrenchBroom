@@ -17,33 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef __TrenchBroom__PartiallySelectable__
+#define __TrenchBroom__PartiallySelectable__
 
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
-#include "Model/Node.h"
+#include <iostream>
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public Node {
+        class PartiallySelectable {
         private:
-            String m_name;
+            size_t m_childSelectionCount;
         public:
-            Layer(const String& name);
+            PartiallySelectable();
+            virtual ~PartiallySelectable();
+            bool partiallySelected() const;
             
-            const String& name() const;
-            void setName(const String& name);
-        private: // implement methods inherited from Node
-            bool doCanAddChild(Node* child) const;
-            bool doCanRemoveChild(Node* child) const;
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
-        private:
-            Layer(const Layer&);
-            Layer& operator=(const Layer&);
+            void childSelected();
+            void childDeselected();
+        protected:
+            void incChildSelectionCount();
+            void decChildSelectionCount();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+#endif /* defined(__TrenchBroom__PartiallySelectable__) */

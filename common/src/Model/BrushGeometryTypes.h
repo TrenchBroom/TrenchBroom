@@ -17,16 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Allocator__
-#define __TrenchBroom__Allocator__
+#ifndef TrenchBroom_BrushGeometryTypes_h
+#define TrenchBroom_BrushGeometryTypes_h
 
-#include <iostream>
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class World {
-        };
+        class BrushVertex;
+        typedef std::vector<BrushVertex*> BrushVertexList;
+        static const BrushVertexList EmptyBrushVertexList(0);
+        
+        class BrushEdge;
+        typedef std::vector<BrushEdge*> BrushEdgeList;
+        static const BrushEdgeList EmptyBrushEdgeList(0);
+        
+        class BrushFaceGeometry;
+        typedef std::vector<BrushFaceGeometry*> BrushFaceGeometryList;
+        static const BrushFaceGeometryList EmptyBrushFaceGeometryList(0);
     }
 }
 
-#endif /* defined(__TrenchBroom__Allocator__) */
+#endif

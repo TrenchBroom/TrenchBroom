@@ -57,8 +57,10 @@ namespace TrenchBroom {
             return true;
         }
         
-        void Group::doAncestorDidChange() {}
-        
+        void Group::doParentWillChange() {
+            assert(!selected());
+        }
+
         void Group::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }
@@ -100,6 +102,16 @@ namespace TrenchBroom {
         }
         
         bool Group::doIntersects(const Node* node) const {
+        }
+
+        void Group::wasSelected() {
+            assert(parent() != NULL);
+            parent()->childWasSelected();
+        }
+        
+        void Group::wasDeselected() {
+            assert(parent() != NULL);
+            parent()->childWasDeselected();
         }
 
         void Group::invalidateBounds() {

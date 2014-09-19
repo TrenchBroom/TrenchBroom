@@ -17,33 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef __TrenchBroom__SplitBrushFaceAlgorithm__
+#define __TrenchBroom__SplitBrushFaceAlgorithm__
 
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
-#include "Model/Node.h"
+#include "Model/MoveBrushVertexAlgorithm.h"
+
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/BrushGeometry.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public Node {
+        class SplitBrushFaceAlgorithm : public MoveBrushVertexAlgorithm<SplitResult> {
         private:
-            String m_name;
+            const BBox3& m_worldBounds;
+            const Polygon3 m_face;
+            const Vec3& m_delta;
         public:
-            Layer(const String& name);
-            
-            const String& name() const;
-            void setName(const String& name);
-        private: // implement methods inherited from Node
-            bool doCanAddChild(Node* child) const;
-            bool doCanRemoveChild(Node* child) const;
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
+            SplitBrushFaceAlgorithm(BrushGeometry& geometry, const BBox3& worldBounds, const Polygon3& face, const Vec3& delta);
         private:
-            Layer(const Layer&);
-            Layer& operator=(const Layer&);
+            bool doCanExecute(BrushGeometry& geometry);
+            SplitResult doExecute(BrushGeometry& geometry);
+            BrushVertex* splitFace(BrushGeometry& geometry, BrushFace* face);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+#endif /* defined(__TrenchBroom__SplitBrushFaceAlgorithm__) */

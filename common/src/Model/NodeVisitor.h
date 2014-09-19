@@ -72,16 +72,26 @@ namespace TrenchBroom {
         template <typename T>
         class NodeQuery {
         private:
+            bool m_hasResult;
             T m_result;
         public:
+            NodeQuery() :
+            m_hasResult(false) {}
+            
             virtual ~NodeQuery() {}
             
+            bool hasResult() const {
+                return m_hasResult;
+            }
+            
             T result() const {
+                assert(hasResult());
                 return m_result;
             }
         protected:
             void setResult(T result) {
                 m_result = result;
+                m_hasResult = true;
             }
         };
     }

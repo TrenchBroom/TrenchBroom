@@ -17,33 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef __TrenchBroom__BrushContentTypeBuilder__
+#define __TrenchBroom__BrushContentTypeBuilder__
 
-#include "StringUtils.h"
+#include "SharedPointer.h"
+#include "Model/BrushContentType.h"
 #include "Model/ModelTypes.h"
-#include "Model/Node.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public Node {
-        private:
-            String m_name;
+        class BrushContentTypeBuilder {
         public:
-            Layer(const String& name);
-            
-            const String& name() const;
-            void setName(const String& name);
-        private: // implement methods inherited from Node
-            bool doCanAddChild(Node* child) const;
-            bool doCanRemoveChild(Node* child) const;
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
+            struct Result {
+                BrushContentType::FlagType contentType;
+                bool transparent;
+                Result(BrushContentType::FlagType i_contentType, bool i_transparent);
+            };
+            typedef std::tr1::shared_ptr<BrushContentTypeBuilder> Ptr;
         private:
-            Layer(const Layer&);
-            Layer& operator=(const Layer&);
+            BrushContentType::List m_contentTypes;
+        public:
+            BrushContentTypeBuilder(const BrushContentType::List contentTypes = BrushContentType::EmptyList);
+            Result buildContentType(const Brush* brush) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+#endif /* defined(__TrenchBroom__BrushContentTypeBuilder__) */

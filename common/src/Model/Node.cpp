@@ -27,7 +27,10 @@
 namespace TrenchBroom {
     namespace Model {
         Node::Node() :
-        m_parent(NULL) {}
+        m_parent(NULL),
+        m_descendantCount(0),
+        m_childSelectionCount(0),
+        m_descendantSelectionCount(0) {}
         
         Node::~Node() {
             VectorUtils::clearAndDelete(m_children);
@@ -41,21 +44,26 @@ namespace TrenchBroom {
             return !m_children.empty();
         }
 
+        size_t Node::childCount() const {
+            return m_children.size();
+        }
+
         const NodeList& Node::children() const {
             return m_children;
         }
 
+        size_t Node::descendantCount() const {
+            return m_descendantCount;
+        }
+        
         void Node::addChild(Node* child) {
-            assert(child != NULL);
-            assert(VectorUtils::contains(m_children, child));
-            assert(child->parent() == NULL);
-            assert(canAddChild(child));
-            attachChild(child);
-            m_children.push_back(child);
+            doAddChild(child);
+            incDescendantCount(child->descendantCount() + 1);
         }
         
         void Node::removeChild(Node* child) {
             m_children.erase(doRemoveChild(child), m_children.end());
+            decDescendantCount(child->descendantCount() + 1);
         }
 
         bool Node::canAddChild(Node* child) const {
@@ -66,9 +74,20 @@ namespace TrenchBroom {
             return doCanRemoveChild(child);
         }
 
+        void Node::doAddChild(Node* child) {
+            assert(child != NULL);
+            assert(VectorUtils::contains(m_children, child));
+            assert(child->parent() == NULL);
+            assert(canAddChild(child));
+
+            attachChild(child);
+            m_children.push_back(child);
+        }
+
         NodeList::iterator Node::doRemoveChild(Node* child) {
             assert(child != NULL);
             assert(child->parent() == this);
+            assert(canRemoveChild(child));
 
             NodeList::iterator it = std::remove(m_children.begin(), m_children.end(), child);
             assert(it != m_children.end());
@@ -84,16 +103,55 @@ namespace TrenchBroom {
             child->setParent(NULL);
         }
 
+        void Node::incDescendantCount(const size_t count) {
+            if (count == 0)
+                return;
+            m_descendantCount += count;
+            if (parent() != NULL)
+                parent()->incDescendantCount(count);
+        }
+        
+        void Node::decDescendantCount(const size_t count) {
+            if (count == 0)
+                return;
+            assert(m_descendantCount >= count);
+            m_descendantCount -= count;
+            if (parent() != NULL)
+                parent()->decDescendantCount(count);
+        }
+
         void Node::setParent(Node* parent) {
             assert(parent != NULL);
             assert(m_parent == NULL);
+            assert(!descendantSelected());
             
             if (parent == m_parent)
                 return;
+            
+            parentWillChange();
+            ancestorWillChange();
             m_parent = parent;
+            parentDidChange();
             ancestorDidChange();
         }
         
+        void Node::parentWillChange() {
+            parentWillChange();
+        }
+        
+        void Node::parentDidChange() {
+            parentDidChange();
+        }
+
+        void Node::ancestorWillChange() {
+            doAncestorWillChange();
+            NodeList::const_iterator it, end;
+            for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
+                Node* child = *it;
+                child->ancestorWillChange();
+            }
+        }
+
         void Node::ancestorDidChange() {
             doAncestorDidChange();
             NodeList::const_iterator it, end;
@@ -101,6 +159,50 @@ namespace TrenchBroom {
                 Node* child = *it;
                 child->ancestorDidChange();
             }
+        }
+
+        bool Node::childSelected() const {
+            return m_childSelectionCount > 0;
+        }
+        
+        size_t Node::childSelectionCount() const {
+            return m_childSelectionCount;
+        }
+        
+        bool Node::descendantSelected() const {
+            return m_descendantSelectionCount > 0;
+        }
+        
+        size_t Node::descendantSelectionCount() const {
+            return m_descendantSelectionCount;
+        }
+        
+        void Node::childWasSelected() {
+            ++m_childSelectionCount;
+            
+            Node* node = this;
+            do {
+                node->descendantWasSelected();
+                node = node->parent();
+            } while (node != NULL);
+        }
+        
+        void Node::childWasDeselected() {
+            --m_childSelectionCount;
+            
+            Node* node = this;
+            do {
+                node->descendantWasDeselected();
+                node = node->parent();
+            } while (node != NULL);
+        }
+        
+        void Node::descendantWasSelected() {
+            ++m_descendantSelectionCount;
+        }
+        
+        void Node::descendantWasDeselected() {
+            --m_descendantSelectionCount;
         }
 
         void Node::findAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
@@ -128,6 +230,11 @@ namespace TrenchBroom {
             if (m_parent != NULL)
                 m_parent->removeFromIndex(attributable, name, value);
         }
+
+        void Node::doParentWillChange() {}
+        void Node::doParentDidChange() {}
+        void Node::doAncestorWillChange() {}
+        void Node::doAncestorDidChange() {}
 
         void Node::doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
             if (m_parent != NULL)

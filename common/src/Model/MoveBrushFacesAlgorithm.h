@@ -17,33 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef __TrenchBroom__MoveBrushFacesAlgorithm__
+#define __TrenchBroom__MoveBrushFacesAlgorithm__
 
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
-#include "Model/Node.h"
+#include "Model/MoveBrushVertexAlgorithm.h"
+
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/BrushGeometry.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public Node {
+        class MoveBrushFacesAlgorithm : public MoveBrushVertexAlgorithm<MoveFacesResult> {
         private:
-            String m_name;
+            const BBox3& m_worldBounds;
+            const Polygon3::List& m_faces;
+            const Vec3& m_delta;
         public:
-            Layer(const String& name);
-            
-            const String& name() const;
-            void setName(const String& name);
-        private: // implement methods inherited from Node
-            bool doCanAddChild(Node* child) const;
-            bool doCanRemoveChild(Node* child) const;
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
+            MoveBrushFacesAlgorithm(BrushGeometry& geometry, const BBox3& worldBounds, const Polygon3::List& faces, const Vec3& delta);
         private:
-            Layer(const Layer&);
-            Layer& operator=(const Layer&);
+            bool doCanExecute(BrushGeometry& geometry);
+            MoveFacesResult doExecute(BrushGeometry& geometry);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+#endif /* defined(__TrenchBroom__MoveBrushFacesAlgorithm__) */

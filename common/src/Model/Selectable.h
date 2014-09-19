@@ -17,4 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Allocator.h"
+#ifndef __TrenchBroom__Selectable__
+#define __TrenchBroom__Selectable__
+
+#include <iostream>
+
+namespace TrenchBroom {
+    namespace Model {
+        class Selectable {
+        private:
+            bool m_selected;
+        public:
+            Selectable();
+            virtual ~Selectable();
+            
+            bool selected() const;
+            
+            void select();
+            void deselect();
+        private:
+            virtual void wasSelected() = 0;
+            virtual void wasDeselected() = 0;
+        };
+    }
+}
+
+
+#endif /* defined(__TrenchBroom__Selectable__) */

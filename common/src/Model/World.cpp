@@ -91,8 +91,6 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
-        void World::doAncestorDidChange() {}
-        
         void World::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }

@@ -17,33 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef TrenchBroom_PlanePointFinder_h
+#define TrenchBroom_PlanePointFinder_h
 
-#include "StringUtils.h"
-#include "Model/ModelTypes.h"
-#include "Model/Node.h"
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Model/BrushFace.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public Node {
-        private:
-            String m_name;
+        class PlanePointFinder {
         public:
-            Layer(const String& name);
-            
-            const String& name() const;
-            void setName(const String& name);
-        private: // implement methods inherited from Node
-            bool doCanAddChild(Node* child) const;
-            bool doCanRemoveChild(Node* child) const;
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
-        private:
-            Layer(const Layer&);
-            Layer& operator=(const Layer&);
+            static void findPoints(const Plane3& plane, BrushFace::Points& points, size_t numPoints);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+#endif

@@ -17,33 +17,41 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef __TrenchBroom__BrushContentType__
+#define __TrenchBroom__BrushContentType__
 
 #include "StringUtils.h"
+#include "SharedPointer.h"
 #include "Model/ModelTypes.h"
-#include "Model/Node.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public Node {
-        private:
-            String m_name;
+        class BrushContentTypeEvaluator;
+        
+        class BrushContentType {
         public:
-            Layer(const String& name);
+            typedef int FlagType;
+            typedef std::vector<BrushContentType> List;
+            static const List EmptyList;
+        private:
+            typedef std::tr1::shared_ptr<BrushContentTypeEvaluator> EvaluatorPtr;
+            
+            String m_name;
+            bool m_transparent;
+            FlagType m_flagValue;
+            EvaluatorPtr m_evaluator;
+        public:
+            BrushContentType(const String& name, bool transparent, FlagType flagValue, BrushContentTypeEvaluator* evaluator);
             
             const String& name() const;
-            void setName(const String& name);
-        private: // implement methods inherited from Node
-            bool doCanAddChild(Node* child) const;
-            bool doCanRemoveChild(Node* child) const;
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
-        private:
-            Layer(const Layer&);
-            Layer& operator=(const Layer&);
+            bool transparent() const;
+            FlagType flagValue() const;
+            
+            bool evaluate(const Brush* brush) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+#endif /* defined(__TrenchBroom__BrushContentType__) */

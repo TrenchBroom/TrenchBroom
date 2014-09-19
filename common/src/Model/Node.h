@@ -21,13 +21,18 @@
 #define __TrenchBroom__Node__
 
 #include "Model/ModelTypes.h"
+#include "Model/PartiallySelectable.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Node {
+        class Node : public PartiallySelectable {
         private:
             Node* m_parent;
             NodeList m_children;
+            size_t m_descendantCount;
+            
+            size_t m_childSelectionCount;
+            size_t m_descendantSelectionCount;
         protected:
             Node();
         private:
@@ -37,27 +42,38 @@ namespace TrenchBroom {
             virtual ~Node();
         public: // tree management
             Node* parent() const;
+            
             bool hasChildren() const;
+            size_t childCount() const;
             const NodeList& children() const;
+            size_t descendantCount() const;
             
             template <typename I>
             void addChildren(I cur, I end, size_t count = 0) {
                 m_children.reserve(m_children.size() + count);
+                size_t descendantCount = 0;
                 while (cur != end) {
-                    addChild(*cur);
+                    Node* child = *cur;
+                    doAddChild(child);
+                    descendantCount += child->descendantCount() + 1;
                     ++cur;
                 }
+                incDescendantCount(descendantCount);
             }
             
             void addChild(Node* child);
             template <typename I>
             void removeChildren(I cur, I end) {
+                size_t descendantCount = 0;
                 NodeList::iterator rem = m_children.end();
                 while (cur != end) {
-                    rem = doRemoveChild(*cur);
+                    Node* child = *cur;
+                    rem = doRemoveChild(child);
+                    descendantCount += child->descendantCount() + 1;
                     ++cur;
                 }
                 m_children.erase(rem, m_children.end());
+                decDescendantCount(descendantCount);
             }
             
             void removeChild(Node* child);
@@ -65,13 +81,32 @@ namespace TrenchBroom {
             bool canAddChild(Node* child) const;
             bool canRemoveChild(Node* child) const;
             
+            void doAddChild(Node* child);
             NodeList::iterator doRemoveChild(Node* child);
             
             void attachChild(Node* child);
             void detachChild(Node* child);
             
+            void incDescendantCount(size_t count);
+            void decDescendantCount(size_t count);
+            
             void setParent(Node* parent);
+            void parentWillChange();
+            void parentDidChange();
+            void ancestorWillChange();
             void ancestorDidChange();
+        public: // partial selection
+            bool childSelected() const;
+            size_t childSelectionCount() const;
+            
+            bool descendantSelected() const;
+            size_t descendantSelectionCount() const;
+
+            void childWasSelected();
+            void childWasDeselected();
+        private:
+            void descendantWasSelected();
+            void descendantWasDeselected();
         public: // visitors
             template <class V>
             void acceptAndRecurse(V& visitor) {
@@ -83,6 +118,18 @@ namespace TrenchBroom {
             void acceptAndRecurse(V& visitor) const {
                 accept(visitor);
                 recurse(visitor);
+            }
+            
+            template <class V>
+            void acceptAndEscalate(V& visitor) {
+                accept(visitor);
+                escalate(visitor);
+            }
+            
+            template <class V>
+            void acceptAndEscalate(V& visitor) const {
+                accept(visitor);
+                escalate(visitor);
             }
             
             template <class V>
@@ -130,6 +177,18 @@ namespace TrenchBroom {
                     node->accept(visitor);
                 }
             }
+            
+            template <class V>
+            void escalate(V& visitor) {
+                if (parent() != NULL && !visitor.cancelled())
+                    parent()->acceptAndEscalate(visitor);
+            }
+            
+            template <class V>
+            void escalate(V& visitor) const {
+                if (parent() != NULL && !visitor.cancelled())
+                    parent()->acceptAndEscalate(visitor);
+            }
         protected: // index management
             void findAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const;
             void findAttributablesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableList& result) const;
@@ -139,8 +198,11 @@ namespace TrenchBroom {
         private: // subclassing interface
             virtual bool doCanAddChild(Node* child) const = 0;
             virtual bool doCanRemoveChild(Node* child) const = 0;
-            
-            virtual void doAncestorDidChange() = 0;
+
+            virtual void doParentWillChange();
+            virtual void doParentDidChange();
+            virtual void doAncestorWillChange();
+            virtual void doAncestorDidChange();
             
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;

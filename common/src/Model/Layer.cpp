@@ -53,8 +53,6 @@ namespace TrenchBroom {
             return true;
         }
         
-        void Layer::doAncestorDidChange() {}
-        
         void Layer::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }

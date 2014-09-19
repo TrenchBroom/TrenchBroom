@@ -17,33 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Layer__
-#define __TrenchBroom__Layer__
+#ifndef __TrenchBroom__BrushContentTypeEvaluator__
+#define __TrenchBroom__BrushContentTypeEvaluator__
 
-#include "StringUtils.h"
 #include "Model/ModelTypes.h"
-#include "Model/Node.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Layer : public Node {
-        private:
-            String m_name;
+        class Brush;
+        
+        class BrushContentTypeEvaluator {
         public:
-            Layer(const String& name);
+            virtual ~BrushContentTypeEvaluator();
             
-            const String& name() const;
-            void setName(const String& name);
-        private: // implement methods inherited from Node
-            bool doCanAddChild(Node* child) const;
-            bool doCanRemoveChild(Node* child) const;
-            void doAccept(NodeVisitor& visitor);
-            void doAccept(ConstNodeVisitor& visitor) const;
+            static BrushContentTypeEvaluator* textureNameEvaluator(const String& pattern);
+            static BrushContentTypeEvaluator* contentFlagsEvaluator(int value);
+            static BrushContentTypeEvaluator* entityClassnameEvaluator(const String& pattern);
+            
+            bool evaluate(const Brush* brush) const;
         private:
-            Layer(const Layer&);
-            Layer& operator=(const Layer&);
+            virtual bool doEvaluate(const Brush* brush) const = 0;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Layer__) */
+#endif /* defined(__TrenchBroom__BrushContentTypeEvaluator__) */
