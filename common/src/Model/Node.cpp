@@ -28,9 +28,8 @@ namespace TrenchBroom {
     namespace Model {
         Node::Node() :
         m_parent(NULL),
-        m_descendantCount(0),
-        m_childSelectionCount(0),
-        m_descendantSelectionCount(0) {}
+        m_familySize(1),
+        m_familyMemberSelectionCount(0) {}
         
         Node::~Node() {
             VectorUtils::clearAndDelete(m_children);
@@ -52,18 +51,20 @@ namespace TrenchBroom {
             return m_children;
         }
 
-        size_t Node::descendantCount() const {
-            return m_descendantCount;
+        size_t Node::familySize() const {
+            return m_familySize;
         }
         
         void Node::addChild(Node* child) {
             doAddChild(child);
-            incDescendantCount(child->descendantCount() + 1);
+            incFamilySize(child->familySize());
+            incFamilyMemberSelectionCount(child->familyMemberSelectionCount());
         }
         
         void Node::removeChild(Node* child) {
             m_children.erase(doRemoveChild(child), m_children.end());
-            decDescendantCount(child->descendantCount() + 1);
+            decFamilySize(child->familySize());
+            decFamilyMemberSelectionCount(child->familyMemberSelectionCount());
         }
 
         bool Node::canAddChild(Node* child) const {
@@ -76,7 +77,7 @@ namespace TrenchBroom {
 
         void Node::doAddChild(Node* child) {
             assert(child != NULL);
-            assert(VectorUtils::contains(m_children, child));
+            assert(!VectorUtils::contains(m_children, child));
             assert(child->parent() == NULL);
             assert(canAddChild(child));
 
@@ -103,28 +104,25 @@ namespace TrenchBroom {
             child->setParent(NULL);
         }
 
-        void Node::incDescendantCount(const size_t count) {
-            if (count == 0)
+        void Node::incFamilySize(const size_t delta) {
+            if (delta == 0)
                 return;
-            m_descendantCount += count;
+            m_familySize += delta;
             if (parent() != NULL)
-                parent()->incDescendantCount(count);
+                parent()->incFamilySize(delta);
         }
         
-        void Node::decDescendantCount(const size_t count) {
-            if (count == 0)
+        void Node::decFamilySize(const size_t delta) {
+            if (delta == 0)
                 return;
-            assert(m_descendantCount >= count);
-            m_descendantCount -= count;
+            assert(m_familySize > delta);
+            m_familySize -= delta;
             if (parent() != NULL)
-                parent()->decDescendantCount(count);
+                parent()->decFamilySize(delta);
         }
 
         void Node::setParent(Node* parent) {
-            assert(parent != NULL);
-            assert(m_parent == NULL);
-            assert(!descendantSelected());
-            
+            assert((m_parent == NULL) ^ (parent == NULL));
             if (parent == m_parent)
                 return;
             
@@ -136,11 +134,11 @@ namespace TrenchBroom {
         }
         
         void Node::parentWillChange() {
-            parentWillChange();
+            doParentWillChange();
         }
         
         void Node::parentDidChange() {
-            parentDidChange();
+            doParentDidChange();
         }
 
         void Node::ancestorWillChange() {
@@ -161,48 +159,37 @@ namespace TrenchBroom {
             }
         }
 
-        bool Node::childSelected() const {
-            return m_childSelectionCount > 0;
+        bool Node::familyMemberSelected() const {
+            return m_familyMemberSelectionCount > 0;
         }
         
-        size_t Node::childSelectionCount() const {
-            return m_childSelectionCount;
+        size_t Node::familyMemberSelectionCount() const {
+            return m_familyMemberSelectionCount;
         }
         
-        bool Node::descendantSelected() const {
-            return m_descendantSelectionCount > 0;
+        void Node::familyMemberWasSelected() {
+            incFamilyMemberSelectionCount(1);
         }
         
-        size_t Node::descendantSelectionCount() const {
-            return m_descendantSelectionCount;
+        void Node::familyMemberWasDeselected() {
+            decFamilyMemberSelectionCount(1);
         }
         
-        void Node::childWasSelected() {
-            ++m_childSelectionCount;
-            
-            Node* node = this;
-            do {
-                node->descendantWasSelected();
-                node = node->parent();
-            } while (node != NULL);
+        void Node::incFamilyMemberSelectionCount(const size_t delta) {
+            if (delta == 0)
+                return;
+            m_familyMemberSelectionCount += delta;
+            if (parent() != NULL)
+                parent()->incFamilyMemberSelectionCount(delta);
         }
         
-        void Node::childWasDeselected() {
-            --m_childSelectionCount;
-            
-            Node* node = this;
-            do {
-                node->descendantWasDeselected();
-                node = node->parent();
-            } while (node != NULL);
-        }
-        
-        void Node::descendantWasSelected() {
-            ++m_descendantSelectionCount;
-        }
-        
-        void Node::descendantWasDeselected() {
-            --m_descendantSelectionCount;
+        void Node::decFamilyMemberSelectionCount(const size_t delta) {
+            if (delta == 0)
+                return;
+            assert(m_familyMemberSelectionCount >= delta);
+            m_familyMemberSelectionCount -= delta;
+            if (parent() != NULL)
+                parent()->decFamilyMemberSelectionCount(delta);
         }
 
         void Node::findAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {

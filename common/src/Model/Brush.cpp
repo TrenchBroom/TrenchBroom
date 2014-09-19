@@ -67,11 +67,15 @@ namespace TrenchBroom {
             invalidateContentType();
         }
 
-        bool Brush::doCanAddChild(Node* child) const {
+        void Brush::invalidateContentType() {
+            m_contentTypeValid = false;
+        }
+        
+        bool Brush::doCanAddChild(const Node* child) const {
             return false;
         }
         
-        bool Brush::doCanRemoveChild(Node* child) const {
+        bool Brush::doCanRemoveChild(const Node* child) const {
             return false;
         }
         
@@ -92,14 +96,12 @@ namespace TrenchBroom {
         bool Brush::doContains(const Node* node) const {}
         bool Brush::doIntersects(const Node* node) const {}
 
-        void Brush::wasSelected() {
-            assert(parent() != NULL);
-            parent()->childWasSelected();
+        void Brush::doWasSelected() {
+            familyMemberWasSelected();
         }
         
-        void Brush::wasDeselected() {
-            assert(parent() != NULL);
-            parent()->childWasDeselected();
+        void Brush::doWasDeselected() {
+            familyMemberWasDeselected();
         }
     }
 }

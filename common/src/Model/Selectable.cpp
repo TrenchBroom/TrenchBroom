@@ -35,13 +35,13 @@ namespace TrenchBroom {
         void Selectable::select() {
             assert(!m_selected);
             m_selected = true;
-            wasSelected();
+            doWasSelected();
         }
         
         void Selectable::deselect() {
             assert(m_selected);
             m_selected = false;
-            wasDeselected();
+            doWasDeselected();
         }
     }
 }

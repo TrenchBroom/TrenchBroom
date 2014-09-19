@@ -29,12 +29,10 @@
 namespace TrenchBroom {
     namespace Model {
         World::World() :
-        m_defaultLayer(createDefaultLayer()) {}
-
-        Layer* World::createDefaultLayer() {
-            return createLayer("Default Layer");
+        m_defaultLayer(NULL) {
+            createDefaultLayer();
         }
-        
+
         Layer* World::createLayer(const String& name) const {
             return new Layer(name);
         }
@@ -52,7 +50,13 @@ namespace TrenchBroom {
             return NULL;
         }
 
+        void World::createDefaultLayer() {
+            m_defaultLayer = createLayer("Default Layer");
+            addChild(m_defaultLayer);
+        }
+        
         Layer* World::defaultLayer() const {
+            assert(m_defaultLayer != NULL);
             return m_defaultLayer;
         }
 
@@ -65,7 +69,7 @@ namespace TrenchBroom {
             void doVisit(const Brush* brush)   { setResult(false); }
         };
         
-        bool World::doCanAddChild(Node* child) const {
+        bool World::doCanAddChild(const Node* child) const {
             CanAddChildToWorld visitor;
             child->accept(visitor);
             return visitor.result();
@@ -85,7 +89,7 @@ namespace TrenchBroom {
             void doVisit(const Brush* brush)   { setResult(false); }
         };
         
-        bool World::doCanRemoveChild(Node* child) const {
+        bool World::doCanRemoveChild(const Node* child) const {
             CanRemoveChildFromWorld visitor(this);
             child->accept(visitor);
             return visitor.result();

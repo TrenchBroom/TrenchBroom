@@ -78,8 +78,17 @@ namespace TrenchBroom {
                 str << value;
                 return str.str();
             }
-            
             void attributesDidChange();
+        private: // search index management
+
+            void addAttributesToIndex();
+            void removeAttributesFromIndex();
+            void updateAttributeIndex(const EntityAttribute::List& newAttributes);
+            
+            void addAttributeToIndex(const AttributeName& name, const AttributeValue& value);
+            void removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value);
+            void updateAttributeIndex(const AttributeName& oldName, const AttributeValue& oldValue, const AttributeName& newName, const AttributeValue& newValue);
+            
         public: // link management
             const AttributableList& linkSources() const;
             const AttributableList& linkTargets() const;
@@ -91,11 +100,6 @@ namespace TrenchBroom {
             AttributeNameList findMissingKillTargets() const;
         private: // link management internals
             void findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const;
-            
-            void updateAttributeIndex(const EntityAttribute::List& newAttributes);
-            void addAttributeToIndex(const AttributeName& name, const AttributeValue& value);
-            void removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value);
-            void updateAttributeIndex(const AttributeName& oldName, const AttributeValue& oldValue, const AttributeName& newName, const AttributeValue& newValue);
             
             void addLinks(const AttributeName& name, const AttributeValue& value);
             void removeLinks(const AttributeName& name, const AttributeValue& value);
@@ -136,6 +140,7 @@ namespace TrenchBroom {
         protected:
             Attributable();
         private: // implemenation of node interface
+            virtual void doAncestorWillChange();
             virtual void doAncestorDidChange();
         private: // subclassing interface
             virtual void doAttributesDidChange() = 0;

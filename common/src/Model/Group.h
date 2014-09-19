@@ -41,8 +41,8 @@ namespace TrenchBroom {
             const String& name() const;
             void setName(const String& name);
         private: // implement methods inherited from Node
-            bool doCanAddChild(Node* child) const;
-            bool doCanRemoveChild(Node* child) const;
+            bool doCanAddChild(const Node* child) const;
+            bool doCanRemoveChild(const Node* child) const;
             void doParentWillChange();
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
@@ -52,8 +52,8 @@ namespace TrenchBroom {
             bool doContains(const Node* node) const;
             bool doIntersects(const Node* node) const;
         private: // implement Selectable interface
-            void wasSelected();
-            void wasDeselected();
+            void doWasSelected();
+            void doWasDeselected();
         private:
             void invalidateBounds();
             void validateBounds() const;

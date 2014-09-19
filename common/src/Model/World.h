@@ -36,16 +36,17 @@ namespace TrenchBroom {
             World();
 
         public: // factory methods
-            Layer* createDefaultLayer();
             Layer* createLayer(const String& name) const;
             Group* createGroup(const String& name) const;
             Entity* createEntity() const;
             Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
         public: // layer management
             Layer* defaultLayer() const;
+        private:
+            void createDefaultLayer();
         private: // implement Node interface
-            bool doCanAddChild(Node* child) const;
-            bool doCanRemoveChild(Node* child) const;
+            bool doCanAddChild(const Node* child) const;
+            bool doCanRemoveChild(const Node* child) const;
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
             void doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const;

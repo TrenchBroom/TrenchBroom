@@ -47,13 +47,13 @@ namespace TrenchBroom {
             void doVisit(const Brush* brush)   { setResult(true); }
         };
         
-        bool Group::doCanAddChild(Node* child) const {
+        bool Group::doCanAddChild(const Node* child) const {
             CanAddChildToGroup visitor;
             child->accept(visitor);
             return visitor.result();
         }
         
-        bool Group::doCanRemoveChild(Node* child) const {
+        bool Group::doCanRemoveChild(const Node* child) const {
             return true;
         }
         
@@ -104,14 +104,12 @@ namespace TrenchBroom {
         bool Group::doIntersects(const Node* node) const {
         }
 
-        void Group::wasSelected() {
-            assert(parent() != NULL);
-            parent()->childWasSelected();
+        void Group::doWasSelected() {
+            familyMemberWasSelected();
         }
         
-        void Group::wasDeselected() {
-            assert(parent() != NULL);
-            parent()->childWasDeselected();
+        void Group::doWasDeselected() {
+            familyMemberWasDeselected();
         }
 
         void Group::invalidateBounds() {

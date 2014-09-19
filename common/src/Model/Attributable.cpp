@@ -21,6 +21,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const String Attributable::DefaultAttributeValue("");
+
         Attributable::~Attributable() {
             m_definition = NULL;
         }
@@ -126,54 +128,21 @@ namespace TrenchBroom {
             doAttributesDidChange();
         }
 
-        const AttributableList& Attributable::linkSources() const {
-            return m_linkSources;
+        void Attributable::addAttributesToIndex() {
+            const EntityAttribute::List& attributes = m_attributes.attributes();
+            EntityAttribute::List::const_iterator it, end;
+            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
+                const EntityAttribute& attribute = *it;
+                addAttributeToIndex(attribute.name(), attribute.value());
+            }
         }
         
-        const AttributableList& Attributable::linkTargets() const {
-            return m_linkTargets;
-        }
-        
-        const AttributableList& Attributable::killSources() const {
-            return m_killSources;
-        }
-        
-        const AttributableList& Attributable::killTargets() const {
-            return m_killTargets;
-        }
-        
-        bool Attributable::hasMissingSources() const {
-            return (m_linkSources.empty() &&
-                    m_killSources.empty() &&
-                    hasAttribute(AttributeNames::Targetname));
-        }
-        
-        AttributeNameList Attributable::findMissingLinkTargets() const {
-            AttributeNameList result;
-            findMissingTargets(AttributeNames::Target, result);
-            return result;
-        }
-        
-        AttributeNameList Attributable::findMissingKillTargets() const {
-            AttributeNameList result;
-            findMissingTargets(AttributeNames::Killtarget, result);
-            return result;
-        }
-
-        void Attributable::findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const {
-            const EntityAttribute::List attributes = m_attributes.numberedAttributes(prefix);
-            EntityAttribute::List::const_iterator aIt, aEnd;
-            for (aIt = attributes.begin(), aEnd = attributes.end(); aIt != aEnd; ++aIt) {
-                const EntityAttribute& attribute = *aIt;
-                const AttributeValue& targetname = attribute.value();
-                if (targetname.empty()) {
-                    result.push_back(attribute.name());
-                } else {
-                    AttributableList linkTargets;
-                    findAttributablesWithAttribute(AttributeNames::Targetname, targetname, linkTargets);
-                    if (linkTargets.empty())
-                        result.push_back(attribute.name());
-                }
+        void Attributable::removeAttributesFromIndex() {
+            const EntityAttribute::List& attributes = m_attributes.attributes();
+            EntityAttribute::List::const_iterator it, end;
+            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
+                const EntityAttribute& attribute = *it;
+                removeAttributeFromIndex(attribute.name(), attribute.value());
             }
         }
 
@@ -227,13 +196,64 @@ namespace TrenchBroom {
             removeFromIndex(this, oldName, oldValue);
             addToIndex(this, newName, newValue);
         }
+        
+        const AttributableList& Attributable::linkSources() const {
+            return m_linkSources;
+        }
+        
+        const AttributableList& Attributable::linkTargets() const {
+            return m_linkTargets;
+        }
+        
+        const AttributableList& Attributable::killSources() const {
+            return m_killSources;
+        }
+        
+        const AttributableList& Attributable::killTargets() const {
+            return m_killTargets;
+        }
+        
+        bool Attributable::hasMissingSources() const {
+            return (m_linkSources.empty() &&
+                    m_killSources.empty() &&
+                    hasAttribute(AttributeNames::Targetname));
+        }
+        
+        AttributeNameList Attributable::findMissingLinkTargets() const {
+            AttributeNameList result;
+            findMissingTargets(AttributeNames::Target, result);
+            return result;
+        }
+        
+        AttributeNameList Attributable::findMissingKillTargets() const {
+            AttributeNameList result;
+            findMissingTargets(AttributeNames::Killtarget, result);
+            return result;
+        }
+
+        void Attributable::findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const {
+            const EntityAttribute::List attributes = m_attributes.numberedAttributes(prefix);
+            EntityAttribute::List::const_iterator aIt, aEnd;
+            for (aIt = attributes.begin(), aEnd = attributes.end(); aIt != aEnd; ++aIt) {
+                const EntityAttribute& attribute = *aIt;
+                const AttributeValue& targetname = attribute.value();
+                if (targetname.empty()) {
+                    result.push_back(attribute.name());
+                } else {
+                    AttributableList linkTargets;
+                    findAttributablesWithAttribute(AttributeNames::Targetname, targetname, linkTargets);
+                    if (linkTargets.empty())
+                        result.push_back(attribute.name());
+                }
+            }
+        }
 
         void Attributable::addLinks(const AttributeName& name, const AttributeValue& value) {
             if (isNumberedAttribute(AttributeNames::Target, name)) {
                 addLinkTargets(value);
             } else if (isNumberedAttribute(AttributeNames::Killtarget, name)) {
                 addKillTargets(value);
-            } else if (value == AttributeNames::Targetname) {
+            } else if (name == AttributeNames::Targetname) {
                 addAllLinkSources(value);
                 addAllKillSources(value);
             }
@@ -449,7 +469,12 @@ namespace TrenchBroom {
             }
         }
         
+        void Attributable::doAncestorWillChange() {
+            removeAttributesFromIndex();
+        }
+
         void Attributable::doAncestorDidChange() {
+            addAttributesToIndex();
             refreshAllLinks();
         }
 

@@ -29,10 +29,8 @@ namespace TrenchBroom {
         private:
             Node* m_parent;
             NodeList m_children;
-            size_t m_descendantCount;
-            
-            size_t m_childSelectionCount;
-            size_t m_descendantSelectionCount;
+            size_t m_familySize;
+            size_t m_familyMemberSelectionCount;
         protected:
             Node();
         private:
@@ -46,34 +44,34 @@ namespace TrenchBroom {
             bool hasChildren() const;
             size_t childCount() const;
             const NodeList& children() const;
-            size_t descendantCount() const;
+            size_t familySize() const;
             
             template <typename I>
             void addChildren(I cur, I end, size_t count = 0) {
                 m_children.reserve(m_children.size() + count);
-                size_t descendantCount = 0;
+                size_t familySizeDelta = 0;
                 while (cur != end) {
                     Node* child = *cur;
                     doAddChild(child);
-                    descendantCount += child->descendantCount() + 1;
+                    familySizeDelta += child->familySize();
                     ++cur;
                 }
-                incDescendantCount(descendantCount);
+                incFamilySize(familySizeDelta);
             }
             
             void addChild(Node* child);
             template <typename I>
             void removeChildren(I cur, I end) {
-                size_t descendantCount = 0;
+                size_t familySizeDelta = 0;
                 NodeList::iterator rem = m_children.end();
                 while (cur != end) {
                     Node* child = *cur;
                     rem = doRemoveChild(child);
-                    descendantCount += child->descendantCount() + 1;
+                    familySizeDelta += child->familySize();
                     ++cur;
                 }
                 m_children.erase(rem, m_children.end());
-                decDescendantCount(descendantCount);
+                decFamilySize(familySizeDelta);
             }
             
             void removeChild(Node* child);
@@ -87,8 +85,8 @@ namespace TrenchBroom {
             void attachChild(Node* child);
             void detachChild(Node* child);
             
-            void incDescendantCount(size_t count);
-            void decDescendantCount(size_t count);
+            void incFamilySize(size_t delta);
+            void decFamilySize(size_t delta);
             
             void setParent(Node* parent);
             void parentWillChange();
@@ -96,17 +94,14 @@ namespace TrenchBroom {
             void ancestorWillChange();
             void ancestorDidChange();
         public: // partial selection
-            bool childSelected() const;
-            size_t childSelectionCount() const;
-            
-            bool descendantSelected() const;
-            size_t descendantSelectionCount() const;
+            bool familyMemberSelected() const;
+            size_t familyMemberSelectionCount() const;
 
-            void childWasSelected();
-            void childWasDeselected();
+            void familyMemberWasSelected();
+            void familyMemberWasDeselected();
         private:
-            void descendantWasSelected();
-            void descendantWasDeselected();
+            void incFamilyMemberSelectionCount(size_t delta);
+            void decFamilyMemberSelectionCount(size_t delta);
         public: // visitors
             template <class V>
             void acceptAndRecurse(V& visitor) {
@@ -196,8 +191,8 @@ namespace TrenchBroom {
             void addToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
             void removeFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
         private: // subclassing interface
-            virtual bool doCanAddChild(Node* child) const = 0;
-            virtual bool doCanRemoveChild(Node* child) const = 0;
+            virtual bool doCanAddChild(const Node* child) const = 0;
+            virtual bool doCanRemoveChild(const Node* child) const = 0;
 
             virtual void doParentWillChange();
             virtual void doParentDidChange();

@@ -43,13 +43,13 @@ namespace TrenchBroom {
             void doVisit(const Brush* brush)   { setResult(true); }
         };
 
-        bool Layer::doCanAddChild(Node* child) const {
+        bool Layer::doCanAddChild(const Node* child) const {
             CanAddChildToLayer visitor;
             child->accept(visitor);
             return visitor.result();
         }
         
-        bool Layer::doCanRemoveChild(Node* child) const {
+        bool Layer::doCanRemoveChild(const Node* child) const {
             return true;
         }
         

@@ -36,8 +36,8 @@ namespace TrenchBroom {
             void select();
             void deselect();
         private:
-            virtual void wasSelected() = 0;
-            virtual void wasDeselected() = 0;
+            virtual void doWasSelected() = 0;
+            virtual void doWasDeselected() = 0;
         };
     }
 }

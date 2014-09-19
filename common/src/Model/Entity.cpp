@@ -57,13 +57,13 @@ namespace TrenchBroom {
             void doVisit(const Brush* brush)   { setResult(true); }
         };
 
-        bool Entity::doCanAddChild(Node* child) const {
+        bool Entity::doCanAddChild(const Node* child) const {
             CanAddChildToEntity visitor;
             child->accept(visitor);
             return visitor.result();
         }
         
-        bool Entity::doCanRemoveChild(Node* child) const {
+        bool Entity::doCanRemoveChild(const Node* child) const {
             return true;
         }
         
@@ -135,14 +135,12 @@ namespace TrenchBroom {
         bool Entity::doIntersects(const Node* node) const {
         }
 
-        void Entity::wasSelected() {
-            assert(parent() != NULL);
-            parent()->childWasSelected();
+        void Entity::doWasSelected() {
+            familyMemberWasSelected();
         }
         
-        void Entity::wasDeselected() {
-            assert(parent() != NULL);
-            parent()->childWasDeselected();
+        void Entity::doWasDeselected() {
+            familyMemberWasDeselected();
         }
 
         void Entity::invalidateBounds() {
