@@ -57,6 +57,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        void Group::doDescendantDidChange() {
+            invalidateBounds();
+        }
+        
         bool Group::doSelectable() const {
             return true;
         }

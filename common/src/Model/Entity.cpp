@@ -67,6 +67,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        void Entity::doDescendantDidChange() {
+            invalidateBounds();
+        }
+
         bool Entity::doSelectable() const {
             return true;
         }

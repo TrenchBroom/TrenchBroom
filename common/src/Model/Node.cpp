@@ -82,8 +82,8 @@ namespace TrenchBroom {
             assert(child->parent() == NULL);
             assert(canAddChild(child));
 
-            attachChild(child);
             m_children.push_back(child);
+            child->setParent(this);
         }
 
         NodeList::iterator Node::doRemoveChild(Node* child) {
@@ -93,16 +93,8 @@ namespace TrenchBroom {
 
             NodeList::iterator it = std::remove(m_children.begin(), m_children.end(), child);
             assert(it != m_children.end());
-            detachChild(*it);
-            return it;
-        }
-
-        void Node::attachChild(Node* child) {
-            child->setParent(this);
-        }
-        
-        void Node::detachChild(Node* child) {
             child->setParent(NULL);
+            return it;
         }
 
         void Node::incFamilySize(const size_t delta) {
@@ -128,18 +120,18 @@ namespace TrenchBroom {
                 return;
             
             parentWillChange();
-            ancestorWillChange();
             m_parent = parent;
             parentDidChange();
-            ancestorDidChange();
         }
         
         void Node::parentWillChange() {
             doParentWillChange();
+            ancestorWillChange();
         }
         
         void Node::parentDidChange() {
             doParentDidChange();
+            ancestorDidChange();
         }
 
         void Node::ancestorWillChange() {
@@ -157,6 +149,20 @@ namespace TrenchBroom {
             for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
                 Node* child = *it;
                 child->ancestorDidChange();
+            }
+        }
+        
+        void Node::childDidChange() {
+            doChildDidChange();
+            descendantDidChange();
+        }
+        
+        void Node::descendantDidChange() {
+            doDescendantDidChange();
+            Node* node = parent();
+            while (node != NULL) {
+                node->descendantDidChange();
+                node = node->parent();
             }
         }
 
@@ -195,10 +201,6 @@ namespace TrenchBroom {
         void Node::familyMemberWasDeselected() {
             decFamilyMemberSelectionCount(1);
         }
-        
-        bool Node::selectable() const {
-            return doSelectable();
-        }
 
         void Node::incFamilyMemberSelectionCount(const size_t delta) {
             if (delta == 0)
@@ -215,6 +217,10 @@ namespace TrenchBroom {
             m_familyMemberSelectionCount -= delta;
             if (parent() != NULL)
                 parent()->decFamilyMemberSelectionCount(delta);
+        }
+        
+        bool Node::selectable() const {
+            return doSelectable();
         }
 
         void Node::findAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
@@ -247,6 +253,9 @@ namespace TrenchBroom {
         void Node::doParentDidChange() {}
         void Node::doAncestorWillChange() {}
         void Node::doAncestorDidChange() {}
+
+        void Node::doChildDidChange() {}
+        void Node::doDescendantDidChange() {}
 
         void Node::doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
             if (m_parent != NULL)

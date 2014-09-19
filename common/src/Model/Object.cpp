@@ -30,7 +30,6 @@ namespace TrenchBroom {
         const BBox3& Object::bounds() const {
             return doGetBounds();
         }
-        
 
         void Object::setFilePosition(const size_t lineNumber, const size_t lineCount) {
             m_lineNumber = lineNumber;

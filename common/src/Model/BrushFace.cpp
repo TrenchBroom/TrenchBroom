@@ -215,6 +215,7 @@ namespace TrenchBroom {
         }
         
         void BrushFace::setBrush(Brush* brush) {
+            assert((m_brush == NULL ^ brush == NULL));
             m_brush = brush;
         }
         

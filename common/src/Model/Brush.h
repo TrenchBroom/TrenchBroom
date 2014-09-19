@@ -46,6 +46,24 @@ namespace TrenchBroom {
             const BrushFaceList& faces() const;
             void faceDidChange();
         private:
+            void addFaces(const BrushFaceList& faces);
+            template <typename I>
+            void addFaces(I cur, I end, size_t count) {
+                m_faces.reserve(m_faces.size() + count);
+                while (cur != end) {
+                    addFace(*cur);
+                    ++cur;
+                }
+            }
+            void addFace(BrushFace* face);
+            
+            void removeFace(BrushFace* face);
+            BrushFaceList::iterator doRemoveFace(BrushFace* face);
+            void detachFaces(const BrushFaceList& faces);
+            void detachFace(BrushFace* face);
+        private: // brush geometry
+            void rebuildGeometry(const BBox3& worldBounds);
+        private: // content type
             void invalidateContentType();
             void validateContentType() const;
         private: // implement Node interface

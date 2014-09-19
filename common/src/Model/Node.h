@@ -21,11 +21,10 @@
 #define __TrenchBroom__Node__
 
 #include "Model/ModelTypes.h"
-#include "Model/PartiallySelectable.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Node : public PartiallySelectable {
+        class Node {
         private:
             Node* m_parent;
             NodeList m_children;
@@ -76,15 +75,12 @@ namespace TrenchBroom {
             }
             
             void removeChild(Node* child);
-        private:
+
             bool canAddChild(Node* child) const;
             bool canRemoveChild(Node* child) const;
-            
+        private:
             void doAddChild(Node* child);
             NodeList::iterator doRemoveChild(Node* child);
-            
-            void attachChild(Node* child);
-            void detachChild(Node* child);
             
             void incFamilySize(size_t delta);
             void decFamilySize(size_t delta);
@@ -94,6 +90,10 @@ namespace TrenchBroom {
             void parentDidChange();
             void ancestorWillChange();
             void ancestorDidChange();
+        protected: // notification from children
+            void childDidChange();
+        private:
+            void descendantDidChange();
         public: // selection
             bool selected() const;
             void select();
@@ -104,10 +104,11 @@ namespace TrenchBroom {
 
             void familyMemberWasSelected();
             void familyMemberWasDeselected();
-        private:
-            bool selectable() const;
+        protected:
             void incFamilyMemberSelectionCount(size_t delta);
             void decFamilyMemberSelectionCount(size_t delta);
+        private:
+            bool selectable() const;
         public: // visitors
             template <class V>
             void acceptAndRecurse(V& visitor) {
@@ -204,6 +205,9 @@ namespace TrenchBroom {
             virtual void doParentDidChange();
             virtual void doAncestorWillChange();
             virtual void doAncestorDidChange();
+            
+            virtual void doChildDidChange();
+            virtual void doDescendantDidChange();
             
             virtual bool doSelectable() const = 0;
             

@@ -44,6 +44,7 @@ namespace TrenchBroom {
         private: // implement Node interface
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
+            void doDescendantDidChange();
             bool doSelectable() const;
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
