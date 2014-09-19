@@ -56,9 +56,9 @@ namespace TrenchBroom {
         bool Group::doCanRemoveChild(const Node* child) const {
             return true;
         }
-        
-        void Group::doParentWillChange() {
-            assert(!selected());
+
+        bool Group::doSelectable() const {
+            return true;
         }
 
         void Group::doAccept(NodeVisitor& visitor) {
@@ -102,14 +102,6 @@ namespace TrenchBroom {
         }
         
         bool Group::doIntersects(const Node* node) const {
-        }
-
-        void Group::doWasSelected() {
-            familyMemberWasSelected();
-        }
-        
-        void Group::doWasDeselected() {
-            familyMemberWasDeselected();
         }
 
         void Group::invalidateBounds() {

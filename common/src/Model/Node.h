@@ -30,6 +30,7 @@ namespace TrenchBroom {
             Node* m_parent;
             NodeList m_children;
             size_t m_familySize;
+            bool m_selected;
             size_t m_familyMemberSelectionCount;
         protected:
             Node();
@@ -93,13 +94,18 @@ namespace TrenchBroom {
             void parentDidChange();
             void ancestorWillChange();
             void ancestorDidChange();
-        public: // partial selection
+        public: // selection
+            bool selected() const;
+            void select();
+            void deselect();
+            
             bool familyMemberSelected() const;
             size_t familyMemberSelectionCount() const;
 
             void familyMemberWasSelected();
             void familyMemberWasDeselected();
         private:
+            bool selectable() const;
             void incFamilyMemberSelectionCount(size_t delta);
             void decFamilyMemberSelectionCount(size_t delta);
         public: // visitors
@@ -198,6 +204,8 @@ namespace TrenchBroom {
             virtual void doParentDidChange();
             virtual void doAncestorWillChange();
             virtual void doAncestorDidChange();
+            
+            virtual bool doSelectable() const = 0;
             
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;

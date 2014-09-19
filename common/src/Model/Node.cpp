@@ -29,6 +29,7 @@ namespace TrenchBroom {
         Node::Node() :
         m_parent(NULL),
         m_familySize(1),
+        m_selected(false),
         m_familyMemberSelectionCount(0) {}
         
         Node::~Node() {
@@ -159,6 +160,26 @@ namespace TrenchBroom {
             }
         }
 
+        bool Node::selected() const {
+            return m_selected;
+        }
+        
+        void Node::select() {
+            if (!selectable())
+                return;
+            assert(!m_selected);
+            m_selected = true;
+            incFamilyMemberSelectionCount(1);
+        }
+        
+        void Node::deselect() {
+            if (!selectable())
+                return;
+            assert(m_selected);
+            m_selected = false;
+            decFamilyMemberSelectionCount(1);
+        }
+
         bool Node::familyMemberSelected() const {
             return m_familyMemberSelectionCount > 0;
         }
@@ -175,6 +196,10 @@ namespace TrenchBroom {
             decFamilyMemberSelectionCount(1);
         }
         
+        bool Node::selectable() const {
+            return doSelectable();
+        }
+
         void Node::incFamilyMemberSelectionCount(const size_t delta) {
             if (delta == 0)
                 return;

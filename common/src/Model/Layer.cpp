@@ -53,6 +53,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool Layer::doSelectable() const {
+            return false;
+        }
+
         void Layer::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }

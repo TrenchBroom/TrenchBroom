@@ -37,6 +37,7 @@ namespace TrenchBroom {
         private: // implement methods inherited from Node
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
+            bool doSelectable() const;
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private:

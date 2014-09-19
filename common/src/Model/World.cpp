@@ -95,6 +95,10 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
+        bool World::doSelectable() const {
+            return false;
+        }
+
         void World::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }

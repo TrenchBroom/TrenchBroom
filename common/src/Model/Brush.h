@@ -25,12 +25,11 @@
 #include "Model/BrushContentType.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
-#include "Model/Selectable.h"
 
 namespace TrenchBroom {
     namespace Model {
         class BrushGeometry;
-        class Brush : public Node, public Object, public Selectable {
+        class Brush : public Node, public Object {
         private:
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
@@ -52,7 +51,7 @@ namespace TrenchBroom {
         private: // implement Node interface
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
-            void doParentWillChange();
+            bool doSelectable() const;
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Object interface
@@ -60,9 +59,6 @@ namespace TrenchBroom {
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Node* node) const;
             bool doIntersects(const Node* node) const;
-        private: // implement Selectable interface
-            void doWasSelected();
-            void doWasDeselected();
         };
     }
 }

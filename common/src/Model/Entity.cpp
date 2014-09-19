@@ -67,8 +67,8 @@ namespace TrenchBroom {
             return true;
         }
         
-        void Entity::doParentWillChange() {
-            assert(!selected());
+        bool Entity::doSelectable() const {
+            return true;
         }
 
         void Entity::doAccept(NodeVisitor& visitor) {
@@ -133,14 +133,6 @@ namespace TrenchBroom {
         }
         
         bool Entity::doIntersects(const Node* node) const {
-        }
-
-        void Entity::doWasSelected() {
-            familyMemberWasSelected();
-        }
-        
-        void Entity::doWasDeselected() {
-            familyMemberWasDeselected();
         }
 
         void Entity::invalidateBounds() {

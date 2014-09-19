@@ -43,6 +43,10 @@ namespace TrenchBroom {
             void doParentDidChange() {
                 mockDoParentDidChange();
             }
+
+            bool doSelectable() const {
+                return mockDoSelectable();
+            }
             
             void doAncestorWillChange() {
                 mockDoAncestorWillChange();
@@ -62,6 +66,7 @@ namespace TrenchBroom {
         public:
             MOCK_CONST_METHOD1(mockDoCanAddChild, bool(const Node*));
             MOCK_CONST_METHOD1(mockDoCanRemoveChild, bool(const Node*));
+            MOCK_CONST_METHOD0(mockDoSelectable, bool());
             
             MOCK_METHOD0(mockDoParentWillChange, void());
             MOCK_METHOD0(mockDoParentDidChange, void());
@@ -79,6 +84,10 @@ namespace TrenchBroom {
             }
             
             virtual bool doCanRemoveChild(const Node* child) const {
+                return true;
+            }
+            
+            virtual bool doSelectable() const {
                 return true;
             }
             
@@ -198,30 +207,12 @@ namespace TrenchBroom {
             ASSERT_EQ(3u, child->familySize());
         }
         
-        class SelectableNode : public TestNode {
-        private:
-            bool m_selected;
-        public:
-            SelectableNode() :
-            m_selected(false) {}
-            
-            void select() {
-                m_selected = true;
-                familyMemberWasSelected();
-            }
-            
-            void deselect() {
-                m_selected = false;
-                familyMemberWasDeselected();
-            }
-        };
-        
         TEST(NodeTest, partialSelection) {
             TestNode root;
-            SelectableNode* child1 = new SelectableNode();
-            SelectableNode* child2 = new SelectableNode();
-            SelectableNode* grandChild1_1 = new SelectableNode();
-            SelectableNode* grandChild1_2 = new SelectableNode();
+            TestNode* child1 = new TestNode();
+            TestNode* child2 = new TestNode();
+            TestNode* grandChild1_1 = new TestNode();
+            TestNode* grandChild1_2 = new TestNode();
             
             root.addChild(child1);
             root.addChild(child2);

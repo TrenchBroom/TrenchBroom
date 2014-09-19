@@ -79,10 +79,10 @@ namespace TrenchBroom {
             return false;
         }
         
-        void Brush::doParentWillChange() {
-            assert(!selected());
+        bool Brush::doSelectable() const {
+            return true;
         }
-
+        
         void Brush::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }
@@ -95,13 +95,5 @@ namespace TrenchBroom {
         void Brush::doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {}
         bool Brush::doContains(const Node* node) const {}
         bool Brush::doIntersects(const Node* node) const {}
-
-        void Brush::doWasSelected() {
-            familyMemberWasSelected();
-        }
-        
-        void Brush::doWasDeselected() {
-            familyMemberWasDeselected();
-        }
     }
 }

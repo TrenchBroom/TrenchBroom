@@ -26,11 +26,10 @@
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
-#include "Model/Selectable.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Group : public Node, public Object, public Selectable {
+        class Group : public Node, public Object {
         private:
             String m_name;
             mutable BBox3 m_bounds;
@@ -43,7 +42,7 @@ namespace TrenchBroom {
         private: // implement methods inherited from Node
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
-            void doParentWillChange();
+            bool doSelectable() const;
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement methods inherited from Object
@@ -51,9 +50,6 @@ namespace TrenchBroom {
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Node* node) const;
             bool doIntersects(const Node* node) const;
-        private: // implement Selectable interface
-            void doWasSelected();
-            void doWasDeselected();
         private:
             void invalidateBounds();
             void validateBounds() const;

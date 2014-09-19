@@ -25,11 +25,10 @@
 #include "Model/Attributable.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/Object.h"
-#include "Model/Selectable.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Entity : public Attributable, public Object, public Selectable, private EntityRotationPolicy {
+        class Entity : public Attributable, public Object, private EntityRotationPolicy {
         private:
             static const BBox3 DefaultBounds;
             mutable BBox3 m_bounds;
@@ -45,7 +44,7 @@ namespace TrenchBroom {
         private: // implement Node interface
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
-            void doParentWillChange();
+            bool doSelectable() const;
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Attributable interface
@@ -58,9 +57,6 @@ namespace TrenchBroom {
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Node* node) const;
             bool doIntersects(const Node* node) const;
-        private: // implement Selectable interface
-            void doWasSelected();
-            void doWasDeselected();
         private:
             void invalidateBounds();
             void validateBounds() const;
