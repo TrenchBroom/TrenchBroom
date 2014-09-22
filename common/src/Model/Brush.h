@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Hit.h"
 #include "Model/BrushContentType.h"
+#include "Model/BrushGeometryTypes.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
 
@@ -70,7 +71,7 @@ namespace TrenchBroom {
             void removeFaces(I cur, I end) {
                 BrushFaceList::iterator rem = m_faces.end();
                 while (cur != end) {
-                    rem = doRemoveFace(*cur, m_faces.begin(), rem);
+                    rem = doRemoveFace(m_faces.begin(), rem, *cur);
                     ++cur;
                 }
                 
@@ -86,9 +87,29 @@ namespace TrenchBroom {
         public: // move face along normal
             bool canMoveBoundary(const BBox3& worldBounds, const BrushFace* face, const Vec3& delta) const;
             void moveBoundary(const BBox3& worldBounds, BrushFace* face, const Vec3& delta, const bool lockTexture);
-        public: // vertex operations
+        public:
+            // geometry access
+            size_t vertexCount() const;
+            const BrushVertexList& vertices() const;
+            
+            size_t edgeCount() const;
+            const BrushEdgeList& edges() const;
+            
+            // vertex operations
             bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
             Vec3::List moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
+
+            // edge operations
+            bool canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
+            Edge3::List moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta);
+            bool canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
+            Vec3 splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta);
+            
+            // face operations
+            bool canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
+            Polygon3::List moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta);
+            bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
+            Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
         private:
             void processBrushAlgorithmResult(const BBox3& worldBounds, const BrushAlgorithmResult& result);
             void invalidateFaces();

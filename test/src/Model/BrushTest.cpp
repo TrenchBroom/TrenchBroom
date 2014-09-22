@@ -401,10 +401,8 @@ namespace TrenchBroom {
             ASSERT_FLOAT_EQ(7.0, brush.bounds().size().z());
         }
         
-        /*
         TEST(BrushTest, moveVertex) {
-            //Model::ModelFactory factory(Model::MapFormat::Standard, Model::BrushContentTypeBuilder::Ptr(new Model::BrushContentTypeBuilder()));
-            World world;
+            World world(MapFormat::Standard, NULL);
             
             const BBox3 worldBounds(4096.0);
             BrushBuilder builder(&world, worldBounds);
@@ -415,12 +413,103 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, newVertexPositions.size());
             ASSERT_VEC_EQ(Vec3(16.0, 16.0, 32.0), newVertexPositions[0]);
             
-            newVertexPositions = brush->moveVertices(worldBounds, Vec3::List(1, newVertexPositions[0]), Vec3(16.0, 16.0, 0.0));
+            newVertexPositions = brush->moveVertices(worldBounds, newVertexPositions, Vec3(16.0, 16.0, 0.0));
             ASSERT_EQ(1u, newVertexPositions.size());
-            ASSERT_VEC_EQ(Vec3(32.0, 32.0, 32.0), newVertexPositions[0]);
+            ASSERT_VEC_EQ(vertex, newVertexPositions[0]);
 
             delete brush;
         }
-         */
+        
+        TEST(BrushTest, moveEdge) {
+            World world(MapFormat::Standard, NULL);
+            
+            const BBox3 worldBounds(4096.0);
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(64.0, "asdf");
+            
+            const Edge3 edge(Vec3(-32.0, -32.0, -32.0), Vec3(32.0, -32.0, -32.0));
+            Edge3::List newEdgePositions = brush->moveEdges(worldBounds, Edge3::List(1, edge), Vec3(-16.0, -16.0, 0.0));
+            ASSERT_EQ(1u, newEdgePositions.size());
+            ASSERT_EQ(Edge3(Vec3(-48.0, -48.0, -32.0), Vec3(16.0, -48.0, -32.0)), newEdgePositions[0]);
+            
+            newEdgePositions = brush->moveEdges(worldBounds, newEdgePositions, Vec3(16.0, 16.0, 0.0));
+            ASSERT_EQ(1u, newEdgePositions.size());
+            ASSERT_EQ(edge, newEdgePositions[0]);
+            
+            delete brush;
+        }
+        
+        TEST(BrushTest, splitEdge) {
+            World world(MapFormat::Standard, NULL);
+            
+            const BBox3 worldBounds(4096.0);
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(64.0, "asdf");
+
+            const Edge3 edge(Vec3(-32.0, -32.0, -32.0), Vec3(32.0, -32.0, -32.0));
+            const Vec3 newVertexPosition = brush->splitEdge(worldBounds, edge, Vec3(-16.0, -16.0, 0.0));
+            
+            ASSERT_VEC_EQ(Vec3(-16.0, -48.0, -32.0), newVertexPosition);
+            ASSERT_EQ(9u, brush->vertexCount());
+            ASSERT_EQ(15u, brush->edgeCount());
+            
+            delete brush;
+        }
+        
+        TEST(BrushTest, moveFace) {
+            World world(MapFormat::Standard, NULL);
+            
+            const BBox3 worldBounds(4096.0);
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(64.0, "asdf");
+            
+            Vec3::List vertexPositions(4);
+            vertexPositions[0] = Vec3(-32.0, -32.0, +32.0);
+            vertexPositions[1] = Vec3(-32.0, +32.0, +32.0);
+            vertexPositions[2] = Vec3(+32.0, +32.0, +32.0);
+            vertexPositions[3] = Vec3(+32.0, -32.0, +32.0);
+            
+            const Polygon3 face(vertexPositions);
+            
+            Polygon3::List newFacePositions = brush->moveFaces(worldBounds, Polygon3::List(1, face), Vec3(-16.0, -16.0, 0.0));
+            ASSERT_EQ(1u, newFacePositions.size());
+            ASSERT_TRUE(newFacePositions[0].contains(Vec3(-48.0, -48.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].contains(Vec3(-48.0, +16.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].contains(Vec3(+16.0, +16.0, +32.0)));
+            ASSERT_TRUE(newFacePositions[0].contains(Vec3(+16.0, -48.0, +32.0)));
+            
+            newFacePositions = brush->moveFaces(worldBounds, newFacePositions, Vec3(16.0, 16.0, 0.0));
+            ASSERT_EQ(1u, newFacePositions.size());
+            ASSERT_EQ(4u, newFacePositions[0].vertices().size());
+            for (size_t i = 0; i < 4; ++i)
+                ASSERT_TRUE(newFacePositions[0].contains(face.vertices()[i]));
+            
+            delete brush;
+        }
+
+        TEST(BrushTest, splitFace) {
+            World world(MapFormat::Standard, NULL);
+            
+            const BBox3 worldBounds(4096.0);
+            BrushBuilder builder(&world, worldBounds);
+            Brush* brush = builder.createCube(64.0, "asdf");
+            
+            Vec3::List vertexPositions(4);
+            vertexPositions[0] = Vec3(-32.0, -32.0, +32.0);
+            vertexPositions[1] = Vec3(-32.0, +32.0, +32.0);
+            vertexPositions[2] = Vec3(+32.0, +32.0, +32.0);
+            vertexPositions[3] = Vec3(+32.0, -32.0, +32.0);
+            
+            const Polygon3 face(vertexPositions);
+
+            const Vec3 newVertexPosition = brush->splitFace(worldBounds, face, Vec3(-16.0, +8.0, +4.0));
+            
+            ASSERT_VEC_EQ(Vec3(-16.0, +8.0, 36.0), newVertexPosition);
+            ASSERT_EQ(9u, brush->vertexCount());
+            ASSERT_EQ(16u, brush->edgeCount());
+            
+            delete brush;
+        }
+        
     }
 }

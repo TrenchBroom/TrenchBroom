@@ -170,10 +170,29 @@ namespace TrenchBroom {
             nodeDidChange();
         }
 
+        size_t Brush::vertexCount() const {
+            assert(m_geometry != NULL);
+            return m_geometry->vertices.size();
+        }
+        
+        const BrushVertexList& Brush::vertices() const {
+            assert(m_geometry != NULL);
+            return m_geometry->vertices;
+        }
+        
+        size_t Brush::edgeCount() const {
+            assert(m_geometry != NULL);
+            return m_geometry->edges.size();
+        }
+        
+        const BrushEdgeList& Brush::edges() const {
+            assert(m_geometry != NULL);
+            return m_geometry->edges;
+        }
+        
         bool Brush::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
             assert(m_geometry != NULL);
             assert(!vertexPositions.empty());
-            
             const bool result = m_geometry->canMoveVertices(worldBounds, vertexPositions, delta);
             assert(checkGeometry());
             return result;
@@ -186,22 +205,98 @@ namespace TrenchBroom {
             
             const MoveVerticesResult result = m_geometry->moveVertices(worldBounds, vertexPositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
-            assert(checkGeometry());
             nodeDidChange();
             
             return result.newVertexPositions;
+        }
+
+        bool Brush::canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(!edgePositions.empty());
+            const bool result = m_geometry->canMoveEdges(worldBounds, edgePositions, delta);
+            assert(checkGeometry());
+            return result;
+        }
+        
+        Edge3::List Brush::moveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(!edgePositions.empty());
+            assert(canMoveEdges(worldBounds, edgePositions, delta));
+            
+            const MoveEdgesResult result = m_geometry->moveEdges(worldBounds, edgePositions, delta);
+            processBrushAlgorithmResult(worldBounds, result);
+            nodeDidChange();
+            
+            return result.newEdgePositions;
+        }
+        
+        bool Brush::canSplitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            const bool result = m_geometry->canSplitEdge(worldBounds, edgePosition, delta);
+            assert(checkGeometry());
+            return result;
+        }
+        
+        Vec3 Brush::splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(canSplitEdge(worldBounds, edgePosition, delta));
+            
+            const SplitResult result = m_geometry->splitEdge(worldBounds, edgePosition, delta);
+            processBrushAlgorithmResult(worldBounds, result);
+            nodeDidChange();
+            
+            return result.newVertexPosition;
+        }
+
+        bool Brush::canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(!facePositions.empty());
+            const bool result = m_geometry->canMoveFaces(worldBounds, facePositions, delta);
+            assert(checkGeometry());
+            return result;
+        }
+        
+        Polygon3::List Brush::moveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(!facePositions.empty());
+            assert(canMoveFaces(worldBounds, facePositions, delta));
+            
+            const MoveFacesResult result = m_geometry->moveFaces(worldBounds, facePositions, delta);
+            processBrushAlgorithmResult(worldBounds, result);
+            nodeDidChange();
+            
+            return result.newFacePositions;
+        }
+
+        bool Brush::canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            const bool result = m_geometry->canSplitFace(worldBounds, facePosition, delta);
+            assert(checkGeometry());
+            return result;
+        }
+        
+        Vec3 Brush::splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(canSplitFace(worldBounds, facePosition, delta));
+            
+            const SplitResult result = m_geometry->splitFace(worldBounds, facePosition, delta);
+            processBrushAlgorithmResult(worldBounds, result);
+            nodeDidChange();
+            
+            return result.newVertexPosition;
         }
 
         void Brush::processBrushAlgorithmResult(const BBox3& worldBounds, const BrushAlgorithmResult& result) {
             if (result.addedFaces.empty() && result.droppedFaces.empty())
                 return;
             
-            detachFaces(result.droppedFaces);
-            VectorUtils::eraseAll(m_faces, result.droppedFaces);
+            removeFaces(result.droppedFaces.begin(), result.droppedFaces.end());
             VectorUtils::deleteAll(result.droppedFaces);
             
             invalidateFaces();
             addFaces(result.addedFaces);
+
+            assert(checkGeometry());
         }
 
         void Brush::invalidateFaces() {

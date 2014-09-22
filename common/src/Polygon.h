@@ -77,6 +77,10 @@ namespace TrenchBroom {
             return 0;
         }
         
+        bool contains(const Vec<T,S>& vertex) const {
+            return std::find(m_vertices.begin(), m_vertices.end(), vertex) != m_vertices.end();
+        }
+        
         const typename Vec<T,S>::List& vertices() const {
             return m_vertices;
         }
