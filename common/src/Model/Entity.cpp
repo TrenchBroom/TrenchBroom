@@ -25,6 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const Hit::HitType Entity::EntityHit = Hit::freeHitType();
         const BBox3 Entity::DefaultBounds(8.0);
 
         Entity::Entity() :
@@ -46,6 +47,14 @@ namespace TrenchBroom {
         
         void Entity::applyRotation(const Mat4x4& transformation) {
             EntityRotationPolicy::applyRotation(this, transformation);
+        }
+
+        Node* Entity::doClone(const BBox3& worldBounds) const {
+            Entity* entity = new Entity();
+            entity->setDefinition(definition());
+            entity->setAttributes(attributes());
+            entity->addChildren(clone(worldBounds, children()));
+            return entity;
         }
 
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
@@ -105,6 +114,17 @@ namespace TrenchBroom {
             return m_bounds;
         }
         
+        void Entity::doPick(const Ray3& ray, Hits& hits) const {
+            const BBox3& myBounds = bounds();
+            if (!myBounds.contains(ray.origin)) {
+                const FloatType distance = myBounds.intersectWithRay(ray);
+                if (!Math::isnan(distance)) {
+                    const Vec3 hitPoint = ray.pointAtDistance(distance);
+                    hits.addHit(Hit(EntityHit, distance, hitPoint, this));
+                }
+            }
+        }
+
         class TransformEntity : public NodeVisitor {
         private:
             const Mat4x4d& m_transformation;

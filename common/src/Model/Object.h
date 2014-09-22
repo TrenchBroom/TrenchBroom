@@ -23,10 +23,11 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/ModelTypes.h"
+#include "Model/Pickable.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Object {
+        class Object : public Pickable {
         private:
             size_t m_lineNumber;
             size_t m_lineCount;
@@ -35,7 +36,9 @@ namespace TrenchBroom {
         public:
             virtual ~Object();
             
+            // implement Pickable interface
             const BBox3& bounds() const;
+            void pick(const Ray3& ray, Hits& hits) const;
             
             void setFilePosition(size_t lineNumber, size_t lineCount);
             bool containsLine(size_t lineNumber) const;
@@ -45,6 +48,7 @@ namespace TrenchBroom {
             bool intersects(const Node* object) const;
         private: // subclassing interface
             virtual const BBox3& doGetBounds() const = 0;
+            virtual void doPick(const Ray3& ray, Hits& hits) const = 0;
             virtual void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) = 0;
             virtual bool doContains(const Node* node) const = 0;
             virtual bool doIntersects(const Node* node) const = 0;

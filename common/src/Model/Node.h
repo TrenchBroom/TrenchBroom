@@ -38,6 +38,19 @@ namespace TrenchBroom {
             Node& operator=(const Node&);
         public:
             virtual ~Node();
+        public: // cloning
+            Node* clone(const BBox3& worldBounds) const;
+        protected:
+            static NodeList clone(const BBox3& worldBounds, const NodeList& nodes);
+            
+            template <typename I, typename O>
+            static void clone(const BBox3& worldBounds, I cur, I end, O result) {
+                while (cur != end) {
+                    const Node* node = *cur;
+                    result = node->clone(worldBounds);
+                    ++cur;
+                }
+            }
         public: // tree management
             Node* parent() const;
             
@@ -45,6 +58,8 @@ namespace TrenchBroom {
             size_t childCount() const;
             const NodeList& children() const;
             size_t familySize() const;
+            
+            void addChildren(const NodeList& children);
             
             template <typename I>
             void addChildren(I cur, I end, size_t count = 0) {
@@ -60,13 +75,14 @@ namespace TrenchBroom {
             }
             
             void addChild(Node* child);
+            
             template <typename I>
             void removeChildren(I cur, I end) {
                 size_t familySizeDelta = 0;
                 NodeList::iterator rem = m_children.end();
                 while (cur != end) {
                     Node* child = *cur;
-                    rem = doRemoveChild(child);
+                    rem = doRemoveChild(m_children.begin(), rem, child);
                     familySizeDelta += child->familySize();
                     ++cur;
                 }
@@ -80,7 +96,7 @@ namespace TrenchBroom {
             bool canRemoveChild(Node* child) const;
         private:
             void doAddChild(Node* child);
-            NodeList::iterator doRemoveChild(Node* child);
+            NodeList::iterator doRemoveChild(NodeList::iterator begin, NodeList::iterator end, Node* child);
             
             void incFamilySize(size_t delta);
             void decFamilySize(size_t delta);
@@ -90,9 +106,10 @@ namespace TrenchBroom {
             void parentDidChange();
             void ancestorWillChange();
             void ancestorDidChange();
-        protected: // notification from children
-            void childDidChange();
+        protected: // notification for parents
+            void nodeDidChange();
         private:
+            void childDidChange();
             void descendantDidChange();
         public: // selection
             bool selected() const;
@@ -198,6 +215,8 @@ namespace TrenchBroom {
             void addToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
             void removeFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
         private: // subclassing interface
+            virtual Node* doClone(const BBox3& worldBounds) const = 0;
+            
             virtual bool doCanAddChild(const Node* child) const = 0;
             virtual bool doCanRemoveChild(const Node* child) const = 0;
 

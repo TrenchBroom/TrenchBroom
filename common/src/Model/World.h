@@ -24,27 +24,28 @@
 #include "VecMath.h"
 #include "Model/Attributable.h"
 #include "Model/AttributableIndex.h"
+#include "Model/MapFormat.h"
+#include "Model/ModelFactory.h"
+#include "Model/ModelFactoryImpl.h"
 #include "Model/Node.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class World : public Attributable {
+        class BrushContentTypeBuilder;
+        
+        class World : public Attributable, public ModelFactory {
         private:
+            ModelFactoryImpl m_factory;
             Layer* m_defaultLayer;
             AttributableIndex m_attributableIndex;
         public:
-            World();
-
-        public: // factory methods
-            Layer* createLayer(const String& name) const;
-            Group* createGroup(const String& name) const;
-            Entity* createEntity() const;
-            Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
+            World(MapFormat::Type mapFormat, BrushContentTypeBuilder* brushContentTypeBuilder);
         public: // layer management
             Layer* defaultLayer() const;
         private:
             void createDefaultLayer();
         private: // implement Node interface
+            Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
             bool doSelectable() const;
@@ -59,6 +60,14 @@ namespace TrenchBroom {
             bool doCanAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
             bool doCanRenameAttribute(const AttributeName& name, const AttributeName& newName) const;
             bool doCanRemoveAttribute(const AttributeName& name) const;
+        private: // implement ModelFactory interface
+            World* doCreateWorld() const;
+            Layer* doCreateLayer(const String& name) const;
+            Group* doCreateGroup(const String& name) const;
+            Entity* doCreateEntity() const;
+            Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
+            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName) const;
+            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY) const;
         private:
             World(const World&);
             World& operator=(const World&);

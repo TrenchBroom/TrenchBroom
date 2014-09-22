@@ -26,6 +26,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const Hit::HitType Group::GroupHit = Hit::freeHitType();
+
         Group::Group(const String& name) :
         m_name(name),
         m_boundsValid(false) {}
@@ -38,6 +40,12 @@ namespace TrenchBroom {
             m_name = name;
         }
         
+        Node* Group::doClone(const BBox3& worldBounds) const {
+            Group* group = new Group(m_name);
+            group->addChildren(clone(worldBounds, children()));
+            return group;
+        }
+
         class CanAddChildToGroup : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
             void doVisit(const World* world)   { setResult(false); }
@@ -77,6 +85,17 @@ namespace TrenchBroom {
             if (!m_boundsValid)
                 validateBounds();
             return m_bounds;
+        }
+
+        void Group::doPick(const Ray3& ray, Hits& hits) const {
+            const BBox3& myBounds = bounds();
+            if (!myBounds.contains(ray.origin)) {
+                const FloatType distance = myBounds.intersectWithRay(ray);
+                if (!Math::isnan(distance)) {
+                    const Vec3 hitPoint = ray.pointAtDistance(distance);
+                    hits.addHit(Hit(GroupHit, distance, hitPoint, this));
+                }
+            }
         }
 
         class TransformGroup : public NodeVisitor {

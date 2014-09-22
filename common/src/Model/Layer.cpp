@@ -34,6 +34,12 @@ namespace TrenchBroom {
             m_name = name;
         }
 
+        Node* Layer::doClone(const BBox3& worldBounds) const {
+            Layer* layer = new Layer(m_name);
+            layer->addChildren(clone(worldBounds, children()));
+            return layer;
+        }
+
         class CanAddChildToLayer : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
             void doVisit(const World* world)   { setResult(false); }

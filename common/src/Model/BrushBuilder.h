@@ -17,29 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushContentTypeBuilder__
-#define __TrenchBroom__BrushContentTypeBuilder__
+#ifndef __TrenchBroom__BrushBuilder__
+#define __TrenchBroom__BrushBuilder__
 
-#include "SharedPointer.h"
-#include "Model/BrushContentType.h"
-#include "Model/ModelTypes.h"
+#include "TrenchBroom.h"
+#include "VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushContentTypeBuilder {
-        public:
-            struct Result {
-                BrushContentType::FlagType contentType;
-                bool transparent;
-                Result(BrushContentType::FlagType i_contentType, bool i_transparent);
-            };
+        class Brush;
+        class ModelFactory;
+        
+        class BrushBuilder {
         private:
-            BrushContentType::List m_contentTypes;
+            ModelFactory* m_factory;
+            const BBox3 m_worldBounds;
         public:
-            BrushContentTypeBuilder(const BrushContentType::List contentTypes = BrushContentType::EmptyList);
-            Result buildContentType(const Brush* brush) const;
+            BrushBuilder(ModelFactory* factory, const BBox3& worldBounds);
+            
+            Brush* createCube(FloatType size, const String& textureName) const;
+            Brush* createCuboid(const Vec3& size, const String& textureName) const;
+            Brush* createCuboid(const BBox3& bounds, const String& textureName) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushContentTypeBuilder__) */
+#endif /* defined(__TrenchBroom__BrushBuilder__) */

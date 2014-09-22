@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Hit.h"
 #include "Model/Attributable.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/Object.h"
@@ -29,6 +30,8 @@
 namespace TrenchBroom {
     namespace Model {
         class Entity : public Attributable, public Object, private EntityRotationPolicy {
+        public:
+            static const Hit::HitType EntityHit;
         private:
             static const BBox3 DefaultBounds;
             mutable BBox3 m_bounds;
@@ -42,6 +45,7 @@ namespace TrenchBroom {
             void setOrigin(const Vec3& origin);
             void applyRotation(const Mat4x4& transformation);
         private: // implement Node interface
+            Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
             void doDescendantDidChange();
@@ -55,6 +59,7 @@ namespace TrenchBroom {
             bool doCanRemoveAttribute(const AttributeName& name) const;
         private: // implement Object interface
             const BBox3& doGetBounds() const;
+            void doPick(const Ray3& ray, Hits& hits) const;
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Node* node) const;
             bool doIntersects(const Node* node) const;

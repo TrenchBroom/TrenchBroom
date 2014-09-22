@@ -20,6 +20,7 @@
 #include "Brush.h"
 
 #include "CollectionUtils.h"
+#include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
@@ -28,8 +29,11 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const Hit::HitType Brush::BrushHit = Hit::freeHitType();
+
         Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
         m_geometry(NULL),
+        m_contentTypeBuilder(NULL),
         m_contentType(0),
         m_transparent(false),
         m_contentTypeValid(true) {
@@ -41,6 +45,11 @@ namespace TrenchBroom {
             delete m_geometry;
             m_geometry = NULL;
             VectorUtils::clearAndDelete(m_faces);
+            m_contentTypeBuilder = NULL;
+        }
+
+        Brush* Brush::clone(const BBox3& worldBounds) const {
+            return static_cast<Brush*>(Node::clone(worldBounds));
         }
 
         class FindBrushOwner : public NodeVisitor, public NodeQuery<Attributable*> {
@@ -87,13 +96,13 @@ namespace TrenchBroom {
         }
 
         void Brush::removeFace(BrushFace* face) {
-            m_faces.erase(doRemoveFace(face), m_faces.end());
+            m_faces.erase(doRemoveFace(m_faces.begin(), m_faces.end(), face), m_faces.end());
         }
 
-        BrushFaceList::iterator Brush::doRemoveFace(BrushFace* face) {
+        BrushFaceList::iterator Brush::doRemoveFace(BrushFaceList::iterator begin, BrushFaceList::iterator end, BrushFace* face) {
             assert(face != NULL);
 
-            BrushFaceList::iterator it = std::remove(m_faces.begin(), m_faces.end(), face);
+            BrushFaceList::iterator it = std::remove(begin, end, face);
             assert(it != m_faces.end());
             detachFace(face);
             return it;
@@ -115,6 +124,94 @@ namespace TrenchBroom {
             invalidateContentType();
         }
         
+        bool Brush::clip(const BBox3& worldBounds, BrushFace* face) {
+            try {
+                addFace(face);
+                rebuildGeometry(worldBounds);
+                nodeDidChange();
+                return !m_faces.empty();
+            } catch (GeometryException&) {
+                return false;
+            }
+        }
+
+        bool Brush::canMoveBoundary(const BBox3& worldBounds, const BrushFace* face, const Vec3& delta) const {
+            BrushFace* testFace = face->clone();
+            testFace->transform(translationMatrix(delta), false);
+            
+            BrushFaceList testFaces;
+            testFaces.push_back(testFace);
+            
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* brushFace = *it;
+                if (brushFace != face)
+                    testFaces.push_back(brushFace);
+            }
+            
+            BrushGeometry testGeometry(worldBounds);
+            const AddFaceResult result = testGeometry.addFaces(testFaces);
+            const bool inWorldBounds = worldBounds.contains(testGeometry.bounds) && testGeometry.isClosed();
+
+            m_geometry->restoreFaceGeometries();
+            delete testFace;
+            
+            return (inWorldBounds &&
+                    result.resultCode != AddFaceResult::Code_BrushNull &&
+                    result.resultCode != AddFaceResult::Code_FaceRedundant &&
+                    result.droppedFaces.empty());
+        }
+        
+        void Brush::moveBoundary(const BBox3& worldBounds, BrushFace* face, const Vec3& delta, const bool lockTexture) {
+            assert(canMoveBoundary(worldBounds, face, delta));
+            
+            face->transform(translationMatrix(delta), lockTexture);
+            rebuildGeometry(worldBounds);
+            nodeDidChange();
+        }
+
+        bool Brush::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(!vertexPositions.empty());
+            
+            const bool result = m_geometry->canMoveVertices(worldBounds, vertexPositions, delta);
+            assert(checkGeometry());
+            return result;
+        }
+        
+        Vec3::List Brush::moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
+            assert(m_geometry != NULL);
+            assert(!vertexPositions.empty());
+            assert(canMoveVertices(worldBounds, vertexPositions, delta));
+            
+            const MoveVerticesResult result = m_geometry->moveVertices(worldBounds, vertexPositions, delta);
+            processBrushAlgorithmResult(worldBounds, result);
+            assert(checkGeometry());
+            nodeDidChange();
+            
+            return result.newVertexPositions;
+        }
+
+        void Brush::processBrushAlgorithmResult(const BBox3& worldBounds, const BrushAlgorithmResult& result) {
+            if (result.addedFaces.empty() && result.droppedFaces.empty())
+                return;
+            
+            detachFaces(result.droppedFaces);
+            VectorUtils::eraseAll(m_faces, result.droppedFaces);
+            VectorUtils::deleteAll(result.droppedFaces);
+            
+            invalidateFaces();
+            addFaces(result.addedFaces);
+        }
+
+        void Brush::invalidateFaces() {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                face->invalidate();
+            }
+        }
+
         void Brush::rebuildGeometry(const BBox3& worldBounds) {
             delete m_geometry;
             m_geometry = new BrushGeometry(worldBounds);
@@ -125,7 +222,7 @@ namespace TrenchBroom {
             m_faces.clear();
 
             BrushFaceList::const_iterator it, end;
-            for (it = result.addedFaces.begin(), result.addedFaces.end(); it != end; ++it) {
+            for (it = result.addedFaces.begin(), end = result.addedFaces.end(); it != end; ++it) {
                 BrushFace* face = *it;
                 if (face->brush() == NULL)
                     addFace(face);
@@ -135,13 +232,64 @@ namespace TrenchBroom {
             }
 
             invalidateContentType();
-            childDidChange();
+            nodeDidChange();
+        }
+
+        bool Brush::checkGeometry() const {
+            BrushFaceList::const_iterator fIt, fEnd;
+            for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+                const BrushFace* face = *fIt;
+                if (face->side() == NULL)
+                    return false;
+                if (!VectorUtils::contains(m_geometry->sides, face->side()))
+                    return false;
+            }
+            
+            BrushFaceGeometryList::const_iterator sIt, sEnd;
+            for (sIt = m_geometry->sides.begin(), sEnd = m_geometry->sides.end(); sIt != sEnd; ++sIt) {
+                const BrushFaceGeometry* side = *sIt;
+                if (side->face == NULL)
+                    return false;
+                if (!VectorUtils::contains(m_faces, side->face))
+                    return false;
+            }
+            
+            return true;
+        }
+
+        void Brush::setContentTypeBuilder(BrushContentTypeBuilder* contentTypeBuilder) {
+            m_contentTypeBuilder = contentTypeBuilder;
+            invalidateContentType();
         }
 
         void Brush::invalidateContentType() {
             m_contentTypeValid = false;
         }
         
+        void Brush::validateContentType() const {
+            if (m_contentTypeBuilder != NULL) {
+                const BrushContentTypeBuilder::Result result = m_contentTypeBuilder->buildContentType(this);
+                m_contentType = result.contentType;
+                m_transparent = result.transparent;
+                m_contentTypeValid = true;
+            }
+        }
+
+        Node* Brush::doClone(const BBox3& worldBounds) const {
+            BrushFaceList faceClones;
+            faceClones.reserve(m_faces.size());
+            
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                const BrushFace* face = *it;
+                faceClones.push_back(face->clone());
+            }
+            
+            Brush* brush = new Brush(worldBounds, faceClones);
+            brush->setContentTypeBuilder(m_contentTypeBuilder);
+            return brush;
+        }
+
         bool Brush::doCanAddChild(const Node* child) const {
             return false;
         }
@@ -167,6 +315,22 @@ namespace TrenchBroom {
             return m_geometry->bounds;
         }
         
+        void Brush::doPick(const Ray3& ray, Hits& hits) const {
+            if (Math::isnan(bounds().intersectWithRay(ray)))
+                return;
+            
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                const FloatType distance = face->intersectWithRay(ray);
+                if (!Math::isnan(distance)) {
+                    const Vec3 hitPoint = ray.pointAtDistance(distance);
+                    hits.addHit(Hit(BrushHit, distance, hitPoint, face));
+                    break;
+                }
+            }
+        }
+
         void Brush::doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {}
         bool Brush::doContains(const Node* node) const {}
         bool Brush::doIntersects(const Node* node) const {}

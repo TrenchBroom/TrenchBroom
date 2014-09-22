@@ -28,6 +28,10 @@ namespace TrenchBroom {
     namespace Model {
         class MockNode : public Node {
         private: // implement Node interface
+            Node* doClone(const BBox3& worldBounds) const {
+                return new MockNode();
+            }
+            
             bool doCanAddChild(const Node* child) const {
                 return mockDoCanAddChild(child);
             }
@@ -79,6 +83,10 @@ namespace TrenchBroom {
         
         class TestNode : public Node {
         private: // implement Node interface
+            virtual Node* doClone(const BBox3& worldBounds) const {
+                return new TestNode();
+            }
+            
             virtual bool doCanAddChild(const Node* child) const {
                 return true;
             }

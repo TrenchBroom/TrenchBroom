@@ -19,6 +19,8 @@
 
 #include "World.h"
 
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
@@ -28,26 +30,10 @@
 
 namespace TrenchBroom {
     namespace Model {
-        World::World() :
+        World::World(MapFormat::Type mapFormat, BrushContentTypeBuilder* brushContentTypeBuilder) :
+        m_factory(mapFormat, brushContentTypeBuilder),
         m_defaultLayer(NULL) {
             createDefaultLayer();
-        }
-
-        Layer* World::createLayer(const String& name) const {
-            return new Layer(name);
-        }
-        
-        Group* World::createGroup(const String& name) const {
-            return new Group(name);
-        }
-        
-        Entity* World::createEntity() const {
-            return new Entity();
-        }
-        
-        Brush* World::createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
-            assert(false);
-            return NULL;
         }
 
         void World::createDefaultLayer() {
@@ -58,6 +44,23 @@ namespace TrenchBroom {
         Layer* World::defaultLayer() const {
             assert(m_defaultLayer != NULL);
             return m_defaultLayer;
+        }
+
+        Node* World::doClone(const BBox3& worldBounds) const {
+            const NodeList& myChildren = children();
+            assert(myChildren[0] == m_defaultLayer);
+
+            World* world = m_factory.createWorld();
+            world->defaultLayer()->addChildren(clone(worldBounds, m_defaultLayer->children()));
+            
+            if (myChildren.size() > 1) {
+                NodeList childClones;
+                childClones.reserve(myChildren.size() - 1);
+                clone(worldBounds, myChildren.begin() + 1, myChildren.end(), std::back_inserter(childClones));
+                world->addChildren(childClones);
+            }
+            
+            return world;
         }
 
         class CanAddChildToWorld : public ConstNodeVisitor, public NodeQuery<bool> {
@@ -152,6 +155,34 @@ namespace TrenchBroom {
         
         bool World::doCanRemoveAttribute(const AttributeName& name) const {
             return isAttributeMutable(name);
+        }
+
+        World* World::doCreateWorld() const {
+            return m_factory.createWorld();
+        }
+        
+        Layer* World::doCreateLayer(const String& name) const {
+            return m_factory.createLayer(name);
+        }
+        
+        Group* World::doCreateGroup(const String& name) const {
+            return m_factory.createGroup(name);
+        }
+        
+        Entity* World::doCreateEntity() const {
+            return m_factory.createEntity();
+        }
+        
+        Brush* World::doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const {
+            return m_factory.createBrush(worldBounds, faces);
+        }
+        
+        BrushFace* World::doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName) const {
+            return m_factory.createFace(point1, point2, point3, textureName);
+        }
+        
+        BrushFace* World::doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY) const {
+            return m_factory.createFace(point1, point2, point3, textureName, texAxisX, texAxisY);
         }
     }
 }

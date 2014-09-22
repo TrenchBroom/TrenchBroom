@@ -128,11 +128,13 @@ namespace TrenchBroom {
         }
         return Hit::NoHit;
     }
+     */
     
     const Hits::List& Hits::all() const {
         return m_hits;
     }
 
+    /*
     Hits::List Hits::filter(const Hit::HitType type) const {
         return filter(TypedHitFilter(type));
     }

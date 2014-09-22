@@ -80,7 +80,6 @@ namespace TrenchBroom {
             }
             void attributesDidChange();
         private: // search index management
-
             void addAttributesToIndex();
             void removeAttributesFromIndex();
             void updateAttributeIndex(const EntityAttribute::List& newAttributes);
@@ -88,7 +87,6 @@ namespace TrenchBroom {
             void addAttributeToIndex(const AttributeName& name, const AttributeValue& value);
             void removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value);
             void updateAttributeIndex(const AttributeName& oldName, const AttributeValue& oldValue, const AttributeName& newName, const AttributeValue& newValue);
-            
         public: // link management
             const AttributableList& linkSources() const;
             const AttributableList& linkTargets() const;

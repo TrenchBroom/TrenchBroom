@@ -31,6 +31,10 @@ namespace TrenchBroom {
             return doGetBounds();
         }
 
+        void Object::pick(const Ray3& ray, Hits& hits) const {
+            doPick(ray, hits);
+        }
+
         void Object::setFilePosition(const size_t lineNumber, const size_t lineCount) {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;

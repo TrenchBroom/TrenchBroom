@@ -36,6 +36,17 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_children);
         }
         
+        Node* Node::clone(const BBox3& worldBounds) const {
+            return doClone(worldBounds);
+        }
+
+        NodeList Node::clone(const BBox3& worldBounds, const NodeList& nodes) {
+            NodeList clones;
+            clones.reserve(nodes.size());
+            clone(worldBounds, nodes.begin(), nodes.end(), std::back_inserter(clones));
+            return clones;
+        }
+
         Node* Node::parent() const {
             return m_parent;
         }
@@ -56,6 +67,10 @@ namespace TrenchBroom {
             return m_familySize;
         }
         
+        void Node::addChildren(const NodeList& children) {
+            addChildren(children.begin(), children.end(), children.size());
+        }
+
         void Node::addChild(Node* child) {
             doAddChild(child);
             incFamilySize(child->familySize());
@@ -63,7 +78,7 @@ namespace TrenchBroom {
         }
         
         void Node::removeChild(Node* child) {
-            m_children.erase(doRemoveChild(child), m_children.end());
+            m_children.erase(doRemoveChild(m_children.begin(), m_children.end(), child), m_children.end());
             decFamilySize(child->familySize());
             decFamilyMemberSelectionCount(child->familyMemberSelectionCount());
         }
@@ -86,12 +101,12 @@ namespace TrenchBroom {
             child->setParent(this);
         }
 
-        NodeList::iterator Node::doRemoveChild(Node* child) {
+        NodeList::iterator Node::doRemoveChild(NodeList::iterator begin, NodeList::iterator end, Node* child) {
             assert(child != NULL);
             assert(child->parent() == this);
             assert(canRemoveChild(child));
 
-            NodeList::iterator it = std::remove(m_children.begin(), m_children.end(), child);
+            NodeList::iterator it = std::remove(begin, end, child);
             assert(it != m_children.end());
             child->setParent(NULL);
             return it;
@@ -152,11 +167,16 @@ namespace TrenchBroom {
             }
         }
         
+        void Node::nodeDidChange() {
+            if (m_parent != NULL)
+                parent()->childDidChange();
+        }
+        
         void Node::childDidChange() {
             doChildDidChange();
             descendantDidChange();
         }
-        
+
         void Node::descendantDidChange() {
             doDescendantDidChange();
             Node* node = parent();

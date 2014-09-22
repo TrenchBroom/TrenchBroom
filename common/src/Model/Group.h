@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "StringUtils.h"
+#include "Hit.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
@@ -30,6 +31,8 @@
 namespace TrenchBroom {
     namespace Model {
         class Group : public Node, public Object {
+        public:
+            static const Hit::HitType GroupHit;
         private:
             String m_name;
             mutable BBox3 m_bounds;
@@ -40,6 +43,7 @@ namespace TrenchBroom {
             const String& name() const;
             void setName(const String& name);
         private: // implement methods inherited from Node
+            Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
             void doDescendantDidChange();
@@ -48,6 +52,7 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement methods inherited from Object
             const BBox3& doGetBounds() const;
+            void doPick(const Ray3& ray, Hits& hits) const;
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Node* node) const;
             bool doIntersects(const Node* node) const;

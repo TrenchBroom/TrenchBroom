@@ -17,29 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__BrushContentTypeBuilder__
-#define __TrenchBroom__BrushContentTypeBuilder__
+#ifndef TrenchBroom_Pickable_h
+#define TrenchBroom_Pickable_h
 
-#include "SharedPointer.h"
-#include "Model/BrushContentType.h"
-#include "Model/ModelTypes.h"
+#include "TrenchBroom.h"
+#include "VecMath.h"
 
 namespace TrenchBroom {
+    class Hits;
     namespace Model {
-        class BrushContentTypeBuilder {
+        class Pickable {
         public:
-            struct Result {
-                BrushContentType::FlagType contentType;
-                bool transparent;
-                Result(BrushContentType::FlagType i_contentType, bool i_transparent);
-            };
-        private:
-            BrushContentType::List m_contentTypes;
-        public:
-            BrushContentTypeBuilder(const BrushContentType::List contentTypes = BrushContentType::EmptyList);
-            Result buildContentType(const Brush* brush) const;
+            virtual ~Pickable() {}
+            virtual const BBox3& bounds() const = 0;
+            virtual void pick(const Ray3& ray, Hits& hits) const = 0;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__BrushContentTypeBuilder__) */
+#endif

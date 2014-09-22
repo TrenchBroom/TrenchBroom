@@ -59,7 +59,7 @@ namespace TrenchBroom {
                 throw FileFormatException("Unknown image format");
             
             // this is supremely evil, but FreeImage guarantees that it will not modify wrapped memory
-            BYTE* address = (BYTE*)begin;
+            BYTE* address = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
             DWORD length = static_cast<DWORD>(end - begin);
             m_stream = FreeImage_OpenMemory(address, length);
             m_bitmap = FreeImage_LoadFromMemory(fifFormat, m_stream);
