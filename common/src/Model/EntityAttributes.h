@@ -50,6 +50,7 @@ namespace TrenchBroom {
             extern const AttributeName LayerName;
             extern const AttributeName Layer;
             extern const AttributeName GroupName;
+            extern const AttributeName Group;
         }
         
         namespace AttributeValues {

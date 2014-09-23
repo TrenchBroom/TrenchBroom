@@ -61,20 +61,20 @@ namespace TrenchBroom {
             m_parent = m_world->defaultLayer();
         }
         
-        void QuakeMapReader::onBeginEntity(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
+        void QuakeMapReader::onBeginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
             const EntityType type = entityType(attributes);
             switch (type) {
                 case EntityType_Layer:
-                    createLayer(attributes, extraAttributes);
+                    createLayer(line, attributes, extraAttributes);
                     break;
                 case EntityType_Group:
-                    createGroup(attributes, extraAttributes);
+                    createGroup(line, attributes, extraAttributes);
                     break;
                 case EntityType_Worldspawn:
-                    createWorldspawn(attributes, extraAttributes);
+                    createWorldspawn(line, attributes, extraAttributes);
                     break;
                 case EntityType_Default:
-                    createEntity(attributes, extraAttributes);
+                    createEntity(line, attributes, extraAttributes);
                     break;
             }
         }
@@ -82,10 +82,11 @@ namespace TrenchBroom {
         void QuakeMapReader::onEndEntity(const size_t startLine, const size_t lineCount) {
             assert(m_currentNode != NULL);
             setFilePosition(m_currentNode, startLine, lineCount);
+            m_currentNode = NULL;
             m_parent = m_world->defaultLayer();
         }
         
-        void QuakeMapReader::onBeginBrush() {
+        void QuakeMapReader::onBeginBrush(const size_t line) {
             assert(m_faces.empty());
         }
         
@@ -93,47 +94,89 @@ namespace TrenchBroom {
             createBrush(startLine, lineCount, extraAttributes);
         }
         
-        void QuakeMapReader::onBrushFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY) {
+        void QuakeMapReader::onBrushFace(const size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY) {
             Model::BrushFace* face = m_world->createFace(point1, point2, point3, attribs.textureName(), texAxisX, texAxisY);
             face->setAttribs(attribs);
             m_faces.push_back(face);
         }
 
-        void QuakeMapReader::createLayer(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
+        void QuakeMapReader::createLayer(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
             const String& name = findAttribute(attributes, Model::AttributeNames::LayerName);
             if (StringUtils::isBlank(name)) {
-                // show some error
+                if (logger() != NULL)
+                    logger()->warn("Skipping layer entity at line %u: name is blank", static_cast<unsigned int>(line));
+            } else if (m_layers.count(name) > 0) {
+                if (logger() != NULL)
+                    logger()->warn("Skipping layer entity at line %u: a layer with name '%s' already exists", static_cast<unsigned int>(line), name.c_str());
             } else {
-                m_currentNode = m_world->createLayer(name);
-                m_world->addChild(m_currentNode);
-                m_parent = m_currentNode;
+                Model::Layer* layer = m_world->createLayer(name);
+                m_layers.insert(std::make_pair(name, layer));
+                m_world->addChild(layer);
+                m_currentNode = layer;
+                m_parent = layer;
             }
         }
         
-        void QuakeMapReader::createGroup(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
+        void QuakeMapReader::createGroup(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
             const String& name = findAttribute(attributes, Model::AttributeNames::GroupName);
             if (StringUtils::isBlank(name)) {
-                // show some error
+                if (logger() != NULL)
+                    logger()->warn("Skipping group entity at line %u: name is blank", static_cast<unsigned int>(line));
+            } else if (m_layers.count(name) > 0) {
+                if (logger() != NULL)
+                    logger()->warn("Skipping group entity at line %u: a group with name '%s' already exists", static_cast<unsigned int>(line), name.c_str());
             } else {
-                m_currentNode = m_world->createGroup(name);
-                addChild(m_currentNode);
-                m_parent = m_currentNode;
+                Model::Group* group = m_world->createGroup(name);
+                m_groups.insert(std::make_pair(name, group));
+                
+                Model::Node* parent = findParentForEntity(line, attributes);
+                parent->addChild(group);
+                
+                m_currentNode = group;
+                m_parent = group;
             }
         }
         
-        void QuakeMapReader::createWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
+        void QuakeMapReader::createWorldspawn(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
             m_world->setAttributes(attributes);
             setExtraAttributes(m_world, extraAttributes);
             m_currentNode = m_world;
         }
 
-        void QuakeMapReader::createEntity(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
+        void QuakeMapReader::createEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
             Model::Entity* entity = m_world->createEntity();
             entity->setAttributes(attributes);
             setExtraAttributes(entity, extraAttributes);
+            
+            Model::Node* parent = findParentForEntity(line, attributes);
+            parent->addChild(entity);
+
             m_currentNode = entity;
-            addChild(m_currentNode);
-            m_parent = m_currentNode;
+            m_parent = entity;
+        }
+
+        Model::Node* QuakeMapReader::findParentForEntity(const size_t line, const Model::EntityAttribute::List& attributes) const {
+            const String& groupName = findAttribute(attributes, Model::AttributeNames::Group);
+            if (!groupName.empty()) {
+                Model::Group* group = MapUtils::find(m_groups, groupName, static_cast<Model::Group*>(NULL));
+                if (group != NULL)
+                    return group;
+                if (logger() != NULL)
+                    logger()->warn("Entity at line %u references missing group '%s'", static_cast<unsigned int>(line), groupName.c_str());
+                return m_world->defaultLayer();
+            }
+
+            const String& layerName = findAttribute(attributes, Model::AttributeNames::Layer);
+            if (!layerName.empty()) {
+                Model::Layer* layer = MapUtils::find(m_layers, layerName, static_cast<Model::Layer*>(NULL));
+                if (layer != NULL)
+                    return layer;
+                if (logger() != NULL)
+                    logger()->warn("Entity at line %u references missing layer '%s', adding to the default layer", static_cast<unsigned int>(line), layerName.c_str());
+                return m_world->defaultLayer();
+            }
+            
+            return m_world->defaultLayer();
         }
 
         void QuakeMapReader::createBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes) {
@@ -144,7 +187,7 @@ namespace TrenchBroom {
                 Model::Brush* brush = m_world->createBrush(m_worldBounds, m_faces);
                 setFilePosition(brush, startLine, lineCount);
                 setExtraAttributes(brush, extraAttributes);
-                addChild(brush);
+                m_parent->addChild(brush);
                 m_faces.clear();
             } catch (GeometryException& e) {
                 if (logger() != NULL)
@@ -153,25 +196,33 @@ namespace TrenchBroom {
 
         }
 
-        void QuakeMapReader::addChild(Model::Node* node) {
-            m_parent->addChild(node);
-        }
-
         QuakeMapReader::EntityType QuakeMapReader::entityType(const Model::EntityAttribute::List& attributes) const {
             const String& classname = findAttribute(attributes, Model::AttributeNames::Classname);
-            if (classname == Model::AttributeValues::LayerClassname) {
-                const String& groupType = findAttribute(attributes, Model::AttributeNames::GroupType);
-                if (groupType == Model::AttributeValues::GroupTypeLayer)
-                    return EntityType_Layer;
-            } else if (classname == Model::AttributeValues::GroupClassname) {
-                const String& groupType = findAttribute(attributes, Model::AttributeNames::GroupType);
-                if (groupType == Model::AttributeValues::GroupTypeGroup)
-                    return EntityType_Group;
-            } else if (classname == Model::AttributeValues::WorldspawnClassname) {
+            if (isLayer(classname, attributes))
+                return EntityType_Layer;
+            if (isGroup(classname, attributes))
+                return EntityType_Group;
+            if (isWorldspawn(classname, attributes))
                 return EntityType_Worldspawn;
-            }
-            
             return EntityType_Default;
+        }
+
+        bool QuakeMapReader::isLayer(const String& classname, const Model::EntityAttribute::List& attributes) const {
+            if (classname != Model::AttributeValues::LayerClassname)
+                return false;
+            const String& groupType = findAttribute(attributes, Model::AttributeNames::GroupType);
+            return groupType == Model::AttributeValues::GroupTypeLayer;
+        }
+        
+        bool QuakeMapReader::isGroup(const String& classname, const Model::EntityAttribute::List& attributes) const {
+            if (classname != Model::AttributeValues::GroupClassname)
+                return false;
+            const String& groupType = findAttribute(attributes, Model::AttributeNames::GroupType);
+            return groupType == Model::AttributeValues::GroupTypeGroup;
+        }
+        
+        bool QuakeMapReader::isWorldspawn(const String& classname, const Model::EntityAttribute::List& attributes) const {
+            return classname == Model::AttributeValues::WorldspawnClassname;
         }
 
         const String& QuakeMapReader::findAttribute(const Model::EntityAttribute::List& attributes, const String& name, const String& defaultValue) const {

@@ -70,18 +70,18 @@ namespace TrenchBroom {
             virtual ~MapParser();
         protected:
             void formatDetected(Model::MapFormat::Type format);
-            void beginEntity(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
+            void beginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
             void endEntity(size_t startLine, size_t lineCount);
-            void beginBrush();
+            void beginBrush(size_t line);
             void endBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
-            void brushFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY);
+            void brushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY);
         private: // subclassing interface for users of the parser
             virtual void onFormatDetected(Model::MapFormat::Type format) = 0;
-            virtual void onBeginEntity(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) = 0;
+            virtual void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) = 0;
             virtual void onEndEntity(size_t startLine, size_t lineCount) = 0;
-            virtual void onBeginBrush() = 0;
+            virtual void onBeginBrush(size_t line) = 0;
             virtual void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes) = 0;
-            virtual void onBrushFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY) = 0;
+            virtual void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY) = 0;
         };
     }
 }

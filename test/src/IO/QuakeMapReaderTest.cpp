@@ -408,6 +408,7 @@ namespace TrenchBroom {
                               "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
                               "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
                               "}\n"
+                              "}\n"
                               "{\n"
                               "\"classname\" \"func_door\"\n"
                               "\"_tb_layer\" \"My Layer\"\n"
@@ -430,6 +431,83 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, world->children().front()->childCount()); // default layer
             ASSERT_EQ(2u, world->children().back()->childCount()); // My Layer
             ASSERT_EQ(1u, world->children().back()->children().back()->childCount());
+        }
+        
+        TEST(QuakeMapReaderTest, parseEntitiesAndBrushesWithGroup) {
+            const String data("{\n"
+                              "\"classname\" \"worldspawn\"\n"
+                              "{\n"
+                              "( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) none 0 0 0 1 1\n"
+                              "( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) none 0 0 0 1 1\n"
+                              "( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) none 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) none 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) none 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1\n"
+                              "}\n"
+                              "{\n"
+                              "( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) rtz/b_rc_v16w 32 32 0 1 1 0 0 0\n"
+                              "( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0\n"
+                              "( -920 1088 -448 ) ( -920 1088 -416 ) ( -680 1088 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0\n"
+                              "( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0\n"
+                              "( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0\n"
+                              "}\n"
+                              "}\n"
+                              "{\n"
+                              "\"classname\" \"func_group\"\n"
+                              "\"_tb_type\" \"_tb_group\"\n"
+                              "\"_tb_name\" \"My Group\"\n"
+                              "{\n"
+                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "}\n"
+                              "}\n"
+                              "{\n"
+                              "\"classname\" \"func_door\"\n"
+                              "\"_tb_group\" \"My Group\"\n"
+                              "{\n"
+                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "}\n"
+                              "}\n"
+                              "{\n"
+                              "\"classname\" \"func_group\"\n"
+                              "\"_tb_type\" \"_tb_group\"\n"
+                              "\"_tb_name\" \"My Subroup\"\n"
+                              "\"_tb_group\" \"My Group\"\n"
+                              "{\n"
+                              "( -800 288 1024 ) ( -736 288 1024 ) ( -736 224 1024 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -800 288 1024 ) ( -800 224 1024 ) ( -800 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -736 224 1024 ) ( -736 288 1024 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -736 288 1024 ) ( -800 288 1024 ) ( -800 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 rtz/c_mf_v3c 56 -32 0 1 1 0 0 0\n"
+                              "}\n"
+                              "}\n"
+                              );
+            BBox3 worldBounds(8192);
+            
+            QuakeMapReader reader(data, NULL);
+            Model::World* world = reader.read(worldBounds);
+            
+            ASSERT_EQ(1u, world->childCount());
+            
+            Model::Node* defaultLayer = world->children().front();
+            ASSERT_EQ(3u, defaultLayer->childCount());
+            
+            Model::Node* myGroup = defaultLayer->children().back();
+            ASSERT_EQ(3u, myGroup->childCount());
+            
+            Model::Node* mySubGroup = myGroup->children().back();
+            ASSERT_EQ(1u, mySubGroup->childCount());
         }
 
         /*

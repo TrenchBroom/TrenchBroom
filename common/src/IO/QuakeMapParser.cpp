@@ -236,14 +236,14 @@ namespace TrenchBroom {
                     case QuakeMapToken::OBrace:
                         m_tokenizer.pushToken(token);
                         if (!beginEntityCalled) {
-                            beginEntity(attributes, extraAttributes);
+                            beginEntity(startLine, attributes, extraAttributes);
                             beginEntityCalled = true;
                         }
                         parseBrush();
                         break;
                     case QuakeMapToken::CBrace:
                         if (!beginEntityCalled)
-                            beginEntity(attributes, extraAttributes);
+                            beginEntity(startLine, attributes, extraAttributes);
                         endEntity(startLine, token.line() - startLine);
                         return;
                     default:
@@ -287,14 +287,14 @@ namespace TrenchBroom {
                     case QuakeMapToken::OParenthesis:
                         m_tokenizer.pushToken(token);
                         if (!beginBrushCalled) {
-                            beginBrush();
+                            beginBrush(startLine);
                             beginBrushCalled = true;
                         }
                         parseFace();
                         break;
                     case QuakeMapToken::CBrace:
                         if (!beginBrushCalled)
-                            beginBrush();
+                            beginBrush(startLine);
                         endBrush(startLine, token.line() - startLine, extraAttributes);
                         return;
                     default: {
@@ -313,6 +313,8 @@ namespace TrenchBroom {
             Token token = m_tokenizer.nextToken();
             if (token.type() == QuakeMapToken::Eof)
                 return;
+            
+            const size_t line = token.line();
             
             expect(QuakeMapToken::OParenthesis, token);
             const Vec3 p1 = parseVector().corrected();
@@ -383,7 +385,7 @@ namespace TrenchBroom {
                 }
             }
             
-            brushFace(p1, p2, p3, attribs, texAxisX, texAxisY);
+            brushFace(line, p1, p2, p3, attribs, texAxisX, texAxisY);
         }
         
         Vec3 QuakeMapParser::parseVector() {

@@ -52,24 +52,24 @@ namespace TrenchBroom {
             onFormatDetected(format);
         }
 
-        void MapParser::beginEntity(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
-            onBeginEntity(attributes, extraAttributes);
+        void MapParser::beginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
+            onBeginEntity(line, attributes, extraAttributes);
         }
         
         void MapParser::endEntity(const size_t startLine, const size_t lineCount) {
             onEndEntity(startLine, lineCount);
         }
         
-        void MapParser::beginBrush() {
-            onBeginBrush();
+        void MapParser::beginBrush(const size_t line) {
+            onBeginBrush(line);
         }
         
         void MapParser::endBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes) {
             onEndBrush(startLine, lineCount, extraAttributes);
         }
         
-        void MapParser::brushFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY) {
-            onBrushFace(point1, point2, point3, attribs, texAxisX, texAxisY);
+        void MapParser::brushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY) {
+            onBrushFace(line, point1, point2, point3, attribs, texAxisX, texAxisY);
         }
     }
 }

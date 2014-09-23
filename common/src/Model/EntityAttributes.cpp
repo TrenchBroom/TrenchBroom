@@ -42,6 +42,7 @@ namespace TrenchBroom {
             const AttributeName LayerName         = "_tb_name";
             const AttributeName Layer             = "_tb_layer";
             const AttributeName GroupName         = "_tb_name";
+            const AttributeName Group             = "_tb_group";
         }
         
         namespace AttributeValues {
