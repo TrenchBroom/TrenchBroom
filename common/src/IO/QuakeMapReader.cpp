@@ -110,7 +110,9 @@ namespace TrenchBroom {
                     logger()->warn("Skipping layer entity at line %u: a layer with name '%s' already exists", static_cast<unsigned int>(line), name.c_str());
             } else {
                 Model::Layer* layer = m_world->createLayer(name);
+                setExtraAttributes(layer, extraAttributes);
                 m_layers.insert(std::make_pair(name, layer));
+
                 m_world->addChild(layer);
                 m_currentNode = layer;
                 m_parent = layer;
@@ -127,6 +129,7 @@ namespace TrenchBroom {
                     logger()->warn("Skipping group entity at line %u: a group with name '%s' already exists", static_cast<unsigned int>(line), name.c_str());
             } else {
                 Model::Group* group = m_world->createGroup(name);
+                setExtraAttributes(group, extraAttributes);
                 m_groups.insert(std::make_pair(name, group));
                 
                 Model::Node* parent = findParentForEntity(line, attributes);
@@ -172,7 +175,7 @@ namespace TrenchBroom {
                 if (layer != NULL)
                     return layer;
                 if (logger() != NULL)
-                    logger()->warn("Entity at line %u references missing layer '%s', adding to the default layer", static_cast<unsigned int>(line), layerName.c_str());
+                    logger()->warn("Entity at line %u references missing layer '%s', adding it to the default layer instead", static_cast<unsigned int>(line), layerName.c_str());
                 return m_world->defaultLayer();
             }
             
@@ -187,6 +190,7 @@ namespace TrenchBroom {
                 Model::Brush* brush = m_world->createBrush(m_worldBounds, m_faces);
                 setFilePosition(brush, startLine, lineCount);
                 setExtraAttributes(brush, extraAttributes);
+                
                 m_parent->addChild(brush);
                 m_faces.clear();
             } catch (GeometryException& e) {
