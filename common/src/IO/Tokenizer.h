@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 return token;
             }
             
-            String readRemainder(unsigned int delimiterType) {
+            String readRemainder(const TokenType delimiterType) {
                 if (eof())
                     return "";
                 
@@ -97,7 +97,7 @@ namespace TrenchBroom {
                 const char* startPos = token.begin();
                 const char* endPos = startPos;
                 token = nextToken();
-                while (token.type() != delimiterType && !eof()) {
+                while ((token.type() & delimiterType) == 0 && !eof()) {
                     endPos = token.end();
                     token = nextToken();
                 }

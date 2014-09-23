@@ -41,13 +41,16 @@ namespace TrenchBroom {
             const AttributeName GroupType         = "_tb_type";
             const AttributeName LayerName         = "_tb_name";
             const AttributeName Layer             = "_tb_layer";
+            const AttributeName GroupName         = "_tb_name";
         }
         
         namespace AttributeValues {
             const AttributeValue WorldspawnClassname = "worldspawn";
             const AttributeValue NoClassname         = "undefined";
             const AttributeValue LayerClassname      = "func_group";
+            const AttributeValue GroupClassname      = "func_group";
             const AttributeValue GroupTypeLayer      = "_tb_layer";
+            const AttributeValue GroupTypeGroup      = "_tb_group";
         }
 
         String numberedAttributePrefix(const String& name) {

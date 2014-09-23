@@ -183,6 +183,39 @@ namespace TrenchBroom {
             return new BrushFace(point0, point1, point2, textureName, new ParallelTexCoordSystem(point0, point1, point2));
         }
 
+        class PlaneWeightOrder {
+        private:
+            bool m_deterministic;
+        public:
+            PlaneWeightOrder(const bool deterministic) :
+            m_deterministic(deterministic) {}
+            
+            template <typename T, size_t S>
+            bool operator()(const Plane<T,S>& lhs, const Plane<T,S>& rhs) const {
+                int result = lhs.normal.weight() - rhs.normal.weight();
+                if (m_deterministic)
+                    result += static_cast<int>(1000.0 * (lhs.distance - lhs.distance));
+                return result < 0;
+            }
+        };
+        
+        class FaceWeightOrder {
+        private:
+            const PlaneWeightOrder& m_planeOrder;
+        public:
+            FaceWeightOrder(const PlaneWeightOrder& planeOrder) :
+            m_planeOrder(planeOrder) {}
+            
+            bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const {
+                return m_planeOrder(lhs->boundary(), rhs->boundary());
+            }
+        };
+        
+        void BrushFace::sortFaces(BrushFaceList& faces) {
+            std::sort(faces.begin(), faces.end(), FaceWeightOrder(PlaneWeightOrder(true)));
+            std::sort(faces.begin(), faces.end(), FaceWeightOrder(PlaneWeightOrder(false)));
+        }
+
         BrushFace::~BrushFace() {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = Vec3::Null;

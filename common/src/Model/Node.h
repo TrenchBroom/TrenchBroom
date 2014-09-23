@@ -31,6 +31,9 @@ namespace TrenchBroom {
             size_t m_familySize;
             bool m_selected;
             size_t m_familyMemberSelectionCount;
+
+            size_t m_lineNumber;
+            size_t m_lineCount;
         protected:
             Node();
         private:
@@ -126,6 +129,9 @@ namespace TrenchBroom {
             void decFamilyMemberSelectionCount(size_t delta);
         private:
             bool selectable() const;
+        public: // file position
+            void setFilePosition(size_t lineNumber, size_t lineCount);
+            bool containsLine(size_t lineNumber) const;
         public: // visitors
             template <class V>
             void acceptAndRecurse(V& visitor) {

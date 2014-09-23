@@ -28,9 +28,6 @@
 namespace TrenchBroom {
     namespace Model {
         class Object : public Pickable {
-        private:
-            size_t m_lineNumber;
-            size_t m_lineCount;
         protected:
             Object();
         public:
@@ -39,9 +36,6 @@ namespace TrenchBroom {
             // implement Pickable interface
             const BBox3& bounds() const;
             void pick(const Ray3& ray, Hits& hits) const;
-            
-            void setFilePosition(size_t lineNumber, size_t lineCount);
-            bool containsLine(size_t lineNumber) const;
             
             void transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool contains(const Node* object) const;

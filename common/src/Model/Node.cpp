@@ -243,6 +243,15 @@ namespace TrenchBroom {
             return doSelectable();
         }
 
+        void Node::setFilePosition(const size_t lineNumber, const size_t lineCount) {
+            m_lineNumber = lineNumber;
+            m_lineCount = lineCount;
+        }
+        
+        bool Node::containsLine(const size_t lineNumber) const {
+            return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
+        }
+        
         void Node::findAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
             return doFindAttributablesWithAttribute(name, value, result);
         }

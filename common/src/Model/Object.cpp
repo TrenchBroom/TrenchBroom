@@ -21,10 +21,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        Object::Object() :
-        m_lineNumber(0),
-        m_lineCount(0) {}
-
+        Object::Object() {}
         Object::~Object() {}
         
         const BBox3& Object::bounds() const {
@@ -35,15 +32,6 @@ namespace TrenchBroom {
             doPick(ray, hits);
         }
 
-        void Object::setFilePosition(const size_t lineNumber, const size_t lineCount) {
-            m_lineNumber = lineNumber;
-            m_lineCount = lineCount;
-        }
-        
-        bool Object::containsLine(const size_t lineNumber) const {
-            return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
-        }
-        
         void Object::transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {
             doTransform(transformation, lockTextures, worldBounds);
         }

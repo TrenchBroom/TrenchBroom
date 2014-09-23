@@ -49,13 +49,16 @@ namespace TrenchBroom {
             extern const AttributeName GroupType;
             extern const AttributeName LayerName;
             extern const AttributeName Layer;
+            extern const AttributeName GroupName;
         }
         
         namespace AttributeValues {
             extern const AttributeValue WorldspawnClassname;
             extern const AttributeValue NoClassname;
             extern const AttributeValue LayerClassname;
+            extern const AttributeValue GroupClassname;
             extern const AttributeValue GroupTypeLayer;
+            extern const AttributeValue GroupTypeGroup;
         }
 
         String numberedAttributePrefix(const String& name);
