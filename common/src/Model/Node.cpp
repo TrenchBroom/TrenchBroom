@@ -99,6 +99,7 @@ namespace TrenchBroom {
 
             m_children.push_back(child);
             child->setParent(this);
+            descendantWasAdded(child);
         }
 
         NodeList::iterator Node::doRemoveChild(NodeList::iterator begin, NodeList::iterator end, Node* child) {
@@ -109,7 +110,20 @@ namespace TrenchBroom {
             NodeList::iterator it = std::remove(begin, end, child);
             assert(it != m_children.end());
             child->setParent(NULL);
+            descendantWasRemoved(child);
             return it;
+        }
+
+        void Node::descendantWasAdded(Node* node) {
+            doDescendantWasAdded(node);
+            if (m_parent != NULL)
+                m_parent->descendantWasAdded(node);
+        }
+        
+        void Node::descendantWasRemoved(Node* node) {
+            doDescendantWasRemoved(node);
+            if (m_parent != NULL)
+                m_parent->descendantWasRemoved(node);
         }
 
         void Node::incFamilySize(const size_t delta) {
@@ -167,22 +181,41 @@ namespace TrenchBroom {
             }
         }
         
-        void Node::nodeDidChange() {
+        void Node::nodeWillChange() {
             if (m_parent != NULL)
-                parent()->childDidChange();
+                m_parent->childWillChange(this);
         }
         
-        void Node::childDidChange() {
-            doChildDidChange();
-            descendantDidChange();
+        void Node::nodeDidChange() {
+            if (m_parent != NULL)
+                m_parent->childDidChange(this);
+        }
+        
+        void Node::childWillChange(Node* node) {
+            doChildWillChange(node);
+            descendantWillChange(node);
+        }
+        
+        void Node::childDidChange(Node* node) {
+            doChildDidChange(node);
+            descendantDidChange(node);
         }
 
-        void Node::descendantDidChange() {
-            doDescendantDidChange();
-            Node* node = parent();
-            while (node != NULL) {
-                node->descendantDidChange();
-                node = node->parent();
+        void Node::descendantWillChange(Node* node) {
+            doDescendantWillChange(node);
+            Node* parent = Node::parent();
+            while (parent != NULL) {
+                parent->descendantWillChange(node);
+                parent = parent->parent();
+            }
+        }
+        
+        void Node::descendantDidChange(Node* node) {
+            doDescendantDidChange(node);
+            Node* parent = Node::parent();
+            while (parent != NULL) {
+                parent->descendantDidChange(node);
+                parent = parent->parent();
             }
         }
 
@@ -278,13 +311,18 @@ namespace TrenchBroom {
                 m_parent->removeFromIndex(attributable, name, value);
         }
 
+        void Node::doDescendantWasAdded(Node* node) {}
+        void Node::doDescendantWasRemoved(Node* node) {}
+
         void Node::doParentWillChange() {}
         void Node::doParentDidChange() {}
         void Node::doAncestorWillChange() {}
         void Node::doAncestorDidChange() {}
 
-        void Node::doChildDidChange() {}
-        void Node::doDescendantDidChange() {}
+        void Node::doChildWillChange(Node* node) {}
+        void Node::doChildDidChange(Node* node) {}
+        void Node::doDescendantWillChange(Node* node) {}
+        void Node::doDescendantDidChange(Node* node) {}
 
         void Node::doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
             if (m_parent != NULL)

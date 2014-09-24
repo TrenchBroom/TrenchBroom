@@ -25,6 +25,7 @@
 #include "Model/Group.h"
 #include "Model/Layer.h"
 #include "Model/NodeVisitor.h"
+#include "Model/Picker.h"
 
 #include <cassert>
 
@@ -32,8 +33,14 @@ namespace TrenchBroom {
     namespace Model {
         World::World(MapFormat::Type mapFormat, BrushContentTypeBuilder* brushContentTypeBuilder) :
         m_factory(mapFormat, brushContentTypeBuilder),
-        m_defaultLayer(NULL) {
+        m_defaultLayer(NULL),
+        m_picker(BBox3(32768.0)) {
             createDefaultLayer();
+        }
+
+        Layer* World::defaultLayer() const {
+            assert(m_defaultLayer != NULL);
+            return m_defaultLayer;
         }
 
         void World::createDefaultLayer() {
@@ -41,9 +48,8 @@ namespace TrenchBroom {
             addChild(m_defaultLayer);
         }
         
-        Layer* World::defaultLayer() const {
-            assert(m_defaultLayer != NULL);
-            return m_defaultLayer;
+        Hits World::pick(const Ray3& ray) const {
+            return m_picker.pick(ray);
         }
 
         Node* World::doClone(const BBox3& worldBounds) const {
@@ -96,6 +102,54 @@ namespace TrenchBroom {
             CanRemoveChildFromWorld visitor(this);
             child->accept(visitor);
             return visitor.result();
+        }
+
+        class AddNodeToPicker : public NodeVisitor {
+        private:
+            Picker& m_picker;
+        public:
+            AddNodeToPicker(Picker& picker) :
+            m_picker(picker) {}
+        private:
+            void doVisit(World* world)   { }
+            void doVisit(Layer* layer)   { }
+            void doVisit(Group* group)   { m_picker.addObject(group); }
+            void doVisit(Entity* entity) { m_picker.addObject(entity); }
+            void doVisit(Brush* brush)   { m_picker.addObject(brush); }
+        };
+        
+        class RemoveNodeFromPicker : public NodeVisitor {
+        private:
+            Picker& m_picker;
+        public:
+            RemoveNodeFromPicker(Picker& picker) :
+            m_picker(picker) {}
+        private:
+            void doVisit(World* world)   { }
+            void doVisit(Layer* layer)   { }
+            void doVisit(Group* group)   { m_picker.removeObject(group); }
+            void doVisit(Entity* entity) { m_picker.removeObject(entity); }
+            void doVisit(Brush* brush)   { m_picker.removeObject(brush); }
+        };
+        
+        void World::doDescendantWasAdded(Node* node) {
+            AddNodeToPicker visitor(m_picker);
+            node->acceptAndRecurse(visitor);
+        }
+        
+        void World::doDescendantWasRemoved(Node* node) {
+            RemoveNodeFromPicker visitor(m_picker);
+            node->acceptAndRecurse(visitor);
+        }
+
+        void World::doDescendantWillChange(Node* node) {
+            RemoveNodeFromPicker visitor(m_picker);
+            node->accept(visitor);
+        }
+        
+        void World::doDescendantDidChange(Node* node) {
+            AddNodeToPicker visitor(m_picker);
+            node->accept(visitor);
         }
 
         bool World::doSelectable() const {

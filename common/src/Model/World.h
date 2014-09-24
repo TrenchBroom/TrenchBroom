@@ -22,12 +22,14 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Hit.h"
 #include "Model/Attributable.h"
 #include "Model/AttributableIndex.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
 #include "Model/ModelFactoryImpl.h"
 #include "Model/Node.h"
+#include "Model/Picker.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -37,6 +39,7 @@ namespace TrenchBroom {
         private:
             ModelFactoryImpl m_factory;
             Layer* m_defaultLayer;
+            Picker m_picker;
             AttributableIndex m_attributableIndex;
         public:
             World(MapFormat::Type mapFormat, BrushContentTypeBuilder* brushContentTypeBuilder);
@@ -44,10 +47,16 @@ namespace TrenchBroom {
             Layer* defaultLayer() const;
         private:
             void createDefaultLayer();
+        public: // picking
+            Hits pick(const Ray3& ray) const;
         private: // implement Node interface
             Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
+            void doDescendantWasAdded(Node* node);
+            void doDescendantWasRemoved(Node* node);
+            void doDescendantWillChange(Node* node);
+            void doDescendantDidChange(Node* node);
             bool doSelectable() const;
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;

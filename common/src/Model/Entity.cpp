@@ -76,7 +76,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        void Entity::doDescendantDidChange() {
+        void Entity::doDescendantDidChange(Node* node) {
             invalidateBounds();
         }
 

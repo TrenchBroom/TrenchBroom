@@ -65,7 +65,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Group::doDescendantDidChange() {
+        void Group::doDescendantDidChange(Node* node) {
             invalidateBounds();
         }
         

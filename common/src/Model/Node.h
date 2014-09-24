@@ -101,6 +101,9 @@ namespace TrenchBroom {
             void doAddChild(Node* child);
             NodeList::iterator doRemoveChild(NodeList::iterator begin, NodeList::iterator end, Node* child);
             
+            void descendantWasAdded(Node* node);
+            void descendantWasRemoved(Node* node);
+            
             void incFamilySize(size_t delta);
             void decFamilySize(size_t delta);
             
@@ -110,10 +113,13 @@ namespace TrenchBroom {
             void ancestorWillChange();
             void ancestorDidChange();
         protected: // notification for parents
+            void nodeWillChange();
             void nodeDidChange();
         private:
-            void childDidChange();
-            void descendantDidChange();
+            void childWillChange(Node* node);
+            void childDidChange(Node* node);
+            void descendantWillChange(Node* node);
+            void descendantDidChange(Node* node);
         public: // selection
             bool selected() const;
             void select();
@@ -226,13 +232,18 @@ namespace TrenchBroom {
             virtual bool doCanAddChild(const Node* child) const = 0;
             virtual bool doCanRemoveChild(const Node* child) const = 0;
 
+            virtual void doDescendantWasAdded(Node* node);
+            virtual void doDescendantWasRemoved(Node* node);
+
             virtual void doParentWillChange();
             virtual void doParentDidChange();
             virtual void doAncestorWillChange();
             virtual void doAncestorDidChange();
             
-            virtual void doChildDidChange();
-            virtual void doDescendantDidChange();
+            virtual void doChildWillChange(Node* node);
+            virtual void doChildDidChange(Node* node);
+            virtual void doDescendantWillChange(Node* node);
+            virtual void doDescendantDidChange(Node* node);
             
             virtual bool doSelectable() const = 0;
             
