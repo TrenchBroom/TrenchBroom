@@ -28,7 +28,7 @@ namespace TrenchBroom {
         }
         
         void IssueGeneratorRegistry::registerGenerator(IssueGenerator* generator) {
-            assert(generators != NULL);
+            assert(generator != NULL);
             assert(!VectorUtils::contains(m_generators, generator));
             m_generators.push_back(generator);
         }

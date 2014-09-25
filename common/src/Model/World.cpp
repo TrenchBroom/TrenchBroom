@@ -48,19 +48,37 @@ namespace TrenchBroom {
             addChild(m_defaultLayer);
         }
         
+        class UpdateIssuesVisitor : public NodeVisitor {
+        private:
+            const IssueGenerator& m_generator;
+        public:
+            UpdateIssuesVisitor(const IssueGenerator& generator) :
+            m_generator(generator) {}
+        private:
+            void doVisit(World* world)   {  world->updateIssues(m_generator); }
+            void doVisit(Layer* layer)   {  layer->updateIssues(m_generator); }
+            void doVisit(Group* group)   {  group->updateIssues(m_generator); }
+            void doVisit(Entity* entity) { entity->updateIssues(m_generator); }
+            void doVisit(Brush* brush)   {  brush->updateIssues(m_generator); }
+        };
+        
         void World::registerIssueGenerators(const IssueGeneratorList& generators) {
             IssueGeneratorList::const_iterator it, end;
             for (it = generators.begin(), end = generators.end(); it != end; ++it) {
                 IssueGenerator* generator = *it;
                 m_issueGeneratorRegistry.registerGenerator(generator);
             }
-            
-            update all issues
+            updateAllIssues();
         }
 
         void World::unregisterAllIssueGenerators() {
             m_issueGeneratorRegistry.unregisterAllGenerators();
-            update all issues
+            updateAllIssues();
+        }
+
+        void World::updateAllIssues() {
+            UpdateIssuesVisitor visitor(m_issueGeneratorRegistry);
+            acceptAndRecurse(visitor);
         }
 
         Hits World::pick(const Ray3& ray) const {

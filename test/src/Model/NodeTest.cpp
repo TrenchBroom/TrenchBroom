@@ -21,6 +21,7 @@
 #include <gmock/gmock.h>
 
 #include "CollectionUtils.h"
+#include "Model/IssueGenerator.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 
@@ -253,6 +254,19 @@ namespace TrenchBroom {
             grandChild1_1->deselect();
             ASSERT_EQ(1u, child1->descendantSelectionCount());
             ASSERT_EQ(2u, root.descendantSelectionCount());
+        }
+        
+        class MockIssueGenerator : public IssueGenerator {
+        private:
+            void doGenerate(const Node* node, IssueList& issues) const {
+                mockGenerate(node, issues);
+            }
+        public:
+            MOCK_CONST_METHOD2(mockGenerate, void(const Node*, IssueList&));
+        };
+        
+        TEST(NodeTest, simpleIssuesTest) {
+            
         }
     }
 }

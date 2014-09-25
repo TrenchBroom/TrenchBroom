@@ -53,6 +53,8 @@ namespace TrenchBroom {
             // issue generator registration
             void registerIssueGenerators(const IssueGeneratorList& generators);
             void unregisterAllIssueGenerators();
+        private:
+            void updateAllIssues();
         public: // picking
             Hits pick(const Ray3& ray) const;
         private: // implement Node interface
