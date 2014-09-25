@@ -171,14 +171,14 @@ namespace TrenchBroom {
             faces.push_back(bottom);
             
             Brush brush(worldBounds, faces);
-            ASSERT_FALSE(brush.familyMemberSelected());
+            ASSERT_FALSE(brush.descendantSelected());
             left->select();
-            ASSERT_TRUE(brush.familyMemberSelected());
+            ASSERT_TRUE(brush.descendantSelected());
             right->select();
             left->deselect();
-            ASSERT_TRUE(brush.familyMemberSelected());
+            ASSERT_TRUE(brush.descendantSelected());
             right->deselect();
-            ASSERT_FALSE(brush.familyMemberSelected());
+            ASSERT_FALSE(brush.descendantSelected());
         }
         
         TEST(BrushTest, partialSelectionBeforeAdd) {
@@ -216,11 +216,11 @@ namespace TrenchBroom {
             right->select();
             
             Brush brush(worldBounds, faces);
-            ASSERT_TRUE(brush.familyMemberSelected());
+            ASSERT_TRUE(brush.descendantSelected());
             left->deselect();
-            ASSERT_TRUE(brush.familyMemberSelected());
+            ASSERT_TRUE(brush.descendantSelected());
             right->deselect();
-            ASSERT_FALSE(brush.familyMemberSelected());
+            ASSERT_FALSE(brush.descendantSelected());
         }
         
         struct MatchFace {

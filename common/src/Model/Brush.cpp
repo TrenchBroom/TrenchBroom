@@ -92,7 +92,7 @@ namespace TrenchBroom {
             face->setBrush(this);
             invalidateContentType();
             if (face->selected())
-                incFamilyMemberSelectionCount(1);
+                incDescendantSelectionCount(1);
         }
 
         void Brush::removeFace(BrushFace* face) {
@@ -119,7 +119,7 @@ namespace TrenchBroom {
             assert(face->brush() == this);
 
             if (face->selected())
-                decFamilyMemberSelectionCount(1);
+                decDescendantSelectionCount(1);
             face->setBrush(NULL);
             invalidateContentType();
         }

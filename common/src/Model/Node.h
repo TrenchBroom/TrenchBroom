@@ -28,12 +28,14 @@ namespace TrenchBroom {
         private:
             Node* m_parent;
             NodeList m_children;
-            size_t m_familySize;
+            size_t m_descendantCount;
             bool m_selected;
-            size_t m_familyMemberSelectionCount;
+            size_t m_descendantSelectionCount;
 
             size_t m_lineNumber;
             size_t m_lineCount;
+            
+            IssueList m_issues;
         protected:
             Node();
         private:
@@ -60,6 +62,7 @@ namespace TrenchBroom {
             bool hasChildren() const;
             size_t childCount() const;
             const NodeList& children() const;
+            size_t descendantCount() const;
             size_t familySize() const;
             
             void addChildren(const NodeList& children);
@@ -67,30 +70,30 @@ namespace TrenchBroom {
             template <typename I>
             void addChildren(I cur, I end, size_t count = 0) {
                 m_children.reserve(m_children.size() + count);
-                size_t familySizeDelta = 0;
+                size_t descendantCountDelta = 0;
                 while (cur != end) {
                     Node* child = *cur;
                     doAddChild(child);
-                    familySizeDelta += child->familySize();
+                    descendantCountDelta += child->descendantCount() + 1;
                     ++cur;
                 }
-                incFamilySize(familySizeDelta);
+                incDescendantCount(descendantCountDelta);
             }
             
             void addChild(Node* child);
             
             template <typename I>
             void removeChildren(I cur, I end) {
-                size_t familySizeDelta = 0;
+                size_t descendantCountDelta = 0;
                 NodeList::iterator rem = m_children.end();
                 while (cur != end) {
                     Node* child = *cur;
                     rem = doRemoveChild(m_children.begin(), rem, child);
-                    familySizeDelta += child->familySize();
+                    descendantCountDelta += child->descendantCount() + 1;
                     ++cur;
                 }
                 m_children.erase(rem, m_children.end());
-                decFamilySize(familySizeDelta);
+                decDescendantCount(descendantCountDelta);
             }
             
             void removeChild(Node* child);
@@ -104,8 +107,8 @@ namespace TrenchBroom {
             void descendantWasAdded(Node* node);
             void descendantWasRemoved(Node* node);
             
-            void incFamilySize(size_t delta);
-            void decFamilySize(size_t delta);
+            void incDescendantCount(size_t delta);
+            void decDescendantCount(size_t delta);
             
             void setParent(Node* parent);
             void parentWillChange();
@@ -125,14 +128,14 @@ namespace TrenchBroom {
             void select();
             void deselect();
             
-            bool familyMemberSelected() const;
-            size_t familyMemberSelectionCount() const;
+            bool descendantSelected() const;
+            size_t descendantSelectionCount() const;
 
-            void familyMemberWasSelected();
-            void familyMemberWasDeselected();
+            void descendantWasSelected();
+            void descendantWasDeselected();
         protected:
-            void incFamilyMemberSelectionCount(size_t delta);
-            void decFamilyMemberSelectionCount(size_t delta);
+            void incDescendantSelectionCount(size_t delta);
+            void decDescendantSelectionCount(size_t delta);
         private:
             bool selectable() const;
         public: // file position

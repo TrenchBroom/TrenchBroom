@@ -225,33 +225,34 @@ namespace TrenchBroom {
             root.addChild(child1);
             root.addChild(child2);
             
-            ASSERT_EQ(0u, root.familyMemberSelectionCount());
+            ASSERT_EQ(0u, root.descendantSelectionCount());
             child1->select();
-            ASSERT_EQ(1u, child1->familyMemberSelectionCount());
-            ASSERT_EQ(1u, root.familyMemberSelectionCount());
+            ASSERT_EQ(0u, child1->descendantSelectionCount());
+            ASSERT_EQ(1u, root.descendantSelectionCount());
             child2->select();
-            ASSERT_EQ(1u, child2->familyMemberSelectionCount());
-            ASSERT_EQ(2u, root.familyMemberSelectionCount());
+            ASSERT_EQ(0u, child1->descendantSelectionCount());
+            ASSERT_EQ(0u, child2->descendantSelectionCount());
+            ASSERT_EQ(2u, root.descendantSelectionCount());
             
             child1->deselect();
-            ASSERT_EQ(0u, child1->familyMemberSelectionCount());
-            ASSERT_EQ(1u, root.familyMemberSelectionCount());
+            ASSERT_EQ(0u, child1->descendantSelectionCount());
+            ASSERT_EQ(1u, root.descendantSelectionCount());
 
             grandChild1_1->select();
             child1->addChild(grandChild1_1);
-            ASSERT_EQ(1u, child1->familyMemberSelectionCount());
-            ASSERT_EQ(2u, root.familyMemberSelectionCount());
+            ASSERT_EQ(1u, child1->descendantSelectionCount());
+            ASSERT_EQ(2u, root.descendantSelectionCount());
 
             child1->addChild(grandChild1_2);
-            ASSERT_EQ(1u, child1->familyMemberSelectionCount());
-            ASSERT_EQ(2u, root.familyMemberSelectionCount());
+            ASSERT_EQ(1u, child1->descendantSelectionCount());
+            ASSERT_EQ(2u, root.descendantSelectionCount());
             grandChild1_2->select();
-            ASSERT_EQ(2u, child1->familyMemberSelectionCount());
-            ASSERT_EQ(3u, root.familyMemberSelectionCount());
+            ASSERT_EQ(2u, child1->descendantSelectionCount());
+            ASSERT_EQ(3u, root.descendantSelectionCount());
 
             grandChild1_1->deselect();
-            ASSERT_EQ(1u, child1->familyMemberSelectionCount());
-            ASSERT_EQ(2u, root.familyMemberSelectionCount());
+            ASSERT_EQ(1u, child1->descendantSelectionCount());
+            ASSERT_EQ(2u, root.descendantSelectionCount());
         }
     }
 }

@@ -606,14 +606,14 @@ namespace TrenchBroom {
             assert(!m_selected);
             m_selected = true;
             if (m_brush != NULL)
-                m_brush->familyMemberWasSelected();
+                m_brush->descendantWasSelected();
         }
         
         void BrushFace::deselect() {
             assert(m_selected);
             m_selected = false;
             if (m_brush != NULL)
-                m_brush->familyMemberWasDeselected();
+                m_brush->descendantWasDeselected();
         }
         
         void BrushFace::addToMesh(Mesh& mesh) const {

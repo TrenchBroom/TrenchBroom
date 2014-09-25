@@ -62,6 +62,10 @@ namespace TrenchBroom {
         typedef std::set<AttributeName> AttributeNameSet;
         typedef String AttributeValue;
         typedef std::vector<AttributeValue> AttributeValueList;
+        
+        class Issue;
+        typedef std::vector<Issue*> IssueList;
+        static const IssueList EmptyIssueList(0);
     }
 }
 
