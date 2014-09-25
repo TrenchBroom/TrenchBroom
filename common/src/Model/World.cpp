@@ -48,6 +48,14 @@ namespace TrenchBroom {
             addChild(m_defaultLayer);
         }
         
+        void World::registerIssueGenerator(IssueGenerator* generator) {
+            m_issueGeneratorRegistry.registerGenerator(generator);
+        }
+
+        void World::unregisterAllIssueGenerators() {
+            m_issueGeneratorRegistry.unregisterAllGenerators();
+        }
+
         Hits World::pick(const Ray3& ray) const {
             return m_picker.pick(ray);
         }
@@ -154,6 +162,10 @@ namespace TrenchBroom {
 
         bool World::doSelectable() const {
             return false;
+        }
+
+        void World::doUpdateIssues(Node* node) {
+            node->updateIssues(m_issueGeneratorRegistry);
         }
 
         void World::doAccept(NodeVisitor& visitor) {

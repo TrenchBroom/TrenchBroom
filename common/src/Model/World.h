@@ -25,6 +25,7 @@
 #include "Hit.h"
 #include "Model/Attributable.h"
 #include "Model/AttributableIndex.h"
+#include "Model/IssueGeneratorRegistry.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
 #include "Model/ModelFactoryImpl.h"
@@ -41,12 +42,17 @@ namespace TrenchBroom {
             Layer* m_defaultLayer;
             Picker m_picker;
             AttributableIndex m_attributableIndex;
+            IssueGeneratorRegistry m_issueGeneratorRegistry;
         public:
             World(MapFormat::Type mapFormat, BrushContentTypeBuilder* brushContentTypeBuilder);
         public: // layer management
             Layer* defaultLayer() const;
         private:
             void createDefaultLayer();
+        public:
+            // issue generator registration
+            void registerIssueGenerator(IssueGenerator* generator);
+            void unregisterAllIssueGenerators();
         public: // picking
             Hits pick(const Ray3& ray) const;
         private: // implement Node interface
@@ -58,6 +64,7 @@ namespace TrenchBroom {
             void doDescendantWillChange(Node* node);
             void doDescendantDidChange(Node* node);
             bool doSelectable() const;
+            void doUpdateIssues(Node* node);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
             void doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const;

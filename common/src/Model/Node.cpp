@@ -32,7 +32,8 @@ namespace TrenchBroom {
         m_parent(NULL),
         m_descendantCount(0),
         m_selected(false),
-        m_descendantSelectionCount(0) {}
+        m_descendantSelectionCount(0),
+        m_familyIssueCount(0) {}
         
         Node::~Node() {
             clearChildren();
@@ -107,6 +108,7 @@ namespace TrenchBroom {
             m_children.push_back(child);
             child->setParent(this);
             descendantWasAdded(child);
+            incFamilyIssueCount(child->familyIssueCount());
         }
 
         NodeList::iterator Node::doRemoveChild(NodeList::iterator begin, NodeList::iterator end, Node* child) {
@@ -118,6 +120,7 @@ namespace TrenchBroom {
             assert(it != m_children.end());
             child->setParent(NULL);
             descendantWasRemoved(child);
+            decFamilyIssueCount(child->familyIssueCount());
             return it;
         }
         
@@ -298,17 +301,78 @@ namespace TrenchBroom {
             return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
         }
         
-        void Node::updateIssues(const IssueGenerator* generator) {
+        size_t Node::familyIssueCount() const {
+            return m_familyIssueCount;
+        }
+
+        const IssueList& Node::issues() const {
+            return m_issues;
+        }
+        
+        Issue* Node::findIssue(const size_t index) const {
+            assert(index < m_familyIssueCount);
+            
+            if (index < m_issues.size())
+                return m_issues[index];
+
+            size_t childIndex = index - m_issues.size();
+            NodeList::const_iterator it, end;
+            for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
+                Node* child = *it;
+                const size_t childIssueCount = child->familyIssueCount();
+                if (childIndex < childIssueCount)
+                    return child->findIssue(childIndex);
+                childIndex -= childIssueCount;
+            }
+            
+            // should never happen!
+            assert(false);
+            return NULL;
+        }
+
+        void Node::updateIssues() {
+            updateIssues(this);
+        }
+
+        void Node::updateIssues(Node* node) {
+            doUpdateIssues(node);
+        }
+
+        void Node::updateIssues(const IssueGenerator& generator) {
             clearIssues();
             generateIssues(generator);
         }
         
         void Node::clearIssues() {
+            decFamilyIssueCount(m_issues.size());
             VectorUtils::clearAndDelete(m_issues);
         }
         
-        void Node::generateIssues(const IssueGenerator* generator) {
-            generator->generate(this, m_issues);
+        void Node::generateIssues(const IssueGenerator& generator) {
+            const size_t oldIssueCount = m_issues.size();
+            generator.generate(this, m_issues);
+            const size_t newIssueCount = m_issues.size();
+            if (newIssueCount > oldIssueCount)
+                incFamilyIssueCount(newIssueCount - oldIssueCount);
+            else if (newIssueCount < oldIssueCount)
+                decFamilyIssueCount(oldIssueCount - newIssueCount);
+        }
+
+        void Node::incFamilyIssueCount(const size_t delta) {
+            if (delta == 0)
+                return;
+            m_familyIssueCount += delta;
+            if (m_parent != NULL)
+                m_parent->incFamilyIssueCount(delta);
+        }
+        
+        void Node::decFamilyIssueCount(const size_t delta) {
+            if (delta == 0)
+                return;
+            assert(m_familyIssueCount >= delta);
+            m_familyIssueCount -= delta;
+            if (m_parent != NULL)
+                m_parent->decFamilyIssueCount(delta);
         }
 
         void Node::findAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
@@ -349,6 +413,11 @@ namespace TrenchBroom {
         void Node::doChildDidChange(Node* node) {}
         void Node::doDescendantWillChange(Node* node) {}
         void Node::doDescendantDidChange(Node* node) {}
+
+        void Node::doUpdateIssues(Node* node) {
+            if (m_parent != NULL)
+                m_parent->updateIssues(node);
+        }
 
         void Node::doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
             if (m_parent != NULL)

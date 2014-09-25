@@ -38,6 +38,7 @@ namespace TrenchBroom {
             size_t m_lineCount;
 
             IssueList m_issues;
+            size_t m_familyIssueCount;
         protected:
             Node();
         private:
@@ -145,10 +146,20 @@ namespace TrenchBroom {
             void setFilePosition(size_t lineNumber, size_t lineCount);
             bool containsLine(size_t lineNumber) const;
         public: // issue management
-            void updateIssues(const IssueGenerator* generator);
+            size_t familyIssueCount() const;
+            const IssueList& issues() const;
+            Issue* findIssue(size_t index) const;
+
+            // should only be called by world
+            void updateIssues(const IssueGenerator& generator);
+        protected:
+            void updateIssues();
         private:
+            void updateIssues(Node* node);
             void clearIssues();
-            void generateIssues(const IssueGenerator* generator);
+            void generateIssues(const IssueGenerator& generator);
+            void incFamilyIssueCount(size_t delta);
+            void decFamilyIssueCount(size_t delta);
         public: // visitors
             template <class V>
             void acceptAndRecurse(V& visitor) {
@@ -257,6 +268,8 @@ namespace TrenchBroom {
             virtual void doDescendantDidChange(Node* node);
             
             virtual bool doSelectable() const = 0;
+            
+            virtual void doUpdateIssues(Node* node);
             
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
