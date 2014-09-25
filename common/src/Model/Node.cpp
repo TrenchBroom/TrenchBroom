@@ -128,12 +128,14 @@ namespace TrenchBroom {
 
         void Node::descendantWasAdded(Node* node) {
             doDescendantWasAdded(node);
+            updateIssues();
             if (m_parent != NULL)
                 m_parent->descendantWasAdded(node);
         }
         
         void Node::descendantWasRemoved(Node* node) {
             doDescendantWasRemoved(node);
+            updateIssues();
             if (m_parent != NULL)
                 m_parent->descendantWasRemoved(node);
         }

@@ -41,7 +41,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_generators);
         }
 
-        void IssueGeneratorRegistry::doGenerate(const Node* node, IssueList& issues) const {
+        void IssueGeneratorRegistry::doGenerate(Node* node, IssueList& issues) const {
             IssueGeneratorList::const_iterator it, end;
             for (it = m_generators.begin(), end = m_generators.end(); it != end; ++it) {
                 const IssueGenerator* generator = *it;

@@ -27,11 +27,11 @@ namespace TrenchBroom {
         class IssueGenerator {
         public:
             virtual ~IssueGenerator();
-            void generate(const Node* node, IssueList& issues) const;
+            void generate(Node* node, IssueList& issues) const;
         protected:
             IssueGenerator();
         private:
-            virtual void doGenerate(const Node* node, IssueList& issues) const = 0;
+            virtual void doGenerate(Node* node, IssueList& issues) const = 0;
         };
     }
 }

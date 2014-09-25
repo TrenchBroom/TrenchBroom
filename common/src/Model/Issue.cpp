@@ -18,3 +18,16 @@
  */
 
 #include "Issue.h"
+
+#include <cassert>
+
+namespace TrenchBroom {
+    namespace Model {
+        Issue::~Issue() {}
+
+        Issue::Issue(Node* node) :
+        m_node(node) {
+            assert(m_node != NULL);
+        }
+    }
+}

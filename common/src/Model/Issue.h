@@ -29,12 +29,14 @@ namespace TrenchBroom {
             Node* m_node;
         public:
             virtual ~Issue();
-            
+
+            /*
             size_t filePosition() const;
             const String& description() const;
             
             bool hidden() const;
             void setHidden(bool hidden);
+             */
         protected:
             Issue(Node* node);
         };

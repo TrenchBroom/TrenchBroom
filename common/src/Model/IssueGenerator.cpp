@@ -23,7 +23,7 @@ namespace TrenchBroom {
     namespace Model {
         IssueGenerator::~IssueGenerator() {}
         
-        void IssueGenerator::generate(const Node* node, IssueList& issues) const {
+        void IssueGenerator::generate(Node* node, IssueList& issues) const {
             doGenerate(node, issues);
         }
 

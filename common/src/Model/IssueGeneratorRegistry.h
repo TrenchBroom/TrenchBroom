@@ -38,7 +38,7 @@ namespace TrenchBroom {
         private:
             void clearGenerators();
         private: // implement IssueGenerator interface
-            void doGenerate(const Node* node, IssueList& issues) const;
+            void doGenerate(Node* node, IssueList& issues) const;
         };
     }
 }
