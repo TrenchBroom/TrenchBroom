@@ -20,6 +20,8 @@
 #include "Node.h"
 
 #include "CollectionUtils.h"
+#include "Model/Issue.h"
+#include "Model/IssueGenerator.h"
 
 #include <algorithm>
 #include <cassert>
@@ -33,7 +35,8 @@ namespace TrenchBroom {
         m_descendantSelectionCount(0) {}
         
         Node::~Node() {
-            VectorUtils::clearAndDelete(m_children);
+            clearChildren();
+            clearIssues();
         }
         
         Node* Node::clone(const BBox3& worldBounds) const {
@@ -116,6 +119,10 @@ namespace TrenchBroom {
             child->setParent(NULL);
             descendantWasRemoved(child);
             return it;
+        }
+        
+        void Node::clearChildren() {
+            VectorUtils::clearAndDelete(m_children);
         }
 
         void Node::descendantWasAdded(Node* node) {
@@ -291,6 +298,19 @@ namespace TrenchBroom {
             return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
         }
         
+        void Node::updateIssues(const IssueGenerator* generator) {
+            clearIssues();
+            generateIssues(generator);
+        }
+        
+        void Node::clearIssues() {
+            VectorUtils::clearAndDelete(m_issues);
+        }
+        
+        void Node::generateIssues(const IssueGenerator* generator) {
+            generator->generate(this, m_issues);
+        }
+
         void Node::findAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
             return doFindAttributablesWithAttribute(name, value, result);
         }

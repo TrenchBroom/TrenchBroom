@@ -24,6 +24,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class IssueGenerator;
+
         class Node {
         private:
             Node* m_parent;
@@ -34,7 +36,7 @@ namespace TrenchBroom {
 
             size_t m_lineNumber;
             size_t m_lineCount;
-            
+
             IssueList m_issues;
         protected:
             Node();
@@ -103,6 +105,7 @@ namespace TrenchBroom {
         private:
             void doAddChild(Node* child);
             NodeList::iterator doRemoveChild(NodeList::iterator begin, NodeList::iterator end, Node* child);
+            void clearChildren();
             
             void descendantWasAdded(Node* node);
             void descendantWasRemoved(Node* node);
@@ -141,6 +144,11 @@ namespace TrenchBroom {
         public: // file position
             void setFilePosition(size_t lineNumber, size_t lineCount);
             bool containsLine(size_t lineNumber) const;
+        public: // issue management
+            void updateIssues(const IssueGenerator* generator);
+        private:
+            void clearIssues();
+            void generateIssues(const IssueGenerator* generator);
         public: // visitors
             template <class V>
             void acceptAndRecurse(V& visitor) {
