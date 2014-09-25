@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Issue.h"
+#include "Model/Issue.h"
+
+#include "Model/Node.h"
 
 #include <cassert>
 
@@ -25,9 +27,36 @@ namespace TrenchBroom {
     namespace Model {
         Issue::~Issue() {}
 
+        size_t Issue::lineNumber() const {
+            return m_node->lineNumber();
+        }
+        
+        const String& Issue::description() const {
+            return doGetDescription();
+        }
+
+        bool Issue::hidden() const {
+            return m_node->issueHidden(type());
+        }
+        
+        void Issue::setHidden(const bool hidden) {
+            m_node->setIssueHidden(type(), hidden);
+        }
+
         Issue::Issue(Node* node) :
         m_node(node) {
             assert(m_node != NULL);
+        }
+
+        IssueType Issue::type() const {
+            return doGetType();
+        }
+
+        IssueType Issue::freeType() {
+            static IssueType type = 1;
+            const IssueType result = type;
+            type = (type << 1);
+            return result;
         }
     }
 }

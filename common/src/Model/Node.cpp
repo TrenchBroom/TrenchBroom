@@ -33,7 +33,8 @@ namespace TrenchBroom {
         m_descendantCount(0),
         m_selected(false),
         m_descendantSelectionCount(0),
-        m_familyIssueCount(0) {}
+        m_familyIssueCount(0),
+        m_hiddenIssues(0) {}
         
         Node::~Node() {
             clearChildren();
@@ -205,6 +206,7 @@ namespace TrenchBroom {
         void Node::nodeDidChange() {
             if (m_parent != NULL)
                 m_parent->childDidChange(this);
+            updateIssues();
         }
         
         void Node::childWillChange(Node* node) {
@@ -294,6 +296,10 @@ namespace TrenchBroom {
             return doSelectable();
         }
 
+        size_t Node::lineNumber() const {
+            return m_lineNumber;
+        }
+
         void Node::setFilePosition(const size_t lineNumber, const size_t lineCount) {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;
@@ -330,6 +336,17 @@ namespace TrenchBroom {
             // should never happen!
             assert(false);
             return NULL;
+        }
+
+        bool Node::issueHidden(const IssueType type) const {
+            return (type & m_hiddenIssues) != 0;
+        }
+        
+        void Node::setIssueHidden(const IssueType type, const bool hidden) {
+            if (hidden)
+                m_hiddenIssues |= type;
+            else
+                m_hiddenIssues &= ~type;
         }
 
         void Node::updateIssues() {

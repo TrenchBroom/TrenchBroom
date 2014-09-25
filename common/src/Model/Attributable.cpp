@@ -125,6 +125,7 @@ namespace TrenchBroom {
         }
 
         void Attributable::attributesDidChange() {
+            nodeDidChange();
             doAttributesDidChange();
         }
 

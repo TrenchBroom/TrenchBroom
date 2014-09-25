@@ -150,6 +150,7 @@ namespace TrenchBroom {
             } else {
                 setOrigin(transformation * origin());
                 applyRotation(stripTranslation(transformation));
+                updateIssues();
             }
         }
         

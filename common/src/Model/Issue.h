@@ -24,21 +24,26 @@
 
 namespace TrenchBroom {
     namespace Model {
+        
         class Issue {
-        private:
-            Node* m_node;
+        protected:
+            Node* const m_node;
         public:
             virtual ~Issue();
 
-            /*
-            size_t filePosition() const;
+            size_t lineNumber() const;
             const String& description() const;
             
             bool hidden() const;
             void setHidden(bool hidden);
-             */
         protected:
             Issue(Node* node);
+            static IssueType freeType();
+        private:
+            IssueType type() const;
+        private: // subclassing interface
+            virtual IssueType doGetType() const = 0;
+            virtual const String& doGetDescription() const = 0;
         };
     }
 }

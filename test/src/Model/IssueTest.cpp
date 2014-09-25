@@ -35,6 +35,20 @@ namespace TrenchBroom {
         public:
             TestIssue(Node* node) :
             Issue(node) {}
+        public:
+            Node* node() const {
+                return m_node;
+            }
+        private:
+            IssueType doGetType() const {
+                static const IssueType type = freeType();
+                return type;
+            }
+            
+            const String& doGetDescription() const {
+                static const String description("Test Issue");
+                return description;
+            }
         };
         
         class MockIssueGenerator : public IssueGenerator {
@@ -80,12 +94,20 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, entity->familyIssueCount());
             ASSERT_EQ(1u, brush->familyIssueCount());
             
+            ASSERT_EQ(&world, static_cast<TestIssue*>(world.findIssue(0))->node());
+            ASSERT_EQ(world.defaultLayer(), static_cast<TestIssue*>(world.findIssue(1))->node());
+            ASSERT_EQ(entity, static_cast<TestIssue*>(world.findIssue(2))->node());
+            ASSERT_EQ(brush, static_cast<TestIssue*>(world.findIssue(3))->node());
+            
             EXPECT_CALL(*generator, mockGenerate(world.defaultLayer(), _));
             EXPECT_CALL(*generator, mockGenerate(&world, _));
             world.defaultLayer()->removeChild(entity);
             ASSERT_EQ(2u, world.familyIssueCount());
             ASSERT_EQ(1u, world.defaultLayer()->familyIssueCount());
             
+            ASSERT_EQ(&world, static_cast<TestIssue*>(world.findIssue(0))->node());
+            ASSERT_EQ(world.defaultLayer(), static_cast<TestIssue*>(world.findIssue(1))->node());
+
             delete entity;
         }
         

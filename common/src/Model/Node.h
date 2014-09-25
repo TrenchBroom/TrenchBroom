@@ -39,6 +39,7 @@ namespace TrenchBroom {
 
             IssueList m_issues;
             size_t m_familyIssueCount;
+            IssueType m_hiddenIssues;
         protected:
             Node();
         private:
@@ -143,6 +144,7 @@ namespace TrenchBroom {
         private:
             bool selectable() const;
         public: // file position
+            size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
             bool containsLine(size_t lineNumber) const;
         public: // issue management
@@ -150,6 +152,9 @@ namespace TrenchBroom {
             const IssueList& issues() const;
             Issue* findIssue(size_t index) const;
 
+            bool issueHidden(IssueType type) const;
+            void setIssueHidden(IssueType type, bool hidden);
+            
             // should only be called by world
             void updateIssues(const IssueGenerator& generator);
         protected:

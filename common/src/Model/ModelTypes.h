@@ -63,6 +63,8 @@ namespace TrenchBroom {
         typedef String AttributeValue;
         typedef std::vector<AttributeValue> AttributeValueList;
         
+        typedef size_t IssueType;
+
         class Issue;
         typedef std::vector<Issue*> IssueList;
         static const IssueList EmptyIssueList(0);
