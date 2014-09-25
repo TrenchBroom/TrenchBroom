@@ -29,8 +29,7 @@ namespace TrenchBroom {
     namespace Model {
         class IssueGeneratorRegistry : public IssueGenerator {
         private:
-            typedef std::vector<IssueGenerator*> GeneratorList;
-            GeneratorList m_generators;
+            IssueGeneratorList m_generators;
         public:
             ~IssueGeneratorRegistry();
             

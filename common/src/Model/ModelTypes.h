@@ -66,6 +66,9 @@ namespace TrenchBroom {
         class Issue;
         typedef std::vector<Issue*> IssueList;
         static const IssueList EmptyIssueList(0);
+
+        class IssueGenerator;
+        typedef std::vector<IssueGenerator*> IssueGeneratorList;
     }
 }
 

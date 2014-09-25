@@ -48,12 +48,19 @@ namespace TrenchBroom {
             addChild(m_defaultLayer);
         }
         
-        void World::registerIssueGenerator(IssueGenerator* generator) {
-            m_issueGeneratorRegistry.registerGenerator(generator);
+        void World::registerIssueGenerators(const IssueGeneratorList& generators) {
+            IssueGeneratorList::const_iterator it, end;
+            for (it = generators.begin(), end = generators.end(); it != end; ++it) {
+                IssueGenerator* generator = *it;
+                m_issueGeneratorRegistry.registerGenerator(generator);
+            }
+            
+            update all issues
         }
 
         void World::unregisterAllIssueGenerators() {
             m_issueGeneratorRegistry.unregisterAllGenerators();
+            update all issues
         }
 
         Hits World::pick(const Ray3& ray) const {

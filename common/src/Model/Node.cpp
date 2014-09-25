@@ -108,7 +108,6 @@ namespace TrenchBroom {
             m_children.push_back(child);
             child->setParent(this);
             descendantWasAdded(child);
-            incFamilyIssueCount(child->familyIssueCount());
         }
 
         NodeList::iterator Node::doRemoveChild(NodeList::iterator begin, NodeList::iterator end, Node* child) {
@@ -120,7 +119,6 @@ namespace TrenchBroom {
             assert(it != m_children.end());
             child->setParent(NULL);
             descendantWasRemoved(child);
-            decFamilyIssueCount(child->familyIssueCount());
             return it;
         }
         
@@ -161,7 +159,7 @@ namespace TrenchBroom {
             assert((m_parent == NULL) ^ (parent == NULL));
             if (parent == m_parent)
                 return;
-            
+
             parentWillChange();
             m_parent = parent;
             parentDidChange();
@@ -184,6 +182,7 @@ namespace TrenchBroom {
                 Node* child = *it;
                 child->ancestorWillChange();
             }
+            clearIssues();
         }
 
         void Node::ancestorDidChange() {
@@ -193,6 +192,7 @@ namespace TrenchBroom {
                 Node* child = *it;
                 child->ancestorDidChange();
             }
+            updateIssues();
         }
         
         void Node::nodeWillChange() {

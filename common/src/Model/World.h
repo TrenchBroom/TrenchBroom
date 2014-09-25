@@ -51,7 +51,7 @@ namespace TrenchBroom {
             void createDefaultLayer();
         public:
             // issue generator registration
-            void registerIssueGenerator(IssueGenerator* generator);
+            void registerIssueGenerators(const IssueGeneratorList& generators);
             void unregisterAllIssueGenerators();
         public: // picking
             Hits pick(const Ray3& ray) const;

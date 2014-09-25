@@ -42,7 +42,7 @@ namespace TrenchBroom {
         }
 
         void IssueGeneratorRegistry::doGenerate(const Node* node, IssueList& issues) const {
-            GeneratorList::const_iterator it, end;
+            IssueGeneratorList::const_iterator it, end;
             for (it = m_generators.begin(), end = m_generators.end(); it != end; ++it) {
                 const IssueGenerator* generator = *it;
                 generator->generate(node, issues);
