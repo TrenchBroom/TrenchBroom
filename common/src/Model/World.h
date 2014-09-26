@@ -43,12 +43,25 @@ namespace TrenchBroom {
             Picker m_picker;
             AttributableIndex m_attributableIndex;
             IssueGeneratorRegistry m_issueGeneratorRegistry;
+            
+            NodeList m_selectedNodes;
+            NodeList m_partiallySelectedNodes;
+            BrushFaceList m_selectedFaces;
         public:
             World(MapFormat::Type mapFormat, BrushContentTypeBuilder* brushContentTypeBuilder);
         public: // layer management
             Layer* defaultLayer() const;
         private:
             void createDefaultLayer();
+        public: // selection
+            const NodeList& selectedNodes() const;
+            const NodeList& partiallySelectedNodes() const;
+            const BrushFaceList& selectedFaces() const;
+            
+            bool select(Node* node);
+            bool select(BrushFace* face);
+            bool deselect(Node* node);
+            bool deselect(BrushFace* face);
         public:
             // issue generator registration
             void registerIssueGenerators(const IssueGeneratorList& generators);

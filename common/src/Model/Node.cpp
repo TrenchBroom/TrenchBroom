@@ -56,6 +56,20 @@ namespace TrenchBroom {
             return m_parent;
         }
         
+        bool Node::isAncestorOf(const Node* node) const {
+            return node->isDescendantOf(this);
+        }
+
+        bool Node::isDescendantOf(const Node* node) const {
+            Node* parent = m_parent;
+            while (parent != NULL) {
+                if (parent == node)
+                    return true;
+                parent = parent->parent();
+            }
+            return false;
+        }
+
         bool Node::hasChildren() const {
             return !m_children.empty();
         }

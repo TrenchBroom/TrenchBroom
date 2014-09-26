@@ -48,6 +48,110 @@ namespace TrenchBroom {
             addChild(m_defaultLayer);
         }
         
+        const NodeList& World::selectedNodes() const {
+            return m_selectedNodes;
+        }
+        
+        const NodeList& World::partiallySelectedNodes() const {
+            return m_partiallySelectedNodes;
+        }
+        
+        const BrushFaceList& World::selectedFaces() const {
+            return m_selectedFaces;
+        }
+        
+        class CollectNodesWithDescendantSelectionCount : public NodeVisitor {
+        private:
+            size_t m_descendantSelectionCount;
+            NodeList m_result;
+        public:
+            CollectNodesWithDescendantSelectionCount(const size_t descendantSelectionCount) :
+            m_descendantSelectionCount(descendantSelectionCount) {}
+            
+            const NodeList& result() const {
+                return m_result;
+            }
+        private:
+            void doVisit(World* world)   { handleNode(world); }
+            void doVisit(Layer* layer)   { handleNode(layer); }
+            void doVisit(Group* group)   { handleNode(group); }
+            void doVisit(Entity* entity) { handleNode(entity); }
+            void doVisit(Brush* brush)   { handleNode(brush); }
+            
+            void handleNode(Node* node) {
+                if (node->descendantSelectionCount() == m_descendantSelectionCount)
+                    m_result.push_back(node);
+            }
+        };
+        
+        bool World::select(Node* node) {
+            assert(node != NULL);
+            assert(node->isDescendantOf(this));
+            
+            if (node->selected())
+                return false;
+            
+            CollectNodesWithDescendantSelectionCount visitor(0);
+            node->escalate(visitor);
+            VectorUtils::append(m_partiallySelectedNodes, visitor.result());
+            
+            node->select();
+            m_selectedNodes.push_back(node);
+            
+            return true;
+        }
+        
+        bool World::select(BrushFace* face) {
+            assert(face != NULL);
+            assert(face->brush()->isDescendantOf(this));
+            
+            if (face->selected())
+                return false;
+            
+            CollectNodesWithDescendantSelectionCount visitor(0);
+            face->brush()->acceptAndEscalate(visitor);
+            VectorUtils::append(m_partiallySelectedNodes, visitor.result());
+            
+            face->select();
+            m_selectedFaces.push_back(face);
+            
+            return true;
+        }
+        
+        bool World::deselect(Node* node) {
+            assert(node != NULL);
+            assert(node->isDescendantOf(this));
+            
+            if (!node->selected())
+                return false;
+            
+            node->deselect();
+            VectorUtils::erase(m_selectedNodes, node);
+            
+            CollectNodesWithDescendantSelectionCount visitor(0);
+            node->escalate(visitor);
+            VectorUtils::eraseAll(m_partiallySelectedNodes, visitor.result());
+
+            return true;
+        }
+        
+        bool World::deselect(BrushFace* face) {
+            assert(face != NULL);
+            assert(face->brush()->isDescendantOf(this));
+            
+            if (!face->selected())
+                return false;
+            
+            face->deselect();
+            VectorUtils::erase(m_selectedFaces, face);
+            
+            CollectNodesWithDescendantSelectionCount visitor(0);
+            face->brush()->acceptAndEscalate(visitor);
+            VectorUtils::eraseAll(m_partiallySelectedNodes, visitor.result());
+            
+            return true;
+        }
+
         class UpdateIssuesVisitor : public NodeVisitor {
         private:
             const IssueGenerator& m_generator;

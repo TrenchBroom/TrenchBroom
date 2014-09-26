@@ -32,6 +32,7 @@
 namespace TrenchBroom {
     namespace Model {
         class Node;
+        typedef std::set<Node*> NodeSet;
         typedef std::vector<Node*> NodeList;
         static const NodeList EmptyNodeList(0);
         

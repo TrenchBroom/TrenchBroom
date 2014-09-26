@@ -62,6 +62,8 @@ namespace TrenchBroom {
             }
         public: // tree management
             Node* parent() const;
+            bool isAncestorOf(const Node* node) const;
+            bool isDescendantOf(const Node* node) const;
             
             bool hasChildren() const;
             size_t childCount() const;
