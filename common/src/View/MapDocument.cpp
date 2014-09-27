@@ -92,14 +92,16 @@ namespace TrenchBroom {
         }
 
         void MapDocument::clearDocument() {
-            documentWillBeClearedNotifier();
-            
-            clearSelection();
-            clearWorld();
-            unloadAssets();
-            clearModificationCount();
-            
-            documentWasClearedNotifier();
+            if (m_world != NULL) {
+                documentWillBeClearedNotifier();
+                
+                clearSelection();
+                clearWorld();
+                unloadAssets();
+                clearModificationCount();
+                
+                documentWasClearedNotifier();
+            }
         }
 
         void MapDocument::clearSelection() {

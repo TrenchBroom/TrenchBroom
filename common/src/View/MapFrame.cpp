@@ -62,9 +62,13 @@ namespace TrenchBroom {
 
             m_autosaveTimer = new wxTimer(this);
             m_autosaveTimer->Start(1000);
+            
+            bindObservers();
         }
         
         MapFrame::~MapFrame() {
+            unbindObservers();
+            
             delete m_autosaveTimer;
             m_autosaveTimer = NULL;
             delete m_autosaver;
@@ -91,6 +95,10 @@ namespace TrenchBroom {
             }
         }
 
+        Logger* MapFrame::logger() const {
+            return NULL;
+        }
+        
         bool MapFrame::newDocument(Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             if (!confirmOrDiscardChanges())
                 return false;
@@ -110,8 +118,6 @@ namespace TrenchBroom {
                 const IO::Path& path = m_document->path();
                 if (path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(path))) {
                     m_document->saveDocument();
-                    updateTitle();
-                    TrenchBroomApp::instance().updateRecentDocument(path);
                     logger()->info("Saved " + m_document->path().asString());
                     return true;
                 }
@@ -133,8 +139,6 @@ namespace TrenchBroom {
                 
                 const IO::Path path(saveDialog.GetPath().ToStdString());
                 m_document->saveDocumentAs(path);
-                updateTitle();
-                View::TrenchBroomApp::instance().updateRecentDocument(path);
                 logger()->info("Saved " + m_document->path().asString());
                 return true;
             } catch (FileSystemException e) {
@@ -170,8 +174,27 @@ namespace TrenchBroom {
             SetRepresentedFilename(m_document->path().asString());
         }
 
-        Logger* MapFrame::logger() const {
-            return NULL;
+        void MapFrame::bindObservers() {
+            m_document->documentWasClearedNotifier.addObserver(this, &MapFrame::documentWasCleared);
+            m_document->documentWasNewedNotifier.addObserver(this, &MapFrame::documentDidChange);
+            m_document->documentWasLoadedNotifier.addObserver(this, &MapFrame::documentDidChange);
+            m_document->documentWasSavedNotifier.addObserver(this, &MapFrame::documentDidChange);
+        }
+        
+        void MapFrame::unbindObservers() {
+            m_document->documentWasClearedNotifier.removeObserver(this, &MapFrame::documentWasCleared);
+            m_document->documentWasNewedNotifier.removeObserver(this, &MapFrame::documentDidChange);
+            m_document->documentWasLoadedNotifier.removeObserver(this, &MapFrame::documentDidChange);
+            m_document->documentWasSavedNotifier.removeObserver(this, &MapFrame::documentDidChange);
+        }
+
+        void MapFrame::documentWasCleared() {
+            updateTitle();
+        }
+        
+        void MapFrame::documentDidChange() {
+            updateTitle();
+            View::TrenchBroomApp::instance().updateRecentDocument(m_document->path());
         }
 
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {

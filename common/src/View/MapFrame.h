@@ -54,6 +54,8 @@ namespace TrenchBroom {
             ~MapFrame();
             
             void positionOnScreen(wxFrame* reference);
+        public: // getters and such
+            Logger* logger() const;
         public: // document management
             bool newDocument(Model::GamePtr game, Model::MapFormat::Type mapFormat);
             bool openDocument(Model::GamePtr game, const IO::Path& path);
@@ -64,9 +66,13 @@ namespace TrenchBroom {
             bool confirmOrDiscardChanges();
         private: // title bar contents
             void updateTitle();
-        public: // getters and such
-            Logger* logger() const;
-        public: // event handlers
+        private: // notification handlers
+            void bindObservers();
+            void unbindObservers();
+            
+            void documentWasCleared();
+            void documentDidChange();
+        private: // event handlers
             void OnAutosaveTimer(wxTimerEvent& event);
         };
     }
