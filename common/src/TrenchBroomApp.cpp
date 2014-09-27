@@ -23,8 +23,15 @@
 
 #include "GLInit.h"
 #include "IO/Path.h"
+#include "Model/GameFactory.h"
+#include "Model/MapFormat.h"
+#include "View/AboutFrame.h"
 #include "View/CommandIds.h"
 #include "View/ExecutableEvent.h"
+#include "View/GameDialog.h"
+#include "View/MapFrame.h"
+#include "View/PreferenceDialog.h"
+#include "View/WelcomeFrame.h"
 
 #include <wx/choicdlg.h>
 #include <wx/cmdline.h>
@@ -39,10 +46,8 @@ namespace TrenchBroom {
 
         TrenchBroomApp::TrenchBroomApp() :
         wxApp(),
-        /*
         m_frameManager(NULL),
         m_recentDocuments(NULL),
-         */
         m_lastActivation(0) {
             // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
             std::setlocale(LC_NUMERIC, "C");
@@ -58,15 +63,13 @@ namespace TrenchBroom {
             initGLFunctions();
             
             // these must be initialized here and not earlier
-            /*
             m_frameManager = new FrameManager(useSDI());
             m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
             m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
-             */
             
-            /*
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
+            /*
             const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar();
             wxMenuBar::MacSetCommonMenuBar(menuBar);
@@ -91,33 +94,31 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PREFERENCES);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_ABOUT);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
+             */
 #endif
-            
+            /*
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
             
             Bind(EVT_EXECUTABLE_EVENT, EVT_EXECUTABLE_EVENT_HANDLER(TrenchBroomApp::OnExecutableEvent), this);
+             */
             
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
-             */
         }
 
         TrenchBroomApp::~TrenchBroomApp() {
             wxImage::CleanUpHandlers();
 
-            /*
             delete m_frameManager;
             m_frameManager = NULL;
             
             m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
             delete m_recentDocuments;
             m_recentDocuments = NULL;
-             */
         }
 
-        /*
         FrameManager* TrenchBroomApp::frameManager() {
             return m_frameManager;
         }
@@ -349,6 +350,5 @@ namespace TrenchBroom {
             WelcomeFrame* welcomeFrame = new WelcomeFrame();
             welcomeFrame->Show();
         }
-         */
     }
 }

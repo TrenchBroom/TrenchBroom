@@ -70,6 +70,7 @@ namespace TrenchBroom {
             void loadDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             void saveDocument();
             void saveDocumentAs(const IO::Path& path);
+            void saveDocumentTo(const IO::Path& path);
         private:
             void clearDocument();
         private: // selection
@@ -103,9 +104,14 @@ namespace TrenchBroom {
             StringList mods() const;
         private: // issue management
             void registerIssueGenerators();
-        private: // document path
-            void setDocumentPath(const IO::Path& path);
-        private: // modification count
+        public: // document path
+            const String filename() const;
+            const IO::Path& path() const;
+        private:
+            void setPath(const IO::Path& path);
+        public: // modification count
+            bool modified() const;
+        private:
             void clearModificationCount();
         };
     }

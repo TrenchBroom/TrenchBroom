@@ -87,6 +87,10 @@ namespace TrenchBroom {
             documentWasSavedNotifier();
         }
 
+        void MapDocument::saveDocumentTo(const IO::Path& path) {
+            
+        }
+
         void MapDocument::clearDocument() {
             documentWillBeClearedNotifier();
             
@@ -107,7 +111,7 @@ namespace TrenchBroom {
             m_world = m_game->newMap(mapFormat);
             
             updateGameSearchPaths();
-            setDocumentPath(DefaultDocumentName);
+            setPath(DefaultDocumentName);
         }
         
         void MapDocument::loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
@@ -116,7 +120,7 @@ namespace TrenchBroom {
             m_world = m_game->loadMap(m_worldBounds, path);
 
             updateGameSearchPaths();
-            setDocumentPath(path);
+            setPath(path);
         }
         
         void MapDocument::clearWorld() {
@@ -353,8 +357,22 @@ namespace TrenchBroom {
         void MapDocument::registerIssueGenerators() {
         }
 
-        void MapDocument::setDocumentPath(const IO::Path& path) {
+        const String MapDocument::filename() const {
+            if (m_path.isEmpty())
+                return EmptyString;
+            return  m_path.lastComponent().asString();
+        }
+
+        const IO::Path& MapDocument::path() const {
+            return m_path;
+        }
+
+        void MapDocument::setPath(const IO::Path& path) {
             m_path = path;
+        }
+
+        bool MapDocument::modified() const {
+            return m_modificationCount > 0;
         }
 
         void MapDocument::clearModificationCount() {

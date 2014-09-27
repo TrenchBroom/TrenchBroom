@@ -22,10 +22,8 @@
 
 #include "Notifier.h"
 #include "IO/Path.h"
-/*
 #include "View/FrameManager.h"
 #include "View/RecentDocuments.h"
-*/
 #include <wx/wx.h>
 
 namespace TrenchBroom {
@@ -36,10 +34,9 @@ namespace TrenchBroom {
         
         class TrenchBroomApp : public wxApp {
         private:
-            /*
             FrameManager* m_frameManager;
             RecentDocuments<TrenchBroomApp>* m_recentDocuments;
-             */
+
             wxLongLong m_lastActivation;
         public:
             Notifier0 recentDocumentsDidChangeNotifier;
@@ -49,7 +46,6 @@ namespace TrenchBroom {
             TrenchBroomApp();
             ~TrenchBroomApp();
             
-            /*
             FrameManager* frameManager();
             
             const IO::Path::List& recentDocuments() const;
@@ -75,7 +71,6 @@ namespace TrenchBroom {
             void OnExecutableEvent(ExecutableEvent& event);
             
             int FilterEvent(wxEvent& event);
-
 #ifdef __APPLE__
             void OnFileExit(wxCommandEvent& event);
             void OnUpdateUI(wxUpdateUIEvent& event);
@@ -89,7 +84,6 @@ namespace TrenchBroom {
         private:
             static bool useSDI();
             void showWelcomeFrame();
-             */
         };
     }
 }
