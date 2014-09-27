@@ -20,6 +20,20 @@
 #ifndef __TrenchBroom__EntityModelLoader__
 #define __TrenchBroom__EntityModelLoader__
 
-#include <stdio.h>
+#include "Assets/AssetTypes.h"
+
+namespace TrenchBroom {
+    namespace IO {
+        class Path;
+        
+        class EntityModelLoader {
+        public:
+            virtual ~EntityModelLoader();
+            Assets::EntityModel* loadModel(const IO::Path& path) const;
+        private:
+            virtual Assets::EntityModel* doLoadModel(const IO::Path& path) const = 0;
+        };
+    }
+}
 
 #endif /* defined(__TrenchBroom__EntityModelLoader__) */

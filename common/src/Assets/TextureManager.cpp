@@ -25,6 +25,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureCollectionSpec.h"
+#include "IO/TextureLoader.h"
 
 namespace TrenchBroom {
     namespace Assets {
@@ -47,6 +48,7 @@ namespace TrenchBroom {
         
         TextureManager::TextureManager(Logger* logger, int minFilter, int magFilter) :
         m_logger(logger),
+        m_loader(NULL),
         m_minFilter(minFilter),
         m_magFilter(magFilter),
         m_resetTextureMode(false) {}
@@ -133,6 +135,12 @@ namespace TrenchBroom {
             m_resetTextureMode = true;
         }
         
+        void TextureManager::setLoader(const IO::TextureLoader* loader) {
+            clear();
+            m_loader = loader;
+            updateTextures();
+        }
+
         void TextureManager::commitChanges() {
             resetTextureMode();
             prepare();
@@ -175,7 +183,7 @@ namespace TrenchBroom {
             
             const String& name = spec.name();
             if (collectionsByName.find(spec.name()) == collectionsByName.end()) {
-                TextureCollection* collection = m_game->loadTextureCollection(spec);
+                TextureCollection* collection = loadTextureCollection(spec);
                 collections.push_back(collection);
                 collectionsByName.insert(std::make_pair(name, collection));
                 
@@ -203,6 +211,11 @@ namespace TrenchBroom {
                 m_logger->debug("Removed texture collection %s", name.c_str());
         }
         
+        TextureCollection* TextureManager::loadTextureCollection(const TextureCollectionSpec& spec) const {
+            assert(m_loader != NULL);
+            return m_loader->loadTextureCollection(spec);
+        }
+
         void TextureManager::resetTextureMode() {
             if (m_resetTextureMode) {
                 TextureCollectionList::const_iterator it, end;

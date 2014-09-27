@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "StringUtils.h"
+#include "IO/EntityDefinitionLoader.h"
 #include "Model/Attributable.h"
 #include "Model/EntityAttributes.h"
 
@@ -32,16 +33,17 @@ namespace TrenchBroom {
             clear();
         }
 
-        /*
-        void EntityDefinitionManager::loadDefinitions(Model::GamePtr game, const IO::Path& path) {
-            EntityDefinitionList newDefinitions = game->loadEntityDefinitions(path);
-            VectorUtils::clearAndDelete(m_definitions);
-            m_definitions = newDefinitions;
+        void EntityDefinitionManager::loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader) {
+            using std::swap;
+            
+            EntityDefinitionList newDefinitions = loader.loadDefinitions(path);
+            std::swap(m_definitions, newDefinitions);
+            VectorUtils::clearAndDelete(newDefinitions);
+            
             updateIndices();
             updateGroups();
             updateCache();
         }
-         */
 
         void EntityDefinitionManager::clear() {
             clearCache();

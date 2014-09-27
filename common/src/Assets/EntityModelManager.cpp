@@ -23,12 +23,14 @@
 #include "Exceptions.h"
 #include "Logger.h"
 #include "Assets/EntityModel.h"
+#include "IO/EntityModelLoader.h"
 #include "Renderer/MeshRenderer.h"
 
 namespace TrenchBroom {
     namespace Assets {
         EntityModelManager::EntityModelManager(Logger* logger) :
         m_logger(logger),
+        m_loader(NULL),
         m_vbo(0xFFFFF) {}
         
         EntityModelManager::~EntityModelManager() {
@@ -47,6 +49,11 @@ namespace TrenchBroom {
                 m_logger->debug("Cleared entity models");
         }
         
+        void EntityModelManager::setLoader(const IO::EntityModelLoader* loader) {
+            clear();
+            m_loader = loader;
+        }
+
         EntityModel* EntityModelManager::model(const IO::Path& path) const {
             if (path.isEmpty())
                 return NULL;
@@ -59,7 +66,7 @@ namespace TrenchBroom {
                 return NULL;
             
             try {
-                EntityModel* model = m_game->loadModel(path);
+                EntityModel* model = loadModel(path);
                 assert(model != NULL);
                 m_models[path] = model;
                 m_modelsToPrepare.push_back(model);
@@ -114,6 +121,11 @@ namespace TrenchBroom {
             m_vbo.deactivate();
         }
         
+        EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
+            assert(m_loader != NULL);
+            return m_loader->loadModel(path);
+        }
+
         void EntityModelManager::prepareRenderers() {
             if (m_renderersToPrepare.empty())
                 return;

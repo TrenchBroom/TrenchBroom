@@ -39,7 +39,7 @@ namespace TrenchBroom {
         m_fs(fs),
         m_palette(palette) {}
         
-        Assets::TextureCollection* WalTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) {
+        Assets::TextureCollection* WalTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
             Path::List texturePaths = m_fs.findItems(spec.path(), FileSystem::ExtensionMatcher("wal"));
             std::sort(texturePaths.begin(), texturePaths.end());
             
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::Texture* WalTextureLoader::readTexture(const IO::Path& path) {
+        Assets::Texture* WalTextureLoader::readTexture(const IO::Path& path) const {
             MappedFile::Ptr file = m_fs.openFile(path);
             const char* cursor = file->begin();
             

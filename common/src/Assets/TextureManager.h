@@ -30,6 +30,10 @@
 namespace TrenchBroom {
     class Logger;
     
+    namespace IO {
+        class TextureLoader;
+    }
+    
     namespace Assets {
         class TextureCollectionSpec;
         
@@ -48,6 +52,7 @@ namespace TrenchBroom {
             typedef std::map<String, Texture*> TextureMap;
             
             Logger* m_logger;
+            const IO::TextureLoader* m_loader;
             
             TextureCollectionList m_builtinCollections;
             TextureCollectionMap m_builtinCollectionsByName;
@@ -79,6 +84,7 @@ namespace TrenchBroom {
             void moveExternalTextureCollectionDown(const String& name);
             
             void setTextureMode(int minFilter, int magFilter);
+            void setLoader(const IO::TextureLoader* loader);
             void commitChanges();
             
             Texture* texture(const String& name) const;
@@ -88,8 +94,9 @@ namespace TrenchBroom {
             const StringList externalCollectionNames() const;
         private:
             void addTextureCollection(const TextureCollectionSpec& spec, TextureCollectionList& collections, TextureCollectionMap& collectionsByName);
-            
             void removeTextureCollection(const String& name, TextureCollectionList& collections, TextureCollectionMap& collectionsByName);
+
+            TextureCollection* loadTextureCollection(const TextureCollectionSpec& spec) const;
             
             void resetTextureMode();
             void prepare();

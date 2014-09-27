@@ -29,6 +29,7 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class EntityDefinitionLoader;
         class Path;
     }
     
@@ -42,7 +43,7 @@ namespace TrenchBroom {
         public:
             ~EntityDefinitionManager();
 
-            // void loadDefinitions(Model::GamePtr game, const IO::Path& path);
+            void loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader);
             void clear();
             
             EntityDefinition* definition(const Model::Attributable* attributable) const;

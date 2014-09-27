@@ -37,7 +37,7 @@ namespace TrenchBroom {
         WadTextureLoader::WadTextureLoader(const Assets::Palette& palette) :
         m_palette(palette) {}
         
-        Assets::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) {
+        Assets::TextureCollection* WadTextureLoader::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
             Wad wad(spec.path());
             const WadEntryList mipEntries = wad.entriesWithType(WadEntryType::WEMip);
             const size_t textureCount = mipEntries.size();
@@ -58,7 +58,7 @@ namespace TrenchBroom {
             }
         }
 
-        Assets::Texture* WadTextureLoader::loadTexture(const Wad& wad, const WadEntry& entry) {
+        Assets::Texture* WadTextureLoader::loadTexture(const Wad& wad, const WadEntry& entry) const {
             static Color tempColor, averageColor;
             static Assets::TextureBuffer::List buffers(4);
 

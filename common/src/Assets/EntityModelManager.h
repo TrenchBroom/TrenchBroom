@@ -32,6 +32,10 @@
 namespace TrenchBroom {
     class Logger;
     
+    namespace IO {
+        class EntityModelLoader;
+    }
+    
     namespace Renderer {
         class MeshRenderer;
     }
@@ -50,6 +54,7 @@ namespace TrenchBroom {
             typedef std::vector<Renderer::MeshRenderer*> RendererList;
             
             Logger* m_logger;
+            const IO::EntityModelLoader* m_loader;
             mutable Renderer::Vbo m_vbo;
 
             mutable ModelCache m_models;
@@ -64,6 +69,7 @@ namespace TrenchBroom {
             ~EntityModelManager();
             
             void clear();
+            void setLoader(const IO::EntityModelLoader* loader);
             
             EntityModel* model(const IO::Path& path) const;
             Renderer::MeshRenderer* renderer(const Assets::ModelSpecification& spec) const;
@@ -71,6 +77,7 @@ namespace TrenchBroom {
             void activateVbo();
             void deactivateVbo();
         private:
+            EntityModel* loadModel(const IO::Path& path) const;
             void prepareRenderers();
             void prepareModels();
         };

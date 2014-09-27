@@ -35,8 +35,8 @@ namespace TrenchBroom {
         public:
             WalTextureLoader(const FileSystem& fs, const Assets::Palette& palette);
         private:
-            Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec);
-            Assets::Texture* readTexture(const Path& path);
+            Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
+            Assets::Texture* readTexture(const Path& path) const;
         };
     }
 }
