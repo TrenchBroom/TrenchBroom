@@ -20,35 +20,93 @@
 #ifndef __TrenchBroom__MapDocument__
 #define __TrenchBroom__MapDocument__
 
+#include "Notifier.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/TextureManager.h"
 #include "IO/Path.h"
+#include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 #include "View/CachingLogger.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace View {
         class MapDocument : public CachingLogger {
         public:
             static const BBox3 DefaultWorldBounds;
+            static const String DefaultDocumentName;
         private:
             BBox3 m_worldBounds;
-            IO::Path m_path;
+            Model::GamePtr m_game;
             Model::World* m_world;
             
             Assets::EntityDefinitionManager m_entityDefinitionManager;
             Assets::EntityModelManager m_entityModelManager;
             Assets::TextureManager m_textureManager;
+            
+            IO::Path m_path;
+            size_t m_modificationCount;
+        public: // notification
+            Notifier0 documentWillBeClearedNotifier;
+            Notifier0 documentWasClearedNotifier;
+            Notifier0 documentWasNewedNotifier;
+            Notifier0 documentWasLoadedNotifier;
+            Notifier0 documentWasSavedNotifier;
         private:
             MapDocument();
         public:
             static MapDocumentSPtr newMapDocument();
             ~MapDocument();
         public: // new, load, save document
+            void newDocument(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
+            void loadDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
+            void saveDocument();
+            void saveDocumentAs(const IO::Path& path);
+        private:
+            void clearDocument();
+        private: // selection
+            void clearSelection();
+        private: // world management
+            void createWorld(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
+            void loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
+            void clearWorld();
+        private: // asset management
+            void loadAssets();
+            void unloadAssets();
+            
+            void loadEntityDefinitions();
+            void setEntityDefinitions();
+            void unloadEntityDefinitions();
+            Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
+            
+            void setEntityModels();
+            void unloadEntityModels();
+            
+            void loadTextures();
+            void loadBuiltinTextures();
+            void loadExternalTextures();
+            void setTextures();
+            void unloadTextures();
+            
+            void addExternalTextureCollections(const StringList& names);
+        private: // search paths and mods
+            IO::Path::List externalSearchPaths() const;
+            void updateGameSearchPaths();
+            StringList mods() const;
+        private: // issue management
+            void registerIssueGenerators();
+        private: // document path
+            void setDocumentPath(const IO::Path& path);
+        private: // modification count
+            void clearModificationCount();
         };
     }
 }

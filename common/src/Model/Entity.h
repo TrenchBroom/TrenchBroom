@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Hit.h"
+#include "Assets/AssetTypes.h"
 #include "Model/Attributable.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/Object.h"
@@ -36,6 +37,7 @@ namespace TrenchBroom {
             static const BBox3 DefaultBounds;
             mutable BBox3 m_bounds;
             mutable bool m_boundsValid;
+            Assets::EntityModel* m_model;
         public:
             Entity();
             
@@ -44,6 +46,10 @@ namespace TrenchBroom {
         private:
             void setOrigin(const Vec3& origin);
             void applyRotation(const Mat4x4& transformation);
+        public: // entity model
+            Assets::ModelSpecification modelSpecification() const;
+            Assets::EntityModel* model() const;
+            void setModel(Assets::EntityModel* model);
         private: // implement Node interface
             Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;

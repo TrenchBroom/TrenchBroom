@@ -29,7 +29,7 @@
 namespace TrenchBroom {
     namespace Model {
         class Attributable : public Node {
-        private:
+        protected:
             static const String DefaultAttributeValue;
 
             Assets::EntityDefinition* m_definition;

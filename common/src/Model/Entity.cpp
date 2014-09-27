@@ -29,7 +29,8 @@ namespace TrenchBroom {
         const BBox3 Entity::DefaultBounds(8.0);
 
         Entity::Entity() :
-        m_boundsValid(false) {}
+        m_boundsValid(false),
+        m_model(NULL) {}
 
         bool Entity::pointEntity() const {
             if (definition() == NULL)
@@ -47,6 +48,21 @@ namespace TrenchBroom {
         
         void Entity::applyRotation(const Mat4x4& transformation) {
             EntityRotationPolicy::applyRotation(this, transformation);
+        }
+
+        Assets::ModelSpecification Entity::modelSpecification() const {
+            if (m_definition == NULL || !pointEntity())
+                return Assets::ModelSpecification();
+            Assets::PointEntityDefinition* pointDefinition = static_cast<Assets::PointEntityDefinition*>(m_definition);
+            return pointDefinition->model(m_attributes);
+        }
+        
+        Assets::EntityModel* Entity::model() const {
+            return m_model;
+        }
+        
+        void Entity::setModel(Assets::EntityModel* model) {
+            m_model = model;
         }
 
         Node* Entity::doClone(const BBox3& worldBounds) const {

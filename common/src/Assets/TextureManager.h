@@ -82,6 +82,7 @@ namespace TrenchBroom {
             void removeExternalTextureCollection(const String& name);
             void moveExternalTextureCollectionUp(const String& name);
             void moveExternalTextureCollectionDown(const String& name);
+            void clear();
             
             void setTextureMode(int minFilter, int magFilter);
             void setLoader(const IO::TextureLoader* loader);
@@ -100,7 +101,7 @@ namespace TrenchBroom {
             
             void resetTextureMode();
             void prepare();
-            void clear();
+
             void clearBuiltinTextureCollections();
             void clearExternalTextureCollections();
             void updateTextures();
