@@ -31,14 +31,14 @@
 
 namespace TrenchBroom {
     namespace IO {
-        QuakeMapReader::QuakeMapReader(const char* begin, const char* end, Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger) :
+        QuakeMapReader::QuakeMapReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger) :
         QuakeMapParser(begin, end, logger),
         m_brushContentTypeBuilder(brushContentTypeBuilder),
         m_world(NULL),
         m_parent(NULL),
         m_currentNode(NULL) {}
         
-        QuakeMapReader::QuakeMapReader(const String& str, Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger) :
+        QuakeMapReader::QuakeMapReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger) :
         QuakeMapParser(str, logger),
         m_brushContentTypeBuilder(brushContentTypeBuilder),
         m_world(NULL),

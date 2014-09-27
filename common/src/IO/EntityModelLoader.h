@@ -29,9 +29,9 @@ namespace TrenchBroom {
         class EntityModelLoader {
         public:
             virtual ~EntityModelLoader();
-            Assets::EntityModel* loadModel(const IO::Path& path) const;
+            Assets::EntityModel* loadEntityModel(const IO::Path& path) const;
         private:
-            virtual Assets::EntityModel* doLoadModel(const IO::Path& path) const = 0;
+            virtual Assets::EntityModel* doLoadEntityModel(const IO::Path& path) const = 0;
         };
     }
 }

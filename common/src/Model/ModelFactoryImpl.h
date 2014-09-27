@@ -34,10 +34,10 @@ namespace TrenchBroom {
         class ModelFactoryImpl : public ModelFactory {
         private:
             MapFormat::Type m_format;
-            BrushContentTypeBuilder* m_brushContentTypeBuilder;
+            const BrushContentTypeBuilder* m_brushContentTypeBuilder;
         public:
             ModelFactoryImpl();
-            ModelFactoryImpl(MapFormat::Type format, BrushContentTypeBuilder* brushContentTypeBuilder);
+            ModelFactoryImpl(MapFormat::Type format, const BrushContentTypeBuilder* brushContentTypeBuilder);
             MapFormat::Type format() const;
         private: // implement ModelFactory interface
             World* doCreateWorld() const;

@@ -123,7 +123,7 @@ namespace TrenchBroom {
         
         EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
             assert(m_loader != NULL);
-            return m_loader->loadModel(path);
+            return m_loader->loadEntityModel(path);
         }
 
         void EntityModelManager::prepareRenderers() {

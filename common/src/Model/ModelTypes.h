@@ -72,6 +72,9 @@ namespace TrenchBroom {
 
         class IssueGenerator;
         typedef std::vector<IssueGenerator*> IssueGeneratorList;
+        
+        class Game;
+        typedef std::tr1::shared_ptr<Game> GamePtr;
     }
 }
 

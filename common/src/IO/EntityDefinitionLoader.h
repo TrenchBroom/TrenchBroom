@@ -29,9 +29,9 @@ namespace TrenchBroom {
         class EntityDefinitionLoader {
         public:
             virtual ~EntityDefinitionLoader();
-            Assets::EntityDefinitionList loadDefinitions(const IO::Path& path) const;
+            Assets::EntityDefinitionList loadEntityDefinitions(const IO::Path& path) const;
         private:
-            virtual Assets::EntityDefinitionList doLoadDefinitions(const IO::Path& path) const = 0;
+            virtual Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const = 0;
         };
     }
 }

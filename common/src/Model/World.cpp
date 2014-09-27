@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        World::World(MapFormat::Type mapFormat, BrushContentTypeBuilder* brushContentTypeBuilder) :
+        World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder) :
         m_factory(mapFormat, brushContentTypeBuilder),
         m_defaultLayer(NULL),
         m_picker(BBox3(32768.0)) {

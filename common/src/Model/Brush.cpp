@@ -360,7 +360,7 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Brush::setContentTypeBuilder(BrushContentTypeBuilder* contentTypeBuilder) {
+        void Brush::setContentTypeBuilder(const BrushContentTypeBuilder* contentTypeBuilder) {
             m_contentTypeBuilder = contentTypeBuilder;
             invalidateContentType();
         }

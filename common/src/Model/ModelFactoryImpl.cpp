@@ -36,7 +36,7 @@ namespace TrenchBroom {
         ModelFactoryImpl::ModelFactoryImpl() :
         m_format(MapFormat::Unknown) {}
         
-        ModelFactoryImpl::ModelFactoryImpl(const MapFormat::Type format, BrushContentTypeBuilder* brushContentTypeBuilder) :
+        ModelFactoryImpl::ModelFactoryImpl(const MapFormat::Type format, const BrushContentTypeBuilder* brushContentTypeBuilder) :
         m_format(format),
         m_brushContentTypeBuilder(brushContentTypeBuilder) {
             assert(m_format != MapFormat::Unknown);

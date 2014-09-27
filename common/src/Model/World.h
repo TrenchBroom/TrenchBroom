@@ -48,7 +48,7 @@ namespace TrenchBroom {
             NodeList m_partiallySelectedNodes;
             BrushFaceList m_selectedFaces;
         public:
-            World(MapFormat::Type mapFormat, BrushContentTypeBuilder* brushContentTypeBuilder);
+            World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder);
         public: // layer management
             Layer* defaultLayer() const;
         private:

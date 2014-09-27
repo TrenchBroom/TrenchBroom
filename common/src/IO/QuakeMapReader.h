@@ -44,7 +44,7 @@ namespace TrenchBroom {
             typedef std::map<String, Model::Group*> GroupMap;
             
             BBox3 m_worldBounds;
-            Model::BrushContentTypeBuilder* m_brushContentTypeBuilder;
+            const Model::BrushContentTypeBuilder* m_brushContentTypeBuilder;
             Model::World* m_world;
             Model::Node* m_parent;
             Model::Node* m_currentNode;
@@ -53,8 +53,8 @@ namespace TrenchBroom {
             LayerMap m_layers;
             GroupMap m_groups;
         public:
-            QuakeMapReader(const char* begin, const char* end, Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
-            QuakeMapReader(const String& str, Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
+            QuakeMapReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
+            QuakeMapReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
             ~QuakeMapReader();
             
             Model::World* read(const BBox3& worldBounds);

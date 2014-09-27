@@ -41,7 +41,7 @@ namespace TrenchBroom {
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
             
-            BrushContentTypeBuilder* m_contentTypeBuilder;
+            const BrushContentTypeBuilder* m_contentTypeBuilder;
             mutable BrushContentType::FlagType m_contentType;
             mutable bool m_transparent;
             mutable bool m_contentTypeValid;
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             void rebuildGeometry(const BBox3& worldBounds);
             bool checkGeometry() const;
         public: // content type
-            void setContentTypeBuilder(BrushContentTypeBuilder* contentTypeBuilder);
+            void setContentTypeBuilder(const BrushContentTypeBuilder* contentTypeBuilder);
         private:
             void invalidateContentType();
             void validateContentType() const;

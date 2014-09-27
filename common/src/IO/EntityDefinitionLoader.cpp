@@ -23,8 +23,8 @@ namespace TrenchBroom {
     namespace IO {
         EntityDefinitionLoader::~EntityDefinitionLoader() {}
         
-        Assets::EntityDefinitionList EntityDefinitionLoader::loadDefinitions(const IO::Path& path) const {
-            return doLoadDefinitions(path);
+        Assets::EntityDefinitionList EntityDefinitionLoader::loadEntityDefinitions(const IO::Path& path) const {
+            return doLoadEntityDefinitions(path);
         }
     }
 }

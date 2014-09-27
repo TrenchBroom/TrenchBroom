@@ -48,6 +48,7 @@ namespace TrenchBroom {
         public:
             static MapDocumentSPtr newMapDocument();
             ~MapDocument();
+        public: // new, load, save document
         };
     }
 }
