@@ -28,36 +28,36 @@
 
 namespace TrenchBroom {
     namespace Assets {
-        Md2Model::Frame::Frame(Mesh::TriangleSeries& triangleFans, Mesh::TriangleSeries& triangleStrips) {
+        Md2Model::Frame::Frame(Mesh::IndexedList& triangleFans, Mesh::IndexedList& triangleStrips) {
             using std::swap;
 
             swap(m_triangleFans, triangleFans);
             swap(m_triangleStrips, triangleStrips);
             
             if (!m_triangleFans.empty())
-                m_bounds.min = m_bounds.max = m_triangleFans.front().front().v1;
+                m_bounds.min = m_bounds.max = m_triangleFans.vertices().front().v1;
             else if (!m_triangleStrips.empty())
-                m_bounds.min = m_bounds.max = m_triangleStrips.front().front().v1;
-            mergeBoundsWith(m_bounds, m_triangleFans);
-            mergeBoundsWith(m_bounds, m_triangleStrips);
+                m_bounds.min = m_bounds.max = m_triangleStrips.vertices().front().v1;
+            mergeBoundsWith(m_bounds, m_triangleFans.vertices());
+            mergeBoundsWith(m_bounds, m_triangleStrips.vertices());
         }
 
         BBox3f Md2Model::Frame::transformedBounds(const Mat4x4f& transformation) const {
             BBox3f transformedBounds;
             if (!m_triangleFans.empty())
-                transformedBounds.min = transformedBounds.max = transformation * m_triangleFans.front().front().v1;
+                transformedBounds.min = transformedBounds.max = transformation * m_triangleFans.vertices().front().v1;
             else if (!m_triangleStrips.empty())
-                transformedBounds.min = transformedBounds.max = transformation * m_triangleStrips.front().front().v1;
-            mergeBoundsWith(transformedBounds, m_triangleFans, transformation);
-            mergeBoundsWith(transformedBounds, m_triangleStrips, transformation);
+                transformedBounds.min = transformedBounds.max = transformation * m_triangleStrips.vertices().front().v1;
+            mergeBoundsWith(transformedBounds, m_triangleFans.vertices(), transformation);
+            mergeBoundsWith(transformedBounds, m_triangleStrips.vertices(), transformation);
             return transformedBounds;
         }
 
-        const Md2Model::Mesh::TriangleSeries& Md2Model::Frame::triangleFans() const {
+        const Md2Model::Mesh::IndexedList& Md2Model::Frame::triangleFans() const {
             return m_triangleFans;
         }
         
-        const Md2Model::Mesh::TriangleSeries& Md2Model::Frame::triangleStrips() const {
+        const Md2Model::Mesh::IndexedList& Md2Model::Frame::triangleStrips() const {
             return m_triangleStrips;
         }
         
@@ -65,24 +65,14 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        void Md2Model::Frame::mergeBoundsWith(BBox3f& bounds, const Mesh::TriangleSeries& series) const {
-            for (size_t i = 0; i < series.size(); ++i) {
-                const VertexSpec::Vertex::List& vertices = series[i];
-                for (size_t j = 0; j < vertices.size(); ++j) {
-                    const VertexSpec::Vertex& vertex = vertices[j];
-                    bounds.mergeWith(vertex.v1);
-                }
-            }
+        void Md2Model::Frame::mergeBoundsWith(BBox3f& bounds, const Vertex::List& vertices) const {
+            for (size_t i = 0; i < vertices.size(); ++i)
+                bounds.mergeWith(vertices[i].v1);
         }
 
-        void Md2Model::Frame::mergeBoundsWith(BBox3f& bounds, const Mesh::TriangleSeries& series, const Mat4x4f& transformation) const {
-            for (size_t i = 0; i < series.size(); ++i) {
-                const VertexSpec::Vertex::List& vertices = series[i];
-                for (size_t j = 0; j < vertices.size(); ++j) {
-                    const VertexSpec::Vertex& vertex = vertices[j];
-                    bounds.mergeWith(transformation * vertex.v1);
-                }
-            }
+        void Md2Model::Frame::mergeBoundsWith(BBox3f& bounds, const Vertex::List& vertices, const Mat4x4f& transformation) const {
+            for (size_t i = 0; i < vertices.size(); ++i)
+                bounds.mergeWith(transformation * vertices[i].v1);
         }
 
         Md2Model::Md2Model(const String& name, const TextureList& skins, const FrameList& frames) :
@@ -104,10 +94,16 @@ namespace TrenchBroom {
 
             const Assets::Texture* skin = textures[skinIndex];
             const Frame* frame = m_frames[frameIndex];
+            const Mesh::IndexedList& fans = frame->triangleFans();
+            const Mesh::IndexedList& strips = frame->triangleStrips();
             
-            Mesh mesh;
-            mesh.addTriangleFans(skin, frame->triangleFans());
-            mesh.addTriangleStrips(skin, frame->triangleStrips());
+            Mesh::MeshSize size;
+            size.addFans(skin, fans.vertexCount(), fans.primCount());
+            size.addStrips(skin, strips.vertexCount(), strips.primCount());
+            
+            Mesh mesh(size);
+            mesh.addTriangleFans(skin, fans);
+            mesh.addTriangleStrips(skin, fans);
             
             return new Renderer::MeshRenderer(mesh);
         }

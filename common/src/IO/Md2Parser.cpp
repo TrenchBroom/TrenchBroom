@@ -352,19 +352,47 @@ namespace TrenchBroom {
         }
 
         Assets::Md2Model::Frame* Md2Parser::buildFrame(const Md2Frame& frame, const Md2MeshList& meshes) {
-            typedef Assets::Md2Model::Vertex Vertex;
-            typedef Assets::Md2Model::Mesh Mesh;
+            size_t fanVertexCount = 0;
+            size_t stripVertexCount = 0;
+
+            typedef std::vector<Md2MeshList::const_iterator> PrimitiveList;
+            PrimitiveList md2Fans;
+            PrimitiveList md2Strips;
             
-            Mesh::TriangleSeries triangleFans;
-            Mesh::TriangleSeries triangleStrips;
-            triangleFans.reserve(meshes.size());
-            triangleStrips.reserve(meshes.size());
+            md2Fans.reserve(meshes.size());
+            md2Strips.reserve(meshes.size());
             
             Md2MeshList::const_iterator mIt, mEnd;
             for (mIt = meshes.begin(), mEnd = meshes.end(); mIt != mEnd; ++mIt) {
                 const Md2Mesh& md2Mesh = *mIt;
                 const size_t vertexCount = md2Mesh.vertices.size();
-                Vertex::List triangles(vertexCount);
+                if (md2Mesh.type == Md2Mesh::Fan) {
+                    fanVertexCount += vertexCount;
+                    md2Fans.push_back(mIt);
+                } else {
+                    stripVertexCount += vertexCount;
+                    md2Strips.push_back(mIt);
+                }
+            }
+                
+            typedef Assets::Md2Model::Mesh Mesh;
+            
+            Mesh::IndexedList fans(fanVertexCount, md2Fans.size());
+            Mesh::IndexedList strips(stripVertexCount, md2Strips.size());
+
+            buildPrimitives(frame, md2Fans, fans);
+            buildPrimitives(frame, md2Strips, strips);
+            
+            return new Assets::Md2Model::Frame(fans, strips);
+        }
+        
+        void Md2Parser::buildPrimitives(const Md2Frame& frame, const std::vector<Md2MeshList::const_iterator>& meshes, Assets::Md2Model::Mesh::IndexedList& list) {
+            typedef Assets::Md2Model::Vertex Vertex;
+
+            std::vector<Md2MeshList::const_iterator>::const_iterator pIt, pEnd;
+            for (pIt = meshes.begin(), pEnd = meshes.end(); pIt != pEnd; ++pIt) {
+                const Md2Mesh& md2Mesh = **pIt;
+                const size_t vertexCount = md2Mesh.vertices.size();
                 
                 for (size_t i = 0; i < vertexCount; ++i) {
                     const Md2MeshVertex& md2MeshVertex = md2Mesh.vertices[i];
@@ -373,20 +401,10 @@ namespace TrenchBroom {
                     const Vec3f& normal = frame.normal(md2MeshVertex.vertexIndex);
                     const Vec2f& texCoords = md2MeshVertex.texCoords;
                     
-                    triangles[i] = Vertex(position, normal, texCoords);
+                    list.addVertex(Vertex(position, normal, texCoords));
                 }
-                
-                using std::swap;
-                if (md2Mesh.type == Md2Mesh::Strip) {
-                    triangleStrips.push_back(Vertex::List());
-                    swap(triangleStrips.back(), triangles);
-                } else {
-                    triangleFans.push_back(Vertex::List());
-                    swap(triangleFans.back(), triangles);
-                }
+                list.endPrimitive();
             }
-            
-            return new Assets::Md2Model::Frame(triangleFans, triangleStrips);
         }
     }
 }

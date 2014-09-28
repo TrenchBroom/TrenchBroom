@@ -180,6 +180,14 @@ namespace TrenchBroom {
                 recurse(visitor);
             }
             
+            template <typename I, typename V>
+            static void acceptAndRecurse(I cur, I end, V& visitor) {
+                while (cur != end) {
+                    (*cur)->acceptAndRecurse(visitor);
+                    ++cur;
+                }
+            }
+            
             template <class V>
             void acceptAndEscalate(V& visitor) {
                 accept(visitor);
@@ -192,6 +200,14 @@ namespace TrenchBroom {
                 escalate(visitor);
             }
             
+            template <typename I, typename V>
+            static void acceptAndEscalate(I cur, I end, V& visitor) {
+                while (cur != end) {
+                    (*cur)->acceptAndEscalate(visitor);
+                    ++cur;
+                }
+            }
+            
             template <class V>
             void accept(V& visitor) {
                 doAccept(visitor);
@@ -200,6 +216,14 @@ namespace TrenchBroom {
             template <class V>
             void accept(V& visitor) const {
                 doAccept(visitor);
+            }
+            
+            template <typename I, typename V>
+            static void accept(I cur, I end, V& visitor) {
+                while (cur != end) {
+                    (*cur)->accept(visitor);
+                    ++cur;
+                }
             }
 
             template <class V>
@@ -220,6 +244,14 @@ namespace TrenchBroom {
                 }
             }
 
+            template <typename I, typename V>
+            static void recurse(I cur, I end, V& visitor) {
+                while (cur != end) {
+                    (*cur)->recurse(visitor);
+                    ++cur;
+                }
+            }
+            
             template <class V>
             void iterate(V& visitor) {
                 NodeList::const_iterator it, end;
@@ -238,6 +270,14 @@ namespace TrenchBroom {
                 }
             }
             
+            template <typename I, typename V>
+            static void iterate(I cur, I end, V& visitor) {
+                while (cur != end) {
+                    (*cur)->iterate(visitor);
+                    ++cur;
+                }
+            }
+            
             template <class V>
             void escalate(V& visitor) {
                 if (parent() != NULL && !visitor.cancelled())
@@ -248,6 +288,14 @@ namespace TrenchBroom {
             void escalate(V& visitor) const {
                 if (parent() != NULL && !visitor.cancelled())
                     parent()->acceptAndEscalate(visitor);
+            }
+
+            template <typename I, typename V>
+            static void escalate(I cur, I end, V& visitor) {
+                while (cur != end) {
+                    (*cur)->escalate(visitor);
+                    ++cur;
+                }
             }
         protected: // index management
             void findAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const;

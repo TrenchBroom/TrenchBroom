@@ -98,11 +98,18 @@ namespace TrenchBroom {
         }
 
         Renderer::MeshRenderer* Bsp29Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-            
-            Renderer::Mesh<const Assets::Texture*, Renderer::VertexSpecs::P3T2> mesh;
+            typedef Renderer::Mesh<const Texture*, Renderer::VertexSpecs::P3T2> Mesh;
 
-            const SubModel& model = m_subModels.front();
             FaceList::const_iterator it, end;
+            const SubModel& model = m_subModels.front();
+            
+            Mesh::MeshSize size;
+            for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
+                const Face& face = *it;
+                size.addSet(face.texture(), face.vertices().size());
+            }
+
+            Mesh mesh(size);
             for (it = model.faces.begin(), end = model.faces.end(); it != end; ++it) {
                 const Face& face = *it;
                 mesh.beginTriangleSet(face.texture());

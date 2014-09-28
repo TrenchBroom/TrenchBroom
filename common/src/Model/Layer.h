@@ -29,11 +29,19 @@ namespace TrenchBroom {
         class Layer : public Node {
         private:
             String m_name;
+            bool m_hidden;
+            bool m_locked;
         public:
             Layer(const String& name);
             
             const String& name() const;
             void setName(const String& name);
+            
+            bool hidden() const;
+            void setHidden(bool hidden);
+            
+            bool locked() const;
+            void setLocked(bool locked);
         private: // implement Node interface
             Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;

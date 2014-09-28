@@ -21,6 +21,8 @@
 
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
+#include "Model/FindGroupVisitor.h"
+#include "Model/FindLayerVisitor.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
@@ -128,6 +130,24 @@ namespace TrenchBroom {
             if (!m_boundsValid)
                 validateBounds();
             return m_bounds;
+        }
+        
+        Layer* Entity::doGetLayer() const {
+            if (parent() == NULL)
+                return NULL;
+            
+            FindLayerVisitor visitor;
+            parent()->acceptAndEscalate(visitor);
+            return visitor.hasResult() ? visitor.result() : NULL;
+        }
+        
+        Group* Entity::doGetGroup() const {
+            if (parent() == NULL)
+                return NULL;
+            
+            FindGroupVisitor visitor;
+            parent()->acceptAndEscalate(visitor);
+            return visitor.hasResult() ? visitor.result() : NULL;
         }
         
         void Entity::doPick(const Ray3& ray, Hits& hits) const {

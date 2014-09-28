@@ -24,6 +24,8 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
+#include "Model/FindGroupVisitor.h"
+#include "Model/FindLayerVisitor.h"
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 
@@ -360,9 +362,27 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool Brush::transparent() const {
+            validateContentType();
+            return m_transparent;
+        }
+        
+        bool Brush::hasContentType(const BrushContentType& contentType) const {
+            return hasContentType(contentType.flagValue());
+        }
+        
+        bool Brush::hasContentType(const BrushContentType::FlagType contentTypeMask) const {
+            return (contentTypeFlags() & contentTypeMask) != 0;
+        }
+
         void Brush::setContentTypeBuilder(const BrushContentTypeBuilder* contentTypeBuilder) {
             m_contentTypeBuilder = contentTypeBuilder;
             invalidateContentType();
+        }
+
+        BrushContentType::FlagType Brush::contentTypeFlags() const {
+            validateContentType();
+            return m_contentType;
         }
 
         void Brush::invalidateContentType() {
@@ -416,6 +436,24 @@ namespace TrenchBroom {
         const BBox3& Brush::doGetBounds() const {
             assert(m_geometry != NULL);
             return m_geometry->bounds;
+        }
+        
+        Layer* Brush::doGetLayer() const {
+            if (parent() == NULL)
+                return NULL;
+            
+            FindLayerVisitor visitor;
+            parent()->acceptAndEscalate(visitor);
+            return visitor.hasResult() ? visitor.result() : NULL;
+        }
+        
+        Group* Brush::doGetGroup() const {
+            if (parent() == NULL)
+                return NULL;
+            
+            FindGroupVisitor visitor;
+            parent()->acceptAndEscalate(visitor);
+            return visitor.hasResult() ? visitor.result() : NULL;
         }
         
         void Brush::doPick(const Ray3& ray, Hits& hits) const {

@@ -125,8 +125,13 @@ namespace TrenchBroom {
                 return NULL;
             const MdlSkin* skin = m_skins[skinIndex];
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
+
+            typedef Renderer::Mesh<const Texture*, Renderer::VertexSpecs::P3T2> Mesh;
             
-            Renderer::Mesh<const Texture*, Renderer::VertexSpecs::P3T2> mesh;
+            Mesh::MeshSize size;
+            size.addSet(skin->firstPicture(), frame->triangles().size());
+            
+            Mesh mesh(size);
             mesh.beginTriangleSet(skin->firstPicture());
             mesh.addTrianglesToSet(frame->triangles());
             mesh.endTriangleSet();

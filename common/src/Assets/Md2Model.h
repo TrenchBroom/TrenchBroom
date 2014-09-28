@@ -45,19 +45,19 @@ namespace TrenchBroom {
 
             class Frame {
             private:
-                Mesh::TriangleSeries m_triangleFans;
-                Mesh::TriangleSeries m_triangleStrips;
+                Mesh::IndexedList m_triangleFans;
+                Mesh::IndexedList m_triangleStrips;
                 BBox3f m_bounds;
             public:
-                Frame(Mesh::TriangleSeries& triangleFans, Mesh::TriangleSeries& triangleStrips);
+                Frame(Mesh::IndexedList& triangleFans, Mesh::IndexedList& triangleStrips);
                 BBox3f transformedBounds(const Mat4x4f& transformation) const;
                 
-                const Mesh::TriangleSeries& triangleFans() const;
-                const Mesh::TriangleSeries& triangleStrips() const;
+                const Mesh::IndexedList& triangleFans() const;
+                const Mesh::IndexedList& triangleStrips() const;
                 const BBox3f& bounds() const;
             private:
-                void mergeBoundsWith(BBox3f& bounds, const Mesh::TriangleSeries& series) const;
-                void mergeBoundsWith(BBox3f& bounds, const Mesh::TriangleSeries& series, const Mat4x4f& transformation) const;
+                void mergeBoundsWith(BBox3f& bounds, const Vertex::List& vertices) const;
+                void mergeBoundsWith(BBox3f& bounds, const Vertex::List& vertices, const Mat4x4f& transformation) const;
             };
 
             typedef std::vector<Frame*> FrameList;

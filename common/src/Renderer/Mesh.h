@@ -52,10 +52,65 @@ namespace TrenchBroom {
         template <typename Key, class VertexSpec>
         class Mesh {
         public:
-            
-            typedef std::vector<typename VertexSpec::Vertex::List> TriangleSeries;
-            typedef std::map<Key, typename VertexSpec::Vertex::List> TriangleSetMap;
-            typedef std::map<Key, TriangleSeries> TriangleSeriesMap;
+            class MeshSize {
+            public:
+                struct Size {
+                    size_t setVertexCount;
+                    size_t fanPrimitiveCount;
+                    size_t fanVertexCount;
+                    size_t stripPrimitiveCount;
+                    size_t stripVertexCount;
+                    Size() :
+                    setVertexCount(0),
+                    fanPrimitiveCount(0),
+                    fanVertexCount(0),
+                    stripPrimitiveCount(0),
+                    stripVertexCount(0) {}
+                };
+                
+                typedef std::map<Key, Size> KeySizeMap;
+                KeySizeMap sizes;
+            public:
+                void addSet(const Key& key, const size_t vertexCount) {
+                    sizes[key].setVertexCount += vertexCount;
+                }
+                void addFan(const Key& key, const size_t vertexCount) {
+                    addFans(key, vertexCount, 1);
+                }
+                void addFans(const Key& key, const size_t vertexCount, const size_t primCount) {
+                    Size& size = sizes[key];
+                    size.fanVertexCount += vertexCount;
+                    size.fanPrimitiveCount += primCount;
+                }
+                void addStrip(const Key& key, const size_t vertexCount) {
+                    addStrips(key, vertexCount, 1);
+                }
+                void addStrips(const Key& key, const size_t vertexCount, const size_t primCount) {
+                    Size& size = sizes[key];
+                    size.stripVertexCount += vertexCount;
+                    size.stripPrimitiveCount += primCount;;
+                }
+            };
+
+            typedef typename VertexSpec::Vertex::List VertexList;
+            typedef IndexedVertexList<VertexSpec> IndexedList;
+        private:
+            struct MeshData {
+                VertexList triangleSet;
+                IndexedList triangleFans;
+                IndexedList triangleStrips;
+                
+                MeshData() {}
+                MeshData(const typename MeshSize::Size& size) :
+                triangleSet(0),
+                triangleFans(0, 0),
+                triangleStrips(0, 0) {
+                    triangleSet.reserve(size.setVertexCount);
+                    triangleFans.reserve(size.fanVertexCount, size.fanPrimitiveCount);
+                    triangleStrips.reserve(size.stripVertexCount, size.stripPrimitiveCount);
+                }
+            };
+            typedef std::map<Key, MeshData> MeshDataMap;
         private:
             typedef enum {
                 TriangleType_Set,
@@ -64,191 +119,171 @@ namespace TrenchBroom {
                 TriangleType_Unset
             } TriangleType;
 
-            typedef std::set<Key> KeySet;
-            
-            KeySet m_keys;
-            TriangleSetMap m_triangleSets;
-            TriangleSeriesMap m_triangleFans;
-            TriangleSeriesMap m_triangleStrips;
-            
-            typename TriangleSetMap::iterator m_currentSet;
-            typename TriangleSeriesMap::iterator m_currentFan;
-            typename TriangleSeriesMap::iterator m_currentStrip;
-            
+            MeshDataMap m_meshData;
+            typename MeshDataMap::iterator m_currentData;
             TriangleType m_currentType;
             size_t m_vertexCount;
         public:
-            Mesh() :
-            m_currentSet(m_triangleSets.end()),
-            m_currentFan(m_triangleFans.end()),
-            m_currentStrip(m_triangleStrips.end()),
+            Mesh(const MeshSize& meshSize) :
+            m_currentData(m_meshData.end()),
             m_currentType(TriangleType_Unset),
-            m_vertexCount(0) {}
-            
+            m_vertexCount(0) {
+                typename MeshSize::KeySizeMap::const_iterator it, end;
+                for (it = meshSize.sizes.begin(), end = meshSize.sizes.end(); it != end; ++it) {
+                    const Key& key = it->first;
+                    const typename MeshSize::Size& size = it->second;
+                    MapUtils::insertOrFail(m_meshData, key, MeshData(size));
+                }
+            }
+
             size_t size() const {
                 return m_vertexCount * VertexSpec::Size;
             }
             
-            const TriangleSetMap& triangleSets() const {
-                assert(m_currentType == TriangleType_Unset);
-                return m_triangleSets;
-            }
-            
-            const TriangleSeriesMap& triangleFans() const {
-                assert(m_currentType == TriangleType_Unset);
-                return m_triangleFans();
-            }
-            
-            const TriangleSeriesMap& triangleStrips() const {
-                assert(m_currentType == TriangleType_Unset);
-                return m_triangleStrips;
-            }
-            
             typename MeshRenderData<Key>::List renderData() {
                 typename MeshRenderData<Key>::List result;
-                typename KeySet::const_iterator keyIt, keyEnd;
-                for (keyIt = m_keys.begin(), keyEnd = m_keys.end(); keyIt != keyEnd; ++keyIt) {
-                    const Key& key = *keyIt;
-                    typename TriangleSetMap::iterator setIt = m_triangleSets.find(key);
-                    typename TriangleSeriesMap::iterator fanIt = m_triangleFans.find(key);
-                    typename TriangleSeriesMap::iterator stripIt = m_triangleStrips.find(key);
+                typename MeshDataMap::iterator it, end;
+                for (it = m_meshData.begin(), end = m_meshData.end(); it != end; ++it) {
+                    const Key& key = it->first;
+                    MeshData& meshData = it->second;
                     
-                    if (setIt == m_triangleSets.end() &&
-                        fanIt == m_triangleFans.end() &&
-                        stripIt == m_triangleStrips.end())
-                        continue;
+                    VertexList& set = meshData.triangleSet;
+                    IndexedList& fans = meshData.triangleFans;
+                    IndexedList& strips = meshData.triangleStrips;
                     
                     MeshRenderData<Key> renderData(key);
-                    
-                    if (setIt != m_triangleSets.end()) {
-                        typename VertexSpec::Vertex::List& vertices = setIt->second;
-                        renderData.triangles = VertexArray::swap(GL_TRIANGLES, vertices);
-                    }
-                    
-                    if (fanIt != m_triangleFans.end()) {
-                        TriangleSeries& series = fanIt->second;
-                        renderData.triangleFans = triangleSeriesArray(GL_TRIANGLE_FAN, series);
-                    }
-                    
-                    if (stripIt != m_triangleStrips.end()) {
-                        TriangleSeries& series = stripIt->second;
-                        renderData.triangleStrips = triangleSeriesArray(GL_TRIANGLE_STRIP, series);
-                    }
-                    
+                    if (!set.empty())
+                        renderData.triangles = VertexArray::swap(GL_TRIANGLES, meshData.triangleSet);
+                    if (!fans.empty())
+                        renderData.triangleFans = VertexArray::swap(GL_TRIANGLE_FAN, fans.vertices(), fans.indices(), fans.counts());
+                    if (!strips.empty())
+                        renderData.triangleStrips = VertexArray::swap(GL_TRIANGLE_STRIP, strips.vertices(), strips.indices(), strips.counts());
                     result.push_back(renderData);
                 }
                 return result;
             }
             
-            void beginTriangleSet(Key key) {
-                assert(m_currentType == TriangleType_Unset);
-                m_currentType = TriangleType_Set;
-                
-                if (m_currentSet == m_triangleSets.end() || m_currentSet->first != key)
-                    m_currentSet = MapUtils::findOrInsert(m_triangleSets, key);
-                m_keys.insert(key);
+            void beginTriangleSet(const Key& key) {
+                begin(TriangleType_Set, key);
             }
             
             void addTriangleToSet(const typename VertexSpec::Vertex& v1,
-                                         const typename VertexSpec::Vertex& v2,
-                                         const typename VertexSpec::Vertex& v3) {
+                                  const typename VertexSpec::Vertex& v2,
+                                  const typename VertexSpec::Vertex& v3) {
                 assert(m_currentType == TriangleType_Set);
-                m_currentSet->second.push_back(v1);
-                m_currentSet->second.push_back(v2);
-                m_currentSet->second.push_back(v3);
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleSet.push_back(v1);
+                meshData.triangleSet.push_back(v2);
+                meshData.triangleSet.push_back(v3);
                 m_vertexCount += 3;
             }
             
             void addTrianglesToSet(const typename VertexSpec::Vertex::List& vertices) {
                 assert(m_currentType == TriangleType_Set);
-                typename VertexSpec::Vertex::List& setVertices = m_currentSet->second;
-                setVertices.insert(setVertices.end(), vertices.begin(), vertices.end());
+                assert(vertices.size() % 3 == 0);
+                MeshData& meshData = m_currentData->second;
+                VectorUtils::append(meshData.triangleSet, vertices);
                 m_vertexCount += vertices.size();
             }
 
             void endTriangleSet() {
                 assert(m_currentType == TriangleType_Set);
-                m_currentType = TriangleType_Unset;
+                end();
             }
             
-            void addTriangleFans(Key key, const TriangleSeries& fans) {
-                if (!fans.empty()) {
-                    TriangleSeries& fansForKey = m_triangleFans[key];
-                    typename TriangleSeries::const_iterator it, end;
-                    for (it = fans.begin(), end = fans.end(); it != end; ++it) {
-                        const typename VertexSpec::Vertex::List& vertices = *it;
-                        fansForKey.push_back(vertices);
-                        m_vertexCount += vertices.size();
-                    }
-                    m_keys.insert(key);
-                }
+            void addTriangleFans(const Key& key, const IndexedList& fans) {
+                beginTriangleFan(key);
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleFans.addPrimitives(fans);
+                endTriangleFan();
             }
             
-            void beginTriangleFan(Key key) {
-                assert(m_currentType == TriangleType_Unset);
-                m_currentType = TriangleType_Fan;
-                
-                if (m_currentFan == m_triangleFans.end() || m_currentFan->first != key)
-                    m_currentFan = MapUtils::findOrInsert(m_triangleFans, key);
-                m_currentFan->second.push_back(VertexSpec::Vertex::List());
-                m_keys.insert(key);
+            void beginTriangleFan(const Key& key) {
+                begin(TriangleType_Fan, key);
             }
             
             void addVertexToFan(const typename VertexSpec::Vertex& v) {
                 assert(m_currentType == TriangleType_Fan);
-                m_currentFan->second.back().push_back(v);
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleFans.addVertex(v);
                 ++m_vertexCount;
             }
             
+            void addVerticesToFan(const typename VertexSpec::Vertex::List& vertices) {
+                assert(m_currentType == TriangleType_Fan);
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleFans.addVertices(vertices);
+                m_vertexCount += vertices.size();;
+            }
+            
+            void addTriangleFan(const typename VertexSpec::Vertex::List& vertices) {
+                assert(m_currentType == TriangleType_Fan);
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleFans.addPrimitive(vertices);
+                m_vertexCount += vertices.size();;
+            }
+
             void endTriangleFan() {
                 assert(m_currentType == TriangleType_Fan);
-                m_currentType = TriangleType_Unset;
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleFans.endPrimitive();
+                end();
             }
             
-            void addTriangleStrips(Key key, const TriangleSeries& strips) {
-                if (!strips.empty()) {
-                    TriangleSeries& stripsForKey = m_triangleStrips[key];
-                    typename TriangleSeries::const_iterator it, end;
-                    for (it = strips.begin(), end = strips.end(); it != end; ++it) {
-                        const typename VertexSpec::Vertex::List& vertices = *it;
-                        stripsForKey.push_back(vertices);
-                        m_vertexCount += vertices.size();
-                    }
-                    m_keys.insert(key);
-                }
+            void addTriangleStrips(const Key& key, const IndexedList& strips) {
+                beginTriangleStrip(key);
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleStrips.addPrimitives(strips);
+                endTriangleStrip();
             }
             
-            void beginTriangleStrip(Key key) {
-                assert(m_currentType == TriangleType_Unset);
-                m_currentType = TriangleType_Strip;
-                
-                if (m_currentStrip == m_triangleStrips.end() || m_currentStrip->first != key)
-                    m_currentStrip = MapUtils::findOrInsert(m_currentStrip, key);
-                m_currentStrip->second.push_back(VertexSpec::Vertex::List());
-                m_keys.insert(key);
+            void beginTriangleStrip(const Key& key) {
+                begin(TriangleType_Strip, key);
             }
-
+            
             void addVertexToStrip(const typename VertexSpec::Vertex& v) {
                 assert(m_currentType == TriangleType_Strip);
-                m_currentStrip->second.back().push_back(v);
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleStrips.addVertex(v);
                 ++m_vertexCount;
             }
-
+            
+            void addVerticesToStrip(const typename VertexSpec::Vertex::List& vertices) {
+                assert(m_currentType == TriangleType_Strip);
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleStrips.addVertices(vertices);
+                m_vertexCount += vertices.size();;
+            }
+            
+            void addTriangleStrip(const typename VertexSpec::Vertex::List& vertices) {
+                assert(m_currentType == TriangleType_Strip);
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleStrips.addPrimitive(vertices);
+                m_vertexCount += vertices.size();;
+            }
+            
             void endTriangleStrip() {
                 assert(m_currentType == TriangleType_Strip);
+                MeshData& meshData = m_currentData->second;
+                meshData.triangleStrips.endPrimitive();
+                end();
+            }
+        private:
+            void begin(const TriangleType type, const Key& key) {
+                assert(m_currentType == TriangleType_Unset);
+                assert(type != TriangleType_Unset);
+                m_currentType = type;
+                updateCurrentData(key);
+            }
+            
+            void end() {
+                assert(m_currentType != TriangleType_Unset);
                 m_currentType = TriangleType_Unset;
             }
-
-        private:
-            VertexArray triangleSeriesArray(const GLenum primType, TriangleSeries& series) const {
-                IndexedVertexList<VertexSpec> indexList;
-                typename TriangleSeries::const_iterator sIt, sEnd;
-                for (sIt = series.begin(), sEnd = series.end(); sIt != sEnd; ++sIt) {
-                    const typename VertexSpec::Vertex::List& vertices = *sIt;
-                    indexList.addPrimitive(vertices);
-                }
-                
-                return VertexArray::swap(primType, indexList.vertices(), indexList.indices(), indexList.counts());
+            
+            void updateCurrentData(const Key& key) {
+                if (m_currentData == m_meshData.end() || m_currentData->first != key)
+                    m_currentData = MapUtils::findOrInsert(m_meshData, key);
             }
         };
     }

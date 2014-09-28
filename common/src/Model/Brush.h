@@ -117,8 +117,12 @@ namespace TrenchBroom {
             void rebuildGeometry(const BBox3& worldBounds);
             bool checkGeometry() const;
         public: // content type
+            bool transparent() const;
+            bool hasContentType(const BrushContentType& contentType) const;
+            bool hasContentType(BrushContentType::FlagType contentTypeMask) const;
             void setContentTypeBuilder(const BrushContentTypeBuilder* contentTypeBuilder);
         private:
+            BrushContentType::FlagType contentTypeFlags() const;
             void invalidateContentType();
             void validateContentType() const;
         private: // implement Node interface
@@ -130,6 +134,8 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Object interface
             const BBox3& doGetBounds() const;
+            Layer* doGetLayer() const;
+            Group* doGetGroup() const;
             void doPick(const Ray3& ray, Hits& hits) const;
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Node* node) const;

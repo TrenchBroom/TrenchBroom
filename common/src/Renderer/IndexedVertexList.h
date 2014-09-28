@@ -40,6 +40,18 @@ namespace TrenchBroom {
             IndexedVertexList() :
             m_primStart(0) {}
             
+            IndexedVertexList(const size_t vertexCount, const size_t primCount) :
+            m_primStart(0),
+            m_vertices(vertexCount),
+            m_indices(primCount),
+            m_counts(primCount) {}
+
+            void reserve(const size_t vertexCount, const size_t primitiveCount) {
+                m_vertices.reserve(vertexCount);
+                m_indices.reserve(primitiveCount);
+                m_counts.reserve(primitiveCount);
+            }
+            
             void addVertex(const typename T::Vertex& vertex) {
                 m_vertices.push_back(vertex);
             }
@@ -53,13 +65,39 @@ namespace TrenchBroom {
                 endPrimitive();
             }
             
-            void endPrimitive() {
-                m_indices.push_back(static_cast<GLint>(m_primStart));
-                m_counts.push_back(static_cast<GLsizei>(m_vertices.size() - m_primStart));
+            void addPrimitives(const IndexedVertexList& primitives) {
+                VectorUtils::append(m_vertices, primitives.vertices());
+                VectorUtils::append(m_indices, primitives.indices());
+                VectorUtils::append(m_counts, primitives.counts());
                 m_primStart = m_vertices.size();
             }
             
+            void endPrimitive() {
+                if (m_primStart < m_vertices.size()) {
+                    m_indices.push_back(static_cast<GLint>(m_primStart));
+                    m_counts.push_back(static_cast<GLsizei>(m_vertices.size() - m_primStart));
+                    m_primStart = m_vertices.size();
+                }
+            }
+            
+            bool empty() const {
+                return m_vertices.empty();
+            }
+            
+            size_t vertexCount() const {
+                return m_vertices.size();
+            }
+            
+            size_t primCount() const {
+                assert(m_indices.size() == m_counts.size());
+                return m_indices.size();
+            }
+            
             IndexArray& indices() {
+                return m_indices;
+            }
+            
+            const IndexArray& indices() const {
                 return m_indices;
             }
             
@@ -67,7 +105,15 @@ namespace TrenchBroom {
                 return m_counts;
             }
             
+            const CountArray& counts() const {
+                return m_counts;
+            }
+            
             typename T::Vertex::List& vertices() {
+                return m_vertices;
+            }
+            
+            const typename T::Vertex::List& vertices() const {
                 return m_vertices;
             }
         };

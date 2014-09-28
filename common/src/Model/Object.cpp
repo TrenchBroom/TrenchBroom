@@ -32,6 +32,14 @@ namespace TrenchBroom {
             doPick(ray, hits);
         }
 
+        Layer* Object::layer() const {
+            return doGetLayer();
+        }
+        
+        Group* Object::group() const {
+            return doGetGroup();
+        }
+
         void Object::transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {
             doTransform(transformation, lockTextures, worldBounds);
         }
