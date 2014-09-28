@@ -34,6 +34,15 @@ namespace TrenchBroom {
             bindObservers();
         }
 
+        MapRenderer::~MapRenderer() {
+            unbindObservers();
+            clear();
+        }
+
+        void MapRenderer::clear() {
+            MapUtils::clearAndDelete(m_layerRenderers);
+        }
+
         void MapRenderer::render(RenderContext& renderContext) {
             renderLayers(renderContext);
             renderSelection(renderContext);
@@ -44,8 +53,8 @@ namespace TrenchBroom {
             RendererMap::iterator it, end;
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
                 // const Model::Layer* layer = it->first;
-                ObjectRenderer& renderer = it->second;
-                renderer.render(renderContext);
+                ObjectRenderer* renderer = it->second;
+                renderer->render(renderContext);
             }
         }
         
@@ -84,9 +93,9 @@ namespace TrenchBroom {
         private:
             void doVisit(Model::World* world)   {}
             void doVisit(Model::Layer* layer)   {
-                assert(m_layerRenderers.find(layer) == m_layerRenderers.end());
-                ObjectRenderer& renderer = m_layerRenderers[layer];
-                renderer.addObjects(layer->children());
+                ObjectRenderer* renderer = new ObjectRenderer();
+                MapUtils::insertOrFail(m_layerRenderers, layer, renderer);
+                renderer->addObjects(layer->children());
                 stopRecursion(); // don't visit my children
             }
             void doVisit(Model::Group* group)   { assert(false); }

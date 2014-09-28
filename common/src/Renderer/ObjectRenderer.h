@@ -31,6 +31,10 @@ namespace TrenchBroom {
         class ObjectRenderer {
         private:
             BrushRenderer m_brushRenderer;
+        public:
+            template <typename BrushFilterT>
+            ObjectRenderer(const BrushFilterT& brushFilter) :
+            m_brushRenderer(brushFilter) {}
         public: // object management
             void addObjects(const Model::NodeList& nodes);
             void addObject(Model::Node* object);

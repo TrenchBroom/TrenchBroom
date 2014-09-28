@@ -32,7 +32,7 @@ namespace TrenchBroom {
         
         class MapRenderer {
         private:
-            typedef std::map<Model::Layer*, ObjectRenderer> RendererMap;
+            typedef std::map<Model::Layer*, ObjectRenderer*> RendererMap;
             
             View::MapDocumentWPtr m_document;
             RendererMap m_layerRenderers;
@@ -40,6 +40,9 @@ namespace TrenchBroom {
             class AddLayer;
         public:
             MapRenderer(View::MapDocumentWPtr document);
+            ~MapRenderer();
+        private:
+            void clear();
         public: // rendering
             void render(RenderContext& renderContext);
         private:

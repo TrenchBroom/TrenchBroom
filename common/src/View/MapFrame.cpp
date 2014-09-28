@@ -188,11 +188,11 @@ namespace TrenchBroom {
             m_document->documentWasSavedNotifier.removeObserver(this, &MapFrame::documentDidChange);
         }
 
-        void MapFrame::documentWasCleared() {
+        void MapFrame::documentWasCleared(View::MapDocument* document) {
             updateTitle();
         }
         
-        void MapFrame::documentDidChange() {
+        void MapFrame::documentDidChange(View::MapDocument* document) {
             updateTitle();
             View::TrenchBroomApp::instance().updateRecentDocument(m_document->path());
         }

@@ -22,7 +22,8 @@
 namespace TrenchBroom {
     namespace Model {
         BaseNodeVisitor::BaseNodeVisitor() :
-        m_cancelled(false) {}
+        m_cancelled(false),
+        m_recursionStopped(false) {}
         
         BaseNodeVisitor::~BaseNodeVisitor() {}
         
@@ -43,6 +44,9 @@ namespace TrenchBroom {
         void BaseNodeVisitor::stopRecursion() {
             m_recursionStopped = true;
         }
+
+        NodeVisitor::NodeVisitor() :
+        BaseNodeVisitor() {}
 
         NodeVisitor::~NodeVisitor() {}
         
@@ -65,6 +69,9 @@ namespace TrenchBroom {
         void NodeVisitor::visit(Brush* brush) {
             doVisit(brush);
         }
+        
+        ConstNodeVisitor::ConstNodeVisitor() :
+        BaseNodeVisitor() {}
         
         ConstNodeVisitor::~ConstNodeVisitor() {}
         

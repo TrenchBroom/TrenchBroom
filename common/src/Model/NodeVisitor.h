@@ -28,8 +28,9 @@ namespace TrenchBroom {
         private:
             bool m_cancelled;
             bool m_recursionStopped;
-        public:
+        protected:
             BaseNodeVisitor();
+        public:
             virtual ~BaseNodeVisitor();
             bool cancelled() const;
             bool recursionStopped();
@@ -39,6 +40,8 @@ namespace TrenchBroom {
         };
         
         class NodeVisitor : public BaseNodeVisitor {
+        protected:
+            NodeVisitor();
         public:
             virtual ~NodeVisitor();
             
@@ -56,6 +59,8 @@ namespace TrenchBroom {
         };
         
         class ConstNodeVisitor : public BaseNodeVisitor {
+        protected:
+            ConstNodeVisitor();
         public:
             virtual ~ConstNodeVisitor();
             

@@ -24,7 +24,6 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        
         class AddNodeToObjectRenderer : public Model::NodeVisitor {
         private:
             BrushRenderer& m_brushRenderer;

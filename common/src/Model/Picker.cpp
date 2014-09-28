@@ -34,7 +34,7 @@ namespace TrenchBroom {
         }
         
         void Picker::removeObject(Pickable* object) {
-            m_octree.removeObject(object->bounds(), object);
+            m_octree.removeObject(object);
         }
         
         Hits Picker::pick(const Ray3& ray) const {

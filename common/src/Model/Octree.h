@@ -20,10 +20,12 @@
 #ifndef __TrenchBroom__Octree__
 #define __TrenchBroom__Octree__
 
+#include "CollectionUtils.h"
 #include "VecMath.h"
 #include "Exceptions.h"
 #include "SharedPointer.h"
 
+#include <map>
 #include <vector>
 
 namespace TrenchBroom {
@@ -70,7 +72,7 @@ namespace TrenchBroom {
                 return it != m_objects.end();
             }
             
-            bool addObject(const BBox<F,3>& bounds, T object) {
+            OctreeNode* addObject(const BBox<F,3>& bounds, T object) {
                 assert(contains(bounds));
                 
                 const Vec3f size = m_bounds.size();
@@ -83,9 +85,9 @@ namespace TrenchBroom {
                             if (childBounds.contains(bounds)) {
                                 OctreeNode<F,T>* child = new OctreeNode<F,T>(childBounds, m_minSize);
                                 try {
-                                    const bool success = child->addObject(bounds, object);
+                                    OctreeNode* result = child->addObject(bounds, object);
                                     m_children[i] = child;
-                                    return success;
+                                    return result;
                                 } catch (...) {
                                     delete child;
                                     throw;
@@ -96,17 +98,10 @@ namespace TrenchBroom {
                 }
                 
                 m_objects.push_back(object);
-                return true;
+                return this;
             }
             
-            bool removeObject(const BBox<F,3>& bounds, T object) {
-                assert(contains(bounds));
-                for (size_t i = 0; i < 8; ++i) {
-                    if (m_children[i] != NULL && m_children[i]->contains(bounds)) {
-                        return m_children[i]->removeObject(bounds, object);
-                    }
-                }
-                
+            bool removeObject(T object) {
                 typename List::iterator it = std::find(m_objects.begin(), m_objects.end(), object);
                 if (it == m_objects.end())
                     return false;
@@ -166,8 +161,10 @@ namespace TrenchBroom {
             typedef std::vector<T> List;
         private:
             typedef std::tr1::shared_ptr<OctreeNode<F,T> > NodePtr;
+            typedef std::map<T, OctreeNode<F,T>*> ObjectMap;
             BBox<F,3> m_bounds;
             NodePtr m_root;
+            ObjectMap m_objectMap;
         public:
             Octree(const BBox<F,3>& bounds, const F minSize) :
             m_bounds(bounds),
@@ -176,15 +173,20 @@ namespace TrenchBroom {
             void addObject(const BBox<F,3>& bounds, T object) {
                 if (!m_root->contains(bounds))
                     throw OctreeException("Object is too large for this octree");
-                if (!m_root->addObject(bounds, object))
+                OctreeNode<F,T>* node = m_root->addObject(bounds, object);
+                if (node == NULL)
                     throw OctreeException("Unknown error when inserting into octree");
+                MapUtils::insertOrFail(m_objectMap, object, node);
             }
             
-            void removeObject(const BBox<F,3>& bounds, T object) {
-                if (!m_root->contains(bounds))
-                    throw OctreeException("Object is too large for this octree");
-                if (!m_root->removeObject(bounds, object))
+            void removeObject(T object) {
+                typename ObjectMap::iterator it = m_objectMap.find(object);
+                if (it == m_objectMap.end())
                     throw OctreeException("Cannot find object in octree");
+                OctreeNode<F,T>* node = it->second;
+                if (!node->removeObject(object))
+                    throw OctreeException("Cannot find object in octree");
+                m_objectMap.erase(it);
             }
             
             bool containsObject(const BBox<F,3>& bounds, T object) const {

@@ -70,8 +70,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
-            void documentWasCleared();
-            void documentDidChange();
+            void documentWasCleared(View::MapDocument* document);
+            void documentDidChange(View::MapDocument* document);
         private: // event handlers
             void OnAutosaveTimer(wxTimerEvent& event);
         };
