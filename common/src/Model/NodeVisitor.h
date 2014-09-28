@@ -27,12 +27,15 @@ namespace TrenchBroom {
         class BaseNodeVisitor {
         private:
             bool m_cancelled;
+            bool m_recursionStopped;
         public:
             BaseNodeVisitor();
             virtual ~BaseNodeVisitor();
             bool cancelled() const;
+            bool recursionStopped();
         protected:
             void cancel();
+            void stopRecursion();
         };
         
         class NodeVisitor : public BaseNodeVisitor {
@@ -45,11 +48,11 @@ namespace TrenchBroom {
             void visit(Entity* entity);
             void visit(Brush* brush);
         private:
-            virtual void doVisit(World* world) = 0;
-            virtual void doVisit(Layer* layer) = 0;
-            virtual void doVisit(Group* group) = 0;
+            virtual void doVisit(World* world)   = 0;
+            virtual void doVisit(Layer* layer)   = 0;
+            virtual void doVisit(Group* group)   = 0;
             virtual void doVisit(Entity* entity) = 0;
-            virtual void doVisit(Brush* brush) = 0;
+            virtual void doVisit(Brush* brush)   = 0;
         };
         
         class ConstNodeVisitor : public BaseNodeVisitor {
@@ -62,11 +65,11 @@ namespace TrenchBroom {
             void visit(const Entity* entity);
             void visit(const Brush* brush);
         private:
-            virtual void doVisit(const World* world) = 0;
-            virtual void doVisit(const Layer* layer) = 0;
-            virtual void doVisit(const Group* group) = 0;
+            virtual void doVisit(const World* world)   = 0;
+            virtual void doVisit(const Layer* layer)   = 0;
+            virtual void doVisit(const Group* group)   = 0;
             virtual void doVisit(const Entity* entity) = 0;
-            virtual void doVisit(const Brush* brush) = 0;
+            virtual void doVisit(const Brush* brush)   = 0;
         };
         
         template <typename T>

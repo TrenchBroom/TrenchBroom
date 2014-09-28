@@ -108,12 +108,12 @@ namespace TrenchBroom {
             void setGrayscale(const bool grayscale);
             
             bool tintFaces() const;
-            void setTintFaces(const bool tintFaces);
+            void setTintFaces(bool tintFaces);
             const Color& tintColor() const;
             void setTintColor(const Color& tintColor);
             
             bool renderOccludedEdges() const;
-            void setRenderOccludedEdges(const bool renderOccludedEdges);
+            void setRenderOccludedEdges(bool renderOccludedEdges);
             const Color& occludedEdgeColor() const;
             void setOccludedEdgeColor(const Color& occludedEdgeColor);
             

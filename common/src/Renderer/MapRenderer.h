@@ -22,6 +22,7 @@
 
 #include "Model/ModelTypes.h"
 #include "Renderer/ObjectRenderer.h"
+#include "View/ViewTypes.h"
 
 #include <map>
 
@@ -33,16 +34,24 @@ namespace TrenchBroom {
         private:
             typedef std::map<Model::Layer*, ObjectRenderer> RendererMap;
             
+            View::MapDocumentWPtr m_document;
             RendererMap m_layerRenderers;
-            ObjectRenderer m_selectionRenderer;
-        public:
-            MapRenderer();
             
+            class AddLayer;
+        public:
+            MapRenderer(View::MapDocumentWPtr document);
+        public: // rendering
             void render(RenderContext& renderContext);
         private:
             void renderLayers(RenderContext& renderContext);
             void renderSelection(RenderContext& renderContext);
             void renderEntityLinks(RenderContext& renderContext);
+        private: // notification
+            void bindObservers();
+            void unbindObservers();
+            
+            void documentWasCleared(View::MapDocument* document);
+            void documentWasNewedOrLoaded(View::MapDocument* document);
         };
     }
 }

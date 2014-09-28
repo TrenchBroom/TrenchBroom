@@ -55,6 +55,10 @@ namespace TrenchBroom {
             clearWorld();
         }
 
+        Model::World* MapDocument::world() const {
+            return m_world;
+        }
+
         void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             info("Creating new document");
 
@@ -64,7 +68,7 @@ namespace TrenchBroom {
             loadAssets();
             registerIssueGenerators();
             
-            documentWasNewedNotifier();
+            documentWasNewedNotifier(this);
         }
         
         void MapDocument::loadDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
@@ -76,15 +80,15 @@ namespace TrenchBroom {
             loadAssets();
             registerIssueGenerators();
             
-            documentWasLoadedNotifier();
+            documentWasLoadedNotifier(this);
         }
         
         void MapDocument::saveDocument() {
-            documentWasSavedNotifier();
+            documentWasSavedNotifier(this);
         }
         
         void MapDocument::saveDocumentAs(const IO::Path& path) {
-            documentWasSavedNotifier();
+            documentWasSavedNotifier(this);
         }
 
         void MapDocument::saveDocumentTo(const IO::Path& path) {
@@ -93,14 +97,14 @@ namespace TrenchBroom {
 
         void MapDocument::clearDocument() {
             if (m_world != NULL) {
-                documentWillBeClearedNotifier();
+                documentWillBeClearedNotifier(this);
                 
                 clearSelection();
                 clearWorld();
                 unloadAssets();
                 clearModificationCount();
                 
-                documentWasClearedNotifier();
+                documentWasClearedNotifier(this);
             }
         }
 

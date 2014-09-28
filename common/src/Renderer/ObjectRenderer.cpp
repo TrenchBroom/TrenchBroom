@@ -19,7 +19,100 @@
 
 #include "ObjectRenderer.h"
 
+#include "Model/Node.h"
+#include "Model/NodeVisitor.h"
+
 namespace TrenchBroom {
     namespace Renderer {
+        
+        class AddNodeToObjectRenderer : public Model::NodeVisitor {
+        private:
+            BrushRenderer& m_brushRenderer;
+        public:
+            AddNodeToObjectRenderer(BrushRenderer& brushRenderer) :
+            m_brushRenderer(brushRenderer) {}
+        private:
+            virtual void doVisit(Model::World* world)   {}
+            virtual void doVisit(Model::Layer* layer)   {}
+            virtual void doVisit(Model::Group* group)   {}
+            virtual void doVisit(Model::Entity* entity) {}
+            virtual void doVisit(Model::Brush* brush)   { m_brushRenderer.addBrush(brush); }
+        };
+        
+        void ObjectRenderer::addObjects(const Model::NodeList& nodes) {
+            AddNodeToObjectRenderer visitor(m_brushRenderer);
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+        }
+
+        void ObjectRenderer::addObject(Model::Node* object) {
+            assert(object != NULL);
+            AddNodeToObjectRenderer visitor(m_brushRenderer);
+            object->acceptAndRecurse(visitor);
+        }
+        
+        class RemoveNodeFromObjectRenderer : public Model::NodeVisitor {
+        private:
+            BrushRenderer& m_brushRenderer;
+        public:
+            RemoveNodeFromObjectRenderer(BrushRenderer& brushRenderer) :
+            m_brushRenderer(brushRenderer) {}
+        private:
+            virtual void doVisit(Model::World* world)   {}
+            virtual void doVisit(Model::Layer* layer)   {}
+            virtual void doVisit(Model::Group* group)   {}
+            virtual void doVisit(Model::Entity* entity) {}
+            virtual void doVisit(Model::Brush* brush)   { m_brushRenderer.removeBrush(brush); }
+        };
+
+        void ObjectRenderer::removeObjects(const Model::NodeList& nodes) {
+            RemoveNodeFromObjectRenderer visitor(m_brushRenderer);
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+        }
+
+        void ObjectRenderer::removeObject(Model::Node* object) {
+            assert(object != NULL);
+            RemoveNodeFromObjectRenderer visitor(m_brushRenderer);
+            object->acceptAndRecurse(visitor);
+        }
+
+        void ObjectRenderer::clear() {
+            m_brushRenderer.clear();
+        }
+        
+        void ObjectRenderer::setTint(const bool tint) {
+            m_brushRenderer.setTintFaces(tint);
+        }
+        
+        void ObjectRenderer::setTintColor(const Color& tintColor) {
+            m_brushRenderer.setTintColor(tintColor);
+        }
+        
+        void ObjectRenderer::setRenderOccludedEdges(const bool renderOccludedEdges) {
+            m_brushRenderer.setRenderOccludedEdges(renderOccludedEdges);
+        }
+        
+        void ObjectRenderer::setTransparencyAlpha(const float transparencyAlpha) {
+            m_brushRenderer.setTransparencyAlpha(transparencyAlpha);
+        }
+        
+        void ObjectRenderer::setBrushFaceColor(const Color& brushFaceColor) {
+            m_brushRenderer.setFaceColor(brushFaceColor);
+        }
+        
+        void ObjectRenderer::setBrushEdgeColor(const Color& brushEdgeColor) {
+            m_brushRenderer.setEdgeColor(brushEdgeColor);
+        }
+        
+        void ObjectRenderer::setOccludedBrushEdgeColor(const Color& occludedEdgeColor) {
+            m_brushRenderer.setOccludedEdgeColor(occludedEdgeColor);
+        }
+        
+        void ObjectRenderer::setShowHiddenBrushes(const bool showHiddenBrushes) {
+            m_brushRenderer.setShowHiddenBrushes(showHiddenBrushes);
+        }
+
+        void ObjectRenderer::render(RenderContext& renderContext) {
+            m_brushRenderer.render(renderContext);
+        }
     }
 }

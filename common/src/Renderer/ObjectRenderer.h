@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__ObjectRenderer__
 #define __TrenchBroom__ObjectRenderer__
 
+#include "Color.h"
+#include "Model/ModelTypes.h"
 #include "Renderer/BrushRenderer.h"
 
 namespace TrenchBroom {
@@ -29,8 +31,31 @@ namespace TrenchBroom {
         class ObjectRenderer {
         private:
             BrushRenderer m_brushRenderer;
-        public:
+        public: // object management
+            void addObjects(const Model::NodeList& nodes);
+            void addObject(Model::Node* object);
+            
+            void removeObjects(const Model::NodeList& nodes);
+            void removeObject(Model::Node* object);
+
+            void clear();
+        public: // configuration
+            void setTint(bool tint);
+            void setTintColor(const Color& tintColor);
+            
+            void setRenderOccludedEdges(bool renderOccludedEdges);
+            void setTransparencyAlpha(float transparencyAlpha);
+            
+            void setBrushFaceColor(const Color& brushFaceColor);
+            void setBrushEdgeColor(const Color& brushEdgeColor);
+            void setOccludedBrushEdgeColor(const Color& occludedEdgeColor);
+            
+            void setShowHiddenBrushes(bool showHiddenBrushes);
+        public: // rendering
             void render(RenderContext& renderContext);
+        private:
+            ObjectRenderer(const ObjectRenderer&);
+            ObjectRenderer& operator=(const ObjectRenderer&);
         };
     }
 }

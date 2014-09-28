@@ -20,10 +20,20 @@
 #include "MapRenderer.h"
 
 #include "CollectionUtils.h"
+#include "Model/Layer.h"
+#include "Model/Node.h"
+#include "Model/NodeVisitor.h"
+#include "Model/World.h"
 #include "Renderer/ObjectRenderer.h"
+#include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        MapRenderer::MapRenderer(View::MapDocumentWPtr document) :
+        m_document(document) {
+            bindObservers();
+        }
+
         void MapRenderer::render(RenderContext& renderContext) {
             renderLayers(renderContext);
             renderSelection(renderContext);
@@ -40,10 +50,54 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderSelection(RenderContext& renderContext) {
-            m_selectionRenderer.render(renderContext);
         }
         
         void MapRenderer::renderEntityLinks(RenderContext& renderContext) {
+        }
+
+        void MapRenderer::bindObservers() {
+            assert(!expired(m_document));
+            View::MapDocumentSPtr document = lock(m_document);
+            document->documentWasClearedNotifier.addObserver(this, &MapRenderer::documentWasCleared);
+            document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+            document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+        }
+        
+        void MapRenderer::unbindObservers() {
+            if (!expired(m_document)) {
+                View::MapDocumentSPtr document = lock(m_document);
+                document->documentWasClearedNotifier.removeObserver(this, &MapRenderer::documentWasCleared);
+                document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+                document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+            }
+        }
+
+        void MapRenderer::documentWasCleared(View::MapDocument* document) {
+            m_layerRenderers.clear();
+        }
+        
+        class MapRenderer::AddLayer : public Model::NodeVisitor {
+        private:
+            RendererMap& m_layerRenderers;
+        public:
+            AddLayer(RendererMap& layerRenderers) : m_layerRenderers(layerRenderers) {}
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {
+                assert(m_layerRenderers.find(layer) == m_layerRenderers.end());
+                ObjectRenderer& renderer = m_layerRenderers[layer];
+                renderer.addObjects(layer->children());
+                stopRecursion(); // don't visit my children
+            }
+            void doVisit(Model::Group* group)   { assert(false); }
+            void doVisit(Model::Entity* entity) { assert(false); }
+            void doVisit(Model::Brush* brush)   { assert(false); }
+        };
+        
+        void MapRenderer::documentWasNewedOrLoaded(View::MapDocument* document) {
+            Model::World* world = document->world();
+            AddLayer visitor(m_layerRenderers);
+            world->acceptAndRecurse(visitor);
         }
     }
 }

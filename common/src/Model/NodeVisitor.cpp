@@ -30,10 +30,20 @@ namespace TrenchBroom {
             return m_cancelled;
         }
         
+        bool BaseNodeVisitor::recursionStopped() {
+            const bool result = m_recursionStopped;
+            m_recursionStopped = false;
+            return result;
+        }
+
         void BaseNodeVisitor::cancel() {
             m_cancelled = true;
         }
         
+        void BaseNodeVisitor::stopRecursion() {
+            m_recursionStopped = true;
+        }
+
         NodeVisitor::~NodeVisitor() {}
         
         void NodeVisitor::visit(World* world) {
@@ -77,5 +87,42 @@ namespace TrenchBroom {
         void ConstNodeVisitor::visit(const Brush* brush) {
             doVisit(brush);
         }
+        
+        class _NodeVisitorPrototype : public NodeVisitor {
+        private:
+            void doVisit(World* world)   {}
+            void doVisit(Layer* layer)   {}
+            void doVisit(Group* group)   {}
+            void doVisit(Entity* entity) {}
+            void doVisit(Brush* brush)   {}
+        };
+        
+        class _ConstNodeVisitorPrototype : public ConstNodeVisitor {
+        private:
+            void doVisit(const World* world)   {}
+            void doVisit(const Layer* layer)   {}
+            void doVisit(const Group* group)   {}
+            void doVisit(const Entity* entity) {}
+            void doVisit(const Brush* brush)   {}
+        };
     }
+
+    
+    class _NodeVisitorPrototype : public Model::NodeVisitor {
+    private:
+        void doVisit(Model::World* world)   {}
+        void doVisit(Model::Layer* layer)   {}
+        void doVisit(Model::Group* group)   {}
+        void doVisit(Model::Entity* entity) {}
+        void doVisit(Model::Brush* brush)   {}
+    };
+    
+    class _ConstNodeVisitorPrototype : public Model::ConstNodeVisitor {
+    private:
+        void doVisit(const Model::World* world)   {}
+        void doVisit(const Model::Layer* layer)   {}
+        void doVisit(const Model::Group* group)   {}
+        void doVisit(const Model::Entity* entity) {}
+        void doVisit(const Model::Brush* brush)   {}
+    };
 }

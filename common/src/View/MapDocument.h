@@ -55,16 +55,18 @@ namespace TrenchBroom {
             IO::Path m_path;
             size_t m_modificationCount;
         public: // notification
-            Notifier0 documentWillBeClearedNotifier;
-            Notifier0 documentWasClearedNotifier;
-            Notifier0 documentWasNewedNotifier;
-            Notifier0 documentWasLoadedNotifier;
-            Notifier0 documentWasSavedNotifier;
+            Notifier1<MapDocument*> documentWillBeClearedNotifier;
+            Notifier1<MapDocument*> documentWasClearedNotifier;
+            Notifier1<MapDocument*> documentWasNewedNotifier;
+            Notifier1<MapDocument*> documentWasLoadedNotifier;
+            Notifier1<MapDocument*> documentWasSavedNotifier;
         private:
             MapDocument();
         public:
             static MapDocumentSPtr newMapDocument();
             ~MapDocument();
+        public: // accessors and such
+            Model::World* world() const;
         public: // new, load, save document
             void newDocument(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
