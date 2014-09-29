@@ -36,14 +36,21 @@ namespace TrenchBroom {
         class Path;
     }
     
+    namespace Renderer {
+        class MapRenderer;
+    }
+    
     namespace View {
         class Autosaver;
         class FrameManager;
+        class MapView3D;
         
         class MapFrame : public wxFrame {
         private:
             FrameManager* m_frameManager;
             MapDocumentSPtr m_document;
+            
+            Renderer::MapRenderer* m_mapRenderer;
             
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
@@ -66,6 +73,8 @@ namespace TrenchBroom {
             bool confirmOrDiscardChanges();
         private: // title bar contents
             void updateTitle();
+        private: // gui creation
+            void createGui();
         private: // notification handlers
             void bindObservers();
             void unbindObservers();

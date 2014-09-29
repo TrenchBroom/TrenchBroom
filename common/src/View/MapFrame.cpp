@@ -21,13 +21,16 @@
 
 #include "TrenchBroomApp.h"
 #include "IO/DiskFileSystem.h"
+#include "Renderer/MapRenderer.h"
 #include "View/Autosaver.h"
 #include "View/CachingLogger.h"
 #include "View/MapDocument.h"
+#include "View/MapView3D.h"
 
 #include <wx/display.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
+#include <wx/sizer.h>
 #include <wx/timer.h>
 
 #include <cassert>
@@ -37,12 +40,14 @@ namespace TrenchBroom {
         MapFrame::MapFrame() :
         wxFrame(NULL, wxID_ANY, "MapFrame"),
         m_frameManager(NULL),
+        m_mapRenderer(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL) {}
         
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, "MapFrame"),
         m_frameManager(NULL),
+        m_mapRenderer(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL) {
             Create(frameManager, document);
@@ -54,9 +59,10 @@ namespace TrenchBroom {
             
             m_frameManager = frameManager;
             m_document = document;
+            m_mapRenderer = new Renderer::MapRenderer(m_document);
             m_autosaver = new Autosaver(m_document);
 
-            // create GUI
+            createGui();
             
             m_document->setParentLogger(logger());
 
@@ -69,8 +75,16 @@ namespace TrenchBroom {
         MapFrame::~MapFrame() {
             unbindObservers();
             
+            // this might lead to crashes because my children, including the map views, will be
+            // deleted after the map renderer is deleted
+            // possible solution: force deletion of all children here?
+            
+            delete m_mapRenderer;
+            m_mapRenderer = NULL;
+            
             delete m_autosaveTimer;
             m_autosaveTimer = NULL;
+            
             delete m_autosaver;
             m_autosaver = NULL;
         }
@@ -172,6 +186,10 @@ namespace TrenchBroom {
             SetTitle(wxString(m_document->filename()) + wxString(m_document->modified() ? "*" : ""));
 #endif
             SetRepresentedFilename(m_document->path().asString());
+        }
+
+        void MapFrame::createGui() {
+            MapView3D* mapView = new MapView3D(this, logger(), m_document, *m_mapRenderer);
         }
 
         void MapFrame::bindObservers() {
