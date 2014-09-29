@@ -63,6 +63,10 @@ namespace TrenchBroom {
             return m_editorContext;
         }
 
+        const View::MapViewConfig& MapDocument::mapViewConfig() const {
+            return m_mapViewConfig;
+        }
+
         void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             info("Creating new document");
 

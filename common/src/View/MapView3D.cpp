@@ -20,6 +20,7 @@
 #include "MapView3D.h"
 #include "Logger.h"
 #include "Renderer/RenderContext.h"
+#include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -58,7 +59,8 @@ namespace TrenchBroom {
         }
         
         void MapView3D::doRender() {
-            Renderer::RenderContext renderContext(m_camera, contextHolder()->shaderManager(), document->renderConfig(), grid.visible(), grid.actualSize());
+            MapDocumentSPtr document = lock(m_document);
+            Renderer::RenderContext renderContext(m_camera, contextHolder()->shaderManager(), document->mapViewConfig(), grid.visible(), grid.actualSize());
 
             setupGL(renderContext);
             renderMap(renderContext);

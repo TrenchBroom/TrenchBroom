@@ -17,18 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenderConfig__
-#define __TrenchBroom__RenderConfig__
+#ifndef __TrenchBroom__MapViewConfig__
+#define __TrenchBroom__MapViewConfig__
 
 #include "Notifier.h"
 
 namespace TrenchBroom {
     namespace View {
         class EditorContext;
-    }
-    
-    namespace Renderer {
-        class RenderConfig {
+
+        class MapViewConfig {
         public:
             typedef enum {
                 FaceRenderMode_Textured,
@@ -36,7 +34,7 @@ namespace TrenchBroom {
                 FaceRenderMode_Skip
             } FaceRenderMode;
         private:
-            const View::EditorContext& m_editorContext;
+            const EditorContext& m_editorContext;
             
             bool m_showEntityClassnames;
             bool m_showPointEntityModels;
@@ -49,7 +47,7 @@ namespace TrenchBroom {
         public:
             Notifier0 renderConfigDidChangeNotifier;
         public:
-            RenderConfig(const View::EditorContext& editorContext);
+            MapViewConfig(const EditorContext& editorContext);
             
             bool showEntityClassnames() const;
             void setShowEntityClassnames(bool showEntityClassnames);
@@ -78,10 +76,10 @@ namespace TrenchBroom {
             bool showEdges() const;
             void setShowEdges(bool showEdges);
         private:
-            RenderConfig(const RenderConfig& other);
-            RenderConfig& operator=(const RenderConfig& other);
+            MapViewConfig(const MapViewConfig& other);
+            MapViewConfig& operator=(const MapViewConfig& other);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__RenderConfig__) */
+#endif /* defined(__TrenchBroom__MapViewConfig__) */

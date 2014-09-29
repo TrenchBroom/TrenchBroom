@@ -23,9 +23,12 @@
 #include "Renderer/Transformation.h"
 
 namespace TrenchBroom {
+    namespace View {
+        class MapViewConfig;
+    }
+
     namespace Renderer {
         class Camera;
-        class RenderConfig;
         class ShaderManager;
         
         class RenderContext {
@@ -40,7 +43,8 @@ namespace TrenchBroom {
             const Camera& m_camera;
             Transformation m_transformation;
             ShaderManager& m_shaderManager;
-            const RenderConfig& m_renderConfig;
+            
+            const View::MapViewConfig& m_mapViewConfig;
             
             bool m_showGrid;
             size_t m_gridSize;
@@ -49,12 +53,18 @@ namespace TrenchBroom {
             ShowSelectionGuide m_showSelectionGuide;
             bool m_showMouseIndicators;
         public:
-            RenderContext(const Camera& camera, ShaderManager& shaderManager, const RenderConfig& renderConfig, const bool showGrid, const size_t gridSize);
+            RenderContext(const Camera& camera, ShaderManager& shaderManager, const View::MapViewConfig& mapViewConfig, const bool showGrid, const size_t gridSize);
             
             const Camera& camera() const;
             Transformation& transformation();
             ShaderManager& shaderManager();
-            const RenderConfig& renderConfig() const;
+            
+            bool showFaces() const;
+            bool showEdges() const;
+            
+            bool showTextures() const;
+            bool shadeFaces() const;
+            bool useFog() const;
             
             bool showGrid() const;
             size_t gridSize() const;

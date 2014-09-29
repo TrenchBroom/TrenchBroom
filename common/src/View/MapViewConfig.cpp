@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RenderConfig.h"
+#include "MapViewConfig.h"
 
 #include "View/EditorContext.h"
 
 namespace TrenchBroom {
-    namespace Renderer {
-        RenderConfig::RenderConfig(const View::EditorContext& editorContext) :
+    namespace View {
+        MapViewConfig::MapViewConfig(const View::EditorContext& editorContext) :
         m_editorContext(editorContext),
         m_showEntityClassnames(true),
         m_showPointEntityModels(true),
@@ -33,71 +33,71 @@ namespace TrenchBroom {
         m_useFog(false),
         m_showEdges(true) {}
 
-        bool RenderConfig::showEntityClassnames() const {
+        bool MapViewConfig::showEntityClassnames() const {
             return m_showEntityClassnames;
         }
         
-        void RenderConfig::setShowEntityClassnames(const bool showEntityClassnames) {
+        void MapViewConfig::setShowEntityClassnames(const bool showEntityClassnames) {
             if (showEntityClassnames == m_showEntityClassnames)
                 return;
             m_showEntityClassnames = showEntityClassnames;
             renderConfigDidChangeNotifier();
         }
         
-        bool RenderConfig::showPointEntities() const {
+        bool MapViewConfig::showPointEntities() const {
             return m_editorContext.showPointEntities();
         }
         
-        bool RenderConfig::showPointEntityModels() const {
+        bool MapViewConfig::showPointEntityModels() const {
             return m_showPointEntityModels;
         }
         
-        void RenderConfig::setShowPointEntityModels(const bool showPointEntityModels) {
+        void MapViewConfig::setShowPointEntityModels(const bool showPointEntityModels) {
             if (showPointEntityModels == m_showPointEntityModels)
                 return;
             m_showPointEntityModels = showPointEntityModels;
             renderConfigDidChangeNotifier();
         }
         
-        bool RenderConfig::showEntityBounds() const {
+        bool MapViewConfig::showEntityBounds() const {
             return m_showEntityBounds;
         }
         
-        void RenderConfig::setShowEntityBounds(const bool showEntityBounds) {
+        void MapViewConfig::setShowEntityBounds(const bool showEntityBounds) {
             if (showEntityBounds == m_showEntityBounds)
                 return;
             m_showEntityBounds = showEntityBounds;
             renderConfigDidChangeNotifier();
         }
         
-        bool RenderConfig::showBrushes() const {
+        bool MapViewConfig::showBrushes() const {
             return m_editorContext.showBrushes();
         }
         
-        bool RenderConfig::showFaces() const {
+        bool MapViewConfig::showFaces() const {
             return m_faceRenderMode != FaceRenderMode_Skip;
         }
 
-        bool RenderConfig::showTextures() const {
+        bool MapViewConfig::showTextures() const {
             return m_faceRenderMode == FaceRenderMode_Textured;
         }
 
-        RenderConfig::FaceRenderMode RenderConfig::faceRenderMode() const {
+        MapViewConfig::FaceRenderMode MapViewConfig::faceRenderMode() const {
             return m_faceRenderMode;
         }
         
-        void RenderConfig::setFaceRenderMode(const FaceRenderMode faceRenderMode) {
+        void MapViewConfig::setFaceRenderMode(const FaceRenderMode faceRenderMode) {
             if (faceRenderMode == m_faceRenderMode)
                 return;
             m_faceRenderMode = faceRenderMode;
             renderConfigDidChangeNotifier();
         }
         
-        bool RenderConfig::shadeFaces() const {
+        bool MapViewConfig::shadeFaces() const {
             return m_shadeFaces;
         }
         
-        void RenderConfig::setShadeFaces(const bool shadeFaces) {
+        void MapViewConfig::setShadeFaces(const bool shadeFaces) {
             if (shadeFaces == m_shadeFaces)
                 return;
             m_shadeFaces = shadeFaces;
@@ -105,22 +105,22 @@ namespace TrenchBroom {
         }
         
         
-        bool RenderConfig::useFog() const {
+        bool MapViewConfig::useFog() const {
             return m_useFog;
         }
         
-        void RenderConfig::setUseFog(const bool useFog) {
+        void MapViewConfig::setUseFog(const bool useFog) {
             if (useFog == m_useFog)
                 return;
             m_useFog = useFog;
             renderConfigDidChangeNotifier();
         }
         
-        bool RenderConfig::showEdges() const {
+        bool MapViewConfig::showEdges() const {
             return m_showEdges;
         }
         
-        void RenderConfig::setShowEdges(const bool showEdges) {
+        void MapViewConfig::setShowEdges(const bool showEdges) {
             if (showEdges == m_showEdges)
                 return;
             m_showEdges = showEdges;

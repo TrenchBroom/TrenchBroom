@@ -19,14 +19,15 @@
 
 #include "RenderContext.h"
 #include "Renderer/Camera.h"
+#include "View/MapViewConfig.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderContext::RenderContext(const Camera& camera, ShaderManager& shaderManager, const RenderConfig& renderConfig, const bool showGrid, const size_t gridSize) :
+        RenderContext::RenderContext(const Camera& camera, ShaderManager& shaderManager, const View::MapViewConfig& mapViewConfig, const bool showGrid, const size_t gridSize) :
         m_camera(camera),
         m_transformation(m_camera.projectionMatrix(), m_camera.viewMatrix()),
         m_shaderManager(shaderManager),
-        m_renderConfig(renderConfig),
+        m_mapViewConfig(mapViewConfig),
         m_showGrid(showGrid),
         m_gridSize(gridSize),
         m_hideSelection(false),
@@ -46,10 +47,26 @@ namespace TrenchBroom {
             return m_shaderManager;
         }
 
-        const RenderConfig& RenderContext::renderConfig() const {
-            return m_renderConfig;
+        bool RenderContext::showFaces() const {
+            return m_mapViewConfig.showFaces();
+        }
+        
+        bool RenderContext::showEdges() const {
+            return m_mapViewConfig.showEdges();
         }
 
+        bool RenderContext::showTextures() const {
+            return m_mapViewConfig.showTextures();
+        }
+        
+        bool RenderContext::shadeFaces() const {
+            return m_mapViewConfig.shadeFaces();
+        }
+        
+        bool RenderContext::useFog() const {
+            return m_mapViewConfig.useFog();
+        }
+       
         bool RenderContext::showGrid() const {
             return m_showGrid;
         }

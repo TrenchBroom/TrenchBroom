@@ -24,7 +24,6 @@
 #include "PreferenceManager.h"
 #include "Assets/Texture.h"
 #include "Renderer/Camera.h"
-#include "Renderer/RenderConfig.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderProgram.h"
 #include "Renderer/ShaderManager.h"
@@ -103,9 +102,9 @@ namespace TrenchBroom {
             ActiveShader shader(shaderManager, Shaders::FaceShader);
             PreferenceManager& prefs = PreferenceManager::instance();
             
-            const bool applyTexture = context.renderConfig().showTextures();
-            const bool shadeFaces = context.renderConfig().shadeFaces();
-            const bool useFog = context.renderConfig().useFog();
+            const bool applyTexture = context.showTextures();
+            const bool shadeFaces = context.shadeFaces();
+            const bool useFog = context.useFog();
 
             glEnable(GL_TEXTURE_2D);
             glActiveTexture(GL_TEXTURE0);

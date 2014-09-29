@@ -27,7 +27,6 @@
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
 #include "Model/NodeVisitor.h"
-#include "Renderer/RenderConfig.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/VertexSpec.h"
@@ -90,10 +89,10 @@ namespace TrenchBroom {
             if (!m_valid)
                 validate();
             
-            if (renderContext.renderConfig().showFaces())
+            if (renderContext.showFaces())
                 renderFaces(renderContext);
             
-            if (renderContext.renderConfig().showEdges())
+            if (renderContext.showEdges())
                 renderEdges(renderContext);
         }
         
