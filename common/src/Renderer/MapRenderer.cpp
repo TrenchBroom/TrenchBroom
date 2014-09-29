@@ -24,6 +24,7 @@
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
+#include "Renderer/BrushRenderer.h"
 #include "Renderer/ObjectRenderer.h"
 #include "View/MapDocument.h"
 
@@ -85,15 +86,36 @@ namespace TrenchBroom {
             m_layerRenderers.clear();
         }
         
+        class UnselectedBrushRendererFilter : public BrushRenderer::DefaultFilter {
+        public:
+            UnselectedBrushRendererFilter(const View::EditorContext& context) :
+            DefaultFilter(context) {}
+            
+            bool operator()(const Model::Brush* brush) const {
+                return !locked(brush) && !selected(brush) && visible(brush);
+            }
+            
+            bool operator()(const Model::BrushFace* face) const {
+                return !locked(face) && !selected(face) && visible(face);
+            }
+            
+            bool operator()(const Model::BrushEdge* edge) const {
+                return !selected(edge);
+            }
+        };
+
         class MapRenderer::AddLayer : public Model::NodeVisitor {
         private:
+            const View::EditorContext& m_editorContext;
             RendererMap& m_layerRenderers;
         public:
-            AddLayer(RendererMap& layerRenderers) : m_layerRenderers(layerRenderers) {}
+            AddLayer(const View::EditorContext& editorContext, RendererMap& layerRenderers) :
+            m_editorContext(editorContext),
+            m_layerRenderers(layerRenderers) {}
         private:
             void doVisit(Model::World* world)   {}
             void doVisit(Model::Layer* layer)   {
-                ObjectRenderer* renderer = new ObjectRenderer();
+                ObjectRenderer* renderer = new ObjectRenderer(UnselectedBrushRendererFilter(m_editorContext));
                 MapUtils::insertOrFail(m_layerRenderers, layer, renderer);
                 renderer->addObjects(layer->children());
                 stopRecursion(); // don't visit my children
@@ -105,7 +127,8 @@ namespace TrenchBroom {
         
         void MapRenderer::documentWasNewedOrLoaded(View::MapDocument* document) {
             Model::World* world = document->world();
-            AddLayer visitor(m_layerRenderers);
+            const View::EditorContext& editorContext = document->editorContext();
+            AddLayer visitor(editorContext, m_layerRenderers);
             world->acceptAndRecurse(visitor);
         }
     }

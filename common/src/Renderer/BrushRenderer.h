@@ -30,17 +30,42 @@ namespace TrenchBroom {
         class BrushEdge;
     }
     
+    namespace View {
+        class EditorContext;
+    }
+    
     namespace Renderer {
         class RenderContext;
         class Vbo;
         
         class BrushRenderer {
         public:
-            struct Filter {
+            class Filter {
+            public:
                 virtual ~Filter();
                 virtual bool operator()(const Model::Brush* brush) const = 0;
                 virtual bool operator()(const Model::BrushFace* face) const = 0;
                 virtual bool operator()(const Model::BrushEdge* edge) const = 0;
+            };
+            
+            class DefaultFilter : public Filter {
+            private:
+                const View::EditorContext& m_context;
+            public:
+                virtual ~DefaultFilter();
+            protected:
+                DefaultFilter(const View::EditorContext& context);
+                
+                bool visible(const Model::Brush* brush) const;
+                bool visible(const Model::BrushFace* face) const;
+                
+                bool locked(const Model::Brush* brush) const;
+                bool locked(const Model::BrushFace* face) const;
+                
+                bool selected(const Model::Brush* brush) const;
+                bool selected(const Model::BrushFace* face) const;
+                bool selected(const Model::BrushEdge* edge) const;
+                bool hasSelectedFaces(const Model::Brush* brush) const;
             };
         private:
             Filter* m_filter;

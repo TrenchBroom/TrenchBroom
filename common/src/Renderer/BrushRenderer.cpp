@@ -22,9 +22,9 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
+#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushVertex.h"
 #include "Model/NodeVisitor.h"
 #include "Renderer/RenderConfig.h"
@@ -37,6 +37,25 @@ namespace TrenchBroom {
     namespace Renderer {
         BrushRenderer::Filter::~Filter() {}
         
+        BrushRenderer::DefaultFilter::~DefaultFilter() {}
+        BrushRenderer::DefaultFilter::DefaultFilter(const View::EditorContext& context) : m_context(context) {}
+
+        bool BrushRenderer::DefaultFilter::visible(const Model::Brush* brush) const { return m_context.visible(brush); }
+        bool BrushRenderer::DefaultFilter::visible(const Model::BrushFace* face) const { return m_context.visible(face); }
+        
+        bool BrushRenderer::DefaultFilter::locked(const Model::Brush* brush) const { return m_context.locked(brush); }
+        bool BrushRenderer::DefaultFilter::locked(const Model::BrushFace* face) const { return m_context.locked(face); }
+        
+        bool BrushRenderer::DefaultFilter::selected(const Model::Brush* brush) const { return brush->selected(); }
+        bool BrushRenderer::DefaultFilter::selected(const Model::BrushFace* face) const { return face->selected(); }
+        bool BrushRenderer::DefaultFilter::selected(const Model::BrushEdge* edge) const {
+            const Model::BrushFace* left = edge->left->face;
+            const Model::BrushFace* right = edge->right->face;
+            const Model::Brush* brush = left->brush();
+            return selected(brush) || selected(left) || selected(right);
+        }
+        bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::Brush* brush) const { return brush->descendantSelected(); }
+
         BrushRenderer::~BrushRenderer() {
             delete m_filter;
             m_filter = NULL;

@@ -31,6 +31,7 @@
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 #include "View/CachingLogger.h"
+#include "View/EditorContext.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -52,6 +53,8 @@ namespace TrenchBroom {
             Assets::EntityModelManager m_entityModelManager;
             Assets::TextureManager m_textureManager;
             
+            View::EditorContext m_editorContext;
+            
             IO::Path m_path;
             size_t m_modificationCount;
         public: // notification
@@ -67,6 +70,7 @@ namespace TrenchBroom {
             ~MapDocument();
         public: // accessors and such
             Model::World* world() const;
+            const View::EditorContext& editorContext() const;
         public: // new, load, save document
             void newDocument(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
