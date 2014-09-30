@@ -117,12 +117,12 @@ namespace TrenchBroom {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
-                              "( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) none 0 0 0 1 1\n"
-                              "( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) none 0 0 0 1 1\n"
-                              "( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) none 0 0 0 1 1\n"
-                              "( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) none 0 0 0 1 1\n"
-                              "( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) none 0 0 0 1 1\n"
-                              "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1\n"
+                              "( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) tex1 1 2 3 4 5\n"
+                              "( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) tex2 0 0 0 1 1\n"
+                              "( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) tex3 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) tex4 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) tex5 0 0 0 1 1\n"
+                              "( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1\n"
                               "}\n"
                               "}\n");
             BBox3 worldBounds(8192);
@@ -137,7 +137,16 @@ namespace TrenchBroom {
             Model::Brush* brush = static_cast<Model::Brush*>(defaultLayer->children().front());
             const Model::BrushFaceList& faces = brush->faces();
             ASSERT_EQ(6u, faces.size());
-            ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0)) != NULL);
+            
+            const Model::BrushFace* face1 = findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,   0.0,   0.0), Vec3( 64.0,   0.0, -16.0));
+            ASSERT_TRUE(face1 != NULL);
+            ASSERT_STREQ("tex1", face1->textureName().c_str());
+            ASSERT_FLOAT_EQ(1.0, face1->xOffset());
+            ASSERT_FLOAT_EQ(2.0, face1->yOffset());
+            ASSERT_FLOAT_EQ(3.0, face1->rotation());
+            ASSERT_FLOAT_EQ(4.0, face1->xScale());
+            ASSERT_FLOAT_EQ(5.0, face1->yScale());
+            
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0), Vec3(  0.0,   0.0,   0.0)) != NULL);
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(  0.0,   0.0, -16.0), Vec3( 64.0,   0.0, -16.0), Vec3(  0.0,  64.0, -16.0)) != NULL);
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3(  0.0,  64.0,   0.0), Vec3( 64.0,  64.0, -16.0)) != NULL);

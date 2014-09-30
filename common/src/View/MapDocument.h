@@ -82,6 +82,8 @@ namespace TrenchBroom {
             void saveDocumentTo(const IO::Path& path);
         private:
             void clearDocument();
+        public: // asset state management
+            void commitPendingAssets();
         private: // selection
             void clearSelection();
         private: // world management
@@ -97,6 +99,7 @@ namespace TrenchBroom {
             void unloadEntityDefinitions();
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             
+            void loadEntityModels();
             void setEntityModels();
             void unloadEntityModels();
             

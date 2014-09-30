@@ -46,6 +46,7 @@ namespace TrenchBroom {
         public: // rendering
             void render(RenderContext& renderContext);
         private:
+            void commitPendingChanges(RenderContext& renderContext);
             void renderLayers(RenderContext& renderContext);
             void renderSelection(RenderContext& renderContext);
             void renderEntityLinks(RenderContext& renderContext);

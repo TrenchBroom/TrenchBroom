@@ -307,7 +307,6 @@ namespace TrenchBroom {
         }
         
         void QuakeMapParser::parseFace() {
-            Model::BrushFaceAttribs attribs(Model::BrushFace::NoTextureName);
             Vec3 texAxisX, texAxisY;
             
             Token token = m_tokenizer.nextToken();
@@ -337,6 +336,7 @@ namespace TrenchBroom {
             if (textureName == Model::BrushFace::NoTextureName)
                 textureName = "";
             
+            Model::BrushFaceAttribs attribs(textureName);
             if (m_format == Model::MapFormat::Valve) {
                 expect(QuakeMapToken::OBracket, m_tokenizer.nextToken());
                 texAxisX = parseVector();

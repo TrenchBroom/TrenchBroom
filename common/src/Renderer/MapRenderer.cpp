@@ -45,11 +45,17 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::render(RenderContext& renderContext) {
+            commitPendingChanges(renderContext);
             renderLayers(renderContext);
             renderSelection(renderContext);
             renderEntityLinks(renderContext);
         }
         
+        void MapRenderer::commitPendingChanges(RenderContext& renderContext) {
+            View::MapDocumentSPtr document = lock(m_document);
+            document->commitPendingAssets();
+        }
+
         void MapRenderer::renderLayers(RenderContext& renderContext) {
             RendererMap::iterator it, end;
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {

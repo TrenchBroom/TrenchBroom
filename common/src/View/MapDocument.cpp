@@ -118,6 +118,10 @@ namespace TrenchBroom {
             }
         }
 
+        void MapDocument::commitPendingAssets() {
+            m_textureManager.commitChanges();
+        }
+
         void MapDocument::clearSelection() {
         }
 
@@ -147,6 +151,7 @@ namespace TrenchBroom {
         void MapDocument::loadAssets() {
             loadEntityDefinitions();
             setEntityDefinitions();
+            loadEntityModels();
             setEntityModels();
             loadTextures();
             setTextures();
@@ -245,6 +250,10 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush)   {}
         };
         
+        void MapDocument::loadEntityModels() {
+            m_entityModelManager.setLoader(m_game.get());
+        }
+
         void MapDocument::setEntityModels() {
             SetEntityModel visitor(m_entityModelManager, *this);
             m_world->acceptAndRecurse(visitor);
@@ -254,9 +263,11 @@ namespace TrenchBroom {
             UnsetEntityModel visitor;
             m_world->acceptAndRecurse(visitor);
             m_entityModelManager.clear();
+            m_entityModelManager.setLoader(NULL);
         }
 
         void MapDocument::loadTextures() {
+            m_textureManager.setLoader(m_game.get());
             loadBuiltinTextures();
             loadExternalTextures();
         }
@@ -323,6 +334,7 @@ namespace TrenchBroom {
             UnsetTextures visitor;
             m_world->acceptAndRecurse(visitor);
             m_textureManager.clear();
+            m_textureManager.setLoader(NULL);
         }
 
         void MapDocument::addExternalTextureCollections(const StringList& names) {
