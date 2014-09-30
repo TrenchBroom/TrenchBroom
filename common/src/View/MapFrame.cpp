@@ -24,6 +24,7 @@
 #include "Renderer/MapRenderer.h"
 #include "View/Autosaver.h"
 #include "View/CachingLogger.h"
+#include "View/Console.h"
 #include "View/MapDocument.h"
 #include "View/MapView3D.h"
 
@@ -42,14 +43,16 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_mapRenderer(NULL),
         m_autosaver(NULL),
-        m_autosaveTimer(NULL) {}
+        m_autosaveTimer(NULL),
+        m_console(NULL) {}
         
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, "MapFrame"),
         m_frameManager(NULL),
         m_mapRenderer(NULL),
         m_autosaver(NULL),
-        m_autosaveTimer(NULL) {
+        m_autosaveTimer(NULL),
+        m_console(NULL) {
             Create(frameManager, document);
         }
         
@@ -110,7 +113,7 @@ namespace TrenchBroom {
         }
 
         Logger* MapFrame::logger() const {
-            return NULL;
+            return m_console;
         }
         
         bool MapFrame::newDocument(Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
@@ -189,7 +192,15 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
-            MapView3D* mapView = new MapView3D(this, logger(), m_document, *m_mapRenderer);
+            m_console = new Console(this);
+            MapView3D* mapView = new MapView3D(this, m_console, m_document, *m_mapRenderer);
+            
+            wxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
+            frameSizer->Add(mapView, 1, wxEXPAND);
+            frameSizer->Add(m_console, 0, wxEXPAND);
+            frameSizer->SetItemMinSize(m_console, wxSize(wxDefaultCoord, 200));
+            
+            SetSizer(frameSizer);
         }
 
         void MapFrame::bindObservers() {

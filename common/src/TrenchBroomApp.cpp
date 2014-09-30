@@ -209,6 +209,15 @@ namespace TrenchBroom {
         }
 
         void TrenchBroomApp::OnUnhandledException() {
+            handleException();
+        }
+
+        bool TrenchBroomApp::OnExceptionInMainLoop() {
+            handleException();
+            return false;
+        }
+
+        void TrenchBroomApp::handleException() {
             try {
                 throw;
             } catch (std::exception& e) {

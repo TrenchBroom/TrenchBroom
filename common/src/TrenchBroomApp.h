@@ -59,7 +59,12 @@ namespace TrenchBroom {
             void openAbout();
 
             bool OnInit();
+            
+            bool OnExceptionInMainLoop();
             void OnUnhandledException();
+        private:
+            void handleException();
+        public:
             
             int OnRun();
             

@@ -23,13 +23,17 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderContext::RenderContext(const Camera& camera, ShaderManager& shaderManager, const View::MapViewConfig& mapViewConfig, const bool showGrid, const size_t gridSize) :
+        RenderContext::RenderContext(const Camera& camera, ShaderManager& shaderManager) :
         m_camera(camera),
         m_transformation(m_camera.projectionMatrix(), m_camera.viewMatrix()),
         m_shaderManager(shaderManager),
-        m_mapViewConfig(mapViewConfig),
-        m_showGrid(showGrid),
-        m_gridSize(gridSize),
+        m_showTextures(true),
+        m_showFaces(true),
+        m_showEdges(true),
+        m_shadeFaces(true),
+        m_useFog(false),
+        m_showGrid(true),
+        m_gridSize(4),
         m_hideSelection(false),
         m_tintSelection(true),
         m_showSelectionGuide(ShowSelectionGuide_Hide),
@@ -47,24 +51,24 @@ namespace TrenchBroom {
             return m_shaderManager;
         }
 
+        bool RenderContext::showTextures() const {
+            return m_showTextures;
+        }
+        
         bool RenderContext::showFaces() const {
-            return m_mapViewConfig.showFaces();
+            return m_showFaces;
         }
         
         bool RenderContext::showEdges() const {
-            return m_mapViewConfig.showEdges();
+            return m_showEdges;
         }
 
-        bool RenderContext::showTextures() const {
-            return m_mapViewConfig.showTextures();
-        }
-        
         bool RenderContext::shadeFaces() const {
-            return m_mapViewConfig.shadeFaces();
+            return m_shadeFaces;
         }
         
         bool RenderContext::useFog() const {
-            return m_mapViewConfig.useFog();
+            return m_useFog;
         }
        
         bool RenderContext::showGrid() const {
@@ -110,6 +114,14 @@ namespace TrenchBroom {
         void RenderContext::setForceHideSelectionGuide() {
             setShowSelectionGuide(ShowSelectionGuide_ForceHide);
         }
+
+        bool RenderContext::showMouseIndicators() const {
+            return m_showMouseIndicators;
+        }
+        
+        void RenderContext::setHideMouseIndicators() {
+            m_showMouseIndicators = false;
+        }
         
         void RenderContext::setShowSelectionGuide(const ShowSelectionGuide showSelectionGuide) {
             switch (showSelectionGuide) {
@@ -129,14 +141,6 @@ namespace TrenchBroom {
                         m_showSelectionGuide = ShowSelectionGuide_ForceHide;
                     break;
             }
-        }
-
-        bool RenderContext::showMouseIndicators() const {
-            return m_showMouseIndicators;
-        }
-        
-        void RenderContext::setHideMouseIndicators() {
-            m_showMouseIndicators = false;
         }
     }
 }

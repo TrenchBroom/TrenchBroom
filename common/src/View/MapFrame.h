@@ -42,6 +42,7 @@ namespace TrenchBroom {
     
     namespace View {
         class Autosaver;
+        class Console;
         class FrameManager;
         class MapView3D;
         
@@ -54,6 +55,8 @@ namespace TrenchBroom {
             
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
+            
+            Console* m_console;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);

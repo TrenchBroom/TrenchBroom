@@ -40,29 +40,38 @@ namespace TrenchBroom {
                 ShowSelectionGuide_ForceHide
             } ShowSelectionGuide;
             
+            // general context for any rendering view
             const Camera& m_camera;
             Transformation m_transformation;
             ShaderManager& m_shaderManager;
+
+            // settings for any map rendering view
+            bool m_showTextures;
+            bool m_showFaces;
+            bool m_showEdges;
             
-            const View::MapViewConfig& m_mapViewConfig;
+            bool m_shadeFaces;
+            bool m_useFog;
             
             bool m_showGrid;
             size_t m_gridSize;
+            
             bool m_hideSelection;
             bool m_tintSelection;
+            
             ShowSelectionGuide m_showSelectionGuide;
             bool m_showMouseIndicators;
         public:
-            RenderContext(const Camera& camera, ShaderManager& shaderManager, const View::MapViewConfig& mapViewConfig, const bool showGrid, const size_t gridSize);
+            RenderContext(const Camera& camera, ShaderManager& shaderManager);
             
             const Camera& camera() const;
             Transformation& transformation();
             ShaderManager& shaderManager();
             
+            bool showTextures() const;
             bool showFaces() const;
             bool showEdges() const;
             
-            bool showTextures() const;
             bool shadeFaces() const;
             bool useFog() const;
             

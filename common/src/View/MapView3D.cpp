@@ -19,6 +19,7 @@
 
 #include "MapView3D.h"
 #include "Logger.h"
+#include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "View/MapDocument.h"
 
@@ -52,6 +53,8 @@ namespace TrenchBroom {
         }
         
         void MapView3D::doUpdateViewport(const int x, const int y, const int width, const int height) {
+            const Renderer::Camera::Viewport viewport(x, y, width, height);
+            m_camera.setViewport(viewport);
         }
         
         bool MapView3D::doShouldRenderFocusIndicator() const {
@@ -60,7 +63,7 @@ namespace TrenchBroom {
         
         void MapView3D::doRender() {
             MapDocumentSPtr document = lock(m_document);
-            Renderer::RenderContext renderContext(m_camera, contextHolder()->shaderManager(), document->mapViewConfig(), grid.visible(), grid.actualSize());
+            Renderer::RenderContext renderContext(m_camera, contextHolder()->shaderManager());
 
             setupGL(renderContext);
             renderMap(renderContext);
@@ -74,6 +77,10 @@ namespace TrenchBroom {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glShadeModel(GL_SMOOTH);
+        }
+
+        void MapView3D::renderMap(Renderer::RenderContext& renderContext) {
+            m_renderer.render(renderContext);
         }
 
         const GLContextHolder::GLAttribs& MapView3D::attribs() {

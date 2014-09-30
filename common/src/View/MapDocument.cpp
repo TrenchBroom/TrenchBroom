@@ -44,6 +44,8 @@ namespace TrenchBroom {
         m_entityDefinitionManager(),
         m_entityModelManager(this),
         m_textureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)),
+        m_editorContext(),
+        m_mapViewConfig(m_editorContext),
         m_path(DefaultDocumentName),
         m_modificationCount(0) {}
 

@@ -220,7 +220,9 @@ namespace TrenchBroom {
             Model::BrushFace::Mesh::MeshSize transparentMeshSize;
             size_t edgeVertexCount;
         public:
-            CountRenderDataSize(const FilterWrapper& i_filter) : filter(i_filter) {}
+            CountRenderDataSize(const FilterWrapper& i_filter) :
+            filter(i_filter),
+            edgeVertexCount(0) {}
         private:
             void doVisit(const Model::World* world) {}
             void doVisit(const Model::Layer* layer) {}
