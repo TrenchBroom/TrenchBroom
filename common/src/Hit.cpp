@@ -76,28 +76,13 @@ namespace TrenchBroom {
         m_hits.insert(pos, hit);
     }
     
-    /*
-    const Hit& Hits::findFirst(const Hit::HitType type, const bool ignoreOccluders) const {
-        return findFirst(TypedHitFilter(type), ignoreOccluders);
-    }
-
-    const Hit& Hits::findFirst(const Hit::HitType type, const Hit::HitType ignoreOccluderMask) const {
-        return findFirst(TypedHitFilter(type), ignoreOccluderMask);
-    }
-
-    const Hit& Hits::findFirst(const Hit::HitType type, const HitFilter& ignoreFilter) const {
-        return findFirst(TypedHitFilter(type), ignoreFilter);
-    }
-
-    const Hit& Hits::findFirst(const HitFilter& filter, const bool ignoreOccluders) const {
-        return findFirst(filter, ignoreOccluders ? Hit::AnyType : Hit::NoType);
+    HitFilter::~HitFilter() {}
+    
+    bool HitFilter::operator()(const Hit& hit) const {
+        return doMatches(hit);
     }
     
-    const Hit& Hits::findFirst(const HitFilter& filter, const Hit::HitType ignoreOccluderMask) const {
-        return findFirst(filter, TypedHitFilter(ignoreOccluderMask));
-    }
-
-    const Hit& Hits::findFirst(const HitFilter& filter, const HitFilter& ignoreFilter) const {
+    const Hit& Hits::findFirst(const HitFilter& include, const HitFilter& exclude) const {
         if (!m_hits.empty()) {
             List::const_iterator it = m_hits.begin();
             List::const_iterator end = m_hits.end();
@@ -110,12 +95,12 @@ namespace TrenchBroom {
                 const FloatType distance = it->distance();
                 do {
                     const Hit& hit = *it;
-                    if (filter.matches(hit)) {
+                    if (include(hit)) {
                         if (hit.error() < bestMatchError) {
                             bestMatch = it;
                             bestMatchError = hit.error();
                         }
-                    } else if (!ignoreFilter.matches(hit)) {
+                    } else if (!exclude(hit)) {
                         bestOccluderError = std::min(bestOccluderError, hit.error());
                         containsOccluder = true;
                     }
@@ -128,26 +113,19 @@ namespace TrenchBroom {
         }
         return Hit::NoHit;
     }
-     */
     
     const Hits::List& Hits::all() const {
         return m_hits;
     }
-
-    /*
-    Hits::List Hits::filter(const Hit::HitType type) const {
-        return filter(TypedHitFilter(type));
-    }
-
-    Hits::List Hits::filter(const HitFilter& filter) const {
+    
+    Hits::List Hits::filter(const HitFilter& include) const {
         Hits::List result;
         Hits::List::const_iterator it, end;
         for (it = m_hits.begin(), end = m_hits.end(); it != end; ++it) {
             const Hit& hit = *it;
-            if (filter.matches(hit))
+            if (include(hit))
                 result.push_back(hit);
         }
         return result;
     }
-     */
 }
