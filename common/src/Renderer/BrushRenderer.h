@@ -28,9 +28,6 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushEdge;
-    }
-    
-    namespace View {
         class EditorContext;
     }
     
@@ -50,11 +47,11 @@ namespace TrenchBroom {
             
             class DefaultFilter : public Filter {
             private:
-                const View::EditorContext& m_context;
+                const Model::EditorContext& m_context;
             public:
                 virtual ~DefaultFilter();
             protected:
-                DefaultFilter(const View::EditorContext& context);
+                DefaultFilter(const Model::EditorContext& context);
                 
                 bool visible(const Model::Brush* brush) const;
                 bool visible(const Model::BrushFace* face) const;

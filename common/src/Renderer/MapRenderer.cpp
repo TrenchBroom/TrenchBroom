@@ -26,6 +26,7 @@
 #include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/ObjectRenderer.h"
+#include "Renderer/RenderUtils.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -46,6 +47,7 @@ namespace TrenchBroom {
 
         void MapRenderer::render(RenderContext& renderContext) {
             commitPendingChanges(renderContext);
+            setupGL(renderContext);
             renderLayers(renderContext);
             renderSelection(renderContext);
             renderEntityLinks(renderContext);
@@ -56,6 +58,19 @@ namespace TrenchBroom {
             document->commitPendingAssets();
         }
 
+        void MapRenderer::setupGL(RenderContext& renderContext) {
+            glDisableClientState(GL_VERTEX_ARRAY);
+            glDisableClientState(GL_COLOR_ARRAY);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glDisable(GL_TEXTURE_2D);
+            glFrontFace(GL_CW);
+            glEnable(GL_CULL_FACE);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL);
+            glResetEdgeOffset();
+        }
+        
         void MapRenderer::renderLayers(RenderContext& renderContext) {
             RendererMap::iterator it, end;
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
@@ -94,7 +109,7 @@ namespace TrenchBroom {
         
         class UnselectedBrushRendererFilter : public BrushRenderer::DefaultFilter {
         public:
-            UnselectedBrushRendererFilter(const View::EditorContext& context) :
+            UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
             bool operator()(const Model::Brush* brush) const {
@@ -112,10 +127,10 @@ namespace TrenchBroom {
 
         class MapRenderer::AddLayer : public Model::NodeVisitor {
         private:
-            const View::EditorContext& m_editorContext;
+            const Model::EditorContext& m_editorContext;
             RendererMap& m_layerRenderers;
         public:
-            AddLayer(const View::EditorContext& editorContext, RendererMap& layerRenderers) :
+            AddLayer(const Model::EditorContext& editorContext, RendererMap& layerRenderers) :
             m_editorContext(editorContext),
             m_layerRenderers(layerRenderers) {}
         private:
@@ -133,7 +148,7 @@ namespace TrenchBroom {
         
         void MapRenderer::documentWasNewedOrLoaded(View::MapDocument* document) {
             Model::World* world = document->world();
-            const View::EditorContext& editorContext = document->editorContext();
+            const Model::EditorContext& editorContext = document->editorContext();
             AddLayer visitor(editorContext, m_layerRenderers);
             world->acceptAndRecurse(visitor);
         }

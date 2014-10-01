@@ -69,13 +69,7 @@ namespace TrenchBroom {
         }
     };
 
-    class HitFilter {
-    public:
-        virtual ~HitFilter();
-        bool operator()(const Hit& hit) const;
-    private:
-        virtual bool doMatches(const Hit& hit) const = 0;
-    };
+    class HitFilter;
     
     class Hits {
     public:
@@ -88,7 +82,14 @@ namespace TrenchBroom {
         
         void addHit(const Hit& hit);
         
+        const Hit& findFirst(Hit::HitType type,       bool ignoreOccluders) const;
+        const Hit& findFirst(Hit::HitType type,       Hit::HitType ignoreOccluderMask) const;
+        const Hit& findFirst(Hit::HitType type,       const HitFilter& ignoreFilter) const;
+        
+        const Hit& findFirst(const HitFilter& filter, bool ignoreOccluders) const;
+        const Hit& findFirst(const HitFilter& filter, Hit::HitType ignoreOccluderMask) const;
         const Hit& findFirst(const HitFilter& include, const HitFilter& exclude) const;
+
         const List& all() const;
         List filter(const HitFilter& include) const;
     };

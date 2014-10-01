@@ -18,6 +18,7 @@
  */
 
 #include "Hit.h"
+#include "HitFilter.h"
 
 #include <algorithm>
 #include <limits>
@@ -76,10 +77,24 @@ namespace TrenchBroom {
         m_hits.insert(pos, hit);
     }
     
-    HitFilter::~HitFilter() {}
+    const Hit& Hits::findFirst(const Hit::HitType type, const bool ignoreOccluders) const {
+        return findFirst(TypedHitFilter(type), ignoreOccluders);
+    }
     
-    bool HitFilter::operator()(const Hit& hit) const {
-        return doMatches(hit);
+    const Hit& Hits::findFirst(const Hit::HitType type, const Hit::HitType ignoreOccluderMask) const {
+        return findFirst(TypedHitFilter(type), ignoreOccluderMask);
+    }
+    
+    const Hit& Hits::findFirst(const Hit::HitType type, const HitFilter& ignoreFilter) const {
+        return findFirst(TypedHitFilter(type), ignoreFilter);
+    }
+    
+    const Hit& Hits::findFirst(const HitFilter& filter, const bool ignoreOccluders) const {
+        return findFirst(filter, ignoreOccluders ? Hit::AnyType : Hit::NoType);
+    }
+    
+    const Hit& Hits::findFirst(const HitFilter& filter, const Hit::HitType ignoreOccluderMask) const {
+        return findFirst(filter, TypedHitFilter(ignoreOccluderMask));
     }
     
     const Hit& Hits::findFirst(const HitFilter& include, const HitFilter& exclude) const {

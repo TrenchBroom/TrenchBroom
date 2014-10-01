@@ -20,7 +20,6 @@
 #ifndef __TrenchBroom__EditorContext__
 #define __TrenchBroom__EditorContext__
 
-#include "Notifier.h"
 #include "Model/BrushContentType.h"
 #include "Model/ModelTypes.h"
 
@@ -29,7 +28,7 @@ namespace TrenchBroom {
         class EntityDefinition;
     }
 
-    namespace View {
+    namespace Model {
         class EditorContext {
         public:
             typedef enum {
@@ -44,8 +43,6 @@ namespace TrenchBroom {
             Model::BrushContentType::FlagType m_hiddenBrushContentTypes;
             Bitset m_hiddenEntityDefinitions;
             EntityLinkMode m_entityLinkMode;
-        public:
-            Notifier0 didChangeNotifier;
         public:
             EditorContext();
             

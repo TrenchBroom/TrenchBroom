@@ -21,6 +21,7 @@
 #include "Logger.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
+#include "View/CameraTool.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -30,8 +31,16 @@ namespace TrenchBroom {
         m_logger(logger),
         m_document(document),
         m_renderer(renderer),
-        m_camera() {}
+        m_camera(),
+        m_toolBox(this, this),
+        m_cameraTool(NULL) {
+            createTools();
+        }
 
+        MapView3D::~MapView3D() {
+            destroyTools();
+        }
+        
         void MapView3D::doInitializeGL() {
             const wxString vendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
             const wxString renderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
@@ -81,6 +90,25 @@ namespace TrenchBroom {
 
         void MapView3D::renderMap(Renderer::RenderContext& renderContext) {
             m_renderer.render(renderContext);
+        }
+
+        Ray3 MapView3D::doGetPickRay(const int x, const int y) const {
+            return m_camera.pickRay(x, y);
+        }
+        
+        Hits MapView3D::doPick(const Ray3& pickRay) const {
+            return Hits();
+        }
+        
+        void MapView3D::doShowPopupMenu() {
+        }
+
+        void MapView3D::createTools() {
+            m_cameraTool = new CameraTool(m_document, m_camera);
+            m_toolBox.addTool(m_cameraTool);
+        }
+        
+        void MapView3D::destroyTools() {
         }
 
         const GLContextHolder::GLAttribs& MapView3D::attribs() {

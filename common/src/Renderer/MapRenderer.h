@@ -47,6 +47,7 @@ namespace TrenchBroom {
             void render(RenderContext& renderContext);
         private:
             void commitPendingChanges(RenderContext& renderContext);
+            void setupGL(RenderContext& renderContext);
             void renderLayers(RenderContext& renderContext);
             void renderSelection(RenderContext& renderContext);
             void renderEntityLinks(RenderContext& renderContext);

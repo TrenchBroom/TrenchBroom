@@ -41,10 +41,10 @@ namespace TrenchBroom {
         MapDocument::MapDocument() :
         m_worldBounds(DefaultWorldBounds),
         m_world(NULL),
+        m_editorContext(),
         m_entityDefinitionManager(),
         m_entityModelManager(this),
         m_textureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)),
-        m_editorContext(),
         m_mapViewConfig(m_editorContext),
         m_path(DefaultDocumentName),
         m_modificationCount(0) {}
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             return m_world;
         }
 
-        const View::EditorContext& MapDocument::editorContext() const {
+        const Model::EditorContext& MapDocument::editorContext() const {
             return m_editorContext;
         }
 

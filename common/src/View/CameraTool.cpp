@@ -24,6 +24,7 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
+#include "Model/ModelHitFilters.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "Renderer/Camera.h"
@@ -33,7 +34,7 @@
 namespace TrenchBroom {
     namespace View {
         CameraTool::CameraTool(MapDocumentWPtr document, Renderer::Camera& camera) :
-        ToolImpl(document, controller),
+        ToolImpl(document),
         m_camera(camera),
         m_orbit(false) {}
         
@@ -73,7 +74,7 @@ namespace TrenchBroom {
 
         bool CameraTool::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
-                const Hit& hit = Model::findFirstHit(inputState.hits(), Model::Brush::BrushHit | Model::Entity::EntityHit, document()->filter(), true);
+                const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit | Model::Entity::EntityHit, document()->editorContext(), true);
                 if (hit.isMatch()) {
                     m_orbit = true;
                     m_orbitCenter = hit.hitPoint();

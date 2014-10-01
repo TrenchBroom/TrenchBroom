@@ -23,6 +23,7 @@
 #include "Renderer/PerspectiveCamera.h"
 #include "View/GLContextHolder.h"
 #include "View/RenderView.h"
+#include "View/ToolBox.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -34,15 +35,20 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class CameraTool;
         
-        class MapView3D : public RenderView {
+        class MapView3D : public RenderView, public ToolBoxHelper {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
             Renderer::MapRenderer& m_renderer;
             Renderer::PerspectiveCamera m_camera;
+            
+            ToolBox m_toolBox;
+            CameraTool* m_cameraTool;
         public:
             MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, Renderer::MapRenderer& renderer);
+            ~MapView3D();
         private: // implement RenderView
             void doInitializeGL();
             void doUpdateViewport(int x, int y, int width, int height);
@@ -50,6 +56,13 @@ namespace TrenchBroom {
             void doRender();
             void setupGL(Renderer::RenderContext& renderContext);
             void renderMap(Renderer::RenderContext& renderContext);
+        private: // implement ToolBoxHelper
+            Ray3 doGetPickRay(int x, int y) const;
+            Hits doPick(const Ray3& pickRay) const;
+            void doShowPopupMenu();
+        private: // Tool related methods
+            void createTools();
+            void destroyTools();
         private:
             static const GLContextHolder::GLAttribs& attribs();
             static int depthBits();

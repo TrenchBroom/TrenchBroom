@@ -30,7 +30,7 @@
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
-    namespace View {
+    namespace Model {
         EditorContext::EditorContext() :
         m_showPointEntities(true),
         m_showBrushes(true),
@@ -45,7 +45,6 @@ namespace TrenchBroom {
             if (showPointEntities == m_showPointEntities)
                 return;
             m_showPointEntities = showPointEntities;
-            didChangeNotifier();
         }
         
         bool EditorContext::showBrushes() const {
@@ -56,7 +55,6 @@ namespace TrenchBroom {
             if (showBrushes == m_showBrushes)
                 return;
             m_showBrushes = showBrushes;
-            didChangeNotifier();
         }
         
         Model::BrushContentType::FlagType EditorContext::hiddenBrushContentTypes() const {
@@ -67,7 +65,6 @@ namespace TrenchBroom {
             if (brushContentTypes == m_hiddenBrushContentTypes)
                 return;
             m_hiddenBrushContentTypes = brushContentTypes;
-            didChangeNotifier();
         }
         
         bool EditorContext::entityDefinitionHidden(const Assets::EntityDefinition* definition) const {
@@ -80,7 +77,6 @@ namespace TrenchBroom {
             if (definition == NULL || entityDefinitionHidden(definition) == hidden)
                 return;
             m_hiddenEntityDefinitions[definition->index()] = hidden;
-            didChangeNotifier();
         }
         
         EditorContext::EntityLinkMode EditorContext::entityLinkMode() const {
@@ -91,7 +87,6 @@ namespace TrenchBroom {
             if (entityLinkMode == m_entityLinkMode)
                 return;
             m_entityLinkMode = entityLinkMode;
-            didChangeNotifier();
         }
 
         class NodeVisible : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {

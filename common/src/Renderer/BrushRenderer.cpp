@@ -26,18 +26,18 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushVertex.h"
+#include "Model/EditorContext.h"
 #include "Model/NodeVisitor.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/VertexSpec.h"
-#include "View/EditorContext.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         BrushRenderer::Filter::~Filter() {}
         
         BrushRenderer::DefaultFilter::~DefaultFilter() {}
-        BrushRenderer::DefaultFilter::DefaultFilter(const View::EditorContext& context) : m_context(context) {}
+        BrushRenderer::DefaultFilter::DefaultFilter(const Model::EditorContext& context) : m_context(context) {}
 
         bool BrushRenderer::DefaultFilter::visible(const Model::Brush* brush) const { return m_context.visible(brush); }
         bool BrushRenderer::DefaultFilter::visible(const Model::BrushFace* face) const { return m_context.visible(face); }

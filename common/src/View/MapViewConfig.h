@@ -23,9 +23,11 @@
 #include "Notifier.h"
 
 namespace TrenchBroom {
-    namespace View {
+    namespace Model {
         class EditorContext;
+    }
 
+    namespace View {
         class MapViewConfig {
         public:
             typedef enum {
@@ -34,7 +36,7 @@ namespace TrenchBroom {
                 FaceRenderMode_Skip
             } FaceRenderMode;
         private:
-            const EditorContext& m_editorContext;
+            const Model::EditorContext& m_editorContext;
             
             bool m_showEntityClassnames;
             bool m_showPointEntityModels;
@@ -47,7 +49,7 @@ namespace TrenchBroom {
         public:
             Notifier0 renderConfigDidChangeNotifier;
         public:
-            MapViewConfig(const EditorContext& editorContext);
+            MapViewConfig(const Model::EditorContext& editorContext);
             
             bool showEntityClassnames() const;
             void setShowEntityClassnames(bool showEntityClassnames);

@@ -19,11 +19,11 @@
 
 #include "MapViewConfig.h"
 
-#include "View/EditorContext.h"
+#include "Model/EditorContext.h"
 
 namespace TrenchBroom {
     namespace View {
-        MapViewConfig::MapViewConfig(const View::EditorContext& editorContext) :
+        MapViewConfig::MapViewConfig(const Model::EditorContext& editorContext) :
         m_editorContext(editorContext),
         m_showEntityClassnames(true),
         m_showPointEntityModels(true),
