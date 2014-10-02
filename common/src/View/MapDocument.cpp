@@ -98,17 +98,26 @@ namespace TrenchBroom {
         }
         
         void MapDocument::saveDocument() {
-            documentWasSavedNotifier(this);
+            doSaveDocument(m_path);
         }
         
         void MapDocument::saveDocumentAs(const IO::Path& path) {
-            documentWasSavedNotifier(this);
+            doSaveDocument(path);
         }
 
         void MapDocument::saveDocumentTo(const IO::Path& path) {
-            
+            assert(m_game != NULL);
+            assert(m_world != NULL);
+            m_game->writeMap(m_world, path);
         }
 
+        void MapDocument::doSaveDocument(const IO::Path& path) {
+            saveDocumentTo(path);
+            clearModificationCount();
+            setPath(path);
+            documentWasSavedNotifier(this);
+        }
+        
         void MapDocument::clearDocument() {
             if (m_world != NULL) {
                 documentWillBeClearedNotifier(this);
@@ -122,11 +131,41 @@ namespace TrenchBroom {
             }
         }
 
+        bool MapDocument::canLoadPointFile() const {
+            if (m_path.isEmpty())
+                return false;
+            const IO::Path pointFilePath = Model::PointFile::pointFilePath(m_path);
+            return pointFilePath.isAbsolute() && IO::Disk::fileExists(pointFilePath);
+        }
+        
+        void MapDocument::loadPointFile() {
+            assert(canLoadPointFile());
+            m_pointFile = Model::PointFile(m_path);
+            info("Loaded point file");
+            pointFileWasLoadedNotifier();
+        }
+        
+        bool MapDocument::isPointFileLoaded() const {
+            return !m_pointFile.empty();
+        }
+        
+        void MapDocument::unloadPointFile() {
+            assert(isPointFileLoaded());
+            m_pointFile = Model::PointFile();
+            info("Unloaded point file");
+            pointFileWasUnloadedNotifier();
+        }
+
         void MapDocument::commitPendingAssets() {
             m_textureManager.commitChanges();
         }
 
         void MapDocument::clearSelection() {
+        }
+
+        Hits MapDocument::pick(const Ray3& pickRay) const {
+            assert(m_world != NULL);
+            return m_world->pick(pickRay);
         }
 
         void MapDocument::createWorld(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {

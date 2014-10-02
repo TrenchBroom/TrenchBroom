@@ -22,8 +22,10 @@
 #include "TrenchBroomApp.h"
 #include "IO/DiskFileSystem.h"
 #include "Renderer/MapRenderer.h"
+#include "View/ActionManager.h"
 #include "View/Autosaver.h"
 #include "View/CachingLogger.h"
+#include "View/CommandIds.h"
 #include "View/Console.h"
 #include "View/MapDocument.h"
 #include "View/MapView3D.h"
@@ -73,6 +75,7 @@ namespace TrenchBroom {
             m_autosaveTimer->Start(1000);
             
             bindObservers();
+            bindEvents();
         }
         
         MapFrame::~MapFrame() {
@@ -193,10 +196,10 @@ namespace TrenchBroom {
 
         void MapFrame::createGui() {
             m_console = new Console(this);
-            MapView3D* mapView = new MapView3D(this, m_console, m_document, *m_mapRenderer);
+            m_mapView3D = new MapView3D(this, m_console, m_document, *m_mapRenderer);
             
             wxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
-            frameSizer->Add(mapView, 1, wxEXPAND);
+            frameSizer->Add(m_mapView3D, 1, wxEXPAND);
             frameSizer->Add(m_console, 0, wxEXPAND);
             frameSizer->SetItemMinSize(m_console, wxSize(wxDefaultCoord, 200));
             
@@ -226,8 +229,231 @@ namespace TrenchBroom {
             View::TrenchBroomApp::instance().updateRecentDocument(m_document->path());
         }
 
+        void MapFrame::bindEvents() {
+            Bind(wxEVT_MENU, &MapFrame::OnFileSave, this, wxID_SAVE);
+            Bind(wxEVT_MENU, &MapFrame::OnFileSaveAs, this, wxID_SAVEAS);
+            Bind(wxEVT_MENU, &MapFrame::OnFileLoadPointFile, this, CommandIds::Menu::FileLoadPointFile);
+            Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPointFile, this, CommandIds::Menu::FileUnloadPointFile);
+            Bind(wxEVT_MENU, &MapFrame::OnFileClose, this, wxID_CLOSE);
+
+            Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
+            Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
+            Bind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
+        }
+        
+        void MapFrame::OnFileSave(wxCommandEvent& event) {
+            saveDocument();
+        }
+        
+        void MapFrame::OnFileSaveAs(wxCommandEvent& event) {
+            saveDocumentAs();
+        }
+        
+        void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
+            lock(m_document)->loadPointFile();
+        }
+        
+        void MapFrame::OnFileUnloadPointFile(wxCommandEvent& event) {
+            lock(m_document)->unloadPointFile();
+        }
+        
+        void MapFrame::OnFileClose(wxCommandEvent& event) {
+            Close();
+        }
+
+        void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            // const ActionManager& actionManager = ActionManager::instance();
+            
+            switch (event.GetId()) {
+                case wxID_OPEN:
+                case wxID_SAVE:
+                case wxID_SAVEAS:
+                case wxID_CLOSE:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::FileLoadPointFile:
+                    event.Enable(document->canLoadPointFile());
+                    break;
+                case CommandIds::Menu::FileUnloadPointFile:
+                    event.Enable(document->isPointFileLoaded());
+                    break;
+                /*
+                case wxID_UNDO: {
+                    const Action* action = actionManager.findMenuAction(wxID_UNDO);
+                    assert(action != NULL);
+                    if (controller->hasLastCommand()) {
+                        event.Enable(true);
+                        event.SetText(action->menuItemString(controller->lastCommandName()));
+                    } else {
+                        event.Enable(false);
+                        event.SetText(action->menuItemString());
+                    }
+                    break;
+                }
+                case wxID_REDO: {
+                    const Action* action = actionManager.findMenuAction(wxID_REDO);
+                    if (controller->hasNextCommand()) {
+                        event.Enable(true);
+                        event.SetText(action->menuItemString(controller->nextCommandName()));
+                    } else {
+                        event.Enable(false);
+                        event.SetText(action->menuItemString());
+                    }
+                    break;
+                }
+                case CommandIds::Menu::EditRepeat:
+                case CommandIds::Menu::EditClearRepeat:
+                    event.Enable(true);
+                    break;
+                case wxID_CUT:
+                case wxID_COPY:
+                    event.Enable(document->hasSelectedObjects() ||
+                                 document->selectedFaces().size() == 1);
+                    break;
+                case wxID_PASTE:
+                case CommandIds::Menu::EditPasteAtOriginalPosition: {
+                    OpenClipboard openClipboard;
+                    event.Enable(wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT));
+                    break;
+                }
+                case CommandIds::Menu::EditSelectAll:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditSelectSiblings:
+                    event.Enable(document->hasSelectedBrushes());
+                    break;
+                case CommandIds::Menu::EditSelectTouching:
+                case CommandIds::Menu::EditSelectInside:
+                    event.Enable(!document->hasSelectedEntities() &&
+                                 document->selectedBrushes().size() == 1);
+                    break;
+                case CommandIds::Menu::EditSelectByFilePosition:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditSelectNone:
+                    event.Enable(document->hasSelection());
+                    break;
+                case CommandIds::Menu::EditSnapVertices:
+                    event.Enable(m_mapView->canSnapVertices());
+                    break;
+                case CommandIds::Menu::EditReplaceTexture:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditToggleTextureLock:
+                    event.Enable(true);
+                    event.Check(document->textureLock());
+                    break;
+                case CommandIds::Menu::ViewToggleShowGrid:
+                    event.Enable(true);
+                    event.Check(document->grid().visible());
+                    break;
+                case CommandIds::Menu::ViewToggleSnapToGrid:
+                    event.Enable(true);
+                    event.Check(document->grid().snap());
+                    break;
+                case CommandIds::Menu::ViewIncGridSize:
+                    event.Enable(document->grid().size() < Grid::MaxSize);
+                    break;
+                case CommandIds::Menu::ViewDecGridSize:
+                    event.Enable(document->grid().size() > 0);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize1:
+                    event.Enable(true);
+                    event.Check(document->grid().size() == 0);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize2:
+                    event.Enable(true);
+                    event.Check(document->grid().size() == 1);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize4:
+                    event.Enable(true);
+                    event.Check(document->grid().size() == 2);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize8:
+                    event.Enable(true);
+                    event.Check(document->grid().size() == 3);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize16:
+                    event.Enable(true);
+                    event.Check(document->grid().size() == 4);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize32:
+                    event.Enable(true);
+                    event.Check(document->grid().size() == 5);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize64:
+                    event.Enable(true);
+                    event.Check(document->grid().size() == 6);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize128:
+                    event.Enable(true);
+                    event.Check(document->grid().size() == 7);
+                    break;
+                case CommandIds::Menu::ViewSetGridSize256:
+                    event.Enable(true);
+                    event.Check(document->grid().size() == 8);
+                    break;
+                case CommandIds::Menu::ViewMoveCameraToNextPoint:
+                    event.Enable(document->isPointFileLoaded() && document->pointFile().hasNextPoint());
+                    break;
+                case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
+                    event.Enable(document->isPointFileLoaded() && document->pointFile().hasPreviousPoint());
+                    break;
+                case CommandIds::Menu::ViewCenterCameraOnSelection:
+                    event.Enable(document->hasSelectedObjects());
+                    break;
+                case CommandIds::Menu::ViewMoveCameraToPosition:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::ViewToggleCameraFlyMode:
+                    event.Enable(true);
+                    event.Check(m_mapView->cameraFlyModeActive());
+                    break;
+                case CommandIds::Menu::ViewSwitchToMapInspector:
+                case CommandIds::Menu::ViewSwitchToEntityInspector:
+                case CommandIds::Menu::ViewSwitchToFaceInspector:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::FileOpenRecent:
+                    event.Enable(true);
+                    break;
+                 */
+                default:
+                    if (event.GetId() >= CommandIds::Menu::FileRecentDocuments &&
+                        event.GetId() < CommandIds::Menu::FileRecentDocuments + 10)
+                        event.Enable(true);
+                    else
+                        event.Enable(false);
+                    break;
+            }
+        }
+
+        void MapFrame::OnClose(wxCloseEvent& event) {
+            if (!IsBeingDeleted()) {
+                assert(m_frameManager != NULL);
+                if (event.CanVeto() && !confirmOrDiscardChanges())
+                    event.Veto();
+                else
+                    m_frameManager->removeAndDestroyFrame(this);
+            }
+        }
+        
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
             m_autosaver->triggerAutosave(logger());
         }
+
+        void MapFrame::OnIdleSetFocusToMapView(wxIdleEvent& event) {
+            // we use this method to ensure that the 3D view gets the focus after startup has settled down
+            if (m_mapView3D != NULL) {
+                if (!m_mapView3D->HasFocus()) {
+                    m_mapView3D->SetFocus();
+                } else {
+                    Unbind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
+                    m_mapView3D->Refresh();
+                }
+            }
+        }
+        
     }
 }

@@ -23,6 +23,7 @@
 #include "Notifier.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Hit.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
@@ -31,6 +32,7 @@
 #include "Model/EditorContext.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
+#include "Model/PointFile.h"
 #include "View/CachingLogger.h"
 #include "View/MapViewConfig.h"
 #include "View/ViewTypes.h"
@@ -49,6 +51,7 @@ namespace TrenchBroom {
             BBox3 m_worldBounds;
             Model::GamePtr m_game;
             Model::World* m_world;
+            Model::PointFile m_pointFile;
             Model::EditorContext m_editorContext;
             
             Assets::EntityDefinitionManager m_entityDefinitionManager;
@@ -65,6 +68,9 @@ namespace TrenchBroom {
             Notifier1<MapDocument*> documentWasNewedNotifier;
             Notifier1<MapDocument*> documentWasLoadedNotifier;
             Notifier1<MapDocument*> documentWasSavedNotifier;
+            
+            Notifier0 pointFileWasLoadedNotifier;
+            Notifier0 pointFileWasUnloadedNotifier;
         private:
             MapDocument();
         public:
@@ -84,11 +90,19 @@ namespace TrenchBroom {
             void saveDocumentAs(const IO::Path& path);
             void saveDocumentTo(const IO::Path& path);
         private:
+            void doSaveDocument(const IO::Path& path);
             void clearDocument();
+        public: // point file management
+            bool canLoadPointFile() const;
+            void loadPointFile();
+            bool isPointFileLoaded() const;
+            void unloadPointFile();
         public: // asset state management
             void commitPendingAssets();
         private: // selection
             void clearSelection();
+        public: // picking
+            Hits pick(const Ray3& pickRay) const;
         private: // world management
             void createWorld(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);

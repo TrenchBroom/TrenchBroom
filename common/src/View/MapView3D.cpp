@@ -97,7 +97,8 @@ namespace TrenchBroom {
         }
         
         Hits MapView3D::doPick(const Ray3& pickRay) const {
-            return Hits();
+            MapDocumentSPtr document = lock(m_document);
+            return document->pick(pickRay);
         }
         
         void MapView3D::doShowPopupMenu() {

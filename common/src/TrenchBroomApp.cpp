@@ -26,6 +26,7 @@
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
 #include "View/AboutFrame.h"
+#include "View/ActionManager.h"
 #include "View/CommandIds.h"
 #include "View/ExecutableEvent.h"
 #include "View/GameDialog.h"
@@ -69,7 +70,6 @@ namespace TrenchBroom {
             
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
-            /*
             const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar();
             wxMenuBar::MacSetCommonMenuBar(menuBar);
@@ -94,16 +94,13 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_PREFERENCES);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_ABOUT);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
-             */
 #endif
-            /*
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileNew, this, wxID_NEW);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
             
-            Bind(EVT_EXECUTABLE_EVENT, EVT_EXECUTABLE_EVENT_HANDLER(TrenchBroomApp::OnExecutableEvent), this);
-             */
+            Bind(EXECUTABLE_EVENT, &TrenchBroomApp::OnExecutableEvent, this);
             
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
         }

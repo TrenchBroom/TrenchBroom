@@ -56,6 +56,7 @@ namespace TrenchBroom {
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
             
+            MapView3D* m_mapView3D;
             Console* m_console;
         public:
             MapFrame();
@@ -84,8 +85,20 @@ namespace TrenchBroom {
             
             void documentWasCleared(View::MapDocument* document);
             void documentDidChange(View::MapDocument* document);
-        private: // event handlers
+        private: // menu event handlers
+            void bindEvents();
+            
+            void OnFileSave(wxCommandEvent& event);
+            void OnFileSaveAs(wxCommandEvent& event);
+            void OnFileLoadPointFile(wxCommandEvent& event);
+            void OnFileUnloadPointFile(wxCommandEvent& event);
+            void OnFileClose(wxCommandEvent& event);
+
+            void OnUpdateUI(wxUpdateUIEvent& event);
+        private: // other event handlers
+            void OnClose(wxCloseEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);
+            void OnIdleSetFocusToMapView(wxIdleEvent& event);
         };
     }
 }

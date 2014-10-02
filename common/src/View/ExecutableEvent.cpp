@@ -19,7 +19,7 @@
 
 #include "ExecutableEvent.h"
 
-DEFINE_EVENT_TYPE(EVT_EXECUTABLE_EVENT)
+wxDEFINE_EVENT(EXECUTABLE_EVENT, TrenchBroom::View::ExecutableEvent);
 
 namespace TrenchBroom {
     namespace View {
@@ -35,11 +35,11 @@ namespace TrenchBroom {
         m_executable(NULL) {}
         
         ExecutableEvent::ExecutableEvent(Executable* executable) :
-        wxEvent(wxID_ANY, EVT_EXECUTABLE_EVENT),
+        wxEvent(wxID_ANY, EXECUTABLE_EVENT),
         m_executable(executable) {}
         
         ExecutableEvent::ExecutableEvent(Executable::Ptr sharedExecutable) :
-        wxEvent(wxID_ANY, EVT_EXECUTABLE_EVENT),
+        wxEvent(wxID_ANY, EXECUTABLE_EVENT),
         m_sharedExecutable(sharedExecutable),
         m_executable(NULL) {}
         

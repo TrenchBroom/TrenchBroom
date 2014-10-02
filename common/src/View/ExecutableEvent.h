@@ -52,25 +52,9 @@ namespace TrenchBroom {
     }
 }
 
+typedef void (wxEvtHandler::*ExecutableEventFunction)(TrenchBroom::View::ExecutableEvent &);
 
-#define WXDLLIMPEXP_CUSTOM_EVENT
-
-BEGIN_DECLARE_EVENT_TYPES()
-DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_CUSTOM_EVENT, EVT_EXECUTABLE_EVENT, 1)
-END_DECLARE_EVENT_TYPES()
-
-typedef void (wxEvtHandler::*executableEventFunction)(TrenchBroom::View::ExecutableEvent&);
-
-#define EVT_EXECUTABLE_EVENT_HANDLER(func) \
-    (wxObjectEventFunction) \
-    (executableEventFunction) & func
-
-#define EVT_EXECUTABLE(func) \
-    DECLARE_EVENT_TABLE_ENTRY( EVT_EXECUTABLE_EVENT, \
-        id, \
-        wxID_ANY, \
-        (wxObjectEventFunction) \
-        (executableEventFunction) & func, \
-        (wxObject *) NULL),
+wxDECLARE_EVENT(EXECUTABLE_EVENT, TrenchBroom::View::ExecutableEvent);
+#define ExecutableEventHandler(func) wxEVENT_HANDLER_CAST(ExecutableEventFunction, func)
 
 #endif /* defined(__TrenchBroom__ExecutableEvent__) */
