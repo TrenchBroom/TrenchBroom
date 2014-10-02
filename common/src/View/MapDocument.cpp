@@ -65,6 +65,10 @@ namespace TrenchBroom {
             return m_editorContext;
         }
 
+        Assets::EntityModelManager& MapDocument::entityModelManager() {
+            return m_entityModelManager;
+        }
+
         const View::MapViewConfig& MapDocument::mapViewConfig() const {
             return m_mapViewConfig;
         }

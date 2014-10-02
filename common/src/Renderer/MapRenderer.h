@@ -28,6 +28,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class FontManager;
         class RenderContext;
         
         class MapRenderer {
@@ -35,6 +36,7 @@ namespace TrenchBroom {
             typedef std::map<Model::Layer*, ObjectRenderer*> RendererMap;
             
             View::MapDocumentWPtr m_document;
+            
             RendererMap m_layerRenderers;
             
             class AddLayer;

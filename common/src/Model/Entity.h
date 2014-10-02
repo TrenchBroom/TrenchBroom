@@ -42,7 +42,8 @@ namespace TrenchBroom {
             Entity();
             
             bool pointEntity() const;
-            const Vec3 origin() const;
+            Vec3 origin() const;
+            Quat3 rotation() const;
         private:
             void setOrigin(const Vec3& origin);
             void applyRotation(const Mat4x4& transformation);

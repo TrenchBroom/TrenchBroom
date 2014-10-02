@@ -23,15 +23,20 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderContext::RenderContext(const Camera& camera, ShaderManager& shaderManager) :
+        RenderContext::RenderContext(const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager) :
         m_camera(camera),
         m_transformation(m_camera.projectionMatrix(), m_camera.viewMatrix()),
+        m_fontManager(fontManager),
         m_shaderManager(shaderManager),
         m_showTextures(true),
         m_showFaces(true),
         m_showEdges(true),
         m_shadeFaces(true),
-        m_useFog(false),
+        m_showPointEntities(true),
+        m_showPointEntityModels(true),
+        m_showEntityClassnames(true),
+        m_showEntityBounds(true),
+        m_showFog(false),
         m_showGrid(true),
         m_gridSize(4),
         m_hideSelection(false),
@@ -45,6 +50,10 @@ namespace TrenchBroom {
 
         Transformation& RenderContext::transformation() {
             return m_transformation;
+        }
+
+        FontManager& RenderContext::fontManager() {
+            return m_fontManager;
         }
 
         ShaderManager& RenderContext::shaderManager() {
@@ -67,8 +76,24 @@ namespace TrenchBroom {
             return m_shadeFaces;
         }
         
-        bool RenderContext::useFog() const {
-            return m_useFog;
+        bool RenderContext::showPointEntities() const {
+            return m_showPointEntities;
+        }
+        
+        bool RenderContext::showPointEntityModels() const {
+            return m_showPointEntityModels;
+        }
+        
+        bool RenderContext::showEntityClassnames() const {
+            return m_showEntityClassnames;
+        }
+
+        bool RenderContext::showEntityBounds() const {
+            return m_showEntityBounds;
+        }
+
+        bool RenderContext::showFog() const {
+            return m_showFog;
         }
        
         bool RenderContext::showGrid() const {

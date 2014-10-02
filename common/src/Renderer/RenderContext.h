@@ -29,6 +29,7 @@ namespace TrenchBroom {
 
     namespace Renderer {
         class Camera;
+        class FontManager;
         class ShaderManager;
         
         class RenderContext {
@@ -43,15 +44,21 @@ namespace TrenchBroom {
             // general context for any rendering view
             const Camera& m_camera;
             Transformation m_transformation;
+            FontManager& m_fontManager;
             ShaderManager& m_shaderManager;
 
             // settings for any map rendering view
             bool m_showTextures;
             bool m_showFaces;
             bool m_showEdges;
-            
             bool m_shadeFaces;
-            bool m_useFog;
+            
+            bool m_showPointEntities;
+            bool m_showPointEntityModels;
+            bool m_showEntityClassnames;
+            bool m_showEntityBounds;
+            
+            bool m_showFog;
             
             bool m_showGrid;
             size_t m_gridSize;
@@ -62,18 +69,24 @@ namespace TrenchBroom {
             ShowSelectionGuide m_showSelectionGuide;
             bool m_showMouseIndicators;
         public:
-            RenderContext(const Camera& camera, ShaderManager& shaderManager);
+            RenderContext(const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager);
             
             const Camera& camera() const;
             Transformation& transformation();
+            FontManager& fontManager();
             ShaderManager& shaderManager();
             
             bool showTextures() const;
             bool showFaces() const;
             bool showEdges() const;
-            
             bool shadeFaces() const;
-            bool useFog() const;
+            
+            bool showPointEntities() const;
+            bool showPointEntityModels() const;
+            bool showEntityClassnames() const;
+            bool showEntityBounds() const;
+            
+            bool showFog() const;
             
             bool showGrid() const;
             size_t gridSize() const;

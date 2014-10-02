@@ -40,8 +40,12 @@ namespace TrenchBroom {
             return definition()->type() == Assets::EntityDefinition::Type_PointEntity;
         }
         
-        const Vec3 Entity::origin() const {
+        Vec3 Entity::origin() const {
             return Vec3::parse(attribute(AttributeNames::Origin));
+        }
+
+        Quat3 Entity::rotation() const {
+            return EntityRotationPolicy::getRotation(this);
         }
 
         void Entity::setOrigin(const Vec3& origin) {

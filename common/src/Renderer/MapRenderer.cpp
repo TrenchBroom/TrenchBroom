@@ -127,16 +127,19 @@ namespace TrenchBroom {
 
         class MapRenderer::AddLayer : public Model::NodeVisitor {
         private:
+            Assets::EntityModelManager& m_modelManager;
             const Model::EditorContext& m_editorContext;
+            
             RendererMap& m_layerRenderers;
         public:
-            AddLayer(const Model::EditorContext& editorContext, RendererMap& layerRenderers) :
+            AddLayer(Assets::EntityModelManager& modelManager, const Model::EditorContext& editorContext, RendererMap& layerRenderers) :
+            m_modelManager(modelManager),
             m_editorContext(editorContext),
             m_layerRenderers(layerRenderers) {}
         private:
             void doVisit(Model::World* world)   {}
             void doVisit(Model::Layer* layer)   {
-                ObjectRenderer* renderer = new ObjectRenderer(UnselectedBrushRendererFilter(m_editorContext));
+                ObjectRenderer* renderer = new ObjectRenderer(m_modelManager, m_editorContext, UnselectedBrushRendererFilter(m_editorContext));
                 MapUtils::insertOrFail(m_layerRenderers, layer, renderer);
                 renderer->addObjects(layer->children());
                 stopRecursion(); // don't visit my children
@@ -148,8 +151,9 @@ namespace TrenchBroom {
         
         void MapRenderer::documentWasNewedOrLoaded(View::MapDocument* document) {
             Model::World* world = document->world();
+            Assets::EntityModelManager& modelManager = document->entityModelManager();
             const Model::EditorContext& editorContext = document->editorContext();
-            AddLayer visitor(editorContext, m_layerRenderers);
+            AddLayer visitor(modelManager, editorContext, m_layerRenderers);
             world->acceptAndRecurse(visitor);
         }
     }

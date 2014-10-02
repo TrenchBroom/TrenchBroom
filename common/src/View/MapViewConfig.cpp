@@ -30,7 +30,7 @@ namespace TrenchBroom {
         m_showEntityBounds(true),
         m_faceRenderMode(FaceRenderMode_Textured),
         m_shadeFaces(true),
-        m_useFog(false),
+        m_showFog(false),
         m_showEdges(true) {}
 
         bool MapViewConfig::showEntityClassnames() const {
@@ -105,14 +105,14 @@ namespace TrenchBroom {
         }
         
         
-        bool MapViewConfig::useFog() const {
-            return m_useFog;
+        bool MapViewConfig::showFog() const {
+            return m_showFog;
         }
         
-        void MapViewConfig::setUseFog(const bool useFog) {
-            if (useFog == m_useFog)
+        void MapViewConfig::setShowFog(const bool showFog) {
+            if (showFog == m_showFog)
                 return;
-            m_useFog = useFog;
+            m_showFog = showFog;
             renderConfigDidChangeNotifier();
         }
         

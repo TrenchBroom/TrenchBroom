@@ -104,7 +104,7 @@ namespace TrenchBroom {
             
             const bool applyTexture = context.showTextures();
             const bool shadeFaces = context.shadeFaces();
-            const bool useFog = context.useFog();
+            const bool showFog = context.showFog();
 
             glEnable(GL_TEXTURE_2D);
             glActiveTexture(GL_TEXTURE0);
@@ -120,7 +120,7 @@ namespace TrenchBroom {
             shader.set("GrayScale", grayscale);
             shader.set("CameraPosition", context.camera().position());
             shader.set("ShadeFaces", shadeFaces);
-            shader.set("UseFog", useFog);
+            shader.set("ShowFog", showFog);
             
             shader.set("Alpha", alpha);
             if (alpha < 1.0f) {

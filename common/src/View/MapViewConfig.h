@@ -44,7 +44,7 @@ namespace TrenchBroom {
             
             FaceRenderMode m_faceRenderMode;
             bool m_shadeFaces;
-            bool m_useFog;
+            bool m_showFog;
             bool m_showEdges;
         public:
             Notifier0 renderConfigDidChangeNotifier;
@@ -72,8 +72,8 @@ namespace TrenchBroom {
             bool shadeFaces() const;
             void setShadeFaces(bool shadeFaces);
             
-            bool useFog() const;
-            void setUseFog(bool useFog);
+            bool showFog() const;
+            void setShowFog(bool showFog);
             
             bool showEdges() const;
             void setShowEdges(bool showEdges);

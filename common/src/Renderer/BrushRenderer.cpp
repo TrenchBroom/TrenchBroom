@@ -70,12 +70,6 @@ namespace TrenchBroom {
             invalidate();
         }
 
-        void BrushRenderer::setBrushes(const Model::BrushList& brushes) {
-            m_brushes = brushes;
-            invalidate();
-        }
-
-
         void BrushRenderer::invalidate() {
             m_valid = false;
         }

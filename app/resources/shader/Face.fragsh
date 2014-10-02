@@ -30,7 +30,7 @@ uniform bool RenderGrid;
 uniform float GridSize;
 uniform float GridAlpha;
 uniform bool ShadeFaces;
-uniform bool UseFog;
+uniform bool ShowFog;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
@@ -101,7 +101,7 @@ void main() {
 		gl_FragColor.rgb *= angleDim;
 	}
 
-	if (UseFog) {
+	if (ShowFog) {
         float distance = length(viewVector);
 
 		// TODO: make view options

@@ -72,7 +72,7 @@ namespace TrenchBroom {
         
         void MapView3D::doRender() {
             MapDocumentSPtr document = lock(m_document);
-            Renderer::RenderContext renderContext(m_camera, contextHolder()->shaderManager());
+            Renderer::RenderContext renderContext(m_camera, contextHolder()->fontManager(), contextHolder()->shaderManager());
 
             setupGL(renderContext);
             renderMap(renderContext);

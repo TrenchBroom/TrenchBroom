@@ -23,17 +23,25 @@
 #include "Color.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/BrushRenderer.h"
+#include "Renderer/EntityRenderer.h"
 
 namespace TrenchBroom {
+    namespace Assets {
+        class EntityModelManager;
+    }
+    
     namespace Renderer {
+        class FontManager;
         class RenderContext;
         
         class ObjectRenderer {
         private:
+            EntityRenderer m_entityRenderer;
             BrushRenderer m_brushRenderer;
         public:
             template <typename BrushFilterT>
-            ObjectRenderer(const BrushFilterT& brushFilter) :
+            ObjectRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext, const BrushFilterT& brushFilter) :
+            m_entityRenderer(entityModelManager, editorContext),
             m_brushRenderer(brushFilter) {}
         public: // object management
             void addObjects(const Model::NodeList& nodes);

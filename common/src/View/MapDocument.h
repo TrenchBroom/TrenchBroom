@@ -73,6 +73,9 @@ namespace TrenchBroom {
         public: // accessors and such
             Model::World* world() const;
             const Model::EditorContext& editorContext() const;
+            
+            Assets::EntityModelManager& entityModelManager();
+            
             const View::MapViewConfig& mapViewConfig() const;
         public: // new, load, save document
             void newDocument(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);

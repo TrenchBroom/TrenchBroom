@@ -50,6 +50,7 @@ namespace TrenchBroom {
         class Layer;
         class Group;
         class Entity;
+        typedef std::set<Entity*> EntitySet;
         
         class Brush;
         typedef std::vector<Brush*> BrushList;
