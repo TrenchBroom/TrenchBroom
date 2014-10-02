@@ -52,17 +52,27 @@ namespace TrenchBroom {
 
             void clear();
         public: // configuration
+            void setOverlayTextColor(const Color& overlayTextColor);
+            void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
+            
             void setTint(bool tint);
             void setTintColor(const Color& tintColor);
             
-            void setRenderOccludedEdges(bool renderOccludedEdges);
+            void setShowOccludedObjects(bool showOccludedObjects);
+            void setOccludedEdgeColor(const Color& occludedEdgeColor);
+
             void setTransparencyAlpha(float transparencyAlpha);
+            
+            void setShowEntityAngles(bool showAngles);
+            void setEntityAngleColor(const Color& color);
+
+            void setOverrideEntityBoundsColor(bool overrideEntityBoundsColor);
+            void setEntityBoundsColor(const Color& color);
             
             void setBrushFaceColor(const Color& brushFaceColor);
             void setBrushEdgeColor(const Color& brushEdgeColor);
-            void setOccludedBrushEdgeColor(const Color& occludedEdgeColor);
             
-            void setShowHiddenBrushes(bool showHiddenBrushes);
+            void setShowHiddenObjects(bool showHiddenObjects);
         public: // rendering
             void render(RenderContext& renderContext);
         private:

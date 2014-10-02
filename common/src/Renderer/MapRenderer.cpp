@@ -20,6 +20,8 @@
 #include "MapRenderer.h"
 
 #include "CollectionUtils.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/Layer.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
@@ -76,10 +78,22 @@ namespace TrenchBroom {
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
                 // const Model::Layer* layer = it->first;
                 ObjectRenderer* renderer = it->second;
+                setupRenderer(renderContext, renderer);
                 renderer->render(renderContext);
             }
         }
         
+        void MapRenderer::setupRenderer(RenderContext& renderContext, ObjectRenderer* renderer) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+
+            renderer->setOverlayTextColor(prefs.get(Preferences::InfoOverlayTextColor));
+            renderer->setOverlayBackgroundColor(prefs.get(Preferences::InfoOverlayBackgroundColor));
+            renderer->setTint(false);
+            renderer->setTransparencyAlpha(prefs.get(Preferences::TransparentFaceAlpha));
+            renderer->setBrushFaceColor(prefs.get(Preferences::FaceColor));
+            renderer->setBrushEdgeColor(prefs.get(Preferences::EdgeColor));
+        }
+
         void MapRenderer::renderSelection(RenderContext& renderContext) {
         }
         

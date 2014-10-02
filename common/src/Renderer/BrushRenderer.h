@@ -72,12 +72,12 @@ namespace TrenchBroom {
             EdgeRenderer m_edgeRenderer;
             bool m_valid;
             
-            bool m_grayscale;
-            bool m_tintFaces;
-            bool m_renderOccludedEdges;
             Color m_faceColor;
             Color m_edgeColor;
+            bool m_grayscale;
+            bool m_tint;
             Color m_tintColor;
+            bool m_showOccludedEdges;
             Color m_occludedEdgeColor;
             float m_transparencyAlpha;
             
@@ -88,8 +88,8 @@ namespace TrenchBroom {
             m_filter(new FilterT(filter)),
             m_valid(false),
             m_grayscale(false),
-            m_tintFaces(false),
-            m_renderOccludedEdges(false),
+            m_tint(false),
+            m_showOccludedEdges(false),
             m_transparencyAlpha(1.0f),
             m_showHiddenBrushes(false) {}
             
@@ -117,29 +117,14 @@ namespace TrenchBroom {
             
             void render(RenderContext& renderContext);
 
-            const Color& faceColor() const;
             void setFaceColor(const Color& faceColor);
-            
-            const Color& edgeColor() const;
             void setEdgeColor(const Color& edgeColor);
-
-            bool grayscale() const;
-            void setGrayscale(const bool grayscale);
-            
-            bool tintFaces() const;
-            void setTintFaces(bool tintFaces);
-            const Color& tintColor() const;
+            void setGrayscale(bool grayscale);
+            void setTint(bool tint);
             void setTintColor(const Color& tintColor);
-            
-            bool renderOccludedEdges() const;
-            void setRenderOccludedEdges(bool renderOccludedEdges);
-            const Color& occludedEdgeColor() const;
+            void setShowOccludedEdges(bool renderOccludedEdges);
             void setOccludedEdgeColor(const Color& occludedEdgeColor);
-            
-            float transparencyAlpha() const;
             void setTransparencyAlpha(float transparencyAlpha);
-            
-            bool showHiddenBrushes() const;
             void setShowHiddenBrushes(bool showHiddenBrushes);
         private:
             void renderFaces(RenderContext& renderContext);

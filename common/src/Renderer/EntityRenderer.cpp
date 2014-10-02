@@ -85,13 +85,13 @@ namespace TrenchBroom {
         m_classnameRenderer(ClassnameRenderer(font())),
         m_modelRenderer(entityModelManager, m_editorContext),
         m_boundsValid(false),
+        m_showOccludedOverlays(false),
+        m_tint(false),
         m_overrideBoundsColor(false),
-        m_renderOccludedBounds(false),
-        m_applyTinting(false),
+        m_showOccludedBounds(false),
+        m_showAngles(false),
         m_showHiddenEntities(false),
-        m_showClassnamesOnTop(false),
-        m_vbo(0xFFF),
-        m_renderAngles(false) {
+        m_vbo(0xFFF) {
             m_classnameRenderer.setFadeDistance(500.0f);
         }
         
@@ -160,106 +160,53 @@ namespace TrenchBroom {
             
             renderAngles(context);
         }
-
-        const Color& EntityRenderer::overlayTextColor() const {
-            return m_overlayTextColor;
-        }
         
         void EntityRenderer::setOverlayTextColor(const Color& overlayTextColor) {
             m_overlayTextColor = overlayTextColor;
-        }
-        
-        const Color& EntityRenderer::overlayBackgroundColor() const {
-            return m_overlayBackgroundColor;
         }
         
         void EntityRenderer::setOverlayBackgroundColor(const Color& overlayBackgroundColor) {
             m_overlayBackgroundColor = overlayBackgroundColor;
         }
         
-        bool EntityRenderer::overrideBoundsColor() const {
-            return m_overrideBoundsColor;
+        void EntityRenderer::setShowOccludedOverlays(const bool showOccludedOverlays) {
+            m_showOccludedOverlays = showOccludedOverlays;
         }
         
-        void EntityRenderer::setOverrideBoundsColor(const bool overrideBoundsColor) {
-            m_overrideBoundsColor = overrideBoundsColor;
-        }
-        
-        const Color& EntityRenderer::boundsColor() const {
-            return m_boundsColor;
-        }
-        
-        void EntityRenderer::setBoundsColor(const Color& boundsColor) {
-            m_boundsColor = boundsColor;
-        }
-        
-        bool EntityRenderer::renderOccludedBounds() const {
-            return m_renderOccludedBounds;
-        }
-        
-        void EntityRenderer::setRenderOccludedBounds(const bool renderOccludedBounds) {
-            if (m_renderOccludedBounds == renderOccludedBounds)
-                return;
-            m_renderOccludedBounds = renderOccludedBounds;
-            invalidateBounds();
-        }
-        
-        const Color& EntityRenderer::occludedBoundsColor() const {
-            return m_occludedBoundsColor;
-        }
-        
-        void EntityRenderer::setOccludedBoundsColor(const Color& occludedBoundsColor) {
-            if (m_occludedBoundsColor == occludedBoundsColor)
-                return;
-            m_occludedBoundsColor = occludedBoundsColor;
-            invalidateBounds();
-        }
-
-        bool EntityRenderer::applyTinting() const {
-            return m_applyTinting;
-        }
-        
-        void EntityRenderer::setApplyTinting(const bool applyTinting) {
-            m_applyTinting = applyTinting;
-        }
-        
-        const Color& EntityRenderer::tintColor() const {
-            return m_tintColor;
+        void EntityRenderer::setTint(const bool tint) {
+            m_tint = tint;
         }
         
         void EntityRenderer::setTintColor(const Color& tintColor) {
             m_tintColor = tintColor;
         }
         
-        bool EntityRenderer::renderAngles() const {
-            return m_renderAngles;
+        void EntityRenderer::setOverrideBoundsColor(const bool overrideBoundsColor) {
+            m_overrideBoundsColor = overrideBoundsColor;
         }
         
-        void EntityRenderer::setRenderAngles(const bool renderAngles) {
-            m_renderAngles = renderAngles;
+        void EntityRenderer::setBoundsColor(const Color& boundsColor) {
+            m_boundsColor = boundsColor;
         }
         
-        void EntityRenderer::setAngleColor(const Color& color) {
-            m_angleColor = color;
+        void EntityRenderer::setShowOccludedBounds(const bool showOccludedBounds) {
+            m_showOccludedBounds = showOccludedBounds;
         }
-
-        bool EntityRenderer::showHiddenEntities() const {
-            return m_showHiddenEntities;
+        
+        void EntityRenderer::setOccludedBoundsColor(const Color& occludedBoundsColor) {
+            m_occludedBoundsColor = occludedBoundsColor;
+        }
+        
+        void EntityRenderer::setShowAngles(const bool showAngles) {
+            m_showAngles = showAngles;
+        }
+        
+        void EntityRenderer::setAngleColor(const Color& angleColor) {
+            m_angleColor = angleColor;
         }
         
         void EntityRenderer::setShowHiddenEntities(const bool showHiddenEntities) {
-            if (showHiddenEntities == m_showHiddenEntities)
-                return;
             m_showHiddenEntities = showHiddenEntities;
-            invalidate();
-        }
-
-        bool EntityRenderer::showClassnamesOnTop() const {
-            return m_showClassnamesOnTop;
-        }
-        
-        void EntityRenderer::setShowClassnamesOnTop(const bool showClassnamesOnTop) {
-            m_showClassnamesOnTop = showClassnamesOnTop;
         }
 
         void EntityRenderer::renderBounds(RenderContext& context) {
@@ -273,47 +220,47 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderWireframeBounds(RenderContext& context) {
-            if (renderOccludedBounds()) {
+            if (m_showOccludedBounds) {
                 glDisable(GL_DEPTH_TEST);
-                m_wireframeBoundsRenderer.setUseColor(overrideBoundsColor());
-                m_wireframeBoundsRenderer.setColor(occludedBoundsColor());
+                m_wireframeBoundsRenderer.setUseColor(m_overrideBoundsColor);
+                m_wireframeBoundsRenderer.setColor(m_boundsColor);
                 m_wireframeBoundsRenderer.render(context);
                 glEnable(GL_DEPTH_TEST);
             }
             
             glSetEdgeOffset(0.025f);
-            m_wireframeBoundsRenderer.setUseColor(overrideBoundsColor());
-            m_wireframeBoundsRenderer.setColor(boundsColor());
+            m_wireframeBoundsRenderer.setUseColor(m_overrideBoundsColor);
+            m_wireframeBoundsRenderer.setColor(m_boundsColor);
             m_wireframeBoundsRenderer.render(context);
             glResetEdgeOffset();
         }
         
         void EntityRenderer::renderSolidBounds(RenderContext& context) {
-            m_solidBoundsRenderer.setApplyTinting(m_applyTinting);
+            m_solidBoundsRenderer.setApplyTinting(m_tint);
             m_solidBoundsRenderer.setTintColor(m_tintColor);
             m_solidBoundsRenderer.render(context);
         }
         
         void EntityRenderer::renderClassnames(RenderContext& context) {
-            if (m_showClassnamesOnTop)
+            if (m_showOccludedOverlays)
                 glDisable(GL_DEPTH_TEST);
             EntityClassnameFilter textFilter(m_editorContext, m_showHiddenEntities);
-            EntityClassnameColorProvider colorProvider(overlayTextColor(), overlayBackgroundColor());
+            EntityClassnameColorProvider colorProvider(m_overlayTextColor, m_overlayBackgroundColor);
             m_classnameRenderer.render(context, textFilter, colorProvider,
                                        Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
-            if (m_showClassnamesOnTop)
+            if (m_showOccludedOverlays)
                 glEnable(GL_DEPTH_TEST);
         }
         
         void EntityRenderer::renderModels(RenderContext& context) {
-            m_modelRenderer.setApplyTinting(m_applyTinting);
+            m_modelRenderer.setApplyTinting(m_tint);
             m_modelRenderer.setTintColor(m_tintColor);
             m_modelRenderer.setShowHiddenEntities(m_showHiddenEntities);
             m_modelRenderer.render(context);
         }
 
         void EntityRenderer::renderAngles(RenderContext& context) {
-            if (!m_renderAngles)
+            if (!m_showAngles)
                 return;
             
             static const float maxDistance2 = 500.0f * 500.0f;
@@ -497,7 +444,7 @@ namespace TrenchBroom {
         const Color& EntityRenderer::boundsColor(const Model::Entity& entity) const {
             const Assets::EntityDefinition* definition = entity.definition();
             if (definition == NULL)
-                return boundsColor();
+                return m_boundsColor;
             return definition->color();
         }
     }

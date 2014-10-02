@@ -90,68 +90,36 @@ namespace TrenchBroom {
                 renderEdges(renderContext);
         }
         
-        bool BrushRenderer::grayscale() const {
-            return m_grayscale;
+        void BrushRenderer::setFaceColor(const Color& faceColor) {
+            m_faceColor = faceColor;
+        }
+        
+        void BrushRenderer::setEdgeColor(const Color& edgeColor) {
+            m_edgeColor = edgeColor;
         }
         
         void BrushRenderer::setGrayscale(const bool grayscale) {
             m_grayscale = grayscale;
         }
         
-        const Color& BrushRenderer::faceColor() const {
-            return m_faceColor;
+        void BrushRenderer::setTint(const bool tint) {
+            m_tint = tint;
         }
         
-        void BrushRenderer::setFaceColor(const Color& faceColor) {
-            m_faceColor = faceColor;
-        }
-        
-        const Color& BrushRenderer::edgeColor() const {
-            return m_edgeColor;
-        }
-        
-        void BrushRenderer::setEdgeColor(const Color& edgeColor) {
-            m_edgeColor = edgeColor;
-        }
-
-        bool BrushRenderer::tintFaces() const {
-            return m_tintFaces;
-        }
-        
-        void BrushRenderer::setTintFaces(const bool tintFaces) {
-            m_tintFaces = tintFaces;
-        }
-        
-        const Color& BrushRenderer::tintColor() const {
-            return m_tintColor;
-        }
-
         void BrushRenderer::setTintColor(const Color& tintColor) {
             m_tintColor = tintColor;
         }
 
-        bool BrushRenderer::renderOccludedEdges() const {
-            return m_renderOccludedEdges;
-        }
-        
-        void BrushRenderer::setRenderOccludedEdges(const bool renderOccludedEdges) {
-            m_renderOccludedEdges = renderOccludedEdges;
-        }
-        
-        const Color& BrushRenderer::occludedEdgeColor() const {
-            return m_occludedEdgeColor;
+        void BrushRenderer::setShowOccludedEdges(const bool showOccludedEdges) {
+            m_showOccludedEdges = showOccludedEdges;
         }
         
         void BrushRenderer::setOccludedEdgeColor(const Color& occludedEdgeColor) {
             m_occludedEdgeColor = occludedEdgeColor;
         }
-
-        float BrushRenderer::transparencyAlpha() const {
-            return m_transparencyAlpha;
-        }
         
-        bool BrushRenderer::showHiddenBrushes() const {
-            return m_showHiddenBrushes;
+        void BrushRenderer::setTransparencyAlpha(const float transparencyAlpha) {
+            m_transparencyAlpha = transparencyAlpha;
         }
         
         void BrushRenderer::setShowHiddenBrushes(const bool showHiddenBrushes) {
@@ -160,34 +128,30 @@ namespace TrenchBroom {
             m_showHiddenBrushes = showHiddenBrushes;
             invalidate();
         }
-        
-        void BrushRenderer::setTransparencyAlpha(const float transparencyAlpha) {
-            m_transparencyAlpha = transparencyAlpha;
-        }
 
         void BrushRenderer::renderFaces(RenderContext& renderContext) {
             FaceRenderer::Config config;
-            config.grayscale = grayscale();
-            config.tinted = tintFaces();
-            config.tintColor = tintColor();
+            config.grayscale = m_grayscale;
+            config.tinted = m_tint;
+            config.tintColor = m_tintColor;
             m_opaqueFaceRenderer.render(renderContext, config);
             
-            config.alpha = transparencyAlpha();
+            config.alpha = m_transparencyAlpha;
             m_transparentFaceRenderer.render(renderContext, config);
         }
         
         void BrushRenderer::renderEdges(RenderContext& renderContext) {
-            if (renderOccludedEdges()) {
+            if (m_showOccludedEdges) {
                 glDisable(GL_DEPTH_TEST);
                 m_edgeRenderer.setUseColor(true);
-                m_edgeRenderer.setColor(occludedEdgeColor());
+                m_edgeRenderer.setColor(m_occludedEdgeColor);
                 m_edgeRenderer.render(renderContext);
                 glEnable(GL_DEPTH_TEST);
             }
             
             glSetEdgeOffset(0.02f);
             m_edgeRenderer.setUseColor(true);
-            m_edgeRenderer.setColor(edgeColor());
+            m_edgeRenderer.setColor(m_edgeColor);
             m_edgeRenderer.render(renderContext);
             glResetEdgeOffset();
         }
@@ -315,8 +279,8 @@ namespace TrenchBroom {
             BuildRenderData builder(wrapper, counter.opaqueMeshSize, counter.transparentMeshSize, counter.edgeVertexCount);
             Model::Node::accept(m_brushes.begin(), m_brushes.end(), builder);
             
-            m_opaqueFaceRenderer = FaceRenderer(builder.opaqueMesh, faceColor());
-            m_transparentFaceRenderer = FaceRenderer(builder.transparentMesh, faceColor());
+            m_opaqueFaceRenderer = FaceRenderer(builder.opaqueMesh, m_faceColor);
+            m_transparentFaceRenderer = FaceRenderer(builder.transparentMesh, m_faceColor);
             m_edgeRenderer = EdgeRenderer(VertexArray::swap(GL_LINES, builder.edgeVertices));
             
             m_valid = true;

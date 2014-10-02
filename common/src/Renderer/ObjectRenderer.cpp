@@ -83,23 +83,53 @@ namespace TrenchBroom {
             m_entityRenderer.clear();
         }
         
+        void ObjectRenderer::setOverlayTextColor(const Color& overlayTextColor) {
+            m_entityRenderer.setOverlayTextColor(overlayTextColor);
+        }
+    
+        void ObjectRenderer::setOverlayBackgroundColor(const Color& overlayBackgroundColor) {
+            m_entityRenderer.setOverlayBackgroundColor(overlayBackgroundColor);
+        }
+        
         void ObjectRenderer::setTint(const bool tint) {
-            m_brushRenderer.setTintFaces(tint);
-            m_entityRenderer.setApplyTinting(tint);
+            m_entityRenderer.setTint(tint);
+            m_brushRenderer.setTint(tint);
         }
         
         void ObjectRenderer::setTintColor(const Color& tintColor) {
-            m_brushRenderer.setTintColor(tintColor);
             m_entityRenderer.setTintColor(tintColor);
+            m_brushRenderer.setTintColor(tintColor);
         }
         
-        void ObjectRenderer::setRenderOccludedEdges(const bool renderOccludedEdges) {
-            m_brushRenderer.setRenderOccludedEdges(renderOccludedEdges);
-            m_entityRenderer.setRenderOccludedBounds(renderOccludedEdges);
+        void ObjectRenderer::setShowOccludedObjects(const bool showOccludedObjects) {
+            m_entityRenderer.setShowOccludedBounds(showOccludedObjects);
+            m_entityRenderer.setShowOccludedOverlays(true);
+            m_brushRenderer.setShowOccludedEdges(true);
+        }
+        
+        void ObjectRenderer::setOccludedEdgeColor(const Color& occludedEdgeColor) {
+            m_entityRenderer.setOccludedBoundsColor(occludedEdgeColor);
+            m_brushRenderer.setOccludedEdgeColor(occludedEdgeColor);
         }
         
         void ObjectRenderer::setTransparencyAlpha(const float transparencyAlpha) {
             m_brushRenderer.setTransparencyAlpha(transparencyAlpha);
+        }
+        
+        void ObjectRenderer::setShowEntityAngles(const bool showAngles) {
+            m_entityRenderer.setShowAngles(showAngles);
+        }
+        
+        void ObjectRenderer::setEntityAngleColor(const Color& color) {
+            m_entityRenderer.setAngleColor(color);
+        }
+        
+        void ObjectRenderer::setOverrideEntityBoundsColor(const bool overrideEntityBoundsColor) {
+            m_entityRenderer.setOverrideBoundsColor(overrideEntityBoundsColor);
+        }
+        
+        void ObjectRenderer::setEntityBoundsColor(const Color& color) {
+            m_entityRenderer.setBoundsColor(color);
         }
         
         void ObjectRenderer::setBrushFaceColor(const Color& brushFaceColor) {
@@ -110,12 +140,9 @@ namespace TrenchBroom {
             m_brushRenderer.setEdgeColor(brushEdgeColor);
         }
         
-        void ObjectRenderer::setOccludedBrushEdgeColor(const Color& occludedEdgeColor) {
-            m_brushRenderer.setOccludedEdgeColor(occludedEdgeColor);
-        }
-        
-        void ObjectRenderer::setShowHiddenBrushes(const bool showHiddenBrushes) {
-            m_brushRenderer.setShowHiddenBrushes(showHiddenBrushes);
+        void ObjectRenderer::setShowHiddenObjects(const bool showHiddenObjects) {
+            m_entityRenderer.setShowHiddenEntities(showHiddenObjects);
+            m_brushRenderer.setShowHiddenBrushes(showHiddenObjects);
         }
 
         void ObjectRenderer::render(RenderContext& renderContext) {

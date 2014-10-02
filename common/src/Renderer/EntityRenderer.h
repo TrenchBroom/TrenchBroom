@@ -92,19 +92,18 @@ namespace TrenchBroom {
             
             Color m_overlayTextColor;
             Color m_overlayBackgroundColor;
+            bool m_showOccludedOverlays;
+            bool m_tint;
+            Color m_tintColor;
             bool m_overrideBoundsColor;
             Color m_boundsColor;
-            bool m_renderOccludedBounds;
+            bool m_showOccludedBounds;
             Color m_occludedBoundsColor;
-            bool m_applyTinting;
-            Color m_tintColor;
-            
+            bool m_showAngles;
+            Color m_angleColor;
             bool m_showHiddenEntities;
-            bool m_showClassnamesOnTop;
             
             Vbo m_vbo;
-            bool m_renderAngles;
-            Color m_angleColor;
         public:
             EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
             ~EntityRenderer();
@@ -141,35 +140,23 @@ namespace TrenchBroom {
             
             void render(RenderContext& context);
             
-            const Color& overlayTextColor() const;
             void setOverlayTextColor(const Color& overlayTextColor);
-            const Color& overlayBackgroundColor() const;
             void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
+            void setShowOccludedOverlays(bool showOccludedOverlays);
             
-            bool overrideBoundsColor() const;
-            void setOverrideBoundsColor(const bool overrideBoundsColor);
-            const Color& boundsColor() const;
-            void setBoundsColor(const Color& boundsColor);
-            
-            bool renderOccludedBounds() const;
-            void setRenderOccludedBounds(const bool renderOccludedBounds);
-            const Color& occludedBoundsColor() const;
-            void setOccludedBoundsColor(const Color& occludedBoundsColor);
-            
-            bool applyTinting() const;
-            void setApplyTinting(const bool applyTinting);
-            const Color& tintColor() const;
+            void setTint(bool tint);
             void setTintColor(const Color& tintColor);
             
-            bool renderAngles() const;
-            void setRenderAngles(bool renderAngles);
-            void setAngleColor(const Color& color);
+            void setOverrideBoundsColor(bool overrideBoundsColor);
+            void setBoundsColor(const Color& boundsColor);
             
-            bool showHiddenEntities() const;
+            void setShowOccludedBounds(bool showOccludedBounds);
+            void setOccludedBoundsColor(const Color& occludedBoundsColor);
+            
+            void setShowAngles(bool showAngles);
+            void setAngleColor(const Color& angleColor);
+            
             void setShowHiddenEntities(bool showHiddenEntities);
-            
-            bool showClassnamesOnTop() const;
-            void setShowClassnamesOnTop(bool showClassnamesOnTop);
         private:
             void renderBounds(RenderContext& context);
             void renderWireframeBounds(RenderContext& context);
