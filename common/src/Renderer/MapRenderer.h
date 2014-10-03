@@ -29,6 +29,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         class FontManager;
+        class RenderBatch;
         class RenderContext;
         
         class MapRenderer {
@@ -46,14 +47,12 @@ namespace TrenchBroom {
         private:
             void clear();
         public: // rendering
-            void render(RenderContext& renderContext);
+            void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:
-            void commitPendingChanges(RenderContext& renderContext);
-            void setupGL(RenderContext& renderContext);
-            void renderLayers(RenderContext& renderContext);
-            void setupRenderer(RenderContext& renderContext, ObjectRenderer* renderer);
-            void renderSelection(RenderContext& renderContext);
-            void renderEntityLinks(RenderContext& renderContext);
+            void commitPendingChanges();
+            void setupGL();
+            void renderLayers(RenderContext& renderContext, RenderBatch& renderBatch);
+            void setupRenderer(ObjectRenderer* renderer);
         private: // notification
             void bindObservers();
             void unbindObservers();

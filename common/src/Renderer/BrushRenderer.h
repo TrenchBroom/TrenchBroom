@@ -32,6 +32,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class RenderBatch;
         class RenderContext;
         class Vbo;
         
@@ -115,8 +116,6 @@ namespace TrenchBroom {
             void invalidate();
             void clear();
             
-            void render(RenderContext& renderContext);
-
             void setFaceColor(const Color& faceColor);
             void setEdgeColor(const Color& edgeColor);
             void setGrayscale(bool grayscale);
@@ -126,9 +125,11 @@ namespace TrenchBroom {
             void setOccludedEdgeColor(const Color& occludedEdgeColor);
             void setTransparencyAlpha(float transparencyAlpha);
             void setShowHiddenBrushes(bool showHiddenBrushes);
+        public: // rendering
+            void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:
-            void renderFaces(RenderContext& renderContext);
-            void renderEdges(RenderContext& renderContext);
+            void renderFaces(RenderBatch& renderBatch);
+            void renderEdges(RenderBatch& renderBatch);
             void validate();
         };
     }

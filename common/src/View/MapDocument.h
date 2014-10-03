@@ -25,24 +25,26 @@
 #include "VecMath.h"
 #include "Hit.h"
 #include "Assets/AssetTypes.h"
-#include "Assets/EntityDefinitionManager.h"
-#include "Assets/EntityModelManager.h"
-#include "Assets/TextureManager.h"
 #include "IO/Path.h"
-#include "Model/EditorContext.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
-#include "Model/PointFile.h"
 #include "View/CachingLogger.h"
-#include "View/MapViewConfig.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
+    namespace Assets {
+        class EntityDefinitionManager;
+        class EntityModelManager;
+        class TextureManager;
+    }
+    
+    namespace Model {
+        class EditorContext;
+        class PointFile;
     }
     
     namespace View {
+        class MapViewConfig;
         class MapDocument : public CachingLogger {
         public:
             static const BBox3 DefaultWorldBounds;
@@ -51,14 +53,14 @@ namespace TrenchBroom {
             BBox3 m_worldBounds;
             Model::GamePtr m_game;
             Model::World* m_world;
-            Model::PointFile m_pointFile;
-            Model::EditorContext m_editorContext;
+            Model::PointFile* m_pointFile;
+            Model::EditorContext* m_editorContext;
             
-            Assets::EntityDefinitionManager m_entityDefinitionManager;
-            Assets::EntityModelManager m_entityModelManager;
-            Assets::TextureManager m_textureManager;
+            Assets::EntityDefinitionManager* m_entityDefinitionManager;
+            Assets::EntityModelManager* m_entityModelManager;
+            Assets::TextureManager* m_textureManager;
             
-            View::MapViewConfig m_mapViewConfig;
+            MapViewConfig* m_mapViewConfig;
             
             IO::Path m_path;
             size_t m_modificationCount;

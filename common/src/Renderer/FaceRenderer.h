@@ -24,7 +24,7 @@
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFace.h"
 #include "Renderer/MeshRenderer.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
 #include <map>
@@ -32,22 +32,18 @@
 namespace TrenchBroom {
     namespace Renderer {
         class ActiveShader;
+        class RenderBatch;
         class RenderContext;
         class Vbo;
         
-        class FaceRenderer {
-        public:
-            struct Config {
-                float alpha;
-                bool grayscale;
-                bool tinted;
-                Color tintColor;
-                Config();
-            };
+        class FaceRenderer : public Renderable {
         private:
-            Vbo::Ptr m_vbo;
             MeshRenderer m_meshRenderer;
             Color m_faceColor;
+            bool m_grayscale;
+            bool m_tint;
+            Color m_tintColor;
+            float m_alpha;
             bool m_prepared;
         public:
             FaceRenderer();
@@ -57,10 +53,15 @@ namespace TrenchBroom {
             
             friend void swap(FaceRenderer& left, FaceRenderer& right);
 
-            void render(RenderContext& context, const Config& config);
+            void setGrayscale(bool grayscale);
+            void setTint(bool tint);
+            void setTintColor(const Color& color);
+            void setAlpha(float alpha);
+            
+            void render(RenderBatch& renderBatch);
         private:
-            void render(RenderContext& context, float alpha, bool grayscale, const Color* tintColor);
-            void prepare();
+            void doPrepare(Vbo& vbo);
+            void doRender(RenderContext& context);
         };
 
         void swap(FaceRenderer& left, FaceRenderer& right);

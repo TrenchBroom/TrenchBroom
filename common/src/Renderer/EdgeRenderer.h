@@ -21,6 +21,7 @@
 #define __TrenchBroom__EdgeRenderer__
 
 #include "Color.h"
+#include "Renderer/Renderable.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/VertexArray.h"
@@ -31,9 +32,8 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
         
-        class EdgeRenderer {
+        class EdgeRenderer : public Renderable {
         private:
-            Vbo::Ptr m_vbo;
             VertexArray m_vertexArray;
             Color m_color;
             bool m_useColor;
@@ -48,10 +48,35 @@ namespace TrenchBroom {
 
             void setUseColor(bool useColor);
             void setColor(const Color& color);
-            
-            void render(RenderContext& context);
         private:
-            void prepare();
+            void doPrepare(Vbo& vbo);
+            void doRender(RenderContext& context);
+        };
+
+        class RenderEdges : public Renderable {
+        protected:
+            EdgeRenderer& m_edgeRenderer;
+            bool m_useColor;
+            const Color& m_edgeColor;
+        public:
+            RenderEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor);
+            virtual ~RenderEdges();
+        private:
+            void doPrepare(Vbo& vbo);
+        };
+        
+        class RenderUnoccludedEdges : public RenderEdges {
+        public:
+            RenderUnoccludedEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor);
+        private:
+            void doRender(RenderContext& renderContext);
+        };
+
+        class RenderOccludedEdges : public RenderEdges {
+        public:
+            RenderOccludedEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor);
+        private:
+            void doRender(RenderContext& renderContext);
         };
     }
 }

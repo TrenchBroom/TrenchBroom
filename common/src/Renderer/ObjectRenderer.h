@@ -32,7 +32,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class FontManager;
-        class RenderContext;
+        class RenderBatch;
         
         class ObjectRenderer {
         private:
@@ -74,7 +74,7 @@ namespace TrenchBroom {
             
             void setShowHiddenObjects(bool showHiddenObjects);
         public: // rendering
-            void render(RenderContext& renderContext);
+            void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:
             ObjectRenderer(const ObjectRenderer&);
             ObjectRenderer& operator=(const ObjectRenderer&);

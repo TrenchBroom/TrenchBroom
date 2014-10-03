@@ -20,6 +20,7 @@
 #include "EdgeRenderer.h"
 
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/ShaderProgram.h"
 
@@ -30,14 +31,12 @@ namespace TrenchBroom {
         m_prepared(false) {}
         
         EdgeRenderer::EdgeRenderer(const VertexArray& vertexArray) :
-        m_vbo(new Vbo(vertexArray.size())),
         m_vertexArray(vertexArray),
         m_useColor(false),
         m_prepared(false) {}
         
         EdgeRenderer::EdgeRenderer(const EdgeRenderer& other) {
             m_vertexArray = other.m_vertexArray;
-            m_vbo = other.m_vbo;
             m_color = other.m_color;
             m_useColor = other.m_useColor;
             m_prepared = other.m_prepared;
@@ -51,7 +50,6 @@ namespace TrenchBroom {
         
         void swap(EdgeRenderer& left, EdgeRenderer& right) {
             using std::swap;
-            swap(left.m_vbo, right.m_vbo);
             swap(left.m_vertexArray, right.m_vertexArray);
             swap(left.m_color, right.m_color);
             swap(left.m_useColor, right.m_useColor);
@@ -66,15 +64,18 @@ namespace TrenchBroom {
             m_color = color;
         }
 
-        void EdgeRenderer::render(RenderContext& context) {
+        void EdgeRenderer::doPrepare(Vbo& vbo) {
+            if (!m_prepared) {
+                m_vertexArray.prepare(vbo);
+                m_prepared = true;
+            }
+        }
+        
+        void EdgeRenderer::doRender(RenderContext& context) {
+            assert(m_prepared);
             if (m_vertexArray.vertexCount() == 0)
                 return;
             
-            SetVboState setVboState(*m_vbo);
-            setVboState.active();
-            if (!m_prepared)
-                prepare();
-
             if (m_useColor) {
                 ActiveShader shader(context.shaderManager(), Shaders::VaryingPUniformCShader);
                 shader.set("Color", m_color);
@@ -84,13 +85,39 @@ namespace TrenchBroom {
                 m_vertexArray.render();
             }
         }
+
+        RenderEdges::RenderEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor) :
+        m_edgeRenderer(edgeRenderer),
+        m_useColor(useColor),
+        m_edgeColor(edgeColor) {}
         
-        void EdgeRenderer::prepare() {
-            assert(!m_prepared);
-            SetVboState setVboState(*m_vbo);
-            setVboState.mapped();
-            m_vertexArray.prepare(*m_vbo);
-            m_prepared = true;
+        RenderEdges::~RenderEdges() {}
+
+        void RenderEdges::doPrepare(Vbo& vbo) {
+            m_edgeRenderer.prepare(vbo);
+        }
+        
+        RenderUnoccludedEdges::RenderUnoccludedEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor) :
+        RenderEdges(edgeRenderer, useColor, edgeColor) {}
+
+        void RenderUnoccludedEdges::doRender(RenderContext& renderContext) {
+            glSetEdgeOffset(0.02f);
+            m_edgeRenderer.setUseColor(true);
+            m_edgeRenderer.setColor(m_edgeColor);
+            m_edgeRenderer.render(renderContext);
+            glResetEdgeOffset();
+        }
+        
+        RenderOccludedEdges::RenderOccludedEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor) :
+        RenderEdges(edgeRenderer, useColor, edgeColor) {}
+
+        void RenderOccludedEdges::doRender(RenderContext& renderContext) {
+            glDisable(GL_DEPTH_TEST);
+            m_edgeRenderer.setUseColor(true);
+            m_edgeRenderer.setColor(m_edgeColor);
+            m_edgeRenderer.render(renderContext);
+            glResetEdgeOffset();
+            glEnable(GL_DEPTH_TEST);
         }
     }
 }

@@ -21,6 +21,7 @@
 #define __TrenchBroom__RenderContext__
 
 #include "Renderer/Transformation.h"
+#include "Renderer/RenderBatch.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -30,6 +31,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class Camera;
         class FontManager;
+        class Renderable;
         class ShaderManager;
         
         class RenderContext {

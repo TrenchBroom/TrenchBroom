@@ -51,24 +51,27 @@ namespace TrenchBroom {
             }
         };
         
-        FaceRenderer::Config::Config() :
-        alpha(1.0f),
-        grayscale(false),
-        tinted(false) {}
-        
         FaceRenderer::FaceRenderer() :
+        m_grayscale(false),
+        m_tint(false),
+        m_alpha(1.0f),
         m_prepared(true) {}
         
         FaceRenderer::FaceRenderer(Model::BrushFace::Mesh& mesh, const Color& faceColor) :
-        m_vbo(new Vbo(mesh.size())),
         m_meshRenderer(mesh),
         m_faceColor(faceColor),
+        m_grayscale(false),
+        m_tint(false),
+        m_alpha(1.0f),
         m_prepared(false) {}
 
         FaceRenderer::FaceRenderer(const FaceRenderer& other) :
-        m_vbo(other.m_vbo),
         m_meshRenderer(other.m_meshRenderer),
         m_faceColor(other.m_faceColor),
+        m_grayscale(other.m_grayscale),
+        m_tint(other.m_tint),
+        m_tintColor(other.m_tintColor),
+        m_alpha(other.m_alpha),
         m_prepared(other.m_prepared) {}
         
         FaceRenderer& FaceRenderer::operator= (FaceRenderer other) {
@@ -79,24 +82,43 @@ namespace TrenchBroom {
 
         void swap(FaceRenderer& left, FaceRenderer& right)  {
             using std::swap;
-            swap(left.m_vbo, right.m_vbo);
             swap(left.m_meshRenderer, right.m_meshRenderer);
             swap(left.m_faceColor, right.m_faceColor);
             swap(left.m_prepared, right.m_prepared);
         }
 
-        void FaceRenderer::render(RenderContext& context, const Config& config) {
-            render(context, config.alpha, config.grayscale, config.tinted ? &config.tintColor : NULL);
+        void FaceRenderer::setGrayscale(const bool grayscale) {
+            m_grayscale = grayscale;
+        }
+        
+        void FaceRenderer::setTint(const bool tint) {
+            m_tint = tint;
+        }
+        
+        void FaceRenderer::setTintColor(const Color& color) {
+            m_tintColor = color;
+        }
+        
+        void FaceRenderer::setAlpha(const float alpha) {
+            m_alpha = alpha;
         }
 
-        void FaceRenderer::render(RenderContext& context, const float alpha, const bool grayscale, const Color* tintColor) {
+        void FaceRenderer::render(RenderBatch& renderBatch) {
+            renderBatch.add(this);
+        }
+
+        void FaceRenderer::doPrepare(Vbo& vbo) {
+            if (!m_prepared) {
+                m_meshRenderer.prepare(vbo);
+                m_prepared = true;
+            }
+        }
+
+        void FaceRenderer::doRender(RenderContext& context) {
+            assert(m_prepared);
+            
             if (m_meshRenderer.empty())
                 return;
-            
-            SetVboState setVboState(*m_vbo);
-            setVboState.active();
-            if (!m_prepared)
-                prepare();
             
             ShaderManager& shaderManager = context.shaderManager();
             ActiveShader shader(shaderManager, Shaders::FaceShader);
@@ -114,30 +136,22 @@ namespace TrenchBroom {
             shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
             shader.set("ApplyTexture", applyTexture);
             shader.set("Texture", 0);
-            shader.set("ApplyTinting", tintColor != NULL);
-            if (tintColor != NULL)
-                shader.set("TintColor", *tintColor);
-            shader.set("GrayScale", grayscale);
+            shader.set("ApplyTinting", m_tint);
+            if (m_tint)
+                shader.set("TintColor", m_tintColor);
+            shader.set("GrayScale", m_grayscale);
             shader.set("CameraPosition", context.camera().position());
             shader.set("ShadeFaces", shadeFaces);
             shader.set("ShowFog", showFog);
             
-            shader.set("Alpha", alpha);
-            if (alpha < 1.0f) {
+            shader.set("Alpha", m_alpha);
+            if (m_alpha < 1.0f) {
                 glDepthMask(GL_FALSE);
                 m_meshRenderer.render(SetShaderParms(shader, applyTexture, m_faceColor));
                 glDepthMask(GL_TRUE);
             } else {
                 m_meshRenderer.render(SetShaderParms(shader, applyTexture, m_faceColor));
             }
-        }
-
-        void FaceRenderer::prepare() {
-            assert(!m_prepared);
-            SetVboState setVboState(*m_vbo);
-            setVboState.mapped();
-            m_meshRenderer.prepare(*m_vbo);
-            m_prepared = true;
         }
     }
 }

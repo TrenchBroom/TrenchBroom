@@ -28,6 +28,8 @@
 #include "Renderer/Camera.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
+#include "Renderer/Renderable.h"
+#include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
@@ -193,15 +195,12 @@ namespace TrenchBroom {
 
             UnpreparedEntryMap m_unpreparedEntries;
             PreparedEntryMap m_preparedEntries;
-            
-            Vbo m_vbo;
         public:
             TextRenderer(const FontDescriptor& fontDescriptor) :
             m_fontDescriptor(fontDescriptor),
             m_fadeDistance(100.0f),
             m_hInset(4.0f),
-            m_vInset(4.0f),
-            m_vbo(0xFFFF) {}
+            m_vInset(4.0f) {}
             
             ~TextRenderer() {
                 clear();
@@ -276,7 +275,61 @@ namespace TrenchBroom {
                 m_fadeDistance = fadeDistance;
             }
             
-            void render(RenderContext& renderContext, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
+            void render(RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, ShaderConfig& textShader, ShaderConfig& backgroundShader) {
+            }
+            
+            class TextRenderable : public Renderable {
+            private:
+                TextureFont& m_font;
+                const ShaderConfig& m_textShaderConfig;
+                const ShaderConfig& m_backgroundShaderConfig;
+                
+                VertexArray m_fontArray;
+                VertexArray m_rectArray;
+            public:
+                TextRenderable(TextureFont& font,
+                               const ShaderConfig& textShaderConfig, const ShaderConfig& backgroundShaderConfig,
+                               const VertexArray& fontArray, const VertexArray& rectArray) :
+                m_font(font),
+                m_textShaderConfig(textShaderConfig),
+                m_backgroundShaderConfig(backgroundShaderConfig),
+                m_fontArray(fontArray),
+                m_rectArray(rectArray) {}
+            private:
+                void doPrepare(Vbo& vbo) {
+                    m_fontArray.prepare(vbo);
+                    m_rectArray.prepare(vbo);
+                }
+                
+                void doRender(RenderContext& renderContext) {
+                    const Camera::Viewport& viewport = renderContext.camera().viewport();
+                    const Mat4x4f projection = orthoMatrix(0.0f, 1.0f,
+                                                           static_cast<float>(viewport.x),
+                                                           static_cast<float>(viewport.height),
+                                                           static_cast<float>(viewport.width),
+                                                           static_cast<float>(viewport.y));
+                    const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
+                    
+                    ReplaceTransformation ortho(renderContext.transformation(), projection, view);
+
+                    // glDepthMask(GL_FALSE);
+                    glDisable(GL_TEXTURE_2D);
+                    
+                    ActiveShader backgroundShader(renderContext.shaderManager(), m_backgroundShaderConfig);
+                    m_rectArray.render();
+                    
+                    glEnable(GL_TEXTURE_2D);
+                    ActiveShader textShader(renderContext.shaderManager(), m_textShaderConfig);
+                    textShader.set("Texture", 0);
+                    m_font.activate();
+                    m_fontArray.render();
+                    m_font.deactivate();
+                    
+                    // glDepthMask(GL_TRUE);
+                }
+            };
+            
+            void render(RenderContext& renderContext, RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
                 if (empty())
                     return;
                 
@@ -324,38 +377,10 @@ namespace TrenchBroom {
                     }
                 }
                 
-                const Camera::Viewport& viewport = renderContext.camera().viewport();
-                const Mat4x4f projection = orthoMatrix(0.0f, 1.0f,
-                                                       static_cast<float>(viewport.x),
-                                                       static_cast<float>(viewport.height),
-                                                       static_cast<float>(viewport.width),
-                                                       static_cast<float>(viewport.y));
-                const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
+                const VertexArray fontArray = VertexArray::swap(GL_QUADS, fontVertices);
+                const VertexArray rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
                 
-                ReplaceTransformation ortho(renderContext.transformation(), projection, view);
-                VertexArray fontArray = VertexArray::swap(GL_QUADS, fontVertices);
-                VertexArray rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
-
-                SetVboState vboState(m_vbo);
-                vboState.mapped();
-                fontArray.prepare(m_vbo);
-                rectArray.prepare(m_vbo);
-                vboState.active();
-                
-                // glDepthMask(GL_FALSE);
-                glDisable(GL_TEXTURE_2D);
-                
-                ActiveShader backgroundShader(renderContext.shaderManager(), backgroundProgram);
-                rectArray.render();
-                
-                glEnable(GL_TEXTURE_2D);
-                ActiveShader textShader(renderContext.shaderManager(), textProgram);
-                textShader.set("Texture", 0);
-                font.activate();
-                fontArray.render();
-                font.deactivate();
-                
-                // glDepthMask(GL_TRUE);
+                renderBatch.addOneShot(new TextRenderable(font, textProgram, backgroundProgram, fontArray, rectArray));
             }
         private:
             void prepareEntries(TextureFont& font) {

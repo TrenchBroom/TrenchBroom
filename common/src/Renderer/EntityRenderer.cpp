@@ -64,7 +64,7 @@ namespace TrenchBroom {
         m_editorContext(editorContext),
         m_showHiddenEntities(showHiddenEntities) {}
 
-        bool EntityRenderer::EntityClassnameFilter::stringVisible(RenderContext& context, const Key& entity) const {
+        bool EntityRenderer::EntityClassnameFilter::stringVisible(RenderContext& renderContext, const Key& entity) const {
             return m_showHiddenEntities || m_editorContext.visible(entity);
         }
 
@@ -72,11 +72,11 @@ namespace TrenchBroom {
         m_textColor(textColor),
         m_backgroundColor(backgroundColor) {}
 
-        Color EntityRenderer::EntityClassnameColorProvider::textColor(RenderContext& context, const Key& entity) const {
+        Color EntityRenderer::EntityClassnameColorProvider::textColor(RenderContext& renderContext, const Key& entity) const {
             return m_textColor;
         }
         
-        Color EntityRenderer::EntityClassnameColorProvider::backgroundColor(RenderContext& context, const Key& entity) const {
+        Color EntityRenderer::EntityClassnameColorProvider::backgroundColor(RenderContext& renderContext, const Key& entity) const {
             return m_backgroundColor;
         }
 
@@ -148,19 +148,6 @@ namespace TrenchBroom {
             m_modelRenderer.addEntities(m_entities.begin(), m_entities.end());
         }
 
-        void EntityRenderer::render(RenderContext& context) {
-            renderBounds(context);
-            
-            if (m_showHiddenEntities || (context.showPointEntities() &&
-                context.showPointEntityModels()))
-                renderModels(context);
-            
-            if (context.showEntityClassnames())
-                renderClassnames(context);
-            
-            renderAngles(context);
-        }
-        
         void EntityRenderer::setOverlayTextColor(const Color& overlayTextColor) {
             m_overlayTextColor = overlayTextColor;
         }
@@ -209,57 +196,59 @@ namespace TrenchBroom {
             m_showHiddenEntities = showHiddenEntities;
         }
 
-        void EntityRenderer::renderBounds(RenderContext& context) {
+        void EntityRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
+            renderBounds(renderContext, renderBatch);
+            renderModels(renderContext, renderBatch);
+            renderClassnames(renderContext, renderBatch);
+            renderAngles(renderContext, renderBatch);
+        }
+        
+        void EntityRenderer::renderBounds(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_boundsValid)
                 validateBounds();
 
-            if (context.showEntityBounds())
-                renderWireframeBounds(context);
-            if (m_showHiddenEntities || context.showPointEntities())
-                renderSolidBounds(context);
+            if (renderContext.showEntityBounds())
+                renderWireframeBounds(renderBatch);
+            if (m_showHiddenEntities || renderContext.showPointEntities())
+                renderSolidBounds(renderBatch);
         }
         
-        void EntityRenderer::renderWireframeBounds(RenderContext& context) {
-            if (m_showOccludedBounds) {
-                glDisable(GL_DEPTH_TEST);
-                m_wireframeBoundsRenderer.setUseColor(m_overrideBoundsColor);
-                m_wireframeBoundsRenderer.setColor(m_boundsColor);
-                m_wireframeBoundsRenderer.render(context);
-                glEnable(GL_DEPTH_TEST);
-            }
-            
-            glSetEdgeOffset(0.025f);
-            m_wireframeBoundsRenderer.setUseColor(m_overrideBoundsColor);
-            m_wireframeBoundsRenderer.setColor(m_boundsColor);
-            m_wireframeBoundsRenderer.render(context);
-            glResetEdgeOffset();
+        void EntityRenderer::renderWireframeBounds(RenderBatch& renderBatch) {
+            if (m_showOccludedBounds)
+                renderBatch.addOneShot(new RenderOccludedEdges(m_wireframeBoundsRenderer, m_overrideBoundsColor, m_boundsColor));
+            renderBatch.addOneShot(new RenderUnoccludedEdges(m_wireframeBoundsRenderer, m_overrideBoundsColor, m_boundsColor));
         }
         
-        void EntityRenderer::renderSolidBounds(RenderContext& context) {
+        void EntityRenderer::renderSolidBounds(RenderBatch& renderBatch) {
             m_solidBoundsRenderer.setApplyTinting(m_tint);
             m_solidBoundsRenderer.setTintColor(m_tintColor);
-            m_solidBoundsRenderer.render(context);
+            renderBatch.add(&m_solidBoundsRenderer);
         }
         
-        void EntityRenderer::renderClassnames(RenderContext& context) {
-            if (m_showOccludedOverlays)
-                glDisable(GL_DEPTH_TEST);
-            EntityClassnameFilter textFilter(m_editorContext, m_showHiddenEntities);
-            EntityClassnameColorProvider colorProvider(m_overlayTextColor, m_overlayBackgroundColor);
-            m_classnameRenderer.render(context, textFilter, colorProvider,
-                                       Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
-            if (m_showOccludedOverlays)
-                glEnable(GL_DEPTH_TEST);
+        void EntityRenderer::renderModels(RenderContext& renderContext, RenderBatch& renderBatch) {
+            if (m_showHiddenEntities || (renderContext.showPointEntities() &&
+                                         renderContext.showPointEntityModels())) {
+                m_modelRenderer.setApplyTinting(m_tint);
+                m_modelRenderer.setTintColor(m_tintColor);
+                m_modelRenderer.setShowHiddenEntities(m_showHiddenEntities);
+                m_modelRenderer.render(renderBatch);
+            }
         }
         
-        void EntityRenderer::renderModels(RenderContext& context) {
-            m_modelRenderer.setApplyTinting(m_tint);
-            m_modelRenderer.setTintColor(m_tintColor);
-            m_modelRenderer.setShowHiddenEntities(m_showHiddenEntities);
-            m_modelRenderer.render(context);
+        void EntityRenderer::renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch) {
+            if (renderContext.showEntityClassnames()) {
+                if (m_showOccludedOverlays)
+                    glDisable(GL_DEPTH_TEST);
+                EntityClassnameFilter textFilter(m_editorContext, m_showHiddenEntities);
+                EntityClassnameColorProvider colorProvider(m_overlayTextColor, m_overlayBackgroundColor);
+                m_classnameRenderer.render(renderContext, renderBatch, textFilter, colorProvider,
+                                           Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
+                if (m_showOccludedOverlays)
+                    glEnable(GL_DEPTH_TEST);
+            }
         }
-
-        void EntityRenderer::renderAngles(RenderContext& context) {
+        
+        void EntityRenderer::renderAngles(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_showAngles)
                 return;
             
@@ -278,7 +267,7 @@ namespace TrenchBroom {
                 const Vec3f direction = rotation * Vec3f::PosX;
                 const Vec3f center = Vec3f(entity->bounds().center());
                 
-                const Vec3f toCam = context.camera().position() - center;
+                const Vec3f toCam = renderContext.camera().position() - center;
                 if (toCam.squaredLength() > maxDistance2)
                     continue;
 
@@ -306,7 +295,7 @@ namespace TrenchBroom {
             array.prepare(m_vbo);
             vboState.active();
             
-            ActiveShader shader(context.shaderManager(), Shaders::HandleShader);
+            ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
 
             glDepthMask(GL_FALSE);
 

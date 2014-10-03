@@ -30,8 +30,7 @@ namespace TrenchBroom {
     namespace Assets {
         EntityModelManager::EntityModelManager(Logger* logger) :
         m_logger(logger),
-        m_loader(NULL),
-        m_vbo(0xFFFFF) {}
+        m_loader(NULL) {}
         
         EntityModelManager::~EntityModelManager() {
             clear();
@@ -42,8 +41,6 @@ namespace TrenchBroom {
             MapUtils::clearAndDelete(m_models);
             m_rendererMismatches.clear();
             m_modelMismatches.clear();
-            m_renderersToPrepare.clear();
-            m_modelsToPrepare.clear();
             
             if (m_logger != NULL)
                 m_logger->debug("Cleared entity models");
@@ -69,7 +66,6 @@ namespace TrenchBroom {
                 EntityModel* model = loadModel(path);
                 assert(model != NULL);
                 m_models[path] = model;
-                m_modelsToPrepare.push_back(model);
                 
                 if (m_logger != NULL)
                     m_logger->debug("Loaded entity model %s", path.asString().c_str());
@@ -103,7 +99,6 @@ namespace TrenchBroom {
                     m_logger->debug("Failed to construct entity model renderer for %s", spec.asString().c_str());
             } else {
                 m_renderers[spec] = renderer;
-                m_renderersToPrepare.push_back(renderer);
                 
                 if (m_logger != NULL)
                     m_logger->debug("Constructed entity model renderer for %s", spec.asString().c_str());
@@ -111,43 +106,9 @@ namespace TrenchBroom {
             return renderer;
         }
         
-        void EntityModelManager::activateVbo() {
-            prepareModels();
-            m_vbo.activate();
-            prepareRenderers();
-        }
-        
-        void EntityModelManager::deactivateVbo() {
-            m_vbo.deactivate();
-        }
-        
         EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
             assert(m_loader != NULL);
             return m_loader->loadEntityModel(path);
-        }
-
-        void EntityModelManager::prepareRenderers() {
-            if (m_renderersToPrepare.empty())
-                return;
-            
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.mapped();
-            
-            RendererList::const_iterator it, end;
-            for (it = m_renderersToPrepare.begin(), end = m_renderersToPrepare.end(); it != end; ++it) {
-                Renderer::MeshRenderer* renderer = *it;
-                renderer->prepare(m_vbo);
-            }
-            m_renderersToPrepare.clear();
-        }
-
-        void EntityModelManager::prepareModels() {
-            ModelList::const_iterator it, end;
-            for (it = m_modelsToPrepare.begin(), end = m_modelsToPrepare.end(); it != end; ++it) {
-                EntityModel* model = *it;
-                model->prepare();
-            }
-            m_modelsToPrepare.clear();
         }
     }
 }

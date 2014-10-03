@@ -47,20 +47,18 @@ namespace TrenchBroom {
             MapUtils::clearAndDelete(m_layerRenderers);
         }
 
-        void MapRenderer::render(RenderContext& renderContext) {
-            commitPendingChanges(renderContext);
-            setupGL(renderContext);
-            renderLayers(renderContext);
-            renderSelection(renderContext);
-            renderEntityLinks(renderContext);
+        void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
+            commitPendingChanges();
+            setupGL();
+            renderLayers(renderContext, renderBatch);
         }
         
-        void MapRenderer::commitPendingChanges(RenderContext& renderContext) {
+        void MapRenderer::commitPendingChanges() {
             View::MapDocumentSPtr document = lock(m_document);
             document->commitPendingAssets();
         }
 
-        void MapRenderer::setupGL(RenderContext& renderContext) {
+        void MapRenderer::setupGL() {
             glDisableClientState(GL_VERTEX_ARRAY);
             glDisableClientState(GL_COLOR_ARRAY);
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -73,17 +71,17 @@ namespace TrenchBroom {
             glResetEdgeOffset();
         }
         
-        void MapRenderer::renderLayers(RenderContext& renderContext) {
+        void MapRenderer::renderLayers(RenderContext& renderContext, RenderBatch& renderBatch) {
             RendererMap::iterator it, end;
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
                 // const Model::Layer* layer = it->first;
                 ObjectRenderer* renderer = it->second;
-                setupRenderer(renderContext, renderer);
-                renderer->render(renderContext);
+                setupRenderer(renderer);
+                renderer->render(renderContext, renderBatch);
             }
         }
         
-        void MapRenderer::setupRenderer(RenderContext& renderContext, ObjectRenderer* renderer) {
+        void MapRenderer::setupRenderer(ObjectRenderer* renderer) {
             PreferenceManager& prefs = PreferenceManager::instance();
 
             renderer->setOverlayTextColor(prefs.get(Preferences::InfoOverlayTextColor));
@@ -92,12 +90,6 @@ namespace TrenchBroom {
             renderer->setTransparencyAlpha(prefs.get(Preferences::TransparentFaceAlpha));
             renderer->setBrushFaceColor(prefs.get(Preferences::FaceColor));
             renderer->setBrushEdgeColor(prefs.get(Preferences::EdgeColor));
-        }
-
-        void MapRenderer::renderSelection(RenderContext& renderContext) {
-        }
-        
-        void MapRenderer::renderEntityLinks(RenderContext& renderContext) {
         }
 
         void MapRenderer::bindObservers() {

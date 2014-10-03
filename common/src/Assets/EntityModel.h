@@ -39,6 +39,7 @@ namespace TrenchBroom {
             BBox3f bounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             
+            bool prepared() const;
             void prepare();
         private:
             virtual Renderer::MeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const = 0;

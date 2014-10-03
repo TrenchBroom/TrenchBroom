@@ -32,12 +32,13 @@ namespace TrenchBroom {
             return m_renderData.empty();
         }
 
+        bool MeshRenderer::prepared() const {
+            return m_prepared;
+        }
+
         void MeshRenderer::prepare(Vbo& vbo) {
             if (m_prepared)
                 return;
-            
-            SetVboState mapVbo(vbo);
-            mapVbo.mapped();
             
             RenderData::List::iterator it, end;
             for (it = m_renderData.begin(),  end = m_renderData.end(); it != end; ++it) {

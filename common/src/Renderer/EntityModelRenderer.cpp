@@ -46,9 +46,17 @@ namespace TrenchBroom {
         
         void EntityModelRenderer::addEntity(Model::Entity* entity) {
             const Assets::ModelSpecification modelSpec = entity->modelSpecification();
-            MeshRenderer* renderer = m_entityModelManager.renderer(modelSpec);
-            if (renderer != NULL)
-                m_entities[entity] = renderer;
+            Assets::EntityModel* model = m_entityModelManager.model(modelSpec.path);
+            if (model != NULL) {
+                if (!model->prepared())
+                    m_unpreparedModels.push_back(model);
+                MeshRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+                if (renderer != NULL) {
+                    m_entities[entity] = renderer;
+                    if (!renderer->prepared())
+                        m_unpreparedRenderers.push_back(renderer);
+                }
+            }
         }
         
         void EntityModelRenderer::updateEntity(Model::Entity* entity) {
@@ -62,6 +70,8 @@ namespace TrenchBroom {
 
         void EntityModelRenderer::clear() {
             m_entities.clear();
+            m_unpreparedModels.clear();
+            m_unpreparedRenderers.clear();
         }
 
         bool EntityModelRenderer::applyTinting() const {
@@ -88,10 +98,37 @@ namespace TrenchBroom {
             m_showHiddenEntities = showHiddenEntities;
         }
 
-        void EntityModelRenderer::render(RenderContext& context) {
+        void EntityModelRenderer::render(RenderBatch& renderBatch) {
+            renderBatch.add(this);
+        }
+
+        void EntityModelRenderer::doPrepare(Vbo& vbo) {
+            prepareModels();
+            prepareRenderers(vbo);
+        }
+        
+        void EntityModelRenderer::prepareModels() {
+            EntityModelList::const_iterator it, end;
+            for (it = m_unpreparedModels.begin(), end = m_unpreparedModels.end(); it != end; ++it) {
+                Assets::EntityModel* model = *it;
+                model->prepare();
+            }
+            m_unpreparedModels.clear();
+        }
+        
+        void EntityModelRenderer::prepareRenderers(Vbo& vbo) {
+            RendererList::const_iterator it, end;
+            for (it = m_unpreparedRenderers.begin(), end = m_unpreparedRenderers.end(); it != end; ++it) {
+                MeshRenderer* renderer = *it;
+                renderer->prepare(vbo);
+            }
+            m_unpreparedRenderers.clear();
+        }
+
+        void EntityModelRenderer::doRender(RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
             
-            ActiveShader shader(context.shaderManager(), Shaders::EntityModelShader);
+            ActiveShader shader(renderContext.shaderManager(), Shaders::EntityModelShader);
             shader.set("Brightness", prefs.get(Preferences::Brightness));
             shader.set("ApplyTinting", m_applyTinting);
             shader.set("TintColor", m_tintColor);
@@ -100,8 +137,7 @@ namespace TrenchBroom {
             
             glEnable(GL_TEXTURE_2D);
             glActiveTexture(GL_TEXTURE0);
-            m_entityModelManager.activateVbo();
-
+            
             EntityMap::iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                 Model::Entity* entity = it->first;
@@ -113,12 +149,10 @@ namespace TrenchBroom {
                 const Vec3f position = entity->origin();
                 const Quatf rotation = entity->rotation();
                 const Mat4x4f matrix = translationMatrix(position) * rotationMatrix(rotation);
-                MultiplyModelMatrix multMatrix(context.transformation(), matrix);
-
+                MultiplyModelMatrix multMatrix(renderContext.transformation(), matrix);
+                
                 renderer->render();
             }
-            
-            m_entityModelManager.deactivateVbo();
         }
     }
 }

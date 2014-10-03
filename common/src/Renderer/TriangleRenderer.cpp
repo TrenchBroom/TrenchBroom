@@ -32,7 +32,6 @@ namespace TrenchBroom {
         m_prepared(false) {}
         
         TriangleRenderer::TriangleRenderer(const VertexArray& vertexArray) :
-        m_vbo(new Vbo(vertexArray.size())),
         m_vertexArray(vertexArray),
         m_useColor(false),
         m_applyTinting(false),
@@ -40,7 +39,6 @@ namespace TrenchBroom {
         
         TriangleRenderer::TriangleRenderer(const TriangleRenderer& other) {
             m_vertexArray = other.m_vertexArray;
-            m_vbo = other.m_vbo;
             m_color = other.m_color;
             m_useColor = other.m_useColor;
             m_prepared = other.m_prepared;
@@ -54,7 +52,6 @@ namespace TrenchBroom {
         
         void swap(TriangleRenderer& left, TriangleRenderer& right) {
             using std::swap;
-            swap(left.m_vbo, right.m_vbo);
             swap(left.m_vertexArray, right.m_vertexArray);
             swap(left.m_color, right.m_color);
             swap(left.m_useColor, right.m_useColor);
@@ -76,15 +73,19 @@ namespace TrenchBroom {
         void TriangleRenderer::setTintColor(const Color& tintColor) {
             m_tintColor = tintColor;
         }
+        
+        void TriangleRenderer::doPrepare(Vbo& vbo) {
+            if (!m_prepared) {
+                m_vertexArray.prepare(vbo);
+                m_prepared = true;
+            }
+        }
 
-        void TriangleRenderer::render(RenderContext& context) {
+        void TriangleRenderer::doRender(RenderContext& context) {
+            assert(m_prepared);
+            
             if (m_vertexArray.vertexCount() == 0)
                 return;
-            
-            SetVboState setVboState(*m_vbo);
-            setVboState.active();
-            if (!m_prepared)
-                prepare();
             
             ActiveShader shader(context.shaderManager(), Shaders::TriangleShader);
             shader.set("ApplyTinting", m_applyTinting);
@@ -93,14 +94,6 @@ namespace TrenchBroom {
             shader.set("Color", m_color);
             shader.set("CameraPosition", context.camera().position());
             m_vertexArray.render();
-        }
-        
-        void TriangleRenderer::prepare() {
-            assert(!m_prepared);
-            SetVboState setVboState(*m_vbo);
-            setVboState.mapped();
-            m_vertexArray.prepare(*m_vbo);
-            m_prepared = true;
         }
     }
 }

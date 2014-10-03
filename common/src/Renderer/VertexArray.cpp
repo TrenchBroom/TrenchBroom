@@ -28,6 +28,9 @@ namespace TrenchBroom {
         const VertexArray::IndexArray VertexArray::EmptyIndexArray(0);
         const VertexArray::CountArray VertexArray::EmptyCountArray(0);
 
+        VertexArray::IndexArray VertexArray::SwappableIndexArray(0);
+        VertexArray::CountArray VertexArray::SwappableCountArray(0);
+
         VertexArray::VertexArray() :
         m_primType(GL_INVALID_ENUM),
         m_prepared(false) {}
@@ -42,8 +45,6 @@ namespace TrenchBroom {
             using std::swap;
             swap(left.m_primType, right.m_primType);
             swap(left.m_holder, right.m_holder);
-            swap(left.m_indices, right.m_indices);
-            swap(left.m_counts, right.m_counts);
             swap(left.m_prepared, right.m_prepared);
         }
 
@@ -71,35 +72,24 @@ namespace TrenchBroom {
             if (m_holder == NULL || m_holder->vertexCount() == 0)
                 return;
 
+            const IndexArray& indices = m_holder->indices();
+            const CountArray& counts = m_holder->counts();
+            
             m_holder->setup();
-            const size_t primCount = m_indices.size();
+            const size_t primCount = indices.size();
             if (primCount <= 1) {
                 glDrawArrays(m_primType, 0, static_cast<GLsizei>(m_holder->vertexCount()));
             } else {
-                const GLint* indexArray = &m_indices[0];
-                const GLsizei* countArray = &m_counts[0];
+                const GLint* indexArray = &indices[0];
+                const GLsizei* countArray = &counts[0];
                 glMultiDrawArrays(m_primType, indexArray, countArray, static_cast<GLint>(primCount));
             }
             m_holder->cleanup();
         }
 
-        VertexArray::VertexArray(const GLenum primType, BaseHolder::Ptr holder, const IndexArray& indices, const CountArray& counts) :
+        VertexArray::VertexArray(const GLenum primType, BaseHolder::Ptr holder) :
         m_primType(primType),
         m_holder(holder),
-        m_indices(indices),
-        m_counts(counts),
-        m_prepared(false) {
-            assert(m_indices.size() == m_counts.size());
-        }
-        
-        VertexArray::VertexArray(const GLenum primType, BaseHolder::Ptr holder, IndexArray& indices, CountArray& counts) :
-        m_primType(primType),
-        m_holder(holder),
-        m_prepared(false) {
-            using std::swap;
-            swap(m_indices, indices);
-            swap(m_counts, counts);
-            assert(m_indices.size() == m_counts.size());
-        }
+        m_prepared(false) {}
     }
 }

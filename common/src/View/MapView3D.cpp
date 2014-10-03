@@ -19,10 +19,14 @@
 
 #include "MapView3D.h"
 #include "Logger.h"
+#include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/Vbo.h"
 #include "View/CameraTool.h"
 #include "View/MapDocument.h"
+#include "View/MovementRestriction.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -30,8 +34,11 @@ namespace TrenchBroom {
         RenderView(parent, attribs()),
         m_logger(logger),
         m_document(document),
+        m_movementRestriction(new MovementRestriction()),
+        m_vbo(new Renderer::Vbo(0xFFFFFFF)),
         m_renderer(renderer),
         m_camera(),
+        m_compass(new Renderer::Compass(*m_movementRestriction)),
         m_toolBox(this, this),
         m_cameraTool(NULL) {
             createTools();
@@ -39,6 +46,9 @@ namespace TrenchBroom {
 
         MapView3D::~MapView3D() {
             destroyTools();
+            delete m_compass;
+            delete m_vbo;
+            delete m_movementRestriction;
         }
         
         void MapView3D::doInitializeGL() {
@@ -53,12 +63,6 @@ namespace TrenchBroom {
                 m_logger->info("Multisampling enabled");
             else
                 m_logger->info("Multisampling disabled");
-            
-            /*
-            Renderer::SetVboState setVboState(m_vbo);
-            setVboState.mapped();
-            m_compass.prepare(m_vbo);
-             */
         }
         
         void MapView3D::doUpdateViewport(const int x, const int y, const int width, const int height) {
@@ -73,9 +77,14 @@ namespace TrenchBroom {
         void MapView3D::doRender() {
             MapDocumentSPtr document = lock(m_document);
             Renderer::RenderContext renderContext(m_camera, contextHolder()->fontManager(), contextHolder()->shaderManager());
-
             setupGL(renderContext);
-            renderMap(renderContext);
+            
+            Renderer::RenderBatch renderBatch(*m_vbo);
+            
+            renderMap(renderContext, renderBatch);
+            renderCompass(renderBatch);
+            
+            renderBatch.render(renderContext);
         }
 
         void MapView3D::setupGL(Renderer::RenderContext& context) {
@@ -88,8 +97,12 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
         }
 
-        void MapView3D::renderMap(Renderer::RenderContext& renderContext) {
-            m_renderer.render(renderContext);
+        void MapView3D::renderMap(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            m_renderer.render(renderContext, renderBatch);
+        }
+
+        void MapView3D::renderCompass(Renderer::RenderBatch& renderBatch) {
+            m_compass->render(renderBatch);
         }
 
         Ray3 MapView3D::doGetPickRay(const int x, const int y) const {

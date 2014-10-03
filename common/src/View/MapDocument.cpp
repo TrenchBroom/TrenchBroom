@@ -21,15 +21,21 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Assets/EntityDefinitionManager.h"
+#include "Assets/EntityModelManager.h"
 #include "Assets/TextureCollectionSpec.h"
+#include "Assets/TextureManager.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/SystemPaths.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
 #include "Model/NodeVisitor.h"
+#include "Model/PointFile.h"
 #include "Model/World.h"
+#include "View/MapViewConfig.h"
 
 #include <cassert>
 
@@ -41,11 +47,12 @@ namespace TrenchBroom {
         MapDocument::MapDocument() :
         m_worldBounds(DefaultWorldBounds),
         m_world(NULL),
-        m_editorContext(),
-        m_entityDefinitionManager(),
-        m_entityModelManager(this),
-        m_textureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)),
-        m_mapViewConfig(m_editorContext),
+        m_pointFile(NULL),
+        m_editorContext(new Model::EditorContext()),
+        m_entityDefinitionManager(new Assets::EntityDefinitionManager()),
+        m_entityModelManager(new Assets::EntityModelManager(this)),
+        m_textureManager(new Assets::TextureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
+        m_mapViewConfig(new MapViewConfig(*m_editorContext)),
         m_path(DefaultDocumentName),
         m_modificationCount(0) {}
 
@@ -54,7 +61,14 @@ namespace TrenchBroom {
         }
         
         MapDocument::~MapDocument() {
+            if (isPointFileLoaded())
+                unloadPointFile();
             clearWorld();
+            delete m_mapViewConfig;
+            delete m_textureManager;
+            delete m_entityModelManager;
+            delete m_entityDefinitionManager;
+            delete m_editorContext;
         }
 
         Model::World* MapDocument::world() const {
@@ -62,15 +76,15 @@ namespace TrenchBroom {
         }
 
         const Model::EditorContext& MapDocument::editorContext() const {
-            return m_editorContext;
+            return *m_editorContext;
         }
 
         Assets::EntityModelManager& MapDocument::entityModelManager() {
-            return m_entityModelManager;
+            return *m_entityModelManager;
         }
 
         const View::MapViewConfig& MapDocument::mapViewConfig() const {
-            return m_mapViewConfig;
+            return *m_mapViewConfig;
         }
 
         void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
@@ -140,24 +154,28 @@ namespace TrenchBroom {
         
         void MapDocument::loadPointFile() {
             assert(canLoadPointFile());
-            m_pointFile = Model::PointFile(m_path);
+            if (isPointFileLoaded())
+                unloadPointFile();
+            m_pointFile = new Model::PointFile(m_path);
             info("Loaded point file");
             pointFileWasLoadedNotifier();
         }
         
         bool MapDocument::isPointFileLoaded() const {
-            return !m_pointFile.empty();
+            return m_pointFile != NULL;
         }
         
         void MapDocument::unloadPointFile() {
             assert(isPointFileLoaded());
-            m_pointFile = Model::PointFile();
+            delete m_pointFile;
+            m_pointFile = NULL;
+            
             info("Unloaded point file");
             pointFileWasUnloadedNotifier();
         }
 
         void MapDocument::commitPendingAssets() {
-            m_textureManager.commitChanges();
+            m_textureManager->commitChanges();
         }
 
         void MapDocument::clearSelection() {
@@ -209,7 +227,7 @@ namespace TrenchBroom {
         void MapDocument::loadEntityDefinitions() {
             const Assets::EntityDefinitionFileSpec spec = entityDefinitionFile();
             const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
-            m_entityDefinitionManager.loadDefinitions(path, *m_game);
+            m_entityDefinitionManager->loadDefinitions(path, *m_game);
             info("Loaded entity definition file " + path.lastComponent().asString());
         }
         
@@ -241,14 +259,14 @@ namespace TrenchBroom {
         };
 
         void MapDocument::setEntityDefinitions() {
-            SetEntityDefinition visitor(m_entityDefinitionManager);
+            SetEntityDefinition visitor(*m_entityDefinitionManager);
             m_world->acceptAndRecurse(visitor);
         }
         
         void MapDocument::unloadEntityDefinitions() {
             UnsetEntityDefinition visitor;
             m_world->acceptAndRecurse(visitor);
-            m_entityDefinitionManager.clear();
+            m_entityDefinitionManager->clear();
         }
 
         Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
@@ -294,23 +312,23 @@ namespace TrenchBroom {
         };
         
         void MapDocument::loadEntityModels() {
-            m_entityModelManager.setLoader(m_game.get());
+            m_entityModelManager->setLoader(m_game.get());
         }
 
         void MapDocument::setEntityModels() {
-            SetEntityModel visitor(m_entityModelManager, *this);
+            SetEntityModel visitor(*m_entityModelManager, *this);
             m_world->acceptAndRecurse(visitor);
         }
         
         void MapDocument::unloadEntityModels() {
             UnsetEntityModel visitor;
             m_world->acceptAndRecurse(visitor);
-            m_entityModelManager.clear();
-            m_entityModelManager.setLoader(NULL);
+            m_entityModelManager->clear();
+            m_entityModelManager->setLoader(NULL);
         }
 
         void MapDocument::loadTextures() {
-            m_textureManager.setLoader(m_game.get());
+            m_textureManager->setLoader(m_game.get());
             loadBuiltinTextures();
             loadExternalTextures();
         }
@@ -318,7 +336,7 @@ namespace TrenchBroom {
         void MapDocument::loadBuiltinTextures() {
             try {
                 const IO::Path::List paths = m_game->findBuiltinTextureCollections();
-                m_textureManager.setBuiltinTextureCollections(paths);
+                m_textureManager->setBuiltinTextureCollections(paths);
                 info("Loaded builtin texture collections " + StringUtils::join(IO::Path::asStrings(paths), ", "));
             } catch (Exception e) {
                 error(String(e.what()));
@@ -369,15 +387,15 @@ namespace TrenchBroom {
         };
 
         void MapDocument::setTextures() {
-            SetTextures visitor(m_textureManager);
+            SetTextures visitor(*m_textureManager);
             m_world->acceptAndRecurse(visitor);
         }
         
         void MapDocument::unloadTextures() {
             UnsetTextures visitor;
             m_world->acceptAndRecurse(visitor);
-            m_textureManager.clear();
-            m_textureManager.setLoader(NULL);
+            m_textureManager->clear();
+            m_textureManager->setLoader(NULL);
         }
 
         void MapDocument::addExternalTextureCollections(const StringList& names) {
@@ -390,7 +408,7 @@ namespace TrenchBroom {
                 const IO::Path absPath = IO::Disk::resolvePath(searchPaths, texturePath);
                 
                 const Assets::TextureCollectionSpec spec(name, absPath);
-                if (m_textureManager.addExternalTextureCollection(spec))
+                if (m_textureManager->addExternalTextureCollection(spec))
                     info("Loaded external texture collection '" + name +  "'");
                 else
                     warn("External texture collection not found: '" + name +  "'");

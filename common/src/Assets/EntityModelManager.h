@@ -23,7 +23,6 @@
 #include "Assets/ModelDefinition.h"
 #include "IO/Path.h"
 #include "Model/ModelTypes.h"
-#include "Renderer/Vbo.h"
 
 #include <map>
 #include <set>
@@ -55,15 +54,11 @@ namespace TrenchBroom {
             
             Logger* m_logger;
             const IO::EntityModelLoader* m_loader;
-            mutable Renderer::Vbo m_vbo;
 
             mutable ModelCache m_models;
             mutable ModelMismatches m_modelMismatches;
             mutable RendererCache m_renderers;
             mutable RendererMismatches m_rendererMismatches;
-            
-            mutable ModelList m_modelsToPrepare;
-            mutable RendererList m_renderersToPrepare;
         public:
             EntityModelManager(Logger* logger);
             ~EntityModelManager();
@@ -73,13 +68,8 @@ namespace TrenchBroom {
             
             EntityModel* model(const IO::Path& path) const;
             Renderer::MeshRenderer* renderer(const Assets::ModelSpecification& spec) const;
-            
-            void activateVbo();
-            void deactivateVbo();
         private:
             EntityModel* loadModel(const IO::Path& path) const;
-            void prepareRenderers();
-            void prepareModels();
         };
     }
 }

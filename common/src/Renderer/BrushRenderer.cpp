@@ -79,17 +79,6 @@ namespace TrenchBroom {
             invalidate();
         }
 
-        void BrushRenderer::render(RenderContext& renderContext) {
-            if (!m_valid)
-                validate();
-            
-            if (renderContext.showFaces())
-                renderFaces(renderContext);
-            
-            if (renderContext.showEdges())
-                renderEdges(renderContext);
-        }
-        
         void BrushRenderer::setFaceColor(const Color& faceColor) {
             m_faceColor = faceColor;
         }
@@ -129,31 +118,33 @@ namespace TrenchBroom {
             invalidate();
         }
 
-        void BrushRenderer::renderFaces(RenderContext& renderContext) {
-            FaceRenderer::Config config;
-            config.grayscale = m_grayscale;
-            config.tinted = m_tint;
-            config.tintColor = m_tintColor;
-            m_opaqueFaceRenderer.render(renderContext, config);
-            
-            config.alpha = m_transparencyAlpha;
-            m_transparentFaceRenderer.render(renderContext, config);
+        void BrushRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
+            if (!m_valid)
+                validate();
+            if (renderContext.showFaces())
+                renderFaces(renderBatch);
+            if (renderContext.showEdges())
+                renderEdges(renderBatch);
         }
         
-        void BrushRenderer::renderEdges(RenderContext& renderContext) {
-            if (m_showOccludedEdges) {
-                glDisable(GL_DEPTH_TEST);
-                m_edgeRenderer.setUseColor(true);
-                m_edgeRenderer.setColor(m_occludedEdgeColor);
-                m_edgeRenderer.render(renderContext);
-                glEnable(GL_DEPTH_TEST);
-            }
+
+        void BrushRenderer::renderFaces(RenderBatch& renderBatch) {
+            m_opaqueFaceRenderer.setGrayscale(m_grayscale);
+            m_opaqueFaceRenderer.setTint(m_tint);
+            m_opaqueFaceRenderer.setTintColor(m_tintColor);
+            m_opaqueFaceRenderer.render(renderBatch);
             
-            glSetEdgeOffset(0.02f);
-            m_edgeRenderer.setUseColor(true);
-            m_edgeRenderer.setColor(m_edgeColor);
-            m_edgeRenderer.render(renderContext);
-            glResetEdgeOffset();
+            m_transparentFaceRenderer.setGrayscale(m_grayscale);
+            m_transparentFaceRenderer.setTint(m_tint);
+            m_transparentFaceRenderer.setTintColor(m_tintColor);
+            m_transparentFaceRenderer.setAlpha(m_transparencyAlpha);
+            m_transparentFaceRenderer.render(renderBatch);
+        }
+        
+        void BrushRenderer::renderEdges(RenderBatch& renderBatch) {
+            if (m_showOccludedEdges)
+                renderBatch.addOneShot(new RenderOccludedEdges(m_edgeRenderer, true, m_occludedEdgeColor));
+            renderBatch.addOneShot(new RenderUnoccludedEdges(m_edgeRenderer, true, m_edgeColor));
         }
 
         class FilterWrapper : public BrushRenderer::Filter {

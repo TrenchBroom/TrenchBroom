@@ -45,4 +45,10 @@ namespace Math {
     typedef Constants<FloatType> C;
 }
 
+template <typename T>
+void safeDelete(T*& p) {
+    delete p;
+    p = NULL;
+}
+
 #endif

@@ -26,6 +26,7 @@
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/EntityModelRenderer.h"
 #include "Renderer/FontDescriptor.h"
+#include "Renderer/Renderable.h"
 #include "Renderer/TextRenderer.h"
 #include "Renderer/TriangleRenderer.h"
 #include "Renderer/Vbo.h"
@@ -43,6 +44,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class FontManager;
+        class RenderBatch;
         class RenderContext;
         class Vbo;
         
@@ -67,7 +69,7 @@ namespace TrenchBroom {
                 bool m_showHiddenEntities;
             public:
                 EntityClassnameFilter(const Model::EditorContext& editorContext, bool showHiddenEntities);
-                bool stringVisible(RenderContext& context, const Key& entity) const;
+                bool stringVisible(RenderContext& renderContext, const Key& entity) const;
             };
 
             class EntityClassnameColorProvider : public ClassnameRenderer::TextColorProvider {
@@ -77,8 +79,8 @@ namespace TrenchBroom {
             public:
                 EntityClassnameColorProvider(const Color& textColor, const Color& backgroundColor);
                 
-                Color textColor(RenderContext& context, const Key& entity) const;
-                Color backgroundColor(RenderContext& context, const Key& entity) const;
+                Color textColor(RenderContext& renderContext, const Key& entity) const;
+                Color backgroundColor(RenderContext& renderContext, const Key& entity) const;
             };
             
             const Model::EditorContext& m_editorContext;
@@ -138,8 +140,6 @@ namespace TrenchBroom {
                 }
             }
             
-            void render(RenderContext& context);
-            
             void setOverlayTextColor(const Color& overlayTextColor);
             void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
             void setShowOccludedOverlays(bool showOccludedOverlays);
@@ -157,13 +157,15 @@ namespace TrenchBroom {
             void setAngleColor(const Color& angleColor);
             
             void setShowHiddenEntities(bool showHiddenEntities);
+        public: // rendering
+            void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:
-            void renderBounds(RenderContext& context);
-            void renderWireframeBounds(RenderContext& context);
-            void renderSolidBounds(RenderContext& renderContext);
-            void renderClassnames(RenderContext& context);
-            void renderModels(RenderContext& context);
-            void renderAngles(RenderContext& context);
+            void renderBounds(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderWireframeBounds(RenderBatch& renderBatch);
+            void renderSolidBounds(RenderBatch& renderBatch);
+            void renderModels(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderAngles(RenderContext& renderContext, RenderBatch& renderBatch);
             Vec3f::List arrowHead(float length, float width) const;
             static FontDescriptor font();
             void invalidateBounds();

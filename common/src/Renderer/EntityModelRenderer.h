@@ -23,12 +23,14 @@
 #include "Color.h"
 #include "Assets/ModelDefinition.h"
 #include "Model/ModelTypes.h"
+#include "Renderer/Renderable.h"
 
 #include <map>
 #include <set>
 
 namespace TrenchBroom {
     namespace Assets {
+        class EntityModel;
         class EntityModelManager;
     }
     
@@ -39,15 +41,21 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class MeshRenderer;
+        class RenderBatch;
         class RenderContext;
         
-        class EntityModelRenderer {
+        class EntityModelRenderer : public Renderable {
         private:
             typedef std::map<Model::Entity*, MeshRenderer*> EntityMap;
+            typedef std::vector<Assets::EntityModel*> EntityModelList;
+            typedef std::vector<MeshRenderer*> RendererList;
             
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
+            
             EntityMap m_entities;
+            EntityModelList m_unpreparedModels;
+            RendererList m_unpreparedRenderers;
             
             bool m_applyTinting;
             Color m_tintColor;
@@ -95,7 +103,13 @@ namespace TrenchBroom {
             bool showHiddenEntities() const;
             void setShowHiddenEntities(bool showHiddenEntities);
             
-            void render(RenderContext& context);
+            void render(RenderBatch& renderBatch);
+        private:
+            void doPrepare(Vbo& vbo);
+            void prepareModels();
+            void prepareRenderers(Vbo& vbo);
+            
+            void doRender(RenderContext& renderContext);
         };
     }
 }

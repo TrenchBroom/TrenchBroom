@@ -52,6 +52,7 @@ namespace TrenchBroom {
             
             bool empty() const;
             
+            bool prepared() const;
             void prepare(Vbo& vbo);
             void render();
 

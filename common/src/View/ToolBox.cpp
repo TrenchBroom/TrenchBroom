@@ -49,7 +49,6 @@ namespace TrenchBroom {
         m_modalReceiver(NULL),
         m_dropReceiver(NULL),
         m_savedDropReceiver(NULL),
-        m_lastMousePos
         m_ignoreNextDrag(false),
         m_clickToActivate(true),
         m_ignoreNextClick(false),

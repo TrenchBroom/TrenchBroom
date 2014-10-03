@@ -145,9 +145,9 @@ namespace TrenchBroom {
             m_brushRenderer.setShowHiddenBrushes(showHiddenObjects);
         }
 
-        void ObjectRenderer::render(RenderContext& renderContext) {
-            m_brushRenderer.render(renderContext);
-            m_entityRenderer.render(renderContext);
+        void ObjectRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
+            m_brushRenderer.render(renderContext, renderBatch);
+            m_entityRenderer.render(renderContext, renderBatch);
         }
     }
 }

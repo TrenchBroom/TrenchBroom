@@ -30,19 +30,27 @@ namespace TrenchBroom {
     class Logger;
 
     namespace Renderer {
+        class Compass;
         class MapRenderer;
+        class RenderBatch;
         class RenderContext;
+        class Vbo;
     }
     
     namespace View {
         class CameraTool;
+        class MovementRestriction;
         
         class MapView3D : public RenderView, public ToolBoxHelper {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
+            MovementRestriction* m_movementRestriction;
+            
+            Renderer::Vbo* m_vbo;
             Renderer::MapRenderer& m_renderer;
             Renderer::PerspectiveCamera m_camera;
+            Renderer::Compass* m_compass;
             
             ToolBox m_toolBox;
             CameraTool* m_cameraTool;
@@ -55,7 +63,8 @@ namespace TrenchBroom {
             bool doShouldRenderFocusIndicator() const;
             void doRender();
             void setupGL(Renderer::RenderContext& renderContext);
-            void renderMap(Renderer::RenderContext& renderContext);
+            void renderMap(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderCompass(Renderer::RenderBatch& renderBatch);
         private: // implement ToolBoxHelper
             Ray3 doGetPickRay(int x, int y) const;
             Hits doPick(const Ray3& pickRay) const;

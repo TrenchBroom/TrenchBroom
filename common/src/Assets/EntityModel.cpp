@@ -38,6 +38,10 @@ namespace TrenchBroom {
             return doGetTransformedBounds(skinIndex, frameIndex, transformation);
         }
 
+        bool EntityModel::prepared() const {
+            return m_prepared;
+        }
+
         void EntityModel::prepare() {
             if (!m_prepared) {
                 doPrepare();
