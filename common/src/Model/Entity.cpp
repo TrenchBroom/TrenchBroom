@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
+#include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/NodeVisitor.h"
@@ -136,21 +137,21 @@ namespace TrenchBroom {
             return m_bounds;
         }
         
+        Node* Entity::doGetContainer() const {
+            FindContainerVisitor visitor;
+            escalate(visitor);
+            return visitor.hasResult() ? visitor.result() : NULL;
+        }
+
         Layer* Entity::doGetLayer() const {
-            if (parent() == NULL)
-                return NULL;
-            
             FindLayerVisitor visitor;
-            parent()->acceptAndEscalate(visitor);
+            escalate(visitor);
             return visitor.hasResult() ? visitor.result() : NULL;
         }
         
         Group* Entity::doGetGroup() const {
-            if (parent() == NULL)
-                return NULL;
-            
             FindGroupVisitor visitor;
-            parent()->acceptAndEscalate(visitor);
+            escalate(visitor);
             return visitor.hasResult() ? visitor.result() : NULL;
         }
         

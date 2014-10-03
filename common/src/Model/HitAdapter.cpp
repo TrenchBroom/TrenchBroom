@@ -26,6 +26,16 @@
 
 namespace TrenchBroom {
     namespace Model {
+        Node* hitToNode(const Hit& hit) {
+            if (hit.type() == Entity::EntityHit)
+                return hit.target<Node*>();
+            if (hit.type() == Brush::BrushHit) {
+                BrushFace* face = hit.target<BrushFace*>();
+                return face->brush();
+            }
+            return NULL;
+        }
+        
         Object* hitToObject(const Hit& hit) {
             if (hit.type() == Entity::EntityHit)
                 return hit.target<Object*>();

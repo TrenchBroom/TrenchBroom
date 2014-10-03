@@ -32,6 +32,10 @@ namespace TrenchBroom {
             doPick(ray, hits);
         }
 
+        Node* Object::container() const {
+            return doGetContainer();
+        }
+
         Layer* Object::layer() const {
             return doGetLayer();
         }

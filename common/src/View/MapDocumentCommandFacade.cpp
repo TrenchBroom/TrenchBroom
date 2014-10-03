@@ -1,0 +1,232 @@
+/*
+ Copyright (C) 2010-2014 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "MapDocumentCommandFacade.h"
+
+#include "CollectionUtils.h"
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
+#include "Model/EditorContext.h"
+#include "Model/Node.h"
+#include "View/Selection.h"
+
+namespace TrenchBroom {
+    namespace View {
+        MapDocumentSPtr MapDocumentCommandFacade::newMapDocument() {
+            return MapDocumentSPtr(new MapDocumentCommandFacade());
+        }
+
+        MapDocumentCommandFacade::MapDocumentCommandFacade() :
+        m_commandProcessor(this) {}
+
+        void MapDocumentCommandFacade::performSelect(const Model::NodeList& nodes) {
+            selectionWillChange();
+
+            Model::NodeList selected;
+            selected.reserve(nodes.size());
+            
+            Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
+
+            Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                if (!node->selected() && m_editorContext->selectable(node)) {
+                    node->escalate(visitor);
+                    node->select();
+                    selected.push_back(node);
+                }
+            }
+
+            const Model::NodeList& partiallySelected = visitor.result();
+            
+            VectorUtils::append(m_selectedNodes, selected);
+            VectorUtils::append(m_partiallySelectedNodes, partiallySelected);
+            
+            Selection selection;
+            selection.addSelectedNodes(selected);
+            selection.addPartiallySelectedNodes(partiallySelected);
+            
+            selectionDidChange(selection);
+        }
+        
+        void MapDocumentCommandFacade::performSelect(const Model::BrushFaceList& faces) {
+            selectionWillChange();
+            
+            Model::BrushFaceList selected;
+            selected.reserve(faces.size());
+            
+            Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
+            
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                if (!face->selected() && m_editorContext->selectable(face)) {
+                    face->brush()->acceptAndEscalate(visitor);
+                    face->select();
+                    selected.push_back(face);
+                }
+            }
+            
+            const Model::NodeList& partiallySelected = visitor.result();
+            
+            VectorUtils::append(m_selectedBrushFaces, selected);
+            VectorUtils::append(m_partiallySelectedNodes, partiallySelected);
+            
+            Selection selection;
+            selection.addSelectedBrushFaces(selected);
+            selection.addPartiallySelectedNodes(partiallySelected);
+            
+            selectionDidChange(selection);
+        }
+        
+        void MapDocumentCommandFacade::performDeselect(const Model::NodeList& nodes) {
+            selectionWillChange();
+            
+            Model::NodeList deselected;
+            deselected.reserve(nodes.size());
+            
+            Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
+            
+            Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                if (node->selected()) {
+                    node->deselect();
+                    deselected.push_back(node);
+                    node->escalate(visitor);
+                }
+            }
+            
+            const Model::NodeList& partiallyDeselected = visitor.result();
+            
+            VectorUtils::eraseAll(m_selectedNodes, deselected);
+            VectorUtils::eraseAll(m_partiallySelectedNodes, partiallyDeselected);
+            
+            Selection selection;
+            selection.addDeselectedNodes(deselected);
+            selection.addPartiallyDeselectedNodes(partiallyDeselected);
+            
+            selectionDidChange(selection);
+        }
+        
+        void MapDocumentCommandFacade::performDeselect(const Model::BrushFaceList& faces) {
+            selectionWillChange();
+            
+            Model::BrushFaceList deselected;
+            deselected.reserve(faces.size());
+            
+            Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
+            
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                if (face->selected()) {
+                    face->deselect();
+                    deselected.push_back(face);
+                    face->brush()->acceptAndEscalate(visitor);
+                }
+            }
+            
+            const Model::NodeList& partiallyDeselected = visitor.result();
+
+            VectorUtils::eraseAll(m_selectedBrushFaces, deselected);
+            VectorUtils::eraseAll(m_partiallySelectedNodes, partiallyDeselected);
+            
+            Selection selection;
+            selection.addDeselectedBrushFaces(deselected);
+            selection.addPartiallyDeselectedNodes(partiallyDeselected);
+            
+            selectionDidChange(selection);
+        }
+
+        void MapDocumentCommandFacade::performDeselectAll() {
+            if (hasSelectedNodes())
+                deselectAllNodes();
+            if (hasSelectedBrushFaces())
+                deselectAllBrushFaces();
+        }
+
+        void MapDocumentCommandFacade::deselectAllNodes() {
+            selectionWillChange();
+
+            Model::NodeList::const_iterator it, end;
+            for (it = m_selectedNodes.begin(), end = m_selectedNodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                node->deselect();
+            }
+            
+            Selection selection;
+            selection.addDeselectedNodes(m_selectedNodes);
+            selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes);
+
+            m_selectedNodes.clear();
+            m_partiallySelectedNodes.clear();
+            
+            selectionDidChange(selection);
+        }
+        
+        void MapDocumentCommandFacade::deselectAllBrushFaces() {
+            selectionWillChange();
+            
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = m_selectedBrushFaces.begin(), end = m_selectedBrushFaces.end(); it != end; ++it) {
+                Model::BrushFace* node = *it;
+                node->deselect();
+            }
+            
+            Selection selection;
+            selection.addDeselectedBrushFaces(m_selectedBrushFaces);
+            selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes);
+            
+            m_selectedNodes.clear();
+            m_partiallySelectedNodes.clear();
+            
+            selectionDidChange(selection);
+        }
+
+        bool MapDocumentCommandFacade::doCanUndoLastCommand() const {
+            return m_commandProcessor.hasLastCommand();
+        }
+        
+        bool MapDocumentCommandFacade::doCanRedoNextCommand() const {
+            return m_commandProcessor.hasNextCommand();
+        }
+        
+        const String& MapDocumentCommandFacade::doGetLastCommandName() const {
+            return m_commandProcessor.lastCommandName();
+        }
+        
+        const String& MapDocumentCommandFacade::doGetNextCommandName() const {
+            return m_commandProcessor.nextCommandName();
+        }
+        
+        void MapDocumentCommandFacade::doUndoLastCommand() {
+            m_commandProcessor.undoLastCommand();
+        }
+        
+        void MapDocumentCommandFacade::doRedoNextCommand() {
+            m_commandProcessor.redoNextCommand();
+        }
+        
+        void MapDocumentCommandFacade::doSubmit(UndoableCommand* command) {
+            m_commandProcessor.submitAndStoreCommand(command);
+        }
+    }
+}

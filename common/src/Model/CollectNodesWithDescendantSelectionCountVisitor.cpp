@@ -1,0 +1,48 @@
+/*
+ Copyright (C) 2010-2014 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "CollectNodesWithDescendantSelectionCountVisitor.h"
+
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/Group.h"
+#include "Model/Layer.h"
+#include "Model/World.h"
+
+namespace TrenchBroom {
+    namespace Model {
+        CollectNodesWithDescendantSelectionCountVisitor::CollectNodesWithDescendantSelectionCountVisitor(const size_t descendantSelectionCount) :
+        m_descendantSelectionCount(descendantSelectionCount) {}
+        
+        const NodeList& CollectNodesWithDescendantSelectionCountVisitor::result() const {
+            return m_result;
+        }
+        
+        void CollectNodesWithDescendantSelectionCountVisitor::doVisit(World* world)   { handleNode(world); }
+        void CollectNodesWithDescendantSelectionCountVisitor::doVisit(Layer* layer)   { handleNode(layer); }
+        void CollectNodesWithDescendantSelectionCountVisitor::doVisit(Group* group)   { handleNode(group); }
+        void CollectNodesWithDescendantSelectionCountVisitor::doVisit(Entity* entity) { handleNode(entity); }
+        void CollectNodesWithDescendantSelectionCountVisitor::doVisit(Brush* brush)   { handleNode(brush); }
+        
+        void CollectNodesWithDescendantSelectionCountVisitor::handleNode(Node* node) {
+            if (node->descendantSelectionCount() == m_descendantSelectionCount)
+                m_result.push_back(node);
+        }
+    }
+}

@@ -55,10 +55,6 @@ namespace TrenchBroom {
         m_mapViewConfig(new MapViewConfig(*m_editorContext)),
         m_path(DefaultDocumentName),
         m_modificationCount(0) {}
-
-        MapDocumentSPtr MapDocument::newMapDocument() {
-            return MapDocumentSPtr(new MapDocument());
-        }
         
         MapDocument::~MapDocument() {
             if (isPointFileLoaded())
@@ -178,7 +174,27 @@ namespace TrenchBroom {
             m_textureManager->commitChanges();
         }
 
+        bool MapDocument::hasSelectedNodes() const {
+            return !m_selectedNodes.empty();
+        }
+        
+        bool MapDocument::hasSelectedBrushFaces() const {
+            return !m_selectedBrushFaces.empty();
+        }
+
+        void MapDocument::select(const Model::NodeList& nodes) {}
+        void MapDocument::select(Model::Node* node) {}
+        void MapDocument::select(const Model::BrushFaceList& faces) {}
+        void MapDocument::select(Model::BrushFace* face) {}
+        void MapDocument::convertToFaceSelection() {}
+        
+        void MapDocument::deselectAll() {}
+        void MapDocument::deselect(Model::Node* node) {}
+        void MapDocument::deselect(Model::BrushFace* face) {}
+
         void MapDocument::clearSelection() {
+            m_selectedNodes.clear();
+            m_selectedBrushFaces.clear();
         }
 
         Hits MapDocument::pick(const Ray3& pickRay) const {
@@ -466,6 +482,44 @@ namespace TrenchBroom {
 
         void MapDocument::clearModificationCount() {
             m_modificationCount = 0;
+        }
+
+        void MapDocument::beginTransaction(const String& name) {
+        }
+        
+        void MapDocument::commitTransaction() {
+        }
+        
+        void MapDocument::rollbackTransaction() {
+        }
+
+        Transaction::Transaction(MapDocumentWPtr document, const String& name) :
+        m_document(document),
+        m_commit(true) {
+            begin(name);
+        }
+        
+        Transaction::Transaction(MapDocumentSPtr document, const String& name) :
+        m_document(document),
+        m_commit(true) {
+            begin(name);
+        }
+        
+        Transaction::~Transaction() {
+            if (m_commit)
+                commit();
+        }
+
+        void Transaction::rollback() {
+            lock(m_document)->rollbackTransaction();
+        }
+
+        void Transaction::begin(const String& name) {
+            lock(m_document)->beginTransaction(name);
+        }
+        
+        void Transaction::commit() {
+            lock(m_document)->commitTransaction();
         }
     }
 }

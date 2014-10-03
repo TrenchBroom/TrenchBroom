@@ -17,28 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__HitAdapter__
-#define __TrenchBroom__HitAdapter__
+#ifndef __TrenchBroom__FindContainerVisitor__
+#define __TrenchBroom__FindContainerVisitor__
 
-#include <stdio.h>
+#include "Model/ModelTypes.h"
+#include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
-    class Hit;
     namespace Model {
-        class Brush;
-        class BrushFace;
-        class Entity;
-        class Group;
-        class Object;
-        class Node;
-        
-        Node* hitToNode(const Hit& hit);
-        Object* hitToObject(const Hit& hit);
-        Group* hitToGroup(const Hit& hit);
-        Entity* hitToEntity(const Hit& hit);
-        Brush* hitToBrush(const Hit& hit);
-        BrushFace* hitToFace(const Hit& hit);
+        class FindContainerVisitor : public NodeVisitor, public NodeQuery<Node*> {
+        private:
+            void doVisit(World* world);
+            void doVisit(Layer* layer);
+            void doVisit(Group* group);
+            void doVisit(Entity* entity);
+            void doVisit(Brush* brush);
+        };
     }
 }
 
-#endif /* defined(__TrenchBroom__HitAdapter__) */
+#endif /* defined(__TrenchBroom__FindContainerVisitor__) */

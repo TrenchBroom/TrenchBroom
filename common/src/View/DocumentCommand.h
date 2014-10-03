@@ -17,28 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__HitAdapter__
-#define __TrenchBroom__HitAdapter__
+#ifndef __TrenchBroom__DocumentCommand__
+#define __TrenchBroom__DocumentCommand__
 
-#include <stdio.h>
+#include "SharedPointer.h"
+#include "View/Command.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    class Hit;
-    namespace Model {
-        class Brush;
-        class BrushFace;
-        class Entity;
-        class Group;
-        class Object;
-        class Node;
-        
-        Node* hitToNode(const Hit& hit);
-        Object* hitToObject(const Hit& hit);
-        Group* hitToGroup(const Hit& hit);
-        Entity* hitToEntity(const Hit& hit);
-        Brush* hitToBrush(const Hit& hit);
-        BrushFace* hitToFace(const Hit& hit);
+    namespace View {
+        class DocumentCommand : public Command {
+        public:
+            typedef std::tr1::shared_ptr<DocumentCommand> Ptr;
+        private:
+            View::MapDocumentWPtr m_document;
+        public:
+            virtual ~DocumentCommand();
+        protected:
+            DocumentCommand(CommandType type, const String& name, View::MapDocumentWPtr document);
+            
+            View::MapDocumentSPtr lockDocument();
+        };
     }
 }
 
-#endif /* defined(__TrenchBroom__HitAdapter__) */
+#endif /* defined(__TrenchBroom__DocumentCommand__) */

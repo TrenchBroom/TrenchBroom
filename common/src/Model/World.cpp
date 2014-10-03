@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
@@ -60,30 +61,6 @@ namespace TrenchBroom {
             return m_selectedFaces;
         }
         
-        class CollectNodesWithDescendantSelectionCount : public NodeVisitor {
-        private:
-            size_t m_descendantSelectionCount;
-            NodeList m_result;
-        public:
-            CollectNodesWithDescendantSelectionCount(const size_t descendantSelectionCount) :
-            m_descendantSelectionCount(descendantSelectionCount) {}
-            
-            const NodeList& result() const {
-                return m_result;
-            }
-        private:
-            void doVisit(World* world)   { handleNode(world); }
-            void doVisit(Layer* layer)   { handleNode(layer); }
-            void doVisit(Group* group)   { handleNode(group); }
-            void doVisit(Entity* entity) { handleNode(entity); }
-            void doVisit(Brush* brush)   { handleNode(brush); }
-            
-            void handleNode(Node* node) {
-                if (node->descendantSelectionCount() == m_descendantSelectionCount)
-                    m_result.push_back(node);
-            }
-        };
-        
         bool World::select(Node* node) {
             assert(node != NULL);
             assert(node->isDescendantOf(this));
@@ -91,7 +68,7 @@ namespace TrenchBroom {
             if (node->selected())
                 return false;
             
-            CollectNodesWithDescendantSelectionCount visitor(0);
+            CollectNodesWithDescendantSelectionCountVisitor visitor(0);
             node->escalate(visitor);
             VectorUtils::append(m_partiallySelectedNodes, visitor.result());
             
@@ -108,7 +85,7 @@ namespace TrenchBroom {
             if (face->selected())
                 return false;
             
-            CollectNodesWithDescendantSelectionCount visitor(0);
+            CollectNodesWithDescendantSelectionCountVisitor visitor(0);
             face->brush()->acceptAndEscalate(visitor);
             VectorUtils::append(m_partiallySelectedNodes, visitor.result());
             
@@ -128,7 +105,7 @@ namespace TrenchBroom {
             node->deselect();
             VectorUtils::erase(m_selectedNodes, node);
             
-            CollectNodesWithDescendantSelectionCount visitor(0);
+            CollectNodesWithDescendantSelectionCountVisitor visitor(0);
             node->escalate(visitor);
             VectorUtils::eraseAll(m_partiallySelectedNodes, visitor.result());
 
@@ -145,7 +122,7 @@ namespace TrenchBroom {
             face->deselect();
             VectorUtils::erase(m_selectedFaces, face);
             
-            CollectNodesWithDescendantSelectionCount visitor(0);
+            CollectNodesWithDescendantSelectionCountVisitor visitor(0);
             face->brush()->acceptAndEscalate(visitor);
             VectorUtils::eraseAll(m_partiallySelectedNodes, visitor.result());
             

@@ -45,11 +45,14 @@ namespace TrenchBroom {
     
     namespace View {
         class MapViewConfig;
+        class Selection;
+        class UndoableCommand;
+        
         class MapDocument : public CachingLogger {
         public:
             static const BBox3 DefaultWorldBounds;
             static const String DefaultDocumentName;
-        private:
+        protected:
             BBox3 m_worldBounds;
             Model::GamePtr m_game;
             Model::World* m_world;
@@ -64,6 +67,10 @@ namespace TrenchBroom {
             
             IO::Path m_path;
             size_t m_modificationCount;
+
+            Model::NodeList m_partiallySelectedNodes;
+            Model::NodeList m_selectedNodes;
+            Model::BrushFaceList m_selectedBrushFaces;
         public: // notification
             Notifier1<MapDocument*> documentWillBeClearedNotifier;
             Notifier1<MapDocument*> documentWasClearedNotifier;
@@ -71,13 +78,15 @@ namespace TrenchBroom {
             Notifier1<MapDocument*> documentWasLoadedNotifier;
             Notifier1<MapDocument*> documentWasSavedNotifier;
             
+            Notifier0 selectionWillChange;
+            Notifier1<const Selection&> selectionDidChange;
+            
             Notifier0 pointFileWasLoadedNotifier;
             Notifier0 pointFileWasUnloadedNotifier;
-        private:
+        protected:
             MapDocument();
         public:
-            static MapDocumentSPtr newMapDocument();
-            ~MapDocument();
+            virtual ~MapDocument();
         public: // accessors and such
             Model::World* world() const;
             const Model::EditorContext& editorContext() const;
@@ -101,8 +110,39 @@ namespace TrenchBroom {
             void unloadPointFile();
         public: // asset state management
             void commitPendingAssets();
-        private: // selection
+        public: // selection
+            bool hasSelectedNodes() const;
+            bool hasSelectedBrushFaces() const;
+
+            void select(const Model::NodeList& nodes);
+            void select(Model::Node* node);
+            void select(const Model::BrushFaceList& faces);
+            void select(Model::BrushFace* face);
+            void convertToFaceSelection();
+            
+            void deselectAll();
+            void deselect(Model::Node* node);
+            void deselect(Model::BrushFace* face);
+        private:
             void clearSelection();
+        public: // command processing
+            bool canUndoLastCommand() const;
+            bool canRedoNextCommand() const;
+            const String& lastCommandName() const;
+            const String& nextCommandName() const;
+            void undoLastCommand();
+            void redoNextCommand();
+        private:
+            void submit(UndoableCommand* command);
+        private: // subclassing interface for command processing
+            virtual bool doCanUndoLastCommand() const = 0;
+            virtual bool doCanRedoNextCommand() const = 0;
+            virtual const String& doGetLastCommandName() const = 0;
+            virtual const String& doGetNextCommandName() const = 0;
+            virtual void doUndoLastCommand() = 0;
+            virtual void doRedoNextCommand() = 0;
+            
+            virtual void doSubmit(UndoableCommand* command) = 0;
         public: // picking
             Hits pick(const Ray3& pickRay) const;
         private: // world management
@@ -144,6 +184,25 @@ namespace TrenchBroom {
             bool modified() const;
         private:
             void clearModificationCount();
+        public: // undo, redo, and transactions
+            void beginTransaction(const String& name);
+            void commitTransaction();
+            void rollbackTransaction();
+        };
+
+        class Transaction {
+        private:
+            MapDocumentWPtr m_document;
+            bool m_commit;
+        public:
+            Transaction(MapDocumentWPtr document, const String& name = "");
+            Transaction(MapDocumentSPtr document, const String& name = "");
+            ~Transaction();
+            
+            void rollback();
+        private:
+            void begin(const String& name);
+            void commit();
         };
     }
 }

@@ -27,6 +27,7 @@
 #include "View/CameraTool.h"
 #include "View/MapDocument.h"
 #include "View/MovementRestriction.h"
+#include "View/SelectionTool.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -119,10 +120,14 @@ namespace TrenchBroom {
 
         void MapView3D::createTools() {
             m_cameraTool = new CameraTool(m_document, m_camera);
+            m_selectionTool = new SelectionTool(m_document);
+            m_toolBox.addTool(m_selectionTool);
             m_toolBox.addTool(m_cameraTool);
         }
         
         void MapView3D::destroyTools() {
+            delete m_cameraTool;
+            delete m_selectionTool;
         }
 
         const GLContextHolder::GLAttribs& MapView3D::attribs() {

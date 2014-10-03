@@ -17,28 +17,19 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__HitAdapter__
-#define __TrenchBroom__HitAdapter__
-
-#include <stdio.h>
+#include "DocumentCommand.h"
 
 namespace TrenchBroom {
-    class Hit;
-    namespace Model {
-        class Brush;
-        class BrushFace;
-        class Entity;
-        class Group;
-        class Object;
-        class Node;
+    namespace View {
+        DocumentCommand::~DocumentCommand() {}
         
-        Node* hitToNode(const Hit& hit);
-        Object* hitToObject(const Hit& hit);
-        Group* hitToGroup(const Hit& hit);
-        Entity* hitToEntity(const Hit& hit);
-        Brush* hitToBrush(const Hit& hit);
-        BrushFace* hitToFace(const Hit& hit);
+        DocumentCommand::DocumentCommand(const CommandType type, const String& name, View::MapDocumentWPtr document) :
+        Command(type, name),
+        m_document(document) {}
+        
+        View::MapDocumentSPtr DocumentCommand::lockDocument() {
+            assert(!expired(m_document));
+            return lock(m_document);
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__HitAdapter__) */

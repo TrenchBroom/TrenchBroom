@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "View/MapDocument.h"
+#include "View/MapDocumentCommandFacade.h"
 #include "View/MapFrame.h"
 
 #include <cassert>
@@ -65,7 +66,7 @@ namespace TrenchBroom {
         MapFrame* FrameManager::createOrReuseFrame() {
             assert(!m_singleFrame || m_frames.size() <= 1);
             if (!m_singleFrame || m_frames.empty()) {
-                MapDocumentSPtr document = MapDocument::newMapDocument();
+                MapDocumentSPtr document = MapDocumentCommandFacade::newMapDocument();
                 MapFrame* frame = createFrame(document);
                 m_frames.push_back(frame);
             }

@@ -37,6 +37,7 @@ namespace TrenchBroom {
             const BBox3& bounds() const;
             void pick(const Ray3& ray, Hits& hits) const;
             
+            Node* container() const;
             Layer* layer() const;
             Group* group() const;
             
@@ -45,6 +46,7 @@ namespace TrenchBroom {
             bool intersects(const Node* object) const;
         private: // subclassing interface
             virtual const BBox3& doGetBounds() const = 0;
+            virtual Node* doGetContainer() const = 0;
             virtual Layer* doGetLayer() const = 0;
             virtual Group* doGetGroup() const = 0;
             virtual void doPick(const Ray3& ray, Hits& hits) const = 0;

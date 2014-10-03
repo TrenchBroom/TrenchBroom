@@ -66,6 +66,7 @@ namespace TrenchBroom {
             bool doCanRemoveAttribute(const AttributeName& name) const;
         private: // implement Object interface
             const BBox3& doGetBounds() const;
+            Node* doGetContainer() const;
             Layer* doGetLayer() const;
             Group* doGetGroup() const;
             void doPick(const Ray3& ray, Hits& hits) const;

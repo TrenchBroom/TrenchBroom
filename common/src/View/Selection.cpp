@@ -17,28 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__HitAdapter__
-#define __TrenchBroom__HitAdapter__
-
-#include <stdio.h>
+#include "Selection.h"
 
 namespace TrenchBroom {
-    class Hit;
-    namespace Model {
-        class Brush;
-        class BrushFace;
-        class Entity;
-        class Group;
-        class Object;
-        class Node;
-        
-        Node* hitToNode(const Hit& hit);
-        Object* hitToObject(const Hit& hit);
-        Group* hitToGroup(const Hit& hit);
-        Entity* hitToEntity(const Hit& hit);
-        Brush* hitToBrush(const Hit& hit);
-        BrushFace* hitToFace(const Hit& hit);
+    namespace View {
     }
 }
-
-#endif /* defined(__TrenchBroom__HitAdapter__) */
