@@ -34,16 +34,16 @@ namespace TrenchBroom {
             bool performUndo(MapDocumentCommandFacade* document);
 
             bool isRepeatDelimiter() const;
-            bool isRepeatable(View::MapDocumentSPtr document) const;
-            UndoableCommand* repeat(View::MapDocumentSPtr document) const;
+            bool isRepeatable(MapDocumentCommandFacade* document) const;
+            UndoableCommand* repeat(MapDocumentCommandFacade* document) const;
             
             bool collateWith(UndoableCommand* command);
         private:
             virtual bool doPerformUndo(MapDocumentCommandFacade* document) = 0;
             
             virtual bool doIsRepeatDelimiter() const;
-            virtual bool doIsRepeatable(View::MapDocumentSPtr document) const = 0;
-            virtual UndoableCommand* doRepeat(View::MapDocumentSPtr document) const;
+            virtual bool doIsRepeatable(MapDocumentCommandFacade* document) const = 0;
+            virtual UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
             
             virtual bool doCollateWith(UndoableCommand* command) = 0;
         };

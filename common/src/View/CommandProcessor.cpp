@@ -75,7 +75,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool CommandGroup::doIsRepeatable(View::MapDocumentSPtr document) const {
+        bool CommandGroup::doIsRepeatable(MapDocumentCommandFacade* document) const {
             CommandList::const_iterator it, end;
             for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
                 CommandPtr command = *it;
@@ -85,7 +85,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        UndoableCommand* CommandGroup::doRepeat(View::MapDocumentSPtr document) const {
+        UndoableCommand* CommandGroup::doRepeat(MapDocumentCommandFacade* document) const {
             CommandList clones;
             CommandList::const_iterator it, end;
             for (it = m_commands.begin(), end = m_commands.end(); it != end; ++it) {
@@ -199,14 +199,13 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool CommandProcessor::repeatLastCommands(View::MapDocumentWPtr document) {
-            View::MapDocumentSPtr doc = lock(document);
+        bool CommandProcessor::repeatLastCommands() {
             CommandList commands;
             CommandStack::iterator it, end;
             for (it = m_repeatableCommandStack.begin(), end = m_repeatableCommandStack.end(); it != end; ++it) {
                 CommandPtr command = *it;
-                if (command->isRepeatable(doc))
-                    commands.push_back(CommandPtr(command->repeat(doc)));
+                if (command->isRepeatable(m_document))
+                    commands.push_back(CommandPtr(command->repeat(m_document)));
             }
             
             if (commands.empty())

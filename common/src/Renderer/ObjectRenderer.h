@@ -50,6 +50,9 @@ namespace TrenchBroom {
             void removeObjects(const Model::NodeList& nodes);
             void removeObject(Model::Node* object);
 
+            void updateObjects(const Model::NodeList& nodes);
+            void updateObject(Model::Node* object);
+            
             void clear();
         public: // configuration
             void setOverlayTextColor(const Color& overlayTextColor);

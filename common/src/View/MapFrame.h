@@ -77,6 +77,9 @@ namespace TrenchBroom {
             bool confirmOrDiscardChanges();
         private: // title bar contents
             void updateTitle();
+        private: // menu bar
+            void rebuildMenuBar();
+            void createMenuBar();
         private: // gui creation
             void createGui();
         private: // notification handlers
@@ -85,6 +88,7 @@ namespace TrenchBroom {
             
             void documentWasCleared(View::MapDocument* document);
             void documentDidChange(View::MapDocument* document);
+            void preferenceDidChange(const IO::Path& path);
         private: // menu event handlers
             void bindEvents();
             
@@ -93,6 +97,26 @@ namespace TrenchBroom {
             void OnFileLoadPointFile(wxCommandEvent& event);
             void OnFileUnloadPointFile(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
+
+            /*
+            void OnEditUndo(wxCommandEvent& event);
+            void OnEditRedo(wxCommandEvent& event);
+            void OnEditRepeat(wxCommandEvent& event);
+            void OnEditClearRepeat(wxCommandEvent& event);
+            void OnEditCut(wxCommandEvent& event);
+            void OnEditCopy(wxCommandEvent& event);
+            void OnEditPaste(wxCommandEvent& event);
+            void OnEditPasteAtOriginalPosition(wxCommandEvent& event);
+            */
+             
+            void OnEditSelectAll(wxCommandEvent& event);
+            /*
+            void OnEditSelectSiblings(wxCommandEvent& event);
+            void OnEditSelectTouching(wxCommandEvent& event);
+            void OnEditSelectInside(wxCommandEvent& event);
+            void OnEditSelectByLineNumber(wxCommandEvent& event);
+             */
+            void OnEditSelectNone(wxCommandEvent& event);
 
             void OnUpdateUI(wxUpdateUIEvent& event);
         private: // other event handlers

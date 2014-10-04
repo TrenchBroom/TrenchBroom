@@ -36,6 +36,7 @@
 #include "Model/PointFile.h"
 #include "Model/World.h"
 #include "View/MapViewConfig.h"
+#include "View/SelectionCommand.h"
 
 #include <cassert>
 
@@ -174,6 +175,10 @@ namespace TrenchBroom {
             m_textureManager->commitChanges();
         }
 
+        bool MapDocument::hasSelection() const {
+            return hasSelectedNodes() || hasSelectedBrushFaces();
+        }
+
         bool MapDocument::hasSelectedNodes() const {
             return !m_selectedNodes.empty();
         }
@@ -182,19 +187,81 @@ namespace TrenchBroom {
             return !m_selectedBrushFaces.empty();
         }
 
-        void MapDocument::select(const Model::NodeList& nodes) {}
-        void MapDocument::select(Model::Node* node) {}
-        void MapDocument::select(const Model::BrushFaceList& faces) {}
-        void MapDocument::select(Model::BrushFace* face) {}
-        void MapDocument::convertToFaceSelection() {}
+        const Model::NodeList& MapDocument::selectedNodes() const {
+            return m_selectedNodes;
+        }
         
-        void MapDocument::deselectAll() {}
-        void MapDocument::deselect(Model::Node* node) {}
-        void MapDocument::deselect(Model::BrushFace* face) {}
+        const Model::BrushFaceList& MapDocument::selectedBrushFaces() const {
+            return m_selectedBrushFaces;
+        }
+
+        void MapDocument::selectAllNodes() {
+            submit(SelectionCommand::selectAllNodes());
+        }
+
+        void MapDocument::select(const Model::NodeList& nodes) {
+            submit(SelectionCommand::select(nodes));
+        }
+        
+        void MapDocument::select(Model::Node* node) {
+            submit(SelectionCommand::select(Model::NodeList(1, node)));
+        }
+        
+        void MapDocument::select(const Model::BrushFaceList& faces) {
+            submit(SelectionCommand::select(faces));
+        }
+        
+        void MapDocument::select(Model::BrushFace* face) {
+            submit(SelectionCommand::select(Model::BrushFaceList(1, face)));
+        }
+        
+        void MapDocument::convertToFaceSelection() {
+            submit(SelectionCommand::convertToFaces());
+        }
+        
+        void MapDocument::deselectAll() {
+            submit(SelectionCommand::deselectAll());
+        }
+        
+        void MapDocument::deselect(Model::Node* node) {
+            submit(SelectionCommand::deselect(Model::NodeList(1, node)));
+        }
+        
+        void MapDocument::deselect(Model::BrushFace* face) {
+            submit(SelectionCommand::deselect(Model::BrushFaceList(1, face)));
+        }
 
         void MapDocument::clearSelection() {
             m_selectedNodes.clear();
             m_selectedBrushFaces.clear();
+        }
+
+        bool MapDocument::canUndoLastCommand() const {
+            return doCanUndoLastCommand();
+        }
+
+        bool MapDocument::canRedoNextCommand() const {
+            return doCanRedoNextCommand();
+        }
+        
+        const String& MapDocument::lastCommandName() const {
+            return doGetLastCommandName();
+        }
+        
+        const String& MapDocument::nextCommandName() const {
+            return doGetNextCommandName();
+        }
+        
+        void MapDocument::undoLastCommand() {
+            doUndoLastCommand();
+        }
+        
+        void MapDocument::redoNextCommand() {
+            doRedoNextCommand();
+        }
+
+        void MapDocument::submit(UndoableCommand* command) {
+            doSubmit(command);
         }
 
         Hits MapDocument::pick(const Ray3& pickRay) const {

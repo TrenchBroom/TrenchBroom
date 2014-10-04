@@ -78,8 +78,8 @@ namespace TrenchBroom {
             Notifier1<MapDocument*> documentWasLoadedNotifier;
             Notifier1<MapDocument*> documentWasSavedNotifier;
             
-            Notifier0 selectionWillChange;
-            Notifier1<const Selection&> selectionDidChange;
+            Notifier0 selectionWillChangeNotifier;
+            Notifier1<const Selection&> selectionDidChangeNotifier;
             
             Notifier0 pointFileWasLoadedNotifier;
             Notifier0 pointFileWasUnloadedNotifier;
@@ -111,9 +111,14 @@ namespace TrenchBroom {
         public: // asset state management
             void commitPendingAssets();
         public: // selection
+            bool hasSelection() const;
             bool hasSelectedNodes() const;
             bool hasSelectedBrushFaces() const;
 
+            const Model::NodeList& selectedNodes() const;
+            const Model::BrushFaceList& selectedBrushFaces() const;
+            
+            void selectAllNodes();
             void select(const Model::NodeList& nodes);
             void select(Model::Node* node);
             void select(const Model::BrushFaceList& faces);

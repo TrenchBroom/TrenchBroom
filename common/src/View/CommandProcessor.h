@@ -60,8 +60,8 @@ namespace TrenchBroom {
             bool doPerformUndo(MapDocumentCommandFacade* document);
 
             bool doIsRepeatDelimiter() const;
-            bool doIsRepeatable(View::MapDocumentSPtr document) const;
-            UndoableCommand* doRepeat(View::MapDocumentSPtr document) const;
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
+            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
 
             bool doCollateWith(UndoableCommand* command);
         };
@@ -107,7 +107,7 @@ namespace TrenchBroom {
             bool undoLastCommand();
             bool redoNextCommand();
             
-            bool repeatLastCommands(View::MapDocumentWPtr document);
+            bool repeatLastCommands();
             void clearRepeatableCommands();
         private:
             bool submitAndStoreCommand(CommandPtr command, bool collate);

@@ -102,7 +102,7 @@ namespace TrenchBroom {
 
         void RenderUnoccludedEdges::doRender(RenderContext& renderContext) {
             glSetEdgeOffset(0.02f);
-            m_edgeRenderer.setUseColor(true);
+            m_edgeRenderer.setUseColor(m_useColor);
             m_edgeRenderer.setColor(m_edgeColor);
             m_edgeRenderer.render(renderContext);
             glResetEdgeOffset();
@@ -113,7 +113,7 @@ namespace TrenchBroom {
 
         void RenderOccludedEdges::doRender(RenderContext& renderContext) {
             glDisable(GL_DEPTH_TEST);
-            m_edgeRenderer.setUseColor(true);
+            m_edgeRenderer.setUseColor(m_useColor);
             m_edgeRenderer.setColor(m_edgeColor);
             m_edgeRenderer.render(renderContext);
             glResetEdgeOffset();

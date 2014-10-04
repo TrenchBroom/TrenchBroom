@@ -78,6 +78,33 @@ namespace TrenchBroom {
             object->acceptAndRecurse(visitor);
         }
 
+        class UpdateNodesInObjectRenderer : public Model::NodeVisitor {
+        private:
+            EntityRenderer& m_entityRenderer;
+            BrushRenderer& m_brushRenderer;
+        public:
+            UpdateNodesInObjectRenderer(EntityRenderer& entityRenderer, BrushRenderer& brushRenderer) :
+            m_entityRenderer(entityRenderer),
+            m_brushRenderer(brushRenderer) {}
+        private:
+            virtual void doVisit(Model::World* world)   {}
+            virtual void doVisit(Model::Layer* layer)   {}
+            virtual void doVisit(Model::Group* group)   {}
+            virtual void doVisit(Model::Entity* entity) { m_entityRenderer.updateEntity(entity); }
+            virtual void doVisit(Model::Brush* brush)   { m_brushRenderer.updateBrush(brush); }
+        };
+        
+        void ObjectRenderer::updateObjects(const Model::NodeList& nodes) {
+            UpdateNodesInObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+        }
+        
+        void ObjectRenderer::updateObject(Model::Node* object) {
+            assert(object != NULL);
+            UpdateNodesInObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
+            object->accept(visitor);
+        }
+
         void ObjectRenderer::clear() {
             m_brushRenderer.clear();
             m_entityRenderer.clear();

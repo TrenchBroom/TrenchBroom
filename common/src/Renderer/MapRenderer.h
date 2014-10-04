@@ -27,6 +27,10 @@
 #include <map>
 
 namespace TrenchBroom {
+    namespace View {
+        class Selection;
+    }
+    
     namespace Renderer {
         class FontManager;
         class RenderBatch;
@@ -39,8 +43,11 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             
             RendererMap m_layerRenderers;
+            ObjectRenderer m_selectionRenderer;
             
             class AddLayer;
+            class HandleSelectedNode;
+            class UpdateNode;
         public:
             MapRenderer(View::MapDocumentWPtr document);
             ~MapRenderer();
@@ -50,15 +57,20 @@ namespace TrenchBroom {
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:
             void commitPendingChanges();
-            void setupGL();
+            void setupGL(RenderBatch& renderBatch);
             void renderLayers(RenderContext& renderContext, RenderBatch& renderBatch);
-            void setupRenderer(ObjectRenderer* renderer);
+            void setupLayerRenderer(ObjectRenderer* renderer);
+            void renderSelection(RenderContext& renderContext, RenderBatch& renderBatch);
+            void setupSelectionRenderer(ObjectRenderer* renderer);
         private: // notification
             void bindObservers();
             void unbindObservers();
             
             void documentWasCleared(View::MapDocument* document);
             void documentWasNewedOrLoaded(View::MapDocument* document);
+            
+            void selectionDidChange(const View::Selection& selection);
+            Model::BrushSet collectBrushes(const Model::BrushFaceList& faces);
         };
     }
 }

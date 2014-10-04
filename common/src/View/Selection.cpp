@@ -19,7 +19,56 @@
 
 #include "Selection.h"
 
+#include "CollectionUtils.h"
+
 namespace TrenchBroom {
     namespace View {
+        const Model::NodeList& Selection::partiallySelectedNodes() const {
+            return m_partiallySelectedNodes;
+        }
+        
+        const Model::NodeList& Selection::partiallyDeselectedNodes() const {
+            return m_partiallyDeselectedNodes;
+        }
+        
+        const Model::NodeList& Selection::selectedNodes() const {
+            return m_selectedNodes;
+        }
+        
+        const Model::NodeList& Selection::deselectedNodes() const {
+            return m_deselectedNodes;
+        }
+        
+        const Model::BrushFaceList& Selection::selectedBrushFaces() const {
+            return m_selectedBrushFaces;
+        }
+        
+        const Model::BrushFaceList& Selection::deselectedBrushFaces() const {
+            return m_deselectedBrushFaces;
+        }
+
+        void Selection::addPartiallySelectedNodes(const Model::NodeList& nodes) {
+            VectorUtils::append(m_partiallySelectedNodes, nodes);
+        }
+        
+        void Selection::addPartiallyDeselectedNodes(const Model::NodeList& nodes) {
+            VectorUtils::append(m_partiallyDeselectedNodes, nodes);
+        }
+        
+        void Selection::addSelectedNodes(const Model::NodeList& nodes) {
+            VectorUtils::append(m_selectedNodes, nodes);
+        }
+        
+        void Selection::addDeselectedNodes(const Model::NodeList& nodes) {
+            VectorUtils::append(m_deselectedNodes, nodes);
+        }
+        
+        void Selection::addSelectedBrushFaces(const Model::BrushFaceList& faces) {
+            VectorUtils::append(m_selectedBrushFaces, faces);
+        }
+        
+        void Selection::addDeselectedBrushFaces(const Model::BrushFaceList& faces) {
+            VectorUtils::append(m_deselectedBrushFaces, faces);
+        }
     }
 }

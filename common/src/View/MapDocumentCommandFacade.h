@@ -35,7 +35,10 @@ namespace TrenchBroom {
         public: // selection modification
             void performSelect(const Model::NodeList& nodes);
             void performSelect(const Model::BrushFaceList& faces);
-
+            void performSelectAllNodes();
+            void performSelectAllBrushFaces();
+            void performConvertToBrushFaceSelection();
+            
             void performDeselect(const Model::NodeList& nodes);
             void performDeselect(const Model::BrushFaceList& faces);
             void performDeselectAll();

@@ -33,6 +33,13 @@ namespace TrenchBroom {
             Model::BrushFaceList m_selectedBrushFaces;
             Model::BrushFaceList m_deselectedBrushFaces;
         public:
+            const Model::NodeList& partiallySelectedNodes() const;
+            const Model::NodeList& partiallyDeselectedNodes() const;
+            const Model::NodeList& selectedNodes() const;
+            const Model::NodeList& deselectedNodes() const;
+            const Model::BrushFaceList& selectedBrushFaces() const;
+            const Model::BrushFaceList& deselectedBrushFaces() const;
+            
             void addPartiallySelectedNodes(const Model::NodeList& nodes);
             void addPartiallyDeselectedNodes(const Model::NodeList& nodes);
             void addSelectedNodes(const Model::NodeList& nodes);

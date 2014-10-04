@@ -45,7 +45,7 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     Model::BrushFace* face = Model::hitToFace(hit);
                     if (isMultiClick(inputState)) {
-                        const bool objects = document()->hasSelectedObjects();
+                        const bool objects = document()->hasSelectedNodes();
                         if (objects) {
                             const Model::Brush* brush = face->brush();
                             if (brush->selected()) {

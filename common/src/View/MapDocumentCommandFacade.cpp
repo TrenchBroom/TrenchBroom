@@ -24,7 +24,10 @@
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
 #include "Model/EditorContext.h"
+#include "Model/Entity.h"
+#include "Model/Group.h"
 #include "Model/Node.h"
+#include "Model/World.h"
 #include "View/Selection.h"
 
 namespace TrenchBroom {
@@ -37,7 +40,7 @@ namespace TrenchBroom {
         m_commandProcessor(this) {}
 
         void MapDocumentCommandFacade::performSelect(const Model::NodeList& nodes) {
-            selectionWillChange();
+            selectionWillChangeNotifier();
 
             Model::NodeList selected;
             selected.reserve(nodes.size());
@@ -63,11 +66,11 @@ namespace TrenchBroom {
             selection.addSelectedNodes(selected);
             selection.addPartiallySelectedNodes(partiallySelected);
             
-            selectionDidChange(selection);
+            selectionDidChangeNotifier(selection);
         }
         
         void MapDocumentCommandFacade::performSelect(const Model::BrushFaceList& faces) {
-            selectionWillChange();
+            selectionWillChangeNotifier();
             
             Model::BrushFaceList selected;
             selected.reserve(faces.size());
@@ -93,11 +96,81 @@ namespace TrenchBroom {
             selection.addSelectedBrushFaces(selected);
             selection.addPartiallySelectedNodes(partiallySelected);
             
-            selectionDidChange(selection);
+            selectionDidChangeNotifier(selection);
         }
         
+        class CollectSelectableNodes : public Model::NodeVisitor {
+        private:
+            const Model::EditorContext& m_editorContext;
+            Model::NodeList m_nodes;
+        public:
+            CollectSelectableNodes(const Model::EditorContext& editorContext) :
+            m_editorContext(editorContext) {}
+            
+            const Model::NodeList& result() const {
+                return m_nodes;
+            }
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   { if (m_editorContext.selectable(group))  { m_nodes.push_back(group);  stopRecursion(); } }
+            void doVisit(Model::Entity* entity) { if (m_editorContext.selectable(entity)) { m_nodes.push_back(entity); stopRecursion(); } }
+            void doVisit(Model::Brush* brush)   { if (m_editorContext.selectable(brush))  { m_nodes.push_back(brush);  stopRecursion(); } }
+        };
+
+        void MapDocumentCommandFacade::performSelectAllNodes() {
+            performDeselectAll();
+            
+            CollectSelectableNodes visitor(*m_editorContext);
+            m_world->acceptAndRecurse(visitor);
+            performSelect(visitor.result());
+        }
+        
+        class CollectSelectableFaces : public Model::NodeVisitor {
+        private:
+            const Model::EditorContext& m_editorContext;
+            Model::BrushFaceList m_faces;
+        public:
+            CollectSelectableFaces(const Model::EditorContext& editorContext) :
+            m_editorContext(editorContext) {}
+            
+            const Model::BrushFaceList& result() const {
+                return m_faces;
+            }
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   {}
+            void doVisit(Model::Entity* entity) {}
+            void doVisit(Model::Brush* brush)   {
+                const Model::BrushFaceList& faces = brush->faces();
+                Model::BrushFaceList::const_iterator it, end;
+                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                    Model::BrushFace* face = *it;
+                    if (m_editorContext.selectable(face))
+                        m_faces.push_back(face);
+                }
+            }
+        };
+        
+        void MapDocumentCommandFacade::performSelectAllBrushFaces() {
+            performDeselectAll();
+            
+            CollectSelectableFaces visitor(*m_editorContext);
+            m_world->acceptAndRecurse(visitor);
+            performSelect(visitor.result());
+        }
+
+        void MapDocumentCommandFacade::performConvertToBrushFaceSelection() {
+            CollectSelectableFaces visitor(*m_editorContext);
+            Model::Node::acceptAndRecurse(m_selectedNodes.begin(), m_selectedNodes.end(), visitor);
+            
+            performDeselectAll();
+            performSelect(visitor.result());
+        }
+
         void MapDocumentCommandFacade::performDeselect(const Model::NodeList& nodes) {
-            selectionWillChange();
+            selectionWillChangeNotifier();
             
             Model::NodeList deselected;
             deselected.reserve(nodes.size());
@@ -123,11 +196,11 @@ namespace TrenchBroom {
             selection.addDeselectedNodes(deselected);
             selection.addPartiallyDeselectedNodes(partiallyDeselected);
             
-            selectionDidChange(selection);
+            selectionDidChangeNotifier(selection);
         }
         
         void MapDocumentCommandFacade::performDeselect(const Model::BrushFaceList& faces) {
-            selectionWillChange();
+            selectionWillChangeNotifier();
             
             Model::BrushFaceList deselected;
             deselected.reserve(faces.size());
@@ -153,7 +226,7 @@ namespace TrenchBroom {
             selection.addDeselectedBrushFaces(deselected);
             selection.addPartiallyDeselectedNodes(partiallyDeselected);
             
-            selectionDidChange(selection);
+            selectionDidChangeNotifier(selection);
         }
 
         void MapDocumentCommandFacade::performDeselectAll() {
@@ -164,7 +237,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::deselectAllNodes() {
-            selectionWillChange();
+            selectionWillChangeNotifier();
 
             Model::NodeList::const_iterator it, end;
             for (it = m_selectedNodes.begin(), end = m_selectedNodes.end(); it != end; ++it) {
@@ -179,26 +252,26 @@ namespace TrenchBroom {
             m_selectedNodes.clear();
             m_partiallySelectedNodes.clear();
             
-            selectionDidChange(selection);
+            selectionDidChangeNotifier(selection);
         }
         
         void MapDocumentCommandFacade::deselectAllBrushFaces() {
-            selectionWillChange();
+            selectionWillChangeNotifier();
             
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_selectedBrushFaces.begin(), end = m_selectedBrushFaces.end(); it != end; ++it) {
-                Model::BrushFace* node = *it;
-                node->deselect();
+                Model::BrushFace* face = *it;
+                face->deselect();
             }
             
             Selection selection;
             selection.addDeselectedBrushFaces(m_selectedBrushFaces);
             selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes);
             
-            m_selectedNodes.clear();
+            m_selectedBrushFaces.clear();
             m_partiallySelectedNodes.clear();
             
-            selectionDidChange(selection);
+            selectionDidChangeNotifier(selection);
         }
 
         bool MapDocumentCommandFacade::doCanUndoLastCommand() const {

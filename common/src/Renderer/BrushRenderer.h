@@ -98,6 +98,7 @@ namespace TrenchBroom {
 
             void addBrush(Model::Brush* brush);
             void removeBrush(Model::Brush* brush);
+            void updateBrush(Model::Brush* brush);
             
             template <typename I>
             void addBrushes(I cur, I end, const size_t count) {
@@ -110,6 +111,11 @@ namespace TrenchBroom {
             void removeBrushes(I cur, I end) {
                 const Model::BrushList::iterator rem = VectorUtils::removeAll(m_brushes.begin(), m_brushes.end(), cur, end);
                 m_brushes.erase(rem, m_brushes.end());
+                invalidate();
+            }
+            
+            template <typename I>
+            void updateBBrushes(I cur, I end) {
                 invalidate();
             }
             

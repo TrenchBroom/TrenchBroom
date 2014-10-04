@@ -43,11 +43,11 @@ namespace TrenchBroom {
             return doIsRepeatDelimiter();
         }
         
-        bool UndoableCommand::isRepeatable(View::MapDocumentSPtr document) const {
+        bool UndoableCommand::isRepeatable(MapDocumentCommandFacade* document) const {
             return doIsRepeatable(document);
         }
         
-        UndoableCommand* UndoableCommand::repeat(View::MapDocumentSPtr document) const {
+        UndoableCommand* UndoableCommand::repeat(MapDocumentCommandFacade* document) const {
             return doRepeat(document);
         }
         
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             return false;
         }
         
-        UndoableCommand* UndoableCommand::doRepeat(View::MapDocumentSPtr document) const {
+        UndoableCommand* UndoableCommand::doRepeat(MapDocumentCommandFacade* document) const {
             throw CommandProcessorException("Command is not repeatable");
         }
     }
