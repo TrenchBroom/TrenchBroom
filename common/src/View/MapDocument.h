@@ -44,6 +44,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Grid;
         class MapViewConfig;
         class Selection;
         class UndoableCommand;
@@ -64,6 +65,7 @@ namespace TrenchBroom {
             Assets::TextureManager* m_textureManager;
             
             MapViewConfig* m_mapViewConfig;
+            Grid* m_grid;
             
             IO::Path m_path;
             size_t m_modificationCount;
@@ -88,12 +90,14 @@ namespace TrenchBroom {
         public:
             virtual ~MapDocument();
         public: // accessors and such
+            const BBox3& worldBounds() const;
             Model::World* world() const;
             const Model::EditorContext& editorContext() const;
             
             Assets::EntityModelManager& entityModelManager();
             
-            const View::MapViewConfig& mapViewConfig() const;
+            const MapViewConfig& mapViewConfig() const;
+            const Grid& grid() const;
         public: // new, load, save document
             void newDocument(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
@@ -108,8 +112,6 @@ namespace TrenchBroom {
             void loadPointFile();
             bool isPointFileLoaded() const;
             void unloadPointFile();
-        public: // asset state management
-            void commitPendingAssets();
         public: // selection
             bool hasSelection() const;
             bool hasSelectedNodes() const;
@@ -130,6 +132,10 @@ namespace TrenchBroom {
             void deselect(Model::BrushFace* face);
         private:
             void clearSelection();
+        public: // modifying objects
+            bool translateObjects(const Vec3& delta);
+        public: // duplicate objects
+            Model::NodeList duplicateObjects();
         public: // command processing
             bool canUndoLastCommand() const;
             bool canRedoNextCommand() const;
@@ -137,8 +143,13 @@ namespace TrenchBroom {
             const String& nextCommandName() const;
             void undoLastCommand();
             void redoNextCommand();
+        public: // transactions
+            void beginTransaction(const String& name);
+            void endTransaction();
+            void rollbackTransaction();
+            void cancelTransaction();
         private:
-            void submit(UndoableCommand* command);
+            bool submit(UndoableCommand* command);
         private: // subclassing interface for command processing
             virtual bool doCanUndoLastCommand() const = 0;
             virtual bool doCanRedoNextCommand() const = 0;
@@ -147,7 +158,13 @@ namespace TrenchBroom {
             virtual void doUndoLastCommand() = 0;
             virtual void doRedoNextCommand() = 0;
             
-            virtual void doSubmit(UndoableCommand* command) = 0;
+            virtual void doBeginTransaction(const String& name) = 0;
+            virtual void doEndTransaction() = 0;
+            virtual void doRollbackTransaction() = 0;
+
+            virtual bool doSubmit(UndoableCommand* command) = 0;
+        public: // asset state management
+            void commitPendingAssets();
         public: // picking
             Hits pick(const Ray3& pickRay) const;
         private: // world management
@@ -188,26 +205,25 @@ namespace TrenchBroom {
         public: // modification count
             bool modified() const;
         private:
+            void incModificationCount();
+            void decModificationCount();
             void clearModificationCount();
-        public: // undo, redo, and transactions
-            void beginTransaction(const String& name);
-            void commitTransaction();
-            void rollbackTransaction();
         };
 
         class Transaction {
         private:
-            MapDocumentWPtr m_document;
-            bool m_commit;
+            MapDocumentSPtr m_document;
+            bool m_cancelled;
         public:
             Transaction(MapDocumentWPtr document, const String& name = "");
             Transaction(MapDocumentSPtr document, const String& name = "");
             ~Transaction();
             
             void rollback();
+            void cancel();
         private:
             void begin(const String& name);
-            void commit();
+            void end();
         };
     }
 }

@@ -56,5 +56,9 @@ namespace TrenchBroom {
                 m_bounds.mergeWith(bounds);
             }
         }
+
+        BBox3 computeBounds(const Model::NodeList& nodes) {
+            return computeBounds(nodes.begin(), nodes.end());
+        }
     }
 }

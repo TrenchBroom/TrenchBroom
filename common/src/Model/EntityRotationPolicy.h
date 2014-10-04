@@ -42,6 +42,7 @@ namespace TrenchBroom {
             EntityRotationPolicy();
             static Quat3 getRotation(const Entity* entity);
             static void applyRotation(Entity* entity, const Mat4x4& transformation);
+            static AttributeName getAttribute(const Entity* entity);
         private:
             static RotationInfo rotationInfo(const Entity* entity);
             static void setAngle(Entity* entity, const AttributeName& attribute, const Vec3& direction);

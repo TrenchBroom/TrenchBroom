@@ -115,6 +115,11 @@ namespace TrenchBroom {
             }
         }
         
+        AttributeName EntityRotationPolicy::getAttribute(const Entity* entity) {
+            const RotationInfo info = rotationInfo(entity);
+            return info.attribute;
+        }
+
         EntityRotationPolicy::RotationInfo EntityRotationPolicy::rotationInfo(const Entity* entity) {
             RotationType type = RotationType_None;
             AttributeName attribute;

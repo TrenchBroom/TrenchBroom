@@ -53,7 +53,11 @@ namespace TrenchBroom {
             void doUndoLastCommand();
             void doRedoNextCommand();
             
-            void doSubmit(UndoableCommand* command);
+            void doBeginTransaction(const String& name);
+            void doEndTransaction();
+            void doRollbackTransaction();
+
+            bool doSubmit(UndoableCommand* command);
         };
     }
 }

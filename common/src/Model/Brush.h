@@ -54,6 +54,8 @@ namespace TrenchBroom {
             Attributable* entity() const;
         public: // face management:
             const BrushFaceList& faces() const;
+            void setFaces(const BBox3& worldBounds, const BrushFaceList& faces);
+
             void faceDidChange();
         private:
             void addFaces(const BrushFaceList& faces);
@@ -80,6 +82,7 @@ namespace TrenchBroom {
             
             void removeFace(BrushFace* face);
             BrushFaceList::iterator doRemoveFace(BrushFaceList::iterator begin, BrushFaceList::iterator end, BrushFace* face);
+            
             void detachFaces(const BrushFaceList& faces);
             void detachFace(BrushFace* face);
         public: // clipping
@@ -134,10 +137,14 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Object interface
             const BBox3& doGetBounds() const;
+            void doPick(const Ray3& ray, Hits& hits) const;
+
             Node* doGetContainer() const;
             Layer* doGetLayer() const;
             Group* doGetGroup() const;
-            void doPick(const Ray3& ray, Hits& hits) const;
+            
+            ObjectSnapshot* doTakeSnapshot();
+
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Node* node) const;
             bool doIntersects(const Node* node) const;

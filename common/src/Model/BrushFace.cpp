@@ -24,6 +24,7 @@
 #include "Assets/Texture.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceGeometry.h"
+#include "Model/BrushFaceSnapshot.h"
 #include "Model/BrushVertex.h"
 #include "Model/PlanePointFinder.h"
 #include "Model/ParallelTexCoordSystem.h"
@@ -149,17 +150,6 @@ namespace TrenchBroom {
             m_surfaceValue = surfaceValue;
         }
 
-        BrushFaceSnapshot::BrushFaceSnapshot(BrushFace& face, TexCoordSystem& coordSystem) :
-        m_face(&face),
-        m_attribs(m_face->attribs()),
-        m_coordSystem(coordSystem.takeSnapshot()) {}
-
-        void BrushFaceSnapshot::restore() {
-            m_face->setAttribs(m_attribs);
-            if (m_coordSystem != NULL)
-                m_coordSystem->restore();
-        }
-
         const String BrushFace::NoTextureName = "__TB_empty";
         
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName, TexCoordSystem* texCoordSystem) :
@@ -239,8 +229,8 @@ namespace TrenchBroom {
             return result;
         }
 
-        BrushFaceSnapshot BrushFace::takeSnapshot() {
-            return BrushFaceSnapshot(*this, *m_texCoordSystem);
+        BrushFaceSnapshot* BrushFace::takeSnapshot() {
+            return new BrushFaceSnapshot(this, m_texCoordSystem);
         }
 
         Brush* BrushFace::brush() const {

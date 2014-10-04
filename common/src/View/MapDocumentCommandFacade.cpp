@@ -298,8 +298,20 @@ namespace TrenchBroom {
             m_commandProcessor.redoNextCommand();
         }
         
-        void MapDocumentCommandFacade::doSubmit(UndoableCommand* command) {
-            m_commandProcessor.submitAndStoreCommand(command);
+        void MapDocumentCommandFacade::doBeginTransaction(const String& name) {
+            m_commandProcessor.beginGroup(name);
+        }
+        
+        void MapDocumentCommandFacade::doEndTransaction() {
+            m_commandProcessor.endGroup();
+        }
+        
+        void MapDocumentCommandFacade::doRollbackTransaction() {
+            m_commandProcessor.rollbackGroup();
+        }
+
+        bool MapDocumentCommandFacade::doSubmit(UndoableCommand* command) {
+            return m_commandProcessor.submitAndStoreCommand(command);
         }
     }
 }

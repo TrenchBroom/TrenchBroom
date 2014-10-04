@@ -35,6 +35,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
+#include "View/Grid.h"
 #include "View/MapViewConfig.h"
 #include "View/SelectionCommand.h"
 
@@ -54,6 +55,7 @@ namespace TrenchBroom {
         m_entityModelManager(new Assets::EntityModelManager(this)),
         m_textureManager(new Assets::TextureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
         m_mapViewConfig(new MapViewConfig(*m_editorContext)),
+        m_grid(new Grid(5)),
         m_path(DefaultDocumentName),
         m_modificationCount(0) {}
         
@@ -61,11 +63,16 @@ namespace TrenchBroom {
             if (isPointFileLoaded())
                 unloadPointFile();
             clearWorld();
+            delete m_grid;
             delete m_mapViewConfig;
             delete m_textureManager;
             delete m_entityModelManager;
             delete m_entityDefinitionManager;
             delete m_editorContext;
+        }
+
+        const BBox3& MapDocument::worldBounds() const {
+            return m_worldBounds;
         }
 
         Model::World* MapDocument::world() const {
@@ -82,6 +89,10 @@ namespace TrenchBroom {
 
         const View::MapViewConfig& MapDocument::mapViewConfig() const {
             return *m_mapViewConfig;
+        }
+
+        const Grid& MapDocument::grid() const {
+            return *m_grid;
         }
 
         void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
@@ -171,10 +182,6 @@ namespace TrenchBroom {
             pointFileWasUnloadedNotifier();
         }
 
-        void MapDocument::commitPendingAssets() {
-            m_textureManager->commitChanges();
-        }
-
         bool MapDocument::hasSelection() const {
             return hasSelectedNodes() || hasSelectedBrushFaces();
         }
@@ -236,6 +243,11 @@ namespace TrenchBroom {
             m_selectedBrushFaces.clear();
         }
 
+        bool MapDocument::translateObjects(const Vec3& delta) {
+            
+            incModificationCount();
+        }
+
         bool MapDocument::canUndoLastCommand() const {
             return doCanUndoLastCommand();
         }
@@ -260,8 +272,29 @@ namespace TrenchBroom {
             doRedoNextCommand();
         }
 
-        void MapDocument::submit(UndoableCommand* command) {
-            doSubmit(command);
+        void MapDocument::beginTransaction(const String& name) {
+            doBeginTransaction(name);
+        }
+        
+        void MapDocument::endTransaction() {
+            doEndTransaction();
+        }
+        
+        void MapDocument::rollbackTransaction() {
+            doRollbackTransaction();
+        }
+
+        void MapDocument::cancelTransaction() {
+            rollbackTransaction();
+            endTransaction();
+        }
+
+        bool MapDocument::submit(UndoableCommand* command) {
+            return doSubmit(command);
+        }
+        
+        void MapDocument::commitPendingAssets() {
+            m_textureManager->commitChanges();
         }
 
         Hits MapDocument::pick(const Ray3& pickRay) const {
@@ -547,46 +580,51 @@ namespace TrenchBroom {
             return m_modificationCount > 0;
         }
 
+        void MapDocument::incModificationCount() {
+            ++m_modificationCount;
+        }
+        
+        void MapDocument::decModificationCount() {
+            assert(m_modificationCount > 0);
+            --m_modificationCount;
+        }
+
         void MapDocument::clearModificationCount() {
             m_modificationCount = 0;
         }
 
-        void MapDocument::beginTransaction(const String& name) {
-        }
-        
-        void MapDocument::commitTransaction() {
-        }
-        
-        void MapDocument::rollbackTransaction() {
-        }
-
         Transaction::Transaction(MapDocumentWPtr document, const String& name) :
-        m_document(document),
-        m_commit(true) {
+        m_document(lock(document)),
+        m_cancelled(false) {
             begin(name);
         }
         
         Transaction::Transaction(MapDocumentSPtr document, const String& name) :
         m_document(document),
-        m_commit(true) {
+        m_cancelled(false) {
             begin(name);
         }
         
         Transaction::~Transaction() {
-            if (m_commit)
-                commit();
+            if (!m_cancelled)
+                end();
         }
 
         void Transaction::rollback() {
-            lock(m_document)->rollbackTransaction();
+            m_document->rollbackTransaction();
+        }
+
+        void Transaction::cancel() {
+            m_document->cancelTransaction();
+            m_cancelled = true;
         }
 
         void Transaction::begin(const String& name) {
-            lock(m_document)->beginTransaction(name);
+            m_document->beginTransaction(name);
         }
         
-        void Transaction::commit() {
-            lock(m_document)->commitTransaction();
+        void Transaction::end() {
+            m_document->endTransaction();
         }
     }
 }

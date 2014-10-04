@@ -39,6 +39,7 @@ namespace TrenchBroom {
         class Brush;
         class BrushFace;
         class BrushFaceGeometry;
+        class BrushFaceSnapshot;
         
         class BrushFaceAttribs {
         private:
@@ -87,18 +88,6 @@ namespace TrenchBroom {
             void setSurfaceValue(float surfaceValue);
         };
         
-        class BrushFaceSnapshot {
-        private:
-            typedef std::tr1::shared_ptr<TexCoordSystemSnapshot> TexCoordSystemSnapshotPtr;
-            
-            BrushFace* m_face;
-            BrushFaceAttribs m_attribs;
-            TexCoordSystemSnapshotPtr m_coordSystem;
-        public:
-            BrushFaceSnapshot(BrushFace& face, TexCoordSystem& coordSystem);
-            void restore();
-        };
-        
         class BrushFace {
         public:
             /*
@@ -143,7 +132,7 @@ namespace TrenchBroom {
             
             BrushFace* clone() const;
             
-            BrushFaceSnapshot takeSnapshot();
+            BrushFaceSnapshot* takeSnapshot();
 
             Brush* brush() const;
             void setBrush(Brush* brush);

@@ -23,6 +23,7 @@
 #include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
+#include "Model/BrushSnapshot.h"
 #include "Model/Entity.h"
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
@@ -78,6 +79,14 @@ namespace TrenchBroom {
             return m_faces;
         }
 
+        void Brush::setFaces(const BBox3& worldBounds, const BrushFaceList& faces) {
+            detachFaces(m_faces);
+            VectorUtils::clearAndDelete(m_faces);
+            addFaces(faces);
+            rebuildGeometry(worldBounds);
+            nodeDidChange();
+        }
+        
         void Brush::faceDidChange() {
             invalidateContentType();
             updateIssues();
@@ -438,6 +447,22 @@ namespace TrenchBroom {
             assert(m_geometry != NULL);
             return m_geometry->bounds;
         }
+
+        void Brush::doPick(const Ray3& ray, Hits& hits) const {
+            if (Math::isnan(bounds().intersectWithRay(ray)))
+                return;
+            
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                const FloatType distance = face->intersectWithRay(ray);
+                if (!Math::isnan(distance)) {
+                    const Vec3 hitPoint = ray.pointAtDistance(distance);
+                    hits.addHit(Hit(BrushHit, distance, hitPoint, face));
+                    break;
+                }
+            }
+        }
         
         Node* Brush::doGetContainer() const {
             FindContainerVisitor visitor;
@@ -457,20 +482,8 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : NULL;
         }
         
-        void Brush::doPick(const Ray3& ray, Hits& hits) const {
-            if (Math::isnan(bounds().intersectWithRay(ray)))
-                return;
-            
-            BrushFaceList::const_iterator it, end;
-            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
-                BrushFace* face = *it;
-                const FloatType distance = face->intersectWithRay(ray);
-                if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    hits.addHit(Hit(BrushHit, distance, hitPoint, face));
-                    break;
-                }
-            }
+        ObjectSnapshot* Brush::doTakeSnapshot() {
+            return new BrushSnapshot(this);
         }
 
         void Brush::doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {}

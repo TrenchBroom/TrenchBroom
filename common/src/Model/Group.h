@@ -52,10 +52,14 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement methods inherited from Object
             const BBox3& doGetBounds() const;
+            void doPick(const Ray3& ray, Hits& hits) const;
+
             Node* doGetContainer() const;
             Layer* doGetLayer() const;
             Group* doGetGroup() const;
-            void doPick(const Ray3& ray, Hits& hits) const;
+            
+            ObjectSnapshot* doTakeSnapshot();
+
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Node* node) const;
             bool doIntersects(const Node* node) const;

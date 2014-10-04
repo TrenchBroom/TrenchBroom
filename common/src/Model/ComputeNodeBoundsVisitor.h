@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/NodeVisitor.h"
+#include "Model/Node.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,7 +32,7 @@ namespace TrenchBroom {
             bool m_initialized;
         public:
             BBox3 m_bounds;
-            ComputeNodeBoundsVisitor(const BBox3& defaultBounds);
+            ComputeNodeBoundsVisitor(const BBox3& defaultBounds = BBox3());
             const BBox3& bounds() const;
         private:
             void doVisit(const World* world);
@@ -41,6 +42,15 @@ namespace TrenchBroom {
             void doVisit(const Brush* brush);
             void mergeWith(const BBox3& bounds);
         };
+        
+        BBox3 computeBounds(const Model::NodeList& nodes);
+        
+        template <typename I>
+        BBox3 computeBounds(I cur, I end) {
+            ComputeNodeBoundsVisitor visitor;
+            Node::accept(cur, end, visitor);
+            return visitor.bounds();
+        }
     }
 }
 

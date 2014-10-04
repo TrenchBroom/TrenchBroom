@@ -21,6 +21,7 @@
 
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
+#include "Model/EntitySnapshot.h"
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
@@ -137,6 +138,17 @@ namespace TrenchBroom {
             return m_bounds;
         }
         
+        void Entity::doPick(const Ray3& ray, Hits& hits) const {
+            const BBox3& myBounds = bounds();
+            if (!myBounds.contains(ray.origin)) {
+                const FloatType distance = myBounds.intersectWithRay(ray);
+                if (!Math::isnan(distance)) {
+                    const Vec3 hitPoint = ray.pointAtDistance(distance);
+                    hits.addHit(Hit(EntityHit, distance, hitPoint, this));
+                }
+            }
+        }
+        
         Node* Entity::doGetContainer() const {
             FindContainerVisitor visitor;
             escalate(visitor);
@@ -155,15 +167,13 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : NULL;
         }
         
-        void Entity::doPick(const Ray3& ray, Hits& hits) const {
-            const BBox3& myBounds = bounds();
-            if (!myBounds.contains(ray.origin)) {
-                const FloatType distance = myBounds.intersectWithRay(ray);
-                if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    hits.addHit(Hit(EntityHit, distance, hitPoint, this));
-                }
-            }
+        ObjectSnapshot* Entity::doTakeSnapshot() {
+            const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), NULL);
+
+            const AttributeName rotationName = EntityRotationPolicy::getAttribute(this);
+            const EntityAttribute rotation(rotationName, attribute(rotationName), NULL);
+            
+            return new EntitySnapshot(this, origin, rotation);
         }
 
         class TransformEntity : public NodeVisitor {
