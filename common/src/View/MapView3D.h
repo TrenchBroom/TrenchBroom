@@ -40,6 +40,7 @@ namespace TrenchBroom {
     namespace View {
         class CameraTool;
         class SelectionTool;
+        class Selection;
         class MovementRestriction;
         
         class MapView3D : public RenderView, public ToolBoxHelper {
@@ -59,6 +60,11 @@ namespace TrenchBroom {
         public:
             MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, Renderer::MapRenderer& renderer);
             ~MapView3D();
+        private:
+            void bindObservers();
+            void unbindObservers();
+            
+            void selectionDidChange(const Selection& selection);
         private: // implement RenderView
             void doInitializeGL();
             void doUpdateViewport(int x, int y, int width, int height);

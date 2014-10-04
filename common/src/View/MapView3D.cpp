@@ -43,15 +43,33 @@ namespace TrenchBroom {
         m_toolBox(this, this),
         m_cameraTool(NULL) {
             createTools();
+            bindObservers();
         }
 
         MapView3D::~MapView3D() {
+            unbindObservers();
             destroyTools();
             delete m_compass;
             delete m_vbo;
             delete m_movementRestriction;
         }
         
+        void MapView3D::bindObservers() {
+            MapDocumentSPtr document = lock(m_document);
+            document->selectionDidChangeNotifier.addObserver(this, &MapView3D::selectionDidChange);
+        }
+        
+        void MapView3D::unbindObservers() {
+            if (!expired(m_document)) {
+                MapDocumentSPtr document = lock(m_document);
+                document->selectionDidChangeNotifier.removeObserver(this, &MapView3D::selectionDidChange);
+            }
+        }
+        
+        void MapView3D::selectionDidChange(const Selection& selection) {
+            Refresh();
+        }
+
         void MapView3D::doInitializeGL() {
             const wxString vendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
             const wxString renderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));

@@ -98,9 +98,9 @@ namespace TrenchBroom {
             void OnFileUnloadPointFile(wxCommandEvent& event);
             void OnFileClose(wxCommandEvent& event);
 
-            /*
             void OnEditUndo(wxCommandEvent& event);
             void OnEditRedo(wxCommandEvent& event);
+            /*
             void OnEditRepeat(wxCommandEvent& event);
             void OnEditClearRepeat(wxCommandEvent& event);
             void OnEditCut(wxCommandEvent& event);

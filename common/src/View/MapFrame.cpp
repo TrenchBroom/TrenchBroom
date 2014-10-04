@@ -279,9 +279,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPointFile, this, CommandIds::Menu::FileUnloadPointFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileClose, this, wxID_CLOSE);
 
-            /*
             Bind(wxEVT_MENU, &MapFrame::OnEditUndo, this, wxID_UNDO);
             Bind(wxEVT_MENU, &MapFrame::OnEditRedo, this, wxID_REDO);
+            /*
             Bind(wxEVT_MENU, &MapFrame::OnEditCut, this, wxID_CUT);
             Bind(wxEVT_MENU, &MapFrame::OnEditCopy, this, wxID_COPY);
             Bind(wxEVT_MENU, &MapFrame::OnEditPaste, this, wxID_PASTE);
@@ -322,28 +322,35 @@ namespace TrenchBroom {
         }
         
         void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
-            lock(m_document)->loadPointFile();
+            m_document->loadPointFile();
         }
         
         void MapFrame::OnFileUnloadPointFile(wxCommandEvent& event) {
-            lock(m_document)->unloadPointFile();
+            m_document->unloadPointFile();
         }
         
         void MapFrame::OnFileClose(wxCommandEvent& event) {
             Close();
         }
 
+        void MapFrame::OnEditUndo(wxCommandEvent& event) {
+            m_document->undoLastCommand();
+        }
+        
+        void MapFrame::OnEditRedo(wxCommandEvent& event) {
+            m_document->redoNextCommand();
+        }
+
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
-            lock(m_document)->selectAllNodes();
+            m_document->selectAllNodes();
         }
 
         void MapFrame::OnEditSelectNone(wxCommandEvent& event) {
-            lock(m_document)->deselectAll();
+            m_document->deselectAll();
         }
 
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            // const ActionManager& actionManager = ActionManager::instance();
+            const ActionManager& actionManager = ActionManager::instance();
             
             switch (event.GetId()) {
                 case wxID_OPEN:
@@ -353,18 +360,17 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::FileLoadPointFile:
-                    event.Enable(document->canLoadPointFile());
+                    event.Enable(m_document->canLoadPointFile());
                     break;
                 case CommandIds::Menu::FileUnloadPointFile:
-                    event.Enable(document->isPointFileLoaded());
+                    event.Enable(m_document->isPointFileLoaded());
                     break;
-                /*
                 case wxID_UNDO: {
                     const Action* action = actionManager.findMenuAction(wxID_UNDO);
                     assert(action != NULL);
-                    if (controller->hasLastCommand()) {
+                    if (m_document->canUndoLastCommand()) {
                         event.Enable(true);
-                        event.SetText(action->menuItemString(controller->lastCommandName()));
+                        event.SetText(action->menuItemString(m_document->lastCommandName()));
                     } else {
                         event.Enable(false);
                         event.SetText(action->menuItemString());
@@ -373,23 +379,24 @@ namespace TrenchBroom {
                 }
                 case wxID_REDO: {
                     const Action* action = actionManager.findMenuAction(wxID_REDO);
-                    if (controller->hasNextCommand()) {
+                    if (m_document->canRedoNextCommand()) {
                         event.Enable(true);
-                        event.SetText(action->menuItemString(controller->nextCommandName()));
+                        event.SetText(action->menuItemString(m_document->nextCommandName()));
                     } else {
                         event.Enable(false);
                         event.SetText(action->menuItemString());
                     }
                     break;
                 }
+                    /*
                 case CommandIds::Menu::EditRepeat:
                 case CommandIds::Menu::EditClearRepeat:
                     event.Enable(true);
                     break;
                 case wxID_CUT:
                 case wxID_COPY:
-                    event.Enable(document->hasSelectedObjects() ||
-                                 document->selectedFaces().size() == 1);
+                    event.Enable(m_document->hasSelectedObjects() ||
+                                 m_document->selectedFaces().size() == 1);
                     break;
                 case wxID_PASTE:
                 case CommandIds::Menu::EditPasteAtOriginalPosition: {
@@ -403,19 +410,19 @@ namespace TrenchBroom {
                     break;
                     /*
                 case CommandIds::Menu::EditSelectSiblings:
-                    event.Enable(document->hasSelectedBrushes());
+                    event.Enable(m_document->hasSelectedBrushes());
                     break;
                 case CommandIds::Menu::EditSelectTouching:
                 case CommandIds::Menu::EditSelectInside:
-                    event.Enable(!document->hasSelectedEntities() &&
-                                 document->selectedBrushes().size() == 1);
+                    event.Enable(!m_document->hasSelectedEntities() &&
+                                 m_document->selectedBrushes().size() == 1);
                     break;
                 case CommandIds::Menu::EditSelectByFilePosition:
                     event.Enable(true);
                     break;
                      */
                 case CommandIds::Menu::EditSelectNone:
-                    event.Enable(document->hasSelection());
+                    event.Enable(m_document->hasSelection());
                     break;
                     /*
                 case CommandIds::Menu::EditSnapVertices:
@@ -426,66 +433,66 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Enable(true);
-                    event.Check(document->textureLock());
+                    event.Check(m_document->textureLock());
                     break;
                 case CommandIds::Menu::ViewToggleShowGrid:
                     event.Enable(true);
-                    event.Check(document->grid().visible());
+                    event.Check(m_document->grid().visible());
                     break;
                 case CommandIds::Menu::ViewToggleSnapToGrid:
                     event.Enable(true);
-                    event.Check(document->grid().snap());
+                    event.Check(m_document->grid().snap());
                     break;
                 case CommandIds::Menu::ViewIncGridSize:
-                    event.Enable(document->grid().size() < Grid::MaxSize);
+                    event.Enable(m_document->grid().size() < Grid::MaxSize);
                     break;
                 case CommandIds::Menu::ViewDecGridSize:
-                    event.Enable(document->grid().size() > 0);
+                    event.Enable(m_document->grid().size() > 0);
                     break;
                 case CommandIds::Menu::ViewSetGridSize1:
                     event.Enable(true);
-                    event.Check(document->grid().size() == 0);
+                    event.Check(m_document->grid().size() == 0);
                     break;
                 case CommandIds::Menu::ViewSetGridSize2:
                     event.Enable(true);
-                    event.Check(document->grid().size() == 1);
+                    event.Check(m_document->grid().size() == 1);
                     break;
                 case CommandIds::Menu::ViewSetGridSize4:
                     event.Enable(true);
-                    event.Check(document->grid().size() == 2);
+                    event.Check(m_document->grid().size() == 2);
                     break;
                 case CommandIds::Menu::ViewSetGridSize8:
                     event.Enable(true);
-                    event.Check(document->grid().size() == 3);
+                    event.Check(m_document->grid().size() == 3);
                     break;
                 case CommandIds::Menu::ViewSetGridSize16:
                     event.Enable(true);
-                    event.Check(document->grid().size() == 4);
+                    event.Check(m_document->grid().size() == 4);
                     break;
                 case CommandIds::Menu::ViewSetGridSize32:
                     event.Enable(true);
-                    event.Check(document->grid().size() == 5);
+                    event.Check(m_document->grid().size() == 5);
                     break;
                 case CommandIds::Menu::ViewSetGridSize64:
                     event.Enable(true);
-                    event.Check(document->grid().size() == 6);
+                    event.Check(m_document->grid().size() == 6);
                     break;
                 case CommandIds::Menu::ViewSetGridSize128:
                     event.Enable(true);
-                    event.Check(document->grid().size() == 7);
+                    event.Check(m_document->grid().size() == 7);
                     break;
                 case CommandIds::Menu::ViewSetGridSize256:
                     event.Enable(true);
-                    event.Check(document->grid().size() == 8);
+                    event.Check(m_document->grid().size() == 8);
                     break;
                 case CommandIds::Menu::ViewMoveCameraToNextPoint:
-                    event.Enable(document->isPointFileLoaded() && document->pointFile().hasNextPoint());
+                    event.Enable(m_document->isPointFileLoaded() && m_document->pointFile().hasNextPoint());
                     break;
                 case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
-                    event.Enable(document->isPointFileLoaded() && document->pointFile().hasPreviousPoint());
+                    event.Enable(m_document->isPointFileLoaded() && m_document->pointFile().hasPreviousPoint());
                     break;
                 case CommandIds::Menu::ViewCenterCameraOnSelection:
-                    event.Enable(document->hasSelectedObjects());
+                    event.Enable(m_document->hasSelectedObjects());
                     break;
                 case CommandIds::Menu::ViewMoveCameraToPosition:
                     event.Enable(true);
