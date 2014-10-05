@@ -53,10 +53,14 @@ namespace TrenchBroom {
             void setModel(Assets::EntityModel* model);
         private: // implement Node interface
             Node* doClone(const BBox3& worldBounds) const;
+            NodeSnapshot* doTakeSnapshot();
+            
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
             void doDescendantDidChange(Node* node);
+
             bool doSelectable() const;
+            
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Attributable interface
@@ -72,8 +76,6 @@ namespace TrenchBroom {
             Layer* doGetLayer() const;
             Group* doGetGroup() const;
             
-            ObjectSnapshot* doTakeSnapshot();
-
             void doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds);
             bool doContains(const Node* node) const;
             bool doIntersects(const Node* node) const;

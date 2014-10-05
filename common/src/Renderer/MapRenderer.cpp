@@ -171,6 +171,7 @@ namespace TrenchBroom {
             document->documentWasClearedNotifier.addObserver(this, &MapRenderer::documentWasCleared);
             document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+            document->nodesDidChangeNotifier.addObserver(this, &MapRenderer::nodesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
         }
         
@@ -180,6 +181,7 @@ namespace TrenchBroom {
                 document->documentWasClearedNotifier.removeObserver(this, &MapRenderer::documentWasCleared);
                 document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+                document->nodesDidChangeNotifier.removeObserver(this, &MapRenderer::nodesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
             }
         }
@@ -281,10 +283,34 @@ namespace TrenchBroom {
         
         class MapRenderer::UpdateNode : public Model::NodeVisitor {
         private:
+            ObjectRenderer& m_selectionRenderer;
+        public:
+            UpdateNode(ObjectRenderer& selectionRenderer) :
+            m_selectionRenderer(selectionRenderer) {}
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   { handleNode(group); }
+            void doVisit(Model::Entity* entity) { handleNode(entity); }
+            void doVisit(Model::Brush* brush)   { handleNode(brush); }
+            
+            void handleNode(Model::Node* node) {
+                assert(node->selected() || node->descendantSelected());
+                m_selectionRenderer.updateObject(node);
+            }
+        };
+        
+        void MapRenderer::nodesDidChange(const Model::NodeList& nodes) {
+            MapRenderer::UpdateNode visitor(m_selectionRenderer);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+        }
+
+        class MapRenderer::UpdateSelectedNode : public Model::NodeVisitor {
+        private:
             RendererMap& m_layerRenderers;
             ObjectRenderer& m_selectionRenderer;
         public:
-            UpdateNode(RendererMap& layerRenderers, ObjectRenderer& selectionRenderer) :
+            UpdateSelectedNode(RendererMap& layerRenderers, ObjectRenderer& selectionRenderer) :
             m_layerRenderers(layerRenderers),
             m_selectionRenderer(selectionRenderer) {}
         private:
@@ -312,7 +338,7 @@ namespace TrenchBroom {
             Model::Node::accept(selection.selectedNodes().begin(), selection.selectedNodes().end(), handleSelectedNode);
             Model::Node::accept(selection.deselectedNodes().begin(), selection.deselectedNodes().end(), handleSelectedNode);
 
-            UpdateNode updateNode(m_layerRenderers, m_selectionRenderer);
+            UpdateSelectedNode updateNode(m_layerRenderers, m_selectionRenderer);
             
             const Model::BrushSet parentsOfSelectedFaces = collectBrushes(selection.selectedBrushFaces());
             Model::Node::accept(parentsOfSelectedFaces.begin(), parentsOfSelectedFaces.end(), updateNode);

@@ -28,6 +28,7 @@
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Node.h"
+#include "Model/Snapshot.h"
 #include "Model/TransformObjectVisitor.h"
 #include "Model/World.h"
 #include "View/Selection.h"
@@ -306,6 +307,13 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
+            const Model::NodeList& nodes = m_selectedNodes;
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            snapshot->restore(m_worldBounds);
         }
 
         Model::NodeList MapDocumentCommandFacade::collectParents(const Model::NodeList& nodes) const {
@@ -314,6 +322,15 @@ namespace TrenchBroom {
             return visitor.parentList();
         }
         
+        void MapDocumentCommandFacade::incModificationCount() {
+            ++m_modificationCount;
+        }
+        
+        void MapDocumentCommandFacade::decModificationCount() {
+            assert(m_modificationCount > 0);
+            --m_modificationCount;
+        }
+
         bool MapDocumentCommandFacade::doCanUndoLastCommand() const {
             return m_commandProcessor.hasLastCommand();
         }
@@ -338,6 +355,14 @@ namespace TrenchBroom {
             m_commandProcessor.redoNextCommand();
         }
         
+        bool MapDocumentCommandFacade::doRepeatLastCommands() {
+            return m_commandProcessor.repeatLastCommands();
+        }
+        
+        void MapDocumentCommandFacade::doClearRepeatableCommands() {
+            m_commandProcessor.clearRepeatableCommands();
+        }
+
         void MapDocumentCommandFacade::doBeginTransaction(const String& name) {
             m_commandProcessor.beginGroup(name);
         }

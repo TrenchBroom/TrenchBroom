@@ -28,8 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        GroupSnapshot::GroupSnapshot(Group* group) :
-        m_group(group) {
+        GroupSnapshot::GroupSnapshot(Group* group) {
             takeSnapshot(group);
         }
 
@@ -48,7 +47,7 @@ namespace TrenchBroom {
         void GroupSnapshot::doRestore(const BBox3& worldBounds) {
             SnapshotList::const_iterator it, end;
             for (it = m_snapshots.begin(), end = m_snapshots.end(); it != end; ++it) {
-                ObjectSnapshot* snapshot = *it;
+                NodeSnapshot* snapshot = *it;
                 snapshot->restore(worldBounds);
             }
         }

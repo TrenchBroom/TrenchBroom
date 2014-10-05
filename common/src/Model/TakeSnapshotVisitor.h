@@ -36,6 +36,7 @@ namespace TrenchBroom {
             void doVisit(Group* group);
             void doVisit(Entity* entity);
             void doVisit(Brush* brush);
+            void handleNode(Node* node);
         };
     }
 }

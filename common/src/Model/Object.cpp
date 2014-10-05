@@ -44,10 +44,6 @@ namespace TrenchBroom {
             return doGetGroup();
         }
 
-        ObjectSnapshot* Object::takeSnapshot() {
-            return doTakeSnapshot();
-        }
-        
         void Object::transform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {
             doTransform(transformation, lockTextures, worldBounds);
         }

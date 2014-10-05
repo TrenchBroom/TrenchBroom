@@ -57,6 +57,9 @@ namespace TrenchBroom {
             void restoreSnapshot(Model::Snapshot* snapshot);
         private: // notification
             Model::NodeList collectParents(const Model::NodeList& nodes) const;
+        public: // modification count
+            void incModificationCount();
+            void decModificationCount();
         private: // implement MapDocument interface
             bool doCanUndoLastCommand() const;
             bool doCanRedoNextCommand() const;
@@ -64,6 +67,8 @@ namespace TrenchBroom {
             const String& doGetNextCommandName() const;
             void doUndoLastCommand();
             void doRedoNextCommand();
+            bool doRepeatLastCommands();
+            void doClearRepeatableCommands();
             
             void doBeginTransaction(const String& name);
             void doEndTransaction();

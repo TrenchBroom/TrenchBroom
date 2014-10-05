@@ -21,6 +21,7 @@
 #define __TrenchBroom__MapView3D__
 
 #include "Renderer/PerspectiveCamera.h"
+#include "View/Action.h"
 #include "View/GLContextHolder.h"
 #include "View/RenderView.h"
 #include "View/ToolBox.h"
@@ -65,6 +66,25 @@ namespace TrenchBroom {
             void unbindObservers();
             
             void selectionDidChange(const Selection& selection);
+        private: // interaction events
+            void bindEvents();
+            
+            void OnMoveObjectsForward(wxCommandEvent& event);
+            void OnMoveObjectsBackward(wxCommandEvent& event);
+            void OnMoveObjectsLeft(wxCommandEvent& event);
+            void OnMoveObjectsRight(wxCommandEvent& event);
+            void OnMoveObjectsUp(wxCommandEvent& event);
+            void OnMoveObjectsDown(wxCommandEvent& event);
+        private: // interaction event helper methods
+            void moveObjects(Math::Direction direction);
+            Vec3 moveDirection(Math::Direction direction) const;
+        private: // other events
+            void OnSetFocus(wxFocusEvent& event);
+            void OnKillFocus(wxFocusEvent& event);
+            void OnActivateFrame(wxActivateEvent& event);
+        private: // accelerator table management
+            void updateAcceleratorTable(bool hasFocus);
+            Action::Context actionContext() const;
         private: // implement RenderView
             void doInitializeGL();
             void doUpdateViewport(int x, int y, int width, int height);

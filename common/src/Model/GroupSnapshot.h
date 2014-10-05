@@ -21,7 +21,7 @@
 #define __TrenchBroom__GroupSnapshot__
 
 #include "Model/ModelTypes.h"
-#include "Model/ObjectSnapshot.h"
+#include "Model/NodeSnapshot.h"
 
 #include <vector>
 
@@ -29,9 +29,8 @@ namespace TrenchBroom {
     namespace Model {
         class Group;
         
-        class GroupSnapshot : public ObjectSnapshot {
+        class GroupSnapshot : public NodeSnapshot {
         private:
-            Group* m_group;
             SnapshotList m_snapshots;
         public:
             GroupSnapshot(Group* group);

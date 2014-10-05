@@ -51,6 +51,10 @@ namespace TrenchBroom {
             return group;
         }
 
+        NodeSnapshot* Group::doTakeSnapshot() {
+            return new GroupSnapshot(this);
+        }
+        
         class CanAddChildToGroup : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
             void doVisit(const World* world)   { setResult(false); }
@@ -119,10 +123,6 @@ namespace TrenchBroom {
             FindGroupVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : NULL;
-        }
-
-        ObjectSnapshot* Group::doTakeSnapshot() {
-            return new GroupSnapshot(this);
         }
 
         void Group::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {

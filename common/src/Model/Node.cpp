@@ -45,6 +45,10 @@ namespace TrenchBroom {
             return doClone(worldBounds);
         }
 
+        NodeSnapshot* Node::takeSnapshot() {
+            return doTakeSnapshot();
+        }
+        
         NodeList Node::clone(const BBox3& worldBounds, const NodeList& nodes) {
             NodeList clones;
             clones.reserve(nodes.size());
@@ -424,14 +428,8 @@ namespace TrenchBroom {
             doRemoveFromIndex(attributable, name, value);
         }
 
-        void Node::doAddToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
-            if (m_parent != NULL)
-                m_parent->addToIndex(attributable, name, value);
-        }
-        
-        void Node::doRemoveFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
-            if (m_parent != NULL)
-                m_parent->removeFromIndex(attributable, name, value);
+        NodeSnapshot* Node::doTakeSnapshot() {
+            return NULL;
         }
 
         void Node::doDescendantWasAdded(Node* node) {}
@@ -461,5 +459,15 @@ namespace TrenchBroom {
             if (m_parent != NULL)
                 m_parent->findAttributablesWithNumberedAttribute(prefix, value, result);
         }
- }
+
+        void Node::doAddToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
+            if (m_parent != NULL)
+                m_parent->addToIndex(attributable, name, value);
+        }
+        
+        void Node::doRemoveFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
+            if (m_parent != NULL)
+                m_parent->removeFromIndex(attributable, name, value);
+        }
+    }
 }

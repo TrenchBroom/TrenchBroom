@@ -81,6 +81,15 @@ namespace TrenchBroom {
             return entity;
         }
 
+        NodeSnapshot* Entity::doTakeSnapshot() {
+            const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), NULL);
+            
+            const AttributeName rotationName = EntityRotationPolicy::getAttribute(this);
+            const EntityAttribute rotation(rotationName, attribute(rotationName), NULL);
+            
+            return new EntitySnapshot(this, origin, rotation);
+        }
+
         class CanAddChildToEntity : public ConstNodeVisitor, public NodeQuery<bool> {
         private:
             void doVisit(const World* world)   { setResult(false); }
@@ -165,15 +174,6 @@ namespace TrenchBroom {
             FindGroupVisitor visitor;
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : NULL;
-        }
-        
-        ObjectSnapshot* Entity::doTakeSnapshot() {
-            const EntityAttribute origin(AttributeNames::Origin, attribute(AttributeNames::Origin), NULL);
-
-            const AttributeName rotationName = EntityRotationPolicy::getAttribute(this);
-            const EntityAttribute rotation(rotationName, attribute(rotationName), NULL);
-            
-            return new EntitySnapshot(this, origin, rotation);
         }
 
         class TransformEntity : public NodeVisitor {

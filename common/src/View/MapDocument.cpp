@@ -38,6 +38,7 @@
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
 #include "View/SelectionCommand.h"
+#include "View/TransformObjectsCommand.h"
 
 #include <cassert>
 
@@ -56,6 +57,7 @@ namespace TrenchBroom {
         m_textureManager(new Assets::TextureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
         m_mapViewConfig(new MapViewConfig(*m_editorContext)),
         m_grid(new Grid(5)),
+        m_textureLock(false),
         m_path(DefaultDocumentName),
         m_modificationCount(0) {}
         
@@ -244,8 +246,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::translateObjects(const Vec3& delta) {
-            
-            incModificationCount();
+            return submit(TransformObjectsCommand::translate(delta, m_textureLock));
         }
 
         bool MapDocument::canUndoLastCommand() const {
@@ -270,6 +271,14 @@ namespace TrenchBroom {
         
         void MapDocument::redoNextCommand() {
             doRedoNextCommand();
+        }
+
+        bool MapDocument::repeatLastCommands() {
+            return doRepeatLastCommands();
+        }
+        
+        void MapDocument::clearRepeatableCommands() {
+            doClearRepeatableCommands();
         }
 
         void MapDocument::beginTransaction(const String& name) {
@@ -578,15 +587,6 @@ namespace TrenchBroom {
 
         bool MapDocument::modified() const {
             return m_modificationCount > 0;
-        }
-
-        void MapDocument::incModificationCount() {
-            ++m_modificationCount;
-        }
-        
-        void MapDocument::decModificationCount() {
-            assert(m_modificationCount > 0);
-            --m_modificationCount;
         }
 
         void MapDocument::clearModificationCount() {

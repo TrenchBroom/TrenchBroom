@@ -20,14 +20,14 @@
 #ifndef __TrenchBroom__EntitySnapshot__
 #define __TrenchBroom__EntitySnapshot__
 
-#include "Model/ObjectSnapshot.h"
+#include "Model/NodeSnapshot.h"
 #include "Model/EntityAttributes.h"
 
 namespace TrenchBroom {
     namespace Model {
         class Entity;
         
-        class EntitySnapshot : public ObjectSnapshot {
+        class EntitySnapshot : public NodeSnapshot {
         private:
             Entity* m_entity;
             EntityAttribute m_origin;

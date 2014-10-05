@@ -17,16 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectSnapshot.h"
+#ifndef __TrenchBroom__NodeSnapshot__
+#define __TrenchBroom__NodeSnapshot__
 
-#include <cassert>
+#include "TrenchBroom.h"
+#include "VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {
-        ObjectSnapshot::~ObjectSnapshot() {}
+        class Brush;
+        class Entity;
+        class Group;
         
-        void ObjectSnapshot::restore(const BBox3& worldBounds) {
-            doRestore(worldBounds);
-        }
+        class NodeSnapshot {
+        public:
+            virtual ~NodeSnapshot();
+            void restore(const BBox3& worldBounds);
+        private:
+            virtual void doRestore(const BBox3& worldBounds) = 0;
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__NodeSnapshot__) */

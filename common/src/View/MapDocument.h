@@ -66,6 +66,7 @@ namespace TrenchBroom {
             
             MapViewConfig* m_mapViewConfig;
             Grid* m_grid;
+            bool m_textureLock;
             
             IO::Path m_path;
             size_t m_modificationCount;
@@ -146,6 +147,8 @@ namespace TrenchBroom {
             const String& nextCommandName() const;
             void undoLastCommand();
             void redoNextCommand();
+            bool repeatLastCommands();
+            void clearRepeatableCommands();
         public: // transactions
             void beginTransaction(const String& name);
             void endTransaction();
@@ -160,6 +163,8 @@ namespace TrenchBroom {
             virtual const String& doGetNextCommandName() const = 0;
             virtual void doUndoLastCommand() = 0;
             virtual void doRedoNextCommand() = 0;
+            virtual bool doRepeatLastCommands() = 0;
+            virtual void doClearRepeatableCommands() = 0;
             
             virtual void doBeginTransaction(const String& name) = 0;
             virtual void doEndTransaction() = 0;
@@ -208,8 +213,6 @@ namespace TrenchBroom {
         public: // modification count
             bool modified() const;
         private:
-            void incModificationCount();
-            void decModificationCount();
             void clearModificationCount();
         };
 

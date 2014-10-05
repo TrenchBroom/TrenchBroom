@@ -56,6 +56,10 @@ namespace TrenchBroom {
             return static_cast<Brush*>(Node::clone(worldBounds));
         }
 
+        NodeSnapshot* Brush::doTakeSnapshot() {
+            return new BrushSnapshot(this);
+        }
+        
         class FindBrushOwner : public NodeVisitor, public NodeQuery<Attributable*> {
         private:
             void doVisit(World* world)   { setResult(world); cancel(); }
@@ -482,11 +486,16 @@ namespace TrenchBroom {
             return visitor.hasResult() ? visitor.result() : NULL;
         }
         
-        ObjectSnapshot* Brush::doTakeSnapshot() {
-            return new BrushSnapshot(this);
+        void Brush::doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* face = *it;
+                face->transform(transformation, lockTextures);
+            }
+            rebuildGeometry(worldBounds);
+            nodeDidChange();
         }
-
-        void Brush::doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {}
+        
         bool Brush::doContains(const Node* node) const {}
         bool Brush::doIntersects(const Node* node) const {}
     }

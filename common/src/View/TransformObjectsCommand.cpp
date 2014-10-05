@@ -67,12 +67,15 @@ namespace TrenchBroom {
         bool TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             takeSnapshot(document->selectedNodes());
             document->performTransform(m_transform, m_lockTextures);
+            document->incModificationCount();
             return true;
         }
         
         bool TransformObjectsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreSnapshot(m_snapshot);
+            document->decModificationCount();
             deleteSnapshot();
+            return true;
         }
         
         void TransformObjectsCommand::takeSnapshot(const Model::NodeList& nodes) {
@@ -86,12 +89,21 @@ namespace TrenchBroom {
         }
 
         bool TransformObjectsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+            return document->hasSelectedNodes();
         }
         
         UndoableCommand* TransformObjectsCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return new TransformObjectsCommand(m_action, m_transform, m_lockTextures);
         }
         
         bool TransformObjectsCommand::doCollateWith(UndoableCommand* command) {
+            TransformObjectsCommand* other = static_cast<TransformObjectsCommand*>(command);
+            if (other->m_lockTextures != m_lockTextures)
+                return false;
+            if (other->m_action != m_action)
+                return false;
+            m_transform = m_transform * other->m_transform;
+            return true;
         }
     }
 }

@@ -23,13 +23,12 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/ModelTypes.h"
-#include "Model/Object.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class ObjectSnapshot;
+        class NodeSnapshot;
         
         class Snapshot {
         private:
@@ -47,7 +46,7 @@ namespace TrenchBroom {
             
             void restore(const BBox3& worldBounds);
         private:
-            void takeSnapshot(Object* object);
+            void takeSnapshot(Node* node);
         private:
             Snapshot(const Snapshot&);
             Snapshot& operator=(const Snapshot&);

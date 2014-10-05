@@ -281,6 +281,9 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapFrame::OnEditUndo, this, wxID_UNDO);
             Bind(wxEVT_MENU, &MapFrame::OnEditRedo, this, wxID_REDO);
+            Bind(wxEVT_MENU, &MapFrame::OnEditRepeat, this, CommandIds::Menu::EditRepeat);
+            Bind(wxEVT_MENU, &MapFrame::OnEditClearRepeat, this, CommandIds::Menu::EditClearRepeat);
+            
             /*
             Bind(wxEVT_MENU, &MapFrame::OnEditCut, this, wxID_CUT);
             Bind(wxEVT_MENU, &MapFrame::OnEditCopy, this, wxID_COPY);
@@ -341,6 +344,14 @@ namespace TrenchBroom {
             m_document->redoNextCommand();
         }
 
+        void MapFrame::OnEditRepeat(wxCommandEvent& event) {
+            m_document->repeatLastCommands();
+        }
+        
+        void MapFrame::OnEditClearRepeat(wxCommandEvent& event) {
+            m_document->clearRepeatableCommands();
+        }
+
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
             m_document->selectAllNodes();
         }
@@ -388,11 +399,11 @@ namespace TrenchBroom {
                     }
                     break;
                 }
-                    /*
                 case CommandIds::Menu::EditRepeat:
                 case CommandIds::Menu::EditClearRepeat:
                     event.Enable(true);
                     break;
+                    /*
                 case wxID_CUT:
                 case wxID_COPY:
                     event.Enable(m_document->hasSelectedObjects() ||

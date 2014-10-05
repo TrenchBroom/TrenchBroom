@@ -21,7 +21,7 @@
 #define __TrenchBroom__BrushSnapshot__
 
 #include "Model/ModelTypes.h"
-#include "Model/ObjectSnapshot.h"
+#include "Model/NodeSnapshot.h"
 
 #include <vector>
 
@@ -30,7 +30,7 @@ namespace TrenchBroom {
         class Brush;
         class BrushFaceSnapshot;
         
-        class BrushSnapshot : public ObjectSnapshot {
+        class BrushSnapshot : public NodeSnapshot {
         private:
             Brush* m_brush;
             BrushFaceList m_faces;

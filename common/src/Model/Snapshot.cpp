@@ -20,12 +20,11 @@
 #include "Snapshot.h"
 
 #include "CollectionUtils.h"
-#include "Model/ObjectSnapshot.h"
+#include "Model/Node.h"
+#include "Model/NodeSnapshot.h"
 
 namespace TrenchBroom {
     namespace Model {
-        Snapshot::Snapshot() {}
-        
         Snapshot::~Snapshot() {
             VectorUtils::clearAndDelete(m_snapshots);
         }
@@ -33,13 +32,15 @@ namespace TrenchBroom {
         void Snapshot::restore(const BBox3& worldBounds) {
             SnapshotList::const_iterator it, end;
             for (it = m_snapshots.begin(), end = m_snapshots.end(); it != end; ++it) {
-                ObjectSnapshot* snapshot = *it;
+                NodeSnapshot* snapshot = *it;
                 snapshot->restore(worldBounds);
             }
         }
 
-        void Snapshot::takeSnapshot(Object* object) {
-            m_snapshots.push_back(object->takeSnapshot());
+        void Snapshot::takeSnapshot(Node* node) {
+            NodeSnapshot* snapshot = node->takeSnapshot();
+            if (snapshot != NULL)
+                m_snapshots.push_back(snapshot);
         }
     }
 }

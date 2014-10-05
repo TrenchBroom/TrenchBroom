@@ -19,6 +19,7 @@
 
 #include "ObjectRenderer.h"
 
+#include "Model/Group.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 
@@ -89,7 +90,15 @@ namespace TrenchBroom {
         private:
             virtual void doVisit(Model::World* world)   {}
             virtual void doVisit(Model::Layer* layer)   {}
-            virtual void doVisit(Model::Group* group)   {}
+            
+            virtual void doVisit(Model::Group* group)   {
+                const Model::NodeList& children = group->children();
+                if (!children.empty()) {
+                    UpdateNodesInObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
+                    Model::Node::accept(children.begin(), children.end(), visitor);
+                }
+            }
+            
             virtual void doVisit(Model::Entity* entity) { m_entityRenderer.updateEntity(entity); }
             virtual void doVisit(Model::Brush* brush)   { m_brushRenderer.updateBrush(brush); }
         };

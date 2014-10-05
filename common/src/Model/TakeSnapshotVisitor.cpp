@@ -22,6 +22,8 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
+#include "Model/Layer.h"
+#include "Model/World.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -29,10 +31,16 @@ namespace TrenchBroom {
             return m_result;
         }
 
-        void TakeSnapshotVisitor::doVisit(World* world)   {}
-        void TakeSnapshotVisitor::doVisit(Layer* layer)   {}
-        void TakeSnapshotVisitor::doVisit(Group* group)   { m_result.push_back(group->takeSnapshot()); }
-        void TakeSnapshotVisitor::doVisit(Entity* entity) { m_result.push_back(entity->takeSnapshot()); }
-        void TakeSnapshotVisitor::doVisit(Brush* brush)   { m_result.push_back(brush->takeSnapshot()); }
+        void TakeSnapshotVisitor::doVisit(World* world)   { handleNode(world); }
+        void TakeSnapshotVisitor::doVisit(Layer* layer)   { handleNode(layer); }
+        void TakeSnapshotVisitor::doVisit(Group* group)   { handleNode(group); }
+        void TakeSnapshotVisitor::doVisit(Entity* entity) { handleNode(entity); }
+        void TakeSnapshotVisitor::doVisit(Brush* brush)   { handleNode(brush); }
+        
+        void TakeSnapshotVisitor::handleNode(Node* node) {
+            NodeSnapshot* snapshot = node->takeSnapshot();
+            if (snapshot != NULL)
+                m_result.push_back(snapshot);
+        }
     }
 }

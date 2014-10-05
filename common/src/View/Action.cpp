@@ -38,7 +38,7 @@ namespace TrenchBroom {
                 contexts.push_back("Rotate Tool");
             if (context & Context_FlyMode)
                 contexts.push_back("Fly Mode");
-            if (context & Context_ObjectSelection)
+            if (context & Context_NodeSelection)
                 contexts.push_back("Objects");
             if (context & Context_FaceSelection)
                 contexts.push_back("Textures");
