@@ -334,6 +334,12 @@ namespace Math {
         static const Type AZ = 2;
     }
     
+    typedef enum {
+        RotationAxis_Roll,
+        RotationAxis_Pitch,
+        RotationAxis_Yaw
+    } RotationAxis;
+
     namespace PointStatus {
         typedef size_t Type;
         static const Type PSAbove = 0;

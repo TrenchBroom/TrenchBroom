@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapView3D__
 #define __TrenchBroom__MapView3D__
 
+#include "MathUtils.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/Action.h"
 #include "View/GLContextHolder.h"
@@ -75,9 +76,22 @@ namespace TrenchBroom {
             void OnMoveObjectsRight(wxCommandEvent& event);
             void OnMoveObjectsUp(wxCommandEvent& event);
             void OnMoveObjectsDown(wxCommandEvent& event);
+
+            void OnRollObjectsCW(wxCommandEvent& event);
+            void OnRollObjectsCCW(wxCommandEvent& event);
+            void OnPitchObjectsCW(wxCommandEvent& event);
+            void OnPitchObjectsCCW(wxCommandEvent& event);
+            void OnYawObjectsCW(wxCommandEvent& event);
+            void OnYawObjectsCCW(wxCommandEvent& event);
+            
+            void OnFlipObjectsH(wxCommandEvent& event);
+            void OnFlipObjectsV(wxCommandEvent& event);
         private: // interaction event helper methods
             void moveObjects(Math::Direction direction);
             Vec3 moveDirection(Math::Direction direction) const;
+            void rotateObjects(Math::RotationAxis axis, bool clockwise);
+            Vec3 rotationAxis(Math::RotationAxis axis, bool clockwise) const;
+            void flipObjects(Math::Direction direction);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);

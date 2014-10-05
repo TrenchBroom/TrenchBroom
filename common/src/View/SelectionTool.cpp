@@ -51,7 +51,7 @@ namespace TrenchBroom {
                             if (brush->selected()) {
                                 document()->deselect(face);
                             } else {
-                                Transaction transaction(document());
+                                Transaction transaction(document(), "Select face");
                                 document()->convertToFaceSelection();
                                 document()->select(face);
                             }
@@ -62,7 +62,7 @@ namespace TrenchBroom {
                                 document()->select(face);
                         }
                     } else {
-                        Transaction transaction(document());
+                        Transaction transaction(document(), "Select face");
                         document()->deselectAll();
                         document()->select(face);
                     }
@@ -80,7 +80,7 @@ namespace TrenchBroom {
                         else
                             document()->select(node);
                     } else {
-                        Transaction transaction(document());
+                        Transaction transaction(document(), "Select object");
                         document()->deselectAll();
                         document()->select(node);
                     }
@@ -104,7 +104,7 @@ namespace TrenchBroom {
                     if (isMultiClick(inputState)) {
                         document()->select(brush->faces());
                     } else {
-                        Transaction transaction(document());
+                        Transaction transaction(document(), "Select faces");
                         document()->deselectAll();
                         document()->select(brush->faces());
                     }
@@ -118,7 +118,7 @@ namespace TrenchBroom {
                     if (isMultiClick(inputState)) {
                         document()->select(siblings);
                     } else {
-                        Transaction transaction(document());
+                        Transaction transaction(document(), "Select brushes");
                         document()->deselectAll();
                         document()->select(siblings);
                     }

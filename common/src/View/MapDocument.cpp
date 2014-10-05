@@ -29,6 +29,7 @@
 #include "IO/SystemPaths.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
@@ -59,7 +60,8 @@ namespace TrenchBroom {
         m_grid(new Grid(5)),
         m_textureLock(false),
         m_path(DefaultDocumentName),
-        m_modificationCount(0) {}
+        m_modificationCount(0),
+        m_selectionBoundsValid(true) {}
         
         MapDocument::~MapDocument() {
             if (isPointFileLoaded())
@@ -204,6 +206,12 @@ namespace TrenchBroom {
             return m_selectedBrushFaces;
         }
 
+        const BBox3& MapDocument::selectionBounds() const {
+            if (!m_selectionBoundsValid)
+                validateSelectionBounds();
+            return m_selectionBounds;
+        }
+
         void MapDocument::selectAllNodes() {
             submit(SelectionCommand::selectAllNodes());
         }
@@ -240,6 +248,17 @@ namespace TrenchBroom {
             submit(SelectionCommand::deselect(Model::BrushFaceList(1, face)));
         }
 
+        void MapDocument::invalidateSelectionBounds() {
+            m_selectionBoundsValid = false;
+        }
+
+        void MapDocument::validateSelectionBounds() const {
+            Model::ComputeNodeBoundsVisitor visitor;
+            Model::Node::accept(m_selectedNodes.begin(), m_selectedNodes.end(), visitor);
+            m_selectionBounds = visitor.bounds();
+            m_selectionBoundsValid = true;
+        }
+
         void MapDocument::clearSelection() {
             m_selectedNodes.clear();
             m_selectedBrushFaces.clear();
@@ -247,6 +266,14 @@ namespace TrenchBroom {
 
         bool MapDocument::translateObjects(const Vec3& delta) {
             return submit(TransformObjectsCommand::translate(delta, m_textureLock));
+        }
+
+        bool MapDocument::rotateObjects(const Vec3& center, const Vec3& axis, const FloatType angle) {
+            return submit(TransformObjectsCommand::rotate(center, axis, angle, m_textureLock));
+        }
+        
+        bool MapDocument::flipObjects(const Vec3& center, const Math::Axis::Type axis) {
+            return submit(TransformObjectsCommand::flip(center, axis, m_textureLock));
         }
 
         bool MapDocument::canUndoLastCommand() const {

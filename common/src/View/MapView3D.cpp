@@ -115,7 +115,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnMoveObjectsUp,                this, CommandIds::Actions::MoveObjectsUp);
             Bind(wxEVT_MENU, &MapView3D::OnMoveObjectsDown,              this, CommandIds::Actions::MoveObjectsDown);
             
-            /*
             Bind(wxEVT_MENU, &MapView3D::OnRollObjectsCW,                this, CommandIds::Actions::RollObjectsCW);
             Bind(wxEVT_MENU, &MapView3D::OnRollObjectsCCW,               this, CommandIds::Actions::RollObjectsCCW);
             Bind(wxEVT_MENU, &MapView3D::OnPitchObjectsCW,               this, CommandIds::Actions::PitchObjectsCW);
@@ -126,6 +125,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnFlipObjectsH,                 this, CommandIds::Actions::FlipObjectsHorizontally);
             Bind(wxEVT_MENU, &MapView3D::OnFlipObjectsV,                 this, CommandIds::Actions::FlipObjectsVertically);
             
+            /*
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsForward,      this, CommandIds::Actions::DuplicateObjectsForward);
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsBackward,     this, CommandIds::Actions::DuplicateObjectsBackward);
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsLeft,         this, CommandIds::Actions::DuplicateObjectsLeft);
@@ -190,10 +190,41 @@ namespace TrenchBroom {
             moveObjects(Math::Direction_Down);
         }
 
+        void MapView3D::OnRollObjectsCW(wxCommandEvent& event) {
+            rotateObjects(Math::RotationAxis_Roll, true);
+        }
+        
+        void MapView3D::OnRollObjectsCCW(wxCommandEvent& event) {
+            rotateObjects(Math::RotationAxis_Roll, false);
+        }
+        
+        void MapView3D::OnPitchObjectsCW(wxCommandEvent& event) {
+            rotateObjects(Math::RotationAxis_Pitch, true);
+        }
+        
+        void MapView3D::OnPitchObjectsCCW(wxCommandEvent& event) {
+            rotateObjects(Math::RotationAxis_Pitch, false);
+        }
+        
+        void MapView3D::OnYawObjectsCW(wxCommandEvent& event) {
+            rotateObjects(Math::RotationAxis_Yaw, true);
+        }
+        
+        void MapView3D::OnYawObjectsCCW(wxCommandEvent& event) {
+            rotateObjects(Math::RotationAxis_Yaw, false);
+        }
+        
+        void MapView3D::OnFlipObjectsH(wxCommandEvent& event) {
+            flipObjects(Math::Direction_Left);
+        }
+        
+        void MapView3D::OnFlipObjectsV(wxCommandEvent& event) {
+            flipObjects(Math::Direction_Up);
+        }
+        
         void MapView3D::moveObjects(const Math::Direction direction) {
             MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes();
-            if (nodes.empty())
+            if (!document->hasSelectedNodes())
                 return;
             
             const Grid& grid = document->grid();
@@ -227,6 +258,58 @@ namespace TrenchBroom {
                     return Vec3::NegZ;
                     DEFAULT_SWITCH()
             }
+        }
+
+        void MapView3D::rotateObjects(const Math::RotationAxis axisSpec, const bool clockwise) {
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedNodes())
+                return;
+            
+            const Vec3 axis = rotationAxis(axisSpec, clockwise);
+            /*
+            const double angle = rotateObjectsToolActive() ? std::abs(m_rotateObjectsTool->angle()) : Math::C::piOverTwo();
+             */
+            const double angle = Math::C::piOverTwo();
+            
+            const Grid& grid = document->grid();
+            /*
+            const Vec3 center = rotateObjectsToolActive() ? m_rotateObjectsTool->center() : grid.referencePoint(document->selectionBounds());
+             */
+            const Vec3 center = grid.referencePoint(document->selectionBounds());
+            
+            document->rotateObjects(center, axis, angle);
+        }
+        
+        Vec3 MapView3D::rotationAxis(const Math::RotationAxis axisSpec, const bool clockwise) const {
+            Vec3 axis;
+            switch (axisSpec) {
+                case Math::RotationAxis_Roll:
+                    axis = -moveDirection(Math::Direction_Forward);
+                    break;
+                case Math::RotationAxis_Pitch:
+                    axis = moveDirection(Math::Direction_Right);
+                    break;
+                case Math::RotationAxis_Yaw:
+                    axis = Vec3::PosZ;
+                    break;
+                    DEFAULT_SWITCH()
+            }
+            
+            if (clockwise)
+                axis = -axis;
+            return axis;
+        }
+        
+        void MapView3D::flipObjects(const Math::Direction direction) {
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedNodes())
+                return;
+            
+            const Grid& grid = document->grid();
+            const Vec3 center = grid.referencePoint(document->selectionBounds());
+            const Math::Axis::Type axis = moveDirection(direction).firstComponent();
+            
+            document->flipObjects(center, axis);
         }
 
         void MapView3D::OnSetFocus(wxFocusEvent& event) {

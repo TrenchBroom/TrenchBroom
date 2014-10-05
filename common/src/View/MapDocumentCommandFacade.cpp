@@ -88,6 +88,8 @@ namespace TrenchBroom {
             selection.addPartiallySelectedNodes(partiallySelected);
             
             selectionDidChangeNotifier(selection);
+            
+            invalidateSelectionBounds();
         }
         
         void MapDocumentCommandFacade::performSelect(const Model::BrushFaceList& faces) {
@@ -218,6 +220,8 @@ namespace TrenchBroom {
             selection.addPartiallyDeselectedNodes(partiallyDeselected);
             
             selectionDidChangeNotifier(selection);
+
+            invalidateSelectionBounds();
         }
         
         void MapDocumentCommandFacade::performDeselect(const Model::BrushFaceList& faces) {
@@ -274,6 +278,8 @@ namespace TrenchBroom {
             m_partiallySelectedNodes.clear();
             
             selectionDidChangeNotifier(selection);
+
+            invalidateSelectionBounds();
         }
         
         void MapDocumentCommandFacade::deselectAllBrushFaces() {
@@ -304,6 +310,8 @@ namespace TrenchBroom {
             
             Model::TransformObjectVisitor visitor(transform, lockTextures, m_worldBounds);
             Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+            
+            invalidateSelectionBounds();
         }
 
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
@@ -314,6 +322,8 @@ namespace TrenchBroom {
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
             snapshot->restore(m_worldBounds);
+
+            invalidateSelectionBounds();
         }
 
         Model::NodeList MapDocumentCommandFacade::collectParents(const Model::NodeList& nodes) const {

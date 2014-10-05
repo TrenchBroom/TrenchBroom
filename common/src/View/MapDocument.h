@@ -74,6 +74,9 @@ namespace TrenchBroom {
             Model::NodeList m_partiallySelectedNodes;
             Model::NodeList m_selectedNodes;
             Model::BrushFaceList m_selectedBrushFaces;
+            
+            mutable BBox3 m_selectionBounds;
+            mutable bool m_selectionBoundsValid;
         public: // notification
             Notifier1<MapDocument*> documentWillBeClearedNotifier;
             Notifier1<MapDocument*> documentWasClearedNotifier;
@@ -124,6 +127,8 @@ namespace TrenchBroom {
 
             const Model::NodeList& selectedNodes() const;
             const Model::BrushFaceList& selectedBrushFaces() const;
+
+            const BBox3& selectionBounds() const;
             
             void selectAllNodes();
             void select(const Model::NodeList& nodes);
@@ -135,10 +140,15 @@ namespace TrenchBroom {
             void deselectAll();
             void deselect(Model::Node* node);
             void deselect(Model::BrushFace* face);
+        protected:
+            void invalidateSelectionBounds();
         private:
+            void validateSelectionBounds() const;
             void clearSelection();
         public: // modifying objects
             bool translateObjects(const Vec3& delta);
+            bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
+            bool flipObjects(const Vec3& center, Math::Axis::Type axis);
         public: // duplicate objects
             Model::NodeList duplicateObjects();
         public: // command processing

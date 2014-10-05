@@ -72,17 +72,17 @@ namespace TrenchBroom {
         String SelectionCommand::makeName(const Action action, const Model::NodeList& nodes, const Model::BrushFaceList& faces) {
             switch (action) {
                 case Action_SelectNodes:
-                    return  StringUtils::safePlural(nodes.size(), "Select node", "Select nodes");
+                    return  StringUtils::safePlural(nodes.size(), "Select object", "Select objects");
                 case Action_SelectFaces:
                     return  StringUtils::safePlural(faces.size(), "Select face", "Select faces");
                 case Action_SelectAllNodes:
-                    return "Select all nodes";
+                    return "Select all objects";
                 case Action_SelectAllFaces:
                     return "Select all faces";
                 case Action_ConvertToFaces:
                     return "Convert to face selection";
                 case Action_DeselectNodes:
-                    return  StringUtils::safePlural(nodes.size(), "Deselect node", "Select nodes");
+                    return  StringUtils::safePlural(nodes.size(), "Deselect object", "Select objects");
                 case Action_DeselectFaces:
                     return  StringUtils::safePlural(faces.size(), "Deselect face", "Select faces");
                 case Action_DeselectAll:
