@@ -19,8 +19,79 @@
 
 #include "TransformObjectsCommand.h"
 
+#include "Model/Snapshot.h"
+#include "View/MapDocument.h"
+#include "View/MapDocumentCommandFacade.h"
+
 namespace TrenchBroom {
     namespace View {
         const Command::CommandType TransformObjectsCommand::Type = Command::freeType();
+
+        TransformObjectsCommand* TransformObjectsCommand::translate(const Vec3& delta, const bool lockTextures) {
+            const Mat4x4 transform = translationMatrix(delta);
+            return new TransformObjectsCommand(Action_Translate, transform, lockTextures);
+        }
+        
+        TransformObjectsCommand* TransformObjectsCommand::rotate(const Vec3& center, const Vec3& axis, const FloatType angle, const bool lockTextures) {
+            const Mat4x4 transform = translationMatrix(center) * rotationMatrix(axis, angle) * translationMatrix(-center);
+            return new TransformObjectsCommand(Action_Translate, transform, lockTextures);
+        }
+        
+        TransformObjectsCommand* TransformObjectsCommand::flip(const Vec3& center, const Math::Axis::Type axis, const bool lockTextures) {
+            const Mat4x4 transform = translationMatrix(center) * mirrorMatrix<FloatType>(axis) * translationMatrix(-center);
+            return new TransformObjectsCommand(Action_Translate, transform, lockTextures);
+        }
+
+        TransformObjectsCommand::~TransformObjectsCommand() {
+            deleteSnapshot();
+        }
+        
+        TransformObjectsCommand::TransformObjectsCommand(const Action action, const Mat4x4& transform, const bool lockTextures) :
+        UndoableCommand(Type, makeName(action)),
+        m_action(action),
+        m_transform(transform),
+        m_lockTextures(lockTextures),
+        m_snapshot(NULL) {}
+        
+        String TransformObjectsCommand::makeName(const Action action) {
+            switch (action) {
+                case Action_Translate:
+                    return "Move objects";
+                case Action_Rotate:
+                    return "Rotate objects";
+                case Action_Flip:
+                    return "Flip objects";
+            }
+        }
+        
+        bool TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            takeSnapshot(document->selectedNodes());
+            document->performTransform(m_transform, m_lockTextures);
+            return true;
+        }
+        
+        bool TransformObjectsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            document->restoreSnapshot(m_snapshot);
+            deleteSnapshot();
+        }
+        
+        void TransformObjectsCommand::takeSnapshot(const Model::NodeList& nodes) {
+            assert(m_snapshot == NULL);
+            m_snapshot = new Model::Snapshot(nodes.begin(), nodes.end());
+        }
+        
+        void TransformObjectsCommand::deleteSnapshot() {
+            delete m_snapshot;
+            m_snapshot = NULL;
+        }
+
+        bool TransformObjectsCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+        }
+        
+        UndoableCommand* TransformObjectsCommand::doRepeat(MapDocumentCommandFacade* document) const {
+        }
+        
+        bool TransformObjectsCommand::doCollateWith(UndoableCommand* command) {
+        }
     }
 }

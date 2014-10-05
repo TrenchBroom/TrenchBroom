@@ -22,11 +22,17 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/Snapshot.h"
+#include "Model/ModelTypes.h"
 #include "View/UndoableCommand.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Snapshot;
+    }
+    
     namespace View {
+        class MapDocumentCommandFacade;
+        
         class TransformObjectsCommand : public UndoableCommand {
         public:
             static const CommandType Type;
@@ -38,10 +44,29 @@ namespace TrenchBroom {
             } Action;
             
             Action m_action;
-            Mat4x4 m_transformation;
+            Mat4x4 m_transform;
             bool m_lockTextures;
             
-            Model::Snapshot m_snapshot;
+            Model::Snapshot* m_snapshot;
+        public:
+            static TransformObjectsCommand* translate(const Vec3& delta, bool lockTextures);
+            static TransformObjectsCommand* rotate(const Vec3& center, const Vec3& axis, FloatType angle, bool lockTextures);
+            static TransformObjectsCommand* flip(const Vec3& center, Math::Axis::Type axis, bool lockTextures);
+            ~TransformObjectsCommand();
+        private:
+            TransformObjectsCommand(Action action, const Mat4x4& transform, bool lockTextures);
+            static String makeName(Action action);
+
+            bool doPerformDo(MapDocumentCommandFacade* document);
+            bool doPerformUndo(MapDocumentCommandFacade* document);
+            
+            void takeSnapshot(const Model::NodeList& nodes);
+            void deleteSnapshot();
+            
+            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
+            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            
+            bool doCollateWith(UndoableCommand* command);
         };
     }
 }

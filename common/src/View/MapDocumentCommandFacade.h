@@ -20,10 +20,16 @@
 #ifndef __TrenchBroom__MapDocumentCommandFacade__
 #define __TrenchBroom__MapDocumentCommandFacade__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "View/CommandProcessor.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class Snapshot;
+    }
+    
     namespace View {
         class MapDocumentCommandFacade : public MapDocument {
         private:
@@ -45,6 +51,12 @@ namespace TrenchBroom {
         private:
             void deselectAllNodes();
             void deselectAllBrushFaces();
+        public: // transformation
+            void performTransform(const Mat4x4& transform, bool lockTextures);
+        public: // snapshots and restoration
+            void restoreSnapshot(Model::Snapshot* snapshot);
+        private: // notification
+            Model::NodeList collectParents(const Model::NodeList& nodes) const;
         private: // implement MapDocument interface
             bool doCanUndoLastCommand() const;
             bool doCanRedoNextCommand() const;

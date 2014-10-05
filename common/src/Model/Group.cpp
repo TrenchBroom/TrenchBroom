@@ -27,6 +27,7 @@
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupSnapshot.h"
 #include "Model/NodeVisitor.h"
+#include "Model/TransformObjectVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -124,26 +125,8 @@ namespace TrenchBroom {
             return new GroupSnapshot(this);
         }
 
-        class TransformGroup : public NodeVisitor {
-        private:
-            const Mat4x4d& m_transformation;
-            bool m_lockTextures;
-            const BBox3& m_worldBounds;
-        public:
-            TransformGroup(const Mat4x4d& transformation, const bool lockTextures, const BBox3& worldBounds) :
-            m_transformation(transformation),
-            m_lockTextures(lockTextures),
-            m_worldBounds(worldBounds) {}
-        private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            void doVisit(Group* group)   {  group->transform(m_transformation, m_lockTextures, m_worldBounds); }
-            void doVisit(Entity* entity) { entity->transform(m_transformation, m_lockTextures, m_worldBounds); }
-            void doVisit(Brush* brush)   {  brush->transform(m_transformation, m_lockTextures, m_worldBounds); }
-        };
-        
         void Group::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
-            TransformGroup visitor(transformation, lockTextures, worldBounds);
+            TransformObjectVisitor visitor(transformation, lockTextures, worldBounds);
             iterate(visitor);
         }
         

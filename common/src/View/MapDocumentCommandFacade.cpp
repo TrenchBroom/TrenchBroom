@@ -23,15 +23,35 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
+#include "Model/CollectParentsVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Node.h"
+#include "Model/TransformObjectVisitor.h"
 #include "Model/World.h"
 #include "View/Selection.h"
 
 namespace TrenchBroom {
     namespace View {
+        class NodeChangeNotifier {
+        public:
+            typedef Notifier1<const Model::NodeList&> Notifier;
+        private:
+            Notifier& m_didChange;
+            const Model::NodeList& m_nodes;
+        public:
+            NodeChangeNotifier(Notifier& willChange, Notifier& didChange, const Model::NodeList& nodes) :
+            m_didChange(didChange),
+            m_nodes(nodes) {
+                willChange(nodes);
+            }
+            
+            ~NodeChangeNotifier() {
+                m_didChange(m_nodes);
+            }
+        };
+        
         MapDocumentSPtr MapDocumentCommandFacade::newMapDocument() {
             return MapDocumentSPtr(new MapDocumentCommandFacade());
         }
@@ -274,6 +294,26 @@ namespace TrenchBroom {
             selectionDidChangeNotifier(selection);
         }
 
+        void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {
+            const Model::NodeList& nodes = m_selectedNodes;
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Model::TransformObjectVisitor visitor(transform, lockTextures, m_worldBounds);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+        }
+
+        void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
+        }
+
+        Model::NodeList MapDocumentCommandFacade::collectParents(const Model::NodeList& nodes) const {
+            Model::CollectParentsVisitor visitor;
+            Model::Node::acceptAndEscalate(nodes.begin(), nodes.end(), visitor);
+            return visitor.parentList();
+        }
+        
         bool MapDocumentCommandFacade::doCanUndoLastCommand() const {
             return m_commandProcessor.hasLastCommand();
         }

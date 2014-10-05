@@ -17,42 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Snapshot__
-#define __TrenchBroom__Snapshot__
+#ifndef __TrenchBroom__TransformObjectVisitor__
+#define __TrenchBroom__TransformObjectVisitor__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/ModelTypes.h"
-#include "Model/Object.h"
-
-#include <vector>
+#include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class ObjectSnapshot;
-        
-        class Snapshot {
+        class TransformObjectVisitor : public NodeVisitor {
         private:
-            SnapshotList m_snapshots;
+            const Mat4x4d& m_transformation;
+            bool m_lockTextures;
+            const BBox3& m_worldBounds;
         public:
-            template <typename I>
-            Snapshot(I cur, I end) {
-                while (cur != end) {
-                    takeSnapshot(*cur);
-                    ++cur;
-                }
-            }
-            
-            ~Snapshot();
-            
-            void restore(const BBox3& worldBounds);
+            TransformObjectVisitor(const Mat4x4d& transformation, bool lockTextures, const BBox3& worldBounds);
         private:
-            void takeSnapshot(Object* object);
-        private:
-            Snapshot(const Snapshot&);
-            Snapshot& operator=(const Snapshot&);
+            void doVisit(World* world);
+            void doVisit(Layer* layer);
+            void doVisit(Group* group);
+            void doVisit(Entity* entity);
+            void doVisit(Brush* brush);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Snapshot__) */
+#endif /* defined(__TrenchBroom__TransformObjectVisitor__) */
