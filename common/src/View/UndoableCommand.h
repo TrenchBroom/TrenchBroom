@@ -27,22 +27,17 @@ namespace TrenchBroom {
         class MapDocumentCommandFacade;
         
         class UndoableCommand : public Command {
-        private:
-            size_t m_modificationCount;
         public:
             UndoableCommand(CommandType type, const String& name);
             virtual ~UndoableCommand();
 
-            bool performUndo(MapDocumentCommandFacade* document);
+            virtual bool performUndo(MapDocumentCommandFacade* document);
 
             bool isRepeatDelimiter() const;
             bool isRepeatable(MapDocumentCommandFacade* document) const;
             UndoableCommand* repeat(MapDocumentCommandFacade* document) const;
             
-            bool collateWith(UndoableCommand* command);
-        protected:
-            void incDocumentModificationCount(MapDocumentCommandFacade* document) const;
-            void decDocumentModificationCount(MapDocumentCommandFacade* document) const;
+            virtual bool collateWith(UndoableCommand* command);
         private:
             virtual bool doPerformUndo(MapDocumentCommandFacade* document) = 0;
             
@@ -51,6 +46,8 @@ namespace TrenchBroom {
             virtual UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
             
             virtual bool doCollateWith(UndoableCommand* command) = 0;
+        public: // this method is just a service for DocumentCommand and should never be called from anywhere else
+            virtual size_t documentModificationCount() const;
         };
     }
 }

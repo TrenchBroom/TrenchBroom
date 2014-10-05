@@ -47,7 +47,7 @@ namespace TrenchBroom {
         }
         
         TransformObjectsCommand::TransformObjectsCommand(const Action action, const Mat4x4& transform, const bool lockTextures) :
-        UndoableCommand(Type, makeName(action)),
+        DocumentCommand(Type, makeName(action)),
         m_action(action),
         m_transform(transform),
         m_lockTextures(lockTextures),
@@ -67,13 +67,11 @@ namespace TrenchBroom {
         bool TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             takeSnapshot(document->selectedNodes());
             document->performTransform(m_transform, m_lockTextures);
-            incDocumentModificationCount(document);
             return true;
         }
         
         bool TransformObjectsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreSnapshot(m_snapshot);
-            decDocumentModificationCount(document);
             deleteSnapshot();
             return true;
         }

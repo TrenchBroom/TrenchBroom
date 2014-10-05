@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/ModelTypes.h"
-#include "View/UndoableCommand.h"
+#include "View/DocumentCommand.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
         
-        class TransformObjectsCommand : public UndoableCommand {
+        class TransformObjectsCommand : public DocumentCommand {
         public:
             static const CommandType Type;
         private:

@@ -53,7 +53,7 @@ namespace TrenchBroom {
             CommandState state() const;
             const String& name() const;
             
-            bool performDo(MapDocumentCommandFacade* document);
+            virtual bool performDo(MapDocumentCommandFacade* document);
         private:
             virtual bool doPerformDo(MapDocumentCommandFacade* document) = 0;
         };
