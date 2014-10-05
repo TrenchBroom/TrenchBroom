@@ -80,6 +80,7 @@ namespace TrenchBroom {
             Notifier1<MapDocument*> documentWasNewedNotifier;
             Notifier1<MapDocument*> documentWasLoadedNotifier;
             Notifier1<MapDocument*> documentWasSavedNotifier;
+            Notifier0 documentModificationStateDidChangeNotifier;
             
             Notifier0 selectionWillChangeNotifier;
             Notifier1<const Selection&> selectionDidChangeNotifier;

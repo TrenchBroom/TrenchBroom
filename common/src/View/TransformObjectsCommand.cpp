@@ -67,13 +67,13 @@ namespace TrenchBroom {
         bool TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
             takeSnapshot(document->selectedNodes());
             document->performTransform(m_transform, m_lockTextures);
-            document->incModificationCount();
+            incDocumentModificationCount(document);
             return true;
         }
         
         bool TransformObjectsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->restoreSnapshot(m_snapshot);
-            document->decModificationCount();
+            decDocumentModificationCount(document);
             deleteSnapshot();
             return true;
         }

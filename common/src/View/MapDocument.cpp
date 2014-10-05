@@ -591,6 +591,7 @@ namespace TrenchBroom {
 
         void MapDocument::clearModificationCount() {
             m_modificationCount = 0;
+            documentModificationStateDidChangeNotifier();
         }
 
         Transaction::Transaction(MapDocumentWPtr document, const String& name) :

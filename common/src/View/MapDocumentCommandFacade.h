@@ -58,8 +58,8 @@ namespace TrenchBroom {
         private: // notification
             Model::NodeList collectParents(const Model::NodeList& nodes) const;
         public: // modification count
-            void incModificationCount();
-            void decModificationCount();
+            void incModificationCount(size_t delta = 1);
+            void decModificationCount(size_t delta = 1);
         private: // implement MapDocument interface
             bool doCanUndoLastCommand() const;
             bool doCanRedoNextCommand() const;

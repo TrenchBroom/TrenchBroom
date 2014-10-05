@@ -245,6 +245,7 @@ namespace TrenchBroom {
             m_document->documentWasNewedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasLoadedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasSavedNotifier.addObserver(this, &MapFrame::documentDidChange);
+            m_document->documentModificationStateDidChangeNotifier.addObserver(this, &MapFrame::documentModificationStateDidChange);
         }
         
         void MapFrame::unbindObservers() {
@@ -255,6 +256,7 @@ namespace TrenchBroom {
             m_document->documentWasNewedNotifier.removeObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasLoadedNotifier.removeObserver(this, &MapFrame::documentDidChange);
             m_document->documentWasSavedNotifier.removeObserver(this, &MapFrame::documentDidChange);
+            m_document->documentModificationStateDidChangeNotifier.removeObserver(this, &MapFrame::documentModificationStateDidChange);
         }
 
         void MapFrame::documentWasCleared(View::MapDocument* document) {
@@ -264,6 +266,10 @@ namespace TrenchBroom {
         void MapFrame::documentDidChange(View::MapDocument* document) {
             updateTitle();
             View::TrenchBroomApp::instance().updateRecentDocument(m_document->path());
+        }
+
+        void MapFrame::documentModificationStateDidChange() {
+            updateTitle();
         }
 
         void MapFrame::preferenceDidChange(const IO::Path& path) {

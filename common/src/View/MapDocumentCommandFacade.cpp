@@ -322,13 +322,15 @@ namespace TrenchBroom {
             return visitor.parentList();
         }
         
-        void MapDocumentCommandFacade::incModificationCount() {
-            ++m_modificationCount;
+        void MapDocumentCommandFacade::incModificationCount(const size_t delta) {
+            m_modificationCount += delta;
+            documentModificationStateDidChangeNotifier();
         }
         
-        void MapDocumentCommandFacade::decModificationCount() {
-            assert(m_modificationCount > 0);
-            --m_modificationCount;
+        void MapDocumentCommandFacade::decModificationCount(const size_t delta) {
+            assert(m_modificationCount >= delta);
+            m_modificationCount -= delta;
+            documentModificationStateDidChangeNotifier();
         }
 
         bool MapDocumentCommandFacade::doCanUndoLastCommand() const {

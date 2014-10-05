@@ -88,6 +88,7 @@ namespace TrenchBroom {
             
             void documentWasCleared(View::MapDocument* document);
             void documentDidChange(View::MapDocument* document);
+            void documentModificationStateDidChange();
             void preferenceDidChange(const IO::Path& path);
         private: // menu event handlers
             void bindEvents();

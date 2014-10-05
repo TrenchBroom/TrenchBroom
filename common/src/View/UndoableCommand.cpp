@@ -20,11 +20,13 @@
 #include "UndoableCommand.h"
 
 #include "Exceptions.h"
+#include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
     namespace View {
         UndoableCommand::UndoableCommand(const CommandType type, const String& name) :
-        Command(type, name) {}
+        Command(type, name),
+        m_modificationCount(1) {}
         
         UndoableCommand::~UndoableCommand() {}
 
@@ -55,7 +57,18 @@ namespace TrenchBroom {
             assert(command != this);
             if (command->type() != m_type)
                 return false;
-            return doCollateWith(command);
+            const bool didCollate = doCollateWith(command);
+            if (didCollate)
+                m_modificationCount += command->m_modificationCount;
+            return didCollate;
+        }
+
+        void UndoableCommand::incDocumentModificationCount(MapDocumentCommandFacade* document) const {
+            document->incModificationCount(m_modificationCount);
+        }
+        
+        void UndoableCommand::decDocumentModificationCount(MapDocumentCommandFacade* document) const {
+            document->decModificationCount(m_modificationCount);
         }
 
         bool UndoableCommand::doIsRepeatDelimiter() const {

@@ -27,6 +27,8 @@ namespace TrenchBroom {
         class MapDocumentCommandFacade;
         
         class UndoableCommand : public Command {
+        private:
+            size_t m_modificationCount;
         public:
             UndoableCommand(CommandType type, const String& name);
             virtual ~UndoableCommand();
@@ -38,6 +40,9 @@ namespace TrenchBroom {
             UndoableCommand* repeat(MapDocumentCommandFacade* document) const;
             
             bool collateWith(UndoableCommand* command);
+        protected:
+            void incDocumentModificationCount(MapDocumentCommandFacade* document) const;
+            void decDocumentModificationCount(MapDocumentCommandFacade* document) const;
         private:
             virtual bool doPerformUndo(MapDocumentCommandFacade* document) = 0;
             
