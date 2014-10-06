@@ -284,16 +284,10 @@ namespace TrenchBroom {
                 return;
             
             const Vec3 axis = rotationAxis(axisSpec, clockwise);
-            /*
-            const double angle = rotateObjectsToolActive() ? std::abs(m_rotateObjectsTool->angle()) : Math::C::piOverTwo();
-             */
-            const double angle = Math::C::piOverTwo();
+            const double angle = m_toolBox.rotateObjectsToolActive() ? std::abs(m_toolBox.rotateToolAngle()) : Math::C::piOverTwo();
             
             const Grid& grid = document->grid();
-            /*
-            const Vec3 center = rotateObjectsToolActive() ? m_rotateObjectsTool->center() : grid.referencePoint(document->selectionBounds());
-             */
-            const Vec3 center = grid.referencePoint(document->selectionBounds());
+            const Vec3 center = m_toolBox.rotateObjectsToolActive() ? m_toolBox.rotateToolCenter() : grid.referencePoint(document->selectionBounds());
             
             document->rotateObjects(center, axis, angle);
         }
@@ -375,8 +369,10 @@ namespace TrenchBroom {
                 return Action::Context_ClipTool;
             if (vertexToolActive())
                 return Action::Context_VertexTool;
-            if (rotateObjectsToolActive())
+             */
+            if (m_toolBox.rotateObjectsToolActive())
                 return Action::Context_RotateTool;
+            /*
             if (cameraFlyModeActive())
                 return Action::Context_FlyMode;
             */

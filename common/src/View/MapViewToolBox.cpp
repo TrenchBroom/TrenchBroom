@@ -62,6 +62,16 @@ namespace TrenchBroom {
             return toolActive(m_rotateObjectsTool);
         }
 
+        double MapViewToolBox::rotateToolAngle() const {
+            assert(rotateObjectsToolActive());
+            return m_rotateObjectsTool->angle();
+        }
+        
+        const Vec3 MapViewToolBox::rotateToolCenter() const {
+            assert(rotateObjectsToolActive());
+            return m_rotateObjectsTool->center();
+        }
+
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath());

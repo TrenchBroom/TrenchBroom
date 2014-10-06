@@ -52,9 +52,11 @@ namespace TrenchBroom {
             MovementRestriction& movementRestriction();
 
             void setCamera(Renderer::Camera* camera);
-        public: // tool activation
+        public: // tools
             void toggleRotateObjectsTool();
             bool rotateObjectsToolActive() const;
+            double rotateToolAngle() const;
+            const Vec3 rotateToolCenter() const;
         private: // Tool related methods
             void createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
             void destroyTools();
