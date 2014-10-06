@@ -39,7 +39,7 @@ namespace TrenchBroom {
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag();
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
         };

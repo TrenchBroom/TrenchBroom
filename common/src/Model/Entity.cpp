@@ -33,6 +33,8 @@ namespace TrenchBroom {
         const BBox3 Entity::DefaultBounds(8.0);
 
         Entity::Entity() :
+        Attributable(),
+        Object(),
         m_boundsValid(false),
         m_model(NULL) {}
 

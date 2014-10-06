@@ -25,29 +25,24 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Vbo.h"
 #include "View/ActionManager.h"
-#include "View/CameraTool.h"
 #include "View/CommandIds.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
-#include "View/MoveObjectsTool.h"
-#include "View/MovementRestriction.h"
-#include "View/SelectionTool.h"
+#include "View/MapViewToolBox.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
-        MapView3D::MapView3D(wxWindow* parent, Logger* logger, wxBookCtrlBase* toolBook, MapDocumentWPtr document, Renderer::MapRenderer& renderer) :
+        MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer) :
         RenderView(parent, attribs()),
+        ToolBoxConnector(this, toolBox),
         m_logger(logger),
         m_document(document),
-        m_movementRestriction(new MovementRestriction()),
+        m_toolBox(toolBox),
         m_vbo(new Renderer::Vbo(0xFFFFFFF)),
         m_renderer(renderer),
         m_camera(),
-        m_compass(new Renderer::Compass(*m_movementRestriction)),
-        m_toolBox(this, this),
-        m_cameraTool(NULL) {
-            createTools(toolBook);
+        m_compass(new Renderer::Compass(toolBox.movementRestriction())) {
             bindObservers();
             bindEvents();
             updateAcceleratorTable(HasFocus());
@@ -55,27 +50,46 @@ namespace TrenchBroom {
 
         MapView3D::~MapView3D() {
             unbindObservers();
-            destroyTools();
             delete m_compass;
             delete m_vbo;
-            delete m_movementRestriction;
         }
         
+        Renderer::Camera* MapView3D::camera() {
+            return &m_camera;
+        }
+
         void MapView3D::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
+            document->commandProcessedNotifier.addObserver(this, &MapView3D::commandProcessed);
             document->selectionDidChangeNotifier.addObserver(this, &MapView3D::selectionDidChange);
+            
+            m_toolBox.toolActivatedNotifier.addObserver(this, &MapView3D::toolChanged);
         }
         
         void MapView3D::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
+                document->commandProcessedNotifier.removeObserver(this, &MapView3D::commandProcessed);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapView3D::selectionDidChange);
             }
+
+            // toolbox has already been deleted at this point
+            // m_toolBox.toolActivatedNotifier.removeObserver(this, &MapView3D::toolChanged);
         }
         
-        void MapView3D::selectionDidChange(const Selection& selection) {
+        void MapView3D::toolChanged(Tool* tool) {
+            updateHits();
             updateAcceleratorTable(HasFocus());
             Refresh();
+        }
+
+        void MapView3D::commandProcessed(Command* command) {
+            updateHits();
+            Refresh();
+        }
+
+        void MapView3D::selectionDidChange(const Selection& selection) {
+            updateAcceleratorTable(HasFocus());
         }
 
         void MapView3D::bindEvents() {
@@ -100,8 +114,11 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnMoveVerticesRight,            this, CommandIds::Actions::MoveVerticesRight);
             Bind(wxEVT_MENU, &MapView3D::OnMoveVerticesUp,               this, CommandIds::Actions::MoveVerticesUp);
             Bind(wxEVT_MENU, &MapView3D::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
-            
+            */
+             
             Bind(wxEVT_MENU, &MapView3D::OnToggleRotateObjectsTool,      this, CommandIds::Actions::ToggleRotateObjectsTool);
+            
+            /*
             Bind(wxEVT_MENU, &MapView3D::OnToggleFlyMode,                this, CommandIds::Actions::ToggleFlyMode);
             
             Bind(wxEVT_MENU, &MapView3D::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
@@ -313,6 +330,10 @@ namespace TrenchBroom {
             document->flipObjects(center, axis);
         }
 
+        void MapView3D::OnToggleRotateObjectsTool(wxCommandEvent& event) {
+            m_toolBox.toggleRotateObjectsTool();
+        }
+
         void MapView3D::OnSetFocus(wxFocusEvent& event) {
             updateAcceleratorTable(true);
             event.Skip();
@@ -329,7 +350,7 @@ namespace TrenchBroom {
 
         void MapView3D::OnActivateFrame(wxActivateEvent& event) {
             if (event.GetActive())
-                m_toolBox.updateLastActivation();
+                updateLastActivation();
             /*
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
@@ -400,7 +421,7 @@ namespace TrenchBroom {
             Renderer::RenderBatch renderBatch(*m_vbo);
             
             renderMap(renderContext, renderBatch);
-            renderToolBox(renderContext, renderBatch);
+            renderTools(renderContext, renderBatch);
             renderCompass(renderBatch);
             
             renderBatch.render(renderContext);
@@ -416,20 +437,8 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
         }
 
-        void MapView3D::setRenderOptions(Renderer::RenderContext& renderContext) {
-            m_toolBox.setRenderOptions(renderContext);
-            /*
-            if (cameraFlyModeActive())
-                context.setHideMouseIndicators();
-             */
-        }
-
         void MapView3D::renderMap(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_renderer.render(renderContext, renderBatch);
-        }
-
-        void MapView3D::renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_toolBox.renderTools(renderContext, renderBatch);
         }
 
         void MapView3D::renderCompass(Renderer::RenderBatch& renderBatch) {
@@ -446,24 +455,6 @@ namespace TrenchBroom {
         }
         
         void MapView3D::doShowPopupMenu() {
-        }
-
-        void MapView3D::createTools(wxBookCtrlBase* toolBook) {
-            m_cameraTool = new CameraTool(m_document, m_camera);
-            m_moveObjectsTool = new MoveObjectsTool(m_document, *m_movementRestriction);
-            m_selectionTool = new SelectionTool(m_document);
-
-            m_toolBox.addTool(m_moveObjectsTool);
-            m_toolBox.addTool(m_selectionTool);
-            m_toolBox.addTool(m_cameraTool);
-
-            m_moveObjectsTool->createPage(toolBook);
-        }
-        
-        void MapView3D::destroyTools() {
-            delete m_cameraTool;
-            delete m_moveObjectsTool;
-            delete m_selectionTool;
         }
 
         const GLContextHolder::GLAttribs& MapView3D::attribs() {

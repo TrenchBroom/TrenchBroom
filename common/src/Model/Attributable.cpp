@@ -515,6 +515,7 @@ namespace TrenchBroom {
         }
         
         Attributable::Attributable() :
+        Node(),
         m_definition(NULL) {}
 
         void Attributable::removeKillTarget(Attributable* attributable) {

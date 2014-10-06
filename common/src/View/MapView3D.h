@@ -24,12 +24,9 @@
 #include "Renderer/PerspectiveCamera.h"
 #include "View/Action.h"
 #include "View/GLContextHolder.h"
-#include "View/MapView.h"
 #include "View/RenderView.h"
-#include "View/ToolBox.h"
+#include "View/ToolBoxConnector.h"
 #include "View/ViewTypes.h"
-
-class wxBookCtrlBase;
 
 namespace TrenchBroom {
     class Logger;
@@ -43,34 +40,33 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool;
-        class MoveObjectsTool;
-        class SelectionTool;
-        class Selection;
+        class Command;
+        class MapViewToolBox;
         class MovementRestriction;
+        class Selection;
+        class Tool;
         
-        class MapView3D : public MapView, public RenderView, public ToolBoxHelper {
+        class MapView3D : public RenderView, public ToolBoxConnector {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
-            MovementRestriction* m_movementRestriction;
+            MapViewToolBox& m_toolBox;
             
             Renderer::Vbo* m_vbo;
             Renderer::MapRenderer& m_renderer;
             Renderer::PerspectiveCamera m_camera;
             Renderer::Compass* m_compass;
-            
-            ToolBox m_toolBox;
-            CameraTool* m_cameraTool;
-            MoveObjectsTool* m_moveObjectsTool;
-            SelectionTool* m_selectionTool;
         public:
-            MapView3D(wxWindow* parent, Logger* logger, wxBookCtrlBase* toolBook, MapDocumentWPtr document, Renderer::MapRenderer& renderer);
+            MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer);
             ~MapView3D();
+            
+            Renderer::Camera* camera();
         private:
             void bindObservers();
             void unbindObservers();
             
+            void toolChanged(Tool* tool);
+            void commandProcessed(Command* command);
             void selectionDidChange(const Selection& selection);
         private: // interaction events
             void bindEvents();
@@ -97,6 +93,8 @@ namespace TrenchBroom {
             void rotateObjects(Math::RotationAxis axis, bool clockwise);
             Vec3 rotationAxis(Math::RotationAxis axis, bool clockwise) const;
             void flipObjects(Math::Direction direction);
+        public: // tool mode events
+            void OnToggleRotateObjectsTool(wxCommandEvent& event);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
@@ -110,17 +108,13 @@ namespace TrenchBroom {
             bool doShouldRenderFocusIndicator() const;
             void doRender();
             void setupGL(Renderer::RenderContext& renderContext);
-            void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderMap(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderCompass(Renderer::RenderBatch& renderBatch);
-        private: // implement ToolBoxHelper
+        private: // implement ToolBoxConnector
             Ray3 doGetPickRay(int x, int y) const;
             Hits doPick(const Ray3& pickRay) const;
             void doShowPopupMenu();
-        private: // Tool related methods
-            void createTools(wxBookCtrlBase* toolBook);
-            void destroyTools();
         private:
             static const GLContextHolder::GLAttribs& attribs();
             static int depthBits();

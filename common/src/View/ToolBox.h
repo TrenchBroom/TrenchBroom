@@ -25,7 +25,6 @@
 #include "StringUtils.h"
 #include "Hit.h"
 #include "Notifier.h"
-#include "View/InputState.h"
 
 #include <wx/wx.h>
 
@@ -39,29 +38,11 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class InputState;
         class Tool;
-        
-        class ToolBoxHelper {
-        public:
-            virtual ~ToolBoxHelper();
-            
-            Ray3 pickRay(int x, int y) const;
-            Hits pick(const Ray3& pickRay) const;
-            
-            void showPopupMenu();
-        private:
-            virtual Ray3 doGetPickRay(int x, int y) const = 0;
-            virtual Hits doPick(const Ray3& pickRay) const = 0;
-            virtual void doShowPopupMenu();
-        };
         
         class ToolBox {
         private:
-            wxWindow* m_window;
-            ToolBoxHelper* m_helper;
-            
-            InputState m_inputState;
-
             Tool* m_toolChain;
             Tool* m_dragReceiver;
             Tool* m_modalReceiver;
@@ -72,44 +53,36 @@ namespace TrenchBroom {
             typedef std::map<Tool*, ToolList> ToolMap;
             ToolMap m_deactivateWhen;
             
-            wxPoint m_clickPos;
-            wxPoint m_lastMousePos;
-            bool m_ignoreNextDrag;
-            bool m_clickToActivate;
-            bool m_ignoreNextClick;
-            wxDateTime m_lastActivation;
-            
             bool m_enabled;
-            bool m_ignoreMotionEvents;
         public:
             Notifier1<Tool*> toolActivatedNotifier;
             Notifier1<Tool*> toolDeactivatedNotifier;
         public:
-            ToolBox(wxWindow* window, ToolBoxHelper* helper);
-            ~ToolBox();
-            
-            void setClickToActivate(bool clickToActivate);
-            
-            const Ray3& pickRay() const;
-            const Hits& hits() const;
-            
-            void updateHits();
-            void updateLastActivation();
+            ToolBox();
+        public: // picking
+            void pick(const InputState& inputState, Hits& hits);
+        public: // event handling
+            bool dragEnter(const InputState& inputState, const String& text);
+            bool dragMove(const InputState& inputState, const String& text);
+            void dragLeave(const InputState& inputState);
+            bool dragDrop(const InputState& inputState, const String& text);
 
-            bool dragEnter(wxCoord x, wxCoord y, const String& text);
-            bool dragMove(wxCoord x, wxCoord y, const String& text);
-            void dragLeave();
-            bool dragDrop(wxCoord x, wxCoord y, const String& text);
-
-            void OnKey(wxKeyEvent& event);
-            void OnMouseButton(wxMouseEvent& event);
-            void OnMouseDoubleClick(wxMouseEvent& event);
-            void OnMouseMotion(wxMouseEvent& event);
-            void OnMouseWheel(wxMouseEvent& event);
-            void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-            void OnSetFocus(wxFocusEvent& event);
-            void OnKillFocus(wxFocusEvent& event);
+            void modifierKeyChange(const InputState& inputState);
+            void mouseDown(const InputState& inputState);
+            bool mouseUp(const InputState& inputState);
+            void mouseDoubleClick(const InputState& inputState);
+            void mouseMove(const InputState& inputState);
             
+            bool dragging() const;
+            bool startMouseDrag(const InputState& inputState);
+            bool mouseDrag(const InputState& inputState);
+            void endMouseDrag(const InputState& inputState);
+            void cancelDrag();
+            
+            void mouseWheel(const InputState& inputState);
+
+            bool cancel();
+        public: // tool management
             void addTool(Tool* tool);
             void deactivateWhen(Tool* master, Tool* slave);
             
@@ -121,29 +94,12 @@ namespace TrenchBroom {
             bool enabled() const;
             void enable();
             void disable();
-            
-            bool cancel();
-            
-            void setRenderOptions(Renderer::RenderContext& renderContext);
-            void renderTools(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        public: // rendering
+            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext);
+            void renderTools(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
-            bool activateTool(Tool* tool, const InputState& inputState);
+            bool activateTool(Tool* tool);
             void deactivateTool(Tool* tool);
-            
-            void captureMouse();
-            void releaseMouse();
-            void cancelDrag();
-
-            ModifierKeyState modifierKeys();
-            bool updateModifierKeys();
-            bool clearModifierKeys();
-            MouseButtonState mouseButton(wxMouseEvent& event);
-            void mouseMoved(const wxPoint& position);
-            
-            void showPopupMenu();
-
-            void bindEvents();
-            void unbindEvents();
         };
     }
 }

@@ -40,8 +40,8 @@ namespace TrenchBroom {
             virtual ~ActivationPolicy();
             
             virtual bool initiallyActive() const;
-            virtual bool doActivate(const InputState& inputState) = 0;
-            virtual bool doDeactivate(const InputState& inputState) = 0;
+            virtual bool doActivate() = 0;
+            virtual bool doDeactivate() = 0;
         };
         
         class NoActivationPolicy {
@@ -49,8 +49,8 @@ namespace TrenchBroom {
             ~NoActivationPolicy();
             
             bool initiallyActive() const;
-            bool doActivate(const InputState& inputState);
-            bool doDeactivate(const InputState& inputState);
+            bool doActivate();
+            bool doDeactivate();
         };
         
         class PickingPolicy {
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             virtual bool doStartMouseDrag(const InputState& inputState) = 0;
             virtual bool doMouseDrag(const InputState& inputState) = 0;
             virtual void doEndMouseDrag(const InputState& inputState) = 0;
-            virtual void doCancelMouseDrag(const InputState& inputState) = 0;
+            virtual void doCancelMouseDrag() = 0;
         };
         
         class NoMouseDragPolicy {
@@ -104,7 +104,7 @@ namespace TrenchBroom {
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag();
         };
         
         class PlaneDragPolicy {
@@ -118,13 +118,13 @@ namespace TrenchBroom {
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag();
             void resetPlane(const InputState& inputState);
 
             virtual bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
             virtual bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
             virtual void doEndPlaneDrag(const InputState& inputState) = 0;
-            virtual void doCancelPlaneDrag(const InputState& inputState) = 0;
+            virtual void doCancelPlaneDrag() = 0;
             virtual void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
         };
         
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             virtual bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
             virtual bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
             virtual void endPlaneDrag(const InputState& inputState) = 0;
-            virtual void cancelPlaneDrag(const InputState& inputState) = 0;
+            virtual void cancelPlaneDrag() = 0;
             virtual void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
             virtual void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
         };
@@ -175,10 +175,10 @@ namespace TrenchBroom {
             virtual ~Tool();
 
             virtual bool active() const = 0;
-            virtual bool activate(const InputState& inputState) = 0;
-            virtual void deactivate(const InputState& inputState) = 0;
+            virtual bool activate() = 0;
+            virtual void deactivate() = 0;
             
-            virtual bool cancel(const InputState& inputState) = 0;
+            virtual bool cancel() = 0;
             
             virtual void pick(const InputState& inputState, Hits& hits) = 0;
             
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             virtual Tool* startMouseDrag(const InputState& inputState) = 0;
             virtual bool mouseDrag(const InputState& inputState) = 0;
             virtual void endMouseDrag(const InputState& inputState) = 0;
-            virtual void cancelMouseDrag(const InputState& inputState) = 0;
+            virtual void cancelMouseDrag() = 0;
             
             virtual Tool* dragEnter(const InputState& inputState, const String& payload) = 0;
             virtual bool dragMove(const InputState& inputState) = 0;
@@ -226,24 +226,24 @@ namespace TrenchBroom {
                 return m_active;
             }
             
-            bool activate(const InputState& inputState) {
+            bool activate() {
                 assert(!active());
-                if (static_cast<ActivationPolicyType&>(*this).doActivate(inputState))
+                if (static_cast<ActivationPolicyType&>(*this).doActivate())
                     m_active = true;
                 return m_active;
             }
             
-            void deactivate(const InputState& inputState) {
+            void deactivate() {
                 assert(active());
-                if (static_cast<ActivationPolicyType&>(*this).doDeactivate(inputState))
+                if (static_cast<ActivationPolicyType&>(*this).doDeactivate())
                     m_active = false;
             }
             
-            bool cancel(const InputState& inputState) {
-                if (active() && doCancel(inputState))
+            bool cancel() {
+                if (active() && doCancel())
                     return true;
                 if (next())
-                    return next()->cancel(inputState);
+                    return next()->cancel();
                 return false;
             }
             
@@ -322,10 +322,10 @@ namespace TrenchBroom {
                 static_cast<MouseDragPolicyType&>(*this).doEndMouseDrag(inputState);
             }
             
-            void cancelMouseDrag(const InputState& inputState) {
+            void cancelMouseDrag() {
                 if (dragging()) {
                     m_dragging = false;
-                    static_cast<MouseDragPolicyType&>(*this).doCancelMouseDrag(inputState);
+                    static_cast<MouseDragPolicyType&>(*this).doCancelMouseDrag();
                 }
             }
             
@@ -385,7 +385,7 @@ namespace TrenchBroom {
                 return m_dragging;
             }
         private:
-            virtual bool doCancel(const InputState& inputState) {
+            virtual bool doCancel() {
                 return false;
             }
         };

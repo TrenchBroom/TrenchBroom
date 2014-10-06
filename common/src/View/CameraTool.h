@@ -33,18 +33,19 @@ namespace TrenchBroom {
     namespace View {
         class CameraTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
         private:
-            Renderer::Camera& m_camera;
+            Renderer::Camera* m_camera;
             bool m_orbit;
             Vec3f m_orbitCenter;
         public:
-            CameraTool(MapDocumentWPtr document, Renderer::Camera& camera);
+            CameraTool(MapDocumentWPtr document);
+            void setCamera(Renderer::Camera* camera);
             void fly(int dx, int dy, bool forward, bool backward, bool left, bool right, unsigned int time);
         private:
             void doScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
-            void doCancelMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag();
             
             bool move(const InputState& inputState) const;
             bool look(const InputState& inputState) const;

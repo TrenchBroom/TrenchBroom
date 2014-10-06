@@ -26,13 +26,13 @@
 
 namespace TrenchBroom {
     namespace View {
-        class ToolBox;
+        class ToolBoxConnector;
         
         class ToolBoxDropTarget : public wxTextDropTarget {
         private:
-            ToolBox& m_toolBox;
+            ToolBoxConnector* m_toolBoxConnector;
         public:
-            ToolBoxDropTarget(ToolBox& toolBox);
+            ToolBoxDropTarget(ToolBoxConnector* toolBoxConnector);
             
             wxDragResult OnEnter(wxCoord x, wxCoord y, wxDragResult def);
             wxDragResult OnDragOver(wxCoord x, wxCoord y, wxDragResult def);

@@ -47,16 +47,16 @@ namespace TrenchBroom {
             return doSnapDelta(inputState, delta);
         }
         
-        MoveResult MoveDelegate::move(const Vec3& delta) {
-            return doMove(delta);
+        MoveResult MoveDelegate::move(const InputState& inputState, const Vec3& delta) {
+            return doMove(inputState, delta);
         }
         
         void MoveDelegate::endMove(const InputState& inputState) {
             doEndMove(inputState);
         }
         
-        void MoveDelegate::cancelMove(const InputState& inputState) {
-            doCancelMove(inputState);
+        void MoveDelegate::cancelMove() {
+            doCancelMove();
         }
 
         MoveHelper::MoveHelper(MovementRestriction& movementRestriction, MoveDelegate& delegate) :
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             if (delta.null())
                 return true;
             
-            const MoveResult result = m_delegate.move(delta);
+            const MoveResult result = m_delegate.move(inputState, delta);
             if (result == MoveResult_Conclude)
                 return false;
             if (result == MoveResult_Continue) {
@@ -98,8 +98,8 @@ namespace TrenchBroom {
             m_trace.clear();
         }
         
-        void MoveHelper::cancelPlaneDrag(const InputState& inputState) {
-            m_delegate.cancelMove(inputState);
+        void MoveHelper::cancelPlaneDrag() {
+            m_delegate.cancelMove();
             m_trace.clear();
         }
         

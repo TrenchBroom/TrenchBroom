@@ -30,8 +30,8 @@ namespace TrenchBroom {
 
         NoActivationPolicy::~NoActivationPolicy() {}
         bool NoActivationPolicy::initiallyActive() const { return true; }
-        bool NoActivationPolicy::doActivate(const InputState& inputState) { return true; }
-        bool NoActivationPolicy::doDeactivate(const InputState& inputState) { return true; }
+        bool NoActivationPolicy::doActivate() { return true; }
+        bool NoActivationPolicy::doDeactivate() { return true; }
 
         PickingPolicy::~PickingPolicy() {}
         NoPickingPolicy::~NoPickingPolicy() {}
@@ -57,7 +57,7 @@ namespace TrenchBroom {
         bool NoMouseDragPolicy::doStartMouseDrag(const InputState& inputState) { return false; }
         bool NoMouseDragPolicy::doMouseDrag(const InputState& inputState) { return false; }
         void NoMouseDragPolicy::doEndMouseDrag(const InputState& inputState) {}
-        void NoMouseDragPolicy::doCancelMouseDrag(const InputState& inputState) {}
+        void NoMouseDragPolicy::doCancelMouseDrag() {}
 
         PlaneDragPolicy::~PlaneDragPolicy() {}
         
@@ -89,8 +89,8 @@ namespace TrenchBroom {
             doEndPlaneDrag(inputState);
         }
         
-        void PlaneDragPolicy::doCancelMouseDrag(const InputState& inputState) {
-            doCancelPlaneDrag(inputState);
+        void PlaneDragPolicy::doCancelMouseDrag() {
+            doCancelPlaneDrag();
         }
         
         void PlaneDragPolicy::resetPlane(const InputState& inputState) {

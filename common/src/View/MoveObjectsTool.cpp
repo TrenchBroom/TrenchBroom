@@ -79,7 +79,7 @@ namespace TrenchBroom {
             return grid.snap(delta);
         }
         
-        MoveResult MoveObjectsTool::doMove(const Vec3& delta) {
+        MoveResult MoveObjectsTool::doMove(const InputState& inputState, const Vec3& delta) {
             const BBox3& worldBounds = document()->worldBounds();
             const BBox3 bounds = computeBounds(document()->selectedNodes());
             if (!worldBounds.contains(bounds.translated(delta)))

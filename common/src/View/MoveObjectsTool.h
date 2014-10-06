@@ -46,7 +46,7 @@ namespace TrenchBroom {
             String doGetActionName(const InputState& inputState) const;
             bool doStartMove(const InputState& inputState);
             Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;
-            MoveResult doMove(const Vec3& delta);
+            MoveResult doMove(const InputState& inputState, const Vec3& delta);
             void doEndMove(const InputState& inputState);
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;

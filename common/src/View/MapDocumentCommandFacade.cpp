@@ -58,7 +58,10 @@ namespace TrenchBroom {
         }
 
         MapDocumentCommandFacade::MapDocumentCommandFacade() :
-        m_commandProcessor(this) {}
+        m_commandProcessor(this) {
+            m_commandProcessor.commandDoneNotifier.addObserver(commandProcessedNotifier);
+            m_commandProcessor.commandUndoneNotifier.addObserver(commandProcessedNotifier);
+        }
 
         void MapDocumentCommandFacade::performSelect(const Model::NodeList& nodes) {
             selectionWillChangeNotifier();

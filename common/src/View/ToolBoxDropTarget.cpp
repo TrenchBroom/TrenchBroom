@@ -19,35 +19,37 @@
 
 #include "ToolBoxDropTarget.h"
 #include "View/DragAndDrop.h"
-#include "View/ToolBox.h"
+#include "View/ToolBoxConnector.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        ToolBoxDropTarget::ToolBoxDropTarget(ToolBox& toolBox) :
+        ToolBoxDropTarget::ToolBoxDropTarget(ToolBoxConnector* toolBoxConnector) :
         wxTextDropTarget(),
-        m_toolBox(toolBox) {}
+        m_toolBoxConnector(toolBoxConnector) {
+            assert(m_toolBoxConnector != NULL);
+        }
         
         wxDragResult ToolBoxDropTarget::OnEnter(const wxCoord x, const wxCoord y, const wxDragResult def) {
-            if (m_toolBox.dragEnter(x, y, getDragText()))
+            if (m_toolBoxConnector->dragEnter(x, y, getDragText()))
                 return wxTextDropTarget::OnEnter(x, y, wxDragCopy);
             return wxTextDropTarget::OnEnter(x, y, wxDragNone);
         }
         
         wxDragResult ToolBoxDropTarget::OnDragOver(const wxCoord x, const wxCoord y, const wxDragResult def) {
-            if (m_toolBox.dragMove(x, y, getDragText()))
+            if (m_toolBoxConnector->dragMove(x, y, getDragText()))
                 return wxTextDropTarget::OnDragOver(x, y, wxDragCopy);
             return wxTextDropTarget::OnDragOver(x, y, wxDragNone);
         }
         
         void ToolBoxDropTarget::OnLeave() {
-            m_toolBox.dragLeave();
+            m_toolBoxConnector->dragLeave();
             wxTextDropTarget::OnLeave();
         }
         
         bool ToolBoxDropTarget::OnDropText(const wxCoord x, const wxCoord y, const wxString& data) {
-            return m_toolBox.dragDrop(x, y, data.ToStdString());
+            return m_toolBoxConnector->dragDrop(x, y, data.ToStdString());
         }
 
         String ToolBoxDropTarget::getDragText() const {

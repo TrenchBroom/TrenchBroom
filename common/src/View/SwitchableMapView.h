@@ -20,7 +20,6 @@
 #ifndef __TrenchBroom__SwitchableMapView__
 #define __TrenchBroom__SwitchableMapView__
 
-#include "View/MapView.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -35,12 +34,16 @@ namespace TrenchBroom {
     namespace View {
         class MapView3D;
         class MapViewBar;
+        class MapViewToolBox;
+        class MovementRestriction;
         
-        class SwitchableMapView : public MapView, public wxPanel {
+        class SwitchableMapView : public wxPanel {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
             
+            MapViewToolBox* m_toolBox;
+
             Renderer::MapRenderer* m_mapRenderer;
             MapViewBar* m_mapViewBar;
             MapView3D* m_mapView;

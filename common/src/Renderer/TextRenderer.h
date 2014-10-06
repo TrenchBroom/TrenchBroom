@@ -275,9 +275,6 @@ namespace TrenchBroom {
                 m_fadeDistance = fadeDistance;
             }
             
-            void render(RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, ShaderConfig& textShader, ShaderConfig& backgroundShader) {
-            }
-            
             class TextRenderable : public Renderable {
             private:
                 TextureFont& m_font;
@@ -286,6 +283,8 @@ namespace TrenchBroom {
                 
                 VertexArray m_fontArray;
                 VertexArray m_rectArray;
+                
+                bool m_onTop;
             public:
                 TextRenderable(TextureFont& font,
                                const ShaderConfig& textShaderConfig, const ShaderConfig& backgroundShaderConfig,
@@ -294,7 +293,12 @@ namespace TrenchBroom {
                 m_textShaderConfig(textShaderConfig),
                 m_backgroundShaderConfig(backgroundShaderConfig),
                 m_fontArray(fontArray),
-                m_rectArray(rectArray) {}
+                m_rectArray(rectArray),
+                m_onTop(false) {}
+                
+                void showOnTop() {
+                    m_onTop = true;
+                }
             private:
                 void doPrepare(Vbo& vbo) {
                     m_fontArray.prepare(vbo);
@@ -312,6 +316,8 @@ namespace TrenchBroom {
                     
                     ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
+                    if (m_onTop)
+                        glDisable(GL_DEPTH_TEST);
                     // glDepthMask(GL_FALSE);
                     glDisable(GL_TEXTURE_2D);
                     
@@ -326,22 +332,38 @@ namespace TrenchBroom {
                     m_font.deactivate();
                     
                     // glDepthMask(GL_TRUE);
+                    if (m_onTop)
+                        glDisable(GL_DEPTH_TEST);
                 }
             };
             
+            void renderOnTop(RenderContext& renderContext, RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
+                TextRenderable* renderable = buildRenderable(renderContext, filter, colorProvider, textProgram, backgroundProgram);
+                if (renderable != NULL) {
+                    renderable->showOnTop();
+                    renderBatch.addOneShot(renderable);
+                }
+            }
+            
             void render(RenderContext& renderContext, RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
+                TextRenderable* renderable = buildRenderable(renderContext, filter, colorProvider, textProgram, backgroundProgram);
+                if (renderable != NULL)
+                    renderBatch.addOneShot(renderable);
+            }
+        private:
+            TextRenderable* buildRenderable(RenderContext& renderContext, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
                 if (empty())
-                    return;
+                    return NULL;
                 
                 FontManager& fontManager = renderContext.fontManager();
                 TextureFont& font = fontManager.font(m_fontDescriptor);
-
+                
                 prepareEntries(font);
                 
                 EntryList entries = visibleEntries(renderContext, filter);
                 if (entries.empty())
-                    return;
-
+                    return NULL;
+                
                 typedef VertexSpecs::P3T2C4::Vertex FontVertex;
                 FontVertex::List fontVertices;
                 
@@ -366,7 +388,7 @@ namespace TrenchBroom {
                                               -offset.z());
                         fontVertices.push_back(FontVertex(position3, texCoords, colorProvider.textColor(renderContext, key)));
                     }
-
+                    
                     const Vec2f::List tempRect = roundedRect2D(size.x() + 2.0f * m_hInset, size.y() + 2.0f * m_vInset, 3.0f, 3);
                     for (size_t j = 0; j < tempRect.size(); ++j) {
                         const Vec2f& vertex = tempRect[j];
@@ -380,9 +402,9 @@ namespace TrenchBroom {
                 const VertexArray fontArray = VertexArray::swap(GL_QUADS, fontVertices);
                 const VertexArray rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
                 
-                renderBatch.addOneShot(new TextRenderable(font, textProgram, backgroundProgram, fontArray, rectArray));
+                return new TextRenderable(font, textProgram, backgroundProgram, fontArray, rectArray);
             }
-        private:
+            
             void prepareEntries(TextureFont& font) {
                 typename UnpreparedEntryMap::iterator it, end;
                 for (it = m_unpreparedEntries.begin(), end = m_unpreparedEntries.end(); it != end; ++it) {

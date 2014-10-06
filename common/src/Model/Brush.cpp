@@ -84,6 +84,7 @@ namespace TrenchBroom {
         }
 
         void Brush::setFaces(const BBox3& worldBounds, const BrushFaceList& faces) {
+            nodeWillChange();
             detachFaces(m_faces);
             VectorUtils::clearAndDelete(m_faces);
             addFaces(faces);
@@ -487,6 +488,7 @@ namespace TrenchBroom {
         }
         
         void Brush::doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {
+            nodeWillChange();
             BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 BrushFace* face = *it;

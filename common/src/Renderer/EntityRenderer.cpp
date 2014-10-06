@@ -237,14 +237,15 @@ namespace TrenchBroom {
         
         void EntityRenderer::renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (renderContext.showEntityClassnames()) {
-                if (m_showOccludedOverlays)
-                    glDisable(GL_DEPTH_TEST);
                 EntityClassnameFilter textFilter(m_editorContext, m_showHiddenEntities);
                 EntityClassnameColorProvider colorProvider(m_overlayTextColor, m_overlayBackgroundColor);
-                m_classnameRenderer.render(renderContext, renderBatch, textFilter, colorProvider,
-                                           Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
+                
                 if (m_showOccludedOverlays)
-                    glEnable(GL_DEPTH_TEST);
+                    m_classnameRenderer.renderOnTop(renderContext, renderBatch, textFilter, colorProvider,
+                                                    Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
+                else
+                    m_classnameRenderer.render(renderContext, renderBatch, textFilter, colorProvider,
+                                               Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
             }
         }
         

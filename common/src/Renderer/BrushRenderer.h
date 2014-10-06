@@ -67,7 +67,7 @@ namespace TrenchBroom {
             };
         private:
             Filter* m_filter;
-            Model::BrushList m_brushes;
+            Model::BrushSet m_brushes;
             FaceRenderer m_opaqueFaceRenderer;
             FaceRenderer m_transparentFaceRenderer;
             EdgeRenderer m_edgeRenderer;
@@ -102,15 +102,17 @@ namespace TrenchBroom {
             
             template <typename I>
             void addBrushes(I cur, I end, const size_t count) {
-                m_brushes.reserve(m_brushes.size() * count);
-                m_brushes.insert(m_brushes.end(), cur, end);
+                // m_brushes.reserve(m_brushes.size() * count);
+                // m_brushes.insert(m_brushes.end(), cur, end);
+                m_brushes.insert(cur, end);
                 invalidate();
             }
             
             template <typename I>
             void removeBrushes(I cur, I end) {
-                const Model::BrushList::iterator rem = VectorUtils::removeAll(m_brushes.begin(), m_brushes.end(), cur, end);
-                m_brushes.erase(rem, m_brushes.end());
+                // const Model::BrushList::iterator rem = VectorUtils::removeAll(m_brushes.begin(), m_brushes.end(), cur, end);
+                // m_brushes.erase(rem, m_brushes.end());
+                m_brushes.erase(cur, end);
                 invalidate();
             }
             

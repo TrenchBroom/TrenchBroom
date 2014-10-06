@@ -50,17 +50,17 @@ namespace TrenchBroom {
             Vec3 getMoveOrigin(const InputState& inputState) const;
             bool startMove(const InputState& inputState);
             Vec3 snapDelta(const InputState& inputState, const Vec3& delta) const;
-            MoveResult move(const Vec3& delta);
+            MoveResult move(const InputState& inputState, const Vec3& delta);
             void endMove(const InputState& inputState);
-            void cancelMove(const InputState& inputState);
+            void cancelMove();
         private:
             virtual bool doHandleMove(const InputState& inputState) const = 0;
             virtual Vec3 doGetMoveOrigin(const InputState& inputState) const = 0;
             virtual bool doStartMove(const InputState& inputState) = 0;
             virtual Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const = 0;
-            virtual MoveResult doMove(const Vec3& delta) = 0;
+            virtual MoveResult doMove(const InputState& inputState, const Vec3& delta) = 0;
             virtual void doEndMove(const InputState& inputState) = 0;
-            virtual void doCancelMove(const InputState& inputState) = 0;
+            virtual void doCancelMove() = 0;
         };
         
         class MoveHelper : public PlaneDragHelper {
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
             void endPlaneDrag(const InputState& inputState);
-            void cancelPlaneDrag(const InputState& inputState);
+            void cancelPlaneDrag();
             void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:

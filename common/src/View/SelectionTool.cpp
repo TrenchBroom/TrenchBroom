@@ -148,11 +148,9 @@ namespace TrenchBroom {
             return false;
         }
         
-        void SelectionTool::doEndMouseDrag(const InputState& inputState) {
-        }
+        void SelectionTool::doEndMouseDrag(const InputState& inputState) {}
         
-        void SelectionTool::doCancelMouseDrag(const InputState& inputState) {
-        }
+        void SelectionTool::doCancelMouseDrag() {}
 
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             static const Hit::HitType types = Model::Entity::EntityHit | Model::Brush::BrushHit;

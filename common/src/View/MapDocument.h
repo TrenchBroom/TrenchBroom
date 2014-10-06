@@ -44,6 +44,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class Command;
         class Grid;
         class MapViewConfig;
         class Selection;
@@ -85,6 +86,8 @@ namespace TrenchBroom {
             Notifier1<MapDocument*> documentWasSavedNotifier;
             Notifier0 documentModificationStateDidChangeNotifier;
             
+            Notifier1<Command*> commandProcessedNotifier;
+
             Notifier0 selectionWillChangeNotifier;
             Notifier1<const Selection&> selectionDidChangeNotifier;
             

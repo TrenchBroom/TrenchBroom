@@ -17,10 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapView.h"
+#ifndef __TrenchBroom__Sphere__
+#define __TrenchBroom__Sphere__
+
+#include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
-    namespace View {
-        MapView::~MapView() {}
+    namespace Renderer {
+        class Vbo;
+        
+        class Sphere {
+        private:
+            VertexArray m_array;
+        public:
+            Sphere(float radius, size_t iterations);
+
+            bool prepared() const;
+            void prepare(Vbo& vbo);
+            void render();
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__Sphere__) */

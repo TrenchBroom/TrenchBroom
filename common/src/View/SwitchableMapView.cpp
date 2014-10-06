@@ -22,6 +22,7 @@
 #include "Renderer/MapRenderer.h"
 #include "View/MapView3D.h"
 #include "View/MapViewBar.h"
+#include "View/MapViewToolBox.h"
 
 #include <wx/sizer.h>
 
@@ -31,6 +32,7 @@ namespace TrenchBroom {
         wxPanel(parent),
         m_logger(logger),
         m_document(document),
+        m_toolBox(NULL),
         m_mapRenderer(NULL),
         m_mapViewBar(NULL),
         m_mapView(NULL) {
@@ -44,12 +46,20 @@ namespace TrenchBroom {
             // possible solution: force deletion of all children here?
             delete m_mapRenderer;
             m_mapRenderer = NULL;
+            
+            delete m_toolBox;
+            m_toolBox = NULL;
         }
 
         void SwitchableMapView::createGui() {
             m_mapRenderer = new Renderer::MapRenderer(m_document);
             m_mapViewBar = new MapViewBar(this, m_document);
-            m_mapView = new MapView3D(this, m_logger, m_mapViewBar->toolBook(), m_document, *m_mapRenderer);
+            
+            m_toolBox = new MapViewToolBox(m_document, m_mapViewBar->toolBook());
+            m_mapView = new MapView3D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer);
+            
+            // this must be updated appropriately when the map view is switched
+            m_toolBox->setCamera(m_mapView->camera());
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_mapViewBar, 0, wxEXPAND);

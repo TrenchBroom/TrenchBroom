@@ -61,12 +61,12 @@ namespace TrenchBroom {
         }
 
         void BrushRenderer::addBrush(Model::Brush* brush) {
-            m_brushes.push_back(brush);
+            m_brushes.insert(brush);
             invalidate();
         }
         
         void BrushRenderer::removeBrush(Model::Brush* brush) {
-            VectorUtils::erase(m_brushes, brush);
+            m_brushes.erase(brush);
             invalidate();
         }
 

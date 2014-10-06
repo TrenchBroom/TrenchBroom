@@ -33,46 +33,56 @@
 
 namespace TrenchBroom {
     namespace View {
-        CameraTool::CameraTool(MapDocumentWPtr document, Renderer::Camera& camera) :
+        CameraTool::CameraTool(MapDocumentWPtr document) :
         ToolImpl(document),
-        m_camera(camera),
+        m_camera(NULL),
         m_orbit(false) {}
         
+        void CameraTool::setCamera(Renderer::Camera* camera) {
+            m_camera = camera;
+        }
+
         void CameraTool::fly(int dx, int dy, const bool forward, const bool backward, const bool left, const bool right, const unsigned int time) {
+            assert(m_camera != NULL);
+            
             static const float speed = 256.0f / 1000.0f; // 64 units per second
             const float dist  = speed * time;
             
             Vec3 delta;
             if (forward)
-                delta += m_camera.direction() * dist;
+                delta += m_camera->direction() * dist;
             if (backward)
-                delta -= m_camera.direction() * dist;
+                delta -= m_camera->direction() * dist;
             if (left)
-                delta -= m_camera.right() * dist;
+                delta -= m_camera->right() * dist;
             if (right)
-                delta += m_camera.right() * dist;
-            m_camera.moveBy(delta);
+                delta += m_camera->right() * dist;
+            m_camera->moveBy(delta);
             
             const float hAngle = static_cast<float>(dx) * lookSpeedH();
             const float vAngle = static_cast<float>(dy) * lookSpeedV();
-            m_camera.rotate(hAngle, vAngle);
+            m_camera->rotate(hAngle, vAngle);
         }
 
         void CameraTool::doScroll(const InputState& inputState) {
+            assert(m_camera != NULL);
+
             if (m_orbit) {
-                const Plane3f orbitPlane(m_orbitCenter, m_camera.direction());
-                const float maxDistance = std::max(orbitPlane.intersectWithRay(m_camera.viewRay()) - 32.0f, 0.0f);
+                const Plane3f orbitPlane(m_orbitCenter, m_camera->direction());
+                const float maxDistance = std::max(orbitPlane.intersectWithRay(m_camera->viewRay()) - 32.0f, 0.0f);
                 const float distance = std::min(inputState.scrollY() * moveSpeed(false), maxDistance);
-                m_camera.moveBy(distance * m_camera.direction());
+                m_camera->moveBy(distance * m_camera->direction());
             } else if (move(inputState)) {
                 PreferenceManager& prefs = PreferenceManager::instance();
-                const Vec3f moveDirection = prefs.get(Preferences::CameraMoveInCursorDir) ? Vec3f(inputState.pickRay().direction) : m_camera.direction();
+                const Vec3f moveDirection = prefs.get(Preferences::CameraMoveInCursorDir) ? Vec3f(inputState.pickRay().direction) : m_camera->direction();
                 const float distance = inputState.scrollY() * moveSpeed(false);
-                m_camera.moveBy(distance * moveDirection);
+                m_camera->moveBy(distance * moveDirection);
             }
         }
 
         bool CameraTool::doStartMouseDrag(const InputState& inputState) {
+            assert(m_camera != NULL);
+            
             if (orbit(inputState)) {
                 const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit | Model::Entity::EntityHit, document()->editorContext(), true);
                 if (hit.isMatch()) {
@@ -89,28 +99,30 @@ namespace TrenchBroom {
         }
         
         bool CameraTool::doMouseDrag(const InputState& inputState) {
+            assert(m_camera != NULL);
+            
             if (m_orbit) {
                 const float hAngle = inputState.mouseDX() * lookSpeedH();
                 const float vAngle = inputState.mouseDY() * lookSpeedV();
-                m_camera.orbit(m_orbitCenter, hAngle, vAngle);
+                m_camera->orbit(m_orbitCenter, hAngle, vAngle);
                 return true;
             } else if (look(inputState)) {
                 const float hAngle = inputState.mouseDX() * lookSpeedH();
                 const float vAngle = inputState.mouseDY() * lookSpeedV();
-                m_camera.rotate(hAngle, vAngle);
+                m_camera->rotate(hAngle, vAngle);
                 return true;
             } else if (pan(inputState)) {
                 PreferenceManager& prefs = PreferenceManager::instance();
                 const bool altMove = prefs.get(Preferences::CameraEnableAltMove);
                 Vec3f delta;
                 if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt)) {
-                    delta += inputState.mouseDX() * panSpeedH() * m_camera.right();
-                    delta += inputState.mouseDY() * -moveSpeed(altMove) * m_camera.direction();
+                    delta += inputState.mouseDX() * panSpeedH() * m_camera->right();
+                    delta += inputState.mouseDY() * -moveSpeed(altMove) * m_camera->direction();
                 } else {
-                    delta += inputState.mouseDX() * panSpeedH() * m_camera.right();
-                    delta += inputState.mouseDY() * panSpeedV() * m_camera.up();
+                    delta += inputState.mouseDX() * panSpeedH() * m_camera->right();
+                    delta += inputState.mouseDY() * panSpeedV() * m_camera->up();
                 }
-                m_camera.moveBy(delta);
+                m_camera->moveBy(delta);
                 return true;
             }
             return false;
@@ -120,7 +132,7 @@ namespace TrenchBroom {
             m_orbit = false;
         }
         
-        void CameraTool::doCancelMouseDrag(const InputState& inputState) {
+        void CameraTool::doCancelMouseDrag() {
             m_orbit = false;
         }
 

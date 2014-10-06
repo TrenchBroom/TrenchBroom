@@ -24,6 +24,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "View/MapDocument.h"
 #include "View/MoveToolHelper.h"
 
 #ifdef _MSC_VER
@@ -34,8 +35,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        class ControllerFacade;
-
         template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class DropPolicyType, class RenderPolicyType>
         class MoveTool : public ToolImpl<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, DropPolicyType, RenderPolicyType>, public MoveDelegate {
         private:
@@ -73,8 +72,8 @@ namespace TrenchBroom {
                 Super::document()->endTransaction();
             }
             
-            void doCancelPlaneDrag(const InputState& inputState) {
-                m_helper.cancelPlaneDrag(inputState);
+            void doCancelPlaneDrag() {
+                m_helper.cancelPlaneDrag();
                 Super::document()->cancelTransaction();
             }
             
@@ -93,9 +92,9 @@ namespace TrenchBroom {
             virtual Vec3 doGetMoveOrigin(const InputState& inputState) const = 0;
             virtual bool doStartMove(const InputState& inputState) = 0;
             virtual Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const = 0;
-            virtual MoveResult doMove(const Vec3& delta) = 0;
+            virtual MoveResult doMove(const InputState& inputState, const Vec3& delta) = 0;
             virtual void doEndMove(const InputState& inputState) {}
-            virtual void doCancelMove(const InputState& inputState) {}
+            virtual void doCancelMove() {}
         };
     }
 }

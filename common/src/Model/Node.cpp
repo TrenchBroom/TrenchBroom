@@ -239,20 +239,14 @@ namespace TrenchBroom {
 
         void Node::descendantWillChange(Node* node) {
             doDescendantWillChange(node);
-            Node* parent = Node::parent();
-            while (parent != NULL) {
-                parent->descendantWillChange(node);
-                parent = parent->parent();
-            }
+            if (m_parent != NULL)
+                m_parent->descendantWillChange(node);
         }
         
         void Node::descendantDidChange(Node* node) {
             doDescendantDidChange(node);
-            Node* parent = Node::parent();
-            while (parent != NULL) {
-                parent->descendantDidChange(node);
-                parent = parent->parent();
-            }
+            if (m_parent != NULL)
+                m_parent->descendantDidChange(node);
         }
 
         bool Node::selected() const {
