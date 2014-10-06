@@ -22,12 +22,13 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Renderer/EdgeRenderer.h"
 #include "Renderer/MoveIndicatorRenderer.h"
-#include "Renderer/Vbo.h"
 #include "View/Tool.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        class RenderBatch;
         class RenderContext;
     }
     
@@ -67,6 +68,7 @@ namespace TrenchBroom {
             MovementRestriction& m_movementRestriction;
             MoveDelegate& m_delegate;
             Vec3f::List m_trace;
+            Renderer::EdgeRenderer m_traceRenderer;
         public:
             MoveHelper(MovementRestriction& movementRestriction, MoveDelegate& delegate);
             
@@ -75,14 +77,14 @@ namespace TrenchBroom {
             void endPlaneDrag(const InputState& inputState);
             void cancelPlaneDrag(const InputState& inputState);
             void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext);
+            void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             Plane3 dragPlane(const InputState& inputState, const Vec3& initialPoint) const;
             void addTracePoint(const Vec3& point);
             
-            void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext);
+            void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             Renderer::MoveIndicatorRenderer::Direction getDirection() const;
-            void renderMoveTrace(Renderer::RenderContext& renderContext);
+            void renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
     }
 }

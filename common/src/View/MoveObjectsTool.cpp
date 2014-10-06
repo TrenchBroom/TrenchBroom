@@ -107,9 +107,9 @@ namespace TrenchBroom {
                 renderContext.setForceShowSelectionGuide();
         }
         
-        void MoveObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
+        void MoveObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (dragging() || handleMove(inputState))
-                renderMoveIndicator(inputState, renderContext);
+                renderMoveIndicator(inputState, renderContext, renderBatch);
         }
 
         bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const {

@@ -24,9 +24,12 @@
 #include "Renderer/PerspectiveCamera.h"
 #include "View/Action.h"
 #include "View/GLContextHolder.h"
+#include "View/MapView.h"
 #include "View/RenderView.h"
 #include "View/ToolBox.h"
 #include "View/ViewTypes.h"
+
+class wxBookCtrlBase;
 
 namespace TrenchBroom {
     class Logger;
@@ -41,11 +44,12 @@ namespace TrenchBroom {
     
     namespace View {
         class CameraTool;
+        class MoveObjectsTool;
         class SelectionTool;
         class Selection;
         class MovementRestriction;
         
-        class MapView3D : public RenderView, public ToolBoxHelper {
+        class MapView3D : public MapView, public RenderView, public ToolBoxHelper {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -58,9 +62,10 @@ namespace TrenchBroom {
             
             ToolBox m_toolBox;
             CameraTool* m_cameraTool;
+            MoveObjectsTool* m_moveObjectsTool;
             SelectionTool* m_selectionTool;
         public:
-            MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, Renderer::MapRenderer& renderer);
+            MapView3D(wxWindow* parent, Logger* logger, wxBookCtrlBase* toolBook, MapDocumentWPtr document, Renderer::MapRenderer& renderer);
             ~MapView3D();
         private:
             void bindObservers();
@@ -105,14 +110,16 @@ namespace TrenchBroom {
             bool doShouldRenderFocusIndicator() const;
             void doRender();
             void setupGL(Renderer::RenderContext& renderContext);
+            void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderMap(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderCompass(Renderer::RenderBatch& renderBatch);
         private: // implement ToolBoxHelper
             Ray3 doGetPickRay(int x, int y) const;
             Hits doPick(const Ray3& pickRay) const;
             void doShowPopupMenu();
         private: // Tool related methods
-            void createTools();
+            void createTools(wxBookCtrlBase* toolBook);
             void destroyTools();
         private:
             static const GLContextHolder::GLAttribs& attribs();

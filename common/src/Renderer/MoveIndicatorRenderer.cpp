@@ -25,47 +25,45 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
-#include "Renderer/VertexArray.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         const float MoveIndicatorRenderer::HalfWidth = 1.5f;
         const float MoveIndicatorRenderer::Height = 5.0f;
 
-        MoveIndicatorRenderer::MoveIndicatorRenderer() :
-        m_vbo(0xFF) {}
+        MoveIndicatorRenderer::MoveIndicatorRenderer(const Vec3f& position, const Direction direction) :
+        m_position(position),
+        m_direction(direction) {}
 
-        void MoveIndicatorRenderer::render(RenderContext& renderContext, const Vec3f& position, const Direction direction) {
-            const float offset = direction == Direction_XY ? HalfWidth + 1.0f : 1.0f;
+        void MoveIndicatorRenderer::doPrepare(Vbo& vbo) {
+            const float offset = m_direction == Direction_XY ? HalfWidth + 1.0f : 1.0f;
             
             Vertex::List triangleVerts;
             Vertex::List outlineVerts;
             
-            if (direction == Direction_Z || direction != Direction_Y) {
+            if (m_direction == Direction_Z || m_direction != Direction_Y) {
                 makeSolidYArrows(offset, triangleVerts);
                 makeOutlineYArrows(offset, outlineVerts);
             }
             
-            if (direction != Direction_Z && direction != Direction_X) {
+            if (m_direction != Direction_Z && m_direction != Direction_X) {
                 makeSolidXArrows(offset, triangleVerts);
                 makeOutlineXArrows(offset, outlineVerts);
             }
             
-            VertexArray triangleArray = VertexArray::swap(GL_TRIANGLES, triangleVerts);
-            VertexArray outlineArray = VertexArray::swap(GL_LINES, outlineVerts);
-            
-            SetVboState vboState(m_vbo);
-            vboState.mapped();
-            triangleArray.prepare(m_vbo);
-            outlineArray.prepare(m_vbo);
-            
-            vboState.active();
-            
-            Mat4x4f matrix = translationMatrix(position);
-            if (direction == Direction_Z)
+            m_triangleArray = VertexArray::swap(GL_TRIANGLES, triangleVerts);
+            m_outlineArray = VertexArray::swap(GL_LINES, outlineVerts);
+
+            m_triangleArray.prepare(vbo);
+            m_outlineArray.prepare(vbo);
+        }
+        
+        void MoveIndicatorRenderer::doRender(RenderContext& renderContext) {
+            Mat4x4f matrix = translationMatrix(m_position);
+            if (m_direction == Direction_Z)
                 matrix *= renderContext.camera().verticalBillboardMatrix();
             MultiplyModelMatrix applyTransformation(renderContext.transformation(), matrix);
-
+            
             PreferenceManager& prefs = PreferenceManager::instance();
             ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
             
@@ -73,10 +71,10 @@ namespace TrenchBroom {
             glDisable(GL_CULL_FACE);
             
             shader.set("Color", prefs.get(Preferences::MoveIndicatorOutlineColor));
-            outlineArray.render();
+            m_outlineArray.render();
             shader.set("Color", prefs.get(Preferences::MoveIndicatorFillColor));
-            triangleArray.render();
-
+            m_triangleArray.render();
+            
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
         }

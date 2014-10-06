@@ -23,14 +23,13 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "IO/DiskFileSystem.h"
-#include "Renderer/MapRenderer.h"
 #include "View/ActionManager.h"
 #include "View/Autosaver.h"
 #include "View/CachingLogger.h"
 #include "View/CommandIds.h"
 #include "View/Console.h"
 #include "View/MapDocument.h"
-#include "View/MapView3D.h"
+#include "View/SwitchableMapView.h"
 
 #include <wx/display.h>
 #include <wx/filedlg.h>
@@ -45,7 +44,6 @@ namespace TrenchBroom {
         MapFrame::MapFrame() :
         wxFrame(NULL, wxID_ANY, "MapFrame"),
         m_frameManager(NULL),
-        m_mapRenderer(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
         m_console(NULL) {}
@@ -53,7 +51,6 @@ namespace TrenchBroom {
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, "MapFrame"),
         m_frameManager(NULL),
-        m_mapRenderer(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
         m_console(NULL) {
@@ -66,7 +63,6 @@ namespace TrenchBroom {
             
             m_frameManager = frameManager;
             m_document = document;
-            m_mapRenderer = new Renderer::MapRenderer(m_document);
             m_autosaver = new Autosaver(m_document);
 
             createGui();
@@ -83,13 +79,6 @@ namespace TrenchBroom {
         
         MapFrame::~MapFrame() {
             unbindObservers();
-            
-            // this might lead to crashes because my children, including the map views, will be
-            // deleted after the map renderer is deleted
-            // possible solution: force deletion of all children here?
-            
-            delete m_mapRenderer;
-            m_mapRenderer = NULL;
             
             delete m_autosaveTimer;
             m_autosaveTimer = NULL;
@@ -227,10 +216,10 @@ namespace TrenchBroom {
 
         void MapFrame::createGui() {
             m_console = new Console(this);
-            m_mapView3D = new MapView3D(this, m_console, m_document, *m_mapRenderer);
+            m_mapView = new SwitchableMapView(this, m_console, m_document);
             
             wxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
-            frameSizer->Add(m_mapView3D, 1, wxEXPAND);
+            frameSizer->Add(m_mapView, 1, wxEXPAND);
             frameSizer->Add(m_console, 0, wxEXPAND);
             frameSizer->SetItemMinSize(m_console, wxSize(wxDefaultCoord, 200));
             
@@ -319,7 +308,6 @@ namespace TrenchBroom {
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
-            Bind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
         }
         
         void MapFrame::OnFileSave(wxCommandEvent& event) {
@@ -550,18 +538,5 @@ namespace TrenchBroom {
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
             m_autosaver->triggerAutosave(logger());
         }
-
-        void MapFrame::OnIdleSetFocusToMapView(wxIdleEvent& event) {
-            // we use this method to ensure that the 3D view gets the focus after startup has settled down
-            if (m_mapView3D != NULL) {
-                if (!m_mapView3D->HasFocus()) {
-                    m_mapView3D->SetFocus();
-                } else {
-                    Unbind(wxEVT_IDLE, &MapFrame::OnIdleSetFocusToMapView, this);
-                    m_mapView3D->Refresh();
-                }
-            }
-        }
-        
     }
 }

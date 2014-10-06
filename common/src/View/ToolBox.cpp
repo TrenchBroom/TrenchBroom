@@ -422,12 +422,12 @@ namespace TrenchBroom {
                 m_toolChain->setRenderOptions(m_inputState, renderContext);
         }
         
-        void ToolBox::renderTools(Renderer::RenderContext& renderContext) {
+        void ToolBox::renderTools(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             /* if (m_modalReceiver != NULL)
                 m_modalReceiver->renderOnly(m_inputState, renderContext);
             else */
             if (m_toolChain != NULL)
-                m_toolChain->renderChain(m_inputState, renderContext);
+                m_toolChain->renderChain(m_inputState, renderContext, renderBatch);
         }
         
         bool ToolBox::activateTool(Tool* tool, const InputState& inputState) {

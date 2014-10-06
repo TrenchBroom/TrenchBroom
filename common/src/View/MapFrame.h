@@ -36,27 +36,21 @@ namespace TrenchBroom {
         class Path;
     }
     
-    namespace Renderer {
-        class MapRenderer;
-    }
-    
     namespace View {
         class Autosaver;
         class Console;
         class FrameManager;
-        class MapView3D;
+        class SwitchableMapView;
         
         class MapFrame : public wxFrame {
         private:
             FrameManager* m_frameManager;
             MapDocumentSPtr m_document;
             
-            Renderer::MapRenderer* m_mapRenderer;
-            
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
             
-            MapView3D* m_mapView3D;
+            SwitchableMapView* m_mapView;
             Console* m_console;
         public:
             MapFrame();
@@ -123,7 +117,6 @@ namespace TrenchBroom {
         private: // other event handlers
             void OnClose(wxCloseEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);
-            void OnIdleSetFocusToMapView(wxIdleEvent& event);
         };
     }
 }

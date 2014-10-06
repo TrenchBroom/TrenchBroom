@@ -34,6 +34,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class RenderBatch;
         class RenderContext;
     }
     
@@ -124,7 +125,7 @@ namespace TrenchBroom {
             bool cancel();
             
             void setRenderOptions(Renderer::RenderContext& renderContext);
-            void renderTools(Renderer::RenderContext& renderContext);
+            void renderTools(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             bool activateTool(Tool* tool, const InputState& inputState);
             void deactivateTool(Tool* tool);

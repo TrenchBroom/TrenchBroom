@@ -29,13 +29,14 @@
 #include "View/CommandIds.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/MoveObjectsTool.h"
 #include "View/MovementRestriction.h"
 #include "View/SelectionTool.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
-        MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, Renderer::MapRenderer& renderer) :
+        MapView3D::MapView3D(wxWindow* parent, Logger* logger, wxBookCtrlBase* toolBook, MapDocumentWPtr document, Renderer::MapRenderer& renderer) :
         RenderView(parent, attribs()),
         m_logger(logger),
         m_document(document),
@@ -46,7 +47,7 @@ namespace TrenchBroom {
         m_compass(new Renderer::Compass(*m_movementRestriction)),
         m_toolBox(this, this),
         m_cameraTool(NULL) {
-            createTools();
+            createTools(toolBook);
             bindObservers();
             bindEvents();
             updateAcceleratorTable(HasFocus());
@@ -394,10 +395,12 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             Renderer::RenderContext renderContext(m_camera, contextHolder()->fontManager(), contextHolder()->shaderManager());
             setupGL(renderContext);
+            setRenderOptions(renderContext);
             
             Renderer::RenderBatch renderBatch(*m_vbo);
             
             renderMap(renderContext, renderBatch);
+            renderToolBox(renderContext, renderBatch);
             renderCompass(renderBatch);
             
             renderBatch.render(renderContext);
@@ -413,8 +416,20 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
         }
 
+        void MapView3D::setRenderOptions(Renderer::RenderContext& renderContext) {
+            m_toolBox.setRenderOptions(renderContext);
+            /*
+            if (cameraFlyModeActive())
+                context.setHideMouseIndicators();
+             */
+        }
+
         void MapView3D::renderMap(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_renderer.render(renderContext, renderBatch);
+        }
+
+        void MapView3D::renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            m_toolBox.renderTools(renderContext, renderBatch);
         }
 
         void MapView3D::renderCompass(Renderer::RenderBatch& renderBatch) {
@@ -433,15 +448,21 @@ namespace TrenchBroom {
         void MapView3D::doShowPopupMenu() {
         }
 
-        void MapView3D::createTools() {
+        void MapView3D::createTools(wxBookCtrlBase* toolBook) {
             m_cameraTool = new CameraTool(m_document, m_camera);
+            m_moveObjectsTool = new MoveObjectsTool(m_document, *m_movementRestriction);
             m_selectionTool = new SelectionTool(m_document);
+
+            m_toolBox.addTool(m_moveObjectsTool);
             m_toolBox.addTool(m_selectionTool);
             m_toolBox.addTool(m_cameraTool);
+
+            m_moveObjectsTool->createPage(toolBook);
         }
         
         void MapView3D::destroyTools() {
             delete m_cameraTool;
+            delete m_moveObjectsTool;
             delete m_selectionTool;
         }
 

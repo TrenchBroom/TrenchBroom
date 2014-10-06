@@ -28,6 +28,7 @@ namespace TrenchBroom {
     class Hits;
     
     namespace Renderer {
+        class RenderBatch;
         class RenderContext;
     }
     
@@ -136,7 +137,7 @@ namespace TrenchBroom {
             virtual void endPlaneDrag(const InputState& inputState) = 0;
             virtual void cancelPlaneDrag(const InputState& inputState) = 0;
             virtual void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
-            virtual void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext) = 0;
+            virtual void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
         };
         
         class DropPolicy {
@@ -161,7 +162,7 @@ namespace TrenchBroom {
         public:
             virtual ~RenderPolicy();
             virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
         
         typedef RenderPolicy NoRenderPolicy;
@@ -200,8 +201,8 @@ namespace TrenchBroom {
             virtual bool dragDrop(const InputState& inputState) = 0;
             
             virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const = 0;
-            virtual void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
-            virtual void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext) = 0;
+            virtual void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
+            virtual void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             
             Tool* next() const;
             void appendTool(Tool* tool);
@@ -358,16 +359,16 @@ namespace TrenchBroom {
                     next()->setRenderOptions(inputState, renderContext);
             }
 
-            void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 if (active())
-                    static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);
+                    static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext, renderBatch);
                 if (next() != NULL)
-                    next()->renderChain(inputState, renderContext);
+                    next()->renderChain(inputState, renderContext, renderBatch);
             }
 
-            void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext) {
+            void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 if (active())
-                    static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext);
+                    static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext, renderBatch);
             }
         protected:
             virtual void doModifierKeyChange(const InputState& inputState) {}

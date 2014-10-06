@@ -50,7 +50,7 @@ namespace TrenchBroom {
             void doEndMove(const InputState& inputState);
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext);
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             bool duplicateObjects(const InputState& inputState) const;
             

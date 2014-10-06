@@ -22,7 +22,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
-#include "Renderer/EdgeRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexSpec.h"
 #include "View/InputState.h"
@@ -112,9 +111,9 @@ namespace TrenchBroom {
             plane = dragPlane(inputState, initialPoint);
         }
         
-        void MoveHelper::render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext) {
-            renderMoveIndicator(inputState, renderContext);
-            renderMoveTrace(renderContext);
+        void MoveHelper::render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            renderMoveIndicator(inputState, renderContext, renderBatch);
+            renderMoveTrace(renderContext, renderBatch);
         }
 
         Plane3 MoveHelper::dragPlane(const InputState& inputState, const Vec3& initialPoint) const {
@@ -146,13 +145,11 @@ namespace TrenchBroom {
             }
         }
 
-        void MoveHelper::renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext) {
+        void MoveHelper::renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (renderContext.showMouseIndicators()) {
                 const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
                 const Renderer::MoveIndicatorRenderer::Direction direction = getDirection();
-                
-                Renderer::MoveIndicatorRenderer indicatorRenderer;
-                indicatorRenderer.render(renderContext, position, direction);
+                renderBatch.addOneShot(new Renderer::MoveIndicatorRenderer(position, direction));
             }
         }
 
@@ -166,23 +163,15 @@ namespace TrenchBroom {
             return Renderer::MoveIndicatorRenderer::Direction_XY;
         }
         
-        void MoveHelper::renderMoveTrace(Renderer::RenderContext& renderContext) {
+        void MoveHelper::renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (m_trace.size() > 1) {
                 typedef Renderer::VertexSpecs::P3::Vertex Vertex;
                 Vertex::List vertices = Vertex::fromLists(m_trace, m_trace.size());
-                
-                PreferenceManager& prefs = PreferenceManager::instance();
-                
-                Renderer::EdgeRenderer renderer(Renderer::VertexArray::ref(GL_LINE_STRIP, vertices));
-                renderer.setUseColor(true);
+                m_traceRenderer = Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINE_STRIP, vertices));
 
-                glDisable(GL_DEPTH_TEST);
-                renderer.setColor(prefs.get(Preferences::OccludedMoveTraceColor));
-                renderer.render(renderContext);
-                
-                glEnable(GL_DEPTH_TEST);
-                renderer.setColor(prefs.get(Preferences::MoveTraceColor));
-                renderer.render(renderContext);
+                PreferenceManager& prefs = PreferenceManager::instance();
+                renderBatch.addOneShot(new Renderer::RenderOccludedEdges(m_traceRenderer, true, prefs.get(Preferences::OccludedMoveTraceColor)));
+                renderBatch.addOneShot(new Renderer::RenderUnoccludedEdges(m_traceRenderer, true, prefs.get(Preferences::MoveTraceColor)));
             }
         }
     }

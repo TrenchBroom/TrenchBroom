@@ -276,6 +276,10 @@ namespace TrenchBroom {
             return submit(TransformObjectsCommand::flip(center, axis, m_textureLock));
         }
 
+        Model::NodeList MapDocument::duplicateObjects() {
+            return Model::NodeList(0);
+        }
+
         bool MapDocument::canUndoLastCommand() const {
             return doCanUndoLastCommand();
         }

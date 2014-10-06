@@ -22,15 +22,17 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Renderer/Vbo.h"
+#include "Renderer/Renderable.h"
 #include "Renderer/Vertex.h"
+#include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 
 namespace TrenchBroom {
     namespace Renderer {
         class RenderContext;
+        class Vbo;
         
-        class MoveIndicatorRenderer {
+        class MoveIndicatorRenderer : public Renderable {
         public:
             typedef enum {
                 Direction_XY,
@@ -42,15 +44,21 @@ namespace TrenchBroom {
             typedef VertexSpecs::P2::Vertex Vertex;
             static const float HalfWidth;
             static const float Height;
-            Vbo m_vbo;
+            
+            Vec3f m_position;
+            Direction m_direction;
+            VertexArray m_triangleArray;
+            VertexArray m_outlineArray;
         public:
-            MoveIndicatorRenderer();
-            void render(RenderContext& renderContext, const Vec3f& position, const Direction direction);
+            MoveIndicatorRenderer(const Vec3f& position, Direction direction);
         private:
-            void makeSolidXArrows(const float offset, Vertex::List& vertices) const;
-            void makeSolidYArrows(const float offset, Vertex::List& vertices) const;
-            void makeOutlineXArrows(const float offset, Vertex::List& vertices) const;
-            void makeOutlineYArrows(const float offset, Vertex::List& vertices) const;
+            void doPrepare(Vbo& vbo);
+            void doRender(RenderContext& renderContext);
+        private:
+            void makeSolidXArrows(float offset, Vertex::List& vertices) const;
+            void makeSolidYArrows(float offset, Vertex::List& vertices) const;
+            void makeOutlineXArrows(float offset, Vertex::List& vertices) const;
+            void makeOutlineYArrows(float offset, Vertex::List& vertices) const;
         };
     }
 }

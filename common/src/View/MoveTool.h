@@ -46,8 +46,8 @@ namespace TrenchBroom {
             Super(document),
             m_helper(movementRestriction, *this) {}
         protected:
-            void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext) {
-                m_helper.render(inputState, Super::dragging(), renderContext);
+            void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                m_helper.render(inputState, Super::dragging(), renderContext, renderBatch);
             }
         private:
             void doModifierKeyChange(const InputState& inputState) {
