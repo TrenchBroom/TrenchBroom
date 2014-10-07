@@ -25,7 +25,9 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Vbo.h"
 #include "View/ActionManager.h"
+#include "View/Animation.h"
 #include "View/CommandIds.h"
+#include "View/FlashSelectionAnimation.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
@@ -39,6 +41,7 @@ namespace TrenchBroom {
         m_logger(logger),
         m_document(document),
         m_toolBox(toolBox),
+        m_animationManager(new AnimationManager()),
         m_vbo(new Renderer::Vbo(0xFFFFFFF)),
         m_renderer(renderer),
         m_camera(),
@@ -50,6 +53,7 @@ namespace TrenchBroom {
 
         MapView3D::~MapView3D() {
             unbindObservers();
+            m_animationManager->Delete();
             delete m_compass;
             delete m_vbo;
         }
@@ -284,7 +288,7 @@ namespace TrenchBroom {
             document->deselectAll();
             document->select(duplicates);
             
-            // TODO: flashSelection();
+            flashSelection();
         }
 
         void MapView3D::moveObjects(const Math::Direction direction) {
@@ -430,6 +434,11 @@ namespace TrenchBroom {
             if (document->hasSelectedBrushFaces())
                 return Action::Context_FaceSelection;
             return Action::Context_Default;
+        }
+
+        void MapView3D::flashSelection() {
+            FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, *this, 180);
+            m_animationManager->runAnimation(animation, true);
         }
 
         void MapView3D::doInitializeGL() {

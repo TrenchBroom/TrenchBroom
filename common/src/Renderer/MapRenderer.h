@@ -20,19 +20,24 @@
 #ifndef __TrenchBroom__MapRenderer__
 #define __TrenchBroom__MapRenderer__
 
+#include "Color.h"
 #include "Model/ModelTypes.h"
-#include "Renderer/ObjectRenderer.h"
 #include "View/ViewTypes.h"
 
 #include <map>
 
 namespace TrenchBroom {
+    namespace IO {
+        class Path;
+    }
+    
     namespace View {
         class Selection;
     }
     
     namespace Renderer {
         class FontManager;
+        class ObjectRenderer;
         class RenderBatch;
         class RenderContext;
         
@@ -43,7 +48,7 @@ namespace TrenchBroom {
             View::MapDocumentWPtr m_document;
             
             RendererMap m_layerRenderers;
-            ObjectRenderer m_selectionRenderer;
+            ObjectRenderer* m_selectionRenderer;
             
             class AddLayer;
             class HandleSelectedNode;
@@ -55,15 +60,21 @@ namespace TrenchBroom {
             MapRenderer(View::MapDocumentWPtr document);
             ~MapRenderer();
         private:
+            static ObjectRenderer* createSelectionRenderer(View::MapDocumentWPtr document);
             void clear();
+        public: // color config
+            void overrideSelectionColors(const Color& color, float mix);
+            void restoreSelectionColors();
         public: // rendering
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:
             void commitPendingChanges();
             void setupGL(RenderBatch& renderBatch);
             void renderLayers(RenderContext& renderContext, RenderBatch& renderBatch);
-            void setupLayerRenderer(ObjectRenderer* renderer);
             void renderSelection(RenderContext& renderContext, RenderBatch& renderBatch);
+            
+            void setupRenderers();
+            void setupLayerRenderer(ObjectRenderer* renderer);
             void setupSelectionRenderer(ObjectRenderer* renderer);
         private: // notification
             void bindObservers();
@@ -78,6 +89,8 @@ namespace TrenchBroom {
             
             void selectionDidChange(const View::Selection& selection);
             Model::BrushSet collectBrushes(const Model::BrushFaceList& faces);
+            
+            void preferenceDidChange(const IO::Path& path);
         };
     }
 }

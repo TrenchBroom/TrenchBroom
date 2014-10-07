@@ -40,6 +40,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class AnimationManager;
         class Command;
         class MapViewToolBox;
         class MovementRestriction;
@@ -52,6 +53,8 @@ namespace TrenchBroom {
             MapDocumentWPtr m_document;
             MapViewToolBox& m_toolBox;
             
+            AnimationManager* m_animationManager;
+
             Renderer::Vbo* m_vbo;
             Renderer::MapRenderer& m_renderer;
             Renderer::PerspectiveCamera m_camera;
@@ -113,6 +116,8 @@ namespace TrenchBroom {
         private: // accelerator table management
             void updateAcceleratorTable(bool hasFocus);
             Action::Context actionContext() const;
+        private: // misc
+            void flashSelection();
         private: // implement RenderView
             void doInitializeGL();
             void doUpdateViewport(int x, int y, int width, int height);

@@ -75,17 +75,42 @@ namespace TrenchBroom {
         
         MapRenderer::MapRenderer(View::MapDocumentWPtr document) :
         m_document(document),
-        m_selectionRenderer(lock(m_document)->entityModelManager(), lock(m_document)->editorContext(), SelectedBrushRendererFilter(lock(m_document)->editorContext())) {
+        m_selectionRenderer(createSelectionRenderer(document)) {
             bindObservers();
+            setupRenderers();
         }
 
         MapRenderer::~MapRenderer() {
             unbindObservers();
             clear();
+            delete m_selectionRenderer;
         }
 
+        ObjectRenderer* MapRenderer::createSelectionRenderer(View::MapDocumentWPtr document) {
+            return new ObjectRenderer(lock(document)->entityModelManager(),
+                                      lock(document)->editorContext(),
+                                      SelectedBrushRendererFilter(lock(document)->editorContext()));
+        }
+        
         void MapRenderer::clear() {
             MapUtils::clearAndDelete(m_layerRenderers);
+        }
+
+        void MapRenderer::overrideSelectionColors(const Color& color, const float mix) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            
+            const Color edgeColor = prefs.get(Preferences::SelectedEdgeColor).mixed(color, mix);
+            const Color occludedEdgeColor = prefs.get(Preferences::SelectedFaceColor).mixed(color, mix);
+            const Color tintColor = prefs.get(Preferences::SelectedFaceColor).mixed(color, mix);
+            
+            m_selectionRenderer->setEntityBoundsColor(edgeColor);
+            m_selectionRenderer->setBrushEdgeColor(edgeColor);
+            m_selectionRenderer->setOccludedEdgeColor(occludedEdgeColor);
+            m_selectionRenderer->setTintColor(tintColor);
+        }
+        
+        void MapRenderer::restoreSelectionColors() {
+            setupSelectionRenderer(m_selectionRenderer);
         }
 
         void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
@@ -119,30 +144,37 @@ namespace TrenchBroom {
         void MapRenderer::renderLayers(RenderContext& renderContext, RenderBatch& renderBatch) {
             RendererMap::iterator it, end;
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
-                // const Model::Layer* layer = it->first;
                 ObjectRenderer* renderer = it->second;
-                setupLayerRenderer(renderer);
                 renderer->render(renderContext, renderBatch);
             }
         }
         
+        void MapRenderer::renderSelection(RenderContext& renderContext, RenderBatch& renderBatch) {
+            m_selectionRenderer->render(renderContext, renderBatch);
+        }
+        
+        void MapRenderer::setupRenderers() {
+            RendererMap::iterator it, end;
+            for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
+                ObjectRenderer* renderer = it->second;
+                setupLayerRenderer(renderer);
+            }
+            
+            setupSelectionRenderer(m_selectionRenderer);
+        }
+
         void MapRenderer::setupLayerRenderer(ObjectRenderer* renderer) {
             PreferenceManager& prefs = PreferenceManager::instance();
-
+            
             renderer->setOverlayTextColor(prefs.get(Preferences::InfoOverlayTextColor));
             renderer->setOverlayBackgroundColor(prefs.get(Preferences::InfoOverlayBackgroundColor));
             renderer->setTint(false);
             renderer->setTransparencyAlpha(prefs.get(Preferences::TransparentFaceAlpha));
-
+            
             renderer->setEntityBoundsColor(prefs.get(Preferences::UndefinedEntityColor));
-
+            
             renderer->setBrushFaceColor(prefs.get(Preferences::FaceColor));
             renderer->setBrushEdgeColor(prefs.get(Preferences::EdgeColor));
-        }
-
-        void MapRenderer::renderSelection(RenderContext& renderContext, RenderBatch& renderBatch) {
-            setupSelectionRenderer(&m_selectionRenderer);
-            m_selectionRenderer.render(renderContext, renderBatch);
         }
         
         void MapRenderer::setupSelectionRenderer(ObjectRenderer* renderer) {
@@ -175,6 +207,9 @@ namespace TrenchBroom {
             document->nodesWillBeRemovedNotifier.addObserver(this, &MapRenderer::nodesWillBeRemoved);
             document->nodesDidChangeNotifier.addObserver(this, &MapRenderer::nodesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MapRenderer::preferenceDidChange);
         }
         
         void MapRenderer::unbindObservers() {
@@ -188,6 +223,9 @@ namespace TrenchBroom {
                 document->nodesDidChangeNotifier.removeObserver(this, &MapRenderer::nodesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
             }
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
         }
 
         void MapRenderer::documentWasCleared(View::MapDocument* document) {
@@ -229,9 +267,9 @@ namespace TrenchBroom {
         class MapRenderer::HandleSelectedNode : public Model::NodeVisitor {
         private:
             RendererMap& m_layerRenderers;
-            ObjectRenderer& m_selectionRenderer;
+            ObjectRenderer* m_selectionRenderer;
         public:
-            HandleSelectedNode(RendererMap& layerRenderers, ObjectRenderer& selectionRenderer) :
+            HandleSelectedNode(RendererMap& layerRenderers, ObjectRenderer* selectionRenderer) :
             m_layerRenderers(layerRenderers),
             m_selectionRenderer(selectionRenderer) {}
         private:
@@ -246,9 +284,9 @@ namespace TrenchBroom {
                 
                 if (group->selected() || group->descendantSelected()) {
                     layerRenderer->removeObject(group);
-                    m_selectionRenderer.addObject(group);
+                    m_selectionRenderer->addObject(group);
                 } else {
-                    m_selectionRenderer.removeObject(group);
+                    m_selectionRenderer->removeObject(group);
                     layerRenderer->addObject(group);
                 }
             }
@@ -261,9 +299,9 @@ namespace TrenchBroom {
                 
                 if (entity->selected() || entity->descendantSelected()) {
                     layerRenderer->removeObject(entity);
-                    m_selectionRenderer.addObject(entity);
+                    m_selectionRenderer->addObject(entity);
                 } else {
-                    m_selectionRenderer.removeObject(entity);
+                    m_selectionRenderer->removeObject(entity);
                     layerRenderer->addObject(entity);
                 }
             }
@@ -279,9 +317,9 @@ namespace TrenchBroom {
                 else
                     layerRenderer->addObject(brush);
                 if (brush->selected() || brush->descendantSelected())
-                    m_selectionRenderer.addObject(brush);
+                    m_selectionRenderer->addObject(brush);
                 else
-                    m_selectionRenderer.removeObject(brush);
+                    m_selectionRenderer->removeObject(brush);
             }
         };
         
@@ -339,9 +377,9 @@ namespace TrenchBroom {
 
         class MapRenderer::UpdateNode : public Model::NodeVisitor {
         private:
-            ObjectRenderer& m_selectionRenderer;
+            ObjectRenderer* m_selectionRenderer;
         public:
-            UpdateNode(ObjectRenderer& selectionRenderer) :
+            UpdateNode(ObjectRenderer* selectionRenderer) :
             m_selectionRenderer(selectionRenderer) {}
         private:
             void doVisit(Model::World* world)   {}
@@ -352,7 +390,7 @@ namespace TrenchBroom {
             
             void handleNode(Model::Node* node) {
                 assert(node->selected() || node->descendantSelected());
-                m_selectionRenderer.updateObject(node);
+                m_selectionRenderer->updateObject(node);
             }
         };
         
@@ -364,9 +402,9 @@ namespace TrenchBroom {
         class MapRenderer::UpdateSelectedNode : public Model::NodeVisitor {
         private:
             RendererMap& m_layerRenderers;
-            ObjectRenderer& m_selectionRenderer;
+            ObjectRenderer* m_selectionRenderer;
         public:
-            UpdateSelectedNode(RendererMap& layerRenderers, ObjectRenderer& selectionRenderer) :
+            UpdateSelectedNode(RendererMap& layerRenderers, ObjectRenderer* selectionRenderer) :
             m_layerRenderers(layerRenderers),
             m_selectionRenderer(selectionRenderer) {}
         private:
@@ -381,7 +419,7 @@ namespace TrenchBroom {
                 assert(layerRenderer != NULL);
                 
                 if (node->selected() || node->descendantSelected())
-                    m_selectionRenderer.updateObject(node);
+                    m_selectionRenderer->updateObject(node);
                 if (!node->selected())
                     layerRenderer->updateObject(node);
             }
@@ -412,6 +450,10 @@ namespace TrenchBroom {
                 result.insert(brush);
             }
             return result;
+        }
+
+        void MapRenderer::preferenceDidChange(const IO::Path& path) {
+            setupRenderers();
         }
     }
 }
