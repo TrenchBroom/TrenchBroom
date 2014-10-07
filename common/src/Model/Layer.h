@@ -46,6 +46,7 @@ namespace TrenchBroom {
             Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
+            bool doRemoveIfEmpty() const;
             bool doSelectable() const;
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;

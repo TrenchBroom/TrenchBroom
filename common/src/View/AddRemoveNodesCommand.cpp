@@ -20,6 +20,7 @@
 #include "AddRemoveNodesCommand.h"
 
 #include "CollectionUtils.h"
+#include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <cassert>

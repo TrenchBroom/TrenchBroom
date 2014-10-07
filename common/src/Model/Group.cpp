@@ -74,6 +74,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        bool Group::doRemoveIfEmpty() const {
+            return true;
+        }
+
         void Group::doDescendantDidChange(Node* node) {
             invalidateBounds();
         }

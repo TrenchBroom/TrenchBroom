@@ -138,6 +138,10 @@ namespace TrenchBroom {
             return visitor.result();
         }
 
+        bool World::doRemoveIfEmpty() const {
+            return false;
+        }
+
         class AddNodeToPicker : public NodeVisitor {
         private:
             Picker& m_picker;

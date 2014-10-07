@@ -111,6 +111,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool Entity::doRemoveIfEmpty() const {
+            return true;
+        }
+
         void Entity::doDescendantDidChange(Node* node) {
             invalidateBounds();
         }

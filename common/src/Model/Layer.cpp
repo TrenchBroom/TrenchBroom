@@ -77,6 +77,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool Layer::doRemoveIfEmpty() const {
+            return false;
+        }
+
         bool Layer::doSelectable() const {
             return false;
         }

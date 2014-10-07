@@ -57,6 +57,8 @@ namespace TrenchBroom {
             
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
+            bool doRemoveIfEmpty() const;
+
             void doDescendantDidChange(Node* node);
 
             bool doSelectable() const;

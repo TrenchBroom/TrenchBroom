@@ -436,6 +436,10 @@ namespace TrenchBroom {
             return false;
         }
         
+        bool Brush::doRemoveIfEmpty() const {
+            return false;
+        }
+
         bool Brush::doSelectable() const {
             return true;
         }
