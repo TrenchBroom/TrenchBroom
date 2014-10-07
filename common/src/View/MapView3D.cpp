@@ -143,15 +143,15 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnFlipObjectsH,                 this, CommandIds::Actions::FlipObjectsHorizontally);
             Bind(wxEVT_MENU, &MapView3D::OnFlipObjectsV,                 this, CommandIds::Actions::FlipObjectsVertically);
             
-            /*
+            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjects,             this, CommandIds::Actions::DuplicateObjects);
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsForward,      this, CommandIds::Actions::DuplicateObjectsForward);
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsBackward,     this, CommandIds::Actions::DuplicateObjectsBackward);
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsLeft,         this, CommandIds::Actions::DuplicateObjectsLeft);
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsRight,        this, CommandIds::Actions::DuplicateObjectsRight);
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsUp,           this, CommandIds::Actions::DuplicateObjectsUp);
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsDown,         this, CommandIds::Actions::DuplicateObjectsDown);
-            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjects,             this, CommandIds::Actions::DuplicateObjects);
             
+            /*
             Bind(wxEVT_MENU, &MapView3D::OnCancel,                       this, CommandIds::Actions::Cancel);
             
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterForward,    this, CommandIds::Actions::MoveRotationCenterForward);
@@ -207,6 +207,34 @@ namespace TrenchBroom {
         void MapView3D::OnMoveObjectsDown(wxCommandEvent& event) {
             moveObjects(Math::Direction_Down);
         }
+        
+        void MapView3D::OnDuplicateObjects(wxCommandEvent& event) {
+            duplicateObjects();
+        }
+
+        void MapView3D::OnDuplicateObjectsForward(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Forward);
+        }
+        
+        void MapView3D::OnDuplicateObjectsBackward(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Backward);
+        }
+        
+        void MapView3D::OnDuplicateObjectsLeft(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Left);
+        }
+        
+        void MapView3D::OnDuplicateObjectsRight(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Right);
+        }
+        
+        void MapView3D::OnDuplicateObjectsUp(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Up);
+        }
+        
+        void MapView3D::OnDuplicateObjectsDown(wxCommandEvent& event) {
+            duplicateAndMoveObjects(Math::Direction_Down);
+        }
 
         void MapView3D::OnRollObjectsCW(wxCommandEvent& event) {
             rotateObjects(Math::RotationAxis_Roll, true);
@@ -240,6 +268,25 @@ namespace TrenchBroom {
             flipObjects(Math::Direction_Up);
         }
         
+        void MapView3D::duplicateAndMoveObjects(const Math::Direction direction) {
+            Transaction transaction(m_document);
+            duplicateObjects();
+            moveObjects(direction);
+        }
+        
+        void MapView3D::duplicateObjects() {
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedNodes())
+                return;
+            
+            Transaction transaction(m_document);
+            const Model::NodeList& duplicates = document->duplicateObjects();
+            document->deselectAll();
+            document->select(duplicates);
+            
+            // TODO: flashSelection();
+        }
+
         void MapView3D::moveObjects(const Math::Direction direction) {
             MapDocumentSPtr document = lock(m_document);
             if (!document->hasSelectedNodes())

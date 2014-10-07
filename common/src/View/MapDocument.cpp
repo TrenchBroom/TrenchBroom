@@ -36,6 +36,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
+#include "View/DuplicateNodesCommand.h"
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
 #include "View/SelectionCommand.h"
@@ -264,6 +265,13 @@ namespace TrenchBroom {
             m_selectedBrushFaces.clear();
         }
 
+        const Model::NodeList& MapDocument::duplicateObjects() {
+            DuplicateNodesCommand* command = DuplicateNodesCommand::duplicate();
+            if (submit(command))
+                return command->addedNodes();
+            return Model::EmptyNodeList;
+        }
+
         bool MapDocument::translateObjects(const Vec3& delta) {
             return submit(TransformObjectsCommand::translate(delta, m_textureLock));
         }
@@ -274,10 +282,6 @@ namespace TrenchBroom {
         
         bool MapDocument::flipObjects(const Vec3& center, const Math::Axis::Type axis) {
             return submit(TransformObjectsCommand::flip(center, axis, m_textureLock));
-        }
-
-        Model::NodeList MapDocument::duplicateObjects() {
-            return Model::NodeList(0);
         }
 
         bool MapDocument::canUndoLastCommand() const {

@@ -49,6 +49,8 @@ namespace TrenchBroom {
             class HandleSelectedNode;
             class UpdateSelectedNode;
             class UpdateNode;
+            class AddNode;
+            class RemoveNode;
         public:
             MapRenderer(View::MapDocumentWPtr document);
             ~MapRenderer();
@@ -70,6 +72,8 @@ namespace TrenchBroom {
             void documentWasCleared(View::MapDocument* document);
             void documentWasNewedOrLoaded(View::MapDocument* document);
             
+            void nodesWereAdded(const Model::NodeList& nodes);
+            void nodesWillBeRemoved(const Model::NodeList& nodes);
             void nodesDidChange(const Model::NodeList& nodes);
             
             void selectionDidChange(const View::Selection& selection);

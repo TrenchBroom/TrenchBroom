@@ -17,44 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__AddRemoveNodesCommand__
-#define __TrenchBroom__AddRemoveNodesCommand__
+#ifndef __TrenchBroom__DuplicateNodesCommand__
+#define __TrenchBroom__DuplicateNodesCommand__
 
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 
 namespace TrenchBroom {
     namespace View {
-        class AddRemoveNodesCommand : public DocumentCommand {
+        class DuplicateNodesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
         private:
-            typedef enum {
-                Action_Add,
-                Action_Remove
-            } Action;
-            
-            Action m_action;
-            Model::ParentChildrenMap m_nodesToAdd;
-            Model::NodeList m_nodesToRemove;
+            Model::NodeList m_addedNodes;
         public:
-            static AddRemoveNodesCommand* add(Model::Node* parent, const Model::NodeList& children);
-            static AddRemoveNodesCommand* add(const Model::ParentChildrenMap& nodes);
-            static AddRemoveNodesCommand* remove(const Model::NodeList& nodes);
-            ~AddRemoveNodesCommand();
+            static DuplicateNodesCommand* duplicate();
+            const Model::NodeList& addedNodes() const;
         private:
-            AddRemoveNodesCommand(const Model::ParentChildrenMap& nodesToAdd);
-            AddRemoveNodesCommand(const Model::NodeList& nodesToRemove);
-            static String makeName(Action action);
+            DuplicateNodesCommand();
             
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
+            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
             
             bool doCollateWith(UndoableCommand* command);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__AddRemoveNodesCommand__) */
+#endif /* defined(__TrenchBroom__DuplicateNodesCommand__) */

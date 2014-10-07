@@ -171,6 +171,8 @@ namespace TrenchBroom {
             document->documentWasClearedNotifier.addObserver(this, &MapRenderer::documentWasCleared);
             document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+            document->nodesWereAddedNotifier.addObserver(this, &MapRenderer::nodesWereAdded);
+            document->nodesWillBeRemovedNotifier.addObserver(this, &MapRenderer::nodesWillBeRemoved);
             document->nodesDidChangeNotifier.addObserver(this, &MapRenderer::nodesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
         }
@@ -181,6 +183,8 @@ namespace TrenchBroom {
                 document->documentWasClearedNotifier.removeObserver(this, &MapRenderer::documentWasCleared);
                 document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
+                document->nodesWereAddedNotifier.removeObserver(this, &MapRenderer::nodesWereAdded);
+                document->nodesWillBeRemovedNotifier.removeObserver(this, &MapRenderer::nodesWillBeRemoved);
                 document->nodesDidChangeNotifier.removeObserver(this, &MapRenderer::nodesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
             }
@@ -281,6 +285,58 @@ namespace TrenchBroom {
             }
         };
         
+        class MapRenderer::AddNode : public Model::NodeVisitor {
+        private:
+            RendererMap& m_layerRenderers;
+        public:
+            AddNode(RendererMap& layerRenderers) :
+            m_layerRenderers(layerRenderers) {}
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   { handleNode(group, group->layer()); }
+            void doVisit(Model::Entity* entity) { handleNode(entity, entity->layer()); }
+            void doVisit(Model::Brush* brush)   { handleNode(brush, brush->layer()); }
+            
+            void handleNode(Model::Node* node, Model::Layer* layer) {
+                assert(layer != NULL);
+                ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
+                assert(layerRenderer != NULL);
+                layerRenderer->addObject(node);
+            }
+        };
+        
+        void MapRenderer::nodesWereAdded(const Model::NodeList& nodes) {
+            AddNode visitor(m_layerRenderers);
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+        }
+        
+        class MapRenderer::RemoveNode : public Model::NodeVisitor {
+        private:
+            RendererMap& m_layerRenderers;
+        public:
+            RemoveNode(RendererMap& layerRenderers) :
+            m_layerRenderers(layerRenderers) {}
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   { handleNode(group, group->layer()); }
+            void doVisit(Model::Entity* entity) { handleNode(entity, entity->layer()); }
+            void doVisit(Model::Brush* brush)   { handleNode(brush, brush->layer()); }
+            
+            void handleNode(Model::Node* node, Model::Layer* layer) {
+                assert(layer != NULL);
+                ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
+                assert(layerRenderer != NULL);
+                layerRenderer->removeObject(node);
+            }
+        };
+
+        void MapRenderer::nodesWillBeRemoved(const Model::NodeList& nodes) {
+            RemoveNode visitor(m_layerRenderers);
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+        }
+
         class MapRenderer::UpdateNode : public Model::NodeVisitor {
         private:
             ObjectRenderer& m_selectionRenderer;

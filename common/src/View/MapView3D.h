@@ -78,6 +78,15 @@ namespace TrenchBroom {
             void OnMoveObjectsUp(wxCommandEvent& event);
             void OnMoveObjectsDown(wxCommandEvent& event);
 
+            void OnDuplicateObjects(wxCommandEvent& event);
+
+            void OnDuplicateObjectsForward(wxCommandEvent& event);
+            void OnDuplicateObjectsBackward(wxCommandEvent& event);
+            void OnDuplicateObjectsLeft(wxCommandEvent& event);
+            void OnDuplicateObjectsRight(wxCommandEvent& event);
+            void OnDuplicateObjectsUp(wxCommandEvent& event);
+            void OnDuplicateObjectsDown(wxCommandEvent& event);
+            
             void OnRollObjectsCW(wxCommandEvent& event);
             void OnRollObjectsCCW(wxCommandEvent& event);
             void OnPitchObjectsCW(wxCommandEvent& event);
@@ -88,6 +97,8 @@ namespace TrenchBroom {
             void OnFlipObjectsH(wxCommandEvent& event);
             void OnFlipObjectsV(wxCommandEvent& event);
         private: // interaction event helper methods
+            void duplicateAndMoveObjects(Math::Direction direction);
+            void duplicateObjects();
             void moveObjects(Math::Direction direction);
             Vec3 moveDirection(Math::Direction direction) const;
             void rotateObjects(Math::RotationAxis axis, bool clockwise);
