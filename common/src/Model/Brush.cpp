@@ -502,7 +502,12 @@ namespace TrenchBroom {
             nodeDidChange();
         }
         
-        bool Brush::doContains(const Node* node) const {}
-        bool Brush::doIntersects(const Node* node) const {}
+        bool Brush::doContains(const Node* node) const {
+            return false;
+        }
+        
+        bool Brush::doIntersects(const Node* node) const {
+            return false;
+        }
     }
 }

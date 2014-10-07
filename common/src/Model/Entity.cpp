@@ -212,9 +212,11 @@ namespace TrenchBroom {
         }
         
         bool Entity::doContains(const Node* node) const {
+            return false;
         }
         
         bool Entity::doIntersects(const Node* node) const {
+            return false;
         }
 
         void Entity::invalidateBounds() {

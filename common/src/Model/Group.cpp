@@ -135,9 +135,11 @@ namespace TrenchBroom {
         }
         
         bool Group::doContains(const Node* node) const {
+            return false;
         }
         
         bool Group::doIntersects(const Node* node) const {
+            return false;
         }
 
         void Group::invalidateBounds() {
