@@ -17,28 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CollectParentsVisitor__
-#define __TrenchBroom__CollectParentsVisitor__
+#ifndef __TrenchBroom__CollectNodesVisitor__
+#define __TrenchBroom__CollectNodesVisitor__
 
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class CollectParentsVisitor : public ConstNodeVisitor {
+        class CollectNodesVisitor : public NodeVisitor {
         private:
             NodeSet m_nodes;
         public:
-            const NodeSet& parentSet() const;
-            NodeList parentList() const;
+            const NodeSet& nodeSet() const;
+            NodeList nodeList() const;
         private:
-            void doVisit(const World* world);
-            void doVisit(const Layer* layer);
-            void doVisit(const Group* group);
-            void doVisit(const Entity* entity);
-            void doVisit(const Brush* brush);
-            void handleNode(const Node* node);
+            void doVisit(World* world);
+            void doVisit(Layer* layer);
+            void doVisit(Group* group);
+            void doVisit(Entity* entity);
+            void doVisit(Brush* brush);
+            void handleNode(Node* node);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CollectParentsVisitor__) */
+#endif /* defined(__TrenchBroom__CollectNodesVisitor__) */

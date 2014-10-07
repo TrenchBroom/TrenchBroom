@@ -74,6 +74,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        bool Node::removeIfEmpty() const {
+            return doRemoveIfEmpty();
+        }
+
         bool Node::hasChildren() const {
             return !m_children.empty();
         }

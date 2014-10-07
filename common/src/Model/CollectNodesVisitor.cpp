@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CollectParentsVisitor.h"
+#include "CollectNodesVisitor.h"
 
 #include "Model/Brush.h"
 #include "Model/Entity.h"
@@ -27,27 +27,26 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const NodeSet& CollectParentsVisitor::parentSet() const {
+        const NodeSet& CollectNodesVisitor::nodeSet() const {
             return m_nodes;
         }
         
-        NodeList CollectParentsVisitor::parentList() const {
+        NodeList CollectNodesVisitor::nodeList() const {
             NodeList result;
             result.reserve(m_nodes.size());
             result.insert(result.end(), m_nodes.begin(), m_nodes.end());
             return result;
         }
 
-        void CollectParentsVisitor::doVisit(const World* world)   { handleNode(world); }
-        void CollectParentsVisitor::doVisit(const Layer* layer)   { handleNode(layer); }
-        void CollectParentsVisitor::doVisit(const Group* group)   { handleNode(group); }
-        void CollectParentsVisitor::doVisit(const Entity* entity) { handleNode(entity); }
-        void CollectParentsVisitor::doVisit(const Brush* brush)   { handleNode(brush); }
+        void CollectNodesVisitor::doVisit(World* world)   { handleNode(world); }
+        void CollectNodesVisitor::doVisit(Layer* layer)   { handleNode(layer); }
+        void CollectNodesVisitor::doVisit(Group* group)   { handleNode(group); }
+        void CollectNodesVisitor::doVisit(Entity* entity) { handleNode(entity); }
+        void CollectNodesVisitor::doVisit(Brush* brush)   { handleNode(brush); }
 
-        void CollectParentsVisitor::handleNode(const Node* node) {
-            Node* parent = node->parent();
-            if (parent != NULL)
-                m_nodes.insert(parent);
+        void CollectNodesVisitor::handleNode(Node* node) {
+            assert(node != NULL);
+            m_nodes.insert(node);
         }
         
     }

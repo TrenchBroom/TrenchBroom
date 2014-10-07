@@ -91,6 +91,9 @@ namespace TrenchBroom {
             Notifier0 selectionWillChangeNotifier;
             Notifier1<const Selection&> selectionDidChangeNotifier;
             
+            Notifier1<const Model::NodeList&> nodesWereAddedNotifier;
+            Notifier1<const Model::NodeList&> nodesWillBeRemovedNotifier;
+            Notifier1<const Model::NodeList&> nodesWereRemovedNotifier;
             Notifier1<const Model::NodeList&> nodesWillChangeNotifier;
             Notifier1<const Model::NodeList&> nodesDidChangeNotifier;
             

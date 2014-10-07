@@ -51,12 +51,21 @@ namespace TrenchBroom {
         private:
             void deselectAllNodes();
             void deselectAllBrushFaces();
+        public: // adding and removing ndoes
+            Model::NodeList performAddNodes(const Model::ParentChildrenMap& nodes);
+            Model::ParentChildrenMap performRemoveNodes(const Model::NodeList& nodes);
         public: // transformation
             void performTransform(const Mat4x4& transform, bool lockTextures);
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);
-        private: // notification
+        private: // helper methods
             Model::NodeList collectParents(const Model::NodeList& nodes) const;
+            Model::NodeList collectParents(const Model::ParentChildrenMap& nodes) const;
+            Model::NodeList collectChildren(const Model::ParentChildrenMap& nodes) const;
+            Model::ParentChildrenMap parentChildrenMap(const Model::NodeList& nodes) const;
+            void addEmptyNodes(Model::ParentChildrenMap& nodes) const;
+            Model::NodeList collectEmptyNodes(const Model::ParentChildrenMap& nodes) const;
+            void removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const;
         public: // modification count
             void incModificationCount(size_t delta = 1);
             void decModificationCount(size_t delta = 1);

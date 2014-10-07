@@ -65,6 +65,7 @@ namespace TrenchBroom {
             Node* parent() const;
             bool isAncestorOf(const Node* node) const;
             bool isDescendantOf(const Node* node) const;
+            bool removeIfEmpty() const;
             
             bool hasChildren() const;
             size_t childCount() const;
@@ -312,7 +313,8 @@ namespace TrenchBroom {
             
             virtual bool doCanAddChild(const Node* child) const = 0;
             virtual bool doCanRemoveChild(const Node* child) const = 0;
-
+            virtual bool doRemoveIfEmpty() const = 0;
+            
             virtual void doDescendantWasAdded(Node* node);
             virtual void doDescendantWasRemoved(Node* node);
 

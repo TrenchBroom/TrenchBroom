@@ -23,7 +23,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
-#include "Model/CollectParentsVisitor.h"
+#include "Model/CollectNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
@@ -50,6 +50,24 @@ namespace TrenchBroom {
             
             ~NodeChangeNotifier() {
                 m_didChange(m_nodes);
+            }
+        };
+        
+        class NodeRemoveNotifier {
+        public:
+            typedef Notifier1<const Model::NodeList&> Notifier;
+        private:
+            Notifier& m_wereRemoved;
+            const Model::NodeList& m_nodes;
+        public:
+            NodeRemoveNotifier(Notifier& willBeRemoved, Notifier& wereRemoved, const Model::NodeList& nodes) :
+            m_wereRemoved(wereRemoved),
+            m_nodes(nodes) {
+                willBeRemoved(nodes);
+            }
+            
+            ~NodeRemoveNotifier() {
+                m_wereRemoved(m_nodes);
             }
         };
         
@@ -304,6 +322,43 @@ namespace TrenchBroom {
             selectionDidChangeNotifier(selection);
         }
 
+        Model::NodeList MapDocumentCommandFacade::performAddNodes(const Model::ParentChildrenMap& nodes) {
+            const Model::NodeList parents = collectParents(nodes);
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            
+            Model::NodeList addedNodes;
+            Model::ParentChildrenMap::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* parent = it->first;
+                const Model::NodeList& children = it->second;
+                parent->addChildren(children);
+                VectorUtils::append(addedNodes, children);
+            }
+            
+            nodesWereAddedNotifier(addedNodes);
+            return addedNodes;
+        }
+        
+        Model::ParentChildrenMap MapDocumentCommandFacade::performRemoveNodes(const Model::NodeList& nodes) {
+            Model::ParentChildrenMap removedNodes = parentChildrenMap(nodes);
+            addEmptyNodes(removedNodes);
+            
+            const Model::NodeList parents = collectParents(removedNodes);
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            
+            const Model::NodeList allChildren = collectChildren(removedNodes);
+            NodeRemoveNotifier notifyChildren(nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
+            
+            Model::ParentChildrenMap::const_iterator it, end;
+            for (it = removedNodes.begin(), end = removedNodes.end(); it != end; ++it) {
+                Model::Node* parent = it->first;
+                const Model::NodeList& children = it->second;
+                parent->removeChildren(children.begin(), children.end());
+            }
+            
+            return removedNodes;
+        }
+
         void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {
             const Model::NodeList& nodes = m_selectedNodes;
             const Model::NodeList parents = collectParents(nodes);
@@ -330,11 +385,78 @@ namespace TrenchBroom {
         }
 
         Model::NodeList MapDocumentCommandFacade::collectParents(const Model::NodeList& nodes) const {
-            Model::CollectParentsVisitor visitor;
-            Model::Node::acceptAndEscalate(nodes.begin(), nodes.end(), visitor);
-            return visitor.parentList();
+            Model::CollectNodesVisitor visitor;
+            Model::Node::escalate(nodes.begin(), nodes.end(), visitor);
+            return visitor.nodeList();
         }
         
+        Model::NodeList MapDocumentCommandFacade::collectParents(const Model::ParentChildrenMap& nodes) const {
+            Model::CollectNodesVisitor visitor;
+            Model::ParentChildrenMap::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* parent = it->first;
+                parent->acceptAndEscalate(visitor);
+            }
+            return visitor.nodeList();
+        }
+
+        Model::NodeList MapDocumentCommandFacade::collectChildren(const Model::ParentChildrenMap& nodes) const {
+            Model::NodeList result;
+            Model::ParentChildrenMap::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                const Model::NodeList& children = it->second;
+                VectorUtils::append(result, children);
+            }
+            return result;
+        }
+
+        Model::ParentChildrenMap MapDocumentCommandFacade::parentChildrenMap(const Model::NodeList& nodes) const {
+            Model::ParentChildrenMap result;
+            
+            Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                Model::Node* parent = node->parent();
+                assert(parent != NULL);
+                result[parent].push_back(node);
+            }
+            
+            return result;
+        }
+
+        void MapDocumentCommandFacade::addEmptyNodes(Model::ParentChildrenMap& nodes) const {
+            Model::NodeList emptyNodes = collectEmptyNodes(nodes);
+            while (!emptyNodes.empty()) {
+                removeEmptyNodes(nodes, emptyNodes);
+                emptyNodes = collectEmptyNodes(nodes);
+            }
+        }
+
+        Model::NodeList MapDocumentCommandFacade::collectEmptyNodes(const Model::ParentChildrenMap& nodes) const {
+            Model::NodeList result;
+            
+            Model::ParentChildrenMap::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = it->first;
+                const Model::NodeList& children = it->second;
+                if (node->removeIfEmpty() && node->childCount() == children.size())
+                    result.push_back(node);
+            }
+            
+            return result;
+        }
+
+        void MapDocumentCommandFacade::removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const {
+            Model::NodeList::const_iterator it, end;
+            for (it = emptyNodes.begin(), end = emptyNodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                Model::Node* parent = node->parent();
+                nodes.erase(node);
+                assert(!VectorUtils::contains(nodes[parent], node));
+                nodes[parent].push_back(node);
+            }
+        }
+
         void MapDocumentCommandFacade::incModificationCount(const size_t delta) {
             m_modificationCount += delta;
             documentModificationStateDidChangeNotifier();
