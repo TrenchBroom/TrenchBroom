@@ -283,11 +283,7 @@ namespace TrenchBroom {
             if (!document->hasSelectedNodes())
                 return;
             
-            Transaction transaction(m_document);
-            const Model::NodeList& duplicates = document->duplicateObjects();
-            document->deselectAll();
-            document->select(duplicates);
-            
+            document->duplicateObjects();
             flashSelection();
         }
 

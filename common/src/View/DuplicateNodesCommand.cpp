@@ -29,21 +29,17 @@ namespace TrenchBroom {
         DuplicateNodesCommand* DuplicateNodesCommand::duplicate() {
             return new DuplicateNodesCommand();
         }
-        
-        const Model::NodeList& DuplicateNodesCommand::addedNodes() const {
-            return m_addedNodes;
-        }
 
         DuplicateNodesCommand::DuplicateNodesCommand() :
         DocumentCommand(Type, "Duplicate objects") {}
         
         bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             const BBox3& worldBounds = document->worldBounds();
-            const Model::NodeList& nodes = document->selectedNodes();
+            m_previouslySelectedNodes = document->selectedNodes();
             Model::ParentChildrenMap nodesToAdd;
             
             Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+            for (it = m_previouslySelectedNodes.begin(), end = m_previouslySelectedNodes.end(); it != end; ++it) {
                 const Model::Node* original = *it;
                 Model::Node* parent = original->parent();
                 Model::Node* clone = original->clone(worldBounds);
@@ -51,11 +47,17 @@ namespace TrenchBroom {
             }
             
             m_addedNodes = document->performAddNodes(nodesToAdd);
+            document->performDeselectAll();
+            document->performSelect(m_addedNodes);
             return true;
         }
         
         bool DuplicateNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            document->performDeselectAll();
             document->performRemoveNodes(m_addedNodes);
+            document->performSelect(m_previouslySelectedNodes);
+            
+            m_previouslySelectedNodes.clear();
             VectorUtils::clearAndDelete(m_addedNodes);
             return true;
         }

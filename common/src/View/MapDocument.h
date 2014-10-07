@@ -152,7 +152,7 @@ namespace TrenchBroom {
             void validateSelectionBounds() const;
             void clearSelection();
         public: // adding, removing, and duplicating objects
-            const Model::NodeList& duplicateObjects();
+            bool duplicateObjects();
         public: // modifying objects
             bool translateObjects(const Vec3& delta);
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);

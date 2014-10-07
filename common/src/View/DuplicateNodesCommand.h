@@ -29,10 +29,10 @@ namespace TrenchBroom {
         public:
             static const CommandType Type;
         private:
+            Model::NodeList m_previouslySelectedNodes;
             Model::NodeList m_addedNodes;
         public:
             static DuplicateNodesCommand* duplicate();
-            const Model::NodeList& addedNodes() const;
         private:
             DuplicateNodesCommand();
             

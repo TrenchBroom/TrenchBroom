@@ -265,11 +265,8 @@ namespace TrenchBroom {
             m_selectedBrushFaces.clear();
         }
 
-        const Model::NodeList& MapDocument::duplicateObjects() {
-            DuplicateNodesCommand* command = DuplicateNodesCommand::duplicate();
-            if (submit(command))
-                return command->addedNodes();
-            return Model::EmptyNodeList;
+        bool MapDocument::duplicateObjects() {
+            return submit(DuplicateNodesCommand::duplicate());
         }
 
         bool MapDocument::translateObjects(const Vec3& delta) {

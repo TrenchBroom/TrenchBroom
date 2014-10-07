@@ -86,13 +86,9 @@ namespace TrenchBroom {
                 return MoveResult_Deny;
             
             if (m_duplicateObjects) {
-                const Model::NodeList duplicates = document()->duplicateObjects();
-                if (duplicates.empty())
-                    return MoveResult_Conclude;
-
-                document()->deselectAll();
-                document()->select(duplicates);
                 m_duplicateObjects = false;
+                if (!document()->duplicateObjects())
+                    return MoveResult_Conclude;
             }
             
             if (!document()->translateObjects(delta))
