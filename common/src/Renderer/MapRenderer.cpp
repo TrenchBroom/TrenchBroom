@@ -209,6 +209,7 @@ namespace TrenchBroom {
             document->nodesWereAddedNotifier.addObserver(this, &MapRenderer::nodesWereAdded);
             document->nodesWillBeRemovedNotifier.addObserver(this, &MapRenderer::nodesWillBeRemoved);
             document->nodesDidChangeNotifier.addObserver(this, &MapRenderer::nodesDidChange);
+            document->brushFacesDidChangeNotifier.addObserver(this, &MapRenderer::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -224,6 +225,7 @@ namespace TrenchBroom {
                 document->nodesWereAddedNotifier.removeObserver(this, &MapRenderer::nodesWereAdded);
                 document->nodesWillBeRemovedNotifier.removeObserver(this, &MapRenderer::nodesWillBeRemoved);
                 document->nodesDidChangeNotifier.removeObserver(this, &MapRenderer::nodesDidChange);
+                document->brushFacesDidChangeNotifier.removeObserver(this, &MapRenderer::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
             }
             
@@ -401,6 +403,10 @@ namespace TrenchBroom {
         void MapRenderer::nodesDidChange(const Model::NodeList& nodes) {
             MapRenderer::UpdateNode visitor(m_selectionRenderer);
             Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+        }
+
+        void MapRenderer::brushFacesDidChange(const Model::BrushFaceList& faces) {
+            m_selectionRenderer->updateBrushFaces(faces);
         }
 
         class MapRenderer::UpdateSelectedNode : public Model::NodeVisitor {

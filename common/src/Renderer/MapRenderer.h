@@ -88,6 +88,8 @@ namespace TrenchBroom {
             void nodesWillBeRemoved(const Model::NodeList& nodes);
             void nodesDidChange(const Model::NodeList& nodes);
             
+            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            
             void selectionDidChange(const View::Selection& selection);
             Model::BrushSet collectBrushes(const Model::BrushFaceList& faces);
             

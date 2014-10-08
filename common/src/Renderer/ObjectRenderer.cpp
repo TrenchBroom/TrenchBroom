@@ -114,6 +114,10 @@ namespace TrenchBroom {
             object->accept(visitor);
         }
 
+        void ObjectRenderer::updateBrushFaces(const Model::BrushFaceList& faces) {
+            m_brushRenderer.invalidate();
+        }
+
         void ObjectRenderer::clear() {
             m_brushRenderer.clear();
             m_entityRenderer.clear();

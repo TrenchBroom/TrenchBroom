@@ -135,6 +135,14 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnMoveObjectsUp,                this, CommandIds::Actions::MoveObjectsUp);
             Bind(wxEVT_MENU, &MapView3D::OnMoveObjectsDown,              this, CommandIds::Actions::MoveObjectsDown);
             
+            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjects,             this, CommandIds::Actions::DuplicateObjects);
+            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsForward,      this, CommandIds::Actions::DuplicateObjectsForward);
+            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsBackward,     this, CommandIds::Actions::DuplicateObjectsBackward);
+            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsLeft,         this, CommandIds::Actions::DuplicateObjectsLeft);
+            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsRight,        this, CommandIds::Actions::DuplicateObjectsRight);
+            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsUp,           this, CommandIds::Actions::DuplicateObjectsUp);
+            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsDown,         this, CommandIds::Actions::DuplicateObjectsDown);
+            
             Bind(wxEVT_MENU, &MapView3D::OnRollObjectsCW,                this, CommandIds::Actions::RollObjectsCW);
             Bind(wxEVT_MENU, &MapView3D::OnRollObjectsCCW,               this, CommandIds::Actions::RollObjectsCCW);
             Bind(wxEVT_MENU, &MapView3D::OnPitchObjectsCW,               this, CommandIds::Actions::PitchObjectsCW);
@@ -145,14 +153,14 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnFlipObjectsH,                 this, CommandIds::Actions::FlipObjectsHorizontally);
             Bind(wxEVT_MENU, &MapView3D::OnFlipObjectsV,                 this, CommandIds::Actions::FlipObjectsVertically);
             
-            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjects,             this, CommandIds::Actions::DuplicateObjects);
-            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsForward,      this, CommandIds::Actions::DuplicateObjectsForward);
-            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsBackward,     this, CommandIds::Actions::DuplicateObjectsBackward);
-            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsLeft,         this, CommandIds::Actions::DuplicateObjectsLeft);
-            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsRight,        this, CommandIds::Actions::DuplicateObjectsRight);
-            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsUp,           this, CommandIds::Actions::DuplicateObjectsUp);
-            Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsDown,         this, CommandIds::Actions::DuplicateObjectsDown);
+            Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesUp,               this, CommandIds::Actions::MoveTexturesUp);
+            Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesDown,             this, CommandIds::Actions::MoveTexturesDown);
+            Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesLeft,             this, CommandIds::Actions::MoveTexturesLeft);
+            Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesRight,            this, CommandIds::Actions::MoveTexturesRight);
             
+            Bind(wxEVT_MENU, &MapView3D::OnRotateTexturesCW,             this, CommandIds::Actions::RotateTexturesCW);
+            Bind(wxEVT_MENU, &MapView3D::OnRotateTexturesCCW,            this, CommandIds::Actions::RotateTexturesCCW);
+
             Bind(wxEVT_MENU, &MapView3D::OnToggleRotateObjectsTool,      this, CommandIds::Actions::ToggleRotateObjectsTool);
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterForward,    this, CommandIds::Actions::MoveRotationCenterForward);
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterBackward,   this, CommandIds::Actions::MoveRotationCenterBackward);
@@ -162,13 +170,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterDown,       this, CommandIds::Actions::MoveRotationCenterDown);
             
             /*
-            Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesUp,               this, CommandIds::Actions::MoveTexturesUp);
-            Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesDown,             this, CommandIds::Actions::MoveTexturesDown);
-            Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesLeft,             this, CommandIds::Actions::MoveTexturesLeft);
-            Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesRight,            this, CommandIds::Actions::MoveTexturesRight);
-            
-            Bind(wxEVT_MENU, &MapView3D::OnRotateTexturesCW,             this, CommandIds::Actions::RotateTexturesCW);
-            Bind(wxEVT_MENU, &MapView3D::OnRotateTexturesCCW,            this, CommandIds::Actions::RotateTexturesCCW);
             
              Bind(wxEVT_MENU, &MapView3D::OnCancel,                       this, CommandIds::Actions::Cancel);
              
@@ -374,6 +375,78 @@ namespace TrenchBroom {
             const Math::Axis::Type axis = moveDirection(direction).firstComponent();
             
             document->flipObjects(center, axis);
+        }
+
+        void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {
+            moveTextures(Vec2f(0.0f, moveTextureDistance()));
+        }
+        
+        void MapView3D::OnMoveTexturesDown(wxCommandEvent& event) {
+            moveTextures(Vec2f(0.0f, -moveTextureDistance()));
+        }
+        
+        void MapView3D::OnMoveTexturesLeft(wxCommandEvent& event) {
+            moveTextures(Vec2f(-moveTextureDistance(), 0.0f));
+        }
+        
+        void MapView3D::OnMoveTexturesRight(wxCommandEvent& event) {
+            moveTextures(Vec2f(moveTextureDistance(), 0.0f));
+        }
+        
+        void MapView3D::OnRotateTexturesCW(wxCommandEvent& event) {
+            rotateTextures(rotateTextureAngle(true));
+        }
+        
+        void MapView3D::OnRotateTexturesCCW(wxCommandEvent& event) {
+            rotateTextures(rotateTextureAngle(false));
+        }
+        
+        float MapView3D::moveTextureDistance() const {
+            const Grid& grid = lock(m_document)->grid();
+            const float gridSize = static_cast<float>(grid.actualSize());
+            
+            const wxMouseState mouseState = wxGetMouseState();
+            switch (mouseState.GetModifiers()) {
+                case wxMOD_CMD:
+                    return 1.0f;
+                case wxMOD_SHIFT:
+                    return 2.0f * gridSize;
+                default:
+                    return gridSize;
+            }
+        }
+        
+        void MapView3D::moveTextures(const Vec2f& offset) {
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedBrushFaces())
+                document->moveTextures(m_camera.up(), m_camera.right(), offset);
+        }
+        
+        float MapView3D::rotateTextureAngle(const bool clockwise) const {
+            const Grid& grid = lock(m_document)->grid();
+            const float gridAngle = static_cast<float>(Math::degrees(grid.angle()));
+            float angle = 0.0f;
+            
+            const wxMouseState mouseState = wxGetMouseState();
+            switch (mouseState.GetModifiers()) {
+                case wxMOD_CMD:
+                    angle = 1.0f;
+                    break;
+                case wxMOD_SHIFT:
+                    angle = 90.0f;
+                    break;
+                default:
+                    angle = gridAngle;
+                    break;
+            }
+            
+            return clockwise ? angle : -angle;
+        }
+        
+        void MapView3D::rotateTextures(const float angle) {
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedBrushFaces())
+                document->rotateTextures(angle);
         }
 
         void MapView3D::OnToggleRotateObjectsTool(wxCommandEvent& event) {
