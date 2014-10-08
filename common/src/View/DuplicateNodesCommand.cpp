@@ -63,7 +63,7 @@ namespace TrenchBroom {
         }
         
         bool DuplicateNodesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return true;
+            return document->hasSelectedNodes();
         }
         
         UndoableCommand* DuplicateNodesCommand::doRepeat(MapDocumentCommandFacade* document) const {

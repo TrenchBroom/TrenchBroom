@@ -27,9 +27,9 @@ namespace TrenchBroom {
     namespace Model {
         class TakeSnapshotVisitor : public NodeVisitor {
         private:
-            SnapshotList m_result;
+            NodeSnapshotList m_result;
         public:
-            const SnapshotList& result() const;
+            const NodeSnapshotList& result() const;
         private:
             void doVisit(World* world);
             void doVisit(Layer* layer);

@@ -20,27 +20,43 @@
 #include "Snapshot.h"
 
 #include "CollectionUtils.h"
+#include "Model/BrushFaceSnapshot.h"
 #include "Model/Node.h"
 #include "Model/NodeSnapshot.h"
 
 namespace TrenchBroom {
     namespace Model {
         Snapshot::~Snapshot() {
-            VectorUtils::clearAndDelete(m_snapshots);
+            VectorUtils::clearAndDelete(m_nodeSnapshots);
+            VectorUtils::clearAndDelete(m_brushFaceSnapshots);
         }
 
-        void Snapshot::restore(const BBox3& worldBounds) {
-            SnapshotList::const_iterator it, end;
-            for (it = m_snapshots.begin(), end = m_snapshots.end(); it != end; ++it) {
+        void Snapshot::restoreNodes(const BBox3& worldBounds) {
+            NodeSnapshotList::const_iterator it, end;
+            for (it = m_nodeSnapshots.begin(), end = m_nodeSnapshots.end(); it != end; ++it) {
                 NodeSnapshot* snapshot = *it;
                 snapshot->restore(worldBounds);
+            }
+        }
+
+        void Snapshot::restoreBrushFaces() {
+            BrushFaceSnapshotList::const_iterator it, end;
+            for (it = m_brushFaceSnapshots.begin(), end = m_brushFaceSnapshots.end(); it != end; ++it) {
+                BrushFaceSnapshot* snapshot = *it;
+                snapshot->restore();
             }
         }
 
         void Snapshot::takeSnapshot(Node* node) {
             NodeSnapshot* snapshot = node->takeSnapshot();
             if (snapshot != NULL)
-                m_snapshots.push_back(snapshot);
+                m_nodeSnapshots.push_back(snapshot);
+        }
+
+        void Snapshot::takeSnapshot(BrushFace* face) {
+            BrushFaceSnapshot* snapshot = face->takeSnapshot();
+            if (snapshot != NULL)
+                m_brushFaceSnapshots.push_back(snapshot);
         }
     }
 }

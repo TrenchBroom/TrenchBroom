@@ -97,6 +97,8 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&> nodesWillChangeNotifier;
             Notifier1<const Model::NodeList&> nodesDidChangeNotifier;
             
+            Notifier1<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
+            
             Notifier0 pointFileWasLoadedNotifier;
             Notifier0 pointFileWasUnloadedNotifier;
         protected:

@@ -27,6 +27,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class ChangeBrushFaceAttributesRequest;
         class Snapshot;
     }
     
@@ -56,6 +57,8 @@ namespace TrenchBroom {
             Model::ParentChildrenMap performRemoveNodes(const Model::NodeList& nodes);
         public: // transformation
             void performTransform(const Mat4x4& transform, bool lockTextures);
+        public: // brush face attributes
+            void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);
         private: // helper methods

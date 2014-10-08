@@ -72,8 +72,11 @@ namespace TrenchBroom {
         typedef String AttributeValue;
         typedef std::vector<AttributeValue> AttributeValueList;
         
+        class BrushFaceSnapshot;
+        typedef std::vector<BrushFaceSnapshot*> BrushFaceSnapshotList;
+        
         class NodeSnapshot;
-        typedef std::vector<NodeSnapshot*> SnapshotList;
+        typedef std::vector<NodeSnapshot*> NodeSnapshotList;
         
         typedef size_t IssueType;
 

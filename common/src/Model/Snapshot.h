@@ -32,7 +32,8 @@ namespace TrenchBroom {
         
         class Snapshot {
         private:
-            SnapshotList m_snapshots;
+            NodeSnapshotList m_nodeSnapshots;
+            BrushFaceSnapshotList m_brushFaceSnapshots;
         public:
             template <typename I>
             Snapshot(I cur, I end) {
@@ -44,9 +45,11 @@ namespace TrenchBroom {
             
             ~Snapshot();
             
-            void restore(const BBox3& worldBounds);
+            void restoreNodes(const BBox3& worldBounds);
+            void restoreBrushFaces();
         private:
             void takeSnapshot(Node* node);
+            void takeSnapshot(BrushFace* face);
         private:
             Snapshot(const Snapshot&);
             Snapshot& operator=(const Snapshot&);

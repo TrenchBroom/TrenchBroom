@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
 #include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -372,6 +373,12 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
+        void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
+            const Model::BrushFaceList& faces = selectedBrushFaces();
+            request.evaluate(faces);
+            brushFacesDidChangeNotifier(faces);
+        }
+
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
             const Model::NodeList& nodes = m_selectedNodes;
             const Model::NodeList parents = collectParents(nodes);
@@ -379,7 +386,7 @@ namespace TrenchBroom {
             NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            snapshot->restore(m_worldBounds);
+            snapshot->restoreNodes(m_worldBounds);
 
             invalidateSelectionBounds();
         }
