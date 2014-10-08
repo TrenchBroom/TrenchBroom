@@ -17,16 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CollectNodesVisitor__
-#define __TrenchBroom__CollectNodesVisitor__
+#ifndef __TrenchBroom__CollectUniqueNodesVisitor__
+#define __TrenchBroom__CollectUniqueNodesVisitor__
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/NodePredicates.h"
 
 namespace TrenchBroom {
     namespace Model {
-        typedef CollectMatchingNodesVisitor<True> CollectNodesVisitor;
+        typedef CollectMatchingUniqueNodesVisitor<True> CollectUniqueNodesVisitor;
     }
 }
 
-#endif /* defined(__TrenchBroom__CollectNodesVisitor__) */
+#endif /* defined(__TrenchBroom__CollectUniqueNodesVisitor__) */

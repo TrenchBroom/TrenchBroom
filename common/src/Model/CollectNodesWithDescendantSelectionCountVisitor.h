@@ -20,24 +20,22 @@
 #ifndef __TrenchBroom__CollectNodesWithDescendantSelectionCountVisitor__
 #define __TrenchBroom__CollectNodesWithDescendantSelectionCountVisitor__
 
-#include "Model/NodeVisitor.h"
+#include "Model/CollectMatchingNodesVisitor.h"
+#include "Model/NodePredicates.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class CollectNodesWithDescendantSelectionCountVisitor : public NodeVisitor {
+        class MatchNodesWithDescendantSelectionCount {
         private:
-            size_t m_descendantSelectionCount;
-            NodeList m_result;
+            size_t m_count;
+        public:
+            MatchNodesWithDescendantSelectionCount(size_t count);
+            bool operator()(const Node* node) const;
+        };
+
+        class CollectNodesWithDescendantSelectionCountVisitor : public CollectMatchingNodesVisitor<MatchNodesWithDescendantSelectionCount> {
         public:
             CollectNodesWithDescendantSelectionCountVisitor(size_t descendantSelectionCount);
-            const NodeList& result() const;
-        private:
-            void doVisit(World* world);
-            void doVisit(Layer* layer);
-            void doVisit(Group* group);
-            void doVisit(Entity* entity);
-            void doVisit(Brush* brush);
-            void handleNode(Node* node);
         };
     }
 }

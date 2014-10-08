@@ -27,22 +27,14 @@
 
 namespace TrenchBroom {
     namespace Model {
+        MatchNodesWithDescendantSelectionCount::MatchNodesWithDescendantSelectionCount(const size_t count) :
+        m_count(count) {}
+        
+        bool MatchNodesWithDescendantSelectionCount::operator()(const Node* node) const {
+            return node->descendantSelectionCount() == m_count;
+        }
+
         CollectNodesWithDescendantSelectionCountVisitor::CollectNodesWithDescendantSelectionCountVisitor(const size_t descendantSelectionCount) :
-        m_descendantSelectionCount(descendantSelectionCount) {}
-        
-        const NodeList& CollectNodesWithDescendantSelectionCountVisitor::result() const {
-            return m_result;
-        }
-        
-        void CollectNodesWithDescendantSelectionCountVisitor::doVisit(World* world)   { handleNode(world); }
-        void CollectNodesWithDescendantSelectionCountVisitor::doVisit(Layer* layer)   { handleNode(layer); }
-        void CollectNodesWithDescendantSelectionCountVisitor::doVisit(Group* group)   { handleNode(group); }
-        void CollectNodesWithDescendantSelectionCountVisitor::doVisit(Entity* entity) { handleNode(entity); }
-        void CollectNodesWithDescendantSelectionCountVisitor::doVisit(Brush* brush)   { handleNode(brush); }
-        
-        void CollectNodesWithDescendantSelectionCountVisitor::handleNode(Node* node) {
-            if (node->descendantSelectionCount() == m_descendantSelectionCount)
-                m_result.push_back(node);
-        }
+        CollectMatchingNodesVisitor(MatchNodesWithDescendantSelectionCount(descendantSelectionCount)) {}
     }
 }

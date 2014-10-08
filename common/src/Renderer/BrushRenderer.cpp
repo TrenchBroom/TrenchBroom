@@ -123,12 +123,14 @@ namespace TrenchBroom {
         }
 
         void BrushRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
-            if (!m_valid)
-                validate();
-            if (renderContext.showFaces())
-                renderFaces(renderBatch);
-            if (renderContext.showEdges())
-                renderEdges(renderBatch);
+            if (!m_brushes.empty()) {
+                if (!m_valid)
+                    validate();
+                if (renderContext.showFaces())
+                    renderFaces(renderBatch);
+                if (renderContext.showEdges())
+                    renderEdges(renderBatch);
+            }
         }
         
 

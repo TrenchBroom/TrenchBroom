@@ -197,10 +197,12 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
-            renderBounds(renderContext, renderBatch);
-            renderModels(renderContext, renderBatch);
-            renderClassnames(renderContext, renderBatch);
-            renderAngles(renderContext, renderBatch);
+            if (!m_entities.empty()) {
+                renderBounds(renderContext, renderBatch);
+                renderModels(renderContext, renderBatch);
+                renderClassnames(renderContext, renderBatch);
+                renderAngles(renderContext, renderBatch);
+            }
         }
         
         void EntityRenderer::renderBounds(RenderContext& renderContext, RenderBatch& renderBatch) {

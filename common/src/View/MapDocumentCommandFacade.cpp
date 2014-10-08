@@ -23,7 +23,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
-#include "Model/CollectNodesVisitor.h"
+#include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
@@ -99,7 +99,7 @@ namespace TrenchBroom {
                 }
             }
 
-            const Model::NodeList& partiallySelected = visitor.result();
+            const Model::NodeList& partiallySelected = visitor.nodes();
             
             VectorUtils::append(m_selectedNodes, selected);
             VectorUtils::append(m_partiallySelectedNodes, partiallySelected);
@@ -131,7 +131,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Model::NodeList& partiallySelected = visitor.result();
+            const Model::NodeList& partiallySelected = visitor.nodes();
             
             VectorUtils::append(m_selectedBrushFaces, selected);
             VectorUtils::append(m_partiallySelectedNodes, partiallySelected);
@@ -231,7 +231,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Model::NodeList& partiallyDeselected = visitor.result();
+            const Model::NodeList& partiallyDeselected = visitor.nodes();
             
             VectorUtils::eraseAll(m_selectedNodes, deselected);
             VectorUtils::eraseAll(m_partiallySelectedNodes, partiallyDeselected);
@@ -263,7 +263,7 @@ namespace TrenchBroom {
                 }
             }
             
-            const Model::NodeList& partiallyDeselected = visitor.result();
+            const Model::NodeList& partiallyDeselected = visitor.nodes();
 
             VectorUtils::eraseAll(m_selectedBrushFaces, deselected);
             VectorUtils::eraseAll(m_partiallySelectedNodes, partiallyDeselected);
@@ -385,19 +385,19 @@ namespace TrenchBroom {
         }
 
         Model::NodeList MapDocumentCommandFacade::collectParents(const Model::NodeList& nodes) const {
-            Model::CollectNodesVisitor visitor;
+            Model::CollectUniqueNodesVisitor visitor;
             Model::Node::escalate(nodes.begin(), nodes.end(), visitor);
-            return visitor.nodeList();
+            return visitor.nodes();
         }
         
         Model::NodeList MapDocumentCommandFacade::collectParents(const Model::ParentChildrenMap& nodes) const {
-            Model::CollectNodesVisitor visitor;
+            Model::CollectUniqueNodesVisitor visitor;
             Model::ParentChildrenMap::const_iterator it, end;
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
                 Model::Node* parent = it->first;
                 parent->acceptAndEscalate(visitor);
             }
-            return visitor.nodeList();
+            return visitor.nodes();
         }
 
         Model::NodeList MapDocumentCommandFacade::collectChildren(const Model::ParentChildrenMap& nodes) const {

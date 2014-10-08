@@ -378,7 +378,8 @@ namespace TrenchBroom {
         }
 
         bool Brush::transparent() const {
-            validateContentType();
+            if (!m_contentTypeValid)
+                validateContentType();
             return m_transparent;
         }
         
@@ -396,7 +397,8 @@ namespace TrenchBroom {
         }
 
         BrushContentType::FlagType Brush::contentTypeFlags() const {
-            validateContentType();
+            if (!m_contentTypeValid)
+                validateContentType();
             return m_contentType;
         }
 
@@ -405,6 +407,7 @@ namespace TrenchBroom {
         }
         
         void Brush::validateContentType() const {
+            assert(!m_contentTypeValid);
             if (m_contentTypeBuilder != NULL) {
                 const BrushContentTypeBuilder::Result result = m_contentTypeBuilder->buildContentType(this);
                 m_contentType = result.contentType;
