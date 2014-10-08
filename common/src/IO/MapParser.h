@@ -31,7 +31,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFaceAttribs;
+        class BrushFaceAttributes;
     }
     
     namespace IO {
@@ -74,14 +74,14 @@ namespace TrenchBroom {
             void endEntity(size_t startLine, size_t lineCount);
             void beginBrush(size_t line);
             void endBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
-            void brushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY);
+            void brushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY);
         private: // subclassing interface for users of the parser
             virtual void onFormatDetected(Model::MapFormat::Type format) = 0;
             virtual void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) = 0;
             virtual void onEndEntity(size_t startLine, size_t lineCount) = 0;
             virtual void onBeginBrush(size_t line) = 0;
             virtual void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes) = 0;
-            virtual void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY) = 0;
+            virtual void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) = 0;
         };
     }
 }

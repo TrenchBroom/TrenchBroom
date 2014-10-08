@@ -336,7 +336,7 @@ namespace TrenchBroom {
             if (textureName == Model::BrushFace::NoTextureName)
                 textureName = "";
             
-            Model::BrushFaceAttribs attribs(textureName);
+            Model::BrushFaceAttributes attribs(textureName);
             if (m_format == Model::MapFormat::Valve) {
                 expect(QuakeMapToken::OBracket, m_tokenizer.nextToken());
                 texAxisX = parseVector();

@@ -32,124 +32,6 @@
 
 namespace TrenchBroom {
     namespace Model {
-        BrushFaceAttribs::BrushFaceAttribs(const String& textureName) :
-        m_textureName(textureName),
-        m_texture(NULL),
-        m_offset(Vec2f::Null),
-        m_scale(Vec2f(1.0f, 1.0f)),
-        m_rotation(0.0f),
-        m_surfaceContents(0),
-        m_surfaceFlags(0),
-        m_surfaceValue(0.0f) {}
-        
-        const String& BrushFaceAttribs::textureName() const {
-            return m_textureName;
-        }
-        
-        Assets::Texture* BrushFaceAttribs::texture() const {
-            return m_texture;
-        }
-        
-        Vec2f BrushFaceAttribs::textureSize() const {
-            if (m_texture == NULL)
-                return Vec2f::One;
-            const float w = m_texture->width()  == 0 ? 1.0f : static_cast<float>(m_texture->width());
-            const float h = m_texture->height() == 0 ? 1.0f : static_cast<float>(m_texture->height());
-            return Vec2f(w, h);
-        }
-
-        const Vec2f& BrushFaceAttribs::offset() const {
-            return m_offset;
-        }
-        
-        float BrushFaceAttribs::xOffset() const {
-            return m_offset.x();
-        }
-        
-        float BrushFaceAttribs::yOffset() const {
-            return m_offset.y();
-        }
-
-        Vec2f BrushFaceAttribs::modOffset(const Vec2f& offset) const {
-            const Vec2f size = textureSize();
-            return Vec2f(Math::remainder(offset.x(), size.x()),
-                         Math::remainder(offset.y(), size.y()));
-        }
-
-        const Vec2f& BrushFaceAttribs::scale() const {
-            return m_scale;
-        }
-        
-        float BrushFaceAttribs::xScale() const {
-            return m_scale.x();
-        }
-        
-        float BrushFaceAttribs::yScale() const {
-            return m_scale.y();
-        }
-
-        float BrushFaceAttribs::rotation() const {
-            return m_rotation;
-        }
-
-        int BrushFaceAttribs::surfaceContents() const {
-            return m_surfaceContents;
-        }
-        
-        int BrushFaceAttribs::surfaceFlags() const {
-            return m_surfaceFlags;
-        }
-        
-        float BrushFaceAttribs::surfaceValue() const {
-            return m_surfaceValue;
-        }
-        
-        void BrushFaceAttribs::setTexture(Assets::Texture* texture) {
-            m_texture = texture;
-            if (m_texture != NULL)
-                m_textureName = texture->name();
-        }
-        
-        void BrushFaceAttribs::setOffset(const Vec2f& offset) {
-            m_offset = offset;
-        }
-
-        void BrushFaceAttribs::setXOffset(const float xOffset) {
-            m_offset[0] = xOffset;
-        }
-        
-        void BrushFaceAttribs::setYOffset(const float yOffset) {
-            m_offset[1] = yOffset;
-        }
-
-        void BrushFaceAttribs::setScale(const Vec2f& scale) {
-            m_scale = scale;
-        }
-        
-        void BrushFaceAttribs::setXScale(const float xScale) {
-            m_scale[0] = xScale;
-        }
-        
-        void BrushFaceAttribs::setYScale(const float yScale) {
-            m_scale[1] = yScale;
-        }
-
-        void BrushFaceAttribs::setRotation(const float rotation) {
-            m_rotation = rotation;
-        }
-        
-        void BrushFaceAttribs::setSurfaceContents(const int surfaceContents) {
-            m_surfaceContents = surfaceContents;
-        }
-        
-        void BrushFaceAttribs::setSurfaceFlags(const int surfaceFlags) {
-            m_surfaceFlags = surfaceFlags;
-        }
-        
-        void BrushFaceAttribs::setSurfaceValue(const float surfaceValue) {
-            m_surfaceValue = surfaceValue;
-        }
-
         const String BrushFace::NoTextureName = "__TB_empty";
         
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName, TexCoordSystem* texCoordSystem) :
@@ -275,11 +157,11 @@ namespace TrenchBroom {
             return fromPlane * bounds.center();
         }
 
-        const BrushFaceAttribs& BrushFace::attribs() const {
+        const BrushFaceAttributes& BrushFace::attribs() const {
             return m_attribs;
         }
         
-        void BrushFace::setAttribs(const BrushFaceAttribs& attribs) {
+        void BrushFace::setAttribs(const BrushFaceAttributes& attribs) {
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->decUsageCount();
             

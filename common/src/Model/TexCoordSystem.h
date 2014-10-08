@@ -29,7 +29,7 @@ namespace TrenchBroom {
     }
     
     namespace Model {
-        class BrushFaceAttribs;
+        class BrushFaceAttributes;
         
         class TexCoordSystemSnapshot {
         public:
@@ -49,14 +49,14 @@ namespace TrenchBroom {
             Vec3 xAxis() const;
             Vec3 yAxis() const;
             
-            Vec2f getTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;
+            Vec2f getTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const;
             
             void setRotation(const Vec3& normal, float oldAngle, float newAngle);
-            void transform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture, const Vec3& invariant);
-            void updateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttribs& attribs);
+            void transform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant);
+            void updateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);
             
-            void moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttribs& attribs) const;
-            void rotateTexture(const Vec3& normal, float angle, BrushFaceAttribs& attribs) const;
+            void moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttributes& attribs) const;
+            void rotateTexture(const Vec3& normal, float angle, BrushFaceAttributes& attribs) const;
             void shearTexture(const Vec3& normal, const Vec2f& factors);
 
             Mat4x4 toMatrix(const Vec2f& offset, const Vec2f& scale) const;
@@ -71,11 +71,11 @@ namespace TrenchBroom {
             virtual Vec3 getZAxis() const = 0;
             
             virtual bool isRotationInverted(const Vec3& normal) const = 0;
-            virtual Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const = 0;
+            virtual Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const = 0;
             
             virtual void doSetRotation(const Vec3& normal, float oldAngle, float newAngle) = 0;
-            virtual void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture, const Vec3& invariant) = 0;
-            virtual void doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttribs& attribs) = 0;
+            virtual void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant) = 0;
+            virtual void doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) = 0;
 
             virtual void doShearTexture(const Vec3& normal, const Vec2f& factors) = 0;
             

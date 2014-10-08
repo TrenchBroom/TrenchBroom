@@ -27,7 +27,7 @@ namespace TrenchBroom {
         class BrushFaceSnapshot {
         private:
             BrushFace* m_face;
-            BrushFaceAttribs m_attribs;
+            BrushFaceAttributes m_attribs;
             TexCoordSystemSnapshot* m_coordSystem;
         public:
             BrushFaceSnapshot(BrushFace* face, TexCoordSystem* coordSystem);

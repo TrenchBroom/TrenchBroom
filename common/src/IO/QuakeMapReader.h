@@ -64,7 +64,7 @@ namespace TrenchBroom {
             void onEndEntity(size_t startLine, size_t lineCount);
             void onBeginBrush(size_t line);
             void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
-            void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY);
+            void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY);
         private: // helper methods
             void createLayer(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
             void createGroup(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);

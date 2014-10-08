@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushFaceAttribs;
+        class BrushFaceAttributes;
 
         class ParaxialTexCoordSystem : public TexCoordSystem {
         private:
@@ -52,13 +52,13 @@ namespace TrenchBroom {
             Vec3 getZAxis() const;
             
             bool isRotationInverted(const Vec3& normal) const;
-            Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const;
+            Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const;
             
             void doSetRotation(const Vec3& normal, float oldAngle, float newAngle);
-            void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture, const Vec3& invariant);
+            void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant);
             bool flipXAxis(size_t oldIndex, size_t newIndex) const;
             
-            void doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttribs& attribs);
+            void doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);
             
             void doShearTexture(const Vec3& normal, const Vec2f& factors);
             

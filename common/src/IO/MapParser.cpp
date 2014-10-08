@@ -68,7 +68,7 @@ namespace TrenchBroom {
             onEndBrush(startLine, lineCount, extraAttributes);
         }
         
-        void MapParser::brushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY) {
+        void MapParser::brushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) {
             onBrushFace(line, point1, point2, point3, attribs, texAxisX, texAxisY);
         }
     }

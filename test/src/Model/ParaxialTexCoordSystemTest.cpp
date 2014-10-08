@@ -36,7 +36,7 @@ namespace TrenchBroom {
             const Plane3 oldBoundary(oldDistance, oldNormal);
             ParaxialTexCoordSystem coordSystem(oldNormal);
             
-            BrushFaceAttribs attribs("texture");
+            BrushFaceAttributes attribs("texture");
             attribs.setTexture(&texture);
             const Vec3 center(32.0, -48.0, 0.0);
             const Mat4x4 transform = translationMatrix(center) * rotationMatrix(Vec3::PosZ, Math::radians(15.0)) * translationMatrix(-center);

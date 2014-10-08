@@ -26,8 +26,9 @@
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
-#include "Model/ModelTypes.h"
+#include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometryTypes.h"
+#include "Model/ModelTypes.h"
 #include "Model/TexCoordSystem.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/VertexSpec.h"
@@ -37,56 +38,8 @@
 namespace TrenchBroom {
     namespace Model {
         class Brush;
-        class BrushFace;
         class BrushFaceGeometry;
         class BrushFaceSnapshot;
-        
-        class BrushFaceAttribs {
-        private:
-            String m_textureName;
-            Assets::Texture* m_texture;
-            
-            Vec2f m_offset;
-            Vec2f m_scale;
-            float m_rotation;
-            
-            int m_surfaceContents;
-            int m_surfaceFlags;
-            float m_surfaceValue;
-        public:
-            BrushFaceAttribs(const String& textureName);
-            
-            const String& textureName() const;
-            Assets::Texture* texture() const;
-            Vec2f textureSize() const;
-
-            const Vec2f& offset() const;
-            float xOffset() const;
-            float yOffset() const;
-            Vec2f modOffset(const Vec2f& offset) const;
-            
-            const Vec2f& scale() const;
-            float xScale() const;
-            float yScale() const;
-            
-            float rotation() const;
-            
-            int surfaceContents() const;
-            int surfaceFlags() const;
-            float surfaceValue() const;
-            
-            void setTexture(Assets::Texture* texture);
-            void setOffset(const Vec2f& offset);
-            void setXOffset(float xOffset);
-            void setYOffset(float yOffset);
-            void setScale(const Vec2f& scale);
-            void setXScale(float xScale);
-            void setYScale(float yScale);
-            void setRotation(float rotation);
-            void setSurfaceContents(int surfaceContents);
-            void setSurfaceFlags(int surfaceFlags);
-            void setSurfaceValue(float surfaceValue);
-        };
         
         class BrushFace {
         public:
@@ -119,7 +72,7 @@ namespace TrenchBroom {
             mutable Vertex::List m_cachedVertices;
             mutable bool m_vertexCacheValid;
         protected:
-            BrushFaceAttribs m_attribs;
+            BrushFaceAttributes m_attribs;
         public:
             BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName, TexCoordSystem* texCoordSystem);
             
@@ -143,8 +96,8 @@ namespace TrenchBroom {
             Vec3 center() const;
             Vec3 boundsCenter() const;
 
-            const BrushFaceAttribs& attribs() const;
-            void setAttribs(const BrushFaceAttribs& attribs);
+            const BrushFaceAttributes& attribs() const;
+            void setAttribs(const BrushFaceAttributes& attribs);
             
             const String& textureName() const;
             Assets::Texture* texture() const;

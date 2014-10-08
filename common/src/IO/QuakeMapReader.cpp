@@ -94,7 +94,7 @@ namespace TrenchBroom {
             createBrush(startLine, lineCount, extraAttributes);
         }
         
-        void QuakeMapReader::onBrushFace(const size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttribs& attribs, const Vec3& texAxisX, const Vec3& texAxisY) {
+        void QuakeMapReader::onBrushFace(const size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) {
             Model::BrushFace* face = m_world->createFace(point1, point2, point3, attribs.textureName(), texAxisX, texAxisY);
             face->setAttribs(attribs);
             m_faces.push_back(face);

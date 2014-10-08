@@ -48,7 +48,7 @@ namespace TrenchBroom {
             return getYAxis();
         }
 
-        Vec2f TexCoordSystem::getTexCoords(const Vec3& point, const BrushFaceAttribs& attribs) const {
+        Vec2f TexCoordSystem::getTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const {
             return doGetTexCoords(point, attribs);
         }
         
@@ -56,16 +56,16 @@ namespace TrenchBroom {
             doSetRotation(normal, oldAngle, newAngle);
         }
         
-        void TexCoordSystem::transform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttribs& attribs, bool lockTexture, const Vec3& invariant) {
+        void TexCoordSystem::transform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant) {
             doTransform(oldBoundary, transformation, attribs, lockTexture, invariant);
         }
 
-        void TexCoordSystem::updateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttribs& attribs) {
+        void TexCoordSystem::updateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {
             if (oldNormal != newNormal)
                 doUpdateNormal(oldNormal, newNormal, attribs);
         }
 
-        void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttribs& attribs) const {
+        void TexCoordSystem::moveTexture(const Vec3& normal, const Vec3& up, const Vec3& right, const Vec2f& offset, BrushFaceAttributes& attribs) const {
             
             /*
             const Vec3 direction  = crossed(up, right);
@@ -179,7 +179,7 @@ namespace TrenchBroom {
             attribs.setOffset(attribs.offset() + actualOffset);
         }
 
-        void TexCoordSystem::rotateTexture(const Vec3& normal, const float angle, BrushFaceAttribs& attribs) const {
+        void TexCoordSystem::rotateTexture(const Vec3& normal, const float angle, BrushFaceAttributes& attribs) const {
             const float actualAngle = isRotationInverted(normal) ? - angle : angle;
             attribs.setRotation(attribs.rotation() + actualAngle);
         }
