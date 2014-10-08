@@ -74,6 +74,8 @@ namespace TrenchBroom {
         private: // interaction events
             void bindEvents();
             
+            void OnDeleteObjects(wxCommandEvent& event);
+            
             void OnMoveObjectsForward(wxCommandEvent& event);
             void OnMoveObjectsBackward(wxCommandEvent& event);
             void OnMoveObjectsLeft(wxCommandEvent& event);

@@ -126,9 +126,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnToggleFlyMode,                this, CommandIds::Actions::ToggleFlyMode);
             
             Bind(wxEVT_MENU, &MapView3D::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
+             */
             
             Bind(wxEVT_MENU, &MapView3D::OnDeleteObjects,                this, CommandIds::Actions::DeleteObjects);
-            */
             
             Bind(wxEVT_MENU, &MapView3D::OnMoveObjectsForward,           this, CommandIds::Actions::MoveObjectsForward);
             Bind(wxEVT_MENU, &MapView3D::OnMoveObjectsBackward,          this, CommandIds::Actions::MoveObjectsBackward);
@@ -188,6 +188,12 @@ namespace TrenchBroom {
             frame->Bind(wxEVT_ACTIVATE, &MapView3D::OnActivateFrame, this);
         }
         
+        void MapView3D::OnDeleteObjects(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedNodes())
+                document->deleteObjects();
+        }
+
         void MapView3D::OnMoveObjectsForward(wxCommandEvent& event) {
             moveObjects(Math::Direction_Forward);
         }

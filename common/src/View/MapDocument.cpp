@@ -36,6 +36,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
+#include "View/AddRemoveNodesCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
@@ -263,6 +264,13 @@ namespace TrenchBroom {
         void MapDocument::clearSelection() {
             m_selectedNodes.clear();
             m_selectedBrushFaces.clear();
+        }
+
+        bool MapDocument::deleteObjects() {
+            Transaction transaction(this, "Delete objects");
+            const Model::NodeList nodes = selectedNodes();
+            deselectAll();
+            return submit(AddRemoveNodesCommand::remove(nodes));
         }
 
         bool MapDocument::duplicateObjects() {
@@ -627,17 +635,23 @@ namespace TrenchBroom {
         }
 
         Transaction::Transaction(MapDocumentWPtr document, const String& name) :
-        m_document(lock(document)),
+        m_document(lock(document).get()),
         m_cancelled(false) {
             begin(name);
         }
         
         Transaction::Transaction(MapDocumentSPtr document, const String& name) :
-        m_document(document),
+        m_document(document.get()),
         m_cancelled(false) {
             begin(name);
         }
         
+        Transaction::Transaction(MapDocument* document, const String& name) :
+        m_document(document),
+        m_cancelled(false) {
+            begin(name);
+        }
+
         Transaction::~Transaction() {
             if (!m_cancelled)
                 end();

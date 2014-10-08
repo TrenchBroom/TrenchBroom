@@ -152,6 +152,7 @@ namespace TrenchBroom {
             void validateSelectionBounds() const;
             void clearSelection();
         public: // adding, removing, and duplicating objects
+            bool deleteObjects();
             bool duplicateObjects();
         public: // modifying objects
             bool translateObjects(const Vec3& delta);
@@ -235,11 +236,12 @@ namespace TrenchBroom {
 
         class Transaction {
         private:
-            MapDocumentSPtr m_document;
+            MapDocument* m_document;
             bool m_cancelled;
         public:
             Transaction(MapDocumentWPtr document, const String& name = "");
             Transaction(MapDocumentSPtr document, const String& name = "");
+            Transaction(MapDocument* document, const String& name = "");
             ~Transaction();
             
             void rollback();
