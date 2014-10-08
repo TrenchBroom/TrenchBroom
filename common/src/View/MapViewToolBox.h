@@ -57,6 +57,7 @@ namespace TrenchBroom {
             bool rotateObjectsToolActive() const;
             double rotateToolAngle() const;
             const Vec3 rotateToolCenter() const;
+            void moveRotationCenter(const Vec3& delta);
         private: // Tool related methods
             void createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
             void destroyTools();

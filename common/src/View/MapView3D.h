@@ -101,7 +101,7 @@ namespace TrenchBroom {
             
             void OnFlipObjectsH(wxCommandEvent& event);
             void OnFlipObjectsV(wxCommandEvent& event);
-        private: // interaction event helper methods
+
             void duplicateAndMoveObjects(Math::Direction direction);
             void duplicateObjects();
             void moveObjects(Math::Direction direction);
@@ -109,8 +109,16 @@ namespace TrenchBroom {
             void rotateObjects(Math::RotationAxis axis, bool clockwise);
             Vec3 rotationAxis(Math::RotationAxis axis, bool clockwise) const;
             void flipObjects(Math::Direction direction);
-        public: // tool mode events
+        private: // tool mode events
             void OnToggleRotateObjectsTool(wxCommandEvent& event);
+            void OnMoveRotationCenterForward(wxCommandEvent& event);
+            void OnMoveRotationCenterBackward(wxCommandEvent& event);
+            void OnMoveRotationCenterLeft(wxCommandEvent& event);
+            void OnMoveRotationCenterRight(wxCommandEvent& event);
+            void OnMoveRotationCenterUp(wxCommandEvent& event);
+            void OnMoveRotationCenterDown(wxCommandEvent& event);
+
+            void moveRotationCenter(Math::Direction direction);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);

@@ -120,8 +120,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
             */
              
-            Bind(wxEVT_MENU, &MapView3D::OnToggleRotateObjectsTool,      this, CommandIds::Actions::ToggleRotateObjectsTool);
-            
             /*
             Bind(wxEVT_MENU, &MapView3D::OnToggleFlyMode,                this, CommandIds::Actions::ToggleFlyMode);
             
@@ -155,9 +153,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsUp,           this, CommandIds::Actions::DuplicateObjectsUp);
             Bind(wxEVT_MENU, &MapView3D::OnDuplicateObjectsDown,         this, CommandIds::Actions::DuplicateObjectsDown);
             
-            /*
-            Bind(wxEVT_MENU, &MapView3D::OnCancel,                       this, CommandIds::Actions::Cancel);
-            
+            Bind(wxEVT_MENU, &MapView3D::OnToggleRotateObjectsTool,      this, CommandIds::Actions::ToggleRotateObjectsTool);
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterForward,    this, CommandIds::Actions::MoveRotationCenterForward);
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterBackward,   this, CommandIds::Actions::MoveRotationCenterBackward);
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterLeft,       this, CommandIds::Actions::MoveRotationCenterLeft);
@@ -165,6 +161,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterUp,         this, CommandIds::Actions::MoveRotationCenterUp);
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterDown,       this, CommandIds::Actions::MoveRotationCenterDown);
             
+            /*
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesUp,               this, CommandIds::Actions::MoveTexturesUp);
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesDown,             this, CommandIds::Actions::MoveTexturesDown);
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesLeft,             this, CommandIds::Actions::MoveTexturesLeft);
@@ -173,6 +170,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnRotateTexturesCW,             this, CommandIds::Actions::RotateTexturesCW);
             Bind(wxEVT_MENU, &MapView3D::OnRotateTexturesCCW,            this, CommandIds::Actions::RotateTexturesCCW);
             
+             Bind(wxEVT_MENU, &MapView3D::OnCancel,                       this, CommandIds::Actions::Cancel);
+             
             Bind(wxEVT_MENU, &MapView3D::OnPopupReparentBrushes,         this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
             Bind(wxEVT_MENU, &MapView3D::OnPopupMoveBrushesToWorld,      this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_MENU, &MapView3D::OnPopupCreatePointEntity,       this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
@@ -379,6 +378,38 @@ namespace TrenchBroom {
 
         void MapView3D::OnToggleRotateObjectsTool(wxCommandEvent& event) {
             m_toolBox.toggleRotateObjectsTool();
+        }
+
+        void MapView3D::OnMoveRotationCenterForward(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Forward);
+        }
+        
+        void MapView3D::OnMoveRotationCenterBackward(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Backward);
+        }
+        
+        void MapView3D::OnMoveRotationCenterLeft(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Left);
+        }
+        
+        void MapView3D::OnMoveRotationCenterRight(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Right);
+        }
+        
+        void MapView3D::OnMoveRotationCenterUp(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Up);
+        }
+        
+        void MapView3D::OnMoveRotationCenterDown(wxCommandEvent& event) {
+            moveRotationCenter(Math::Direction_Down);
+        }
+        
+        void MapView3D::moveRotationCenter(const Math::Direction direction) {
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            m_toolBox.moveRotationCenter(delta);
+            Refresh();
         }
 
         void MapView3D::OnSetFocus(wxFocusEvent& event) {
