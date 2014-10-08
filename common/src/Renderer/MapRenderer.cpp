@@ -154,13 +154,16 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::setupRenderers() {
+            setupLayerRenderers();
+            setupSelectionRenderer(m_selectionRenderer);
+        }
+
+        void MapRenderer::setupLayerRenderers() {
             RendererMap::iterator it, end;
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
                 ObjectRenderer* renderer = it->second;
                 setupLayerRenderer(renderer);
             }
-            
-            setupSelectionRenderer(m_selectionRenderer);
         }
 
         void MapRenderer::setupLayerRenderer(ObjectRenderer* renderer) {
@@ -262,6 +265,7 @@ namespace TrenchBroom {
             const Model::EditorContext& editorContext = document->editorContext();
             AddLayer visitor(modelManager, editorContext, m_layerRenderers);
             world->acceptAndRecurse(visitor);
+            setupLayerRenderers();
         }
 
         class MapRenderer::HandleSelectedNode : public Model::NodeVisitor {

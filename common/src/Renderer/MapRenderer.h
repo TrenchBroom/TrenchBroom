@@ -74,6 +74,7 @@ namespace TrenchBroom {
             void renderSelection(RenderContext& renderContext, RenderBatch& renderBatch);
             
             void setupRenderers();
+            void setupLayerRenderers();
             void setupLayerRenderer(ObjectRenderer* renderer);
             void setupSelectionRenderer(ObjectRenderer* renderer);
         private: // notification
