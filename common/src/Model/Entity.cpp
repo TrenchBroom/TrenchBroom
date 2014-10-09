@@ -19,6 +19,8 @@
 
 #include "Entity.h"
 
+#include "Model/BoundsContainsNodeVisitor.h"
+#include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EntitySnapshot.h"
@@ -212,11 +214,17 @@ namespace TrenchBroom {
         }
         
         bool Entity::doContains(const Node* node) const {
-            return false;
+            BoundsContainsNodeVisitor contains(bounds());
+            node->accept(contains);
+            assert(contains.hasResult());
+            return contains.result();
         }
         
         bool Entity::doIntersects(const Node* node) const {
-            return false;
+            BoundsIntersectsNodeVisitor intersects(bounds());
+            node->accept(intersects);
+            assert(intersects.hasResult());
+            return intersects.result();
         }
 
         void Entity::invalidateBounds() {

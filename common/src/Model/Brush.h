@@ -45,6 +45,9 @@ namespace TrenchBroom {
             mutable BrushContentType::FlagType m_contentType;
             mutable bool m_transparent;
             mutable bool m_contentTypeValid;
+            
+            class Contains;
+            class Intersects;
         public:
             Brush(const BBox3& worldBounds, const BrushFaceList& faces);
             ~Brush();
@@ -97,6 +100,8 @@ namespace TrenchBroom {
             
             size_t edgeCount() const;
             const BrushEdgeList& edges() const;
+            
+            bool containsPoint(const Vec3& point) const;
             
             // vertex operations
             bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
