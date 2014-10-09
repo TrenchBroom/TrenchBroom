@@ -91,7 +91,7 @@ namespace TrenchBroom {
         }
 
         bool SelectionCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_previouslySelectedNodes = document->selectedNodes();
+            m_previouslySelectedNodes = document->selectedNodes().nodes();
             m_previouslySelectedFaces = document->selectedBrushFaces();
             
             switch (m_action) {

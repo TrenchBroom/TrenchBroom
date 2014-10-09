@@ -28,6 +28,7 @@
 #include "IO/Path.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
+#include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
 #include "View/ViewTypes.h"
 
@@ -72,8 +73,8 @@ namespace TrenchBroom {
             IO::Path m_path;
             size_t m_modificationCount;
 
-            Model::NodeList m_partiallySelectedNodes;
-            Model::NodeList m_selectedNodes;
+            Model::NodeCollection m_partiallySelectedNodes;
+            Model::NodeCollection m_selectedNodes;
             Model::BrushFaceList m_selectedBrushFaces;
             
             mutable BBox3 m_selectionBounds;
@@ -133,7 +134,7 @@ namespace TrenchBroom {
             bool hasSelectedNodes() const;
             bool hasSelectedBrushFaces() const;
 
-            const Model::NodeList& selectedNodes() const;
+            const Model::NodeCollection& selectedNodes() const;
             const Model::BrushFaceList& selectedBrushFaces() const;
 
             const BBox3& selectionBounds() const;
@@ -160,6 +161,9 @@ namespace TrenchBroom {
             bool translateObjects(const Vec3& delta);
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
             bool flipObjects(const Vec3& center, Math::Axis::Type axis);
+        public: // modifying face attributes
+            void moveTextures(const Vec3f& up, const Vec3f& right, const Vec2f& delta);
+            void rotateTextures(float angle);
         public: // command processing
             bool canUndoLastCommand() const;
             bool canRedoNextCommand() const;

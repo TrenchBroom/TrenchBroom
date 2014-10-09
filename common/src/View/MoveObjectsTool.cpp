@@ -81,7 +81,7 @@ namespace TrenchBroom {
         
         MoveResult MoveObjectsTool::doMove(const InputState& inputState, const Vec3& delta) {
             const BBox3& worldBounds = document()->worldBounds();
-            const BBox3 bounds = computeBounds(document()->selectedNodes());
+            const BBox3 bounds = document()->selectionBounds();
             if (!worldBounds.contains(bounds.translated(delta)))
                 return MoveResult_Deny;
             

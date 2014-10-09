@@ -200,7 +200,7 @@ namespace TrenchBroom {
             return !m_selectedBrushFaces.empty();
         }
 
-        const Model::NodeList& MapDocument::selectedNodes() const {
+        const Model::NodeCollection& MapDocument::selectedNodes() const {
             return m_selectedNodes;
         }
         
@@ -268,7 +268,7 @@ namespace TrenchBroom {
 
         bool MapDocument::deleteObjects() {
             Transaction transaction(this, "Delete objects");
-            const Model::NodeList nodes = selectedNodes();
+            const Model::NodeList nodes = m_selectedNodes.nodes();
             deselectAll();
             return submit(AddRemoveNodesCommand::remove(nodes));
         }
@@ -287,6 +287,12 @@ namespace TrenchBroom {
         
         bool MapDocument::flipObjects(const Vec3& center, const Math::Axis::Type axis) {
             return submit(TransformObjectsCommand::flip(center, axis, m_textureLock));
+        }
+
+        void MapDocument::moveTextures(const Vec3f& up, const Vec3f& right, const Vec2f& delta) {
+        }
+        
+        void MapDocument::rotateTextures(const float angle) {
         }
 
         bool MapDocument::canUndoLastCommand() const {

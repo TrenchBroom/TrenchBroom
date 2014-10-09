@@ -102,8 +102,8 @@ namespace TrenchBroom {
 
             const Model::NodeList& partiallySelected = visitor.nodes();
             
-            VectorUtils::append(m_selectedNodes, selected);
-            VectorUtils::append(m_partiallySelectedNodes, partiallySelected);
+            m_selectedNodes.addNodes(selected);
+            m_partiallySelectedNodes.addNodes(partiallySelected);
             
             Selection selection;
             selection.addSelectedNodes(selected);
@@ -135,7 +135,7 @@ namespace TrenchBroom {
             const Model::NodeList& partiallySelected = visitor.nodes();
             
             VectorUtils::append(m_selectedBrushFaces, selected);
-            VectorUtils::append(m_partiallySelectedNodes, partiallySelected);
+            m_partiallySelectedNodes.addNodes(partiallySelected);
             
             Selection selection;
             selection.addSelectedBrushFaces(selected);
@@ -234,8 +234,8 @@ namespace TrenchBroom {
             
             const Model::NodeList& partiallyDeselected = visitor.nodes();
             
-            VectorUtils::eraseAll(m_selectedNodes, deselected);
-            VectorUtils::eraseAll(m_partiallySelectedNodes, partiallyDeselected);
+            m_selectedNodes.removeNodes(deselected);
+            m_selectedNodes.removeNodes(partiallyDeselected);
             
             Selection selection;
             selection.addDeselectedNodes(deselected);
@@ -267,7 +267,7 @@ namespace TrenchBroom {
             const Model::NodeList& partiallyDeselected = visitor.nodes();
 
             VectorUtils::eraseAll(m_selectedBrushFaces, deselected);
-            VectorUtils::eraseAll(m_partiallySelectedNodes, partiallyDeselected);
+            m_selectedNodes.removeNodes(partiallyDeselected);
             
             Selection selection;
             selection.addDeselectedBrushFaces(deselected);
@@ -293,8 +293,8 @@ namespace TrenchBroom {
             }
             
             Selection selection;
-            selection.addDeselectedNodes(m_selectedNodes);
-            selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes);
+            selection.addDeselectedNodes(m_selectedNodes.nodes());
+            selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes.nodes());
 
             m_selectedNodes.clear();
             m_partiallySelectedNodes.clear();
@@ -315,7 +315,7 @@ namespace TrenchBroom {
             
             Selection selection;
             selection.addDeselectedBrushFaces(m_selectedBrushFaces);
-            selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes);
+            selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes.nodes());
             
             m_selectedBrushFaces.clear();
             m_partiallySelectedNodes.clear();
@@ -361,7 +361,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {
-            const Model::NodeList& nodes = m_selectedNodes;
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);
             
             NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
@@ -380,7 +380,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
-            const Model::NodeList& nodes = m_selectedNodes;
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);
             
             NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);

@@ -35,7 +35,7 @@ namespace TrenchBroom {
         
         bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
             const BBox3& worldBounds = document->worldBounds();
-            m_previouslySelectedNodes = document->selectedNodes();
+            m_previouslySelectedNodes = document->selectedNodes().nodes();
             Model::ParentChildrenMap nodesToAdd;
             
             Model::NodeList::const_iterator it, end;

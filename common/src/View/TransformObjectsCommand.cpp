@@ -65,7 +65,7 @@ namespace TrenchBroom {
         }
         
         bool TransformObjectsCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            takeSnapshot(document->selectedNodes());
+            takeSnapshot(document->selectedNodes().nodes());
             document->performTransform(m_transform, m_lockTextures);
             return true;
         }

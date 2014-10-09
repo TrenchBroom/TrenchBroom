@@ -255,8 +255,7 @@ namespace TrenchBroom {
         }
         
         bool RotateObjectsTool::doStartRotate(const InputState& inputState) {
-            const String name = StringUtils::safePlural(document()->selectedNodes().size(), "Rotate object", "Rotate objects");
-            document()->beginTransaction(name);
+            document()->beginTransaction("Rotate objects");
 
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             _UNUSED(hit);

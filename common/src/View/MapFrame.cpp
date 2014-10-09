@@ -23,8 +23,8 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "IO/DiskFileSystem.h"
-#include "Model/AssortNodesVisitor.h"
 #include "Model/Node.h"
+#include "Model/NodeCollection.h"
 #include "View/ActionManager.h"
 #include "View/Autosaver.h"
 #include "View/CachingLogger.h"
@@ -421,18 +421,9 @@ namespace TrenchBroom {
                     break;
                      */
                 case CommandIds::Menu::EditSelectTouching:
-                case CommandIds::Menu::EditSelectInside: {
-                    if (m_document->hasSelectedNodes()) {
-                        Model::AssortNodesVisitor assortNodes;
-                        Model::Node::visi
-                    } else {
-                        event.Enable(false);
-                    }
-                    event.Enable(m_document->hasSelectedNodes())
-                    event.Enable(!m_document->hasSelectedEntities() &&
-                                 m_document->selectedBrushes().size() == 1);
+                case CommandIds::Menu::EditSelectInside:
+                    event.Enable(m_document->selectedNodes().hasOnlyBrushes());
                     break;
-                }
                     /*
                 case CommandIds::Menu::EditSelectByFilePosition:
                     event.Enable(true);
