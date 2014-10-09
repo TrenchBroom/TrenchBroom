@@ -140,8 +140,8 @@ namespace TrenchBroom {
             const BBox3& selectionBounds() const;
             
             void selectAllNodes();
-            void selectTouching();
-            void selectInside();
+            void selectTouching(bool del);
+            void selectInside(bool del);
             void select(const Model::NodeList& nodes);
             void select(Model::Node* node);
             void select(const Model::BrushFaceList& faces);

@@ -232,21 +232,27 @@ namespace TrenchBroom {
             return result;
         };
         
-        void MapDocument::selectTouching() {
+        void MapDocument::selectTouching(const bool del) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             const Model::NodeList nodes = collectContainedOrTouchingNodes<Model::CollectTouchingNodesVisitor>(brushes.begin(), brushes.end(), m_world);
             
             Transaction transaction(this, "Select touching");
-            deselectAll();
+            if (del)
+                deleteObjects();
+            else
+                deselectAll();
             select(nodes);
         }
         
-        void MapDocument::selectInside() {
+        void MapDocument::selectInside(const bool del) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();
             const Model::NodeList nodes = collectContainedOrTouchingNodes<Model::CollectContainedNodesVisitor>(brushes.begin(), brushes.end(), m_world);
 
             Transaction transaction(this, "Select inside");
-            deselectAll();
+            if (del)
+                deleteObjects();
+            else
+                deselectAll();
             select(nodes);
         }
 

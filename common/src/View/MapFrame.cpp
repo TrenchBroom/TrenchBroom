@@ -355,11 +355,11 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditSelectTouching(wxCommandEvent& event) {
-            m_document->selectTouching();
+            m_document->selectTouching(true);
         }
         
         void MapFrame::OnEditSelectInside(wxCommandEvent& event) {
-            m_document->selectInside();
+            m_document->selectInside(true);
         }
 
         void MapFrame::OnEditSelectNone(wxCommandEvent& event) {
