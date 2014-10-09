@@ -50,8 +50,13 @@ namespace TrenchBroom {
         static const AttributableList EmptyAttributableList(0);
         
         class Layer;
+        typedef std::vector<Layer*> LayerList;
+        
         class Group;
+        typedef std::vector<Group*> GroupList;
+        
         class Entity;
+        typedef std::vector<Entity*> EntityList;
         typedef std::set<Entity*> EntitySet;
         
         class Brush;
