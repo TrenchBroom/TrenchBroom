@@ -38,6 +38,9 @@ namespace TrenchBroom {
             mutable BBox3 m_bounds;
             mutable bool m_boundsValid;
             Assets::EntityModel* m_model;
+            
+            class Contains;
+            class Intersects;
         public:
             Entity();
             

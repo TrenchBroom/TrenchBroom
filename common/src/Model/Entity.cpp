@@ -20,11 +20,13 @@
 #include "Entity.h"
 
 #include "Model/Brush.h"
+#include "Model/BrushVertex.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EntitySnapshot.h"
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
+#include "Model/Group.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
@@ -211,12 +213,66 @@ namespace TrenchBroom {
             }
         }
         
+        class Entity::Contains : public ConstNodeVisitor, public NodeQuery<bool> {
+        private:
+            const Entity* m_this;
+        public:
+            Contains(const Entity* i_this) :
+            m_this(i_this) {}
+        private:
+            void doVisit(const World* world)   { setResult(false); }
+            void doVisit(const Layer* layer)   { setResult(false); }
+            void doVisit(const Group* group)   { setResult(m_this->bounds().contains(group->bounds())); }
+            void doVisit(const Entity* entity) { setResult(m_this->bounds().contains(entity->bounds())); }
+            void doVisit(const Brush* brush)   {
+                const BBox3& myBounds = m_this->bounds();
+                const BrushVertexList& vertices = brush->vertices();
+                for (size_t i = 0; i < vertices.size(); ++i) {
+                    if (!myBounds.contains(vertices[i]->position)) {
+                        setResult(false);
+                        return;
+                    }
+                }
+                setResult(true);
+            }
+        };
+
         bool Entity::doContains(const Node* node) const {
-            return false;
+            Contains contains(this);
+            node->accept(contains);
+            assert(contains.hasResult());
+            return contains.result();
         }
         
+        class Entity::Intersects : public ConstNodeVisitor, public NodeQuery<bool> {
+        private:
+            const Entity* m_this;
+        public:
+            Intersects(const Entity* i_this) :
+            m_this(i_this) {}
+        private:
+            void doVisit(const World* world)   { setResult(false); }
+            void doVisit(const Layer* layer)   { setResult(false); }
+            void doVisit(const Group* group)   { setResult(m_this->bounds().intersects(group->bounds())); }
+            void doVisit(const Entity* entity) { setResult(m_this->bounds().intersects(entity->bounds())); }
+            void doVisit(const Brush* brush)   {
+                const BBox3& myBounds = m_this->bounds();
+                const BrushVertexList& vertices = brush->vertices();
+                for (size_t i = 0; i < vertices.size(); ++i) {
+                    if (myBounds.contains(vertices[i]->position)) {
+                        setResult(true);
+                        return;
+                    }
+                }
+                setResult(false);
+            }
+        };
+
         bool Entity::doIntersects(const Node* node) const {
-            return false;
+            Intersects intersects(this);
+            node->accept(intersects);
+            assert(intersects.hasResult());
+            return intersects.result();
         }
 
         void Entity::invalidateBounds() {
