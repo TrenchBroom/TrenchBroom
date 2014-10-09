@@ -513,7 +513,7 @@ namespace VectorUtils {
     }
     
     template <typename T, typename Compare>
-    std::vector<T> setUnion(const std::vector<T> vec1, const std::vector<T> vec2) {
+    std::vector<T> setUnion(const std::vector<T>& vec1, const std::vector<T>& vec2) {
         if (vec1.empty())
             return vec2;
         if (vec2.empty())
@@ -554,12 +554,12 @@ namespace VectorUtils {
     }
 
     template <typename T>
-    std::vector<T> setUnion(const std::vector<T> vec1, const std::vector<T> vec2) {
+    std::vector<T> setUnion(const std::vector<T>& vec1, const std::vector<T>& vec2) {
         return setUnion<T, std::less<T> >(vec1, vec2);
     }
     
     template <typename T, typename Compare>
-    std::vector<T> setMinus(const std::vector<T> minuend, const std::vector<T> subtrahend) {
+    std::vector<T> setMinus(const std::vector<T>& minuend, const std::vector<T>& subtrahend) {
         if (minuend.empty() || subtrahend.empty())
             return minuend;
         
@@ -587,12 +587,12 @@ namespace VectorUtils {
     }
 
     template <typename T>
-    std::vector<T> setMinus(const std::vector<T> minuend, const std::vector<T> subtrahend) {
+    std::vector<T> setMinus(const std::vector<T>& minuend, const std::vector<T>& subtrahend) {
         return setMinus<T, std::less<T> >(minuend, subtrahend);
     }
     
     template <typename T, typename Compare>
-    std::vector<T> setIntersection(const std::vector<T> vec1, const std::vector<T> vec2) {
+    std::vector<T> setIntersection(const std::vector<T>& vec1, const std::vector<T>& vec2) {
         if (vec1.empty())
             return vec1;
         if (vec2.empty())
@@ -626,7 +626,7 @@ namespace VectorUtils {
     }
 
     template <typename T>
-    std::vector<T> setIntersection(const std::vector<T> vec1, const std::vector<T> vec2) {
+    std::vector<T> setIntersection(const std::vector<T>& vec1, const std::vector<T>& vec2) {
         return setIntersection<T, std::less<T> >(vec1, vec2);
     }
 }

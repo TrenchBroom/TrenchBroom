@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CollectTouchingNodesVisitor.h"
+#include "CollectContainedNodesVisitor.h"
 
 #include "Model/Object.h"
 
@@ -25,16 +25,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        MatchTouchingNodes::MatchTouchingNodes(const Object* object) :
+        MatchContainedNodes::MatchContainedNodes(const Object* object) :
         m_object(object) {
             assert(m_object != NULL);
         }
-
-        bool MatchTouchingNodes::operator()(const Node* node) const {
-            return m_object->intersects(node);
+        
+        bool MatchContainedNodes::operator()(const Node* node) const {
+            return m_object->contains(node);
         }
-
-        CollectTouchingNodesVisitor::CollectTouchingNodesVisitor(const Object* object) :
-        CollectMatchingUniqueNodesVisitor(And<Not<EqualsObject>, MatchTouchingNodes>(Not<EqualsObject>(EqualsObject(object)), MatchTouchingNodes(object))) {}
+        
+        CollectContainedNodesVisitor::CollectContainedNodesVisitor(const Object* object) :
+        CollectMatchingUniqueNodesVisitor(And<Not<EqualsObject>, MatchContainedNodes>(Not<EqualsObject>(EqualsObject(object)), MatchContainedNodes(object))) {}
     }
 }

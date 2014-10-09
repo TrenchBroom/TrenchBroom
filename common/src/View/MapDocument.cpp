@@ -29,6 +29,8 @@
 #include "IO/SystemPaths.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/CollectContainedNodesVisitor.h"
+#include "Model/CollectTouchingNodesVisitor.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
@@ -216,6 +218,36 @@ namespace TrenchBroom {
 
         void MapDocument::selectAllNodes() {
             submit(SelectionCommand::selectAllNodes());
+        }
+
+        template <typename V, typename I>
+        Model::NodeList collectContainedOrTouchingNodes(I cur, I end, Model::World* world) {
+            Model::NodeList result;
+            while (cur != end) {
+                V visitor(*cur);
+                world->acceptAndRecurse(visitor);
+                result = VectorUtils::setUnion(result, visitor.nodes());
+                ++cur;
+            }
+            return result;
+        };
+        
+        void MapDocument::selectTouching() {
+            const Model::BrushList& brushes = m_selectedNodes.brushes();
+            const Model::NodeList nodes = collectContainedOrTouchingNodes<Model::CollectTouchingNodesVisitor>(brushes.begin(), brushes.end(), m_world);
+            
+            Transaction transaction(this, "Select touching");
+            deselectAll();
+            select(nodes);
+        }
+        
+        void MapDocument::selectInside() {
+            const Model::BrushList& brushes = m_selectedNodes.brushes();
+            const Model::NodeList nodes = collectContainedOrTouchingNodes<Model::CollectContainedNodesVisitor>(brushes.begin(), brushes.end(), m_world);
+
+            Transaction transaction(this, "Select inside");
+            deselectAll();
+            select(nodes);
         }
 
         void MapDocument::select(const Model::NodeList& nodes) {

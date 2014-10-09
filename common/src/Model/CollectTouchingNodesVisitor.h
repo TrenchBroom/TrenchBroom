@@ -22,6 +22,7 @@
 
 #include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/ModelTypes.h"
+#include "Model/NodePredicates.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -33,7 +34,7 @@ namespace TrenchBroom {
             bool operator()(const Node* node) const;
         };
         
-        class CollectTouchingNodesVisitor : public CollectMatchingNodesVisitor<MatchTouchingNodes> {
+        class CollectTouchingNodesVisitor : public CollectMatchingUniqueNodesVisitor<And<Not<EqualsObject>, MatchTouchingNodes> > {
         public:
             CollectTouchingNodesVisitor(const Object* object);
         };

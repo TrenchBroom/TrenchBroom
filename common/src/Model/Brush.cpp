@@ -556,7 +556,10 @@ namespace TrenchBroom {
         };
 
         bool Brush::doContains(const Node* node) const {
-            return false;
+            Contains contains(this);
+            node->accept(contains);
+            assert(contains.hasResult());
+            return contains.result();
         }
         
         class Brush::Intersects : public ConstNodeVisitor, public NodeQuery<bool> {

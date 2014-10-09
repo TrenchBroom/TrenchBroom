@@ -107,8 +107,10 @@ namespace TrenchBroom {
             void OnEditSelectAll(wxCommandEvent& event);
             /*
             void OnEditSelectSiblings(wxCommandEvent& event);
+             */
             void OnEditSelectTouching(wxCommandEvent& event);
             void OnEditSelectInside(wxCommandEvent& event);
+            /*
             void OnEditSelectByLineNumber(wxCommandEvent& event);
              */
             void OnEditSelectNone(wxCommandEvent& event);
