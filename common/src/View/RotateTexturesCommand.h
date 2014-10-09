@@ -17,31 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveTexturesCommand__
-#define __TrenchBroom__MoveTexturesCommand__
+#ifndef __TrenchBroom__RotateTexturesCommand__
+#define __TrenchBroom__RotateTexturesCommand__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
 #include "View/DocumentCommand.h"
 
 namespace TrenchBroom {
     namespace View {
-        class MoveTexturesCommand : public DocumentCommand {
+        class RotateTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
         private:
-            Vec3f m_cameraUp;
-            Vec3f m_cameraRight;
-            Vec2f m_delta;
+            float m_angle;
         public:
-            static MoveTexturesCommand* move(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
+            static RotateTexturesCommand* rotate(float angle);
         private:
-            MoveTexturesCommand(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
-
+            RotateTexturesCommand(float angle);
+            
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
-            void moveTextures(MapDocumentCommandFacade* document, const Vec2f& delta) const;
+            void rotateTextures(MapDocumentCommandFacade* document, float angle) const;
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
@@ -51,4 +47,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveTexturesCommand__) */
+#endif /* defined(__TrenchBroom__RotateTexturesCommand__) */

@@ -100,8 +100,16 @@ namespace TrenchBroom {
             return m_showGrid;
         }
         
+        void RenderContext::setShowGrid(const bool showGrid) {
+            m_showGrid = showGrid;
+        }
+        
         size_t RenderContext::gridSize() const {
             return m_gridSize;
+        }
+        
+        void RenderContext::setGridSize(const size_t gridSize) {
+            m_gridSize = gridSize;
         }
 
         bool RenderContext::hideSelection() const {

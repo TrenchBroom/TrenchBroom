@@ -58,6 +58,8 @@ namespace TrenchBroom {
         public: // transformation
             void performTransform(const Mat4x4& transform, bool lockTextures);
         public: // brush face attributes
+            void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
+            void performRotateTextures(float angle);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);

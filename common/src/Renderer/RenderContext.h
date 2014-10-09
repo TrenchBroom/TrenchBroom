@@ -91,7 +91,10 @@ namespace TrenchBroom {
             bool showFog() const;
             
             bool showGrid() const;
+            void setShowGrid(bool showGrid);
+            
             size_t gridSize() const;
+            void setGridSize(size_t gridSize);
             
             bool hideSelection() const;
             void setHideSelection();

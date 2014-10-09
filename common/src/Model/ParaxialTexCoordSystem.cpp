@@ -97,20 +97,7 @@ namespace TrenchBroom {
         
         bool ParaxialTexCoordSystem::isRotationInverted(const Vec3& normal) const {
             const size_t index = planeNormalIndex(normal);
-            switch (index) {
-                case 0:
-                    return true;
-                case 1:
-                    return false;
-                case 2:
-                    return true;
-                case 3:
-                    return false;
-                case 4: // Y axis rotation is the other way around (see rotateAxes method, too)
-                    return false;
-                default:
-                    return true;
-            }
+            return index % 2 == 0;
         }
 
         Vec2f ParaxialTexCoordSystem::doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const {
@@ -265,7 +252,7 @@ namespace TrenchBroom {
         }
 
         void ParaxialTexCoordSystem::rotateAxes(Vec3& xAxis, Vec3& yAxis, const FloatType angleInRadians, const size_t planeNormIndex) const {
-            const Quat3 rot(BaseAxes[(planeNormIndex / 2) * 6], planeNormIndex == 4 ? -angleInRadians : angleInRadians);
+            const Quat3 rot(BaseAxes[(planeNormIndex / 2) * 6], angleInRadians);
             xAxis = rot * xAxis;
             yAxis = rot * yAxis;
         }

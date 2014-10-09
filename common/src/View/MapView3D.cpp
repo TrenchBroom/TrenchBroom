@@ -571,8 +571,8 @@ namespace TrenchBroom {
         }
         
         void MapView3D::doRender() {
-            MapDocumentSPtr document = lock(m_document);
-            Renderer::RenderContext renderContext(m_camera, contextHolder()->fontManager(), contextHolder()->shaderManager());
+            Renderer::RenderContext renderContext = createRenderContext();
+            
             setupGL(renderContext);
             setRenderOptions(renderContext);
             
@@ -583,6 +583,16 @@ namespace TrenchBroom {
             renderCompass(renderBatch);
             
             renderBatch.render(renderContext);
+        }
+
+        Renderer::RenderContext MapView3D::createRenderContext() {
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            
+            Renderer::RenderContext renderContext(m_camera, contextHolder()->fontManager(), contextHolder()->shaderManager());
+            renderContext.setShowGrid(grid.visible());
+            renderContext.setGridSize(grid.actualSize());
+            return renderContext;
         }
 
         void MapView3D::setupGL(Renderer::RenderContext& context) {

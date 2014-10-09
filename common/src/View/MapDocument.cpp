@@ -42,6 +42,8 @@
 #include "View/DuplicateNodesCommand.h"
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
+#include "View/MoveTexturesCommand.h"
+#include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
 #include "View/TransformObjectsCommand.h"
 
@@ -327,10 +329,12 @@ namespace TrenchBroom {
             return submit(TransformObjectsCommand::flip(center, axis, m_textureLock));
         }
 
-        void MapDocument::moveTextures(const Vec3f& up, const Vec3f& right, const Vec2f& delta) {
+        bool MapDocument::moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
+            return submit(MoveTexturesCommand::move(cameraUp, cameraRight, delta));
         }
         
-        void MapDocument::rotateTextures(const float angle) {
+        bool MapDocument::rotateTextures(const float angle) {
+            return submit(RotateTexturesCommand::rotate(angle));
         }
 
         bool MapDocument::canUndoLastCommand() const {

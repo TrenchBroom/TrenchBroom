@@ -164,8 +164,8 @@ namespace TrenchBroom {
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
             bool flipObjects(const Vec3& center, Math::Axis::Type axis);
         public: // modifying face attributes
-            void moveTextures(const Vec3f& up, const Vec3f& right, const Vec2f& delta);
-            void rotateTextures(float angle);
+            bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
+            bool rotateTextures(float angle);
         public: // command processing
             bool canUndoLastCommand() const;
             bool canRedoNextCommand() const;

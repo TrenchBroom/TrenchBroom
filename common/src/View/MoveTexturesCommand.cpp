@@ -19,7 +19,54 @@
 
 #include "MoveTexturesCommand.h"
 
+#include "Model/BrushFace.h"
+#include "View/MapDocumentCommandFacade.h"
+
 namespace TrenchBroom {
     namespace View {
+        const Command::CommandType MoveTexturesCommand::Type = Command::freeType();
+
+        MoveTexturesCommand* MoveTexturesCommand::move(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
+            return new MoveTexturesCommand(cameraUp, cameraRight, delta);
+        }
+
+        MoveTexturesCommand::MoveTexturesCommand(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) :
+        DocumentCommand(Type, "Move textures"),
+        m_cameraUp(cameraUp),
+        m_cameraRight(cameraRight),
+        m_delta(delta) {}
+        
+        bool MoveTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            moveTextures(document, m_delta);
+            return true;
+        }
+        
+        bool MoveTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            moveTextures(document, -m_delta);
+            return true;
+        }
+        
+        void MoveTexturesCommand::moveTextures(MapDocumentCommandFacade* document, const Vec2f& delta) const {
+            document->performMoveTextures(m_cameraUp, m_cameraRight, delta);
+        }
+
+        bool MoveTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+            return true;
+        }
+        
+        UndoableCommand* MoveTexturesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return new MoveTexturesCommand(*this);
+        }
+        
+        bool MoveTexturesCommand::doCollateWith(UndoableCommand* command) {
+            const MoveTexturesCommand* other = static_cast<MoveTexturesCommand*>(command);
+            
+            if (other->m_cameraUp != m_cameraUp ||
+                other->m_cameraRight != m_cameraRight)
+                return false;
+            
+            m_delta += other->m_delta;
+            return true;
+        }
     }
 }

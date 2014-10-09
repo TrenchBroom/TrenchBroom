@@ -336,7 +336,9 @@ namespace TrenchBroom {
         }
 
         void BrushFace::rotateTexture(const float angle) {
+            const float oldRotation = m_attribs.rotation();
             m_texCoordSystem->rotateTexture(m_boundary.normal, angle, m_attribs);
+            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
             invalidate();
         }
 
