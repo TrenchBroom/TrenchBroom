@@ -189,7 +189,6 @@ namespace TrenchBroom {
             renderer->setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
             renderer->setTint(true);
             renderer->setTintColor(prefs.get(Preferences::SelectedFaceColor));
-            renderer->setTransparencyAlpha(prefs.get(Preferences::TransparentFaceAlpha));
 
             renderer->setOverrideEntityBoundsColor(true);
             renderer->setEntityBoundsColor(prefs.get(Preferences::SelectedEdgeColor));
