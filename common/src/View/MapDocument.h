@@ -142,6 +142,7 @@ namespace TrenchBroom {
             void selectAllNodes();
             void selectTouching(bool del);
             void selectInside(bool del);
+            void selectNodesWithFilePosition(const std::vector<size_t>& positions);
             void select(const Model::NodeList& nodes);
             void select(Model::Node* node);
             void select(const Model::BrushFaceList& faces);

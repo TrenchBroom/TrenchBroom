@@ -294,9 +294,7 @@ namespace TrenchBroom {
              */
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectTouching, this, CommandIds::Menu::EditSelectTouching);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectInside, this, CommandIds::Menu::EditSelectInside);
-            /*
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
-             */
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
 
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
@@ -360,6 +358,24 @@ namespace TrenchBroom {
         
         void MapFrame::OnEditSelectInside(wxCommandEvent& event) {
             m_document->selectInside(true);
+        }
+
+        void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
+            const wxString string = wxGetTextFromUser("Enter a comma- or space separated list of line numbers.", "Select by Line Numbers", "", this);
+            if (string.empty())
+                return;
+
+            std::vector<size_t> positions;
+            wxStringTokenizer tokenizer(string, ", ");
+            while (tokenizer.HasMoreTokens()) {
+                const wxString token = tokenizer.NextToken();
+                long position;
+                if (token.ToLong(&position) && position > 0) {
+                    positions.push_back(static_cast<size_t>(position));
+                }
+            }
+            
+            m_document->selectNodesWithFilePosition(positions);
         }
 
         void MapFrame::OnEditSelectNone(wxCommandEvent& event) {
@@ -434,11 +450,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditSelectInside:
                     event.Enable(m_document->selectedNodes().hasOnlyBrushes());
                     break;
-                    /*
                 case CommandIds::Menu::EditSelectByFilePosition:
                     event.Enable(true);
                     break;
-                     */
                 case CommandIds::Menu::EditSelectNone:
                     event.Enable(m_document->hasSelection());
                     break;
