@@ -108,6 +108,13 @@ namespace ListUtils {
 
 namespace VectorUtils {
     template <typename T>
+    void clearToZero(std::vector<T>& vec) {
+        using std::swap;
+        std::vector<T> empty(0);
+        swap(vec, empty);
+    }
+    
+    template <typename T>
     bool equals(const std::vector<T>& lhs, const std::vector<T>& rhs) {
         if (lhs.size() != rhs.size())
             return false;

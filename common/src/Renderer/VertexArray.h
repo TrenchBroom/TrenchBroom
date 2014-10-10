@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__VertexArrayRenderer__
 #define __TrenchBroom__VertexArrayRenderer__
 
+#include "CollectionUtils.h"
 #include "Renderer/GL.h"
 #include "SharedPointer.h"
 #include "Renderer/Vbo.h"
@@ -124,7 +125,7 @@ namespace TrenchBroom {
             
             void prepare(Vbo& vbo) {
                 Holder<VertexSpec>::prepare(vbo);
-                m_vertices.resize(0);
+                VectorUtils::clearToZero(m_vertices);
             }
         private:
             const VertexList& doGetVertices() const {
@@ -159,7 +160,7 @@ namespace TrenchBroom {
 
             void prepare(Vbo& vbo) {
                 Holder<VertexSpec>::prepare(vbo);
-                m_vertices.resize(0);
+                VectorUtils::clearToZero(m_vertices);
             }
         private:
             const VertexList& doGetVertices() const {
