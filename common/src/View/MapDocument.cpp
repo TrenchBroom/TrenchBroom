@@ -30,6 +30,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectContainedNodesVisitor.h"
+#include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectTouchingNodesVisitor.h"
 #include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
@@ -259,38 +260,8 @@ namespace TrenchBroom {
             select(nodes);
         }
 
-        class MatchSelectableNodesWithFilePosition {
-        private:
-            const Model::EditorContext& m_editorContext;
-            const std::vector<size_t> m_positions;
-        public:
-            MatchSelectableNodesWithFilePosition(const Model::EditorContext& editorContext, const std::vector<size_t>& positions) :
-            m_editorContext(editorContext),
-            m_positions(positions) {}
-            
-            bool operator()(Model::World* world)   { return false; }
-            bool operator()(Model::Layer* layer)   { return false; }
-            bool operator()(Model::Group* group)   { return m_editorContext.selectable(group)  && containsLine(group); }
-            bool operator()(Model::Entity* entity) { return m_editorContext.selectable(entity) && containsLine(entity); }
-            bool operator()(Model::Brush* brush)   { return m_editorContext.selectable(brush)  && containsLine(brush); }
-        private:
-            bool containsLine(const Model::Node* node) const {
-                for (size_t i = 0; i < m_positions.size(); ++i)
-                    if (node->containsLine(m_positions[i]))
-                        return true;
-                return false;
-            }
-        };
-        
-        class CollectSelectableNodesWithFilePosition : public Model::CollectMatchingUniqueNodesVisitor<MatchSelectableNodesWithFilePosition> {
-        public:
-            CollectSelectableNodesWithFilePosition(const Model::EditorContext& editorContext, const std::vector<size_t>& positions) :
-            CollectMatchingUniqueNodesVisitor(MatchSelectableNodesWithFilePosition(editorContext, positions)) {}
-        };
-        
-
         void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positions) {
-            CollectSelectableNodesWithFilePosition visitor(*m_editorContext, positions);
+            Model::CollectSelectableNodesWithFilePositionVisitor visitor(*m_editorContext, positions);
             m_world->acceptAndRecurse(visitor);
             
             Transaction transaction(this, "Select by line number");

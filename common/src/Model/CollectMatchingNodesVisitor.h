@@ -30,36 +30,86 @@
 
 namespace TrenchBroom {
     namespace Model {
-        template <typename P>
+        struct NeverStopRecursion {
+            bool operator()(const Node* node, bool matched) const { return false; }
+        };
+
+        struct StopRecursionIfMatched {
+            bool operator()(const Node* node, bool matched) const { return matched; }
+        };
+        
+        template <typename P, typename S = NeverStopRecursion>
         class CollectMatchingNodesVisitor : public NodeVisitor {
         private:
             P m_p;
+            S m_s;
             NodeList m_nodes;
         public:
-            CollectMatchingNodesVisitor(const P& p = P()) : m_p(p) {}
+            CollectMatchingNodesVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
             const NodeList& nodes() const { return m_nodes; }
         private:
-            void doVisit(World* world)   { if (m_p(world))  m_nodes.push_back(world);  }
-            void doVisit(Layer* layer)   { if (m_p(layer))  m_nodes.push_back(layer);  }
-            void doVisit(Group* group)   { if (m_p(group))  m_nodes.push_back(group);  }
-            void doVisit(Entity* entity) { if (m_p(entity)) m_nodes.push_back(entity); }
-            void doVisit(Brush* brush)   { if (m_p(brush))  m_nodes.push_back(brush);  }
+            void doVisit(World* world) {
+                const bool match = m_p(world);
+                if (match) m_nodes.push_back(world);
+                if (m_s(world, match)) stopRecursion();
+            }
+            void doVisit(Layer* layer) {
+                const bool match = m_p(layer);
+                if (match) m_nodes.push_back(layer);
+                if (m_s(layer, match)) stopRecursion();
+            }
+            void doVisit(Group* group) {
+                const bool match = m_p(group);
+                if (match) m_nodes.push_back(group);
+                if (m_s(group, match)) stopRecursion();
+            }
+            void doVisit(Entity* entity) {
+                const bool match = m_p(entity);
+                if (match) m_nodes.push_back(entity);
+                if (m_s(entity, match)) stopRecursion();
+            }
+            void doVisit(Brush* brush) {
+                const bool match = m_p(brush);
+                if (match) m_nodes.push_back(brush);
+                if (m_s(brush, match)) stopRecursion();
+            }
         };
 
-        template <typename P>
+        template <typename P, typename S = NeverStopRecursion>
         class CollectMatchingUniqueNodesVisitor : public NodeVisitor {
         private:
             P m_p;
+            S m_s;
             NodeList m_nodes;
         public:
-            CollectMatchingUniqueNodesVisitor(const P& p = P()) : m_p(p) {}
+            CollectMatchingUniqueNodesVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
             const NodeList& nodes() const { return m_nodes; }
         private:
-            void doVisit(World* world)   { if (m_p(world))  VectorUtils::setInsert(m_nodes, world);  }
-            void doVisit(Layer* layer)   { if (m_p(layer))  VectorUtils::setInsert(m_nodes, layer);  }
-            void doVisit(Group* group)   { if (m_p(group))  VectorUtils::setInsert(m_nodes, group);  }
-            void doVisit(Entity* entity) { if (m_p(entity)) VectorUtils::setInsert(m_nodes, entity); }
-            void doVisit(Brush* brush)   { if (m_p(brush))  VectorUtils::setInsert(m_nodes, brush);  }
+            void doVisit(World* world) {
+                const bool match = m_p(world);
+                if (match) VectorUtils::setInsert(m_nodes, world);
+                if (m_s(world, match)) stopRecursion();
+            }
+            void doVisit(Layer* layer) {
+                const bool match = m_p(layer);
+                if (match) VectorUtils::setInsert(m_nodes, layer);
+                if (m_s(layer, match)) stopRecursion();
+            }
+            void doVisit(Group* group) {
+                const bool match = m_p(group);
+                if (match) VectorUtils::setInsert(m_nodes, group);
+                if (m_s(group, match)) stopRecursion();
+            }
+            void doVisit(Entity* entity) {
+                const bool match = m_p(entity);
+                if (match) VectorUtils::setInsert(m_nodes, entity);
+                if (m_s(entity, match)) stopRecursion();
+            }
+            void doVisit(Brush* brush) {
+                const bool match = m_p(brush);
+                if (match) VectorUtils::setInsert(m_nodes, brush);
+                if (m_s(brush, match)) stopRecursion();
+            }
         };
     }
 }

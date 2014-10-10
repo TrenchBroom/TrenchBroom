@@ -24,6 +24,8 @@
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
+#include "Model/CollectSelectableBrushFacesVisitor.h"
+#include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
@@ -144,74 +146,28 @@ namespace TrenchBroom {
             selectionDidChangeNotifier(selection);
         }
         
-        class CollectSelectableNodes : public Model::NodeVisitor {
-        private:
-            const Model::EditorContext& m_editorContext;
-            Model::NodeList m_nodes;
-        public:
-            CollectSelectableNodes(const Model::EditorContext& editorContext) :
-            m_editorContext(editorContext) {}
-            
-            const Model::NodeList& result() const {
-                return m_nodes;
-            }
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   { if (m_editorContext.selectable(group))  { m_nodes.push_back(group);  stopRecursion(); } }
-            void doVisit(Model::Entity* entity) { if (m_editorContext.selectable(entity)) { m_nodes.push_back(entity); stopRecursion(); } }
-            void doVisit(Model::Brush* brush)   { if (m_editorContext.selectable(brush))  { m_nodes.push_back(brush);  stopRecursion(); } }
-        };
-
         void MapDocumentCommandFacade::performSelectAllNodes() {
             performDeselectAll();
             
-            CollectSelectableNodes visitor(*m_editorContext);
+            Model::CollectSelectableNodesVisitor visitor(*m_editorContext);
             m_world->acceptAndRecurse(visitor);
-            performSelect(visitor.result());
+            performSelect(visitor.nodes());
         }
-        
-        class CollectSelectableFaces : public Model::NodeVisitor {
-        private:
-            const Model::EditorContext& m_editorContext;
-            Model::BrushFaceList m_faces;
-        public:
-            CollectSelectableFaces(const Model::EditorContext& editorContext) :
-            m_editorContext(editorContext) {}
-            
-            const Model::BrushFaceList& result() const {
-                return m_faces;
-            }
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                    Model::BrushFace* face = *it;
-                    if (m_editorContext.selectable(face))
-                        m_faces.push_back(face);
-                }
-            }
-        };
         
         void MapDocumentCommandFacade::performSelectAllBrushFaces() {
             performDeselectAll();
             
-            CollectSelectableFaces visitor(*m_editorContext);
+            Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext);
             m_world->acceptAndRecurse(visitor);
-            performSelect(visitor.result());
+            performSelect(visitor.faces());
         }
 
         void MapDocumentCommandFacade::performConvertToBrushFaceSelection() {
-            CollectSelectableFaces visitor(*m_editorContext);
+            Model::CollectSelectableBrushFacesVisitor visitor(*m_editorContext);
             Model::Node::acceptAndRecurse(m_selectedNodes.begin(), m_selectedNodes.end(), visitor);
             
             performDeselectAll();
-            performSelect(visitor.result());
+            performSelect(visitor.faces());
         }
 
         void MapDocumentCommandFacade::performDeselect(const Model::NodeList& nodes) {
