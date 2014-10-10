@@ -26,10 +26,16 @@
 namespace TrenchBroom {
     namespace Model {
         class EditorContext;
-        class CollectSelectableNodesVisitor : public CollectMatchingNodesVisitor<MatchSelectableNodes, StopRecursionIfMatched> {
+        
+        template <typename C>
+        class CollectSelectableNodesTemplate : public CollectMatchingNodesVisitor<MatchSelectableNodes, C, StopRecursionIfMatched> {
         public:
-            CollectSelectableNodesVisitor(const Model::EditorContext& editorContext);
+            CollectSelectableNodesTemplate(const Model::EditorContext& editorContext) :
+            CollectMatchingNodesVisitor<MatchSelectableNodes, C, StopRecursionIfMatched>(MatchSelectableNodes(editorContext)) {}
         };
+        
+        typedef CollectSelectableNodesTemplate<StandardNodeCollectionStrategy> CollectSelectableNodesVisitor;
+        typedef CollectSelectableNodesTemplate<UniqueNodeCollectionStrategy> CollectSelectableUniqueNodesVisitor;
     }
 }
 

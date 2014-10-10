@@ -33,7 +33,7 @@ namespace TrenchBroom {
             bool operator()(const Node* node) const;
         };
 
-        class CollectNodesWithDescendantSelectionCountVisitor : public CollectMatchingNodesVisitor<MatchNodesWithDescendantSelectionCount> {
+        class CollectNodesWithDescendantSelectionCountVisitor : public CollectMatchingNodesVisitor<MatchNodesWithDescendantSelectionCount, StandardNodeCollectionStrategy> {
         public:
             CollectNodesWithDescendantSelectionCountVisitor(size_t descendantSelectionCount);
         };

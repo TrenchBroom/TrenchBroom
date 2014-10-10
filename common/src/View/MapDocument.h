@@ -140,6 +140,7 @@ namespace TrenchBroom {
             const BBox3& selectionBounds() const;
             
             void selectAllNodes();
+            void selectSiblings();
             void selectTouching(bool del);
             void selectInside(bool del);
             void selectNodesWithFilePosition(const std::vector<size_t>& positions);

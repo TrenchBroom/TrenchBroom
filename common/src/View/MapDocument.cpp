@@ -30,6 +30,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectContainedNodesVisitor.h"
+#include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectTouchingNodesVisitor.h"
 #include "Model/CollectUniqueNodesVisitor.h"
@@ -222,6 +223,24 @@ namespace TrenchBroom {
 
         void MapDocument::selectAllNodes() {
             submit(SelectionCommand::selectAllNodes());
+        }
+
+        void MapDocument::selectSiblings() {
+            const Model::NodeList& nodes = selectedNodes().nodes();
+            if (nodes.empty())
+                return;
+
+            Model::CollectSelectableUniqueNodesVisitor visitor(*m_editorContext);
+            Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                Model::Node* parent = node->parent();
+                parent->iterate(visitor);
+            }
+            
+            Transaction transaction(this, "Select siblings");
+            deselectAll();
+            select(visitor.nodes());
         }
 
         template <typename V, typename I>

@@ -32,6 +32,6 @@ namespace TrenchBroom {
         }
 
         CollectSelectableNodesWithFilePositionVisitor::CollectSelectableNodesWithFilePositionVisitor(const EditorContext& editorContext, const std::vector<size_t>& positions) :
-        CollectMatchingUniqueNodesVisitor(And<MatchSelectableNodes, MatchNodesWithFilePosition>(MatchSelectableNodes(editorContext), MatchNodesWithFilePosition(positions))) {}
+        CollectMatchingNodesVisitor(And<MatchSelectableNodes, MatchNodesWithFilePosition>(MatchSelectableNodes(editorContext), MatchNodesWithFilePosition(positions))) {}
     }
 }

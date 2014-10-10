@@ -35,6 +35,6 @@ namespace TrenchBroom {
         }
 
         CollectTouchingNodesVisitor::CollectTouchingNodesVisitor(const Object* object) :
-        CollectMatchingUniqueNodesVisitor(And<Not<EqualsObject>, MatchTouchingNodes>(Not<EqualsObject>(EqualsObject(object)), MatchTouchingNodes(object))) {}
+        CollectMatchingNodesVisitor(And<Not<EqualsObject>, MatchTouchingNodes>(Not<EqualsObject>(EqualsObject(object)), MatchTouchingNodes(object))) {}
     }
 }

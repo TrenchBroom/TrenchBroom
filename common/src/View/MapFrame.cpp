@@ -289,9 +289,7 @@ namespace TrenchBroom {
             */
              
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectAll, this, CommandIds::Menu::EditSelectAll);
-            /*
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectSiblings, this, CommandIds::Menu::EditSelectSiblings);
-             */
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectTouching, this, CommandIds::Menu::EditSelectTouching);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectInside, this, CommandIds::Menu::EditSelectInside);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
@@ -350,6 +348,10 @@ namespace TrenchBroom {
 
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
             m_document->selectAllNodes();
+        }
+
+        void MapFrame::OnEditSelectSiblings(wxCommandEvent& event) {
+            m_document->selectSiblings();
         }
 
         void MapFrame::OnEditSelectTouching(wxCommandEvent& event) {
@@ -441,11 +443,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditSelectAll:
                     event.Enable(true);
                     break;
-                    /*
                 case CommandIds::Menu::EditSelectSiblings:
-                    event.Enable(m_document->hasSelectedBrushes());
+                    event.Enable(m_document->hasSelectedNodes());
                     break;
-                     */
                 case CommandIds::Menu::EditSelectTouching:
                 case CommandIds::Menu::EditSelectInside:
                     event.Enable(m_document->selectedNodes().hasOnlyBrushes());
