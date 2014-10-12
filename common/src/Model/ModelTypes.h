@@ -51,16 +51,20 @@ namespace TrenchBroom {
         
         class Layer;
         typedef std::vector<Layer*> LayerList;
+        static const LayerList EmptyLayerList(0);
         
         class Group;
         typedef std::vector<Group*> GroupList;
+        static const GroupList EmptyGroupList(0);
         
         class Entity;
         typedef std::vector<Entity*> EntityList;
+        static const EntityList EmptyEntityList(0);
         typedef std::set<Entity*> EntitySet;
         
         class Brush;
         typedef std::vector<Brush*> BrushList;
+        static const BrushList EmptyBrushList(0);
         typedef std::set<Brush*> BrushSet;
         
         class Object;

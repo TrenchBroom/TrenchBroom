@@ -19,6 +19,7 @@
 
 #include "World.h"
 
+#include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
@@ -42,6 +43,19 @@ namespace TrenchBroom {
         Layer* World::defaultLayer() const {
             assert(m_defaultLayer != NULL);
             return m_defaultLayer;
+        }
+
+        LayerList World::allLayers() const {
+            CollectLayersVisitor visitor;
+            iterate(visitor);
+            return visitor.layers();
+        }
+        
+        LayerList World::customLayers() const {
+            const NodeList& children = Node::children();
+            CollectLayersVisitor visitor;
+            iterate(children.begin() + 1, children.end(), visitor);
+            return visitor.layers();
         }
 
         void World::createDefaultLayer() {

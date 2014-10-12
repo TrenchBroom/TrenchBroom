@@ -47,6 +47,8 @@ namespace TrenchBroom {
             World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder);
         public: // layer management
             Layer* defaultLayer() const;
+            LayerList allLayers() const;
+            LayerList customLayers() const;
         private:
             void createDefaultLayer();
         public: // selection

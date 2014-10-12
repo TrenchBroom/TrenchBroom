@@ -25,24 +25,83 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AssortNodesVisitor : public NodeVisitor {
+        class CollectLayersStrategy {
         private:
             LayerList m_layers;
-            GroupList m_groups;
-            EntityList m_entities;
-            BrushList m_brushes;
         public:
             const LayerList& layers() const;
-            const GroupList& groups() const;
-            const EntityList& entities() const;
-            const BrushList& brushes() const;
-        private:
-            void doVisit(World* world);
-            void doVisit(Layer* layer);
-            void doVisit(Group* group);
-            void doVisit(Entity* entity);
-            void doVisit(Brush* brush);
+        protected:
+            void addLayer(Layer* layer);
         };
+        
+        class SkipLayersStrategy {
+        public:
+            const LayerList& layers() const;
+        protected:
+            void addLayer(Layer* layer);
+        };
+
+        class CollectGroupsStrategy {
+        private:
+            GroupList m_groups;
+        public:
+            const GroupList& groups() const;
+        protected:
+            void addGroup(Group* group);
+        };
+        
+        class SkipGroupsStrategy {
+        public:
+            const GroupList& groups() const;
+        protected:
+            void addGroup(Group* group);
+        };
+        
+        class CollectEntitiesStrategy {
+        private:
+            EntityList m_entities;
+        public:
+            const EntityList& entities() const;
+        protected:
+            void addEntity(Entity* entity);
+        };
+        
+        class SkipEntitiesStrategy {
+        public:
+            const EntityList& entities() const;
+        protected:
+            void addEntity(Entity* entity);
+        };
+
+        class CollectBrushesStrategy {
+        private:
+            BrushList m_brushes;
+        public:
+            const BrushList& brushes() const;
+        protected:
+            void addBrush(Brush* brush);
+        };
+        
+        class SkipBrushesStrategy {
+        public:
+            const BrushList& brushes() const;
+        protected:
+            void addBrush(Brush* brush);
+        };
+
+        template <class LayerStrategy, class GroupStrategy, class EntityStrategy, class BrushStrategy>
+        class AssortNodesVisitorT : public NodeVisitor, public LayerStrategy, public GroupStrategy, public EntityStrategy, public BrushStrategy {
+        private:
+            void doVisit(World* world)   {}
+            void doVisit(Layer* layer)   {  LayerStrategy::addLayer(layer); }
+            void doVisit(Group* group)   {  GroupStrategy::addGroup(group); }
+            void doVisit(Entity* entity) { EntityStrategy::addEntity(entity); }
+            void doVisit(Brush* brush)   {  BrushStrategy::addBrush(brush); }
+        };
+
+        typedef AssortNodesVisitorT<CollectLayersStrategy, CollectGroupsStrategy, CollectEntitiesStrategy, CollectBrushesStrategy> AssortNodesVisitor;
+        typedef AssortNodesVisitorT<CollectLayersStrategy, SkipGroupsStrategy,    SkipEntitiesStrategy,    SkipBrushesStrategy>    CollectLayersVisitor;
+        typedef AssortNodesVisitorT<SkipLayersStrategy,    CollectGroupsStrategy, SkipEntitiesStrategy,    SkipBrushesStrategy>    CollectGroupsVisitor;
     }
 }
 
