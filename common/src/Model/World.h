@@ -45,6 +45,7 @@ namespace TrenchBroom {
             IssueGeneratorRegistry m_issueGeneratorRegistry;
         public:
             World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder);
+            Model::MapFormat::Type format() const;
         public: // layer management
             Layer* defaultLayer() const;
             LayerList allLayers() const;

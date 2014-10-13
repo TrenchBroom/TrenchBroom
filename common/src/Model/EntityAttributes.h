@@ -75,7 +75,7 @@ namespace TrenchBroom {
             const Assets::AttributeDefinition* m_definition;
         public:
             EntityAttribute();
-            EntityAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition);
+            EntityAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition = NULL);
             bool operator<(const EntityAttribute& rhs) const;
             int compare(const EntityAttribute& rhs) const;
             

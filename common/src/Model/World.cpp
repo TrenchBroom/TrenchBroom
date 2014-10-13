@@ -40,6 +40,10 @@ namespace TrenchBroom {
             createDefaultLayer();
         }
 
+        Model::MapFormat::Type World::format() const {
+            return m_factory.format();
+        }
+
         Layer* World::defaultLayer() const {
             assert(m_defaultLayer != NULL);
             return m_defaultLayer;

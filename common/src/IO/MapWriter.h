@@ -20,25 +20,57 @@
 #ifndef __TrenchBroom__MapWriter__
 #define __TrenchBroom__MapWriter__
 
+#include "Model/EntityAttributes.h"
+#include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
+#include "Model/NodeVisitor.h"
 
-#include <cstdio>
 #include <iostream>
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
-        
-        class MapWriter {
-        public:
-            virtual ~MapWriter();
-            
-            virtual void writeNodesToStream(const Model::NodeList& nodes, std::ostream& stream);
-            virtual void writeFacesToStream(const Model::BrushFaceList& faces, std::ostream& stream);
-            
-            virtual void writeToFileAtPath(Model::World* map, const Path& path, const bool overwrite);
+
+        class MapSerializer;
+        class BrushWriter : public Model::NodeVisitor {
         private:
-            virtual size_t writeDefaultLayer(const Model::Attributable* worldspawn, const Model::Layer* defaultLayer, size_t lineNumber, FILE* stream);
+            MapSerializer& m_serializer;
+        public:
+            BrushWriter(MapSerializer& serializer);
+        private:
+            void doVisit(Model::World* world);
+            void doVisit(Model::Layer* layer);
+            void doVisit(Model::Group* group);
+            void doVisit(Model::Entity* entity);
+            void doVisit(Model::Brush* brush);
+        };
+        
+        class MapWriter : public Model::NodeVisitor {
+        private:
+            MapSerializer& m_serializer;
+            BrushWriter m_brushWriter;
+            const Model::EntityAttribute::List m_parentAttributes;
+        public:
+            MapWriter(MapSerializer& serializer, const Model::Node* currentParent = NULL);
+            
+            static void writeToFile(Model::World* map, const Path& path, bool overwrite);
+            static void writeToStream(Model::MapFormat::Type format, const Model::NodeList& nodes, std::ostream& stream);
+            static void writeToStream(Model::MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream);
+        private:
+            void doVisit(Model::World* world);
+            void doVisit(Model::Layer* layer);
+            void doVisit(Model::Group* group);
+            void doVisit(Model::Entity* entity);
+            void doVisit(Model::Brush* brush);
+            
+            void writeDefaultLayer(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node);
+            void writeContainer(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node);
+            void writeEntity(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node);
+
+            Model::EntityAttribute::List layerAttributes(const Model::Layer* layer);
+            Model::EntityAttribute::List groupAttributes(const Model::Group* group);
+            
+            void writeAttributes(const Model::EntityAttribute::List& attrs);
         };
     }
 }

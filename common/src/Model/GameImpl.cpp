@@ -27,6 +27,7 @@
 #include "IO/FgdParser.h"
 #include "IO/FileSystem.h"
 #include "IO/MapParser.h"
+#include "IO/MapWriter.h"
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
 #include "IO/QuakeMapReader.h"
@@ -89,34 +90,34 @@ namespace TrenchBroom {
         }
         
         void GameImpl::doWriteMap(World* world, const IO::Path& path) const {
-            // mapWriter(world->format())->writeToFileAtPathWithLayers(world, path, true);
+            IO::MapWriter::writeToFile(world, path, true);
         }
 
         /*
-        Model::EntityList GameImpl::doParseEntities(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
+        EntityList GameImpl::doParseEntities(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
             IO::QuakeMapParser parser(str, this);
             return parser.parseEntities(worldBounds, format);
         }
         
-        Model::BrushList GameImpl::doParseBrushes(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
+        BrushList GameImpl::doParseBrushes(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
             IO::QuakeMapParser parser(str, this);
             return parser.parseBrushes(worldBounds, format);
         }
         
-        Model::BrushFaceList GameImpl::doParseFaces(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
+        BrushFaceList GameImpl::doParseFaces(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
             IO::QuakeMapParser parser(str, this);
             return parser.parseFaces(worldBounds, format);
         }
-        
-        void GameImpl::doWriteObjectsToStream(const MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const {
-            mapWriter(format)->writeObjectsToStream(objects, stream);
-        }
-        
-        void GameImpl::doWriteFacesToStream(const MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const {
-            mapWriter(format)->writeFacesToStream(faces, stream);
-        }
          */
         
+        void GameImpl::doWriteNodesToStream(const MapFormat::Type format, const NodeList& nodes, std::ostream& stream) const {
+            IO::MapWriter::writeToStream(format, nodes, stream);
+        }
+    
+        void GameImpl::doWriteFacesToStream(const MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const {
+            IO::MapWriter::writeToStream(format, faces, stream);
+        }
+    
         bool GameImpl::doIsTextureCollection(const IO::Path& path) const {
             const String& type = m_config.textureConfig().type;
             if (type == "wad")
@@ -144,7 +145,7 @@ namespace TrenchBroom {
             if (property.empty())
                 return EmptyStringList;
             
-            const Model::AttributeValue& pathsValue = world->attribute(property);
+            const AttributeValue& pathsValue = world->attribute(property);
             if (pathsValue.empty())
                 return EmptyStringList;
             
@@ -207,7 +208,7 @@ namespace TrenchBroom {
         }
 
         Assets::EntityDefinitionFileSpec GameImpl::doExtractEntityDefinitionFile(const World* world) const {
-            const Model::AttributeValue& defValue = world->attribute(Model::AttributeNames::EntityDefinitions);
+            const AttributeValue& defValue = world->attribute(AttributeNames::EntityDefinitions);
             if (defValue.empty())
                 return defaultEntityDefinitionFile();
             return Assets::EntityDefinitionFileSpec::parse(defValue);
