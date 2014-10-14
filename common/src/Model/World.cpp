@@ -58,7 +58,7 @@ namespace TrenchBroom {
         LayerList World::customLayers() const {
             const NodeList& children = Node::children();
             CollectLayersVisitor visitor;
-            iterate(children.begin() + 1, children.end(), visitor);
+            accept(children.begin() + 1, children.end(), visitor);
             return visitor.layers();
         }
 
