@@ -40,6 +40,10 @@ namespace TrenchBroom {
                 return mockDoCanRemoveChild(child);
             }
             
+            bool doRemoveIfEmpty() const {
+                return false;
+            }
+            
             void doParentWillChange() {
                 mockDoParentWillChange();
             }
@@ -93,6 +97,10 @@ namespace TrenchBroom {
             
             virtual bool doCanRemoveChild(const Node* child) const {
                 return true;
+            }
+            
+            virtual bool doRemoveIfEmpty() const {
+                return false;
             }
             
             virtual bool doSelectable() const {

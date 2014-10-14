@@ -84,7 +84,7 @@ namespace TrenchBroom {
             stopRecursion();
         }
         
-        void MapWriter::doVisit(Model::Brush* brush)   { brush->accept(m_brushWriter); stopRecursion(); }
+        void MapWriter::doVisit(Model::Brush* brush)   { stopRecursion(); }
         
         void MapWriter::writeDefaultLayer(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node) {
             writeEntity(attrs, extra, node);
@@ -166,6 +166,12 @@ namespace TrenchBroom {
             map->accept(writer);
         }
 
+        void MapWriter::writeToStream(Model::World* map, std::ostream& stream) {
+            MapSerializer::Ptr serializer = MapStreamSerializer::create(map->format(), stream);
+            MapWriter writer(*serializer);
+            map->accept(writer);
+        }
+        
         void MapWriter::writeToStream(const Model::MapFormat::Type format, const Model::NodeList& nodes, std::ostream& stream) {
             MapSerializer::Ptr serializer = MapStreamSerializer::create(format, stream);
             MapWriter writer(*serializer);
