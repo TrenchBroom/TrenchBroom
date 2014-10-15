@@ -78,16 +78,16 @@ namespace TrenchBroom {
         Model::BrushFaceList Game::parseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const {
             return doParseFaces(worldBounds, format, str);
         }
-        
-        void Game::writeObjectsToStream(const MapFormat::Type format, const Model::ObjectList& objects, std::ostream& stream) const {
-            doWriteObjectsToStream(format, objects, stream);
-        }
-        
-        void Game::writeFacesToStream(const MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const {
-            doWriteFacesToStream(format, faces, stream);
-        }
          */
         
+        void Game::writeNodesToStream(const MapFormat::Type format, const Model::NodeList& nodes, std::ostream& stream) const {
+            doWriteNodesToStream(format, nodes, stream);
+        }
+    
+        void Game::writeBrushFacesToStream(const MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) const {
+            doWriteBrushFacesToStream(format, faces, stream);
+        }
+    
         bool Game::isTextureCollection(const IO::Path& path) const {
             return doIsTextureCollection(path);
         }

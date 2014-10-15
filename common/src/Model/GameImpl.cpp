@@ -114,7 +114,7 @@ namespace TrenchBroom {
             IO::MapWriter::writeToStream(format, nodes, stream);
         }
     
-        void GameImpl::doWriteFacesToStream(const MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const {
+        void GameImpl::doWriteBrushFacesToStream(const MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const {
             IO::MapWriter::writeToStream(format, faces, stream);
         }
     

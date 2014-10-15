@@ -33,6 +33,7 @@
 #include "View/MapDocument.h"
 #include "View/SwitchableMapView.h"
 
+#include <wx/clipbrd.h>
 #include <wx/display.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
@@ -281,9 +282,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditRepeat, this, CommandIds::Menu::EditRepeat);
             Bind(wxEVT_MENU, &MapFrame::OnEditClearRepeat, this, CommandIds::Menu::EditClearRepeat);
             
-            /*
             Bind(wxEVT_MENU, &MapFrame::OnEditCut, this, wxID_CUT);
             Bind(wxEVT_MENU, &MapFrame::OnEditCopy, this, wxID_COPY);
+            /*
             Bind(wxEVT_MENU, &MapFrame::OnEditPaste, this, wxID_PASTE);
             Bind(wxEVT_MENU, &MapFrame::OnEditPasteAtOriginalPosition, this, CommandIds::Menu::EditPasteAtOriginalPosition);
             */
@@ -344,6 +345,41 @@ namespace TrenchBroom {
         
         void MapFrame::OnEditClearRepeat(wxCommandEvent& event) {
             m_document->clearRepeatableCommands();
+        }
+
+        void MapFrame::OnEditCut(wxCommandEvent& event) {
+            copyToClipboard();
+            Transaction transaction(m_document, "Cut");
+            m_document->deleteObjects();
+        }
+        
+        void MapFrame::OnEditCopy(wxCommandEvent& event) {
+            copyToClipboard();
+        }
+
+        class OpenClipboard {
+        public:
+            OpenClipboard() {
+                if (!wxTheClipboard->IsOpened())
+                    wxTheClipboard->Open();
+            }
+            
+            ~OpenClipboard() {
+                if (wxTheClipboard->IsOpened())
+                    wxTheClipboard->Close();
+            }
+        };
+
+        void MapFrame::copyToClipboard() {
+            OpenClipboard openClipboard;
+            if (wxTheClipboard->IsOpened()) {
+                String str;
+                if (m_document->hasSelectedNodes())
+                    str = m_document->serializeNodes();
+                else if (m_document->hasSelectedBrushFaces())
+                    str = m_document->serializeBrushFaces();
+                wxTheClipboard->SetData(new wxTextDataObject(str));
+            }
         }
 
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
@@ -427,12 +463,14 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditClearRepeat:
                     event.Enable(true);
                     break;
-                    /*
                 case wxID_CUT:
-                case wxID_COPY:
-                    event.Enable(m_document->hasSelectedObjects() ||
-                                 m_document->selectedFaces().size() == 1);
+                    event.Enable(m_document->hasSelectedNodes());
                     break;
+                case wxID_COPY:
+                    event.Enable(m_document->hasSelectedNodes() ||
+                                 m_document->hasSelectedBrushFaces());
+                    break;
+                    /*
                 case wxID_PASTE:
                 case CommandIds::Menu::EditPasteAtOriginalPosition: {
                     OpenClipboard openClipboard;

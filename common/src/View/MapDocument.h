@@ -124,6 +124,9 @@ namespace TrenchBroom {
         private:
             void doSaveDocument(const IO::Path& path);
             void clearDocument();
+        public: // copy and paste
+            String serializeNodes();
+            String serializeBrushFaces();
         public: // point file management
             bool canLoadPointFile() const;
             void loadPointFile();

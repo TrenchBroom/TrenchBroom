@@ -62,7 +62,7 @@ namespace TrenchBroom {
              */
             
             void doWriteNodesToStream(MapFormat::Type format, const NodeList& nodes, std::ostream& stream) const;
-            void doWriteFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const;
+            void doWriteBrushFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const;
             
             bool doIsTextureCollection(const IO::Path& path) const;
             IO::Path::List doFindBuiltinTextureCollections() const;

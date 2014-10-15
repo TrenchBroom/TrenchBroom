@@ -64,9 +64,9 @@ namespace TrenchBroom {
             EntityList parseEntities(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
             BrushList parseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
             BrushFaceList parseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
-            void writeObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const;
-            void writeFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const;
              */
+            void writeNodesToStream(MapFormat::Type format, const NodeList& nodes, std::ostream& stream) const;
+            void writeBrushFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const;
         public: // texture collection handling
             bool isTextureCollection(const IO::Path& path) const;
             IO::Path::List findBuiltinTextureCollections() const;
@@ -100,9 +100,9 @@ namespace TrenchBroom {
             virtual EntityList doParseEntities(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
             virtual BrushList doParseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
             virtual BrushFaceList doParseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
-            virtual void doWriteObjectsToStream(MapFormat::Type format, const ObjectList& objects, std::ostream& stream) const = 0;
-            virtual void doWriteFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const = 0;
              */
+            virtual void doWriteNodesToStream(MapFormat::Type format, const NodeList& nodes, std::ostream& stream) const = 0;
+            virtual void doWriteBrushFacesToStream(MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const = 0;
             
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
             virtual IO::Path::List doFindBuiltinTextureCollections() const = 0;
