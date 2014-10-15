@@ -247,5 +247,60 @@ namespace TrenchBroom {
                          "}\n"
                          "}\n", result.c_str());
         }
+        
+        TEST(MapWriterTest, writeNodesWithNestedGroup) {
+            const BBox3 worldBounds(8192.0);
+
+            Model::ModelFactoryImpl factory(Model::MapFormat::Standard, NULL);
+            
+            Model::NodeList nodes;
+            
+            Model::Group* outer = factory.createGroup("Outer Group");
+            Model::Group* inner = factory.createGroup("Inner Group");
+            outer->addChild(inner);
+            
+            Model::BrushBuilder builder(&factory, worldBounds);
+            Model::Brush* innerBrush = builder.createCube(64.0, "none");
+            inner->addChild(innerBrush);
+            
+            Model::Brush* outerBrush = builder.createCube(64.0, "some");
+
+            nodes.push_back(outer);
+            nodes.push_back(outerBrush);
+            
+            StringStream str;
+            MapWriter::writeToStream(Model::MapFormat::Standard, nodes, str);
+            
+            const String result = str.str();
+            ASSERT_STREQ("{\n"
+                         "\"classname\" \"func_group\"\n"
+                         "\"_tb_type\" \"_tb_group\"\n"
+                         "\"_tb_name\" \"Outer Group\"\n"
+                         "}\n"
+                         "{\n"
+                         "\"classname\" \"func_group\"\n"
+                         "\"_tb_type\" \"_tb_group\"\n"
+                         "\"_tb_name\" \"Inner Group\"\n"
+                         "\"_tb_group\" \"Outer Group\"\n"
+                         "{\n"
+                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                         "}\n"
+                         "}\n"
+                         "{\n"
+                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1\n"
+                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1\n"
+                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1\n"
+                         "}\n", result.c_str());
+            
+            VectorUtils::clearAndDelete(nodes);
+        }
     }
 }

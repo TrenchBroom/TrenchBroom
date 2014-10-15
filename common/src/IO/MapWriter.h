@@ -49,9 +49,10 @@ namespace TrenchBroom {
         private:
             MapSerializer& m_serializer;
             BrushWriter m_brushWriter;
+            bool m_writeBrushes;
             const Model::EntityAttribute::List m_parentAttributes;
         public:
-            MapWriter(MapSerializer& serializer, const Model::Node* currentParent = NULL);
+            MapWriter(MapSerializer& serializer, bool writeBrushes, const Model::Node* currentParent = NULL);
             
             static void writeToFile(Model::World* map, const Path& path, bool overwrite);
             static void writeToStream(Model::World* map, std::ostream& stream);

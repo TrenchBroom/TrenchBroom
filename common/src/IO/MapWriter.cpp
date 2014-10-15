@@ -53,9 +53,10 @@ namespace TrenchBroom {
 
         Model::EntityAttribute::List getParentAttributes(const Model::Node* node);
         
-        MapWriter::MapWriter(MapSerializer& serializer, const Model::Node* currentParent) :
+        MapWriter::MapWriter(MapSerializer& serializer, const bool writeBrushes, const Model::Node* currentParent) :
         m_serializer(serializer),
         m_brushWriter(m_serializer),
+        m_writeBrushes(writeBrushes),
         m_parentAttributes(getParentAttributes(currentParent)) {}
         
         void MapWriter::doVisit(Model::World* world)   {
@@ -84,19 +85,23 @@ namespace TrenchBroom {
             stopRecursion();
         }
         
-        void MapWriter::doVisit(Model::Brush* brush)   { stopRecursion(); }
+        void MapWriter::doVisit(Model::Brush* brush)   {
+            if (m_writeBrushes)
+                m_brushWriter.visit(brush);
+            stopRecursion();
+        }
         
         void MapWriter::writeDefaultLayer(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node) {
             writeEntity(attrs, extra, node);
             
-            MapWriter writer(m_serializer, NULL);
+            MapWriter writer(m_serializer, false, NULL);
             node->iterate(writer);
         }
         
         void MapWriter::writeContainer(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node) {
             writeEntity(attrs, extra, node);
             
-            MapWriter writer(m_serializer, node);
+            MapWriter writer(m_serializer, false, node);
             node->iterate(writer);
         }
         
@@ -162,19 +167,19 @@ namespace TrenchBroom {
                 throw FileSystemException("File already exists: " + path.asString());
 
             MapSerializer::Ptr serializer = MapFileSerializer::create(map->format(), path);
-            MapWriter writer(*serializer);
+            MapWriter writer(*serializer, false);
             map->accept(writer);
         }
 
         void MapWriter::writeToStream(Model::World* map, std::ostream& stream) {
             MapSerializer::Ptr serializer = MapStreamSerializer::create(map->format(), stream);
-            MapWriter writer(*serializer);
+            MapWriter writer(*serializer, false);
             map->accept(writer);
         }
         
         void MapWriter::writeToStream(const Model::MapFormat::Type format, const Model::NodeList& nodes, std::ostream& stream) {
             MapSerializer::Ptr serializer = MapStreamSerializer::create(format, stream);
-            MapWriter writer(*serializer);
+            MapWriter writer(*serializer, true);
             Model::Node::accept(nodes.begin(), nodes.end(), writer);
         }
 
