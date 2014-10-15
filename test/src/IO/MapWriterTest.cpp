@@ -302,5 +302,27 @@ namespace TrenchBroom {
             
             VectorUtils::clearAndDelete(nodes);
         }
+
+        TEST(MapWriterTest, writeFaces) {
+            const BBox3 worldBounds(8192.0);
+            
+            Model::ModelFactoryImpl factory(Model::MapFormat::Standard, NULL);
+            Model::BrushBuilder builder(&factory, worldBounds);
+            Model::Brush* brush = builder.createCube(64.0, "none");
+            
+            StringStream str;
+            MapWriter::writeToStream(Model::MapFormat::Standard, brush->faces(), str);
+            
+            const String result = str.str();
+            ASSERT_STREQ("( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n",
+                         result.c_str());
+
+            delete brush;
+        }
     }
 }
