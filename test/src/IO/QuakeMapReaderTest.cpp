@@ -60,7 +60,7 @@ namespace TrenchBroom {
             
             ASSERT_TRUE(world != NULL);
             ASSERT_EQ(1u, world->childCount());
-            ASSERT_FALSE(world->children().front()->hasChildren());
+            ASSERT_EQ(1u, world->children().front()->childCount());
         }
 
         TEST(QuakeMapReaderTest, parseMapWithWorldspawn) {

@@ -453,7 +453,7 @@ namespace TrenchBroom {
         void MapDocument::loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path) {
             m_worldBounds = worldBounds;
             m_game = game;
-            m_world = m_game->loadMap(m_worldBounds, path);
+            m_world = m_game->loadMap(m_worldBounds, path, this);
 
             updateGameSearchPaths();
             setPath(path);

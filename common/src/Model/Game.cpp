@@ -57,8 +57,8 @@ namespace TrenchBroom {
             return doNewMap(format);
         }
         
-        World* Game::loadMap(const BBox3& worldBounds, const IO::Path& path) const {
-            return doLoadMap(worldBounds, path);
+        World* Game::loadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
+            return doLoadMap(worldBounds, path, logger);
         }
 
         void Game::writeMap(World* world, const IO::Path& path) const {

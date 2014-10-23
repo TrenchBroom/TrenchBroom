@@ -119,31 +119,8 @@ namespace TrenchBroom {
         
         QuakeMapParser::~QuakeMapParser() {}
 
-        void QuakeMapParser::setFormat(Model::MapFormat::Type format) {
-            assert(format != Model::MapFormat::Unknown);
-            m_format = format;
-            formatDetected(m_format);
-        }
-
         Logger* QuakeMapParser::logger() const {
             return m_logger;
-        }
-
-        void QuakeMapParser::doParse() {
-            setFormat(detectFormat());
-            
-            Token token = m_tokenizer.nextToken();
-            while (token.type() != QuakeMapToken::Eof) {
-                expect(QuakeMapToken::OBrace | QuakeMapToken::OParenthesis, token);
-                if (token.type() == QuakeMapToken::OBrace) {
-                    m_tokenizer.pushToken(token);
-                    parseEntityOrBrush();
-                } else if (token.type() == QuakeMapToken::OParenthesis) {
-                    m_tokenizer.pushToken(token);
-                    parseFace();
-                }
-                token = m_tokenizer.nextToken();
-            }
         }
 
         Model::MapFormat::Type QuakeMapParser::detectFormat() {
@@ -194,7 +171,49 @@ namespace TrenchBroom {
             m_tokenizer.reset();
             return format;
         }
+        
+        void QuakeMapParser::parseEntities(const Model::MapFormat::Type format) {
+            setFormat(format);
 
+            Token token = m_tokenizer.nextToken();
+            while (token.type() != QuakeMapToken::Eof) {
+                expect(QuakeMapToken::OBrace, token);
+                m_tokenizer.pushToken(token);
+                parseEntity();
+                token = m_tokenizer.nextToken();
+            }
+        }
+        
+        void QuakeMapParser::parseBrushes(const Model::MapFormat::Type format) {
+            setFormat(format);
+
+            Token token = m_tokenizer.nextToken();
+            while (token.type() != QuakeMapToken::Eof) {
+                expect(QuakeMapToken::OBrace, token);
+                m_tokenizer.pushToken(token);
+                parseBrush();
+                token = m_tokenizer.nextToken();
+            }
+        }
+        
+        void QuakeMapParser::parseBrushFaces(const Model::MapFormat::Type format) {
+            setFormat(format);
+
+            Token token = m_tokenizer.nextToken();
+            while (token.type() != QuakeMapToken::Eof) {
+                expect(QuakeMapToken::OParenthesis, token);
+                m_tokenizer.pushToken(token);
+                parseFace();
+                token = m_tokenizer.nextToken();
+            }
+        }
+
+        void QuakeMapParser::setFormat(const Model::MapFormat::Type format) {
+            assert(format != Model::MapFormat::Unknown);
+            m_format = format;
+            formatDetected(m_format);
+        }
+        
         void QuakeMapParser::parseEntityOrBrush() {
             Token first = m_tokenizer.nextToken();
             assert(first.type() == QuakeMapToken::OBrace);

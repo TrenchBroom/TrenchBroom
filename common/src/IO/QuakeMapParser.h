@@ -74,10 +74,15 @@ namespace TrenchBroom {
             virtual ~QuakeMapParser();
         protected:
             Logger* logger() const;
-            void doParse();
+
+
+            Model::MapFormat::Type detectFormat();
+            
+            void parseEntities(Model::MapFormat::Type format);
+            void parseBrushes(Model::MapFormat::Type format);
+            void parseBrushFaces(Model::MapFormat::Type format);
         private:
             void setFormat(Model::MapFormat::Type format);
-            Model::MapFormat::Type detectFormat();
             
             void parseEntityOrBrush();
             void parseEntity();

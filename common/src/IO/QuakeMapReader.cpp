@@ -31,6 +31,30 @@
 
 namespace TrenchBroom {
     namespace IO {
+        QuakeMapReader::ParentInfo QuakeMapReader::ParentInfo::layer(const String& name) {
+            return ParentInfo(Type_Layer, name);
+        }
+        
+        QuakeMapReader::ParentInfo QuakeMapReader::ParentInfo::group(const String& name) {
+            return ParentInfo(Type_Group, name);
+        }
+
+        QuakeMapReader::ParentInfo::ParentInfo(Type type, const String& name) :
+        m_type(type),
+        m_name(name) {}
+
+        bool QuakeMapReader::ParentInfo::layer() const {
+            return m_type == Type_Layer;
+        }
+        
+        bool QuakeMapReader::ParentInfo::group() const {
+            return m_type == Type_Group;
+        }
+        
+        const String& QuakeMapReader::ParentInfo::name() const {
+            return m_name;
+        }
+
         QuakeMapReader::QuakeMapReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger) :
         QuakeMapParser(begin, end, logger),
         m_brushContentTypeBuilder(brushContentTypeBuilder),
@@ -51,7 +75,8 @@ namespace TrenchBroom {
 
         Model::World* QuakeMapReader::read(const BBox3& worldBounds) {
             m_worldBounds = worldBounds;
-            doParse();
+            parseEntities(detectFormat());
+            resolveNodes();
             return m_world;
         }
 
@@ -130,10 +155,9 @@ namespace TrenchBroom {
             } else {
                 Model::Group* group = m_world->createGroup(name);
                 setExtraAttributes(group, extraAttributes);
+
+                storeNode(group, attributes);
                 m_groups.insert(std::make_pair(name, group));
-                
-                Model::Node* parent = findParentForEntity(line, attributes);
-                parent->addChild(group);
                 
                 m_currentNode = group;
                 m_parent = group;
@@ -150,36 +174,11 @@ namespace TrenchBroom {
             Model::Entity* entity = m_world->createEntity();
             entity->setAttributes(attributes);
             setExtraAttributes(entity, extraAttributes);
-            
-            Model::Node* parent = findParentForEntity(line, attributes);
-            parent->addChild(entity);
+
+            storeNode(entity, attributes);
 
             m_currentNode = entity;
             m_parent = entity;
-        }
-
-        Model::Node* QuakeMapReader::findParentForEntity(const size_t line, const Model::EntityAttribute::List& attributes) const {
-            const String& groupName = findAttribute(attributes, Model::AttributeNames::Group);
-            if (!groupName.empty()) {
-                Model::Group* group = MapUtils::find(m_groups, groupName, static_cast<Model::Group*>(NULL));
-                if (group != NULL)
-                    return group;
-                if (logger() != NULL)
-                    logger()->warn("Entity at line %u references missing group '%s'", static_cast<unsigned int>(line), groupName.c_str());
-                return m_world->defaultLayer();
-            }
-
-            const String& layerName = findAttribute(attributes, Model::AttributeNames::Layer);
-            if (!layerName.empty()) {
-                Model::Layer* layer = MapUtils::find(m_layers, layerName, static_cast<Model::Layer*>(NULL));
-                if (layer != NULL)
-                    return layer;
-                if (logger() != NULL)
-                    logger()->warn("Entity at line %u references missing layer '%s', adding it to the default layer instead", static_cast<unsigned int>(line), layerName.c_str());
-                return m_world->defaultLayer();
-            }
-            
-            return m_world->defaultLayer();
         }
 
         void QuakeMapReader::createBrush(const size_t startLine, const size_t lineCount, const ExtraAttributes& extraAttributes) {
@@ -198,6 +197,57 @@ namespace TrenchBroom {
                     logger()->error("Error parsing brush at line %u: %s", startLine, e.what());
             }
 
+        }
+
+        void QuakeMapReader::storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes) {
+            const String& groupName = findAttribute(attributes, Model::AttributeNames::Group);
+            if (!groupName.empty()) {
+                Model::Group* group = MapUtils::find(m_groups, groupName, static_cast<Model::Group*>(NULL));
+                if (group != NULL)
+                    group->addChild(node);
+                else
+                    m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::group(groupName)));
+            } else {
+                const String& layerName = findAttribute(attributes, Model::AttributeNames::Layer);
+                if (!layerName.empty()) {
+                Model::Layer* layer = MapUtils::find(m_layers, layerName, static_cast<Model::Layer*>(NULL));
+                if (layer != NULL)
+                    layer->addChild(node);
+                else
+                    m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::layer(layerName)));
+                } else {
+                    m_world->defaultLayer()->addChild(node);
+                }
+            }
+        }
+
+        void QuakeMapReader::resolveNodes() {
+            NodeParentList::const_iterator it, end;
+            for (it = m_unresolvedNodes.begin(), end = m_unresolvedNodes.end(); it != end; ++it) {
+                Model::Node* node = it->first;
+                const ParentInfo& info = it->second;
+                if (info.layer()) {
+                    const String& layerName = info.name();
+                    Model::Layer* parent = MapUtils::find(m_layers, layerName, static_cast<Model::Layer*>(NULL));
+                    if (parent == NULL) {
+                        if (logger() != NULL)
+                            logger()->warn("Entity at line %u references missing layer '%s', adding to default layer", node->lineNumber(), layerName.c_str());
+                        m_world->defaultLayer()->addChild(node);
+                    } else {
+                        parent->addChild(node);
+                    }
+                } else {
+                    const String& groupName = info.name();
+                    Model::Group* parent = MapUtils::find(m_groups, groupName, static_cast<Model::Group*>(NULL));
+                    if (parent == NULL) {
+                        if (logger() != NULL)
+                            logger()->warn("Entity at line %u references missing group '%s', adding to default layer", node->lineNumber(), groupName.c_str());
+                        m_world->defaultLayer()->addChild(node);
+                    } else {
+                        parent->addChild(node);
+                    }
+                }
+            }
         }
 
         QuakeMapReader::EntityType QuakeMapReader::entityType(const Model::EntityAttribute::List& attributes) const {

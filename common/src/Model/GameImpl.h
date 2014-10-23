@@ -31,6 +31,8 @@
 
 
 namespace TrenchBroom {
+    class Logger;
+    
     namespace Model {
         class GameImpl : public Game {
         private:
@@ -52,7 +54,7 @@ namespace TrenchBroom {
             void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
 
             World* doNewMap(MapFormat::Type format) const;
-            World* doLoadMap(const BBox3& worldBounds, const IO::Path& path) const;
+            World* doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void doWriteMap(World* world, const IO::Path& path) const;
 
             /*

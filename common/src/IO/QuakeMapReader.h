@@ -43,6 +43,29 @@ namespace TrenchBroom {
             typedef std::map<String, Model::Layer*> LayerMap;
             typedef std::map<String, Model::Group*> GroupMap;
             
+            class ParentInfo {
+            private:
+                typedef enum {
+                    Type_Layer,
+                    Type_Group
+                } Type;
+                
+                Type m_type;
+                String m_name;
+            public:
+                static ParentInfo layer(const String& name);
+                static ParentInfo group(const String& name);
+            private:
+                ParentInfo(Type type, const String& name);
+            public:
+                bool layer() const;
+                bool group() const;
+                const String& name() const;
+            };
+            
+            typedef std::pair<Model::Node*, ParentInfo> NodeParentPair;
+            typedef std::vector<NodeParentPair> NodeParentList;
+            
             BBox3 m_worldBounds;
             const Model::BrushContentTypeBuilder* m_brushContentTypeBuilder;
             Model::World* m_world;
@@ -52,6 +75,7 @@ namespace TrenchBroom {
             
             LayerMap m_layers;
             GroupMap m_groups;
+            NodeParentList m_unresolvedNodes;
         public:
             QuakeMapReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
             QuakeMapReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
@@ -69,9 +93,11 @@ namespace TrenchBroom {
             void createLayer(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
             void createGroup(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
             void createEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            Model::Node* findParentForEntity(size_t line, const Model::EntityAttribute::List& attributes) const;
             void createWorldspawn(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
             void createBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
+
+            void storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes);
+            void resolveNodes();
             
             EntityType entityType(const Model::EntityAttribute::List& attributes) const;
             bool isLayer(const String& classname, const Model::EntityAttribute::List& attributes) const;
