@@ -110,10 +110,12 @@ namespace TrenchBroom {
         }
          */
         
-        void GameImpl::doWriteNodesToStream(const MapFormat::Type format, const NodeList& nodes, std::ostream& stream) const {
+        void GameImpl::doWriteSelectedNodesToStream(World* world, std::ostream& stream) const {
+            IO::MapWriter::writeSelectionToStream(world, stream);
         }
     
-        void GameImpl::doWriteBrushFacesToStream(const MapFormat::Type format, const BrushFaceList& faces, std::ostream& stream) const {
+        void GameImpl::doWriteBrushFacesToStream(const BrushFaceList& faces, const MapFormat::Type format, std::ostream& stream) const {
+            IO::MapWriter::writeToStream(faces, format, stream);
         }
     
         bool GameImpl::doIsTextureCollection(const IO::Path& path) const {

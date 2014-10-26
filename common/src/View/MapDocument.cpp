@@ -166,15 +166,15 @@ namespace TrenchBroom {
             }
         }
 
-        String MapDocument::serializeNodes() {
+        String MapDocument::serializeSelectedNodes() {
             StringStream stream;
-            m_game->writeNodesToStream(m_world->format(), m_selectedNodes.nodes(), stream);
+            m_game->writeSelectedNodesToStream(m_world, stream);
             return stream.str();
         }
         
-        String MapDocument::serializeBrushFaces() {
+        String MapDocument::serializeSelectedBrushFaces() {
             StringStream stream;
-            m_game->writeBrushFacesToStream(m_world->format(), m_selectedBrushFaces, stream);
+            m_game->writeBrushFacesToStream(m_selectedBrushFaces, m_world->format(), stream);
             return stream.str();
         }
 

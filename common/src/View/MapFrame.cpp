@@ -375,9 +375,9 @@ namespace TrenchBroom {
             if (wxTheClipboard->IsOpened()) {
                 String str;
                 if (m_document->hasSelectedNodes())
-                    str = m_document->serializeNodes();
+                    str = m_document->serializeSelectedNodes();
                 else if (m_document->hasSelectedBrushFaces())
-                    str = m_document->serializeBrushFaces();
+                    str = m_document->serializeSelectedBrushFaces();
                 wxTheClipboard->SetData(new wxTextDataObject(str));
             }
         }

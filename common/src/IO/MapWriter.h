@@ -35,8 +35,9 @@ namespace TrenchBroom {
         class BrushWriter : public Model::NodeVisitor {
         private:
             MapSerializer& m_serializer;
+            bool m_selectionOnly;
         public:
-            BrushWriter(MapSerializer& serializer);
+            BrushWriter(MapSerializer& serializer, bool selectionOnly);
         private:
             void doVisit(Model::World* world);
             void doVisit(Model::Layer* layer);
@@ -49,13 +50,17 @@ namespace TrenchBroom {
         private:
             MapSerializer& m_serializer;
             BrushWriter m_brushWriter;
-            bool m_writeBrushes;
+            bool m_selectionOnly;
             const Model::EntityAttribute::List m_parentAttributes;
         public:
-            MapWriter(MapSerializer& serializer, bool writeBrushes, const Model::Node* currentParent = NULL);
+            MapWriter(MapSerializer& serializer, bool selectionOnly, const Model::Node* currentParent = NULL);
             
             static void writeToFile(Model::World* map, const Path& path, bool overwrite);
             static void writeToStream(Model::World* map, std::ostream& stream);
+            static void writeSelectionToStream(Model::World* map, std::ostream& stream);
+            static void writeToStream(const Model::BrushFaceList& faces, Model::MapFormat::Type format, std::ostream& stream);
+        private:
+            static void writeToStream(Model::World* map, bool selectedOnly, std::ostream& stream);
         private:
             void doVisit(Model::World* world);
             void doVisit(Model::Layer* layer);
