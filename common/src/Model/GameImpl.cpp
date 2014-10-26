@@ -86,7 +86,7 @@ namespace TrenchBroom {
         World* GameImpl::doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
             const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
             IO::QuakeMapReader reader(file->begin(), file->end(), brushContentTypeBuilder(), logger);
-            return reader.read(worldBounds);
+            return reader.readMap(worldBounds);
         }
         
         void GameImpl::doWriteMap(World* world, const IO::Path& path) const {

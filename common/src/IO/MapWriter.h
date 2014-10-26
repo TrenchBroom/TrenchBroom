@@ -56,8 +56,6 @@ namespace TrenchBroom {
             
             static void writeToFile(Model::World* map, const Path& path, bool overwrite);
             static void writeToStream(Model::World* map, std::ostream& stream);
-            static void writeToStream(Model::MapFormat::Type format, const Model::NodeList& nodes, std::ostream& stream);
-            static void writeToStream(Model::MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream);
         private:
             void doVisit(Model::World* world);
             void doVisit(Model::Layer* layer);

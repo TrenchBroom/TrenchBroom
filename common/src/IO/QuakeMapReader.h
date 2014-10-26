@@ -20,10 +20,7 @@
 #ifndef __TrenchBroom__QuakeMapReader__
 #define __TrenchBroom__QuakeMapReader__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
-#include "IO/QuakeMapParser.h"
-#include "Model/ModelTypes.h"
+#include "IO/QuakeReader.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,83 +28,24 @@ namespace TrenchBroom {
     }
     
     namespace IO {
-        class QuakeMapReader : public QuakeMapParser {
+        class QuakeMapReader : public QuakeReader {
         private:
-            typedef enum {
-                EntityType_Layer,
-                EntityType_Group,
-                EntityType_Worldspawn,
-                EntityType_Default
-            } EntityType;
-            
-            typedef std::map<String, Model::Layer*> LayerMap;
-            typedef std::map<String, Model::Group*> GroupMap;
-            
-            class ParentInfo {
-            private:
-                typedef enum {
-                    Type_Layer,
-                    Type_Group
-                } Type;
-                
-                Type m_type;
-                String m_name;
-            public:
-                static ParentInfo layer(const String& name);
-                static ParentInfo group(const String& name);
-            private:
-                ParentInfo(Type type, const String& name);
-            public:
-                bool layer() const;
-                bool group() const;
-                const String& name() const;
-            };
-            
-            typedef std::pair<Model::Node*, ParentInfo> NodeParentPair;
-            typedef std::vector<NodeParentPair> NodeParentList;
-            
-            BBox3 m_worldBounds;
             const Model::BrushContentTypeBuilder* m_brushContentTypeBuilder;
             Model::World* m_world;
-            Model::Node* m_parent;
-            Model::Node* m_currentNode;
-            Model::BrushFaceList m_faces;
-            
-            LayerMap m_layers;
-            GroupMap m_groups;
-            NodeParentList m_unresolvedNodes;
         public:
             QuakeMapReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
             QuakeMapReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
-            ~QuakeMapReader();
-            
-            Model::World* read(const BBox3& worldBounds);
-        private: // implement MapParser interface
-            void onFormatDetected(Model::MapFormat::Type format);
-            void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void onEndEntity(size_t startLine, size_t lineCount);
-            void onBeginBrush(size_t line);
-            void onEndBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
-            void onBrushFace(size_t line, const Vec3& point1, const Vec3& point2, const Vec3& point3, const Model::BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY);
-        private: // helper methods
-            void createLayer(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void createGroup(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void createEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void createWorldspawn(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
-            void createBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
 
-            void storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes);
-            void resolveNodes();
-            
-            EntityType entityType(const Model::EntityAttribute::List& attributes) const;
-            bool isLayer(const String& classname, const Model::EntityAttribute::List& attributes) const;
-            bool isGroup(const String& classname, const Model::EntityAttribute::List& attributes) const;
-            bool isWorldspawn(const String& classname, const Model::EntityAttribute::List& attributes) const;
-
-            const String& findAttribute(const Model::EntityAttribute::List& attributes, const String& name, const String& defaultValue = EmptyString) const;
-            
-            void setFilePosition(Model::Node* node, size_t startLine, size_t lineCount);
-            void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
+            Model::World* readMap(const BBox3& worldBounds);
+        private: // implement QuakeReader interface
+            Model::ModelFactory* initialize(Model::MapFormat::Type format);
+            void onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
+            void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount);
+            void onLayer(Model::Layer* layer);
+            void onNode(Model::Node* parent, Model::Node* node);
+            void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node);
+            void onBrush(Model::Node* parent, Model::Brush* brush);
+            void onBrushFace(Model::Brush* brush, Model::BrushFace* face);
         };
     }
 }

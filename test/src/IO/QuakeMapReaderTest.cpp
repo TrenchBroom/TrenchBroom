@@ -44,7 +44,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_EQ(1u, world->childCount());
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_EQ(1u, world->childCount());
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_EQ(1u, world->childCount());
@@ -94,7 +94,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_TRUE(world != NULL);
             ASSERT_TRUE(world->hasAttribute(Model::AttributeNames::Classname));
@@ -128,7 +128,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
 
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -169,7 +169,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -203,7 +203,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -236,7 +236,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -268,7 +268,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -290,7 +290,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -312,7 +312,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -334,7 +334,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             Model::Node* defaultLayer = world->children().front();
@@ -378,7 +378,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(2u, world->childCount());
             ASSERT_EQ(2u, world->children().front()->childCount());
@@ -434,7 +434,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(2u, world->childCount());
             ASSERT_EQ(2u, world->children().front()->childCount()); // default layer
@@ -505,7 +505,7 @@ namespace TrenchBroom {
             BBox3 worldBounds(8192);
             
             QuakeMapReader reader(data, NULL);
-            Model::World* world = reader.read(worldBounds);
+            Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
             

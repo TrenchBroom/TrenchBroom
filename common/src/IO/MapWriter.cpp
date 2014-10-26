@@ -176,18 +176,5 @@ namespace TrenchBroom {
             MapWriter writer(*serializer, false);
             map->accept(writer);
         }
-        
-        void MapWriter::writeToStream(const Model::MapFormat::Type format, const Model::NodeList& nodes, std::ostream& stream) {
-            MapSerializer::Ptr serializer = MapStreamSerializer::create(format, stream);
-            MapWriter writer(*serializer, true);
-            Model::Node::accept(nodes.begin(), nodes.end(), writer);
-        }
-
-        void MapWriter::writeToStream(Model::MapFormat::Type format, const Model::BrushFaceList& faces, std::ostream& stream) {
-            MapSerializer::Ptr serializer = MapStreamSerializer::create(format, stream);
-            Model::BrushFaceList::const_iterator it, end;
-            for (it = faces.begin(), end = faces.end(); it != end; ++it)
-                serializer->brushFace(*it);
-        }
     }
 }
