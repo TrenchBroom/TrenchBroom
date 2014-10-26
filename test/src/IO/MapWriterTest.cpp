@@ -248,6 +248,7 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
         
+        /*
         TEST(MapWriterTest, writeNodesWithNestedGroup) {
             const BBox3 worldBounds(8192.0);
 
@@ -324,5 +325,6 @@ namespace TrenchBroom {
 
             delete brush;
         }
+         */
     }
 }

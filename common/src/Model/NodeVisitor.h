@@ -45,11 +45,11 @@ namespace TrenchBroom {
         public:
             virtual ~NodeVisitor();
             
-            void visit(World* world);
-            void visit(Layer* layer);
-            void visit(Group* group);
-            void visit(Entity* entity);
-            void visit(Brush* brush);
+            virtual void visit(World* world);
+            virtual void visit(Layer* layer);
+            virtual void visit(Group* group);
+            virtual void visit(Entity* entity);
+            virtual void visit(Brush* brush);
         private:
             virtual void doVisit(World* world)   = 0;
             virtual void doVisit(Layer* layer)   = 0;
@@ -64,17 +64,108 @@ namespace TrenchBroom {
         public:
             virtual ~ConstNodeVisitor();
             
-            void visit(const World* world);
-            void visit(const Layer* layer);
-            void visit(const Group* group);
-            void visit(const Entity* entity);
-            void visit(const Brush* brush);
+            virtual void visit(const World* world);
+            virtual void visit(const Layer* layer);
+            virtual void visit(const Group* group);
+            virtual void visit(const Entity* entity);
+            virtual void visit(const Brush* brush);
         private:
             virtual void doVisit(const World* world)   = 0;
             virtual void doVisit(const Layer* layer)   = 0;
             virtual void doVisit(const Group* group)   = 0;
             virtual void doVisit(const Entity* entity) = 0;
             virtual void doVisit(const Brush* brush)   = 0;
+        };
+        
+        
+        struct NeverStopRecursion {
+            bool operator()(const Node* node, bool matched) const;
+        };
+        
+        struct StopRecursionIfMatched {
+            bool operator()(const Node* node, bool matched) const;
+        };
+        
+        template <class P, class S = NeverStopRecursion>
+        class MatchingNodeVisitor : public NodeVisitor {
+        private:
+            P m_p;
+            S m_s;
+        protected:
+            MatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
+        public:
+            virtual ~MatchingNodeVisitor() {}
+            
+            void visit(World* world) {
+                const bool match = m_p(world);
+                if (match) doVisit(world);
+                if (m_s(world, match)) stopRecursion();
+            }
+            
+            void visit(Layer* layer) {
+                const bool match = m_p(layer);
+                if (match) doVisit(layer);
+                if (m_s(layer, match)) stopRecursion();
+            }
+            
+            void visit(Group* group) {
+                const bool match = m_p(group);
+                if (match) doVisit(group);
+                if (m_s(group, match)) stopRecursion();
+            }
+            
+            void visit(Entity* entity) {
+                const bool match = m_p(entity);
+                if (match) doVisit(entity);
+                if (m_s(entity, match)) stopRecursion();
+            }
+            
+            void visit(Brush* brush) {
+                const bool match = m_p(brush);
+                if (match) doVisit(brush);
+                if (m_s(brush, match)) stopRecursion();
+            }
+        };
+
+        template <class P, class S = NeverStopRecursion>
+        class ConstMatchingNodeVisitor : public NodeVisitor {
+        private:
+            P m_p;
+            S m_s;
+        protected:
+            ConstMatchingNodeVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
+        public:
+            virtual ~ConstMatchingNodeVisitor() {}
+            
+            void visit(const World* world) {
+                const bool match = m_p(world);
+                if (match) doVisit(world);
+                if (m_s(world, match)) stopRecursion();
+            }
+            
+            void visit(const Layer* layer) {
+                const bool match = m_p(layer);
+                if (match) doVisit(layer);
+                if (m_s(layer, match)) stopRecursion();
+            }
+            
+            void visit(const Group* group) {
+                const bool match = m_p(group);
+                if (match) doVisit(group);
+                if (m_s(group, match)) stopRecursion();
+            }
+            
+            void visit(const Entity* entity) {
+                const bool match = m_p(entity);
+                if (match) doVisit(entity);
+                if (m_s(entity, match)) stopRecursion();
+            }
+            
+            void visit(const Brush* brush) {
+                const bool match = m_p(brush);
+                if (match) doVisit(brush);
+                if (m_s(brush, match)) stopRecursion();
+            }
         };
         
         template <typename T>

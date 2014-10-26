@@ -53,47 +53,16 @@ namespace TrenchBroom {
             void addNode(Node* node);
         };
         
-        struct NeverStopRecursion {
-            bool operator()(const Node* node, bool matched) const;
-        };
-
-        struct StopRecursionIfMatched {
-            bool operator()(const Node* node, bool matched) const;
-        };
-        
         template <typename P, typename C, typename S = NeverStopRecursion>
-        class CollectMatchingNodesVisitor : public C, public NodeVisitor {
-        private:
-            P m_p;
-            S m_s;
+        class CollectMatchingNodesVisitor : public C, public MatchingNodeVisitor<P,S> {
         public:
-            CollectMatchingNodesVisitor(const P& p = P(), const S& s = S()) : m_p(p), m_s(s) {}
+            CollectMatchingNodesVisitor(const P& p = P(), const S& s = S()) : MatchingNodeVisitor<P,S>(p, s) {}
         private:
-            void doVisit(World* world) {
-                const bool match = m_p(world);
-                if (match) C::addNode(world);
-                if (m_s(world, match)) stopRecursion();
-            }
-            void doVisit(Layer* layer) {
-                const bool match = m_p(layer);
-                if (match) C::addNode(layer);
-                if (m_s(layer, match)) stopRecursion();
-            }
-            void doVisit(Group* group) {
-                const bool match = m_p(group);
-                if (match) C::addNode(group);
-                if (m_s(group, match)) stopRecursion();
-            }
-            void doVisit(Entity* entity) {
-                const bool match = m_p(entity);
-                if (match) C::addNode(entity);
-                if (m_s(entity, match)) stopRecursion();
-            }
-            void doVisit(Brush* brush) {
-                const bool match = m_p(brush);
-                if (match) C::addNode(brush);
-                if (m_s(brush, match)) stopRecursion();
-            }
+            void doVisit(World* world)   { C::addNode(world);  }
+            void doVisit(Layer* layer)   { C::addNode(layer);  }
+            void doVisit(Group* group)   { C::addNode(group);  }
+            void doVisit(Entity* entity) { C::addNode(entity); }
+            void doVisit(Brush* brush)   { C::addNode(brush);  }
         };
     }
 }
