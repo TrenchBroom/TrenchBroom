@@ -105,13 +105,15 @@ namespace TrenchBroom {
         void Node::addChild(Node* child) {
             doAddChild(child);
             incDescendantCount(child->descendantCount() + 1);
-            incDescendantSelectionCount(child->descendantSelectionCount() + (child->selected() ? 1 : 0));
+            incChildSelectionCount(child->selected() ? 1 : 0);
+            incDescendantSelectionCount(child->descendantSelectionCount());
         }
         
         void Node::removeChild(Node* child) {
             m_children.erase(doRemoveChild(m_children.begin(), m_children.end(), child), m_children.end());
             decDescendantCount(child->descendantCount() + 1);
-            decDescendantSelectionCount(child->descendantSelectionCount() + (child->selected() ? 1 : 0));
+            decChildSelectionCount(child->selected() ? 1 : 0);
+            decDescendantSelectionCount(child->descendantSelectionCount());
         }
 
         bool Node::canAddChild(Node* child) const {
@@ -263,7 +265,7 @@ namespace TrenchBroom {
             assert(!m_selected);
             m_selected = true;
             if (m_parent != NULL)
-                m_parent->descendantWasSelected();
+                m_parent->childWasSelected();
         }
         
         void Node::deselect() {
@@ -272,8 +274,17 @@ namespace TrenchBroom {
             assert(m_selected);
             m_selected = false;
             if (m_parent != NULL)
-                m_parent->descendantWasDeselected();
+                m_parent->childWasDeselected();
         }
+
+        bool Node::childSelected() const {
+            return m_childSelectionCount > 0;
+        }
+        
+        size_t Node::childSelectionCount() const {
+            return m_childSelectionCount;
+        }
+    
 
         bool Node::descendantSelected() const {
             return m_descendantSelectionCount > 0;
@@ -283,14 +294,29 @@ namespace TrenchBroom {
             return m_descendantSelectionCount;
         }
         
-        void Node::descendantWasSelected() {
-            incDescendantSelectionCount(1);
+        void Node::childWasSelected() {
+            incChildSelectionCount(1);
         }
         
-        void Node::descendantWasDeselected() {
-            decDescendantSelectionCount(1);
+        void Node::childWasDeselected() {
+            decChildSelectionCount(1);
         }
 
+        void Node::incChildSelectionCount(const size_t delta) {
+            if (delta == 0)
+                return;
+            m_childSelectionCount += delta;
+            incDescendantSelectionCount(delta);
+        }
+        
+        void Node::decChildSelectionCount(const size_t delta) {
+            if (delta == 0)
+                return;
+            assert(m_childSelectionCount >= delta);
+            m_childSelectionCount -= delta;
+            decDescendantSelectionCount(delta);
+        }
+        
         void Node::incDescendantSelectionCount(const size_t delta) {
             if (delta == 0)
                 return;

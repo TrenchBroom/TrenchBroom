@@ -480,14 +480,14 @@ namespace TrenchBroom {
             assert(!m_selected);
             m_selected = true;
             if (m_brush != NULL)
-                m_brush->descendantWasSelected();
+                m_brush->childWasSelected();
         }
         
         void BrushFace::deselect() {
             assert(m_selected);
             m_selected = false;
             if (m_brush != NULL)
-                m_brush->descendantWasDeselected();
+                m_brush->childWasDeselected();
         }
         
         void BrushFace::addToMesh(Mesh& mesh) const {

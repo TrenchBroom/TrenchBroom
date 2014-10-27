@@ -32,6 +32,8 @@ namespace TrenchBroom {
             NodeList m_children;
             size_t m_descendantCount;
             bool m_selected;
+            
+            size_t m_childSelectionCount;
             size_t m_descendantSelectionCount;
 
             size_t m_lineNumber;
@@ -136,13 +138,19 @@ namespace TrenchBroom {
             bool selected() const;
             void select();
             void deselect();
+
+            bool childSelected() const;
+            size_t childSelectionCount() const;
             
             bool descendantSelected() const;
             size_t descendantSelectionCount() const;
 
-            void descendantWasSelected();
-            void descendantWasDeselected();
+            void childWasSelected();
+            void childWasDeselected();
         protected:
+            void incChildSelectionCount(size_t delta);
+            void decChildSelectionCount(size_t delta);
+        private:
             void incDescendantSelectionCount(size_t delta);
             void decDescendantSelectionCount(size_t delta);
         private:
