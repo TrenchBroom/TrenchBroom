@@ -21,7 +21,7 @@
 
 #include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/MapSerializer.h"
+#include "IO/NodeSerializer.h"
 #include "IO/MapFileSerializer.h"
 #include "IO/MapStreamSerializer.h"
 #include "Model/Brush.h"
@@ -32,9 +32,8 @@
 
 namespace TrenchBroom {
     namespace IO {
-        BrushWriter::BrushWriter(MapSerializer& serializer, bool selectionOnly) :
-        m_serializer(serializer),
-        m_selectionOnly(selectionOnly) {}
+        BrushWriter::BrushWriter(NodeSerializer& serializer) :
+        m_serializer(serializer) {}
         
         void BrushWriter::doVisit(Model::World* world)   { stopRecursion(); }
         void BrushWriter::doVisit(Model::Layer* layer)   { stopRecursion(); }
@@ -42,25 +41,14 @@ namespace TrenchBroom {
         void BrushWriter::doVisit(Model::Entity* entity) { stopRecursion(); }
         
         void BrushWriter::doVisit(Model::Brush* brush)   {
-            if (!m_selectionOnly || brush->selected()) {
-                const Model::BrushFaceList& faces = brush->faces();
-                Model::BrushFaceList::const_iterator it, end;
-                
-                m_serializer.beginBrush(brush);
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                    Model::BrushFace* face = *it;
-                    m_serializer.brushFace(face);
-                }
-                m_serializer.endBrush(brush);
-            }
+            m_serializer.brush(brush);
         }
 
         Model::EntityAttribute::List getParentAttributes(const Model::Node* node);
         
-        MapWriter::MapWriter(MapSerializer& serializer, const bool selectionOnly, const Model::Node* currentParent) :
+        MapWriter::MapWriter(NodeSerializer& serializer, const Model::Node* currentParent) :
         m_serializer(serializer),
-        m_brushWriter(m_serializer, selectionOnly),
-        m_selectionOnly(selectionOnly),
+        m_brushWriter(m_serializer),
         m_parentAttributes(getParentAttributes(currentParent)) {}
         
         void MapWriter::doVisit(Model::World* world)   {
@@ -71,7 +59,7 @@ namespace TrenchBroom {
             Model::LayerList::const_iterator it, end;
             for (it = customLayers.begin(), end = customLayers.end(); it != end; ++it) {
                 Model::Layer* layer = *it;
-                writeContainer(Model::EntityAttribute::EmptyList, layerAttributes(layer), layer);
+                writeContainer(Model::EntityAttribute::EmptyList, m_serializer.layerAttributes(layer), layer);
             }
             
             stopRecursion();
@@ -80,7 +68,7 @@ namespace TrenchBroom {
         void MapWriter::doVisit(Model::Layer* layer)   { stopRecursion(); }
         
         void MapWriter::doVisit(Model::Group* group)   {
-            writeContainer(groupAttributes(group), m_parentAttributes, group);
+            writeContainer(m_serializer.groupAttributes(group), m_parentAttributes, group);
             stopRecursion();
         }
         
@@ -96,50 +84,22 @@ namespace TrenchBroom {
         void MapWriter::writeDefaultLayer(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node) {
             writeEntity(attrs, extra, node);
             
-            MapWriter writer(m_serializer, m_selectionOnly, NULL);
+            MapWriter writer(m_serializer, NULL);
             node->iterate(writer);
         }
         
         void MapWriter::writeContainer(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node) {
             writeEntity(attrs, extra, node);
             
-            MapWriter writer(m_serializer, m_selectionOnly, node);
+            MapWriter writer(m_serializer, node);
             node->iterate(writer);
         }
         
         void MapWriter::writeEntity(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node) {
-            if (!m_selectionOnly || node->selected() || node->descendantSelected()) {
-                m_serializer.beginEntity(node);
-                writeAttributes(attrs);
-                writeAttributes(extra);
-                
-                node->iterate(m_brushWriter);
-                m_serializer.endEntity(node);
-            }
-        }
-        
-        Model::EntityAttribute::List MapWriter::layerAttributes(const Model::Layer* layer) {
-            Model::EntityAttribute::List attrs;
-            attrs.reserve(3);
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname));
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer));
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()));
-            return attrs;
-        }
-        
-        Model::EntityAttribute::List MapWriter::groupAttributes(const Model::Group* group) {
-            Model::EntityAttribute::List attrs;
-            attrs.reserve(3);
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::GroupClassname));
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeGroup));
-            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupName, group->name()));
-            return attrs;
-        }
-        
-        void MapWriter::writeAttributes(const Model::EntityAttribute::List& attrs) {
-            Model::EntityAttribute::List::const_iterator it, end;
-            for (it = attrs.begin(), end = attrs.end(); it != end; ++it)
-                m_serializer.entityAttribute(*it);
+            m_serializer.beginEntity(node, attrs);
+            m_serializer.entityAttributes(attrs);
+            node->iterate(m_brushWriter);
+            m_serializer.endEntity(node);
         }
         
         class GetParentAttributes : public Model::ConstNodeVisitor {
@@ -170,33 +130,25 @@ namespace TrenchBroom {
             if (IO::Disk::fileExists(IO::Disk::fixPath(path)) && !overwrite)
                 throw FileSystemException("File already exists: " + path.asString());
 
-            MapSerializer::Ptr serializer = MapFileSerializer::create(map->format(), path);
-            MapWriter writer(*serializer, false);
+            NodeSerializer::Ptr serializer = MapFileSerializer::create(map->format(), path);
+            MapWriter writer(*serializer);
             map->accept(writer);
         }
 
         void MapWriter::writeToStream(Model::World* map, std::ostream& stream) {
-            writeToStream(map, false, stream);
-        }
-        
-        void MapWriter::writeSelectionToStream(Model::World* map, std::ostream& stream) {
-            writeToStream(map, true, stream);
+            NodeSerializer::Ptr serializer = MapStreamSerializer::create(map->format(), stream);
+            MapWriter writer(*serializer);
+            map->accept(writer);
         }
 
         void MapWriter::writeToStream(const Model::BrushFaceList& faces, const Model::MapFormat::Type format, std::ostream& stream) {
-            MapSerializer::Ptr serializer = MapStreamSerializer::create(format, stream);
+            NodeSerializer::Ptr serializer = MapStreamSerializer::create(format, stream);
 
             Model::BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                 Model::BrushFace* face = *it;
                 serializer->brushFace(face);
             }
-        }
-
-        void MapWriter::writeToStream(Model::World* map, const bool selectedOnly, std::ostream& stream) {
-            MapSerializer::Ptr serializer = MapStreamSerializer::create(map->format(), stream);
-            MapWriter writer(*serializer, selectedOnly);
-            map->accept(writer);
         }
     }
 }

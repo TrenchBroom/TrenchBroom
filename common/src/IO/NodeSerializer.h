@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapSerializer__
-#define __TrenchBroom__MapSerializer__
+#ifndef __TrenchBroom__NodeSerializer__
+#define __TrenchBroom__NodeSerializer__
 
 #include "Model/EntityAttributes.h"
 #include "Model/ModelTypes.h"
@@ -29,21 +29,38 @@ namespace TrenchBroom {
     namespace IO {
         class Path;
         
-        class MapSerializer {
+        class NodeSerializer {
         protected:
             static const int FloatPrecision = 17;
         public:
-            typedef std::auto_ptr<MapSerializer> Ptr;
+            typedef std::auto_ptr<NodeSerializer> Ptr;
             
-            virtual ~MapSerializer();
+            virtual ~NodeSerializer();
+
+            void layer(Model::Layer* layer);
+            void group(Model::Group* group, const Model::EntityAttribute::List& parentAttributes);
             
+            void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes);
+            void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushList& entityBrushes);
+            
+            void beginEntity(const Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& extraAttributes);
             void beginEntity(const Model::Node* node);
             void endEntity(Model::Node* node);
+            
+            void entityAttributes(const Model::EntityAttribute::List& attributes);
             void entityAttribute(const Model::EntityAttribute& attribute);
+
+            void brushes(const Model::BrushList& brushes);
+            void brush(Model::Brush* brush);
             
             void beginBrush(const Model::Brush* brush);
             void endBrush(Model::Brush* brush);
+            
+            void brushFaces(const Model::BrushFaceList& faces);
             void brushFace(Model::BrushFace* face);
+            
+            Model::EntityAttribute::List layerAttributes(const Model::Layer* layer);
+            Model::EntityAttribute::List groupAttributes(const Model::Group* group);
         private:
             virtual void doBeginEntity(const Model::Node* node) = 0;
             virtual void doEndEntity(Model::Node* node) = 0;
@@ -56,4 +73,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MapSerializer__) */
+#endif /* defined(__TrenchBroom__NodeSerializer__) */

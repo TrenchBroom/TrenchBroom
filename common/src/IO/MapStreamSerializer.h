@@ -20,14 +20,14 @@
 #ifndef __TrenchBroom__MapStreamSerializer__
 #define __TrenchBroom__MapStreamSerializer__
 
-#include "IO/MapSerializer.h"
+#include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
 
 #include <iostream>
 
 namespace TrenchBroom {
     namespace IO {
-        class MapStreamSerializer : public MapSerializer {
+        class MapStreamSerializer : public NodeSerializer {
         private:
             std::ostream& m_stream;
         public:

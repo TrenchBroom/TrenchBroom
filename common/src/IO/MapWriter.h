@@ -31,13 +31,12 @@ namespace TrenchBroom {
     namespace IO {
         class Path;
 
-        class MapSerializer;
+        class NodeSerializer;
         class BrushWriter : public Model::NodeVisitor {
         private:
-            MapSerializer& m_serializer;
-            bool m_selectionOnly;
+            NodeSerializer& m_serializer;
         public:
-            BrushWriter(MapSerializer& serializer, bool selectionOnly);
+            BrushWriter(NodeSerializer& serializer);
         private:
             void doVisit(Model::World* world);
             void doVisit(Model::Layer* layer);
@@ -48,19 +47,16 @@ namespace TrenchBroom {
         
         class MapWriter : public Model::NodeVisitor {
         private:
-            MapSerializer& m_serializer;
+            NodeSerializer& m_serializer;
             BrushWriter m_brushWriter;
-            bool m_selectionOnly;
             const Model::EntityAttribute::List m_parentAttributes;
         public:
-            MapWriter(MapSerializer& serializer, bool selectionOnly, const Model::Node* currentParent = NULL);
+            MapWriter(NodeSerializer& serializer, const Model::Node* currentParent = NULL);
             
             static void writeToFile(Model::World* map, const Path& path, bool overwrite);
             static void writeToStream(Model::World* map, std::ostream& stream);
             static void writeSelectionToStream(Model::World* map, std::ostream& stream);
             static void writeToStream(const Model::BrushFaceList& faces, Model::MapFormat::Type format, std::ostream& stream);
-        private:
-            static void writeToStream(Model::World* map, bool selectedOnly, std::ostream& stream);
         private:
             void doVisit(Model::World* world);
             void doVisit(Model::Layer* layer);
@@ -71,11 +67,6 @@ namespace TrenchBroom {
             void writeDefaultLayer(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node);
             void writeContainer(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node);
             void writeEntity(const Model::EntityAttribute::List& attrs, const Model::EntityAttribute::List& extra, Model::Node* node);
-
-            Model::EntityAttribute::List layerAttributes(const Model::Layer* layer);
-            Model::EntityAttribute::List groupAttributes(const Model::Group* group);
-            
-            void writeAttributes(const Model::EntityAttribute::List& attrs);
         };
     }
 }

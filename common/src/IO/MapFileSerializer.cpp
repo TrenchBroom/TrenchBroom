@@ -205,14 +205,14 @@ namespace TrenchBroom {
             }
         };
 
-        MapSerializer::Ptr MapFileSerializer::create(const Model::MapFormat::Type format, const IO::Path& path) {
+        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat::Type format, const IO::Path& path) {
             switch (format) {
                 case Model::MapFormat::Standard:
-                    return MapSerializer::Ptr(new StandardFileSerializer(path));
+                    return NodeSerializer::Ptr(new StandardFileSerializer(path));
                 case Model::MapFormat::Valve:
-                    return MapSerializer::Ptr(new ValveFileSerializer(path));
+                    return NodeSerializer::Ptr(new ValveFileSerializer(path));
                 case Model::MapFormat::Hexen2:
-                    return MapSerializer::Ptr(new Hexen2FileSerializer(path));
+                    return NodeSerializer::Ptr(new Hexen2FileSerializer(path));
                 case Model::MapFormat::Unknown:
                 default:
                     throw new FileFormatException("Unknown map file format");
