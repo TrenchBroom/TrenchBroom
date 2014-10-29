@@ -38,7 +38,7 @@ namespace TrenchBroom {
             size_t m_line;
             FILE* m_stream;
         public:
-            static Ptr create(Model::MapFormat::Type format, const IO::Path& path);
+            static Ptr create(Model::MapFormat::Type format, const IO::Path& path, bool overwrite);
         protected:
             MapFileSerializer(const IO::Path& path);
         public:

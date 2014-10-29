@@ -19,17 +19,18 @@
 
 #include "NodeWriter.h"
 
+#include "IO/MapFileSerializer.h"
 #include "IO/MapStreamSerializer.h"
-#include "IO/MapWriter.h"
 #include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/Group.h"
+#include "Model/Layer.h"
 #include "Model/Node.h"
+#include "Model/World.h"
 
 namespace TrenchBroom {
     namespace IO {
-        NodeWriter::NodeWriter(NodeSerializer& serializer) :
-        m_serializer(serializer) {}
-        
         class NodeWriter::CollectEntityBrushesStrategy {
         public:
             typedef Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy> AssortNodesVisitor;
@@ -70,39 +71,104 @@ namespace TrenchBroom {
             }
         };
         
-        
-        void NodeWriter::writeNodes(const Model::NodeList& nodes) {
-            CollectEntityBrushesStrategy::AssortNodesVisitor assort;
-            Model::Node::accept(nodes.begin(), nodes.end(), assort);
+        class NodeWriter::WriteNode : public Model::NodeVisitor {
+        private:
+            NodeSerializer& m_serializer;
+            const Model::EntityAttribute::List m_parentAttributes;
+        public:
+            WriteNode(NodeSerializer& serializer, const Model::Node* parent = NULL) :
+            m_serializer(serializer),
+            m_parentAttributes(m_serializer.parentAttributes(parent)) {}
             
-            writeGroups(assort.groups());
-            writeEntities(assort.entities());
-            writeWorldBrushes(assort.worldBrushes());
-            writeEntityBrushes(assort.entityBrushes());
+            void doVisit(Model::World* world)   { stopRecursion(); }
+            void doVisit(Model::Layer* layer)   { stopRecursion(); }
+            
+            void doVisit(Model::Group* group)   {
+                m_serializer.group(group, m_parentAttributes);
+                WriteNode visitor(m_serializer, group);
+                group->iterate(visitor);
+                stopRecursion();
+            }
+            
+            void doVisit(Model::Entity* entity) {
+                m_serializer.entity(entity, entity->attributes(), m_parentAttributes, entity);
+                stopRecursion();
+            }
+
+            void doVisit(Model::Brush* brush)   { stopRecursion();  }
+        };
+        
+        NodeWriter::NodeWriter(Model::World* world, const Path& path, const bool overwrite) :
+        m_world(world),
+        m_serializer(MapFileSerializer::create(m_world->format(), path, overwrite)) {}
+        
+        NodeWriter::NodeWriter(Model::World* world, std::ostream& stream) :
+        m_world(world),
+        m_serializer(MapStreamSerializer::create(m_world->format(), stream)) {}
+
+        void NodeWriter::writeMap() {
+            writeDefaultLayer();
+            writeCustomLayers();
         }
         
-        void NodeWriter::writeNodesToStream(const Model::NodeList& nodes, Model::MapFormat::Type format, std::ostream& stream) {
-            NodeSerializer::Ptr serializer = MapStreamSerializer::create(format, stream);
-            NodeWriter writer(*serializer);
-            writer.writeNodes(nodes);
+        void NodeWriter::writeDefaultLayer() {
+            m_serializer->defaultLayer(m_world);
+            
+            const Model::NodeList& children = m_world->defaultLayer()->children();
+            WriteNode visitor(*m_serializer);
+            Model::Node::accept(children.begin(), children.end(), visitor);
+        }
+        
+        void NodeWriter::writeCustomLayers() {
+            const Model::LayerList customLayers = m_world->customLayers();
+            Model::LayerList::const_iterator it, end;
+            for (it = customLayers.begin(), end = customLayers.end(); it != end; ++it) {
+                Model::Layer* layer = *it;
+                writeCustomLayer(layer);
+            }
+        }
+        
+        void NodeWriter::writeCustomLayer(Model::Layer* layer) {
+            m_serializer->customLayer(layer);
+            
+            const Model::NodeList& children = layer->children();
+            WriteNode visitor(*m_serializer, layer);
+            Model::Node::accept(children.begin(), children.end(), visitor);
         }
 
-        void NodeWriter::writeGroups(const Model::GroupList& groups) {
-            MapWriter writer(m_serializer);
-            Model::Node::accept(groups.begin(), groups.end(), writer);
-        }
-        
-        void NodeWriter::writeEntities(const Model::EntityList& entities) {
-            MapWriter writer(m_serializer);
-            Model::Node::accept(entities.begin(), entities.end(), writer);
+        void NodeWriter::writeNodes(const Model::NodeList& nodes) {
+            typedef Model::AssortNodesVisitorT<Model::SkipLayersStrategy, Model::CollectGroupsStrategy, Model::CollectEntitiesStrategy, CollectEntityBrushesStrategy> CollectNodes;
+            
+            CollectNodes collect;
+            Model::Node::accept(nodes.begin(), nodes.end(), collect);
+            
+            writeWorldBrushes(collect.worldBrushes());
+            writeEntityBrushes(collect.entityBrushes());
+       
+            const Model::GroupList& groups = collect.groups();
+            const Model::EntityList& entities = collect.entities();
+            
+            WriteNode visitor(*m_serializer);
+            Model::Node::accept(groups.begin(), groups.end(), visitor);
+            Model::Node::accept(entities.begin(), entities.end(), visitor);
         }
         
         void NodeWriter::writeWorldBrushes(const Model::BrushList& brushes) {
-            BrushWriter writer(m_serializer);
-            Model::Node::accept(brushes.begin(), brushes.end(), writer);
+            if (!brushes.empty())
+                m_serializer->entity(m_world, m_world->attributes(), Model::EntityAttribute::EmptyList, brushes);
         }
         
         void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes) {
+            EntityBrushesMap::const_iterator it, end;
+            for (it = entityBrushes.begin(), end = entityBrushes.end(); it != end; ++it) {
+                Model::Entity* entity = it->first;
+                const Model::BrushList& brushes = it->second;
+                m_serializer->entity(entity, entity->attributes(), Model::EntityAttribute::EmptyList, brushes);
+            }
+        }
+
+        void NodeWriter::writeBrushFaces(const Model::BrushFaceList& faces) {
+            m_serializer->brushFaces(faces);
         }
     }
 }

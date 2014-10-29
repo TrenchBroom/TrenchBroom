@@ -168,13 +168,13 @@ namespace TrenchBroom {
 
         String MapDocument::serializeSelectedNodes() {
             StringStream stream;
-            m_game->writeSelectedNodesToStream(m_world, stream);
+            m_game->writeNodesToStream(m_world, m_selectedNodes.nodes(), stream);
             return stream.str();
         }
         
         String MapDocument::serializeSelectedBrushFaces() {
             StringStream stream;
-            m_game->writeBrushFacesToStream(m_selectedBrushFaces, m_world->format(), stream);
+            m_game->writeBrushFacesToStream(m_world, m_selectedBrushFaces, stream);
             return stream.str();
         }
 

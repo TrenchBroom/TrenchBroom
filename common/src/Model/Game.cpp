@@ -80,12 +80,12 @@ namespace TrenchBroom {
         }
          */
         
-        void Game::writeSelectedNodesToStream(World* world, std::ostream& stream) const {
-            doWriteSelectedNodesToStream(world, stream);
+        void Game::writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
+            doWriteNodesToStream(world, nodes, stream);
         }
     
-        void Game::writeBrushFacesToStream(const Model::BrushFaceList& faces, const MapFormat::Type format, std::ostream& stream) const {
-            doWriteBrushFacesToStream(faces, format, stream);
+        void Game::writeBrushFacesToStream(World* world, const Model::BrushFaceList& faces, std::ostream& stream) const {
+            doWriteBrushFacesToStream(world, faces, stream);
         }
     
         bool Game::isTextureCollection(const IO::Path& path) const {

@@ -205,7 +205,10 @@ namespace TrenchBroom {
             }
         };
 
-        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat::Type format, const IO::Path& path) {
+        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat::Type format, const IO::Path& path, bool overwrite) {
+            if (IO::Disk::fileExists(IO::Disk::fixPath(path)) && !overwrite)
+                throw FileSystemException("File already exists: " + path.asString());
+
             switch (format) {
                 case Model::MapFormat::Standard:
                     return NodeSerializer::Ptr(new StandardFileSerializer(path));

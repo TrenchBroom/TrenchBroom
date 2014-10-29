@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "IO/MapWriter.h"
+#include "IO/NodeWriter.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/Group.h"
@@ -29,23 +29,25 @@
 
 namespace TrenchBroom {
     namespace IO {
-        TEST(MapWriterTest, writeEmptyMap) {
+        TEST(NodeWriterTest, writeEmptyMap) {
             Model::World map(Model::MapFormat::Standard, NULL);
             
             StringStream str;
-            MapWriter::writeToStream(&map, str);
+            NodeWriter writer(&map, str);
+            writer.writeMap();
             
             const String result = str.str();
             ASSERT_STREQ("{\n}\n", result.c_str());
         }
 
-        TEST(MapWriterTest, writeWorldspawn) {
+        TEST(NodeWriterTest, writeWorldspawn) {
             Model::World map(Model::MapFormat::Standard, NULL);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "holy damn");
             
             StringStream str;
-            MapWriter::writeToStream(&map, str);
+            NodeWriter writer(&map, str);
+            writer.writeMap();
             
             const String result = str.str();
             ASSERT_STREQ("{\n"
@@ -54,7 +56,7 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
         
-        TEST(MapWriterTest, writeWorldspawnWithBrushInDefaultLayer) {
+        TEST(NodeWriterTest, writeWorldspawnWithBrushInDefaultLayer) {
             const BBox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, NULL);
@@ -65,7 +67,8 @@ namespace TrenchBroom {
             map.defaultLayer()->addChild(brush);
             
             StringStream str;
-            MapWriter::writeToStream(&map, str);
+            NodeWriter writer(&map, str);
+            writer.writeMap();
             
             const String result = str.str();
             ASSERT_STREQ("{\n"
@@ -81,7 +84,7 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
         
-        TEST(MapWriterTest, writeWorldspawnWithBrushInCustomLayer) {
+        TEST(NodeWriterTest, writeWorldspawnWithBrushInCustomLayer) {
             const BBox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, NULL);
@@ -95,7 +98,8 @@ namespace TrenchBroom {
             layer->addChild(brush);
             
             StringStream str;
-            MapWriter::writeToStream(&map, str);
+            NodeWriter writer(&map, str);
+            writer.writeMap();
             
             const String result = str.str();
             ASSERT_STREQ("{\n"
@@ -116,7 +120,7 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
         
-        TEST(MapWriterTest, writeMapWithGroupInDefaultLayer) {
+        TEST(NodeWriterTest, writeMapWithGroupInDefaultLayer) {
             const BBox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, NULL);
@@ -130,7 +134,8 @@ namespace TrenchBroom {
             group->addChild(brush);
             
             StringStream str;
-            MapWriter::writeToStream(&map, str);
+            NodeWriter writer(&map, str);
+            writer.writeMap();
             
             const String result = str.str();
             ASSERT_STREQ("{\n"
@@ -151,7 +156,7 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
         
-        TEST(MapWriterTest, writeMapWithGroupInCustomLayer) {
+        TEST(NodeWriterTest, writeMapWithGroupInCustomLayer) {
             const BBox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, NULL);
@@ -168,7 +173,8 @@ namespace TrenchBroom {
             group->addChild(brush);
             
             StringStream str;
-            MapWriter::writeToStream(&map, str);
+            NodeWriter writer(&map, str);
+            writer.writeMap();
             
             const String result = str.str();
             ASSERT_STREQ("{\n"
@@ -195,7 +201,7 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
         
-        TEST(MapWriterTest, writeMapWithNestedGroupInCustomLayer) {
+        TEST(NodeWriterTest, writeMapWithNestedGroupInCustomLayer) {
             const BBox3 worldBounds(8192.0);
             
             Model::World map(Model::MapFormat::Standard, NULL);
@@ -215,7 +221,8 @@ namespace TrenchBroom {
             inner->addChild(brush);
             
             StringStream str;
-            MapWriter::writeToStream(&map, str);
+            NodeWriter writer(&map, str);
+            writer.writeMap();
             
             const String result = str.str();
             ASSERT_STREQ("{\n"
@@ -248,41 +255,48 @@ namespace TrenchBroom {
                          "}\n", result.c_str());
         }
         
-        /*
-        TEST(MapWriterTest, writeNodesWithNestedGroup) {
+        TEST(NodeWriterTest, writeNodesWithNestedGroup) {
             const BBox3 worldBounds(8192.0);
 
-            Model::ModelFactoryImpl factory(Model::MapFormat::Standard, NULL);
-            
-            Model::NodeList nodes;
-            
-            Model::Group* outer = factory.createGroup("Outer Group");
-            Model::Group* inner = factory.createGroup("Inner Group");
-            outer->addChild(inner);
-            
-            Model::BrushBuilder builder(&factory, worldBounds);
-            Model::Brush* innerBrush = builder.createCube(64.0, "none");
-            inner->addChild(innerBrush);
-            
-            Model::Brush* outerBrush = builder.createCube(64.0, "some");
+            Model::World map(Model::MapFormat::Standard, NULL);
+            map.addOrUpdateAttribute("classname", "worldspawn");
 
-            nodes.push_back(outer);
-            nodes.push_back(outerBrush);
+            Model::BrushBuilder builder(&map, worldBounds);
+            
+            Model::Brush* worldBrush = builder.createCube(64.0, "some");
+            Model::Group* outer = map.createGroup("Outer Group");
+            Model::Group* inner = map.createGroup("Inner Group");
+            Model::Brush* innerBrush = builder.createCube(64.0, "none");
+            
+            inner->addChild(innerBrush);
+            outer->addChild(inner);
+            map.defaultLayer()->addChild(worldBrush);
+            map.defaultLayer()->addChild(outer);
+
+            Model::NodeList nodes;
+            nodes.push_back(inner);
+            nodes.push_back(worldBrush);
             
             StringStream str;
-            MapWriter::writeToStream(Model::MapFormat::Standard, nodes, str);
+            NodeWriter writer(&map, str);
+            writer.writeNodes(nodes);
             
             const String result = str.str();
             ASSERT_STREQ("{\n"
-                         "\"classname\" \"func_group\"\n"
-                         "\"_tb_type\" \"_tb_group\"\n"
-                         "\"_tb_name\" \"Outer Group\"\n"
+                         "\"classname\" \"worldspawn\"\n"
+                         "{\n"
+                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1\n"
+                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1\n"
+                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1\n"
+                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1\n"
+                         "}\n"
                          "}\n"
                          "{\n"
                          "\"classname\" \"func_group\"\n"
                          "\"_tb_type\" \"_tb_group\"\n"
                          "\"_tb_name\" \"Inner Group\"\n"
-                         "\"_tb_group\" \"Outer Group\"\n"
                          "{\n"
                          "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
                          "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
@@ -291,28 +305,19 @@ namespace TrenchBroom {
                          "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
                          "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
                          "}\n"
-                         "}\n"
-                         "{\n"
-                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1\n"
                          "}\n", result.c_str());
-            
-            VectorUtils::clearAndDelete(nodes);
         }
 
-        TEST(MapWriterTest, writeFaces) {
+        TEST(NodeWriterTest, writeFaces) {
             const BBox3 worldBounds(8192.0);
             
-            Model::ModelFactoryImpl factory(Model::MapFormat::Standard, NULL);
-            Model::BrushBuilder builder(&factory, worldBounds);
+            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::BrushBuilder builder(&map, worldBounds);
             Model::Brush* brush = builder.createCube(64.0, "none");
             
             StringStream str;
-            MapWriter::writeToStream(Model::MapFormat::Standard, brush->faces(), str);
+            NodeWriter writer(&map, str);
+            writer.writeBrushFaces(brush->faces());
             
             const String result = str.str();
             ASSERT_STREQ("( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
@@ -325,6 +330,5 @@ namespace TrenchBroom {
 
             delete brush;
         }
-         */
     }
 }

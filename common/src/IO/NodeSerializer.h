@@ -30,6 +30,8 @@ namespace TrenchBroom {
         class Path;
         
         class NodeSerializer {
+        private:
+            class BrushSerializer;
         protected:
             static const int FloatPrecision = 17;
         public:
@@ -37,10 +39,11 @@ namespace TrenchBroom {
             
             virtual ~NodeSerializer();
 
-            void layer(Model::Layer* layer);
+            void defaultLayer(Model::World* world);
+            void customLayer(Model::Layer* layer);
             void group(Model::Group* group, const Model::EntityAttribute::List& parentAttributes);
             
-            void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes);
+            void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, Model::Node* brushParent);
             void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushList& entityBrushes);
             
             void beginEntity(const Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& extraAttributes);
@@ -59,6 +62,7 @@ namespace TrenchBroom {
             void brushFaces(const Model::BrushFaceList& faces);
             void brushFace(Model::BrushFace* face);
             
+            Model::EntityAttribute::List parentAttributes(const Model::Node* node);
             Model::EntityAttribute::List layerAttributes(const Model::Layer* layer);
             Model::EntityAttribute::List groupAttributes(const Model::Group* group);
         private:

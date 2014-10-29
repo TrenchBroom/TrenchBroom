@@ -67,8 +67,8 @@ namespace TrenchBroom {
             BrushList parseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
             BrushFaceList parseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
              */
-            void writeSelectedNodesToStream(World* world, std::ostream& stream) const;
-            void writeBrushFacesToStream(const BrushFaceList& faces, MapFormat::Type format, std::ostream& stream) const;
+            void writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
+            void writeBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
         public: // texture collection handling
             bool isTextureCollection(const IO::Path& path) const;
             IO::Path::List findBuiltinTextureCollections() const;
@@ -103,8 +103,8 @@ namespace TrenchBroom {
             virtual BrushList doParseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
             virtual BrushFaceList doParseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
              */
-            virtual void doWriteSelectedNodesToStream(World* world, std::ostream& stream) const = 0;
-            virtual void doWriteBrushFacesToStream(const BrushFaceList& faces, MapFormat::Type format, std::ostream& stream) const = 0;
+            virtual void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const = 0;
+            virtual void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const = 0;
             
             virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
             virtual IO::Path::List doFindBuiltinTextureCollections() const = 0;

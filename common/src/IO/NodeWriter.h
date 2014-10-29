@@ -20,28 +20,39 @@
 #ifndef __TrenchBroom__NodeWriter__
 #define __TrenchBroom__NodeWriter__
 
+#include "IO/NodeSerializer.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace IO {
+        class Path;
         class NodeSerializer;
+        
         class NodeWriter {
         private:
             typedef std::map<Model::Entity*, Model::BrushList> EntityBrushesMap;
             class CollectEntityBrushesStrategy;
+            class WriteNode;
             
-            NodeSerializer& m_serializer;
+            Model::World* m_world;
+            NodeSerializer::Ptr m_serializer;
         public:
-            NodeWriter(NodeSerializer& serializer);
-            void writeNodes(const Model::NodeList& nodes);
+            NodeWriter(Model::World* world, const Path& path, bool overwrite);
+            NodeWriter(Model::World* world, std::ostream& stream);
             
-            static void writeNodesToStream(const Model::NodeList& nodes, Model::MapFormat::Type format, std::ostream& stream);
+            void writeMap();
         private:
-            void writeGroups(const Model::GroupList& groups);
-            void writeEntities(const Model::EntityList& entities);
+            void writeDefaultLayer();
+            void writeCustomLayers();
+            void writeCustomLayer(Model::Layer* layer);
+        public:
+            void writeNodes(const Model::NodeList& nodes);
+        private:
             void writeWorldBrushes(const Model::BrushList& brushes);
             void writeEntityBrushes(const EntityBrushesMap& entityBrushes);
+        public:
+            void writeBrushFaces(const Model::BrushFaceList& faces);
         };
     }
 }

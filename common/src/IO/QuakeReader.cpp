@@ -168,8 +168,9 @@ namespace TrenchBroom {
             entity->setAttributes(attributes);
             setExtraAttributes(entity, extraAttributes);
 
-            storeNode(entity, attributes);
-
+            const ParentInfo::Type parentType = storeNode(entity, attributes);
+            stripParentAttributes(entity, parentType);
+            
             m_currentNode = entity;
             m_brushParent = entity;
         }
@@ -192,7 +193,7 @@ namespace TrenchBroom {
 
         }
 
-        void QuakeReader::storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes) {
+        QuakeReader::ParentInfo::Type QuakeReader::storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes) {
             const String& groupName = findAttribute(attributes, Model::AttributeNames::Group);
             if (!groupName.empty()) {
                 Model::Group* group = MapUtils::find(m_groups, groupName, static_cast<Model::Group*>(NULL));
@@ -200,20 +201,37 @@ namespace TrenchBroom {
                     onNode(group, node);
                 else
                     m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::group(groupName)));
-            } else {
-                const String& layerName = findAttribute(attributes, Model::AttributeNames::Layer);
-                if (!layerName.empty()) {
-                    Model::Layer* layer = MapUtils::find(m_layers, layerName, static_cast<Model::Layer*>(NULL));
-                    if (layer != NULL)
-                        onNode(layer, node);
-                    else
-                        m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::layer(layerName)));
-                } else {
-                    onNode(NULL, node);
-                }
+                return ParentInfo::Type_Group;
             }
+
+            const String& layerName = findAttribute(attributes, Model::AttributeNames::Layer);
+            if (!layerName.empty()) {
+                Model::Layer* layer = MapUtils::find(m_layers, layerName, static_cast<Model::Layer*>(NULL));
+                if (layer != NULL)
+                    onNode(layer, node);
+                else
+                    m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::layer(layerName)));
+                return ParentInfo::Type_Layer;
+            }
+            
+            onNode(NULL, node);
+            return ParentInfo::Type_None;
         }
         
+        void QuakeReader::stripParentAttributes(Model::Attributable* attributable, const ParentInfo::Type parentType) {
+            switch (parentType) {
+                case ParentInfo::Type_Layer:
+                    attributable->removeAttribute(Model::AttributeNames::Layer);
+                    break;
+                case ParentInfo::Type_Group:
+                    attributable->removeAttribute(Model::AttributeNames::Group);
+                    break;
+                case ParentInfo::Type_None:
+                    break;
+                DEFAULT_SWITCH();
+            }
+        }
+
         void QuakeReader::resolveNodes() {
             NodeParentList::const_iterator it, end;
             for (it = m_unresolvedNodes.begin(), end = m_unresolvedNodes.end(); it != end; ++it) {

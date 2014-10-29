@@ -27,9 +27,9 @@
 #include "IO/FgdParser.h"
 #include "IO/FileSystem.h"
 #include "IO/MapParser.h"
-#include "IO/MapWriter.h"
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
+#include "IO/NodeWriter.h"
 #include "IO/QuakeMapReader.h"
 #include "IO/SystemPaths.h"
 #include "IO/WadTextureLoader.h"
@@ -90,7 +90,8 @@ namespace TrenchBroom {
         }
         
         void GameImpl::doWriteMap(World* world, const IO::Path& path) const {
-            IO::MapWriter::writeToFile(world, path, true);
+            IO::NodeWriter writer(world, path, true);
+            writer.writeMap();
         }
 
         /*
@@ -110,12 +111,14 @@ namespace TrenchBroom {
         }
          */
         
-        void GameImpl::doWriteSelectedNodesToStream(World* world, std::ostream& stream) const {
-            IO::MapWriter::writeSelectionToStream(world, stream);
+        void GameImpl::doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
+            IO::NodeWriter writer(world, stream);
+            writer.writeNodes(nodes);
         }
     
-        void GameImpl::doWriteBrushFacesToStream(const BrushFaceList& faces, const MapFormat::Type format, std::ostream& stream) const {
-            IO::MapWriter::writeToStream(faces, format, stream);
+        void GameImpl::doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const {
+            IO::NodeWriter writer(world, stream);
+            writer.writeBrushFaces(faces);
         }
     
         bool GameImpl::doIsTextureCollection(const IO::Path& path) const {

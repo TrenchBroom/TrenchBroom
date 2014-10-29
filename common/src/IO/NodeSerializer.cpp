@@ -22,17 +22,45 @@
 #include "Model/Brush.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
+#include "Model/NodeVisitor.h"
+#include "Model/World.h"
 
 namespace TrenchBroom {
     namespace IO {
+        class NodeSerializer::BrushSerializer : public Model::NodeVisitor {
+        private:
+            NodeSerializer& m_serializer;
+        public:
+            BrushSerializer(NodeSerializer& serializer) : m_serializer(serializer) {}
+            
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   {}
+            void doVisit(Model::Entity* entity) {}
+            void doVisit(Model::Brush* brush)   { m_serializer.brush(brush); }
+        };
+        
         NodeSerializer::~NodeSerializer() {}
         
-        void NodeSerializer::layer(Model::Layer* layer) {
-            entity(layer, layerAttributes(layer), Model::EntityAttribute::EmptyList);
+        void NodeSerializer::defaultLayer(Model::World* world) {
+            entity(world, world->attributes(), Model::EntityAttribute::EmptyList, world->defaultLayer());
+        }
+
+        void NodeSerializer::customLayer(Model::Layer* layer) {
+            entity(layer, layerAttributes(layer), Model::EntityAttribute::EmptyList, layer);
         }
         
         void NodeSerializer::group(Model::Group* group, const Model::EntityAttribute::List& parentAttributes) {
-            entity(group, groupAttributes(group), parentAttributes);
+            entity(group, groupAttributes(group), parentAttributes, group);
+        }
+
+        void NodeSerializer::entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, Model::Node* brushParent) {
+            beginEntity(node, attributes, parentAttributes);
+            
+            BrushSerializer brushSerializer(*this);
+            brushParent->iterate(brushSerializer);
+            
+            endEntity(node);
         }
 
         void NodeSerializer::entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushList& entityBrushes) {
@@ -93,6 +121,30 @@ namespace TrenchBroom {
 
         void NodeSerializer::brushFace(Model::BrushFace* face) {
             doBrushFace(face);
+        }
+        
+        class GetParentAttributes : public Model::ConstNodeVisitor {
+        private:
+            Model::EntityAttribute::List m_attributes;
+        public:
+            const Model::EntityAttribute::List& attributes() const {
+                return m_attributes;
+            }
+        private:
+            void doVisit(const Model::World* world)   {}
+            void doVisit(const Model::Layer* layer)   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, layer->name()));}
+            void doVisit(const Model::Group* group)   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, group->name())); }
+            void doVisit(const Model::Entity* entity) {}
+            void doVisit(const Model::Brush* brush)   {}
+        };
+        
+        Model::EntityAttribute::List NodeSerializer::parentAttributes(const Model::Node* node) {
+            if (node == NULL)
+                return Model::EntityAttribute::List(0);
+            
+            GetParentAttributes visitor;
+            node->accept(visitor);
+            return visitor.attributes();
         }
         
         Model::EntityAttribute::List NodeSerializer::layerAttributes(const Model::Layer* layer) {

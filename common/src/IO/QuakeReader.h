@@ -34,10 +34,11 @@ namespace TrenchBroom {
         class QuakeReader : public QuakeMapParser {
         protected:
             class ParentInfo {
-            private:
+            public:
                 typedef enum {
                     Type_Layer,
-                    Type_Group
+                    Type_Group,
+                    Type_None
                 } Type;
                 
                 Type m_type;
@@ -96,7 +97,9 @@ namespace TrenchBroom {
             void createEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
             void createBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
 
-            void storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes);
+            ParentInfo::Type storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes);
+            void stripParentAttributes(Model::Attributable* attributable, ParentInfo::Type parentType);
+            
             void resolveNodes();
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
             
