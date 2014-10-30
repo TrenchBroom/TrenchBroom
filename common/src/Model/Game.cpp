@@ -66,20 +66,14 @@ namespace TrenchBroom {
             doWriteMap(world, path);
         }
 
-        /*
-        Model::EntityList Game::parseEntities(const BBox3& worldBounds, MapFormat::Type format, const String& str) const {
-            return doParseEntities(worldBounds, format, str);
+        NodeList Game::parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+            return doParseNodes(str, world, worldBounds, logger);
         }
         
-        Model::BrushList Game::parseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const {
-            return doParseBrushes(worldBounds, format, str);
+        BrushFaceList Game::parseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+            return doParseBrushFaces(str, world, worldBounds, logger);
         }
-        
-        Model::BrushFaceList Game::parseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const {
-            return doParseFaces(worldBounds, format, str);
-        }
-         */
-        
+
         void Game::writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
             doWriteNodesToStream(world, nodes, stream);
         }

@@ -45,7 +45,6 @@ namespace TrenchBroom {
             IssueGeneratorRegistry m_issueGeneratorRegistry;
         public:
             World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder);
-            Model::MapFormat::Type format() const;
         public: // layer management
             Layer* defaultLayer() const;
             LayerList allLayers() const;
@@ -83,6 +82,7 @@ namespace TrenchBroom {
             bool doCanRenameAttribute(const AttributeName& name, const AttributeName& newName) const;
             bool doCanRemoveAttribute(const AttributeName& name) const;
         private: // implement ModelFactory interface
+            MapFormat::Type doGetFormat() const;
             World* doCreateWorld() const;
             Layer* doCreateLayer(const String& name) const;
             Group* doCreateGroup(const String& name) const;

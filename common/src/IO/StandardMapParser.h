@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__QuakeMapParser__
-#define __TrenchBroom__QuakeMapParser__
+#ifndef __TrenchBroom__StandardMapParser__
+#define __TrenchBroom__StandardMapParser__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -60,7 +60,7 @@ namespace TrenchBroom {
             Token emitToken();
         };
 
-        class QuakeMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
+        class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type> {
         private:
             typedef QuakeMapTokenizer::Token Token;
 
@@ -68,10 +68,10 @@ namespace TrenchBroom {
             Logger* m_logger;
             Model::MapFormat::Type m_format;
         public:
-            QuakeMapParser(const char* begin, const char* end, Logger* logger = NULL);
-            QuakeMapParser(const String& str, Logger* logger = NULL);
+            StandardMapParser(const char* begin, const char* end, Logger* logger = NULL);
+            StandardMapParser(const String& str, Logger* logger = NULL);
             
-            virtual ~QuakeMapParser();
+            virtual ~StandardMapParser();
         protected:
             Logger* logger() const;
 
@@ -98,4 +98,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__QuakeMapParser__) */
+#endif /* defined(__TrenchBroom__StandardMapParser__) */

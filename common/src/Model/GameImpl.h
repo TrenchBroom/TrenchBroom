@@ -57,11 +57,8 @@ namespace TrenchBroom {
             World* doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void doWriteMap(World* world, const IO::Path& path) const;
 
-            /*
-            EntityList doParseEntities(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
-            BrushList doParseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
-            BrushFaceList doParseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
-             */
+            NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
+            BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
             
             void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
             void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;

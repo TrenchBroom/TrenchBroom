@@ -48,8 +48,8 @@ namespace TrenchBroom {
         
         MapParser::~MapParser() {}
 
-        void MapParser::formatDetected(const Model::MapFormat::Type format) {
-            onFormatDetected(format);
+        void MapParser::formatSet(const Model::MapFormat::Type format) {
+            onFormatSet(format);
         }
 
         void MapParser::beginEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {

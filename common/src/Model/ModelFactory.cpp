@@ -23,6 +23,10 @@ namespace TrenchBroom {
     namespace Model {
         ModelFactory::~ModelFactory() {}
         
+        MapFormat::Type ModelFactory::format() const {
+            return doGetFormat();
+        }
+
         World* ModelFactory::createWorld() const {
             return doCreateWorld();
         }

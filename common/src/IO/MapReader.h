@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__QuakeReader__
-#define __TrenchBroom__QuakeReader__
+#ifndef __TrenchBroom__MapReader__
+#define __TrenchBroom__MapReader__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "IO/QuakeMapParser.h"
+#include "IO/StandardMapParser.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
@@ -31,7 +31,7 @@ namespace TrenchBroom {
     }
     
     namespace IO {
-        class QuakeReader : public QuakeMapParser {
+        class MapReader : public StandardMapParser {
         protected:
             class ParentInfo {
             public:
@@ -78,14 +78,16 @@ namespace TrenchBroom {
             GroupMap m_groups;
             NodeParentList m_unresolvedNodes;
         protected:
-            QuakeReader(const char* begin, const char* end, Logger* logger = NULL);
-            QuakeReader(const String& str, Logger* logger = NULL);
+            MapReader(const char* begin, const char* end, Logger* logger = NULL);
+            MapReader(const String& str, Logger* logger = NULL);
             
-            void read(const BBox3& worldBounds);
+            void readEntities(Model::MapFormat::Type format, const BBox3& worldBounds);
+            void readBrushes(Model::MapFormat::Type format, const BBox3& worldBounds);
+            void readBrushFaces(Model::MapFormat::Type format, const BBox3& worldBounds);
         public:
-            virtual ~QuakeReader();
+            virtual ~MapReader();
         private: // implement MapParser interface
-            void onFormatDetected(Model::MapFormat::Type format);
+            void onFormatSet(Model::MapFormat::Type format);
             void onBeginEntity(size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
             void onEndEntity(size_t startLine, size_t lineCount);
             void onBeginBrush(size_t line);
@@ -121,9 +123,9 @@ namespace TrenchBroom {
             virtual void onNode(Model::Node* parent, Model::Node* node) = 0;
             virtual void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node) = 0;
             virtual void onBrush(Model::Node* parent, Model::Brush* brush) = 0;
-            virtual void onBrushFace(Model::Brush* brush, Model::BrushFace* face) = 0;
+            virtual void onBrushFace(Model::BrushFace* face);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__QuakeReader__) */
+#endif /* defined(__TrenchBroom__MapReader__) */

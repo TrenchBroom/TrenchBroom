@@ -40,10 +40,6 @@ namespace TrenchBroom {
             createDefaultLayer();
         }
 
-        Model::MapFormat::Type World::format() const {
-            return m_factory.format();
-        }
-
         Layer* World::defaultLayer() const {
             assert(m_defaultLayer != NULL);
             return m_defaultLayer;
@@ -269,6 +265,10 @@ namespace TrenchBroom {
         
         bool World::doCanRemoveAttribute(const AttributeName& name) const {
             return isAttributeMutable(name);
+        }
+
+        MapFormat::Type World::doGetFormat() const {
+            return m_factory.format();
         }
 
         World* World::doCreateWorld() const {

@@ -17,27 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__QuakeMapReader__
-#define __TrenchBroom__QuakeMapReader__
+#ifndef __TrenchBroom__NodeReader__
+#define __TrenchBroom__NodeReader__
 
-#include "IO/QuakeReader.h"
+#include "IO/MapReader.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class BrushContentTypeBuilder;
+        class ModelFactory;
     }
     
     namespace IO {
-        class QuakeMapReader : public QuakeReader {
+        class NodeReader : public MapReader {
         private:
-            const Model::BrushContentTypeBuilder* m_brushContentTypeBuilder;
-            Model::World* m_world;
+            Model::ModelFactory* m_factory;
+            Model::NodeList m_nodes;
         public:
-            QuakeMapReader(const char* begin, const char* end, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
-            QuakeMapReader(const String& str, const Model::BrushContentTypeBuilder* brushContentTypeBuilder, Logger* logger = NULL);
-
-            Model::World* readMap(const BBox3& worldBounds);
-        private: // implement QuakeReader interface
+            NodeReader(const String& str, Model::ModelFactory* factory, Logger* logger = NULL);
+            
+            const Model::NodeList& read(const BBox3& worldBounds);
+        private: // implement MapReader interface
             Model::ModelFactory* initialize(Model::MapFormat::Type format);
             void onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount);
@@ -45,9 +45,8 @@ namespace TrenchBroom {
             void onNode(Model::Node* parent, Model::Node* node);
             void onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node);
             void onBrush(Model::Node* parent, Model::Brush* brush);
-            void onBrushFace(Model::Brush* brush, Model::BrushFace* face);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__QuakeMapReader__) */
+#endif /* defined(__TrenchBroom__NodeReader__) */

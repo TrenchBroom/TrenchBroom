@@ -29,6 +29,7 @@ namespace TrenchBroom {
         public:
             virtual ~ModelFactory();
             
+            MapFormat::Type format() const;
             World* createWorld() const;
             Layer* createLayer(const String& name) const;
             Group* createGroup(const String& name) const;
@@ -37,6 +38,7 @@ namespace TrenchBroom {
             BrushFace* createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName) const;
             BrushFace* createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY) const;
         private:
+            virtual MapFormat::Type doGetFormat() const = 0;
             virtual World* doCreateWorld() const = 0;
             virtual Layer* doCreateLayer(const String& name) const = 0;
             virtual Group* doCreateGroup(const String& name) const = 0;

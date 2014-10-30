@@ -38,8 +38,8 @@ namespace TrenchBroom {
         public:
             ModelFactoryImpl();
             ModelFactoryImpl(MapFormat::Type format, const BrushContentTypeBuilder* brushContentTypeBuilder);
-            MapFormat::Type format() const;
         private: // implement ModelFactory interface
+            MapFormat::Type doGetFormat() const;
             World* doCreateWorld() const;
             Layer* doCreateLayer(const String& name) const;
             Group* doCreateGroup(const String& name) const;

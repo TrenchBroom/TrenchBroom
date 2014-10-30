@@ -42,7 +42,7 @@ namespace TrenchBroom {
             assert(m_format != MapFormat::Unknown);
         }
 
-        MapFormat::Type ModelFactoryImpl::format() const {
+        MapFormat::Type ModelFactoryImpl::doGetFormat() const {
             return m_format;
         }
 

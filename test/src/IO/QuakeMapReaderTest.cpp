@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "IO/QuakeMapReader.h"
+#include "IO/WorldReader.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
@@ -39,11 +39,11 @@ namespace TrenchBroom {
             return NULL;
         }
         
-        TEST(QuakeMapReaderTest, parseEmptyMap) {
+        TEST(WorldReaderTest, parseEmptyMap) {
             const String data("");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_TRUE(world != NULL);
@@ -51,11 +51,11 @@ namespace TrenchBroom {
             ASSERT_FALSE(world->children().front()->hasChildren());
         }
 
-        TEST(QuakeMapReaderTest, parseMapWithEmptyEntity) {
+        TEST(WorldReaderTest, parseMapWithEmptyEntity) {
             const String data("{}");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_TRUE(world != NULL);
@@ -63,14 +63,14 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->children().front()->childCount());
         }
 
-        TEST(QuakeMapReaderTest, parseMapWithWorldspawn) {
+        TEST(WorldReaderTest, parseMapWithWorldspawn) {
             const String data("{"
                               "\"classname\" \"worldspawn\""
                               "\"message\" \"yay\""
                               "}");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_TRUE(world != NULL);
@@ -81,7 +81,7 @@ namespace TrenchBroom {
             ASSERT_STREQ("yay", world->attribute("message").c_str());
         }
 
-        TEST(QuakeMapReaderTest, parseMapWithWorldspawnAndOneMoreEntity) {
+        TEST(WorldReaderTest, parseMapWithWorldspawnAndOneMoreEntity) {
             const String data("{"
                               "\"classname\" \"worldspawn\""
                               "\"message\" \"yay\""
@@ -93,7 +93,7 @@ namespace TrenchBroom {
                               "}");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_TRUE(world != NULL);
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             ASSERT_STREQ(" -1 ", entity->attribute("angle").c_str());
         }
 
-        TEST(QuakeMapReaderTest, parseMapWithWorldspawnAndOneBrush) {
+        TEST(WorldReaderTest, parseMapWithWorldspawnAndOneBrush) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -127,7 +127,7 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
 
             ASSERT_EQ(1u, world->childCount());
@@ -154,7 +154,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)) != NULL);
         }
 
-        TEST(QuakeMapReaderTest, parseMapAndCheckFaceFlags) {
+        TEST(WorldReaderTest, parseMapAndCheckFaceFlags) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -168,7 +168,7 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             ASSERT_FLOAT_EQ(-0.55f, face->yScale());
         }
 
-        TEST(QuakeMapReaderTest, parseBrushWithCurlyBraceInTextureName) {
+        TEST(WorldReaderTest, parseBrushWithCurlyBraceInTextureName) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -202,7 +202,7 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
@@ -221,7 +221,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(findFaceByPoints(faces, Vec3( 64.0,  64.0,   0.0), Vec3( 64.0,   0.0,   0.0), Vec3(  0.0,  64.0,   0.0)) != NULL);
         }
 
-        TEST(QuakeMapReaderTest, parseProblematicBrush1) {
+        TEST(WorldReaderTest, parseProblematicBrush1) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -235,7 +235,7 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
@@ -253,7 +253,7 @@ namespace TrenchBroom {
             ASSERT_TRUE(findFaceByPoints(faces, Vec3(287.0, 152.0, 208.0), Vec3(287.0, 152.0, 176.0), Vec3(323.0, 116.0, 176.0)) != NULL);
         }
 
-        TEST(QuakeMapReaderTest, parseProblematicBrush2) {
+        TEST(WorldReaderTest, parseProblematicBrush2) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -267,7 +267,7 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
@@ -275,7 +275,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
         
-        TEST(QuakeMapReaderTest, parseProblematicBrush3) {
+        TEST(WorldReaderTest, parseProblematicBrush3) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -289,7 +289,7 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
@@ -297,7 +297,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
 
-        TEST(QuakeMapReaderTest, parseValveBrush) {
+        TEST(WorldReaderTest, parseValveBrush) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -311,7 +311,7 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
@@ -319,7 +319,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
         
-        TEST(QuakeMapReaderTest, parseQuake2Brush) {
+        TEST(WorldReaderTest, parseQuake2Brush) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -333,7 +333,7 @@ namespace TrenchBroom {
                               "}\n");
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
@@ -341,7 +341,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, defaultLayer->childCount());
         }
         
-        TEST(QuakeMapReaderTest, parseBrushesWithLayer) {
+        TEST(WorldReaderTest, parseBrushesWithLayer) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -377,7 +377,7 @@ namespace TrenchBroom {
                               );
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(2u, world->childCount());
@@ -385,7 +385,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->children().back()->childCount());
         }
         
-        TEST(QuakeMapReaderTest, parseEntitiesAndBrushesWithLayer) {
+        TEST(WorldReaderTest, parseEntitiesAndBrushesWithLayer) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -433,7 +433,7 @@ namespace TrenchBroom {
                               );
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(2u, world->childCount());
@@ -442,7 +442,7 @@ namespace TrenchBroom {
             ASSERT_EQ(1u, world->children().back()->children().back()->childCount());
         }
         
-        TEST(QuakeMapReaderTest, parseEntitiesAndBrushesWithGroup) {
+        TEST(WorldReaderTest, parseEntitiesAndBrushesWithGroup) {
             const String data("{\n"
                               "\"classname\" \"worldspawn\"\n"
                               "{\n"
@@ -504,7 +504,7 @@ namespace TrenchBroom {
                               );
             BBox3 worldBounds(8192);
             
-            QuakeMapReader reader(data, NULL);
+            WorldReader reader(data, NULL);
             Model::World* world = reader.readMap(worldBounds);
             
             ASSERT_EQ(1u, world->childCount());
@@ -520,7 +520,7 @@ namespace TrenchBroom {
         }
 
         /*
-        TEST(QuakeMapReaderTest, parseIssueIgnoreFlags) {
+        TEST(WorldReaderTest, parseIssueIgnoreFlags) {
             const String data("{"
                               "\"classname\" \"worldspawn\""
                               "{\n"
@@ -545,7 +545,7 @@ namespace TrenchBroom {
             Model::MockGamePtr game = Model::MockGame::newGame();
             EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
             
-            QuakeMapParser parser(data, game.get());
+            StandardMapParser parser(data, game.get());
             Model::Map* map = parser.parseMap(worldBounds);
             
             const Model::EntityList& entities = map->entities();

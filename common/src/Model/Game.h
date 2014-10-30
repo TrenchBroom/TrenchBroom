@@ -62,11 +62,9 @@ namespace TrenchBroom {
             World* loadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void writeMap(World* world, const IO::Path& path) const;
         public: // parsing and serializing objects
-            /*
-            EntityList parseEntities(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
-            BrushList parseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
-            BrushFaceList parseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const;
-             */
+            NodeList parseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
+            BrushFaceList parseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const;
+
             void writeNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const;
             void writeBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const;
         public: // texture collection handling
@@ -98,11 +96,8 @@ namespace TrenchBroom {
             virtual World* doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const = 0;
             virtual void doWriteMap(World* world, const IO::Path& path) const = 0;
             
-            /*
-            virtual EntityList doParseEntities(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
-            virtual BrushList doParseBrushes(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
-            virtual BrushFaceList doParseFaces(const BBox3& worldBounds, MapFormat::Type format, const String& str) const = 0;
-             */
+            virtual NodeList doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
+            virtual BrushFaceList doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const = 0;
             virtual void doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const = 0;
             virtual void doWriteBrushFacesToStream(World* world, const BrushFaceList& faces, std::ostream& stream) const = 0;
             

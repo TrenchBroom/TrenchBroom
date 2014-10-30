@@ -21,7 +21,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-// #include "IO/QuakeMapParser.h"
+// #include "IO/StandardMapParser.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushFace.h"
@@ -329,7 +329,7 @@ namespace TrenchBroom {
             Model::MockGamePtr game = Model::MockGame::newGame();
             EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
             
-            IO::QuakeMapParser parser(faceStr, game.get());
+            IO::StandardMapParser parser(faceStr, game.get());
             const BrushFaceList faces = parser.parseFaces(worldBounds, MapFormat::Standard);
             assert(faces.size() == 7);
             
@@ -367,7 +367,7 @@ namespace TrenchBroom {
             Model::MockGamePtr game = Model::MockGame::newGame();
             EXPECT_CALL(*game, doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
             
-            IO::QuakeMapParser parser(faceStr, game.get());
+            IO::StandardMapParser parser(faceStr, game.get());
             const BrushFaceList faces = parser.parseFaces(worldBounds, MapFormat::Standard);
             assert(faces.size() == 8);
             

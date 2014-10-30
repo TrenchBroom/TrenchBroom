@@ -21,6 +21,7 @@
 
 #include "Assets/Palette.h"
 #include "Assets/TextureCollectionSpec.h"
+#include "IO/BrushFaceReader.h"
 #include "IO/Bsp29Parser.h"
 #include "IO/DefParser.h"
 #include "IO/DiskFileSystem.h"
@@ -29,8 +30,9 @@
 #include "IO/MapParser.h"
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
+#include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
-#include "IO/QuakeMapReader.h"
+#include "IO/WorldReader.h"
 #include "IO/SystemPaths.h"
 #include "IO/WadTextureLoader.h"
 #include "IO/WalTextureLoader.h"
@@ -85,8 +87,8 @@ namespace TrenchBroom {
         
         World* GameImpl::doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {
             const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
-            IO::QuakeMapReader reader(file->begin(), file->end(), brushContentTypeBuilder(), logger);
-            return reader.readMap(worldBounds);
+            IO::WorldReader reader(file->begin(), file->end(), brushContentTypeBuilder(), logger);
+            return reader.read(worldBounds);
         }
         
         void GameImpl::doWriteMap(World* world, const IO::Path& path) const {
@@ -94,22 +96,15 @@ namespace TrenchBroom {
             writer.writeMap();
         }
 
-        /*
-        EntityList GameImpl::doParseEntities(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
-            IO::QuakeMapParser parser(str, this);
-            return parser.parseEntities(worldBounds, format);
+        NodeList GameImpl::doParseNodes(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+            IO::NodeReader reader(str, world, logger);
+            return reader.read(worldBounds);
         }
         
-        BrushList GameImpl::doParseBrushes(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
-            IO::QuakeMapParser parser(str, this);
-            return parser.parseBrushes(worldBounds, format);
+        BrushFaceList GameImpl::doParseBrushFaces(const String& str, World* world, const BBox3& worldBounds, Logger* logger) const {
+            IO::BrushFaceReader reader(str, world, logger);
+            return reader.read(worldBounds);
         }
-        
-        BrushFaceList GameImpl::doParseFaces(const BBox3& worldBounds, const MapFormat::Type format, const String& str) const {
-            IO::QuakeMapParser parser(str, this);
-            return parser.parseFaces(worldBounds, format);
-        }
-         */
         
         void GameImpl::doWriteNodesToStream(World* world, const Model::NodeList& nodes, std::ostream& stream) const {
             IO::NodeWriter writer(world, stream);
