@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, Model::Node* brushParent);
             void entity(Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& parentAttributes, const Model::BrushList& entityBrushes);
-            
+        private:
             void beginEntity(const Model::Node* node, const Model::EntityAttribute::List& attributes, const Model::EntityAttribute::List& extraAttributes);
             void beginEntity(const Model::Node* node);
             void endEntity(Model::Node* node);
@@ -58,11 +58,13 @@ namespace TrenchBroom {
             
             void beginBrush(const Model::Brush* brush);
             void endBrush(Model::Brush* brush);
-            
+        public:
             void brushFaces(const Model::BrushFaceList& faces);
+        private:
             void brushFace(Model::BrushFace* face);
-            
+        public:
             Model::EntityAttribute::List parentAttributes(const Model::Node* node);
+        private:
             Model::EntityAttribute::List layerAttributes(const Model::Layer* layer);
             Model::EntityAttribute::List groupAttributes(const Model::Group* group);
         private:
