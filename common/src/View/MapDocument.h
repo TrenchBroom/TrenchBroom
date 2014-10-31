@@ -127,6 +127,7 @@ namespace TrenchBroom {
         public: // copy and paste
             String serializeSelectedNodes();
             String serializeSelectedBrushFaces();
+            bool paste(const String& str);
         public: // point file management
             bool canLoadPointFile() const;
             void loadPointFile();

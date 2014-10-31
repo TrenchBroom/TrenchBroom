@@ -284,10 +284,8 @@ namespace TrenchBroom {
             
             Bind(wxEVT_MENU, &MapFrame::OnEditCut, this, wxID_CUT);
             Bind(wxEVT_MENU, &MapFrame::OnEditCopy, this, wxID_COPY);
-            /*
             Bind(wxEVT_MENU, &MapFrame::OnEditPaste, this, wxID_PASTE);
             Bind(wxEVT_MENU, &MapFrame::OnEditPasteAtOriginalPosition, this, CommandIds::Menu::EditPasteAtOriginalPosition);
-            */
              
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectAll, this, CommandIds::Menu::EditSelectAll);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectSiblings, this, CommandIds::Menu::EditSelectSiblings);
@@ -380,6 +378,36 @@ namespace TrenchBroom {
                     str = m_document->serializeSelectedBrushFaces();
                 wxTheClipboard->SetData(new wxTextDataObject(str));
             }
+        }
+
+        void MapFrame::OnEditPaste(wxCommandEvent& event) {
+            Transaction transaction(m_document);
+            if (paste() && m_document->hasSelectedNodes()) {
+                const BBox3 bounds = m_document->selectionBounds();
+                const Vec3 delta = m_mapView->pasteObjectsDelta(bounds);
+                m_document->translateObjects(delta);
+            }
+        }
+        
+        void MapFrame::OnEditPasteAtOriginalPosition(wxCommandEvent& event) {
+            paste();
+        }
+
+        bool MapFrame::paste() {
+            OpenClipboard openClipboard;
+            if (!wxTheClipboard->IsOpened() || !wxTheClipboard->IsSupported(wxDF_TEXT)) {
+                logger()->error("Clipboard is empty");
+                return false;
+            }
+
+            wxTextDataObject textData;
+            if (!wxTheClipboard->GetData(textData)) {
+                logger()->error("Could not get clipboard contents");
+                return false;
+            }
+            
+            const String text = textData.GetText().ToStdString();
+            return m_document->paste(text);
         }
 
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {

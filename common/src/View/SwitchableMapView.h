@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__SwitchableMapView__
 #define __TrenchBroom__SwitchableMapView__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -50,6 +52,8 @@ namespace TrenchBroom {
         public:
             SwitchableMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document);
             ~SwitchableMapView();
+
+            Vec3 pasteObjectsDelta(const BBox3& bounds) const;
         private:
             void createGui();
         private:

@@ -178,6 +178,21 @@ namespace TrenchBroom {
             return stream.str();
         }
 
+        bool MapDocument::paste(const String& str) {
+            const Model::NodeList nodes = m_game->parseNodes(str, m_world, m_worldBounds, this);
+            if (!nodes.empty()) {
+                // TODO add nodes to world
+                return true;
+            } else {
+                const Model::BrushFaceList faces = m_game->parseBrushFaces(str, m_world, m_worldBounds, this);
+                if (!faces.empty()) {
+                    // TODO handle brush faces
+                    return true;
+                }
+            }
+            return false;
+        }
+
         bool MapDocument::canLoadPointFile() const {
             if (m_path.isEmpty())
                 return false;

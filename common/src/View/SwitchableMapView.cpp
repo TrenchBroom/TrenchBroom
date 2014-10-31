@@ -19,7 +19,14 @@
 
 #include "SwitchableMapView.h"
 
+#include "Hit.h"
+#include "Model/Brush.h"
+#include "Model/HitAdapter.h"
+#include "Model/ModelHitFilters.h"
+#include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
+#include "View/Grid.h"
+#include "View/MapDocument.h"
 #include "View/MapView3D.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
@@ -49,6 +56,34 @@ namespace TrenchBroom {
             
             delete m_toolBox;
             m_toolBox = NULL;
+        }
+
+        Vec3 SwitchableMapView::pasteObjectsDelta(const BBox3& bounds) const {
+            MapDocumentSPtr document = lock(m_document);
+            const Renderer::Camera* camera = m_mapView->camera();
+            const Grid& grid = document->grid();
+
+            const wxMouseState mouseState = wxGetMouseState();
+            const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
+            
+            if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
+                const Ray3f pickRay = camera->pickRay(clientCoords.x, clientCoords.y);
+                const Hits& hits = document->pick(Ray3(pickRay));
+                const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), true);
+                if (hit.isMatch()) {
+                    const Model::BrushFace* face = Model::hitToFace(hit);
+                    const Vec3 snappedHitPoint = grid.snap(hit.hitPoint());
+                    return grid.moveDeltaForBounds(face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
+                } else {
+                    const Vec3 snappedCenter = grid.snap(bounds.center());
+                    const Vec3 snappedDefaultPoint = grid.snap(camera->defaultPoint(pickRay));
+                    return snappedDefaultPoint - snappedCenter;
+                }
+            } else {
+                const Vec3 snappedCenter = grid.snap(bounds.center());
+                const Vec3 snappedDefaultPoint = grid.snap(camera->defaultPoint());
+                return snappedDefaultPoint - snappedCenter;
+            }
         }
 
         void SwitchableMapView::createGui() {
