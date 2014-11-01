@@ -40,6 +40,7 @@ namespace TrenchBroom {
     }
     
     namespace Model {
+        class BrushFaceAttributes;
         class EditorContext;
         class PointFile;
     }
@@ -128,6 +129,9 @@ namespace TrenchBroom {
             String serializeSelectedNodes();
             String serializeSelectedBrushFaces();
             bool paste(const String& str);
+        private:
+            bool pasteNodes(const Model::NodeList& nodes);
+            bool pasteBrushFaces(const Model::BrushFaceList& faces);
         public: // point file management
             bool canLoadPointFile() const;
             void loadPointFile();
@@ -170,6 +174,8 @@ namespace TrenchBroom {
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
             bool flipObjects(const Vec3& center, Math::Axis::Type axis);
         public: // modifying face attributes
+            bool setTexture(Assets::Texture* texture);
+            bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
             bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             bool rotateTextures(float angle);
         public: // command processing
@@ -219,13 +225,10 @@ namespace TrenchBroom {
             
             void loadEntityDefinitions();
             void unloadEntityDefinitions();
-            void setEntityDefinitions();
-            void setEntityDefinitions(const Model::NodeList& nodes);
             
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             
             void loadEntityModels();
-            void setEntityModels();
             void unloadEntityModels();
             
             void loadTextures();
@@ -233,10 +236,20 @@ namespace TrenchBroom {
             void loadExternalTextures();
             void unloadTextures();
 
+            void addExternalTextureCollections(const StringList& names);
+        protected:
+            void setEntityDefinitions();
+            void setEntityDefinitions(const Model::NodeList& nodes);
+            void unsetEntityDefinitions();
+            
+            void setEntityModels();
+            void unsetEntityModels();
+
             void setTextures();
             void setTextures(const Model::NodeList& nodes);
+            void setTextures(const Model::BrushFaceList& faces);
             
-            void addExternalTextureCollections(const StringList& names);
+            void unsetTextures();
         private: // search paths and mods
             IO::Path::List externalSearchPaths() const;
             void updateGameSearchPaths();

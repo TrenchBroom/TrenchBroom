@@ -84,7 +84,7 @@ namespace TrenchBroom {
         
         void MapReader::readBrushFaces(Model::MapFormat::Type format, const BBox3& worldBounds) {
             m_worldBounds = worldBounds;
-            parseEntities(format);
+            parseBrushFaces(format);
         }
 
         void MapReader::onFormatSet(const Model::MapFormat::Type format) {

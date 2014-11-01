@@ -29,6 +29,8 @@ namespace TrenchBroom {
     }
 
     namespace Model {
+        class BrushFaceAttributes;
+        
         class ChangeBrushFaceAttributesRequest {
         public:
             typedef enum {
@@ -105,6 +107,7 @@ namespace TrenchBroom {
             void mulSurfaceValue(float surfaceValue);
             
             void setAll(const Model::BrushFace* face);
+            void setAll(const Model::BrushFaceAttributes& attributes);
             
             bool collateWith(ChangeBrushFaceAttributesRequest& other);
         };

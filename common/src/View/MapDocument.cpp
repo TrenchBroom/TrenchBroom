@@ -29,6 +29,7 @@
 #include "IO/SystemPaths.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
@@ -43,6 +44,7 @@
 #include "Model/PointFile.h"
 #include "Model/World.h"
 #include "View/AddRemoveNodesCommand.h"
+#include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
@@ -181,29 +183,41 @@ namespace TrenchBroom {
 
         bool MapDocument::paste(const String& str) {
             const Model::NodeList nodes = m_game->parseNodes(str, m_world, m_worldBounds, this);
-            if (!nodes.empty()) {
-                Model::MergeNodesIntoWorldVisitor mergeNodes(m_world, NULL);
-                Model::Node::accept(nodes.begin(), nodes.end(), mergeNodes);
-                
-                const Model::NodeList addedNodes = addNodes(mergeNodes.result());
-                if (addedNodes.empty())
-                    return false;
-                
-                deselectAll();
-
-                Model::CollectSelectableNodesVisitor collectSelectables(editorContext());
-                Model::Node::acceptAndRecurse(addedNodes.begin(), addedNodes.end(), collectSelectables);
-                select(collectSelectables.nodes());
-                
-                return true;
-            } else {
-                const Model::BrushFaceList faces = m_game->parseBrushFaces(str, m_world, m_worldBounds, this);
-                if (!faces.empty()) {
-                    // TODO handle brush faces
-                    return true;
-                }
-            }
+            if (!nodes.empty())
+                return pasteNodes(nodes);
+            
+            const Model::BrushFaceList faces = m_game->parseBrushFaces(str, m_world, m_worldBounds, this);
+            if (!faces.empty())
+                return pasteBrushFaces(faces);
+            
             return false;
+        }
+        
+        bool MapDocument::pasteNodes(const Model::NodeList& nodes) {
+            Model::MergeNodesIntoWorldVisitor mergeNodes(m_world, NULL);
+            Model::Node::accept(nodes.begin(), nodes.end(), mergeNodes);
+            
+            const Model::NodeList addedNodes = addNodes(mergeNodes.result());
+            if (addedNodes.empty())
+                return false;
+            
+            deselectAll();
+            
+            Model::CollectSelectableNodesVisitor collectSelectables(editorContext());
+            Model::Node::acceptAndRecurse(addedNodes.begin(), addedNodes.end(), collectSelectables);
+            select(collectSelectables.nodes());
+            
+            return true;
+        }
+        
+        bool MapDocument::pasteBrushFaces(const Model::BrushFaceList& faces) {
+            assert(!faces.empty());
+            const Model::BrushFace* face = faces.back();
+            
+            const bool result = setFaceAttributes(face->attribs());
+            VectorUtils::deleteAll(faces);
+            
+            return result;
         }
 
         bool MapDocument::canLoadPointFile() const {
@@ -399,6 +413,25 @@ namespace TrenchBroom {
             return submit(TransformObjectsCommand::flip(center, axis, m_textureLock));
         }
 
+        bool MapDocument::setTexture(Assets::Texture* texture) {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setTexture(texture);
+            return submit(ChangeBrushFaceAttributesCommand::command(request));
+        }
+        
+        bool MapDocument::setFaceAttributes(const Model::BrushFaceAttributes& attributes) {
+            Model::ChangeBrushFaceAttributesRequest request;
+            request.setAll(attributes);
+            
+            // try to find the texture if it is null, maybe it just wasn't set?
+            if (attributes.texture() == NULL) {
+                Assets::Texture* texture = m_textureManager->texture(attributes.textureName());
+                request.setTexture(texture);
+            }
+            
+            return submit(ChangeBrushFaceAttributesCommand::command(request));
+        }
+
         bool MapDocument::moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
             return submit(MoveTexturesCommand::move(cameraUp, cameraRight, delta));
         }
@@ -496,12 +529,7 @@ namespace TrenchBroom {
             AddRemoveNodesCommand* command = AddRemoveNodesCommand::add(nodes);
             if (!submit(command))
                 return Model::EmptyNodeList;
-            
-            const Model::NodeList& addedNodes = command->addedNodes();
-            setEntityDefinitions(addedNodes);
-            setTextures(addedNodes);
-            
-            return addedNodes;
+            return command->addedNodes();
         }
 
         void MapDocument::loadAssets() {
@@ -524,6 +552,69 @@ namespace TrenchBroom {
             const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
             m_entityDefinitionManager->loadDefinitions(path, *m_game);
             info("Loaded entity definition file " + path.lastComponent().asString());
+        }
+
+        void MapDocument::unloadEntityDefinitions() {
+            unsetEntityDefinitions();
+            m_entityDefinitionManager->clear();
+        }
+
+        Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
+            return m_game->extractEntityDefinitionFile(m_world);
+        }
+        
+        void MapDocument::loadEntityModels() {
+            m_entityModelManager->setLoader(m_game.get());
+        }
+
+        void MapDocument::unloadEntityModels() {
+            unsetEntityModels();
+            m_entityModelManager->clear();
+            m_entityModelManager->setLoader(NULL);
+        }
+
+        void MapDocument::loadTextures() {
+            m_textureManager->setLoader(m_game.get());
+            loadBuiltinTextures();
+            loadExternalTextures();
+        }
+        
+        void MapDocument::loadBuiltinTextures() {
+            try {
+                const IO::Path::List paths = m_game->findBuiltinTextureCollections();
+                m_textureManager->setBuiltinTextureCollections(paths);
+                info("Loaded builtin texture collections " + StringUtils::join(IO::Path::asStrings(paths), ", "));
+            } catch (Exception e) {
+                error(String(e.what()));
+            }
+        }
+        
+        void MapDocument::loadExternalTextures() {
+            const StringList names = m_game->extractExternalTextureCollections(m_world);
+            addExternalTextureCollections(names);
+        }
+        
+        void MapDocument::unloadTextures() {
+            unsetTextures();
+            m_textureManager->clear();
+            m_textureManager->setLoader(NULL);
+        }
+        
+        void MapDocument::addExternalTextureCollections(const StringList& names) {
+            const IO::Path::List searchPaths = externalSearchPaths();
+            
+            StringList::const_iterator it, end;
+            for (it = names.begin(), end = names.end(); it != end; ++it) {
+                const String& name = *it;
+                const IO::Path texturePath(name);
+                const IO::Path absPath = IO::Disk::resolvePath(searchPaths, texturePath);
+                
+                const Assets::TextureCollectionSpec spec(name, absPath);
+                if (m_textureManager->addExternalTextureCollection(spec))
+                    info("Loaded external texture collection '" + name +  "'");
+                else
+                    warn("External texture collection not found: '" + name +  "'");
+            }
         }
         
         class SetEntityDefinition : public Model::NodeVisitor {
@@ -553,12 +644,6 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush)   {}
         };
 
-        void MapDocument::unloadEntityDefinitions() {
-            UnsetEntityDefinition visitor;
-            m_world->acceptAndRecurse(visitor);
-            m_entityDefinitionManager->clear();
-        }
-
         void MapDocument::setEntityDefinitions() {
             SetEntityDefinition visitor(*m_entityDefinitionManager);
             m_world->acceptAndRecurse(visitor);
@@ -568,9 +653,10 @@ namespace TrenchBroom {
             SetEntityDefinition visitor(*m_entityDefinitionManager);
             Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
         }
-
-        Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
-            return m_game->extractEntityDefinitionFile(m_world);
+        
+        void MapDocument::unsetEntityDefinitions() {
+            UnsetEntityDefinition visitor;
+            m_world->acceptAndRecurse(visitor);
         }
         
         class SetEntityModel : public Model::NodeVisitor {
@@ -610,49 +696,22 @@ namespace TrenchBroom {
             void doVisit(Model::Entity* entity) { entity->setModel(NULL); }
             void doVisit(Model::Brush* brush)   {}
         };
-        
-        void MapDocument::loadEntityModels() {
-            m_entityModelManager->setLoader(m_game.get());
-        }
 
         void MapDocument::setEntityModels() {
             SetEntityModel visitor(*m_entityModelManager, *this);
             m_world->acceptAndRecurse(visitor);
         }
         
-        void MapDocument::unloadEntityModels() {
+        void MapDocument::unsetEntityModels() {
             UnsetEntityModel visitor;
             m_world->acceptAndRecurse(visitor);
-            m_entityModelManager->clear();
-            m_entityModelManager->setLoader(NULL);
-        }
-
-        void MapDocument::loadTextures() {
-            m_textureManager->setLoader(m_game.get());
-            loadBuiltinTextures();
-            loadExternalTextures();
-        }
-        
-        void MapDocument::loadBuiltinTextures() {
-            try {
-                const IO::Path::List paths = m_game->findBuiltinTextureCollections();
-                m_textureManager->setBuiltinTextureCollections(paths);
-                info("Loaded builtin texture collections " + StringUtils::join(IO::Path::asStrings(paths), ", "));
-            } catch (Exception e) {
-                error(String(e.what()));
-            }
-        }
-        
-        void MapDocument::loadExternalTextures() {
-            const StringList names = m_game->extractExternalTextureCollections(m_world);
-            addExternalTextureCollections(names);
         }
         
         class SetTextures : public Model::NodeVisitor {
         private:
-            Assets::TextureManager& m_manager;
+            Assets::TextureManager* m_manager;
         public:
-            SetTextures(Assets::TextureManager& manager) :
+            SetTextures(Assets::TextureManager* manager) :
             m_manager(manager) {}
         private:
             void doVisit(Model::World* world)   {}
@@ -664,11 +723,28 @@ namespace TrenchBroom {
                 Model::BrushFaceList::const_iterator it, end;
                 for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                     Model::BrushFace* face = *it;
-                    Assets::Texture* texture = m_manager.texture(face->textureName());
-                    face->setTexture(texture);
+                    face->updateTexture(m_manager);
                 }
             }
         };
+
+        void MapDocument::setTextures() {
+            SetTextures visitor(m_textureManager);
+            m_world->acceptAndRecurse(visitor);
+        }
+        
+        void MapDocument::setTextures(const Model::NodeList& nodes) {
+            SetTextures visitor(m_textureManager);
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+        }
+
+        void MapDocument::setTextures(const Model::BrushFaceList& faces) {
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                face->updateTexture(m_textureManager);
+            }
+        }
         
         class UnsetTextures : public Model::NodeVisitor {
         private:
@@ -686,40 +762,11 @@ namespace TrenchBroom {
             }
         };
 
-        void MapDocument::unloadTextures() {
+        void MapDocument::unsetTextures() {
             UnsetTextures visitor;
             m_world->acceptAndRecurse(visitor);
-            m_textureManager->clear();
-            m_textureManager->setLoader(NULL);
         }
         
-        void MapDocument::setTextures() {
-            SetTextures visitor(*m_textureManager);
-            m_world->acceptAndRecurse(visitor);
-        }
-        
-        void MapDocument::setTextures(const Model::NodeList& nodes) {
-            SetTextures visitor(*m_textureManager);
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
-        }
-
-        void MapDocument::addExternalTextureCollections(const StringList& names) {
-            const IO::Path::List searchPaths = externalSearchPaths();
-            
-            StringList::const_iterator it, end;
-            for (it = names.begin(), end = names.end(); it != end; ++it) {
-                const String& name = *it;
-                const IO::Path texturePath(name);
-                const IO::Path absPath = IO::Disk::resolvePath(searchPaths, texturePath);
-                
-                const Assets::TextureCollectionSpec spec(name, absPath);
-                if (m_textureManager->addExternalTextureCollection(spec))
-                    info("Loaded external texture collection '" + name +  "'");
-                else
-                    warn("External texture collection not found: '" + name +  "'");
-            }
-        }
-
         IO::Path::List MapDocument::externalSearchPaths() const {
             IO::Path::List searchPaths;
             if (!m_path.isEmpty() && m_path.isAbsolute())

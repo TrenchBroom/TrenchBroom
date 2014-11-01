@@ -36,6 +36,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Assets {
+        class TextureManager;
+    }
+    
     namespace Model {
         class Brush;
         class BrushFaceGeometry;
@@ -118,8 +122,10 @@ namespace TrenchBroom {
             int surfaceFlags() const;
             float surfaceValue() const;
             bool hasSurfaceAttributes() const;
-            
+
+            void updateTexture(Assets::TextureManager* textureManager);
             void setTexture(Assets::Texture* texture);
+            
             void setXOffset(float xOffset);
             void setYOffset(float yOffset);
             void setXScale(float xScale);

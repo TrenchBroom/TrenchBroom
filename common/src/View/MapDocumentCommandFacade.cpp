@@ -292,6 +292,9 @@ namespace TrenchBroom {
                 VectorUtils::append(addedNodes, children);
             }
             
+            setEntityDefinitions(addedNodes);
+            setTextures(addedNodes);
+
             nodesWereAddedNotifier(addedNodes);
             return addedNodes;
         }
@@ -350,6 +353,7 @@ namespace TrenchBroom {
         void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
             const Model::BrushFaceList& faces = selectedBrushFaces();
             request.evaluate(faces);
+            setTextures(faces);
             brushFacesDidChangeNotifier(faces);
         }
 

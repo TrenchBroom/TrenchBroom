@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "VecMath.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceGeometry.h"
 #include "Model/BrushFaceSnapshot.h"
@@ -236,6 +237,12 @@ namespace TrenchBroom {
 
         bool BrushFace::hasSurfaceAttributes() const {
             return surfaceContents() != 0 || surfaceFlags() != 0 || surfaceValue() != 0.0f;
+        }
+
+        void BrushFace::updateTexture(Assets::TextureManager* textureManager) {
+            assert(textureManager != NULL);
+            Assets::Texture* texture = textureManager->texture(textureName());
+            setTexture(texture);
         }
 
         void BrushFace::setTexture(Assets::Texture* texture) {

@@ -346,17 +346,21 @@ namespace TrenchBroom {
         }
         
         void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFace* face) {
-            setTexture(face->texture());
-            setXOffset(face->xOffset());
-            setYOffset(face->yOffset());
-            setRotation(face->rotation());
-            setXScale(face->xScale());
-            setYScale(face->yScale());
-            replaceSurfaceFlags(face->surfaceFlags());
-            replaceContentFlags(face->surfaceContents());
-            setSurfaceValue(face->surfaceValue());
+            setAll(face->attribs());
         }
         
+        void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFaceAttributes& attributes) {
+            setTexture(attributes.texture());
+            setXOffset(attributes.xOffset());
+            setYOffset(attributes.yOffset());
+            setRotation(attributes.rotation());
+            setXScale(attributes.xScale());
+            setYScale(attributes.yScale());
+            replaceSurfaceFlags(attributes.surfaceFlags());
+            replaceContentFlags(attributes.surfaceContents());
+            setSurfaceValue(attributes.surfaceValue());
+        }
+
         bool ChangeBrushFaceAttributesRequest::collateWith(ChangeBrushFaceAttributesRequest& other) {
             Assets::Texture* newTexture = m_texture; bool newSetTexture = m_setTexture;
             float newXOffset = m_xOffset;   ValueOp newXOffsetOp = m_xOffsetOp;
