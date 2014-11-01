@@ -106,18 +106,13 @@ namespace TrenchBroom {
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;
             
             EntityType entityType(const Model::EntityAttribute::List& attributes) const;
-            bool isLayer(const String& classname, const Model::EntityAttribute::List& attributes) const;
-            bool isGroup(const String& classname, const Model::EntityAttribute::List& attributes) const;
-            bool isWorldspawn(const String& classname, const Model::EntityAttribute::List& attributes) const;
-
-            const String& findAttribute(const Model::EntityAttribute::List& attributes, const String& name, const String& defaultValue = EmptyString) const;
             
             void setFilePosition(Model::Node* node, size_t startLine, size_t lineCount);
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface
             virtual Model::ModelFactory* initialize(Model::MapFormat::Type format) = 0;
-            virtual void onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) = 0;
+            virtual Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount) = 0;
             virtual void onLayer(Model::Layer* layer) = 0;
             virtual void onNode(Model::Node* parent, Model::Node* node) = 0;

@@ -102,7 +102,7 @@ namespace TrenchBroom {
                     createGroup(line, attributes, extraAttributes);
                     break;
                 case EntityType_Worldspawn:
-                    onWorldspawn(attributes, extraAttributes);
+                    m_brushParent = onWorldspawn(attributes, extraAttributes);
                     break;
                 case EntityType_Default:
                     createEntity(line, attributes, extraAttributes);
@@ -273,33 +273,6 @@ namespace TrenchBroom {
             if (isWorldspawn(classname, attributes))
                 return EntityType_Worldspawn;
             return EntityType_Default;
-        }
-
-        bool MapReader::isLayer(const String& classname, const Model::EntityAttribute::List& attributes) const {
-            if (classname != Model::AttributeValues::LayerClassname)
-                return false;
-            const String& groupType = findAttribute(attributes, Model::AttributeNames::GroupType);
-            return groupType == Model::AttributeValues::GroupTypeLayer;
-        }
-        
-        bool MapReader::isGroup(const String& classname, const Model::EntityAttribute::List& attributes) const {
-            if (classname != Model::AttributeValues::GroupClassname)
-                return false;
-            const String& groupType = findAttribute(attributes, Model::AttributeNames::GroupType);
-            return groupType == Model::AttributeValues::GroupTypeGroup;
-        }
-        
-        bool MapReader::isWorldspawn(const String& classname, const Model::EntityAttribute::List& attributes) const {
-            return classname == Model::AttributeValues::WorldspawnClassname;
-        }
-
-        const String& MapReader::findAttribute(const Model::EntityAttribute::List& attributes, const String& name, const String& defaultValue) const {
-            Model::EntityAttribute::List::const_iterator it, end;
-            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
-                if (name == it->name())
-                    return it->value();
-            }
-            return defaultValue;
         }
 
         void MapReader::setFilePosition(Model::Node* node, const size_t startLine, const size_t lineCount) {

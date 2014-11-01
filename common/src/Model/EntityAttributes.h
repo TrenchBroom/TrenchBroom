@@ -87,6 +87,11 @@ namespace TrenchBroom {
             void setValue(const AttributeValue& value);
         };
 
+        bool isLayer(const String& classname, const EntityAttribute::List& attributes);
+        bool isGroup(const String& classname, const EntityAttribute::List& attributes);
+        bool isWorldspawn(const String& classname, const EntityAttribute::List& attributes);
+        const AttributeValue& findAttribute(const EntityAttribute::List& attributes, const AttributeName& name, const AttributeValue& defaultValue = EmptyString);
+        
         class EntityAttributes {
         private:
             EntityAttribute::List m_attributes;

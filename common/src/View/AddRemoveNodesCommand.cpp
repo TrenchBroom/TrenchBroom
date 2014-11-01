@@ -59,6 +59,10 @@ namespace TrenchBroom {
         m_action(Action_Remove),
         m_nodesToRemove(nodesToRemove) {}
         
+        const Model::NodeList& AddRemoveNodesCommand::addedNodes() const {
+            return m_nodesToRemove;
+        }
+
         String AddRemoveNodesCommand::makeName(const Action action) {
             switch (action) {
                 case Action_Add:

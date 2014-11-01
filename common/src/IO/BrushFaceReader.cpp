@@ -47,7 +47,7 @@ namespace TrenchBroom {
             return m_factory;
         }
         
-        void BrushFaceReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {}
+        Model::Node* BrushFaceReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) { return NULL; }
         void BrushFaceReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount) {}
         void BrushFaceReader::onLayer(Model::Layer* layer) {}
         void BrushFaceReader::onNode(Model::Node* parent, Model::Node* node) {}

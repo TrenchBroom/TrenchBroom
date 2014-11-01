@@ -49,12 +49,13 @@ namespace TrenchBroom {
             return m_factory;
         }
         
-        void NodeReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
+        Model::Node* NodeReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
             Model::Entity* worldspawn = m_factory->createEntity();
             worldspawn->setAttributes(attributes);
             setExtraAttributes(worldspawn, extraAttributes);
             
             m_nodes.insert(m_nodes.begin(), worldspawn);
+            return worldspawn;
         }
         
         void NodeReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount) {

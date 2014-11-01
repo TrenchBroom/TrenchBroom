@@ -39,7 +39,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList& read(const BBox3& worldBounds);
         private: // implement MapReader interface
             Model::ModelFactory* initialize(Model::MapFormat::Type format);
-            void onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
+            Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes);
             void onWorldspawnFilePosition(size_t lineNumber, size_t lineCount);
             void onLayer(Model::Layer* layer);
             void onNode(Model::Node* parent, Model::Node* node);

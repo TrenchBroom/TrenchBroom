@@ -47,9 +47,10 @@ namespace TrenchBroom {
             return m_world;
         }
         
-        void WorldReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
+        Model::Node* WorldReader::onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
             m_world->setAttributes(attributes);
             setExtraAttributes(m_world, extraAttributes);
+            return m_world->defaultLayer();
         }
 
         void WorldReader::onWorldspawnFilePosition(const size_t lineNumber, const size_t lineCount) {

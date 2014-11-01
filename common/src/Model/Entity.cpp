@@ -122,7 +122,7 @@ namespace TrenchBroom {
         }
 
         bool Entity::doSelectable() const {
-            return true;
+            return !hasChildren();
         }
 
         void Entity::doAccept(NodeVisitor& visitor) {

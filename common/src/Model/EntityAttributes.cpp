@@ -121,6 +121,33 @@ namespace TrenchBroom {
             m_value = value;
         }
 
+        bool isLayer(const String& classname, const EntityAttribute::List& attributes) {
+            if (classname != Model::AttributeValues::LayerClassname)
+                return false;
+            const AttributeValue& groupType = findAttribute(attributes, Model::AttributeNames::GroupType);
+            return groupType == Model::AttributeValues::GroupTypeLayer;
+        }
+        
+        bool isGroup(const String& classname, const EntityAttribute::List& attributes) {
+            if (classname != Model::AttributeValues::GroupClassname)
+                return false;
+            const AttributeValue& groupType = findAttribute(attributes, Model::AttributeNames::GroupType);
+            return groupType == Model::AttributeValues::GroupTypeGroup;
+        }
+        
+        bool isWorldspawn(const String& classname, const EntityAttribute::List& attributes) {
+            return classname == Model::AttributeValues::WorldspawnClassname;
+        }
+        
+        const AttributeValue& findAttribute(const EntityAttribute::List& attributes, const AttributeName& name, const AttributeValue& defaultValue) {
+            Model::EntityAttribute::List::const_iterator it, end;
+            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
+                if (name == it->name())
+                    return it->value();
+            }
+            return defaultValue;
+        }
+
         const EntityAttribute::List& EntityAttributes::attributes() const {
             return m_attributes;
         }

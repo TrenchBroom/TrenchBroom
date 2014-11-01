@@ -498,14 +498,12 @@ namespace TrenchBroom {
                     event.Enable(m_document->hasSelectedNodes() ||
                                  m_document->hasSelectedBrushFaces());
                     break;
-                    /*
                 case wxID_PASTE:
                 case CommandIds::Menu::EditPasteAtOriginalPosition: {
                     OpenClipboard openClipboard;
                     event.Enable(wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT));
                     break;
                 }
-                 */
                 case CommandIds::Menu::EditSelectAll:
                     event.Enable(true);
                     break;

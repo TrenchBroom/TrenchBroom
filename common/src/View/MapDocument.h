@@ -211,13 +211,17 @@ namespace TrenchBroom {
             void createWorld(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             void clearWorld();
+            
+            Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
         private: // asset management
             void loadAssets();
             void unloadAssets();
             
             void loadEntityDefinitions();
-            void setEntityDefinitions();
             void unloadEntityDefinitions();
+            void setEntityDefinitions();
+            void setEntityDefinitions(const Model::NodeList& nodes);
+            
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             
             void loadEntityModels();
@@ -227,8 +231,10 @@ namespace TrenchBroom {
             void loadTextures();
             void loadBuiltinTextures();
             void loadExternalTextures();
-            void setTextures();
             void unloadTextures();
+
+            void setTextures();
+            void setTextures(const Model::NodeList& nodes);
             
             void addExternalTextureCollections(const StringList& names);
         private: // search paths and mods

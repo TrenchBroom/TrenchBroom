@@ -38,6 +38,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
+#include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
@@ -181,7 +182,19 @@ namespace TrenchBroom {
         bool MapDocument::paste(const String& str) {
             const Model::NodeList nodes = m_game->parseNodes(str, m_world, m_worldBounds, this);
             if (!nodes.empty()) {
-                // TODO add nodes to world
+                Model::MergeNodesIntoWorldVisitor mergeNodes(m_world, NULL);
+                Model::Node::accept(nodes.begin(), nodes.end(), mergeNodes);
+                
+                const Model::NodeList addedNodes = addNodes(mergeNodes.result());
+                if (addedNodes.empty())
+                    return false;
+                
+                deselectAll();
+
+                Model::CollectSelectableNodesVisitor collectSelectables(editorContext());
+                Model::Node::acceptAndRecurse(addedNodes.begin(), addedNodes.end(), collectSelectables);
+                select(collectSelectables.nodes());
+                
                 return true;
             } else {
                 const Model::BrushFaceList faces = m_game->parseBrushFaces(str, m_world, m_worldBounds, this);
@@ -479,6 +492,18 @@ namespace TrenchBroom {
             m_world = NULL;
         }
 
+        Model::NodeList MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
+            AddRemoveNodesCommand* command = AddRemoveNodesCommand::add(nodes);
+            if (!submit(command))
+                return Model::EmptyNodeList;
+            
+            const Model::NodeList& addedNodes = command->addedNodes();
+            setEntityDefinitions(addedNodes);
+            setTextures(addedNodes);
+            
+            return addedNodes;
+        }
+
         void MapDocument::loadAssets() {
             loadEntityDefinitions();
             setEntityDefinitions();
@@ -528,15 +553,20 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush)   {}
         };
 
+        void MapDocument::unloadEntityDefinitions() {
+            UnsetEntityDefinition visitor;
+            m_world->acceptAndRecurse(visitor);
+            m_entityDefinitionManager->clear();
+        }
+
         void MapDocument::setEntityDefinitions() {
             SetEntityDefinition visitor(*m_entityDefinitionManager);
             m_world->acceptAndRecurse(visitor);
         }
         
-        void MapDocument::unloadEntityDefinitions() {
-            UnsetEntityDefinition visitor;
-            m_world->acceptAndRecurse(visitor);
-            m_entityDefinitionManager->clear();
+        void MapDocument::setEntityDefinitions(const Model::NodeList& nodes) {
+            SetEntityDefinition visitor(*m_entityDefinitionManager);
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
         }
 
         Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
@@ -656,16 +686,21 @@ namespace TrenchBroom {
             }
         };
 
-        void MapDocument::setTextures() {
-            SetTextures visitor(*m_textureManager);
-            m_world->acceptAndRecurse(visitor);
-        }
-        
         void MapDocument::unloadTextures() {
             UnsetTextures visitor;
             m_world->acceptAndRecurse(visitor);
             m_textureManager->clear();
             m_textureManager->setLoader(NULL);
+        }
+        
+        void MapDocument::setTextures() {
+            SetTextures visitor(*m_textureManager);
+            m_world->acceptAndRecurse(visitor);
+        }
+        
+        void MapDocument::setTextures(const Model::NodeList& nodes) {
+            SetTextures visitor(*m_textureManager);
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
         }
 
         void MapDocument::addExternalTextureCollections(const StringList& names) {

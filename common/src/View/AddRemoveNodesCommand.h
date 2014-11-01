@@ -42,6 +42,8 @@ namespace TrenchBroom {
             static AddRemoveNodesCommand* add(const Model::ParentChildrenMap& nodes);
             static AddRemoveNodesCommand* remove(const Model::NodeList& nodes);
             ~AddRemoveNodesCommand();
+            
+            const Model::NodeList& addedNodes() const;
         private:
             AddRemoveNodesCommand(const Model::ParentChildrenMap& nodesToAdd);
             AddRemoveNodesCommand(const Model::NodeList& nodesToRemove);
