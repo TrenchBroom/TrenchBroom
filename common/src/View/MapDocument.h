@@ -110,12 +110,17 @@ namespace TrenchBroom {
         public: // accessors and such
             const BBox3& worldBounds() const;
             Model::World* world() const;
+            
             const Model::EditorContext& editorContext() const;
+            bool textureLock();
+            void setTextureLock(bool textureLock);
             
             Assets::EntityModelManager& entityModelManager();
             
             const MapViewConfig& mapViewConfig() const;
-            const Grid& grid() const;
+            Grid& grid() const;
+            
+            Model::PointFile* pointFile() const;
         public: // new, load, save document
             void newDocument(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);

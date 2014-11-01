@@ -113,6 +113,19 @@ namespace TrenchBroom {
             void OnEditSelectByLineNumber(wxCommandEvent& event);
             void OnEditSelectNone(wxCommandEvent& event);
 
+            void OnEditToggleTextureLock(wxCommandEvent& event);
+
+            void OnViewToggleShowGrid(wxCommandEvent& event);
+            void OnViewToggleSnapToGrid(wxCommandEvent& event);
+            void OnViewIncGridSize(wxCommandEvent& event);
+            void OnViewDecGridSize(wxCommandEvent& event);
+            void OnViewSetGridSize(wxCommandEvent& event);
+            
+            void OnViewMoveCameraToNextPoint(wxCommandEvent& event);
+            void OnViewMoveCameraToPreviousPoint(wxCommandEvent& event);
+            void OnViewCenterCameraOnSelection(wxCommandEvent& event);
+            void OnViewMoveCameraToPosition(wxCommandEvent& event);
+
             void OnUpdateUI(wxUpdateUIEvent& event);
         private: // other event handlers
             void OnClose(wxCloseEvent& event);

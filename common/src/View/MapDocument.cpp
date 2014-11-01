@@ -99,6 +99,14 @@ namespace TrenchBroom {
             return *m_editorContext;
         }
 
+        bool MapDocument::textureLock() {
+            return m_editorContext->textureLock();
+        }
+            
+        void MapDocument::setTextureLock(const bool textureLock) {
+            m_editorContext->setTextureLock(textureLock);
+        }
+
         Assets::EntityModelManager& MapDocument::entityModelManager() {
             return *m_entityModelManager;
         }
@@ -107,8 +115,12 @@ namespace TrenchBroom {
             return *m_mapViewConfig;
         }
 
-        const Grid& MapDocument::grid() const {
+        Grid& MapDocument::grid() const {
             return *m_grid;
+        }
+
+        Model::PointFile* MapDocument::pointFile() const {
+            return m_pointFile;
         }
 
         void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {

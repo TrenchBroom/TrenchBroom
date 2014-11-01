@@ -35,7 +35,8 @@ namespace TrenchBroom {
         m_showPointEntities(true),
         m_showBrushes(true),
         m_hiddenBrushContentTypes(0),
-        m_entityLinkMode(EntityLinkMode_Direct) {}
+        m_entityLinkMode(EntityLinkMode_Direct),
+        m_textureLock(false) {}
         
         bool EditorContext::showPointEntities() const {
             return m_showPointEntities;
@@ -87,6 +88,14 @@ namespace TrenchBroom {
             if (entityLinkMode == m_entityLinkMode)
                 return;
             m_entityLinkMode = entityLinkMode;
+        }
+
+        bool EditorContext::textureLock() const {
+            return m_textureLock;
+        }
+        
+        void EditorContext::setTextureLock(const bool textureLock) {
+            m_textureLock = textureLock;
         }
 
         class NodeVisible : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {

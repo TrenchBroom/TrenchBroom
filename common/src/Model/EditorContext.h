@@ -43,6 +43,8 @@ namespace TrenchBroom {
             Model::BrushContentType::FlagType m_hiddenBrushContentTypes;
             Bitset m_hiddenEntityDefinitions;
             EntityLinkMode m_entityLinkMode;
+            
+            bool m_textureLock;
         public:
             EditorContext();
             
@@ -60,6 +62,9 @@ namespace TrenchBroom {
             
             EntityLinkMode entityLinkMode() const;
             void setEntityLinkMode(EntityLinkMode entityLinkMode);
+            
+            bool textureLock() const;
+            void setTextureLock(bool textureLock);
         public:
             bool visible(const Model::Node* node) const;
             bool visible(const Model::Layer* layer) const;

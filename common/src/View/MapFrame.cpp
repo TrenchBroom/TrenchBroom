@@ -25,11 +25,13 @@
 #include "IO/DiskFileSystem.h"
 #include "Model/Node.h"
 #include "Model/NodeCollection.h"
+#include "Model/PointFile.h"
 #include "View/ActionManager.h"
 #include "View/Autosaver.h"
 #include "View/CachingLogger.h"
 #include "View/CommandIds.h"
 #include "View/Console.h"
+#include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/SwitchableMapView.h"
 
@@ -294,6 +296,19 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
 
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
+            
+            Bind(wxEVT_MENU, &MapFrame::OnViewToggleShowGrid, this, CommandIds::Menu::ViewToggleShowGrid);
+            Bind(wxEVT_MENU, &MapFrame::OnViewToggleSnapToGrid, this, CommandIds::Menu::ViewToggleSnapToGrid);
+            Bind(wxEVT_MENU, &MapFrame::OnViewIncGridSize, this, CommandIds::Menu::ViewIncGridSize);
+            Bind(wxEVT_MENU, &MapFrame::OnViewDecGridSize, this, CommandIds::Menu::ViewDecGridSize);
+            Bind(wxEVT_MENU, &MapFrame::OnViewSetGridSize, this, CommandIds::Menu::ViewSetGridSize1, CommandIds::Menu::ViewSetGridSize256);
+            
+            Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToNextPoint, this, CommandIds::Menu::ViewMoveCameraToNextPoint);
+            Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
+            Bind(wxEVT_MENU, &MapFrame::OnViewCenterCameraOnSelection, this, CommandIds::Menu::ViewCenterCameraOnSelection);
+            Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPosition, this, CommandIds::Menu::ViewMoveCameraToPosition);
+
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CLOSE);
@@ -448,6 +463,67 @@ namespace TrenchBroom {
             m_document->deselectAll();
         }
 
+        void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
+            m_document->setTextureLock(!m_document->textureLock());
+        }
+
+        void MapFrame::OnViewToggleShowGrid(wxCommandEvent& event) {
+            m_document->grid().toggleVisible();
+        }
+        
+        void MapFrame::OnViewToggleSnapToGrid(wxCommandEvent& event) {
+            m_document->grid().toggleSnap();
+        }
+        
+        void MapFrame::OnViewIncGridSize(wxCommandEvent& event) {
+            m_document->grid().incSize();
+        }
+        
+        void MapFrame::OnViewDecGridSize(wxCommandEvent& event) {
+            m_document->grid().decSize();
+        }
+        
+        void MapFrame::OnViewSetGridSize(wxCommandEvent& event) {
+            const size_t size = static_cast<size_t>(event.GetId() - CommandIds::Menu::ViewSetGridSize1);
+            assert(size < Grid::MaxSize);
+            m_document->grid().setSize(size);
+        }
+        
+        void MapFrame::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {
+            assert(m_document->isPointFileLoaded());
+            
+            Model::PointFile* pointFile = m_document->pointFile();
+            assert(pointFile->hasNextPoint());
+            
+            const Vec3f position = pointFile->nextPoint() + Vec3f(0.0f, 0.0f, 16.0f);
+            const Vec3f direction = pointFile->currentDirection();
+            m_mapView->animateCamera(position, direction, Vec3f::PosZ, 150);
+        }
+        
+        void MapFrame::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
+            assert(m_document->isPointFileLoaded());
+            
+            Model::PointFile& pointFile = m_document->pointFile();
+            assert(pointFile.hasPreviousPoint());
+            
+            const Vec3f position = pointFile.previousPoint() + Vec3f(0.0f, 0.0f, 16.0f);
+            const Vec3f direction = pointFile.currentDirection();
+            m_mapView->animateCamera(position, direction, Vec3f::PosZ, 150);
+        }
+        
+        void MapFrame::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
+            m_mapView->centerCameraOnSelection();
+        }
+        
+        void MapFrame::OnViewMoveCameraToPosition(wxCommandEvent& event) {
+            wxTextEntryDialog dialog(this, "Enter a position (x y z) for the camera.", "Move Camera", "0.0 0.0 0.0");
+            if (dialog.ShowModal() == wxID_OK) {
+                const wxString str = dialog.GetValue();
+                const Vec3 position = Vec3::parse(str.ToStdString());
+                m_mapView->moveCameraToPosition(position);
+            }
+        }
+
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             const ActionManager& actionManager = ActionManager::instance();
             
@@ -527,6 +603,7 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditReplaceTexture:
                     event.Enable(true);
                     break;
+                     */
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Enable(true);
                     event.Check(m_document->textureLock());
@@ -582,21 +659,18 @@ namespace TrenchBroom {
                     event.Check(m_document->grid().size() == 8);
                     break;
                 case CommandIds::Menu::ViewMoveCameraToNextPoint:
-                    event.Enable(m_document->isPointFileLoaded() && m_document->pointFile().hasNextPoint());
+                    event.Enable(m_document->isPointFileLoaded() && m_document->pointFile()->hasNextPoint());
                     break;
                 case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
-                    event.Enable(m_document->isPointFileLoaded() && m_document->pointFile().hasPreviousPoint());
+                    event.Enable(m_document->isPointFileLoaded() && m_document->pointFile()->hasPreviousPoint());
                     break;
                 case CommandIds::Menu::ViewCenterCameraOnSelection:
-                    event.Enable(m_document->hasSelectedObjects());
+                    event.Enable(m_document->hasSelectedNodes());
                     break;
                 case CommandIds::Menu::ViewMoveCameraToPosition:
                     event.Enable(true);
                     break;
-                case CommandIds::Menu::ViewToggleCameraFlyMode:
-                    event.Enable(true);
-                    event.Check(m_mapView->cameraFlyModeActive());
-                    break;
+                    /*
                 case CommandIds::Menu::ViewSwitchToMapInspector:
                 case CommandIds::Menu::ViewSwitchToEntityInspector:
                 case CommandIds::Menu::ViewSwitchToFaceInspector:
