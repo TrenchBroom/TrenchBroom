@@ -54,6 +54,10 @@ namespace TrenchBroom {
             ~SwitchableMapView();
 
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
+
+            void centerCameraOnSelection();
+            void moveCameraToPosition(const Vec3& position);
+            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
         private:
             void createGui();
         private:

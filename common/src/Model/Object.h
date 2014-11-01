@@ -38,7 +38,7 @@ namespace TrenchBroom {
             // implement Pickable interface
             const BBox3& bounds() const;
             void pick(const Ray3& ray, Hits& hits) const;
-            
+        
             Node* container() const;
             Layer* layer() const;
             Group* group() const;

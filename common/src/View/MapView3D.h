@@ -21,6 +21,7 @@
 #define __TrenchBroom__MapView3D__
 
 #include "MathUtils.h"
+#include "Model/ModelTypes.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/Action.h"
 #include "View/GLContextHolder.h"
@@ -64,13 +65,22 @@ namespace TrenchBroom {
             ~MapView3D();
             
             Renderer::Camera* camera();
+
+            void centerCameraOnSelection();
+        private:
+            Vec3f centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes);
+        public:
+            void moveCameraToPosition(const Vec3& position);
+            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
         private:
             void bindObservers();
             void unbindObservers();
             
+            void cameraDidChange(const Renderer::Camera* camera);
             void toolChanged(Tool* tool);
             void commandProcessed(Command* command);
             void selectionDidChange(const Selection& selection);
+            void gridDidChange();
         private: // interaction events
             void bindEvents();
             

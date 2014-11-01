@@ -497,18 +497,18 @@ namespace TrenchBroom {
             
             const Vec3f position = pointFile->nextPoint() + Vec3f(0.0f, 0.0f, 16.0f);
             const Vec3f direction = pointFile->currentDirection();
-            m_mapView->animateCamera(position, direction, Vec3f::PosZ, 150);
+            m_mapView->animateCamera(position, direction, Vec3f::PosZ);
         }
         
         void MapFrame::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
             assert(m_document->isPointFileLoaded());
             
-            Model::PointFile& pointFile = m_document->pointFile();
-            assert(pointFile.hasPreviousPoint());
+            Model::PointFile* pointFile = m_document->pointFile();
+            assert(pointFile->hasPreviousPoint());
             
-            const Vec3f position = pointFile.previousPoint() + Vec3f(0.0f, 0.0f, 16.0f);
-            const Vec3f direction = pointFile.currentDirection();
-            m_mapView->animateCamera(position, direction, Vec3f::PosZ, 150);
+            const Vec3f position = pointFile->previousPoint() + Vec3f(0.0f, 0.0f, 16.0f);
+            const Vec3f direction = pointFile->currentDirection();
+            m_mapView->animateCamera(position, direction, Vec3f::PosZ);
         }
         
         void MapFrame::OnViewCenterCameraOnSelection(wxCommandEvent& event) {

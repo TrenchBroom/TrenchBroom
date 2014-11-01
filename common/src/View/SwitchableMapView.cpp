@@ -85,6 +85,18 @@ namespace TrenchBroom {
                 return snappedDefaultPoint - snappedCenter;
             }
         }
+        
+        void SwitchableMapView::centerCameraOnSelection() {
+            m_mapView->centerCameraOnSelection();
+        }
+        
+        void SwitchableMapView::moveCameraToPosition(const Vec3& position) {
+            m_mapView->moveCameraToPosition(position);
+        }
+        
+        void SwitchableMapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
+            m_mapView->animateCamera(position, direction, up, duration);
+        }
 
         void SwitchableMapView::createGui() {
             m_mapRenderer = new Renderer::MapRenderer(m_document);

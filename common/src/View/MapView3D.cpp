@@ -19,6 +19,9 @@
 
 #include "MapView3D.h"
 #include "Logger.h"
+#include "Model/Brush.h"
+#include "Model/BrushVertex.h"
+#include "Model/Entity.h"
 #include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
@@ -26,6 +29,7 @@
 #include "Renderer/Vbo.h"
 #include "View/ActionManager.h"
 #include "View/Animation.h"
+#include "View/CameraAnimation.h"
 #include "View/CommandIds.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/Grid.h"
@@ -61,12 +65,116 @@ namespace TrenchBroom {
         Renderer::Camera* MapView3D::camera() {
             return &m_camera;
         }
+        
+        void MapView3D::centerCameraOnSelection() {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::EntityList& entities = document->selectedNodes().entities();
+            const Model::BrushList& brushes = document->selectedNodes().brushes();
+            assert(!entities.empty() || !brushes.empty());
+            
+            const Vec3 newPosition = centerCameraOnObjectsPosition(entities, brushes);
+            moveCameraToPosition(newPosition);
+        }
+        
+        Vec3f MapView3D::centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes) {
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            Model::BrushList::const_iterator brushIt, brushEnd;
+
+            float minDist = std::numeric_limits<float>::max();
+            Vec3 center;
+            size_t count = 0;
+            
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity* entity = *entityIt;
+                if (!entity->hasChildren()) {
+                    const Vec3::List vertices = bBoxVertices(entity->bounds());
+                    for (size_t i = 0; i < vertices.size(); ++i) {
+                        const Vec3f vertex(vertices[i]);
+                        const Vec3f toPosition = vertex - m_camera.position();
+                        minDist = std::min(minDist, toPosition.dot(m_camera.direction()));
+                        center += vertices[i];
+                        ++count;
+                    }
+                }
+            }
+
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush* brush = *brushIt;
+                const Model::BrushVertexList& vertices = brush->vertices();
+                for (size_t i = 0; i < vertices.size(); ++i) {
+                    const Model::BrushVertex* vertex = vertices[i];
+                    const Vec3f toPosition = Vec3f(vertex->position) - m_camera.position();
+                    minDist = std::min(minDist, toPosition.dot(m_camera.direction()));
+                    center += vertex->position;
+                    ++count;
+                }
+            }
+            
+            center /= static_cast<FloatType>(count);
+            
+            // act as if the camera were there already:
+            const Vec3f oldPosition = m_camera.position();
+            m_camera.moveTo(Vec3f(center));
+            
+            float offset = std::numeric_limits<float>::max();
+            
+            Plane3f frustumPlanes[4];
+            m_camera.frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
+            
+            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
+                const Model::Entity* entity = *entityIt;
+                if (!entity->hasChildren()) {
+                    const Vec3::List vertices = bBoxVertices(entity->bounds());
+                    for (size_t i = 0; i < vertices.size(); ++i) {
+                        const Vec3f vertex(vertices[i]);
+                        
+                        for (size_t j = 0; j < 4; ++j) {
+                            const Plane3f& plane = frustumPlanes[j];
+                            const float dist = (vertex - m_camera.position()).dot(plane.normal) - 8.0f; // adds a bit of a border
+                            offset = std::min(offset, -dist / m_camera.direction().dot(plane.normal));
+                        }
+                    }
+                }
+            }
+            
+            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                const Model::Brush* brush = *brushIt;
+                const Model::BrushVertexList& vertices = brush->vertices();
+                for (size_t i = 0; i < vertices.size(); ++i) {
+                    const Model::BrushVertex* vertex = vertices[i];
+                    
+                    for (size_t j = 0; j < 4; ++j) {
+                        const Plane3f& plane = frustumPlanes[j];
+                        const float dist = (Vec3f(vertex->position) - m_camera.position()).dot(plane.normal) - 8.0f; // adds a bit of a border
+                        offset = std::min(offset, -dist / m_camera.direction().dot(plane.normal));
+                    }
+                }
+            }
+            
+            // jump back
+            m_camera.moveTo(oldPosition);
+            
+            return center + m_camera.direction() * offset;
+        }
+
+        void MapView3D::moveCameraToPosition(const Vec3& position) {
+            animateCamera(position, m_camera.direction(), m_camera.up());
+        }
+        
+        void MapView3D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
+            CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
+            m_animationManager->runAnimation(animation, true);
+        }
 
         void MapView3D::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->commandProcessedNotifier.addObserver(this, &MapView3D::commandProcessed);
             document->selectionDidChangeNotifier.addObserver(this, &MapView3D::selectionDidChange);
             
+            Grid& grid = document->grid();
+            grid.gridDidChangeNotifier.addObserver(this, &MapView3D::gridDidChange);
+            
+            m_camera.cameraDidChangeNotifier.addObserver(this, &MapView3D::cameraDidChange);
             m_toolBox.toolActivatedNotifier.addObserver(this, &MapView3D::toolChanged);
         }
         
@@ -75,12 +183,22 @@ namespace TrenchBroom {
                 MapDocumentSPtr document = lock(m_document);
                 document->commandProcessedNotifier.removeObserver(this, &MapView3D::commandProcessed);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapView3D::selectionDidChange);
+
+                Grid& grid = document->grid();
+                grid.gridDidChangeNotifier.removeObserver(this, &MapView3D::gridDidChange);
             }
 
             // toolbox has already been deleted at this point
             // m_toolBox.toolActivatedNotifier.removeObserver(this, &MapView3D::toolChanged);
+
+            // camera has already been deleted at this point
+            // m_camera.cameraDidChangeNotifier.addObserver(this, &MapView3D::cameraDidChange);
         }
         
+        void MapView3D::cameraDidChange(const Renderer::Camera* camera) {
+            Refresh();
+        }
+
         void MapView3D::toolChanged(Tool* tool) {
             updateHits();
             updateAcceleratorTable(HasFocus());
@@ -94,6 +212,10 @@ namespace TrenchBroom {
 
         void MapView3D::selectionDidChange(const Selection& selection) {
             updateAcceleratorTable(HasFocus());
+        }
+
+        void MapView3D::gridDidChange() {
+            Refresh();
         }
 
         void MapView3D::bindEvents() {
