@@ -43,6 +43,7 @@ namespace TrenchBroom {
     namespace View {
         class AnimationManager;
         class Command;
+        class FlyModeHelper;
         class MapViewToolBox;
         class MovementRestriction;
         class Selection;
@@ -60,18 +61,22 @@ namespace TrenchBroom {
             Renderer::MapRenderer& m_renderer;
             Renderer::PerspectiveCamera m_camera;
             Renderer::Compass* m_compass;
+
+            FlyModeHelper* m_flyModeHelper;
         public:
             MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer);
             ~MapView3D();
             
             Renderer::Camera* camera();
-
+        public: // camera control
+            bool cameraFlyModeActive() const;
+            void toggleCameraFlyMode();
+            
             void centerCameraOnSelection();
-        private:
-            Vec3f centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes);
-        public:
             void moveCameraToPosition(const Vec3& position);
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
+        private:
+            Vec3f centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes);
         private:
             void bindObservers();
             void unbindObservers();
@@ -139,8 +144,9 @@ namespace TrenchBroom {
             void OnMoveRotationCenterRight(wxCommandEvent& event);
             void OnMoveRotationCenterUp(wxCommandEvent& event);
             void OnMoveRotationCenterDown(wxCommandEvent& event);
-
             void moveRotationCenter(Math::Direction direction);
+
+            void OnToggleFlyMode(wxCommandEvent& event);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);

@@ -32,6 +32,7 @@
 #include "View/CameraAnimation.h"
 #include "View/CommandIds.h"
 #include "View/FlashSelectionAnimation.h"
+#include "View/FlyModeHelper.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
@@ -49,7 +50,8 @@ namespace TrenchBroom {
         m_vbo(new Renderer::Vbo(0xFFFFFFF)),
         m_renderer(renderer),
         m_camera(),
-        m_compass(new Renderer::Compass(toolBox.movementRestriction())) {
+        m_compass(new Renderer::Compass(toolBox.movementRestriction())),
+        m_flyModeHelper(new FlyModeHelper(this, m_camera)) {
             bindObservers();
             bindEvents();
             updateAcceleratorTable(HasFocus());
@@ -57,6 +59,7 @@ namespace TrenchBroom {
 
         MapView3D::~MapView3D() {
             unbindObservers();
+            delete m_flyModeHelper;
             m_animationManager->Delete();
             delete m_compass;
             delete m_vbo;
@@ -66,6 +69,22 @@ namespace TrenchBroom {
             return &m_camera;
         }
         
+        bool MapView3D::cameraFlyModeActive() const {
+            return m_flyModeHelper->enabled();
+        }
+        
+        void MapView3D::toggleCameraFlyMode() {
+            if (!cameraFlyModeActive()) {
+                m_toolBox.disable();
+                m_flyModeHelper->enable();
+            } else {
+                m_flyModeHelper->disable();
+                m_toolBox.enable();
+            }
+            updateAcceleratorTable(HasFocus());
+            Refresh();
+        }
+
         void MapView3D::centerCameraOnSelection() {
             MapDocumentSPtr document = lock(m_document);
             const Model::EntityList& entities = document->selectedNodes().entities();
@@ -75,11 +94,21 @@ namespace TrenchBroom {
             const Vec3 newPosition = centerCameraOnObjectsPosition(entities, brushes);
             moveCameraToPosition(newPosition);
         }
+
+        void MapView3D::moveCameraToPosition(const Vec3& position) {
+            animateCamera(position, m_camera.direction(), m_camera.up());
+        }
+        
+        void MapView3D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
+            CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
+            m_animationManager->runAnimation(animation, true);
+        }
+
         
         Vec3f MapView3D::centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes) {
             Model::EntityList::const_iterator entityIt, entityEnd;
             Model::BrushList::const_iterator brushIt, brushEnd;
-
+            
             float minDist = std::numeric_limits<float>::max();
             Vec3 center;
             size_t count = 0;
@@ -97,7 +126,7 @@ namespace TrenchBroom {
                     }
                 }
             }
-
+            
             for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
                 const Model::Brush* brush = *brushIt;
                 const Model::BrushVertexList& vertices = brush->vertices();
@@ -156,16 +185,7 @@ namespace TrenchBroom {
             
             return center + m_camera.direction() * offset;
         }
-
-        void MapView3D::moveCameraToPosition(const Vec3& position) {
-            animateCamera(position, m_camera.direction(), m_camera.up());
-        }
         
-        void MapView3D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
-            CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
-            m_animationManager->runAnimation(animation, true);
-        }
-
         void MapView3D::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->commandProcessedNotifier.addObserver(this, &MapView3D::commandProcessed);
@@ -242,9 +262,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
             */
              
-            /*
             Bind(wxEVT_MENU, &MapView3D::OnToggleFlyMode,                this, CommandIds::Actions::ToggleFlyMode);
-            
+
+            /*
             Bind(wxEVT_MENU, &MapView3D::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
              */
             
@@ -605,6 +625,10 @@ namespace TrenchBroom {
             const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveRotationCenter(delta);
             Refresh();
+        }
+
+        void MapView3D::OnToggleFlyMode(wxCommandEvent& event) {
+            toggleCameraFlyMode();
         }
 
         void MapView3D::OnSetFocus(wxFocusEvent& event) {

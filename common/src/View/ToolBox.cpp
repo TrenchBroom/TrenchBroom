@@ -230,7 +230,8 @@ namespace TrenchBroom {
         }
         
         void ToolBox::disable() {
-            cancelDrag();
+            if (dragging())
+                cancelDrag();
             m_enabled = false;
         }
         
