@@ -71,6 +71,7 @@ namespace TrenchBroom {
         }
         
         bool TransformObjectsCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            assert(m_snapshot != NULL);
             document->restoreSnapshot(m_snapshot);
             deleteSnapshot();
             return true;

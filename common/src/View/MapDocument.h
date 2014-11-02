@@ -51,6 +51,7 @@ namespace TrenchBroom {
         class MapViewConfig;
         class Selection;
         class UndoableCommand;
+        class VertexHandleManager;
         
         class MapDocument : public CachingLogger {
         public:
@@ -81,6 +82,8 @@ namespace TrenchBroom {
             mutable BBox3 m_selectionBounds;
             mutable bool m_selectionBoundsValid;
         public: // notification
+            Notifier1<Command*> commandProcessedNotifier;
+            
             Notifier1<MapDocument*> documentWillBeClearedNotifier;
             Notifier1<MapDocument*> documentWasClearedNotifier;
             Notifier1<MapDocument*> documentWasNewedNotifier;
@@ -88,8 +91,6 @@ namespace TrenchBroom {
             Notifier1<MapDocument*> documentWasSavedNotifier;
             Notifier0 documentModificationStateDidChangeNotifier;
             
-            Notifier1<Command*> commandProcessedNotifier;
-
             Notifier0 selectionWillChangeNotifier;
             Notifier1<const Selection&> selectionDidChangeNotifier;
             
@@ -183,6 +184,21 @@ namespace TrenchBroom {
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
             bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             bool rotateTextures(float angle);
+        public: // modifying vertices
+            bool canSnapVertices(const VertexHandleManager& handleManager);
+            bool snapVertices(VertexHandleManager& handleManager, size_t snapTo);
+            
+            struct MoveVerticesResult {
+                bool success;
+                bool hasRemainingVertices;
+                MoveVerticesResult(bool success, bool hasRemainingVertices);
+            };
+            
+            MoveVerticesResult moveVertices(VertexHandleManager& handleManager, const Vec3& delta);
+            bool moveEdges(VertexHandleManager& handleManager, const Vec3& delta);
+            bool moveFaces(VertexHandleManager& handleManager, const Vec3& delta);
+            bool splitEdges(VertexHandleManager& handleManager, const Vec3& delta);
+            bool splitFaces(VertexHandleManager& handleManager, const Vec3& delta);
         public: // command processing
             bool canUndoLastCommand() const;
             bool canRedoNextCommand() const;

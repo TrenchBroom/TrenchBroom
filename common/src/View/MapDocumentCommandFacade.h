@@ -32,6 +32,8 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class VertexHandleManager;
+        
         class MapDocumentCommandFacade : public MapDocument {
         private:
             CommandProcessor m_commandProcessor;
@@ -61,6 +63,8 @@ namespace TrenchBroom {
             void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             void performRotateTextures(float angle);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
+        public: // vertices
+            Vec3::List performSnapVertices(const Model::BrushVerticesMap& vertices, size_t snapTo);
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);
         private: // helper methods

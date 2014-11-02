@@ -58,25 +58,28 @@ namespace TrenchBroom {
             EdgeRenderer& m_edgeRenderer;
             bool m_useColor;
             const Color& m_edgeColor;
+            float m_offset;
         public:
-            RenderEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor);
+            RenderEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor, float offset);
             virtual ~RenderEdges();
         private:
             void doPrepare(Vbo& vbo);
+            void doRender(RenderContext& renderContext);
+            virtual void doRenderEdges(RenderContext& renderContext) = 0;
         };
         
         class RenderUnoccludedEdges : public RenderEdges {
         public:
-            RenderUnoccludedEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor);
+            RenderUnoccludedEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor, float offset = 0.2f);
         private:
-            void doRender(RenderContext& renderContext);
+            void doRenderEdges(RenderContext& renderContext);
         };
 
         class RenderOccludedEdges : public RenderEdges {
         public:
-            RenderOccludedEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor);
+            RenderOccludedEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor, float offset = 0.0f);
         private:
-            void doRender(RenderContext& renderContext);
+            void doRenderEdges(RenderContext& renderContext);
         };
     }
 }

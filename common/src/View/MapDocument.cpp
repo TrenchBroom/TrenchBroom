@@ -51,7 +51,9 @@
 #include "View/MoveTexturesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
+#include "View/SnapBrushVerticesCommand.h"
 #include "View/TransformObjectsCommand.h"
+#include "View/VertexHandleManager.h"
 
 #include <cassert>
 
@@ -450,6 +452,17 @@ namespace TrenchBroom {
         
         bool MapDocument::rotateTextures(const float angle) {
             return submit(RotateTexturesCommand::rotate(angle));
+        }
+
+        bool MapDocument::canSnapVertices(const VertexHandleManager& handleManager) {
+            return ((handleManager.selectedVertexCount() > 0) ||
+                    (selectedNodes().hasOnlyBrushes() &&
+                     handleManager.selectedEdgeCount() == 0 &&
+                     handleManager.selectedFaceCount() == 0));
+        }
+
+        bool MapDocument::snapVertices(VertexHandleManager& handleManager, const size_t snapTo) {
+            return submit(SnapBrushVerticesCommand::snap(handleManager, snapTo));
         }
 
         bool MapDocument::canUndoLastCommand() const {

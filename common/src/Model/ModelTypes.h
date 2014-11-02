@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "StringUtils.h"
 #include "SharedPointer.h"
+#include "Model/BrushGeometryTypes.h"
 
 #include <map>
 #include <set>
@@ -81,6 +82,11 @@ namespace TrenchBroom {
         typedef String AttributeValue;
         typedef std::vector<AttributeValue> AttributeValueList;
         
+        typedef std::map<Vec3, BrushList, Vec3::LexicographicOrder> VertexToBrushesMap;
+        typedef std::map<Vec3, BrushEdgeList, Vec3::LexicographicOrder> VertexToEdgesMap;
+        typedef std::map<Vec3, BrushFaceList, Vec3::LexicographicOrder> VertexToFacesMap;
+        typedef std::map<Model::Brush*, Vec3::List> BrushVerticesMap;
+
         class BrushFaceSnapshot;
         typedef std::vector<BrushFaceSnapshot*> BrushFaceSnapshotList;
         

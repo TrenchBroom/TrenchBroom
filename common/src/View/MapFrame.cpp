@@ -33,6 +33,7 @@
 #include "View/Console.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/SplitterWindow.h"
 #include "View/SwitchableMapView.h"
 
 #include <wx/clipbrd.h>
@@ -220,13 +221,17 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
-            m_console = new Console(this);
-            m_mapView = new SwitchableMapView(this, m_console, m_document);
+            SplitterWindow* splitter = new SplitterWindow(this);
+            splitter->setSashGravity(1.0f);
+            splitter->SetName("MapFrameVSplitter");
+            
+            m_console = new Console(splitter);
+            m_mapView = new SwitchableMapView(splitter, m_console, m_document);
+            
+            splitter->splitHorizontally(m_mapView, m_console, wxSize(100, 100), wxSize(100, 100));
             
             wxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
-            frameSizer->Add(m_mapView, 1, wxEXPAND);
-            frameSizer->Add(m_console, 0, wxEXPAND);
-            frameSizer->SetItemMinSize(m_console, wxSize(wxDefaultCoord, 200));
+            frameSizer->Add(splitter, 1, wxEXPAND);
             
             SetSizer(frameSizer);
         }

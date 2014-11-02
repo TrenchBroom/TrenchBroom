@@ -246,6 +246,18 @@ namespace TrenchBroom {
             return result.newVertexPositions;
         }
 
+        Vec3::List Brush::snapVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const size_t snapTo) {
+            assert(m_geometry != NULL);
+            assert(!vertexPositions.empty());
+            
+            nodeWillChange();
+            const SnapVerticesResult result = m_geometry->snapVertices(vertexPositions, snapTo);
+            processBrushAlgorithmResult(worldBounds, result);
+            nodeDidChange();
+            
+            return result.newVertexPositions;
+        }
+
         bool Brush::canMoveEdges(const BBox3& worldBounds, const Edge3::List& edgePositions, const Vec3& delta) {
             assert(m_geometry != NULL);
             assert(!edgePositions.empty());
