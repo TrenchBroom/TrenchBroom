@@ -262,8 +262,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
             */
              
-            Bind(wxEVT_MENU, &MapView3D::OnToggleFlyMode,                this, CommandIds::Actions::ToggleFlyMode);
-
             /*
             Bind(wxEVT_MENU, &MapView3D::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
              */
@@ -311,10 +309,10 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterUp,         this, CommandIds::Actions::MoveRotationCenterUp);
             Bind(wxEVT_MENU, &MapView3D::OnMoveRotationCenterDown,       this, CommandIds::Actions::MoveRotationCenterDown);
             
-            /*
+            Bind(wxEVT_MENU, &MapView3D::OnToggleFlyMode,                this, CommandIds::Actions::ToggleFlyMode);
+            Bind(wxEVT_MENU, &MapView3D::OnCancel,                       this, CommandIds::Actions::Cancel);
             
-             Bind(wxEVT_MENU, &MapView3D::OnCancel,                       this, CommandIds::Actions::Cancel);
-             
+            /*
             Bind(wxEVT_MENU, &MapView3D::OnPopupReparentBrushes,         this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
             Bind(wxEVT_MENU, &MapView3D::OnPopupMoveBrushesToWorld,      this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_MENU, &MapView3D::OnPopupCreatePointEntity,       this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
@@ -631,16 +629,26 @@ namespace TrenchBroom {
             toggleCameraFlyMode();
         }
 
+        void MapView3D::OnCancel(wxCommandEvent& event) {
+            if (cameraFlyModeActive()) {
+                toggleCameraFlyMode();
+                return;
+            }
+            
+            if (m_toolBox.cancel())
+                return;
+            
+            lock(m_document)->deselectAll();
+        }
+
         void MapView3D::OnSetFocus(wxFocusEvent& event) {
             updateAcceleratorTable(true);
             event.Skip();
         }
         
         void MapView3D::OnKillFocus(wxFocusEvent& event) {
-            /*
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
-             */
             updateAcceleratorTable(false);
             event.Skip();
         }
@@ -648,10 +656,8 @@ namespace TrenchBroom {
         void MapView3D::OnActivateFrame(wxActivateEvent& event) {
             if (event.GetActive())
                 updateLastActivation();
-            /*
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
-             */
             event.Skip();
         }
 
@@ -675,10 +681,8 @@ namespace TrenchBroom {
              */
             if (m_toolBox.rotateObjectsToolActive())
                 return Action::Context_RotateTool;
-            /*
             if (cameraFlyModeActive())
                 return Action::Context_FlyMode;
-            */
             
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedNodes())

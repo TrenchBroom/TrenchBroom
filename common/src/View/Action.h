@@ -43,10 +43,10 @@ namespace TrenchBroom {
                 Context_ClipTool        = 1 << 3,
                 Context_RotateTool      = 1 << 4,
                 Context_FlyMode         = 1 << 5,
-                Context_NodeSelection = 1 << 6,
+                Context_NodeSelection   = 1 << 6,
                 Context_FaceSelection   = 1 << 7,
                 Context_AnyTool         = Context_VertexTool | Context_ClipTool | Context_RotateTool,
-                Context_Any             = Context_Default | Context_VertexTool | Context_ClipTool | Context_RotateTool | Context_NodeSelection | Context_FaceSelection
+                Context_Any             = Context_Default | Context_VertexTool | Context_ClipTool | Context_RotateTool | Context_FlyMode | Context_NodeSelection | Context_FaceSelection
             } Context;
             
             static String makeContextName(int context);

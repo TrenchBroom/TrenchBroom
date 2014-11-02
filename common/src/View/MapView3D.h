@@ -147,6 +147,8 @@ namespace TrenchBroom {
             void moveRotationCenter(Math::Direction direction);
 
             void OnToggleFlyMode(wxCommandEvent& event);
+            
+            void OnCancel(wxCommandEvent& event);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);

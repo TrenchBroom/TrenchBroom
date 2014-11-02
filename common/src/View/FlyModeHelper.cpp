@@ -68,7 +68,7 @@ namespace TrenchBroom {
         bool FlyModeHelper::enabled() const {
             return m_enabled;
         }
-        
+
         void FlyModeHelper::lockMouse() {
             m_window->SetCursor(wxCursor(wxCURSOR_BLANK));
             

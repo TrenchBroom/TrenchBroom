@@ -53,6 +53,7 @@ namespace TrenchBroom {
             void enable();
             void disable();
             bool enabled() const;
+            bool cancel();
         private:
             void lockMouse();
             void unlockMouse();
