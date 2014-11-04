@@ -48,6 +48,7 @@
 #include "View/DuplicateNodesCommand.h"
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
+#include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
@@ -71,7 +72,7 @@ namespace TrenchBroom {
         m_entityModelManager(new Assets::EntityModelManager(this)),
         m_textureManager(new Assets::TextureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
         m_mapViewConfig(new MapViewConfig(*m_editorContext)),
-        m_grid(new Grid(5)),
+        m_grid(new Grid(4)),
         m_textureLock(false),
         m_path(DefaultDocumentName),
         m_modificationCount(0),
@@ -454,30 +455,39 @@ namespace TrenchBroom {
             return submit(RotateTexturesCommand::rotate(angle));
         }
 
-        bool MapDocument::canSnapVertices(const VertexHandleManager& handleManager) {
-            return ((handleManager.selectedVertexCount() > 0) ||
-                    (selectedNodes().hasOnlyBrushes() &&
-                     handleManager.selectedEdgeCount() == 0 &&
-                     handleManager.selectedFaceCount() == 0));
+        void MapDocument::rebuildBrushGeometry(const Model::BrushList& brushes) {
+            performRebuildBrushGeometry(brushes);
         }
 
-        bool MapDocument::snapVertices(VertexHandleManager& handleManager, const size_t snapTo) {
-            return submit(SnapBrushVerticesCommand::snap(handleManager, snapTo));
+        bool MapDocument::snapVertices(const Model::VertexToBrushesMap& vertices, const size_t snapTo) {
+            if (vertices.empty()) {
+                assert(m_selectedNodes.hasOnlyBrushes());
+                return submit(SnapBrushVerticesCommand::snap(m_selectedNodes.brushes(), snapTo));
+            }
+            return submit(SnapBrushVerticesCommand::snap(vertices, snapTo));
         }
 
-        MapDocument::MoveVerticesResult MapDocument::moveVertices(VertexHandleManager& handleManager, const Vec3& delta) {
+        MapDocument::MoveVerticesResult::MoveVerticesResult(const bool i_success, const bool i_hasRemainingVertices) :
+        success(i_success),
+        hasRemainingVertices(i_hasRemainingVertices) {}
+
+        MapDocument::MoveVerticesResult MapDocument::moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
+            MoveBrushVerticesCommand* command = MoveBrushVerticesCommand::move(vertices, delta);
+            const bool success = submit(command);
+            const bool hasRemainingVertices = command->hasRemainingVertices();
+            return MoveVerticesResult(success, hasRemainingVertices);
         }
         
-        bool MapDocument::moveEdges(VertexHandleManager& handleManager, const Vec3& delta) {
+        bool MapDocument::moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
         }
         
-        bool MapDocument::moveFaces(VertexHandleManager& handleManager, const Vec3& delta) {
+        bool MapDocument::moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta) {
         }
         
-        bool MapDocument::splitEdges(VertexHandleManager& handleManager, const Vec3& delta) {
+        bool MapDocument::splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
         }
         
-        bool MapDocument::splitFaces(VertexHandleManager& handleManager, const Vec3& delta) {
+        bool MapDocument::splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta) {
         }
 
         bool MapDocument::canUndoLastCommand() const {

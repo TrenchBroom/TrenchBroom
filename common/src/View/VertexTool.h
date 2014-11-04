@@ -58,7 +58,7 @@ namespace TrenchBroom {
             VertexHandleManager m_handleManager;
             Mode m_mode;
             size_t m_changeCount;
-            bool m_ignoreObjectChangeNotifications;
+            bool m_ignoreChangeNotifications;
             Vec3 m_dragHandlePosition;
         public:
             VertexTool(MapDocumentWPtr document, MovementRestriction& movementRestriction, const Renderer::FontDescriptor& fontDescriptor);
@@ -107,6 +107,9 @@ namespace TrenchBroom {
             
             void bindObservers();
             void unbindObservers();
+            void commandDoOrUndo(Command* command);
+            void commandDoneOrUndoFailed(Command* command);
+            void commandDoFailedOrUndone(Command* command);
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const Model::NodeList& nodes);
             void nodesDidChange(const Model::NodeList& nodes);

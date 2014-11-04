@@ -82,7 +82,12 @@ namespace TrenchBroom {
             mutable BBox3 m_selectionBounds;
             mutable bool m_selectionBoundsValid;
         public: // notification
-            Notifier1<Command*> commandProcessedNotifier;
+            Notifier1<Command*> commandDoNotifier;
+            Notifier1<Command*> commandDoneNotifier;
+            Notifier1<Command*> commandDoFailedNotifier;
+            Notifier1<Command*> commandUndoNotifier;
+            Notifier1<Command*> commandUndoneNotifier;
+            Notifier1<Command*> commandUndoFailedNotifier;
             
             Notifier1<MapDocument*> documentWillBeClearedNotifier;
             Notifier1<MapDocument*> documentWasClearedNotifier;
@@ -185,20 +190,22 @@ namespace TrenchBroom {
             bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             bool rotateTextures(float angle);
         public: // modifying vertices
-            bool canSnapVertices(const VertexHandleManager& handleManager);
-            bool snapVertices(VertexHandleManager& handleManager, size_t snapTo);
+            void rebuildBrushGeometry(const Model::BrushList& brushes);
+            bool snapVertices(const Model::VertexToBrushesMap& vertices, size_t snapTo);
             
             struct MoveVerticesResult {
                 bool success;
                 bool hasRemainingVertices;
-                MoveVerticesResult(bool success, bool hasRemainingVertices);
+                MoveVerticesResult(bool i_success, bool i_hasRemainingVertices);
             };
             
-            MoveVerticesResult moveVertices(VertexHandleManager& handleManager, const Vec3& delta);
-            bool moveEdges(VertexHandleManager& handleManager, const Vec3& delta);
-            bool moveFaces(VertexHandleManager& handleManager, const Vec3& delta);
-            bool splitEdges(VertexHandleManager& handleManager, const Vec3& delta);
-            bool splitFaces(VertexHandleManager& handleManager, const Vec3& delta);
+            MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta);
+            bool moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
+            bool moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
+            bool splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);
+            bool splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta);
+        private: // subclassing interface for certain operations which are available from this class, but can only be implemented in a subclass
+            virtual void performRebuildBrushGeometry(const Model::BrushList& brushes) = 0;
         public: // command processing
             bool canUndoLastCommand() const;
             bool canRedoNextCommand() const;

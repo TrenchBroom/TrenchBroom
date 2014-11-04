@@ -122,8 +122,9 @@ namespace TrenchBroom {
         private:
             void processBrushAlgorithmResult(const BBox3& worldBounds, const BrushAlgorithmResult& result);
             void invalidateFaces();
-        private: // brush geometry
+        public: // brush geometry
             void rebuildGeometry(const BBox3& worldBounds);
+        private:
             bool checkGeometry() const;
         public: // content type
             bool transparent() const;

@@ -21,7 +21,7 @@
 #define __TrenchBroom__MoveBrushVerticesCommand__
 
 #include "Model/ModelTypes.h"
-#include "View/DocumentCommand.h"
+#include "View/VertexCommand.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -31,45 +31,25 @@ namespace TrenchBroom {
     namespace View {
         class VertexHandleManager;
         
-        class MoveBrushVerticesCommand : public DocumentCommand {
+        class MoveBrushVerticesCommand : public VertexCommand {
         public:
             static const CommandType Type;
         private:
-            struct VertexInfo {
-                Model::BrushList brushes;
-                Model::BrushVerticesMap vertices;
-                Vec3::List vertexPositions;
-            };
-        private:
-            VertexHandleManager& m_handleManager;
-            Vec3 m_delta;
-            
-            Model::Snapshot* m_snapshot;
-            
-            Model::BrushList m_brushes;
+            Model::BrushVerticesMap m_vertices;
             Vec3::List m_oldVertexPositions;
             Vec3::List m_newVertexPositions;
+            Vec3 m_delta;
         public:
-            static MoveBrushVerticesCommand* move(VertexHandleManager& handleManager, const Vec3& delta);
-            ~MoveBrushVerticesCommand();
-            
+            static MoveBrushVerticesCommand* move(const Model::VertexToBrushesMap& vertices, const Vec3& delta);
             bool hasRemainingVertices() const;
         private:
-            MoveBrushVerticesCommand(VertexHandleManager& handleManager, const Vec3& delta);
+            MoveBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, const Vec3& delta);
             
-            bool doPerformDo(MapDocumentCommandFacade* document);
-            bool doPerformUndo(MapDocumentCommandFacade* document);
+            bool doCanDoVertexOperation(const MapDocument* document) const;
+            bool doVertexOperation(MapDocumentCommandFacade* document);
             
-            bool canMoveVertices(const BBox3& worldBounds, const Model::BrushVerticesMap& brushVertices) const;
-            
-            VertexInfo buildInfo() const;
-            void buildInfo(const Model::VertexToBrushesMap& vertices, VertexInfo& info) const;
-            
-            void takeSnapshot(const Model::BrushList& brushes);
-            void deleteSnapshot();
-            
-            bool doIsRepeatable(MapDocumentCommandFacade* document) const;
-            UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
+            void doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
+            void doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes);
 
             bool doCollateWith(UndoableCommand* command);
         };

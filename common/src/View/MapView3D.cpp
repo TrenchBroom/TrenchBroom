@@ -188,7 +188,8 @@ namespace TrenchBroom {
         
         void MapView3D::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
-            document->commandProcessedNotifier.addObserver(this, &MapView3D::commandProcessed);
+            document->commandDoneNotifier.addObserver(this, &MapView3D::commandProcessed);
+            document->commandUndoneNotifier.addObserver(this, &MapView3D::commandProcessed);
             document->selectionDidChangeNotifier.addObserver(this, &MapView3D::selectionDidChange);
             
             Grid& grid = document->grid();
@@ -201,7 +202,8 @@ namespace TrenchBroom {
         void MapView3D::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
-                document->commandProcessedNotifier.removeObserver(this, &MapView3D::commandProcessed);
+                document->commandDoneNotifier.removeObserver(this, &MapView3D::commandProcessed);
+                document->commandUndoneNotifier.removeObserver(this, &MapView3D::commandProcessed);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapView3D::selectionDidChange);
 
                 Grid& grid = document->grid();

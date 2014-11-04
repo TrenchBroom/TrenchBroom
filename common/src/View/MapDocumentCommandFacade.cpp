@@ -80,8 +80,12 @@ namespace TrenchBroom {
 
         MapDocumentCommandFacade::MapDocumentCommandFacade() :
         m_commandProcessor(this) {
-            m_commandProcessor.commandDoneNotifier.addObserver(commandProcessedNotifier);
-            m_commandProcessor.commandUndoneNotifier.addObserver(commandProcessedNotifier);
+            m_commandProcessor.commandDoNotifier.addObserver(commandDoNotifier);
+            m_commandProcessor.commandDoneNotifier.addObserver(commandDoneNotifier);
+            m_commandProcessor.commandDoFailedNotifier.addObserver(commandDoFailedNotifier);
+            m_commandProcessor.commandUndoNotifier.addObserver(commandUndoNotifier);
+            m_commandProcessor.commandUndoneNotifier.addObserver(commandUndoneNotifier);
+            m_commandProcessor.commandUndoFailedNotifier.addObserver(commandUndoFailedNotifier);
         }
 
         void MapDocumentCommandFacade::performSelect(const Model::NodeList& nodes) {
@@ -393,6 +397,20 @@ namespace TrenchBroom {
             }
             
             return newVertexPositions;
+        }
+
+        void MapDocumentCommandFacade::performRebuildBrushGeometry(const Model::BrushList& brushes) {
+            const Model::NodeList nodes = VectorUtils::cast<Model::Node*>(brushes);
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Model::Brush* brush = *it;
+                brush->rebuildGeometry(m_worldBounds);
+            }
         }
 
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {

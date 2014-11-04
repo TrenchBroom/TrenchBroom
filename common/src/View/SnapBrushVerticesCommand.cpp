@@ -20,6 +20,7 @@
 #include "SnapBrushVerticesCommand.h"
 
 #include "Model/Brush.h"
+#include "Model/BrushVertex.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -29,94 +30,58 @@ namespace TrenchBroom {
     namespace View {
         const Command::CommandType SnapBrushVerticesCommand::Type = Command::freeType();
 
-        SnapBrushVerticesCommand* SnapBrushVerticesCommand::snap(VertexHandleManager& handleManager, const size_t snapTo) {
-            return new SnapBrushVerticesCommand(handleManager, snapTo);
-        }
-
-        SnapBrushVerticesCommand::~SnapBrushVerticesCommand() {
-            if (m_snapshot != NULL)
-                deleteSnapshot();
-        }
-
-        SnapBrushVerticesCommand::SnapBrushVerticesCommand(VertexHandleManager& handleManager, const size_t snapTo) :
-        DocumentCommand(Type, "Snap brush vertices"),
-        m_handleManager(handleManager),
-        m_snapTo(snapTo),
-        m_snapshot(NULL) {}
-        
-        bool SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const VertexInfo info = buildInfo();
+        SnapBrushVerticesCommand* SnapBrushVerticesCommand::snap(const Model::VertexToBrushesMap& vertices, const size_t snapTo) {
+            Model::BrushList brushes;
+            Model::BrushVerticesMap brushVertices;
+            Vec3::List vertexPositions;
+            extractVertexMap(vertices, brushes, brushVertices, vertexPositions);
             
-            takeSnapshot(info.brushes);
-            m_brushes = info.brushes;
-            m_oldVertexPositions = info.vertexPositions;
-            m_handleManager.removeBrushes(m_brushes);
-            
-            const Vec3::List newVertexPositions = document->performSnapVertices(info.vertices, m_snapTo);
-            
-            m_handleManager.addBrushes(m_brushes);
-            m_handleManager.reselectVertexHandles(m_brushes, newVertexPositions, 0.01);
-            
-            return true;
+            return new SnapBrushVerticesCommand(brushes, brushVertices, vertexPositions, snapTo);
         }
         
-        bool SnapBrushVerticesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            assert(m_snapshot != NULL);
-
-            m_handleManager.removeBrushes(m_brushes);
-            document->restoreSnapshot(m_snapshot);
-            deleteSnapshot();
-            m_handleManager.addBrushes(m_brushes);
-            m_handleManager.reselectVertexHandles(m_brushes, m_oldVertexPositions, 0.01);
+        SnapBrushVerticesCommand* SnapBrushVerticesCommand::snap(const Model::BrushList& brushes, const size_t snapTo) {
+            Model::BrushVerticesMap brushVertices;
+            Vec3::List vertexPositions;
             
-            VectorUtils::clearToZero(m_brushes);
-            VectorUtils::clearToZero(m_oldVertexPositions);
-            
-            return true;
-        }
-        
-        SnapBrushVerticesCommand::VertexInfo SnapBrushVerticesCommand::buildInfo() const {
-            VertexInfo result;
-            if (m_handleManager.selectedVertexCount() > 0)
-                buildInfo(m_handleManager.selectedVertexHandles(), result);
-            else
-                buildInfo(m_handleManager.unselectedVertexHandles(), result);
-            return result;
-        }
-
-        void SnapBrushVerticesCommand::buildInfo(const Model::VertexToBrushesMap& vertices, VertexInfo& info) const {
-            typedef std::pair<Model::BrushVerticesMap::iterator, bool> BrushVerticesMapInsertResult;
-            Model::VertexToBrushesMap::const_iterator vIt, vEnd;
             Model::BrushList::const_iterator bIt, bEnd;
+            Model::BrushVertexList::const_iterator vIt, vEnd;
             
-            for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-                const Vec3& position = vIt->first;
-                const Model::BrushList& vertexBrushes = vIt->second;
-                for (bIt = vertexBrushes.begin(), bEnd = vertexBrushes.end(); bIt != bEnd; ++bIt) {
-                    Model::Brush* brush = *bIt;
-                    BrushVerticesMapInsertResult result = info.vertices.insert(std::make_pair(brush, Vec3::List()));
-                    if (result.second)
-                        info.brushes.push_back(brush);
-                    result.first->second.push_back(position);
+            for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                Model::Brush* brush = *bIt;
+                const Model::BrushVertexList& vertices = brush->vertices();
+                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                    const Model::BrushVertex* vertex = *vIt;
+                    brushVertices[brush].push_back(vertex->position);
+                    vertexPositions.push_back(vertex->position);
                 }
-                info.vertexPositions.push_back(position);
             }
+            
+            return new SnapBrushVerticesCommand(brushes, brushVertices, vertexPositions, snapTo);
         }
 
-        void SnapBrushVerticesCommand::takeSnapshot(const Model::BrushList& brushes) {
-            assert(m_snapshot == NULL);
-            m_snapshot = new Model::Snapshot(brushes.begin(), brushes.end());
+        SnapBrushVerticesCommand::SnapBrushVerticesCommand(const Model::BrushList& brushes, const Model::BrushVerticesMap& vertices, const Vec3::List& vertexPositions, const size_t snapTo) :
+        VertexCommand(Type, "Snap vertices", brushes),
+        m_vertices(vertices),
+        m_oldVertexPositions(vertexPositions),
+        m_snapTo(snapTo) {}
+        
+        bool SnapBrushVerticesCommand::doCanDoVertexOperation(const MapDocument* document) const {
+            return true;
+        }
+        
+        bool SnapBrushVerticesCommand::doVertexOperation(MapDocumentCommandFacade* document) {
+            m_newVertexPositions = document->performSnapVertices(m_vertices, m_snapTo);
+            return true;
         }
 
-        void SnapBrushVerticesCommand::deleteSnapshot() {
-            delete m_snapshot;
-            m_snapshot = NULL;
+        void SnapBrushVerticesCommand::doSelectNewHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+            manager.reselectVertexHandles(brushes, m_newVertexPositions, 0.01);
         }
         
-        bool SnapBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return false;
+        void SnapBrushVerticesCommand::doSelectOldHandlePositions(VertexHandleManager& manager, const Model::BrushList& brushes) {
+            manager.selectVertexHandles(m_oldVertexPositions);
         }
-        
+
         bool SnapBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
             return false;
         }

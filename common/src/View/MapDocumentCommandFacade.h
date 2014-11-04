@@ -66,12 +66,15 @@ namespace TrenchBroom {
         public: // vertices
             Vec3::List performSnapVertices(const Model::BrushVerticesMap& vertices, size_t snapTo);
             Vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
+        private: // implement MapDocument operations
+            void performRebuildBrushGeometry(const Model::BrushList& brushes);
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);
         private: // helper methods
             Model::NodeList collectParents(const Model::NodeList& nodes) const;
             Model::NodeList collectParents(const Model::ParentChildrenMap& nodes) const;
             Model::NodeList collectChildren(const Model::ParentChildrenMap& nodes) const;
+            
             Model::ParentChildrenMap parentChildrenMap(const Model::NodeList& nodes) const;
             void addEmptyNodes(Model::ParentChildrenMap& nodes) const;
             Model::NodeList collectEmptyNodes(const Model::ParentChildrenMap& nodes) const;
