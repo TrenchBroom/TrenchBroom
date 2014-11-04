@@ -252,8 +252,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapView3D::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
             Bind(wxEVT_MENU, &MapView3D::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
             Bind(wxEVT_MENU, &MapView3D::OnDeleteLastClipPoint,          this, CommandIds::Actions::DeleteLastClipPoint);
-            
+            */
             Bind(wxEVT_MENU, &MapView3D::OnToggleVertexTool,             this, CommandIds::Actions::ToggleVertexTool);
+            /*
             Bind(wxEVT_MENU, &MapView3D::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
             Bind(wxEVT_MENU, &MapView3D::OnMoveVerticesBackward,         this, CommandIds::Actions::MoveVerticesBackward);
             Bind(wxEVT_MENU, &MapView3D::OnMoveVerticesLeft,             this, CommandIds::Actions::MoveVerticesLeft);
@@ -625,6 +626,10 @@ namespace TrenchBroom {
             Refresh();
         }
 
+        void MapView3D::OnToggleVertexTool(wxCommandEvent& event) {
+            m_toolBox.toggleVertexTool();
+        }
+
         void MapView3D::OnToggleFlyMode(wxCommandEvent& event) {
             toggleCameraFlyMode();
         }
@@ -676,9 +681,9 @@ namespace TrenchBroom {
             /*
             if (clipToolActive())
                 return Action::Context_ClipTool;
-            if (vertexToolActive())
-                return Action::Context_VertexTool;
              */
+            if (m_toolBox.vertexToolActive())
+                return Action::Context_VertexTool;
             if (m_toolBox.rotateObjectsToolActive())
                 return Action::Context_RotateTool;
             if (cameraFlyModeActive())

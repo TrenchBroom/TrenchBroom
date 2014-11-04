@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SnapBrushVerticesCommand.h"
+#include "MoveBrushVerticesCommand.h"
 
 #include "Model/Brush.h"
 #include "Model/Snapshot.h"
@@ -27,42 +27,60 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Command::CommandType SnapBrushVerticesCommand::Type = Command::freeType();
-
-        SnapBrushVerticesCommand* SnapBrushVerticesCommand::snap(VertexHandleManager& handleManager, const size_t snapTo) {
-            return new SnapBrushVerticesCommand(handleManager, snapTo);
+        MoveBrushVerticesCommand* MoveBrushVerticesCommand::move(VertexHandleManager& handleManager, const Vec3& delta) {
+            return new MoveBrushVerticesCommand(handleManager, delta);
         }
-
-        SnapBrushVerticesCommand::~SnapBrushVerticesCommand() {
+        
+        MoveBrushVerticesCommand::~MoveBrushVerticesCommand() {
             if (m_snapshot != NULL)
                 deleteSnapshot();
         }
 
-        SnapBrushVerticesCommand::SnapBrushVerticesCommand(VertexHandleManager& handleManager, const size_t snapTo) :
-        DocumentCommand(Type, "Snap brush vertices"),
+        bool MoveBrushVerticesCommand::hasRemainingVertices() const {
+            return !m_newVertexPositions.empty();
+        }
+
+        MoveBrushVerticesCommand::MoveBrushVerticesCommand(VertexHandleManager& handleManager, const Vec3& delta) :
+        DocumentCommand(Type, "Move vertices"),
         m_handleManager(handleManager),
-        m_snapTo(snapTo),
-        m_snapshot(NULL) {}
-        
-        bool SnapBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+        m_delta(delta),
+        m_snapshot(NULL) {
+            assert(!m_delta.null());
+        }
+
+        bool MoveBrushVerticesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            const BBox3& worldBounds = document->worldBounds();
             const VertexInfo info = buildInfo();
+            if (!canMoveVertices(worldBounds, info.vertices))
+                return false;
             
             takeSnapshot(info.brushes);
             m_brushes = info.brushes;
             m_oldVertexPositions = info.vertexPositions;
             m_handleManager.removeBrushes(m_brushes);
             
-            const Vec3::List newVertexPositions = document->performSnapVertices(info.vertices, m_snapTo);
+            m_newVertexPositions = document->performMoveVertices(info.vertices, m_delta);
             
             m_handleManager.addBrushes(m_brushes);
-            m_handleManager.reselectVertexHandles(m_brushes, newVertexPositions, 0.01);
+            m_handleManager.selectVertexHandles(m_newVertexPositions);
             
             return true;
         }
         
-        bool SnapBrushVerticesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            assert(m_snapshot != NULL);
+        bool MoveBrushVerticesCommand::canMoveVertices(const BBox3& worldBounds, const Model::BrushVerticesMap& brushVertices) const {
+            Model::BrushVerticesMap::const_iterator it, end;
+            for (it = brushVertices.begin(), end = brushVertices.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Vec3::List& vertices = it->second;
+                if (!brush->canMoveVertices(worldBounds, vertices, m_delta))
+                    return false;
+            }
+            return true;
+        }
 
+        bool MoveBrushVerticesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
+            assert(m_snapshot != NULL);
+            
             m_handleManager.removeBrushes(m_brushes);
             document->restoreSnapshot(m_snapshot);
             deleteSnapshot();
@@ -71,11 +89,12 @@ namespace TrenchBroom {
             
             VectorUtils::clearToZero(m_brushes);
             VectorUtils::clearToZero(m_oldVertexPositions);
+            VectorUtils::clearToZero(m_newVertexPositions);
             
             return true;
         }
         
-        SnapBrushVerticesCommand::VertexInfo SnapBrushVerticesCommand::buildInfo() const {
+        MoveBrushVerticesCommand::VertexInfo MoveBrushVerticesCommand::buildInfo() const {
             VertexInfo result;
             if (m_handleManager.selectedVertexCount() > 0)
                 buildInfo(m_handleManager.selectedVertexHandles(), result);
@@ -83,8 +102,8 @@ namespace TrenchBroom {
                 buildInfo(m_handleManager.unselectedVertexHandles(), result);
             return result;
         }
-
-        void SnapBrushVerticesCommand::buildInfo(const Model::VertexToBrushesMap& vertices, VertexInfo& info) const {
+        
+        void MoveBrushVerticesCommand::buildInfo(const Model::VertexToBrushesMap& vertices, VertexInfo& info) const {
             typedef std::pair<Model::BrushVerticesMap::iterator, bool> BrushVerticesMapInsertResult;
             Model::VertexToBrushesMap::const_iterator vIt, vEnd;
             Model::BrushList::const_iterator bIt, bEnd;
@@ -102,23 +121,35 @@ namespace TrenchBroom {
                 info.vertexPositions.push_back(position);
             }
         }
-
-        void SnapBrushVerticesCommand::takeSnapshot(const Model::BrushList& brushes) {
+        
+        void MoveBrushVerticesCommand::takeSnapshot(const Model::BrushList& brushes) {
             assert(m_snapshot == NULL);
             m_snapshot = new Model::Snapshot(brushes.begin(), brushes.end());
         }
-
-        void SnapBrushVerticesCommand::deleteSnapshot() {
+        
+        void MoveBrushVerticesCommand::deleteSnapshot() {
             delete m_snapshot;
             m_snapshot = NULL;
         }
         
-        bool SnapBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
-            return false;
+        bool MoveBrushVerticesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
+            return true;
         }
         
-        bool SnapBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
-            return false;
+        UndoableCommand* MoveBrushVerticesCommand::doRepeat(MapDocumentCommandFacade* document) const {
+            return new MoveBrushVerticesCommand(m_handleManager, m_delta);
+        }
+
+        bool MoveBrushVerticesCommand::doCollateWith(UndoableCommand* command) {
+            MoveBrushVerticesCommand* other = static_cast<MoveBrushVerticesCommand*>(command);
+            
+            if (!VectorUtils::equals(m_newVertexPositions, other->m_oldVertexPositions))
+                return false;
+            
+            m_newVertexPositions = other->m_newVertexPositions;
+            m_delta += other->m_delta;
+            
+            return true;
         }
     }
 }

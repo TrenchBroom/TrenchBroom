@@ -209,7 +209,7 @@ namespace TrenchBroom {
             bool repeatLastCommands();
             void clearRepeatableCommands();
         public: // transactions
-            void beginTransaction(const String& name);
+            void beginTransaction(const String& name = "");
             void endTransaction();
             void rollbackTransaction();
             void cancelTransaction();

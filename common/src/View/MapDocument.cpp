@@ -465,6 +465,21 @@ namespace TrenchBroom {
             return submit(SnapBrushVerticesCommand::snap(handleManager, snapTo));
         }
 
+        MapDocument::MoveVerticesResult MapDocument::moveVertices(VertexHandleManager& handleManager, const Vec3& delta) {
+        }
+        
+        bool MapDocument::moveEdges(VertexHandleManager& handleManager, const Vec3& delta) {
+        }
+        
+        bool MapDocument::moveFaces(VertexHandleManager& handleManager, const Vec3& delta) {
+        }
+        
+        bool MapDocument::splitEdges(VertexHandleManager& handleManager, const Vec3& delta) {
+        }
+        
+        bool MapDocument::splitFaces(VertexHandleManager& handleManager, const Vec3& delta) {
+        }
+
         bool MapDocument::canUndoLastCommand() const {
             return doCanUndoLastCommand();
         }

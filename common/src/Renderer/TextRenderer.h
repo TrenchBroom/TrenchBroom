@@ -130,8 +130,71 @@ namespace TrenchBroom {
                     return prefs.get(m_backgroundColorPref);
                 }
             };
+        private:
+            class TextRenderable : public Renderable {
+            private:
+                TextureFont& m_font;
+                const ShaderConfig& m_textShaderConfig;
+                const ShaderConfig& m_backgroundShaderConfig;
+                
+                VertexArray m_fontArray;
+                VertexArray m_rectArray;
+                
+                bool m_onTop;
+            public:
+                TextRenderable(TextureFont& font,
+                               const ShaderConfig& textShaderConfig, const ShaderConfig& backgroundShaderConfig,
+                               const VertexArray& fontArray, const VertexArray& rectArray) :
+                m_font(font),
+                m_textShaderConfig(textShaderConfig),
+                m_backgroundShaderConfig(backgroundShaderConfig),
+                m_fontArray(fontArray),
+                m_rectArray(rectArray),
+                m_onTop(false) {}
+                
+                virtual ~TextRenderable() {}
+                
+                void showOnTop() {
+                    m_onTop = true;
+                }
+            private:
+                void doPrepare(Vbo& vbo) {
+                    m_fontArray.prepare(vbo);
+                    m_rectArray.prepare(vbo);
+                }
+                
+                void doRender(RenderContext& renderContext) {
+                    const Camera::Viewport& viewport = renderContext.camera().viewport();
+                    const Mat4x4f projection = orthoMatrix(0.0f, 1.0f,
+                                                           static_cast<float>(viewport.x),
+                                                           static_cast<float>(viewport.height),
+                                                           static_cast<float>(viewport.width),
+                                                           static_cast<float>(viewport.y));
+                    const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
+                    
+                    ReplaceTransformation ortho(renderContext.transformation(), projection, view);
+                    
+                    if (m_onTop)
+                        glDisable(GL_DEPTH_TEST);
+                    // glDepthMask(GL_FALSE);
+                    glDisable(GL_TEXTURE_2D);
+                    
+                    ActiveShader backgroundShader(renderContext.shaderManager(), m_backgroundShaderConfig);
+                    m_rectArray.render();
+                    
+                    glEnable(GL_TEXTURE_2D);
+                    ActiveShader textShader(renderContext.shaderManager(), m_textShaderConfig);
+                    textShader.set("Texture", 0);
+                    m_font.activate();
+                    m_fontArray.render();
+                    m_font.deactivate();
+                    
+                    // glDepthMask(GL_TRUE);
+                    if (m_onTop)
+                        glDisable(GL_DEPTH_TEST);
+                }
+            };
             
-        protected:
             class PreparedEntry {
             private:
                 Vec2f::List m_vertices;
@@ -184,6 +247,9 @@ namespace TrenchBroom {
                 }
             };
             
+            typedef VertexSpecs::P3T2C4::Vertex FontVertex;
+            typedef VertexSpecs::P3C4::Vertex RectVertex;
+
             typedef std::map<Key, UnpreparedEntry, Comparator> UnpreparedEntryMap;
             typedef std::map<Key, PreparedEntry, Comparator> PreparedEntryMap;
             typedef std::vector<typename PreparedEntryMap::const_iterator> EntryList;
@@ -275,68 +341,6 @@ namespace TrenchBroom {
                 m_fadeDistance = fadeDistance;
             }
             
-            class TextRenderable : public Renderable {
-            private:
-                TextureFont& m_font;
-                const ShaderConfig& m_textShaderConfig;
-                const ShaderConfig& m_backgroundShaderConfig;
-                
-                VertexArray m_fontArray;
-                VertexArray m_rectArray;
-                
-                bool m_onTop;
-            public:
-                TextRenderable(TextureFont& font,
-                               const ShaderConfig& textShaderConfig, const ShaderConfig& backgroundShaderConfig,
-                               const VertexArray& fontArray, const VertexArray& rectArray) :
-                m_font(font),
-                m_textShaderConfig(textShaderConfig),
-                m_backgroundShaderConfig(backgroundShaderConfig),
-                m_fontArray(fontArray),
-                m_rectArray(rectArray),
-                m_onTop(false) {}
-                
-                void showOnTop() {
-                    m_onTop = true;
-                }
-            private:
-                void doPrepare(Vbo& vbo) {
-                    m_fontArray.prepare(vbo);
-                    m_rectArray.prepare(vbo);
-                }
-                
-                void doRender(RenderContext& renderContext) {
-                    const Camera::Viewport& viewport = renderContext.camera().viewport();
-                    const Mat4x4f projection = orthoMatrix(0.0f, 1.0f,
-                                                           static_cast<float>(viewport.x),
-                                                           static_cast<float>(viewport.height),
-                                                           static_cast<float>(viewport.width),
-                                                           static_cast<float>(viewport.y));
-                    const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
-                    
-                    ReplaceTransformation ortho(renderContext.transformation(), projection, view);
-
-                    if (m_onTop)
-                        glDisable(GL_DEPTH_TEST);
-                    // glDepthMask(GL_FALSE);
-                    glDisable(GL_TEXTURE_2D);
-                    
-                    ActiveShader backgroundShader(renderContext.shaderManager(), m_backgroundShaderConfig);
-                    m_rectArray.render();
-                    
-                    glEnable(GL_TEXTURE_2D);
-                    ActiveShader textShader(renderContext.shaderManager(), m_textShaderConfig);
-                    textShader.set("Texture", 0);
-                    m_font.activate();
-                    m_fontArray.render();
-                    m_font.deactivate();
-                    
-                    // glDepthMask(GL_TRUE);
-                    if (m_onTop)
-                        glDisable(GL_DEPTH_TEST);
-                }
-            };
-            
             void renderOnTop(RenderContext& renderContext, RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
                 TextRenderable* renderable = buildRenderable(renderContext, filter, colorProvider, textProgram, backgroundProgram);
                 if (renderable != NULL) {
@@ -350,6 +354,20 @@ namespace TrenchBroom {
                 if (renderable != NULL)
                     renderBatch.addOneShot(renderable);
             }
+            
+            void renderOnceOnTop(const Key& key, const AttrString& string, TextAnchor::Ptr anchor, RenderContext& renderContext, RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
+                TextRenderable* renderable = buildOnceRenderable(key, string, anchor, renderContext, filter, colorProvider, textProgram, backgroundProgram);
+                if (renderable != NULL) {
+                    renderable->showOnTop();
+                    renderBatch.addOneShot(renderable);
+                }
+            }
+            
+            void renderOnce(const Key& key, const AttrString& string, TextAnchor::Ptr anchor, RenderContext& renderContext, RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
+                TextRenderable* renderable = buildOnceRenderable(key, string, anchor, renderContext, filter, colorProvider, textProgram, backgroundProgram);
+                if (renderable != NULL)
+                    renderBatch.addOneShot(renderable);
+            }
         private:
             TextRenderable* buildRenderable(RenderContext& renderContext, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
                 if (empty())
@@ -357,50 +375,31 @@ namespace TrenchBroom {
                 
                 FontManager& fontManager = renderContext.fontManager();
                 TextureFont& font = fontManager.font(m_fontDescriptor);
-                
+
                 prepareEntries(font);
                 
-                EntryList entries = visibleEntries(renderContext, filter);
+                const EntryList entries = visibleEntries(renderContext, filter);
                 if (entries.empty())
                     return NULL;
                 
-                typedef VertexSpecs::P3T2C4::Vertex FontVertex;
-                FontVertex::List fontVertices;
+                VertexArray fontArray, rectArray;
+                buildArrays(entries, renderContext, colorProvider, fontArray, rectArray);
+
+                return new TextRenderable(font, textProgram, backgroundProgram, fontArray, rectArray);
+            }
+            
+            TextRenderable* buildOnceRenderable(const Key& key, const AttrString& string, TextAnchor::Ptr anchor, RenderContext& renderContext, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
+                if (empty())
+                    return NULL;
                 
-                typedef VertexSpecs::P3C4::Vertex RectVertex;
-                RectVertex::List rectVertices;
-                rectVertices.reserve(3 * 16 * entries.size());
+                FontManager& fontManager = renderContext.fontManager();
+                TextureFont& font = fontManager.font(m_fontDescriptor);
                 
-                typename EntryList::const_iterator it, end;
-                for (it = entries.begin(), end = entries.end(); it != end; ++it) {
-                    const Key& key = (*it)->first;
-                    const PreparedEntry& entry = (*it)->second;
-                    const Vec2f& size = entry.size().rounded();
-                    const TextAnchor::Ptr anchor = entry.anchor();
-                    const Vec3f offset = anchor->offset(renderContext.camera(), size);
-                    
-                    const Vec2f::List& textVertices = entry.vertices();
-                    for (size_t j = 0; j < textVertices.size() / 2; ++j) {
-                        const Vec2f& position2 = textVertices[2 * j];
-                        const Vec2f& texCoords = textVertices[2 * j + 1];
-                        const Vec3f position3(position2.x() + offset.x(),
-                                              position2.y() + offset.y(),
-                                              -offset.z());
-                        fontVertices.push_back(FontVertex(position3, texCoords, colorProvider.textColor(renderContext, key)));
-                    }
-                    
-                    const Vec2f::List tempRect = roundedRect2D(size.x() + 2.0f * m_hInset, size.y() + 2.0f * m_vInset, 3.0f, 3);
-                    for (size_t j = 0; j < tempRect.size(); ++j) {
-                        const Vec2f& vertex = tempRect[j];
-                        const Vec3f position = Vec3f(vertex.x() + offset.x() + size.x() / 2.0f,
-                                                     vertex.y() + offset.y() + size.y() / 2.0f,
-                                                     -offset.z());
-                        rectVertices.push_back(RectVertex(position, colorProvider.backgroundColor(renderContext, key)));
-                    }
-                }
-                
-                const VertexArray fontArray = VertexArray::swap(GL_QUADS, fontVertices);
-                const VertexArray rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
+                const UnpreparedEntry unpreparedEntry(string, anchor);
+                const PreparedEntry preparedEntry = unpreparedEntry.prepare(font);
+
+                VertexArray fontArray, rectArray;
+                buildArrays(key, preparedEntry, renderContext, colorProvider, fontArray, rectArray);
                 
                 return new TextRenderable(font, textProgram, backgroundProgram, fontArray, rectArray);
             }
@@ -435,7 +434,7 @@ namespace TrenchBroom {
             
             bool entryVisible(RenderContext& renderContext, const TextRendererFilter& filter, const Key& key, const PreparedEntry& entry) const {
                 const float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
-
+                
                 if (filter.stringVisible(renderContext, key)) {
                     const TextAnchor::Ptr anchor = entry.anchor();
                     const Vec3f position = anchor->position();
@@ -444,6 +443,62 @@ namespace TrenchBroom {
                         return true;
                 }
                 return false;
+            }
+            
+            void buildArrays(const EntryList& entries, RenderContext& renderContext, const TextColorProvider& colorProvider, VertexArray& fontArray, VertexArray& rectArray) {
+                FontVertex::List fontVertices;
+                
+                RectVertex::List rectVertices;
+                rectVertices.reserve(3 * 16 * entries.size());
+                
+                typename EntryList::const_iterator it, end;
+                for (it = entries.begin(), end = entries.end(); it != end; ++it) {
+                    const Key& key = (*it)->first;
+                    const PreparedEntry& entry = (*it)->second;
+                    addEntryToArrays(key, entry, renderContext, colorProvider, fontVertices, rectVertices);
+                }
+                
+                fontArray = VertexArray::swap(GL_QUADS, fontVertices);
+                rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
+            }
+            
+            void buildArrays(const Key& key, const PreparedEntry& entry, RenderContext& renderContext, const TextColorProvider& colorProvider, VertexArray& fontArray, VertexArray& rectArray) {
+                typedef VertexSpecs::P3T2C4::Vertex FontVertex;
+                FontVertex::List fontVertices;
+                
+                typedef VertexSpecs::P3C4::Vertex RectVertex;
+                RectVertex::List rectVertices;
+                rectVertices.reserve(3 * 16);
+                
+                addEntryToArrays(key, entry, renderContext, colorProvider, fontVertices, rectVertices);
+                
+                fontArray = VertexArray::swap(GL_QUADS, fontVertices);
+                rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
+            }
+            
+            void addEntryToArrays(const Key& key, const PreparedEntry& entry, RenderContext& renderContext, const TextColorProvider& colorProvider, FontVertex::List& fontVertices, RectVertex::List& rectVertices) {
+                const Vec2f& size = entry.size().rounded();
+                const TextAnchor::Ptr anchor = entry.anchor();
+                const Vec3f offset = anchor->offset(renderContext.camera(), size);
+                
+                const Vec2f::List& textVertices = entry.vertices();
+                for (size_t j = 0; j < textVertices.size() / 2; ++j) {
+                    const Vec2f& position2 = textVertices[2 * j];
+                    const Vec2f& texCoords = textVertices[2 * j + 1];
+                    const Vec3f position3(position2.x() + offset.x(),
+                                          position2.y() + offset.y(),
+                                          -offset.z());
+                    fontVertices.push_back(FontVertex(position3, texCoords, colorProvider.textColor(renderContext, key)));
+                }
+                
+                const Vec2f::List tempRect = roundedRect2D(size.x() + 2.0f * m_hInset, size.y() + 2.0f * m_vInset, 3.0f, 3);
+                for (size_t j = 0; j < tempRect.size(); ++j) {
+                    const Vec2f& vertex = tempRect[j];
+                    const Vec3f position = Vec3f(vertex.x() + offset.x() + size.x() / 2.0f,
+                                                 vertex.y() + offset.y() + size.y() / 2.0f,
+                                                 -offset.z());
+                    rectVertices.push_back(RectVertex(position, colorProvider.backgroundColor(renderContext, key)));
+                }
             }
         };
     }

@@ -133,6 +133,10 @@ namespace TrenchBroom {
         return m_hits;
     }
     
+    Hits::List Hits::filter(const Hit::HitType type) const {
+        return filter(TypedHitFilter(type));
+    }
+
     Hits::List Hits::filter(const HitFilter& include) const {
         Hits::List result;
         Hits::List::const_iterator it, end;

@@ -23,12 +23,14 @@
 #include "Model/Brush.h"
 #include "Model/BrushVertex.h"
 #include "Model/HitAdapter.h"
+#include "Model/NodeVisitor.h"
 #include "Model/Picker.h"
 #include "Model/Object.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/Selection.h"
 
 #include <cassert>
 
@@ -180,7 +182,7 @@ namespace TrenchBroom {
             const Hit& hit = firstHit(inputState.hits());
             assert(hit.isMatch());
             m_dragHandlePosition = hit.target<Vec3>();
-            controller()->beginUndoableGroup();
+            document()->beginTransaction();
             return true;
         }
         
@@ -199,12 +201,12 @@ namespace TrenchBroom {
             return grid.snap(m_dragHandlePosition + delta) - m_dragHandlePosition;
         }
         
-        MoveResult VertexTool::doMove(const Vec3& delta) {
+        MoveResult VertexTool::doMove(const InputState& inputState, const Vec3& delta) {
             return moveVertices(delta);;
         }
         
         void VertexTool::doEndMove(const InputState& inputState) {
-            controller()->closeGroup();
+            document()->endTransaction();
             m_mode = Mode_Move;
         }
         
@@ -212,17 +214,17 @@ namespace TrenchBroom {
             return false;
         }
         
-        bool VertexTool::doActivate(const InputState& inputState) {
+        bool VertexTool::doActivate() {
             m_mode = Mode_Move;
             m_handleManager.clear();
-            m_handleManager.addBrushes(document()->selectedBrushes());
+            m_handleManager.addBrushes(document()->selectedNodes().brushes());
             m_changeCount = 0;
             
             bindObservers();
             return true;
         }
         
-        bool VertexTool::doDeactivate(const InputState& inputState) {
+        bool VertexTool::doDeactivate() {
             unbindObservers();
             m_handleManager.clear();
             
@@ -235,7 +237,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool VertexTool::doCancel(const InputState& inputState) {
+        bool VertexTool::doCancel() {
             if (m_handleManager.hasSelectedHandles()) {
                 m_handleManager.deselectAllHandles();
                 return true;
@@ -431,98 +433,86 @@ namespace TrenchBroom {
             renderContext.setForceHideSelectionGuide();
         }
 
-        void VertexTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext) {
-            m_handleManager.render(renderContext, m_mode == Mode_Split);
+        void VertexTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            m_handleManager.render(renderContext, renderBatch, m_mode == Mode_Split);
 
             if (dragging()) {
-                m_handleManager.renderHighlight(renderContext, m_dragHandlePosition);
-                renderMoveIndicator(inputState, renderContext);
+                m_handleManager.renderHighlight(renderContext, renderBatch, m_dragHandlePosition);
+                renderMoveIndicator(inputState, renderContext, renderBatch);
             } else {
                 const Hit& hit = firstHit(inputState.hits());
                 if (hit.isMatch()) {
                     const Vec3 position = hit.target<Vec3>();
-                    m_handleManager.renderHighlight(renderContext, position);
+                    m_handleManager.renderHighlight(renderContext, renderBatch, position);
                     if (m_handleManager.isHandleSelected(position))
-                        renderMoveIndicator(inputState, renderContext);
+                        renderMoveIndicator(inputState, renderContext, renderBatch);
                 }
             }
         }
 
         void VertexTool::bindObservers() {
             document()->selectionDidChangeNotifier.addObserver(this, &VertexTool::selectionDidChange);
-            document()->objectsWillChangeNotifier.addObserver(this, &VertexTool::objectsWillChange);
-            document()->objectsDidChangeNotifier.addObserver(this, &VertexTool::objectsDidChange);
-            controller()->commandDoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
-            controller()->commandDoneNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
-            controller()->commandDoFailedNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-            controller()->commandUndoNotifier.addObserver(this, &VertexTool::commandDoOrUndo);
-            controller()->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-            controller()->commandUndoFailedNotifier.addObserver(this, &VertexTool::commandDoneOrUndoFailed);
+            document()->nodesWillChangeNotifier.addObserver(this, &VertexTool::nodesWillChange);
+            document()->nodesDidChangeNotifier.addObserver(this, &VertexTool::nodesDidChange);
         }
         
         void VertexTool::unbindObservers() {
             if (!expired(document())) {
                 document()->selectionDidChangeNotifier.removeObserver(this, &VertexTool::selectionDidChange);
-                document()->objectsWillChangeNotifier.removeObserver(this, &VertexTool::objectsWillChange);
-                document()->objectsDidChangeNotifier.removeObserver(this, &VertexTool::objectsDidChange);
-            }
-            if (!expired(controller())) {
-                controller()->commandDoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
-                controller()->commandDoneNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
-                controller()->commandDoFailedNotifier.removeObserver(this, &VertexTool::commandDoFailedOrUndone);
-                controller()->commandUndoNotifier.removeObserver(this, &VertexTool::commandDoOrUndo);
-                controller()->commandUndoneNotifier.addObserver(this, &VertexTool::commandDoFailedOrUndone);
-                controller()->commandUndoFailedNotifier.removeObserver(this, &VertexTool::commandDoneOrUndoFailed);
+                document()->nodesWillChangeNotifier.removeObserver(this, &VertexTool::nodesWillChange);
+                document()->nodesDidChangeNotifier.removeObserver(this, &VertexTool::nodesDidChange);
             }
         }
         
-        class AddToHandleManager : public Model::ObjectVisitor {
+        class AddToHandleManager : public Model::NodeVisitor {
         private:
             VertexHandleManager& m_handleManager;
         public:
             AddToHandleManager(VertexHandleManager& handleManager) :
             m_handleManager(handleManager) {}
-            
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   {}
             void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush) {
-                m_handleManager.addBrush(brush);
-            }
+            void doVisit(Model::Brush* brush)   { m_handleManager.addBrush(brush); }
         };
         
-        class RemoveFromHandleManager : public Model::ObjectVisitor {
+        class RemoveFromHandleManager : public Model::NodeVisitor {
         private:
             VertexHandleManager& m_handleManager;
         public:
             RemoveFromHandleManager(VertexHandleManager& handleManager) :
             m_handleManager(handleManager) {}
-            
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   {}
             void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush) {
-                m_handleManager.removeBrush(brush);
-            }
+            void doVisit(Model::Brush* brush)   { m_handleManager.removeBrush(brush); }
         };
 
-        void VertexTool::selectionDidChange(const Model::SelectionResult& selection) {
-            const Model::ObjectSet& selectedObjects = selection.selectedObjects();
+        void VertexTool::selectionDidChange(const Selection& selection) {
+            const Model::NodeList& selectedNodes = selection.selectedNodes();
             AddToHandleManager addVisitor(m_handleManager);
-            Model::Object::accept(selectedObjects.begin(), selectedObjects.end(), addVisitor);
+            Model::Node::accept(selectedNodes.begin(), selectedNodes.end(), addVisitor);
             
-            const Model::ObjectSet& deselectedObjects = selection.deselectedObjects();
+            const Model::NodeList& deselectedNodes = selection.deselectedNodes();
             RemoveFromHandleManager removeVisitor(m_handleManager);
-            Model::Object::accept(deselectedObjects.begin(), deselectedObjects.end(), removeVisitor);
+            Model::Node::accept(deselectedNodes.begin(), deselectedNodes.end(), removeVisitor);
         }
 
-        void VertexTool::objectsWillChange(const Model::ObjectList& objects) {
+        void VertexTool::nodesWillChange(const Model::NodeList& nodes) {
             if (!m_ignoreObjectChangeNotifications) {
                 RemoveFromHandleManager removeVisitor(m_handleManager);
-                Model::Object::accept(objects.begin(), objects.end(), removeVisitor);
+                Model::Node::accept(nodes.begin(), nodes.end(), removeVisitor);
             }
         }
         
-        void VertexTool::objectsDidChange(const Model::ObjectList& objects) {
+        void VertexTool::nodesDidChange(const Model::NodeList& nodes) {
             if (!m_ignoreObjectChangeNotifications) {
                 AddToHandleManager addVisitor(m_handleManager);
-                Model::Object::accept(objects.begin(), objects.end(), addVisitor);
+                Model::Node::accept(nodes.begin(), nodes.end(), addVisitor);
             }
         }
 

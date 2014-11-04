@@ -376,6 +376,25 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
+        Vec3::List MapDocumentCommandFacade::performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta) {
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Vec3::List newVertexPositions;
+            Model::BrushVerticesMap::const_iterator it, end;
+            for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Vec3::List& oldPositions = it->second;
+                const Vec3::List newPositions = brush->moveVertices(m_worldBounds, oldPositions, delta);
+                VectorUtils::append(newVertexPositions, newPositions);
+            }
+            
+            return newVertexPositions;
+        }
+
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);

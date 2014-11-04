@@ -91,6 +91,8 @@ namespace TrenchBroom {
         const Hit& findFirst(const HitFilter& include, const HitFilter& exclude) const;
 
         const List& all() const;
+        
+        List filter(Hit::HitType type) const;
         List filter(const HitFilter& include) const;
     };
 }

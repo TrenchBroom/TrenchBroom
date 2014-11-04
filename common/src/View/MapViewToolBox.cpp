@@ -23,6 +23,7 @@
 #include "View/MoveObjectsTool.h"
 #include "View/RotateObjectsTool.h"
 #include "View/SelectionTool.h"
+#include "View/VertexTool.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -31,7 +32,8 @@ namespace TrenchBroom {
         m_cameraTool(NULL),
         m_moveObjectsTool(NULL),
         m_rotateObjectsTool(NULL),
-        m_selectionTool(NULL) {
+        m_selectionTool(NULL),
+        m_vertexTool(NULL) {
             createTools(document, bookCtrl);
             bindObservers();
         }
@@ -77,6 +79,14 @@ namespace TrenchBroom {
             m_rotateObjectsTool->moveCenter(delta);
         }
 
+        void MapViewToolBox::toggleVertexTool() {
+            toggleTool(m_vertexTool);
+        }
+        
+        bool MapViewToolBox::vertexToolActive() const {
+            return toolActive(m_vertexTool);
+        }
+
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
             PreferenceManager& prefs = PreferenceManager::instance();
             const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath());
@@ -87,9 +97,11 @@ namespace TrenchBroom {
             m_moveObjectsTool = new MoveObjectsTool(document, *m_movementRestriction);
             m_rotateObjectsTool = new RotateObjectsTool(document, *m_movementRestriction, fontDescriptor);
             m_selectionTool = new SelectionTool(document);
+            m_vertexTool = new VertexTool(document, *m_movementRestriction, fontDescriptor);
             
             addTool(m_cameraTool);
             addTool(m_rotateObjectsTool);
+            addTool(m_vertexTool);
             addTool(m_moveObjectsTool);
             addTool(m_selectionTool);
             
@@ -102,6 +114,7 @@ namespace TrenchBroom {
             delete m_moveObjectsTool;
             delete m_rotateObjectsTool;
             delete m_selectionTool;
+            delete m_vertexTool;
         }
         
         void MapViewToolBox::bindObservers() {

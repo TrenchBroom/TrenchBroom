@@ -461,7 +461,7 @@ namespace TrenchBroom {
                 const Vec3::List newPositions = findEdgeHandlePositions(brushes, oldPosition, maxDistance);
                 for (nIt = newPositions.begin(), nEnd = newPositions.end(); nIt != nEnd; ++nIt) {
                     const Vec3& newPosition = *nIt;
-                    m_handleManager.selectEdgeHandle(newPosition);
+                    selectEdgeHandle(newPosition);
                 }
             }
         }
@@ -473,7 +473,7 @@ namespace TrenchBroom {
                 const Vec3::List newPositions = findFaceHandlePositions(brushes, oldPosition, maxDistance);
                 for (nIt = newPositions.begin(), nEnd = newPositions.end(); nIt != nEnd; ++nIt) {
                     const Vec3& newPosition = *nIt;
-                    m_handleManager.selectFaceHandle(newPosition);
+                    selectFaceHandle(newPosition);
                 }
             }
         }
@@ -593,9 +593,7 @@ namespace TrenchBroom {
             renderBatch.add(&m_guideRenderer);
             
             Renderer::TextAnchor::Ptr anchor(new Renderer::SimpleTextAnchor(position, Renderer::Alignment::Bottom, Vec2f(0.0f, 16.0f)));
-            m_textRenderer.addString(position, position.asString(), anchor);
-            m_textRenderer.renderOnTop(renderContext, renderBatch, m_textFilter, m_textColorProvider, Renderer::Shaders::ColoredTextShader, Renderer::Shaders::TextBackgroundShader);
-            m_textRenderer.removeString(position);
+            m_textRenderer.renderOnceOnTop(position, position.asString(), anchor, renderContext, renderBatch, m_textFilter, m_textColorProvider, Renderer::Shaders::ColoredTextShader, Renderer::Shaders::TextBackgroundShader);
         }
 
         Vec3::List VertexHandleManager::findVertexHandlePositions(const Model::BrushList& brushes, const Vec3& query, const FloatType maxDistance) {

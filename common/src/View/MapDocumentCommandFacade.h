@@ -65,6 +65,7 @@ namespace TrenchBroom {
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
             Vec3::List performSnapVertices(const Model::BrushVerticesMap& vertices, size_t snapTo);
+            Vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);
         private: // helper methods
