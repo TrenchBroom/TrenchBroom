@@ -55,6 +55,8 @@
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
+#include "View/SplitBrushEdgesCommand.h"
+#include "View/SplitBrushFacesCommand.h"
 #include "View/TransformObjectsCommand.h"
 #include "View/VertexHandleManager.h"
 
@@ -489,9 +491,11 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
+            return submit(SplitBrushEdgesCommand::split(edges, delta));
         }
         
         bool MapDocument::splitFaces(const Model::VertexToFacesMap& faces, const Vec3& delta) {
+            return submit(SplitBrushFacesCommand::split(faces, delta));
         }
 
         bool MapDocument::canUndoLastCommand() const {

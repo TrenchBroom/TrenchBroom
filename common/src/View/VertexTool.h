@@ -107,9 +107,12 @@ namespace TrenchBroom {
             
             void bindObservers();
             void unbindObservers();
+            
             void commandDoOrUndo(Command* command);
             void commandDoneOrUndoFailed(Command* command);
             void commandDoFailedOrUndone(Command* command);
+            bool isVertexCommand(const Command* command) const;
+            
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const Model::NodeList& nodes);
             void nodesDidChange(const Model::NodeList& nodes);

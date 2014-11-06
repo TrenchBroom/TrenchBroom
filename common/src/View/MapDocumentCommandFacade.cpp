@@ -437,6 +437,50 @@ namespace TrenchBroom {
             return newFacePositions;
         }
 
+        Vec3::List MapDocumentCommandFacade::performSplitEdges(const Model::BrushEdgesMap& edges, const Vec3& delta) {
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Vec3::List newVertexPositions;
+            Model::BrushEdgesMap::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Edge3::List& oldPositions = it->second;
+                for (size_t i = 0; i < oldPositions.size(); ++i) {
+                    const Edge3& edgePosition = oldPositions[i];
+                    const Vec3 vertexPosition = brush->splitEdge(m_worldBounds, edgePosition, delta);
+                    newVertexPositions.push_back(vertexPosition);
+                }
+            }
+            
+            return newVertexPositions;
+        }
+
+        Vec3::List MapDocumentCommandFacade::performSplitFaces(const Model::BrushFacesMap& faces, const Vec3& delta) {
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Vec3::List newVertexPositions;
+            Model::BrushFacesMap::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Polygon3::List& oldPositions = it->second;
+                for (size_t i = 0; i < oldPositions.size(); ++i) {
+                    const Polygon3& facePosition = oldPositions[i];
+                    const Vec3 vertexPosition = brush->splitFace(m_worldBounds, facePosition, delta);
+                    newVertexPositions.push_back(vertexPosition);
+                }
+            }
+            
+            return newVertexPositions;
+        }
+
         void MapDocumentCommandFacade::performRebuildBrushGeometry(const Model::BrushList& brushes) {
             const Model::NodeList nodes = VectorUtils::cast<Model::Node*>(brushes);
             const Model::NodeList parents = collectParents(nodes);

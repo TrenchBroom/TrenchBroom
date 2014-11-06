@@ -35,6 +35,8 @@
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/Selection.h"
 #include "View/SnapBrushVerticesCommand.h"
+#include "View/SplitBrushEdgesCommand.h"
+#include "View/SplitBrushFacesCommand.h"
 #include "View/VertexCommand.h"
 
 #include <cassert>
@@ -504,12 +506,7 @@ namespace TrenchBroom {
         }
         
         void VertexTool::commandDoOrUndo(Command* command) {
-            if (command->type() == SnapBrushVerticesCommand::Type ||
-                command->type() == MoveBrushVerticesCommand::Type ||
-                command->type() == MoveBrushEdgesCommand::Type ||
-                command->type() == MoveBrushFacesCommand::Type) {
-//                command->type() == SplitBrushEdgesCommand::Type ||
-//                command->type() == SplitBrushFacesCommand::Type) {
+            if (isVertexCommand(command)) {
                 VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
                 vertexCommand->removeBrushes(m_handleManager);
                 m_ignoreChangeNotifications = true;
@@ -517,12 +514,7 @@ namespace TrenchBroom {
         }
         
         void VertexTool::commandDoneOrUndoFailed(Command* command) {
-            if (command->type() == SnapBrushVerticesCommand::Type ||
-                command->type() == MoveBrushVerticesCommand::Type ||
-                command->type() == MoveBrushEdgesCommand::Type ||
-                command->type() == MoveBrushFacesCommand::Type) {
-                //                command->type() == SplitBrushEdgesCommand::Type ||
-                //                command->type() == SplitBrushFacesCommand::Type) {
+            if (isVertexCommand(command)) {
                 VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
                 vertexCommand->addBrushes(m_handleManager);
                 vertexCommand->selectNewHandlePositions(m_handleManager);
@@ -534,12 +526,7 @@ namespace TrenchBroom {
         }
         
         void VertexTool::commandDoFailedOrUndone(Command* command) {
-            if (command->type() == SnapBrushVerticesCommand::Type ||
-                command->type() == MoveBrushVerticesCommand::Type ||
-                command->type() == MoveBrushEdgesCommand::Type ||
-                command->type() == MoveBrushFacesCommand::Type) {
-                //                command->type() == SplitBrushEdgesCommand::Type ||
-                //                command->type() == SplitBrushFacesCommand::Type) {
+            if (isVertexCommand(command)) {
                 VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
                 vertexCommand->addBrushes(m_handleManager);
                 vertexCommand->selectOldHandlePositions(m_handleManager);
@@ -550,6 +537,15 @@ namespace TrenchBroom {
             }
         }
         
+        bool VertexTool::isVertexCommand(const Command* command) const {
+            return (command->type() == SnapBrushVerticesCommand::Type ||
+                    command->type() == MoveBrushVerticesCommand::Type ||
+                    command->type() == MoveBrushEdgesCommand::Type ||
+                    command->type() == MoveBrushFacesCommand::Type ||
+                    command->type() == SplitBrushEdgesCommand::Type ||
+                    command->type() == SplitBrushFacesCommand::Type);
+        }
+
         class AddToHandleManager : public Model::NodeVisitor {
         private:
             VertexHandleManager& m_handleManager;

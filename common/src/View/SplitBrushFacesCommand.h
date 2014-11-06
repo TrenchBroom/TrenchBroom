@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveBrushFacesCommand__
-#define __TrenchBroom__MoveBrushFacesCommand__
+#ifndef __TrenchBroom__SplitBrushFacesCommand__
+#define __TrenchBroom__SplitBrushFacesCommand__
 
 #include "Model/ModelTypes.h"
 #include "View/VertexCommand.h"
@@ -31,18 +31,18 @@ namespace TrenchBroom {
     namespace View {
         class VertexHandleManager;
         
-        class MoveBrushFacesCommand : public VertexCommand {
+        class SplitBrushFacesCommand : public VertexCommand {
         public:
             static const CommandType Type;
         private:
             Model::BrushFacesMap m_faces;
             Polygon3::List m_oldFacePositions;
-            Polygon3::List m_newFacePositions;
+            Vec3::List m_newVertexPositions;
             Vec3 m_delta;
         public:
-            static MoveBrushFacesCommand* move(const Model::VertexToFacesMap& faces, const Vec3& delta);
+            static SplitBrushFacesCommand* split(const Model::VertexToFacesMap& faces, const Vec3& delta);
         private:
-            MoveBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta);
+            SplitBrushFacesCommand(const Model::BrushList& brushes, const Model::BrushFacesMap& faces, const Polygon3::List& facePositions, const Vec3& delta);
             
             bool doCanDoVertexOperation(const MapDocument* document) const;
             bool doVertexOperation(MapDocumentCommandFacade* document);
@@ -55,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__MoveBrushFacesCommand__) */
+#endif /* defined(__TrenchBroom__SplitBrushFacesCommand__) */
