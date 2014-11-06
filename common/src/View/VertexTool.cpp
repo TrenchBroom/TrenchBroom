@@ -30,6 +30,8 @@
 #include "View/InputState.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/MoveBrushEdgesCommand.h"
+#include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/Selection.h"
 #include "View/SnapBrushVerticesCommand.h"
@@ -503,9 +505,9 @@ namespace TrenchBroom {
         
         void VertexTool::commandDoOrUndo(Command* command) {
             if (command->type() == SnapBrushVerticesCommand::Type ||
-                command->type() == MoveBrushVerticesCommand::Type) {
-//                command->type() == MoveBrushEdgesCommand::Type ||
-//                command->type() == MoveBrushFacesCommand::Type ||
+                command->type() == MoveBrushVerticesCommand::Type ||
+                command->type() == MoveBrushEdgesCommand::Type ||
+                command->type() == MoveBrushFacesCommand::Type) {
 //                command->type() == SplitBrushEdgesCommand::Type ||
 //                command->type() == SplitBrushFacesCommand::Type) {
                 VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
@@ -516,9 +518,9 @@ namespace TrenchBroom {
         
         void VertexTool::commandDoneOrUndoFailed(Command* command) {
             if (command->type() == SnapBrushVerticesCommand::Type ||
-                command->type() == MoveBrushVerticesCommand::Type) {
-                //                command->type() == MoveBrushEdgesCommand::Type ||
-                //                command->type() == MoveBrushFacesCommand::Type ||
+                command->type() == MoveBrushVerticesCommand::Type ||
+                command->type() == MoveBrushEdgesCommand::Type ||
+                command->type() == MoveBrushFacesCommand::Type) {
                 //                command->type() == SplitBrushEdgesCommand::Type ||
                 //                command->type() == SplitBrushFacesCommand::Type) {
                 VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);
@@ -533,9 +535,9 @@ namespace TrenchBroom {
         
         void VertexTool::commandDoFailedOrUndone(Command* command) {
             if (command->type() == SnapBrushVerticesCommand::Type ||
-                command->type() == MoveBrushVerticesCommand::Type) {
-                //                command->type() == MoveBrushEdgesCommand::Type ||
-                //                command->type() == MoveBrushFacesCommand::Type ||
+                command->type() == MoveBrushVerticesCommand::Type ||
+                command->type() == MoveBrushEdgesCommand::Type ||
+                command->type() == MoveBrushFacesCommand::Type) {
                 //                command->type() == SplitBrushEdgesCommand::Type ||
                 //                command->type() == SplitBrushFacesCommand::Type) {
                 VertexCommand* vertexCommand = static_cast<VertexCommand*>(command);

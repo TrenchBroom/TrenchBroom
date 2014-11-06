@@ -66,6 +66,8 @@ namespace TrenchBroom {
         public: // vertices
             Vec3::List performSnapVertices(const Model::BrushVerticesMap& vertices, size_t snapTo);
             Vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
+            Edge3::List performMoveEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
+            Polygon3::List performMoveFaces(const Model::BrushFacesMap& faces, const Vec3& delta);
         private: // implement MapDocument operations
             void performRebuildBrushGeometry(const Model::BrushList& brushes);
         public: // snapshots and restoration

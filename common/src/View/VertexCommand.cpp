@@ -20,6 +20,9 @@
 #include "VertexCommand.h"
 
 #include "Model/Brush.h"
+#include "Model/BrushEdge.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushFaceGeometry.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/VertexHandleManager.h"
@@ -54,6 +57,56 @@ namespace TrenchBroom {
                 }
                 vertexPositions.push_back(position);
             }
+        }
+
+        void VertexCommand::extractEdgeMap(const Model::VertexToEdgesMap& edges, Model::BrushList& brushes, Model::BrushEdgesMap& brushEdges, Edge3::List& edgePositions) {
+            typedef std::pair<Model::BrushEdgesMap::iterator, bool> BrushEdgesMapInsertResult;
+            Model::VertexToEdgesMap::const_iterator vIt, vEnd;
+            for (vIt = edges.begin(), vEnd = edges.end(); vIt != vEnd; ++vIt) {
+                const Model::BrushEdgeList& mappedEdges = vIt->second;
+                Model::BrushEdgeList::const_iterator eIt, eEnd;
+                for (eIt = mappedEdges.begin(), eEnd = mappedEdges.end(); eIt != eEnd; ++eIt) {
+                    Model::BrushEdge* edge = *eIt;
+                    Model::Brush* brush = edge->leftFace()->brush();
+                    const Edge3 edgePosition = edge->edgeInfo();
+                    
+                    BrushEdgesMapInsertResult result = brushEdges.insert(std::make_pair(brush, Edge3::List()));
+                    if (result.second)
+                        brushes.push_back(brush);
+                    result.first->second.push_back(edgePosition);
+                    edgePositions.push_back(edgePosition);
+                }
+            }
+            
+            assert(!brushes.empty());
+            assert(brushes.size() == brushEdges.size());
+        }
+
+        void VertexCommand::extractFaceMap(const Model::VertexToFacesMap& faces, Model::BrushList& brushes, Model::BrushFacesMap& brushFaces, Polygon3::List& facePositions) {
+            typedef std::pair<Model::BrushFacesMap::iterator, bool> BrushFacesMapInsertResult;
+            Model::VertexToFacesMap::const_iterator vIt, vEnd;
+            for (vIt = faces.begin(), vEnd = faces.end(); vIt != vEnd; ++vIt) {
+                const Model::BrushFaceList& mappedFaces = vIt->second;
+                Model::BrushFaceList::const_iterator eIt, eEnd;
+                for (eIt = mappedFaces.begin(), eEnd = mappedFaces.end(); eIt != eEnd; ++eIt) {
+                    Model::BrushFace* face = *eIt;
+                    Model::Brush* brush = face->brush();
+                    Model::BrushFaceGeometry* side = face->side();
+                    assert(side != NULL);
+                    const Polygon3 facePosition = side->faceInfo();
+                    
+                    BrushFacesMapInsertResult result = brushFaces.insert(std::make_pair(brush, Polygon3::List()));
+                    if (result.second)
+                        brushes.push_back(brush);
+                    result.first->second.push_back(facePosition);
+                    facePositions.push_back(facePosition);
+                }
+            }
+            
+            VectorUtils::sort(facePositions);
+            
+            assert(!brushes.empty());
+            assert(brushes.size() == brushFaces.size());
         }
 
         bool VertexCommand::doPerformDo(MapDocumentCommandFacade* document) {

@@ -399,6 +399,44 @@ namespace TrenchBroom {
             return newVertexPositions;
         }
 
+        Edge3::List MapDocumentCommandFacade::performMoveEdges(const Model::BrushEdgesMap& edges, const Vec3& delta) {
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Edge3::List newEdgePositions;
+            Model::BrushEdgesMap::const_iterator it, end;
+            for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Edge3::List& oldPositions = it->second;
+                const Edge3::List newPositions = brush->moveEdges(m_worldBounds, oldPositions, delta);
+                VectorUtils::append(newEdgePositions, newPositions);
+            }
+            
+            return newEdgePositions;
+        }
+
+        Polygon3::List MapDocumentCommandFacade::performMoveFaces(const Model::BrushFacesMap& faces, const Vec3& delta) {
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Polygon3::List newFacePositions;
+            Model::BrushFacesMap::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::Brush* brush = it->first;
+                const Polygon3::List& oldPositions = it->second;
+                const Polygon3::List newPositions = brush->moveFaces(m_worldBounds, oldPositions, delta);
+                VectorUtils::append(newFacePositions, newPositions);
+            }
+            
+            return newFacePositions;
+        }
+
         void MapDocumentCommandFacade::performRebuildBrushGeometry(const Model::BrushList& brushes) {
             const Model::NodeList nodes = VectorUtils::cast<Model::Node*>(brushes);
             const Model::NodeList parents = collectParents(nodes);

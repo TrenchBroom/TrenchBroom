@@ -61,7 +61,7 @@ namespace TrenchBroom {
             }
             return true;
         }
-        
+
         bool MoveBrushVerticesCommand::doVertexOperation(MapDocumentCommandFacade* document) {
             m_newVertexPositions = document->performMoveVertices(m_vertices, m_delta);
             return true;

@@ -48,6 +48,8 @@
 #include "View/DuplicateNodesCommand.h"
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
+#include "View/MoveBrushEdgesCommand.h"
+#include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
 #include "View/RotateTexturesCommand.h"
@@ -479,9 +481,11 @@ namespace TrenchBroom {
         }
         
         bool MapDocument::moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
+            return submit(MoveBrushEdgesCommand::move(edges, delta));
         }
         
         bool MapDocument::moveFaces(const Model::VertexToFacesMap& faces, const Vec3& delta) {
+            return submit(MoveBrushFacesCommand::move(faces, delta));
         }
         
         bool MapDocument::splitEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta) {
