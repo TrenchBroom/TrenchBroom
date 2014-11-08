@@ -39,6 +39,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
+#include "Model/GameFactory.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PointFile.h"
@@ -80,9 +81,13 @@ namespace TrenchBroom {
         m_textureLock(false),
         m_path(DefaultDocumentName),
         m_modificationCount(0),
-        m_selectionBoundsValid(true) {}
+        m_selectionBoundsValid(true) {
+            bindObservers();
+        }
         
         MapDocument::~MapDocument() {
+            unbindObservers();
+            
             if (isPointFileLoaded())
                 unloadPointFile();
             clearWorld();
@@ -626,9 +631,13 @@ namespace TrenchBroom {
         }
 
         void MapDocument::unloadEntityModels() {
+            clearEntityModels();
+            m_entityModelManager->setLoader(NULL);
+        }
+
+        void MapDocument::clearEntityModels() {
             unsetEntityModels();
             m_entityModelManager->clear();
-            m_entityModelManager->setLoader(NULL);
         }
 
         void MapDocument::loadTextures() {
@@ -877,6 +886,40 @@ namespace TrenchBroom {
         void MapDocument::clearModificationCount() {
             m_modificationCount = 0;
             documentModificationStateDidChangeNotifier();
+        }
+        
+        void MapDocument::bindObservers() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
+        }
+        
+        void MapDocument::unbindObservers() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
+        }
+        
+        void MapDocument::preferenceDidChange(const IO::Path& path) {
+            if (isGamePathPreference(path)) {
+                const Model::GameFactory& gameFactory = Model::GameFactory::instance();
+                const IO::Path newGamePath = gameFactory.gamePath(m_game->gameName());
+                m_game->setGamePath(newGamePath);
+                
+                clearEntityModels();
+                setEntityModels();
+                
+                unsetTextures();
+                loadBuiltinTextures();
+                setTextures();
+                
+                //reloadIssues();
+            } else if (path == Preferences::TextureMinFilter.path() ||
+                       path == Preferences::TextureMagFilter.path()) {
+                m_textureManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
+            }
+        }
+
+        bool MapDocument::isGamePathPreference(const IO::Path& path) const {
+            return m_game != NULL && m_game->isGamePathPreference(path);
         }
 
         Transaction::Transaction(MapDocumentWPtr document, const String& name) :

@@ -19,6 +19,7 @@
 
 #include "MapView3D.h"
 #include "Logger.h"
+#include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushVertex.h"
 #include "Model/Entity.h"
@@ -197,6 +198,9 @@ namespace TrenchBroom {
             
             m_camera.cameraDidChangeNotifier.addObserver(this, &MapView3D::cameraDidChange);
             m_toolBox.toolActivatedNotifier.addObserver(this, &MapView3D::toolChanged);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MapView3D::preferenceDidChange);
         }
         
         void MapView3D::unbindObservers() {
@@ -209,6 +213,9 @@ namespace TrenchBroom {
                 Grid& grid = document->grid();
                 grid.gridDidChangeNotifier.removeObserver(this, &MapView3D::gridDidChange);
             }
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapView3D::preferenceDidChange);
 
             // toolbox has already been deleted at this point
             // m_toolBox.toolActivatedNotifier.removeObserver(this, &MapView3D::toolChanged);
@@ -237,6 +244,10 @@ namespace TrenchBroom {
         }
 
         void MapView3D::gridDidChange() {
+            Refresh();
+        }
+
+        void MapView3D::preferenceDidChange(const IO::Path& path) {
             Refresh();
         }
 

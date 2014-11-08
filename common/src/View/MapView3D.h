@@ -86,6 +86,7 @@ namespace TrenchBroom {
             void commandProcessed(Command* command);
             void selectionDidChange(const Selection& selection);
             void gridDidChange();
+            void preferenceDidChange(const IO::Path& path);
         private: // interaction events
             void bindEvents();
             

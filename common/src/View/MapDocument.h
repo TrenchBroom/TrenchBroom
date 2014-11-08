@@ -258,6 +258,7 @@ namespace TrenchBroom {
             
             void loadEntityModels();
             void unloadEntityModels();
+            void clearEntityModels();
             
             void loadTextures();
             void loadBuiltinTextures();
@@ -293,6 +294,11 @@ namespace TrenchBroom {
             bool modified() const;
         private:
             void clearModificationCount();
+        private: // observers
+            void bindObservers();
+            void unbindObservers();
+            void preferenceDidChange(const IO::Path& path);
+            bool isGamePathPreference(const IO::Path& path) const;
         };
 
         class Transaction {

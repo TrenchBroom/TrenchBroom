@@ -80,8 +80,6 @@ namespace TrenchBroom {
     }
 
     PreferenceManager::~PreferenceManager() {
-        UnsavedPreferences::iterator it, end;
-        for (it = m_unsavedPreferences.begin(), end = m_unsavedPreferences.end(); it != end; ++it)
-            delete it->second;
+        MapUtils::clearAndDelete(m_unsavedPreferences);
     }
 }

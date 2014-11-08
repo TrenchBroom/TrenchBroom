@@ -48,7 +48,7 @@ namespace TrenchBroom {
             
             Path(bool absolute, const StringList& components);
         public:
-            Path(const String& path);
+            Path(const String& path = "");
             
             Path operator+ (const Path& rhs) const;
             int compare(const Path& rhs) const;
