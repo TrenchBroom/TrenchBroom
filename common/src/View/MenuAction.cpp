@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Action.h"
+#include "MenuAction.h"
 #include "ActionContext.h"
 
 #include "PreferenceManager.h"
@@ -26,59 +26,54 @@
 
 namespace TrenchBroom {
     namespace View {
-        Action::Action(int id, int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable, bool requiresModifiers) :
+        MenuAction::MenuAction(const int id, const int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, const bool modifiable) :
         m_id(id),
         m_context(context),
         m_name(name),
         m_preference(preferencePath, defaultShortcut),
-        m_modifiable(modifiable),
-        m_requiresModifiers(requiresModifiers) {}
+        m_modifiable(modifiable) {}
 
-        int Action::id() const {
+        int MenuAction::id() const {
             return m_id;
         }
         
-        const String& Action::name() const {
+        const String& MenuAction::name() const {
             return m_name;
         }
         
-        String Action::displayName() const {
+        String MenuAction::displayName() const {
             return m_preference.path().asString(" > ");
         }
         
-        String Action::contextName() const {
+        String MenuAction::contextName() const {
             return actionContextName(m_context);
         }
 
-        bool Action::modifiable() const {
+        bool MenuAction::modifiable() const {
             return m_modifiable;
         }
 
-        bool Action::requiresModifiers() const {
-            return m_requiresModifiers;
+        bool MenuAction::hasShortcut(const KeyboardShortcut& shortcut) const {
+            return MenuAction::shortcut() == shortcut;
         }
 
-        bool Action::hasShortcut(const KeyboardShortcut& shortcut) const {
-            return Action::shortcut() == shortcut;
-        }
-
-        wxAcceleratorEntry Action::acceleratorEntry() const {
+        wxAcceleratorEntry MenuAction::acceleratorEntry() const {
             return shortcut().acceleratorEntry(m_id);
         }
 
-        bool Action::appliesToContext(const int context) const {
+        bool MenuAction::appliesToContext(const int context) const {
             return (context & m_context) != 0;
         }
 
-        wxString Action::shortcutMenuString() const {
+        wxString MenuAction::shortcutMenuString() const {
             return shortcut().shortcutMenuString();
         }
         
-        wxString Action::shortcutDisplayString() const {
+        wxString MenuAction::shortcutDisplayString() const {
             return shortcut().shortcutDisplayString();
         }
         
-        wxString Action::menuItemString(const wxString& suffix) const {
+        wxString MenuAction::menuItemString(const wxString& suffix) const {
             wxString caption;
             caption << m_name;
             if (!suffix.empty())
@@ -86,7 +81,7 @@ namespace TrenchBroom {
             return shortcut().shortcutMenuItemString(caption);
         }
         
-        void Action::updateShortcut(const KeyboardShortcut& shortcut) {
+        void MenuAction::updateShortcut(const KeyboardShortcut& shortcut) {
             assert(m_modifiable);
             if (!m_modifiable)
                 throw Exception(m_name + " is not modifiable");
@@ -95,12 +90,12 @@ namespace TrenchBroom {
             prefs.set(m_preference, shortcut);
         }
         
-        void Action::resetShortcut() {
+        void MenuAction::resetShortcut() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.resetToDefault(m_preference);
         }
 
-        bool Action::conflictsWith(const Action& action) const {
+        bool MenuAction::conflictsWith(const MenuAction& action) const {
             if (m_id == action.m_id)
                 return false;
             if ((m_context & action.m_context) == 0)
@@ -113,7 +108,7 @@ namespace TrenchBroom {
                     shortcut() == action.shortcut());
         }
 
-        const KeyboardShortcut& Action::shortcut() const {
+        const KeyboardShortcut& MenuAction::shortcut() const {
             PreferenceManager& prefs = PreferenceManager::instance();
             return prefs.get(m_preference);
         }

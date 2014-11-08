@@ -20,7 +20,6 @@
 #ifndef __TrenchBroom__ActionManager__
 #define __TrenchBroom__ActionManager__
 
-#include "View/Action.h"
 #include "View/ActionContext.h"
 
 class wxAcceleratorTable;
@@ -34,6 +33,7 @@ namespace TrenchBroom {
     
     namespace View {
         class Menu;
+        class MenuAction;
         
         class ActionManager {
         private:
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             ~ActionManager();
             
             static wxMenu* findRecentDocumentsMenu(const wxMenuBar* menuBar);
-            const Action* findMenuAction(int id) const;
+            const MenuAction* findMenuAction(int id) const;
 
             Menu& getMenu();
             wxMenuBar* createMenuBar() const;

@@ -35,18 +35,17 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class Action {
+        class MenuAction {
         public:
-            typedef std::vector<Action> List;
+            typedef std::vector<MenuAction> List;
         private:
             int m_id;
             int m_context;
             String m_name;
             Preference<KeyboardShortcut> m_preference;
             bool m_modifiable;
-            bool m_requiresModifiers;
         public:
-            Action(int id, int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable, bool requiresModifiers);
+            MenuAction(int id, int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable);
             
             int id() const;
             const String& name() const;
@@ -54,7 +53,6 @@ namespace TrenchBroom {
             String contextName() const;
             
             bool modifiable() const;
-            bool requiresModifiers() const;
             bool hasShortcut(const KeyboardShortcut& shortcut) const;
             
             wxAcceleratorEntry acceleratorEntry() const;
@@ -67,7 +65,7 @@ namespace TrenchBroom {
 
             void updateShortcut(const KeyboardShortcut& shortcut);
             void resetShortcut();
-            bool conflictsWith(const Action& action) const;
+            bool conflictsWith(const MenuAction& action) const;
         private:
             const KeyboardShortcut& shortcut() const;
         };

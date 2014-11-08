@@ -23,7 +23,7 @@
 #include "Preference.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
-#include "View/Action.h"
+#include "View/MenuAction.h"
 
 #include <vector>
 #include <map>
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             Type type() const;
             const MenuItemParent* parent() const;
             
-            virtual const Action* findAction(int id) const;
+            virtual const MenuAction* findAction(int id) const;
 
             void resetShortcutsToDefaults();
         private:
@@ -75,7 +75,7 @@ namespace TrenchBroom {
         
         class ActionMenuItem : public MenuItemWithCaption {
         private:
-            mutable Action m_action;
+            mutable MenuAction m_action;
         public:
             ActionMenuItem(Type type, MenuItemParent* parent, int id, int context, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
             virtual ~ActionMenuItem();
@@ -84,9 +84,9 @@ namespace TrenchBroom {
             const String& text() const;
             wxString menuText() const;
 
-            Action& action();
+            MenuAction& action();
 
-            const Action* findAction(int id) const;
+            const MenuAction* findAction(int id) const;
         private:
             void doResetShortcutsToDefaults();
             IO::Path path(const String& text) const;
@@ -103,7 +103,7 @@ namespace TrenchBroom {
             int id() const;
             const String& text() const;
 
-            const Action* findAction(int id) const;
+            const MenuAction* findAction(int id) const;
 
             const List& items() const;
             List& items();

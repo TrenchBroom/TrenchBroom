@@ -33,6 +33,7 @@
 #include "View/Console.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/MenuAction.h"
 #include "View/SplitterWindow.h"
 #include "View/SwitchableMapView.h"
 
@@ -546,7 +547,7 @@ namespace TrenchBroom {
                     event.Enable(m_document->isPointFileLoaded());
                     break;
                 case wxID_UNDO: {
-                    const Action* action = actionManager.findMenuAction(wxID_UNDO);
+                    const MenuAction* action = actionManager.findMenuAction(wxID_UNDO);
                     assert(action != NULL);
                     if (m_document->canUndoLastCommand()) {
                         event.Enable(true);
@@ -558,7 +559,7 @@ namespace TrenchBroom {
                     break;
                 }
                 case wxID_REDO: {
-                    const Action* action = actionManager.findMenuAction(wxID_REDO);
+                    const MenuAction* action = actionManager.findMenuAction(wxID_REDO);
                     if (m_document->canRedoNextCommand()) {
                         event.Enable(true);
                         event.SetText(action->menuItemString(m_document->nextCommandName()));

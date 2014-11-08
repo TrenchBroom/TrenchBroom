@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return m_parent;
         }
 
-        const Action* MenuItem::findAction(const int id) const {
+        const MenuAction* MenuItem::findAction(const int id) const {
             return NULL;
         }
 
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         
         ActionMenuItem::ActionMenuItem(const Type type, MenuItemParent* parent, const int id, const int context, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) :
         MenuItemWithCaption(type, parent),
-        m_action(id, context, text, path(text), defaultShortcut, modifiable, true) {
+        m_action(id, context, text, path(text), defaultShortcut, modifiable) {
             assert(type == Type_Action || type == Type_Check);
         }
         
@@ -78,11 +78,11 @@ namespace TrenchBroom {
             return m_action.menuItemString();
         }
         
-        Action& ActionMenuItem::action() {
+        MenuAction& ActionMenuItem::action() {
             return m_action;
         }
 
-        const Action* ActionMenuItem::findAction(const int i_id) const {
+        const MenuAction* ActionMenuItem::findAction(const int i_id) const {
             if (i_id == id())
                 return &m_action;
             return NULL;
@@ -113,11 +113,11 @@ namespace TrenchBroom {
             return m_text;
         }
         
-        const Action* MenuItemParent::findAction(const int id) const {
+        const MenuAction* MenuItemParent::findAction(const int id) const {
             MenuItem::List::const_iterator it, end;
             for (it = m_items.begin(), end = m_items.end(); it != end; ++it) {
                 const MenuItem::Ptr item = *it;
-                const Action* action = item->findAction(id);
+                const MenuAction* action = item->findAction(id);
                 if (action != NULL)
                     return action;
             }

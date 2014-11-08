@@ -24,6 +24,7 @@
 #include "IO/Path.h"
 #include "View/CommandIds.h"
 #include "View/Menu.h"
+#include "View/MenuAction.h"
 #include "View/ViewShortcut.h"
 
 #include <wx/accel.h>
@@ -53,7 +54,7 @@ namespace TrenchBroom {
             return recentDocumentsItem->GetSubMenu();
         }
         
-        const Action* ActionManager::findMenuAction(const int id) const {
+        const MenuAction* ActionManager::findMenuAction(const int id) const {
             return m_menu->findAction(id);
         }
         
