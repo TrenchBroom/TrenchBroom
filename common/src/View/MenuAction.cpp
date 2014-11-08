@@ -26,9 +26,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MenuAction::MenuAction(const int id, const int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, const bool modifiable) :
+        MenuAction::MenuAction(const int id, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, const bool modifiable) :
         m_id(id),
-        m_context(context),
         m_name(name),
         m_preference(preferencePath, defaultShortcut),
         m_modifiable(modifiable) {}
@@ -44,10 +43,6 @@ namespace TrenchBroom {
         String MenuAction::displayName() const {
             return m_preference.path().asString(" > ");
         }
-        
-        String MenuAction::contextName() const {
-            return actionContextName(m_context);
-        }
 
         bool MenuAction::modifiable() const {
             return m_modifiable;
@@ -55,14 +50,6 @@ namespace TrenchBroom {
 
         bool MenuAction::hasShortcut(const KeyboardShortcut& shortcut) const {
             return MenuAction::shortcut() == shortcut;
-        }
-
-        wxAcceleratorEntry MenuAction::acceleratorEntry() const {
-            return shortcut().acceleratorEntry(m_id);
-        }
-
-        bool MenuAction::appliesToContext(const int context) const {
-            return (context & m_context) != 0;
         }
 
         wxString MenuAction::shortcutMenuString() const {
@@ -97,8 +84,6 @@ namespace TrenchBroom {
 
         bool MenuAction::conflictsWith(const MenuAction& action) const {
             if (m_id == action.m_id)
-                return false;
-            if ((m_context & action.m_context) == 0)
                 return false;
             
             const KeyboardShortcut& mine = shortcut();

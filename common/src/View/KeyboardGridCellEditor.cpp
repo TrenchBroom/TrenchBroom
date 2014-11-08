@@ -71,9 +71,9 @@ namespace TrenchBroom {
         
         bool KeyboardGridCellEditor::EndEdit(int row, int col, const wxGrid* grid, const wxString& oldValue, wxString* newValue) {
             if (m_requiresModifier &&
-                m_editor->modifier1() == WXK_COMMAND &&
-                m_editor->modifier2() == WXK_COMMAND &&
-                m_editor->modifier3() == WXK_COMMAND) {
+                m_editor->modifier1() != WXK_COMMAND &&
+                m_editor->modifier2() != WXK_COMMAND &&
+                m_editor->modifier3() != WXK_COMMAND) {
                 
                 wxString msg;
                 msg << "Shortcuts for menu items must include the ";

@@ -77,7 +77,7 @@ namespace TrenchBroom {
         private:
             mutable MenuAction m_action;
         public:
-            ActionMenuItem(Type type, MenuItemParent* parent, int id, int context, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
+            ActionMenuItem(Type type, MenuItemParent* parent, int id, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
             virtual ~ActionMenuItem();
             
             int id() const;
@@ -122,17 +122,17 @@ namespace TrenchBroom {
             Menu(const String& text);
             virtual ~Menu();
 
-            MenuItem::Ptr addModifiableActionItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
-            MenuItem::Ptr addUnmodifiableActionItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
+            MenuItem::Ptr addModifiableActionItem(int id, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
+            MenuItem::Ptr addUnmodifiableActionItem(int id, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
             
-            MenuItem::Ptr addModifiableCheckItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
-            MenuItem::Ptr addUnmodifiableCheckItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
+            MenuItem::Ptr addModifiableCheckItem(int id, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
+            MenuItem::Ptr addUnmodifiableCheckItem(int id, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
 
             void addSeparator();
             Menu& addMenu(int id, const String& text);
         private:
-            MenuItem::Ptr addActionItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
-            MenuItem::Ptr addCheckItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
+            MenuItem::Ptr addActionItem(int id, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
+            MenuItem::Ptr addCheckItem(int id, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
         };
     }
 }

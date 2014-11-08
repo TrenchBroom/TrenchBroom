@@ -55,6 +55,7 @@ namespace TrenchBroom {
             createGui();
             bindEvents();
             switchToPane(PrefPane_First);
+            currentPane()->updateControls();
             SetClientSize(currentPane()->GetMinSize());
             
             return true;

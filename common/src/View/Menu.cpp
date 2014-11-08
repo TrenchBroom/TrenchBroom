@@ -58,9 +58,9 @@ namespace TrenchBroom {
         
         MenuItemWithCaption::~MenuItemWithCaption() {}
         
-        ActionMenuItem::ActionMenuItem(const Type type, MenuItemParent* parent, const int id, const int context, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) :
+        ActionMenuItem::ActionMenuItem(const Type type, MenuItemParent* parent, const int id, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) :
         MenuItemWithCaption(type, parent),
-        m_action(id, context, text, path(text), defaultShortcut, modifiable) {
+        m_action(id, text, path(text), defaultShortcut, modifiable) {
             assert(type == Type_Action || type == Type_Check);
         }
         
@@ -159,20 +159,20 @@ namespace TrenchBroom {
 
         Menu::~Menu() {}
 
-        MenuItem::Ptr Menu::addModifiableActionItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut) {
-            return addActionItem(id, context, text, defaultShortcut, true);
+        MenuItem::Ptr Menu::addModifiableActionItem(const int id, const String& text, const KeyboardShortcut& defaultShortcut) {
+            return addActionItem(id, text, defaultShortcut, true);
         }
         
-        MenuItem::Ptr Menu::addUnmodifiableActionItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut) {
-            return addActionItem(id, context, text, defaultShortcut, false);
+        MenuItem::Ptr Menu::addUnmodifiableActionItem(const int id, const String& text, const KeyboardShortcut& defaultShortcut) {
+            return addActionItem(id, text, defaultShortcut, false);
         }
         
-        MenuItem::Ptr Menu::addModifiableCheckItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut) {
-            return addCheckItem(id, context, text, defaultShortcut, true);
+        MenuItem::Ptr Menu::addModifiableCheckItem(const int id, const String& text, const KeyboardShortcut& defaultShortcut) {
+            return addCheckItem(id, text, defaultShortcut, true);
         }
         
-        MenuItem::Ptr Menu::addUnmodifiableCheckItem(int id, int context, const String& text, const KeyboardShortcut& defaultShortcut) {
-            return addCheckItem(id, context, text, defaultShortcut, false);
+        MenuItem::Ptr Menu::addUnmodifiableCheckItem(const int id, const String& text, const KeyboardShortcut& defaultShortcut) {
+            return addCheckItem(id, text, defaultShortcut, false);
         }
 
         void Menu::addSeparator() {
@@ -186,14 +186,14 @@ namespace TrenchBroom {
             return *menu;
         }
         
-        MenuItem::Ptr Menu::addActionItem(const int id, const int context, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) {
-            MenuItem::Ptr item = MenuItem::Ptr(new ActionMenuItem(MenuItem::Type_Action, this, id, context, text, defaultShortcut, modifiable));
+        MenuItem::Ptr Menu::addActionItem(const int id, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) {
+            MenuItem::Ptr item = MenuItem::Ptr(new ActionMenuItem(MenuItem::Type_Action, this, id, text, defaultShortcut, modifiable));
             addItem(item);
             return item;
         }
         
-        MenuItem::Ptr Menu::addCheckItem(const int id, const int context, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) {
-            MenuItem::Ptr item = MenuItem::Ptr(new ActionMenuItem(MenuItem::Type_Check, this, id, context, text, defaultShortcut, modifiable));
+        MenuItem::Ptr Menu::addCheckItem(const int id, const String& text, const KeyboardShortcut& defaultShortcut, const bool modifiable) {
+            MenuItem::Ptr item = MenuItem::Ptr(new ActionMenuItem(MenuItem::Type_Check, this, id, text, defaultShortcut, modifiable));
             addItem(item);
             return item;
         }

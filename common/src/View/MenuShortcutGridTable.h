@@ -43,7 +43,6 @@ namespace TrenchBroom {
                 Entry(MenuAction& action);
                 
                 const String caption() const;
-                const String contextName() const;
                 const wxString shortcut() const;
                 bool modifiable() const;
                 

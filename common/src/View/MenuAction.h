@@ -30,33 +30,24 @@
 #include <vector>
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-    
     namespace View {
         class MenuAction {
         public:
             typedef std::vector<MenuAction> List;
         private:
             int m_id;
-            int m_context;
             String m_name;
             Preference<KeyboardShortcut> m_preference;
             bool m_modifiable;
         public:
-            MenuAction(int id, int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable);
+            MenuAction(int id, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable);
             
             int id() const;
             const String& name() const;
             String displayName() const;
-            String contextName() const;
             
             bool modifiable() const;
             bool hasShortcut(const KeyboardShortcut& shortcut) const;
-            
-            wxAcceleratorEntry acceleratorEntry() const;
-            bool appliesToContext(int context) const;
             
             wxString shortcutMenuString() const;
             wxString shortcutDisplayString() const;

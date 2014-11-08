@@ -30,8 +30,8 @@ namespace TrenchBroom {
         
         class KeyboardPreferencePane : public PreferencePane {
         private:
-            wxGrid* m_grid;
-            MenuShortcutGridTable* m_table;
+            wxGrid* m_menuShortcutGrid;
+            MenuShortcutGridTable* m_menuShortcutTable;
             
         public:
             KeyboardPreferencePane(wxWindow* parent);

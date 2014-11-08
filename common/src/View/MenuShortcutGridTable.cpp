@@ -34,11 +34,6 @@ namespace TrenchBroom {
             return m_action->displayName();
         }
         
-        const String MenuShortcutGridTable::Entry::contextName() const {
-            return m_action->contextName();
-            
-        }
-        
         const wxString MenuShortcutGridTable::Entry::shortcut() const {
             return m_action->shortcutDisplayString();
         }
@@ -77,7 +72,7 @@ namespace TrenchBroom {
         }
         
         int MenuShortcutGridTable::GetNumberCols() {
-            return 3;
+            return 2;
         }
         
         wxString MenuShortcutGridTable::GetValue(int row, int col) {
@@ -88,11 +83,9 @@ namespace TrenchBroom {
             
             switch (col) {
                 case 0:
-                    return m_entries[rowIndex].caption();
-                case 1:
-                    return m_entries[rowIndex].contextName();
-                case 2:
                     return m_entries[rowIndex].shortcut();
+                case 1:
+                    return m_entries[rowIndex].caption();
                 default:
                     assert(false);
                     break;
@@ -103,7 +96,7 @@ namespace TrenchBroom {
         
         void MenuShortcutGridTable::SetValue(int row, int col, const wxString& value) {
             assert(row >= 0 && row < GetNumberRows());
-            assert(col == 2);
+            assert(col == 0);
             
             int key, modifier1, modifier2, modifier3;
             const bool success = KeyboardShortcut::parseShortcut(value, key, modifier1, modifier2, modifier3);
@@ -142,11 +135,9 @@ namespace TrenchBroom {
             assert(col >= 0 && col < GetNumberCols());
             switch (col) {
                 case 0:
-                    return "Command";
-                case 1:
-                    return "Context";
-                case 2:
                     return "Shortcut";
+                case 1:
+                    return "Menu Item";
                 default:
                     assert(false);
                     break;
@@ -164,11 +155,7 @@ namespace TrenchBroom {
                         attr = new wxGridCellAttr();
                     attr->SetTextColour(*wxRED);
                 }
-                if (col < 2) {
-                    if (attr == NULL)
-                        attr = new wxGridCellAttr();
-                    attr->SetReadOnly(true);
-                } else if (col == 2) {
+                if (col == 0) {
                     if (attr == NULL)
                         attr = new wxGridCellAttr();
                     if (entry.modifiable()) {
@@ -178,6 +165,10 @@ namespace TrenchBroom {
                         attr->SetReadOnly(true);
                         attr->SetTextColour(*wxLIGHT_GREY);
                     }
+                } else if (col == 1) {
+                    if (attr == NULL)
+                        attr = new wxGridCellAttr();
+                    attr->SetReadOnly(true);
                 }
             }
             return attr;

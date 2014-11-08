@@ -146,102 +146,102 @@ namespace TrenchBroom {
             m_menu = new Menu("Menu");
             
             Menu& fileMenu = m_menu->addMenu(wxID_ANY, "File");
-            fileMenu.addUnmodifiableActionItem(wxID_NEW, ActionContext_Any, "New", KeyboardShortcut('N', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_NEW, "New", KeyboardShortcut('N', WXK_CONTROL));
             fileMenu.addSeparator();
-            fileMenu.addUnmodifiableActionItem(wxID_OPEN, ActionContext_Any, "Open...", KeyboardShortcut('O', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_OPEN, "Open...", KeyboardShortcut('O', WXK_CONTROL));
             fileMenu.addMenu(CommandIds::Menu::FileOpenRecent, "Open Recent");
             fileMenu.addSeparator();
-            fileMenu.addUnmodifiableActionItem(wxID_SAVE, ActionContext_Any, "Save", KeyboardShortcut('S', WXK_CONTROL));
-            fileMenu.addUnmodifiableActionItem(wxID_SAVEAS, ActionContext_Any, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_SAVE, "Save", KeyboardShortcut('S', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_SAVEAS, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));
             fileMenu.addSeparator();
-            fileMenu.addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, ActionContext_Any, "Load Point File");
-            fileMenu.addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, ActionContext_Any, "Unload Point File");
+            fileMenu.addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, "Load Point File");
+            fileMenu.addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, "Unload Point File");
             fileMenu.addSeparator();
-            fileMenu.addUnmodifiableActionItem(wxID_CLOSE, ActionContext_Any, "Close", KeyboardShortcut('W', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_CLOSE, "Close", KeyboardShortcut('W', WXK_CONTROL));
             
             Menu& editMenu = m_menu->addMenu(wxID_ANY, "Edit");
-            editMenu.addModifiableActionItem(wxID_UNDO, ActionContext_Any, "Undo", KeyboardShortcut('Z', WXK_CONTROL));
-            editMenu.addModifiableActionItem(wxID_REDO, ActionContext_Any, "Redo", KeyboardShortcut('Z', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addModifiableActionItem(wxID_UNDO, "Undo", KeyboardShortcut('Z', WXK_CONTROL));
+            editMenu.addModifiableActionItem(wxID_REDO, "Redo", KeyboardShortcut('Z', WXK_CONTROL, WXK_SHIFT));
             editMenu.addSeparator();
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditRepeat, ActionContext_Any, "Repeat", KeyboardShortcut('R', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditClearRepeat, ActionContext_Any, "Clear Repeatable Commands", KeyboardShortcut('R', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditRepeat, "Repeat", KeyboardShortcut('R', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditClearRepeat, "Clear Repeatable Commands", KeyboardShortcut('R', WXK_CONTROL, WXK_SHIFT));
             editMenu.addSeparator();
-            editMenu.addModifiableActionItem(wxID_CUT, ActionContext_Any, "Cut", KeyboardShortcut('X', WXK_CONTROL));
-            editMenu.addModifiableActionItem(wxID_COPY, ActionContext_Any, "Copy", KeyboardShortcut('C', WXK_CONTROL));
-            editMenu.addModifiableActionItem(wxID_PASTE, ActionContext_Any, "Paste", KeyboardShortcut('V', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditPasteAtOriginalPosition, ActionContext_Any, "Paste at Original Position", KeyboardShortcut('V', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addModifiableActionItem(wxID_CUT, "Cut", KeyboardShortcut('X', WXK_CONTROL));
+            editMenu.addModifiableActionItem(wxID_COPY, "Copy", KeyboardShortcut('C', WXK_CONTROL));
+            editMenu.addModifiableActionItem(wxID_PASTE, "Paste", KeyboardShortcut('V', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditPasteAtOriginalPosition, "Paste at Original Position", KeyboardShortcut('V', WXK_CONTROL, WXK_SHIFT));
             
             editMenu.addSeparator();
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectAll, ActionContext_Any, "Select All", KeyboardShortcut('A', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, ActionContext_Any, "Select Siblings", KeyboardShortcut('A', WXK_CONTROL, WXK_ALT));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectTouching, ActionContext_Any, "Select Touching", KeyboardShortcut('T', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectInside, ActionContext_Any, "Select Inside", KeyboardShortcut('I', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectByFilePosition, ActionContext_Any, "Select by Line Number");
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectNone, ActionContext_Any, "Select None", KeyboardShortcut('A', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectAll, "Select All", KeyboardShortcut('A', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, "Select Siblings", KeyboardShortcut('A', WXK_CONTROL, WXK_ALT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectTouching, "Select Touching", KeyboardShortcut('T', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectInside, "Select Inside", KeyboardShortcut('I', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectByFilePosition, "Select by Line Number");
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectNone, "Select None", KeyboardShortcut('A', WXK_CONTROL, WXK_SHIFT));
             editMenu.addSeparator();
-            editMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, ActionContext_Any, "Texture Lock");
+            editMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
             editMenu.addSeparator();
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSnapVertices, ActionContext_NodeSelection | ActionContext_VertexTool, "Snap Vertices", KeyboardShortcut('V', WXK_SHIFT, WXK_ALT));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, ActionContext_Any, "Replace Texture...");
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSnapVertices, "Snap Vertices", KeyboardShortcut('V', WXK_SHIFT, WXK_ALT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
 
             /*
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditHideSelected, ActionContext_Any, "Hide Selected", KeyboardShortcut('H', WXK_CONTROL));
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditHideUnselected, ActionContext_Any, "Hide Unselected", KeyboardShortcut('H', WXK_CONTROL, WXK_ALT));
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditUnhideAll, ActionContext_Any, "Unhide All", KeyboardShortcut('H', WXK_CONTROL, WXK_SHIFT));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditHideSelected, "Hide Selected", KeyboardShortcut('H', WXK_CONTROL));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditHideUnselected, "Hide Unselected", KeyboardShortcut('H', WXK_CONTROL, WXK_ALT));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditUnhideAll, "Unhide All", KeyboardShortcut('H', WXK_CONTROL, WXK_SHIFT));
              editMenu.addSeparator();
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditLockSelected, ActionContext_Any, "Lock Selected", KeyboardShortcut('L', WXK_CONTROL));
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditLockUnselected, ActionContext_Any, "Lock Unselected", KeyboardShortcut('L', WXK_CONTROL, WXK_ALT));
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditUnlockAll, ActionContext_Any, "Unlock All", KeyboardShortcut('L', WXK_CONTROL, WXK_SHIFT));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditLockSelected, "Lock Selected", KeyboardShortcut('L', WXK_CONTROL));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditLockUnselected, "Lock Unselected", KeyboardShortcut('L', WXK_CONTROL, WXK_ALT));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditUnlockAll, "Unlock All", KeyboardShortcut('L', WXK_CONTROL, WXK_SHIFT));
              editMenu.addSeparator();
              */
             
             Menu& viewMenu = m_menu->addMenu(wxID_ANY, "View");
             Menu& gridMenu = viewMenu.addMenu(wxID_ANY, "Grid");
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, ActionContext_Any, "Show Grid", KeyboardShortcut('G', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleSnapToGrid, ActionContext_Any, "Snap to Grid", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewIncGridSize, ActionContext_Any, "Increase Grid Size", KeyboardShortcut('+', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewDecGridSize, ActionContext_Any, "Decrease Grid Size", KeyboardShortcut('-', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, "Show Grid", KeyboardShortcut('G', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleSnapToGrid, "Snap to Grid", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewIncGridSize, "Increase Grid Size", KeyboardShortcut('+', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewDecGridSize, "Decrease Grid Size", KeyboardShortcut('-', WXK_CONTROL));
             gridMenu.addSeparator();
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize1, ActionContext_Any, "Set Grid Size 1", KeyboardShortcut('1', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize2, ActionContext_Any, "Set Grid Size 2", KeyboardShortcut('2', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize4, ActionContext_Any, "Set Grid Size 4", KeyboardShortcut('3', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize8, ActionContext_Any, "Set Grid Size 8", KeyboardShortcut('4', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize16, ActionContext_Any, "Set Grid Size 16", KeyboardShortcut('5', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize32, ActionContext_Any, "Set Grid Size 32", KeyboardShortcut('6', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize64, ActionContext_Any, "Set Grid Size 64", KeyboardShortcut('7', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize128, ActionContext_Any, "Set Grid Size 128", KeyboardShortcut('8', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize256, ActionContext_Any, "Set Grid Size 256", KeyboardShortcut('9', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize1, "Set Grid Size 1", KeyboardShortcut('1', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize2, "Set Grid Size 2", KeyboardShortcut('2', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize4, "Set Grid Size 4", KeyboardShortcut('3', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize8, "Set Grid Size 8", KeyboardShortcut('4', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize16, "Set Grid Size 16", KeyboardShortcut('5', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize32, "Set Grid Size 32", KeyboardShortcut('6', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize64, "Set Grid Size 64", KeyboardShortcut('7', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize128, "Set Grid Size 128", KeyboardShortcut('8', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize256, "Set Grid Size 256", KeyboardShortcut('9', WXK_CONTROL));
             
             Menu& cameraMenu = viewMenu.addMenu(wxID_ANY, "Camera");
-            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, ActionContext_Any, "Move to Next Point", KeyboardShortcut('+', WXK_SHIFT, WXK_CONTROL));
-            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, ActionContext_Any, "Move to Previous Point", KeyboardShortcut('-', WXK_SHIFT, WXK_CONTROL));
-            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewCenterCameraOnSelection, ActionContext_Any, "Center on Selection", KeyboardShortcut('C', WXK_CONTROL, WXK_SHIFT));
-            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPosition, ActionContext_Any, "Move Camera to...");
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, "Move to Next Point", KeyboardShortcut('+', WXK_SHIFT, WXK_CONTROL));
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, "Move to Previous Point", KeyboardShortcut('-', WXK_SHIFT, WXK_CONTROL));
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewCenterCameraOnSelection, "Center on Selection", KeyboardShortcut('C', WXK_CONTROL, WXK_SHIFT));
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPosition, "Move Camera to...");
             
             /*
              cameraMenu.addSeparator();
-             cameraMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleCameraFlyMode, ActionContext_Any, "Fly Mode", KeyboardShortcut('F'));
+             cameraMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleCameraFlyMode, "Fly Mode", KeyboardShortcut('F'));
              */
             
             viewMenu.addSeparator();
-            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToMapInspector, ActionContext_Any, "Switch to Map Inspector", KeyboardShortcut('1', WXK_SHIFT, WXK_ALT));
-            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToEntityInspector, ActionContext_Any, "Switch to Entity Inspector", KeyboardShortcut('2', WXK_SHIFT, WXK_ALT));
-            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToFaceInspector, ActionContext_Any, "Switch to Face Inspector", KeyboardShortcut('3', WXK_SHIFT, WXK_ALT));
+            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToMapInspector, "Switch to Map Inspector", KeyboardShortcut('1', WXK_SHIFT, WXK_ALT));
+            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToEntityInspector, "Switch to Entity Inspector", KeyboardShortcut('2', WXK_SHIFT, WXK_ALT));
+            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToFaceInspector, "Switch to Face Inspector", KeyboardShortcut('3', WXK_SHIFT, WXK_ALT));
             
             Menu& helpMenu = m_menu->addMenu(wxID_ANY, "Help");
-            helpMenu.addUnmodifiableActionItem(CommandIds::Menu::HelpShowHelp, ActionContext_Any, "TrenchBroom Help");
+            helpMenu.addUnmodifiableActionItem(CommandIds::Menu::HelpShowHelp, "TrenchBroom Help");
             
 #ifdef __APPLE__
             // these won't show up in the app menu if we don't add them here
-            fileMenu.addUnmodifiableActionItem(wxID_ABOUT, ActionContext_Any, "About TrenchBroom");
-            fileMenu.addUnmodifiableActionItem(wxID_PREFERENCES, ActionContext_Any, "Preferences...", KeyboardShortcut(',', WXK_CONTROL));
-            fileMenu.addUnmodifiableActionItem(wxID_EXIT, ActionContext_Any, "Exit");
+            fileMenu.addUnmodifiableActionItem(wxID_ABOUT, "About TrenchBroom");
+            fileMenu.addUnmodifiableActionItem(wxID_PREFERENCES, "Preferences...", KeyboardShortcut(',', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_EXIT, "Exit");
 #else
             viewMenu.addSeparator();
-            viewMenu.addUnmodifiableActionItem(wxID_PREFERENCES, ActionContext_Any, "Preferences...");
+            viewMenu.addUnmodifiableActionItem(wxID_PREFERENCES, "Preferences...");
             
             helpMenu.addSeparator();
-            helpMenu.addUnmodifiableActionItem(wxID_ABOUT, ActionContext_Any, "About TrenchBroom");
+            helpMenu.addUnmodifiableActionItem(wxID_ABOUT, "About TrenchBroom");
 #endif
         }
     }
