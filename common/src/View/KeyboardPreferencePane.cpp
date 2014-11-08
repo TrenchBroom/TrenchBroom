@@ -38,6 +38,7 @@
 
 namespace TrenchBroom {
     namespace View {
+        /*
         KeyboardGridCellEditor::KeyboardGridCellEditor() :
         wxGridCellEditor(),
         m_editor(NULL),
@@ -318,13 +319,6 @@ namespace TrenchBroom {
             addMenu(actionManager.getMenu(), newEntries);
             addActions(actionManager.mapViewActions(), newEntries);
             
-            /*
-             addShortcut(Preferences::CameraMoveForward, newEntries);
-             addShortcut(Preferences::CameraMoveBackward, newEntries);
-             addShortcut(Preferences::CameraMoveLeft, newEntries);
-             addShortcut(Preferences::CameraMoveRight, newEntries);
-             */
-            
             const bool hasConflicts = markConflicts(newEntries);
             
             size_t oldSize = m_entries.size();
@@ -427,11 +421,12 @@ namespace TrenchBroom {
         void KeyboardGridTable::addShortcut(Preference<KeyboardShortcut>& shortcut, EntryList& entries) const {
             //            entries.push_back(ActionEntry::Ptr(new SimpleKeyboardShortcutEntry(shortcut)));
         }
+        */
         
         KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
         PreferencePane(parent),
-        m_grid(NULL),
-        m_table(NULL) {
+        m_grid(NULL) {
+//        m_table(NULL) {
             wxWindow* menuShortcutGrid = createMenuShortcutGrid();
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -456,7 +451,7 @@ namespace TrenchBroom {
         wxWindow* KeyboardPreferencePane::createMenuShortcutGrid() {
             wxPanel* container = new wxPanel(this);
             container->SetBackgroundColour(*wxWHITE);
-            
+/*
             m_table = new KeyboardGridTable();
             m_grid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
@@ -491,7 +486,7 @@ namespace TrenchBroom {
             sizer->Add(infoText, 0, wxALIGN_CENTER);
             sizer->AddSpacer(LayoutConstants::NarrowVMargin);
             container->SetSizer(sizer);
-            
+            */
             return container;
         }
         
@@ -505,15 +500,17 @@ namespace TrenchBroom {
         }
 
         void KeyboardPreferencePane::doUpdateControls() {
-            m_table->update();
+            // m_table->update();
         }
         
         bool KeyboardPreferencePane::doValidate() {
+            /*
             m_grid->SaveEditControlValue();
             if (m_table->hasDuplicates()) {
                 wxMessageBox("Please fix all conflicting shortcuts (highlighted in red).", "Error", wxOK, this);
                 return false;
             }
+             */
             return true;
         }
     }

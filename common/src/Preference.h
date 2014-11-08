@@ -37,8 +37,8 @@ namespace TrenchBroom {
     template <typename T>
     class PreferenceSerializer {
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, T& result) const {}
-        bool write(wxConfigBase* config, const IO::Path& path, const T& value) const {}
+        bool read(wxConfigBase* config, const IO::Path& path, T& result) const { return false; }
+        bool write(wxConfigBase* config, const IO::Path& path, const T& value) const { return false; }
     };
     
     template <>
@@ -222,8 +222,12 @@ namespace TrenchBroom {
         PreferenceSerializer<S> m_serializer;
     public:
         bool read(wxConfigBase* config, const IO::Path& path, std::vector<S>& result) const {
+            const wxString wxPath(path.asString('/'));
+            if (!config->Exists(wxPath))
+                return false;
+            
             const wxString oldPath = config->GetPath();
-            config->SetPath(path.asString('/'));
+            config->SetPath(wxPath);
 
             bool success = true;
             std::vector<S> temp;
@@ -263,112 +267,52 @@ namespace TrenchBroom {
         }
     };
     
-    template<>
-    class PreferenceSerializer<StringMap> {
+    template<typename S>
+    class PreferenceSerializer<std::map<String, S> > {
+    private:
+        PreferenceSerializer<S> m_serializer;
     public:
-        bool read(wxConfigBase* config, const IO::Path& path, StringMap& result) const {
-            wxString string;
-            if (config->Read(path.asString('/'), &string)) {
-                result = fromWxString(string);
-                return true;
+        bool read(wxConfigBase* config, const IO::Path& path, std::map<String, S>& result) const {
+            const wxString oldPath = config->GetPath();
+            config->SetPath(path.asString('/'));
+            
+            bool success = true;
+            std::map<String, S> temp;
+            
+            wxString name;
+            long index;
+            if (config->GetFirstEntry(name, index)) {
+                do {
+                    const String nameStr = name.ToStdString();
+                    S value;
+                    success = m_serializer.read(config, IO::Path(nameStr), value);
+                    if (success)
+                        temp[nameStr] = value;
+                } while (success && config->GetNextEntry(name, index));
             }
-            return false;
+            
+            config->SetPath(oldPath);
+            
+            using std::swap;
+            if (success)
+                swap(result, temp);
+            return success;
         }
         
-        bool write(wxConfigBase* config, const IO::Path& path, const StringMap& values) const {
-            return config->Write(path.asString('/'), toWxString(values));
-        }
-    private:
-        wxString toWxString(const StringMap& values) const {
-            wxString result("{ ");
-            StringMap::const_iterator it, end;
-            size_t index = 0;
+        bool write(wxConfigBase* config, const IO::Path& path, const std::map<String, S>& values) const {
+            const wxString oldPath = config->GetPath();
+            config->DeleteGroup(path.asString('/'));
+            config->SetPath(path.asString('/'));
+            
+            typename std::map<String, S>::const_iterator it, end;
             for (it = values.begin(), end = values.end(); it != end; ++it) {
-                const String& key = it->first;
-                const String& value = it->second;
-                result << StringUtils::escape(key, "\"") << " = " << StringUtils::escape(value, "\"");
-                if (index < values.size() - 1)
-                    result << "; ";
-                ++index;
-            }
-            result << " }";
-            
-            return result;
-        }
-        
-        StringMap fromWxString(const wxString& string) const {
-            StringMap result;
-            
-            wxStringTokenizer tokenizer(string);
-            if (!tokenizer.HasMoreTokens())
-                return result;
-
-            wxString token;
-            StringStream buffer;
-            
-            expect(tokenizer, "{");
-            token = nextToken(tokenizer);
-            while (token != "}") {
-                const String key = StringUtils::unescape(readString(tokenizer, token), "\"");
-                expect(tokenizer, "=");
-                const String value = StringUtils::unescape(readString(tokenizer, nextToken(tokenizer)), "\"");
-                token = expect(tokenizer, "}", ";");
-                
-                result[key] = value;
-            }
-            return result;
-        }
-    private:
-        wxString expect(wxStringTokenizer& tokenizer, const String& expected1, const String& expected2 = "", const String& expected3 = "") const {
-            const wxString token = nextToken(tokenizer);
-            expect(token, expected1, expected2, expected3);
-            return token;
-        }
-        
-        wxString nextToken(wxStringTokenizer& tokenizer) const {
-            if (!tokenizer.HasMoreTokens())
-                throw ParserException("Unexpected end of string");
-            return tokenizer.GetNextToken();
-        }
-        
-        void expect(const wxString& token, const String& expected1, const String& expected2 = "", const String& expected3 = "") const {
-            if (token != expected1 &&
-                !expected2.empty() && token != expected2 &&
-                !expected3.empty() && token != expected3) {
-                ParserException e;
-                e << "Expected '" << expected1 << "'";
-                if (!expected2.empty())
-                    e << ", '" << expected2 << "'";
-                if (!expected3.empty())
-                    e << ", '" << expected3 << "'";
-                e << ", but got '" << token.ToStdString() << "'";
-                throw e;
-            }
-        }
-        
-        String readString(wxStringTokenizer& tokenizer, wxString token) const {
-            static StringStream buffer;
-            
-            if (token[0] != '"') {
-                char c;
-                ParserException e;
-                e << "Expected '\"', but got '";
-                if (token[0].GetAsChar(&c))
-                    e << c;
-                else
-                    e << "<non-ASCII-char>";
-                e << "'";
-                throw e;
+                const String& name = it->first;
+                const S& value = it->second;
+                m_serializer.write(config, IO::Path(name), value);
             }
             
-            buffer.str("");
-            while (token[token.size() - 1] != '\"' &&
-                   (token.size() == 1 || token[token.size() - 2] != '\\')) {
-                buffer << token.ToStdString();
-                token = nextToken(tokenizer);
-            }
-            buffer << token.ToStdString();
-            return buffer.str();
+            config->SetPath(oldPath);
+            return true;
         }
     };
 

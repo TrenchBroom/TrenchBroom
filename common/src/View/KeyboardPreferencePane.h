@@ -42,6 +42,7 @@ namespace TrenchBroom {
         class KeyboardShortcutEditor;
         class KeyboardShortcutEvent;
 
+        /*
         class KeyboardGridCellEditor : public wxGridCellEditor {
         private:
             KeyboardShortcutEditor* m_editor;
@@ -125,12 +126,12 @@ namespace TrenchBroom {
             void addActions(Action::List& actions, EntryList& entries) const;
             void addShortcut(Preference<KeyboardShortcut>& shortcut, EntryList& entries) const;
         };
-
+*/
 
         class KeyboardPreferencePane : public PreferencePane {
         private:
             wxGrid* m_grid;
-            KeyboardGridTable* m_table;
+//            KeyboardGridTable* m_table;
             
         public:
             KeyboardPreferencePane(wxWindow* parent);

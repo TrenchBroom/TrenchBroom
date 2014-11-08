@@ -25,11 +25,12 @@
 #include "Preference.h"
 #include "PreferenceManager.h"
 #include "View/KeyboardShortcut.h"
+#include "View/ViewShortcut.h"
+
+#include <vector>
 
 namespace TrenchBroom {
     namespace Preferences {
-        extern Preference<StringMap> GamePaths;
-        
         extern Preference<Color> BackgroundColor;
         extern Preference<float> AxisLength;
         extern Preference<Color> XAxisColor;
@@ -120,6 +121,8 @@ namespace TrenchBroom {
         extern Preference<View::KeyboardShortcut> CameraFlyBackward;
         extern Preference<View::KeyboardShortcut> CameraFlyLeft;
         extern Preference<View::KeyboardShortcut> CameraFlyRight;
+
+        extern Preference<View::ViewShortcut::List> ViewShortcuts;
     }
 }
 

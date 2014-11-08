@@ -37,6 +37,7 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
+#include "View/ViewShortcut.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
@@ -682,32 +683,32 @@ namespace TrenchBroom {
         void MapView3D::updateAcceleratorTable(const bool hasFocus) {
             if (hasFocus) {
                 const ActionManager& actionManager = ActionManager::instance();
-                const Action::Context context = actionContext();
-                const wxAcceleratorTable acceleratorTable = actionManager.createMapViewAcceleratorTable(context);
+                const ActionContext context = actionContext();
+                const wxAcceleratorTable acceleratorTable = actionManager.createViewAcceleratorTable(context, ActionView_Map3D);
                 SetAcceleratorTable(acceleratorTable);
             } else {
                 SetAcceleratorTable(wxNullAcceleratorTable);
             }
         }
         
-        Action::Context MapView3D::actionContext() const {
+        ActionContext MapView3D::actionContext() const {
             /*
             if (clipToolActive())
-                return Action::Context_ClipTool;
+                return ActionContext_ClipTool;
              */
             if (m_toolBox.vertexToolActive())
-                return Action::Context_VertexTool;
+                return ActionContext_VertexTool;
             if (m_toolBox.rotateObjectsToolActive())
-                return Action::Context_RotateTool;
+                return ActionContext_RotateTool;
             if (cameraFlyModeActive())
-                return Action::Context_FlyMode;
+                return ActionContext_FlyMode;
             
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedNodes())
-                return Action::Context_NodeSelection;
+                return ActionContext_NodeSelection;
             if (document->hasSelectedBrushFaces())
-                return Action::Context_FaceSelection;
-            return Action::Context_Default;
+                return ActionContext_FaceSelection;
+            return ActionContext_Default;
         }
 
         void MapView3D::flashSelection() {

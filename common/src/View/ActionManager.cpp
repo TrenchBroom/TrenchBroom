@@ -19,9 +19,12 @@
 
 #include "ActionManager.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "IO/Path.h"
 #include "View/CommandIds.h"
 #include "View/Menu.h"
+#include "View/ViewShortcut.h"
 
 #include <wx/accel.h>
 #include <wx/menu.h>
@@ -110,234 +113,134 @@ namespace TrenchBroom {
             
             return result;
         }
-
-        Action::List& ActionManager::mapViewActions() {
-            return m_mapViewActions;
-        }
-
-        wxAcceleratorTable ActionManager::createMapViewAcceleratorTable(const Action::Context context) const {
+        
+        wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view) const {
             typedef std::vector<wxAcceleratorEntry> EntryList;
-            
             EntryList tableEntries;
             
-            Action::List::const_iterator it, end;
-            for (it = m_mapViewActions.begin(), end = m_mapViewActions.end(); it != end; ++it) {
-                const Action& action = *it;
-                if (action.appliesToContext(context))
-                    tableEntries.push_back(action.acceleratorEntry());
+            ViewShortcut::List::const_iterator it, end;
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const ViewShortcut::List& shortcuts = prefs.get(Preferences::ViewShortcuts);
+            for (it = shortcuts.begin(), end = shortcuts.end(); it != end; ++it) {
+                const ViewShortcut& shortcut = *it;
+                if (shortcut.appliesToContext(context))
+                    tableEntries.push_back(shortcut.acceleratorEntry(view));
             }
             
             return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
         }
-        
+
         void ActionManager::resetShortcutsToDefaults() {
             m_menu->resetShortcutsToDefaults();
             
-            Action::List::iterator it, end;
-            for (it = m_mapViewActions.begin(), end = m_mapViewActions.end(); it != end; ++it) {
-                Action& action = *it;
-                action.resetShortcut();
-            }
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.resetToDefault(Preferences::ViewShortcuts);
         }
 
         ActionManager::ActionManager() {
-            createMapViewActions();
             createMenu();
-        }
-        
-        void ActionManager::createMapViewActions() {
-            createMapViewAction(CommandIds::Actions::ToggleClipTool, Action::Context_NodeSelection | Action::Context_AnyTool, "Toggle Clip Tool", KeyboardShortcut('C'));
-            createMapViewAction(CommandIds::Actions::ToggleClipSide, Action::Context_ClipTool, "Toggle Clip Side", KeyboardShortcut(WXK_RETURN, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::PerformClip, Action::Context_ClipTool, "Perform Clip", KeyboardShortcut(WXK_RETURN));
-#ifdef __APPLE__
-            createMapViewAction(CommandIds::Actions::DeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_BACK, WXK_CONTROL));
-#else
-            createMapViewAction(CommandIds::Actions::DeleteLastClipPoint, Action::Context_ClipTool, "Delete Last Clip Point", KeyboardShortcut(WXK_DELETE, WXK_CONTROL));
-#endif
-            
-            createMapViewAction(CommandIds::Actions::ToggleVertexTool, Action::Context_NodeSelection | Action::Context_AnyTool, "Toggle Vertex Tool", KeyboardShortcut('V'));
-            createMapViewAction(CommandIds::Actions::MoveVerticesForward, Action::Context_VertexTool, "Move Vertices Forward", KeyboardShortcut(WXK_UP));
-            createMapViewAction(CommandIds::Actions::MoveVerticesBackward, Action::Context_VertexTool, "Move Vertices Backward", KeyboardShortcut(WXK_DOWN));
-            createMapViewAction(CommandIds::Actions::MoveVerticesLeft, Action::Context_VertexTool, "Move Vertices Left", KeyboardShortcut(WXK_LEFT));
-            createMapViewAction(CommandIds::Actions::MoveVerticesRight, Action::Context_VertexTool, "Move Vertices Right", KeyboardShortcut(WXK_RIGHT));
-            createMapViewAction(CommandIds::Actions::MoveVerticesUp, Action::Context_VertexTool, "Move Vertices Up", KeyboardShortcut(WXK_PAGEUP));
-            createMapViewAction(CommandIds::Actions::MoveVerticesDown, Action::Context_VertexTool, "Move Vertices Down", KeyboardShortcut(WXK_PAGEDOWN));
-            
-            createMapViewAction(CommandIds::Actions::ToggleRotateObjectsTool, Action::Context_NodeSelection | Action::Context_AnyTool, "Toggle Rotate Tool", KeyboardShortcut('R'));
-            createMapViewAction(CommandIds::Actions::MoveRotationCenterForward, Action::Context_RotateTool, "Move Rotation Center Forward", KeyboardShortcut(WXK_UP, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveRotationCenterBackward, Action::Context_RotateTool, "Move Rotation Center Backward", KeyboardShortcut(WXK_DOWN, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveRotationCenterLeft, Action::Context_RotateTool, "Move Rotation Center Left", KeyboardShortcut(WXK_LEFT, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveRotationCenterRight, Action::Context_RotateTool, "Move Rotation Center Right", KeyboardShortcut(WXK_RIGHT, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveRotationCenterUp, Action::Context_RotateTool, "Move Rotation Center Up", KeyboardShortcut(WXK_PAGEUP, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveRotationCenterDown, Action::Context_RotateTool, "Move Rotation Center Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT));
-            
-
-            createMapViewAction(CommandIds::Actions::ToggleFlyMode, Action::Context_Any | Action::Context_FlyMode, "Toggle Fly Mode", KeyboardShortcut('F'));
-            
-            createMapViewAction(CommandIds::Actions::ToggleMovementRestriction, Action::Context_Any, "Toggle Movement Axis", KeyboardShortcut('X'));
-            
-#ifdef __APPLE__
-            createMapViewAction(CommandIds::Actions::DeleteObjects, Action::Context_NodeSelection | Action::Context_AnyTool, "Delete Objects", KeyboardShortcut(WXK_BACK));
-#else
-            createMapViewAction(CommandIds::Actions::DeleteObjects, Action::Context_NodeSelection | Action::Context_AnyTool, "Delete Objects", KeyboardShortcut(WXK_DELETE));
-#endif
-
-            createMapViewAction(CommandIds::Actions::MoveObjectsForward, Action::Context_NodeSelection | Action::Context_RotateTool, "Move Objects Forward", KeyboardShortcut(WXK_UP));
-            createMapViewAction(CommandIds::Actions::MoveObjectsBackward, Action::Context_NodeSelection | Action::Context_RotateTool, "Move Objects Backward", KeyboardShortcut(WXK_DOWN));
-            createMapViewAction(CommandIds::Actions::MoveObjectsLeft, Action::Context_NodeSelection | Action::Context_RotateTool, "Move Objects Left", KeyboardShortcut(WXK_LEFT));
-            createMapViewAction(CommandIds::Actions::MoveObjectsRight, Action::Context_NodeSelection | Action::Context_RotateTool, "Move Objects Right", KeyboardShortcut(WXK_RIGHT));
-            createMapViewAction(CommandIds::Actions::MoveObjectsUp, Action::Context_NodeSelection | Action::Context_RotateTool, "Move Objects Up", KeyboardShortcut(WXK_PAGEUP));
-            createMapViewAction(CommandIds::Actions::MoveObjectsDown, Action::Context_NodeSelection | Action::Context_RotateTool, "Move Objects Down", KeyboardShortcut(WXK_PAGEDOWN));
-            
-            createMapViewAction(CommandIds::Actions::RollObjectsCW, Action::Context_NodeSelection | Action::Context_RotateTool, "Rotate Clockwise", KeyboardShortcut(WXK_UP, WXK_ALT));
-            createMapViewAction(CommandIds::Actions::RollObjectsCCW, Action::Context_NodeSelection | Action::Context_RotateTool, "Rotate Counterclockwise", KeyboardShortcut(WXK_DOWN, WXK_ALT));
-            createMapViewAction(CommandIds::Actions::YawObjectsCW, Action::Context_NodeSelection | Action::Context_RotateTool, "Rotate Left", KeyboardShortcut(WXK_LEFT, WXK_ALT));
-            createMapViewAction(CommandIds::Actions::YawObjectsCCW, Action::Context_NodeSelection | Action::Context_RotateTool, "Rotate Right", KeyboardShortcut(WXK_RIGHT, WXK_ALT));
-            createMapViewAction(CommandIds::Actions::PitchObjectsCW, Action::Context_NodeSelection | Action::Context_RotateTool, "Rotate Up", KeyboardShortcut(WXK_PAGEUP, WXK_ALT));
-            createMapViewAction(CommandIds::Actions::PitchObjectsCCW, Action::Context_NodeSelection | Action::Context_RotateTool, "Rotate Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_ALT));
-
-            createMapViewAction(CommandIds::Actions::FlipObjectsHorizontally, Action::Context_NodeSelection, "Flip Horizontally", KeyboardShortcut('F', WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::FlipObjectsVertically, Action::Context_NodeSelection, "Flip Vertically", KeyboardShortcut('F', WXK_CONTROL, WXK_ALT));
-
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsForward, Action::Context_NodeSelection | Action::Context_RotateTool, "Duplicate & Move Objects Forward", KeyboardShortcut(WXK_UP, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsBackward, Action::Context_NodeSelection | Action::Context_RotateTool, "Duplicate & Move Objects Backward", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsLeft, Action::Context_NodeSelection | Action::Context_RotateTool, "Duplicate & Move Objects Left", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsRight, Action::Context_NodeSelection | Action::Context_RotateTool, "Duplicate & Move Objects Right", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsUp, Action::Context_NodeSelection | Action::Context_RotateTool, "Duplicate & Move Objects Up", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::DuplicateObjectsDown, Action::Context_NodeSelection | Action::Context_RotateTool, "Duplicate & Move Objects Down", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
-            
-            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Textures Up by Grid Size", KeyboardShortcut(WXK_UP));
-            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Textures Up by 2 * Grid Size", KeyboardShortcut(WXK_UP, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesUp, Action::Context_FaceSelection, "Move Textures Up by 1", KeyboardShortcut(WXK_UP, WXK_CONTROL));
-
-            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Textures Down by Grid Size", KeyboardShortcut(WXK_DOWN));
-            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Textures Down by 2 * Grid Size", KeyboardShortcut(WXK_DOWN, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesDown, Action::Context_FaceSelection, "Move Textures Down by 1", KeyboardShortcut(WXK_DOWN, WXK_CONTROL));
-            
-            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Textures Left by Grid Size", KeyboardShortcut(WXK_LEFT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Textures Left by 2 * Grid Size", KeyboardShortcut(WXK_LEFT, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesLeft, Action::Context_FaceSelection, "Move Textures Left by 1", KeyboardShortcut(WXK_LEFT, WXK_CONTROL));
-            
-            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Textures Right by Grid Size", KeyboardShortcut(WXK_RIGHT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Textures Right by 2 * Grid Size", KeyboardShortcut(WXK_RIGHT, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::MoveTexturesRight, Action::Context_FaceSelection, "Move Textures Right by 1", KeyboardShortcut(WXK_RIGHT, WXK_CONTROL));
-            
-            createMapViewAction(CommandIds::Actions::RotateTexturesCW, Action::Context_FaceSelection, "Rotate Textures Clockwise by 15", KeyboardShortcut(WXK_PAGEUP));
-            createMapViewAction(CommandIds::Actions::RotateTexturesCW, Action::Context_FaceSelection, "Rotate Textures Clockwise by 90", KeyboardShortcut(WXK_PAGEUP, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::RotateTexturesCW, Action::Context_FaceSelection, "Rotate Textures Clockwise by 1", KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL));
-            
-            createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 15", KeyboardShortcut(WXK_PAGEDOWN));
-            createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 90", KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT));
-            createMapViewAction(CommandIds::Actions::RotateTexturesCCW, Action::Context_FaceSelection, "Rotate Textures Counterclockwise by 1", KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL));
-
-            createMapViewAction(CommandIds::Actions::DuplicateObjects, Action::Context_NodeSelection | Action::Context_AnyTool, "Duplicate Objects", KeyboardShortcut('D', WXK_CONTROL));
-            createMapViewAction(CommandIds::Actions::Cancel, Action::Context_Any, "Cancel", KeyboardShortcut(WXK_ESCAPE));
-        }
-
-        void ActionManager::createMapViewAction(const int id, const int context, const String& name, const KeyboardShortcut& defaultShortcut) {
-            m_mapViewActions.push_back(Action(id, context, name, IO::Path("Actions/Map View") + IO::Path(name), defaultShortcut, true, false));
         }
 
         void ActionManager::createMenu() {
             m_menu = new Menu("Menu");
             
             Menu& fileMenu = m_menu->addMenu(wxID_ANY, "File");
-            fileMenu.addUnmodifiableActionItem(wxID_NEW, Action::Context_Any, "New", KeyboardShortcut('N', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_NEW, ActionContext_Any, "New", KeyboardShortcut('N', WXK_CONTROL));
             fileMenu.addSeparator();
-            fileMenu.addUnmodifiableActionItem(wxID_OPEN, Action::Context_Any, "Open...", KeyboardShortcut('O', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_OPEN, ActionContext_Any, "Open...", KeyboardShortcut('O', WXK_CONTROL));
             fileMenu.addMenu(CommandIds::Menu::FileOpenRecent, "Open Recent");
             fileMenu.addSeparator();
-            fileMenu.addUnmodifiableActionItem(wxID_SAVE, Action::Context_Any, "Save", KeyboardShortcut('S', WXK_CONTROL));
-            fileMenu.addUnmodifiableActionItem(wxID_SAVEAS, Action::Context_Any, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_SAVE, ActionContext_Any, "Save", KeyboardShortcut('S', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_SAVEAS, ActionContext_Any, "Save as...", KeyboardShortcut('S', WXK_SHIFT, WXK_CONTROL));
             fileMenu.addSeparator();
-            fileMenu.addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, Action::Context_Any, "Load Point File");
-            fileMenu.addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, Action::Context_Any, "Unload Point File");
+            fileMenu.addModifiableActionItem(CommandIds::Menu::FileLoadPointFile, ActionContext_Any, "Load Point File");
+            fileMenu.addModifiableActionItem(CommandIds::Menu::FileUnloadPointFile, ActionContext_Any, "Unload Point File");
             fileMenu.addSeparator();
-            fileMenu.addUnmodifiableActionItem(wxID_CLOSE, Action::Context_Any, "Close", KeyboardShortcut('W', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_CLOSE, ActionContext_Any, "Close", KeyboardShortcut('W', WXK_CONTROL));
             
             Menu& editMenu = m_menu->addMenu(wxID_ANY, "Edit");
-            editMenu.addModifiableActionItem(wxID_UNDO, Action::Context_Any, "Undo", KeyboardShortcut('Z', WXK_CONTROL));
-            editMenu.addModifiableActionItem(wxID_REDO, Action::Context_Any, "Redo", KeyboardShortcut('Z', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addModifiableActionItem(wxID_UNDO, ActionContext_Any, "Undo", KeyboardShortcut('Z', WXK_CONTROL));
+            editMenu.addModifiableActionItem(wxID_REDO, ActionContext_Any, "Redo", KeyboardShortcut('Z', WXK_CONTROL, WXK_SHIFT));
             editMenu.addSeparator();
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditRepeat, Action::Context_Any, "Repeat", KeyboardShortcut('R', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditClearRepeat, Action::Context_Any, "Clear Repeatable Commands", KeyboardShortcut('R', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditRepeat, ActionContext_Any, "Repeat", KeyboardShortcut('R', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditClearRepeat, ActionContext_Any, "Clear Repeatable Commands", KeyboardShortcut('R', WXK_CONTROL, WXK_SHIFT));
             editMenu.addSeparator();
-            editMenu.addModifiableActionItem(wxID_CUT, Action::Context_Any, "Cut", KeyboardShortcut('X', WXK_CONTROL));
-            editMenu.addModifiableActionItem(wxID_COPY, Action::Context_Any, "Copy", KeyboardShortcut('C', WXK_CONTROL));
-            editMenu.addModifiableActionItem(wxID_PASTE, Action::Context_Any, "Paste", KeyboardShortcut('V', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditPasteAtOriginalPosition, Action::Context_Any, "Paste at Original Position", KeyboardShortcut('V', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addModifiableActionItem(wxID_CUT, ActionContext_Any, "Cut", KeyboardShortcut('X', WXK_CONTROL));
+            editMenu.addModifiableActionItem(wxID_COPY, ActionContext_Any, "Copy", KeyboardShortcut('C', WXK_CONTROL));
+            editMenu.addModifiableActionItem(wxID_PASTE, ActionContext_Any, "Paste", KeyboardShortcut('V', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditPasteAtOriginalPosition, ActionContext_Any, "Paste at Original Position", KeyboardShortcut('V', WXK_CONTROL, WXK_SHIFT));
             
             editMenu.addSeparator();
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectAll, Action::Context_Any, "Select All", KeyboardShortcut('A', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, Action::Context_Any, "Select Siblings", KeyboardShortcut('A', WXK_CONTROL, WXK_ALT));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectTouching, Action::Context_Any, "Select Touching", KeyboardShortcut('T', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectInside, Action::Context_Any, "Select Inside", KeyboardShortcut('I', WXK_CONTROL));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectByFilePosition, Action::Context_Any, "Select by Line Number");
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectNone, Action::Context_Any, "Select None", KeyboardShortcut('A', WXK_CONTROL, WXK_SHIFT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectAll, ActionContext_Any, "Select All", KeyboardShortcut('A', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectSiblings, ActionContext_Any, "Select Siblings", KeyboardShortcut('A', WXK_CONTROL, WXK_ALT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectTouching, ActionContext_Any, "Select Touching", KeyboardShortcut('T', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectInside, ActionContext_Any, "Select Inside", KeyboardShortcut('I', WXK_CONTROL));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectByFilePosition, ActionContext_Any, "Select by Line Number");
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSelectNone, ActionContext_Any, "Select None", KeyboardShortcut('A', WXK_CONTROL, WXK_SHIFT));
             editMenu.addSeparator();
-            editMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, Action::Context_Any, "Texture Lock");
+            editMenu.addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, ActionContext_Any, "Texture Lock");
             editMenu.addSeparator();
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditSnapVertices, Action::Context_NodeSelection | Action::Context_VertexTool, "Snap Vertices", KeyboardShortcut('V', WXK_SHIFT, WXK_ALT));
-            editMenu.addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, Action::Context_Any, "Replace Texture...");
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditSnapVertices, ActionContext_NodeSelection | ActionContext_VertexTool, "Snap Vertices", KeyboardShortcut('V', WXK_SHIFT, WXK_ALT));
+            editMenu.addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, ActionContext_Any, "Replace Texture...");
 
             /*
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditHideSelected, Action::Context_Any, "Hide Selected", KeyboardShortcut('H', WXK_CONTROL));
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditHideUnselected, Action::Context_Any, "Hide Unselected", KeyboardShortcut('H', WXK_CONTROL, WXK_ALT));
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditUnhideAll, Action::Context_Any, "Unhide All", KeyboardShortcut('H', WXK_CONTROL, WXK_SHIFT));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditHideSelected, ActionContext_Any, "Hide Selected", KeyboardShortcut('H', WXK_CONTROL));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditHideUnselected, ActionContext_Any, "Hide Unselected", KeyboardShortcut('H', WXK_CONTROL, WXK_ALT));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditUnhideAll, ActionContext_Any, "Unhide All", KeyboardShortcut('H', WXK_CONTROL, WXK_SHIFT));
              editMenu.addSeparator();
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditLockSelected, Action::Context_Any, "Lock Selected", KeyboardShortcut('L', WXK_CONTROL));
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditLockUnselected, Action::Context_Any, "Lock Unselected", KeyboardShortcut('L', WXK_CONTROL, WXK_ALT));
-             editMenu.addModifiableActionItem(CommandIds::Menu::EditUnlockAll, Action::Context_Any, "Unlock All", KeyboardShortcut('L', WXK_CONTROL, WXK_SHIFT));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditLockSelected, ActionContext_Any, "Lock Selected", KeyboardShortcut('L', WXK_CONTROL));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditLockUnselected, ActionContext_Any, "Lock Unselected", KeyboardShortcut('L', WXK_CONTROL, WXK_ALT));
+             editMenu.addModifiableActionItem(CommandIds::Menu::EditUnlockAll, ActionContext_Any, "Unlock All", KeyboardShortcut('L', WXK_CONTROL, WXK_SHIFT));
              editMenu.addSeparator();
              */
             
             Menu& viewMenu = m_menu->addMenu(wxID_ANY, "View");
             Menu& gridMenu = viewMenu.addMenu(wxID_ANY, "Grid");
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, Action::Context_Any, "Show Grid", KeyboardShortcut('G', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleSnapToGrid, Action::Context_Any, "Snap to Grid", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewIncGridSize, Action::Context_Any, "Increase Grid Size", KeyboardShortcut('+', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewDecGridSize, Action::Context_Any, "Decrease Grid Size", KeyboardShortcut('-', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, ActionContext_Any, "Show Grid", KeyboardShortcut('G', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleSnapToGrid, ActionContext_Any, "Snap to Grid", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewIncGridSize, ActionContext_Any, "Increase Grid Size", KeyboardShortcut('+', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewDecGridSize, ActionContext_Any, "Decrease Grid Size", KeyboardShortcut('-', WXK_CONTROL));
             gridMenu.addSeparator();
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize1, Action::Context_Any, "Set Grid Size 1", KeyboardShortcut('1', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize2, Action::Context_Any, "Set Grid Size 2", KeyboardShortcut('2', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize4, Action::Context_Any, "Set Grid Size 4", KeyboardShortcut('3', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize8, Action::Context_Any, "Set Grid Size 8", KeyboardShortcut('4', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize16, Action::Context_Any, "Set Grid Size 16", KeyboardShortcut('5', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize32, Action::Context_Any, "Set Grid Size 32", KeyboardShortcut('6', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize64, Action::Context_Any, "Set Grid Size 64", KeyboardShortcut('7', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize128, Action::Context_Any, "Set Grid Size 128", KeyboardShortcut('8', WXK_CONTROL));
-            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize256, Action::Context_Any, "Set Grid Size 256", KeyboardShortcut('9', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize1, ActionContext_Any, "Set Grid Size 1", KeyboardShortcut('1', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize2, ActionContext_Any, "Set Grid Size 2", KeyboardShortcut('2', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize4, ActionContext_Any, "Set Grid Size 4", KeyboardShortcut('3', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize8, ActionContext_Any, "Set Grid Size 8", KeyboardShortcut('4', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize16, ActionContext_Any, "Set Grid Size 16", KeyboardShortcut('5', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize32, ActionContext_Any, "Set Grid Size 32", KeyboardShortcut('6', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize64, ActionContext_Any, "Set Grid Size 64", KeyboardShortcut('7', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize128, ActionContext_Any, "Set Grid Size 128", KeyboardShortcut('8', WXK_CONTROL));
+            gridMenu.addModifiableCheckItem(CommandIds::Menu::ViewSetGridSize256, ActionContext_Any, "Set Grid Size 256", KeyboardShortcut('9', WXK_CONTROL));
             
             Menu& cameraMenu = viewMenu.addMenu(wxID_ANY, "Camera");
-            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, Action::Context_Any, "Move to Next Point", KeyboardShortcut('+', WXK_SHIFT, WXK_CONTROL));
-            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, Action::Context_Any, "Move to Previous Point", KeyboardShortcut('-', WXK_SHIFT, WXK_CONTROL));
-            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewCenterCameraOnSelection, Action::Context_Any, "Center on Selection", KeyboardShortcut('C', WXK_CONTROL, WXK_SHIFT));
-            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPosition, Action::Context_Any, "Move Camera to...");
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToNextPoint, ActionContext_Any, "Move to Next Point", KeyboardShortcut('+', WXK_SHIFT, WXK_CONTROL));
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, ActionContext_Any, "Move to Previous Point", KeyboardShortcut('-', WXK_SHIFT, WXK_CONTROL));
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewCenterCameraOnSelection, ActionContext_Any, "Center on Selection", KeyboardShortcut('C', WXK_CONTROL, WXK_SHIFT));
+            cameraMenu.addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPosition, ActionContext_Any, "Move Camera to...");
             
             /*
              cameraMenu.addSeparator();
-             cameraMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleCameraFlyMode, Action::Context_Any, "Fly Mode", KeyboardShortcut('F'));
+             cameraMenu.addModifiableCheckItem(CommandIds::Menu::ViewToggleCameraFlyMode, ActionContext_Any, "Fly Mode", KeyboardShortcut('F'));
              */
             
             viewMenu.addSeparator();
-            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToMapInspector, Action::Context_Any, "Switch to Map Inspector", KeyboardShortcut('1', WXK_SHIFT, WXK_ALT));
-            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToEntityInspector, Action::Context_Any, "Switch to Entity Inspector", KeyboardShortcut('2', WXK_SHIFT, WXK_ALT));
-            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToFaceInspector, Action::Context_Any, "Switch to Face Inspector", KeyboardShortcut('3', WXK_SHIFT, WXK_ALT));
+            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToMapInspector, ActionContext_Any, "Switch to Map Inspector", KeyboardShortcut('1', WXK_SHIFT, WXK_ALT));
+            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToEntityInspector, ActionContext_Any, "Switch to Entity Inspector", KeyboardShortcut('2', WXK_SHIFT, WXK_ALT));
+            viewMenu.addModifiableActionItem(CommandIds::Menu::ViewSwitchToFaceInspector, ActionContext_Any, "Switch to Face Inspector", KeyboardShortcut('3', WXK_SHIFT, WXK_ALT));
             
             Menu& helpMenu = m_menu->addMenu(wxID_ANY, "Help");
-            helpMenu.addUnmodifiableActionItem(CommandIds::Menu::HelpShowHelp, Action::Context_Any, "TrenchBroom Help");
+            helpMenu.addUnmodifiableActionItem(CommandIds::Menu::HelpShowHelp, ActionContext_Any, "TrenchBroom Help");
             
 #ifdef __APPLE__
             // these won't show up in the app menu if we don't add them here
-            fileMenu.addUnmodifiableActionItem(wxID_ABOUT, Action::Context_Any, "About TrenchBroom");
-            fileMenu.addUnmodifiableActionItem(wxID_PREFERENCES, Action::Context_Any, "Preferences...", KeyboardShortcut(',', WXK_CONTROL));
-            fileMenu.addUnmodifiableActionItem(wxID_EXIT, Action::Context_Any, "Exit");
+            fileMenu.addUnmodifiableActionItem(wxID_ABOUT, ActionContext_Any, "About TrenchBroom");
+            fileMenu.addUnmodifiableActionItem(wxID_PREFERENCES, ActionContext_Any, "Preferences...", KeyboardShortcut(',', WXK_CONTROL));
+            fileMenu.addUnmodifiableActionItem(wxID_EXIT, ActionContext_Any, "Exit");
 #else
             viewMenu.addSeparator();
-            viewMenu.addUnmodifiableActionItem(wxID_PREFERENCES, Action::Context_Any, "Preferences...");
+            viewMenu.addUnmodifiableActionItem(wxID_PREFERENCES, ActionContext_Any, "Preferences...");
             
             helpMenu.addSeparator();
-            helpMenu.addUnmodifiableActionItem(wxID_ABOUT, Action::Context_Any, "About TrenchBroom");
+            helpMenu.addUnmodifiableActionItem(wxID_ABOUT, ActionContext_Any, "About TrenchBroom");
 #endif
         }
     }

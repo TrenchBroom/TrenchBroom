@@ -23,7 +23,7 @@
 #include "MathUtils.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/PerspectiveCamera.h"
-#include "View/Action.h"
+#include "View/ActionContext.h"
 #include "View/GLContextHolder.h"
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
@@ -158,7 +158,7 @@ namespace TrenchBroom {
             void OnActivateFrame(wxActivateEvent& event);
         private: // accelerator table management
             void updateAcceleratorTable(bool hasFocus);
-            Action::Context actionContext() const;
+            ActionContext actionContext() const;
         private: // misc
             void flashSelection();
         private: // implement RenderView

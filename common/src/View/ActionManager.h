@@ -21,6 +21,7 @@
 #define __TrenchBroom__ActionManager__
 
 #include "View/Action.h"
+#include "View/ActionContext.h"
 
 class wxAcceleratorTable;
 class wxMenu;
@@ -36,7 +37,6 @@ namespace TrenchBroom {
         
         class ActionManager {
         private:
-            Action::List m_mapViewActions;
             Menu* m_menu;
         public:
             static ActionManager& instance();
@@ -51,8 +51,7 @@ namespace TrenchBroom {
         private:
             wxMenu* createMenu(const Menu& menu) const;
         public:
-            Action::List& mapViewActions();
-            wxAcceleratorTable createMapViewAcceleratorTable(Action::Context context) const;
+            wxAcceleratorTable createViewAcceleratorTable(ActionContext context, ActionView view) const;
             
             void resetShortcutsToDefaults();
         private:
@@ -60,8 +59,6 @@ namespace TrenchBroom {
             ActionManager(const ActionManager&);
             ActionManager& operator=(const ActionManager&);
             
-            void createMapViewActions();
-            void createMapViewAction(int id, int context, const String& name, const KeyboardShortcut& defaultShortcut);
             void createMenu();
         };
     }

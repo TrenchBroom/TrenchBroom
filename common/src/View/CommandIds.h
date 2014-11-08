@@ -87,6 +87,7 @@ namespace TrenchBroom {
             
             namespace Actions {
                 const int Lowest                             = Menu::Highest + 1;
+                const int None                               = wxID_NONE;
                 const int ToggleClipTool                     = Lowest +   1;
                 const int ToggleClipSide                     = Lowest +   2;
                 const int PerformClip                        = Lowest +   3;
@@ -134,20 +135,32 @@ namespace TrenchBroom {
                 const int DuplicateObjects                   = Lowest +  38;
 
                 const int MoveTexturesUp                     = Lowest +  39;
-                const int MoveTexturesRight                  = Lowest +  40;
-                const int MoveTexturesDown                   = Lowest +  41;
-                const int MoveTexturesLeft                   = Lowest +  42;
-                const int RotateTexturesCW                   = Lowest +  43;
-                const int RotateTexturesCCW                  = Lowest +  44;
+                const int MoveTexturesUpCoarse               = Lowest +  40;
+                const int MoveTexturesUpFine                 = Lowest +  41;
+                const int MoveTexturesRight                  = Lowest +  42;
+                const int MoveTexturesRightCoarse            = Lowest +  43;
+                const int MoveTexturesRightFine              = Lowest +  44;
+                const int MoveTexturesDown                   = Lowest +  45;
+                const int MoveTexturesDownCoarse             = Lowest +  46;
+                const int MoveTexturesDownFine               = Lowest +  47;
+                const int MoveTexturesLeft                   = Lowest +  48;
+                const int MoveTexturesLeftCoarse             = Lowest +  49;
+                const int MoveTexturesLeftFine               = Lowest +  50;
+                const int RotateTexturesCW                   = Lowest +  51;
+                const int RotateTexturesCWCoarse             = Lowest +  53;
+                const int RotateTexturesCWFine               = Lowest +  54;
+                const int RotateTexturesCCW                  = Lowest +  55;
+                const int RotateTexturesCCWCoarse            = Lowest +  56;
+                const int RotateTexturesCCWFine              = Lowest +  57;
 
-                const int Cancel                             = Lowest +  45;
+                const int Cancel                             = Lowest +  58;
                 
-                const int MoveRotationCenterForward          = Lowest +  46;
-                const int MoveRotationCenterBackward         = Lowest +  47;
-                const int MoveRotationCenterLeft             = Lowest +  48;
-                const int MoveRotationCenterRight            = Lowest +  49;
-                const int MoveRotationCenterUp               = Lowest +  50;
-                const int MoveRotationCenterDown             = Lowest +  51;
+                const int MoveRotationCenterForward          = Lowest +  59;
+                const int MoveRotationCenterBackward         = Lowest +  60;
+                const int MoveRotationCenterLeft             = Lowest +  61;
+                const int MoveRotationCenterRight            = Lowest +  62;
+                const int MoveRotationCenterUp               = Lowest +  63;
+                const int MoveRotationCenterDown             = Lowest +  64;
 
                 /*
                 const int CorrectVertices                    = Lowest +  82;

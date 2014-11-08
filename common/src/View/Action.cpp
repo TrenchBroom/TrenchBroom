@@ -18,6 +18,7 @@
  */
 
 #include "Action.h"
+#include "ActionContext.h"
 
 #include "PreferenceManager.h"
 
@@ -25,26 +26,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        String Action::makeContextName(const int context) {
-            if (context == Context_Any)
-                return "Any";
-            
-            StringList contexts;
-            if (context & Context_VertexTool)
-                contexts.push_back("Vertex Tool");
-            if (context & Context_ClipTool)
-                contexts.push_back("Clip Tool");
-            if (context & Context_RotateTool)
-                contexts.push_back("Rotate Tool");
-            if (context & Context_FlyMode)
-                contexts.push_back("Fly Mode");
-            if (context & Context_NodeSelection)
-                contexts.push_back("Objects");
-            if (context & Context_FaceSelection)
-                contexts.push_back("Textures");
-            return StringUtils::join(contexts, ", ");
-        }
-        
         Action::Action(int id, int context, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable, bool requiresModifiers) :
         m_id(id),
         m_context(context),
@@ -66,7 +47,7 @@ namespace TrenchBroom {
         }
         
         String Action::contextName() const {
-            return makeContextName(m_context);
+            return actionContextName(m_context);
         }
 
         bool Action::modifiable() const {
