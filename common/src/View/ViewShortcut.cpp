@@ -83,7 +83,7 @@ namespace TrenchBroom {
         }
 
         IO::Path ViewShortcut::path(const Action& action2D, const Action& action3D) const {
-            return IO::Path("Map view") + IO::Path(buildDescription(action2D, action3D));
+            return IO::Path("Controls/Map view") + IO::Path(buildDescription(action2D, action3D));
         }
 
         String ViewShortcut::buildDescription(const Action& action2D, const Action& action3D) const {

@@ -97,7 +97,7 @@ namespace TrenchBroom {
         ActionMenuItem::ActionMenuItem(const Type type, MenuItemParent* parent, const int id, const String& label, const KeyboardShortcut& defaultShortcut, const bool modifiable) :
         LabeledMenuItem(type, parent),
         m_action(id, label, modifiable),
-        m_preference(path(label), defaultShortcut) {
+        m_preference(IO::Path("Controls") + path(label), defaultShortcut) {
             assert(type == Type_Action || type == Type_Check);
         }
         
