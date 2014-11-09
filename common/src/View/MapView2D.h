@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapView3D__
-#define __TrenchBroom__MapView3D__
+#ifndef __TrenchBroom__MapView2D__
+#define __TrenchBroom__MapView2D__
 
 #include "MathUtils.h"
 #include "Model/ModelTypes.h"
-#include "Renderer/PerspectiveCamera.h"
+#include "Renderer/OrthographicCamera.h"
 #include "View/Action.h"
 #include "View/MapViewBase.h"
 #include "View/ViewTypes.h"
@@ -39,37 +39,15 @@ namespace TrenchBroom {
     
     namespace View {
         class FlyModeHelper;
-        class MapView3D : public MapViewBase {
+        class MapView2D : public MapViewBase {
         private:
-            Renderer::PerspectiveCamera m_camera;
-            Renderer::Compass* m_compass;
-            FlyModeHelper* m_flyModeHelper;
+            Renderer::OrthographicCamera m_camera;
         public:
-            MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo);
-            ~MapView3D();
+            MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextHolder::Ptr sharedContext);
+            ~MapView2D();
             
-        public: // camera control
-            bool cameraFlyModeActive() const;
-            void toggleCameraFlyMode();
         private: // interaction events
             void bindEvents();
-            
-            void OnMoveTexturesUp(wxCommandEvent& event);
-            void OnMoveTexturesDown(wxCommandEvent& event);
-            void OnMoveTexturesLeft(wxCommandEvent& event);
-            void OnMoveTexturesRight(wxCommandEvent& event);
-            void OnRotateTexturesCW(wxCommandEvent& event);
-            void OnRotateTexturesCCW(wxCommandEvent& event);
-
-            float moveTextureDistance() const;
-            void moveTextures(const Vec2f& offset);
-            float rotateTextureAngle(bool clockwise) const;
-            void rotateTextures(float angle);
-        private: // tool mode events
-            void OnToggleFlyMode(wxCommandEvent& event);
-        private: // other events
-            void OnKillFocus(wxFocusEvent& event);
-            void OnActivateFrame(wxActivateEvent& event);
         private: // implement MapViewBase interface
             Renderer::Camera* doGetCamera();
             const Renderer::Camera* doGetCamera() const;
@@ -79,11 +57,8 @@ namespace TrenchBroom {
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-        private:
-        private:
-            static const GLContextHolder::GLAttribs& buildAttribs();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapView3D__) */
+#endif /* defined(__TrenchBroom__MapView2D__) */

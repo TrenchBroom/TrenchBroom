@@ -50,6 +50,9 @@ namespace TrenchBroom {
             void OnKillFocus(wxFocusEvent& event);
 
             const GLContextHolder::Ptr contextHolder() const;
+        protected:
+            int depthBits() const;
+            bool multisample() const;
         private:
             void bindEvents();
 

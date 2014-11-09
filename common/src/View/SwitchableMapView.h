@@ -31,9 +31,12 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class MapRenderer;
+        class Vbo;
     }
     
     namespace View {
+        class MapViewBase;
+        class MapView2D;
         class MapView3D;
         class MapViewBar;
         class MapViewToolBox;
@@ -47,8 +50,11 @@ namespace TrenchBroom {
             MapViewToolBox* m_toolBox;
 
             Renderer::MapRenderer* m_mapRenderer;
+            Renderer::Vbo* m_vbo;
             MapViewBar* m_mapViewBar;
-            MapView3D* m_mapView;
+            MapView2D* m_mapView2D;
+            MapView3D* m_mapView3D;
+            MapViewBase* m_currentMapView;
         public:
             SwitchableMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document);
             ~SwitchableMapView();
@@ -63,6 +69,9 @@ namespace TrenchBroom {
         private:
             void bindEvents();
             void OnIdleSetFocus(wxIdleEvent& event);
+            void OnCycleMapView(wxCommandEvent& event);
+        private:
+            void switchToMapView(MapViewBase* mapView);
         };
     }
 }

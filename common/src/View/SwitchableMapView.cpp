@@ -25,8 +25,11 @@
 #include "Model/ModelHitFilters.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
+#include "Renderer/Vbo.h"
+#include "View/CommandIds.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/MapView2D.h"
 #include "View/MapView3D.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
@@ -41,26 +44,32 @@ namespace TrenchBroom {
         m_document(document),
         m_toolBox(NULL),
         m_mapRenderer(NULL),
+        m_vbo(NULL),
         m_mapViewBar(NULL),
-        m_mapView(NULL) {
+        m_mapView2D(NULL),
+        m_mapView3D(NULL),
+        m_currentMapView(NULL) {
             createGui();
             bindEvents();
         }
         
         SwitchableMapView::~SwitchableMapView() {
-            // this might lead to crashes because my children, including the map views, will be
-            // deleted after the map renderer is deleted
-            // possible solution: force deletion of all children here?
-            delete m_mapRenderer;
-            m_mapRenderer = NULL;
+            // we must destroy our children before we destroy our resources because they might still use them in their destructors
+            DestroyChildren();
             
             delete m_toolBox;
             m_toolBox = NULL;
+
+            delete m_mapRenderer;
+            m_mapRenderer = NULL;
+            
+            delete m_vbo;
+            m_vbo = NULL;
         }
 
         Vec3 SwitchableMapView::pasteObjectsDelta(const BBox3& bounds) const {
             MapDocumentSPtr document = lock(m_document);
-            const Renderer::Camera* camera = m_mapView->camera();
+            const Renderer::Camera* camera = m_mapView3D->camera();
             const Grid& grid = document->grid();
 
             const wxMouseState mouseState = wxGetMouseState();
@@ -87,47 +96,69 @@ namespace TrenchBroom {
         }
         
         void SwitchableMapView::centerCameraOnSelection() {
-            m_mapView->centerCameraOnSelection();
+            m_mapView2D->centerCameraOnSelection();
+            m_mapView3D->centerCameraOnSelection();
         }
         
         void SwitchableMapView::moveCameraToPosition(const Vec3& position) {
-            m_mapView->moveCameraToPosition(position);
+            m_mapView2D->moveCameraToPosition(position);
+            m_mapView3D->moveCameraToPosition(position);
         }
         
         void SwitchableMapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
-            m_mapView->animateCamera(position, direction, up, duration);
+            m_mapView2D->animateCamera(position, direction, up, duration);
+            m_mapView3D->animateCamera(position, direction, up, duration);
         }
 
         void SwitchableMapView::createGui() {
             m_mapRenderer = new Renderer::MapRenderer(m_document);
+            m_vbo = new Renderer::Vbo(0xFFFFFF);
             m_mapViewBar = new MapViewBar(this, m_document);
             
             m_toolBox = new MapViewToolBox(m_document, m_mapViewBar->toolBook());
-            m_mapView = new MapView3D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer);
+            m_mapView3D = new MapView3D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo);
+            m_mapView2D = new MapView2D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_mapView3D->contextHolder());
+            m_currentMapView = m_mapView2D;
             
-            // this must be updated appropriately when the map view is switched
-            m_toolBox->setCamera(m_mapView->camera());
-            
-            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_mapViewBar, 0, wxEXPAND);
-            sizer->Add(m_mapView, 1, wxEXPAND);
-            SetSizer(sizer);
+            switchToMapView(m_mapView3D);
         }
 
         void SwitchableMapView::bindEvents() {
             Bind(wxEVT_IDLE, &SwitchableMapView::OnIdleSetFocus, this);
+            Bind(wxEVT_MENU, &SwitchableMapView::OnCycleMapView, this, CommandIds::Actions::CycleMapViews);
         }
         
         void SwitchableMapView::OnIdleSetFocus(wxIdleEvent& event) {
             // we use this method to ensure that the 3D view gets the focus after startup has settled down
-            if (m_mapView != NULL) {
-                if (!m_mapView->HasFocus()) {
-                    m_mapView->SetFocus();
+            if (m_currentMapView != NULL) {
+                if (!m_currentMapView->HasFocus()) {
+                    m_currentMapView->SetFocus();
                 } else {
                     Unbind(wxEVT_IDLE, &SwitchableMapView::OnIdleSetFocus, this);
-                    m_mapView->Refresh();
+                    m_currentMapView->Refresh();
                 }
             }
+        }
+
+        void SwitchableMapView::OnCycleMapView(wxCommandEvent& event) {
+            if (m_currentMapView == m_mapView2D)
+                switchToMapView(m_mapView3D);
+            else
+                switchToMapView(m_mapView2D);
+        }
+
+        void SwitchableMapView::switchToMapView(MapViewBase* mapView) {
+            m_currentMapView->Hide();
+            m_currentMapView = mapView;
+            m_currentMapView->Show();
+            m_toolBox->setCamera(m_currentMapView->camera());
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_mapViewBar, 0, wxEXPAND);
+            sizer->Add(m_currentMapView, 1, wxEXPAND);
+            SetSizer(sizer);
+            Layout();
+            m_currentMapView->SetFocus();
         }
     }
 }

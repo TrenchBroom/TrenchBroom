@@ -88,6 +88,14 @@ namespace TrenchBroom {
             return m_contextHolder;
         }
 
+        int RenderView::depthBits() const {
+            return m_contextHolder->attribs()[3];
+        }
+        
+        bool RenderView::multisample() const {
+            return m_contextHolder->attribs()[4] != 0;
+        }
+
         void RenderView::bindEvents() {
             Bind(wxEVT_PAINT, &RenderView::OnPaint, this);
             Bind(wxEVT_SIZE, &RenderView::OnSize, this);
