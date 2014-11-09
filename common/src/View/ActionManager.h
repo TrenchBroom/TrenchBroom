@@ -21,6 +21,7 @@
 #define __TrenchBroom__ActionManager__
 
 #include "View/ActionContext.h"
+#include "View/ViewShortcut.h"
 
 class wxAcceleratorTable;
 class wxMenu;
@@ -32,25 +33,29 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class Menu;
-        class MenuAction;
+        class MenuBar;
+        class ActionMenuItem;
+        class KeyboardShortcutEntry;
         
         class ActionManager {
+        public:
+            typedef std::vector<KeyboardShortcutEntry*> ShortcutEntryList;
         private:
-            Menu* m_menu;
+            MenuBar* m_menuBar;
+            ViewShortcut::List m_viewShortcuts;
         public:
             static ActionManager& instance();
             ~ActionManager();
+
             
             static wxMenu* findRecentDocumentsMenu(const wxMenuBar* menuBar);
-            const MenuAction* findMenuAction(int id) const;
+            const ActionMenuItem* findMenuItem(int id) const;
+            
+            void getShortcutEntries(ShortcutEntryList& entries);
 
-            Menu& getMenu();
             wxMenuBar* createMenuBar() const;
             bool isMenuShortcutPreference(const IO::Path& path) const;
-        private:
-            wxMenu* createMenu(const Menu& menu) const;
-        public:
+
             wxAcceleratorTable createViewAcceleratorTable(ActionContext context, ActionView view) const;
             
             void resetShortcutsToDefaults();
@@ -59,7 +64,10 @@ namespace TrenchBroom {
             ActionManager(const ActionManager&);
             ActionManager& operator=(const ActionManager&);
             
-            void createMenu();
+            void createMenuBar();
+            void createViewShortcuts();
+            void createViewShortcut(const KeyboardShortcut& shortcut, int context, const Action& action2D, const Action& action3D);
+            void createViewShortcut(const KeyboardShortcut& shortcut, int context, const Action& action);
         };
     }
 }

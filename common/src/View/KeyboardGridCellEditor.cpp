@@ -30,14 +30,12 @@ namespace TrenchBroom {
         KeyboardGridCellEditor::KeyboardGridCellEditor() :
         wxGridCellEditor(),
         m_editor(NULL),
-        m_evtHandler(NULL),
-        m_requiresModifier(true) {}
+        m_evtHandler(NULL) {}
         
-        KeyboardGridCellEditor::KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, const int key, const int modifier1, const int modifier2, const int modifier3, const bool requiresModifier) :
+        KeyboardGridCellEditor::KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, const int key, const int modifier1, const int modifier2, const int modifier3) :
         wxGridCellEditor(),
         m_editor(NULL),
-        m_evtHandler(NULL),
-        m_requiresModifier(requiresModifier) {
+        m_evtHandler(NULL) {
             Create(parent, windowId, evtHandler);
             m_editor->SetShortcut(key, modifier1, modifier2, modifier3);
         }
@@ -54,8 +52,7 @@ namespace TrenchBroom {
                                               m_editor->key(),
                                               m_editor->modifier1(),
                                               m_editor->modifier2(),
-                                              m_editor->modifier3(),
-                                              m_requiresModifier);
+                                              m_editor->modifier3());
         }
         
         void KeyboardGridCellEditor::BeginEdit(int row, int col, wxGrid* grid) {
@@ -70,20 +67,6 @@ namespace TrenchBroom {
         }
         
         bool KeyboardGridCellEditor::EndEdit(int row, int col, const wxGrid* grid, const wxString& oldValue, wxString* newValue) {
-            if (m_requiresModifier &&
-                m_editor->modifier1() != WXK_COMMAND &&
-                m_editor->modifier2() != WXK_COMMAND &&
-                m_editor->modifier3() != WXK_COMMAND) {
-                
-                wxString msg;
-                msg << "Shortcuts for menu items must include the ";
-                msg << KeyboardShortcut::modifierDisplayString(WXK_CONTROL);
-                msg << " key.";
-                
-                wxMessageBox(msg, "Error", wxOK, m_editor);
-                return false;
-            }
-            
             *newValue = KeyboardShortcut::shortcutDisplayString(m_editor->key(),
                                                                 m_editor->modifier1(),
                                                                 m_editor->modifier2(),

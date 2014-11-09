@@ -23,7 +23,8 @@
 #include "Preference.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
-#include "View/MenuAction.h"
+#include "View/Action.h"
+#include "View/KeyboardShortcutEntry.h"
 
 #include <vector>
 #include <map>
@@ -33,6 +34,7 @@ class wxMenuBar;
 
 namespace TrenchBroom {
     namespace View {
+        class ActionMenuItem;
         class KeyboardShortcut;
         class MenuItemParent;
         
@@ -45,8 +47,7 @@ namespace TrenchBroom {
                 Type_Menu
             } Type;
             
-            typedef std::tr1::shared_ptr<MenuItem> Ptr;
-            typedef std::vector<Ptr> List;
+            typedef std::vector<MenuItem*> List;
         private:
             Type m_type;
             MenuItemParent* m_parent;
@@ -57,82 +58,131 @@ namespace TrenchBroom {
             Type type() const;
             const MenuItemParent* parent() const;
             
-            virtual const MenuAction* findAction(int id) const;
-
-            void resetShortcutsToDefaults();
+            void appendToMenu(wxMenu* menu) const;
+            void appendToMenu(wxMenuBar* menu) const;
+            const ActionMenuItem* findActionMenuItem(int id) const;
+            void getShortcutEntries(KeyboardShortcutEntry::List& entries);
+            
+            void resetShortcuts();
         private:
-            virtual void doResetShortcutsToDefaults();
+            virtual void doAppendToMenu(wxMenu* menu) const = 0;
+            virtual void doAppendToMenu(wxMenuBar* menu) const;
+            virtual const ActionMenuItem* doFindActionMenuItem(int id) const;
+            virtual void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
+            virtual void doResetShortcuts();
         };
 
-        class MenuItemWithCaption : public MenuItem {
+        class SeparatorItem : public MenuItem {
         public:
-            MenuItemWithCaption(Type type, MenuItemParent* parent);
-            virtual ~MenuItemWithCaption();
-
-            virtual int id() const = 0;
-            virtual const String& text() const = 0;
+            SeparatorItem(MenuItemParent* parent);
+        private:
+            void doAppendToMenu(wxMenu* menu) const;
         };
         
-        class ActionMenuItem : public MenuItemWithCaption {
-        private:
-            mutable MenuAction m_action;
+        class LabeledMenuItem : public MenuItem {
         public:
-            ActionMenuItem(Type type, MenuItemParent* parent, int id, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
-            virtual ~ActionMenuItem();
-            
+            LabeledMenuItem(Type type, MenuItemParent* parent);
+            virtual ~LabeledMenuItem();
+        public:
             int id() const;
-            const String& text() const;
-            wxString menuText() const;
-
-            MenuAction& action();
-
-            const MenuAction* findAction(int id) const;
+            const String& label() const;
         private:
-            void doResetShortcutsToDefaults();
+            virtual int doGetId() const = 0;
+            virtual const String& doGetLabel() const = 0;
+        };
+        
+        class ActionMenuItem : public LabeledMenuItem, public KeyboardShortcutEntry {
+        private:
+            mutable Action m_action;
+            mutable Preference<KeyboardShortcut> m_preference;
+        public:
+            ActionMenuItem(Type type, MenuItemParent* parent, int id, const String& label, const KeyboardShortcut& defaultShortcut, bool modifiable);
+            virtual ~ActionMenuItem();
+
+            wxString menuString(const wxString& suffix = "") const;
+        private:
+            const KeyboardShortcut& shortcut() const;
             IO::Path path(const String& text) const;
+        private: // implement LabeledMenuItem interface
+            void doAppendToMenu(wxMenu* menu) const;
+            const ActionMenuItem* doFindActionMenuItem(int id) const;
+            void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
+            void doResetShortcuts();
+            
+            int doGetId() const;
+            const String& doGetLabel() const;
+        private: // implement KeyboardShortcutEntry interface
+            int doGetActionContext() const;
+            bool doGetModifiable() const;
+            int doGetRequiredModifiers() const;
+            wxString doGetActionDescription() const;
+            const KeyboardShortcut& doGetShortcut() const;
+            void doUpdateShortcut(const KeyboardShortcut& shortcut);
         };
         
         class Menu;
         
-        class MenuItemParent : public MenuItemWithCaption {
+        class MenuItemParent : public LabeledMenuItem {
         private:
             int m_id;
-            String m_text;
+            String m_label;
             List m_items;
+        protected:
+            MenuItemParent(Type type, MenuItemParent* parent, int id, const String& label);
         public:
-            int id() const;
-            const String& text() const;
+            virtual ~MenuItemParent();
 
-            const MenuAction* findAction(int id) const;
-
+            void addItem(MenuItem* item);
             const List& items() const;
             List& items();
-
-            void addItem(MenuItem::Ptr item);
-        protected:
-            MenuItemParent(Type type, MenuItemParent* parent, int id, const String& text);
-            virtual ~MenuItemParent();
         private:
-            void doResetShortcutsToDefaults();
+            void doAppendToMenu(wxMenu* menu) const;
+            void doAppendToMenu(wxMenuBar* menu) const;
+            wxMenu* buildMenu() const;
+
+            const ActionMenuItem* doFindActionMenuItem(int id) const;
+            void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
+            void doResetShortcuts();
+            
+            int doGetId() const;
+            const String& doGetLabel() const;
         };
         
         class Menu : public MenuItemParent {
         public:
-            Menu(MenuItemParent* parent, int id, const String& text);
-            Menu(const String& text);
+            Menu(MenuItemParent* parent, int id, const String& label);
+            Menu(const String& label);
             virtual ~Menu();
 
-            MenuItem::Ptr addModifiableActionItem(int id, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
-            MenuItem::Ptr addUnmodifiableActionItem(int id, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
+            MenuItem* addModifiableActionItem(int id, const String& label, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
+            MenuItem* addUnmodifiableActionItem(int id, const String& label, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
             
-            MenuItem::Ptr addModifiableCheckItem(int id, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
-            MenuItem::Ptr addUnmodifiableCheckItem(int id, const String& text, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
+            MenuItem* addModifiableCheckItem(int id, const String& label, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
+            MenuItem* addUnmodifiableCheckItem(int id, const String& label, const KeyboardShortcut& defaultShortcut = KeyboardShortcut::Empty);
 
             void addSeparator();
-            Menu& addMenu(int id, const String& text);
+            Menu* addMenu(const String& label);
+            Menu* addMenu(int id, const String& label);
         private:
-            MenuItem::Ptr addActionItem(int id, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
-            MenuItem::Ptr addCheckItem(int id, const String& text, const KeyboardShortcut& defaultShortcut, bool modifiable);
+            MenuItem* addActionItem(int id, const String& label, const KeyboardShortcut& defaultShortcut, bool modifiable);
+            MenuItem* addCheckItem(int id, const String& label, const KeyboardShortcut& defaultShortcut, bool modifiable);
+        };
+        
+        class MenuBar {
+        private:
+            typedef std::vector<Menu*> MenuList;
+            MenuList m_menus;
+        public:
+            MenuBar();
+            ~MenuBar();
+            
+            const ActionMenuItem* findActionMenuItem(int id) const;
+            void resetShortcuts();
+
+            Menu* addMenu(const String& label);
+            wxMenuBar* createMenuBar();
+
+            void getShortcutEntries(KeyboardShortcutEntry::List& entries) const;
         };
     }
 }

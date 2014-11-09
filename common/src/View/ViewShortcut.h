@@ -20,8 +20,11 @@
 #ifndef __TrenchBroom__ViewShortcut__
 #define __TrenchBroom__ViewShortcut__
 
+#include "Preference.h"
+#include "View/Action.h"
 #include "View/ActionContext.h"
 #include "View/KeyboardShortcut.h"
+#include "View/KeyboardShortcutEntry.h"
 
 #include <wx/accel.h>
 
@@ -29,19 +32,33 @@
 
 namespace TrenchBroom {
     namespace View {
-        class ViewShortcut {
+        class ViewShortcut : public KeyboardShortcutEntry {
         public:
             typedef std::vector<ViewShortcut> List;
         private:
-            KeyboardShortcut m_shortcut;
+            Preference<KeyboardShortcut> m_preference;
             int m_context;
-            int m_actions[NumActionViews];
+            Action m_actions[NumActionViews];
         public:
-            ViewShortcut();
-            ViewShortcut(const KeyboardShortcut& shortcut, int context, int action2D, int action3D);
+            ViewShortcut(const KeyboardShortcut& shortcut, int context, const Action& action2D, const Action& action3D);
+            ViewShortcut(const KeyboardShortcut& shortcut, int context, const Action& action);
             
             wxAcceleratorEntry acceleratorEntry(ActionView view) const;
             bool appliesToContext(int context) const;
+            
+            void resetShortcut();
+        private: // implement KeyboardShortcutEntry interface
+            int doGetActionContext() const;
+            bool doGetModifiable() const;
+            int doGetRequiredModifiers() const;
+            wxString doGetActionDescription() const;
+            const KeyboardShortcut& doGetShortcut() const;
+            void doUpdateShortcut(const KeyboardShortcut& shortcut);
+        private:
+            const KeyboardShortcut& shortcut() const;
+            
+            IO::Path path(const Action& action2D, const Action& action3D) const;
+            String buildDescription(const Action& action2D, const Action& action3D) const;
         };
     }
 }

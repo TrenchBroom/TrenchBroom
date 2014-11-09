@@ -17,65 +17,33 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MenuShortcutGridTable.h"
+#include "KeyboardShortcutGridTable.h"
 
 #include "View/ActionManager.h"
 #include "View/KeyboardGridCellEditor.h"
+#include "View/KeyboardShortcutEntry.h"
 #include "View/Menu.h"
-#include "View/MenuAction.h"
 
 namespace TrenchBroom {
     namespace View {
-        MenuShortcutGridTable::Entry::Entry(MenuAction& action) :
-        m_action(&action),
-        m_conflicts(false) {}
-        
-        const String MenuShortcutGridTable::Entry::caption() const {
-            return m_action->displayName();
-        }
-        
-        const wxString MenuShortcutGridTable::Entry::shortcut() const {
-            return m_action->shortcutDisplayString();
-        }
-        
-        bool MenuShortcutGridTable::Entry::modifiable() const {
-            return m_action->modifiable();
-        }
-        
-        void MenuShortcutGridTable::Entry::updateShortcut(const KeyboardShortcut& shortcut) {
-            m_action->updateShortcut(shortcut);
-        }
-        
-        bool MenuShortcutGridTable::Entry::conflictsWith(const Entry& entry) const {
-            return m_action->conflictsWith(*entry.m_action);
-        }
-        
-        bool MenuShortcutGridTable::Entry::conflicts() const {
-            return m_conflicts;
-        }
-        
-        void MenuShortcutGridTable::Entry::setConflicts(const bool conflicts) {
-            m_conflicts = conflicts;
-        }
-        
-        MenuShortcutGridTable::MenuShortcutGridTable() :
+        KeyboardShortcutGridTable::KeyboardShortcutGridTable() :
         m_cellEditor(new KeyboardGridCellEditor()) {
             m_cellEditor->IncRef();
         }
         
-        MenuShortcutGridTable::~MenuShortcutGridTable() {
+        KeyboardShortcutGridTable::~KeyboardShortcutGridTable() {
             m_cellEditor->DecRef();
         }
         
-        int MenuShortcutGridTable::GetNumberRows() {
+        int KeyboardShortcutGridTable::GetNumberRows() {
             return static_cast<int>(m_entries.size());
         }
         
-        int MenuShortcutGridTable::GetNumberCols() {
-            return 2;
+        int KeyboardShortcutGridTable::GetNumberCols() {
+            return 3;
         }
         
-        wxString MenuShortcutGridTable::GetValue(int row, int col) {
+        wxString KeyboardShortcutGridTable::GetValue(int row, int col) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col >= 0 && col < GetNumberCols());
             
@@ -83,9 +51,11 @@ namespace TrenchBroom {
             
             switch (col) {
                 case 0:
-                    return m_entries[rowIndex].shortcut();
+                    return m_entries[rowIndex]->shortcutDescription();
                 case 1:
-                    return m_entries[rowIndex].caption();
+                    return m_entries[rowIndex]->actionContextDescription();
+                case 2:
+                    return m_entries[rowIndex]->actionDescription();
                 default:
                     assert(false);
                     break;
@@ -94,7 +64,7 @@ namespace TrenchBroom {
             return "";
         }
         
-        void MenuShortcutGridTable::SetValue(int row, int col, const wxString& value) {
+        void KeyboardShortcutGridTable::SetValue(int row, int col, const wxString& value) {
             assert(row >= 0 && row < GetNumberRows());
             assert(col == 0);
             
@@ -104,7 +74,19 @@ namespace TrenchBroom {
             _UNUSED(success);
             
             const size_t rowIndex = static_cast<size_t>(row);
-            m_entries[rowIndex].updateShortcut(KeyboardShortcut(key, modifier1, modifier2, modifier3));
+            const int requiredModifiers = m_entries[rowIndex]->requiredModifiers();
+            const int suppliedModifiers = modifier1 | modifier2 | modifier3;
+            if ((requiredModifiers & suppliedModifiers) != requiredModifiers) {
+                wxString msg;
+                msg << "Shortcuts for menu items must include the ";
+                msg << KeyboardShortcut::modifierDisplayString(WXK_CONTROL);
+                msg << " key.";
+                
+                wxMessageBox(msg, "Error", wxOK, GetView());
+                return;
+            }
+            
+            m_entries[rowIndex]->updateShortcut(KeyboardShortcut(key, modifier1, modifier2, modifier3));
             
             if (markConflicts(m_entries))
                 notifyRowsUpdated(m_entries.size());
@@ -112,32 +94,34 @@ namespace TrenchBroom {
                 notifyRowsUpdated(rowIndex, 1);
         }
         
-        void MenuShortcutGridTable::Clear() {
+        void KeyboardShortcutGridTable::Clear() {
             assert(false);
         }
         
-        bool MenuShortcutGridTable::InsertRows(size_t pos, size_t numRows) {
-            assert(false);
-            return false;
-        }
-        
-        bool MenuShortcutGridTable::AppendRows(size_t numRows) {
+        bool KeyboardShortcutGridTable::InsertRows(size_t pos, size_t numRows) {
             assert(false);
             return false;
         }
         
-        bool MenuShortcutGridTable::DeleteRows(size_t pos, size_t numRows) {
+        bool KeyboardShortcutGridTable::AppendRows(size_t numRows) {
             assert(false);
             return false;
         }
         
-        wxString MenuShortcutGridTable::GetColLabelValue(int col) {
+        bool KeyboardShortcutGridTable::DeleteRows(size_t pos, size_t numRows) {
+            assert(false);
+            return false;
+        }
+        
+        wxString KeyboardShortcutGridTable::GetColLabelValue(int col) {
             assert(col >= 0 && col < GetNumberCols());
             switch (col) {
                 case 0:
                     return "Shortcut";
                 case 1:
-                    return "Menu Item";
+                    return "Context";
+                case 2:
+                    return "Description";
                 default:
                     assert(false);
                     break;
@@ -146,11 +130,11 @@ namespace TrenchBroom {
             return "";
         }
         
-        wxGridCellAttr* MenuShortcutGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
+        wxGridCellAttr* KeyboardShortcutGridTable::GetAttr(int row, int col, wxGridCellAttr::wxAttrKind kind) {
             wxGridCellAttr* attr = wxGridTableBase::GetAttr(row, col, kind);
             if (row >= 0 && row < GetNumberRows()) {
-                const Entry& entry = m_entries[static_cast<size_t>(row)];
-                if (entry.conflicts()) {
+                const KeyboardShortcutEntry* entry = m_entries[static_cast<size_t>(row)];
+                if (entry->hasConflicts()) {
                     if (attr == NULL)
                         attr = new wxGridCellAttr();
                     attr->SetTextColour(*wxRED);
@@ -158,14 +142,14 @@ namespace TrenchBroom {
                 if (col == 0) {
                     if (attr == NULL)
                         attr = new wxGridCellAttr();
-                    if (entry.modifiable()) {
+                    if (entry->modifiable()) {
                         attr->SetEditor(m_cellEditor);
                         m_cellEditor->IncRef();
                     } else {
                         attr->SetReadOnly(true);
                         attr->SetTextColour(*wxLIGHT_GREY);
                     }
-                } else if (col == 1) {
+                } else {
                     if (attr == NULL)
                         attr = new wxGridCellAttr();
                     attr->SetReadOnly(true);
@@ -174,18 +158,18 @@ namespace TrenchBroom {
             return attr;
         }
         
-        bool MenuShortcutGridTable::hasDuplicates() const {
+        bool KeyboardShortcutGridTable::hasDuplicates() const {
             for (size_t i = 0; i < m_entries.size(); i++)
-                if (m_entries[i].conflicts())
+                if (m_entries[i]->hasConflicts())
                     return true;
             return false;
         }
         
-        bool MenuShortcutGridTable::update() {
+        bool KeyboardShortcutGridTable::update() {
             EntryList newEntries;
             
             ActionManager& actionManager = ActionManager::instance();
-            addMenu(actionManager.getMenu(), newEntries);
+            actionManager.getShortcutEntries(newEntries);
             
             const bool hasConflicts = markConflicts(newEntries);
             
@@ -201,7 +185,7 @@ namespace TrenchBroom {
             return hasConflicts;
         }
         
-        void MenuShortcutGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
+        void KeyboardShortcutGridTable::notifyRowsUpdated(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_REQUEST_VIEW_GET_VALUES,
                                            static_cast<int>(pos),
@@ -210,7 +194,7 @@ namespace TrenchBroom {
             }
         }
         
-        void MenuShortcutGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
+        void KeyboardShortcutGridTable::notifyRowsInserted(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_INSERTED,
                                            static_cast<int>(pos),
@@ -219,7 +203,7 @@ namespace TrenchBroom {
             }
         }
         
-        void MenuShortcutGridTable::notifyRowsAppended(size_t numRows) {
+        void KeyboardShortcutGridTable::notifyRowsAppended(size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_APPENDED,
                                            static_cast<int>(numRows));
@@ -227,7 +211,7 @@ namespace TrenchBroom {
             }
         }
         
-        void MenuShortcutGridTable::notifyRowsDeleted(size_t pos, size_t numRows) {
+        void KeyboardShortcutGridTable::notifyRowsDeleted(size_t pos, size_t numRows) {
             if (GetView() != NULL) {
                 wxGridTableMessage message(this, wxGRIDTABLE_NOTIFY_ROWS_DELETED,
                                            static_cast<int>(pos),
@@ -236,46 +220,22 @@ namespace TrenchBroom {
             }
         }
         
-        bool MenuShortcutGridTable::markConflicts(EntryList& entries) {
+        bool KeyboardShortcutGridTable::markConflicts(EntryList& entries) {
             for (size_t i = 0; i < entries.size(); i++)
-                entries[i].setConflicts(false);
+                entries[i]->resetConflicts();
             
             bool hasConflicts = false;
             for (size_t i = 0; i < entries.size(); i++) {
-                Entry& first = entries[i];
+                KeyboardShortcutEntry* first = entries[i];
                 for (size_t j = i + 1; j < entries.size(); j++) {
-                    Entry& second = entries[j];
-                    if (first.conflictsWith(second)) {
-                        first.setConflicts(true);
-                        second.setConflicts(true);
+                    KeyboardShortcutEntry* second = entries[j];
+                    if (first->updateConflicts(second)) {
+                        second->updateConflicts(first);
                         hasConflicts = true;
                     }
                 }
             }
             return hasConflicts;
-        }
-        
-        void MenuShortcutGridTable::addMenu(Menu& menu, EntryList& entries) const {
-            MenuItem::List& items = menu.items();
-            MenuItem::List::iterator itemIt, itemEnd;
-            for (itemIt = items.begin(), itemEnd = items.end(); itemIt != itemEnd; ++itemIt) {
-                MenuItem& item = **itemIt;
-                switch (item.type()) {
-                    case MenuItem::Type_Action:
-                    case MenuItem::Type_Check: {
-                        ActionMenuItem& actionItem = static_cast<ActionMenuItem&>(item);
-                        entries.push_back(Entry(actionItem.action()));
-                        break;
-                    }
-                    case MenuItem::Type_Menu: {
-                        Menu& subMenu = static_cast<Menu&>(item);
-                        addMenu(subMenu, entries);
-                        break;
-                    }
-                    case MenuItem::Type_Separator:
-                        break;
-                }
-            }
         }
     }
 }

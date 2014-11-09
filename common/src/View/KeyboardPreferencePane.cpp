@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "Preferences.h"
 #include "View/ActionManager.h"
-#include "View/MenuShortcutGridTable.h"
+#include "View/KeyboardShortcutGridTable.h"
 #include "View/ViewConstants.h"
 
 #include <wx/msgdlg.h>
@@ -36,8 +36,8 @@ namespace TrenchBroom {
     namespace View {
         KeyboardPreferencePane::KeyboardPreferencePane(wxWindow* parent) :
         PreferencePane(parent),
-        m_menuShortcutGrid(NULL),
-        m_menuShortcutTable(NULL) {
+        m_grid(NULL),
+        m_table(NULL) {
             wxWindow* menuShortcutGrid = createMenuShortcutGrid();
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
@@ -48,41 +48,41 @@ namespace TrenchBroom {
         }
         
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
-            int width = m_menuShortcutGrid->GetClientSize().x;
-            m_menuShortcutGrid->AutoSizeColumn(0);
-            int colSize = width - m_menuShortcutGrid->GetColSize(0);
+            int width = m_grid->GetClientSize().x;
+            m_grid->AutoSizeColumn(0);
+            m_grid->AutoSizeColumn(1);
+            int colSize = width - m_grid->GetColSize(0) - m_grid->GetColSize(1);
             if (colSize < -1 || colSize == 0)
                 colSize = -1;
-            m_menuShortcutGrid->SetColSize(1, colSize);
+            m_grid->SetColSize(2, colSize);
             event.Skip();
         }
-        
         
         wxWindow* KeyboardPreferencePane::createMenuShortcutGrid() {
             wxPanel* container = new wxPanel(this);
             container->SetBackgroundColour(*wxWHITE);
 
-            m_menuShortcutTable = new MenuShortcutGridTable();
-            m_menuShortcutGrid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-            m_menuShortcutGrid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
+            m_table = new KeyboardShortcutGridTable();
+            m_grid = new wxGrid(container, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+            m_grid->Bind(wxEVT_SIZE, &KeyboardPreferencePane::OnGridSize, this);
             
-            m_menuShortcutGrid->SetTable(m_menuShortcutTable, true, wxGrid::wxGridSelectRows);
-            m_menuShortcutGrid->SetColLabelSize(18);
-            m_menuShortcutGrid->SetDefaultCellBackgroundColour(*wxWHITE);
-            m_menuShortcutGrid->HideRowLabels();
-            m_menuShortcutGrid->SetCellHighlightPenWidth(0);
-            m_menuShortcutGrid->SetCellHighlightROPenWidth(0);
+            m_grid->SetTable(m_table, true, wxGrid::wxGridSelectRows);
+            m_grid->SetColLabelSize(18);
+            m_grid->SetDefaultCellBackgroundColour(*wxWHITE);
+            m_grid->HideRowLabels();
+            m_grid->SetCellHighlightPenWidth(0);
+            m_grid->SetCellHighlightROPenWidth(0);
             
-            m_menuShortcutGrid->DisableColResize(0);
-            m_menuShortcutGrid->DisableColResize(1);
-            m_menuShortcutGrid->DisableColResize(2);
-            m_menuShortcutGrid->DisableDragColMove();
-            m_menuShortcutGrid->DisableDragCell();
-            m_menuShortcutGrid->DisableDragColSize();
-            m_menuShortcutGrid->DisableDragGridSize();
-            m_menuShortcutGrid->DisableDragRowSize();
+            m_grid->DisableColResize(0);
+            m_grid->DisableColResize(1);
+            m_grid->DisableColResize(2);
+            m_grid->DisableDragColMove();
+            m_grid->DisableDragCell();
+            m_grid->DisableDragColSize();
+            m_grid->DisableDragGridSize();
+            m_grid->DisableDragRowSize();
             
-            m_menuShortcutTable->update();
+            m_table->update();
             
             wxStaticText* infoText = new wxStaticText(container, wxID_ANY, "Click twice on a key combination to edit the shortcut. Press delete or backspace to delete a shortcut.");
             infoText->SetBackgroundColour(*wxWHITE);
@@ -91,7 +91,7 @@ namespace TrenchBroom {
 #endif
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_menuShortcutGrid, 1, wxEXPAND);
+            sizer->Add(m_grid, 1, wxEXPAND);
             sizer->AddSpacer(LayoutConstants::WideVMargin);
             sizer->Add(infoText, 0, wxALIGN_CENTER);
             sizer->AddSpacer(LayoutConstants::NarrowVMargin);
@@ -110,12 +110,12 @@ namespace TrenchBroom {
         }
 
         void KeyboardPreferencePane::doUpdateControls() {
-            m_menuShortcutTable->update();
+            m_table->update();
         }
         
         bool KeyboardPreferencePane::doValidate() {
-            m_menuShortcutGrid->SaveEditControlValue();
-            if (m_menuShortcutTable->hasDuplicates()) {
+            m_grid->SaveEditControlValue();
+            if (m_table->hasDuplicates()) {
                 wxMessageBox("Please fix all conflicting shortcuts (highlighted in red).", "Error", wxOK, this);
                 return false;
             }

@@ -126,6 +126,7 @@ namespace TrenchBroom {
         Preference<View::KeyboardShortcut> CameraFlyLeft(IO::Path("Controls/Camera/Move left"), 'A');
         Preference<View::KeyboardShortcut> CameraFlyRight(IO::Path("Controls/Camera/Move right"), 'D');
 
+        /*
         static const View::ViewShortcut ViewActions[] = {
             View::ViewShortcut(View::KeyboardShortcut('C'), View::ActionContext_NodeSelection | View::ActionContext_AnyTool, View::CommandIds::Actions::ToggleClipTool, View::CommandIds::Actions::ToggleClipTool),
             View::ViewShortcut(View::KeyboardShortcut(WXK_RETURN, WXK_CONTROL), View::ActionContext_ClipTool, View::CommandIds::Actions::ToggleClipSide, View::CommandIds::Actions::ToggleClipSide),
@@ -204,5 +205,6 @@ namespace TrenchBroom {
         };
         
         Preference<View::ViewShortcut::List> ViewShortcuts(IO::Path("Controls/Map view"), View::ViewShortcut::List(ViewActions, ViewActions + sizeof(ViewActions) / sizeof(ViewActions[0])));
+         */
     }
 }

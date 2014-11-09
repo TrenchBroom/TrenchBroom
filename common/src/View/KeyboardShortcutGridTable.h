@@ -17,8 +17,8 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MenuShortcutGridTable__
-#define __TrenchBroom__MenuShortcutGridTable__
+#ifndef __TrenchBroom__KeyboardShortcutGridTable__
+#define __TrenchBroom__KeyboardShortcutGridTable__
 
 #include "StringUtils.h"
 
@@ -28,38 +28,19 @@
 
 namespace TrenchBroom {
     namespace View {
+        class KeyboardShortcutEntry;
         class KeyboardGridCellEditor;
-        class KeyboardShortcut;
         class Menu;
-        class MenuAction;
         
-        class MenuShortcutGridTable : public wxGridTableBase {
+        class KeyboardShortcutGridTable : public wxGridTableBase {
         private:
-            class Entry {
-            private:
-                MenuAction* m_action;
-                bool m_conflicts;
-            public:
-                Entry(MenuAction& action);
-                
-                const String caption() const;
-                const wxString shortcut() const;
-                bool modifiable() const;
-                
-                void updateShortcut(const KeyboardShortcut& shortcut);
-                bool conflictsWith(const Entry& entry) const;
-                
-                bool conflicts() const;
-                void setConflicts(bool conflicts);
-            };
-            
-            typedef std::vector<Entry> EntryList;
+            typedef std::vector<KeyboardShortcutEntry*> EntryList;
             
             EntryList m_entries;
             KeyboardGridCellEditor* m_cellEditor;
         public:
-            MenuShortcutGridTable();
-            ~MenuShortcutGridTable();
+            KeyboardShortcutGridTable();
+            ~KeyboardShortcutGridTable();
             
             int GetNumberRows();
             int GetNumberCols();
@@ -84,9 +65,8 @@ namespace TrenchBroom {
             void notifyRowsDeleted(size_t pos = 0, size_t numRows = 1);
             
             bool markConflicts(EntryList& entries);
-            void addMenu(Menu& menu, EntryList& entries) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MenuShortcutGridTable__) */
+#endif /* defined(__TrenchBroom__KeyboardShortcutGridTable__) */

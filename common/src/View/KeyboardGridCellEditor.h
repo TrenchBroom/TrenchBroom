@@ -30,10 +30,9 @@ namespace TrenchBroom {
         private:
             KeyboardShortcutEditor* m_editor;
             wxEvtHandler* m_evtHandler;
-            bool m_requiresModifier;
         public:
             KeyboardGridCellEditor();
-            KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, int key, int modifier1, int modifier2, int modifier3, bool requiresModifier);
+            KeyboardGridCellEditor(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler, int key, int modifier1, int modifier2, int modifier3);
             
             void Create(wxWindow* parent, wxWindowID windowId, wxEvtHandler* evtHandler);
             wxGridCellEditor* Clone() const;

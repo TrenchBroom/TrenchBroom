@@ -22,43 +22,26 @@
 
 #include "Preference.h"
 #include "StringUtils.h"
-#include "View/KeyboardShortcut.h"
-
-#include <wx/accel.h>
-#include <wx/string.h>
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace View {
-        class MenuAction {
+        class Action {
         public:
-            typedef std::vector<MenuAction> List;
+            typedef std::vector<Action> List;
         private:
             int m_id;
             String m_name;
-            Preference<KeyboardShortcut> m_preference;
             bool m_modifiable;
         public:
-            MenuAction(int id, const String& name, const IO::Path& preferencePath, const KeyboardShortcut& defaultShortcut, bool modifiable);
+            Action(); // default constructor required to initialize arrays of Action instances
+            Action(int id, const String& name, bool modifiable);
             
             int id() const;
             const String& name() const;
-            String displayName() const;
             
             bool modifiable() const;
-            bool hasShortcut(const KeyboardShortcut& shortcut) const;
-            
-            wxString shortcutMenuString() const;
-            wxString shortcutDisplayString() const;
-            
-            wxString menuItemString(const wxString& suffix = "") const;
-
-            void updateShortcut(const KeyboardShortcut& shortcut);
-            void resetShortcut();
-            bool conflictsWith(const MenuAction& action) const;
-        private:
-            const KeyboardShortcut& shortcut() const;
         };
     }
 }
