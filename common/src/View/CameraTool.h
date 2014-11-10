@@ -48,8 +48,17 @@ namespace TrenchBroom {
             void doCancelMouseDrag();
             
             bool move(const InputState& inputState) const;
+            bool move2D(const InputState& inputState) const;
+            bool move3D(const InputState& inputState) const;
+            
             bool look(const InputState& inputState) const;
+            bool look2D(const InputState& inputState) const;
+            bool look3D(const InputState& inputState) const;
+            
             bool pan(const InputState& inputState) const;
+            bool pan2D(const InputState& inputState) const;
+            bool pan3D(const InputState& inputState) const;
+            
             bool orbit(const InputState& inputState) const;
             
             float lookSpeedH() const;

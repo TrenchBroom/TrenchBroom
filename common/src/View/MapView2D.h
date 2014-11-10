@@ -40,12 +40,19 @@ namespace TrenchBroom {
     namespace View {
         class FlyModeHelper;
         class MapView2D : public MapViewBase {
+        public:
+            typedef enum {
+                ViewPlane_XY,
+                ViewPlane_XZ,
+                ViewPlane_YZ
+            } ViewPlane;
         private:
             Renderer::OrthographicCamera m_camera;
         public:
-            MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextHolder::Ptr sharedContext);
+            MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, ViewPlane viewPlane, GLContextHolder::Ptr sharedContext);
             ~MapView2D();
-            
+        private:
+            void initializeCamera(ViewPlane viewPlane);
         private: // interaction events
             void bindEvents();
         private: // implement MapViewBase interface

@@ -40,9 +40,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, const GLContextHolder::GLAttribs& attribs) :
+        MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, const InputSource inputSource, const GLContextHolder::GLAttribs& attribs) :
         RenderView(parent, attribs),
-        ToolBoxConnector(this, toolBox),
+        ToolBoxConnector(this, toolBox, inputSource),
         m_logger(logger),
         m_document(document),
         m_toolBox(toolBox),
@@ -53,9 +53,9 @@ namespace TrenchBroom {
             updateAcceleratorTable(HasFocus());
         }
         
-        MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextHolder::Ptr sharedContext) :
+        MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, const InputSource inputSource, GLContextHolder::Ptr sharedContext) :
         RenderView(parent, sharedContext),
-        ToolBoxConnector(this, toolBox),
+        ToolBoxConnector(this, toolBox, inputSource),
         m_logger(logger),
         m_document(document),
         m_toolBox(toolBox),

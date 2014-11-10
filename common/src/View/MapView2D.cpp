@@ -34,22 +34,47 @@
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/Grid.h"
+#include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
-        MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextHolder::Ptr sharedContext) :
-        MapViewBase(parent, logger, document, toolBox, renderer, vbo, sharedContext),
+        InputSource inputSource(MapView2D::ViewPlane viewPlane);
+        InputSource inputSource(const MapView2D::ViewPlane viewPlane) {
+            switch (viewPlane) {
+                case MapView2D::ViewPlane_XY:
+                    return IS_MapViewXY;
+                case MapView2D::ViewPlane_XZ:
+                    return IS_MapViewXZ;
+                case MapView2D::ViewPlane_YZ:
+                    return IS_MapViewYZ;
+            }
+        }
+        
+        MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, const ViewPlane viewPlane, GLContextHolder::Ptr sharedContext) :
+        MapViewBase(parent, logger, document, toolBox, renderer, vbo, inputSource(viewPlane), sharedContext),
         m_camera() {
             bindEvents();
             bindObservers();
+            initializeCamera(viewPlane);
         }
 
         MapView2D::~MapView2D() {
         }
         
+        void MapView2D::initializeCamera(const ViewPlane viewPlane) {
+            switch (viewPlane) {
+                case MapView2D::ViewPlane_XY:
+                    m_camera.setDirection(Vec3f::NegZ, Vec2f::PosY);
+                case MapView2D::ViewPlane_XZ:
+                    m_camera.setDirection(Vec3f::PosY, Vec2f::PosZ);
+                case MapView2D::ViewPlane_YZ:
+                    m_camera.setDirection(Vec3f::NegX, Vec2f::PosZ);
+            }
+        }
+
         void MapView2D::bindEvents() {
             /*
             Bind(wxEVT_KEY_DOWN, &MapView2D::OnKey, this);

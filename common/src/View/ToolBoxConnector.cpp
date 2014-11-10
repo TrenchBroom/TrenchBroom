@@ -23,10 +23,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        ToolBoxConnector::ToolBoxConnector(wxWindow* window, ToolBox& toolBox) :
+        ToolBoxConnector::ToolBoxConnector(wxWindow* window, ToolBox& toolBox, const InputSource inputSource) :
         m_window(window),
         m_toolBox(toolBox),
-        m_inputState(),
+        m_inputState(inputSource),
         m_ignoreNextDrag(false),
         m_clickToActivate(true),
         m_ignoreNextClick(false),
@@ -230,6 +230,8 @@ namespace TrenchBroom {
                 m_toolBox.modifierKeyChange(m_inputState);
             m_window->Refresh();
             m_window->SetCursor(wxCursor(wxCURSOR_ARROW));
+            
+            mouseMoved(m_window->ScreenToClient(wxGetMousePosition()));
             
             // if this focus event happens as a result of a window activation, the don't ignore the next click
             if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))

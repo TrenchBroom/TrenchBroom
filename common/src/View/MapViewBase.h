@@ -23,6 +23,7 @@
 #include "Model/ModelTypes.h"
 #include "View/ActionContext.h"
 #include "View/GLContextHolder.h"
+#include "View/InputState.h"
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
 #include "View/ViewTypes.h"
@@ -58,8 +59,8 @@ namespace TrenchBroom {
             Renderer::Vbo& m_vbo;
             Renderer::MapRenderer& m_renderer;
         protected:
-            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, const GLContextHolder::GLAttribs& attribs);
-            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextHolder::Ptr sharedContext);
+            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, InputSource inputSource, const GLContextHolder::GLAttribs& attribs);
+            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, InputSource inputSource, GLContextHolder::Ptr sharedContext);
         public:
             virtual ~MapViewBase();
         public: // camera control

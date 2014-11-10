@@ -137,22 +137,50 @@ namespace TrenchBroom {
         }
 
         bool CameraTool::move(const InputState& inputState) const {
-            return ((inputState.mouseButtonsPressed(MouseButtons::MBNone) ||
+            return move2D(inputState) || move3D(inputState);
+        }
+
+        bool CameraTool::move2D(const InputState& inputState) const {
+            return false;
+        }
+        
+        bool CameraTool::move3D(const InputState& inputState) const {
+            return (inputState.inputSource() == IS_MapView3D &&
+                    (inputState.mouseButtonsPressed(MouseButtons::MBNone) ||
                      inputState.mouseButtonsPressed(MouseButtons::MBRight)) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKNone));
         }
 
         bool CameraTool::look(const InputState& inputState) const {
-            return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
-                    inputState.modifierKeysPressed(ModifierKeys::MKNone));
+            return look2D(inputState) || look3D(inputState);
         }
         
+        bool CameraTool::look2D(const InputState& inputState) const {
+            return false;
+        }
+        
+        bool CameraTool::look3D(const InputState& inputState) const {
+            return (inputState.inputSource() == IS_MapView3D &&
+                    inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
+                    inputState.modifierKeysPressed(ModifierKeys::MKNone));
+        }
+
         bool CameraTool::pan(const InputState& inputState) const {
-            return (inputState.mouseButtonsPressed(MouseButtons::MBMiddle) &&
+            return pan2D(inputState) || pan3D(inputState);
+        }
+        
+        bool CameraTool::pan2D(const InputState& inputState) const {
+            return (inputState.inputSource() != IS_MapView3D &&
+                    inputState.mouseButtonsPressed(MouseButtons::MBRight));
+        }
+        
+        bool CameraTool::pan3D(const InputState& inputState) const {
+            return (inputState.inputSource() == IS_MapView3D &&
+                    inputState.mouseButtonsPressed(MouseButtons::MBMiddle) &&
                     (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
                      inputState.modifierKeysPressed(ModifierKeys::MKAlt)));
         }
-        
+
         bool CameraTool::orbit(const InputState& inputState) const {
             return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt));

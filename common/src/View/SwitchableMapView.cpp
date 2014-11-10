@@ -117,7 +117,7 @@ namespace TrenchBroom {
             
             m_toolBox = new MapViewToolBox(m_document, m_mapViewBar->toolBook());
             m_mapView3D = new MapView3D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo);
-            m_mapView2D = new MapView2D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_mapView3D->contextHolder());
+            m_mapView2D = new MapView2D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, MapView2D::ViewPlane_XY, m_mapView3D->contextHolder());
             m_currentMapView = m_mapView2D;
             
             switchToMapView(m_mapView3D);

@@ -34,6 +34,7 @@
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/Grid.h"
+#include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
 #include "View/wxUtils.h"
@@ -41,7 +42,7 @@
 namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo) :
-        MapViewBase(parent, logger, document, toolBox, renderer, vbo, buildAttribs()),
+        MapViewBase(parent, logger, document, toolBox, renderer, vbo, IS_MapView3D, buildAttribs()),
         m_camera(),
         m_compass(new Renderer::Compass(toolBox.movementRestriction())),
         m_flyModeHelper(new FlyModeHelper(this, m_camera)) {

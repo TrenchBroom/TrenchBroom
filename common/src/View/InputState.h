@@ -26,6 +26,13 @@
 
 namespace TrenchBroom {
     namespace View {
+        typedef enum {
+            IS_MapView3D,
+            IS_MapViewXY,
+            IS_MapViewXZ,
+            IS_MapViewYZ
+        } InputSource;
+        
         typedef unsigned int ModifierKeyState;
         namespace ModifierKeys {
             static const ModifierKeyState MKNone      = 0;
@@ -62,11 +69,12 @@ namespace TrenchBroom {
             float m_scrollX;
             float m_scrollY;
             
+            InputSource m_inputSource;
             Ray3 m_pickRay;
             Hits m_hits;
         public:
-            InputState();
-            InputState(const int mouseX, const int mouseY);
+            InputState(InputSource inputSource);
+            InputState(InputSource inputSource, const int mouseX, const int mouseY);
             virtual ~InputState();
             
             virtual ModifierKeyState modifierKeys() const;
@@ -95,6 +103,8 @@ namespace TrenchBroom {
             void mouseMove(const int mouseX, const int mouseY, const int mouseDX, const int mouseDY);
             void scroll(const float scrollX, const float scrollY);
 
+            InputSource inputSource() const;
+            
             const Ray3& pickRay() const;
             void setPickRay(const Ray3& pickRay);
 

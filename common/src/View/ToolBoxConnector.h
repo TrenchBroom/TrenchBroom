@@ -48,7 +48,7 @@ namespace TrenchBroom {
             bool m_ignoreNextClick;
             wxDateTime m_lastActivation;
         public:
-            ToolBoxConnector(wxWindow* window, ToolBox& toolBox);
+            ToolBoxConnector(wxWindow* window, ToolBox& toolBox, InputSource inputSource);
             virtual ~ToolBoxConnector();
             
             void setClickToActivate(bool clickToActivate);
