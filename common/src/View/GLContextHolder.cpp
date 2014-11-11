@@ -44,8 +44,8 @@ namespace TrenchBroom {
             return doGetAttribs();
         }
         
-        void GLContextHolder::initialize() {
-            doInitialize();
+        bool GLContextHolder::initialize() {
+            return doInitialize();
         }
 
         Renderer::FontManager& GLContextHolder::fontManager() {
@@ -61,14 +61,20 @@ namespace TrenchBroom {
 
         RootGLContextHolder::RootGLContextHolder(wxGLCanvas* canvas, const GLAttribs& attribs) :
         GLContextHolder(canvas),
-        m_attribs(attribs) {}
+        m_attribs(attribs),
+        m_initialized(false) {}
 
         const GLContextHolder::GLAttribs& RootGLContextHolder::doGetAttribs() const {
             return m_attribs;
         }
         
-        void RootGLContextHolder::doInitialize() {
-            glewInitialize();
+        bool RootGLContextHolder::doInitialize() {
+            if (!m_initialized) {
+                glewInitialize();
+                m_initialized = true;
+                return true;
+            }
+            return false;
         }
 
         Renderer::FontManager& RootGLContextHolder::doGetFontManager() {
@@ -87,8 +93,8 @@ namespace TrenchBroom {
             return m_parent->attribs();
         }
     
-        void SharedGLContextHolder::doInitialize() {
-            m_parent->initialize();
+        bool SharedGLContextHolder::doInitialize() {
+            return m_parent->initialize();
         }
 
         Renderer::FontManager& SharedGLContextHolder::doGetFontManager() {

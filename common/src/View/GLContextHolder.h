@@ -44,7 +44,8 @@ namespace TrenchBroom {
 
             wxGLContext* context() const;
             const GLAttribs& attribs() const;
-            void initialize();
+            
+            bool initialize();
             
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
@@ -55,7 +56,7 @@ namespace TrenchBroom {
             GLContextHolder& operator= (const GLContextHolder& other);
 
             virtual const GLAttribs& doGetAttribs() const = 0;
-            virtual void doInitialize() = 0;
+            virtual bool doInitialize() = 0;
             virtual Renderer::FontManager& doGetFontManager() = 0;
             virtual Renderer::ShaderManager& doGetShaderManager() = 0;
         };
@@ -63,6 +64,7 @@ namespace TrenchBroom {
         class RootGLContextHolder : public GLContextHolder {
         private:
             GLAttribs m_attribs;
+            bool m_initialized;
             Renderer::FontManager m_fontManager;
             Renderer::ShaderManager m_shaderManager;
         public:
@@ -72,7 +74,7 @@ namespace TrenchBroom {
             RootGLContextHolder& operator= (const GLContextHolder& other);
 
             const GLAttribs& doGetAttribs() const;
-            void doInitialize();
+            bool doInitialize();
             Renderer::FontManager& doGetFontManager();
             Renderer::ShaderManager& doGetShaderManager();
         };
@@ -87,7 +89,7 @@ namespace TrenchBroom {
             SharedGLContextHolder& operator= (const GLContextHolder& other);
 
             const GLAttribs& doGetAttribs() const;
-            void doInitialize();
+            bool doInitialize();
             Renderer::FontManager& doGetFontManager();
             Renderer::ShaderManager& doGetShaderManager();
         };

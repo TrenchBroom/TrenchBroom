@@ -46,9 +46,9 @@ namespace TrenchBroom {
         m_mapRenderer(NULL),
         m_vbo(NULL),
         m_mapViewBar(NULL),
-        m_mapView2D(NULL),
-        m_mapView3D(NULL),
         m_currentMapView(NULL) {
+            for (size_t i = 0; i < 4; ++i)
+                m_mapViews[i] = NULL;
             createGui();
             bindEvents();
         }
@@ -69,7 +69,7 @@ namespace TrenchBroom {
 
         Vec3 SwitchableMapView::pasteObjectsDelta(const BBox3& bounds) const {
             MapDocumentSPtr document = lock(m_document);
-            const Renderer::Camera* camera = m_mapView3D->camera();
+            const Renderer::Camera* camera = m_currentMapView->camera();
             const Grid& grid = document->grid();
 
             const wxMouseState mouseState = wxGetMouseState();
@@ -96,18 +96,18 @@ namespace TrenchBroom {
         }
         
         void SwitchableMapView::centerCameraOnSelection() {
-            m_mapView2D->centerCameraOnSelection();
-            m_mapView3D->centerCameraOnSelection();
+            for (size_t i = 0; i < 4; ++i)
+                m_mapViews[i]->centerCameraOnSelection();
         }
         
         void SwitchableMapView::moveCameraToPosition(const Vec3& position) {
-            m_mapView2D->moveCameraToPosition(position);
-            m_mapView3D->moveCameraToPosition(position);
+            for (size_t i = 0; i < 4; ++i)
+                m_mapViews[i]->moveCameraToPosition(position);
         }
         
         void SwitchableMapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
-            m_mapView2D->animateCamera(position, direction, up, duration);
-            m_mapView3D->animateCamera(position, direction, up, duration);
+            for (size_t i = 0; i < 4; ++i)
+                m_mapViews[i]->animateCamera(position, direction, up, duration);
         }
 
         void SwitchableMapView::createGui() {
@@ -116,11 +116,15 @@ namespace TrenchBroom {
             m_mapViewBar = new MapViewBar(this, m_document);
             
             m_toolBox = new MapViewToolBox(m_document, m_mapViewBar->toolBook());
-            m_mapView3D = new MapView3D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo);
-            m_mapView2D = new MapView2D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, MapView2D::ViewPlane_XY, m_mapView3D->contextHolder());
-            m_currentMapView = m_mapView2D;
+            m_mapViews[0] = new MapView3D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo);
+            m_mapViews[1] = new MapView2D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, MapView2D::ViewPlane_XY, m_mapViews[0]->contextHolder());
+            m_mapViews[2] = new MapView2D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, MapView2D::ViewPlane_XZ, m_mapViews[0]->contextHolder());
+            m_mapViews[3] = new MapView2D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, MapView2D::ViewPlane_YZ, m_mapViews[0]->contextHolder());
             
-            switchToMapView(m_mapView3D);
+            for (size_t i = 0; i < 4; ++i)
+                m_mapViews[i]->Hide();
+            
+            switchToMapView(m_mapViews[0]);
         }
 
         void SwitchableMapView::bindEvents() {
@@ -141,14 +145,17 @@ namespace TrenchBroom {
         }
 
         void SwitchableMapView::OnCycleMapView(wxCommandEvent& event) {
-            if (m_currentMapView == m_mapView2D)
-                switchToMapView(m_mapView3D);
-            else
-                switchToMapView(m_mapView2D);
+            for (size_t i = 0; i < 4; ++i) {
+                if (m_currentMapView == m_mapViews[i]) {
+                    switchToMapView(m_mapViews[Math::succ(i, 4)]);
+                    break;
+                }
+            }
         }
 
         void SwitchableMapView::switchToMapView(MapViewBase* mapView) {
-            m_currentMapView->Hide();
+            if (m_currentMapView != NULL)
+                m_currentMapView->Hide();
             m_currentMapView = mapView;
             m_currentMapView->Show();
             m_toolBox->setCamera(m_currentMapView->camera());

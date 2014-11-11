@@ -613,18 +613,20 @@ namespace TrenchBroom {
             m_animationManager->runAnimation(animation, true);
         }
         
-        void MapViewBase::doInitializeGL() {
-            const wxString vendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
-            const wxString renderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
-            const wxString version  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-            
-            m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", renderer, version, vendor));
-            m_logger->info("Depth buffer bits: %d", depthBits());
-            
-            if (multisample())
-                m_logger->info("Multisampling enabled");
-            else
-                m_logger->info("Multisampling disabled");
+        void MapViewBase::doInitializeGL(const bool firstInitialization) {
+            if (firstInitialization) {
+                const wxString vendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+                const wxString renderer = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+                const wxString version  = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+                
+                m_logger->info(wxString::Format(L"Renderer info: %s version %s from %s", renderer, version, vendor));
+                m_logger->info("Depth buffer bits: %d", depthBits());
+                
+                if (multisample())
+                    m_logger->info("Multisampling enabled");
+                else
+                    m_logger->info("Multisampling disabled");
+            }
         }
         
         void MapViewBase::doUpdateViewport(const int x, const int y, const int width, const int height) {
@@ -662,7 +664,7 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::setupGL(Renderer::RenderContext& context) {
-            const Renderer::Camera::Viewport& viewport = context.camera().viewport();
+            const Renderer::Camera::Viewport& viewport = context.camera().unzoomedViewport();
             glViewport(viewport.x, viewport.y, viewport.width, viewport.height);
             
             glEnable(GL_MULTISAMPLE);

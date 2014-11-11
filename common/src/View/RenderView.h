@@ -62,7 +62,7 @@ namespace TrenchBroom {
             void clearBackground();
             void renderFocusIndicator();
         private:
-            virtual void doInitializeGL();
+            virtual void doInitializeGL(bool firstInitialization);
             virtual void doUpdateViewport(int x, int y, int width, int height);
             virtual bool doShouldRenderFocusIndicator() const = 0;
             virtual void doRender() = 0;

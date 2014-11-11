@@ -67,11 +67,14 @@ namespace TrenchBroom {
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
             switch (viewPlane) {
                 case MapView2D::ViewPlane_XY:
-                    m_camera.setDirection(Vec3f::NegZ, Vec2f::PosY);
+                    m_camera.setDirection(Vec3f::NegZ, Vec3f::PosY);
+                    break;
                 case MapView2D::ViewPlane_XZ:
-                    m_camera.setDirection(Vec3f::PosY, Vec2f::PosZ);
+                    m_camera.setDirection(Vec3f::PosY, Vec3f::PosZ);
+                    break;
                 case MapView2D::ViewPlane_YZ:
-                    m_camera.setDirection(Vec3f::NegX, Vec2f::PosZ);
+                    m_camera.setDirection(Vec3f::NegX, Vec3f::PosZ);
+                    break;
             }
         }
 

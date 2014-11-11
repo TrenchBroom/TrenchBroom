@@ -105,8 +105,8 @@ namespace TrenchBroom {
 
         void RenderView::initializeGL() {
             if (m_contextHolder->setCurrent(this)) {
-                m_contextHolder->initialize();
-                doInitializeGL();
+                const bool wasInitialized = m_contextHolder->initialize();
+                doInitializeGL(wasInitialized);
                 GL_CHECK_ERROR()
             }
             m_initialized = true;
@@ -187,7 +187,7 @@ namespace TrenchBroom {
             glEnable(GL_DEPTH_TEST);
         }
 
-        void RenderView::doInitializeGL() {}
+        void RenderView::doInitializeGL(const bool firstInitialization) {}
 
         void RenderView::doUpdateViewport(const int x, const int y, const int width, const int height) {}
     }

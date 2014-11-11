@@ -28,6 +28,7 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "Renderer/Camera.h"
+#include "Renderer/OrthographicCamera.h"
 
 #include <iostream>
 
@@ -77,6 +78,13 @@ namespace TrenchBroom {
                 const Vec3f moveDirection = prefs.get(Preferences::CameraMoveInCursorDir) ? Vec3f(inputState.pickRay().direction) : m_camera->direction();
                 const float distance = inputState.scrollY() * moveSpeed(false);
                 m_camera->moveBy(distance * moveDirection);
+            } else if (zoom(inputState)) {
+                const float speed = 1.0f;
+                if (inputState.scrollY() != 0.0f) {
+                    const Vec2f factors = Vec2f::One * (1.0f + inputState.scrollY() / 50.0f * speed);
+                    Renderer::OrthographicCamera* orthoCam = static_cast<Renderer::OrthographicCamera*>(m_camera);
+                    orthoCam->zoom(factors);
+                }
             }
         }
 
@@ -148,6 +156,12 @@ namespace TrenchBroom {
             return (inputState.inputSource() == IS_MapView3D &&
                     (inputState.mouseButtonsPressed(MouseButtons::MBNone) ||
                      inputState.mouseButtonsPressed(MouseButtons::MBRight)) &&
+                    inputState.modifierKeysPressed(ModifierKeys::MKNone));
+        }
+
+        bool CameraTool::zoom(const InputState& inputState) const {
+            return (inputState.inputSource() != IS_MapView3D &&
+                    inputState.mouseButtonsPressed(MouseButtons::MBNone) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKNone));
         }
 

@@ -52,8 +52,7 @@ namespace TrenchBroom {
             Renderer::MapRenderer* m_mapRenderer;
             Renderer::Vbo* m_vbo;
             MapViewBar* m_mapViewBar;
-            MapView2D* m_mapView2D;
-            MapView3D* m_mapView3D;
+            MapViewBase* m_mapViews[4];
             MapViewBase* m_currentMapView;
         public:
             SwitchableMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document);

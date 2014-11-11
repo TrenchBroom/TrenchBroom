@@ -57,7 +57,8 @@ namespace TrenchBroom {
         }
         
         void PerspectiveCamera::doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const {
-            projectionMatrix = perspectiveMatrix(fov(), nearPlane(), farPlane(), viewport().width, viewport().height);
+            const Viewport& viewport = unzoomedViewport();
+            projectionMatrix = perspectiveMatrix(fov(), nearPlane(), farPlane(), viewport.width, viewport.height);
             viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
         }
         
@@ -135,8 +136,9 @@ namespace TrenchBroom {
         }
 
         Vec2f PerspectiveCamera::getFrustum() const {
+            const Viewport& viewport = unzoomedViewport();
             const float v = std::tan(Math::radians(fov()) / 2.0f) * 0.75f * nearPlane();
-            const float h = v * static_cast<float>(viewport().width) / static_cast<float>(viewport().height);
+            const float h = v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
             return Vec2f(h, v);
         }
     }

@@ -146,7 +146,7 @@ namespace TrenchBroom {
         private: // misc
             void flashSelection();
         private: // implement RenderView
-            void doInitializeGL();
+            void doInitializeGL(bool firstInitialization);
             void doUpdateViewport(int x, int y, int width, int height);
             bool doShouldRenderFocusIndicator() const;
             void doRender();

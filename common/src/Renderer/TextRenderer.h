@@ -164,7 +164,7 @@ namespace TrenchBroom {
                 }
                 
                 void doRender(RenderContext& renderContext) {
-                    const Camera::Viewport& viewport = renderContext.camera().viewport();
+                    const Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
                     const Mat4x4f projection = orthoMatrix(0.0f, 1.0f,
                                                            static_cast<float>(viewport.x),
                                                            static_cast<float>(viewport.height),
@@ -433,8 +433,9 @@ namespace TrenchBroom {
             }
             
             bool entryVisible(RenderContext& renderContext, const TextRendererFilter& filter, const Key& key, const PreparedEntry& entry) const {
-                const float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
+                return true;
                 
+                const float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
                 if (filter.stringVisible(renderContext, key)) {
                     const TextAnchor::Ptr anchor = entry.anchor();
                     const Vec3f position = anchor->position();

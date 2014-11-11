@@ -51,10 +51,40 @@ namespace TrenchBroom {
             return m_farPlane;
         }
         
-        const Camera::Viewport& Camera::viewport() const {
-            return m_viewport;
+        const Camera::Viewport& Camera::unzoomedViewport() const {
+            return m_unzoomedViewport;
+        }
+        
+        const Camera::Viewport& Camera::zoomedViewport() const {
+            return m_zoomedViewport;
         }
 
+        const Vec2f& Camera::zoom() const {
+            return m_zoom;
+        }
+        
+        void Camera::zoom(const Vec2f& factors) {
+            assert(factors.x() > 0.0f && factors.y() > 0.0f);
+            if (factors == Vec2f::One)
+                return;
+            m_zoom *= factors;
+            setZoom(m_zoom * factors);
+        }
+        
+        void Camera::setZoom(const float zoom) {
+            setZoom(Vec2f(zoom, zoom));
+        }
+        
+        void Camera::setZoom(const Vec2f& zoom) {
+            assert(zoom.x() > 0.0f && zoom.y() > 0.0f);
+            if (zoom == m_zoom)
+                return;
+            m_zoom = zoom;
+            updateZoomedViewport();
+            m_valid = false;
+            cameraDidChangeNotifier(this);
+        }
+        
         const Vec3f& Camera::position() const {
             return m_position;
         }
@@ -151,8 +181,8 @@ namespace TrenchBroom {
                 validateMatrices();
             
             Vec3f win = m_matrix * point;
-            win[0] = m_viewport.x + m_viewport.width *(win.x() + 1.0f)/2.0f;
-            win[1] = m_viewport.y + m_viewport.height*(win.y() + 1.0f)/2.0f;
+            win[0] = m_unzoomedViewport.x + m_unzoomedViewport.width *(win.x() + 1.0f)/2.0f;
+            win[1] = m_unzoomedViewport.y + m_unzoomedViewport.height*(win.y() + 1.0f)/2.0f;
             win[2] = (win.z() + 1.0f)/2.0f;
             return win;
         }
@@ -162,8 +192,8 @@ namespace TrenchBroom {
                 validateMatrices();
             
             Vec3f normalized;
-            normalized[0] = 2.0f*(x - m_viewport.x)/m_viewport.width - 1.0f;
-            normalized[1] = 2.0f*(m_viewport.height - y - m_viewport.y)/m_viewport.height - 1.0f;
+            normalized[0] = 2.0f*(x - m_unzoomedViewport.x)/m_unzoomedViewport.width - 1.0f;
+            normalized[1] = 2.0f*(m_unzoomedViewport.height - y - m_unzoomedViewport.y)/m_unzoomedViewport.height - 1.0f;
             normalized[2] = 2.0f*depth - 1.0f;
             
             return m_invertedMatrix * normalized;
@@ -188,9 +218,10 @@ namespace TrenchBroom {
         }
         
         void Camera::setViewport(const Viewport& viewport) {
-            if (viewport == m_viewport)
+            if (viewport == m_unzoomedViewport)
                 return;
-            m_viewport = viewport;
+            m_unzoomedViewport = viewport;
+            updateZoomedViewport();
             m_valid = false;
         }
 
@@ -289,16 +320,19 @@ namespace TrenchBroom {
         Camera::Camera() :
         m_nearPlane(1.0f),
         m_farPlane(8000.0f),
-        m_viewport(Viewport(0, 0, 1024, 768)),
+        m_zoomedViewport(Viewport(0, 0, 1024, 768)),
+        m_zoom(Vec2f::One),
         m_position(Vec3f::Null),
         m_valid(false) {
             setDirection(Vec3f::PosX, Vec3f::PosZ);
+            updateZoomedViewport();
         }
         
         Camera::Camera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up) :
         m_nearPlane(nearPlane),
         m_farPlane(farPlane),
-        m_viewport(viewport),
+        m_zoomedViewport(viewport),
+        m_zoom(Vec2f::One),
         m_position(position),
         m_valid(false) {
             assert(m_nearPlane >= 0.0f);
@@ -306,8 +340,9 @@ namespace TrenchBroom {
             assert(Math::eq(direction.length(), 1.0f));
             assert(Math::eq(up.length(), 1.0f));
             setDirection(direction, up);
+            updateZoomedViewport();
         }
-        
+
         void Camera::validateMatrices() const {
             doValidateMatrices(m_projectionMatrix, m_viewMatrix);
             m_matrix = m_projectionMatrix * m_viewMatrix;
@@ -316,6 +351,12 @@ namespace TrenchBroom {
             m_invertedMatrix = invertedMatrix(m_matrix, invertible);
             assert(invertible);
             m_valid = true;
+        }
+
+        void Camera::updateZoomedViewport() {
+            m_zoomedViewport = Viewport(m_unzoomedViewport.x, m_unzoomedViewport.y,
+                                        static_cast<int>(Math::round(m_unzoomedViewport.width / m_zoom.x())),
+                                        static_cast<int>(Math::round(m_unzoomedViewport.height / m_zoom.y())));
         }
     }
 }

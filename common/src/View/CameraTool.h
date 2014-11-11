@@ -50,6 +50,7 @@ namespace TrenchBroom {
             bool move(const InputState& inputState) const;
             bool move2D(const InputState& inputState) const;
             bool move3D(const InputState& inputState) const;
+            bool zoom(const InputState& inputState) const;
             
             bool look(const InputState& inputState) const;
             bool look2D(const InputState& inputState) const;

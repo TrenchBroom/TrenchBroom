@@ -46,7 +46,9 @@ namespace TrenchBroom {
             
             float m_nearPlane;
             float m_farPlane;
-            Viewport m_viewport;
+            Viewport m_unzoomedViewport;
+            Viewport m_zoomedViewport;
+            Vec2f m_zoom;
             Vec3f m_position;
             Vec3f m_direction;
             Vec3f m_up;
@@ -65,7 +67,12 @@ namespace TrenchBroom {
             
             float nearPlane() const;
             float farPlane() const;
-            const Viewport& viewport() const;
+            const Viewport& unzoomedViewport() const;
+            const Viewport& zoomedViewport() const;
+            const Vec2f& zoom() const;
+            void zoom(const Vec2f& factors);
+            void setZoom(float zoom);
+            void setZoom(const Vec2f& zoom);
             const Vec3f& direction() const;
             const Vec3f& position() const;
             const Vec3f& up() const;
@@ -104,6 +111,7 @@ namespace TrenchBroom {
             Camera(float nearPlane, float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
         private:
             void validateMatrices() const;
+            void updateZoomedViewport();
             
             virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const = 0;
             virtual Ray3f doGetPickRay(int x, int y) const = 0;

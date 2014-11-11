@@ -27,16 +27,9 @@
 namespace TrenchBroom {
     namespace Renderer {
         class OrthographicCamera : public Camera {
-        private:
-            Vec2f m_zoom;
         public:
             OrthographicCamera();
             OrthographicCamera(const float nearPlane, const float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
-            
-            const Vec2f& zoom() const;
-            void setZoom(float zoom);
-            void setZoom(const Vec2f& zoom);
-            void zoom(const Vec2f& factors);
             
             Vec3::List viewportVertices() const;
         private:

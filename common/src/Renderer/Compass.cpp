@@ -68,8 +68,9 @@ namespace TrenchBroom {
         void Compass::doRender(RenderContext& renderContext) {
             glClear(GL_DEPTH_BUFFER_BIT);
             
-            const int viewWidth = renderContext.camera().viewport().width;
-            const int viewHeight = renderContext.camera().viewport().height;
+            const Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
+            const int viewWidth = viewport.width;
+            const int viewHeight = viewport.height;
             
             const Mat4x4f projection = orthoMatrix(0.0f, 1000.0f, -viewWidth / 2.0f, viewHeight / 2.0f, viewWidth / 2.0f, -viewHeight / 2.0f);
             const Mat4x4f view = viewMatrix(Vec3f::PosY, Vec3f::PosZ) * translationMatrix(500.0f * Vec3f::PosY);
