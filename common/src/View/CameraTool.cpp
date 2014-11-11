@@ -81,9 +81,16 @@ namespace TrenchBroom {
             } else if (zoom(inputState)) {
                 const float speed = 1.0f;
                 if (inputState.scrollY() != 0.0f) {
+                    const Vec2f mousePos(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()));
+                    const Vec3f oldWorldPos = m_camera->unproject(mousePos.x(), mousePos.y(), 0.0f);
+                    
                     const Vec2f factors = Vec2f::One * (1.0f + inputState.scrollY() / 50.0f * speed);
                     Renderer::OrthographicCamera* orthoCam = static_cast<Renderer::OrthographicCamera*>(m_camera);
                     orthoCam->zoom(factors);
+
+                    const Vec3f newWorldPos = m_camera->unproject(mousePos.x(), mousePos.y(), 0.0f);
+                    const Vec3f delta = newWorldPos - oldWorldPos;
+                    m_camera->moveBy(-delta);
                 }
             }
         }
@@ -100,7 +107,11 @@ namespace TrenchBroom {
                 return true;
             } else if (look(inputState)) {
                 return true;
-            } else if (pan(inputState)) {
+            } else if (pan3D(inputState)) {
+                return true;
+            } else if (pan2D(inputState)) {
+                m_lastMousePos = Vec2f(static_cast<float>(inputState.mouseX()),
+                                       static_cast<float>(inputState.mouseY()));
                 return true;
             }
             return false;
@@ -119,7 +130,7 @@ namespace TrenchBroom {
                 const float vAngle = inputState.mouseDY() * lookSpeedV();
                 m_camera->rotate(hAngle, vAngle);
                 return true;
-            } else if (pan(inputState)) {
+            } else if (pan3D(inputState)) {
                 PreferenceManager& prefs = PreferenceManager::instance();
                 const bool altMove = prefs.get(Preferences::CameraEnableAltMove);
                 Vec3f delta;
@@ -131,6 +142,14 @@ namespace TrenchBroom {
                     delta += inputState.mouseDY() * panSpeedV() * m_camera->up();
                 }
                 m_camera->moveBy(delta);
+                return true;
+            } else if (pan2D(inputState)) {
+                const Vec2f currentMousePos(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()));
+                const Vec3f lastWorldPos = m_camera->unproject(m_lastMousePos.x(), m_lastMousePos.y(), 0.0f);
+                const Vec3f currentWorldPos = m_camera->unproject(currentMousePos.x(), currentMousePos.y(), 0.0f);
+                const Vec3f delta = currentWorldPos - lastWorldPos;
+                m_camera->moveBy(-delta);
+                m_lastMousePos = currentMousePos;
                 return true;
             }
             return false;

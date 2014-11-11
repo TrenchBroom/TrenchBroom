@@ -36,6 +36,7 @@ namespace TrenchBroom {
             Renderer::Camera* m_camera;
             bool m_orbit;
             Vec3f m_orbitCenter;
+            Vec2f m_lastMousePos;
         public:
             CameraTool(MapDocumentWPtr document);
             void setCamera(Renderer::Camera* camera);
