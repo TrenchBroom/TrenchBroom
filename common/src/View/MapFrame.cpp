@@ -496,25 +496,11 @@ namespace TrenchBroom {
         }
         
         void MapFrame::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {
-            assert(m_document->isPointFileLoaded());
-            
-            Model::PointFile* pointFile = m_document->pointFile();
-            assert(pointFile->hasNextPoint());
-            
-            const Vec3f position = pointFile->nextPoint() + Vec3f(0.0f, 0.0f, 16.0f);
-            const Vec3f direction = pointFile->currentDirection();
-            m_mapView->animateCamera(position, direction, Vec3f::PosZ);
+            m_mapView->moveCameraToNextTracePoint();
         }
         
         void MapFrame::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
-            assert(m_document->isPointFileLoaded());
-            
-            Model::PointFile* pointFile = m_document->pointFile();
-            assert(pointFile->hasPreviousPoint());
-            
-            const Vec3f position = pointFile->previousPoint() + Vec3f(0.0f, 0.0f, 16.0f);
-            const Vec3f direction = pointFile->currentDirection();
-            m_mapView->animateCamera(position, direction, Vec3f::PosZ);
+            m_mapView->moveCameraToPreviousTracePoint();
         }
         
         void MapFrame::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
@@ -665,10 +651,10 @@ namespace TrenchBroom {
                     event.Check(m_document->grid().size() == 8);
                     break;
                 case CommandIds::Menu::ViewMoveCameraToNextPoint:
-                    event.Enable(m_document->isPointFileLoaded() && m_document->pointFile()->hasNextPoint());
+                    event.Enable(m_mapView->canMoveCameraToNextTracePoint());
                     break;
                 case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
-                    event.Enable(m_document->isPointFileLoaded() && m_document->pointFile()->hasPreviousPoint());
+                    event.Enable(m_mapView->canMoveCameraToPreviousTracePoint());
                     break;
                 case CommandIds::Menu::ViewCenterCameraOnSelection:
                     event.Enable(m_document->hasSelectedNodes());

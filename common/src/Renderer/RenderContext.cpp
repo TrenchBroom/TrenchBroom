@@ -23,7 +23,8 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderContext::RenderContext(const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager) :
+        RenderContext::RenderContext(const RenderMode renderMode, const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager) :
+        m_renderMode(renderMode),
         m_camera(camera),
         m_transformation(m_camera.projectionMatrix(), m_camera.viewMatrix()),
         m_fontManager(fontManager),
@@ -65,7 +66,7 @@ namespace TrenchBroom {
         }
         
         bool RenderContext::showFaces() const {
-            return m_showFaces;
+            return m_renderMode == RenderMode_3D && m_showFaces;
         }
         
         bool RenderContext::showEdges() const {

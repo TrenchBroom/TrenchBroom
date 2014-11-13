@@ -433,14 +433,15 @@ namespace TrenchBroom {
             }
             
             bool entryVisible(RenderContext& renderContext, const TextRendererFilter& filter, const Key& key, const PreparedEntry& entry) const {
-                return true;
                 
-                const float cutoff = (m_fadeDistance + 100) * (m_fadeDistance + 100);
                 if (filter.stringVisible(renderContext, key)) {
+                    const Camera& camera = renderContext.camera();
+                    const Camera::Viewport& viewport = camera.unzoomedViewport();
+                    
                     const TextAnchor::Ptr anchor = entry.anchor();
-                    const Vec3f position = anchor->position();
-                    const float dist2 = renderContext.camera().squaredDistanceTo(position);
-                    if (dist2 <= cutoff)
+                    const Vec2f offset = Vec2f(anchor->offset(camera, entry.size())) - Vec2f(m_hInset, m_vInset);
+                    const Vec2f size = entry.size() + 2.0f * Vec2f(m_hInset, m_vInset);
+                    if (viewport.contains(offset.x(), offset.y(), size.x(), size.y()))
                         return true;
                 }
                 return false;

@@ -62,7 +62,11 @@ namespace TrenchBroom {
 
             void centerCameraOnSelection();
             void moveCameraToPosition(const Vec3& position);
-            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
+            
+            bool canMoveCameraToNextTracePoint() const;
+            bool canMoveCameraToPreviousTracePoint() const;
+            void moveCameraToNextTracePoint();
+            void moveCameraToPreviousTracePoint();
         private:
             void createGui();
         private:

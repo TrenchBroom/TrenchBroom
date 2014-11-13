@@ -35,6 +35,11 @@ namespace TrenchBroom {
         class ShaderManager;
         
         class RenderContext {
+        public:
+            typedef enum {
+                RenderMode_3D,
+                RenderMode_2D
+            } RenderMode;
         private:
             typedef enum {
                 ShowSelectionGuide_Show,
@@ -44,6 +49,7 @@ namespace TrenchBroom {
             } ShowSelectionGuide;
             
             // general context for any rendering view
+            RenderMode m_renderMode;
             const Camera& m_camera;
             Transformation m_transformation;
             FontManager& m_fontManager;
@@ -71,7 +77,7 @@ namespace TrenchBroom {
             ShowSelectionGuide m_showSelectionGuide;
             bool m_showMouseIndicators;
         public:
-            RenderContext(const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager);
+            RenderContext(RenderMode renderMode, const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager);
             
             const Camera& camera() const;
             Transformation& transformation();

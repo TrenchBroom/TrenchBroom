@@ -19,14 +19,8 @@
 
 #include "MapView2D.h"
 #include "Logger.h"
-#include "Model/Brush.h"
-#include "Model/BrushVertex.h"
-#include "Model/Entity.h"
-#include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
-#include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/Vbo.h"
 #include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
@@ -34,7 +28,6 @@
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/Grid.h"
-#include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
 #include "View/wxUtils.h"
@@ -111,6 +104,24 @@ namespace TrenchBroom {
             return &m_camera;
         }
         
+        void MapView2D::doCenterCameraOnSelection() {
+            const MapDocumentSPtr document = lock(m_document);
+            assert(!document->selectedNodes().empty());
+
+            const BBox3& bounds = document->selectionBounds();
+            moveCameraToPosition(bounds.center());
+        }
+
+        void MapView2D::doMoveCameraToPosition(const Vec3& point) {
+            animateCamera(Vec3f(point), m_camera.direction(), m_camera.up());
+        }
+
+        void MapView2D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
+            const Vec3f actualPosition = position.dot(m_camera.up()) * m_camera.up() + position.dot(m_camera.right()) * m_camera.right();
+            CameraAnimation* animation = new CameraAnimation(m_camera, actualPosition, m_camera.direction(), m_camera.up(), duration);
+            m_animationManager->runAnimation(animation, true);
+        }
+
         ActionContext MapView2D::doGetActionContext() const {
             return ActionContext_Default;
         }
@@ -124,6 +135,10 @@ namespace TrenchBroom {
             return false;
         }
         
+        Renderer::RenderContext MapView2D::doCreateRenderContext() const {
+            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, contextHolder()->fontManager(), contextHolder()->shaderManager());
+        }
+
         void MapView2D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);
         }

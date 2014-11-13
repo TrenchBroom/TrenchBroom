@@ -23,6 +23,7 @@
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
 #include "Model/ModelHitFilters.h"
+#include "Model/PointFile.h"
 #include "Renderer/Camera.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/Vbo.h"
@@ -96,18 +97,47 @@ namespace TrenchBroom {
         }
         
         void SwitchableMapView::centerCameraOnSelection() {
-            for (size_t i = 0; i < 4; ++i)
-                m_mapViews[i]->centerCameraOnSelection();
+            m_currentMapView->centerCameraOnSelection();
         }
         
         void SwitchableMapView::moveCameraToPosition(const Vec3& position) {
-            for (size_t i = 0; i < 4; ++i)
-                m_mapViews[i]->moveCameraToPosition(position);
+            m_currentMapView->moveCameraToPosition(position);
         }
         
-        void SwitchableMapView::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
-            for (size_t i = 0; i < 4; ++i)
-                m_mapViews[i]->animateCamera(position, direction, up, duration);
+        bool SwitchableMapView::canMoveCameraToNextTracePoint() const {
+            if (m_currentMapView != m_mapViews[0])
+                return false;
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->isPointFileLoaded())
+                return false;
+            
+            Model::PointFile* pointFile = document->pointFile();
+            return pointFile->hasNextPoint();
+        }
+        
+        bool SwitchableMapView::canMoveCameraToPreviousTracePoint() const {
+            if (m_currentMapView != m_mapViews[0])
+                return false;
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->isPointFileLoaded())
+                return false;
+            
+            Model::PointFile* pointFile = document->pointFile();
+            return pointFile->hasPreviousPoint();
+        }
+        
+        void SwitchableMapView::moveCameraToNextTracePoint() {
+            assert(canMoveCameraToNextTracePoint());
+            MapView3D* mapView3D = static_cast<MapView3D*>(m_currentMapView);
+            mapView3D->moveCameraToNextTracePoint();
+        }
+        
+        void SwitchableMapView::moveCameraToPreviousTracePoint() {
+            assert(canMoveCameraToNextTracePoint());
+            MapView3D* mapView3D = static_cast<MapView3D*>(m_currentMapView);
+            mapView3D->moveCameraToPreviousTracePoint();
         }
 
         void SwitchableMapView::createGui() {

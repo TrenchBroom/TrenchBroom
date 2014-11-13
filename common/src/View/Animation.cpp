@@ -59,15 +59,12 @@ namespace TrenchBroom {
         }
         
         bool Animation::step(const wxLongLong delta) {
-            const wxCriticalSectionLocker lock(m_lock);
-            
             m_elapsed = std::min(m_elapsed + delta, m_duration);
             m_progress = m_elapsed.ToDouble() / m_duration.ToDouble();
             return m_elapsed >= m_duration;
         }
         
         void Animation::update() {
-            const wxCriticalSectionLocker lock(m_lock);
             doUpdate(m_progress);
         }
         
@@ -83,57 +80,47 @@ namespace TrenchBroom {
         }
         
         AnimationManager::AnimationManager() :
-        wxThread(wxTHREAD_DETACHED) {
-            Create();
-            Run();
+        m_lastTime(wxGetLocalTimeMillis()) {
+            Start(20);
         }
         
         void AnimationManager::runAnimation(Animation* animation, const bool replace) {
             assert(animation != NULL);
             
-            const wxCriticalSectionLocker lockAnimations(m_lock);
             Animation::List& list = m_animations[animation->type()];
             if (replace)
                 list.clear();
             list.push_back(Animation::Ptr(animation));
         }
         
-        wxThread::ExitCode AnimationManager::Entry() {
-            m_lastTime = wxGetLocalTimeMillis();
-            while (!TestDestroy()) {
-                wxLongLong elapsed = wxGetLocalTimeMillis() - m_lastTime;
-                Animation::List updateAnimations;
-                {
-                    wxCriticalSectionLocker lockAnimations(m_lock);
-                    if (!m_animations.empty()) {
-                        AnimationMap::iterator mapIt = m_animations.begin();
-                        while (mapIt != m_animations.end()) {
-                            Animation::List& list = mapIt->second;
-                            Animation::List::iterator listIt = list.begin();
-                            while (listIt != list.end()) {
-                                Animation::Ptr animation = *listIt;
-                                if (animation->step(elapsed))
-                                    listIt = list.erase(listIt);
-                                updateAnimations.push_back(animation);
-                                if (listIt != list.end())
-                                    ++listIt;
-                            }
-                            
-                            if (list.empty())
-                                m_animations.erase(mapIt++);
-                            else
-                                ++mapIt;
-                        }
+        void AnimationManager::Notify() {
+            const wxLongLong elapsed = wxGetLocalTimeMillis() - m_lastTime;
+            Animation::List updateAnimations;
+            if (!m_animations.empty()) {
+                AnimationMap::iterator mapIt = m_animations.begin();
+                while (mapIt != m_animations.end()) {
+                    Animation::List& list = mapIt->second;
+                    Animation::List::iterator listIt = list.begin();
+                    while (listIt != list.end()) {
+                        Animation::Ptr animation = *listIt;
+                        if (animation->step(elapsed))
+                            listIt = list.erase(listIt);
+                        updateAnimations.push_back(animation);
+                        if (listIt != list.end())
+                            ++listIt;
                     }
+                    
+                    if (list.empty())
+                        m_animations.erase(mapIt++);
+                    else
+                        ++mapIt;
                 }
-                m_lastTime += elapsed;
-                
-                ExecutableEvent::Executable::Ptr executable(new ExecutableAnimation(updateAnimations));
-                if (wxTheApp != NULL)
-                    wxTheApp->QueueEvent(new ExecutableEvent(executable));
-                Sleep(20);
             }
-            return static_cast<wxThread::ExitCode>(0);
+            m_lastTime += elapsed;
+            
+            ExecutableEvent::Executable::Ptr executable(new ExecutableAnimation(updateAnimations));
+            if (wxTheApp != NULL)
+                wxTheApp->QueueEvent(new ExecutableEvent(executable));
         }
     }
 }

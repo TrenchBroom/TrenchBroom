@@ -68,7 +68,7 @@ namespace TrenchBroom {
         
         MapViewBase::~MapViewBase() {
             unbindObservers();
-            m_animationManager->Delete();
+            delete m_animationManager;
         }
         
         Renderer::Camera* MapViewBase::camera() {
@@ -80,106 +80,13 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::centerCameraOnSelection() {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::EntityList& entities = document->selectedNodes().entities();
-            const Model::BrushList& brushes = document->selectedNodes().brushes();
-            assert(!entities.empty() || !brushes.empty());
-            
-            const Vec3 newPosition = centerCameraOnObjectsPosition(entities, brushes);
-            moveCameraToPosition(newPosition);
+            doCenterCameraOnSelection();
         }
         
-        void MapViewBase::moveCameraToPosition(const Vec3& position) {
-            animateCamera(position, camera()->direction(), camera()->up());
+        void MapViewBase::moveCameraToPosition(const Vec3& point) {
+            doMoveCameraToPosition(point);
         }
-        
-        void MapViewBase::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
-            CameraAnimation* animation = new CameraAnimation(*camera(), position, direction, up, duration);
-            m_animationManager->runAnimation(animation, true);
-        }
-        
-        
-        Vec3f MapViewBase::centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes) {
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            Model::BrushList::const_iterator brushIt, brushEnd;
-            
-            float minDist = std::numeric_limits<float>::max();
-            Vec3 center;
-            size_t count = 0;
-            
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity* entity = *entityIt;
-                if (!entity->hasChildren()) {
-                    const Vec3::List vertices = bBoxVertices(entity->bounds());
-                    for (size_t i = 0; i < vertices.size(); ++i) {
-                        const Vec3f vertex(vertices[i]);
-                        const Vec3f toPosition = vertex - camera()->position();
-                        minDist = std::min(minDist, toPosition.dot(camera()->direction()));
-                        center += vertices[i];
-                        ++count;
-                    }
-                }
-            }
-            
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush* brush = *brushIt;
-                const Model::BrushVertexList& vertices = brush->vertices();
-                for (size_t i = 0; i < vertices.size(); ++i) {
-                    const Model::BrushVertex* vertex = vertices[i];
-                    const Vec3f toPosition = Vec3f(vertex->position) - camera()->position();
-                    minDist = std::min(minDist, toPosition.dot(camera()->direction()));
-                    center += vertex->position;
-                    ++count;
-                }
-            }
-            
-            center /= static_cast<FloatType>(count);
-            
-            // act as if the camera were there already:
-            const Vec3f oldPosition = camera()->position();
-            camera()->moveTo(Vec3f(center));
-            
-            float offset = std::numeric_limits<float>::max();
-            
-            Plane3f frustumPlanes[4];
-            camera()->frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
-            
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity* entity = *entityIt;
-                if (!entity->hasChildren()) {
-                    const Vec3::List vertices = bBoxVertices(entity->bounds());
-                    for (size_t i = 0; i < vertices.size(); ++i) {
-                        const Vec3f vertex(vertices[i]);
-                        
-                        for (size_t j = 0; j < 4; ++j) {
-                            const Plane3f& plane = frustumPlanes[j];
-                            const float dist = (vertex - camera()->position()).dot(plane.normal) - 8.0f; // adds a bit of a border
-                            offset = std::min(offset, -dist / camera()->direction().dot(plane.normal));
-                        }
-                    }
-                }
-            }
-            
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush* brush = *brushIt;
-                const Model::BrushVertexList& vertices = brush->vertices();
-                for (size_t i = 0; i < vertices.size(); ++i) {
-                    const Model::BrushVertex* vertex = vertices[i];
-                    
-                    for (size_t j = 0; j < 4; ++j) {
-                        const Plane3f& plane = frustumPlanes[j];
-                        const float dist = (Vec3f(vertex->position) - camera()->position()).dot(plane.normal) - 8.0f; // adds a bit of a border
-                        offset = std::min(offset, -dist / camera()->direction().dot(plane.normal));
-                    }
-                }
-            }
-            
-            // jump back
-            camera()->moveTo(oldPosition);
-            
-            return center + camera()->direction() * offset;
-        }
-        
+
         void MapViewBase::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->commandDoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
@@ -657,7 +564,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
             
-            Renderer::RenderContext renderContext(*camera(), contextHolder()->fontManager(), contextHolder()->shaderManager());
+            Renderer::RenderContext renderContext = doCreateRenderContext();
             renderContext.setShowGrid(grid.visible());
             renderContext.setGridSize(grid.actualSize());
             return renderContext;

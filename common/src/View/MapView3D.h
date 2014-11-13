@@ -51,6 +51,9 @@ namespace TrenchBroom {
         public: // camera control
             bool cameraFlyModeActive() const;
             void toggleCameraFlyMode();
+            
+            void moveCameraToNextTracePoint();
+            void moveCameraToPreviousTracePoint();
         private: // interaction events
             void bindEvents();
             
@@ -73,13 +76,19 @@ namespace TrenchBroom {
         private: // implement MapViewBase interface
             Renderer::Camera* doGetCamera();
             const Renderer::Camera* doGetCamera() const;
+            void doCenterCameraOnSelection();
+            void doMoveCameraToPosition(const Vec3& point);
+            
+            Vec3f centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes);
+            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
+            
             ActionContext doGetActionContext() const;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;
             bool doCancel();
+            Renderer::RenderContext doCreateRenderContext() const;
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-        private:
         private:
             static const GLContextHolder::GLAttribs& buildAttribs();
         };

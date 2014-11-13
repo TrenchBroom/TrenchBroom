@@ -40,6 +40,18 @@ namespace TrenchBroom {
                 Viewport(int i_x, int i_y, int i_width, int i_height);
                 
                 bool operator== (const Viewport& other) const;
+
+                template <typename T>
+                bool contains(const T i_x, const T i_y, const T i_w, const T i_h) const {
+                    return (i_x + i_w >= static_cast<T>(0) && i_x <= static_cast<T>(width) &&
+                            i_y + i_h >= static_cast<T>(0) && i_y <= static_cast<T>(height));
+                }
+                
+                template <typename T>
+                bool contains(const T i_x, const T i_y) const {
+                    return (i_x >= static_cast<T>(0) && i_x <= static_cast<T>(width) &&
+                            i_y >= static_cast<T>(0) && i_y <= static_cast<T>(height));
+                }
             };
         private:
             static const float DefaultPointDistance;

@@ -68,10 +68,8 @@ namespace TrenchBroom {
             const Renderer::Camera* camera() const;
             
             void centerCameraOnSelection();
-            void moveCameraToPosition(const Vec3& position);
-            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
+            void moveCameraToPosition(const Vec3& point);
         private:
-            Vec3f centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes);
         protected:
             void bindObservers();
         private:
@@ -159,9 +157,13 @@ namespace TrenchBroom {
         private: // subclassing intervace
             virtual Renderer::Camera* doGetCamera() = 0;
             virtual const Renderer::Camera* doGetCamera() const = 0;
+            virtual void doCenterCameraOnSelection() = 0;
+            virtual void doMoveCameraToPosition(const Vec3& point) = 0;
+            
             virtual ActionContext doGetActionContext() const = 0;
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;
             virtual bool doCancel() = 0;
+            virtual Renderer::RenderContext doCreateRenderContext() const = 0;
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;

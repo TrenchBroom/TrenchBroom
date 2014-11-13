@@ -27,7 +27,7 @@
 #include <vector>
 
 #include <wx/longlong.h>
-#include <wx/thread.h>
+#include <wx/timer.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -53,8 +53,6 @@ namespace TrenchBroom {
             const wxLongLong m_duration;
             wxLongLong m_elapsed;
             double m_progress;
-            
-            wxCriticalSection m_lock;
         public:
             static Type freeType();
 
@@ -77,18 +75,17 @@ namespace TrenchBroom {
             void execute();
         };
         
-        class AnimationManager : public wxThread {
+        class AnimationManager : public wxTimer {
         private:
             typedef std::map<Animation::Type, Animation::List> AnimationMap;
             
             AnimationMap m_animations;
-            wxCriticalSection m_lock;
             wxLongLong m_lastTime;
         public:
             AnimationManager();
             void runAnimation(Animation* animation, bool replace);
         private:
-            ExitCode Entry();
+            void Notify();
         };
     }
 }

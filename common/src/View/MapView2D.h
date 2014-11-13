@@ -58,9 +58,14 @@ namespace TrenchBroom {
         private: // implement MapViewBase interface
             Renderer::Camera* doGetCamera();
             const Renderer::Camera* doGetCamera() const;
+            void doCenterCameraOnSelection();
+            void doMoveCameraToPosition(const Vec3& point);
+            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
+            
             ActionContext doGetActionContext() const;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;
             bool doCancel();
+            Renderer::RenderContext doCreateRenderContext() const;
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
