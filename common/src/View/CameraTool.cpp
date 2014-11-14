@@ -88,9 +88,11 @@ namespace TrenchBroom {
                     Renderer::OrthographicCamera* orthoCam = static_cast<Renderer::OrthographicCamera*>(m_camera);
                     orthoCam->zoom(factors);
 
-                    const Vec3f newWorldPos = m_camera->unproject(mousePos.x(), mousePos.y(), 0.0f);
-                    const Vec3f delta = newWorldPos - oldWorldPos;
-                    m_camera->moveBy(-delta);
+                    if (inputState.scrollY() > 0.0f) {
+                        const Vec3f newWorldPos = m_camera->unproject(mousePos.x(), mousePos.y(), 0.0f);
+                        const Vec3f delta = newWorldPos - oldWorldPos;
+                        m_camera->moveBy(-delta);
+                    }
                 }
             }
         }
