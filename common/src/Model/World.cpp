@@ -96,8 +96,8 @@ namespace TrenchBroom {
             acceptAndRecurse(visitor);
         }
 
-        Hits World::pick(const Ray3& ray) const {
-            return m_picker.pick(ray);
+        void World::pick(const Ray3& ray, Hits& hits) const {
+            m_picker.pick(ray, hits);
         }
 
         Node* World::doClone(const BBox3& worldBounds) const {

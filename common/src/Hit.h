@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Holder.h"
+#include "SharedPointer.h"
 
 #include <list>
 
@@ -49,8 +50,6 @@ namespace TrenchBroom {
         m_holder(Holder<T>::newHolder(target)),
         m_error(error) {}
         
-        bool operator< (const Hit& other) const;
-        
         template <typename T>
         static Hit hit(const HitType type, const FloatType distance, const Vec3& hitPoint, T target, const FloatType error = 0.0) {
             return Hit(type, distance, hitPoint, target);
@@ -70,13 +69,33 @@ namespace TrenchBroom {
     };
 
     class HitFilter;
+
+    class CompareHits {
+    public:
+        virtual ~CompareHits();
+        int compare(const Hit& lhs, const Hit& rhs) const;
+    private:
+        virtual int doCompare(const Hit& lhs, const Hit& rhs) const = 0;
+    };
+    
+    class CompareHitsByDistance : public CompareHits {
+    private:
+        int doCompare(const Hit& lhs, const Hit& rhs) const;
+    };
     
     class Hits {
     public:
         typedef std::list<Hit> List;
+        typedef std::tr1::shared_ptr<CompareHits> ComparePtr;
     private:
         List m_hits;
+        ComparePtr m_compare;
+        class CompareWrapper;
     public:
+        template <typename Cmp>
+        Hits(const Cmp& compare) : m_compare(new Cmp(compare)) {}
+        Hits();
+        
         bool empty() const;
         size_t size() const;
         
@@ -95,6 +114,8 @@ namespace TrenchBroom {
         List filter(Hit::HitType type) const;
         List filter(const HitFilter& include) const;
     };
+
+    Hits hitsByDistance();
 }
 
 #endif /* defined(__TrenchBroom__Hit__) */

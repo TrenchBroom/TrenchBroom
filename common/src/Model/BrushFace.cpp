@@ -158,6 +158,32 @@ namespace TrenchBroom {
             return fromPlane * bounds.center();
         }
 
+        FloatType BrushFace::area(const Math::Axis::Type axis) const {
+            FloatType c1 = 0.0;
+            FloatType c2 = 0.0;
+            switch (axis) {
+                case Math::Axis::AX:
+                    for (size_t i = 0; i < m_side->vertices.size(); ++i) {
+                        c1 += m_side->vertices[i]->position.y() * m_side->vertices[Math::succ(i, m_side->vertices.size())]->position.z();
+                        c2 += m_side->vertices[i]->position.z() * m_side->vertices[Math::succ(i, m_side->vertices.size())]->position.y();
+                    }
+                    break;
+                case Math::Axis::AY:
+                    for (size_t i = 0; i < m_side->vertices.size(); ++i) {
+                        c1 += m_side->vertices[i]->position.z() * m_side->vertices[Math::succ(i, m_side->vertices.size())]->position.x();
+                        c2 += m_side->vertices[i]->position.x() * m_side->vertices[Math::succ(i, m_side->vertices.size())]->position.z();
+                    }
+                    break;
+                case Math::Axis::AZ:
+                    for (size_t i = 0; i < m_side->vertices.size(); ++i) {
+                        c1 += m_side->vertices[i]->position.x() * m_side->vertices[Math::succ(i, m_side->vertices.size())]->position.y();
+                        c2 += m_side->vertices[i]->position.y() * m_side->vertices[Math::succ(i, m_side->vertices.size())]->position.x();
+                    }
+                    break;
+            };
+            return Math::abs((c1 - c2) / 2.0);
+        }
+
         const BrushFaceAttributes& BrushFace::attribs() const {
             return m_attribs;
         }

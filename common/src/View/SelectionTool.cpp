@@ -41,7 +41,7 @@ namespace TrenchBroom {
                 return false;
             
             if (isFaceClick(inputState)) {
-                const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit, document()->editorContext(), true);
+                const Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     Model::BrushFace* face = Model::hitToFace(hit);
                     if (isMultiClick(inputState)) {
@@ -70,8 +70,7 @@ namespace TrenchBroom {
                     document()->deselectAll();
                 }
             } else {
-                static const Hit::HitType types = Model::Entity::EntityHit | Model::Brush::BrushHit;
-                const Hit& hit = Model::firstHit(inputState.hits(), types, document()->editorContext(), true);
+                const Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     Model::Node* node = Model::hitToNode(hit);
                     if (isMultiClick(inputState)) {
@@ -97,7 +96,7 @@ namespace TrenchBroom {
                 return false;
             
             if (isFaceClick(inputState)) {
-                const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit, document()->editorContext(), true);
+                const Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     Model::BrushFace* face = Model::hitToFace(hit);
                     const Model::Brush* brush = face->brush();
@@ -110,7 +109,7 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit, document()->editorContext(), true);
+                const Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     const Model::Brush* brush = Model::hitToBrush(hit);
                     const Model::Node* container = brush->container();
@@ -138,6 +137,10 @@ namespace TrenchBroom {
 
         bool SelectionTool::isMultiClick(const InputState& inputState) const {
             return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+        }
+
+        const Hit& SelectionTool::firstHit(const InputState& inputState, const Hit::HitType type) const {
+            return Model::firstHit(inputState.hits(), type, document()->editorContext(), true);
         }
 
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {

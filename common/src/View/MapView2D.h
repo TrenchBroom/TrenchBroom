@@ -55,6 +55,8 @@ namespace TrenchBroom {
             void initializeCamera(ViewPlane viewPlane);
         private: // interaction events
             void bindEvents();
+        private: // implement ToolBoxConnector interface
+            Hits doPick(const Ray3& pickRay) const;
         private: // implement MapViewBase interface
             Renderer::Camera* doGetCamera();
             const Renderer::Camera* doGetCamera() const;

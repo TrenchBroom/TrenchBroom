@@ -222,6 +222,12 @@ namespace TrenchBroom {
             event.Skip();
         }
 
+        Hits MapView3D::doPick(const Ray3& pickRay) const {
+            Hits hits = hitsByDistance();
+            lock(m_document)->pick(pickRay, hits);
+            return hits;
+        }
+
         Renderer::Camera* MapView3D::doGetCamera() {
             return &m_camera;
         }

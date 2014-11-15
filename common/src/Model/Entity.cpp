@@ -54,6 +54,20 @@ namespace TrenchBroom {
             return EntityRotationPolicy::getRotation(this);
         }
 
+        FloatType Entity::area(Math::Axis::Type axis) const {
+            const Vec3 size = bounds().size();
+            switch (axis) {
+                case Math::Axis::AX:
+                    return size.y() * size.z();
+                case Math::Axis::AY:
+                    return size.x() * size.z();
+                case Math::Axis::AZ:
+                    return size.y() * size.z();
+                default:
+                    return 0.0;
+            }
+        }
+
         void Entity::setOrigin(const Vec3& origin) {
             addOrUpdateAttribute(AttributeNames::Origin, origin.rounded().asString());
         }

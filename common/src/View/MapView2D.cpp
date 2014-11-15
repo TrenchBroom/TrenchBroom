@@ -19,6 +19,7 @@
 
 #include "MapView2D.h"
 #include "Logger.h"
+#include "Model/CompareHitsBySize.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "View/ActionManager.h"
@@ -96,6 +97,12 @@ namespace TrenchBroom {
             */
         }
 
+        Hits MapView2D::doPick(const Ray3& pickRay) const {
+            Hits hits = Model::hitsBySize(pickRay.direction.firstComponent());
+            lock(m_document)->pick(pickRay, hits);
+            return hits;
+        }
+        
         Renderer::Camera* MapView2D::doGetCamera() {
             return &m_camera;
         }

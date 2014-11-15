@@ -73,6 +73,8 @@ namespace TrenchBroom {
         private: // other events
             void OnKillFocus(wxFocusEvent& event);
             void OnActivateFrame(wxActivateEvent& event);
+        private: // implement ToolBoxConnector interface
+            Hits doPick(const Ray3& pickRay) const;
         private: // implement MapViewBase interface
             Renderer::Camera* doGetCamera();
             const Renderer::Camera* doGetCamera() const;

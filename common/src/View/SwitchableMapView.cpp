@@ -78,7 +78,8 @@ namespace TrenchBroom {
             
             if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
                 const Ray3f pickRay = camera->pickRay(clientCoords.x, clientCoords.y);
-                const Hits& hits = document->pick(Ray3(pickRay));
+                Hits hits = hitsByDistance();
+                document->pick(Ray3(pickRay), hits);
                 const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), true);
                 if (hit.isMatch()) {
                     const Model::BrushFace* face = Model::hitToFace(hit);

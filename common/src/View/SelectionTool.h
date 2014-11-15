@@ -21,6 +21,7 @@
 #define __TrenchBroom__SelectionTool__
 
 #include "View/Tool.h"
+#include "Hit.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -35,6 +36,8 @@ namespace TrenchBroom {
             bool handleClick(const InputState& inputState) const;
             bool isFaceClick(const InputState& inputState) const;
             bool isMultiClick(const InputState& inputState) const;
+            
+            const Hit& firstHit(const InputState& inputState, Hit::HitType type) const;
             
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);

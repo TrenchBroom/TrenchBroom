@@ -240,7 +240,7 @@ namespace TrenchBroom {
         public: // asset state management
             void commitPendingAssets();
         public: // picking
-            Hits pick(const Ray3& pickRay) const;
+            void pick(const Ray3& pickRay, Hits& hits) const;
         private: // world management
             void createWorld(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);

@@ -99,7 +99,8 @@ namespace TrenchBroom {
             const Plane3& boundary() const;
             Vec3 center() const;
             Vec3 boundsCenter() const;
-
+            FloatType area(Math::Axis::Type axis) const;
+            
             const BrushFaceAttributes& attribs() const;
             void setAttribs(const BrushFaceAttributes& attribs);
             

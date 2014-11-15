@@ -58,7 +58,7 @@ namespace TrenchBroom {
         private:
             void updateAllIssues();
         public: // picking
-            Hits pick(const Ray3& ray) const;
+            void pick(const Ray3& ray, Hits& hits) const;
         private: // implement Node interface
             Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;

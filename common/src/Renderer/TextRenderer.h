@@ -63,8 +63,8 @@ namespace TrenchBroom {
         private:
             virtual Vec3f basePosition() const = 0;
             virtual Alignment::Type alignment() const = 0;
-            virtual Vec2f extraOffsets(const Alignment::Type a) const;
-            Vec2f alignmentFactors(const Alignment::Type a) const;
+            virtual Vec2f extraOffsets(Alignment::Type a, const Vec2f& size) const;
+            Vec2f alignmentFactors(Alignment::Type a) const;
         };
         
         class SimpleTextAnchor : public TextAnchor {
@@ -75,7 +75,7 @@ namespace TrenchBroom {
         protected:
             Vec3f basePosition() const;
             Alignment::Type alignment() const;
-            Vec2f extraOffsets(const Alignment::Type a) const;
+            Vec2f extraOffsets(const Alignment::Type a, const Vec2f& size) const;
         public:
             SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment, const Vec2f& extraOffsets = Vec2f::Null);
         };

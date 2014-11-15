@@ -560,9 +560,9 @@ namespace TrenchBroom {
             m_textureManager->commitChanges();
         }
 
-        Hits MapDocument::pick(const Ray3& pickRay) const {
+        void MapDocument::pick(const Ray3& pickRay, Hits& hits) const {
             assert(m_world != NULL);
-            return m_world->pick(pickRay);
+            m_world->pick(pickRay, hits);
         }
 
         void MapDocument::createWorld(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {

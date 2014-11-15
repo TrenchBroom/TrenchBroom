@@ -39,7 +39,8 @@ namespace TrenchBroom {
         }
         
         void SpikeGuideRenderer::add(const Ray3& ray, const FloatType length, View::MapDocumentSPtr document) {
-            const Hits hits = document->pick(ray);
+            Hits hits = hitsByDistance();
+            document->pick(ray, hits);
             const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), false);
             
             if (hit.isMatch()) {

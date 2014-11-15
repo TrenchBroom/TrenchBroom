@@ -17,30 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Picker__
-#define __TrenchBroom__Picker__
+#ifndef __TrenchBroom__CompareHitsBySize__
+#define __TrenchBroom__CompareHitsBySize__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
 #include "Hit.h"
-#include "Model/Octree.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Pickable;
-        
-        class Picker {
+        class CompareHitsBySize : public CompareHits {
         private:
-            Octree<FloatType, Pickable*> m_octree;
+            const Math::Axis::Type m_axis;
+            CompareHitsByDistance m_compareByDistance;
         public:
-            Picker(const BBox<FloatType, 3>& worldBounds);
-            
-            void addObject(Pickable* object);
-            void removeObject(Pickable* object);
-            
-            void pick(const Ray3& ray, Hits& hits) const;
+            CompareHitsBySize(Math::Axis::Type axis);
+        private:
+            int doCompare(const Hit& lhs, const Hit& rhs) const;
+            FloatType getSize(const Hit& hit) const;
         };
+        
+        Hits hitsBySize(Math::Axis::Type axis);
     }
 }
 
-#endif /* defined(__TrenchBroom__Picker__) */
+#endif /* defined(__TrenchBroom__CompareHitsBySize__) */

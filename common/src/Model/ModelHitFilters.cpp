@@ -56,5 +56,16 @@ namespace TrenchBroom {
                 hitFilter = chainHitFilter(SelectionHitFilter(), hitFilter);
             return hits.findFirst(hitFilter, ignoreOccluders);
         }
+        
+        const Hit& smallestHit(const Hits& hits, const Hit::HitType type, const EditorContext& context, const bool ignoreOccluders) {
+            return smallestHit(hits, type, context, ignoreOccluders, false);
+        }
+
+        const Hit& smallestHit(const Hits& hits, const Hit::HitType type, const EditorContext& context, const bool ignoreOccluders, const bool selectedOnly) {
+            HitFilterChain hitFilter = chainHitFilter(TypedHitFilter(type), ContextHitFilter(context));
+            if (selectedOnly)
+                hitFilter = chainHitFilter(SelectionHitFilter(), hitFilter);
+            return hits.findFirst(hitFilter, ignoreOccluders);
+        }
     }
 }

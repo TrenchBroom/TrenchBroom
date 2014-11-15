@@ -584,11 +584,6 @@ namespace TrenchBroom {
             return camera()->pickRay(x, y);
         }
         
-        Hits MapViewBase::doPick(const Ray3& pickRay) const {
-            MapDocumentSPtr document = lock(m_document);
-            return document->pick(pickRay);
-        }
-        
         void MapViewBase::doShowPopupMenu() {
         }
     }

@@ -36,10 +36,6 @@ namespace TrenchBroom {
     
     const Hit Hit::NoHit = Hit(NoType, 0.0, Vec3::Null, false);
     
-    bool Hit::operator< (const Hit& other) const {
-        return m_distance < other.m_distance;
-    }
-    
     bool Hit::isMatch() const {
         return m_type != NoType;
     }
@@ -64,6 +60,30 @@ namespace TrenchBroom {
         return m_error;
     }
 
+    CompareHits::~CompareHits() {}
+    
+    int CompareHits::compare(const Hit& lhs, const Hit& rhs) const {
+        return doCompare(lhs, rhs);
+    }
+
+    int CompareHitsByDistance::doCompare(const Hit& lhs, const Hit& rhs) const {
+        if (lhs.distance() < rhs.distance())
+            return -1;
+        if (lhs.distance() > rhs.distance())
+            return 1;
+        return 0;
+    }
+
+    class Hits::CompareWrapper {
+    private:
+        const CompareHits* m_compare;
+    public:
+        CompareWrapper(const CompareHits* compare) : m_compare(compare) {}
+        bool operator()(const Hit& lhs, const Hit& rhs) const { return m_compare->compare(lhs, rhs) < 0; }
+    };
+    
+    Hits::Hits() {}
+
     bool Hits::empty() const {
         return m_hits.empty();
     }
@@ -73,7 +93,7 @@ namespace TrenchBroom {
     }
 
     void Hits::addHit(const Hit& hit) {
-        List::iterator pos = std::upper_bound(m_hits.begin(), m_hits.end(), hit);
+        List::iterator pos = std::upper_bound(m_hits.begin(), m_hits.end(), hit, CompareWrapper(m_compare.get()));
         m_hits.insert(pos, hit);
     }
     
@@ -146,5 +166,9 @@ namespace TrenchBroom {
                 result.push_back(hit);
         }
         return result;
+    }
+
+    Hits hitsByDistance() {
+        return Hits((CompareHitsByDistance()));
     }
 }

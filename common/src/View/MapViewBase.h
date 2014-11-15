@@ -152,7 +152,6 @@ namespace TrenchBroom {
             void setupGL(Renderer::RenderContext& renderContext);
         private: // implement ToolBoxConnector
             Ray3 doGetPickRay(int x, int y) const;
-            Hits doPick(const Ray3& pickRay) const;
             void doShowPopupMenu();
         private: // subclassing intervace
             virtual Renderer::Camera* doGetCamera() = 0;

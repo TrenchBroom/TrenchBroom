@@ -43,6 +43,9 @@ namespace TrenchBroom {
         
         const Hit& firstHit(const Hits& hits, Hit::HitType type, const EditorContext& context, bool ignoreOccluders);
         const Hit& firstHit(const Hits& hits, Hit::HitType type, const EditorContext& context, bool ignoreOccluders, bool selectedOnly);
+        
+        const Hit& smallestHit(const Hits& hits, Hit::HitType type, const EditorContext& context, bool ignoreOccluders);
+        const Hit& smallestHit(const Hits& hits, Hit::HitType type, const EditorContext& context, bool ignoreOccluders, bool selectedOnly);
     }
 }
 
