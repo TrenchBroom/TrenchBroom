@@ -302,7 +302,7 @@ namespace TrenchBroom {
                 Model::BrushList::const_iterator bIt, bEnd;
                 for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                     Model::Brush* brush = *bIt;
-                    Model::Entity* entity = brush->entity();
+                    Model::Entity* entity = brush->parent();
                     Model::Layer* newLayer = document->layerForDuplicateOf(brush);
                     
                     Model::BrushFace* frontFace = map.createFace(m_clipPoints[0], m_clipPoints[1], m_clipPoints[2], document->currentTextureName());
@@ -329,7 +329,7 @@ namespace TrenchBroom {
                 Model::BrushList::const_iterator bIt, bEnd;
                 for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                     Model::Brush* brush = *bIt;
-                    Model::Entity* entity = brush->entity();
+                    Model::Entity* entity = brush->parent();
                     
                     Model::Brush* frontBrush = brush->clone(worldBounds);
                     result.frontBrushes[entity].push_back(frontBrush);

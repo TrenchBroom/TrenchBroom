@@ -107,9 +107,5 @@ namespace TrenchBroom {
             objectWasRemovedNotifier(this, brush);
             layerDidChangeNotifier(this, Attr_Objects);
         }
-
-        Layer* Layer::doGetLayerForChild() {
-            return this;
-        }
     }
 }

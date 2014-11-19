@@ -80,7 +80,7 @@ namespace TrenchBroom {
             m_matcher(pattern) {}
         private:
             bool doEvaluate(const Brush* brush) const {
-                const Entity* entity = brush->entity();
+                const Entity* entity = brush->parent();
                 if (entity == NULL)
                     return false;
                 

@@ -327,7 +327,7 @@ namespace TrenchBroom {
                 assert(clipResult);
                 _UNUSED(clipResult);
                 
-                query.addBrush(newBrush, brush->entity(), newLayer);
+                query.addBrush(newBrush, brush->parent(), newLayer);
                 newDragFaces.push_back(newDragFace);
             }
             

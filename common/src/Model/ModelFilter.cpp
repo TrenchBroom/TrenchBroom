@@ -126,7 +126,7 @@ namespace TrenchBroom {
                     return false;
                 if (brush->hasContentType(filter.hiddenBrushContentTypes()))
                     return false;
-                const Entity* entity = brush->entity();
+                const Entity* entity = brush->parent();
                 if (filter.entityDefinitionHidden(entity->definition()))
                     return false;
                 return true;

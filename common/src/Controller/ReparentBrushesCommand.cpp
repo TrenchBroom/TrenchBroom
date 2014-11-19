@@ -71,7 +71,7 @@ namespace TrenchBroom {
             Model::BrushList::const_iterator it, end;
             for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
                 Model::Brush* brush = *it;
-                Model::Entity* oldParent = brush->entity();
+                Model::Entity* oldParent = brush->parent();
                 m_oldParents[brush] = oldParent;
                 m_oldLayers[brush] = brush->layer();
 

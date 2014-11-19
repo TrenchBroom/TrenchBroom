@@ -30,7 +30,6 @@
 #include "Model/EntityProperties.h"
 #include "Model/ModelTypes.h"
 #include "Model/Object.h"
-#include "Model/ObjectParent.h"
 
 #include <vector>
 

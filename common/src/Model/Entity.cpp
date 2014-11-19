@@ -222,19 +222,19 @@ namespace TrenchBroom {
 
         void Entity::addBrush(Brush* brush) {
             assert(brush != NULL);
-            assert(brush->entity() == NULL);
+            assert(brush->parent() == NULL);
             
             m_brushes.push_back(brush);
-            brush->setEntity(this);
+            brush->setParent(this);
             if (brush->selected())
                 incChildSelectionCount();
             invalidateBounds();
         }
 
         void Entity::removeBrush(Brush* brush) {
-            assert(brush->entity() == this);
+            assert(brush->parent() == this);
             VectorUtils::erase(m_brushes, brush);
-            brush->setEntity(NULL);
+            brush->setParent(NULL);
             if (brush->selected())
                 decChildSelectionCount();
             invalidateBounds();
@@ -244,7 +244,7 @@ namespace TrenchBroom {
             BrushList::const_iterator it, end;
             for (it = m_brushes.begin(), end = m_brushes.end(); it != end; ++it) {
                 Brush* brush = *it;
-                brush->setEntity(NULL);
+                brush->setParent(NULL);
                 if (brush->selected())
                     decChildSelectionCount();
             }

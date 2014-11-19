@@ -796,7 +796,7 @@ namespace TrenchBroom {
                     newParent = Model::hitAsEntity(hit);
                 } else if (hit.type() == Model::Brush::BrushHit) {
                     const Model::Brush* brush = Model::hitAsBrush(hit);
-                    newParent = brush->entity();
+                    newParent = brush->parent();
                 }
             }
             
@@ -833,7 +833,7 @@ namespace TrenchBroom {
             m_newParent(newParent) {}
             
             bool operator()(Model::Brush* brush) const {
-                return brush->entity() != m_newParent;
+                return brush->parent() != m_newParent;
             }
         };
 
@@ -1008,9 +1008,9 @@ namespace TrenchBroom {
             // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
             Model::BrushList::const_iterator it = brushes.begin();
             Model::BrushList::const_iterator end = brushes.end();
-            Model::Entity* entityTemplate = (*it++)->entity();
+            Model::Entity* entityTemplate = (*it++)->parent();
             while (it != end && entityTemplate != NULL)
-                if ((*it++)->entity() != entityTemplate)
+                if ((*it++)->parent() != entityTemplate)
                     entityTemplate = NULL;
             
             Model::Entity* entity = document->map()->createEntity();

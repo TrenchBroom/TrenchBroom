@@ -41,7 +41,7 @@ namespace TrenchBroom {
             BrushList::const_iterator bIt, bEnd;
             for (bIt = removedBrushes.begin(), bEnd = removedBrushes.end(); bIt != bEnd; ++bIt) {
                 Brush* brush = *bIt;
-                Entity* entity = brush->entity();
+                Entity* entity = brush->parent();
                 Layer* layer = brush->layer();
                 addBrush(brush, entity, layer);
             }
