@@ -60,7 +60,6 @@ namespace TrenchBroom {
         extern Preference<Color> SelectedInfoOverlayBackgroundColor;
         
         extern Preference<float> HandleRadius;
-        extern Preference<float> HandleScalingFactor;
         extern Preference<float> MaximumHandleDistance;
         extern Preference<Color> HandleColor;
         extern Preference<Color> OccludedHandleColor;

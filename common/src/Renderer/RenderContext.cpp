@@ -45,6 +45,14 @@ namespace TrenchBroom {
         m_showSelectionGuide(ShowSelectionGuide_Hide),
         m_showMouseIndicators(true) {}
         
+        bool RenderContext::render2D() const {
+            return m_renderMode == RenderMode_2D;
+        }
+        
+        bool RenderContext::render3D() const {
+            return m_renderMode == RenderMode_3D;
+        }
+
         const Camera& RenderContext::camera() const {
             return m_camera;
         }

@@ -104,6 +104,9 @@ namespace TrenchBroom {
             addTool(m_vertexTool);
             addTool(m_moveObjectsTool);
             addTool(m_selectionTool);
+
+            deactivateWhen(m_rotateObjectsTool, m_moveObjectsTool);
+            deactivateWhen(m_vertexTool, m_moveObjectsTool);
             
             m_moveObjectsTool->createPage(bookCtrl);
             m_rotateObjectsTool->createPage(bookCtrl);

@@ -656,10 +656,9 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             
             const FloatType handleRadius = prefs.get(Preferences::HandleRadius);
-            const FloatType scalingFactor = prefs.get(Preferences::HandleScalingFactor);
             const FloatType maxDistance = prefs.get(Preferences::MaximumHandleDistance);
             
-            const FloatType distance = ray.intersectWithSphere(position, 2.0 * handleRadius, scalingFactor, maxDistance);
+            const FloatType distance = ray.intersectWithSphere(position, 2.0 * handleRadius, maxDistance);
             if (!Math::isnan(distance)) {
                 const Vec3 hitPoint = ray.pointAtDistance(distance);
                 return Hit::hit<Vec3>(type, distance, hitPoint, position);

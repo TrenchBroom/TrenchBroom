@@ -133,14 +133,103 @@ namespace TrenchBroom {
             }
         }
         
-        class RotateObjectsHandle::RenderHandle : public Renderer::Renderable {
+        class RotateObjectsHandle::Render2DHandle : public Renderer::Renderable {
+        private:
+            float m_radius;
+            Vec3f m_position;
+            Vec3f m_cameraDirection;
+            Vec3f m_cameraRight;
+            HitArea m_highlight;
+            Renderer::Circle m_ring;
+            Renderer::PointHandleRenderer m_pointHandleRenderer;
+        public:
+            Render2DHandle(const float radius, const Vec3& position, const Vec3& cameraDirection, const Vec3& cameraRight, const HitArea highlight) :
+            m_radius(radius),
+            m_position(position),
+            m_cameraDirection(cameraDirection),
+            m_cameraRight(cameraRight),
+            m_highlight(highlight),
+            m_ring(m_radius, 24, false, m_cameraDirection.firstComponent(), 0.0f, Math::Cf::twoPi()) {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                m_pointHandleRenderer.setRadius(prefs.get(Preferences::HandleRadius), 1);
+                m_pointHandleRenderer.setRenderOccluded(false);
+            }
+        private:
+            void doPrepare(Renderer::Vbo& vbo) {
+                m_ring.prepare(vbo),
+                m_pointHandleRenderer.prepare(vbo);
+            }
+            
+            void doRender(Renderer::RenderContext& renderContext) {
+                renderTranslated(renderContext);
+                renderPointHandles(renderContext);
+            }
+
+            void renderTranslated(Renderer::RenderContext& renderContext) {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
+                
+                const BBox3f bounds(handleRadius);
+                Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
+
+                renderRing(renderContext);
+            }
+
+            void renderRing(Renderer::RenderContext& renderContext) {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                
+                Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
+                switch (m_cameraDirection.firstComponent()) {
+                    case Math::Axis::AX:
+                        shader.set("Color", prefs.get(Preferences::XAxisColor));
+                        break;
+                    case Math::Axis::AY:
+                        shader.set("Color", prefs.get(Preferences::YAxisColor));
+                        break;
+                    case Math::Axis::AZ:
+                        shader.set("Color", prefs.get(Preferences::ZAxisColor));
+                        break;
+                };
+                
+                m_ring.render();
+            }
+            
+            void renderPointHandles(Renderer::RenderContext& renderContext) {
+                PreferenceManager& prefs = PreferenceManager::instance();
+                m_pointHandleRenderer.setColor(prefs.get(Preferences::RotateHandleColor));
+                m_pointHandleRenderer.setHighlightColor(prefs.get(Preferences::SelectedHandleColor));
+                
+                m_pointHandleRenderer.clear();
+                
+                m_pointHandleRenderer.addPoint(m_position);
+                m_pointHandleRenderer.addPoint(m_position + m_radius * m_cameraRight);
+                
+                switch (m_highlight) {
+                    case RotateObjectsHandle::HitArea_Center:
+                        m_pointHandleRenderer.addHighlight(m_position);
+                        break;
+                    case RotateObjectsHandle::HitArea_XAxis:
+                    case RotateObjectsHandle::HitArea_YAxis:
+                    case RotateObjectsHandle::HitArea_ZAxis:
+                        m_pointHandleRenderer.addHighlight(m_position + m_radius * m_cameraRight);
+                        break;
+                    case RotateObjectsHandle::HitArea_None:
+                        break;
+                    DEFAULT_SWITCH()
+                };
+                
+                m_pointHandleRenderer.render(renderContext);
+            }
+        };
+        
+        class RotateObjectsHandle::Render3DHandle : public Renderer::Renderable {
         private:
             float m_radius;
             Vec3f m_position;
             Vec3f m_xAxis;
             Vec3f m_yAxis;
             Vec3f m_zAxis;
-            RotateObjectsHandle::HitArea m_highlight;
+            HitArea m_highlight;
             Renderer::VertexArray m_axesArray;
             Renderer::Circle m_xRing;
             Renderer::Circle m_yRing;
@@ -150,7 +239,7 @@ namespace TrenchBroom {
             Renderer::Circle m_zRingIndicator;
             Renderer::PointHandleRenderer m_pointHandleRenderer;
         public:
-            RenderHandle(const float radius, const Vec3& position, const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis, const RotateObjectsHandle::HitArea highlight) :
+            Render3DHandle(const float radius, const Vec3& position, const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis, const HitArea highlight) :
             m_radius(radius),
             m_position(position),
             m_xAxis(xAxis),
@@ -282,15 +371,32 @@ namespace TrenchBroom {
             }
         };
         
-        void RotateObjectsHandle::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& cameraPos, const HitArea highlight) {
-            Vec3 xAxis, yAxis, zAxis;
-            computeAxes(cameraPos, xAxis, yAxis, zAxis);
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const float radius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
-            renderBatch.addOneShot(new RenderHandle(radius, m_position, xAxis, yAxis, zAxis, highlight));
+        void RotateObjectsHandle::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
+            if (renderContext.render2D())
+                render2DHandle(renderContext, renderBatch, highlight);
+            if (renderContext.render3D())
+                render3DHandle(renderContext, renderBatch, highlight);
         }
         
+        void RotateObjectsHandle::render2DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const float radius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
+            
+            const Renderer::Camera& camera = renderContext.camera();
+            
+            renderBatch.addOneShot(new Render2DHandle(radius, m_position, camera.direction(), camera.right(), highlight));
+        }
+        
+        void RotateObjectsHandle::render3DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const float radius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
+
+            Vec3 xAxis, yAxis, zAxis;
+            computeAxes(Vec3(renderContext.camera().position()), xAxis, yAxis, zAxis);
+
+            renderBatch.addOneShot(new Render3DHandle(radius, m_position, xAxis, yAxis, zAxis, highlight));
+        }
+
         void RotateObjectsHandle::computeAxes(const Vec3& cameraPos, Vec3& xAxis, Vec3& yAxis, Vec3& zAxis) const {
             const Vec3 viewDir = (m_position - cameraPos).normalized();
             if (Math::eq(std::abs(viewDir.z()), 1.0)) {
@@ -348,9 +454,8 @@ namespace TrenchBroom {
         RotateObjectsHandle::Hit RotateObjectsHandle::pickPointHandle(const Ray3& pickRay, const Vec3& position, const HitArea area) const {
             PreferenceManager& prefs = PreferenceManager::instance();
             const FloatType radius = 2.0 * prefs.get(Preferences::HandleRadius);
-            const FloatType scaling = prefs.get(Preferences::HandleScalingFactor);
             const FloatType maxDist = prefs.get(Preferences::MaximumHandleDistance);
-            const FloatType distance = pickRay.intersectWithSphere(position, radius, scaling, maxDist);
+            const FloatType distance = pickRay.intersectWithSphere(position, radius, maxDist);
             
             if (Math::isnan(distance))
                 return Hit();

@@ -163,6 +163,10 @@ namespace TrenchBroom {
             return (point - m_position).squaredLength();
         }
 
+        float Camera::perpendicularDistanceTo(const Vec3f& point) const {
+            return (point - m_position).dot(m_direction);
+        }
+
         Vec3f Camera::defaultPoint() const {
             return m_position + DefaultPointDistance * direction();
         }

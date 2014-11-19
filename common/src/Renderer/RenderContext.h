@@ -78,6 +78,9 @@ namespace TrenchBroom {
             bool m_showMouseIndicators;
         public:
             RenderContext(RenderMode renderMode, const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager);
+
+            bool render2D() const;
+            bool render3D() const;
             
             const Camera& camera() const;
             Transformation& transformation();

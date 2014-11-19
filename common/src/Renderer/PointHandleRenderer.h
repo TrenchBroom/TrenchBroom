@@ -36,6 +36,7 @@ namespace TrenchBroom {
         class PointHandleRenderer : public Renderable {
         private:
             Sphere m_sphere;
+            Circle m_test;
             Circle m_circle;
             
             Vec3f::List m_points;

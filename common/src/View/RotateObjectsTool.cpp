@@ -49,10 +49,7 @@ namespace TrenchBroom {
         m_rotateHelper(*this, fontDescriptor),
         m_angle(Math::radians(15.0)),
         m_centerGuideRenderer(document),
-        m_firstActivation(true) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            m_centerGuideRenderer.setColor(prefs.get(Preferences::HandleColor));
-        }
+        m_firstActivation(true) {}
 
         double RotateObjectsTool::angle() const {
             return m_angle;
@@ -172,9 +169,10 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            m_centerGuideRenderer.setColor(prefs.get(Preferences::HandleColor));
             
-            const Vec3& cameraPos = inputState.pickRay().origin;
-            m_handle.renderHandle(renderContext, renderBatch, cameraPos, highlightHandleArea(inputState));
+            m_handle.renderHandle(renderContext, renderBatch, highlightHandleArea(inputState));
             
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             if (m_helper != NULL) {

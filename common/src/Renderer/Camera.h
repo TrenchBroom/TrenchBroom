@@ -99,6 +99,7 @@ namespace TrenchBroom {
             Ray3f pickRay(int x, int y) const;
             float distanceTo(const Vec3f& point) const;
             float squaredDistanceTo(const Vec3f& point) const;
+            float perpendicularDistanceTo(const Vec3f& point) const;
             Vec3f defaultPoint() const;
             Vec3f defaultPoint(int x, int y) const;
             Vec3f defaultPoint(const Ray3f& ray) const;

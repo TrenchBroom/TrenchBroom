@@ -59,7 +59,8 @@ namespace TrenchBroom {
             };
         private:
             Vec3 m_position;
-            class RenderHandle;
+            class Render2DHandle;
+            class Render3DHandle;
         public:
             const Vec3& position() const;
             void setPosition(const Vec3& position);
@@ -70,9 +71,11 @@ namespace TrenchBroom {
             Vec3 getPointHandleAxis(const HitArea area, const Vec3& cameraPos) const;
             Vec3 getRotationAxis(const HitArea area, const Vec3& cameraPos) const;
         public:
-            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& cameraPos, HitArea highlight);
+            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
 //            void renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle);
         private:
+            void render2DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
+            void render3DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
             void computeAxes(const Vec3& cameraPos, Vec3& xAxis, Vec3& yAxis, Vec3& zAxis) const;
 
             Hit pickPointHandle(const Ray3& pickRay, const Vec3& position, const HitArea area) const;

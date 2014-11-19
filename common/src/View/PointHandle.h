@@ -17,41 +17,32 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RenderBatch__
-#define __TrenchBroom__RenderBatch__
+#ifndef __TrenchBroom__PointHandle__
+#define __TrenchBroom__PointHandle__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
 
-#include <vector>
-
 namespace TrenchBroom {
     namespace Renderer {
-        class Renderable;
+        class Camera;
+        class RenderBatch;
         class RenderContext;
-        class Vbo;
-        
-        class RenderBatch {
+    }
+    
+    namespace View {
+        class PointHandle {
         private:
-            Vbo& m_vbo;
-
-            typedef std::vector<Renderable*> RenderableList;
-            RenderableList m_batch;
-            RenderableList m_oneshots;
+            Vec3 m_position;
+            Color m_color;
         public:
-            RenderBatch(Vbo& vbo);
-            ~RenderBatch();
+            PointHandle(const Vec3& position, const Color& color);
             
-            void add(Renderable* renderable);
-            void addOneShot(Renderable* renderable);
-            
-            void render(RenderContext& renderContext);
-        private:
-            void prepareRenderables();
-            void renderRenderables(RenderContext& renderContext);
+            bool pick(const Ray3& pickRay, const Renderer::Camera& camera) const;
+            void render(const Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, bool highlight) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__RenderBatch__) */
+#endif /* defined(__TrenchBroom__PointHandle__) */

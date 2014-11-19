@@ -97,13 +97,12 @@ public:
         return std::max(t0, t1);
     }
     
-    const T intersectWithSphere(const Vec<T,S>& position, const T radius, const T scalingFactor, const T maxDistance) const {
+    const T intersectWithSphere(const Vec<T,S>& position, const T radius, const T maxDistance) const {
         const T distanceToCenter = (position - origin).length();
         if (distanceToCenter > maxDistance)
             return Math::nan<T>();
             
-        const T scaledRadius = radius * scalingFactor * distanceToCenter;
-        return intersectWithSphere(position, scaledRadius);
+        return intersectWithSphere(position, radius * distanceToCenter);
     }
     
     struct PointDistance {

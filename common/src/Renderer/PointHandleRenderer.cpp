@@ -33,6 +33,7 @@ namespace TrenchBroom {
     namespace Renderer {
         PointHandleRenderer::PointHandleRenderer(const float radius, const size_t iterations) :
         m_sphere(radius, iterations),
+        m_test(radius, 16, true),
         m_circle(2.0f * radius, 16, false),
         m_color(1.0f, 1.0f, 1.0f, 1.0f),
         m_occludedColor(1.0f, 1.0f, 1.0f, 0.5f),
@@ -80,6 +81,7 @@ namespace TrenchBroom {
 
         void PointHandleRenderer::setRadius(float radius, size_t iterations) {
             m_sphere = Sphere(radius, iterations);
+            m_test = Circle(radius, 16, true);
             m_circle = Circle(2.0f * radius, 16, false);
         }
         
@@ -101,6 +103,7 @@ namespace TrenchBroom {
 
         void PointHandleRenderer::doPrepare(Vbo& vbo) {
             m_sphere.prepare(vbo);
+            m_test.prepare(vbo);
             m_circle.prepare(vbo);
         }
         
@@ -110,20 +113,31 @@ namespace TrenchBroom {
         }
 
         void PointHandleRenderer::renderHandles(RenderContext& renderContext) {
-            ActiveShader shader(renderContext.shaderManager(), Shaders::PointHandleShader);
-            setupHandle(renderContext, shader);
+            const Camera& camera = renderContext.camera();
+            const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();
+
+            ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
             
             Vec3f::List::const_iterator it, end;
             for (it = m_points.begin(), end = m_points.end(); it != end; ++it) {
                 const Vec3f& position = *it;
-                renderHandle(position, shader);
+                const float factor = camera.perpendicularDistanceTo(position);
+                const Mat4x4f matrix = translationMatrix(position) * billboardMatrix * scalingMatrix(Vec3f(factor, factor, 0.0f));
+                MultiplyModelMatrix billboard(renderContext.transformation(), matrix);
+
+                if (m_renderOccluded) {
+                    glDisable(GL_DEPTH_TEST);
+                    shader.set("Color", m_occludedColor);
+                    m_test.render();
+                    glEnable(GL_DEPTH_TEST);
+                }
+                
+                shader.set("Color", m_color);
+                m_test.render();
             }
         }
         
         void PointHandleRenderer::renderHighlights(RenderContext& renderContext) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const float scaling = static_cast<float>(prefs.get(Preferences::HandleScalingFactor));
-            
             const Camera& camera = renderContext.camera();
             const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();
             
@@ -134,7 +148,7 @@ namespace TrenchBroom {
             Vec3f::List::const_iterator it, end;
             for (it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
                 const Vec3f& position = *it;
-                const float factor = camera.distanceTo(position) * scaling;
+                const float factor = camera.perpendicularDistanceTo(position);
                 const Mat4x4f matrix = translationMatrix(position) * billboardMatrix * scalingMatrix(Vec3f(factor, factor, 0.0f));
                 MultiplyModelMatrix billboard(renderContext.transformation(), matrix);
                 m_circle.render();
@@ -143,14 +157,11 @@ namespace TrenchBroom {
         }
 
         void PointHandleRenderer::setupHandle(RenderContext& renderContext, ActiveShader& shader) {
-            PreferenceManager& prefs = PreferenceManager::instance();
             shader.set("CameraPosition", renderContext.camera().position());
-            shader.set("ScalingFactor", prefs.get(Preferences::HandleScalingFactor));
-            shader.set("MaximumDistance", prefs.get(Preferences::MaximumHandleDistance));
         }
         
         void PointHandleRenderer::renderHandle(const Vec3f& position, ActiveShader& shader) {
-            shader.set("Position", Vec4f(Vec3f(position), 1.0f));
+            shader.set("Position", Vec4f(position, 1.0f));
             if (m_renderOccluded) {
                 glDisable(GL_DEPTH_TEST);
                 shader.set("Color", m_occludedColor);

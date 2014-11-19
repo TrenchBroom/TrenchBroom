@@ -1,5 +1,3 @@
-#version 120
-
 /*
  Copyright (C) 2010-2014 Kristian Duske
  
@@ -19,14 +17,19 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vec4 Color;
-uniform vec3 CameraPosition;
-uniform vec4 Position;
+#include "PointHandle.h"
 
-varying vec4 vertexColor;
-
-void main(void) {
-    vertexColor = Color;
-    float dist = distance(Position.xyz, CameraPosition);
-    gl_Position = gl_ModelViewProjectionMatrix * vec4(dist * gl_Vertex.xyz + Position.xyz, 1.0);
+namespace TrenchBroom {
+    namespace View {
+        PointHandle::PointHandle(const Vec3& position, const Color& color) :
+        m_position(position),
+        m_color(color) {}
+        
+        bool PointHandle::pick(const Ray3& pickRay, const Renderer::Camera& camera) const {
+            
+        }
+        
+        void PointHandle::render(const Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const bool highlight) const {
+        }
+    }
 }

@@ -20,6 +20,7 @@
 #include "MapViewBase.h"
 
 #include "Logger.h"
+#include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushVertex.h"
 #include "Model/Entity.h"
@@ -98,6 +99,9 @@ namespace TrenchBroom {
             
             camera()->cameraDidChangeNotifier.addObserver(this, &MapViewBase::cameraDidChange);
             m_toolBox.toolActivatedNotifier.addObserver(this, &MapViewBase::toolChanged);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &MapViewBase::preferenceDidChange);
         }
         
         void MapViewBase::unbindObservers() {
@@ -116,6 +120,9 @@ namespace TrenchBroom {
             
             // camera has already been deleted at this point
             // camera()->cameraDidChangeNotifier.addObserver(this, &MapViewBase::cameraDidChange);
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);
         }
         
         void MapViewBase::cameraDidChange(const Renderer::Camera* camera) {
@@ -141,6 +148,10 @@ namespace TrenchBroom {
             Refresh();
         }
         
+        void MapViewBase::preferenceDidChange(const IO::Path& path) {
+            Refresh();
+        }
+
         void MapViewBase::bindEvents() {
             /*
              Bind(wxEVT_KEY_DOWN, &MapViewBase::OnKey, this);

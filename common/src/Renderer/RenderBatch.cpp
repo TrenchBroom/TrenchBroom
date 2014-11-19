@@ -21,6 +21,7 @@
 
 #include "CollectionUtils.h"
 #include "Renderer/Renderable.h"
+#include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     namespace Renderer {
