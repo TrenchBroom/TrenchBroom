@@ -19,7 +19,7 @@
 
 #include "Hexen2MapWriter.h"
 
-#include "Model/Brushface.h"
+#include "Model/BrushFace.h"
 
 namespace TrenchBroom {
     namespace IO {
