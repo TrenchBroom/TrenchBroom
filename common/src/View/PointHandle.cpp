@@ -19,14 +19,19 @@
 
 #include "PointHandle.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
+#include "View/PickRay.h"
+
 namespace TrenchBroom {
     namespace View {
         PointHandle::PointHandle(const Vec3& position, const Color& color) :
         m_position(position),
         m_color(color) {}
         
-        bool PointHandle::pick(const Ray3& pickRay, const Vec3& viewRay) const {
-            
+        FloatType PointHandle::pick(const PickRay& pickRay) const {
+            const FloatType radius = static_cast<FloatType>(pref(Preferences::HandleRadius));
+            return pickRay.perpendicularIntersectWithSphere(m_position, radius);
         }
         
         void PointHandle::render(const Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const bool highlight) const {

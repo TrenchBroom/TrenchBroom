@@ -95,8 +95,7 @@ namespace TrenchBroom {
             if (!document()->hasSelectedNodes())
                 return;
 
-            const Vec3& cameraPos = inputState.pickRay().origin;
-            const RotateObjectsHandle::Hit hit = m_handle.pick(inputState.pickRay(), cameraPos);
+            const RotateObjectsHandle::Hit hit = m_handle.pick(inputState.pickRay());
             if (hit.matches())
                 hits.addHit(Hit(HandleHit, hit.distance(), hit.point(), hit.area()));
         }

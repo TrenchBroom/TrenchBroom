@@ -33,6 +33,8 @@
 #include "Renderer/Sphere.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
+#include "View/PickRay.h"
+#include "View/PointHandle.h"
 
 #include <cassert>
 
@@ -75,9 +77,9 @@ namespace TrenchBroom {
             m_position = position;
         }
         
-        RotateObjectsHandle::Hit RotateObjectsHandle::pick(const Ray3& pickRay, const Vec3& cameraPos) const {
+        RotateObjectsHandle::Hit RotateObjectsHandle::pick(const PickRay& pickRay) const {
             Vec3 xAxis, yAxis, zAxis;
-            computeAxes(cameraPos, xAxis, yAxis, zAxis);
+            computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
             Hit hit = pickPointHandle(pickRay, m_position, HitArea_Center);
             hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(xAxis), HitArea_XAxis));
             hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(yAxis), HitArea_YAxis));
@@ -452,11 +454,9 @@ namespace TrenchBroom {
         }
         */
         
-        RotateObjectsHandle::Hit RotateObjectsHandle::pickPointHandle(const Ray3& pickRay, const Vec3& position, const HitArea area) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const FloatType radius = 2.0 * prefs.get(Preferences::HandleRadius);
-            const FloatType maxDist = prefs.get(Preferences::MaximumHandleDistance);
-            const FloatType distance = pickRay.intersectWithSphere(position, radius, maxDist);
+        RotateObjectsHandle::Hit RotateObjectsHandle::pickPointHandle(const PickRay& pickRay, const Vec3& position, const HitArea area) const {
+            const PointHandle handle(position, Color());
+            const FloatType distance = handle.pick(pickRay);
             
             if (Math::isnan(distance))
                 return Hit();

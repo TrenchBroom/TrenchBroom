@@ -34,8 +34,6 @@ namespace TrenchBroom {
             const ShaderConfig TextureBrowserBorderShader = ShaderConfig("Texture Browser Border",           "TextureBrowserBorder.vertsh", "TextureBrowserBorder.fragsh");
             const ShaderConfig BrowserGroupShader         = ShaderConfig("Browser Group",                    "BrowserGroup.vertsh",         "BrowserGroup.fragsh");
             const ShaderConfig HandleShader               = ShaderConfig("Handle",                           "Handle.vertsh",               "Handle.fragsh");
-            const ShaderConfig PointHandleShader          = ShaderConfig("Point Handle",                     "PointHandle.vertsh",          "Handle.fragsh");
-            const ShaderConfig InstancedPointHandleShader = ShaderConfig("Instanced Point Handle",           "InstancedPointHandle.vertsh", "Handle.fragsh");
             const ShaderConfig ColoredHandleShader        = ShaderConfig("Colored Handle",                   "ColoredHandle.vertsh",        "Handle.fragsh");
             const ShaderConfig CompassShader              = ShaderConfig("Compass",                          "Compass.vertsh",              "Compass.fragsh");
             const ShaderConfig CompassOutlineShader       = ShaderConfig("Compass Outline",                  "CompassOutline.vertsh",       "Compass.fragsh");

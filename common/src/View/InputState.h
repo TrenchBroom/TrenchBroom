@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Hit.h"
+#include "View/PickRay.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -70,7 +71,7 @@ namespace TrenchBroom {
             float m_scrollY;
             
             InputSource m_inputSource;
-            Ray3 m_pickRay;
+            PickRay m_pickRay;
             Hits m_hits;
         public:
             InputState(InputSource inputSource);
@@ -105,8 +106,8 @@ namespace TrenchBroom {
 
             InputSource inputSource() const;
             
-            const Ray3& pickRay() const;
-            void setPickRay(const Ray3& pickRay);
+            const PickRay& pickRay() const;
+            void setPickRay(const PickRay& pickRay);
 
             const Hits& hits() const;
             void setHits(const Hits& hits);
