@@ -108,23 +108,25 @@ namespace TrenchBroom {
         }
         
         void PointHandleRenderer::doRender(RenderContext& renderContext) {
-            renderHandles(renderContext);
-            renderHighlights(renderContext);
-        }
-
-        void PointHandleRenderer::renderHandles(RenderContext& renderContext) {
             const Camera& camera = renderContext.camera();
-            const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();
+            const Camera::Viewport& viewport = camera.unzoomedViewport();
+            
+            const Mat4x4f projection = orthoMatrix(-1.0f, 1.0f,
+                                                   static_cast<float>(viewport.x),
+                                                   static_cast<float>(viewport.height),
+                                                   static_cast<float>(viewport.width),
+                                                   static_cast<float>(viewport.y));
+            const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
+            ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
             ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
             
             Vec3f::List::const_iterator it, end;
             for (it = m_points.begin(), end = m_points.end(); it != end; ++it) {
                 const Vec3f& position = *it;
-                const float factor = camera.perpendicularDistanceTo(position);
-                const Mat4x4f matrix = translationMatrix(position) * billboardMatrix * scalingMatrix(Vec3f(factor, factor, 0.0f));
-                MultiplyModelMatrix billboard(renderContext.transformation(), matrix);
-
+                const Vec3f offset = camera.project(position);
+                MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
+                
                 if (m_renderOccluded) {
                     glDisable(GL_DEPTH_TEST);
                     shader.set("Color", m_occludedColor);
@@ -135,41 +137,17 @@ namespace TrenchBroom {
                 shader.set("Color", m_color);
                 m_test.render();
             }
-        }
-        
-        void PointHandleRenderer::renderHighlights(RenderContext& renderContext) {
-            const Camera& camera = renderContext.camera();
-            const Mat4x4f billboardMatrix = camera.orthogonalBillboardMatrix();
             
-            ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
-            shader.set("Color", m_highlightColor);
             glDisable(GL_DEPTH_TEST);
-
-            Vec3f::List::const_iterator it, end;
+            shader.set("Color", m_highlightColor);
+            
             for (it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
                 const Vec3f& position = *it;
-                const float factor = camera.perpendicularDistanceTo(position);
-                const Mat4x4f matrix = translationMatrix(position) * billboardMatrix * scalingMatrix(Vec3f(factor, factor, 0.0f));
-                MultiplyModelMatrix billboard(renderContext.transformation(), matrix);
+                const Vec3f offset(camera.project(position), 0.0f);
+                MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
                 m_circle.render();
             }
             glEnable(GL_DEPTH_TEST);
-        }
-
-        void PointHandleRenderer::setupHandle(RenderContext& renderContext, ActiveShader& shader) {
-            shader.set("CameraPosition", renderContext.camera().position());
-        }
-        
-        void PointHandleRenderer::renderHandle(const Vec3f& position, ActiveShader& shader) {
-            shader.set("Position", Vec4f(position, 1.0f));
-            if (m_renderOccluded) {
-                glDisable(GL_DEPTH_TEST);
-                shader.set("Color", m_occludedColor);
-                m_sphere.render();
-                glEnable(GL_DEPTH_TEST);
-            }
-            shader.set("Color", m_color);
-            m_sphere.render();
         }
     }
 }

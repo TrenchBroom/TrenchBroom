@@ -68,12 +68,6 @@ namespace TrenchBroom {
         private:
             void doPrepare(Vbo& vbo);
             void doRender(RenderContext& renderContext);
-            
-            void renderHandles(RenderContext& renderContext);
-            void renderHighlights(RenderContext& renderContext);
-
-            void setupHandle(RenderContext& renderContext, ActiveShader& shader);
-            void renderHandle(const Vec3f& position, ActiveShader& shader);
         };
     }
 }
