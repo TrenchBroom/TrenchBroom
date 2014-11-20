@@ -30,6 +30,7 @@
 #include "Model/Entity.h"
 #include "Renderer/MeshRenderer.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
 

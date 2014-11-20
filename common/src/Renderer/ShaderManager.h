@@ -32,44 +32,8 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class ShaderConfig {
-        private:
-            String m_name;
-            StringList m_vertexShaders;
-            StringList m_fragmentShaders;
-        public:
-            ShaderConfig(const String& name, const String& vertexShader, const String& fragmentShader);
-            
-            const String& name() const;
-            const StringList& vertexShaders() const;
-            const StringList& fragmentShaders() const;
-        };
-        
-        namespace Shaders {
-            extern const ShaderConfig VaryingPCShader;
-            extern const ShaderConfig VaryingPUniformCShader;
-            extern const ShaderConfig MiniMapEdgeShader;
-            extern const ShaderConfig EntityModelShader;
-            extern const ShaderConfig FaceShader;
-            extern const ShaderConfig ColoredTextShader;
-            extern const ShaderConfig TextShader;
-            extern const ShaderConfig TextBackgroundShader;
-            extern const ShaderConfig TextureBrowserShader;
-            extern const ShaderConfig TextureBrowserBorderShader;
-            extern const ShaderConfig BrowserGroupShader;
-            extern const ShaderConfig HandleShader;
-            extern const ShaderConfig PointHandleShader;
-            extern const ShaderConfig InstancedPointHandleShader;
-            extern const ShaderConfig ColoredHandleShader;
-            extern const ShaderConfig CompassShader;
-            extern const ShaderConfig CompassOutlineShader;
-            extern const ShaderConfig CompassBackgroundShader;
-            extern const ShaderConfig EntityLinkShader;
-            extern const ShaderConfig TriangleShader;
-            extern const ShaderConfig UVViewShader;
-        }
-        
         class Shader;
+        class ShaderConfig;
         
         class ShaderManager {
         private:

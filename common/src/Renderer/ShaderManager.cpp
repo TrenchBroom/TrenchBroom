@@ -23,51 +23,10 @@
 #include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/Shader.h"
+#include "Renderer/ShaderConfig.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        ShaderConfig::ShaderConfig(const String& name, const String& vertexShader, const String& fragmentShader) :
-        m_name(name) {
-            m_vertexShaders.push_back(vertexShader);
-            m_fragmentShaders.push_back(fragmentShader);
-        }
-        
-        const String& ShaderConfig::name() const {
-            return m_name;
-        }
-        
-        const StringList& ShaderConfig::vertexShaders() const {
-            return m_vertexShaders;
-        }
-        
-        const StringList& ShaderConfig::fragmentShaders() const {
-            return m_fragmentShaders;
-        }
-
-        namespace Shaders {
-            const ShaderConfig VaryingPCShader            = ShaderConfig("Varying Position / Color",         "VaryingPC.vertsh",            "VaryingPC.fragsh");
-            const ShaderConfig VaryingPUniformCShader     = ShaderConfig("Varying Position / Uniform Color", "VaryingPUniformC.vertsh",     "VaryingPC.fragsh");
-            const ShaderConfig MiniMapEdgeShader          = ShaderConfig("MiniMap Edges",                    "MiniMapEdge.vertsh",          "MiniMapEdge.fragsh");
-            const ShaderConfig EntityModelShader          = ShaderConfig("Entity Model",                     "EntityModel.vertsh",          "EntityModel.fragsh");
-            const ShaderConfig FaceShader                 = ShaderConfig("Face",                             "Face.vertsh",                 "Face.fragsh");
-            const ShaderConfig ColoredTextShader          = ShaderConfig("Colored Text",                     "ColoredText.vertsh",          "Text.fragsh");
-            const ShaderConfig TextShader                 = ShaderConfig("Text",                             "Text.vertsh",                 "Text.fragsh");
-            const ShaderConfig TextBackgroundShader       = ShaderConfig("Text Background",                  "TextBackground.vertsh",       "TextBackground.fragsh");
-            const ShaderConfig TextureBrowserShader       = ShaderConfig("Texture Browser",                  "TextureBrowser.vertsh",       "TextureBrowser.fragsh");
-            const ShaderConfig TextureBrowserBorderShader = ShaderConfig("Texture Browser Border",           "TextureBrowserBorder.vertsh", "TextureBrowserBorder.fragsh");
-            const ShaderConfig BrowserGroupShader         = ShaderConfig("Browser Group",                    "BrowserGroup.vertsh",         "BrowserGroup.fragsh");
-            const ShaderConfig HandleShader               = ShaderConfig("Handle",                           "Handle.vertsh",               "Handle.fragsh");
-            const ShaderConfig PointHandleShader          = ShaderConfig("Point Handle",                     "PointHandle.vertsh",          "Handle.fragsh");
-            const ShaderConfig InstancedPointHandleShader = ShaderConfig("Instanced Point Handle",           "InstancedPointHandle.vertsh", "Handle.fragsh");
-            const ShaderConfig ColoredHandleShader        = ShaderConfig("Colored Handle",                   "ColoredHandle.vertsh",        "Handle.fragsh");
-            const ShaderConfig CompassShader              = ShaderConfig("Compass",                          "Compass.vertsh",              "Compass.fragsh");
-            const ShaderConfig CompassOutlineShader       = ShaderConfig("Compass Outline",                  "CompassOutline.vertsh",       "Compass.fragsh");
-            const ShaderConfig CompassBackgroundShader    = ShaderConfig("Compass Background",               "VaryingPUniformC.vertsh",     "VaryingPC.fragsh");
-            const ShaderConfig EntityLinkShader           = ShaderConfig("Entity Link",                      "EntityLink.vertsh",           "EntityLink.fragsh");
-            const ShaderConfig TriangleShader             = ShaderConfig("Shaded Triangles",                 "Triangle.vertsh",             "Triangle.fragsh");
-            const ShaderConfig UVViewShader               = ShaderConfig("UV View",                          "UVView.vertsh",               "UVView.fragsh");
-        }
-
         ShaderManager::~ShaderManager() {
             MapUtils::clearAndDelete(m_programs);
             MapUtils::clearAndDelete(m_shaders);

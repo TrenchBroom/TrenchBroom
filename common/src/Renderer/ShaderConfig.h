@@ -1,5 +1,3 @@
-#version 120
-
 /*
  Copyright (C) 2010-2014 Kristian Duske
  
@@ -19,14 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-uniform vec4 Color;
-uniform vec3 CameraPosition;
-uniform vec4 Position;
+#ifndef __TrenchBroom__ShaderConfig__
+#define __TrenchBroom__ShaderConfig__
 
-varying vec4 vertexColor;
+#include "StringUtils.h"
 
-void main(void) {
-    vertexColor = Color;
-    float dist = distance(Position.xyz, CameraPosition);
-    gl_Position = gl_ModelViewProjectionMatrix * vec4(dist * gl_Vertex.xyz + Position.xyz, 1.0);
+namespace TrenchBroom {
+    namespace Renderer {
+        class ShaderConfig {
+        private:
+            String m_name;
+            StringList m_vertexShaders;
+            StringList m_fragmentShaders;
+        public:
+            ShaderConfig(const String& name, const String& vertexShader, const String& fragmentShader);
+            
+            const String& name() const;
+            const StringList& vertexShaders() const;
+            const StringList& fragmentShaders() const;
+        };
+    }
 }
+
+#endif /* defined(__TrenchBroom__ShaderConfig__) */

@@ -17,32 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PointHandle__
-#define __TrenchBroom__PointHandle__
-
-#include "TrenchBroom.h"
-#include "VecMath.h"
-#include "Color.h"
+#include "ShaderConfig.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Camera;
-        class RenderBatch;
-        class RenderContext;
-    }
-    
-    namespace View {
-        class PointHandle {
-        private:
-            Vec3 m_position;
-            Color m_color;
-        public:
-            PointHandle(const Vec3& position, const Color& color);
-            
-            bool pick(const Ray3& pickRay, const Vec3& viewRay) const;
-            void render(const Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, bool highlight) const;
-        };
+        ShaderConfig::ShaderConfig(const String& name, const String& vertexShader, const String& fragmentShader) :
+        m_name(name) {
+            m_vertexShaders.push_back(vertexShader);
+            m_fragmentShaders.push_back(fragmentShader);
+        }
+        
+        const String& ShaderConfig::name() const {
+            return m_name;
+        }
+        
+        const StringList& ShaderConfig::vertexShaders() const {
+            return m_vertexShaders;
+        }
+        
+        const StringList& ShaderConfig::fragmentShaders() const {
+            return m_fragmentShaders;
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__PointHandle__) */

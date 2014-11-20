@@ -25,7 +25,7 @@ namespace TrenchBroom {
         m_position(position),
         m_color(color) {}
         
-        bool PointHandle::pick(const Ray3& pickRay, const Renderer::Camera& camera) const {
+        bool PointHandle::pick(const Ray3& pickRay, const Vec3& viewRay) const {
             
         }
         

@@ -28,6 +28,7 @@
 #include "Model/Picker.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/Shaders.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 

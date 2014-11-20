@@ -33,6 +33,7 @@
 #include "Renderer/FontManager.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/Shaders.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
 #include "Renderer/VertexSpec.h"

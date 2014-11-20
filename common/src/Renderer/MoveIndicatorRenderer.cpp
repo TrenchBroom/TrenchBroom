@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
 

@@ -25,6 +25,7 @@
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"

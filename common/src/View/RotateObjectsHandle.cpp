@@ -28,6 +28,7 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Sphere.h"
 #include "Renderer/Transformation.h"
