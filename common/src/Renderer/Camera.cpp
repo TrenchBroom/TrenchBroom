@@ -180,6 +180,10 @@ namespace TrenchBroom {
             return ray.pointAtDistance(DefaultPointDistance);
         }
 
+        float Camera::perspectiveScalingFactor(const Vec3f& position) const {
+            return doGetPerspectiveScalingFactor(position);
+        }
+
         Vec3f Camera::project(const Vec3f& point) const {
             if (!m_valid)
                 validateMatrices();

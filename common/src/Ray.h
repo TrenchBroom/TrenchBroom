@@ -98,8 +98,8 @@ public:
     }
     
     const T intersectWithSphere(const Vec<T,S>& position, const T radius, const T maxDistance) const {
-        const T distanceToCenter = (position - origin).length();
-        if (distanceToCenter > maxDistance)
+        const T distanceToCenter = (position - origin).squaredLength();
+        if (distanceToCenter > maxDistance * maxDistance)
             return Math::nan<T>();
             
         return intersectWithSphere(position, radius * distanceToCenter);

@@ -45,6 +45,9 @@ namespace TrenchBroom {
             
             void getFrustumVertices(float size, Vec3f (&verts)[4]) const;
             Vec2f getFrustum() const;
+
+            float doGetPerspectiveScalingFactor(const Vec3f& position) const;
+            float viewportFrustumDistance() const;
         };
     }
 }

@@ -103,7 +103,8 @@ namespace TrenchBroom {
             Vec3f defaultPoint() const;
             Vec3f defaultPoint(int x, int y) const;
             Vec3f defaultPoint(const Ray3f& ray) const;
-            
+
+            float perspectiveScalingFactor(const Vec3f& position) const;
             Vec3f project(const Vec3f& point) const;
             Vec3f unproject(float x, float y, float depth) const;
             
@@ -132,6 +133,7 @@ namespace TrenchBroom {
             
             virtual void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const = 0;
             virtual float doPickFrustum(float size, const Ray3f& ray) const = 0;
+            virtual float doGetPerspectiveScalingFactor(const Vec3f& position) const = 0;
         };
     }
 }

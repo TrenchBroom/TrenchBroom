@@ -54,7 +54,7 @@ namespace TrenchBroom {
         }
         
         void ToolBoxConnector::updateHits() {
-            m_inputState.setPickRay(doGetPickRay(m_inputState.mouseX(),  m_inputState.mouseY()));
+            m_inputState.setPickRequest(doGetPickRequest(m_inputState.mouseX(),  m_inputState.mouseY()));
             Hits hits = doPick(m_inputState.pickRay());
             m_toolBox.pick(m_inputState, hits);
             m_inputState.setHits(hits);

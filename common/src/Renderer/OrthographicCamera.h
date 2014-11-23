@@ -39,6 +39,7 @@ namespace TrenchBroom {
             
             void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const;
             float doPickFrustum(float size, const Ray3f& ray) const;
+            float doGetPerspectiveScalingFactor(const Vec3f& position) const;
         };
     }
 }

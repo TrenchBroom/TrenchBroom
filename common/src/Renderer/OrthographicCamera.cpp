@@ -72,5 +72,9 @@ namespace TrenchBroom {
         float OrthographicCamera::doPickFrustum(const float size, const Ray3f& ray) const {
             return Math::nan<float>();
         }
+
+        float OrthographicCamera::doGetPerspectiveScalingFactor(const Vec3f& position) const {
+            return 1.0f;
+        }
     }
 }

@@ -28,13 +28,12 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
         class RenderBatch;
         class RenderContext;
     }
     
     namespace View {
-        class PickRay;
-        
         class RotateObjectsHandle {
         public:
             typedef enum {
@@ -67,7 +66,7 @@ namespace TrenchBroom {
             const Vec3& position() const;
             void setPosition(const Vec3& position);
             
-            Hit pick(const PickRay& pickRay) const;
+            Hit pick(const Ray3& pickRay, const Renderer::Camera& camera) const;
         
             Vec3 getPointHandlePosition(const HitArea area, const Vec3& cameraPos) const;
             Vec3 getPointHandleAxis(const HitArea area, const Vec3& cameraPos) const;
@@ -80,7 +79,7 @@ namespace TrenchBroom {
             void render3DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
             void computeAxes(const Vec3& cameraPos, Vec3& xAxis, Vec3& yAxis, Vec3& zAxis) const;
 
-            Hit pickPointHandle(const PickRay& pickRay, const Vec3& position, const HitArea area) const;
+            Hit pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const;
             Hit selectHit(const Hit& closest, const Hit& hit) const;
             
             Vec3 getPointHandlePosition(const Vec3& axis) const;

@@ -23,9 +23,13 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Hit.h"
-#include "View/PickRay.h"
+#include "View/PickRequest.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+    }
+    
     namespace View {
         typedef enum {
             IS_MapView3D,
@@ -71,7 +75,7 @@ namespace TrenchBroom {
             float m_scrollY;
             
             InputSource m_inputSource;
-            PickRay m_pickRay;
+            PickRequest m_pickRequest;
             Hits m_hits;
         public:
             InputState(InputSource inputSource);
@@ -106,8 +110,9 @@ namespace TrenchBroom {
 
             InputSource inputSource() const;
             
-            const PickRay& pickRay() const;
-            void setPickRay(const PickRay& pickRay);
+            const Ray3& pickRay() const;
+            const Renderer::Camera& camera() const;
+            void setPickRequest(const PickRequest& pickRequest);
 
             const Hits& hits() const;
             void setHits(const Hits& hits);

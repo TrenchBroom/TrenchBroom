@@ -17,25 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PointHandle.h"
+#include "PickRequest.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
-#include "Renderer/Camera.h"
+#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        PointHandle::PointHandle(const Vec3& position, const Color& color) :
-        m_position(position),
-        m_color(color) {}
+        PickRequest::PickRequest() :
+        m_camera(NULL) {}
         
-        FloatType PointHandle::pick(const Ray3& pickRay, const Renderer::Camera& camera) const {
-            const FloatType radius = static_cast<FloatType>(pref(Preferences::HandleRadius));
-            const FloatType scaling = static_cast<FloatType>(camera.perspectiveScalingFactor(m_position));
-            return pickRay.intersectWithSphere(m_position, 2.0 * radius * scaling);
+        PickRequest::PickRequest(const Ray3& pickRay, const Renderer::Camera* camera) :
+        m_pickRay(pickRay),
+        m_camera(camera) {}
+        
+        const Ray3& PickRequest::pickRay() const {
+            return m_pickRay;
         }
         
-        void PointHandle::render(const Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const bool highlight) const {
+        const Renderer::Camera& PickRequest::camera() const {
+            assert(m_camera != NULL);
+            return *m_camera;
         }
     }
 }

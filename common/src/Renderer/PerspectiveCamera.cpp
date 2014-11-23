@@ -142,5 +142,15 @@ namespace TrenchBroom {
             const float h = v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
             return Vec2f(h, v);
         }
+
+        float PerspectiveCamera::doGetPerspectiveScalingFactor(const Vec3f& position) const {
+            const float perpDist = perpendicularDistanceTo(position);
+            return perpDist / viewportFrustumDistance();
+        }
+
+        float PerspectiveCamera::viewportFrustumDistance() const {
+            const float height = static_cast<float>(unzoomedViewport().height);
+            return (height / 2.0f) / std::tan(Math::radians(m_fov) / 2.0f);
+        }
     }
 }

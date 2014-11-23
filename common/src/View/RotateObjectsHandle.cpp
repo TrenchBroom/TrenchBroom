@@ -33,7 +33,6 @@
 #include "Renderer/Sphere.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
-#include "View/PickRay.h"
 #include "View/PointHandle.h"
 
 #include <cassert>
@@ -77,13 +76,13 @@ namespace TrenchBroom {
             m_position = position;
         }
         
-        RotateObjectsHandle::Hit RotateObjectsHandle::pick(const PickRay& pickRay) const {
+        RotateObjectsHandle::Hit RotateObjectsHandle::pick(const Ray3& pickRay, const Renderer::Camera& camera) const {
             Vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
-            Hit hit = pickPointHandle(pickRay, m_position, HitArea_Center);
-            hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(xAxis), HitArea_XAxis));
-            hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(yAxis), HitArea_YAxis));
-            hit = selectHit(hit, pickPointHandle(pickRay, getPointHandlePosition(zAxis), HitArea_ZAxis));
+            Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
+            hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(xAxis), HitArea_XAxis));
+            hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
+            hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(zAxis), HitArea_ZAxis));
             return hit;
         }
 
@@ -454,9 +453,9 @@ namespace TrenchBroom {
         }
         */
         
-        RotateObjectsHandle::Hit RotateObjectsHandle::pickPointHandle(const PickRay& pickRay, const Vec3& position, const HitArea area) const {
+        RotateObjectsHandle::Hit RotateObjectsHandle::pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const {
             const PointHandle handle(position, Color());
-            const FloatType distance = handle.pick(pickRay);
+            const FloatType distance = handle.pick(pickRay, camera);
             
             if (Math::isnan(distance))
                 return Hit();

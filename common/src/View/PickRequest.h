@@ -17,28 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PickRay__
-#define __TrenchBroom__PickRay__
+#ifndef __TrenchBroom__PickRequest__
+#define __TrenchBroom__PickRequest__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class Camera;
+    }
+    
     namespace View {
-        class PickRay : public Ray3 {
+        class PickRequest {
+        private:
+            Ray3 m_pickRay;
+            const Renderer::Camera* m_camera;
         public:
-            Vec3 viewDir;
-        public:
-            PickRay();
-            PickRay(const Ray3& ray, const Vec3& viewDir);
-            PickRay(const Vec3& origin, const Vec3& direction, const Vec3& viewDir);
-
-            FloatType perpendicularIntersectWithSphere(const Vec3& center, FloatType radius) const;
-            Ray3 perpendicularRay(const Vec3& point) const;
-            Vec3 perpendicularOrigin(const Vec3& point) const;
-            FloatType perpendicularDistance(const Vec3& point) const;
+            PickRequest();
+            PickRequest(const Ray3& pickRay, const Renderer::Camera* camera);
+            
+            const Ray3& pickRay() const;
+            const Renderer::Camera& camera() const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__PickRay__) */
+#endif /* defined(__TrenchBroom__PickRequest__) */

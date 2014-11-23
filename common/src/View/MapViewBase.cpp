@@ -591,8 +591,9 @@ namespace TrenchBroom {
             glShadeModel(GL_SMOOTH);
         }
         
-        PickRay MapViewBase::doGetPickRay(const int x, const int y) const {
-            return PickRay(Ray3(camera()->pickRay(x, y)), Vec3(camera()->direction()));
+        PickRequest MapViewBase::doGetPickRequest(const int x, const int y) const {
+            const Ray3 pickRay(camera()->pickRay(x, y));
+            return PickRequest(pickRay, camera());
         }
         
         void MapViewBase::doShowPopupMenu() {

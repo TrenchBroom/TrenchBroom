@@ -21,7 +21,7 @@
 #define __TrenchBroom__ToolBoxConnector__
 
 #include "View/InputState.h"
-#include "View/PickRay.h"
+#include "View/PickRequest.h"
 
 #include <wx/wx.h>
 
@@ -93,7 +93,7 @@ namespace TrenchBroom {
 
             void showPopupMenu();
         private:
-            virtual PickRay doGetPickRay(int x, int y) const = 0;
+            virtual PickRequest doGetPickRequest(int x, int y) const = 0;
             virtual Hits doPick(const Ray3& pickRay) const = 0;
             virtual void doShowPopupMenu();
         };

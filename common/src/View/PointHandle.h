@@ -32,8 +32,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class PickRay;
-        
         class PointHandle {
         private:
             Vec3 m_position;
@@ -41,7 +39,7 @@ namespace TrenchBroom {
         public:
             PointHandle(const Vec3& position, const Color& color);
             
-            FloatType pick(const PickRay& pickRay) const;
+            FloatType pick(const Ray3& pickRay, const Renderer::Camera& camera) const;
             void render(const Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, bool highlight) const;
         };
     }
