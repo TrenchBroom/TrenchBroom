@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Vbo.h"
@@ -32,80 +33,25 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        PointHandleRenderer::PointHandleRenderer(const float radius, const size_t iterations) :
-        m_sphere(radius, iterations),
-        m_test(radius, 16, true),
-        m_circle(2.0f * radius, 16, false),
-        m_color(1.0f, 1.0f, 1.0f, 1.0f),
-        m_occludedColor(1.0f, 1.0f, 1.0f, 0.5f),
-        m_highlightColor(1.0f, 1.0f, 1.0f, 1.0f),
-        m_renderOccluded(true) {}
+        PointHandleRenderer::PointHandleRenderer() :
+        m_handle(pref(Preferences::HandleRadius), 16, true),
+        m_highlight(2.0f * pref(Preferences::HandleRadius), 16, false) {}
         
         void PointHandleRenderer::addPoint(const Vec3f& position) {
             m_points.push_back(position);
         }
         
-        void PointHandleRenderer::setPoint(const Vec3f& position) {
-            m_points = Vec3f::List(1, position);
-        }
-        
-        void PointHandleRenderer::setPoints(Vec3f::List& positions) {
-            using std::swap;
-            swap(m_points, positions);
-        }
-
-        void PointHandleRenderer::setPoints(const Vec3f::List& positions) {
-            m_points = positions;
+        void PointHandleRenderer::addSelectedPoint(const Vec3f& position) {
+            m_selectedPoints.push_back(position);
         }
 
         void PointHandleRenderer::addHighlight(const Vec3f& position) {
             m_highlights.push_back(position);
         }
         
-        void PointHandleRenderer::setHighlight(const Vec3f& position) {
-            m_highlights = Vec3f::List(1, position);
-        }
-        
-        void PointHandleRenderer::setHighlights(Vec3f::List& positions) {
-            using std::swap;
-            swap(m_highlights, positions);
-        }
-        
-        void PointHandleRenderer::setHighlights(const Vec3f::List& positions) {
-            m_highlights = positions;
-        }
-
-        void PointHandleRenderer::clear() {
-            m_points.clear();
-            m_highlights.clear();
-        }
-
-        void PointHandleRenderer::setRadius(float radius, size_t iterations) {
-            m_sphere = Sphere(radius, iterations);
-            m_test = Circle(radius, 16, true);
-            m_circle = Circle(2.0f * radius, 16, false);
-        }
-        
-        void PointHandleRenderer::setColor(const Color& color) {
-            m_color = color;
-        }
-        
-        void PointHandleRenderer::setOccludedColor(const Color& occludedColor) {
-            m_occludedColor = occludedColor;
-        }
-        
-        void PointHandleRenderer::setHighlightColor(const Color& highlightColor) {
-            m_highlightColor = highlightColor;
-        }
-
-        void PointHandleRenderer::setRenderOccluded(const bool renderOccluded) {
-            m_renderOccluded = renderOccluded;
-        }
-
         void PointHandleRenderer::doPrepare(Vbo& vbo) {
-            m_sphere.prepare(vbo);
-            m_test.prepare(vbo);
-            m_circle.prepare(vbo);
+            m_handle.prepare(vbo);
+            m_highlight.prepare(vbo);
         }
         
         void PointHandleRenderer::doRender(RenderContext& renderContext) {
@@ -122,33 +68,43 @@ namespace TrenchBroom {
 
             ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
             
+            glDisable(GL_DEPTH_TEST);
+
+            shader.set("Color", pref(Preferences::HandleColor));
             Vec3f::List::const_iterator it, end;
             for (it = m_points.begin(), end = m_points.end(); it != end; ++it) {
                 const Vec3f& position = *it;
                 const Vec3f offset = camera.project(position);
                 MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
                 
-                if (m_renderOccluded) {
-                    glDisable(GL_DEPTH_TEST);
-                    shader.set("Color", m_occludedColor);
-                    m_test.render();
-                    glEnable(GL_DEPTH_TEST);
-                }
-                
-                shader.set("Color", m_color);
-                m_test.render();
+                m_handle.render();
             }
             
-            glDisable(GL_DEPTH_TEST);
-            shader.set("Color", m_highlightColor);
+            shader.set("Color", pref(Preferences::SelectedHandleColor));
+            for (it = m_selectedPoints.begin(), end = m_selectedPoints.end(); it != end; ++it) {
+                const Vec3f& position = *it;
+                const Vec3f offset = camera.project(position);
+                MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
+                
+                m_handle.render();
+            }
             
+            shader.set("Color", pref(Preferences::SelectedHandleColor));
             for (it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
                 const Vec3f& position = *it;
                 const Vec3f offset(camera.project(position), 0.0f);
                 MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
-                m_circle.render();
+                m_highlight.render();
             }
             glEnable(GL_DEPTH_TEST);
+            
+            clear();
+        }
+
+        void PointHandleRenderer::clear() {
+            m_points.clear();
+            m_selectedPoints.clear();
+            m_highlights.clear();
         }
     }
 }

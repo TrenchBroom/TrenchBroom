@@ -21,7 +21,7 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
-#include "Renderer/MeshRenderer.h"
+#include "Renderer/TriangleMeshRenderer.h"
 
 #include <cassert>
 #include <algorithm>
@@ -86,7 +86,7 @@ namespace TrenchBroom {
             m_skins = NULL;
         }
 
-        Renderer::MeshRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::TexturedTriangleMeshRenderer* Md2Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             const TextureList& textures = m_skins->textures();
             
             assert(skinIndex < textures.size());
@@ -102,10 +102,10 @@ namespace TrenchBroom {
             size.addStrips(skin, strips.vertexCount(), strips.primCount());
             
             Mesh mesh(size);
-            mesh.addTriangleFans(skin, fans);
-            mesh.addTriangleStrips(skin, fans);
+            mesh.addTriangleFans(fans, skin);
+            mesh.addTriangleStrips(fans, skin);
             
-            return new Renderer::MeshRenderer(mesh);
+            return new Renderer::TexturedTriangleMeshRenderer(mesh);
         }
         
         BBox3f Md2Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

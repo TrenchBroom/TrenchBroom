@@ -20,6 +20,7 @@
 #ifndef TrenchBroom_IndexedVertexList_h
 #define TrenchBroom_IndexedVertexList_h
 
+#include "CollectionUtils.h"
 #include "Renderer/GL.h"
 
 #include <vector>
@@ -115,6 +116,12 @@ namespace TrenchBroom {
             
             const typename T::Vertex::List& vertices() const {
                 return m_vertices;
+            }
+            
+            void clear() {
+                m_vertices.clear();
+                m_indices.clear();
+                m_counts.clear();
             }
         };
     }

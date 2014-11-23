@@ -27,10 +27,10 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderService.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/Sphere.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 #include "View/PointHandle.h"
@@ -135,244 +135,6 @@ namespace TrenchBroom {
             }
         }
         
-        class RotateObjectsHandle::Render2DHandle : public Renderer::Renderable {
-        private:
-            float m_radius;
-            Vec3f m_position;
-            Vec3f m_cameraDirection;
-            Vec3f m_cameraRight;
-            HitArea m_highlight;
-            Renderer::Circle m_ring;
-            Renderer::PointHandleRenderer m_pointHandleRenderer;
-        public:
-            Render2DHandle(const float radius, const Vec3& position, const Vec3& cameraDirection, const Vec3& cameraRight, const HitArea highlight) :
-            m_radius(radius),
-            m_position(position),
-            m_cameraDirection(cameraDirection),
-            m_cameraRight(cameraRight),
-            m_highlight(highlight),
-            m_ring(m_radius, 24, false, m_cameraDirection.firstComponent(), 0.0f, Math::Cf::twoPi()) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                m_pointHandleRenderer.setRadius(prefs.get(Preferences::HandleRadius), 1);
-                m_pointHandleRenderer.setRenderOccluded(false);
-            }
-        private:
-            void doPrepare(Renderer::Vbo& vbo) {
-                m_ring.prepare(vbo),
-                m_pointHandleRenderer.prepare(vbo);
-            }
-            
-            void doRender(Renderer::RenderContext& renderContext) {
-                renderTranslated(renderContext);
-                renderPointHandles(renderContext);
-            }
-
-            void renderTranslated(Renderer::RenderContext& renderContext) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
-                
-                const BBox3f bounds(handleRadius);
-                Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
-
-                renderRing(renderContext);
-            }
-
-            void renderRing(Renderer::RenderContext& renderContext) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                
-                Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
-                switch (m_cameraDirection.firstComponent()) {
-                    case Math::Axis::AX:
-                        shader.set("Color", prefs.get(Preferences::XAxisColor));
-                        break;
-                    case Math::Axis::AY:
-                        shader.set("Color", prefs.get(Preferences::YAxisColor));
-                        break;
-                    case Math::Axis::AZ:
-                        shader.set("Color", prefs.get(Preferences::ZAxisColor));
-                        break;
-                };
-                
-                m_ring.render();
-            }
-            
-            void renderPointHandles(Renderer::RenderContext& renderContext) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                m_pointHandleRenderer.setColor(prefs.get(Preferences::RotateHandleColor));
-                m_pointHandleRenderer.setHighlightColor(prefs.get(Preferences::SelectedHandleColor));
-                
-                m_pointHandleRenderer.clear();
-                
-                m_pointHandleRenderer.addPoint(m_position);
-                m_pointHandleRenderer.addPoint(m_position + m_radius * m_cameraRight);
-                
-                switch (m_highlight) {
-                    case RotateObjectsHandle::HitArea_Center:
-                        m_pointHandleRenderer.addHighlight(m_position);
-                        break;
-                    case RotateObjectsHandle::HitArea_XAxis:
-                    case RotateObjectsHandle::HitArea_YAxis:
-                    case RotateObjectsHandle::HitArea_ZAxis:
-                        m_pointHandleRenderer.addHighlight(m_position + m_radius * m_cameraRight);
-                        break;
-                    case RotateObjectsHandle::HitArea_None:
-                        break;
-                    DEFAULT_SWITCH()
-                };
-                
-                m_pointHandleRenderer.render(renderContext);
-            }
-        };
-        
-        class RotateObjectsHandle::Render3DHandle : public Renderer::Renderable {
-        private:
-            float m_radius;
-            Vec3f m_position;
-            Vec3f m_xAxis;
-            Vec3f m_yAxis;
-            Vec3f m_zAxis;
-            HitArea m_highlight;
-            Renderer::VertexArray m_axesArray;
-            Renderer::Circle m_xRing;
-            Renderer::Circle m_yRing;
-            Renderer::Circle m_zRing;
-            Renderer::Circle m_xRingIndicator;
-            Renderer::Circle m_yRingIndicator;
-            Renderer::Circle m_zRingIndicator;
-            Renderer::PointHandleRenderer m_pointHandleRenderer;
-        public:
-            Render3DHandle(const float radius, const Vec3& position, const Vec3& xAxis, const Vec3& yAxis, const Vec3& zAxis, const HitArea highlight) :
-            m_radius(radius),
-            m_position(position),
-            m_xAxis(xAxis),
-            m_yAxis(yAxis),
-            m_zAxis(zAxis),
-            m_highlight(highlight),
-            m_axesArray(axesArray(m_radius)),
-            m_xRing(m_radius, 24, false, Math::Axis::AX, m_zAxis, m_yAxis),
-            m_yRing(m_radius, 24, false, Math::Axis::AY, m_xAxis, m_zAxis),
-            m_zRing(m_radius, 24, false, Math::Axis::AZ, m_xAxis, m_yAxis),
-            m_xRingIndicator(m_radius, 8, false, Math::Axis::AX,
-                             Quatf(Vec3f::PosX, Math::radians(+15.0f)) * m_yAxis,
-                             Quatf(Vec3f::PosX, Math::radians(-15.0f)) * m_yAxis),
-            m_yRingIndicator(m_radius, 8, false, Math::Axis::AY,
-                             Quatf(Vec3f::PosY, Math::radians(+15.0f)) * m_zAxis,
-                             Quatf(Vec3f::PosY, Math::radians(-15.0f)) * m_zAxis),
-            m_zRingIndicator(m_radius, 8, false, Math::Axis::AZ,
-                             Quatf(Vec3f::PosZ, Math::radians(+15.0f)) * m_xAxis,
-                             Quatf(Vec3f::PosZ, Math::radians(-15.0f)) * m_xAxis) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                m_pointHandleRenderer.setRadius(prefs.get(Preferences::HandleRadius), 1);
-                m_pointHandleRenderer.setRenderOccluded(false);
-            }
-        private:
-            static Renderer::VertexArray axesArray(const float radius) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                const Color& xColor = prefs.get(Preferences::XAxisColor);
-                const Color& yColor = prefs.get(Preferences::YAxisColor);
-                const Color& zColor = prefs.get(Preferences::ZAxisColor);
-                
-                const BBox3f bounds(radius);
-                Renderer::VertexSpecs::P3C4::Vertex::List vertices = Renderer::coordinateSystem(bounds, xColor, yColor, zColor);
-                return Renderer::VertexArray::swap(GL_LINES, vertices);
-            }
-            
-            void doPrepare(Renderer::Vbo& vbo) {
-                m_axesArray.prepare(vbo);
-                m_xRing.prepare(vbo);
-                m_yRing.prepare(vbo);
-                m_zRing.prepare(vbo);
-                m_xRingIndicator.prepare(vbo);
-                m_yRingIndicator.prepare(vbo);
-                m_zRingIndicator.prepare(vbo);
-                m_pointHandleRenderer.prepare(vbo);
-            }
-            
-            void doRender(Renderer::RenderContext& renderContext) {
-                glDisable(GL_DEPTH_TEST);
-                renderTranslated(renderContext);
-                renderPointHandles(renderContext);
-                glEnable(GL_DEPTH_TEST);
-            }
-
-            void renderTranslated(Renderer::RenderContext& renderContext) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                const float handleRadius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
-                
-                const BBox3f bounds(handleRadius);
-                Renderer::MultiplyModelMatrix translation(renderContext.transformation(), translationMatrix(m_position));
-                
-                renderAxes(renderContext);
-                renderRings(renderContext);
-                renderRingIndicators(renderContext);
-            }
-            
-            void renderAxes(Renderer::RenderContext& renderContext) {
-                Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPCShader);
-                m_axesArray.render();
-            }
-            
-            void renderRings(Renderer::RenderContext& renderContext) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                const Color& xColor = prefs.get(Preferences::XAxisColor);
-                const Color& yColor = prefs.get(Preferences::YAxisColor);
-                const Color& zColor = prefs.get(Preferences::ZAxisColor);
-
-                Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
-                shader.set("Color", xColor);
-                m_xRing.render();
-                shader.set("Color", yColor);
-                m_yRing.render();
-                shader.set("Color", zColor);
-                m_zRing.render();
-            }
-            
-            void renderRingIndicators(Renderer::RenderContext& renderContext) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                const Color& color = prefs.get(Preferences::RotateHandleColor);
-
-                Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
-                shader.set("Color", color);
-
-                m_xRingIndicator.render();
-                m_yRingIndicator.render();
-                m_zRingIndicator.render();
-            }
-            
-            void renderPointHandles(Renderer::RenderContext& renderContext) {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                m_pointHandleRenderer.setColor(prefs.get(Preferences::RotateHandleColor));
-                m_pointHandleRenderer.setHighlightColor(prefs.get(Preferences::SelectedHandleColor));
-
-                m_pointHandleRenderer.clear();
-                
-                m_pointHandleRenderer.addPoint(m_position);
-                m_pointHandleRenderer.addPoint(m_position + m_radius * m_xAxis);
-                m_pointHandleRenderer.addPoint(m_position + m_radius * m_yAxis);
-                m_pointHandleRenderer.addPoint(m_position + m_radius * m_zAxis);
-                
-                switch (m_highlight) {
-                    case RotateObjectsHandle::HitArea_Center:
-                        m_pointHandleRenderer.addHighlight(m_position);
-                        break;
-                    case RotateObjectsHandle::HitArea_XAxis:
-                        m_pointHandleRenderer.addHighlight(m_position + m_radius * m_xAxis);
-                        break;
-                    case RotateObjectsHandle::HitArea_YAxis:
-                        m_pointHandleRenderer.addHighlight(m_position + m_radius * m_yAxis);
-                        break;
-                    case RotateObjectsHandle::HitArea_ZAxis:
-                        m_pointHandleRenderer.addHighlight(m_position + m_radius * m_zAxis);
-                        break;
-                    case RotateObjectsHandle::HitArea_None:
-                        break;
-                        DEFAULT_SWITCH()
-                };
-                
-                m_pointHandleRenderer.render(renderContext);
-            }
-        };
-        
         void RotateObjectsHandle::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
             if (renderContext.render2D())
                 render2DHandle(renderContext, renderBatch, highlight);
@@ -381,34 +143,77 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsHandle::render2DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const float radius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
             
             const Renderer::Camera& camera = renderContext.camera();
+            const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
+            Renderer::RenderService& renderService = renderBatch.renderService();
             
-            renderBatch.addOneShot(new Render2DHandle(radius, m_position, camera.direction(), camera.right(), highlight));
+            const Color& color = pref(Preferences::axisColor(camera.direction().firstComponent()));
+            renderService.renderCircle(color, m_position, camera.direction().firstComponent(), 64, radius);
+            
+            renderService.renderPointHandle(m_position);
+            renderService.renderPointHandle(m_position + radius * camera.right());
+
+            switch (highlight) {
+                case RotateObjectsHandle::HitArea_Center:
+                    renderService.renderPointHandleHighlight(m_position);
+                    break;
+                case RotateObjectsHandle::HitArea_XAxis:
+                case RotateObjectsHandle::HitArea_YAxis:
+                case RotateObjectsHandle::HitArea_ZAxis:
+                    renderService.renderPointHandleHighlight(m_position + radius * camera.right());
+                    break;
+                case RotateObjectsHandle::HitArea_None:
+                    break;
+                    DEFAULT_SWITCH()
+            };
         }
         
         void RotateObjectsHandle::render3DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const float radius = static_cast<float>(prefs.get(Preferences::RotateHandleRadius));
+            const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
 
-            Vec3 xAxis, yAxis, zAxis;
-            computeAxes(Vec3(renderContext.camera().position()), xAxis, yAxis, zAxis);
+            Vec3f xAxis, yAxis, zAxis;
+            computeAxes(renderContext.camera().position(), xAxis, yAxis, zAxis);
 
-            renderBatch.addOneShot(new Render3DHandle(radius, m_position, xAxis, yAxis, zAxis, highlight));
-        }
+            Renderer::RenderService& renderService = renderBatch.renderService();
+            
+            renderService.renderCoordinateSystem(BBox3f(radius).translated(m_position));
+            renderService.renderCircle(pref(Preferences::XAxisColor), m_position, Math::Axis::AX, 64, radius, zAxis, yAxis);
+            renderService.renderCircle(pref(Preferences::YAxisColor), m_position, Math::Axis::AY, 64, radius, xAxis, zAxis);
+            renderService.renderCircle(pref(Preferences::ZAxisColor), m_position, Math::Axis::AZ, 64, radius, xAxis, yAxis);
 
-        void RotateObjectsHandle::computeAxes(const Vec3& cameraPos, Vec3& xAxis, Vec3& yAxis, Vec3& zAxis) const {
-            const Vec3 viewDir = (m_position - cameraPos).normalized();
-            if (Math::eq(std::abs(viewDir.z()), 1.0)) {
-                xAxis = Vec3::PosX;
-                yAxis = Vec3::PosY;
-            } else {
-                xAxis = viewDir.x() > 0.0 ? Vec3::NegX : Vec3::PosX;
-                yAxis = viewDir.y() > 0.0 ? Vec3::NegY : Vec3::PosY;
-            }
-            zAxis = viewDir.z() > 0.0 ? Vec3::NegZ : Vec3::PosZ;
+            renderService.renderCircle(pref(Preferences::HandleColor), m_position, Math::Axis::AX, 8, radius,
+                                       Quatf(Vec3f::PosX, Math::radians(+15.0f)) * yAxis,
+                                       Quatf(Vec3f::PosX, Math::radians(-15.0f)) * yAxis);
+            renderService.renderCircle(pref(Preferences::HandleColor), m_position, Math::Axis::AY, 8, radius,
+                                       Quatf(Vec3f::PosY, Math::radians(+15.0f)) * zAxis,
+                                       Quatf(Vec3f::PosY, Math::radians(-15.0f)) * zAxis);
+            renderService.renderCircle(pref(Preferences::HandleColor), m_position, Math::Axis::AZ, 8, radius,
+                                       Quatf(Vec3f::PosZ, Math::radians(+15.0f)) * xAxis,
+                                       Quatf(Vec3f::PosZ, Math::radians(-15.0f)) * xAxis);
+
+            renderService.renderPointHandle(m_position);
+            renderService.renderPointHandle(m_position + radius * xAxis);
+            renderService.renderPointHandle(m_position + radius * yAxis);
+            renderService.renderPointHandle(m_position + radius * zAxis);
+
+            switch (highlight) {
+                case RotateObjectsHandle::HitArea_Center:
+                    renderService.renderPointHandleHighlight(m_position);
+                    break;
+                case RotateObjectsHandle::HitArea_XAxis:
+                    renderService.renderPointHandleHighlight(m_position + radius * xAxis);
+                    break;
+                case RotateObjectsHandle::HitArea_YAxis:
+                    renderService.renderPointHandleHighlight(m_position + radius * yAxis);
+                    break;
+                case RotateObjectsHandle::HitArea_ZAxis:
+                    renderService.renderPointHandleHighlight(m_position + radius * zAxis);
+                    break;
+                case RotateObjectsHandle::HitArea_None:
+                    break;
+                    DEFAULT_SWITCH()
+            };
         }
 
         /*

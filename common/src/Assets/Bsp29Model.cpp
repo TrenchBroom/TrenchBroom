@@ -22,8 +22,8 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
-#include "Renderer/Mesh.h"
-#include "Renderer/MeshRenderer.h"
+#include "Renderer/TriangleMesh.h"
+#include "Renderer/TriangleMeshRenderer.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
 
@@ -97,8 +97,8 @@ namespace TrenchBroom {
             m_subModels.push_back(SubModel(faces, bounds));
         }
 
-        Renderer::MeshRenderer* Bsp29Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
-            typedef Renderer::Mesh<const Texture*, Renderer::VertexSpecs::P3T2> Mesh;
+        Renderer::TexturedTriangleMeshRenderer* Bsp29Model::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+            typedef Renderer::TriangleMesh<Renderer::VertexSpecs::P3T2, const Texture*> Mesh;
 
             FaceList::const_iterator it, end;
             const SubModel& model = m_subModels.front();
@@ -117,7 +117,7 @@ namespace TrenchBroom {
                 mesh.endTriangleSet();
             }
             
-            return new Renderer::MeshRenderer(mesh);
+            return new Renderer::TexturedTriangleMeshRenderer(mesh);
         }
 
         BBox3f Bsp29Model::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

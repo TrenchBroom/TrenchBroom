@@ -26,7 +26,8 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Model/Picker.h"
-#include "Renderer/PointHandleRenderer.h"
+#include "Renderer/RenderBatch.h"
+#include "Renderer/RenderService.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/VertexArray.h"
@@ -537,60 +538,29 @@ namespace TrenchBroom {
             if (!m_renderStateValid)
                 validateRenderState(splitMode);
             
-            PreferenceManager& prefs = PreferenceManager::instance();
-
-            if (m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty() && !splitMode) {
-                Renderer::PointHandleRenderer* renderer = new Renderer::PointHandleRenderer();
-                renderer->setColor(prefs.get(Preferences::HandleColor));
-                renderer->setOccludedColor(prefs.get(Preferences::OccludedHandleColor));
-                renderer->setRenderOccluded(true);
-                renderer->setPoints(VectorUtils::cast<Vec3f>(m_unselectedVertexHandlePositions));
-                renderBatch.addOneShot(renderer);
-            }
+            Renderer::RenderService& renderService = renderBatch.renderService();
+            if (m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty() && !splitMode)
+                renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_unselectedVertexHandlePositions));
             
-            if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode) {
-                Renderer::PointHandleRenderer* renderer = new Renderer::PointHandleRenderer();
-                renderer->setColor(prefs.get(Preferences::HandleColor));
-                renderer->setOccludedColor(prefs.get(Preferences::OccludedHandleColor));
-                renderer->setRenderOccluded(true);
-                renderer->setPoints(VectorUtils::cast<Vec3f>(m_unselectedEdgeHandlePositions));
-                renderBatch.addOneShot(renderer);
-            }
+            if (m_selectedVertexHandles.empty() && m_selectedFaceHandles.empty() && !splitMode)
+                renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_unselectedEdgeHandlePositions));
             
-            if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode) {
-                Renderer::PointHandleRenderer* renderer = new Renderer::PointHandleRenderer();
-                renderer->setColor(prefs.get(Preferences::HandleColor));
-                renderer->setOccludedColor(prefs.get(Preferences::OccludedHandleColor));
-                renderer->setRenderOccluded(true);
-                renderer->setPoints(VectorUtils::cast<Vec3f>(m_unselectedFaceHandlePositions));
-                renderBatch.addOneShot(renderer);
-            }
+            if (m_selectedVertexHandles.empty() && m_selectedEdgeHandles.empty() && !splitMode)
+                renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_unselectedFaceHandlePositions));
             
-            if ((!m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty()) && !splitMode) {
-                renderBatch.addOneShot(new Renderer::RenderOccludedEdges(m_edgeRenderer, true, prefs.get(Preferences::OccludedHandleColor), 0.025f));
-                renderBatch.addOneShot(new Renderer::RenderUnoccludedEdges(m_edgeRenderer, true, prefs.get(Preferences::HandleColor)));
-            }
+            if ((!m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty()) && !splitMode)
+                renderService.renderLines(pref(Preferences::HandleColor), m_edgeVertices);
             
-            Renderer::PointHandleRenderer* renderer = new Renderer::PointHandleRenderer();
-            renderer->setColor(prefs.get(Preferences::SelectedHandleColor));
-            renderer->setOccludedColor(prefs.get(Preferences::OccludedSelectedHandleColor));
-            renderer->setRenderOccluded(true);
-            renderer->setPoints(VectorUtils::cast<Vec3f>(m_selectedHandlePositions));
-            renderBatch.addOneShot(renderer);
+            renderService.renderSelectedPointHandles(VectorUtils::cast<Vec3f>(m_selectedHandlePositions));
         }
 
         void VertexHandleManager::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-
-            Renderer::PointHandleRenderer* renderer = new Renderer::PointHandleRenderer();
-            renderer->setColor(prefs.get(Preferences::SelectedHandleColor));
-            renderer->setOccludedColor(prefs.get(Preferences::OccludedSelectedHandleColor));
-            renderer->setRenderOccluded(true);
-            renderer->setPoint(position);
-            renderBatch.addOneShot(renderer);
-
+            
+            Renderer::RenderService& renderService = renderBatch.renderService();
+            renderService.renderPointHandleHighlight(position);
+            
             m_guideRenderer.setPosition(position);
-            m_guideRenderer.setColor(prefs.get(Preferences::HandleColor));
+            m_guideRenderer.setColor(pref(Preferences::HandleColor));
             renderBatch.add(&m_guideRenderer);
             
             Renderer::TextAnchor::Ptr anchor(new Renderer::SimpleTextAnchor(position, Renderer::Alignment::Bottom, Vec2f(0.0f, 16.0f)));
@@ -675,9 +645,6 @@ namespace TrenchBroom {
             Model::VertexToEdgesMap::const_iterator eIt, eEnd;
             Model::VertexToFacesMap::const_iterator fIt, fEnd;
 
-            typedef Renderer::VertexSpecs::P3::Vertex EdgeVertex;
-            EdgeVertex::List edgeVertices;
-
             m_unselectedVertexHandlePositions.clear();
             m_unselectedEdgeHandlePositions.clear();
             m_unselectedFaceHandlePositions.clear();
@@ -690,35 +657,35 @@ namespace TrenchBroom {
 
             for (vIt = m_unselectedVertexHandles.begin(), vEnd = m_unselectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                 const Vec3& position = vIt->first;
-                m_unselectedVertexHandlePositions.push_back(Vec3f(position));
+                m_unselectedVertexHandlePositions.push_back(position);
             }
 
             for (eIt = m_unselectedEdgeHandles.begin(), eEnd = m_unselectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
                 const Vec3& position = eIt->first;
-                m_unselectedEdgeHandlePositions.push_back(Vec3f(position));
+                m_unselectedEdgeHandlePositions.push_back(position);
             }
 
             for (fIt = m_unselectedFaceHandles.begin(), fEnd = m_unselectedFaceHandles.end(); fIt != fEnd; ++fIt) {
                 const Vec3& position = fIt->first;
-                m_unselectedFaceHandlePositions.push_back(Vec3f(position));
+                m_unselectedFaceHandlePositions.push_back(position);
             }
 
             for (vIt = m_selectedVertexHandles.begin(), vEnd = m_selectedVertexHandles.end(); vIt != vEnd; ++vIt) {
                 const Vec3& position = vIt->first;
-                m_selectedHandlePositions.push_back(Vec3f(position));
+                m_selectedHandlePositions.push_back(position);
             }
             
             
             for (eIt = m_selectedEdgeHandles.begin(), eEnd = m_selectedEdgeHandles.end(); eIt != eEnd; ++eIt) {
                 const Vec3& position = eIt->first;
-                m_selectedHandlePositions.push_back(Vec3f(position));
+                m_selectedHandlePositions.push_back(position);
                 
                 const Model::BrushEdgeList& edges = eIt->second;
                 Model::BrushEdgeList::const_iterator edgeIt, edgeEnd;
                 for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                     const Model::BrushEdge* edge = *edgeIt;
-                    edgeVertices.push_back(Vec3f(edge->start->position));
-                    edgeVertices.push_back(Vec3f(edge->end->position));
+                    m_edgeVertices.push_back(Vec3f(edge->start->position));
+                    m_edgeVertices.push_back(Vec3f(edge->end->position));
                 }
             }
             
@@ -735,13 +702,12 @@ namespace TrenchBroom {
                     Model::BrushEdgeList::const_iterator edgeIt, edgeEnd;
                     for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                         const Model::BrushEdge* edge = *edgeIt;
-                        edgeVertices.push_back(Vec3f(edge->start->position));
-                        edgeVertices.push_back(Vec3f(edge->end->position));
+                        m_edgeVertices.push_back(Vec3f(edge->start->position));
+                        m_edgeVertices.push_back(Vec3f(edge->end->position));
                     }
                 }
             }
 
-            m_edgeRenderer = Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, edgeVertices));
             m_renderStateValid = true;
         }
     }

@@ -25,7 +25,6 @@
 #include "Color.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/Sphere.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -35,39 +34,22 @@ namespace TrenchBroom {
         
         class PointHandleRenderer : public Renderable {
         private:
-            Sphere m_sphere;
-            Circle m_test;
-            Circle m_circle;
-            
             Vec3f::List m_points;
+            Vec3f::List m_selectedPoints;
             Vec3f::List m_highlights;
-            Color m_color;
-            Color m_occludedColor;
-            Color m_highlightColor;
-            bool m_renderOccluded;
+            Circle m_handle;
+            Circle m_highlight;
         public:
-            PointHandleRenderer(float radius = 3.0f, size_t iterations = 1);
-
-            void addPoint(const Vec3f& position);
-            void setPoint(const Vec3f& position);
-            void setPoints(Vec3f::List& positions);
-            void setPoints(const Vec3f::List& positions);
-
-            void addHighlight(const Vec3f& position);
-            void setHighlight(const Vec3f& position);
-            void setHighlights(Vec3f::List& positions);
-            void setHighlights(const Vec3f::List& positions);
-
-            void clear();
+            PointHandleRenderer();
             
-            void setRadius(float radius, size_t iterations);
-            void setColor(const Color& color);
-            void setOccludedColor(const Color& occludedColor);
-            void setHighlightColor(const Color& highlightColor);
-            void setRenderOccluded(bool renderOccluded);
+            void addPoint(const Vec3f& position);
+            void addSelectedPoint(const Vec3f& position);
+            void addHighlight(const Vec3f& position);
         private:
             void doPrepare(Vbo& vbo);
             void doRender(RenderContext& renderContext);
+            
+            void clear();
         };
     }
 }

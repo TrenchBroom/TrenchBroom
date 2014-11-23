@@ -28,7 +28,7 @@
 #include "IO/IOUtils.h"
 #include "IO/MappedFile.h"
 #include "IO/Path.h"
-#include "Renderer/Mesh.h"
+#include "Renderer/TriangleMesh.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
 

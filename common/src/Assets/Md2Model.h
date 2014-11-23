@@ -24,7 +24,7 @@
 #include "Assets/EntityModel.h"
 #include "StringUtils.h"
 #include "VecMath.h"
-#include "Renderer/Mesh.h"
+#include "Renderer/TriangleMesh.h"
 #include "Renderer/VertexSpec.h"
 
 #include <vector>
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         public:
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::Mesh<const Assets::Texture*, VertexSpec> Mesh;
+            typedef Renderer::TriangleMesh<VertexSpec, const Assets::Texture*> Mesh;
 
             class Frame {
             private:
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             Md2Model(const String& name, const TextureList& skins, const FrameList& frames);
             ~Md2Model();
         private:
-            Renderer::MeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::TexturedTriangleMeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             void doPrepare();

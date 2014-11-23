@@ -23,7 +23,7 @@
 #include "Color.h"
 #include "Assets/AssetTypes.h"
 #include "Model/BrushFace.h"
-#include "Renderer/MeshRenderer.h"
+#include "Renderer/TriangleMeshRenderer.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
@@ -38,7 +38,7 @@ namespace TrenchBroom {
         
         class FaceRenderer : public Renderable {
         private:
-            MeshRenderer m_meshRenderer;
+            TexturedTriangleMeshRenderer m_meshRenderer;
             Color m_faceColor;
             bool m_grayscale;
             bool m_tint;

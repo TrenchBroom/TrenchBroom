@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class MeshRenderer;
+        class TexturedTriangleMeshRenderer;
     }
     
     namespace Assets {
@@ -35,14 +35,14 @@ namespace TrenchBroom {
             EntityModel();
             virtual ~EntityModel();
             
-            Renderer::MeshRenderer* buildRenderer(const size_t skinIndex, const size_t frameIndex) const;
+            Renderer::TexturedTriangleMeshRenderer* buildRenderer(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f bounds(const size_t skinIndex, const size_t frameIndex) const;
             BBox3f transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             
             bool prepared() const;
             void prepare();
         private:
-            virtual Renderer::MeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const = 0;
+            virtual Renderer::TexturedTriangleMeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const = 0;
             virtual BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const = 0;
             virtual BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const = 0;
             virtual void doPrepare() = 0;

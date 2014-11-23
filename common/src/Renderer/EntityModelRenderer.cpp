@@ -28,7 +28,7 @@
 #include "Assets/EntityModelManager.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
-#include "Renderer/MeshRenderer.h"
+#include "Renderer/TriangleMeshRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             if (model != NULL) {
                 if (!model->prepared())
                     m_unpreparedModels.push_back(model);
-                MeshRenderer* renderer = m_entityModelManager.renderer(modelSpec);
+                TexturedTriangleMeshRenderer* renderer = m_entityModelManager.renderer(modelSpec);
                 if (renderer != NULL) {
                     m_entities[entity] = renderer;
                     if (!renderer->prepared())
@@ -120,7 +120,7 @@ namespace TrenchBroom {
         void EntityModelRenderer::prepareRenderers(Vbo& vbo) {
             RendererList::const_iterator it, end;
             for (it = m_unpreparedRenderers.begin(), end = m_unpreparedRenderers.end(); it != end; ++it) {
-                MeshRenderer* renderer = *it;
+                TexturedTriangleMeshRenderer* renderer = *it;
                 renderer->prepare(vbo);
             }
             m_unpreparedRenderers.clear();
@@ -145,7 +145,7 @@ namespace TrenchBroom {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
                     continue;
                 
-                MeshRenderer* renderer = it->second;
+                TexturedTriangleMeshRenderer* renderer = it->second;
                 
                 const Vec3f position = entity->origin();
                 const Quatf rotation = entity->rotation();

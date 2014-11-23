@@ -38,6 +38,8 @@ namespace TrenchBroom {
         extern Preference<Color> ZAxisColor;
         extern Preference<Color> PointFileColor;
         
+        Preference<Color>& axisColor(Math::Axis::Type axis);
+        
         extern Preference<Color> CompassBackgroundColor;
         extern Preference<Color> CompassBackgroundOutlineColor;
         extern Preference<Color> CompassAxisOutlineColor;

@@ -31,24 +31,30 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        struct SetShaderParms {
+        struct TextureMeshFunc : public TexturedTriangleMeshRenderer::MeshFuncBase {
             ActiveShader& shader;
             bool applyTexture;
             const Color& defaultColor;
             
-            SetShaderParms(ActiveShader& i_shader, const bool i_applyTexture, const Color& i_defaultColor) :
+            TextureMeshFunc(ActiveShader& i_shader, const bool i_applyTexture, const Color& i_defaultColor) :
             shader(i_shader),
             applyTexture(i_applyTexture),
             defaultColor(i_defaultColor) {}
             
-            void operator()(const Assets::Texture* texture) const {
+            void before(const Assets::Texture* const & texture) const {
                 if (texture != NULL) {
+                    texture->activate();
                     shader.set("ApplyTexture", applyTexture);
                     shader.set("Color", texture->averageColor());
                 } else {
                     shader.set("ApplyTexture", false);
                     shader.set("Color", defaultColor);
                 }
+            }
+            
+            void after(const Assets::Texture* const & texture) const {
+                if (texture != NULL)
+                    texture->deactivate();
             }
         };
         
@@ -148,10 +154,10 @@ namespace TrenchBroom {
             shader.set("Alpha", m_alpha);
             if (m_alpha < 1.0f) {
                 glDepthMask(GL_FALSE);
-                m_meshRenderer.render(SetShaderParms(shader, applyTexture, m_faceColor));
+                m_meshRenderer.render(TextureMeshFunc(shader, applyTexture, m_faceColor));
                 glDepthMask(GL_TRUE);
             } else {
-                m_meshRenderer.render(SetShaderParms(shader, applyTexture, m_faceColor));
+                m_meshRenderer.render(TextureMeshFunc(shader, applyTexture, m_faceColor));
             }
         }
     }

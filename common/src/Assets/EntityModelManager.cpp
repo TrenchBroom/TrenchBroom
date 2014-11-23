@@ -24,7 +24,7 @@
 #include "Logger.h"
 #include "Assets/EntityModel.h"
 #include "IO/EntityModelLoader.h"
-#include "Renderer/MeshRenderer.h"
+#include "Renderer/TriangleMeshRenderer.h"
 
 namespace TrenchBroom {
     namespace Assets {
@@ -79,7 +79,7 @@ namespace TrenchBroom {
             }
         }
         
-        Renderer::MeshRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
+        Renderer::TexturedTriangleMeshRenderer* EntityModelManager::renderer(const Assets::ModelSpecification& spec) const {
             EntityModel* entityModel = model(spec.path);
             if (entityModel == NULL)
                 return NULL;
@@ -91,7 +91,7 @@ namespace TrenchBroom {
             if (m_rendererMismatches.count(spec) > 0)
                 return NULL;
             
-            Renderer::MeshRenderer* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
+            Renderer::TexturedTriangleMeshRenderer* renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
             if (renderer == NULL) {
                 m_rendererMismatches.insert(spec);
                 

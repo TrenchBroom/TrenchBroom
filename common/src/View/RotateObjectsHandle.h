@@ -60,8 +60,6 @@ namespace TrenchBroom {
             };
         private:
             Vec3 m_position;
-            class Render2DHandle;
-            class Render3DHandle;
         public:
             const Vec3& position() const;
             void setPosition(const Vec3& position);
@@ -77,7 +75,19 @@ namespace TrenchBroom {
         private:
             void render2DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
             void render3DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
-            void computeAxes(const Vec3& cameraPos, Vec3& xAxis, Vec3& yAxis, Vec3& zAxis) const;
+            
+            template <typename T>
+            void computeAxes(const Vec<T,3>& cameraPos, Vec<T,3>& xAxis, Vec<T,3>& yAxis, Vec<T,3>& zAxis) const {
+                const Vec<T,3> viewDir = (m_position - cameraPos).normalized();
+                if (Math::eq(std::abs(viewDir.z()), static_cast<T>(1.0))) {
+                    xAxis = Vec<T,3>::PosX;
+                    yAxis = Vec<T,3>::PosY;
+                } else {
+                    xAxis = Math::pos(viewDir.x()) ? Vec<T,3>::NegX : Vec<T,3>::PosX;
+                    yAxis = Math::pos(viewDir.y()) ? Vec<T,3>::NegY : Vec<T,3>::PosY;
+                }
+                zAxis = Math::pos(viewDir.z()) ? Vec<T,3>::NegZ : Vec<T,3>::PosZ;
+            }
 
             Hit pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const;
             Hit selectHit(const Hit& closest, const Hit& hit) const;

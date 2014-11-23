@@ -43,29 +43,8 @@ namespace TrenchBroom {
             assert(radius > 0.0f);
             assert(segments > 0);
 
-            float angle1, angle2, angleLength;
-            switch (axis) {
-                case Math::Axis::AX:
-                    angle1 = angleBetween(startAxis, Vec3f::PosY, Vec3f::PosX);
-                    angle2 = angleBetween(endAxis, Vec3f::PosY, Vec3f::PosX);
-                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosX), angleBetween(endAxis, startAxis, Vec3f::PosX));
-                    break;
-                case Math::Axis::AY:
-                    angle1 = angleBetween(startAxis, Vec3f::PosZ, Vec3f::PosY);
-                    angle2 = angleBetween(endAxis, Vec3f::PosZ, Vec3f::PosY);
-                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosY), angleBetween(endAxis, startAxis, Vec3f::PosY));
-                    break;
-                default:
-                    angle1 = angleBetween(startAxis, Vec3f::PosX, Vec3f::PosZ);
-                    angle2 = angleBetween(endAxis, Vec3f::PosX, Vec3f::PosZ);
-                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosZ), angleBetween(endAxis, startAxis, Vec3f::PosZ));
-                    break;
-            }
-            const float minAngle = std::min(angle1, angle2);
-            const float maxAngle = std::max(angle1, angle2);
-            const float startAngle = (maxAngle - minAngle <= Math::Cf::pi() ? minAngle : maxAngle);
-
-            init3D(radius, segments, filled, axis, startAngle, angleLength);
+            const std::pair<float, float> angles = startAngleAndLength(axis, startAxis, endAxis);
+            init3D(radius, segments, filled, axis, angles.first, angles.second);
         }
         
         Circle::Circle(const float radius, const size_t segments, const bool filled, const Math::Axis::Type axis, const float startAngle, const float angleLength) {

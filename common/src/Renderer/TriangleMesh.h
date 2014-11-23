@@ -37,20 +37,20 @@
 namespace TrenchBroom {
     namespace Renderer {
         template <typename Key>
-        struct MeshRenderData {
+        struct TriangleMeshRenderData {
             Key key;
             VertexArray triangles;
             VertexArray triangleFans;
             VertexArray triangleStrips;
             
-            MeshRenderData(const Key& i_key) :
+            TriangleMeshRenderData(const Key& i_key) :
             key(i_key) {}
             
-            typedef std::vector<MeshRenderData<Key> > List;
+            typedef std::vector<TriangleMeshRenderData<Key> > List;
         };
 
-        template <typename Key, class VertexSpec>
-        class Mesh {
+        template <class VertexSpec, typename Key = int>
+        class TriangleMesh {
         public:
             class MeshSize {
             public:
@@ -124,24 +124,24 @@ namespace TrenchBroom {
             TriangleType m_currentType;
             size_t m_vertexCount;
         public:
-            Mesh(const MeshSize& meshSize) :
+            TriangleMesh() :
+            m_currentData(m_meshData.end()),
+            m_currentType(TriangleType_Unset),
+            m_vertexCount(0) {}
+
+            TriangleMesh(const MeshSize& meshSize) :
             m_currentData(m_meshData.end()),
             m_currentType(TriangleType_Unset),
             m_vertexCount(0) {
-                typename MeshSize::KeySizeMap::const_iterator it, end;
-                for (it = meshSize.sizes.begin(), end = meshSize.sizes.end(); it != end; ++it) {
-                    const Key& key = it->first;
-                    const typename MeshSize::Size& size = it->second;
-                    MapUtils::insertOrFail(m_meshData, key, MeshData(size));
-                }
+                init(meshSize);
             }
 
             size_t size() const {
                 return m_vertexCount * VertexSpec::Size;
             }
             
-            typename MeshRenderData<Key>::List renderData() {
-                typename MeshRenderData<Key>::List result;
+            typename TriangleMeshRenderData<Key>::List renderData() {
+                typename TriangleMeshRenderData<Key>::List result;
                 typename MeshDataMap::iterator it, end;
                 for (it = m_meshData.begin(), end = m_meshData.end(); it != end; ++it) {
                     const Key& key = it->first;
@@ -151,7 +151,7 @@ namespace TrenchBroom {
                     IndexedList& fans = meshData.triangleFans;
                     IndexedList& strips = meshData.triangleStrips;
                     
-                    MeshRenderData<Key> renderData(key);
+                    TriangleMeshRenderData<Key> renderData(key);
                     if (!set.empty())
                         renderData.triangles = VertexArray::swap(GL_TRIANGLES, meshData.triangleSet);
                     if (!fans.empty())
@@ -191,14 +191,14 @@ namespace TrenchBroom {
                 end();
             }
             
-            void addTriangleFans(const Key& key, const IndexedList& fans) {
+            void addTriangleFans(const IndexedList& fans, const Key& key = 0) {
                 beginTriangleFan(key);
                 MeshData& meshData = m_currentData->second;
                 meshData.triangleFans.addPrimitives(fans);
                 endTriangleFan();
             }
             
-            void beginTriangleFan(const Key& key) {
+            void beginTriangleFan(const Key& key = 0) {
                 begin(TriangleType_Fan, key);
             }
             
@@ -230,14 +230,14 @@ namespace TrenchBroom {
                 end();
             }
             
-            void addTriangleStrips(const Key& key, const IndexedList& strips) {
+            void addTriangleStrips(const IndexedList& strips, const Key& key = 0) {
                 beginTriangleStrip(key);
                 MeshData& meshData = m_currentData->second;
                 meshData.triangleStrips.addPrimitives(strips);
                 endTriangleStrip();
             }
             
-            void beginTriangleStrip(const Key& key) {
+            void beginTriangleStrip(const Key& key = 0) {
                 begin(TriangleType_Strip, key);
             }
             
@@ -268,7 +268,22 @@ namespace TrenchBroom {
                 meshData.triangleStrips.endPrimitive();
                 end();
             }
+            
+            void clear() {
+                m_meshData.clear();
+                m_currentData = m_meshData.end();
+                m_vertexCount = 0;
+            }
         private:
+            void init(const MeshSize& meshSize) {
+                typename MeshSize::KeySizeMap::const_iterator it, end;
+                for (it = meshSize.sizes.begin(), end = meshSize.sizes.end(); it != end; ++it) {
+                    const Key& key = it->first;
+                    const typename MeshSize::Size& size = it->second;
+                    MapUtils::insertOrFail(m_meshData, key, MeshData(size));
+                }
+            }
+            
             void begin(const TriangleType type, const Key& key) {
                 assert(m_currentType == TriangleType_Unset);
                 assert(type != TriangleType_Unset);

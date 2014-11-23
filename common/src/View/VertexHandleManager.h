@@ -65,8 +65,8 @@ namespace TrenchBroom {
             Vec3::List m_unselectedFaceHandlePositions;
             Vec3::List m_selectedHandlePositions;
             
+            Vec3f::List m_edgeVertices;
             Renderer::PointGuideRenderer m_guideRenderer;
-            Renderer::EdgeRenderer m_edgeRenderer;
             Renderer::TextRenderer<Vec3> m_textRenderer;
             Renderer::TextRenderer<Vec3>::SimpleTextRendererFilter m_textFilter;
             Renderer::TextRenderer<Vec3>::PrefTextColorProvider m_textColorProvider;

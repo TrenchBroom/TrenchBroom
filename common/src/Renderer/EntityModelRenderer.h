@@ -40,15 +40,15 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class MeshRenderer;
+        class TexturedTriangleMeshRenderer;
         class RenderBatch;
         class RenderContext;
         
         class EntityModelRenderer : public Renderable {
         private:
-            typedef std::map<Model::Entity*, MeshRenderer*> EntityMap;
+            typedef std::map<Model::Entity*, TexturedTriangleMeshRenderer*> EntityMap;
             typedef std::vector<Assets::EntityModel*> EntityModelList;
-            typedef std::vector<MeshRenderer*> RendererList;
+            typedef std::vector<TexturedTriangleMeshRenderer*> RendererList;
             
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;

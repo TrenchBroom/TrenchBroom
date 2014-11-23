@@ -17,46 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MeshRenderer.h"
-
-#include "PreferenceManager.h"
-#include "Preferences.h"
-#include "Renderer/Vbo.h"
+#include "LineMeshRenderer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        MeshRenderer::MeshRenderer() :
-        m_prepared(true) {}
-
-        bool MeshRenderer::empty() const {
-            return m_renderData.empty();
-        }
-
-        bool MeshRenderer::prepared() const {
+        LineMeshRenderer::LineMeshRenderer() :
+        m_prepared(false) {}
+        
+        bool LineMeshRenderer::prepared() const {
             return m_prepared;
         }
-
-        void MeshRenderer::prepare(Vbo& vbo) {
+        
+        void LineMeshRenderer::prepare(Vbo& vbo) {
             if (m_prepared)
                 return;
             
-            RenderData::List::iterator it, end;
-            for (it = m_renderData.begin(),  end = m_renderData.end(); it != end; ++it) {
-                RenderData& renderData = *it;
-                renderData.triangles.prepare(vbo);
-                renderData.triangleFans.prepare(vbo);
-                renderData.triangleStrips.prepare(vbo);
-            }
-            
+            m_renderData.lines.prepare(vbo);
+            m_renderData.lineStrips.prepare(vbo);
+            m_renderData.lineLoops.prepare(vbo);
             m_prepared = true;
         }
-
-        struct NopFunc {
-            void operator()(const Assets::Texture* texture) const {}
-        };
         
-        void MeshRenderer::render() {
-            render(NopFunc());
+        void LineMeshRenderer::render() {
+            m_renderData.lines.render();
+            m_renderData.lineStrips.render();
+            m_renderData.lineLoops.render();
         }
     }
 }

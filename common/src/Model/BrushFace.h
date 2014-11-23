@@ -30,7 +30,7 @@
 #include "Model/BrushGeometryTypes.h"
 #include "Model/ModelTypes.h"
 #include "Model/TexCoordSystem.h"
-#include "Renderer/Mesh.h"
+#include "Renderer/TriangleMesh.h"
 #include "Renderer/VertexSpec.h"
 
 #include <vector>
@@ -61,7 +61,7 @@ namespace TrenchBroom {
             
             typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
             typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::Mesh<const Assets::Texture*, VertexSpec> Mesh;
+            typedef Renderer::TriangleMesh<VertexSpec, const Assets::Texture*> Mesh;
             static const String NoTextureName;
         private:
             Brush* m_brush;

@@ -32,6 +32,18 @@ namespace TrenchBroom {
         Preference<Color> ZAxisColor(IO::Path("Renderer/Colors/Z axis"), Color(0x10, 0x9C, 0xFF, 0.7f));
         Preference<Color> PointFileColor(IO::Path("Renderer/Colors/Point file"), Color(0.0f, 1.0f, 0.0f, 1.0f));
         
+        Preference<Color>& axisColor(Math::Axis::Type axis) {
+            switch (axis) {
+                case Math::Axis::AX:
+                    return Preferences::XAxisColor;
+                case Math::Axis::AY:
+                    return Preferences::YAxisColor;
+                case Math::Axis::AZ:
+                default:
+                    return Preferences::ZAxisColor;
+            }
+        }
+
         Preference<Color> CompassBackgroundColor(IO::Path("Renderer/Colors/Compass background"), Color(0.5f, 0.5f, 0.5f, 0.5f));
         Preference<Color> CompassBackgroundOutlineColor(IO::Path("Renderer/Colors/Compass background outline"), Color(1.0f, 1.0f, 1.0f, 0.5f));
         Preference<Color> CompassAxisOutlineColor(IO::Path("Renderer/Colors/Compass axis outline"), Color(1.0f, 1.0f, 1.0f, 1.0f));

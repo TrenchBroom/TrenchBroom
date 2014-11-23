@@ -22,8 +22,8 @@
 #include "CollectionUtils.h"
 #include "Assets/Texture.h"
 #include "Assets/Texture.h"
-#include "Renderer/MeshRenderer.h"
-#include "Renderer/Mesh.h"
+#include "Renderer/TriangleMeshRenderer.h"
+#include "Renderer/TriangleMesh.h"
 #include "Renderer/VertexSpec.h"
 
 #include <cassert>
@@ -118,7 +118,7 @@ namespace TrenchBroom {
             m_frames.push_back(frame);
         }
 
-        Renderer::MeshRenderer* MdlModel::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
+        Renderer::TexturedTriangleMeshRenderer* MdlModel::doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const {
             if (skinIndex >= m_skins.size())
                 return NULL;
             if (frameIndex >= m_frames.size())
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             const MdlSkin* skin = m_skins[skinIndex];
             const MdlFrame* frame = m_frames[frameIndex]->firstFrame();
 
-            typedef Renderer::Mesh<const Texture*, Renderer::VertexSpecs::P3T2> Mesh;
+            typedef Renderer::TriangleMesh<Renderer::VertexSpecs::P3T2, const Texture*> Mesh;
             
             Mesh::MeshSize size;
             size.addSet(skin->firstPicture(), frame->triangles().size());
@@ -136,7 +136,7 @@ namespace TrenchBroom {
             mesh.addTrianglesToSet(frame->triangles());
             mesh.endTriangleSet();
             
-            return new Renderer::MeshRenderer(mesh);
+            return new Renderer::TexturedTriangleMeshRenderer(mesh);
         }
 
         BBox3f MdlModel::doGetBounds(const size_t skinIndex, const size_t frameIndex) const {

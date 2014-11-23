@@ -34,16 +34,24 @@ namespace TrenchBroom {
         }
         
         VertexSpecs::P3C4::Vertex::List coordinateSystem(const BBox3f& bounds, const Color& x, const Color& y, const Color& z) {
+            const Vec3f center = bounds.center();
+            
             typedef VertexSpecs::P3C4::Vertex Vertex;
             Vertex::List vertices(6);
             
-            vertices[0] = Vertex(Vec3f(bounds.min.x(),           0.0f,           0.0f), x);
-            vertices[1] = Vertex(Vec3f(bounds.max.x(),           0.0f,           0.0f), x);
-            vertices[2] = Vertex(Vec3f(          0.0f, bounds.min.y(),           0.0f), y);
-            vertices[3] = Vertex(Vec3f(          0.0f, bounds.max.y(),           0.0f), y);
-            vertices[4] = Vertex(Vec3f(          0.0f,           0.0f, bounds.min.z()), z);
-            vertices[5] = Vertex(Vec3f(          0.0f,           0.0f, bounds.max.z()), z);
+            vertices[0] = Vertex(Vec3f(bounds.min.x(),     center.y(),     center.z()), x);
+            vertices[1] = Vertex(Vec3f(bounds.max.x(),     center.y(),     center.z()), x);
+            vertices[2] = Vertex(Vec3f(    center.x(), bounds.min.y(),     center.z()), y);
+            vertices[3] = Vertex(Vec3f(    center.x(), bounds.max.y(),     center.z()), y);
+            vertices[4] = Vertex(Vec3f(    center.x(),     center.y(), bounds.min.z()), z);
+            vertices[5] = Vertex(Vec3f(    center.x(),     center.y(), bounds.max.z()), z);
 
+            return vertices;
+        }
+
+        Vec2f::List circle2D(const float radius, const size_t segments) {
+            Vec2f::List vertices = circle2D(radius, 0.0f, Math::Cf::twoPi(), segments);
+            vertices.push_back(Vec2f::Null);
             return vertices;
         }
 
@@ -97,6 +105,31 @@ namespace TrenchBroom {
             }
             
             return vertices;
+        }
+
+        std::pair<float, float> startAngleAndLength(const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis) {
+            float angle1, angle2, angleLength;
+            switch (axis) {
+                case Math::Axis::AX:
+                    angle1 = angleBetween(startAxis, Vec3f::PosY, Vec3f::PosX);
+                    angle2 = angleBetween(endAxis, Vec3f::PosY, Vec3f::PosX);
+                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosX), angleBetween(endAxis, startAxis, Vec3f::PosX));
+                    break;
+                case Math::Axis::AY:
+                    angle1 = angleBetween(startAxis, Vec3f::PosZ, Vec3f::PosY);
+                    angle2 = angleBetween(endAxis, Vec3f::PosZ, Vec3f::PosY);
+                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosY), angleBetween(endAxis, startAxis, Vec3f::PosY));
+                    break;
+                default:
+                    angle1 = angleBetween(startAxis, Vec3f::PosX, Vec3f::PosZ);
+                    angle2 = angleBetween(endAxis, Vec3f::PosX, Vec3f::PosZ);
+                    angleLength = std::min(angleBetween(startAxis, endAxis, Vec3f::PosZ), angleBetween(endAxis, startAxis, Vec3f::PosZ));
+                    break;
+            }
+            const float minAngle = std::min(angle1, angle2);
+            const float maxAngle = std::max(angle1, angle2);
+            const float startAngle = (maxAngle - minAngle <= Math::Cf::pi() ? minAngle : maxAngle);
+            return std::make_pair(startAngle, angleLength);
         }
 
         Vec2f::List roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
