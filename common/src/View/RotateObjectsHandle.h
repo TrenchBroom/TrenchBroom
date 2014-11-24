@@ -34,6 +34,8 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class InputState;
+        
         class RotateObjectsHandle {
         public:
             typedef enum {
@@ -64,8 +66,11 @@ namespace TrenchBroom {
             const Vec3& position() const;
             void setPosition(const Vec3& position);
             
-            Hit pick(const Ray3& pickRay, const Renderer::Camera& camera) const;
-        
+            Hit pick(const InputState& inputState) const;
+        private:
+            Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const;
+            Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const;
+        public:
             Vec3 getPointHandlePosition(const HitArea area, const Vec3& cameraPos) const;
             Vec3 getPointHandleAxis(const HitArea area, const Vec3& cameraPos) const;
             Vec3 getRotationAxis(const HitArea area, const Vec3& cameraPos) const;

@@ -33,6 +33,7 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
+#include "View/InputState.h"
 #include "View/PointHandle.h"
 
 #include <cassert>
@@ -76,9 +77,37 @@ namespace TrenchBroom {
             m_position = position;
         }
         
-        RotateObjectsHandle::Hit RotateObjectsHandle::pick(const Ray3& pickRay, const Renderer::Camera& camera) const {
+        RotateObjectsHandle::Hit RotateObjectsHandle::pick(const InputState& inputState) const {
+            if (inputState.inputSource() == IS_MapView3D)
+                return pick3D(inputState.pickRay(), inputState.camera());
+            else
+                return pick2D(inputState.pickRay(), inputState.camera());
+        }
+        
+        RotateObjectsHandle::Hit RotateObjectsHandle::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const {
             Vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
+            
+            Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
+            switch (camera.direction().firstComponent()) {
+                case Math::Axis::AX:
+                    hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
+                    break;
+                case Math::Axis::AY:
+                    hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(xAxis), HitArea_XAxis));
+                    break;
+                case Math::Axis::AZ:
+                default:
+                    hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(xAxis), HitArea_XAxis));
+                    break;
+            }
+            return hit;
+        }
+        
+        RotateObjectsHandle::Hit RotateObjectsHandle::pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const {
+            Vec3 xAxis, yAxis, zAxis;
+            computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
+            
             Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
             hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(xAxis), HitArea_XAxis));
             hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
