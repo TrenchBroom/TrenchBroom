@@ -86,6 +86,7 @@ namespace TrenchBroom {
         
         MapFrame::~MapFrame() {
             unbindObservers();
+            removeRecentDocumentsMenu(GetMenuBar());
             
             delete m_autosaveTimer;
             m_autosaveTimer = NULL;
@@ -195,13 +196,7 @@ namespace TrenchBroom {
 
         void MapFrame::rebuildMenuBar() {
             wxMenuBar* oldMenuBar = GetMenuBar();
-            
-            const ActionManager& actionManager = ActionManager::instance();
-            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(oldMenuBar);
-            assert(recentDocumentsMenu != NULL);
-            
-            TrenchBroomApp& app = TrenchBroomApp::instance();
-            app.removeRecentDocumentMenu(recentDocumentsMenu);
+            removeRecentDocumentsMenu(oldMenuBar);
             
             SetMenuBar(NULL);
             delete oldMenuBar;
@@ -213,7 +208,11 @@ namespace TrenchBroom {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar();
             SetMenuBar(menuBar);
-            
+            addRecentDocumentsMenu(menuBar);
+        }
+
+        void MapFrame::addRecentDocumentsMenu(wxMenuBar* menuBar) {
+            const ActionManager& actionManager = ActionManager::instance();
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
             assert(recentDocumentsMenu != NULL);
             
@@ -221,6 +220,15 @@ namespace TrenchBroom {
             app.addRecentDocumentMenu(recentDocumentsMenu);
         }
 
+        void MapFrame::removeRecentDocumentsMenu(wxMenuBar* menuBar) {
+            const ActionManager& actionManager = ActionManager::instance();
+            wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
+            assert(recentDocumentsMenu != NULL);
+            
+            TrenchBroomApp& app = TrenchBroomApp::instance();
+            app.removeRecentDocumentMenu(recentDocumentsMenu);
+        }
+        
         void MapFrame::createGui() {
             SplitterWindow* splitter = new SplitterWindow(this);
             splitter->setSashGravity(1.0f);
