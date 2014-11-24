@@ -31,7 +31,7 @@ namespace TrenchBroom {
         
         void PrimitiveRenderer::renderLines(const Color& color, const Vec3f::List& positions) {
             m_lineMesh.beginLines();
-            m_lineMesh.addLines(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 1, 0));
+            m_lineMesh.addLines(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 0, 1, 0, 0));
             m_lineMesh.endLines();
         }
 
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             const Vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
             
             m_lineMesh.beginLineStrip();
-            m_lineMesh.addLineStrip(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 1, 0));
+            m_lineMesh.addLineStrip(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 0, 1, 0, 0));
             m_lineMesh.endLineStrip();
         }
         
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             const Vec3f::List positions = circle2D(radius, normal, startAngle, angleLength, segments) + position;
 
             m_triangleMesh.beginTriangleFan();
-            m_triangleMesh.addTriangleFan(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 1, 0));
+            m_triangleMesh.addTriangleFan(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 0, 1, 0, 0));
             m_triangleMesh.endTriangleFan();
         }
 

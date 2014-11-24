@@ -58,7 +58,7 @@ namespace TrenchBroom {
             }
             
             void addVertices(const typename T::Vertex::List& vertices) {
-                m_vertices.insert(m_vertices.end(), vertices.begin(), vertices.end());
+                VectorUtils::append(m_vertices, vertices);
             }
             
             void addPrimitive(const typename T::Vertex::List& vertices) {
