@@ -26,6 +26,8 @@
 class Color;
 
 namespace TrenchBroom {
+    class AttrString;
+    
     namespace Renderer {
         class PointHandleRenderer;
         class PrimitiveRenderer;
@@ -40,6 +42,10 @@ namespace TrenchBroom {
             RenderService();
             ~RenderService();
 
+            
+            void renderStringOnce(const AttrString& string);
+            void renderStringOnceOnTop(const AttrString& string);
+            
             void renderPointHandles(const Vec3f::List& positions);
             void renderPointHandle(const Vec3f& position);
             void renderSelectedPointHandles(const Vec3f::List& positions);
