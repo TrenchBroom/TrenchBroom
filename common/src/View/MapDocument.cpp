@@ -185,8 +185,8 @@ namespace TrenchBroom {
                 documentWillBeClearedNotifier(this);
                 
                 clearSelection();
-                clearWorld();
                 unloadAssets();
+                clearWorld();
                 clearModificationCount();
                 
                 documentWasClearedNotifier(this);
