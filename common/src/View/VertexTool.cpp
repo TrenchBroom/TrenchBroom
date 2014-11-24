@@ -46,9 +46,9 @@ namespace TrenchBroom {
         const FloatType VertexTool::MaxVertexDistance = 0.25;
         const FloatType VertexTool::MaxVertexError = 0.01;
         
-        VertexTool::VertexTool(MapDocumentWPtr document, MovementRestriction& movementRestriction, const Renderer::FontDescriptor& fontDescriptor) :
+        VertexTool::VertexTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
         MoveTool(document, movementRestriction),
-        m_handleManager(document, fontDescriptor),
+        m_handleManager(document),
         m_mode(Mode_Move),
         m_changeCount(0),
         m_ignoreChangeNotifications(false) {}

@@ -34,7 +34,6 @@
 namespace TrenchBroom {
     namespace Renderer {
         class Camera;
-        class FontDescriptor;
     }
     
     namespace View {
@@ -55,7 +54,7 @@ namespace TrenchBroom {
             
             bool m_firstActivation;
         public:
-            RotateObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction, const Renderer::FontDescriptor& fontDescriptor);
+            RotateObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction);
             
             double angle() const;
             void setAngle(double angle);

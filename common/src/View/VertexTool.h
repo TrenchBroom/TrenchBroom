@@ -36,7 +36,6 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
-        class FontDescriptor;
     }
     
     namespace View {
@@ -61,7 +60,7 @@ namespace TrenchBroom {
             bool m_ignoreChangeNotifications;
             Vec3 m_dragHandlePosition;
         public:
-            VertexTool(MapDocumentWPtr document, MovementRestriction& movementRestriction, const Renderer::FontDescriptor& fontDescriptor);
+            VertexTool(MapDocumentWPtr document, MovementRestriction& movementRestriction);
             
             bool hasSelectedHandles() const;
             void moveVerticesAndRebuildBrushGeometry(const Vec3& delta);

@@ -31,6 +31,7 @@
 #include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/ObjectRenderer.h"
+#include "Renderer/RenderBatch.h"
 #include "Renderer/RenderUtils.h"
 #include "View/Selection.h"
 #include "View/MapDocument.h"

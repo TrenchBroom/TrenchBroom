@@ -19,14 +19,17 @@
 
 #include "RotateToolHelper.h"
 
+#include "AttrString.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/GL.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderService.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
+#include "Renderer/TextAnchor.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"
 #include "View/InputState.h"
@@ -66,12 +69,9 @@ namespace TrenchBroom {
         const size_t RotateHelper::SnapAngleKey = 1;
         const size_t RotateHelper::AngleKey = 2;
 
-        RotateHelper::RotateHelper(RotateDelegate& delegate, const Renderer::FontDescriptor& fontDescriptor) :
+        RotateHelper::RotateHelper(RotateDelegate& delegate) :
         m_delegate(delegate),
-        m_lastAngle(0.0),
-        m_textRenderer(fontDescriptor) {
-            m_textRenderer.setFadeDistance(10000.0f);
-        }
+        m_lastAngle(0.0) {}
         
         bool RotateHelper::startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
@@ -87,8 +87,6 @@ namespace TrenchBroom {
             m_firstPoint = initialPoint;
             m_lastAngle = 0.0;
             
-            m_textRenderer.addString(AngleKey, angleString(Math::degrees(m_lastAngle)), angleAnchor());
-            
             if (!m_delegate.startRotate(inputState))
                 return false;
             return true;
@@ -102,20 +100,17 @@ namespace TrenchBroom {
                 return false;
             m_lastAngle = angle;
 
-            m_textRenderer.updateString(AngleKey, angleString(Math::degrees(m_lastAngle)));
             return true;
         }
         
         void RotateHelper::endPlaneDrag(const InputState& inputState) {
             m_delegate.endRotate(inputState);
             m_lastAngle = 0.0;
-            m_textRenderer.removeString(AngleKey);
         }
         
         void RotateHelper::cancelPlaneDrag() {
             m_delegate.cancelRotate();
             m_lastAngle = 0.0;
-            m_textRenderer.removeString(AngleKey);
         }
         
         void RotateHelper::resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint){}
@@ -166,28 +161,15 @@ namespace TrenchBroom {
             renderBatch.addOneShot(new AngleIndicatorRenderer(m_center, handleRadius, m_axis.firstComponent(), startAxis, endAxis));
         }
         
-        class TextRendererHelper : public RotateHelper::TextRenderer::TextColorProvider, public RotateHelper::TextRenderer::TextRendererFilter {
-        public:
-            Color textColor(Renderer::RenderContext& context, const size_t& key) const {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                return prefs.get(Preferences::SelectedInfoOverlayTextColor);
-            }
-            
-            Color backgroundColor(Renderer::RenderContext& context, const size_t& key) const {
-                PreferenceManager& prefs = PreferenceManager::instance();
-                return prefs.get(Preferences::SelectedInfoOverlayBackgroundColor);
-            }
-
-            bool stringVisible(Renderer::RenderContext& context, const size_t& key) const {
-                return true;
-            }
-        };
-        
         void RotateHelper::renderText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            TextRendererHelper helper;
-            m_textRenderer.renderOnTop(renderContext, renderBatch, helper, helper,
-                                       Renderer::Shaders::TextShader,
-                                       Renderer::Shaders::TextBackgroundShader);
+            Renderer::RenderService& renderService = renderBatch.renderService();
+            
+            const Color& textColor = pref(Preferences::SelectedInfoOverlayTextColor);
+            const Color& backgroundColor = pref(Preferences::SelectedInfoOverlayBackgroundColor);
+            const AttrString string(angleString(Math::degrees(m_lastAngle)));
+            const Renderer::SimpleTextAnchor anchor(m_center, Renderer::TextAlignment::Bottom | Renderer::TextAlignment::Center, Vec2f(0.0f, 10.0f));
+            
+            renderService.renderStringOnTop(renderContext, textColor, backgroundColor, string, anchor);
         }
 
         String RotateHelper::angleString(const FloatType angle) const {
@@ -196,10 +178,6 @@ namespace TrenchBroom {
             str.setf(std::ios::fixed);
             str << angle;
             return str.str();
-        }
-
-        Renderer::TextAnchor::Ptr RotateHelper::angleAnchor() const {
-            return Renderer::TextAnchor::Ptr(new Renderer::SimpleTextAnchor(m_center, Renderer::Alignment::Bottom | Renderer::Alignment::Center, Vec2f(0.0f, 10.0f)));
         }
     }
 }

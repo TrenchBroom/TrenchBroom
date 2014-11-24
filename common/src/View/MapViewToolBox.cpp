@@ -88,16 +88,11 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath());
-            const size_t fontSize = static_cast<size_t>(prefs.get(Preferences::RendererFontSize));
-            const Renderer::FontDescriptor fontDescriptor(fontPath, fontSize);
-            
             m_cameraTool = new CameraTool(document);
             m_moveObjectsTool = new MoveObjectsTool(document, *m_movementRestriction);
-            m_rotateObjectsTool = new RotateObjectsTool(document, *m_movementRestriction, fontDescriptor);
+            m_rotateObjectsTool = new RotateObjectsTool(document, *m_movementRestriction);
             m_selectionTool = new SelectionTool(document);
-            m_vertexTool = new VertexTool(document, *m_movementRestriction, fontDescriptor);
+            m_vertexTool = new VertexTool(document, *m_movementRestriction);
             
             addTool(m_cameraTool);
             addTool(m_rotateObjectsTool);

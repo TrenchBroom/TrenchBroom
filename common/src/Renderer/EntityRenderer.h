@@ -27,7 +27,6 @@
 #include "Renderer/EntityModelRenderer.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/TextRenderer.h"
 #include "Renderer/TriangleRenderer.h"
 #include "Renderer/Vbo.h"
 
@@ -50,45 +49,13 @@ namespace TrenchBroom {
         
         class EntityRenderer {
         private:
-            typedef Model::Entity* Key;
-            typedef TextRenderer<Key> ClassnameRenderer;
-            
-            class EntityClassnameAnchor : public TextAnchor {
-            private:
-                const Model::Entity* m_entity;
-            protected:
-                Vec3f basePosition() const;
-                Alignment::Type alignment() const;
-            public:
-                EntityClassnameAnchor(const Model::Entity* entity);
-            };
-            
-            class EntityClassnameFilter : public ClassnameRenderer::TextRendererFilter {
-            private:
-                const Model::EditorContext& m_editorContext;
-                bool m_showHiddenEntities;
-            public:
-                EntityClassnameFilter(const Model::EditorContext& editorContext, bool showHiddenEntities);
-                bool stringVisible(RenderContext& renderContext, const Key& entity) const;
-            };
+            class EntityClassnameAnchor;
 
-            class EntityClassnameColorProvider : public ClassnameRenderer::TextColorProvider {
-            private:
-                const Color& m_textColor;
-                const Color& m_backgroundColor;
-            public:
-                EntityClassnameColorProvider(const Color& textColor, const Color& backgroundColor);
-                
-                Color textColor(RenderContext& renderContext, const Key& entity) const;
-                Color backgroundColor(RenderContext& renderContext, const Key& entity) const;
-            };
-            
             const Model::EditorContext& m_editorContext;
             Model::EntitySet m_entities;
             
             EdgeRenderer m_wireframeBoundsRenderer;
             TriangleRenderer m_solidBoundsRenderer;
-            ClassnameRenderer m_classnameRenderer;
             EntityModelRenderer m_modelRenderer;
             bool m_boundsValid;
             
@@ -167,7 +134,6 @@ namespace TrenchBroom {
             void renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderAngles(RenderContext& renderContext, RenderBatch& renderBatch);
             Vec3f::List arrowHead(float length, float width) const;
-            static FontDescriptor font();
             void invalidateBounds();
             void validateBounds();
             

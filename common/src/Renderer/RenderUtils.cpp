@@ -132,13 +132,17 @@ namespace TrenchBroom {
             return std::make_pair(startAngle, angleLength);
         }
 
+        size_t roundedRect2DVertexCount(const size_t cornerSegments) {
+            return 4 * (3 * cornerSegments + 3);
+        }
+
         Vec2f::List roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&
                    cornerRadius <= height / 2.0f);
             
             Vec2f::List vertices;
-            vertices.resize(4 * (3 * cornerSegments + 3));
+            vertices.resize(roundedRect2DVertexCount(cornerSegments));
             size_t vertexIndex = 0;
             
             const float angle = Math::Cf::piOverTwo() / cornerSegments;

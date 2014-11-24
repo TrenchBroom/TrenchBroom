@@ -27,14 +27,12 @@
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/PointGuideRenderer.h"
-#include "Renderer/TextRenderer.h"
 #include "View/ViewTypes.h"
 
 #include <map>
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontDescriptor;
         class RenderBatch;
         class RenderContext;
     }
@@ -67,13 +65,10 @@ namespace TrenchBroom {
             
             Vec3f::List m_edgeVertices;
             Renderer::PointGuideRenderer m_guideRenderer;
-            Renderer::TextRenderer<Vec3> m_textRenderer;
-            Renderer::TextRenderer<Vec3>::SimpleTextRendererFilter m_textFilter;
-            Renderer::TextRenderer<Vec3>::PrefTextColorProvider m_textColorProvider;
             
             bool m_renderStateValid;
         public:
-            VertexHandleManager(View::MapDocumentWPtr document, const Renderer::FontDescriptor& fontDescriptor);
+            VertexHandleManager(View::MapDocumentWPtr document);
             
             const Model::VertexToBrushesMap& unselectedVertexHandles() const;
             const Model::VertexToBrushesMap& selectedVertexHandles() const;

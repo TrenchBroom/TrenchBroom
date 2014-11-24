@@ -20,31 +20,36 @@
 #ifndef __TrenchBroom__RenderService__
 #define __TrenchBroom__RenderService__
 
+#include "AttrString.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
 
 class Color;
 
 namespace TrenchBroom {
-    class AttrString;
     
     namespace Renderer {
+        class FontDescriptor;
         class PointHandleRenderer;
         class PrimitiveRenderer;
         class RenderBatch;
+        class RenderContext;
+        class TextAnchor;
+        class TextRenderer;
         class Vbo;
         
         class RenderService {
         private:
+            TextRenderer* m_textRenderer;
             PointHandleRenderer* m_pointHandleRenderer;
             PrimitiveRenderer* m_primitiveRenderer;
         public:
-            RenderService();
+            RenderService(const FontDescriptor& fontDescriptor);
             ~RenderService();
 
             
-            void renderStringOnce(const AttrString& string);
-            void renderStringOnceOnTop(const AttrString& string);
+            void renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
+            void renderStringOnTop(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
             
             void renderPointHandles(const Vec3f::List& positions);
             void renderPointHandle(const Vec3f& position);

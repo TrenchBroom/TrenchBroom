@@ -23,12 +23,10 @@
 #include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Renderer/TextRenderer.h"
 #include "View/Tool.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class FontDescriptor;
         class RenderBatch;
         class RenderContext;
     }
@@ -65,8 +63,6 @@ namespace TrenchBroom {
         };
         
         class RotateHelper : public PlaneDragHelper {
-        public:
-            typedef Renderer::TextRenderer<size_t> TextRenderer;
         private:
             static const size_t SnapAngleKey;
             static const size_t AngleKey;
@@ -76,11 +72,10 @@ namespace TrenchBroom {
             Vec3 m_axis;
             FloatType m_lastAngle;
             Vec3 m_firstPoint;
-            TextRenderer m_textRenderer;
             
             class AngleIndicatorRenderer;
         public:
-            RotateHelper(RotateDelegate& delegate, const Renderer::FontDescriptor& fontDescriptor);
+            RotateHelper(RotateDelegate& delegate);
             
             bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
@@ -93,7 +88,6 @@ namespace TrenchBroom {
             void renderAngleIndicator(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             String angleString(const FloatType angle) const;
-            Renderer::TextAnchor::Ptr angleAnchor() const;
         };
     }
 }

@@ -24,16 +24,27 @@
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
+#include "Renderer/TextRenderer.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderService::RenderService() :
+        RenderService::RenderService(const FontDescriptor& fontDescriptor) :
+        m_textRenderer(new TextRenderer(fontDescriptor)),
         m_pointHandleRenderer(new PointHandleRenderer()),
         m_primitiveRenderer(new PrimitiveRenderer()) {}
         
         RenderService::~RenderService() {
+            delete m_textRenderer;
             delete m_pointHandleRenderer;
             delete m_primitiveRenderer;
+        }
+
+        void RenderService::renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
+            m_textRenderer->renderString(renderContext, textColor, backgroundColor, string, position);
+        }
+        
+        void RenderService::renderStringOnTop(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
+            m_textRenderer->renderStringOnTop(renderContext, textColor, backgroundColor, string, position);
         }
 
         void RenderService::renderPointHandles(const Vec3f::List& positions) {

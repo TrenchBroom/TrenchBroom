@@ -19,6 +19,7 @@
 
 #include "VertexHandleManager.h"
 
+#include "AttrString.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
@@ -30,6 +31,7 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
+#include "Renderer/TextAnchor.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 
@@ -41,7 +43,7 @@ namespace TrenchBroom {
         const Hit::HitType VertexHandleManager::EdgeHandleHit = Hit::freeHitType();
         const Hit::HitType VertexHandleManager::FaceHandleHit = Hit::freeHitType();
         
-        VertexHandleManager::VertexHandleManager(View::MapDocumentWPtr document, const Renderer::FontDescriptor& fontDescriptor) :
+        VertexHandleManager::VertexHandleManager(View::MapDocumentWPtr document) :
         m_totalVertexCount(0),
         m_selectedVertexCount(0),
         m_totalEdgeCount(0),
@@ -49,11 +51,7 @@ namespace TrenchBroom {
         m_totalFaceCount(0),
         m_selectedFaceCount(0),
         m_guideRenderer(document),
-        m_textRenderer(fontDescriptor),
-        m_textColorProvider(Preferences::InfoOverlayTextColor, Preferences::InfoOverlayBackgroundColor),
-        m_renderStateValid(false) {
-            m_textRenderer.setFadeDistance(1000.0f);
-        }
+        m_renderStateValid(false) {}
         
         const Model::VertexToBrushesMap& VertexHandleManager::unselectedVertexHandles() const {
             return m_unselectedVertexHandles;
@@ -562,9 +560,12 @@ namespace TrenchBroom {
             m_guideRenderer.setPosition(position);
             m_guideRenderer.setColor(pref(Preferences::HandleColor));
             renderBatch.add(&m_guideRenderer);
-            
-            Renderer::TextAnchor::Ptr anchor(new Renderer::SimpleTextAnchor(position, Renderer::Alignment::Bottom, Vec2f(0.0f, 16.0f)));
-            m_textRenderer.renderOnceOnTop(position, position.asString(), anchor, renderContext, renderBatch, m_textFilter, m_textColorProvider, Renderer::Shaders::ColoredTextShader, Renderer::Shaders::TextBackgroundShader);
+
+            const Color& textColor = pref(Preferences::SelectedInfoOverlayTextColor);
+            const Color& backgroundColor = pref(Preferences::SelectedInfoOverlayBackgroundColor);
+            const AttrString string(position.asString());
+            const Renderer::SimpleTextAnchor anchor(position, Renderer::TextAlignment::Bottom, Vec2f(0.0f, 16.0f));
+            renderService.renderStringOnTop(renderContext, textColor, backgroundColor, string, anchor);
         }
 
         Vec3::List VertexHandleManager::findVertexHandlePositions(const Model::BrushList& brushes, const Vec3& query, const FloatType maxDistance) {

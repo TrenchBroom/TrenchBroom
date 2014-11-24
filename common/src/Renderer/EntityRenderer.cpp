@@ -29,61 +29,48 @@
 #include "Assets/EntityModel.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
-#include "Renderer/FontDescriptor.h"
-#include "Renderer/FontManager.h"
+#include "Renderer/Camera.h"
+#include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderService.h"
 #include "Renderer/RenderUtils.h"
+#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
+#include "Renderer/TextAnchor.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboBlock.h"
 #include "Renderer/VertexSpec.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        EntityRenderer::EntityClassnameAnchor::EntityClassnameAnchor(const Model::Entity* entity) :
-        m_entity(entity) {}
-        
-        Vec3f EntityRenderer::EntityClassnameAnchor::basePosition() const {
-            const Assets::EntityModel* model = m_entity->model();
-            Vec3f position = m_entity->bounds().center();
-            position[2] = float(m_entity->bounds().max.z());
-            if (model != NULL) {
-                const Assets::ModelSpecification spec = m_entity->modelSpecification();
-                const BBox3f modelBounds = model->bounds(spec.skinIndex, spec.frameIndex);
-                const Vec3f origin = m_entity->origin();
-                position[2] = std::max(position[2], modelBounds.max.z() + origin.z());
+        class EntityRenderer::EntityClassnameAnchor : public TextAnchor {
+        private:
+            const Model::Entity* m_entity;
+        public:
+            EntityClassnameAnchor(const Model::Entity* entity) :
+            m_entity(entity) {}
+        private:
+            Vec3f basePosition() const {
+                const Assets::EntityModel* model = m_entity->model();
+                Vec3f position = m_entity->bounds().center();
+                position[2] = float(m_entity->bounds().max.z());
+                if (model != NULL) {
+                    const Assets::ModelSpecification spec = m_entity->modelSpecification();
+                    const BBox3f modelBounds = model->bounds(spec.skinIndex, spec.frameIndex);
+                    const Vec3f origin = m_entity->origin();
+                    position[2] = std::max(position[2], modelBounds.max.z() + origin.z());
+                }
+                position[2] += 2.0f;
+                return position;
             }
-            position[2] += 2.0f;
-            return position;
-        }
+            
+            TextAlignment::Type alignment() const {
+                return TextAlignment::Bottom;
+            }
+        };
         
-        Alignment::Type EntityRenderer::EntityClassnameAnchor::alignment() const {
-            return Alignment::Bottom;
-        }
-
-        EntityRenderer::EntityClassnameFilter::EntityClassnameFilter(const Model::EditorContext& editorContext, const bool showHiddenEntities) :
-        m_editorContext(editorContext),
-        m_showHiddenEntities(showHiddenEntities) {}
-
-        bool EntityRenderer::EntityClassnameFilter::stringVisible(RenderContext& renderContext, const Key& entity) const {
-            return m_showHiddenEntities || m_editorContext.visible(entity);
-        }
-
-        EntityRenderer::EntityClassnameColorProvider::EntityClassnameColorProvider(const Color& textColor, const Color& backgroundColor) :
-        m_textColor(textColor),
-        m_backgroundColor(backgroundColor) {}
-
-        Color EntityRenderer::EntityClassnameColorProvider::textColor(RenderContext& renderContext, const Key& entity) const {
-            return m_textColor;
-        }
-        
-        Color EntityRenderer::EntityClassnameColorProvider::backgroundColor(RenderContext& renderContext, const Key& entity) const {
-            return m_backgroundColor;
-        }
-
         EntityRenderer::EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
         m_editorContext(editorContext),
-        m_classnameRenderer(ClassnameRenderer(font())),
         m_modelRenderer(entityModelManager, m_editorContext),
         m_boundsValid(false),
         m_showOccludedOverlays(false),
@@ -92,9 +79,7 @@ namespace TrenchBroom {
         m_showOccludedBounds(false),
         m_showAngles(false),
         m_showHiddenEntities(false),
-        m_vbo(0xFFF) {
-            m_classnameRenderer.setFadeDistance(500.0f);
-        }
+        m_vbo(0xFFF) {}
         
         EntityRenderer::~EntityRenderer() {
             clear();
@@ -105,7 +90,6 @@ namespace TrenchBroom {
 
             assert(m_entities.count(entity) == 0);
             m_entities.insert(entity);
-            m_classnameRenderer.addString(entity, entityString(entity), TextAnchor::Ptr(new EntityClassnameAnchor(entity)));
             m_modelRenderer.addEntity(entity);
             
             invalidateBounds();
@@ -115,7 +99,6 @@ namespace TrenchBroom {
             assert(entity != NULL);
             
             assert(m_entities.count(entity) == 1);
-            m_classnameRenderer.updateString(entity, entityString(entity));
             m_modelRenderer.updateEntity(entity);
             invalidateBounds();
         }
@@ -127,7 +110,6 @@ namespace TrenchBroom {
             assert(it != m_entities.end());
             m_entities.erase(it);
             
-            m_classnameRenderer.removeString(entity);
             m_modelRenderer.removeEntity(entity);
             invalidateBounds();
         }
@@ -140,7 +122,6 @@ namespace TrenchBroom {
             m_entities.clear();
             m_wireframeBoundsRenderer = EdgeRenderer();
             m_solidBoundsRenderer = TriangleRenderer();
-            m_classnameRenderer.clear();
             m_modelRenderer.clear();
         }
 
@@ -240,15 +221,20 @@ namespace TrenchBroom {
         
         void EntityRenderer::renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (renderContext.showEntityClassnames()) {
-                EntityClassnameFilter textFilter(m_editorContext, m_showHiddenEntities);
-                EntityClassnameColorProvider colorProvider(m_overlayTextColor, m_overlayBackgroundColor);
+                Renderer::RenderService& renderService = renderBatch.renderService();
                 
-                if (m_showOccludedOverlays)
-                    m_classnameRenderer.renderOnTop(renderContext, renderBatch, textFilter, colorProvider,
-                                                    Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
-                else
-                    m_classnameRenderer.render(renderContext, renderBatch, textFilter, colorProvider,
-                                               Shaders::ColoredTextShader, Shaders::TextBackgroundShader);
+                Model::EntitySet::const_iterator it, end;
+                for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
+                    const Model::Entity* entity = *it;
+                    if (m_showHiddenEntities || m_editorContext.visible(entity)) {
+                        const EntityClassnameAnchor anchor(entity);
+                        if (m_showOccludedOverlays) {
+                            renderService.renderStringOnTop(renderContext, m_overlayTextColor, m_overlayBackgroundColor, entityString(entity), anchor);
+                        } else {
+                            renderService.renderString(renderContext, m_overlayTextColor, m_overlayBackgroundColor, entityString(entity), anchor);
+                        }
+                    }
+                }
             }
         }
         
@@ -319,13 +305,6 @@ namespace TrenchBroom {
             result[1] = Vec3f(length,          0.0f, 0.0f);
             result[2] = Vec3f(0.0f,   -width / 2.0f, 0.0f);
             return result;
-        }
-
-        FontDescriptor EntityRenderer::font() {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath());
-            const size_t fontSize = static_cast<size_t>(prefs.get(Preferences::RendererFontSize));
-            return FontDescriptor(fontPath, fontSize);
         }
 
         struct BuildColoredSolidBoundsVertices {

@@ -19,55 +19,174 @@
 
 #include "TextRenderer.h"
 
+#include "CollectionUtils.h"
+#include "AttrString.h"
+#include "Renderer/Camera.h"
+#include "Renderer/FontManager.h"
+#include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
+#include "Renderer/ShaderManager.h"
+#include "Renderer/Shaders.h"
+#include "Renderer/TextAnchor.h"
+#include "Renderer/TextureFont.h"
+
 namespace TrenchBroom {
     namespace Renderer {
-        Vec3f TextAnchor::offset(const Camera& camera, const Vec2f& size) const {
-            const Vec2f halfSize = size / 2.0f;
-            const Alignment::Type a = alignment();
-            const Vec2f factors = alignmentFactors(a);
-            const Vec2f extra = extraOffsets(a, size);
-            Vec3f offset = camera.project(basePosition());
-            for (size_t i = 0; i < 2; i++)
-                offset[i] = Math::round(offset[i] + factors[i] * size[i] - halfSize[i] + extra[i]);
-            return offset;
+        const size_t TextRenderer::RectCornerSegments = 3;
+        
+        TextRenderer::CachedString::CachedString(Vec2f::List& i_vertices, const Vec2f& i_size) :
+        size(i_size) {
+            using std::swap;
+            swap(i_vertices, vertices);
+        }
+
+        TextRenderer::Entry::Entry(StringCache::iterator i_string, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor) :
+        string(i_string),
+        offset(i_offset),
+        textColor(i_textColor),
+        backgroundColor(i_backgroundColor) {}
+
+        TextRenderer::TextRenderer(const FontDescriptor& fontDescriptor, const Vec2f& inset) :
+        m_fontDescriptor(fontDescriptor),
+        m_inset(inset),
+        m_textVertexCount(0),
+        m_rectVertexCount(0) {}
+
+        void TextRenderer::renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
+            renderString(renderContext, textColor, backgroundColor, string, position, false);
         }
         
-        Vec3f TextAnchor::position() const {
-            return basePosition();
+        void TextRenderer::renderStringOnTop(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
+            renderString(renderContext, textColor, backgroundColor, string, position, true);
         }
 
-        Vec2f TextAnchor::extraOffsets(const Alignment::Type a, const Vec2f& size) const {
-            return Vec2f::Null;
+        void TextRenderer::renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position, const bool onTop) {
+            if (!isVisible(renderContext, string, position))
+                return;
+            
+            const StringCache::iterator cachedString = findOrCreateCachedString(renderContext, string);
+            const Vec3f offset = position.offset(renderContext.camera(), cachedString->second.size);
+            m_entries.push_back(Entry(cachedString, offset, textColor, backgroundColor));
+            
+            m_textVertexCount += cachedString->second.vertices.size();
+            m_rectVertexCount += roundedRect2DVertexCount(RectCornerSegments);
         }
 
-        Vec2f TextAnchor::alignmentFactors(const Alignment::Type a) const {
-            Vec2f factors;
-            if ((a & Alignment::Left))
-                factors[0] = +0.5f;
-            else if ((a & Alignment::Right))
-                factors[0] = -0.5f;
-            if ((a & Alignment::Top))
-                factors[1] = -0.5f;
-            else if ((a & Alignment::Bottom))
-                factors[1] = +0.5f;
-            return factors;
+        bool TextRenderer::isVisible(RenderContext& renderContext, const AttrString& string, const TextAnchor& position) const {
+            const Camera& camera = renderContext.camera();
+            const Camera::Viewport& viewport = camera.unzoomedViewport();
+            
+            const Vec2f size = stringSize(renderContext, string);
+            const Vec2f offset = Vec2f(position.offset(camera, size)) - m_inset;
+            const Vec2f actualSize = size + 2.0f * m_inset;
+            
+            return viewport.contains(offset.x(), offset.y(), actualSize.x(), actualSize.y());
         }
 
-        Vec3f SimpleTextAnchor::basePosition() const {
-            return m_position;
+        Vec2f TextRenderer::stringSize(RenderContext& renderContext, const AttrString& string) const {
+            const StringCache::const_iterator it = m_cache.find(string);
+            if (it != m_cache.end())
+                return it->second.size;
+            
+            FontManager& fontManager = renderContext.fontManager();
+            TextureFont& font = fontManager.font(m_fontDescriptor);
+            return font.measure(string);
+        }
+
+        TextRenderer::StringCache::iterator TextRenderer::findOrCreateCachedString(RenderContext& renderContext, const AttrString& string) {
+            typedef std::pair<bool, StringCache::iterator> InsertPos;
+            InsertPos insertPos = MapUtils::findInsertPos(m_cache, string);
+            if (insertPos.first)
+                return insertPos.second;
+            
+            FontManager& fontManager = renderContext.fontManager();
+            TextureFont& font = fontManager.font(m_fontDescriptor);
+            
+            Vec2f::List vertices = font.quads(string, true);
+            const Vec2f size = font.measure(string);
+
+            return m_cache.insert(insertPos.second, std::make_pair(string, CachedString(vertices, size)));
+        }
+
+        void TextRenderer::doPrepare(Vbo& vbo) {
+            TextVertex::List textVertices;
+            textVertices.reserve(m_textVertexCount);
+            
+            RectVertex::List rectVertices;
+            rectVertices.reserve(m_rectVertexCount);
+
+            EntryList::const_iterator it, end;
+            for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
+                const Entry& entry = *it;
+                addEntry(entry, textVertices, rectVertices);
+            }
+            
+            m_textArray = VertexArray::swap(GL_QUADS, textVertices);
+            m_rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
+            
+            m_textArray.prepare(vbo);
+            m_rectArray.prepare(vbo);
         }
         
-        Alignment::Type SimpleTextAnchor::alignment() const {
-            return m_alignment;
+        void TextRenderer::addEntry(const Entry& entry, TextVertex::List textVertices, RectVertex::List rectVertices) {
+            const CachedString& string = entry.string->second;
+            const Vec2f::List& stringVertices = string.vertices;
+            const Vec2f& stringSize = string.size;
+            
+            const Vec3f& offset = entry.offset;
+            const Color& textColor = entry.textColor;
+            const Color& rectColor = entry.backgroundColor;
+            
+            for (size_t j = 0; j < stringVertices.size() / 2; ++j) {
+                const Vec2f& position2 = stringVertices[2 * j];
+                const Vec2f& texCoords = stringVertices[2 * j + 1];
+                const Vec3f position3(position2.x() + offset.x(),
+                                      position2.y() + offset.y(),
+                                      -offset.z());
+                textVertices.push_back(TextVertex(position3, texCoords, textColor));
+            }
+
+            const Vec2f::List tempRect = roundedRect2D(stringSize.x() + 2.0f * m_inset.x(), stringSize.y() + 2.0f * m_inset.y(), 3.0f, 3);
+            for (size_t j = 0; j < tempRect.size(); ++j) {
+                const Vec2f& vertex = tempRect[j];
+                const Vec3f position = Vec3f(vertex.x() + offset.x() + stringSize.x() / 2.0f,
+                                             vertex.y() + offset.y() + stringSize.y() / 2.0f,
+                                             -offset.z());
+                rectVertices.push_back(RectVertex(position, rectColor));
+            }
         }
 
-        Vec2f SimpleTextAnchor::extraOffsets(const Alignment::Type a, const Vec2f& size) const {
-            return m_extraOffsets;
+        void TextRenderer::doRender(RenderContext& renderContext) {
+            FontManager& fontManager = renderContext.fontManager();
+            TextureFont& font = fontManager.font(m_fontDescriptor);
+
+            const Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
+            const Mat4x4f projection = orthoMatrix(0.0f, 1.0f,
+                                                   static_cast<float>(viewport.x),
+                                                   static_cast<float>(viewport.height),
+                                                   static_cast<float>(viewport.width),
+                                                   static_cast<float>(viewport.y));
+            const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
+            
+            ReplaceTransformation ortho(renderContext.transformation(), projection, view);
+            
+            glDisable(GL_TEXTURE_2D);
+            
+            ActiveShader backgroundShader(renderContext.shaderManager(), Shaders::TextBackgroundShader);
+            m_rectArray.render();
+            
+            glEnable(GL_TEXTURE_2D);
+            ActiveShader textShader(renderContext.shaderManager(), Shaders::ColoredTextShader);
+            textShader.set("Texture", 0);
+            font.activate();
+            m_textArray.render();
+            font.deactivate();
+            
+            clear();
         }
 
-        SimpleTextAnchor::SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment, const Vec2f& extraOffsets) :
-        m_position(position),
-        m_alignment(alignment),
-        m_extraOffsets(extraOffsets) {}
+        void TextRenderer::clear() {
+            m_entries.clear();
+        }
     }
 }

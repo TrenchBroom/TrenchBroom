@@ -55,6 +55,9 @@ namespace TrenchBroom {
         AttrString();
         AttrString(const String& string);
         
+        bool operator<(const AttrString& other) const;
+        int compare(const AttrString& other) const;
+        
         void lines(LineFunc& func) const;
         
         void appendLeftJustified(const String& string);

@@ -21,6 +21,7 @@
 
 #include "Logger.h"
 #include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Model/Brush.h"
 #include "Model/BrushVertex.h"
 #include "Model/Entity.h"
@@ -558,12 +559,16 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::doRender() {
+            const IO::Path& fontPath = pref(Preferences::RendererFontPath());
+            const size_t fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
+            const Renderer::FontDescriptor fontDescriptor(fontPath, fontSize);
+
             Renderer::RenderContext renderContext = createRenderContext();
             
             setupGL(renderContext);
             setRenderOptions(renderContext);
             
-            Renderer::RenderService renderService;
+            Renderer::RenderService renderService(fontDescriptor);
             Renderer::RenderBatch renderBatch(m_vbo, renderService);
             
             doRenderMap(m_renderer, renderContext, renderBatch);

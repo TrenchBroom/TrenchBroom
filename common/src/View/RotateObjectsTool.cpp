@@ -41,12 +41,12 @@ namespace TrenchBroom {
     namespace View {
         const Hit::HitType RotateObjectsTool::HandleHit = Hit::freeHitType();
 
-        RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction, const Renderer::FontDescriptor& fontDescriptor) :
+        RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
         ToolImpl(document),
         m_toolPage(NULL),
         m_helper(NULL),
         m_moveHelper(movementRestriction, *this),
-        m_rotateHelper(*this, fontDescriptor),
+        m_rotateHelper(*this),
         m_angle(Math::radians(15.0)),
         m_centerGuideRenderer(document),
         m_firstActivation(true) {}

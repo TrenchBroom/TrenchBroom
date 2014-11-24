@@ -17,493 +17,85 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_TextRenderer_h
-#define TrenchBroom_TextRenderer_h
+#ifndef __TrenchBroom__TextRenderer__
+#define __TrenchBroom__TextRenderer__
 
-#include "Color.h"
 #include "VecMath.h"
-#include "AttrString.h"
-#include "Preferences.h"
-#include "PreferenceManager.h"
-#include "Renderer/Camera.h"
+#include "Color.h"
 #include "Renderer/FontDescriptor.h"
-#include "Renderer/FontManager.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/RenderUtils.h"
-#include "Renderer/ShaderManager.h"
-#include "Renderer/TextureFont.h"
-#include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 
 #include <map>
-
-class Color;
+#include <vector>
 
 namespace TrenchBroom {
+    class AttrString;
+    
     namespace Renderer {
-        namespace Alignment {
-            typedef unsigned int Type;
-            static const Type Top       = 1 << 0;
-            static const Type Bottom    = 1 << 1;
-            static const Type Left      = 1 << 2;
-            static const Type Right     = 1 << 3;
-            static const Type Center    = 1 << 4;
-        }
+        class RenderContext;
+        class TextAnchor;
         
-        class TextAnchor {
-        public:
-            typedef std::tr1::shared_ptr<TextAnchor> Ptr;
-        public:
-            virtual ~TextAnchor() {}
-            Vec3f offset(const Camera& camera, const Vec2f& size) const;
-            Vec3f position() const;
+        class TextRenderer : public Renderable {
         private:
-            virtual Vec3f basePosition() const = 0;
-            virtual Alignment::Type alignment() const = 0;
-            virtual Vec2f extraOffsets(Alignment::Type a, const Vec2f& size) const;
-            Vec2f alignmentFactors(Alignment::Type a) const;
-        };
-        
-        class SimpleTextAnchor : public TextAnchor {
-        private:
-            Vec3f m_position;
-            Alignment::Type m_alignment;
-            Vec2f m_extraOffsets;
-        protected:
-            Vec3f basePosition() const;
-            Alignment::Type alignment() const;
-            Vec2f extraOffsets(const Alignment::Type a, const Vec2f& size) const;
-        public:
-            SimpleTextAnchor(const Vec3f& position, const Alignment::Type alignment, const Vec2f& extraOffsets = Vec2f::Null);
-        };
-        
-        template <typename Key>
-        class DefaultKeyComparator {
-        public:
-            bool operator()(const Key& lhs, const Key& rhs) const {
-                return lhs < rhs;
-            }
-        };
-                
-        template <typename Key, typename Comparator = DefaultKeyComparator<Key> >
-        class TextRenderer {
-        public:
-            class TextRendererFilter {
-            public:
-                virtual ~TextRendererFilter() {}
-                virtual bool stringVisible(RenderContext& renderContext, const Key& key) const = 0;
-            };
+            static const size_t RectCornerSegments;
             
-            class SimpleTextRendererFilter : public TextRendererFilter {
-            public:
-                bool stringVisible(RenderContext& renderContext, const Key& key) const {
-                    return true;
-                }
-            };
-            
-            class TextColorProvider {
-            public:
-                virtual ~TextColorProvider() {}
-                virtual Color textColor(RenderContext& renderContext, const Key& key) const = 0;
-                virtual Color backgroundColor(RenderContext& renderContext, const Key& key) const = 0;
-            };
-            
-            class PrefTextColorProvider : public TextColorProvider {
-            private:
-                Preference<Color>& m_textColorPref;
-                Preference<Color>& m_backgroundColorPref;
-            public:
-                PrefTextColorProvider(Preference<Color>& textColorPref, Preference<Color>& backgroundColorPref) :
-                m_textColorPref(textColorPref),
-                m_backgroundColorPref(backgroundColorPref) {}
-            public:
-                Color textColor(RenderContext& renderContext, const Key& key) const {
-                    PreferenceManager& prefs = PreferenceManager::instance();
-                    return prefs.get(m_textColorPref);
-                }
-                
-                Color backgroundColor(RenderContext& renderContext, const Key& key) const {
-                    PreferenceManager& prefs = PreferenceManager::instance();
-                    return prefs.get(m_backgroundColorPref);
-                }
-            };
-        private:
-            class TextRenderable : public Renderable {
-            private:
-                TextureFont& m_font;
-                const ShaderConfig& m_textShaderConfig;
-                const ShaderConfig& m_backgroundShaderConfig;
-                
-                VertexArray m_fontArray;
-                VertexArray m_rectArray;
-                
-                bool m_onTop;
-            public:
-                TextRenderable(TextureFont& font,
-                               const ShaderConfig& textShaderConfig, const ShaderConfig& backgroundShaderConfig,
-                               const VertexArray& fontArray, const VertexArray& rectArray) :
-                m_font(font),
-                m_textShaderConfig(textShaderConfig),
-                m_backgroundShaderConfig(backgroundShaderConfig),
-                m_fontArray(fontArray),
-                m_rectArray(rectArray),
-                m_onTop(false) {}
-                
-                virtual ~TextRenderable() {}
-                
-                void showOnTop() {
-                    m_onTop = true;
-                }
-            private:
-                void doPrepare(Vbo& vbo) {
-                    m_fontArray.prepare(vbo);
-                    m_rectArray.prepare(vbo);
-                }
-                
-                void doRender(RenderContext& renderContext) {
-                    const Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
-                    const Mat4x4f projection = orthoMatrix(0.0f, 1.0f,
-                                                           static_cast<float>(viewport.x),
-                                                           static_cast<float>(viewport.height),
-                                                           static_cast<float>(viewport.width),
-                                                           static_cast<float>(viewport.y));
-                    const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
-                    
-                    ReplaceTransformation ortho(renderContext.transformation(), projection, view);
-                    
-                    if (m_onTop)
-                        glDisable(GL_DEPTH_TEST);
-                    // glDepthMask(GL_FALSE);
-                    glDisable(GL_TEXTURE_2D);
-                    
-                    ActiveShader backgroundShader(renderContext.shaderManager(), m_backgroundShaderConfig);
-                    m_rectArray.render();
-                    
-                    glEnable(GL_TEXTURE_2D);
-                    ActiveShader textShader(renderContext.shaderManager(), m_textShaderConfig);
-                    textShader.set("Texture", 0);
-                    m_font.activate();
-                    m_fontArray.render();
-                    m_font.deactivate();
-                    
-                    // glDepthMask(GL_TRUE);
-                    if (m_onTop)
-                        glDisable(GL_DEPTH_TEST);
-                }
-            };
-            
-            class PreparedEntry {
-            private:
-                Vec2f::List m_vertices;
-                Vec2f m_size;
-                TextAnchor::Ptr m_anchor;
-            public:
-                PreparedEntry(const Vec2f::List vertices, const Vec2f& size, TextAnchor::Ptr anchor) :
-                m_vertices(vertices),
-                m_size(size),
-                m_anchor(anchor) {}
-                
-                const Vec2f::List& vertices() const {
-                    return m_vertices;
-                }
-                
-                const Vec2f& size() const {
-                    return m_size;
-                }
-                
-                TextAnchor::Ptr anchor() const {
-                    return m_anchor;
-                }
-                
-                void setAnchor(TextAnchor::Ptr anchor) {
-                    m_anchor = anchor;
-                }
-            };
-            
-            class UnpreparedEntry {
-            private:
-                AttrString m_string;
-                TextAnchor::Ptr m_anchor;
-            public:
-                UnpreparedEntry(const AttrString& string, TextAnchor::Ptr anchor) :
-                m_string(string),
-                m_anchor(anchor) {}
+            struct CachedString {
+                Vec2f::List vertices;
+                Vec2f size;
 
-                PreparedEntry prepare(TextureFont& font) const {
-                    const Vec2f::List vertices = font.quads(m_string, true);
-                    const Vec2f size = font.measure(m_string);
-                    return PreparedEntry(vertices, size, m_anchor);
-                }
-                
-                TextAnchor::Ptr anchor() const {
-                    return m_anchor;
-                }
-                
-                void setAnchor(TextAnchor::Ptr anchor) {
-                    m_anchor = anchor;
-                }
+                CachedString(Vec2f::List& i_vertices, const Vec2f& i_size);
             };
             
-            typedef VertexSpecs::P3T2C4::Vertex FontVertex;
+            typedef std::map<AttrString, CachedString> StringCache;
+            
+            struct Entry {
+
+                StringCache::iterator string;
+                Vec3f offset;
+                Color textColor;
+                Color backgroundColor;
+
+                Entry(StringCache::iterator i_string, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
+            };
+            
+            typedef std::vector<Entry> EntryList;
+            
+            typedef VertexSpecs::P3T2C4::Vertex TextVertex;
             typedef VertexSpecs::P3C4::Vertex RectVertex;
-
-            typedef std::map<Key, UnpreparedEntry, Comparator> UnpreparedEntryMap;
-            typedef std::map<Key, PreparedEntry, Comparator> PreparedEntryMap;
-            typedef std::vector<typename PreparedEntryMap::const_iterator> EntryList;
             
             FontDescriptor m_fontDescriptor;
-            float m_fadeDistance;
-            float m_hInset;
-            float m_vInset;
-
-            UnpreparedEntryMap m_unpreparedEntries;
-            PreparedEntryMap m_preparedEntries;
-        public:
-            TextRenderer(const FontDescriptor& fontDescriptor) :
-            m_fontDescriptor(fontDescriptor),
-            m_fadeDistance(100.0f),
-            m_hInset(4.0f),
-            m_vInset(4.0f) {}
+            Vec2f m_inset;
             
-            ~TextRenderer() {
-                clear();
-            }
+            StringCache m_cache;
+            EntryList m_entries;
+            size_t m_textVertexCount;
+            size_t m_rectVertexCount;
+            
+            VertexArray m_textArray;
+            VertexArray m_rectArray;
         public:
-            void addString(const Key& key, const AttrString& string, TextAnchor::Ptr anchor) {
-                addString(key, string, anchor, m_unpreparedEntries);
-            }
+            TextRenderer(const FontDescriptor& fontDescriptor, const Vec2f& inset = Vec2f(4.0f, 4.0f));
+            
+            void renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
+            void renderStringOnTop(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
         private:
-            void addString(const Key& key, const AttrString& string, TextAnchor::Ptr anchor, UnpreparedEntryMap& entries) {
-                removeString(key);
-                entries.insert(std::make_pair(key, UnpreparedEntry(string, anchor)));
-            }
-        public:
-            void removeString(const Key& key)  {
-                typename PreparedEntryMap::iterator pIt = m_preparedEntries.find(key);
-                if (pIt != m_preparedEntries.end()) {
-                    m_preparedEntries.erase(pIt);
-                } else {
-                    typename UnpreparedEntryMap::iterator upIt = m_unpreparedEntries.find(key);
-                    if (upIt != m_unpreparedEntries.end())
-                        m_unpreparedEntries.erase(upIt);
-                }
-            }
+            void renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position, bool onTop);
             
-            void updateString(const Key& key, const AttrString& string) {
-                TextAnchor::Ptr anchor;
-                
-                typename PreparedEntryMap::iterator pIt = m_preparedEntries.find(key);
-                if (pIt != m_preparedEntries.end()) {
-                    const PreparedEntry& entry = pIt->second;
-                    anchor = entry.anchor();
-                    m_preparedEntries.erase(pIt);
-                } else {
-                    typename UnpreparedEntryMap::iterator upIt = m_unpreparedEntries.find(key);
-                    if (upIt != m_unpreparedEntries.end()) {
-                        const UnpreparedEntry& entry = upIt->second;
-                        anchor = entry.anchor();
-                        m_unpreparedEntries.erase(upIt);
-                    } else {
-                        return;
-                    }
-                }
-                
-                addString(key, string, anchor);
-            }
+            bool isVisible(RenderContext& renderContext, const AttrString& string, const TextAnchor& position) const;
             
-            void updateAnchor(const Key& key, TextAnchor::Ptr anchor) {
-                typename PreparedEntryMap::iterator pIt = m_preparedEntries.find(key);
-                if (pIt != m_preparedEntries.end()) {
-                    const PreparedEntry& entry = pIt->second;
-                    entry.setAnchor(anchor);
-                } else {
-                    typename UnpreparedEntryMap::iterator upIt = m_unpreparedEntries.find(key);
-                    if (upIt != m_unpreparedEntries.end()) {
-                        const UnpreparedEntry& entry = pIt->second;
-                        entry.setAnchor(anchor);
-                    }
-                }
-            }
-        public:
-            bool empty() const {
-                return m_unpreparedEntries.empty() && m_preparedEntries.empty();
-            }
-            
-            void clear()  {
-                m_unpreparedEntries.clear();
-                m_preparedEntries.clear();
-            }
-            
-            void setFadeDistance(const float fadeDistance)  {
-                m_fadeDistance = fadeDistance;
-            }
-            
-            void renderOnTop(RenderContext& renderContext, RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
-                TextRenderable* renderable = buildRenderable(renderContext, filter, colorProvider, textProgram, backgroundProgram);
-                if (renderable != NULL) {
-                    renderable->showOnTop();
-                    renderBatch.addOneShot(renderable);
-                }
-            }
-            
-            void render(RenderContext& renderContext, RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
-                TextRenderable* renderable = buildRenderable(renderContext, filter, colorProvider, textProgram, backgroundProgram);
-                if (renderable != NULL)
-                    renderBatch.addOneShot(renderable);
-            }
-            
-            void renderOnceOnTop(const Key& key, const AttrString& string, TextAnchor::Ptr anchor, RenderContext& renderContext, RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
-                TextRenderable* renderable = buildOnceRenderable(key, string, anchor, renderContext, filter, colorProvider, textProgram, backgroundProgram);
-                if (renderable != NULL) {
-                    renderable->showOnTop();
-                    renderBatch.addOneShot(renderable);
-                }
-            }
-            
-            void renderOnce(const Key& key, const AttrString& string, TextAnchor::Ptr anchor, RenderContext& renderContext, RenderBatch& renderBatch, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
-                TextRenderable* renderable = buildOnceRenderable(key, string, anchor, renderContext, filter, colorProvider, textProgram, backgroundProgram);
-                if (renderable != NULL)
-                    renderBatch.addOneShot(renderable);
-            }
+            Vec2f stringSize(RenderContext& renderContext, const AttrString& string) const;
+            StringCache::iterator findOrCreateCachedString(RenderContext& renderContext, const AttrString& string);
         private:
-            TextRenderable* buildRenderable(RenderContext& renderContext, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
-                if (empty())
-                    return NULL;
-                
-                FontManager& fontManager = renderContext.fontManager();
-                TextureFont& font = fontManager.font(m_fontDescriptor);
+            void doPrepare(Vbo& vbo);
+            void addEntry(const Entry& entry, TextVertex::List textVertices, RectVertex::List rectVertices);
+            
+            void doRender(RenderContext& renderContext);
 
-                prepareEntries(font);
-                
-                const EntryList entries = visibleEntries(renderContext, filter);
-                if (entries.empty())
-                    return NULL;
-                
-                VertexArray fontArray, rectArray;
-                buildArrays(entries, renderContext, colorProvider, fontArray, rectArray);
-
-                return new TextRenderable(font, textProgram, backgroundProgram, fontArray, rectArray);
-            }
-            
-            TextRenderable* buildOnceRenderable(const Key& key, const AttrString& string, TextAnchor::Ptr anchor, RenderContext& renderContext, const TextRendererFilter& filter, const TextColorProvider& colorProvider, const ShaderConfig& textProgram, const ShaderConfig& backgroundProgram) {
-                if (empty())
-                    return NULL;
-                
-                FontManager& fontManager = renderContext.fontManager();
-                TextureFont& font = fontManager.font(m_fontDescriptor);
-                
-                const UnpreparedEntry unpreparedEntry(string, anchor);
-                const PreparedEntry preparedEntry = unpreparedEntry.prepare(font);
-
-                VertexArray fontArray, rectArray;
-                buildArrays(key, preparedEntry, renderContext, colorProvider, fontArray, rectArray);
-                
-                return new TextRenderable(font, textProgram, backgroundProgram, fontArray, rectArray);
-            }
-            
-            void prepareEntries(TextureFont& font) {
-                typename UnpreparedEntryMap::iterator it, end;
-                for (it = m_unpreparedEntries.begin(), end = m_unpreparedEntries.end(); it != end; ++it) {
-                    const Key& key = it->first;
-                    const UnpreparedEntry& unpreparedEntry = it->second;
-                    const PreparedEntry preparedEntry = unpreparedEntry.prepare(font);
-                    m_preparedEntries.insert(std::make_pair(key, preparedEntry));
-                }
-                m_unpreparedEntries.clear();
-            }
-            
-            EntryList visibleEntries(RenderContext& renderContext, const TextRendererFilter& filter) const {
-                EntryList result;
-                visibleEntries(renderContext, filter, m_preparedEntries, result);
-                return result;
-            }
-            
-            void visibleEntries(RenderContext& renderContext, const TextRendererFilter& filter, const PreparedEntryMap& entries, EntryList& result) const {
-                
-                typename PreparedEntryMap::const_iterator it, end;
-                for (it = entries.begin(), end = entries.end(); it != end; ++it) {
-                    const Key& key = it->first;
-                    const PreparedEntry& entry = it->second;
-                    if (entryVisible(renderContext, filter, key, entry))
-                        result.push_back(it);
-                }
-            }
-            
-            bool entryVisible(RenderContext& renderContext, const TextRendererFilter& filter, const Key& key, const PreparedEntry& entry) const {
-                
-                if (filter.stringVisible(renderContext, key)) {
-                    const Camera& camera = renderContext.camera();
-                    const Camera::Viewport& viewport = camera.unzoomedViewport();
-                    
-                    const TextAnchor::Ptr anchor = entry.anchor();
-                    const Vec2f offset = Vec2f(anchor->offset(camera, entry.size())) - Vec2f(m_hInset, m_vInset);
-                    const Vec2f size = entry.size() + 2.0f * Vec2f(m_hInset, m_vInset);
-                    if (viewport.contains(offset.x(), offset.y(), size.x(), size.y()))
-                        return true;
-                }
-                return false;
-            }
-            
-            void buildArrays(const EntryList& entries, RenderContext& renderContext, const TextColorProvider& colorProvider, VertexArray& fontArray, VertexArray& rectArray) {
-                FontVertex::List fontVertices;
-                
-                RectVertex::List rectVertices;
-                rectVertices.reserve(3 * 16 * entries.size());
-                
-                typename EntryList::const_iterator it, end;
-                for (it = entries.begin(), end = entries.end(); it != end; ++it) {
-                    const Key& key = (*it)->first;
-                    const PreparedEntry& entry = (*it)->second;
-                    addEntryToArrays(key, entry, renderContext, colorProvider, fontVertices, rectVertices);
-                }
-                
-                fontArray = VertexArray::swap(GL_QUADS, fontVertices);
-                rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
-            }
-            
-            void buildArrays(const Key& key, const PreparedEntry& entry, RenderContext& renderContext, const TextColorProvider& colorProvider, VertexArray& fontArray, VertexArray& rectArray) {
-                typedef VertexSpecs::P3T2C4::Vertex FontVertex;
-                FontVertex::List fontVertices;
-                
-                typedef VertexSpecs::P3C4::Vertex RectVertex;
-                RectVertex::List rectVertices;
-                rectVertices.reserve(3 * 16);
-                
-                addEntryToArrays(key, entry, renderContext, colorProvider, fontVertices, rectVertices);
-                
-                fontArray = VertexArray::swap(GL_QUADS, fontVertices);
-                rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
-            }
-            
-            void addEntryToArrays(const Key& key, const PreparedEntry& entry, RenderContext& renderContext, const TextColorProvider& colorProvider, FontVertex::List& fontVertices, RectVertex::List& rectVertices) {
-                const Vec2f& size = entry.size().rounded();
-                const TextAnchor::Ptr anchor = entry.anchor();
-                const Vec3f offset = anchor->offset(renderContext.camera(), size);
-                
-                const Vec2f::List& textVertices = entry.vertices();
-                for (size_t j = 0; j < textVertices.size() / 2; ++j) {
-                    const Vec2f& position2 = textVertices[2 * j];
-                    const Vec2f& texCoords = textVertices[2 * j + 1];
-                    const Vec3f position3(position2.x() + offset.x(),
-                                          position2.y() + offset.y(),
-                                          -offset.z());
-                    fontVertices.push_back(FontVertex(position3, texCoords, colorProvider.textColor(renderContext, key)));
-                }
-                
-                const Vec2f::List tempRect = roundedRect2D(size.x() + 2.0f * m_hInset, size.y() + 2.0f * m_vInset, 3.0f, 3);
-                for (size_t j = 0; j < tempRect.size(); ++j) {
-                    const Vec2f& vertex = tempRect[j];
-                    const Vec3f position = Vec3f(vertex.x() + offset.x() + size.x() / 2.0f,
-                                                 vertex.y() + offset.y() + size.y() / 2.0f,
-                                                 -offset.z());
-                    rectVertices.push_back(RectVertex(position, colorProvider.backgroundColor(renderContext, key)));
-                }
-            }
+            void clear();
         };
     }
 }
 
-#endif
+#endif /* defined(__TrenchBroom__TextRenderer__) */
