@@ -167,10 +167,10 @@ namespace TrenchBroom {
                                                    static_cast<float>(viewport.width),
                                                    static_cast<float>(viewport.y));
             const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
+            ReplaceTransformation ortho(renderContext.transformation(), projection, view);
             
             glDisable(GL_TEXTURE_2D);
             
-            ReplaceTransformation ortho(renderContext.transformation(), projection, view);
             ActiveShader backgroundShader(renderContext.shaderManager(), Shaders::TextBackgroundShader);
             m_rectArray.render();
             

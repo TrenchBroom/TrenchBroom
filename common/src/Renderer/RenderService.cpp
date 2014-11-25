@@ -102,6 +102,7 @@ namespace TrenchBroom {
         void RenderService::render(RenderBatch& renderBatch) {
             renderBatch.add(m_primitiveRenderer);
             renderBatch.add(m_pointHandleRenderer);
+            renderBatch.add(m_textRenderer);
         }
     }
 }
