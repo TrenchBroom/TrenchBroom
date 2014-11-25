@@ -29,7 +29,6 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/RenderService.h"
 #include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
@@ -568,8 +567,7 @@ namespace TrenchBroom {
             setupGL(renderContext);
             setRenderOptions(renderContext);
             
-            Renderer::RenderService renderService(fontDescriptor);
-            Renderer::RenderBatch renderBatch(m_vbo, renderService);
+            Renderer::RenderBatch renderBatch(m_vbo);
             
             doRenderMap(m_renderer, renderContext, renderBatch);
             doRenderTools(m_toolBox, renderContext, renderBatch);

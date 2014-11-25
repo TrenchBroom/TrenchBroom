@@ -40,16 +40,17 @@ namespace TrenchBroom {
         
         class RenderService {
         private:
+            RenderContext& m_renderContext;
+            RenderBatch& m_renderBatch;
             TextRenderer* m_textRenderer;
             PointHandleRenderer* m_pointHandleRenderer;
             PrimitiveRenderer* m_primitiveRenderer;
         public:
-            RenderService(const FontDescriptor& fontDescriptor);
+            RenderService(RenderContext& renderContext, RenderBatch& renderBatch);
             ~RenderService();
 
-            
-            void renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
-            void renderStringOnTop(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
+            void renderString(const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
+            void renderStringOnTop(const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
             
             void renderPointHandles(const Vec3f::List& positions);
             void renderPointHandle(const Vec3f& position);
@@ -66,8 +67,8 @@ namespace TrenchBroom {
             
             void renderFilledCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
             void renderFilledCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
-            
-            void render(RenderBatch& renderBatch);
+        private:
+            void flush();
         };
     }
 }

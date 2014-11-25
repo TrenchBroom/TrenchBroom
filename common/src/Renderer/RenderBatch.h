@@ -30,7 +30,6 @@ namespace TrenchBroom {
     namespace Renderer {
         class Renderable;
         class RenderContext;
-        class RenderService;
         class Vbo;
         
         class RenderBatch {
@@ -40,13 +39,9 @@ namespace TrenchBroom {
             typedef std::vector<Renderable*> RenderableList;
             RenderableList m_batch;
             RenderableList m_oneshots;
-            
-            RenderService& m_renderService;
         public:
-            RenderBatch(Vbo& vbo, RenderService& renderService);
+            RenderBatch(Vbo& vbo);
             ~RenderBatch();
-            
-            RenderService& renderService();
             
             void add(Renderable* renderable);
             void addOneShot(Renderable* renderable);

@@ -221,7 +221,7 @@ namespace TrenchBroom {
         
         void EntityRenderer::renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (renderContext.showEntityClassnames()) {
-                Renderer::RenderService& renderService = renderBatch.renderService();
+                Renderer::RenderService renderService(renderContext, renderBatch);
                 
                 Model::EntitySet::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
@@ -229,9 +229,9 @@ namespace TrenchBroom {
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
                         const EntityClassnameAnchor anchor(entity);
                         if (m_showOccludedOverlays) {
-                            renderService.renderStringOnTop(renderContext, m_overlayTextColor, m_overlayBackgroundColor, entityString(entity), anchor);
+                            renderService.renderStringOnTop(m_overlayTextColor, m_overlayBackgroundColor, entityString(entity), anchor);
                         } else {
-                            renderService.renderString(renderContext, m_overlayTextColor, m_overlayBackgroundColor, entityString(entity), anchor);
+                            renderService.renderString(m_overlayTextColor, m_overlayBackgroundColor, entityString(entity), anchor);
                         }
                     }
                 }

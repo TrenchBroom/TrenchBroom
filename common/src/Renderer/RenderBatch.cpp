@@ -21,23 +21,17 @@
 
 #include "CollectionUtils.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/RenderService.h"
 #include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderBatch::RenderBatch(Vbo& vbo, RenderService& renderService) :
-        m_vbo(vbo),
-        m_renderService(renderService) {}
+        RenderBatch::RenderBatch(Vbo& vbo) :
+        m_vbo(vbo) {}
         
         RenderBatch::~RenderBatch() {
             VectorUtils::clearAndDelete(m_oneshots);
         }
         
-        RenderService& RenderBatch::renderService() {
-            return m_renderService;
-        }
-
         void RenderBatch::add(Renderable* renderable) {
             assert(renderable != NULL);
             m_batch.push_back(renderable);
@@ -50,8 +44,6 @@ namespace TrenchBroom {
         }
         
         void RenderBatch::render(RenderContext& renderContext) {
-            m_renderService.render(*this);
-            
             SetVboState setVboState(m_vbo);
             setVboState.mapped();
             prepareRenderables();

@@ -35,23 +35,22 @@ namespace TrenchBroom {
         const size_t TextRenderer::RectCornerSegments = 3;
         const float TextRenderer::RectCornerRadius = 3.0f;
         
-        TextRenderer::CachedString::CachedString(Vec2f::List& i_vertices, const Vec2f& i_size) :
-        size(i_size) {
-            using std::swap;
-            swap(i_vertices, vertices);
-        }
-
-        TextRenderer::Entry::Entry(StringCache::iterator i_string, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor) :
-        string(i_string),
+        TextRenderer::Entry::Entry(Vec2f::List& i_vertices, const Vec2f& i_size, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor) :
+        size(i_size),
         offset(i_offset),
         textColor(i_textColor),
-        backgroundColor(i_backgroundColor) {}
+        backgroundColor(i_backgroundColor) {
+            using std::swap;
+            swap(vertices, i_vertices);
+        }
 
+        TextRenderer::EntryCollection::EntryCollection() :
+        textVertexCount(0),
+        rectVertexCount(0) {}
+        
         TextRenderer::TextRenderer(const FontDescriptor& fontDescriptor, const Vec2f& inset) :
         m_fontDescriptor(fontDescriptor),
-        m_inset(inset),
-        m_textVertexCount(0),
-        m_rectVertexCount(0) {}
+        m_inset(inset) {}
 
         void TextRenderer::renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
             renderString(renderContext, textColor, backgroundColor, string, position, false);
@@ -65,12 +64,17 @@ namespace TrenchBroom {
             if (!isVisible(renderContext, string, position))
                 return;
             
-            const StringCache::iterator cachedString = findOrCreateCachedString(renderContext, string);
-            const Vec3f offset = position.offset(renderContext.camera(), cachedString->second.size);
-            m_entries.push_back(Entry(cachedString, offset, textColor, backgroundColor));
+            FontManager& fontManager = renderContext.fontManager();
+            TextureFont& font = fontManager.font(m_fontDescriptor);
+
+            Vec2f::List vertices = font.quads(string, true);
+            const Vec2f size = font.measure(string);
+            const Vec3f offset = position.offset(renderContext.camera(), size);
             
-            m_textVertexCount += cachedString->second.vertices.size();
-            m_rectVertexCount += roundedRect2DVertexCount(RectCornerSegments);
+            if (onTop)
+                addEntry(m_entriesOnTop, Entry(vertices, size, offset, textColor, backgroundColor));
+            else
+                addEntry(m_entries, Entry(vertices, size, offset, textColor, backgroundColor));
         }
 
         bool TextRenderer::isVisible(RenderContext& renderContext, const AttrString& string, const TextAnchor& position) const {
@@ -84,55 +88,46 @@ namespace TrenchBroom {
             return viewport.contains(offset.x(), offset.y(), actualSize.x(), actualSize.y());
         }
 
+        void TextRenderer::addEntry(EntryCollection& collection, const Entry& entry) {
+            collection.entries.push_back(entry);
+            collection.textVertexCount += entry.vertices.size();
+            collection.rectVertexCount += roundedRect2DVertexCount(RectCornerSegments);
+        }
+        
         Vec2f TextRenderer::stringSize(RenderContext& renderContext, const AttrString& string) const {
-            const StringCache::const_iterator it = m_cache.find(string);
-            if (it != m_cache.end())
-                return it->second.size;
-            
             FontManager& fontManager = renderContext.fontManager();
             TextureFont& font = fontManager.font(m_fontDescriptor);
             return font.measure(string).rounded();
         }
 
-        TextRenderer::StringCache::iterator TextRenderer::findOrCreateCachedString(RenderContext& renderContext, const AttrString& string) {
-            typedef std::pair<bool, StringCache::iterator> InsertPos;
-            InsertPos insertPos = MapUtils::findInsertPos(m_cache, string);
-            if (insertPos.first)
-                return insertPos.second;
-            
-            FontManager& fontManager = renderContext.fontManager();
-            TextureFont& font = fontManager.font(m_fontDescriptor);
-            
-            Vec2f::List vertices = font.quads(string, true);
-            const Vec2f size = font.measure(string).rounded();
-
-            return m_cache.insert(insertPos.second, std::make_pair(string, CachedString(vertices, size)));
-        }
-
         void TextRenderer::doPrepare(Vbo& vbo) {
+            prepare(m_entries, vbo);
+            prepare(m_entriesOnTop, vbo);
+        }
+        
+        void TextRenderer::prepare(EntryCollection& collection, Vbo& vbo) {
             TextVertex::List textVertices;
-            textVertices.reserve(m_textVertexCount);
+            textVertices.reserve(collection.textVertexCount);
             
             RectVertex::List rectVertices;
-            rectVertices.reserve(m_rectVertexCount);
-
+            rectVertices.reserve(collection.rectVertexCount);
+            
             EntryList::const_iterator it, end;
-            for (it = m_entries.begin(), end = m_entries.end(); it != end; ++it) {
+            for (it = collection.entries.begin(), end = collection.entries.end(); it != end; ++it) {
                 const Entry& entry = *it;
                 addEntry(entry, textVertices, rectVertices);
             }
             
-            m_textArray = VertexArray::swap(GL_QUADS, textVertices);
-            m_rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
+            collection.textArray = VertexArray::swap(GL_QUADS, textVertices);
+            collection.rectArray = VertexArray::swap(GL_TRIANGLES, rectVertices);
             
-            m_textArray.prepare(vbo);
-            m_rectArray.prepare(vbo);
+            collection.textArray.prepare(vbo);
+            collection.rectArray.prepare(vbo);
         }
-        
+
         void TextRenderer::addEntry(const Entry& entry, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
-            const CachedString& string = entry.string->second;
-            const Vec2f::List& stringVertices = string.vertices;
-            const Vec2f& stringSize = string.size;
+            const Vec2f::List& stringVertices = entry.vertices;
+            const Vec2f& stringSize = entry.size;
             
             const Vec3f& offset = entry.offset;
             const Color& textColor = entry.textColor;
@@ -152,9 +147,6 @@ namespace TrenchBroom {
         }
 
         void TextRenderer::doRender(RenderContext& renderContext) {
-            FontManager& fontManager = renderContext.fontManager();
-            TextureFont& font = fontManager.font(m_fontDescriptor);
-
             const Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
             const Mat4x4f projection = orthoMatrix(0.0f, 1.0f,
                                                    static_cast<float>(viewport.x),
@@ -164,24 +156,29 @@ namespace TrenchBroom {
             const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
             
+            render(m_entries, renderContext);
+            
+            glDisable(GL_DEPTH_TEST);
+            render(m_entriesOnTop, renderContext);
+            glEnable(GL_DEPTH_TEST);
+        }
+
+        void TextRenderer::render(EntryCollection& collection, RenderContext& renderContext) {
+            FontManager& fontManager = renderContext.fontManager();
+            TextureFont& font = fontManager.font(m_fontDescriptor);
+            
             glDisable(GL_TEXTURE_2D);
             
             ActiveShader backgroundShader(renderContext.shaderManager(), Shaders::TextBackgroundShader);
-            m_rectArray.render();
+            collection.rectArray.render();
             
             glEnable(GL_TEXTURE_2D);
             
             ActiveShader textShader(renderContext.shaderManager(), Shaders::ColoredTextShader);
             textShader.set("Texture", 0);
             font.activate();
-            m_textArray.render();
+            collection.textArray.render();
             font.deactivate();
-
-            clear();
-        }
-
-        void TextRenderer::clear() {
-            m_entries.clear();
         }
     }
 }

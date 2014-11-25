@@ -175,7 +175,7 @@ namespace TrenchBroom {
             
             const Renderer::Camera& camera = renderContext.camera();
             const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
-            Renderer::RenderService& renderService = renderBatch.renderService();
+            Renderer::RenderService renderService(renderContext, renderBatch);
             
             const Color& color = pref(Preferences::axisColor(camera.direction().firstComponent()));
             renderService.renderCircle(color, m_position, camera.direction().firstComponent(), 64, radius);
@@ -204,7 +204,7 @@ namespace TrenchBroom {
             Vec3f xAxis, yAxis, zAxis;
             computeAxes(renderContext.camera().position(), xAxis, yAxis, zAxis);
 
-            Renderer::RenderService& renderService = renderBatch.renderService();
+            Renderer::RenderService renderService(renderContext, renderBatch);
             
             renderService.renderCoordinateSystem(BBox3f(radius).translated(m_position));
             renderService.renderCircle(pref(Preferences::XAxisColor), m_position, Math::Axis::AX, 64, radius, zAxis, yAxis);

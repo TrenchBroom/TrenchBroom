@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/FontDescriptor.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
@@ -28,23 +29,23 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        RenderService::RenderService(const FontDescriptor& fontDescriptor) :
-        m_textRenderer(new TextRenderer(fontDescriptor)),
+        RenderService::RenderService(RenderContext& renderContext, RenderBatch& renderBatch) :
+        m_renderContext(renderContext),
+        m_renderBatch(renderBatch),
+        m_textRenderer(new TextRenderer(Renderer::FontDescriptor(pref(Preferences::RendererFontPath()), static_cast<size_t>(pref(Preferences::RendererFontSize))))),
         m_pointHandleRenderer(new PointHandleRenderer()),
         m_primitiveRenderer(new PrimitiveRenderer()) {}
         
         RenderService::~RenderService() {
-            delete m_textRenderer;
-            delete m_pointHandleRenderer;
-            delete m_primitiveRenderer;
+            flush();
         }
 
-        void RenderService::renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
-            m_textRenderer->renderString(renderContext, textColor, backgroundColor, string, position);
+        void RenderService::renderString(const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
+            m_textRenderer->renderString(m_renderContext, textColor, backgroundColor, string, position);
         }
         
-        void RenderService::renderStringOnTop(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
-            m_textRenderer->renderStringOnTop(renderContext, textColor, backgroundColor, string, position);
+        void RenderService::renderStringOnTop(const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
+            m_textRenderer->renderStringOnTop(m_renderContext, textColor, backgroundColor, string, position);
         }
 
         void RenderService::renderPointHandles(const Vec3f::List& positions) {
@@ -99,10 +100,10 @@ namespace TrenchBroom {
             m_primitiveRenderer->renderFilledCircle(color, position, normal, segments, radius, startAngle, angleLength);
         }
         
-        void RenderService::render(RenderBatch& renderBatch) {
-            renderBatch.add(m_primitiveRenderer);
-            renderBatch.add(m_pointHandleRenderer);
-            renderBatch.add(m_textRenderer);
+        void RenderService::flush() {
+            m_renderBatch.addOneShot(m_primitiveRenderer);
+            m_renderBatch.addOneShot(m_pointHandleRenderer);
+            m_renderBatch.addOneShot(m_textRenderer);
         }
     }
 }

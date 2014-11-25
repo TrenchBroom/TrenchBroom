@@ -162,14 +162,14 @@ namespace TrenchBroom {
         }
         
         void RotateHelper::renderText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            Renderer::RenderService& renderService = renderBatch.renderService();
+            Renderer::RenderService renderService(renderContext, renderBatch);
             
             const Color& textColor = pref(Preferences::SelectedInfoOverlayTextColor);
             const Color& backgroundColor = pref(Preferences::SelectedInfoOverlayBackgroundColor);
             const AttrString string(angleString(Math::degrees(m_lastAngle)));
             const Renderer::SimpleTextAnchor anchor(m_center, Renderer::TextAlignment::Bottom | Renderer::TextAlignment::Center, Vec2f(0.0f, 10.0f));
             
-            renderService.renderStringOnTop(renderContext, textColor, backgroundColor, string, anchor);
+            renderService.renderStringOnTop(textColor, backgroundColor, string, anchor);
         }
 
         String RotateHelper::angleString(const FloatType angle) const {

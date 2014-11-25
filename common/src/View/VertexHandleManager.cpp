@@ -536,7 +536,7 @@ namespace TrenchBroom {
             if (!m_renderStateValid)
                 validateRenderState(splitMode);
             
-            Renderer::RenderService& renderService = renderBatch.renderService();
+            Renderer::RenderService renderService(renderContext, renderBatch);
             if (m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty() && !splitMode)
                 renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_unselectedVertexHandlePositions));
             
@@ -554,7 +554,7 @@ namespace TrenchBroom {
 
         void VertexHandleManager::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
             
-            Renderer::RenderService& renderService = renderBatch.renderService();
+            Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.renderPointHandleHighlight(position);
             
             m_guideRenderer.setPosition(position);
@@ -565,7 +565,7 @@ namespace TrenchBroom {
             const Color& backgroundColor = pref(Preferences::SelectedInfoOverlayBackgroundColor);
             const AttrString string(position.asString());
             const Renderer::SimpleTextAnchor anchor(position, Renderer::TextAlignment::Bottom, Vec2f(0.0f, 16.0f));
-            renderService.renderStringOnTop(renderContext, textColor, backgroundColor, string, anchor);
+            renderService.renderStringOnTop(textColor, backgroundColor, string, anchor);
         }
 
         Vec3::List VertexHandleManager::findVertexHandlePositions(const Model::BrushList& brushes, const Vec3& query, const FloatType maxDistance) {

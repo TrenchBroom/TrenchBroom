@@ -42,26 +42,28 @@ namespace TrenchBroom {
             static const size_t RectCornerSegments;
             static const float RectCornerRadius;
             
-            struct CachedString {
+            struct Entry {
                 Vec2f::List vertices;
                 Vec2f size;
-
-                CachedString(Vec2f::List& i_vertices, const Vec2f& i_size);
-            };
-            
-            typedef std::map<AttrString, CachedString> StringCache;
-            
-            struct Entry {
-
-                StringCache::iterator string;
                 Vec3f offset;
                 Color textColor;
                 Color backgroundColor;
 
-                Entry(StringCache::iterator i_string, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
+                Entry(Vec2f::List& i_vertices, const Vec2f& i_size, const Vec3f& i_offset, const Color& i_textColor, const Color& i_backgroundColor);
             };
             
             typedef std::vector<Entry> EntryList;
+            
+            struct EntryCollection {
+                EntryList entries;
+                size_t textVertexCount;
+                size_t rectVertexCount;
+                
+                VertexArray textArray;
+                VertexArray rectArray;
+
+                EntryCollection();
+            };
             
             typedef VertexSpecs::P3T2C4::Vertex TextVertex;
             typedef VertexSpecs::P3C4::Vertex RectVertex;
@@ -69,13 +71,8 @@ namespace TrenchBroom {
             FontDescriptor m_fontDescriptor;
             Vec2f m_inset;
             
-            StringCache m_cache;
-            EntryList m_entries;
-            size_t m_textVertexCount;
-            size_t m_rectVertexCount;
-            
-            VertexArray m_textArray;
-            VertexArray m_rectArray;
+            EntryCollection m_entries;
+            EntryCollection m_entriesOnTop;
         public:
             TextRenderer(const FontDescriptor& fontDescriptor, const Vec2f& inset = Vec2f(4.0f, 4.0f));
             
@@ -85,14 +82,17 @@ namespace TrenchBroom {
             void renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position, bool onTop);
             
             bool isVisible(RenderContext& renderContext, const AttrString& string, const TextAnchor& position) const;
+            void addEntry(EntryCollection& collection, const Entry& entry);
             
             Vec2f stringSize(RenderContext& renderContext, const AttrString& string) const;
-            StringCache::iterator findOrCreateCachedString(RenderContext& renderContext, const AttrString& string);
         private:
             void doPrepare(Vbo& vbo);
+            void prepare(EntryCollection& collection, Vbo& vbo);
+            
             void addEntry(const Entry& entry, TextVertex::List& textVertices, RectVertex::List& rectVertices);
             
             void doRender(RenderContext& renderContext);
+            void render(EntryCollection& collection, RenderContext& renderContext);
 
             void clear();
         };
