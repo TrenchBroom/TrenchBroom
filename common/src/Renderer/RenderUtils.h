@@ -42,6 +42,7 @@ namespace TrenchBroom {
         std::pair<float, float> startAngleAndLength(const Math::Axis::Type axis, const Vec3f& startAxis, const Vec3f& endAxis);
 
         size_t roundedRect2DVertexCount(size_t cornerSegments);
+        Vec2f::List roundedRect2D(const Vec2f& size, const float cornerRadius, const size_t cornerSegments);
         Vec2f::List roundedRect2D(float width, float height, float cornerRadius, size_t cornerSegments);
         
         struct VertsAndNormals {

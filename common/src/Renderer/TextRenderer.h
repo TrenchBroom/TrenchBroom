@@ -40,6 +40,7 @@ namespace TrenchBroom {
         class TextRenderer : public Renderable {
         private:
             static const size_t RectCornerSegments;
+            static const float RectCornerRadius;
             
             struct CachedString {
                 Vec2f::List vertices;
@@ -89,7 +90,7 @@ namespace TrenchBroom {
             StringCache::iterator findOrCreateCachedString(RenderContext& renderContext, const AttrString& string);
         private:
             void doPrepare(Vbo& vbo);
-            void addEntry(const Entry& entry, TextVertex::List textVertices, RectVertex::List rectVertices);
+            void addEntry(const Entry& entry, TextVertex::List& textVertices, RectVertex::List& rectVertices);
             
             void doRender(RenderContext& renderContext);
 

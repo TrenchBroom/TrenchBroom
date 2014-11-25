@@ -33,6 +33,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         const size_t TextRenderer::RectCornerSegments = 3;
+        const float TextRenderer::RectCornerRadius = 3.0f;
         
         TextRenderer::CachedString::CachedString(Vec2f::List& i_vertices, const Vec2f& i_size) :
         size(i_size) {
@@ -90,7 +91,7 @@ namespace TrenchBroom {
             
             FontManager& fontManager = renderContext.fontManager();
             TextureFont& font = fontManager.font(m_fontDescriptor);
-            return font.measure(string);
+            return font.measure(string).rounded();
         }
 
         TextRenderer::StringCache::iterator TextRenderer::findOrCreateCachedString(RenderContext& renderContext, const AttrString& string) {
@@ -103,7 +104,7 @@ namespace TrenchBroom {
             TextureFont& font = fontManager.font(m_fontDescriptor);
             
             Vec2f::List vertices = font.quads(string, true);
-            const Vec2f size = font.measure(string);
+            const Vec2f size = font.measure(string).rounded();
 
             return m_cache.insert(insertPos.second, std::make_pair(string, CachedString(vertices, size)));
         }
@@ -128,7 +129,7 @@ namespace TrenchBroom {
             m_rectArray.prepare(vbo);
         }
         
-        void TextRenderer::addEntry(const Entry& entry, TextVertex::List textVertices, RectVertex::List rectVertices) {
+        void TextRenderer::addEntry(const Entry& entry, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
             const CachedString& string = entry.string->second;
             const Vec2f::List& stringVertices = string.vertices;
             const Vec2f& stringSize = string.size;
@@ -137,22 +138,16 @@ namespace TrenchBroom {
             const Color& textColor = entry.textColor;
             const Color& rectColor = entry.backgroundColor;
             
-            for (size_t j = 0; j < stringVertices.size() / 2; ++j) {
-                const Vec2f& position2 = stringVertices[2 * j];
-                const Vec2f& texCoords = stringVertices[2 * j + 1];
-                const Vec3f position3(position2.x() + offset.x(),
-                                      position2.y() + offset.y(),
-                                      -offset.z());
-                textVertices.push_back(TextVertex(position3, texCoords, textColor));
+            for (size_t i = 0; i < stringVertices.size() / 2; ++i) {
+                const Vec2f& position2 = stringVertices[2 * i];
+                const Vec2f& texCoords = stringVertices[2 * i + 1];
+                textVertices.push_back(TextVertex(Vec3f(position2 + offset, -offset.z()), texCoords, textColor));
             }
 
-            const Vec2f::List tempRect = roundedRect2D(stringSize.x() + 2.0f * m_inset.x(), stringSize.y() + 2.0f * m_inset.y(), 3.0f, 3);
-            for (size_t j = 0; j < tempRect.size(); ++j) {
-                const Vec2f& vertex = tempRect[j];
-                const Vec3f position = Vec3f(vertex.x() + offset.x() + stringSize.x() / 2.0f,
-                                             vertex.y() + offset.y() + stringSize.y() / 2.0f,
-                                             -offset.z());
-                rectVertices.push_back(RectVertex(position, rectColor));
+            const Vec2f::List rect = roundedRect2D(stringSize + 2.0f * m_inset, RectCornerRadius, RectCornerSegments);
+            for (size_t i = 0; i < rect.size(); ++i) {
+                const Vec2f& vertex = rect[i];
+                rectVertices.push_back(RectVertex(Vec3f(vertex + offset + stringSize / 2.0f, -offset.z()), rectColor));
             }
         }
 
@@ -181,7 +176,7 @@ namespace TrenchBroom {
             font.activate();
             m_textArray.render();
             font.deactivate();
-            
+
             clear();
         }
 

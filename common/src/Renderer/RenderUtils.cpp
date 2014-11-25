@@ -136,6 +136,10 @@ namespace TrenchBroom {
             return 4 * (3 * cornerSegments + 3);
         }
 
+        Vec2f::List roundedRect2D(const Vec2f& size, const float cornerRadius, const size_t cornerSegments) {
+            return roundedRect2D(size.x(), size.y(), cornerRadius, cornerSegments);
+        }
+        
         Vec2f::List roundedRect2D(const float width, const float height, const float cornerRadius, const size_t cornerSegments) {
             assert(cornerSegments > 0);
             assert(cornerRadius <= width / 2.0f &&
