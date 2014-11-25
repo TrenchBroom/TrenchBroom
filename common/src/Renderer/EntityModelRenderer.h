@@ -109,6 +109,7 @@ namespace TrenchBroom {
             void prepareModels();
             void prepareRenderers(Vbo& vbo);
             
+            class MeshFunc;
             void doRender(RenderContext& renderContext);
         };
     }
