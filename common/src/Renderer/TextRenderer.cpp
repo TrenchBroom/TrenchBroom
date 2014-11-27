@@ -32,6 +32,9 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        const float TextRenderer::DefaultMaxViewDistance = 768.0f;
+        const float TextRenderer::DefaultMinZoomFactor = 0.5f;
+        const Vec2f TextRenderer::DefaultInset = Vec2f(4.0f, 4.0f);
         const size_t TextRenderer::RectCornerSegments = 3;
         const float TextRenderer::RectCornerRadius = 3.0f;
         
@@ -48,8 +51,10 @@ namespace TrenchBroom {
         textVertexCount(0),
         rectVertexCount(0) {}
         
-        TextRenderer::TextRenderer(const FontDescriptor& fontDescriptor, const Vec2f& inset) :
+        TextRenderer::TextRenderer(const FontDescriptor& fontDescriptor, const float maxViewDistance, const float minZoomFactor, const Vec2f& inset) :
         m_fontDescriptor(fontDescriptor),
+        m_maxViewDistance(maxViewDistance),
+        m_minZoomFactor(minZoomFactor),
         m_inset(inset) {}
 
         void TextRenderer::renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
@@ -61,23 +66,41 @@ namespace TrenchBroom {
         }
 
         void TextRenderer::renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position, const bool onTop) {
-            if (!isVisible(renderContext, string, position))
+            
+            const Camera& camera = renderContext.camera();
+            const float distance = camera.perpendicularDistanceTo(position.position());
+            if (distance <= 0.0f)
+                return;
+            
+            if (!isVisible(renderContext, string, position, distance, onTop))
                 return;
             
             FontManager& fontManager = renderContext.fontManager();
             TextureFont& font = fontManager.font(m_fontDescriptor);
 
             Vec2f::List vertices = font.quads(string, true);
+            const float alphaFactor = computeAlphaFactor(renderContext, distance, onTop);
             const Vec2f size = font.measure(string);
-            const Vec3f offset = position.offset(renderContext.camera(), size);
+            const Vec3f offset = position.offset(camera, size);
             
             if (onTop)
-                addEntry(m_entriesOnTop, Entry(vertices, size, offset, textColor, backgroundColor));
+                addEntry(m_entriesOnTop, Entry(vertices, size, offset,
+                                               Color(textColor, alphaFactor * textColor.a()),
+                                               Color(backgroundColor, alphaFactor * backgroundColor.a())));
             else
-                addEntry(m_entries, Entry(vertices, size, offset, textColor, backgroundColor));
+                addEntry(m_entries, Entry(vertices, size, offset,
+                                          Color(textColor, alphaFactor * textColor.a()),
+                                          Color(backgroundColor, alphaFactor * backgroundColor.a())));
         }
 
-        bool TextRenderer::isVisible(RenderContext& renderContext, const AttrString& string, const TextAnchor& position) const {
+        bool TextRenderer::isVisible(RenderContext& renderContext, const AttrString& string, const TextAnchor& position, const float distance, const bool onTop) const {
+            if (!onTop) {
+                if (renderContext.render3D() && distance > m_maxViewDistance)
+                    return false;
+                if (renderContext.render2D() && renderContext.camera().zoom().x() < m_minZoomFactor)
+                    return false;
+            }
+            
             const Camera& camera = renderContext.camera();
             const Camera::Viewport& viewport = camera.unzoomedViewport();
             
@@ -88,6 +111,24 @@ namespace TrenchBroom {
             return viewport.contains(offset.x(), offset.y(), actualSize.x(), actualSize.y());
         }
 
+        float TextRenderer::computeAlphaFactor(const RenderContext& renderContext, const float distance, const bool onTop) const {
+            if (onTop)
+                return 1.0f;
+
+            if (renderContext.render3D()) {
+                const float a = m_maxViewDistance - distance;
+                if (a > 128.0f)
+                    return 1.0f;
+                return a / 128.0f;
+            } else {
+                const float z = renderContext.camera().zoom().x();
+                const float d = z - m_minZoomFactor;
+                if (d > 0.3f)
+                    return 1.0f;
+                return d / 0.3f;
+            }
+        }
+        
         void TextRenderer::addEntry(EntryCollection& collection, const Entry& entry) {
             collection.entries.push_back(entry);
             collection.textVertexCount += entry.vertices.size();
@@ -101,11 +142,11 @@ namespace TrenchBroom {
         }
 
         void TextRenderer::doPrepare(Vbo& vbo) {
-            prepare(m_entries, vbo);
-            prepare(m_entriesOnTop, vbo);
+            prepare(m_entries, false, vbo);
+            prepare(m_entriesOnTop, true, vbo);
         }
         
-        void TextRenderer::prepare(EntryCollection& collection, Vbo& vbo) {
+        void TextRenderer::prepare(EntryCollection& collection, const bool onTop, Vbo& vbo) {
             TextVertex::List textVertices;
             textVertices.reserve(collection.textVertexCount);
             
@@ -115,7 +156,7 @@ namespace TrenchBroom {
             EntryList::const_iterator it, end;
             for (it = collection.entries.begin(), end = collection.entries.end(); it != end; ++it) {
                 const Entry& entry = *it;
-                addEntry(entry, textVertices, rectVertices);
+                addEntry(entry, onTop, textVertices, rectVertices);
             }
             
             collection.textArray = VertexArray::swap(GL_QUADS, textVertices);
@@ -125,11 +166,12 @@ namespace TrenchBroom {
             collection.rectArray.prepare(vbo);
         }
 
-        void TextRenderer::addEntry(const Entry& entry, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
+        void TextRenderer::addEntry(const Entry& entry, const bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices) {
             const Vec2f::List& stringVertices = entry.vertices;
             const Vec2f& stringSize = entry.size;
             
             const Vec3f& offset = entry.offset;
+            
             const Color& textColor = entry.textColor;
             const Color& rectColor = entry.backgroundColor;
             

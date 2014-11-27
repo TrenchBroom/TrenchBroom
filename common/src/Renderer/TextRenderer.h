@@ -39,6 +39,9 @@ namespace TrenchBroom {
         
         class TextRenderer : public Renderable {
         private:
+            static const float DefaultMaxViewDistance;
+            static const float DefaultMinZoomFactor;
+            static const Vec2f DefaultInset;
             static const size_t RectCornerSegments;
             static const float RectCornerRadius;
             
@@ -69,27 +72,30 @@ namespace TrenchBroom {
             typedef VertexSpecs::P3C4::Vertex RectVertex;
             
             FontDescriptor m_fontDescriptor;
+            float m_maxViewDistance;
+            float m_minZoomFactor;
             Vec2f m_inset;
             
             EntryCollection m_entries;
             EntryCollection m_entriesOnTop;
         public:
-            TextRenderer(const FontDescriptor& fontDescriptor, const Vec2f& inset = Vec2f(4.0f, 4.0f));
+            TextRenderer(const FontDescriptor& fontDescriptor, float maxViewDistance = DefaultMaxViewDistance, float minZoomFactor = DefaultMinZoomFactor, const Vec2f& inset = DefaultInset);
             
             void renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
             void renderStringOnTop(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
         private:
             void renderString(RenderContext& renderContext, const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position, bool onTop);
             
-            bool isVisible(RenderContext& renderContext, const AttrString& string, const TextAnchor& position) const;
+            bool isVisible(RenderContext& renderContext, const AttrString& string, const TextAnchor& position, float distance, bool onTop) const;
+            float computeAlphaFactor(const RenderContext& renderContext, float distance, bool onTop) const;
             void addEntry(EntryCollection& collection, const Entry& entry);
             
             Vec2f stringSize(RenderContext& renderContext, const AttrString& string) const;
         private:
             void doPrepare(Vbo& vbo);
-            void prepare(EntryCollection& collection, Vbo& vbo);
+            void prepare(EntryCollection& collection, bool onTop, Vbo& vbo);
             
-            void addEntry(const Entry& entry, TextVertex::List& textVertices, RectVertex::List& rectVertices);
+            void addEntry(const Entry& entry, bool onTop, TextVertex::List& textVertices, RectVertex::List& rectVertices);
             
             void doRender(RenderContext& renderContext);
             void render(EntryCollection& collection, RenderContext& renderContext);
