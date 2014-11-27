@@ -54,7 +54,7 @@ namespace TrenchBroom {
         private:
             void deselectAllNodes();
             void deselectAllBrushFaces();
-        public: // adding and removing ndoes
+        public: // adding and removing nodes
             Model::NodeList performAddNodes(const Model::ParentChildrenMap& nodes);
             Model::ParentChildrenMap performRemoveNodes(const Model::NodeList& nodes);
         public: // transformation
@@ -74,6 +74,15 @@ namespace TrenchBroom {
             void performRebuildBrushGeometry(const Model::BrushList& brushes);
         public: // snapshots and restoration
             void restoreSnapshot(Model::Snapshot* snapshot);
+        public: // entity definition file management
+            void performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
+        public: // texture collection management
+            void performAddExternalTextureCollections(const StringList& names);
+            void performRemoveExternalTextureCollections(const StringList& names);
+            void performMoveExternalTextureCollectionUp(const String& name);
+            void performMoveExternalTextureCollectionDown(const String& name);
+        public: // mods management
+            void performSetMods(const StringList& mods);
         private: // helper methods
             Model::NodeList collectParents(const Model::NodeList& nodes) const;
             Model::NodeList collectParents(const Model::ParentChildrenMap& nodes) const;

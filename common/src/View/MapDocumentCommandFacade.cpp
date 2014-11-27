@@ -20,6 +20,8 @@
 #include "MapDocumentCommandFacade.h"
 
 #include "CollectionUtils.h"
+#include "Assets/EntityDefinitionFileSpec.h"
+#include "Assets/TextureManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -505,6 +507,59 @@ namespace TrenchBroom {
             snapshot->restoreNodes(m_worldBounds);
 
             invalidateSelectionBounds();
+        }
+
+        void MapDocumentCommandFacade::performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, spec.asString());
+            entityDefinitionsDidChangeNotifier();
+        }
+
+        void MapDocumentCommandFacade::performAddExternalTextureCollections(const StringList& names) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            addExternalTextureCollections(names);
+            setTextures();
+            updateExternalTextureCollectionProperty();
+            textureCollectionsDidChangeNotifier();
+        }
+        
+        void MapDocumentCommandFacade::performRemoveExternalTextureCollections(const StringList& names) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            unsetTextures();
+            
+            StringList::const_iterator it, end;
+            for (it = names.begin(), end = names.end(); it != end; ++it) {
+                const String& name = *it;
+                m_textureManager->removeExternalTextureCollection(name);
+            }
+            
+            setTextures();
+            updateExternalTextureCollectionProperty();
+            textureCollectionsDidChangeNotifier();
+        }
+        
+        void MapDocumentCommandFacade::performMoveExternalTextureCollectionUp(const String& name) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            m_textureManager->moveExternalTextureCollectionUp(name);
+            setTextures();
+            updateExternalTextureCollectionProperty();
+            textureCollectionsDidChangeNotifier();
+        }
+        
+        void MapDocumentCommandFacade::performMoveExternalTextureCollectionDown(const String& name) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            m_textureManager->moveExternalTextureCollectionDown(name);
+            setTextures();
+            updateExternalTextureCollectionProperty();
+            textureCollectionsDidChangeNotifier();
+        }
+
+        void MapDocumentCommandFacade::performSetMods(const StringList& mods) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            unsetEntityDefinitions();
+            m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
+            setEntityDefinitions();
+            modsDidChangeNotifier();
         }
 
         Model::NodeList MapDocumentCommandFacade::collectParents(const Model::NodeList& nodes) const {

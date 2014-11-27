@@ -40,6 +40,7 @@ namespace TrenchBroom {
         class Autosaver;
         class Console;
         class FrameManager;
+        class Inspector;
         class SwitchableMapView;
         
         class MapFrame : public wxFrame {
@@ -52,6 +53,7 @@ namespace TrenchBroom {
             
             SwitchableMapView* m_mapView;
             Console* m_console;
+            Inspector* m_inspector;
         public:
             MapFrame();
             MapFrame(FrameManager* frameManager, MapDocumentSPtr document);

@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -67,6 +68,8 @@ namespace TrenchBroom {
             bool canMoveCameraToPreviousTracePoint() const;
             void moveCameraToNextTracePoint();
             void moveCameraToPreviousTracePoint();
+            
+            GLContextHolder::Ptr glContext() const;
         private:
             void createGui();
         private:

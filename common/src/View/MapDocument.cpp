@@ -47,6 +47,7 @@
 #include "View/AddRemoveNodesCommand.h"
 #include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/DuplicateNodesCommand.h"
+#include "View/EntityDefinitionFileCommand.h"
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
 #include "View/MoveBrushEdgesCommand.h"
@@ -55,9 +56,11 @@
 #include "View/MoveTexturesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
+#include "View/SetModsCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
 #include "View/SplitBrushFacesCommand.h"
+#include "View/TextureCollectionCommand.h"
 #include "View/TransformObjectsCommand.h"
 #include "View/VertexHandleManager.h"
 
@@ -105,6 +108,10 @@ namespace TrenchBroom {
 
         Model::World* MapDocument::world() const {
             return m_world;
+        }
+
+        Model::GamePtr MapDocument::game() const {
+            return m_game;
         }
 
         const Model::EditorContext& MapDocument::editorContext() const {
@@ -595,6 +602,18 @@ namespace TrenchBroom {
             return command->addedNodes();
         }
 
+        Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
+            return m_game->extractEntityDefinitionFile(m_world);
+        }
+        
+        void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
+            submit(EntityDefinitionFileCommand::set(spec));
+        }
+
+        void MapDocument::addTextureCollection(const String& name) {
+            submit(TextureCollectionCommand::add(name));
+        }
+
         void MapDocument::loadAssets() {
             loadEntityDefinitions();
             setEntityDefinitions();
@@ -622,10 +641,6 @@ namespace TrenchBroom {
             m_entityDefinitionManager->clear();
         }
 
-        Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
-            return m_game->extractEntityDefinitionFile(m_world);
-        }
-        
         void MapDocument::loadEntityModels() {
             m_entityModelManager->setLoader(m_game.get());
         }
@@ -682,6 +697,10 @@ namespace TrenchBroom {
                 else
                     warn("External texture collection not found: '" + name +  "'");
             }
+        }
+        
+        void MapDocument::updateExternalTextureCollectionProperty() {
+            m_game->updateExternalTextureCollections(m_world, m_textureManager->externalCollectionNames());
         }
         
         class SetEntityDefinition : public Model::NodeVisitor {
@@ -862,6 +881,10 @@ namespace TrenchBroom {
             return m_game->extractEnabledMods(m_world);
         }
         
+        void MapDocument::setMods(const StringList& mods) {
+            submit(SetModsCommand::set(mods));
+        }
+
         void MapDocument::registerIssueGenerators() {
         }
 

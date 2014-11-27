@@ -107,6 +107,10 @@ namespace TrenchBroom {
             
             Notifier1<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
             
+            Notifier0 textureCollectionsDidChangeNotifier;
+            Notifier0 entityDefinitionsDidChangeNotifier;
+            Notifier0 modsDidChangeNotifier;
+            
             Notifier0 pointFileWasLoadedNotifier;
             Notifier0 pointFileWasUnloadedNotifier;
         protected:
@@ -116,6 +120,7 @@ namespace TrenchBroom {
         public: // accessors and such
             const BBox3& worldBounds() const;
             Model::World* world() const;
+            Model::GamePtr game() const;
             
             const Model::EditorContext& editorContext() const;
             bool textureLock();
@@ -247,14 +252,18 @@ namespace TrenchBroom {
             void clearWorld();
             
             Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
-        private: // asset management
+        public: // asset management
+            Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
+            
+            void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
+            void addTextureCollection(const String& name);
+        private:
             void loadAssets();
             void unloadAssets();
             
             void loadEntityDefinitions();
             void unloadEntityDefinitions();
             
-            Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             
             void loadEntityModels();
             void unloadEntityModels();
@@ -264,9 +273,10 @@ namespace TrenchBroom {
             void loadBuiltinTextures();
             void loadExternalTextures();
             void unloadTextures();
-
-            void addExternalTextureCollections(const StringList& names);
         protected:
+            void addExternalTextureCollections(const StringList& names);
+            void updateExternalTextureCollectionProperty();
+            
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);
             void unsetEntityDefinitions();
@@ -282,7 +292,9 @@ namespace TrenchBroom {
         private: // search paths and mods
             IO::Path::List externalSearchPaths() const;
             void updateGameSearchPaths();
+        public:
             StringList mods() const;
+            void setMods(const StringList& mods);
         private: // issue management
             void registerIssueGenerators();
         public: // document path
