@@ -201,7 +201,6 @@ namespace TrenchBroom {
             document->deselectAll();
             document->select(nodes);
         }
-        
 
         void LayerEditor::OnAddLayer(wxCommandEvent& event) {
             wxTextEntryDialog dialog(this, "Enter a name for the new layer", "New Layer Name", "Unnamed");

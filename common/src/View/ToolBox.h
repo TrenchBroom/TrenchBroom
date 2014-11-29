@@ -40,10 +40,11 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
         class Tool;
+        class ToolChain;
         
         class ToolBox {
         private:
-            Tool* m_toolChain;
+            ToolChain* m_toolChain;
             Tool* m_dragReceiver;
             Tool* m_modalReceiver;
             Tool* m_dropReceiver;

@@ -21,12 +21,12 @@
 #include "SetBool.h"
 #include "View/InputState.h"
 #include "View/Tool.h"
+#include "View/ToolChain.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        
         ToolBox::ToolBox() :
         m_toolChain(NULL),
         m_dragReceiver(NULL),
@@ -146,9 +146,7 @@ namespace TrenchBroom {
         
         void ToolBox::cancelDrag() {
             assert(dragging());
-            assert(m_toolChain != NULL);
-            
-            m_toolChain->cancelMouseDrag();
+            m_dragReceiver->cancelMouseDrag();
             m_dragReceiver = NULL;
         }
         
@@ -176,9 +174,9 @@ namespace TrenchBroom {
         
         void ToolBox::addTool(Tool* tool) {
             if (m_toolChain == NULL)
-                m_toolChain = tool;
+                m_toolChain = new ToolChain(tool);
             else
-                m_toolChain->appendTool(tool);
+                m_toolChain->append(new ToolChain(tool));
         }
         
         void ToolBox::deactivateWhen(Tool* master, Tool* slave) {
@@ -245,7 +243,7 @@ namespace TrenchBroom {
                 m_modalReceiver->renderOnly(m_inputState, renderContext);
             else */
             if (m_toolChain != NULL)
-                m_toolChain->renderChain(inputState, renderContext, renderBatch);
+                m_toolChain->render(inputState, renderContext, renderBatch);
         }
         
         bool ToolBox::activateTool(Tool* tool) {
