@@ -75,6 +75,8 @@ namespace TrenchBroom {
         private:
             void unbindObservers();
             
+            void nodesDidChange(const Model::NodeList& nodes);
+            
             void cameraDidChange(const Renderer::Camera* camera);
             void toolChanged(Tool* tool);
             void commandProcessed(Command* command);

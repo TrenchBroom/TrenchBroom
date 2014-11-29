@@ -17,9 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ModelTypes.h"
+#ifndef __TrenchBroom__TitledPanel__
+#define __TrenchBroom__TitledPanel__
+
+#include <wx/panel.h>
 
 namespace TrenchBroom {
-    namespace Model {
+    namespace View {
+        class TitledPanel : public wxPanel {
+        private:
+            wxWindow* m_panel;
+        public:
+            TitledPanel(wxWindow* parent, const wxString& title, bool showDivider = true);
+            
+            wxWindow* getPanel() const;
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__TitledPanel__) */

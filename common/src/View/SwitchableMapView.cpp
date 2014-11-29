@@ -141,6 +141,10 @@ namespace TrenchBroom {
             mapView3D->moveCameraToPreviousTracePoint();
         }
 
+        GLContextHolder::Ptr SwitchableMapView::glContext() const {
+            return m_mapViews[0]->contextHolder();
+        }
+
         void SwitchableMapView::createGui() {
             m_mapRenderer = new Renderer::MapRenderer(m_document);
             m_vbo = new Renderer::Vbo(0xFFFFFF);

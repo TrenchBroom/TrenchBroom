@@ -32,5 +32,6 @@
 #define DEFAULT_SWITCH() default: assert(false); throw "Unhandled switch case";
 #endif
 
+#define CHECK_BOOL(funexp) if (!(funexp)) assert(false);
 
 #endif

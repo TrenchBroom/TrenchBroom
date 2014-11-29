@@ -47,17 +47,21 @@
 #include "View/AddRemoveNodesCommand.h"
 #include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/DuplicateNodesCommand.h"
+#include "View/EntityDefinitionFileCommand.h"
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
 #include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
+#include "View/ReparentNodesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
+#include "View/SetModsCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
 #include "View/SplitBrushFacesCommand.h"
+#include "View/TextureCollectionCommand.h"
 #include "View/TransformObjectsCommand.h"
 #include "View/VertexHandleManager.h"
 
@@ -71,6 +75,7 @@ namespace TrenchBroom {
         MapDocument::MapDocument() :
         m_worldBounds(DefaultWorldBounds),
         m_world(NULL),
+        m_currentLayer(NULL),
         m_pointFile(NULL),
         m_editorContext(new Model::EditorContext()),
         m_entityDefinitionManager(new Assets::EntityDefinitionManager()),
@@ -99,12 +104,25 @@ namespace TrenchBroom {
             delete m_editorContext;
         }
 
+        Model::GamePtr MapDocument::game() const {
+            return m_game;
+        }
+        
         const BBox3& MapDocument::worldBounds() const {
             return m_worldBounds;
         }
 
         Model::World* MapDocument::world() const {
             return m_world;
+        }
+
+        Model::Layer* MapDocument::currentLayer() const {
+            assert(m_currentLayer != NULL);
+            return m_currentLayer;
+        }
+        
+        void MapDocument::setCurrentLayer(Model::Layer* currentLayer) {
+            m_currentLayer = currentLayer != NULL ? currentLayer : m_world->defaultLayer();
         }
 
         const Model::EditorContext& MapDocument::editorContext() const {
@@ -414,6 +432,25 @@ namespace TrenchBroom {
             m_selectedBrushFaces.clear();
         }
 
+        void MapDocument::addNode(Model::Node* node, Model::Node* parent) {
+            assert(node != NULL);
+            assert(node->parent() == NULL);
+            assert(parent != NULL);
+            assert(parent != node);
+            
+            Model::ParentChildrenMap map;
+            map[parent].push_back(node);
+            addNodes(map);
+        }
+        
+        void MapDocument::removeNode(Model::Node* node) {
+            removeNodes(Model::NodeList(1, node));
+        }
+
+        void MapDocument::reparentNodes(Model::Node* newParent, const Model::NodeList& children) {
+            submit(ReparentNodesCommand::reparent(newParent, children));
+        }
+
         bool MapDocument::deleteObjects() {
             Transaction transaction(this, "Delete objects");
             const Model::NodeList nodes = m_selectedNodes.nodes();
@@ -423,6 +460,22 @@ namespace TrenchBroom {
 
         bool MapDocument::duplicateObjects() {
             return submit(DuplicateNodesCommand::duplicate());
+        }
+
+        void MapDocument::setLayerHidden(Model::Layer* layer, const bool hidden) {
+            assert(layer != NULL);
+            if (layer->hidden() != hidden) {
+                layer->setHidden(hidden);
+                nodesDidChangeNotifier(Model::NodeList(1, layer));
+            }
+        }
+        
+        void MapDocument::setLayerLocked(Model::Layer* layer, const bool locked) {
+            assert(layer != NULL);
+            if (layer->locked() != locked) {
+                layer->setLocked(locked);
+                nodesDidChangeNotifier(Model::NodeList(1, layer));
+            }
         }
 
         bool MapDocument::translateObjects(const Vec3& delta) {
@@ -569,6 +622,7 @@ namespace TrenchBroom {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->newMap(mapFormat);
+            m_currentLayer = m_world->defaultLayer();
             
             updateGameSearchPaths();
             setPath(DefaultDocumentName);
@@ -578,6 +632,7 @@ namespace TrenchBroom {
             m_worldBounds = worldBounds;
             m_game = game;
             m_world = m_game->loadMap(m_worldBounds, path, this);
+            m_currentLayer = m_world->defaultLayer();
 
             updateGameSearchPaths();
             setPath(path);
@@ -586,6 +641,7 @@ namespace TrenchBroom {
         void MapDocument::clearWorld() {
             delete m_world;
             m_world = NULL;
+            m_currentLayer = NULL;
         }
 
         Model::NodeList MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
@@ -593,6 +649,22 @@ namespace TrenchBroom {
             if (!submit(command))
                 return Model::EmptyNodeList;
             return command->addedNodes();
+        }
+
+        void MapDocument::removeNodes(const Model::NodeList& nodes) {
+            submit(AddRemoveNodesCommand::remove(nodes));
+        }
+
+        Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
+            return m_game->extractEntityDefinitionFile(m_world);
+        }
+        
+        void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
+            submit(EntityDefinitionFileCommand::set(spec));
+        }
+
+        void MapDocument::addTextureCollection(const String& name) {
+            submit(TextureCollectionCommand::add(name));
         }
 
         void MapDocument::loadAssets() {
@@ -622,10 +694,6 @@ namespace TrenchBroom {
             m_entityDefinitionManager->clear();
         }
 
-        Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {
-            return m_game->extractEntityDefinitionFile(m_world);
-        }
-        
         void MapDocument::loadEntityModels() {
             m_entityModelManager->setLoader(m_game.get());
         }
@@ -682,6 +750,10 @@ namespace TrenchBroom {
                 else
                     warn("External texture collection not found: '" + name +  "'");
             }
+        }
+        
+        void MapDocument::updateExternalTextureCollectionProperty() {
+            m_game->updateExternalTextureCollections(m_world, m_textureManager->externalCollectionNames());
         }
         
         class SetEntityDefinition : public Model::NodeVisitor {
@@ -862,6 +934,10 @@ namespace TrenchBroom {
             return m_game->extractEnabledMods(m_world);
         }
         
+        void MapDocument::setMods(const StringList& mods) {
+            submit(SetModsCommand::set(mods));
+        }
+
         void MapDocument::registerIssueGenerators() {
         }
 

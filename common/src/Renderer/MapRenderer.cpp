@@ -20,9 +20,11 @@
 #include "MapRenderer.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/Brush.h"
+#include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/Layer.h"
@@ -143,10 +145,14 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderLayers(RenderContext& renderContext, RenderBatch& renderBatch) {
+            const Model::EditorContext& editorContext = lock(m_document)->editorContext();
             RendererMap::iterator it, end;
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
-                ObjectRenderer* renderer = it->second;
-                renderer->render(renderContext, renderBatch);
+                const Model::Layer* layer = it->first;
+                if (editorContext.visible(layer)) {
+                    ObjectRenderer* renderer = it->second;
+                    renderer->render(renderContext, renderBatch);
+                }
             }
         }
         
@@ -331,13 +337,21 @@ namespace TrenchBroom {
         
         class MapRenderer::AddNode : public Model::NodeVisitor {
         private:
+            Assets::EntityModelManager& m_modelManager;
+            const Model::EditorContext& m_editorContext;
+
             RendererMap& m_layerRenderers;
         public:
-            AddNode(RendererMap& layerRenderers) :
+            AddNode(Assets::EntityModelManager& modelManager, const Model::EditorContext& editorContext, RendererMap& layerRenderers) :
+            m_modelManager(modelManager),
+            m_editorContext(editorContext),
             m_layerRenderers(layerRenderers) {}
         private:
             void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Layer* layer)   {
+                ObjectRenderer* renderer = new ObjectRenderer(m_modelManager, m_editorContext, UnselectedBrushRendererFilter(m_editorContext));
+                MapUtils::insertOrFail(m_layerRenderers, layer, renderer);
+            }
             void doVisit(Model::Group* group)   { handleNode(group, group->layer()); }
             void doVisit(Model::Entity* entity) { handleNode(entity, entity->layer()); }
             void doVisit(Model::Brush* brush)   { handleNode(brush, brush->layer()); }
@@ -351,8 +365,10 @@ namespace TrenchBroom {
         };
         
         void MapRenderer::nodesWereAdded(const Model::NodeList& nodes) {
-            AddNode visitor(m_layerRenderers);
+            View::MapDocumentSPtr document = lock(m_document);
+            AddNode visitor(document->entityModelManager(), document->editorContext(), m_layerRenderers);
             Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+            setupLayerRenderers();
         }
         
         class MapRenderer::RemoveNode : public Model::NodeVisitor {
@@ -363,7 +379,7 @@ namespace TrenchBroom {
             m_layerRenderers(layerRenderers) {}
         private:
             void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Layer* layer)   { CHECK_BOOL(MapUtils::removeAndDelete(m_layerRenderers, layer)); }
             void doVisit(Model::Group* group)   { handleNode(group, group->layer()); }
             void doVisit(Model::Entity* entity) { handleNode(entity, entity->layer()); }
             void doVisit(Model::Brush* brush)   { handleNode(brush, brush->layer()); }
@@ -379,6 +395,7 @@ namespace TrenchBroom {
         void MapRenderer::nodesWillBeRemoved(const Model::NodeList& nodes) {
             RemoveNode visitor(m_layerRenderers);
             Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+            setupLayerRenderers();
         }
 
         class MapRenderer::UpdateNode : public Model::NodeVisitor {

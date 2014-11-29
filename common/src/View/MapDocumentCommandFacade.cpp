@@ -20,6 +20,8 @@
 #include "MapDocumentCommandFacade.h"
 
 #include "CollectionUtils.h"
+#include "Assets/EntityDefinitionFileSpec.h"
+#include "Assets/TextureManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -323,6 +325,45 @@ namespace TrenchBroom {
             return removedNodes;
         }
 
+        Model::ParentChildrenMap MapDocumentCommandFacade::performReparentNodes(const Model::ParentChildrenMap& nodes) {
+            Model::NodeList nodesToNotify;
+            Model::CollectUniqueNodesVisitor visitor;
+
+            Model::ParentChildrenMap::const_iterator pcIt, pcEnd;
+            Model::NodeList::const_iterator nIt, nEnd;
+            
+            for (pcIt = nodes.begin(), pcEnd = nodes.end(); pcIt != pcEnd; ++pcIt) {
+                Model::Node* newParent = pcIt->first;
+                newParent->acceptAndEscalate(visitor);
+                
+                const Model::NodeList& children = pcIt->second;
+                Model::Node::escalate(children.begin(), children.end(), visitor);
+                VectorUtils::append(nodesToNotify, children);
+            }
+            
+            const Model::NodeList parentsToNodify = visitor.nodes();
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parentsToNodify);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodesToNotify);
+
+            Model::ParentChildrenMap result;
+            for (pcIt = nodes.begin(), pcEnd = nodes.end(); pcIt != pcEnd; ++pcIt) {
+                Model::Node* newParent = pcIt->first;
+                const Model::NodeList& children = pcIt->second;
+                
+                for (nIt = children.begin(), nEnd = children.end(); nIt != nEnd; ++nIt) {
+                    Model::Node* child = *nIt;
+                    Model::Node* oldParent = child->parent();
+                    assert(oldParent != NULL);
+                    
+                    result[oldParent].push_back(child);
+                    oldParent->removeChild(child);
+                    newParent->addChild(child);
+                }
+            }
+            
+            return result;
+        }
+
         void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);
@@ -505,6 +546,59 @@ namespace TrenchBroom {
             snapshot->restoreNodes(m_worldBounds);
 
             invalidateSelectionBounds();
+        }
+
+        void MapDocumentCommandFacade::performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, spec.asString());
+            entityDefinitionsDidChangeNotifier();
+        }
+
+        void MapDocumentCommandFacade::performAddExternalTextureCollections(const StringList& names) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            addExternalTextureCollections(names);
+            setTextures();
+            updateExternalTextureCollectionProperty();
+            textureCollectionsDidChangeNotifier();
+        }
+        
+        void MapDocumentCommandFacade::performRemoveExternalTextureCollections(const StringList& names) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            unsetTextures();
+            
+            StringList::const_iterator it, end;
+            for (it = names.begin(), end = names.end(); it != end; ++it) {
+                const String& name = *it;
+                m_textureManager->removeExternalTextureCollection(name);
+            }
+            
+            setTextures();
+            updateExternalTextureCollectionProperty();
+            textureCollectionsDidChangeNotifier();
+        }
+        
+        void MapDocumentCommandFacade::performMoveExternalTextureCollectionUp(const String& name) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            m_textureManager->moveExternalTextureCollectionUp(name);
+            setTextures();
+            updateExternalTextureCollectionProperty();
+            textureCollectionsDidChangeNotifier();
+        }
+        
+        void MapDocumentCommandFacade::performMoveExternalTextureCollectionDown(const String& name) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            m_textureManager->moveExternalTextureCollectionDown(name);
+            setTextures();
+            updateExternalTextureCollectionProperty();
+            textureCollectionsDidChangeNotifier();
+        }
+
+        void MapDocumentCommandFacade::performSetMods(const StringList& mods) {
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            unsetEntityDefinitions();
+            m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
+            setEntityDefinitions();
+            modsDidChangeNotifier();
         }
 
         Model::NodeList MapDocumentCommandFacade::collectParents(const Model::NodeList& nodes) const {

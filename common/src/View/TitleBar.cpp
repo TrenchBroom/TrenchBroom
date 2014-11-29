@@ -17,27 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FindLayerVisitor.h"
+#include "TitleBar.h"
 
-#include "Model/Node.h"
+#include <wx/sizer.h>
+#include <wx/stattext.h>
+
+#include "View/ViewConstants.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        void FindLayerVisitor::doVisit(World* world) {}
-        
-        void FindLayerVisitor::doVisit(Layer* layer) {
-            setResult(layer);
-            cancel();
-        }
-        
-        void FindLayerVisitor::doVisit(Group* group) {}
-        void FindLayerVisitor::doVisit(Entity* entity) {}
-        void FindLayerVisitor::doVisit(Brush* brush) {}
+    namespace View {
+        TitleBar::TitleBar(wxWindow* parent, const wxString& title, const int hMargin, const int vMargin) :
+        wxPanel(parent),
+        m_titleText(new wxStaticText(this, wxID_ANY, title)) {
+            m_titleText->SetFont(m_titleText->GetFont().Bold());
+            
+            wxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+            sizer->AddSpacer(hMargin);
+            sizer->Add(m_titleText, 0, wxTOP | wxBOTTOM, vMargin);
+            sizer->AddStretchSpacer();
+            sizer->AddSpacer(hMargin);
 
-        Model::Layer* findLayer(Model::Node* node) {
-            FindLayerVisitor visitor;
-            node->acceptAndEscalate(visitor);
-            return visitor.result();
+            SetSizer(sizer);
         }
     }
 }

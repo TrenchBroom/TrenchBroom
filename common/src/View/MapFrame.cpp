@@ -32,6 +32,7 @@
 #include "View/CommandIds.h"
 #include "View/Console.h"
 #include "View/Grid.h"
+#include "View/Inspector.h"
 #include "View/MapDocument.h"
 #include "View/Menu.h"
 #include "View/SplitterWindow.h"
@@ -53,14 +54,18 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
-        m_console(NULL) {}
+        m_mapView(NULL),
+        m_console(NULL),
+        m_inspector(NULL) {}
         
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, "MapFrame"),
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
-        m_console(NULL) {
+        m_mapView(NULL),
+        m_console(NULL),
+        m_inspector(NULL)  {
             Create(frameManager, document);
         }
         
@@ -230,17 +235,23 @@ namespace TrenchBroom {
         }
         
         void MapFrame::createGui() {
-            SplitterWindow* splitter = new SplitterWindow(this);
-            splitter->setSashGravity(1.0f);
-            splitter->SetName("MapFrameVSplitter");
+            SplitterWindow* hSplitter = new SplitterWindow(this);
+            hSplitter->setSashGravity(1.0f);
+            hSplitter->SetName("MapFrameHSplitter");
             
-            m_console = new Console(splitter);
-            m_mapView = new SwitchableMapView(splitter, m_console, m_document);
+            SplitterWindow* vSplitter = new SplitterWindow(hSplitter);
+            vSplitter->setSashGravity(1.0f);
+            vSplitter->SetName("MapFrameVSplitter");
             
-            splitter->splitHorizontally(m_mapView, m_console, wxSize(100, 100), wxSize(100, 100));
+            m_console = new Console(vSplitter);
+            m_mapView = new SwitchableMapView(vSplitter, m_console, m_document);
+            m_inspector = new Inspector(hSplitter, m_mapView->glContext(), m_document);
+            
+            vSplitter->splitHorizontally(m_mapView, m_console, wxSize(100, 100), wxSize(100, 100));
+            hSplitter->splitVertically(vSplitter, m_inspector, wxSize(100, 100), wxSize(350, 100));
             
             wxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
-            frameSizer->Add(splitter, 1, wxEXPAND);
+            frameSizer->Add(hSplitter, 1, wxEXPAND);
             
             SetSizer(frameSizer);
         }

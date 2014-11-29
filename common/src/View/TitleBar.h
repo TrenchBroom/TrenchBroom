@@ -17,27 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FindLayerVisitor.h"
+#ifndef __TrenchBroom__TitleBar__
+#define __TrenchBroom__TitleBar__
 
-#include "Model/Node.h"
+#include <wx/panel.h>
+
+class wxStaticText;
 
 namespace TrenchBroom {
-    namespace Model {
-        void FindLayerVisitor::doVisit(World* world) {}
-        
-        void FindLayerVisitor::doVisit(Layer* layer) {
-            setResult(layer);
-            cancel();
-        }
-        
-        void FindLayerVisitor::doVisit(Group* group) {}
-        void FindLayerVisitor::doVisit(Entity* entity) {}
-        void FindLayerVisitor::doVisit(Brush* brush) {}
-
-        Model::Layer* findLayer(Model::Node* node) {
-            FindLayerVisitor visitor;
-            node->acceptAndEscalate(visitor);
-            return visitor.result();
-        }
+    namespace View {
+        class TitleBar : public wxPanel {
+        protected:
+            wxStaticText* m_titleText;
+        public:
+            TitleBar(wxWindow* parent, const wxString& title, int hMargin, int vMargin);
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__TitleBar__) */

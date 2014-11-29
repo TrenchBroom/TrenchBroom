@@ -91,6 +91,9 @@ namespace TrenchBroom {
 
         void MapViewBase::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
+            document->nodesWereAddedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
+            document->nodesWereRemovedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
+            document->nodesDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
             document->commandDoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
             document->commandUndoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
             document->selectionDidChangeNotifier.addObserver(this, &MapViewBase::selectionDidChange);
@@ -108,6 +111,9 @@ namespace TrenchBroom {
         void MapViewBase::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
+                document->nodesWereAddedNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
+                document->nodesWereRemovedNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
+                document->nodesDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
                 document->commandDoneNotifier.removeObserver(this, &MapViewBase::commandProcessed);
                 document->commandUndoneNotifier.removeObserver(this, &MapViewBase::commandProcessed);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapViewBase::selectionDidChange);
@@ -126,6 +132,10 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);
         }
         
+        void MapViewBase::nodesDidChange(const Model::NodeList& nodes) {
+            Refresh();
+        }
+
         void MapViewBase::cameraDidChange(const Renderer::Camera* camera) {
             Refresh();
         }

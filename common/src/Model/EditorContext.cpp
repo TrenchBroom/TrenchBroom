@@ -118,7 +118,7 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::visible(const Model::Layer* layer) const {
-            return !layer->hidden() || layer->descendantSelected();
+            return !layer->hidden();
         }
         
         bool EditorContext::visible(const Model::Group* group) const {
@@ -144,10 +144,11 @@ namespace TrenchBroom {
                 return false;
             if (brush->hasContentType(m_hiddenBrushContentTypes))
                 return false;
-            const Model::Attributable* parent = brush->entity();
-            if (entityDefinitionHidden(parent->definition()))
+            const Model::Layer* layer = brush->layer();
+            assert(layer != NULL);
+            if (layer->hidden())
                 return false;
-            return true;
+            return visible(brush->entity());
         }
         
         bool EditorContext::visible(const Model::BrushFace* face) const {
