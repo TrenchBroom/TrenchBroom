@@ -198,6 +198,7 @@ namespace TrenchBroom {
             layer->recurse(visitor);
             
             const Model::NodeList& nodes = visitor.nodes();
+            document->deselectAll();
             document->select(nodes);
         }
         
@@ -228,7 +229,12 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             Model::Layer* defaultLayer = document->world()->defaultLayer();
             
+            Model::CollectSelectableNodesVisitor collectSelectableNodes(document->editorContext());
+            layer->recurse(collectSelectableNodes);
+            
             Transaction transaction(document, "Remove Layer " + layer->name());
+            document->deselectAll();
+            document->select(collectSelectableNodes.nodes());
             document->reparentNodes(defaultLayer, layer->children());
             document->removeNode(layer);
         }
@@ -253,6 +259,7 @@ namespace TrenchBroom {
             const Model::NodeList moveNodes = visitor.moveNodes();
             if (!moveNodes.empty()) {
                 const Model::NodeList selectNodes = visitor.selectNodes();
+                document->deselectAll();
                 document->select(visitor.selectNodes());
                 document->reparentNodes(layer, visitor.moveNodes());
             }
