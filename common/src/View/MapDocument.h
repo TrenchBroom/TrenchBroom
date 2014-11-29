@@ -61,6 +61,7 @@ namespace TrenchBroom {
             BBox3 m_worldBounds;
             Model::GamePtr m_game;
             Model::World* m_world;
+            Model::Layer* m_currentLayer;
             Model::PointFile* m_pointFile;
             Model::EditorContext* m_editorContext;
             
@@ -118,9 +119,12 @@ namespace TrenchBroom {
         public:
             virtual ~MapDocument();
         public: // accessors and such
+            Model::GamePtr game() const;
             const BBox3& worldBounds() const;
             Model::World* world() const;
-            Model::GamePtr game() const;
+
+            Model::Layer* currentLayer() const;
+            void setCurrentLayer(Model::Layer* currentLayer);
             
             const Model::EditorContext& editorContext() const;
             bool textureLock();
@@ -182,9 +186,15 @@ namespace TrenchBroom {
         private:
             void validateSelectionBounds() const;
             void clearSelection();
-        public: // adding, removing, and duplicating objects
+        public: // adding, removing, reparenting, and duplicating nodes
+            void addNode(Model::Node* node, Model::Node* parent);
+            void removeNode(Model::Node* node);
+            void reparentNodes(Model::Node* newParent, const Model::NodeList& children);
             bool deleteObjects();
             bool duplicateObjects();
+        public: // modifying transient layer attributes
+            void setLayerHidden(Model::Layer* layer, bool hidden);
+            void setLayerLocked(Model::Layer* layer, bool locked);
         public: // modifying objects
             bool translateObjects(const Vec3& delta);
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
@@ -252,6 +262,7 @@ namespace TrenchBroom {
             void clearWorld();
             
             Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
+            void removeNodes(const Model::NodeList& nodes);
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             

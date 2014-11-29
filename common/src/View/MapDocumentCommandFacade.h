@@ -57,6 +57,7 @@ namespace TrenchBroom {
         public: // adding and removing nodes
             Model::NodeList performAddNodes(const Model::ParentChildrenMap& nodes);
             Model::ParentChildrenMap performRemoveNodes(const Model::NodeList& nodes);
+            Model::ParentChildrenMap performReparentNodes(const Model::ParentChildrenMap& nodes);
         public: // transformation
             void performTransform(const Mat4x4& transform, bool lockTextures);
         public: // brush face attributes

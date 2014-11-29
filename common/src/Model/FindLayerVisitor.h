@@ -33,6 +33,8 @@ namespace TrenchBroom {
             void doVisit(Entity* entity);
             void doVisit(Brush* brush);
         };
+        
+        Model::Layer* findLayer(Model::Node* node);
     }
 }
 

@@ -42,7 +42,7 @@ namespace TrenchBroom {
             // m_entityInspector = new EntityInspector(m_tabBook, sharedContext, document, controller);
             // m_faceInspector = new FaceInspector(m_tabBook, sharedContext, document, controller);
             
-            // m_tabBook->addPage(m_mapInspector, "Map");
+            m_tabBook->addPage(m_mapInspector, "Map");
             // m_tabBook->addPage(m_entityInspector, "Entity");
             // m_tabBook->addPage(m_faceInspector, "Face");
             

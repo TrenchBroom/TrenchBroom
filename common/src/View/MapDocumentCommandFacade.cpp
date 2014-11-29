@@ -325,6 +325,45 @@ namespace TrenchBroom {
             return removedNodes;
         }
 
+        Model::ParentChildrenMap MapDocumentCommandFacade::performReparentNodes(const Model::ParentChildrenMap& nodes) {
+            Model::NodeList nodesToNotify;
+            Model::CollectUniqueNodesVisitor visitor;
+
+            Model::ParentChildrenMap::const_iterator pcIt, pcEnd;
+            Model::NodeList::const_iterator nIt, nEnd;
+            
+            for (pcIt = nodes.begin(), pcEnd = nodes.end(); pcIt != pcEnd; ++pcIt) {
+                Model::Node* newParent = pcIt->first;
+                newParent->acceptAndEscalate(visitor);
+                
+                const Model::NodeList& children = pcIt->second;
+                Model::Node::escalate(children.begin(), children.end(), visitor);
+                VectorUtils::append(nodesToNotify, children);
+            }
+            
+            const Model::NodeList parentsToNodify = visitor.nodes();
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parentsToNodify);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodesToNotify);
+
+            Model::ParentChildrenMap result;
+            for (pcIt = nodes.begin(), pcEnd = nodes.end(); pcIt != pcEnd; ++pcIt) {
+                Model::Node* newParent = pcIt->first;
+                const Model::NodeList& children = pcIt->second;
+                
+                for (nIt = children.begin(), nEnd = children.end(); nIt != nEnd; ++nIt) {
+                    Model::Node* child = *nIt;
+                    Model::Node* oldParent = child->parent();
+                    assert(oldParent != NULL);
+                    
+                    result[oldParent].push_back(child);
+                    oldParent->removeChild(child);
+                    newParent->addChild(child);
+                }
+            }
+            
+            return result;
+        }
+
         void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);

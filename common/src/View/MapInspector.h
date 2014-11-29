@@ -39,8 +39,6 @@ namespace TrenchBroom {
         class MapInspector : public TabBookPage {
         public:
             MapInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document);
-
-            void OnPaneChanged(wxCollapsiblePaneEvent& event);
         private:
             void createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document);
             wxWindow* createLayerEditor(wxWindow* parent, MapDocumentWPtr document);

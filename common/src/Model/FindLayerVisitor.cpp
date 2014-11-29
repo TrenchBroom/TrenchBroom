@@ -33,5 +33,11 @@ namespace TrenchBroom {
         void FindLayerVisitor::doVisit(Group* group) {}
         void FindLayerVisitor::doVisit(Entity* entity) {}
         void FindLayerVisitor::doVisit(Brush* brush) {}
+
+        Model::Layer* findLayer(Model::Node* node) {
+            FindLayerVisitor visitor;
+            node->acceptAndEscalate(visitor);
+            return visitor.result();
+        }
     }
 }

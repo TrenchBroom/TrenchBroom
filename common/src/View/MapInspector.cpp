@@ -40,10 +40,6 @@ namespace TrenchBroom {
             createGui(sharedContext, document);
         }
 
-        void MapInspector::OnPaneChanged(wxCollapsiblePaneEvent& event) {
-            Layout();
-        }
-
         void MapInspector::createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document) {
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(createLayerEditor(this, document), 1, wxEXPAND);

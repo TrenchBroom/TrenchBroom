@@ -796,6 +796,18 @@ namespace MapUtils {
     }
 
     template <typename K, typename V>
+    bool removeAndDelete(std::map<K, V*>& map, const K& key) {
+        typedef std::map<K, V*> Map;
+        typename Map::iterator it = map.find(key);
+        if (it == map.end())
+            return false;
+        
+        delete it->second;
+        map.erase(it);
+        return true;
+    }
+    
+    template <typename K, typename V>
     void clearAndDelete(std::map<K, V*>& map) {
         Deleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
         std::for_each(map.begin(), map.end(), deleter);

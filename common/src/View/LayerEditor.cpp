@@ -19,9 +19,13 @@
 
 #include "LayerEditor.h"
 
+#include "Model/Brush.h"
+#include "Model/CollectSelectableNodesVisitor.h"
+#include "Model/Entity.h"
+#include "Model/FindLayerVisitor.h"
+#include "Model/Group.h"
 #include "Model/Layer.h"
-#include "Model/Map.h"
-#include "View/ControllerFacade.h"
+#include "Model/World.h"
 #include "View/LayerListView.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
@@ -32,6 +36,8 @@
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/textdlg.h>
+
+#include <set>
 
 namespace TrenchBroom {
     namespace View {
@@ -54,7 +60,7 @@ namespace TrenchBroom {
             popupMenu.Append(MoveSelectionToLayerCommandId, "Move selection to layer");
             popupMenu.Append(SelectAllInLayerCommandId, "Select all in layer");
             popupMenu.AppendSeparator();
-            popupMenu.Append(ToggleLayerVisibleCommandId, layer->visible() ? "Hide layer" : "Show layer");
+            popupMenu.Append(ToggleLayerVisibleCommandId, layer->hidden() ? "Show layer" : "Hide layer");
             popupMenu.Append(ToggleLayerLockedCommandId, layer->locked() ? "Unlock layer" : "Lock layer");
             popupMenu.AppendSeparator();
             popupMenu.Append(RemoveLayerCommandId, "Remove layer");
@@ -62,38 +68,97 @@ namespace TrenchBroom {
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnMoveSelectionToLayer, this, MoveSelectionToLayerCommandId);
             popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateMoveSelectionToLayerUI, this, MoveSelectionToLayerCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnSelectAllInLayer, this, SelectAllInLayerCommandId);
-            popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnToggleLayerVisible, this, ToggleLayerVisibleCommandId);
-            popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnToggleLayerLocked, this, ToggleLayerLockedCommandId);
+            popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnToggleLayerVisibleFromMenu, this, ToggleLayerVisibleCommandId);
+            popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnToggleLayerLockedFromMenu, this, ToggleLayerLockedCommandId);
             popupMenu.Bind(wxEVT_MENU, &LayerEditor::OnRemoveLayer, this, RemoveLayerCommandId);
             popupMenu.Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateRemoveLayerUI, this, RemoveLayerCommandId);
             
             PopupMenu(&popupMenu);
         }
 
-        void LayerEditor::OnToggleLayerVisible(wxCommandEvent& event) {
-            Model::Layer* layer = m_layerList->selectedLayer();
-            assert(layer != NULL);
-            
-            layer->setVisible(!layer->visible());
+        void LayerEditor::OnToggleLayerVisibleFromMenu(wxCommandEvent& event) {
+            toggleLayerVisible(m_layerList->selectedLayer());
         }
         
-        void LayerEditor::OnToggleLayerLocked(wxCommandEvent& event) {
-            Model::Layer* layer = m_layerList->selectedLayer();
-            assert(layer != NULL);
-
-            layer->setLocked(!layer->locked());
+        void LayerEditor::OnToggleLayerVisibleFromList(LayerCommand& event) {
+            toggleLayerVisible(event.layer());
         }
+
+        void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
+            assert(layer != NULL);
+            MapDocumentSPtr document = lock(m_document);
+            document->setLayerHidden(layer, !layer->hidden());
+        }
+
+        void LayerEditor::OnToggleLayerLockedFromMenu(wxCommandEvent& event) {
+            toggleLayerLocked(m_layerList->selectedLayer());
+        }
+        
+        void LayerEditor::OnToggleLayerLockedFromList(LayerCommand& event) {
+            toggleLayerLocked(event.layer());
+        }
+
+        void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
+            assert(layer != NULL);
+            MapDocumentSPtr document = lock(m_document);
+            document->setLayerLocked(layer, !layer->locked());
+        }
+
+        class LayerEditor::CollectMoveableNodes : public Model::NodeVisitor {
+        private:
+            Model::World* m_world;
+            Model::NodeSet m_selectNodes;
+            Model::NodeSet m_moveNodes;
+        public:
+            CollectMoveableNodes(Model::World* world) : m_world(world) {}
+            
+            const Model::NodeList selectNodes() const {
+                return Model::NodeList(m_selectNodes.begin(), m_selectNodes.end());
+            }
+            
+            const Model::NodeList moveNodes() const {
+                return Model::NodeList(m_moveNodes.begin(), m_moveNodes.end());
+            }
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            
+            void doVisit(Model::Group* group)   {
+                assert(group->selected());
+                m_moveNodes.insert(group);
+            }
+            
+            void doVisit(Model::Entity* entity) {
+                assert(entity->selected());
+                m_moveNodes.insert(entity);
+            }
+            
+            void doVisit(Model::Brush* brush)   {
+                assert(brush->selected());
+                Model::Attributable* entity = brush->entity();
+                if (entity == m_world) {
+                    m_moveNodes.insert(brush);
+                } else {
+                    if (m_moveNodes.insert(entity).second) {
+                        const Model::NodeList& siblings = entity->children();
+                        Model::NodeList::const_iterator it, end;
+                        for (it = siblings.begin(), end = siblings.end(); it != end; ++it) {
+                            Model::Node* sibling = *it;
+                            if (!sibling->selected())
+                                m_selectNodes.insert(sibling);
+                        }
+                    }
+                }
+            }
+        };
         
         void LayerEditor::OnMoveSelectionToLayer(wxCommandEvent& event) {
             Model::Layer* layer = m_layerList->selectedLayer();
             assert(layer != NULL);
 
             MapDocumentSPtr document = lock(m_document);
-            const Model::ObjectList& objects = document->selectedObjects();
-            assert(!objects.empty());
-            
-            ControllerSPtr controller = lock(m_controller);
-            controller->moveSelectionToLayer(layer);
+            Transaction transaction(document, "Move Nodes to " + layer->name());
+            moveSelectedNodesToLayer(document, layer);
         }
         
         void LayerEditor::OnUpdateMoveSelectionToLayerUI(wxUpdateUIEvent& event) {
@@ -104,16 +169,17 @@ namespace TrenchBroom {
             }
 
             MapDocumentSPtr document = lock(m_document);
-            const Model::ObjectList& objects = document->selectedObjects();
-            if (objects.empty()) {
+            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            if (nodes.empty()) {
                 event.Enable(false);
                 return;
             }
 
-            Model::ObjectList::const_iterator it, end;
-            for (it = objects.begin(), end = objects.end(); it != end; ++it) {
-                const Model::Object* object = *it;
-                if (object->layer() != layer) {
+            Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                Model::Layer* nodeLayer = Model::findLayer(node);
+                if (nodeLayer != layer) {
                     event.Enable(true);
                     return;
                 }
@@ -126,10 +192,13 @@ namespace TrenchBroom {
             Model::Layer* layer = m_layerList->selectedLayer();
             assert(layer != NULL);
             
-            const Model::ObjectList& objects = layer->objects();
+            MapDocumentSPtr document = lock(m_document);
             
-            ControllerSPtr controller = lock(m_controller);
-            controller->deselectAllAndSelectObjects(objects);
+            Model::CollectSelectableNodesVisitor visitor(document->editorContext());
+            layer->recurse(visitor);
+            
+            const Model::NodeList& nodes = visitor.nodes();
+            document->select(nodes);
         }
         
 
@@ -141,18 +210,13 @@ namespace TrenchBroom {
                 const String name = dialog.GetValue().ToStdString();
 
                 MapDocumentSPtr document = lock(m_document);
-                Model::Map* map = document->map();
-                Model::Layer* layer = map->createLayer(name);
+                Model::World* world = document->world();
+                Model::Layer* layer = world->createLayer(name);
                 
-                const Model::ObjectList& objects = document->selectedObjects();
-                
-                ControllerSPtr controller = lock(m_controller);
-                
-                UndoableCommandGroup group(controller);
-                controller->addLayer(layer);
-                if (!objects.empty())
-                    controller->moveSelectionToLayer(layer);
-                
+                Transaction transaction(document, "Create Layer " + layer->name());
+                document->addNode(layer, world);
+                if (document->hasSelectedNodes())
+                    moveSelectedNodesToLayer(document, layer);
                 m_layerList->setSelectedLayer(layer);
             }
         }
@@ -160,16 +224,13 @@ namespace TrenchBroom {
         void LayerEditor::OnRemoveLayer(wxCommandEvent& event) {
             Model::Layer* layer = m_layerList->selectedLayer();
             assert(layer != NULL);
-
-            MapDocumentSPtr document = lock(m_document);
-            Model::Map* map = document->map();
-            const Model::ObjectList& objects = layer->objects();
             
-            ControllerSPtr controller = lock(m_controller);
-            UndoableCommandGroup group(controller, "Remove Layer");
-            if (!objects.empty())
-                controller->moveObjectsToLayer(objects, map->defaultLayer());
-            controller->removeLayer(layer);
+            MapDocumentSPtr document = lock(m_document);
+            Model::Layer* defaultLayer = document->world()->defaultLayer();
+            
+            Transaction transaction(document, "Remove Layer " + layer->name());
+            document->reparentNodes(defaultLayer, layer->children());
+            document->removeNode(layer);
         }
         
         void LayerEditor::OnUpdateRemoveLayerUI(wxUpdateUIEvent& event) {
@@ -180,16 +241,31 @@ namespace TrenchBroom {
             }
             
             MapDocumentSPtr document = lock(m_document);
-            Model::Map* map = document->map();
-            event.Enable(map->canRemoveLayer(layer));
+            event.Enable(layer != document->world()->defaultLayer());
+        }
+
+        void LayerEditor::moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer) {
+            const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
+            
+            CollectMoveableNodes visitor(document->world());
+            Model::Node::accept(selectedNodes.begin(), selectedNodes.end(), visitor);
+            
+            const Model::NodeList moveNodes = visitor.moveNodes();
+            if (!moveNodes.empty()) {
+                const Model::NodeList selectNodes = visitor.selectNodes();
+                document->select(visitor.selectNodes());
+                document->reparentNodes(layer, visitor.moveNodes());
+            }
         }
 
         void LayerEditor::createGui() {
             SetBackgroundColour(*wxWHITE);
 
-            m_layerList = new LayerListView(this, m_document, m_controller);
+            m_layerList = new LayerListView(this, m_document);
             m_layerList->Bind(LAYER_SELECTED_EVENT, &LayerEditor::OnCurrentLayerSelected, this);
             m_layerList->Bind(LAYER_RIGHT_CLICK_EVENT, &LayerEditor::OnLayerRightClick, this);
+            m_layerList->Bind(LAYER_TOGGLE_VISIBLE_EVENT, &LayerEditor::OnToggleLayerVisibleFromList, this);
+            m_layerList->Bind(LAYER_TOGGLE_LOCKED_EVENT, &LayerEditor::OnToggleLayerLockedFromList, this);
 
             wxWindow* addLayerButton = createBitmapButton(this, "Add.png", "Add a new layer from the current selection");
             wxWindow* removeLayerButton = createBitmapButton(this, "Remove.png", "Remove the selected layer and move its objects to the default layer");
