@@ -18,7 +18,6 @@
  */
 
 #include "MapViewToolBox.h"
-#include "View/CameraTool.h"
 #include "View/MovementRestriction.h"
 #include "View/MoveObjectsTool.h"
 #include "View/RotateObjectsTool.h"
@@ -29,7 +28,6 @@ namespace TrenchBroom {
     namespace View {
         MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
         m_movementRestriction(new MovementRestriction()),
-        m_cameraTool(NULL),
         m_moveObjectsTool(NULL),
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
@@ -52,8 +50,20 @@ namespace TrenchBroom {
             return *m_movementRestriction;
         }
 
-        void MapViewToolBox::setCamera(Renderer::Camera* camera) {
-            m_cameraTool->setCamera(camera);
+        MoveObjectsTool* MapViewToolBox::moveObjectsTool() {
+            return m_moveObjectsTool;
+        }
+        
+        RotateObjectsTool* MapViewToolBox::rotateObjectsTool() {
+            return m_rotateObjectsTool;
+        }
+        
+        SelectionTool* MapViewToolBox::selectionTool() {
+            return m_selectionTool;
+        }
+        
+        VertexTool* MapViewToolBox::vertexTool() {
+            return m_vertexTool;
         }
 
         void MapViewToolBox::toggleRotateObjectsTool() {
@@ -88,18 +98,11 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
-            m_cameraTool = new CameraTool(document);
             m_moveObjectsTool = new MoveObjectsTool(document, *m_movementRestriction);
             m_rotateObjectsTool = new RotateObjectsTool(document, *m_movementRestriction);
             m_selectionTool = new SelectionTool(document);
             m_vertexTool = new VertexTool(document, *m_movementRestriction);
             
-            addTool(m_cameraTool);
-            addTool(m_rotateObjectsTool);
-            addTool(m_vertexTool);
-            addTool(m_moveObjectsTool);
-            addTool(m_selectionTool);
-
             deactivateWhen(m_rotateObjectsTool, m_moveObjectsTool);
             deactivateWhen(m_vertexTool, m_moveObjectsTool);
             
@@ -108,7 +111,6 @@ namespace TrenchBroom {
         }
         
         void MapViewToolBox::destroyTools() {
-            delete m_cameraTool;
             delete m_moveObjectsTool;
             delete m_rotateObjectsTool;
             delete m_selectionTool;

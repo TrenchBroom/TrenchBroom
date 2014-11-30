@@ -38,16 +38,19 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class CameraTool3D;
         class FlyModeHelper;
         class MapView3D : public MapViewBase {
         private:
             Renderer::PerspectiveCamera m_camera;
             Renderer::Compass* m_compass;
+            CameraTool3D* m_cameraTool;
             FlyModeHelper* m_flyModeHelper;
         public:
             MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo);
             ~MapView3D();
-            
+        private:
+            void initializeToolChain(MapViewToolBox& toolBox);
         public: // camera control
             bool cameraFlyModeActive() const;
             void toggleCameraFlyMode();

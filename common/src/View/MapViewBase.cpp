@@ -475,9 +475,9 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::OnCancel(wxCommandEvent& event) {
-            if (cancel())
+            if (MapViewBase::cancel())
                 return;
-            if (m_toolBox.cancel())
+            if (ToolBoxConnector::cancel())
                 return;
             lock(m_document)->deselectAll();
         }

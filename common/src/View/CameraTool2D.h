@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CameraTool__
-#define __TrenchBroom__CameraTool__
+#ifndef __TrenchBroom__CameraTool2D__
+#define __TrenchBroom__CameraTool2D__
 
 #include "VecMath.h"
 #include "Model/Picker.h"
@@ -27,20 +27,16 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Camera;
+        class OrthographicCamera;
     }
     
     namespace View {
-        class CameraTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class CameraTool2D : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
         private:
-            Renderer::Camera* m_camera;
-            bool m_orbit;
-            Vec3f m_orbitCenter;
+            Renderer::OrthographicCamera& m_camera;
             Vec2f m_lastMousePos;
         public:
-            CameraTool(MapDocumentWPtr document);
-            void setCamera(Renderer::Camera* camera);
-            void fly(int dx, int dy, bool forward, bool backward, bool left, bool right, unsigned int time);
+            CameraTool2D(MapDocumentWPtr document, Renderer::OrthographicCamera& camera);
         private:
             void doScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);
@@ -48,28 +44,11 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
             
-            bool move(const InputState& inputState) const;
-            bool move2D(const InputState& inputState) const;
-            bool move3D(const InputState& inputState) const;
             bool zoom(const InputState& inputState) const;
-            
             bool look(const InputState& inputState) const;
-            bool look2D(const InputState& inputState) const;
-            bool look3D(const InputState& inputState) const;
-            
             bool pan(const InputState& inputState) const;
-            bool pan2D(const InputState& inputState) const;
-            bool pan3D(const InputState& inputState) const;
-            
-            bool orbit(const InputState& inputState) const;
-            
-            float lookSpeedH() const;
-            float lookSpeedV() const;
-            float panSpeedH() const;
-            float panSpeedV() const;
-            float moveSpeed(const bool altMode) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CameraTool__) */
+#endif /* defined(__TrenchBroom__CameraTool2D__) */

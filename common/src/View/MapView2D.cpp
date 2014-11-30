@@ -25,12 +25,17 @@
 #include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
+#include "View/CameraTool2D.h"
 #include "View/CommandIds.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
+#include "View/MoveObjectsTool.h"
+#include "View/RotateObjectsTool.h"
+#include "View/SelectionTool.h"
+#include "View/VertexTool.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
@@ -49,13 +54,16 @@ namespace TrenchBroom {
         
         MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, const ViewPlane viewPlane, GLContextHolder::Ptr sharedContext) :
         MapViewBase(parent, logger, document, toolBox, renderer, vbo, inputSource(viewPlane), sharedContext),
-        m_camera() {
+        m_camera(),
+        m_cameraTool(NULL) {
             bindEvents();
             bindObservers();
             initializeCamera(viewPlane);
+            initializeToolChain(toolBox);
         }
 
         MapView2D::~MapView2D() {
+            delete m_cameraTool;
         }
         
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
@@ -76,6 +84,15 @@ namespace TrenchBroom {
             m_camera.setNearPlane(1.0f);
             m_camera.setFarPlane(32768.0f);
             
+        }
+
+        void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
+            m_cameraTool = new CameraTool2D(m_document, m_camera);
+            addTool(m_cameraTool);
+            addTool(toolBox.moveObjectsTool());
+            addTool(toolBox.rotateObjectsTool());
+            addTool(toolBox.vertexTool());
+            addTool(toolBox.selectionTool());
         }
 
         void MapView2D::bindEvents() {
