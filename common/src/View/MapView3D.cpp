@@ -31,6 +31,7 @@
 #include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
+#include "View/CameraTool3D.h"
 #include "View/CommandIds.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
@@ -38,6 +39,10 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
+#include "View/MoveObjectsTool.h"
+#include "View/RotateObjectsTool.h"
+#include "View/SelectionTool.h"
+#include "View/VertexTool.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
@@ -49,13 +54,24 @@ namespace TrenchBroom {
         m_flyModeHelper(new FlyModeHelper(this, m_camera)) {
             bindEvents();
             bindObservers();
+            initializeToolChain(toolBox);
         }
 
         MapView3D::~MapView3D() {
+            delete m_cameraTool;
             delete m_flyModeHelper;
             delete m_compass;
         }
         
+        void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
+            m_cameraTool = new CameraTool3D(m_document, m_camera);
+            addTool(m_cameraTool);
+            addTool(toolBox.moveObjectsTool());
+            addTool(toolBox.rotateObjectsTool());
+            addTool(toolBox.vertexTool());
+            addTool(toolBox.selectionTool());
+        }
+
         bool MapView3D::cameraFlyModeActive() const {
             return m_flyModeHelper->enabled();
         }

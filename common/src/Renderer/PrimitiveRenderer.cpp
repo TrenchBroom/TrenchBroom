@@ -80,8 +80,10 @@ namespace TrenchBroom {
         }
         
         void PrimitiveRenderer::doRender(RenderContext& renderContext) {
+            glDisable(GL_DEPTH_TEST);
             m_lineRenderer.render();
             m_triangleRenderer.render();
+            glEnable(GL_DEPTH_TEST);
         }
     }
 }

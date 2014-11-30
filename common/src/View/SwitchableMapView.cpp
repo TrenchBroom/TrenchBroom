@@ -193,7 +193,6 @@ namespace TrenchBroom {
                 m_currentMapView->Hide();
             m_currentMapView = mapView;
             m_currentMapView->Show();
-            m_toolBox->setCamera(m_currentMapView->camera());
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_mapViewBar, 0, wxEXPAND);

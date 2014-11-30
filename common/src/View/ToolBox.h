@@ -40,10 +40,10 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
         class Tool;
+        class ToolChain;
         
         class ToolBox {
         private:
-            Tool* m_toolChain;
             Tool* m_dragReceiver;
             Tool* m_modalReceiver;
             Tool* m_dropReceiver;
@@ -60,30 +60,29 @@ namespace TrenchBroom {
         public:
             ToolBox();
         public: // picking
-            void pick(const InputState& inputState, Hits& hits);
+            void pick(ToolChain* chain, const InputState& inputState, Hits& hits);
         public: // event handling
-            bool dragEnter(const InputState& inputState, const String& text);
-            bool dragMove(const InputState& inputState, const String& text);
-            void dragLeave(const InputState& inputState);
-            bool dragDrop(const InputState& inputState, const String& text);
+            bool dragEnter(ToolChain* chain, const InputState& inputState, const String& text);
+            bool dragMove(ToolChain* chain, const InputState& inputState, const String& text);
+            void dragLeave(ToolChain* chain, const InputState& inputState);
+            bool dragDrop(ToolChain* chain, const InputState& inputState, const String& text);
 
-            void modifierKeyChange(const InputState& inputState);
-            void mouseDown(const InputState& inputState);
-            bool mouseUp(const InputState& inputState);
-            void mouseDoubleClick(const InputState& inputState);
-            void mouseMove(const InputState& inputState);
+            void modifierKeyChange(ToolChain* chain, const InputState& inputState);
+            void mouseDown(ToolChain* chain, const InputState& inputState);
+            bool mouseUp(ToolChain* chain, const InputState& inputState);
+            void mouseDoubleClick(ToolChain* chain, const InputState& inputState);
+            void mouseMove(ToolChain* chain, const InputState& inputState);
             
             bool dragging() const;
-            bool startMouseDrag(const InputState& inputState);
+            bool startMouseDrag(ToolChain* chain, const InputState& inputState);
             bool mouseDrag(const InputState& inputState);
             void endMouseDrag(const InputState& inputState);
             void cancelDrag();
             
-            void mouseWheel(const InputState& inputState);
+            void mouseWheel(ToolChain* chain, const InputState& inputState);
 
-            bool cancel();
+            bool cancel(ToolChain* chain);
         public: // tool management
-            void addTool(Tool* tool);
             void deactivateWhen(Tool* master, Tool* slave);
             
             bool anyToolActive() const;
@@ -95,8 +94,8 @@ namespace TrenchBroom {
             void enable();
             void disable();
         public: // rendering
-            void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext);
-            void renderTools(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void setRenderOptions(ToolChain* chain, const InputState& inputState, Renderer::RenderContext& renderContext);
+            void renderTools(ToolChain* chain, const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             bool activateTool(Tool* tool);
             void deactivateTool(Tool* tool);

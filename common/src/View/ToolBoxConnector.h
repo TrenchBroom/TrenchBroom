@@ -33,12 +33,15 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class Tool;
         class ToolBox;
+        class ToolChain;
 
         class ToolBoxConnector {
         private:
             wxWindow* m_window;
             ToolBox& m_toolBox;
+            ToolChain* m_toolChain;
             
             InputState m_inputState;
             
@@ -59,12 +62,15 @@ namespace TrenchBroom {
 
             void updateHits();
             void updateLastActivation();
+        protected:
+            void addTool(Tool* tool);
         public: // drag and drop
             bool dragEnter(wxCoord x, wxCoord y, const String& text);
             bool dragMove(wxCoord x, wxCoord y, const String& text);
             void dragLeave();
             bool dragDrop(wxCoord x, wxCoord y, const String& text);
-            
+        public: // cancel
+            bool cancel();
         protected: // rendering
             void setRenderOptions(Renderer::RenderContext& renderContext);
             void renderTools(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

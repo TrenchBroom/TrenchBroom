@@ -38,6 +38,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class CameraTool2D;
         class FlyModeHelper;
         class MapView2D : public MapViewBase {
         public:
@@ -48,11 +49,13 @@ namespace TrenchBroom {
             } ViewPlane;
         private:
             Renderer::OrthographicCamera m_camera;
+            CameraTool2D* m_cameraTool;
         public:
             MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, ViewPlane viewPlane, GLContextHolder::Ptr sharedContext);
             ~MapView2D();
         private:
             void initializeCamera(ViewPlane viewPlane);
+            void initializeToolChain(MapViewToolBox& toolBox);
         private: // interaction events
             void bindEvents();
         private: // implement ToolBoxConnector interface

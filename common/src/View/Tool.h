@@ -168,10 +168,7 @@ namespace TrenchBroom {
         typedef RenderPolicy NoRenderPolicy;
         
         class Tool {
-        private:
-            Tool* m_next;
         public:
-            Tool();
             virtual ~Tool();
 
             virtual bool active() const = 0;
@@ -190,22 +187,18 @@ namespace TrenchBroom {
             virtual void scroll(const InputState& inputState) = 0;
             virtual void mouseMove(const InputState& inputState) = 0;
             
-            virtual Tool* startMouseDrag(const InputState& inputState) = 0;
+            virtual bool startMouseDrag(const InputState& inputState) = 0;
             virtual bool mouseDrag(const InputState& inputState) = 0;
             virtual void endMouseDrag(const InputState& inputState) = 0;
             virtual void cancelMouseDrag() = 0;
             
-            virtual Tool* dragEnter(const InputState& inputState, const String& payload) = 0;
+            virtual bool dragEnter(const InputState& inputState, const String& payload) = 0;
             virtual bool dragMove(const InputState& inputState) = 0;
             virtual void dragLeave(const InputState& inputState) = 0;
             virtual bool dragDrop(const InputState& inputState) = 0;
             
             virtual void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const = 0;
-            virtual void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
-            virtual void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
-            
-            Tool* next() const;
-            void appendTool(Tool* tool);
+            virtual void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
         };
         
         template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class MouseDragPolicyType, class DropPolicyType, class RenderPolicyType>
@@ -240,73 +233,47 @@ namespace TrenchBroom {
             }
             
             bool cancel() {
-                if (active() && doCancel())
-                    return true;
-                if (next())
-                    return next()->cancel();
-                return false;
+                return active() && doCancel();
             }
             
             void pick(const InputState& inputState, Hits& hits) {
                 if (active())
                     static_cast<PickingPolicyType&>(*this).doPick(inputState, hits);
-                if (next() != NULL)
-                    next()->pick(inputState, hits);
             }
 
             void modifierKeyChange(const InputState& inputState) {
                 if (active())
                     doModifierKeyChange(inputState);
-                if (next() != NULL)
-                    next()->modifierKeyChange(inputState);
             }
             
             bool mouseDown(const InputState& inputState) {
-                if (active() && static_cast<MousePolicyType&>(*this).doMouseDown(inputState))
-                    return true;
-                if (next() != NULL)
-                    return next()->mouseDown(inputState);
-                return false;
+                return active() && static_cast<MousePolicyType&>(*this).doMouseDown(inputState);
             }
             
             bool mouseUp(const InputState& inputState) {
-                if (active() && static_cast<MousePolicyType&>(*this).doMouseUp(inputState))
-                    return true;
-                if (next() != NULL)
-                    return next()->mouseUp(inputState);
-                return false;
+                return active() && static_cast<MousePolicyType&>(*this).doMouseUp(inputState);
             }
             
             bool mouseDoubleClick(const InputState& inputState) {
-                if (active() && static_cast<MousePolicyType&>(*this).doMouseDoubleClick(inputState))
-                    return true;
-                if (next() != NULL)
-                    return next()->mouseDoubleClick(inputState);
-                return false;
+                return active() && static_cast<MousePolicyType&>(*this).doMouseDoubleClick(inputState);
             }
             
             void scroll(const InputState& inputState) {
                 if (active())
                     static_cast<MousePolicyType&>(*this).doScroll(inputState);
-                if (next() != NULL)
-                    next()->scroll(inputState);
             }
             
             void mouseMove(const InputState& inputState) {
                 if (active())
                     static_cast<MousePolicyType&>(*this).doMouseMove(inputState);
-                if (next() != NULL)
-                    next()->mouseMove(inputState);
             }
 
-            Tool* startMouseDrag(const InputState& inputState) {
+            bool startMouseDrag(const InputState& inputState) {
                 if (active() && static_cast<MouseDragPolicyType&>(*this).doStartMouseDrag(inputState)) {
                     m_dragging = true;
-                    return this;
+                    return true;
                 }
-                if (next() != NULL)
-                    return next()->startMouseDrag(inputState);
-                return NULL;
+                return false;
             }
             
             bool mouseDrag(const InputState& inputState) {
@@ -329,12 +296,8 @@ namespace TrenchBroom {
                 }
             }
             
-            Tool* dragEnter(const InputState& inputState, const String& payload) {
-                if (active() && static_cast<DropPolicyType&>(*this).doDragEnter(inputState, payload))
-                    return this;
-                if (next() != NULL)
-                    return next()->dragEnter(inputState, payload);
-                return NULL;
+            bool dragEnter(const InputState& inputState, const String& payload) {
+                return active() && static_cast<DropPolicyType&>(*this).doDragEnter(inputState, payload);
             }
             
             bool dragMove(const InputState& inputState) {
@@ -355,18 +318,9 @@ namespace TrenchBroom {
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
                 if (active())
                     static_cast<const RenderPolicyType&>(*this).doSetRenderOptions(inputState, renderContext);
-                if (next() != NULL)
-                    next()->setRenderOptions(inputState, renderContext);
             }
 
-            void renderChain(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                if (active())
-                    static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext, renderBatch);
-                if (next() != NULL)
-                    next()->renderChain(inputState, renderContext, renderBatch);
-            }
-
-            void renderOnly(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 if (active())
                     static_cast<RenderPolicyType&>(*this).doRender(inputState, renderContext, renderBatch);
             }

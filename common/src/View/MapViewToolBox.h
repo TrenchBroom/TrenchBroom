@@ -31,7 +31,6 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool;
         class MovementRestriction;
         class MoveObjectsTool;
         class RotateObjectsTool;
@@ -41,7 +40,6 @@ namespace TrenchBroom {
         class MapViewToolBox : public ToolBox {
         private:
             MovementRestriction* m_movementRestriction;
-            CameraTool* m_cameraTool;
             MoveObjectsTool* m_moveObjectsTool;
             RotateObjectsTool* m_rotateObjectsTool;
             SelectionTool* m_selectionTool;
@@ -52,9 +50,12 @@ namespace TrenchBroom {
             
             const MovementRestriction& movementRestriction() const;
             MovementRestriction& movementRestriction();
-
-            void setCamera(Renderer::Camera* camera);
         public: // tools
+            MoveObjectsTool* moveObjectsTool();
+            RotateObjectsTool* rotateObjectsTool();
+            SelectionTool* selectionTool();
+            VertexTool* vertexTool();
+            
             void toggleRotateObjectsTool();
             bool rotateObjectsToolActive() const;
             double rotateToolAngle() const;
