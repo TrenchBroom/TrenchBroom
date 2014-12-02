@@ -29,10 +29,15 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        Renderer::FontDescriptor makeRenderServiceFont();
+        Renderer::FontDescriptor makeRenderServiceFont() {
+            return Renderer::FontDescriptor(pref(Preferences::RendererFontPath()), static_cast<size_t>(pref(Preferences::RendererFontSize)));
+        }
+        
         RenderService::RenderService(RenderContext& renderContext, RenderBatch& renderBatch) :
         m_renderContext(renderContext),
         m_renderBatch(renderBatch),
-        m_textRenderer(new TextRenderer(Renderer::FontDescriptor(pref(Preferences::RendererFontPath()), static_cast<size_t>(pref(Preferences::RendererFontSize))))),
+        m_textRenderer(new TextRenderer(makeRenderServiceFont())),
         m_pointHandleRenderer(new PointHandleRenderer()),
         m_primitiveRenderer(new PrimitiveRenderer()) {}
         
