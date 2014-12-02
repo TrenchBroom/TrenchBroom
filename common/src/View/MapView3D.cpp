@@ -35,6 +35,7 @@
 #include "View/CommandIds.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
+#include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -47,8 +48,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo) :
-        MapViewBase(parent, logger, document, toolBox, renderer, vbo, IS_MapView3D, buildAttribs()),
+        MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextManager& contextManager) :
+        MapViewBase(parent, logger, document, toolBox, renderer, vbo, IS_MapView3D, contextManager),
         m_camera(),
         m_compass(new Renderer::Compass(toolBox.movementRestriction())),
         m_flyModeHelper(new FlyModeHelper(this, m_camera)) {
@@ -371,8 +372,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        Renderer::RenderContext MapView3D::doCreateRenderContext() const {
-            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_3D, m_camera, contextHolder()->fontManager(), contextHolder()->shaderManager());
+        Renderer::RenderContext MapView3D::doCreateRenderContext(GLContextManager& contextManager) const {
+            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_3D, m_camera, contextManager.fontManager(), contextManager.shaderManager());
         }
 
         void MapView3D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -385,92 +386,6 @@ namespace TrenchBroom {
         
         void MapView3D::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_compass->render(renderBatch);
-        }
-
-        const GLContextHolder::GLAttribs& MapView3D::buildAttribs() {
-            static bool initialized = false;
-            static GLContextHolder::GLAttribs attribs;
-            if (initialized)
-                return attribs;
-            
-            int testAttribs[] =
-            {
-                // 32 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 24 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 32 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 24 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 16 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 16 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 32 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                0,
-                // 24 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                0,
-                // 16 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                0,
-                0,
-            };
-            
-            size_t index = 0;
-            while (!initialized && testAttribs[index] != 0) {
-                size_t count = 0;
-                for (; testAttribs[index + count] != 0; ++count);
-                if (wxGLCanvas::IsDisplaySupported(&testAttribs[index])) {
-                    for (size_t i = 0; i < count; ++i)
-                        attribs.push_back(testAttribs[index + i]);
-                    attribs.push_back(0);
-                    initialized = true;
-                }
-                index += count + 1;
-            }
-            
-            assert(initialized);
-            assert(!attribs.empty());
-            return attribs;
         }
     }
 }

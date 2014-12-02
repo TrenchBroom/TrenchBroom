@@ -31,12 +31,13 @@
 #include "View/CachingLogger.h"
 #include "View/CommandIds.h"
 #include "View/Console.h"
+#include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/Inspector.h"
 #include "View/MapDocument.h"
 #include "View/Menu.h"
 #include "View/SplitterWindow.h"
-#include "View/CyclingMapView.h"
+#include "View/SwitchableMapViewContainer.h"
 
 #include <wx/clipbrd.h>
 #include <wx/display.h>
@@ -54,6 +55,7 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
+        m_contextManager(NULL),
         m_mapView(NULL),
         m_console(NULL),
         m_inspector(NULL) {}
@@ -63,6 +65,7 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_autosaver(NULL),
         m_autosaveTimer(NULL),
+        m_contextManager(NULL),
         m_mapView(NULL),
         m_console(NULL),
         m_inspector(NULL)  {
@@ -77,6 +80,8 @@ namespace TrenchBroom {
             m_document = document;
             m_autosaver = new Autosaver(m_document);
 
+            m_contextManager = new GLContextManager();
+            
             createGui();
             createMenuBar();
             
@@ -98,6 +103,9 @@ namespace TrenchBroom {
             
             delete m_autosaver;
             m_autosaver = NULL;
+            
+            delete m_contextManager;
+            m_contextManager = NULL;
         }
 
         void MapFrame::positionOnScreen(wxFrame* reference) {
@@ -244,8 +252,8 @@ namespace TrenchBroom {
             vSplitter->SetName("MapFrameVSplitter");
             
             m_console = new Console(vSplitter);
-            m_mapView = new CyclingMapView(vSplitter, m_console, m_document);
-            m_inspector = new Inspector(hSplitter, m_mapView->glContext(), m_document);
+            m_mapView = new SwitchableMapViewContainer(vSplitter, m_console, m_document, *m_contextManager);
+            m_inspector = new Inspector(hSplitter, m_document, *m_contextManager);
             
             vSplitter->splitHorizontally(m_mapView, m_console, wxSize(100, 100), wxSize(100, 100));
             hSplitter->splitVertically(vSplitter, m_inspector, wxSize(100, 100), wxSize(350, 100));

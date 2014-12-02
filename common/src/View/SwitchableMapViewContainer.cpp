@@ -19,22 +19,30 @@
 
 #include "SwitchableMapViewContainer.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/Vbo.h"
+#include "View/CyclingMapView.h"
+#include "View/GLContextManager.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
 
+#include <wx/sizer.h>
+
 namespace TrenchBroom {
     namespace View {
-        SwitchableMapViewContainer::SwitchableMapViewContainer(wxWindow* parent, Logger* logger, MapDocumentWPtr document) :
+        SwitchableMapViewContainer::SwitchableMapViewContainer(wxWindow* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager) :
         MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
+        m_contextManager(contextManager),
         m_mapViewBar(new MapViewBar(this, m_document)),
         m_toolBox(new MapViewToolBox(m_document, m_mapViewBar->toolBook())),
         m_mapRenderer(new Renderer::MapRenderer(m_document)),
         m_vbo(new Renderer::Vbo(0xFFFFFF)),
         m_mapView(NULL) {
+            switchToMapView(pref(Preferences::MapViewId));
         }
         
         SwitchableMapViewContainer::~SwitchableMapViewContainer() {
@@ -49,6 +57,26 @@ namespace TrenchBroom {
             
             delete m_vbo;
             m_vbo = NULL;
+        }
+
+        void SwitchableMapViewContainer::switchToMapView(const MapViewId viewId) {
+            if (m_mapView != NULL) {
+                m_mapView->Destroy();
+                m_mapView = NULL;
+            }
+
+            switch (viewId) {
+                case MapView_Cycling:
+                case MapView_3Pane:
+                case MapView_4Pane:
+                    m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
+                    break;
+            }
+            
+            wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_mapView, 1, wxEXPAND);
+            SetSizer(sizer);
+            Layout();
         }
 
         Vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const BBox3& bounds) const {
@@ -77,10 +105,6 @@ namespace TrenchBroom {
         
         void SwitchableMapViewContainer::doMoveCameraToPreviousTracePoint() {
             m_mapView->moveCameraToPreviousTracePoint();
-        }
-        
-        GLContextHolder::Ptr SwitchableMapViewContainer::doGetGLContext() const {
-            return m_glContext;
         }
     }
 }

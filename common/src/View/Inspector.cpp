@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        Inspector::Inspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document) :
+        Inspector::Inspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         wxPanel(parent),
         m_tabBook(NULL),
         m_mapInspector(NULL),
@@ -38,7 +38,7 @@ namespace TrenchBroom {
             
             m_tabBook = new TabBook(this);
 
-            m_mapInspector = new MapInspector(m_tabBook, sharedContext, document);
+            m_mapInspector = new MapInspector(m_tabBook, document, contextManager);
             // m_entityInspector = new EntityInspector(m_tabBook, sharedContext, document, controller);
             // m_faceInspector = new FaceInspector(m_tabBook, sharedContext, document, controller);
             

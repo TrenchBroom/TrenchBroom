@@ -40,8 +40,9 @@ namespace TrenchBroom {
         class Autosaver;
         class Console;
         class FrameManager;
+        class GLContextManager;
         class Inspector;
-        class CyclingMapView;
+        class SwitchableMapViewContainer;
         
         class MapFrame : public wxFrame {
         private:
@@ -51,7 +52,8 @@ namespace TrenchBroom {
             Autosaver* m_autosaver;
             wxTimer* m_autosaveTimer;
             
-            CyclingMapView* m_mapView;
+            GLContextManager* m_contextManager;
+            SwitchableMapViewContainer* m_mapView;
             Console* m_console;
             Inspector* m_inspector;
         public:

@@ -17,34 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapInspector__
-#define __TrenchBroom__MapInspector__
+#ifndef __TrenchBroom__GLContext__
+#define __TrenchBroom__GLContext__
 
-#include "View/TabBook.h"
-#include "View/ViewTypes.h"
+#include "SharedPointer.h"
 
-class wxCollapsiblePaneEvent;
-class wxWindow;
+#include <wx/glcanvas.h>
 
 namespace TrenchBroom {
-    namespace Renderer {
-        class Camera;
-    }
-    
     namespace View {
         class GLContextManager;
-        class MapTreeView;
-        class ModEditor;
         
-        class MapInspector : public TabBookPage {
+        class GLContext : public wxGLContext {
         public:
-            MapInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            typedef std::tr1::shared_ptr<GLContext> Ptr;
         private:
-            void createGui(MapDocumentWPtr document, GLContextManager& contextManager);
-            wxWindow* createLayerEditor(wxWindow* parent, MapDocumentWPtr document);
-            wxWindow* createModEditor(wxWindow* parent, MapDocumentWPtr document);
+            GLContextManager* m_contextManager;
+        public:
+            GLContext(wxGLCanvas* canvas, GLContextManager* contextManager);
+
+            bool initialize();
+            bool SetCurrent(const wxGLCanvas* canvas) const;
+            bool SetCurrent(const wxGLCanvas& canvas) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__MapInspector__) */
+#endif /* defined(__TrenchBroom__GLContext__) */

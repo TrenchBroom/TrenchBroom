@@ -22,7 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "View/GLContextHolder.h"
 
 #include <wx/panel.h>
 
@@ -42,8 +41,6 @@ namespace TrenchBroom {
             bool canMoveCameraToPreviousTracePoint() const;
             void moveCameraToNextTracePoint();
             void moveCameraToPreviousTracePoint();
-            
-            GLContextHolder::Ptr glContext() const;
         private:
             virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const = 0;
 
@@ -54,8 +51,6 @@ namespace TrenchBroom {
             virtual bool doCanMoveCameraToPreviousTracePoint() const = 0;
             virtual void doMoveCameraToNextTracePoint() = 0;
             virtual void doMoveCameraToPreviousTracePoint() = 0;
-            
-            virtual GLContextHolder::Ptr doGetGLContext() const = 0;
         };
     }
 }

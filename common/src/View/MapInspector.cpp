@@ -32,15 +32,15 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapInspector::MapInspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document) :
+        MapInspector::MapInspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         TabBookPage(parent) {
 #if defined __APPLE__
             SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
-            createGui(sharedContext, document);
+            createGui(document, contextManager);
         }
 
-        void MapInspector::createGui(GLContextHolder::Ptr sharedContext, MapDocumentWPtr document) {
+        void MapInspector::createGui(MapDocumentWPtr document, GLContextManager& contextManager) {
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(createLayerEditor(this, document), 1, wxEXPAND);
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);

@@ -22,7 +22,7 @@
 
 #include "Model/ModelTypes.h"
 #include "View/ActionContext.h"
-#include "View/GLContextHolder.h"
+#include "View/GLAttribs.h"
 #include "View/InputState.h"
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
@@ -30,6 +30,10 @@
 
 namespace TrenchBroom {
     class Logger;
+    
+    namespace IO {
+        class Path;
+    }
     
     namespace Renderer {
         class Compass;
@@ -43,6 +47,7 @@ namespace TrenchBroom {
         class AnimationManager;
         class Command;
         class FlyModeHelper;
+        class GLContextManager;
         class MapViewToolBox;
         class MovementRestriction;
         class Selection;
@@ -56,11 +61,13 @@ namespace TrenchBroom {
             
             AnimationManager* m_animationManager;
         private:
-            Renderer::Vbo& m_vbo;
             Renderer::MapRenderer& m_renderer;
+            Renderer::Vbo& m_vbo;
+            GLContextManager& m_contextManager;
         protected:
-            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, InputSource inputSource, const GLContextHolder::GLAttribs& attribs);
-            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, InputSource inputSource, GLContextHolder::Ptr sharedContext);
+            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, InputSource inputSource, GLContextManager& contextManager);
+        private:
+            static const GLAttribs& buildAttribs();
         public:
             virtual ~MapViewBase();
         public: // camera control
@@ -165,7 +172,7 @@ namespace TrenchBroom {
             virtual ActionContext doGetActionContext() const = 0;
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;
             virtual bool doCancel() = 0;
-            virtual Renderer::RenderContext doCreateRenderContext() const = 0;
+            virtual Renderer::RenderContext doCreateRenderContext(GLContextManager& contextManager) const = 0;
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;

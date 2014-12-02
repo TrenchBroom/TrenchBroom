@@ -20,7 +20,6 @@
 #ifndef __TrenchBroom__Inspector__
 #define __TrenchBroom__Inspector__
 
-#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -33,6 +32,7 @@ namespace TrenchBroom {
     namespace View {
         class EntityInspector;
         class FaceInspector;
+        class GLContextManager;
         class MapInspector;
         class TabBook;
         
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             EntityInspector* m_entityInspector;
             FaceInspector* m_faceInspector;
         public:
-            Inspector(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document);
+            Inspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
             void switchToPage(InspectorPage page);
             
             void setTabBarHeight(int height);

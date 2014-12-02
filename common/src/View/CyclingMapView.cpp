@@ -35,122 +35,22 @@
 
 namespace TrenchBroom {
     namespace View {
-        CyclingMapView::CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document) :
-        wxPanel(parent),
+        CyclingMapView::CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) :
+        MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
-        m_toolBox(NULL),
-        m_mapRenderer(NULL),
-        m_vbo(NULL),
-        m_mapViewBar(NULL),
         m_currentMapView(NULL) {
             for (size_t i = 0; i < 4; ++i)
                 m_mapViews[i] = NULL;
-            createGui();
+            createGui(toolBox, mapRenderer, vbo, contextManager);
             bindEvents();
         }
-        
-        CyclingMapView::~CyclingMapView() {
-            // we must destroy our children before we destroy our resources because they might still use them in their destructors
-            DestroyChildren();
-            
-            delete m_toolBox;
-            m_toolBox = NULL;
 
-            delete m_mapRenderer;
-            m_mapRenderer = NULL;
-            
-            delete m_vbo;
-            m_vbo = NULL;
-        }
-
-        Vec3 CyclingMapView::pasteObjectsDelta(const BBox3& bounds) const {
-            MapDocumentSPtr document = lock(m_document);
-            const Renderer::Camera* camera = m_currentMapView->camera();
-            const Grid& grid = document->grid();
-
-            const wxMouseState mouseState = wxGetMouseState();
-            const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
-            
-            if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
-                const Ray3f pickRay = camera->pickRay(clientCoords.x, clientCoords.y);
-                Hits hits = hitsByDistance();
-                document->pick(Ray3(pickRay), hits);
-                const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), true);
-                if (hit.isMatch()) {
-                    const Model::BrushFace* face = Model::hitToFace(hit);
-                    const Vec3 snappedHitPoint = grid.snap(hit.hitPoint());
-                    return grid.moveDeltaForBounds(face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
-                } else {
-                    const Vec3 snappedCenter = grid.snap(bounds.center());
-                    const Vec3 snappedDefaultPoint = grid.snap(camera->defaultPoint(pickRay));
-                    return snappedDefaultPoint - snappedCenter;
-                }
-            } else {
-                const Vec3 snappedCenter = grid.snap(bounds.center());
-                const Vec3 snappedDefaultPoint = grid.snap(camera->defaultPoint());
-                return snappedDefaultPoint - snappedCenter;
-            }
-        }
-        
-        void CyclingMapView::centerCameraOnSelection() {
-            m_currentMapView->centerCameraOnSelection();
-        }
-        
-        void CyclingMapView::moveCameraToPosition(const Vec3& position) {
-            m_currentMapView->moveCameraToPosition(position);
-        }
-        
-        bool CyclingMapView::canMoveCameraToNextTracePoint() const {
-            if (m_currentMapView != m_mapViews[0])
-                return false;
-            
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->isPointFileLoaded())
-                return false;
-            
-            Model::PointFile* pointFile = document->pointFile();
-            return pointFile->hasNextPoint();
-        }
-        
-        bool CyclingMapView::canMoveCameraToPreviousTracePoint() const {
-            if (m_currentMapView != m_mapViews[0])
-                return false;
-            
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->isPointFileLoaded())
-                return false;
-            
-            Model::PointFile* pointFile = document->pointFile();
-            return pointFile->hasPreviousPoint();
-        }
-        
-        void CyclingMapView::moveCameraToNextTracePoint() {
-            assert(canMoveCameraToNextTracePoint());
-            MapView3D* mapView3D = static_cast<MapView3D*>(m_currentMapView);
-            mapView3D->moveCameraToNextTracePoint();
-        }
-        
-        void CyclingMapView::moveCameraToPreviousTracePoint() {
-            assert(canMoveCameraToNextTracePoint());
-            MapView3D* mapView3D = static_cast<MapView3D*>(m_currentMapView);
-            mapView3D->moveCameraToPreviousTracePoint();
-        }
-
-        GLContextHolder::Ptr CyclingMapView::glContext() const {
-            return m_mapViews[0]->contextHolder();
-        }
-
-        void CyclingMapView::createGui() {
-            m_mapRenderer = new Renderer::MapRenderer(m_document);
-            m_vbo = new Renderer::Vbo(0xFFFFFF);
-            m_mapViewBar = new MapViewBar(this, m_document);
-            
-            m_toolBox = new MapViewToolBox(m_document, m_mapViewBar->toolBook());
-            m_mapViews[0] = new MapView3D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo);
-            m_mapViews[1] = new MapView2D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, MapView2D::ViewPlane_XY, m_mapViews[0]->contextHolder());
-            m_mapViews[2] = new MapView2D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, MapView2D::ViewPlane_XZ, m_mapViews[0]->contextHolder());
-            m_mapViews[3] = new MapView2D(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, MapView2D::ViewPlane_YZ, m_mapViews[0]->contextHolder());
+        void CyclingMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) {
+            m_mapViews[0] = new MapView3D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager);
+            m_mapViews[1] = new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XY);
+            m_mapViews[2] = new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XZ);
+            m_mapViews[3] = new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_YZ);
             
             for (size_t i = 0; i < 4; ++i)
                 m_mapViews[i]->Hide();
@@ -191,11 +91,81 @@ namespace TrenchBroom {
             m_currentMapView->Show();
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_mapViewBar, 0, wxEXPAND);
             sizer->Add(m_currentMapView, 1, wxEXPAND);
             SetSizer(sizer);
             Layout();
             m_currentMapView->SetFocus();
+        }
+
+        Vec3 CyclingMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
+            MapDocumentSPtr document = lock(m_document);
+            const Renderer::Camera* camera = m_currentMapView->camera();
+            const Grid& grid = document->grid();
+            
+            const wxMouseState mouseState = wxGetMouseState();
+            const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
+            
+            if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
+                const Ray3f pickRay = camera->pickRay(clientCoords.x, clientCoords.y);
+                Hits hits = hitsByDistance();
+                document->pick(Ray3(pickRay), hits);
+                const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), true);
+                if (hit.isMatch()) {
+                    const Model::BrushFace* face = Model::hitToFace(hit);
+                    const Vec3 snappedHitPoint = grid.snap(hit.hitPoint());
+                    return grid.moveDeltaForBounds(face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
+                } else {
+                    const Vec3 snappedCenter = grid.snap(bounds.center());
+                    const Vec3 snappedDefaultPoint = grid.snap(camera->defaultPoint(pickRay));
+                    return snappedDefaultPoint - snappedCenter;
+                }
+            } else {
+                const Vec3 snappedCenter = grid.snap(bounds.center());
+                const Vec3 snappedDefaultPoint = grid.snap(camera->defaultPoint());
+                return snappedDefaultPoint - snappedCenter;
+            }
+        }
+        
+        void CyclingMapView::doCenterCameraOnSelection() {
+            m_currentMapView->centerCameraOnSelection();
+        }
+        
+        void CyclingMapView::doMoveCameraToPosition(const Vec3& position) {
+            m_currentMapView->moveCameraToPosition(position);
+        }
+        
+        bool CyclingMapView::doCanMoveCameraToNextTracePoint() const {
+            if (m_currentMapView != m_mapViews[0])
+                return false;
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->isPointFileLoaded())
+                return false;
+            
+            Model::PointFile* pointFile = document->pointFile();
+            return pointFile->hasNextPoint();
+        }
+        
+        bool CyclingMapView::doCanMoveCameraToPreviousTracePoint() const {
+            if (m_currentMapView != m_mapViews[0])
+                return false;
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->isPointFileLoaded())
+                return false;
+            
+            Model::PointFile* pointFile = document->pointFile();
+            return pointFile->hasPreviousPoint();
+        }
+        
+        void CyclingMapView::doMoveCameraToNextTracePoint() {
+            MapView3D* mapView3D = static_cast<MapView3D*>(m_currentMapView);
+            mapView3D->moveCameraToNextTracePoint();
+        }
+        
+        void CyclingMapView::doMoveCameraToPreviousTracePoint() {
+            MapView3D* mapView3D = static_cast<MapView3D*>(m_currentMapView);
+            mapView3D->moveCameraToPreviousTracePoint();
         }
     }
 }

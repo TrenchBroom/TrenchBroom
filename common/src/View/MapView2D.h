@@ -39,7 +39,8 @@ namespace TrenchBroom {
     
     namespace View {
         class CameraTool2D;
-        class FlyModeHelper;
+        class GLContextManager;
+        
         class MapView2D : public MapViewBase {
         public:
             typedef enum {
@@ -51,7 +52,7 @@ namespace TrenchBroom {
             Renderer::OrthographicCamera m_camera;
             CameraTool2D* m_cameraTool;
         public:
-            MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, ViewPlane viewPlane, GLContextHolder::Ptr sharedContext);
+            MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextManager& contextManager, ViewPlane viewPlane);
             ~MapView2D();
         private:
             void initializeCamera(ViewPlane viewPlane);
@@ -70,7 +71,7 @@ namespace TrenchBroom {
             ActionContext doGetActionContext() const;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;
             bool doCancel();
-            Renderer::RenderContext doCreateRenderContext() const;
+            Renderer::RenderContext doCreateRenderContext(GLContextManager& contextManager) const;
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

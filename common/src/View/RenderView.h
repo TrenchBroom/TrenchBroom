@@ -21,9 +21,9 @@
 #define __TrenchBroom__RenderView__
 
 #include "Color.h"
-#include "Hit.h"
 #include "Renderer/Vbo.h"
-#include "View/GLContextHolder.h"
+#include "View/GLAttribs.h"
+#include "View/GLContext.h"
 
 #include <wx/glcanvas.h>
 
@@ -33,23 +33,22 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class GLContextManager;
+        
         class RenderView : public wxGLCanvas {
         private:
-            GLContextHolder::Ptr m_contextHolder;
+            GLContext::Ptr m_glContext;
+            GLAttribs m_attribs;
             bool m_initialized;
             Color m_focusColor;
-        protected:
             Renderer::Vbo m_vbo;
         protected:
-            RenderView(wxWindow* parent, const GLContextHolder::GLAttribs& attribs);
-            RenderView(wxWindow* parent, GLContextHolder::Ptr sharedContext);
+            RenderView(wxWindow* parent, GLContextManager& contextManager, const GLAttribs& attribs);
         public:
             void OnPaint(wxPaintEvent& event);
             void OnSize(wxSizeEvent& event);
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
-
-            const GLContextHolder::Ptr contextHolder() const;
         protected:
             int depthBits() const;
             bool multisample() const;

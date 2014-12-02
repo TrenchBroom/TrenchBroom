@@ -35,6 +35,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class GLContextManager;
         class MapViewBar;
         class MapViewToolBox;
         
@@ -42,6 +43,7 @@ namespace TrenchBroom {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
+            GLContextManager& m_contextManager;
             
             MapViewBar* m_mapViewBar;
             MapViewToolBox* m_toolBox;
@@ -50,9 +52,8 @@ namespace TrenchBroom {
             Renderer::Vbo* m_vbo;
             
             MapViewContainer* m_mapView;
-            GLContextHolder::Ptr m_glContext;
         public:
-            SwitchableMapViewContainer(wxWindow* parent, Logger* logger, MapDocumentWPtr document);
+            SwitchableMapViewContainer(wxWindow* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager);
             ~SwitchableMapViewContainer();
             
             void switchToMapView(MapViewId viewId);
@@ -66,8 +67,6 @@ namespace TrenchBroom {
             bool doCanMoveCameraToPreviousTracePoint() const;
             void doMoveCameraToNextTracePoint();
             void doMoveCameraToPreviousTracePoint();
-            
-            GLContextHolder::Ptr doGetGLContext() const;
         };
     }
 }

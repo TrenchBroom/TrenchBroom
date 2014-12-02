@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "View/GLContextHolder.h"
+#include "View/MapViewContainer.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -30,12 +30,19 @@
 namespace TrenchBroom {
     class Logger;
     
+    namespace Renderer {
+        class MapRenderer;
+        class Vbo;
+    }
+    
     namespace View {
+        class GLContextManager;
         class MapViewBase;
         class MapView2D;
         class MapView3D;
+        class MapViewToolBox;
         
-        class CyclingMapView : public wxPanel {
+        class CyclingMapView : public MapViewContainer {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -43,28 +50,25 @@ namespace TrenchBroom {
             MapViewBase* m_mapViews[4];
             MapViewBase* m_currentMapView;
         public:
-            CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document);
-            ~CyclingMapView();
-
-            Vec3 pasteObjectsDelta(const BBox3& bounds) const;
-
-            void centerCameraOnSelection();
-            void moveCameraToPosition(const Vec3& position);
-            
-            bool canMoveCameraToNextTracePoint() const;
-            bool canMoveCameraToPreviousTracePoint() const;
-            void moveCameraToNextTracePoint();
-            void moveCameraToPreviousTracePoint();
-            
-            GLContextHolder::Ptr glContext() const;
+            CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
         private:
-            void createGui();
+            void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
         private:
             void bindEvents();
             void OnIdleSetFocus(wxIdleEvent& event);
             void OnCycleMapView(wxCommandEvent& event);
         private:
             void switchToMapView(MapViewBase* mapView);
+        private: // implement MapViewContainer interface
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
+            
+            void doCenterCameraOnSelection();
+            void doMoveCameraToPosition(const Vec3& position);
+            
+            bool doCanMoveCameraToNextTracePoint() const;
+            bool doCanMoveCameraToPreviousTracePoint() const;
+            void doMoveCameraToNextTracePoint();
+            void doMoveCameraToPreviousTracePoint();
         };
     }
 }

@@ -57,9 +57,5 @@ namespace TrenchBroom {
             assert(canMoveCameraToPreviousTracePoint());
             doMoveCameraToPreviousTracePoint();
         }
-        
-        GLContextHolder::Ptr MapViewContainer::glContext() const {
-            return doGetGLContext();
-        }
     }
 }

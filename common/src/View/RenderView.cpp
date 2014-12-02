@@ -24,6 +24,7 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
+#include "View/GLContextManager.h"
 #include "View/wxUtils.h"
 
 #include <wx/dcclient.h>
@@ -33,36 +34,26 @@
 
 namespace TrenchBroom {
     namespace View {
-        RenderView::RenderView(wxWindow* parent, const GLContextHolder::GLAttribs& attribs) :
+        RenderView::RenderView(wxWindow* parent, GLContextManager& contextManager, const GLAttribs& attribs) :
         wxGLCanvas(parent, wxID_ANY, &attribs.front(), wxDefaultPosition, wxDefaultSize, wxBORDER_NONE),
-        m_contextHolder(new RootGLContextHolder(this, attribs)),
+        m_glContext(contextManager.createContext(this)),
+        m_attribs(attribs),
         m_initialized(false),
-        m_vbo(0xFFF) {
+        m_vbo(0xFF) {
             const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
             m_focusColor = fromWxColor(color);
             
             bindEvents();
         }
         
-        RenderView::RenderView(wxWindow* parent, GLContextHolder::Ptr sharedContext) :
-        wxGLCanvas(parent, wxID_ANY, &sharedContext->attribs().front()),
-        m_contextHolder(new SharedGLContextHolder(this, sharedContext)),
-        m_initialized(false),
-        m_vbo(0xFFF) {
-            const wxColour color = wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT);
-            m_focusColor = fromWxColor(color);
-            
-            bindEvents();
-        }
-
         void RenderView::OnPaint(wxPaintEvent& event) {
             if (!IsShownOnScreen())
                 return;
             
-            if (!m_initialized)
-                initializeGL();
-            
-            if (m_contextHolder->setCurrent(this)) {
+            if (m_glContext->SetCurrent(this)) {
+                if (!m_initialized)
+                    initializeGL();
+
                 wxPaintDC paintDC(this);
                 render();
                 SwapBuffers();
@@ -84,16 +75,12 @@ namespace TrenchBroom {
             event.Skip();
         }
 
-        const GLContextHolder::Ptr RenderView::contextHolder() const {
-            return m_contextHolder;
-        }
-
         int RenderView::depthBits() const {
-            return m_contextHolder->attribs()[3];
+            return m_attribs[3];
         }
         
         bool RenderView::multisample() const {
-            return m_contextHolder->attribs()[4] != 0;
+            return m_attribs[4] != 0;
         }
 
         void RenderView::bindEvents() {
@@ -104,11 +91,9 @@ namespace TrenchBroom {
         }
 
         void RenderView::initializeGL() {
-            if (m_contextHolder->setCurrent(this)) {
-                const bool wasInitialized = m_contextHolder->initialize();
-                doInitializeGL(wasInitialized);
-                GL_CHECK_ERROR()
-            }
+            const bool firstInitialization = m_glContext->initialize();
+            doInitializeGL(firstInitialization);
+            GL_CHECK_ERROR()
             m_initialized = true;
         }
 

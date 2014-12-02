@@ -28,7 +28,7 @@
 #include "View/CameraTool2D.h"
 #include "View/CommandIds.h"
 #include "View/FlashSelectionAnimation.h"
-#include "View/FlyModeHelper.h"
+#include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
@@ -52,8 +52,8 @@ namespace TrenchBroom {
             }
         }
         
-        MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, const ViewPlane viewPlane, GLContextHolder::Ptr sharedContext) :
-        MapViewBase(parent, logger, document, toolBox, renderer, vbo, inputSource(viewPlane), sharedContext),
+        MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextManager& contextManager, const ViewPlane viewPlane) :
+        MapViewBase(parent, logger, document, toolBox, renderer, vbo, inputSource(viewPlane), contextManager),
         m_camera(),
         m_cameraTool(NULL) {
             bindEvents();
@@ -159,8 +159,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        Renderer::RenderContext MapView2D::doCreateRenderContext() const {
-            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, contextHolder()->fontManager(), contextHolder()->shaderManager());
+        Renderer::RenderContext MapView2D::doCreateRenderContext(GLContextManager& contextManager) const {
+            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, contextManager.fontManager(), contextManager.shaderManager());
         }
 
         void MapView2D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
