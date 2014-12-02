@@ -25,15 +25,11 @@
 #include "Model/ModelHitFilters.h"
 #include "Model/PointFile.h"
 #include "Renderer/Camera.h"
-#include "Renderer/MapRenderer.h"
-#include "Renderer/Vbo.h"
 #include "View/CommandIds.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
-#include "View/MapViewBar.h"
-#include "View/MapViewToolBox.h"
 
 #include <wx/sizer.h>
 

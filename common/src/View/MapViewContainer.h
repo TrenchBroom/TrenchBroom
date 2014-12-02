@@ -17,37 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CyclingMapView__
-#define __TrenchBroom__CyclingMapView__
+#ifndef __TrenchBroom__MapViewContainer__
+#define __TrenchBroom__MapViewContainer__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "View/GLContextHolder.h"
-#include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
 namespace TrenchBroom {
-    class Logger;
-    
     namespace View {
-        class MapViewBase;
-        class MapView2D;
-        class MapView3D;
-        
-        class CyclingMapView : public wxPanel {
-        private:
-            Logger* m_logger;
-            MapDocumentWPtr m_document;
-            
-            MapViewBase* m_mapViews[4];
-            MapViewBase* m_currentMapView;
+        class MapViewContainer : public wxPanel {
         public:
-            CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document);
-            ~CyclingMapView();
+            MapViewContainer(wxWindow* parent);
+            virtual ~MapViewContainer();
 
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
-
+            
             void centerCameraOnSelection();
             void moveCameraToPosition(const Vec3& position);
             
@@ -58,15 +45,19 @@ namespace TrenchBroom {
             
             GLContextHolder::Ptr glContext() const;
         private:
-            void createGui();
-        private:
-            void bindEvents();
-            void OnIdleSetFocus(wxIdleEvent& event);
-            void OnCycleMapView(wxCommandEvent& event);
-        private:
-            void switchToMapView(MapViewBase* mapView);
+            virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const = 0;
+
+            virtual void doCenterCameraOnSelection() = 0;
+            virtual void doMoveCameraToPosition(const Vec3& position) = 0;
+            
+            virtual bool doCanMoveCameraToNextTracePoint() const = 0;
+            virtual bool doCanMoveCameraToPreviousTracePoint() const = 0;
+            virtual void doMoveCameraToNextTracePoint() = 0;
+            virtual void doMoveCameraToPreviousTracePoint() = 0;
+            
+            virtual GLContextHolder::Ptr doGetGLContext() const = 0;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CyclingMapView__) */
+#endif /* defined(__TrenchBroom__MapViewContainer__) */
