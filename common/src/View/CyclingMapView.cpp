@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SwitchableMapView.h"
+#include "CyclingMapView.h"
 
 #include "Hit.h"
 #include "Model/Brush.h"
@@ -39,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        SwitchableMapView::SwitchableMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document) :
+        CyclingMapView::CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document) :
         wxPanel(parent),
         m_logger(logger),
         m_document(document),
@@ -54,7 +54,7 @@ namespace TrenchBroom {
             bindEvents();
         }
         
-        SwitchableMapView::~SwitchableMapView() {
+        CyclingMapView::~CyclingMapView() {
             // we must destroy our children before we destroy our resources because they might still use them in their destructors
             DestroyChildren();
             
@@ -68,7 +68,7 @@ namespace TrenchBroom {
             m_vbo = NULL;
         }
 
-        Vec3 SwitchableMapView::pasteObjectsDelta(const BBox3& bounds) const {
+        Vec3 CyclingMapView::pasteObjectsDelta(const BBox3& bounds) const {
             MapDocumentSPtr document = lock(m_document);
             const Renderer::Camera* camera = m_currentMapView->camera();
             const Grid& grid = document->grid();
@@ -97,15 +97,15 @@ namespace TrenchBroom {
             }
         }
         
-        void SwitchableMapView::centerCameraOnSelection() {
+        void CyclingMapView::centerCameraOnSelection() {
             m_currentMapView->centerCameraOnSelection();
         }
         
-        void SwitchableMapView::moveCameraToPosition(const Vec3& position) {
+        void CyclingMapView::moveCameraToPosition(const Vec3& position) {
             m_currentMapView->moveCameraToPosition(position);
         }
         
-        bool SwitchableMapView::canMoveCameraToNextTracePoint() const {
+        bool CyclingMapView::canMoveCameraToNextTracePoint() const {
             if (m_currentMapView != m_mapViews[0])
                 return false;
             
@@ -117,7 +117,7 @@ namespace TrenchBroom {
             return pointFile->hasNextPoint();
         }
         
-        bool SwitchableMapView::canMoveCameraToPreviousTracePoint() const {
+        bool CyclingMapView::canMoveCameraToPreviousTracePoint() const {
             if (m_currentMapView != m_mapViews[0])
                 return false;
             
@@ -129,23 +129,23 @@ namespace TrenchBroom {
             return pointFile->hasPreviousPoint();
         }
         
-        void SwitchableMapView::moveCameraToNextTracePoint() {
+        void CyclingMapView::moveCameraToNextTracePoint() {
             assert(canMoveCameraToNextTracePoint());
             MapView3D* mapView3D = static_cast<MapView3D*>(m_currentMapView);
             mapView3D->moveCameraToNextTracePoint();
         }
         
-        void SwitchableMapView::moveCameraToPreviousTracePoint() {
+        void CyclingMapView::moveCameraToPreviousTracePoint() {
             assert(canMoveCameraToNextTracePoint());
             MapView3D* mapView3D = static_cast<MapView3D*>(m_currentMapView);
             mapView3D->moveCameraToPreviousTracePoint();
         }
 
-        GLContextHolder::Ptr SwitchableMapView::glContext() const {
+        GLContextHolder::Ptr CyclingMapView::glContext() const {
             return m_mapViews[0]->contextHolder();
         }
 
-        void SwitchableMapView::createGui() {
+        void CyclingMapView::createGui() {
             m_mapRenderer = new Renderer::MapRenderer(m_document);
             m_vbo = new Renderer::Vbo(0xFFFFFF);
             m_mapViewBar = new MapViewBar(this, m_document);
@@ -162,24 +162,24 @@ namespace TrenchBroom {
             switchToMapView(m_mapViews[0]);
         }
 
-        void SwitchableMapView::bindEvents() {
-            Bind(wxEVT_IDLE, &SwitchableMapView::OnIdleSetFocus, this);
-            Bind(wxEVT_MENU, &SwitchableMapView::OnCycleMapView, this, CommandIds::Actions::CycleMapViews);
+        void CyclingMapView::bindEvents() {
+            Bind(wxEVT_IDLE, &CyclingMapView::OnIdleSetFocus, this);
+            Bind(wxEVT_MENU, &CyclingMapView::OnCycleMapView, this, CommandIds::Actions::CycleMapViews);
         }
         
-        void SwitchableMapView::OnIdleSetFocus(wxIdleEvent& event) {
+        void CyclingMapView::OnIdleSetFocus(wxIdleEvent& event) {
             // we use this method to ensure that the 3D view gets the focus after startup has settled down
             if (m_currentMapView != NULL) {
                 if (!m_currentMapView->HasFocus()) {
                     m_currentMapView->SetFocus();
                 } else {
-                    Unbind(wxEVT_IDLE, &SwitchableMapView::OnIdleSetFocus, this);
+                    Unbind(wxEVT_IDLE, &CyclingMapView::OnIdleSetFocus, this);
                     m_currentMapView->Refresh();
                 }
             }
         }
 
-        void SwitchableMapView::OnCycleMapView(wxCommandEvent& event) {
+        void CyclingMapView::OnCycleMapView(wxCommandEvent& event) {
             for (size_t i = 0; i < 4; ++i) {
                 if (m_currentMapView == m_mapViews[i]) {
                     switchToMapView(m_mapViews[Math::succ(i, 4)]);
@@ -188,7 +188,7 @@ namespace TrenchBroom {
             }
         }
 
-        void SwitchableMapView::switchToMapView(MapViewBase* mapView) {
+        void CyclingMapView::switchToMapView(MapViewBase* mapView) {
             if (m_currentMapView != NULL)
                 m_currentMapView->Hide();
             m_currentMapView = mapView;

@@ -36,7 +36,7 @@
 #include "View/MapDocument.h"
 #include "View/Menu.h"
 #include "View/SplitterWindow.h"
-#include "View/SwitchableMapView.h"
+#include "View/CyclingMapView.h"
 
 #include <wx/clipbrd.h>
 #include <wx/display.h>
@@ -244,7 +244,7 @@ namespace TrenchBroom {
             vSplitter->SetName("MapFrameVSplitter");
             
             m_console = new Console(vSplitter);
-            m_mapView = new SwitchableMapView(vSplitter, m_console, m_document);
+            m_mapView = new CyclingMapView(vSplitter, m_console, m_document);
             m_inspector = new Inspector(hSplitter, m_mapView->glContext(), m_document);
             
             vSplitter->splitHorizontally(m_mapView, m_console, wxSize(100, 100), wxSize(100, 100));

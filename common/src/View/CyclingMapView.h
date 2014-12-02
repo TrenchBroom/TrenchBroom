@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SwitchableMapView__
-#define __TrenchBroom__SwitchableMapView__
+#ifndef __TrenchBroom__CyclingMapView__
+#define __TrenchBroom__CyclingMapView__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         class MapViewToolBox;
         class MovementRestriction;
         
-        class SwitchableMapView : public wxPanel {
+        class CyclingMapView : public wxPanel {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -56,8 +56,8 @@ namespace TrenchBroom {
             MapViewBase* m_mapViews[4];
             MapViewBase* m_currentMapView;
         public:
-            SwitchableMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document);
-            ~SwitchableMapView();
+            CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document);
+            ~CyclingMapView();
 
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
 
@@ -82,4 +82,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__SwitchableMapView__) */
+#endif /* defined(__TrenchBroom__CyclingMapView__) */
