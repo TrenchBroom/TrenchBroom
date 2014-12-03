@@ -60,10 +60,14 @@ namespace TrenchBroom {
         private: // interaction events
             void bindEvents();
         private: // implement ToolBoxConnector interface
+            PickRequest doGetPickRequest(int x, int y) const;
             Hits doPick(const Ray3& pickRay) const;
+        private: // implement RenderView interface
+            void doUpdateViewport(int x, int y, int width, int height);
         private: // implement MapViewBase interface
-            Renderer::Camera* doGetCamera();
-            const Renderer::Camera* doGetCamera() const;
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
+            Vec3 doGetMoveDirection(Math::Direction direction) const;
+
             void doCenterCameraOnSelection();
             void doMoveCameraToPosition(const Vec3& point);
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
@@ -71,6 +75,7 @@ namespace TrenchBroom {
             ActionContext doGetActionContext() const;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;
             bool doCancel();
+            
             Renderer::RenderContext doCreateRenderContext(GLContextManager& contextManager) const;
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

@@ -114,20 +114,53 @@ namespace TrenchBroom {
             */
         }
 
+        PickRequest MapView2D::doGetPickRequest(const int x, const int y) const {
+            return PickRequest(Ray3(m_camera.pickRay(x, y)), &m_camera);
+        }
+        
         Hits MapView2D::doPick(const Ray3& pickRay) const {
             Hits hits = Model::hitsBySize(pickRay.direction.firstComponent());
             lock(m_document)->pick(pickRay, hits);
             return hits;
         }
         
-        Renderer::Camera* MapView2D::doGetCamera() {
-            return &m_camera;
+        void MapView2D::doUpdateViewport(const int x, const int y, const int width, const int height) {
+            m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
+        }
+
+        Vec3 MapView2D::doGetPasteObjectsDelta(const BBox3& bounds) const {
+            // TODO: implement this
+            return Vec3::Null;
         }
         
-        const Renderer::Camera* MapView2D::doGetCamera() const {
-            return &m_camera;
+        Vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {
+            switch (direction) {
+                case Math::Direction_Forward: {
+                    Vec3 dir = m_camera.direction().firstAxis();
+                    if (dir.z() < 0.0)
+                        dir = m_camera.up().firstAxis();
+                    else if (dir.z() > 0.0)
+                        dir = -m_camera.up().firstAxis();
+                    return dir;
+                }
+                case Math::Direction_Backward:
+                    return -doGetMoveDirection(Math::Direction_Forward);
+                case Math::Direction_Left:
+                    return -doGetMoveDirection(Math::Direction_Right);
+                case Math::Direction_Right: {
+                    Vec3 dir = m_camera.right().firstAxis();
+                    if (dir == doGetMoveDirection(Math::Direction_Forward))
+                        dir = crossed(dir, Vec3::PosZ);
+                    return dir;
+                }
+                case Math::Direction_Up:
+                    return Vec3::PosZ;
+                case Math::Direction_Down:
+                    return Vec3::NegZ;
+                    DEFAULT_SWITCH()
+            }
         }
-        
+
         void MapView2D::doCenterCameraOnSelection() {
             const MapDocumentSPtr document = lock(m_document);
             assert(!document->selectedNodes().empty());

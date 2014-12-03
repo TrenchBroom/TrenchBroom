@@ -148,12 +148,8 @@ namespace TrenchBroom {
             delete m_animationManager;
         }
         
-        Renderer::Camera* MapViewBase::camera() {
-            return doGetCamera();
-        }
-        
-        const Renderer::Camera* MapViewBase::camera() const {
-            return doGetCamera();
+        Vec3 MapViewBase::pasteObjectsDelta(const BBox3& bounds) const {
+            return doGetPasteObjectsDelta(bounds);
         }
         
         void MapViewBase::centerCameraOnSelection() {
@@ -176,7 +172,6 @@ namespace TrenchBroom {
             Grid& grid = document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapViewBase::gridDidChange);
             
-            camera()->cameraDidChangeNotifier.addObserver(this, &MapViewBase::cameraDidChange);
             m_toolBox.toolActivatedNotifier.addObserver(this, &MapViewBase::toolChanged);
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -199,9 +194,6 @@ namespace TrenchBroom {
             
             // toolbox has already been deleted at this point
             // m_toolBox.toolActivatedNotifier.removeObserver(this, &MapViewBase::toolChanged);
-            
-            // camera has already been deleted at this point
-            // camera()->cameraDidChangeNotifier.addObserver(this, &MapViewBase::cameraDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);
@@ -436,31 +428,7 @@ namespace TrenchBroom {
         }
         
         Vec3 MapViewBase::moveDirection(const Math::Direction direction) const {
-            switch (direction) {
-                case Math::Direction_Forward: {
-                    Vec3 dir = camera()->direction().firstAxis();
-                    if (dir.z() < 0.0)
-                        dir = camera()->up().firstAxis();
-                    else if (dir.z() > 0.0)
-                        dir = -camera()->up().firstAxis();
-                    return dir;
-                }
-                case Math::Direction_Backward:
-                    return -moveDirection(Math::Direction_Forward);
-                case Math::Direction_Left:
-                    return -moveDirection(Math::Direction_Right);
-                case Math::Direction_Right: {
-                    Vec3 dir = camera()->right().firstAxis();
-                    if (dir == moveDirection(Math::Direction_Forward))
-                        dir = crossed(dir, Vec3::PosZ);
-                    return dir;
-                }
-                case Math::Direction_Up:
-                    return Vec3::PosZ;
-                case Math::Direction_Down:
-                    return Vec3::NegZ;
-                    DEFAULT_SWITCH()
-            }
+            return doGetMoveDirection(direction);
         }
         
         void MapViewBase::rotateObjects(const Math::RotationAxis axisSpec, const bool clockwise) {
@@ -633,11 +601,6 @@ namespace TrenchBroom {
             }
         }
         
-        void MapViewBase::doUpdateViewport(const int x, const int y, const int width, const int height) {
-            const Renderer::Camera::Viewport viewport(x, y, width, height);
-            camera()->setViewport(viewport);
-        }
-        
         bool MapViewBase::doShouldRenderFocusIndicator() const {
             return true;
         }
@@ -679,11 +642,6 @@ namespace TrenchBroom {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glShadeModel(GL_SMOOTH);
-        }
-        
-        PickRequest MapViewBase::doGetPickRequest(const int x, const int y) const {
-            const Ray3 pickRay(camera()->pickRay(x, y));
-            return PickRequest(pickRay, camera());
         }
         
         void MapViewBase::doShowPopupMenu() {

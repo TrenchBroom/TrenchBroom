@@ -70,13 +70,13 @@ namespace TrenchBroom {
             static const GLAttribs& buildAttribs();
         public:
             virtual ~MapViewBase();
+        public: // paste position
+            Vec3 pasteObjectsDelta(const BBox3& bounds) const;
         public: // camera control
-            Renderer::Camera* camera();
-            const Renderer::Camera* camera() const;
-            
             void centerCameraOnSelection();
             void moveCameraToPosition(const Vec3& point);
         private:
+            const Renderer::Camera& camera() const;
         protected:
             void bindObservers();
         private:
@@ -155,17 +155,16 @@ namespace TrenchBroom {
             void flashSelection();
         private: // implement RenderView
             void doInitializeGL(bool firstInitialization);
-            void doUpdateViewport(int x, int y, int width, int height);
             bool doShouldRenderFocusIndicator() const;
             void doRender();
             Renderer::RenderContext createRenderContext();
             void setupGL(Renderer::RenderContext& renderContext);
         private: // implement ToolBoxConnector
-            PickRequest doGetPickRequest(int x, int y) const;
             void doShowPopupMenu();
-        private: // subclassing intervace
-            virtual Renderer::Camera* doGetCamera() = 0;
-            virtual const Renderer::Camera* doGetCamera() const = 0;
+        private: // subclassing interface
+            virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const = 0;
+            virtual Vec3 doGetMoveDirection(Math::Direction direction) const = 0;
+
             virtual void doCenterCameraOnSelection() = 0;
             virtual void doMoveCameraToPosition(const Vec3& point) = 0;
             

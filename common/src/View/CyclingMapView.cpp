@@ -98,32 +98,7 @@ namespace TrenchBroom {
         }
 
         Vec3 CyclingMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
-            MapDocumentSPtr document = lock(m_document);
-            const Renderer::Camera* camera = m_currentMapView->camera();
-            const Grid& grid = document->grid();
-            
-            const wxMouseState mouseState = wxGetMouseState();
-            const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
-            
-            if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
-                const Ray3f pickRay = camera->pickRay(clientCoords.x, clientCoords.y);
-                Hits hits = hitsByDistance();
-                document->pick(Ray3(pickRay), hits);
-                const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), true);
-                if (hit.isMatch()) {
-                    const Model::BrushFace* face = Model::hitToFace(hit);
-                    const Vec3 snappedHitPoint = grid.snap(hit.hitPoint());
-                    return grid.moveDeltaForBounds(face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
-                } else {
-                    const Vec3 snappedCenter = grid.snap(bounds.center());
-                    const Vec3 snappedDefaultPoint = grid.snap(camera->defaultPoint(pickRay));
-                    return snappedDefaultPoint - snappedCenter;
-                }
-            } else {
-                const Vec3 snappedCenter = grid.snap(bounds.center());
-                const Vec3 snappedDefaultPoint = grid.snap(camera->defaultPoint());
-                return snappedDefaultPoint - snappedCenter;
-            }
+            return m_currentMapView->pasteObjectsDelta(bounds);
         }
         
         void CyclingMapView::doCenterCameraOnSelection() {

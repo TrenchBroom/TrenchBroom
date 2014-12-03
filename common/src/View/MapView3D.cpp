@@ -22,6 +22,8 @@
 #include "Model/Brush.h"
 #include "Model/BrushVertex.h"
 #include "Model/Entity.h"
+#include "Model/HitAdapter.h"
+#include "Model/ModelHitFilters.h"
 #include "Model/PointFile.h"
 #include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
@@ -239,20 +241,76 @@ namespace TrenchBroom {
             event.Skip();
         }
 
+        PickRequest MapView3D::doGetPickRequest(const int x, const int y) const {
+            return PickRequest(Ray3(m_camera.pickRay(x, y)), &m_camera);
+        }
+
         Hits MapView3D::doPick(const Ray3& pickRay) const {
             Hits hits = hitsByDistance();
             lock(m_document)->pick(pickRay, hits);
             return hits;
         }
 
-        Renderer::Camera* MapView3D::doGetCamera() {
-            return &m_camera;
+        void MapView3D::doUpdateViewport(const int x, const int y, const int width, const int height) {
+            m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height));
+        }
+
+        Vec3 MapView3D::doGetPasteObjectsDelta(const BBox3& bounds) const {
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            
+            const wxMouseState mouseState = wxGetMouseState();
+            const wxPoint clientCoords = ScreenToClient(mouseState.GetPosition());
+            
+            if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
+                const Ray3f pickRay = m_camera.pickRay(clientCoords.x, clientCoords.y);
+                Hits hits = hitsByDistance();
+                document->pick(Ray3(pickRay), hits);
+                const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), true);
+                if (hit.isMatch()) {
+                    const Model::BrushFace* face = Model::hitToFace(hit);
+                    const Vec3 snappedHitPoint = grid.snap(hit.hitPoint());
+                    return grid.moveDeltaForBounds(face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
+                } else {
+                    const Vec3 snappedCenter = grid.snap(bounds.center());
+                    const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint(pickRay));
+                    return snappedDefaultPoint - snappedCenter;
+                }
+            } else {
+                const Vec3 snappedCenter = grid.snap(bounds.center());
+                const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint());
+                return snappedDefaultPoint - snappedCenter;
+            }
         }
         
-        const Renderer::Camera* MapView3D::doGetCamera() const {
-            return &m_camera;
+        Vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
+            switch (direction) {
+                case Math::Direction_Forward: {
+                    Vec3 dir = m_camera.direction().firstAxis();
+                    if (dir.z() < 0.0)
+                        dir = m_camera.up().firstAxis();
+                    else if (dir.z() > 0.0)
+                        dir = -m_camera.up().firstAxis();
+                    return dir;
+                }
+                case Math::Direction_Backward:
+                    return -doGetMoveDirection(Math::Direction_Forward);
+                case Math::Direction_Left:
+                    return -doGetMoveDirection(Math::Direction_Right);
+                case Math::Direction_Right: {
+                    Vec3 dir = m_camera.right().firstAxis();
+                    if (dir == doGetMoveDirection(Math::Direction_Forward))
+                        dir = crossed(dir, Vec3::PosZ);
+                    return dir;
+                }
+                case Math::Direction_Up:
+                    return Vec3::PosZ;
+                case Math::Direction_Down:
+                    return Vec3::NegZ;
+                    DEFAULT_SWITCH()
+            }
         }
-        
+
         void MapView3D::doCenterCameraOnSelection() {
             MapDocumentSPtr document = lock(m_document);
             const Model::EntityList& entities = document->selectedNodes().entities();
@@ -264,7 +322,7 @@ namespace TrenchBroom {
         }
 
         void MapView3D::doMoveCameraToPosition(const Vec3& position) {
-            animateCamera(position, camera()->direction(), camera()->up());
+            animateCamera(position, m_camera.direction(), m_camera.up());
         }
 
         Vec3f MapView3D::centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes) {
@@ -281,8 +339,8 @@ namespace TrenchBroom {
                     const Vec3::List vertices = bBoxVertices(entity->bounds());
                     for (size_t i = 0; i < vertices.size(); ++i) {
                         const Vec3f vertex(vertices[i]);
-                        const Vec3f toPosition = vertex - camera()->position();
-                        minDist = std::min(minDist, toPosition.dot(camera()->direction()));
+                        const Vec3f toPosition = vertex - m_camera.position();
+                        minDist = std::min(minDist, toPosition.dot(m_camera.direction()));
                         center += vertices[i];
                         ++count;
                     }
@@ -294,8 +352,8 @@ namespace TrenchBroom {
                 const Model::BrushVertexList& vertices = brush->vertices();
                 for (size_t i = 0; i < vertices.size(); ++i) {
                     const Model::BrushVertex* vertex = vertices[i];
-                    const Vec3f toPosition = Vec3f(vertex->position) - camera()->position();
-                    minDist = std::min(minDist, toPosition.dot(camera()->direction()));
+                    const Vec3f toPosition = Vec3f(vertex->position) - m_camera.position();
+                    minDist = std::min(minDist, toPosition.dot(m_camera.direction()));
                     center += vertex->position;
                     ++count;
                 }
@@ -304,13 +362,13 @@ namespace TrenchBroom {
             center /= static_cast<FloatType>(count);
             
             // act as if the camera were there already:
-            const Vec3f oldPosition = camera()->position();
-            camera()->moveTo(Vec3f(center));
+            const Vec3f oldPosition = m_camera.position();
+            m_camera.moveTo(Vec3f(center));
             
             float offset = std::numeric_limits<float>::max();
             
             Plane3f frustumPlanes[4];
-            camera()->frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
+            m_camera.frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
             
             for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
                 const Model::Entity* entity = *entityIt;
@@ -321,8 +379,8 @@ namespace TrenchBroom {
                         
                         for (size_t j = 0; j < 4; ++j) {
                             const Plane3f& plane = frustumPlanes[j];
-                            const float dist = (vertex - camera()->position()).dot(plane.normal) - 8.0f; // adds a bit of a border
-                            offset = std::min(offset, -dist / camera()->direction().dot(plane.normal));
+                            const float dist = (vertex - m_camera.position()).dot(plane.normal) - 8.0f; // adds a bit of a border
+                            offset = std::min(offset, -dist / m_camera.direction().dot(plane.normal));
                         }
                     }
                 }
@@ -336,16 +394,15 @@ namespace TrenchBroom {
                     
                     for (size_t j = 0; j < 4; ++j) {
                         const Plane3f& plane = frustumPlanes[j];
-                        const float dist = (Vec3f(vertex->position) - camera()->position()).dot(plane.normal) - 8.0f; // adds a bit of a border
-                        offset = std::min(offset, -dist / camera()->direction().dot(plane.normal));
+                        const float dist = (Vec3f(vertex->position) - m_camera.position()).dot(plane.normal) - 8.0f; // adds a bit of a border
+                        offset = std::min(offset, -dist / m_camera.direction().dot(plane.normal));
                     }
                 }
             }
             
             // jump back
-            camera()->moveTo(oldPosition);
-            
-            return center + camera()->direction() * offset;
+            m_camera.moveTo(oldPosition);
+            return center + m_camera.direction() * offset;
         }
         
         void MapView3D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
