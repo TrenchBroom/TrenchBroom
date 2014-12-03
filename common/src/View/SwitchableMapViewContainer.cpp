@@ -24,6 +24,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/Vbo.h"
 #include "View/CyclingMapView.h"
+#include "View/ThreePaneMapView.h"
 #include "View/GLContextManager.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
@@ -67,9 +68,11 @@ namespace TrenchBroom {
 
             switch (viewId) {
                 case MapView_Cycling:
+                    m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
+                    break;
                 case MapView_3Pane:
                 case MapView_4Pane:
-                    m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
+                    m_mapView = new ThreePaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
                     break;
             }
             

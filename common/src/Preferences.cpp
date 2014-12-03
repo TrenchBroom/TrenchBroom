@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Preferences {
-        Preference<View::MapViewId> MapViewId(IO::Path("Views/Map view ID"), View::MapView_Cycling);
+        Preference<View::MapViewId> MapViewId(IO::Path("Views/Map view ID"), View::MapView_3Pane);
         
         Preference<Color> BackgroundColor(IO::Path("Renderer/Colors/Background"), Color(255, 255, 255));
         Preference<float> AxisLength(IO::Path("Renderer/Axis length"), 128.0f);
