@@ -44,7 +44,7 @@ namespace TrenchBroom {
         m_oldSize(GetSize()) {
             for (size_t i = 0; i < NumWindows; ++i) {
                 m_windows[i] = NULL;
-                m_minSizes[i] = wxSize(0, 0);
+                m_minSizes[i] = wxDefaultSize;
             }
             
             Bind(wxEVT_MOUSE_CAPTURE_LOST, &SplitterWindow2::OnMouseCaptureLost, this);
