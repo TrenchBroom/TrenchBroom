@@ -17,18 +17,18 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PersistentSplitterWindow__
-#define __TrenchBroom__PersistentSplitterWindow__
+#ifndef __TrenchBroom__PersistentSplitterWindow2__
+#define __TrenchBroom__PersistentSplitterWindow2__
 
 #include <wx/persist/toplevel.h>
 
 namespace TrenchBroom {
     namespace View {
-        class SplitterWindow;
+        class SplitterWindow2;
         
-        class PersistentSplitterWindow : public wxPersistentWindow<SplitterWindow> {
+        class PersistentSplitterWindow2 : public wxPersistentWindow<SplitterWindow2> {
         public:
-            PersistentSplitterWindow(SplitterWindow* obj);
+            PersistentSplitterWindow2(SplitterWindow2* obj);
             
             wxString GetKind() const;
             void Save() const;
@@ -37,4 +37,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__PersistentSplitterWindow__) */
+#endif /* defined(__TrenchBroom__PersistentSplitterWindow2__) */

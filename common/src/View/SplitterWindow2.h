@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SplitterWindow__
-#define __TrenchBroom__SplitterWindow__
+#ifndef __TrenchBroom__SplitterWindow2__
+#define __TrenchBroom__SplitterWindow2__
 
 #include "Macros.h"
 
@@ -28,9 +28,9 @@ class wxPersistentObject;
 
 namespace TrenchBroom {
     namespace View {
-        class PersistentSplitterWindow;
+        class PersistentSplitterWindow2;
         
-        class SplitterWindow : public wxPanel {
+        class SplitterWindow2 : public wxPanel {
         private:
             static const size_t NumWindows = 2;
             static const int HalfMinSashSize = 2;
@@ -54,9 +54,9 @@ namespace TrenchBroom {
             
             wxSize m_oldSize;
             
-            friend class PersistentSplitterWindow;
+            friend class PersistentSplitterWindow2;
         public:
-            SplitterWindow(wxWindow* parent);
+            SplitterWindow2(wxWindow* parent);
             
             void splitHorizontally(wxWindow* left, wxWindow* right, const wxSize& leftMin = wxDefaultSize, const wxSize& rightMin = wxDefaultSize);
             void splitVertically(wxWindow* top, wxWindow* bottom, const wxSize& topMin = wxDefaultSize, const wxSize& bottomMin = wxDefaultSize);
@@ -151,6 +151,6 @@ namespace TrenchBroom {
     }
 }
 
-wxPersistentObject* wxCreatePersistentObject(TrenchBroom::View::SplitterWindow* window);
+wxPersistentObject* wxCreatePersistentObject(TrenchBroom::View::SplitterWindow2* window);
 
-#endif /* defined(__TrenchBroom__SplitterWindow__) */
+#endif /* defined(__TrenchBroom__SplitterWindow2__) */

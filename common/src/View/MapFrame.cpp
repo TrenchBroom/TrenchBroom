@@ -36,7 +36,7 @@
 #include "View/Inspector.h"
 #include "View/MapDocument.h"
 #include "View/Menu.h"
-#include "View/SplitterWindow.h"
+#include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
 
 #include <wx/clipbrd.h>
@@ -243,11 +243,11 @@ namespace TrenchBroom {
         }
         
         void MapFrame::createGui() {
-            SplitterWindow* hSplitter = new SplitterWindow(this);
+            SplitterWindow2* hSplitter = new SplitterWindow2(this);
             hSplitter->setSashGravity(1.0f);
             hSplitter->SetName("MapFrameHSplitter");
             
-            SplitterWindow* vSplitter = new SplitterWindow(hSplitter);
+            SplitterWindow2* vSplitter = new SplitterWindow2(hSplitter);
             vSplitter->setSashGravity(1.0f);
             vSplitter->SetName("MapFrameVSplitter");
             

@@ -17,30 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PersistentSplitterWindow.h"
+#include "PersistentSplitterWindow2.h"
 
-#include "View/SplitterWindow.h"
+#include "View/SplitterWindow2.h"
 
 namespace TrenchBroom {
     namespace View {
-        PersistentSplitterWindow::PersistentSplitterWindow(SplitterWindow* obj) :
+        PersistentSplitterWindow2::PersistentSplitterWindow2(SplitterWindow2* obj) :
         wxPersistentWindow(obj) {}
         
-        wxString PersistentSplitterWindow::GetKind() const {
-            return "SplitterWindow";
+        wxString PersistentSplitterWindow2::GetKind() const {
+            return "SplitterWindow2";
         }
         
-        void PersistentSplitterWindow::Save() const {
-            const SplitterWindow* window = Get();
+        void PersistentSplitterWindow2::Save() const {
+            const SplitterWindow2* window = Get();
             SaveValue("SashPosition", window->m_sashPosition);
         }
         
-        bool PersistentSplitterWindow::Restore() {
+        bool PersistentSplitterWindow2::Restore() {
             int sashPosition = 0;
             if (!RestoreValue("SashPosition", &sashPosition))
                 return false;
             
-            SplitterWindow* window = Get();
+            SplitterWindow2* window = Get();
             window->m_initialSashPosition = sashPosition;
             return true;
         }

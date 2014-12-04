@@ -30,7 +30,7 @@
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
-#include "View/SplitterWindow.h"
+#include "View/SplitterWindow2.h"
 
 #include <wx/sizer.h>
 
@@ -49,11 +49,11 @@ namespace TrenchBroom {
         
         void ThreePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) {
 
-            SplitterWindow* hSplitter = new SplitterWindow(this);
+            SplitterWindow2* hSplitter = new SplitterWindow2(this);
             hSplitter->setSashGravity(0.5f);
             hSplitter->SetName("3PaneMapViewHSplitter");
             
-            SplitterWindow* vSplitter = new SplitterWindow(hSplitter);
+            SplitterWindow2* vSplitter = new SplitterWindow2(hSplitter);
             vSplitter->setSashGravity(0.5f);
             vSplitter->SetName("3PaneMapViewVSplitter");
 
