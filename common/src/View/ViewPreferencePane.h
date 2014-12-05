@@ -31,6 +31,7 @@ namespace TrenchBroom {
     namespace View {
         class ViewPreferencePane : public PreferencePane {
         private:
+            wxChoice* m_layoutChoice;
             wxSlider* m_brightnessSlider;
             wxSlider* m_gridAlphaSlider;
             wxColourPickerCtrl* m_backgroundColorPicker;
@@ -39,6 +40,7 @@ namespace TrenchBroom {
         public:
             ViewPreferencePane(wxWindow* parent);
 
+            void OnLayoutChanged(wxCommandEvent& event);
             void OnBrightnessChanged(wxScrollEvent& event);
             void OnGridAlphaChanged(wxScrollEvent& event);
             void OnBackgroundColorChanged(wxColourPickerEvent& event);

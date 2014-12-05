@@ -57,12 +57,22 @@ namespace TrenchBroom {
             TextureMode(GL_LINEAR_MIPMAP_LINEAR,    GL_LINEAR,  "Linear (mipmapped, interpolated")
         };
         
+        static const size_t NumFrameLayouts = 4;
+        
         ViewPreferencePane::ViewPreferencePane(wxWindow* parent) :
         PreferencePane(parent) {
             createGui();
             bindEvents();
         }
 
+
+        void ViewPreferencePane::OnLayoutChanged(wxCommandEvent& event) {
+            const int selection = m_layoutChoice->GetSelection();
+            assert(selection >= 0 && selection < static_cast<int>(NumFrameLayouts));
+            
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.set(Preferences::MapViewId, static_cast<MapViewId>(selection));
+        }
 
         void ViewPreferencePane::OnBrightnessChanged(wxScrollEvent& event) {
             const int value = m_brightnessSlider->GetValue();
@@ -148,6 +158,18 @@ namespace TrenchBroom {
             wxPanel* viewBox = new wxPanel(this);
             viewBox->SetBackgroundColour(*wxWHITE);
             
+            wxStaticText* layoutPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Map View Layout");
+            layoutPrefsHeader->SetFont(layoutPrefsHeader->GetFont().Bold());
+
+            wxString layoutNames[NumFrameLayouts];
+            layoutNames[0] = "One Pane";
+            layoutNames[1] = "Two Panes";
+            layoutNames[2] = "Three Panes";
+            layoutNames[3] = "Four Panes";
+            
+            wxStaticText* layoutLabel = new wxStaticText(viewBox, wxID_ANY, "Layout");
+            m_layoutChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumFrameLayouts, layoutNames);
+            
             wxStaticText* _3dViewPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "3D View");
             _3dViewPrefsHeader->SetFont(_3dViewPrefsHeader->GetFont().Bold());
             wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, "Brightness");
@@ -184,6 +206,16 @@ namespace TrenchBroom {
             int r = 0;
             
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
+            sizer->Add(layoutPrefsHeader,                   wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            ++r;
+            
+            sizer->Add(layoutLabel,                         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
+            sizer->Add(m_layoutChoice,                      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
+            ++r;
+            
+            sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
+            ++r;
+            
             sizer->Add(_3dViewPrefsHeader,                  wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
             
@@ -225,6 +257,8 @@ namespace TrenchBroom {
         }
         
         void ViewPreferencePane::bindEvents() {
+            m_layoutChoice->Bind(wxEVT_CHOICE, &ViewPreferencePane::OnLayoutChanged, this);
+            
             bindSliderEvents(m_brightnessSlider, &ViewPreferencePane::OnBrightnessChanged, this);
             bindSliderEvents(m_gridAlphaSlider, &ViewPreferencePane::OnGridAlphaChanged, this);
             m_backgroundColorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &ViewPreferencePane::OnBackgroundColorChanged, this);
@@ -248,6 +282,8 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::doUpdateControls() {
+            m_layoutChoice->SetSelection(pref(Preferences::MapViewId));
+            
             m_brightnessSlider->SetValue(static_cast<int>(pref(Preferences::Brightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(pref(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));
             m_backgroundColorPicker->SetColour(toWxColor(pref(Preferences::BackgroundColor)));
