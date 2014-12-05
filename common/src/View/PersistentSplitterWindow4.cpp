@@ -17,30 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PersistentSplitterWindow2.h"
+#include "PersistentSplitterWindow4.h"
 
-#include "View/SplitterWindow2.h"
+#include "View/SplitterWindow4.h"
 
 namespace TrenchBroom {
     namespace View {
-        PersistentSplitterWindow2::PersistentSplitterWindow2(SplitterWindow2* obj) :
+        PersistentSplitterWindow4::PersistentSplitterWindow4(SplitterWindow4* obj) :
         wxPersistentWindow(obj) {}
         
-        wxString PersistentSplitterWindow2::GetKind() const {
-            return "SplitterWindow2";
+        wxString PersistentSplitterWindow4::GetKind() const {
+            return "SplitterWindow4";
         }
         
-        void PersistentSplitterWindow2::Save() const {
-            const SplitterWindow2* window = Get();
-            SaveValue("SashPosition", window->m_sashPosition);
+        void PersistentSplitterWindow4::Save() const {
+            const SplitterWindow4* window = Get();
+            SaveValue("SashPositionX", window->m_sashPosition.x);
+            SaveValue("SashPositionY", window->m_sashPosition.y);
         }
         
-        bool PersistentSplitterWindow2::Restore() {
-            int sashPosition = -1;
-            if (!RestoreValue("SashPosition", &sashPosition))
+        bool PersistentSplitterWindow4::Restore() {
+            wxPoint sashPosition(-1, -1);
+            if (!RestoreValue("SashPositionX", &sashPosition.x))
+                return false;
+            if (!RestoreValue("SashPositionY", &sashPosition.y))
                 return false;
             
-            SplitterWindow2* window = Get();
+            SplitterWindow4* window = Get();
             window->m_initialSashPosition = sashPosition;
             return true;
         }

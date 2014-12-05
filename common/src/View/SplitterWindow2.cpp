@@ -220,7 +220,7 @@ namespace TrenchBroom {
             
             if (m_splitMode != SplitMode_Unset) {
                 const int origH = h(GetClientAreaOrigin());
-                const int origV = h(wxWindowBase::GetClientAreaOrigin());
+                const int origV = h(GetClientAreaOrigin());
                 const int sizeH = h(GetClientSize());
                 const int sizeV = v(GetClientSize());
                 

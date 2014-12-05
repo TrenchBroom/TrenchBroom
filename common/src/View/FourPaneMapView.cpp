@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ThreePaneMapView.h"
+#include "FourPaneMapView.h"
 
 #include "Hit.h"
 #include "Model/Brush.h"
@@ -30,85 +30,82 @@
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
-#include "View/SplitterWindow2.h"
+#include "View/SplitterWindow4.h"
 
 #include <wx/persist.h>
 #include <wx/sizer.h>
 
 namespace TrenchBroom {
     namespace View {
-        ThreePaneMapView::ThreePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) :
+        FourPaneMapView::FourPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) :
         MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
         m_mapView3D(NULL),
         m_mapViewXY(NULL),
-        m_mapViewXZ(NULL) {
+        m_mapViewXZ(NULL),
+        m_mapViewYZ(NULL) {
             createGui(toolBox, mapRenderer, vbo, contextManager);
             bindEvents();
         }
         
-        void ThreePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) {
-
-            SplitterWindow2* hSplitter = new SplitterWindow2(this);
-            hSplitter->setSashGravity(0.5f);
-            hSplitter->SetName("3PaneMapViewHSplitter");
+        void FourPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) {
             
-            SplitterWindow2* vSplitter = new SplitterWindow2(hSplitter);
-            vSplitter->setSashGravity(0.5f);
-            vSplitter->SetName("3PaneMapViewVSplitter");
-
-            m_mapView3D = new MapView3D(hSplitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager);
-            m_mapViewXY = new MapView2D(vSplitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViewXZ = new MapView2D(vSplitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XZ);
+            SplitterWindow4* splitter = new SplitterWindow4(this);
+            splitter->SetName("4PaneMapViewSplitter");
             
-            vSplitter->splitHorizontally(m_mapViewXY, m_mapViewXZ, wxSize(100, 100), wxSize(100, 100));
-            hSplitter->splitVertically(m_mapView3D, vSplitter, wxSize(100, 100), wxSize(100, 100));
+            m_mapView3D = new MapView3D(splitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager);
+            m_mapViewXY = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XY);
+            m_mapViewXZ = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XZ);
+            m_mapViewYZ = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_YZ);
+            
+            splitter->split(m_mapView3D, m_mapViewXY, m_mapViewXZ, m_mapViewYZ);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(hSplitter, 1, wxEXPAND);
+            sizer->Add(splitter, 1, wxEXPAND);
             
             SetSizer(sizer);
 
-            wxPersistenceManager::Get().RegisterAndRestore(hSplitter);
-            wxPersistenceManager::Get().RegisterAndRestore(vSplitter);
+            wxPersistenceManager::Get().RegisterAndRestore(splitter);
         }
         
-        void ThreePaneMapView::bindEvents() {
-            Bind(wxEVT_IDLE, &ThreePaneMapView::OnIdleSetFocus, this);
+        void FourPaneMapView::bindEvents() {
+            Bind(wxEVT_IDLE, &FourPaneMapView::OnIdleSetFocus, this);
         }
         
-        void ThreePaneMapView::OnIdleSetFocus(wxIdleEvent& event) {
+        void FourPaneMapView::OnIdleSetFocus(wxIdleEvent& event) {
             // we use this method to ensure that the 3D view gets the focus after startup has settled down
             if (!m_mapView3D->HasFocus()) {
                 m_mapView3D->SetFocus();
             } else {
-                Unbind(wxEVT_IDLE, &ThreePaneMapView::OnIdleSetFocus, this);
+                Unbind(wxEVT_IDLE, &FourPaneMapView::OnIdleSetFocus, this);
                 m_mapView3D->Refresh();
             }
         }
         
-        MapViewBase* ThreePaneMapView::currentMapView() const {
+        MapViewBase* FourPaneMapView::currentMapView() const {
             if (m_mapViewXY->HasFocus())
                 return m_mapViewXY;
             if (m_mapViewXZ->HasFocus())
                 return m_mapViewXZ;
+            if (m_mapViewYZ->HasFocus())
+                return m_mapViewYZ;
             return m_mapView3D;
         }
-
-        Vec3 ThreePaneMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
+        
+        Vec3 FourPaneMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
             return currentMapView()->pasteObjectsDelta(bounds);
         }
         
-        void ThreePaneMapView::doCenterCameraOnSelection() {
+        void FourPaneMapView::doCenterCameraOnSelection() {
             currentMapView()->centerCameraOnSelection();
         }
         
-        void ThreePaneMapView::doMoveCameraToPosition(const Vec3& position) {
+        void FourPaneMapView::doMoveCameraToPosition(const Vec3& position) {
             currentMapView()->moveCameraToPosition(position);
         }
         
-        bool ThreePaneMapView::doCanMoveCameraToNextTracePoint() const {
+        bool FourPaneMapView::doCanMoveCameraToNextTracePoint() const {
             MapDocumentSPtr document = lock(m_document);
             if (!document->isPointFileLoaded())
                 return false;
@@ -117,7 +114,7 @@ namespace TrenchBroom {
             return pointFile->hasNextPoint();
         }
         
-        bool ThreePaneMapView::doCanMoveCameraToPreviousTracePoint() const {
+        bool FourPaneMapView::doCanMoveCameraToPreviousTracePoint() const {
             MapDocumentSPtr document = lock(m_document);
             if (!document->isPointFileLoaded())
                 return false;
@@ -126,11 +123,11 @@ namespace TrenchBroom {
             return pointFile->hasPreviousPoint();
         }
         
-        void ThreePaneMapView::doMoveCameraToNextTracePoint() {
+        void FourPaneMapView::doMoveCameraToNextTracePoint() {
             m_mapView3D->moveCameraToNextTracePoint();
         }
         
-        void ThreePaneMapView::doMoveCameraToPreviousTracePoint() {
+        void FourPaneMapView::doMoveCameraToPreviousTracePoint() {
             m_mapView3D->moveCameraToPreviousTracePoint();
         }
     }

@@ -43,6 +43,7 @@
 #include <wx/display.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
+#include <wx/persist.h>
 #include <wx/sizer.h>
 #include <wx/timer.h>
 
@@ -262,6 +263,9 @@ namespace TrenchBroom {
             frameSizer->Add(hSplitter, 1, wxEXPAND);
             
             SetSizer(frameSizer);
+
+            wxPersistenceManager::Get().RegisterAndRestore(hSplitter);
+            wxPersistenceManager::Get().RegisterAndRestore(vSplitter);
         }
 
         void MapFrame::bindObservers() {

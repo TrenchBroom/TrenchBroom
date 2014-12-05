@@ -50,10 +50,9 @@ namespace TrenchBroom {
             wxWindow* m_windows[NumWindows];
             wxSize m_minSizes[NumWindows];
             
-            int m_initialSashPosition[2];
-            int m_sashPosition[2];
-            
-            bool m_sashCursorSet;
+            wxPoint m_initialSashPosition;
+            wxPoint m_sashPosition;
+            bool m_dragging[2];
             
             wxSize m_oldSize;
             
@@ -62,35 +61,51 @@ namespace TrenchBroom {
             SplitterWindow4(wxWindow* parent);
             
             void split(wxWindow* topLeft, wxWindow* topRight, wxWindow* bottomRight, wxWindow* bottomLeft,
-                       const wxSize& topLeftMin     = wxDefaultSize,
-                       const wxSize& topRightMin    = wxDefaultSize,
-                       const wxSize& bottomRightMin = wxDefaultSize,
-                       const wxSize& bottomLeftMin  = wxDefaultSize);
+                       const wxSize& topLeftMin     = wxSize(0,0),
+                       const wxSize& topRightMin    = wxSize(0,0),
+                       const wxSize& bottomRightMin = wxSize(0,0),
+                       const wxSize& bottomLeftMin  = wxSize(0,0));
 
             void setMinSize(wxWindow* window, const wxSize& minSize);
         private:
+            int leftColMinSize() const;
+            int rightColMinSize() const;
+            int topRowMinSize() const;
+            int bottomRowMinSize() const;
+            
+            bool hasWindows() const;
             bool containsWindow(wxWindow* window) const;
         private:
+            void bindMouseEvents(wxWindow* window);
+            
             void OnMouseEnter(wxMouseEvent& event);
             void OnMouseLeave(wxMouseEvent& event);
             void OnMouseButton(wxMouseEvent& event);
             void OnMouseMotion(wxMouseEvent& event);
             void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-        private:
-            bool dragging() const;
-            void setSashCursor();
-            wxCursor sizeCursor() const;
-            bool isOnHSash(const wxPoint& point) const;
-            bool isOnVSash(const wxPoint& point) const;
-        public:
+            
+            void OnPaint(wxPaintEvent& event);
             void OnIdle(wxIdleEvent& event);
             void OnSize(wxSizeEvent& event);
         private:
+            void updateSashCursor();
+            bool sashHitTest(const wxPoint& point, Dim dim) const;
+
             void updateSashPosition(const wxSize& oldSize, const wxSize& newSize);
-            void initSashPosition();
-            bool setSashPosition(int position);
+            bool initSashPosition();
+            bool setSashPosition(wxPoint sashPosition);
             void sizeWindows();
             int sashSize() const;
+            
+            template <typename T>
+            int get(const T& t, const Dim dim) const {
+                switch (dim) {
+                    case Dim_X:
+                        return t.x;
+                    case Dim_Y:
+                        return t.y;
+                }
+            }
         };
     }
 }
