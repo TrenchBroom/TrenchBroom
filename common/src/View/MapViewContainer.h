@@ -20,37 +20,16 @@
 #ifndef __TrenchBroom__MapViewContainer__
 #define __TrenchBroom__MapViewContainer__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
+#include "View/MapView.h"
 
 #include <wx/panel.h>
 
 namespace TrenchBroom {
     namespace View {
-        class MapViewContainer : public wxPanel {
+        class MapViewContainer : public wxPanel, public MapView {
         public:
             MapViewContainer(wxWindow* parent);
             virtual ~MapViewContainer();
-
-            Vec3 pasteObjectsDelta(const BBox3& bounds) const;
-            
-            void centerCameraOnSelection();
-            void moveCameraToPosition(const Vec3& position);
-            
-            bool canMoveCameraToNextTracePoint() const;
-            bool canMoveCameraToPreviousTracePoint() const;
-            void moveCameraToNextTracePoint();
-            void moveCameraToPreviousTracePoint();
-        private:
-            virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const = 0;
-
-            virtual void doCenterCameraOnSelection() = 0;
-            virtual void doMoveCameraToPosition(const Vec3& position) = 0;
-            
-            virtual bool doCanMoveCameraToNextTracePoint() const = 0;
-            virtual bool doCanMoveCameraToPreviousTracePoint() const = 0;
-            virtual void doMoveCameraToNextTracePoint() = 0;
-            virtual void doMoveCameraToPreviousTracePoint() = 0;
         };
     }
 }

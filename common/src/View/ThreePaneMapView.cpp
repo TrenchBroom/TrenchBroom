@@ -26,6 +26,7 @@
 #include "Model/PointFile.h"
 #include "Renderer/Camera.h"
 #include "View/CommandIds.h"
+#include "View/CyclingMapView.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
@@ -43,7 +44,7 @@ namespace TrenchBroom {
         m_document(document),
         m_mapView3D(NULL),
         m_mapViewXY(NULL),
-        m_mapViewXZ(NULL) {
+        m_mapViewZZ(NULL) {
             createGui(toolBox, mapRenderer, vbo, contextManager);
             bindEvents();
         }
@@ -60,9 +61,9 @@ namespace TrenchBroom {
 
             m_mapView3D = new MapView3D(hSplitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager);
             m_mapViewXY = new MapView2D(vSplitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViewXZ = new MapView2D(vSplitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XZ);
+            m_mapViewZZ = new CyclingMapView(vSplitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, CyclingMapView::View_ZZ);
             
-            vSplitter->splitHorizontally(m_mapViewXY, m_mapViewXZ, wxSize(100, 100), wxSize(100, 100));
+            vSplitter->splitHorizontally(m_mapViewXY, m_mapViewZZ, wxSize(100, 100), wxSize(100, 100));
             hSplitter->splitVertically(m_mapView3D, vSplitter, wxSize(100, 100), wxSize(100, 100));
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -88,11 +89,11 @@ namespace TrenchBroom {
             }
         }
         
-        MapViewBase* ThreePaneMapView::currentMapView() const {
+        MapView* ThreePaneMapView::currentMapView() const {
             if (m_mapViewXY->HasFocus())
                 return m_mapViewXY;
-            if (m_mapViewXZ->HasFocus())
-                return m_mapViewXZ;
+            if (m_mapViewZZ->HasFocus())
+                return m_mapViewZZ;
             return m_mapView3D;
         }
 
@@ -108,30 +109,10 @@ namespace TrenchBroom {
             currentMapView()->moveCameraToPosition(position);
         }
         
-        bool ThreePaneMapView::doCanMoveCameraToNextTracePoint() const {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->isPointFileLoaded())
-                return false;
-            
-            Model::PointFile* pointFile = document->pointFile();
-            return pointFile->hasNextPoint();
-        }
-        
-        bool ThreePaneMapView::doCanMoveCameraToPreviousTracePoint() const {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->isPointFileLoaded())
-                return false;
-            
-            Model::PointFile* pointFile = document->pointFile();
-            return pointFile->hasPreviousPoint();
-        }
-        
-        void ThreePaneMapView::doMoveCameraToNextTracePoint() {
-            m_mapView3D->moveCameraToNextTracePoint();
-        }
-        
-        void ThreePaneMapView::doMoveCameraToPreviousTracePoint() {
-            m_mapView3D->moveCameraToPreviousTracePoint();
+        void ThreePaneMapView::doMoveCameraToCurrentTracePoint() {
+            m_mapView3D->moveCameraToCurrentTracePoint();
+            m_mapViewXY->moveCameraToCurrentTracePoint();
+            m_mapViewZZ->moveCameraToCurrentTracePoint();
         }
     }
 }

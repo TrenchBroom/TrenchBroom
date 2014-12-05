@@ -20,6 +20,7 @@
 #include "MapView2D.h"
 #include "Logger.h"
 #include "Model/CompareHitsBySize.h"
+#include "Model/PointFile.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "View/ActionManager.h"
@@ -133,6 +134,35 @@ namespace TrenchBroom {
             return Vec3::Null;
         }
         
+        void MapView2D::doCenterCameraOnSelection() {
+            const MapDocumentSPtr document = lock(m_document);
+            assert(!document->selectedNodes().empty());
+            
+            const BBox3& bounds = document->selectionBounds();
+            moveCameraToPosition(bounds.center());
+        }
+        
+        void MapView2D::doMoveCameraToPosition(const Vec3& position) {
+            animateCamera(Vec3f(position), m_camera.direction(), m_camera.up());
+        }
+        
+        void MapView2D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
+            const Vec3f actualPosition = position.dot(m_camera.up()) * m_camera.up() + position.dot(m_camera.right()) * m_camera.right() + m_camera.position().dot(m_camera.direction()) * m_camera.direction();
+            CameraAnimation* animation = new CameraAnimation(m_camera, actualPosition, m_camera.direction(), m_camera.up(), duration);
+            m_animationManager->runAnimation(animation, true);
+        }
+        
+        void MapView2D::doMoveCameraToCurrentTracePoint() {
+            MapDocumentSPtr document = lock(m_document);
+            
+            assert(document->isPointFileLoaded());
+            Model::PointFile* pointFile = document->pointFile();
+            assert(pointFile->hasNextPoint());
+            
+            const Vec3f position = pointFile->currentPoint();
+            moveCameraToPosition(position);
+        }
+
         Vec3 MapView2D::doGetMoveDirection(const Math::Direction direction) const {
             switch (direction) {
                 case Math::Direction_Forward: {
@@ -159,24 +189,6 @@ namespace TrenchBroom {
                     return Vec3::NegZ;
                     DEFAULT_SWITCH()
             }
-        }
-
-        void MapView2D::doCenterCameraOnSelection() {
-            const MapDocumentSPtr document = lock(m_document);
-            assert(!document->selectedNodes().empty());
-
-            const BBox3& bounds = document->selectionBounds();
-            moveCameraToPosition(bounds.center());
-        }
-
-        void MapView2D::doMoveCameraToPosition(const Vec3& point) {
-            animateCamera(Vec3f(point), m_camera.direction(), m_camera.up());
-        }
-
-        void MapView2D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
-            const Vec3f actualPosition = position.dot(m_camera.up()) * m_camera.up() + position.dot(m_camera.right()) * m_camera.right() + m_camera.position().dot(m_camera.direction()) * m_camera.direction();
-            CameraAnimation* animation = new CameraAnimation(m_camera, actualPosition, m_camera.direction(), m_camera.up(), duration);
-            m_animationManager->runAnimation(animation, true);
         }
 
         ActionContext MapView2D::doGetActionContext() const {

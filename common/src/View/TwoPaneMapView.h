@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FourPaneMapView__
-#define __TrenchBroom__FourPaneMapView__
+#ifndef __TrenchBroom__TwoPaneMapView__
+#define __TrenchBroom__TwoPaneMapView__
 
 #include "View/MapViewContainer.h"
 #include "View/ViewTypes.h"
@@ -32,32 +32,30 @@ namespace TrenchBroom {
         class MapRenderer;
         class Vbo;
     }
-    
+
     namespace View {
+        class CyclingMapView;
         class GLContextManager;
         class MapViewBase;
-        class MapView2D;
         class MapView3D;
         class MapViewToolBox;
         
-        class FourPaneMapView : public MapViewContainer {
+        class TwoPaneMapView : public MapViewContainer {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
-            
+
             MapView3D* m_mapView3D;
-            MapView2D* m_mapViewXY;
-            MapView2D* m_mapViewXZ;
-            MapView2D* m_mapViewYZ;
+            CyclingMapView* m_mapView2D;
         public:
-            FourPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
+            TwoPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
         private:
             void bindEvents();
             void OnIdleSetFocus(wxIdleEvent& event);
         private:
-            MapViewBase* currentMapView() const;
+            MapView* currentMapView() const;
         private: // implement MapView interface
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
             
@@ -69,4 +67,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__FourPaneMapView__) */
+#endif /* defined(__TrenchBroom__TwoPaneMapView__) */

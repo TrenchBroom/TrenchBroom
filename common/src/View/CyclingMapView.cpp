@@ -23,7 +23,6 @@
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
 #include "Model/ModelHitFilters.h"
-#include "Model/PointFile.h"
 #include "Renderer/Camera.h"
 #include "View/CommandIds.h"
 #include "View/Grid.h"
@@ -35,26 +34,29 @@
 
 namespace TrenchBroom {
     namespace View {
-        CyclingMapView::CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) :
+        CyclingMapView::CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager, const View views) :
         MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
         m_currentMapView(NULL) {
-            for (size_t i = 0; i < 4; ++i)
-                m_mapViews[i] = NULL;
-            createGui(toolBox, mapRenderer, vbo, contextManager);
+            createGui(toolBox, mapRenderer, vbo, contextManager, views);
             bindEvents();
         }
 
-        void CyclingMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) {
-            m_mapViews[0] = new MapView3D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager);
-            m_mapViews[1] = new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViews[2] = new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XZ);
-            m_mapViews[3] = new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_YZ);
+        void CyclingMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager, const View views) {
+            if (views & View_3D)
+                m_mapViews.push_back(new MapView3D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager));
+            if (views & View_XY)
+                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XY));
+            if (views & View_XZ)
+                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XZ));
+            if (views & View_YZ)
+                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_YZ));
             
-            for (size_t i = 0; i < 4; ++i)
+            for (size_t i = 0; i < m_mapViews.size(); ++i)
                 m_mapViews[i]->Hide();
             
+            assert(!m_mapViews.empty());
             switchToMapView(m_mapViews[0]);
         }
 
@@ -78,7 +80,7 @@ namespace TrenchBroom {
         void CyclingMapView::OnCycleMapView(wxCommandEvent& event) {
             for (size_t i = 0; i < 4; ++i) {
                 if (m_currentMapView == m_mapViews[i]) {
-                    switchToMapView(m_mapViews[Math::succ(i, 4)]);
+                    switchToMapView(m_mapViews[Math::succ(i, m_mapViews.size())]);
                     break;
                 }
             }
@@ -109,38 +111,9 @@ namespace TrenchBroom {
             m_currentMapView->moveCameraToPosition(position);
         }
         
-        bool CyclingMapView::doCanMoveCameraToNextTracePoint() const {
-            if (m_currentMapView != m_mapViews[0])
-                return false;
-            
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->isPointFileLoaded())
-                return false;
-            
-            Model::PointFile* pointFile = document->pointFile();
-            return pointFile->hasNextPoint();
-        }
-        
-        bool CyclingMapView::doCanMoveCameraToPreviousTracePoint() const {
-            if (m_currentMapView != m_mapViews[0])
-                return false;
-            
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->isPointFileLoaded())
-                return false;
-            
-            Model::PointFile* pointFile = document->pointFile();
-            return pointFile->hasPreviousPoint();
-        }
-        
-        void CyclingMapView::doMoveCameraToNextTracePoint() {
-            MapView3D* mapView3D = static_cast<MapView3D*>(m_currentMapView);
-            mapView3D->moveCameraToNextTracePoint();
-        }
-        
-        void CyclingMapView::doMoveCameraToPreviousTracePoint() {
-            MapView3D* mapView3D = static_cast<MapView3D*>(m_currentMapView);
-            mapView3D->moveCameraToPreviousTracePoint();
+        void CyclingMapView::doMoveCameraToCurrentTracePoint() {
+            for (size_t i = 0; i < m_mapViews.size(); ++i)
+                m_mapViews[i]->moveCameraToCurrentTracePoint();
         }
     }
 }

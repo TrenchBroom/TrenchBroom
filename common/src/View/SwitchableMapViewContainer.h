@@ -20,9 +20,12 @@
 #ifndef __TrenchBroom__SwitchableMapViewContainer__
 #define __TrenchBroom__SwitchableMapViewContainer__
 
-#include "View/MapViewContainer.h"
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "View/MapViewId.h"
 #include "View/ViewTypes.h"
+
+#include <wx/panel.h>
 
 class wxWindow;
 
@@ -37,9 +40,10 @@ namespace TrenchBroom {
     namespace View {
         class GLContextManager;
         class MapViewBar;
+        class MapViewContainer;
         class MapViewToolBox;
         
-        class SwitchableMapViewContainer : public MapViewContainer {
+        class SwitchableMapViewContainer : public wxPanel {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -57,16 +61,16 @@ namespace TrenchBroom {
             ~SwitchableMapViewContainer();
             
             void switchToMapView(MapViewId viewId);
-        private: // implement MapViewContainer interface
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
+
+            Vec3 pasteObjectsDelta(const BBox3& bounds) const;
             
-            void doCenterCameraOnSelection();
-            void doMoveCameraToPosition(const Vec3& position);
+            void centerCameraOnSelection();
+            void moveCameraToPosition(const Vec3& position);
             
-            bool doCanMoveCameraToNextTracePoint() const;
-            bool doCanMoveCameraToPreviousTracePoint() const;
-            void doMoveCameraToNextTracePoint();
-            void doMoveCameraToPreviousTracePoint();
+            bool canMoveCameraToNextTracePoint() const;
+            bool canMoveCameraToPreviousTracePoint() const;
+            void moveCameraToNextTracePoint();
+            void moveCameraToPreviousTracePoint();
         };
     }
 }

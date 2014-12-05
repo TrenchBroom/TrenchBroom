@@ -64,14 +64,17 @@ namespace TrenchBroom {
             Hits doPick(const Ray3& pickRay) const;
         private: // implement RenderView interface
             void doUpdateViewport(int x, int y, int width, int height);
-        private: // implement MapViewBase interface
+        private: // implement MapView interface
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
-            Vec3 doGetMoveDirection(Math::Direction direction) const;
-
             void doCenterCameraOnSelection();
-            void doMoveCameraToPosition(const Vec3& point);
+            
+            void doMoveCameraToPosition(const Vec3& position);
             void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
             
+            void doMoveCameraToCurrentTracePoint();
+        private: // implement MapViewBase interface
+            Vec3 doGetMoveDirection(Math::Direction direction) const;
+
             ActionContext doGetActionContext() const;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;
             bool doCancel();

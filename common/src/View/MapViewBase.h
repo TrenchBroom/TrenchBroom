@@ -24,6 +24,7 @@
 #include "View/ActionContext.h"
 #include "View/GLAttribs.h"
 #include "View/InputState.h"
+#include "MapView.h"
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
 #include "View/ViewTypes.h"
@@ -53,7 +54,7 @@ namespace TrenchBroom {
         class Selection;
         class Tool;
         
-        class MapViewBase : public RenderView, public ToolBoxConnector {
+        class MapViewBase : public MapView, public RenderView, public ToolBoxConnector {
         protected:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -70,11 +71,6 @@ namespace TrenchBroom {
             static const GLAttribs& buildAttribs();
         public:
             virtual ~MapViewBase();
-        public: // paste position
-            Vec3 pasteObjectsDelta(const BBox3& bounds) const;
-        public: // camera control
-            void centerCameraOnSelection();
-            void moveCameraToPosition(const Vec3& point);
         private:
             const Renderer::Camera& camera() const;
         protected:
@@ -153,7 +149,7 @@ namespace TrenchBroom {
             ActionContext actionContext() const;
         private: // misc
             void flashSelection();
-        private: // implement RenderView
+        private: // implement RenderView interface
             void doInitializeGL(bool firstInitialization);
             bool doShouldRenderFocusIndicator() const;
             void doRender();
@@ -162,12 +158,8 @@ namespace TrenchBroom {
         private: // implement ToolBoxConnector
             void doShowPopupMenu();
         private: // subclassing interface
-            virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const = 0;
             virtual Vec3 doGetMoveDirection(Math::Direction direction) const = 0;
 
-            virtual void doCenterCameraOnSelection() = 0;
-            virtual void doMoveCameraToPosition(const Vec3& point) = 0;
-            
             virtual ActionContext doGetActionContext() const = 0;
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;
             virtual bool doCancel() = 0;

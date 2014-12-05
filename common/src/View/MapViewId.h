@@ -24,6 +24,7 @@ namespace TrenchBroom {
     namespace View {
         typedef enum {
             MapView_Cycling,
+            MapView_2Pane,
             MapView_3Pane,
             MapView_4Pane
         } MapViewId;

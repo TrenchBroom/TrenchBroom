@@ -17,41 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PointFile__
-#define __TrenchBroom__PointFile__
+#ifndef __TrenchBroom__MapView__
+#define __TrenchBroom__MapView__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        class Path;
-    }
-    
-    namespace Model {
-        class PointFile {
-        private:
-            Vec3f::List m_points;
-            size_t m_current;
+    namespace View {
+        class MapView {
         public:
-            PointFile();
-            PointFile(const IO::Path& mapFilePath);
-            
-            bool empty() const;
-            bool hasNextPoint() const;
-            bool hasPreviousPoint() const;
-            
-            const Vec3f::List& points() const;
-            const Vec3f& currentPoint() const;
-            const Vec3f currentDirection() const;
-            void advance();
-            void retreat();
+            virtual ~MapView();
 
-            static IO::Path pointFilePath(const IO::Path& mapFilePath);
+            Vec3 pasteObjectsDelta(const BBox3& bounds) const;
+            
+            void centerCameraOnSelection();
+            void moveCameraToPosition(const Vec3& position);
+            
+            void moveCameraToCurrentTracePoint();
         private:
-            void load(const IO::Path& pointFilePath);
+            virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const = 0;
+
+            virtual void doCenterCameraOnSelection() = 0;
+            virtual void doMoveCameraToPosition(const Vec3& position) = 0;
+            
+            virtual void doMoveCameraToCurrentTracePoint() = 0;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__PointFile__) */
+#endif /* defined(__TrenchBroom__MapView__) */

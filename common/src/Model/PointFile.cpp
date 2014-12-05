@@ -62,14 +62,14 @@ namespace TrenchBroom {
             return (m_points[m_current + 1] - m_points[m_current]).normalized();
         }
         
-        const Vec3f& PointFile::nextPoint() {
+        void PointFile::advance() {
             assert(hasNextPoint());
-            return m_points[++m_current];
+            ++m_current;
         }
         
-        const Vec3f& PointFile::previousPoint() {
+        void PointFile::retreat() {
             assert(hasPreviousPoint());
-            return m_points[--m_current];
+            --m_current;
         }
 
         IO::Path PointFile::pointFilePath(const IO::Path& mapFilePath) {

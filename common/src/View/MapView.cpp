@@ -17,14 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapViewContainer.h"
+#include "MapView.h"
+
+#include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        MapViewContainer::MapViewContainer(wxWindow* parent) :
-        wxPanel(parent),
-        MapView() {}
+        MapView::~MapView() {}
         
-        MapViewContainer::~MapViewContainer() {}
+        Vec3 MapView::pasteObjectsDelta(const BBox3& bounds) const {
+            return doGetPasteObjectsDelta(bounds);
+        }
+        
+        void MapView::centerCameraOnSelection() {
+            doCenterCameraOnSelection();
+        }
+        
+        void MapView::moveCameraToPosition(const Vec3& position) {
+            doMoveCameraToPosition(position);
+        }
+        
+        void MapView::moveCameraToCurrentTracePoint() {
+            doMoveCameraToCurrentTracePoint();
+        }
     }
 }

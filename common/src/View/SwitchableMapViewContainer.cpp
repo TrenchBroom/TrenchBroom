@@ -21,12 +21,15 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Model/PointFile.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/Vbo.h"
 #include "View/CyclingMapView.h"
+#include "View/TwoPaneMapView.h"
 #include "View/ThreePaneMapView.h"
 #include "View/FourPaneMapView.h"
 #include "View/GLContextManager.h"
+#include "View/MapDocument.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
 
@@ -35,7 +38,7 @@
 namespace TrenchBroom {
     namespace View {
         SwitchableMapViewContainer::SwitchableMapViewContainer(wxWindow* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager) :
-        MapViewContainer(parent),
+        wxPanel(parent),
         m_logger(logger),
         m_document(document),
         m_contextManager(contextManager),
@@ -69,7 +72,10 @@ namespace TrenchBroom {
 
             switch (viewId) {
                 case MapView_Cycling:
-                    m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
+                    m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager, CyclingMapView::View_ALL);
+                    break;
+                case MapView_2Pane:
+                    m_mapView = new TwoPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
                     break;
                 case MapView_3Pane:
                     m_mapView = new ThreePaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
@@ -85,32 +91,54 @@ namespace TrenchBroom {
             Layout();
         }
 
-        Vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const BBox3& bounds) const {
+        Vec3 SwitchableMapViewContainer::pasteObjectsDelta(const BBox3& bounds) const {
             return m_mapView->pasteObjectsDelta(bounds);
         }
         
-        void SwitchableMapViewContainer::doCenterCameraOnSelection() {
+        void SwitchableMapViewContainer::centerCameraOnSelection() {
             m_mapView->centerCameraOnSelection();
         }
         
-        void SwitchableMapViewContainer::doMoveCameraToPosition(const Vec3& position) {
+        void SwitchableMapViewContainer::moveCameraToPosition(const Vec3& position) {
             m_mapView->moveCameraToPosition(position);
         }
     
-        bool SwitchableMapViewContainer::doCanMoveCameraToNextTracePoint() const {
-            return m_mapView->canMoveCameraToNextTracePoint();
+        bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->isPointFileLoaded())
+                return false;
+            
+            Model::PointFile* pointFile = document->pointFile();
+            return pointFile->hasNextPoint();
         }
         
-        bool SwitchableMapViewContainer::doCanMoveCameraToPreviousTracePoint() const {
-            return m_mapView->canMoveCameraToPreviousTracePoint();
+        bool SwitchableMapViewContainer::canMoveCameraToPreviousTracePoint() const {
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->isPointFileLoaded())
+                return false;
+            
+            Model::PointFile* pointFile = document->pointFile();
+            return pointFile->hasPreviousPoint();
         }
         
-        void SwitchableMapViewContainer::doMoveCameraToNextTracePoint() {
-            m_mapView->moveCameraToNextTracePoint();
+        void SwitchableMapViewContainer::moveCameraToNextTracePoint() {
+            MapDocumentSPtr document = lock(m_document);
+            assert(document->isPointFileLoaded());
+            
+            m_mapView->moveCameraToCurrentTracePoint();
+            
+            Model::PointFile* pointFile = document->pointFile();
+            pointFile->advance();
         }
         
-        void SwitchableMapViewContainer::doMoveCameraToPreviousTracePoint() {
-            m_mapView->moveCameraToPreviousTracePoint();
+        void SwitchableMapViewContainer::moveCameraToPreviousTracePoint() {
+            MapDocumentSPtr document = lock(m_document);
+            assert(document->isPointFileLoaded());
+            
+            Model::PointFile* pointFile = document->pointFile();
+            pointFile->retreat();
+
+            m_mapView->moveCameraToCurrentTracePoint();
         }
     }
 }

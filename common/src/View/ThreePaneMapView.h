@@ -23,6 +23,8 @@
 #include "View/MapViewContainer.h"
 #include "View/ViewTypes.h"
 
+#include <wx/panel.h>
+
 namespace TrenchBroom {
     class Logger;
     
@@ -32,6 +34,7 @@ namespace TrenchBroom {
     }
 
     namespace View {
+        class CyclingMapView;
         class GLContextManager;
         class MapViewBase;
         class MapView2D;
@@ -45,7 +48,7 @@ namespace TrenchBroom {
 
             MapView3D* m_mapView3D;
             MapView2D* m_mapViewXY;
-            MapView2D* m_mapViewXZ;
+            CyclingMapView* m_mapViewZZ;
         public:
             ThreePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
         private:
@@ -54,17 +57,14 @@ namespace TrenchBroom {
             void bindEvents();
             void OnIdleSetFocus(wxIdleEvent& event);
         private:
-            MapViewBase* currentMapView() const;
-        private: // implement MapViewContainer interface
+            MapView* currentMapView() const;
+        private: // implement MapView interface
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
             
             void doCenterCameraOnSelection();
             void doMoveCameraToPosition(const Vec3& position);
             
-            bool doCanMoveCameraToNextTracePoint() const;
-            bool doCanMoveCameraToPreviousTracePoint() const;
-            void doMoveCameraToNextTracePoint();
-            void doMoveCameraToPreviousTracePoint();
+            void doMoveCameraToCurrentTracePoint();
         };
     }
 }

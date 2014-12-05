@@ -91,30 +91,6 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        void MapView3D::moveCameraToNextTracePoint() {
-            MapDocumentSPtr document = lock(m_document);
-            
-            assert(document->isPointFileLoaded());
-            Model::PointFile* pointFile = document->pointFile();
-            assert(pointFile->hasNextPoint());
-            
-            const Vec3f position = pointFile->nextPoint() + Vec3f(0.0f, 0.0f, 16.0f);
-            const Vec3f direction = pointFile->currentDirection();
-            animateCamera(position, direction, Vec3f::PosZ);
-        }
-        
-        void MapView3D::moveCameraToPreviousTracePoint() {
-            MapDocumentSPtr document = lock(m_document);
-            
-            assert(document->isPointFileLoaded());
-            Model::PointFile* pointFile = document->pointFile();
-            assert(pointFile->hasPreviousPoint());
-            
-            const Vec3f position = pointFile->previousPoint() + Vec3f(0.0f, 0.0f, 16.0f);
-            const Vec3f direction = pointFile->currentDirection();
-            animateCamera(position, direction, Vec3f::PosZ);
-        }
-
         void MapView3D::bindEvents() {
             /*
             Bind(wxEVT_KEY_DOWN, &MapView3D::OnKey, this);
@@ -283,34 +259,6 @@ namespace TrenchBroom {
             }
         }
         
-        Vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
-            switch (direction) {
-                case Math::Direction_Forward: {
-                    Vec3 dir = m_camera.direction().firstAxis();
-                    if (dir.z() < 0.0)
-                        dir = m_camera.up().firstAxis();
-                    else if (dir.z() > 0.0)
-                        dir = -m_camera.up().firstAxis();
-                    return dir;
-                }
-                case Math::Direction_Backward:
-                    return -doGetMoveDirection(Math::Direction_Forward);
-                case Math::Direction_Left:
-                    return -doGetMoveDirection(Math::Direction_Right);
-                case Math::Direction_Right: {
-                    Vec3 dir = m_camera.right().firstAxis();
-                    if (dir == doGetMoveDirection(Math::Direction_Forward))
-                        dir = crossed(dir, Vec3::PosZ);
-                    return dir;
-                }
-                case Math::Direction_Up:
-                    return Vec3::PosZ;
-                case Math::Direction_Down:
-                    return Vec3::NegZ;
-                    DEFAULT_SWITCH()
-            }
-        }
-
         void MapView3D::doCenterCameraOnSelection() {
             MapDocumentSPtr document = lock(m_document);
             const Model::EntityList& entities = document->selectedNodes().entities();
@@ -320,11 +268,7 @@ namespace TrenchBroom {
             const Vec3 newPosition = centerCameraOnObjectsPosition(entities, brushes);
             moveCameraToPosition(newPosition);
         }
-
-        void MapView3D::doMoveCameraToPosition(const Vec3& position) {
-            animateCamera(position, m_camera.direction(), m_camera.up());
-        }
-
+        
         Vec3f MapView3D::centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes) {
             Model::EntityList::const_iterator entityIt, entityEnd;
             Model::BrushList::const_iterator brushIt, brushEnd;
@@ -405,11 +349,55 @@ namespace TrenchBroom {
             return center + m_camera.direction() * offset;
         }
         
+        void MapView3D::doMoveCameraToPosition(const Vec3& position) {
+            animateCamera(position, m_camera.direction(), m_camera.up());
+        }
+        
         void MapView3D::animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration) {
             CameraAnimation* animation = new CameraAnimation(m_camera, position, direction, up, duration);
             m_animationManager->runAnimation(animation, true);
         }
         
+        void MapView3D::doMoveCameraToCurrentTracePoint() {
+            MapDocumentSPtr document = lock(m_document);
+            
+            assert(document->isPointFileLoaded());
+            Model::PointFile* pointFile = document->pointFile();
+            assert(pointFile->hasNextPoint());
+            
+            const Vec3f position = pointFile->currentPoint() + Vec3f(0.0f, 0.0f, 16.0f);
+            const Vec3f direction = pointFile->currentDirection();
+            animateCamera(position, direction, Vec3f::PosZ);
+        }
+
+        Vec3 MapView3D::doGetMoveDirection(const Math::Direction direction) const {
+            switch (direction) {
+                case Math::Direction_Forward: {
+                    Vec3 dir = m_camera.direction().firstAxis();
+                    if (dir.z() < 0.0)
+                        dir = m_camera.up().firstAxis();
+                    else if (dir.z() > 0.0)
+                        dir = -m_camera.up().firstAxis();
+                    return dir;
+                }
+                case Math::Direction_Backward:
+                    return -doGetMoveDirection(Math::Direction_Forward);
+                case Math::Direction_Left:
+                    return -doGetMoveDirection(Math::Direction_Right);
+                case Math::Direction_Right: {
+                    Vec3 dir = m_camera.right().firstAxis();
+                    if (dir == doGetMoveDirection(Math::Direction_Forward))
+                        dir = crossed(dir, Vec3::PosZ);
+                    return dir;
+                }
+                case Math::Direction_Up:
+                    return Vec3::PosZ;
+                case Math::Direction_Down:
+                    return Vec3::NegZ;
+                    DEFAULT_SWITCH()
+            }
+        }
+
         ActionContext MapView3D::doGetActionContext() const {
             if (cameraFlyModeActive())
                 return ActionContext_FlyMode;

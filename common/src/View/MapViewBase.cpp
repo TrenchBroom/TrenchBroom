@@ -25,6 +25,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushVertex.h"
 #include "Model/Entity.h"
+#include "Model/PointFile.h"
 #include "Renderer/Camera.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/MapRenderer.h"
@@ -146,18 +147,6 @@ namespace TrenchBroom {
         MapViewBase::~MapViewBase() {
             unbindObservers();
             delete m_animationManager;
-        }
-        
-        Vec3 MapViewBase::pasteObjectsDelta(const BBox3& bounds) const {
-            return doGetPasteObjectsDelta(bounds);
-        }
-        
-        void MapViewBase::centerCameraOnSelection() {
-            doCenterCameraOnSelection();
-        }
-        
-        void MapViewBase::moveCameraToPosition(const Vec3& point) {
-            doMoveCameraToPosition(point);
         }
 
         void MapViewBase::bindObservers() {
@@ -584,7 +573,7 @@ namespace TrenchBroom {
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, *this, 180);
             m_animationManager->runAnimation(animation, true);
         }
-        
+
         void MapViewBase::doInitializeGL(const bool firstInitialization) {
             if (firstInitialization) {
                 const wxString vendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
