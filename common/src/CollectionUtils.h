@@ -94,6 +94,14 @@ namespace CollectionUtils {
             last = std::remove(vecBegin, last, *curItem++);
         return last;
     }
+
+    template <typename I>
+    void deleteAll(I cur, const I end) {
+        while (cur != end) {
+            delete *cur;
+            ++cur;
+        }
+    }
 }
 
 namespace ListUtils {

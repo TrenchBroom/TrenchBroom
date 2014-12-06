@@ -78,6 +78,8 @@ namespace TrenchBroom {
             if (it == m_observers.end()) {
                 delete observer;
                 return false;
+            } else {
+                (*it)->setSkip();
             }
             
             if (m_notifying) {
@@ -97,7 +99,8 @@ namespace TrenchBroom {
             typename List::const_iterator it, end;
             for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
                 O& observer = **it;
-                observer();
+                if (!observer.skip())
+                    observer();
             }
             
             removePending();
@@ -111,7 +114,8 @@ namespace TrenchBroom {
             typename List::const_iterator it, end;
             for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
                 O& observer = **it;
-                observer(a1);
+                if (!observer.skip())
+                    observer(a1);
             }
             
             removePending();
@@ -125,7 +129,8 @@ namespace TrenchBroom {
             typename List::const_iterator it, end;
             for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
                 O& observer = **it;
-                observer(a1, a2);
+                if (!observer.skip())
+                    observer(a1, a2);
             }
             
             removePending();
@@ -139,7 +144,8 @@ namespace TrenchBroom {
             typename List::const_iterator it, end;
             for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
                 O& observer = **it;
-                observer(a1, a2, a3);
+                if (!observer.skip())
+                    observer(a1, a2, a3);
             }
             
             removePending();
@@ -153,7 +159,8 @@ namespace TrenchBroom {
             typename List::const_iterator it, end;
             for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
                 O& observer = **it;
-                observer(a1, a2, a3, a4);
+                if (!observer.skip())
+                    observer(a1, a2, a3, a4);
             }
             
             removePending();
@@ -167,7 +174,8 @@ namespace TrenchBroom {
             typename List::const_iterator it, end;
             for (it = m_observers.begin(), end = m_observers.end(); it != end; ++it) {
                 O& observer = **it;
-                observer(a1, a2, a3, a4, a5);
+                if (!observer.skip())
+                    observer(a1, a2, a3, a4, a5);
             }
             
             removePending();
@@ -176,20 +184,18 @@ namespace TrenchBroom {
     private:
         void addPending() {
             m_observers.insert(m_observers.end(), m_toAdd.begin(), m_toAdd.end());
-            ListUtils::clearAndDelete(m_toAdd);
+            m_toAdd.clear();
         }
         
         void removePending() {
-            typename List::iterator last = m_observers.end();
-            typename List::iterator cur = m_toRemove.begin();
-            typename List::iterator end = m_toRemove.end();
-            
-            while (cur != end) {
-                last = std::remove_if(m_observers.begin(), last, CompareObservers(*cur));
-                ++cur;
+            typename List::iterator it, end, elem;
+            for (it = m_toRemove.begin(), end = m_toRemove.end(); it != end; ++it) {
+                elem = std::find_if(m_observers.begin(), m_observers.end(), CompareObservers(*it));
+                assert(elem != m_observers.end());
+                delete *elem;
+                m_observers.erase(elem);
             }
-            
-            m_observers.erase(last, m_observers.end());
+
             ListUtils::clearAndDelete(m_toRemove);
         }
     };
@@ -197,9 +203,19 @@ namespace TrenchBroom {
     class Notifier0 {
     private:
         class Observer {
+        private:
+            bool m_skip;
         public:
-            typedef std::list<Observer*> List;
-        public:
+            Observer() : m_skip(false) {}
+            
+            bool skip() const {
+                return m_skip;
+            }
+            
+            void setSkip() {
+                m_skip = true;
+            }
+            
             virtual ~Observer() {}
             
             virtual void* receiver() const = 0;
@@ -278,9 +294,19 @@ namespace TrenchBroom {
     class Notifier1 {
     private:
         class Observer {
+        private:
+            bool m_skip;
         public:
-            typedef std::list<Observer*> List;
-        public:
+            Observer() : m_skip(false) {}
+            
+            bool skip() const {
+                return m_skip;
+            }
+            
+            void setSkip() {
+                m_skip = true;
+            }
+
             virtual ~Observer() {}
             
             virtual void* receiver() const = 0;
@@ -375,9 +401,19 @@ namespace TrenchBroom {
     class Notifier2 {
     private:
         class Observer {
+        private:
+            bool m_skip;
         public:
-            typedef std::list<Observer*> List;
-        public:
+            Observer() : m_skip(false) {}
+            
+            bool skip() const {
+                return m_skip;
+            }
+            
+            void setSkip() {
+                m_skip = true;
+            }
+            
             virtual ~Observer() {}
             
             virtual void* receiver() const = 0;
@@ -472,9 +508,19 @@ namespace TrenchBroom {
     class Notifier3 {
     private:
         class Observer {
+        private:
+            bool m_skip;
         public:
-            typedef std::list<Observer*> List;
-        public:
+            Observer() : m_skip(false) {}
+            
+            bool skip() const {
+                return m_skip;
+            }
+            
+            void setSkip() {
+                m_skip = true;
+            }
+            
             virtual ~Observer() {}
             
             virtual void* receiver() const = 0;
@@ -569,9 +615,19 @@ namespace TrenchBroom {
     class Notifier4 {
     private:
         class Observer {
+        private:
+            bool m_skip;
         public:
-            typedef std::list<Observer*> List;
-        public:
+            Observer() : m_skip(false) {}
+            
+            bool skip() const {
+                return m_skip;
+            }
+            
+            void setSkip() {
+                m_skip = true;
+            }
+            
             virtual ~Observer() {}
             
             virtual void* receiver() const = 0;
@@ -666,9 +722,19 @@ namespace TrenchBroom {
     class Notifier5 {
     private:
         class Observer {
+        private:
+            bool m_skip;
         public:
-            typedef std::list<Observer*> List;
-        public:
+            Observer() : m_skip(false) {}
+            
+            bool skip() const {
+                return m_skip;
+            }
+            
+            void setSkip() {
+                m_skip = true;
+            }
+            
             virtual ~Observer() {}
             
             virtual void* receiver() const = 0;
