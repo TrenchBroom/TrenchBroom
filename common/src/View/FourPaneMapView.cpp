@@ -45,7 +45,6 @@ namespace TrenchBroom {
         m_mapViewXZ(NULL),
         m_mapViewYZ(NULL) {
             createGui(toolBox, mapRenderer, vbo, contextManager);
-            bindEvents();
         }
         
         void FourPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) {
@@ -68,20 +67,6 @@ namespace TrenchBroom {
             wxPersistenceManager::Get().RegisterAndRestore(splitter);
         }
         
-        void FourPaneMapView::bindEvents() {
-            Bind(wxEVT_IDLE, &FourPaneMapView::OnIdleSetFocus, this);
-        }
-        
-        void FourPaneMapView::OnIdleSetFocus(wxIdleEvent& event) {
-            // we use this method to ensure that the 3D view gets the focus after startup has settled down
-            if (!m_mapView3D->HasFocus()) {
-                m_mapView3D->SetFocus();
-            } else {
-                Unbind(wxEVT_IDLE, &FourPaneMapView::OnIdleSetFocus, this);
-                m_mapView3D->Refresh();
-            }
-        }
-        
         MapViewBase* FourPaneMapView::currentMapView() const {
             if (m_mapViewXY->HasFocus())
                 return m_mapViewXY;
@@ -97,7 +82,10 @@ namespace TrenchBroom {
         }
         
         void FourPaneMapView::doCenterCameraOnSelection() {
-            currentMapView()->centerCameraOnSelection();
+            m_mapView3D->centerCameraOnSelection();
+            m_mapViewXY->centerCameraOnSelection();
+            m_mapViewXZ->centerCameraOnSelection();
+            m_mapViewYZ->centerCameraOnSelection();
         }
         
         void FourPaneMapView::doMoveCameraToPosition(const Vec3& position) {

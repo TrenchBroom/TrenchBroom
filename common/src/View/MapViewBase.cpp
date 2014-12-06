@@ -55,6 +55,7 @@ namespace TrenchBroom {
         m_vbo(vbo),
         m_contextManager(contextManager) {
             bindEvents();
+            bindObservers();
             updateAcceleratorTable(HasFocus());
         }
         
@@ -192,10 +193,6 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        void MapViewBase::cameraDidChange(const Renderer::Camera* camera) {
-            Refresh();
-        }
-        
         void MapViewBase::toolChanged(Tool* tool) {
             updateHits();
             updateAcceleratorTable(HasFocus());

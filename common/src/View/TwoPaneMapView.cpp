@@ -44,7 +44,6 @@ namespace TrenchBroom {
         m_mapView3D(NULL),
         m_mapView2D(NULL) {
             createGui(toolBox, mapRenderer, vbo, contextManager);
-            bindEvents();
         }
         
         void TwoPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) {
@@ -66,20 +65,6 @@ namespace TrenchBroom {
             wxPersistenceManager::Get().RegisterAndRestore(splitter);
         }
         
-        void TwoPaneMapView::bindEvents() {
-            Bind(wxEVT_IDLE, &TwoPaneMapView::OnIdleSetFocus, this);
-        }
-        
-        void TwoPaneMapView::OnIdleSetFocus(wxIdleEvent& event) {
-            // we use this method to ensure that the 3D view gets the focus after startup has settled down
-            if (!m_mapView3D->HasFocus()) {
-                m_mapView3D->SetFocus();
-            } else {
-                Unbind(wxEVT_IDLE, &TwoPaneMapView::OnIdleSetFocus, this);
-                m_mapView3D->Refresh();
-            }
-        }
-        
         MapView* TwoPaneMapView::currentMapView() const {
             if (m_mapView2D->HasFocus())
                 return m_mapView2D;
@@ -91,7 +76,8 @@ namespace TrenchBroom {
         }
         
         void TwoPaneMapView::doCenterCameraOnSelection() {
-            currentMapView()->centerCameraOnSelection();
+            m_mapView3D->centerCameraOnSelection();
+            m_mapView2D->centerCameraOnSelection();
         }
         
         void TwoPaneMapView::doMoveCameraToPosition(const Vec3& position) {

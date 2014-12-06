@@ -61,6 +61,8 @@ namespace TrenchBroom {
         }
 
         MapView3D::~MapView3D() {
+            unbindObservers();
+            
             delete m_cameraTool;
             delete m_flyModeHelper;
             delete m_compass;
@@ -91,6 +93,18 @@ namespace TrenchBroom {
             Refresh();
         }
 
+        void MapView3D::bindObservers() {
+            m_camera.cameraDidChangeNotifier.addObserver(this, &MapView3D::cameraDidChange);
+        }
+        
+        void MapView3D::unbindObservers() {
+            m_camera.cameraDidChangeNotifier.removeObserver(this, &MapView3D::cameraDidChange);
+        }
+
+        void MapView3D::cameraDidChange(const Renderer::Camera* camera) {
+            Refresh();
+        }
+        
         void MapView3D::bindEvents() {
             /*
             Bind(wxEVT_KEY_DOWN, &MapView3D::OnKey, this);

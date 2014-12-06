@@ -64,6 +64,7 @@ namespace TrenchBroom {
         }
 
         MapView2D::~MapView2D() {
+            unbindObservers();
             delete m_cameraTool;
         }
         
@@ -94,6 +95,18 @@ namespace TrenchBroom {
             addTool(toolBox.rotateObjectsTool());
             addTool(toolBox.vertexTool());
             addTool(toolBox.selectionTool());
+        }
+
+        void MapView2D::bindObservers() {
+            m_camera.cameraDidChangeNotifier.addObserver(this, &MapView2D::cameraDidChange);
+        }
+        
+        void MapView2D::unbindObservers() {
+            m_camera.cameraDidChangeNotifier.removeObserver(this, &MapView2D::cameraDidChange);
+        }
+        
+        void MapView2D::cameraDidChange(const Renderer::Camera* camera) {
+            Refresh();
         }
 
         void MapView2D::bindEvents() {

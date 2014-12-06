@@ -56,6 +56,10 @@ namespace TrenchBroom {
         public: // camera control
             bool cameraFlyModeActive() const;
             void toggleCameraFlyMode();
+        private: // notification
+            void bindObservers();
+            void unbindObservers();
+            void cameraDidChange(const Renderer::Camera* camera);
         private: // interaction events
             void bindEvents();
             

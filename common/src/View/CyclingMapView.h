@@ -66,7 +66,6 @@ namespace TrenchBroom {
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager, View views);
         private:
             void bindEvents();
-            void OnIdleSetFocus(wxIdleEvent& event);
             void OnCycleMapView(wxCommandEvent& event);
         private:
             void switchToMapView(MapViewBase* mapView);

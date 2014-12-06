@@ -48,14 +48,9 @@ namespace TrenchBroom {
             wxPoint m_clickPos;
             wxPoint m_lastMousePos;
             bool m_ignoreNextDrag;
-            bool m_clickToActivate;
-            bool m_ignoreNextClick;
-            wxDateTime m_lastActivation;
         public:
             ToolBoxConnector(wxWindow* window, ToolBox& toolBox, InputSource inputSource);
             virtual ~ToolBoxConnector();
-            
-            void setClickToActivate(bool clickToActivate);
             
             const Ray3& pickRay() const;
             const Hits& hits() const;

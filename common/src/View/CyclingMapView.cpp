@@ -61,20 +61,7 @@ namespace TrenchBroom {
         }
 
         void CyclingMapView::bindEvents() {
-            Bind(wxEVT_IDLE, &CyclingMapView::OnIdleSetFocus, this);
             Bind(wxEVT_MENU, &CyclingMapView::OnCycleMapView, this, CommandIds::Actions::CycleMapViews);
-        }
-        
-        void CyclingMapView::OnIdleSetFocus(wxIdleEvent& event) {
-            // we use this method to ensure that the 3D view gets the focus after startup has settled down
-            if (m_currentMapView != NULL) {
-                if (!m_currentMapView->HasFocus()) {
-                    m_currentMapView->SetFocus();
-                } else {
-                    Unbind(wxEVT_IDLE, &CyclingMapView::OnIdleSetFocus, this);
-                    m_currentMapView->Refresh();
-                }
-            }
         }
 
         void CyclingMapView::OnCycleMapView(wxCommandEvent& event) {

@@ -57,6 +57,10 @@ namespace TrenchBroom {
         private:
             void initializeCamera(ViewPlane viewPlane);
             void initializeToolChain(MapViewToolBox& toolBox);
+        private: // notification
+            void bindObservers();
+            void unbindObservers();
+            void cameraDidChange(const Renderer::Camera* camera);
         private: // interaction events
             void bindEvents();
         private: // implement ToolBoxConnector interface

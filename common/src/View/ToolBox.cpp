@@ -32,10 +32,44 @@ namespace TrenchBroom {
         m_modalReceiver(NULL),
         m_dropReceiver(NULL),
         m_savedDropReceiver(NULL),
+        m_clickToActivate(true),
+        m_ignoreNextClick(false),
+        m_lastActivation(wxDateTime::Now()),
         m_enabled(true) {}
 
         void ToolBox::pick(ToolChain* chain, const InputState& inputState, Hits& hits) {
             chain->pick(inputState, hits);
+        }
+        
+        bool ToolBox::clickToActivate() const {
+            return m_clickToActivate;
+        }
+
+        void ToolBox::setClickToActivate(const bool clickToActivate) {
+            m_clickToActivate = clickToActivate;
+            if (!m_clickToActivate)
+                m_ignoreNextClick = false;
+        }
+        
+        void ToolBox::updateLastActivation() {
+            m_lastActivation = wxDateTime::Now();
+        }
+
+        bool ToolBox::ignoreNextClick() const {
+            return m_ignoreNextClick;
+        }
+        
+        void ToolBox::setIgnoreNextClick() {
+            m_ignoreNextClick = true;
+        }
+        
+        void ToolBox::clearIgnoreNextClick() {
+            m_ignoreNextClick = false;
+        }
+
+        void ToolBox::clearIgnoreNextClickWithinActivationTime() {
+            if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
+                m_ignoreNextClick = false;
         }
 
         bool ToolBox::dragEnter(ToolChain* chain, const InputState& inputState, const String& text) {

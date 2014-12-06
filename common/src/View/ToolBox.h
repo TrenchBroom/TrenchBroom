@@ -53,6 +53,10 @@ namespace TrenchBroom {
             typedef std::map<Tool*, ToolList> ToolMap;
             ToolMap m_deactivateWhen;
             
+            bool m_clickToActivate;
+            bool m_ignoreNextClick;
+            wxDateTime m_lastActivation;
+            
             bool m_enabled;
         public:
             Notifier1<Tool*> toolActivatedNotifier;
@@ -62,6 +66,15 @@ namespace TrenchBroom {
         public: // picking
             void pick(ToolChain* chain, const InputState& inputState, Hits& hits);
         public: // event handling
+            bool clickToActivate() const;
+            void setClickToActivate(bool clickToActivate);
+            void updateLastActivation();
+            
+            bool ignoreNextClick() const;
+            void setIgnoreNextClick();
+            void clearIgnoreNextClick();
+            void clearIgnoreNextClickWithinActivationTime();
+            
             bool dragEnter(ToolChain* chain, const InputState& inputState, const String& text);
             bool dragMove(ToolChain* chain, const InputState& inputState, const String& text);
             void dragLeave(ToolChain* chain, const InputState& inputState);

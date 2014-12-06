@@ -73,14 +73,11 @@ namespace TrenchBroom {
             virtual ~MapViewBase();
         private:
             const Renderer::Camera& camera() const;
-        protected:
-            void bindObservers();
         private:
+            void bindObservers();
             void unbindObservers();
             
             void nodesDidChange(const Model::NodeList& nodes);
-            
-            void cameraDidChange(const Renderer::Camera* camera);
             void toolChanged(Tool* tool);
             void commandProcessed(Command* command);
             void selectionDidChange(const Selection& selection);

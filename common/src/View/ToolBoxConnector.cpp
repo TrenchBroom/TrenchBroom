@@ -28,23 +28,13 @@ namespace TrenchBroom {
         m_window(window),
         m_toolBox(toolBox),
         m_toolChain(NULL),
-        m_inputState(inputSource),
-        m_ignoreNextDrag(false),
-        m_clickToActivate(true),
-        m_ignoreNextClick(false),
-        m_lastActivation(wxDateTime::Now()) {
+        m_inputState(inputSource) {
             assert(m_window != NULL);
             bindEvents();
         }
 
         ToolBoxConnector::~ToolBoxConnector() {
             unbindEvents();
-        }
-
-        void ToolBoxConnector::setClickToActivate(const bool clickToActivate) {
-            m_clickToActivate = clickToActivate;
-            if (!m_clickToActivate)
-                m_ignoreNextClick = false;
         }
         
         const Ray3& ToolBoxConnector::pickRay() const {
@@ -64,7 +54,7 @@ namespace TrenchBroom {
         }
         
         void ToolBoxConnector::updateLastActivation() {
-            m_lastActivation = wxDateTime::Now();
+            m_toolBox.updateLastActivation();
         }
 
         void ToolBoxConnector::addTool(Tool* tool) {
@@ -139,16 +129,16 @@ namespace TrenchBroom {
         
         void ToolBoxConnector::OnMouseButton(wxMouseEvent& event) {
             const MouseButtonState button = mouseButton(event);
-            if (m_ignoreNextClick && button == MouseButtons::MBLeft) {
+            if (m_toolBox.ignoreNextClick() && button == MouseButtons::MBLeft) {
                 if (event.ButtonUp())
-                    m_ignoreNextClick = false;
+                    m_toolBox.clearIgnoreNextClick();
                 event.Skip();
                 return;
             }
             
             m_window->SetFocus();
             if (event.ButtonUp())
-                m_ignoreNextClick = false;
+                m_toolBox.clearIgnoreNextClick();
             
             updateModifierKeys();
             if (event.ButtonDown()) {
@@ -265,8 +255,7 @@ namespace TrenchBroom {
             mouseMoved(m_window->ScreenToClient(wxGetMousePosition()));
             
             // if this focus event happens as a result of a window activation, the don't ignore the next click
-            if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
-                m_ignoreNextClick = false;
+            m_toolBox.clearIgnoreNextClickWithinActivationTime();
             
             event.Skip();
         }
@@ -276,8 +265,8 @@ namespace TrenchBroom {
             releaseMouse();
             if (m_toolChain != NULL && clearModifierKeys())
                 m_toolBox.modifierKeyChange(m_toolChain, m_inputState);
-            if (m_clickToActivate) {
-                m_ignoreNextClick = true;
+            if (m_toolBox.clickToActivate()) {
+                m_toolBox.setIgnoreNextClick();
                 m_window->SetCursor(wxCursor(wxCURSOR_HAND));
             }
             m_window->Refresh();

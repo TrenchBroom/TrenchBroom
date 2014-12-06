@@ -92,6 +92,8 @@ namespace TrenchBroom {
             sizer->Add(m_mapView, 1, wxEXPAND);
             SetSizer(sizer);
             Layout();
+            
+            m_mapView->SetFocus();
         }
 
         Vec3 SwitchableMapViewContainer::pasteObjectsDelta(const BBox3& bounds) const {
