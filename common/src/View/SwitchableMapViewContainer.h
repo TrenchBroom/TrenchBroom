@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "View/MapViewId.h"
+#include "View/MapViewLayout.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -37,6 +37,10 @@ namespace TrenchBroom {
         class Vbo;
     }
 
+    namespace IO {
+        class Path;
+    }
+    
     namespace View {
         class GLContextManager;
         class MapViewBar;
@@ -60,7 +64,7 @@ namespace TrenchBroom {
             SwitchableMapViewContainer(wxWindow* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager);
             ~SwitchableMapViewContainer();
             
-            void switchToMapView(MapViewId viewId);
+            void switchToMapView(MapViewLayout viewId);
 
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
             
@@ -71,6 +75,10 @@ namespace TrenchBroom {
             bool canMoveCameraToPreviousTracePoint() const;
             void moveCameraToNextTracePoint();
             void moveCameraToPreviousTracePoint();
+        private:
+            void bindObservers();
+            void unbindObservers();
+            void preferenceDidChange(const IO::Path& path);
         };
     }
 }

@@ -47,10 +47,13 @@ namespace TrenchBroom {
         m_mapRenderer(new Renderer::MapRenderer(m_document)),
         m_vbo(new Renderer::Vbo(0xFFFFFF)),
         m_mapView(NULL) {
-            switchToMapView(pref(Preferences::MapViewId));
+            switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
+            bindObservers();
         }
         
         SwitchableMapViewContainer::~SwitchableMapViewContainer() {
+            unbindObservers();
+            
             // we must destroy our children before we destroy our resources because they might still use them in their destructors
             DestroyChildren();
             
@@ -64,23 +67,23 @@ namespace TrenchBroom {
             m_vbo = NULL;
         }
 
-        void SwitchableMapViewContainer::switchToMapView(const MapViewId viewId) {
+        void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
             if (m_mapView != NULL) {
                 m_mapView->Destroy();
                 m_mapView = NULL;
             }
 
             switch (viewId) {
-                case MapView_Cycling:
+                case MapViewLayout_1Pane:
                     m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager, CyclingMapView::View_ALL);
                     break;
-                case MapView_2Pane:
+                case MapViewLayout_2Pane:
                     m_mapView = new TwoPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
                     break;
-                case MapView_3Pane:
+                case MapViewLayout_3Pane:
                     m_mapView = new ThreePaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
                     break;
-                case MapView_4Pane:
+                case MapViewLayout_4Pane:
                     m_mapView = new FourPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
                     break;
             }
@@ -139,6 +142,21 @@ namespace TrenchBroom {
             pointFile->retreat();
 
             m_mapView->moveCameraToCurrentTracePoint();
+        }
+
+        void SwitchableMapViewContainer::bindObservers() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.addObserver(this, &SwitchableMapViewContainer::preferenceDidChange);
+        }
+        
+        void SwitchableMapViewContainer::unbindObservers() {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            prefs.preferenceDidChangeNotifier.removeObserver(this, &SwitchableMapViewContainer::preferenceDidChange);
+        }
+        
+        void SwitchableMapViewContainer::preferenceDidChange(const IO::Path& path) {
+            if (path == Preferences::MapViewLayout.path())
+                switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
         }
     }
 }

@@ -386,9 +386,7 @@ namespace TrenchBroom {
         
         void save(wxConfigBase* config) {
             if (m_modified) {
-                const bool success = m_serializer.write(config, m_path, m_value);
-                assert(success);
-                _UNUSED(success);
+                CHECK_BOOL(m_serializer.write(config, m_path, m_value));
                 m_modified = false;
             }
         }

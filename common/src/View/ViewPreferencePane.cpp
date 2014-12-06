@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/BorderLine.h"
+#include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 #include "View/wxUtils.h"
 
@@ -71,7 +72,7 @@ namespace TrenchBroom {
             assert(selection >= 0 && selection < static_cast<int>(NumFrameLayouts));
             
             PreferenceManager& prefs = PreferenceManager::instance();
-            prefs.set(Preferences::MapViewId, static_cast<MapViewId>(selection));
+            prefs.set(Preferences::MapViewLayout, selection);
         }
 
         void ViewPreferencePane::OnBrightnessChanged(wxScrollEvent& event) {
@@ -158,9 +159,8 @@ namespace TrenchBroom {
             wxPanel* viewBox = new wxPanel(this);
             viewBox->SetBackgroundColour(*wxWHITE);
             
-            wxStaticText* layoutPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Map View Layout");
-            layoutPrefsHeader->SetFont(layoutPrefsHeader->GetFont().Bold());
-
+            TitleBar* viewPrefsTitle = new TitleBar(viewBox, "Map Views");
+            
             wxString layoutNames[NumFrameLayouts];
             layoutNames[0] = "One Pane";
             layoutNames[1] = "Two Panes";
@@ -170,8 +170,6 @@ namespace TrenchBroom {
             wxStaticText* layoutLabel = new wxStaticText(viewBox, wxID_ANY, "Layout");
             m_layoutChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumFrameLayouts, layoutNames);
             
-            wxStaticText* _3dViewPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "3D View");
-            _3dViewPrefsHeader->SetFont(_3dViewPrefsHeader->GetFont().Bold());
             wxStaticText* brightnessLabel = new wxStaticText(viewBox, wxID_ANY, "Brightness");
             m_brightnessSlider = new wxSlider(viewBox, wxID_ANY, 50, 1, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_BOTTOM);
             wxStaticText* gridLabel = new wxStaticText(viewBox, wxID_ANY, "Grid");
@@ -186,8 +184,8 @@ namespace TrenchBroom {
             wxStaticText* textureModeLabel = new wxStaticText(viewBox, wxID_ANY, "Texture Mode");
             m_textureModeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, NumTextureModes, textureModeNames);
 
-            wxStaticText* textureBrowserPrefsHeader = new wxStaticText(viewBox, wxID_ANY, "Texture Browser");
-            textureBrowserPrefsHeader->SetFont(textureBrowserPrefsHeader->GetFont().Bold());
+            TitleBar* textureBrowserPrefsTitle = new TitleBar(viewBox, "Map Views");
+
             wxStaticText* textureBrowserIconSizeLabel = new wxStaticText(viewBox, wxID_ANY, "Icon Size");
             wxString iconSizes[7] = {"25%", "50%", "100%", "150%", "200%", "250%", "300%"};
             m_textureBrowserIconSizeChoice = new wxChoice(viewBox, wxID_ANY, wxDefaultPosition, wxDefaultSize, 7, iconSizes);
@@ -206,17 +204,11 @@ namespace TrenchBroom {
             int r = 0;
             
             wxGridBagSizer* sizer = new wxGridBagSizer(LayoutConstants::NarrowVMargin, LayoutConstants::WideHMargin);
-            sizer->Add(layoutPrefsHeader,                   wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(viewPrefsTitle,                    wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
             
             sizer->Add(layoutLabel,                         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
             sizer->Add(m_layoutChoice,                      wxGBPosition( r, 1), wxDefaultSpan, ChoiceFlags, HMargin);
-            ++r;
-            
-            sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
-            ++r;
-            
-            sizer->Add(_3dViewPrefsHeader,                  wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
             
             sizer->Add(brightnessLabel,                     wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
@@ -241,7 +233,7 @@ namespace TrenchBroom {
             sizer->Add(new BorderLine(viewBox),             wxGBPosition( r, 0), wxGBSpan(1,2), LineFlags, LMargin);
             ++r;
             
-            sizer->Add(textureBrowserPrefsHeader,           wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
+            sizer->Add(textureBrowserPrefsTitle,            wxGBPosition( r, 0), wxGBSpan(1,2), HeaderFlags, HMargin);
             ++r;
 
             sizer->Add(textureBrowserIconSizeLabel,         wxGBPosition( r, 0), wxDefaultSpan, LabelFlags, HMargin);
@@ -282,7 +274,7 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::doUpdateControls() {
-            m_layoutChoice->SetSelection(pref(Preferences::MapViewId));
+            m_layoutChoice->SetSelection(pref(Preferences::MapViewLayout));
             
             m_brightnessSlider->SetValue(static_cast<int>(pref(Preferences::Brightness) * 40.0f));
             m_gridAlphaSlider->SetValue(static_cast<int>(pref(Preferences::GridAlpha) * m_gridAlphaSlider->GetMax()));

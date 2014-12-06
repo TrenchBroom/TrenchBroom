@@ -30,7 +30,7 @@ namespace TrenchBroom {
         protected:
             wxStaticText* m_titleText;
         public:
-            TitleBar(wxWindow* parent, const wxString& title, int hMargin, int vMargin);
+            TitleBar(wxWindow* parent, const wxString& title, int hMargin = 0, int vMargin = 0);
         };
     }
 }

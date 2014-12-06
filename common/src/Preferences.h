@@ -25,14 +25,14 @@
 #include "Preference.h"
 #include "PreferenceManager.h"
 #include "View/KeyboardShortcut.h"
-#include "View/MapViewId.h"
+#include "View/MapViewLayout.h"
 #include "View/ViewShortcut.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Preferences {
-        extern Preference<View::MapViewId> MapViewId;
+        extern Preference<int> MapViewLayout;
         
         extern Preference<Color> BackgroundColor;
         extern Preference<float> AxisLength;

@@ -86,7 +86,27 @@ public:
     }
 };
 
+namespace CollectionUtils {
+    template <typename I, typename C>
+    I removeAll(const I vecBegin, const I vecEnd, C curItem, C endItem) {
+        I last = vecEnd;
+        while (curItem != endItem)
+            last = std::remove(vecBegin, last, *curItem++);
+        return last;
+    }
+}
+
 namespace ListUtils {
+    template <typename T>
+    void append(std::list<T*>& vec, const std::list<T*>& items) {
+        vec.insert(vec.end(), items.begin(), items.end());
+    }
+
+    template <typename T>
+    void eraseAll(std::list<T*>& vec, const std::list<T*>& items) {
+        vec.erase(removeAll(vec.begin(), vec.end(), items.begin(), items.end()), vec.end());
+    }
+    
     template <typename T>
     void remove(std::vector<T*>& list, const T* item) {
         list.erase(std::remove(list.begin(), list.end(), item), list.end());
@@ -267,14 +287,6 @@ namespace VectorUtils {
         return true;
     }
     
-    template <typename I, typename C>
-    I removeAll(const I vecBegin, const I vecEnd, C curItem, C endItem) {
-        I last = vecEnd;
-        while (curItem != endItem)
-            last = std::remove(vecBegin, last, *curItem++);
-        return last;
-    }
-    
     template <typename T, class P>
     void eraseIf(std::vector<T>& vec, const P& pred) {
         vec.erase(std::remove_if(vec.begin(), vec.end(), pred), vec.end());
@@ -282,7 +294,7 @@ namespace VectorUtils {
     
     template <typename T>
     void eraseAll(std::vector<T*>& vec, const std::vector<T*>& items) {
-        vec.erase(removeAll(vec.begin(), vec.end(), items.begin(), items.end()), vec.end());
+        vec.erase(CollectionUtils::removeAll(vec.begin(), vec.end(), items.begin(), items.end()), vec.end());
     }
     
     template <typename T>
