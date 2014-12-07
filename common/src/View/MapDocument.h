@@ -162,6 +162,7 @@ namespace TrenchBroom {
             bool hasSelectedNodes() const;
             bool hasSelectedBrushFaces() const;
 
+            const Model::AttributableList allSelectedAttributables() const;
             const Model::NodeCollection& selectedNodes() const;
             const Model::BrushFaceList& selectedBrushFaces() const;
 
@@ -199,6 +200,10 @@ namespace TrenchBroom {
             bool translateObjects(const Vec3& delta);
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
             bool flipObjects(const Vec3& center, Math::Axis::Type axis);
+        public: // modifying entity attributes
+            bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
+            bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
+            bool removeAttribute(const Model::AttributeName& name);
         public: // modifying face attributes
             bool setTexture(Assets::Texture* texture);
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);

@@ -29,6 +29,10 @@
 namespace TrenchBroom {
     namespace Model {
         class Attributable : public Node {
+        public: // some helper methods
+            static Assets::EntityDefinition* selectEntityDefinition(const AttributableList& attributables);
+            static const Assets::AttributeDefinition* selectAttributeDefinition(const AttributeName& name, const AttributableList& attributables);
+            static AttributeValue selectAttributeValue(const AttributeName& name, const AttributableList& attributables);
         protected:
             static const String DefaultAttributeValue;
 
@@ -45,6 +49,8 @@ namespace TrenchBroom {
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
         public: // attribute management
+            const Assets::AttributeDefinition* attributeDefinition(const AttributeName& name) const;
+            
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
 
@@ -62,6 +68,7 @@ namespace TrenchBroom {
                 addOrUpdateAttribute(name, value.asString());
             }
             
+            
             bool canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
             void addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value);
             
@@ -70,6 +77,9 @@ namespace TrenchBroom {
             
             bool canRemoveAttribute(const AttributeName& name) const;
             void removeAttribute(const AttributeName& name);
+            
+            bool isAttributeNameMutable(const AttributeName& name) const;
+            bool isAttributeValueMutable(const AttributeName& name) const;
         private: // attribute management internals
             template <typename T>
             AttributeValue convertValue(const T& value) const {
@@ -142,9 +152,8 @@ namespace TrenchBroom {
             virtual void doAncestorDidChange();
         private: // subclassing interface
             virtual void doAttributesDidChange() = 0;
-            virtual bool doCanAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const = 0;
-            virtual bool doCanRenameAttribute(const AttributeName& name, const AttributeName& newName) const = 0;
-            virtual bool doCanRemoveAttribute(const AttributeName& name) const = 0;
+            virtual bool doIsAttributeNameMutable(const AttributeName& name) const = 0;
+            virtual bool doIsAttributeValueMutable(const AttributeName& name) const = 0;
         private: // hide copy constructor and assignment operator
             Attributable(const Attributable&);
             Attributable& operator=(const Attributable&);

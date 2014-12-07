@@ -78,9 +78,8 @@ namespace TrenchBroom {
             void doRemoveFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
         private: // implement Attributable interface
             void doAttributesDidChange();
-            bool doCanAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
-            bool doCanRenameAttribute(const AttributeName& name, const AttributeName& newName) const;
-            bool doCanRemoveAttribute(const AttributeName& name) const;
+            bool doIsAttributeNameMutable(const AttributeName& name) const;
+            bool doIsAttributeValueMutable(const AttributeName& name) const;
         private: // implement ModelFactory interface
             MapFormat::Type doGetFormat() const;
             World* doCreateWorld() const;

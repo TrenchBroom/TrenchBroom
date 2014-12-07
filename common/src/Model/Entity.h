@@ -68,9 +68,8 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Attributable interface
             void doAttributesDidChange();
-            bool doCanAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
-            bool doCanRenameAttribute(const AttributeName& name, const AttributeName& newName) const;
-            bool doCanRemoveAttribute(const AttributeName& name) const;
+            bool doIsAttributeNameMutable(const AttributeName& name) const;
+            bool doIsAttributeValueMutable(const AttributeName& name) const;
         private: // implement Object interface
             const BBox3& doGetBounds() const;
             void doPick(const Ray3& ray, Hits& hits) const;

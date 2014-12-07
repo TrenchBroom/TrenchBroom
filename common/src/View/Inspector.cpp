@@ -19,7 +19,7 @@
 
 #include "Inspector.h"
 
-// #include "View/EntityInspector.h"
+#include "View/EntityInspector.h"
 // #include "View/FaceInspector.h"
 #include "View/MapInspector.h"
 #include "View/TabBook.h"
@@ -39,11 +39,11 @@ namespace TrenchBroom {
             m_tabBook = new TabBook(this);
 
             m_mapInspector = new MapInspector(m_tabBook, document, contextManager);
-            // m_entityInspector = new EntityInspector(m_tabBook, sharedContext, document, controller);
+            m_entityInspector = new EntityInspector(m_tabBook, document, contextManager);
             // m_faceInspector = new FaceInspector(m_tabBook, sharedContext, document, controller);
             
             m_tabBook->addPage(m_mapInspector, "Map");
-            // m_tabBook->addPage(m_entityInspector, "Entity");
+            m_tabBook->addPage(m_entityInspector, "Entity");
             // m_tabBook->addPage(m_faceInspector, "Face");
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);

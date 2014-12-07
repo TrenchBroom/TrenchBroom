@@ -151,15 +151,13 @@ namespace TrenchBroom {
             invalidateBounds();
         }
         
-        bool Entity::doCanAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const {
+        bool Entity::doIsAttributeNameMutable(const AttributeName& name) const {
             return true;
         }
         
-        bool Entity::doCanRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
-            return true;
-        }
-        
-        bool Entity::doCanRemoveAttribute(const AttributeName& name) const {
+        bool Entity::doIsAttributeValueMutable(const AttributeName& name) const {
+            if (name == AttributeNames::Origin)
+                return false;
             return true;
         }
 

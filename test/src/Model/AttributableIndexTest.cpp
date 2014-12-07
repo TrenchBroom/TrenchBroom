@@ -144,7 +144,7 @@ namespace TrenchBroom {
             delete entity2;
         }
 
-        TEST(EntityAttributeIndexTest, addNumberedEntityProperty) {
+        TEST(EntityAttributeIndexTest, addNumberedEntityAttribute) {
             AttributableIndex index;
             
             Entity* entity1 = new Entity();

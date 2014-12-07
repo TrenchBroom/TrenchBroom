@@ -19,8 +19,72 @@
 
 #include "Attributable.h"
 
+#include "Assets/AttributeDefinition.h"
+
 namespace TrenchBroom {
     namespace Model {
+        Assets::EntityDefinition* Attributable::selectEntityDefinition(const AttributableList& attributables) {
+            Assets::EntityDefinition* definition = NULL;
+            
+            AttributableList::const_iterator it, end;
+            for (it = attributables.begin(), end = attributables.end(); it != end; ++it) {
+                Attributable* attributable = *it;
+                if (definition == NULL) {
+                    definition = attributable->definition();
+                } else if (definition != attributable->definition()) {
+                    definition = NULL;
+                    break;
+                }
+            }
+            
+            return definition;
+        }
+        
+        const Assets::AttributeDefinition* Attributable::selectAttributeDefinition(const AttributeName& name, const AttributableList& attributables) {
+            AttributableList::const_iterator it = attributables.begin();
+            AttributableList::const_iterator end = attributables.end();
+            if (it == end)
+                return NULL;
+            
+            const Attributable* attributable = *it;
+            const Assets::AttributeDefinition* definition = attributable->attributeDefinition(name);
+            if (definition == NULL)
+                return NULL;
+            
+            while (++it != end) {
+                attributable = *it;
+                const Assets::AttributeDefinition* currentDefinition = attributable->attributeDefinition(name);
+                if (currentDefinition == NULL)
+                    return NULL;
+                
+                if (!definition->equals(currentDefinition))
+                    return NULL;
+            }
+            
+            return definition;
+        }
+        
+        AttributeValue Attributable::selectAttributeValue(const AttributeName& name, const AttributableList& attributables) {
+            AttributableList::const_iterator it = attributables.begin();
+            AttributableList::const_iterator end = attributables.end();
+            if (it == end)
+                return "";
+            
+            const Attributable* attributable = *it;
+            if (!attributable->hasAttribute(name))
+                return "";
+            
+            const AttributeValue& value = attributable->attribute(name);
+            while (++it != end) {
+                attributable = *it;
+                if (!attributable->hasAttribute(name))
+                    return "";
+                if (value != attributable->attribute(name))
+                    return "";
+            }
+            return value;
+        }
+
         const String Attributable::DefaultAttributeValue("");
 
         Attributable::~Attributable() {
@@ -41,6 +105,10 @@ namespace TrenchBroom {
             if (m_definition != NULL)
                 m_definition->incUsageCount();
             attributesDidChange();
+        }
+
+        const Assets::AttributeDefinition* Attributable::attributeDefinition(const AttributeName& name) const {
+            return m_definition == NULL ? NULL : m_definition->attributeDefinition(name);
         }
 
         const EntityAttribute::List& Attributable::attributes() const {
@@ -70,7 +138,7 @@ namespace TrenchBroom {
         }
 
         bool Attributable::canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const {
-            return doCanAddOrUpdateAttribute(name, value);
+            return isAttributeValueMutable(name);
         }
         
         void Attributable::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) {
@@ -88,7 +156,7 @@ namespace TrenchBroom {
         }
         
         bool Attributable::canRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
-            return doCanRenameAttribute(name, newName);
+            return isAttributeNameMutable(name) && isAttributeNameMutable(newName);
         }
         
         void Attributable::renameAttribute(const AttributeName& name, const AttributeName& newName) {
@@ -109,7 +177,7 @@ namespace TrenchBroom {
         }
         
         bool Attributable::canRemoveAttribute(const AttributeName& name) const {
-            return doCanRemoveAttribute(name);
+            return isAttributeNameMutable(name) && isAttributeValueMutable(name);
         }
         
         void Attributable::removeAttribute(const AttributeName& name) {
