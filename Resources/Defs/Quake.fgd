@@ -31,6 +31,8 @@
 // base marker definitions
 //
 
+@baseclass = Angle [ angle(integer) : "Direction" ]
+
 @baseclass = Appearflags [
 	spawnflags(Flags) =
 	[
@@ -53,7 +55,7 @@
 // player starts, deathmatch, coop, teleport
 //
 
-@baseclass base(Appearflags) size(-16 -16 -24, 16 16 32) 
+@baseclass base(Angle, Appearflags) size(-16 -16 -24, 16 16 32) 
 	color(0 255 0) model(":progs/player.mdl") = PlayerClass []
 
 @PointClass base(PlayerClass) = info_player_start : "Player 1 start" []
@@ -127,8 +129,6 @@
         ":maps/b_nail1.bsp" spawnflags = 1
     ) = item_spikes : "Nailgun/Perforator ammo" []
 
-@PointClass 
-    size(0 0 0, 32 32 16) 
     base(Appearflags) 
     model(
         ":maps/b_bh25.bsp",
@@ -181,7 +181,7 @@
 
 @baseclass size(-16 -16 0, 16 16 56) color(0 0 200) base(Item, Appearflags) = Weapon []
 
-@PointClass base(Weapon) model(":progs/g_shot.mdl") = weapon_supershotgun : "Double-barreled shotgun" []
+@PointClass base(Weapon) model(":progs/g_shot.mdl") = weapon_supershotgun : "Double-barrelled shotgun" []
 @PointClass base(Weapon) model(":progs/g_nail.mdl") = weapon_nailgun : "Nailgun" []
 @PointClass base(Weapon) model(":progs/g_nail2.mdl") = weapon_supernailgun : "Super nailgun" []
 @PointClass base(Weapon) model(":progs/g_rock.mdl") = weapon_grenadelauncher : "Grenade launcher" []
@@ -192,7 +192,7 @@
 // monsters
 //
 
-@baseclass base(Appearflags, Target, Targetname) color(220 0 0) = Monster 
+@baseclass base(Angle, Appearflags, Target, Targetname) color(220 0 0) = Monster 
 [
 	spawnflags(Flags) = 
 	[
@@ -302,10 +302,10 @@
 
 @SolidClass base(Appearflags) = func_illusionary : "Static nonsolid model"  []
 
-@PointClass base(Appearflags, Name) = air_bubbles : "Air bubbles" []
+@PointClass base(Appearflags) = air_bubbles : "Air bubbles" []
 @PointClass base(Appearflags, Targetname) =
 	event_lightning : "Chthon's lightning" []
-@PointClass base(Appearflags) = misc_fireball : "Small fireball"
+@PointClass base(Appearflags) model(":progs/lavaball.mdl") = misc_fireball : "Small fireball"
 	[ speed(integer) : "Speed" : 40 ]
 @PointClass base(Appearflags) size(0 0 0, 32 32 64) model(":maps/b_explob.bsp") = misc_explobox : "Large exploding container" []
 @PointClass base(Appearflags) size(0 0 0, 32 32 32) model(":maps/b_exbox2.bsp") = misc_explobox2 : "Small exploding container" []
@@ -314,18 +314,16 @@
 	target(string) : "First stop target"
 	targetname(target_source) : "Name" 
 ]
-@PointClass base(Appearflags, Targetname) = trap_spikeshooter : "Triggered shooter" 
+@PointClass base(Angle, Appearflags, Targetname) = trap_spikeshooter : "Triggered shooter" 
 [
-	angle(integer) : "Direction"
 	spawnflags(Flags) = 
 	[
 		1 : "Spike" : 0
 		2 : "Laser" : 0
 	]
 ]
-@PointClass base(Appearflags) = trap_shooter : "Continuous shooter"
+@PointClass base(Angle, Appearflags) = trap_shooter : "Continuous shooter"
 [
-	angle(integer) : "Direction"
 	nextthink(integer) : "Delay before first spike"
 	wait(integer) : "Delay between spikes"
 	spawnflags(Flags) = 
@@ -357,20 +355,20 @@
 //
 
 
-@SolidClass base(Appearflags, Targetname, Target) = func_door : "Basic door" 
+@SolidClass base(Angle, Appearflags, Targetname, Target) = func_door : "Basic door" 
 [
 	speed(integer) : "Speed" : 100
 	sounds(choices) : "Sound" : 0 = 
 	[
-        0: "Silent"
+        	0: "Silent"
 		1: "Stone"
 		2: "Machine"
 		3: "Stone Chain"
 		4: "Screechy Metal"
 	]
-	wait(string) : "Wait before close" : "4" 
+	wait(string) : "Wait before close" : 3 
 	lip(integer) : "Lip" : 8
-	dmg(integer) : "Damage inflicted when blocked" : 0
+	dmg(integer) : "Damage inflicted when blocked" : 2
 	message(string) : "Message if touched"
 	health(integer) : "Health (shootable)" : 0
 	spawnflags(flags) =
@@ -378,13 +376,14 @@
 		1 : "Starts Open" : 0
 		4 : "Don't link" : 0
 		8 : "Gold Key required" : 0
-        16: "Silver Key required" : 0
-        32: "Toggle" : 0
+		16: "Silver Key required" : 0
+        	32: "Toggle" : 0
 	]
 ]
 
 @SolidClass base(Appearflags, Targetname, Target) = func_door_secret : "Secret door" 
 [
+	angle(integer) : "Direction of second move"
 	t_width(integer) : "First move length"
 	t_length(integer) : "Second move length"
 	dmg(integer) : "Damage when blocked" : 2
@@ -406,10 +405,10 @@
 	]
 ]
 
-@SolidClass base(Appearflags, Targetname) = func_wall : "Wall" []
+@SolidClass base(Appearflags, Targetname) = func_wall : "Solid wall, starts animation when triggered (if supporting texture)" []
 
 
-@SolidClass base(Targetname) = func_button : "Button" 
+@SolidClass base(Angle, Appearflags, Targetname) = func_button : "Button" 
 [
 	speed(integer) : "Speed" : 40
 	lip(integer) : "Lip" : 4
@@ -434,13 +433,13 @@
 		0: "Silent"
 		1: "Ratchet Metal"
 	]
-	speed(integer) : "Speed (units per second)" : 64
-	target(target_source) : "First stop target"
-	dmg(integer) : "Damage on block" : 0
+	speed(integer) : "Speed (units per second)" : 100
+	target(target_source) : "Target to start at"
+	dmg(integer) : "Damage on block" : 2
 ]
 
 @PointClass base(Appearflags, Targetname) size(16 16 16) = 
-	path_corner : "Path corner for platforms and monsters"
+	path_corner : "Waypoint for platforms and monsters"
 [
 	target(target_source) : "Next target"
 	wait(integer) : "Wait" : 0
@@ -549,19 +548,19 @@
 @PointClass base(Trigger) = trigger_relay : "Trigger: Relay"
 [
 ]
-@SolidClass base(Appearflags, Targetname) = trigger_monsterjump : "Trigger: Monster jump" 
+@SolidClass base(Angle, Appearflags, Targetname) = trigger_monsterjump : "Trigger: Monster jump" 
 [
 	speed(integer) : "Jump Speed" : 200
 	height(integer) : "Jump Height" : 200
 ]
-@PointClass base(Appearflags, Target, Targetname) = trigger_counter : "Trigger: Counter" 
+@PointClass base(Appearflags, Target, Killtarget, Targetname) = trigger_counter : "Trigger: Counter" 
 [
 	spawnflags(flags) = [ 1: "No Message" : 0 ]
 	count(integer) : "Count before trigger" : 2
 	delay (integer) : "Delay"
 	message(string) : "Message"
 ]
-@SolidClass base(Appearflags, Targetname) = trigger_push : "Trigger: Push"
+@SolidClass base(Angle, Appearflags, Targetname) = trigger_push : "Trigger: Push"
 [
 	spawnflags(flags) = [ 1: "Push once" : 0 ]
 	speed(integer) : "Speed" : 1000
@@ -570,5 +569,5 @@
 [
 	dmg(integer) : "Damage per second" : 5
 ]
-@PointClass size(16 16 16) = misc_noisemaker : "Debug entity" []
-@PointClass size(16 16 16) = viewthing : "Fake player" []
+@PointClass size(16 16 16) = misc_noisemaker : "Debug entity: continuously plays enforcer sounds" []
+@PointClass size(16 16 16) = viewthing : "Debug entity: fake player model" []
