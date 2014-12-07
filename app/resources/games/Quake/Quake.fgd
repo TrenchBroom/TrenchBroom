@@ -64,12 +64,12 @@
 @PointClass base(PlayerClass) = info_player_start2 : "Player episode return point" []
 @PointClass base(PlayerClass) = info_player_deathmatch : "Deathmatch start" []
 @PointClass size(-32 -32 0, 32 32 64) base(PlayerClass, Targetname) = info_teleport_destination : "Teleporter destination" []
-@PointClass = info_null : "info_null (spotlight target)"
+@PointClass color(200 150 150) = info_null : "info_null (spotlight target)"
 [
 	targetname(target_source) : "Name" 
 ]
 
-@PointClass base(Appearflags, Target, Targetname) = info_notnull : "Wildcard entity" // I love you
+@PointClass base(Appearflags, Target, Targetname) color(200 150 150) = info_notnull : "Wildcard entity" // I love you
 [
 	use(string) : "self.use"
 	think(string) : "self.think"
@@ -131,6 +131,7 @@
     ) = item_spikes : "Nailgun/Perforator ammo" []
 
 @PointClass
+    size(0 0 0, 32 32 56)
     base(Appearflags) 
     model(
         ":maps/b_bh25.bsp",
@@ -183,7 +184,7 @@
 
 @baseclass size(-16 -16 0, 16 16 56) color(0 0 200) base(Item, Appearflags) = Weapon []
 
-@PointClass base(Weapon) model(":progs/g_shot.mdl") = weapon_supershotgun : "Double-barreled shotgun" []
+@PointClass base(Weapon) model(":progs/g_shot.mdl") = weapon_supershotgun : "Double-barrelled shotgun" []
 @PointClass base(Weapon) model(":progs/g_nail.mdl") = weapon_nailgun : "Nailgun" []
 @PointClass base(Weapon) model(":progs/g_nail2.mdl") = weapon_supernailgun : "Super nailgun" []
 @PointClass base(Weapon) model(":progs/g_rock.mdl") = weapon_grenadelauncher : "Grenade launcher" []
@@ -214,8 +215,8 @@
 @PointClass base(Monster) size(-128 -128 -24, 128 128 256) model(":progs/boss.mdl") = monster_boss : "Chthon" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(":progs/enforcer.mdl") = monster_enforcer : "Enforcer" []
 @PointClass base(Monster) size(-32 -32 -24, 32 32 64) model(":progs/shalrath.mdl") = monster_shalrath : "Vore" []
-@PointClass base(Monster) size(32 32 48) model(":progs/tarbaby.mdl") = monster_tarbaby : "Spawn" []
-@PointClass base(Monster) size(32 32 48) model(":progs/fish.mdl") = monster_fish : "Rotfish" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 24) model(":progs/tarbaby.mdl") = monster_tarbaby : "Spawn" []
+@PointClass base(Monster) size(-16 -16 -24, 16 16 24) model(":progs/fish.mdl") = monster_fish : "Rotfish" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/oldone.mdl") = monster_oldone : "Shub-Niggurath" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 32) model(":progs/zombie.mdl") = monster_zombie : "Zombie" 
 [
@@ -304,7 +305,7 @@
 
 @SolidClass base(Appearflags) = func_illusionary : "Static nonsolid model"  []
 
-@PointClass base(Appearflags) = air_bubbles : "Air bubbles" []
+@PointClass base(Appearflags) color(0 150 220) = air_bubbles : "Air bubbles" []
 @PointClass base(Appearflags, Targetname) =
 	event_lightning : "Chthon's lightning" []
 @PointClass base(Appearflags) model(":progs/lavaball.mdl") = misc_fireball : "Small fireball"
@@ -316,7 +317,7 @@
 	target(string) : "First stop target"
 	targetname(target_source) : "Name" 
 ]
-@PointClass base(Appearflags, Targetname) = trap_spikeshooter : "Triggered shooter" 
+@PointClass base(Appearflags, Targetname) color(220 150 150) = trap_spikeshooter : "Triggered shooter" 
 [
 	spawnflags(Flags) = 
 	[
@@ -324,7 +325,7 @@
 		2 : "Laser" : 0
 	]
 ]
-@PointClass base(Appearflags) = trap_shooter : "Continuous shooter"
+@PointClass base(Appearflags) color(220 150 150) = trap_shooter : "Continuous shooter"
 [
 	nextthink(integer) : "Delay before first spike"
 	wait(integer) : "Delay between spikes"
@@ -342,15 +343,15 @@
 // ambient sounds
 //
 
-@PointClass base(Appearflags) = ambient_drip : "Dripping sound" []
-@PointClass base(Appearflags) = ambient_drone : "Engine/machinery sound" []
-@PointClass base(Appearflags) = ambient_comp_hum : "Computer background sounds" []
-@PointClass base(Appearflags) = ambient_flouro_buzz : "Fluorescent buzzing sound" []
-@PointClass base(Appearflags) = ambient_light_buzz : "Buzzing sound from light" []
-@PointClass base(Appearflags) = ambient_suck_wind : "Wind sound" []
-@PointClass base(Appearflags) = ambient_swamp1 : "Frogs croaking" []
-@PointClass base(Appearflags) = ambient_swamp2 : "Frogs croaking B" []
-@PointClass base(Appearflags) = ambient_thunder : "Thunder sound" []
+@PointClass base(Appearflags) color(150 0 150) = ambient_drip : "Dripping sound" []
+@PointClass base(Appearflags) color(150 0 150) = ambient_drone : "Engine/machinery sound" []
+@PointClass base(Appearflags) color(150 0 150) = ambient_comp_hum : "Computer background sounds" []
+@PointClass base(Appearflags) color(150 0 150) = ambient_flouro_buzz : "Fluorescent buzzing sound" []
+@PointClass base(Appearflags) color(150 0 150) = ambient_light_buzz : "Buzzing sound from light" []
+@PointClass base(Appearflags) color(150 0 150) = ambient_suck_wind : "Wind sound" []
+@PointClass base(Appearflags) color(150 0 150) = ambient_swamp1 : "Frogs croaking" []
+@PointClass base(Appearflags) color(150 0 150) = ambient_swamp2 : "Frogs croaking B" []
+@PointClass base(Appearflags) color(150 0 150) = ambient_thunder : "Thunder sound" []
 
 // 
 // moving things
@@ -440,7 +441,7 @@
 	dmg(integer) : "Damage on block" : 2
 ]
 
-@PointClass base(Appearflags, Targetname) size(16 16 16) = 
+@PointClass base(Appearflags, Targetname) size(16 16 16) color(0 255 255) = 
 	path_corner : "Waypoint for platforms and monsters"
 [
 	target(target_source) : "Next target"
