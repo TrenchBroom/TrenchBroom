@@ -29,10 +29,11 @@
 #include "Renderer/GL.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
-#include "Renderer/MeshRenderer.h"
 #include "Renderer/ShaderManager.h"
+#include "Renderer/Shaders.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/Transformation.h"
+#include "Renderer/TriangleMeshRenderer.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexArray.h"
 #include "View/MapFrame.h"
@@ -51,11 +52,11 @@ namespace TrenchBroom {
 
         EntityBrowserView::EntityBrowserView(wxWindow* parent,
                                              wxScrollBar* scrollBar,
-                                             GLContextHolder::Ptr sharedContext,
+                                             GLContextManager& contextManager,
                                              Assets::EntityDefinitionManager& entityDefinitionManager,
                                              Assets::EntityModelManager& entityModelManager,
                                              Logger& logger) :
-        CellView(parent, sharedContext, scrollBar),
+        CellView(parent, contextManager, buildAttribs(), scrollBar),
         m_entityDefinitionManager(entityDefinitionManager),
         m_entityModelManager(entityModelManager),
         m_logger(logger),
@@ -177,10 +178,9 @@ namespace TrenchBroom {
             if ((!m_hideUnused || definition->usageCount() > 0) &&
                 (m_filterText.empty() || StringUtils::containsCaseInsensitive(definition->name(), m_filterText))) {
                 
-                Renderer::FontManager& fontManager =  contextHolder()->fontManager();
                 const float maxCellWidth = layout.maxCellWidth();
-                const Renderer::FontDescriptor actualFont = fontManager.selectFontSize(font, definition->name(), maxCellWidth, 5);
-                const Vec2f actualSize = fontManager.font(actualFont).measure(definition->name());
+                const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
+                const Vec2f actualSize = fontManager().font(actualFont).measure(definition->name());
                 
                 const Assets::ModelSpecification spec = definition->defaultModel();
                 Assets::EntityModel* model = safeGetModel(m_entityModelManager, spec, m_logger);
@@ -272,7 +272,7 @@ namespace TrenchBroom {
                 }
             }
             
-            Renderer::ActiveShader shader(contextHolder()->shaderManager(), Renderer::Shaders::VaryingPCShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPCShader);
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_LINES, vertices);
 
             Renderer::SetVboState setVboState(m_vbo);
@@ -286,7 +286,7 @@ namespace TrenchBroom {
         void EntityBrowserView::renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation) {
             PreferenceManager& prefs = PreferenceManager::instance();
             
-            Renderer::ActiveShader shader(contextHolder()->shaderManager(), Renderer::Shaders::EntityModelShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::EntityModelShader);
             shader.set("ApplyTinting", false);
             shader.set("Brightness", prefs.get(Preferences::Brightness));
             shader.set("GrayScale", false);
@@ -347,7 +347,7 @@ namespace TrenchBroom {
             }
 
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
-            Renderer::ActiveShader shader(contextHolder()->shaderManager(), Renderer::Shaders::BrowserGroupShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::BrowserGroupShader);
 
             PreferenceManager& prefs = PreferenceManager::instance();
             shader.set("Color", prefs.get(Preferences::BrowserGroupBackgroundColor));
@@ -378,7 +378,7 @@ namespace TrenchBroom {
             }
             
             PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::ActiveShader shader(contextHolder()->shaderManager(), Renderer::Shaders::TextShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextShader);
             shader.set("Color", prefs.get(Preferences::BrowserTextColor));
             shader.set("Texture", 0);
             
@@ -387,7 +387,7 @@ namespace TrenchBroom {
                 const Renderer::FontDescriptor& descriptor = it->first;
                 Renderer::VertexArray& vertexArray = it->second;
                 
-                Renderer::TextureFont& font = contextHolder()->fontManager().font(descriptor);
+                Renderer::TextureFont& font = fontManager().font(descriptor);
                 font.activate();
                 vertexArray.render();
                 font.deactivate();
@@ -408,7 +408,7 @@ namespace TrenchBroom {
                         const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                         const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                         
-                        Renderer::TextureFont& font = contextHolder()->fontManager().font(defaultDescriptor);
+                        Renderer::TextureFont& font = fontManager().font(defaultDescriptor);
                         const Vec2f::List quads = font.quads(title, false, offset);
                         const StringVertex::List titleVertices = StringVertex::fromLists(quads, quads, quads.size() / 2, 0, 2, 1, 2);
                         StringVertex::List& vertices = stringVertices[defaultDescriptor];
@@ -423,7 +423,7 @@ namespace TrenchBroom {
                                 const LayoutBounds titleBounds = cell.titleBounds();
                                 const Vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
-                                Renderer::TextureFont& font = contextHolder()->fontManager().font(cell.item().fontDescriptor);
+                                Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
                                 const Vec2f::List quads = font.quads(cell.item().entityDefinition->name(), false, offset);
                                 const StringVertex::List titleVertices = StringVertex::fromLists(quads, quads, quads.size() / 2, 0, 2, 1, 2);
                                 StringVertex::List& vertices = stringVertices[cell.item().fontDescriptor];

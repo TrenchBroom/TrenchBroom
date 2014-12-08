@@ -31,8 +31,10 @@
 #include "Model/ModelTypes.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
+#include "View/EntityColor.h"
 #include "View/ViewTypes.h"
 
+class Color;
 namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionManager;
@@ -131,6 +133,7 @@ namespace TrenchBroom {
             bool textureLock();
             void setTextureLock(bool textureLock);
             
+            Assets::EntityDefinitionManager& entityDefinitionManager();
             Assets::EntityModelManager& entityModelManager();
             
             const MapViewConfig& mapViewConfig() const;
@@ -206,7 +209,8 @@ namespace TrenchBroom {
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             bool removeAttribute(const Model::AttributeName& name);
             
-            bool convertColorRange(const Model::AttributeName& name, )
+            bool setEntityColor(const Model::AttributeName& name, const Color& color);
+            bool convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range);
         public: // modifying face attributes
             bool setTexture(Assets::Texture* texture);
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);

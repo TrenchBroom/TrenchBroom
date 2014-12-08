@@ -431,8 +431,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        Renderer::RenderContext MapView3D::doCreateRenderContext(GLContextManager& contextManager) const {
-            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_3D, m_camera, contextManager.fontManager(), contextManager.shaderManager());
+        Renderer::RenderContext MapView3D::doCreateRenderContext() const {
+            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_3D, m_camera, fontManager(), shaderManager());
         }
 
         void MapView3D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

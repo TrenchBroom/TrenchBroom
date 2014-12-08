@@ -52,99 +52,12 @@ namespace TrenchBroom {
         m_toolBox(toolBox),
         m_animationManager(new AnimationManager()),
         m_renderer(renderer),
-        m_vbo(vbo),
-        m_contextManager(contextManager) {
+        m_vbo(vbo) {
             bindEvents();
             bindObservers();
             updateAcceleratorTable(HasFocus());
         }
         
-        const GLAttribs& MapViewBase::buildAttribs() {
-            static bool initialized = false;
-            static GLAttribs attribs;
-            if (initialized)
-                return attribs;
-            
-            int testAttribs[] =
-            {
-                // 32 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 24 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 32 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 24 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 16 bit depth buffer, 4 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          4,
-                0,
-                // 16 bit depth buffer, 2 samples
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                WX_GL_SAMPLE_BUFFERS,   1,
-                WX_GL_SAMPLES,          2,
-                0,
-                // 32 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       32,
-                0,
-                // 24 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       24,
-                0,
-                // 16 bit depth buffer, no multisampling
-                WX_GL_RGBA,
-                WX_GL_DOUBLEBUFFER,
-                WX_GL_DEPTH_SIZE,       16,
-                0,
-                0,
-            };
-            
-            size_t index = 0;
-            while (!initialized && testAttribs[index] != 0) {
-                size_t count = 0;
-                for (; testAttribs[index + count] != 0; ++count);
-                if (wxGLCanvas::IsDisplaySupported(&testAttribs[index])) {
-                    for (size_t i = 0; i < count; ++i)
-                        attribs.push_back(testAttribs[index + i]);
-                    attribs.push_back(0);
-                    initialized = true;
-                }
-                index += count + 1;
-            }
-            
-            assert(initialized);
-            assert(!attribs.empty());
-            return attribs;
-        }
-
         MapViewBase::~MapViewBase() {
             unbindObservers();
             delete m_animationManager;
@@ -614,7 +527,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
             
-            Renderer::RenderContext renderContext = doCreateRenderContext(m_contextManager);
+            Renderer::RenderContext renderContext = doCreateRenderContext();
             renderContext.setShowGrid(grid.visible());
             renderContext.setGridSize(grid.actualSize());
             return renderContext;

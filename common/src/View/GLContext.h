@@ -36,6 +36,9 @@ namespace TrenchBroom {
         public:
             GLContext(wxGLCanvas* canvas, GLContextManager* contextManager);
 
+            Renderer::FontManager& fontManager();
+            Renderer::ShaderManager& shaderManager();
+            
             bool initialize();
             bool SetCurrent(const wxGLCanvas* canvas) const;
             bool SetCurrent(const wxGLCanvas& canvas) const;

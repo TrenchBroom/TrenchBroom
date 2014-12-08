@@ -137,6 +137,10 @@ namespace TrenchBroom {
             m_editorContext->setTextureLock(textureLock);
         }
 
+        Assets::EntityDefinitionManager& MapDocument::entityDefinitionManager() {
+            return *m_entityDefinitionManager;
+        }
+
         Assets::EntityModelManager& MapDocument::entityModelManager() {
             return *m_entityModelManager;
         }

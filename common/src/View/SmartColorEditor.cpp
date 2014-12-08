@@ -21,9 +21,11 @@
 
 #include "CollectionUtils.h"
 #include "Model/Attributable.h"
+#include "Model/Entity.h"
 #include "Model/World.h"
 #include "View/ColorTable.h"
 #include "View/ColorTableSelectedCommand.h"
+#include "View/EntityColor.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
@@ -37,164 +39,6 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartColorEditor::Color::~Color() {}
-        
-        SmartColorEditor::ColorPtr SmartColorEditor::Color::parseColor(const String& str) {
-            const StringList components = StringUtils::splitAndTrim(str, " ");
-            if (components.size() != 3)
-                return ColorPtr(new ByteColor(0, 0, 0));
-            
-            const ColorRange range = detectRange(components);
-            assert(range != ColorRange_Mixed);
-            
-            if (range == ColorRange_Byte) {
-                const int r = std::atoi(components[0].c_str());
-                const int g = std::atoi(components[1].c_str());
-                const int b = std::atoi(components[2].c_str());
-                return ColorPtr(new ByteColor(r, g, b));
-            }
-            
-            const float r = static_cast<float>(std::atof(components[0].c_str()));
-            const float g = static_cast<float>(std::atof(components[1].c_str()));
-            const float b = static_cast<float>(std::atof(components[2].c_str()));
-            return ColorPtr(new FloatColor(r, g, b));
-        }
-        
-        SmartColorEditor::ColorPtr SmartColorEditor::Color::fromWxColor(const wxColor& wxColor, const ColorRange range) {
-            ColorPtr byteColor(new ByteColor(wxColor.Red(), wxColor.Green(), wxColor.Blue()));
-            return byteColor->toColor(range);
-        }
-
-        SmartColorEditor::ColorPtr SmartColorEditor::Color::toColor(const ColorRange range) const {
-            if (range == ColorRange_Float)
-                return toFloatColor();
-            return toByteColor();
-        }
-
-        SmartColorEditor::ColorRange SmartColorEditor::Color::detectRange(const String& str) {
-            const StringList components = StringUtils::splitAndTrim(str, " ");
-            return detectRange(components);
-        }
-
-        SmartColorEditor::ColorRange SmartColorEditor::Color::detectRange(const StringList& components) {
-            if (components.size() != 3)
-                return ColorRange_Byte;
-            
-            ColorRange range = ColorRange_Byte;
-            for (size_t i = 0; i < 3 && range == ColorRange_Byte; ++i)
-                if (components[i].find('.') != String::npos)
-                    range = ColorRange_Float;
-            
-            return range;
-        }
-
-        SmartColorEditor::FloatColor::FloatColor(const float r, const float g, const float b) {
-            assert(r >= 0.0f && r <= 1.0f);
-            assert(g >= 0.0f && g <= 1.0f);
-            assert(b >= 0.0f && b <= 1.0f);
-            
-            m_v[0] = r;
-            m_v[1] = g;
-            m_v[2] = b;
-        }
-        
-        SmartColorEditor::ColorPtr SmartColorEditor::FloatColor::toFloatColor() const {
-            return shared_from_this();
-        }
-        
-        SmartColorEditor::ColorPtr SmartColorEditor::FloatColor::toByteColor() const {
-            return ColorPtr(new ByteColor(static_cast<int>(Math::round(r() * 255.0f)),
-                                          static_cast<int>(Math::round(g() * 255.0f)),
-                                          static_cast<int>(Math::round(b() * 255.0f))));
-        }
-        
-        wxColor SmartColorEditor::FloatColor::toWxColor() const {
-            return wxColor(static_cast<wxColor::ChannelType>(r() * 255.0f),
-                           static_cast<wxColor::ChannelType>(g() * 255.0f),
-                           static_cast<wxColor::ChannelType>(b() * 255.0f));
-        }
-
-        String SmartColorEditor::FloatColor::asString() const {
-            StringStream str;
-            print(str, r());
-            str << " ";
-            print(str, g());
-            str << " ";
-            print(str, b());
-            return str.str();
-        }
-        
-        void SmartColorEditor::FloatColor::print(StringStream& str, const float f) const {
-            if (Math::isInteger(f)) {
-                str.setf(std::ios::fixed, std::ios::floatfield);
-                str.precision(1);
-            } else {
-                str.unsetf(std::ios::floatfield);
-                str.precision(9);
-            }
-            str << f;
-        }
-        
-        SmartColorEditor::ByteColor::ByteColor(const int r, const int g, const int b) {
-            assert(r >= 0 && r <= 255);
-            assert(g >= 0 && g <= 255);
-            assert(b >= 0 && b <= 255);
-            
-            m_v[0] = r;
-            m_v[1] = g;
-            m_v[2] = b;
-        }
-        
-        SmartColorEditor::ColorPtr SmartColorEditor::ByteColor::toFloatColor() const {
-            return ColorPtr(new FloatColor(static_cast<float>(r()) / 255.0f,
-                                           static_cast<float>(g()) / 255.0f,
-                                           static_cast<float>(b()) / 255.0f));
-        }
-        
-        SmartColorEditor::ColorPtr SmartColorEditor::ByteColor::toByteColor() const {
-            return shared_from_this();
-        }
-        
-        wxColor SmartColorEditor::ByteColor::toWxColor() const {
-            return wxColor(r(), g(), b());
-        }
-        
-        String SmartColorEditor::ByteColor::asString() const {
-            StringStream str;
-            str << r() << " " << g() << " " << b();
-            return str.str();
-        }
-        
-        SmartColorEditor::ColorRange combineColorRanges(const SmartColorEditor::ColorRange oldRange, const SmartColorEditor::ColorRange newRange);
-        SmartColorEditor::ColorRange detectColorRange(const Model::Attributable* attributable, const Model::AttributeName& name);
-        SmartColorEditor::ColorRange detectColorRange(const Model::AttributableList& attributables, const Model::AttributeName& name);
-        
-        SmartColorEditor::ColorRange combineColorRanges(const SmartColorEditor::ColorRange oldRange, const SmartColorEditor::ColorRange newRange) {
-            if (oldRange == newRange)
-                return oldRange;
-            return SmartColorEditor::ColorRange_Mixed;
-        }
-        
-        SmartColorEditor::ColorRange detectColorRange(const Model::Attributable* attributable, const Model::AttributeName& name) {
-            assert(attributable != NULL);
-            if (!attributable->hasAttribute(name))
-                return SmartColorEditor::ColorRange_Byte;
-            const Model::AttributeValue& value = attributable->attribute(name);
-            return SmartColorEditor::Color::detectRange(value);
-        }
-        
-        SmartColorEditor::ColorRange detectColorRange(const Model::AttributableList& attributables, const Model::AttributeName& name) {
-            assert(!attributables.empty());
-            
-            Model::AttributableList::const_iterator it = attributables.begin();
-            Model::AttributableList::const_iterator end = attributables.end();
-            
-            SmartColorEditor::ColorRange range = detectColorRange(*it, name);
-            while (++it != end)
-                range = combineColorRanges(range, detectColorRange(*it, name));
-            return range;
-        }
-        
         SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document) :
         SmartAttributeEditor(document),
         m_panel(NULL),
@@ -203,56 +47,13 @@ namespace TrenchBroom {
         m_colorPicker(NULL),
         m_colorHistory(NULL) {}
         
-        struct ConvertColorRange {
-        private:
-            MapDocumentSPtr m_document;
-            Model::AttributeName m_name;
-            SmartColorEditor::ColorRange m_toRange;
-        public:
-            ConvertColorRange(MapDocumentSPtr document, const Model::AttributeName& name, const SmartColorEditor::ColorRange toRange) :
-            m_document(document),
-            m_name(name),
-            m_toRange(toRange) {}
-            
-            void operator()(Model::Attributable* attributable) const {
-                if (attributable->hasAttribute(m_name)) {
-                    const Model::AttributeValue& value = attributable->attribute(m_name);
-                    SmartColorEditor::ColorPtr originalColor = SmartColorEditor::Color::parseColor(value);
-                    SmartColorEditor::ColorPtr convertedColor = originalColor->toColor(m_toRange);
-                    m_controller->setEntityProperty(*entity, m_name, convertedColor->asString());
-                }
-            }
-        };
-        
         void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
-            const UndoableCommandGroup commandGroup(controller(), "Convert " + name() + " Range");
-            const Model::AttributableList& attributables = SmartAttributeEditor::entities();
-            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), name(), ColorRange_Float), Model::MatchAll());
+            document()->convertEntityColorRange(name(), ColorRange::Float);
         }
         
         void SmartColorEditor::OnByteRangeRadioButton(wxCommandEvent& event) {
-            const UndoableCommandGroup commandGroup(controller(), "Convert " + name() + " Range");
-            const Model::AttributableList& attributables = SmartAttributeEditor::entities();
-            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), name(), ColorRange_Byte), Model::MatchAll());
+            document()->convertEntityColorRange(name(), ColorRange::Byte);
         }
-        
-        struct SetColor {
-        private:
-            View::ControllerSPtr m_controller;
-            Model::AttributeName m_name;
-            SmartColorEditor::ColorPtr m_color;
-        public:
-            SetColor(View::ControllerSPtr controller, const Model::AttributeName& name, SmartColorEditor::ColorPtr color) :
-            m_controller(controller),
-            m_name(name),
-            m_color(color) {}
-            
-            void operator()(Model::Entity* entity) const {
-                const SmartColorEditor::ColorRange range = detectColorRange(*entity, m_name);
-                const SmartColorEditor::ColorPtr color = m_color->toColor(range);
-                m_controller->setEntityProperty(*entity, m_name, color->asString());
-            }
-        };
         
         void SmartColorEditor::OnColorPickerChanged(wxColourPickerEvent& event) {
             setColor(event.GetColour());
@@ -295,7 +96,7 @@ namespace TrenchBroom {
             m_floatRadio->Bind(wxEVT_RADIOBUTTON, &SmartColorEditor::OnFloatRangeRadioButton, this);
             m_byteRadio->Bind(wxEVT_RADIOBUTTON, &SmartColorEditor::OnByteRangeRadioButton, this);
             m_colorPicker->Bind(wxEVT_COLOURPICKER_CHANGED, &SmartColorEditor::OnColorPickerChanged, this);
-            m_colorHistory->Bind(EVT_COLOR_TABLE_SELECTED_EVENT, EVT_COLOR_TABLE_SELECTED_HANDLER(SmartColorEditor::OnColorTableSelected), this);
+            m_colorHistory->Bind(COLOR_TABLE_SELECTED_EVENT, &SmartColorEditor::OnColorTableSelected, this);
             
             return m_panel;
         }
@@ -322,36 +123,22 @@ namespace TrenchBroom {
             assert(m_colorPicker != NULL);
             assert(m_colorHistory != NULL);
             
-            const wxColorList usedColors = collectColors(entities);
-            assert(!usedColors.empty());
-            const wxColor pickerColor = usedColors.back();
-            
-            updateColorRange(entities);
-            updateColorPicker(pickerColor);
-            updateColorHistory(usedColors);
+            updateColorRange(attributables);
+            updateColorHistory();
         }
         
         void SmartColorEditor::updateColorRange(const Model::AttributableList& attributables) {
-            const ColorRange range = detectColorRange(entities, name());
-            switch (range) {
-                case ColorRange_Float:
-                    m_floatRadio->SetValue(true);
-                    m_byteRadio->SetValue(false);
-                    break;
-                case ColorRange_Byte:
-                    m_floatRadio->SetValue(false);
-                    m_byteRadio->SetValue(true);
-                    break;
-                case ColorRange_Mixed:
-                    m_floatRadio->SetValue(false);
-                    m_byteRadio->SetValue(false);
-                    break;
+            const ColorRange::Type range = detectColorRange(name(), attributables);
+            if (range == ColorRange::Float) {
+                m_floatRadio->SetValue(true);
+                m_byteRadio->SetValue(false);
+            } else if (range == ColorRange::Byte) {
+                m_floatRadio->SetValue(false);
+                m_byteRadio->SetValue(true);
+            } else {
+                m_floatRadio->SetValue(false);
+                m_byteRadio->SetValue(false);
             }
-        }
-        
-        
-        void SmartColorEditor::updateColorPicker(const wxColor& color) {
-            m_colorPicker->SetColour(color);
         }
         
         struct ColorCmp {
@@ -381,34 +168,48 @@ namespace TrenchBroom {
             }
         };
         
-        void SmartColorEditor::updateColorHistory(const wxColorList& selectedColors) {
-            const Model::AttributableList& attributables = document()->map()->entities();
+        class SmartColorEditor::CollectColorVisitor : public Model::ConstNodeVisitor {
+        private:
+            const Model::AttributeName& m_name;
+            wxColorList m_allColors;
+            wxColorList m_selectedColors;
+        public:
+            CollectColorVisitor(const Model::AttributeName& name) : m_name(name) {}
+            const wxColorList& allColors() const { return m_allColors; }
+            const wxColorList& selectedColors() const { return m_selectedColors; }
+        private:
+            void doVisit(const Model::World* world)   { visitAttributable(world); }
+            void doVisit(const Model::Layer* layer)   {}
+            void doVisit(const Model::Group* group)   {}
+            void doVisit(const Model::Entity* entity) { visitAttributable(entity); stopRecursion(); }
+            void doVisit(const Model::Brush* brush)   {}
             
-            wxColorList allColors = collectColors(entities);
-            VectorUtils::sortAndRemoveDuplicates(allColors, ColorCmp());
-            m_colorHistory->setColors(allColors);
-            m_colorHistory->setSelection(selectedColors);
-        }
-        
-        SmartColorEditor::wxColorList SmartColorEditor::collectColors(const Model::AttributableList& attributables) const {
-            wxColorList colors;
-            Model::EntityList::const_iterator it, end;
-            for (it = entities.begin(), end = entities.end(); it != end; ++it) {
-                const Model::Entity* entity = *it;
-                if (entity->hasProperty(name())) {
-                    const ColorPtr color = Color::parseColor(entity->property(name()));
-                    colors.push_back(color->toWxColor());
+            void visitAttributable(const Model::Attributable* attributable) {
+                static const Model::AttributeValue NullValue("");
+                const Model::AttributeValue& value = attributable->attribute(m_name, NullValue);
+                if (value != NullValue) {
+                    const wxColor color = parseEntityColor(value);
+                    
+                    if (VectorUtils::setInsert(m_allColors, color, ColorCmp())) {
+                        if (attributable->selected() || attributable->descendantSelected())
+                            VectorUtils::setInsert(m_selectedColors, color, ColorCmp());
+                    }
                 }
             }
-            return colors;
-        }
-
-        void SmartColorEditor::setColor(const wxColor& wxColor) const {
-            ColorPtr color = Color::fromWxColor(wxColor, ColorRange_Byte);
+        };
+        
+        void SmartColorEditor::updateColorHistory() {
+            CollectColorVisitor visitor(name());
+            document()->world()->acceptAndRecurse(visitor);
             
-            const UndoableCommandGroup commandGroup(controller(), "Set " + name());
-            const Model::AttributableList& attributables = SmartAttributeEditor::entities();
-            Model::each(entities.begin(), entities.end(), SetColor(controller(), name(), color), Model::MatchAll());
+            m_colorHistory->setColors(visitor.allColors());
+            m_colorHistory->setSelection(visitor.selectedColors());
+            m_colorPicker->SetColour(visitor.selectedColors().back());
+        }
+        
+        void SmartColorEditor::setColor(const wxColor& wxColor) const {
+            const Color color(wxColor.Red(), wxColor.Green(), wxColor.Blue());
+            document()->setEntityColor(name(), color);
         }
     }
 }

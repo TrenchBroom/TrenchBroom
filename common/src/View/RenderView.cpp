@@ -75,6 +75,14 @@ namespace TrenchBroom {
             event.Skip();
         }
 
+        Renderer::FontManager& RenderView::fontManager() {
+            return m_glContext->fontManager();
+        }
+        
+        Renderer::ShaderManager& RenderView::shaderManager() {
+            return m_glContext->shaderManager();
+        }
+
         int RenderView::depthBits() const {
             return m_attribs[3];
         }

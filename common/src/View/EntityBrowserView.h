@@ -25,7 +25,6 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexSpec.h"
 #include "View/CellView.h"
-#include "View/GLContextHolder.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -43,6 +42,8 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class GLContextManager;
+        
         typedef String EntityGroupData;
         
         class EntityCellData {
@@ -74,12 +75,12 @@ namespace TrenchBroom {
         public:
             EntityBrowserView(wxWindow* parent,
                               wxScrollBar* scrollBar,
-                              GLContextHolder::Ptr sharedContext,
+                              GLContextManager& contextManager,
                               Assets::EntityDefinitionManager& entityDefinitionManager,
                               Assets::EntityModelManager& entityModelManager,
                               Logger& logger);
             ~EntityBrowserView();
-            
+        public:
             void setSortOrder(Assets::EntityDefinition::SortOrder sortOrder);
             void setGroup(bool group);
             void setHideUnused(bool hideUnused);

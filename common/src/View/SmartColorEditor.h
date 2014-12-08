@@ -41,71 +41,6 @@ namespace TrenchBroom {
         class ColorTableSelectedCommand;
         
         class SmartColorEditor : public SmartAttributeEditor {
-        public:
-            typedef enum {
-                ColorRange_Float,
-                ColorRange_Byte,
-                ColorRange_Mixed
-            } ColorRange;
-
-            class Color;
-            typedef std::tr1::shared_ptr<const Color> ColorPtr;
-            
-            class Color : public std::tr1::enable_shared_from_this<Color> {
-            public:
-                virtual ~Color();
-                
-                static ColorPtr parseColor(const String& str);
-                static ColorRange detectRange(const String& str);
-                static ColorPtr fromWxColor(const wxColor& wxColor, ColorRange range);
-                
-                virtual ColorPtr toFloatColor() const = 0;
-                virtual ColorPtr toByteColor() const = 0;
-                ColorPtr toColor(ColorRange range) const;
-                virtual wxColor toWxColor() const = 0;
-                
-                virtual String asString() const = 0;
-            private:
-                static ColorRange detectRange(const StringList& components);
-            };
-            
-            template <typename T>
-            class Color_ : public Color {
-            protected:
-                T m_v[3];
-            public:
-                T r() const {
-                    return m_v[0];
-                }
-                
-                T g() const {
-                    return m_v[1];
-                }
-                
-                T b() const {
-                    return m_v[2];
-                }
-            };
-            
-            class FloatColor : public Color_<float> {
-            public:
-                FloatColor(float r, float g, float b);
-                ColorPtr toFloatColor() const;
-                ColorPtr toByteColor() const;
-                wxColor toWxColor() const;
-                String asString() const;
-            private:
-                void print(StringStream& str, const float f) const;
-            };
-            
-            class ByteColor : public Color_<int> {
-            public:
-                ByteColor(int r, int g, int b);
-                ColorPtr toFloatColor() const;
-                ColorPtr toByteColor() const;
-                wxColor toWxColor() const;
-                String asString() const;
-            };
         private:
             static const size_t ColorHistoryCellSize = 15;
             typedef std::vector<wxColour> wxColorList;
@@ -127,10 +62,10 @@ namespace TrenchBroom {
             void doDestroyVisual();
             void doUpdateVisual(const Model::AttributableList& attributables);
 
+            class CollectColorVisitor;
             void updateColorRange(const Model::AttributableList& attributables);
-            void updateColorPicker(const wxColor& color);
-            void updateColorHistory(const wxColorList& selectedColors);
-            wxColorList collectColors(const Model::AttributableList& attributables) const;
+            void updateColorHistory();
+
             void setColor(const wxColor& wxColor) const;
         };
     }

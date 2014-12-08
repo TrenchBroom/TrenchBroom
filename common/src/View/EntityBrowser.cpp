@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "Model/Game.h"
 #include "View/EntityBrowserView.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
@@ -34,10 +35,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityBrowser::EntityBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document) :
+        EntityBrowser::EntityBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         wxPanel(parent),
         m_document(document) {
-            createGui(sharedContext);
+            createGui(contextManager);
             bindObservers();
         }
         
@@ -69,13 +70,13 @@ namespace TrenchBroom {
             m_view->setFilterText(m_filterBox->GetValue().ToStdString());
         }
 
-        void EntityBrowser::createGui(GLContextHolder::Ptr sharedContext) {
+        void EntityBrowser::createGui(GLContextManager& contextManager) {
             wxPanel* browserPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
             
             MapDocumentSPtr document = lock(m_document);
             m_view = new EntityBrowserView(browserPanel, m_scrollBar,
-                                           sharedContext,
+                                           contextManager,
                                            document->entityDefinitionManager(),
                                            document->entityModelManager(),
                                            *document);
@@ -148,11 +149,11 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &EntityBrowser::preferenceDidChange);
         }
 
-        void EntityBrowser::documentWasNewed() {
+        void EntityBrowser::documentWasNewed(MapDocument* document) {
             reload();
         }
         
-        void EntityBrowser::documentWasLoaded() {
+        void EntityBrowser::documentWasLoaded(MapDocument* document) {
             reload();
         }
 
@@ -166,7 +167,7 @@ namespace TrenchBroom {
 
         void EntityBrowser::preferenceDidChange(const IO::Path& path) {
             MapDocumentSPtr document = lock(m_document);
-            if (document->isGamePathPreference(path))
+            if (document->game()->isGamePathPreference(path))
                 reload();
             else
                 m_view->Refresh();

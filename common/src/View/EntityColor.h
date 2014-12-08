@@ -17,17 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TrenchBroom_GLAttribs_h
-#define TrenchBroom_GLAttribs_h
+#ifndef __TrenchBroom__EntityColor__
+#define __TrenchBroom__EntityColor__
 
-#include <vector>
+#include "StringUtils.h"
+#include "Model/ModelTypes.h"
+
+#include <wx/colour.h>
 
 namespace TrenchBroom {
     namespace View {
-        typedef std::vector<int> GLAttribs;
+        namespace ColorRange {
+            typedef int Type;
+            static const Type Unset = 0;
+            static const Type Float = 1;
+            static const Type Byte  = 2;
+            static const Type Mixed = Float | Byte;
+        }
         
-        const GLAttribs& buildAttribs();
+        ColorRange::Type detectColorRange(const Model::AttributeName& name, const Model::AttributableList& attributables);
+        ColorRange::Type detectColorRange(const String& str);
+        
+        wxColor parseEntityColor(const String& str);
     }
 }
 
-#endif
+#endif /* defined(__TrenchBroom__EntityColor__) */

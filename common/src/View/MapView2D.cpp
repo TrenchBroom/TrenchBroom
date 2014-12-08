@@ -217,8 +217,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        Renderer::RenderContext MapView2D::doCreateRenderContext(GLContextManager& contextManager) const {
-            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, contextManager.fontManager(), contextManager.shaderManager());
+        Renderer::RenderContext MapView2D::doCreateRenderContext() const {
+            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
         }
 
         void MapView2D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

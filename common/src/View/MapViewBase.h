@@ -64,11 +64,8 @@ namespace TrenchBroom {
         private:
             Renderer::MapRenderer& m_renderer;
             Renderer::Vbo& m_vbo;
-            GLContextManager& m_contextManager;
         protected:
             MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, InputSource inputSource, GLContextManager& contextManager);
-        private:
-            static const GLAttribs& buildAttribs();
         public:
             virtual ~MapViewBase();
         private:
@@ -160,7 +157,7 @@ namespace TrenchBroom {
             virtual ActionContext doGetActionContext() const = 0;
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;
             virtual bool doCancel() = 0;
-            virtual Renderer::RenderContext doCreateRenderContext(GLContextManager& contextManager) const = 0;
+            virtual Renderer::RenderContext doCreateRenderContext() const = 0;
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;

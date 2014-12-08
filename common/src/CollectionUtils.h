@@ -455,8 +455,7 @@ namespace VectorUtils {
     }
 
     template <typename T1, typename T2, typename Compare>
-    bool setInsert(std::vector<T1>& vec, const T2& object) {
-        Compare cmp;
+    bool setInsert(std::vector<T1>& vec, const T2& object, const Compare& cmp) {
         typename std::vector<T1>::iterator it = std::lower_bound(vec.begin(), vec.end(), object, cmp);
         if (it == vec.end()) {
             vec.push_back(object);
@@ -470,9 +469,13 @@ namespace VectorUtils {
         return false;
     }
     
+    template <typename T1, typename T2, typename Compare>
+    bool setInsert(std::vector<T1>& vec, const T2& object) {
+        return setInsert(vec, object, Compare());
+    }
+
     template <typename T, typename I, typename Compare>
-    void setInsert(std::vector<T>& vec, I cur, const I end) {
-        Compare cmp;
+    void setInsert(std::vector<T>& vec, I cur, const I end, const Compare& cmp) {
         while (cur != end) {
             typename std::vector<T>::iterator it = std::lower_bound(vec.begin(), vec.end(), *cur, cmp);
             if (it == vec.end())
@@ -483,6 +486,11 @@ namespace VectorUtils {
                 *it = *cur;
             ++cur;
         }
+    }
+    
+    template <typename T, typename I, typename Compare>
+    void setInsert(std::vector<T>& vec, I cur, const I end) {
+        return setInsert(vec, cur, end, Compare());
     }
     
     template <typename T1, typename T2, typename Compare>
