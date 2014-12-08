@@ -20,12 +20,10 @@
 #include "SmartColorEditor.h"
 
 #include "CollectionUtils.h"
-#include "Model/Entity.h"
-#include "Model/Map.h"
-#include "Model/ModelUtils.h"
+#include "Model/Attributable.h"
+#include "Model/World.h"
 #include "View/ColorTable.h"
 #include "View/ColorTableSelectedCommand.h"
-#include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
@@ -168,8 +166,8 @@ namespace TrenchBroom {
         }
         
         SmartColorEditor::ColorRange combineColorRanges(const SmartColorEditor::ColorRange oldRange, const SmartColorEditor::ColorRange newRange);
-        SmartColorEditor::ColorRange detectColorRange(const Model::Entity& entity, const Model::PropertyKey& key);
-        SmartColorEditor::ColorRange detectColorRange(const Model::EntityList& entities, const Model::PropertyKey& key);
+        SmartColorEditor::ColorRange detectColorRange(const Model::Attributable* attributable, const Model::AttributeName& name);
+        SmartColorEditor::ColorRange detectColorRange(const Model::AttributableList& attributables, const Model::AttributeName& name);
         
         SmartColorEditor::ColorRange combineColorRanges(const SmartColorEditor::ColorRange oldRange, const SmartColorEditor::ColorRange newRange) {
             if (oldRange == newRange)
@@ -177,27 +175,28 @@ namespace TrenchBroom {
             return SmartColorEditor::ColorRange_Mixed;
         }
         
-        SmartColorEditor::ColorRange detectColorRange(const Model::Entity& entity, const Model::PropertyKey& key) {
-            if (!entity.hasProperty(key))
+        SmartColorEditor::ColorRange detectColorRange(const Model::Attributable* attributable, const Model::AttributeName& name) {
+            assert(attributable != NULL);
+            if (!attributable->hasAttribute(name))
                 return SmartColorEditor::ColorRange_Byte;
-            const Model::PropertyValue& value = entity.property(key);
+            const Model::AttributeValue& value = attributable->attribute(name);
             return SmartColorEditor::Color::detectRange(value);
         }
         
-        SmartColorEditor::ColorRange detectColorRange(const Model::EntityList& entities, const Model::PropertyKey& key) {
-            assert(!entities.empty());
+        SmartColorEditor::ColorRange detectColorRange(const Model::AttributableList& attributables, const Model::AttributeName& name) {
+            assert(!attributables.empty());
             
-            Model::EntityList::const_iterator it = entities.begin();
-            Model::EntityList::const_iterator end = entities.end();
+            Model::AttributableList::const_iterator it = attributables.begin();
+            Model::AttributableList::const_iterator end = attributables.end();
             
-            SmartColorEditor::ColorRange range = detectColorRange(**it, key);
+            SmartColorEditor::ColorRange range = detectColorRange(*it, name);
             while (++it != end)
-                range = combineColorRanges(range, detectColorRange(**it, key));
+                range = combineColorRanges(range, detectColorRange(*it, name));
             return range;
         }
         
-        SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller) :
-        SmartAttributeEditor(document, controller),
+        SmartColorEditor::SmartColorEditor(View::MapDocumentWPtr document) :
+        SmartAttributeEditor(document),
         m_panel(NULL),
         m_floatRadio(NULL),
         m_byteRadio(NULL),
@@ -206,52 +205,52 @@ namespace TrenchBroom {
         
         struct ConvertColorRange {
         private:
-            View::ControllerSPtr m_controller;
-            Model::PropertyKey m_key;
+            MapDocumentSPtr m_document;
+            Model::AttributeName m_name;
             SmartColorEditor::ColorRange m_toRange;
         public:
-            ConvertColorRange(View::ControllerSPtr controller, const Model::PropertyKey& key, const SmartColorEditor::ColorRange toRange) :
-            m_controller(controller),
-            m_key(key),
+            ConvertColorRange(MapDocumentSPtr document, const Model::AttributeName& name, const SmartColorEditor::ColorRange toRange) :
+            m_document(document),
+            m_name(name),
             m_toRange(toRange) {}
             
-            void operator()(Model::Entity* entity) const {
-                if (entity->hasProperty(m_key)) {
-                    const Model::PropertyValue& value = entity->property(m_key);
+            void operator()(Model::Attributable* attributable) const {
+                if (attributable->hasAttribute(m_name)) {
+                    const Model::AttributeValue& value = attributable->attribute(m_name);
                     SmartColorEditor::ColorPtr originalColor = SmartColorEditor::Color::parseColor(value);
                     SmartColorEditor::ColorPtr convertedColor = originalColor->toColor(m_toRange);
-                    m_controller->setEntityProperty(*entity, m_key, convertedColor->asString());
+                    m_controller->setEntityProperty(*entity, m_name, convertedColor->asString());
                 }
             }
         };
         
         void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
-            const UndoableCommandGroup commandGroup(controller(), "Convert " + key() + " Range");
-            const Model::EntityList& entities = SmartAttributeEditor::entities();
-            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), key(), ColorRange_Float), Model::MatchAll());
+            const UndoableCommandGroup commandGroup(controller(), "Convert " + name() + " Range");
+            const Model::AttributableList& attributables = SmartAttributeEditor::entities();
+            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), name(), ColorRange_Float), Model::MatchAll());
         }
         
         void SmartColorEditor::OnByteRangeRadioButton(wxCommandEvent& event) {
-            const UndoableCommandGroup commandGroup(controller(), "Convert " + key() + " Range");
-            const Model::EntityList& entities = SmartAttributeEditor::entities();
-            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), key(), ColorRange_Byte), Model::MatchAll());
+            const UndoableCommandGroup commandGroup(controller(), "Convert " + name() + " Range");
+            const Model::AttributableList& attributables = SmartAttributeEditor::entities();
+            Model::each(entities.begin(), entities.end(), ConvertColorRange(controller(), name(), ColorRange_Byte), Model::MatchAll());
         }
         
         struct SetColor {
         private:
             View::ControllerSPtr m_controller;
-            Model::PropertyKey m_key;
+            Model::AttributeName m_name;
             SmartColorEditor::ColorPtr m_color;
         public:
-            SetColor(View::ControllerSPtr controller, const Model::PropertyKey& key, SmartColorEditor::ColorPtr color) :
+            SetColor(View::ControllerSPtr controller, const Model::AttributeName& name, SmartColorEditor::ColorPtr color) :
             m_controller(controller),
-            m_key(key),
+            m_name(name),
             m_color(color) {}
             
             void operator()(Model::Entity* entity) const {
-                const SmartColorEditor::ColorRange range = detectColorRange(*entity, m_key);
+                const SmartColorEditor::ColorRange range = detectColorRange(*entity, m_name);
                 const SmartColorEditor::ColorPtr color = m_color->toColor(range);
-                m_controller->setEntityProperty(*entity, m_key, color->asString());
+                m_controller->setEntityProperty(*entity, m_name, color->asString());
             }
         };
         
@@ -316,7 +315,7 @@ namespace TrenchBroom {
             m_colorHistory = NULL;
         }
         
-        void SmartColorEditor::doUpdateVisual(const Model::EntityList& entities) {
+        void SmartColorEditor::doUpdateVisual(const Model::AttributableList& attributables) {
             assert(m_panel != NULL);
             assert(m_floatRadio != NULL);
             assert(m_byteRadio != NULL);
@@ -332,8 +331,8 @@ namespace TrenchBroom {
             updateColorHistory(usedColors);
         }
         
-        void SmartColorEditor::updateColorRange(const Model::EntityList& entities) {
-            const ColorRange range = detectColorRange(entities, key());
+        void SmartColorEditor::updateColorRange(const Model::AttributableList& attributables) {
+            const ColorRange range = detectColorRange(entities, name());
             switch (range) {
                 case ColorRange_Float:
                     m_floatRadio->SetValue(true);
@@ -383,7 +382,7 @@ namespace TrenchBroom {
         };
         
         void SmartColorEditor::updateColorHistory(const wxColorList& selectedColors) {
-            const Model::EntityList& entities = document()->map()->entities();
+            const Model::AttributableList& attributables = document()->map()->entities();
             
             wxColorList allColors = collectColors(entities);
             VectorUtils::sortAndRemoveDuplicates(allColors, ColorCmp());
@@ -391,13 +390,13 @@ namespace TrenchBroom {
             m_colorHistory->setSelection(selectedColors);
         }
         
-        SmartColorEditor::wxColorList SmartColorEditor::collectColors(const Model::EntityList& entities) const {
+        SmartColorEditor::wxColorList SmartColorEditor::collectColors(const Model::AttributableList& attributables) const {
             wxColorList colors;
             Model::EntityList::const_iterator it, end;
             for (it = entities.begin(), end = entities.end(); it != end; ++it) {
                 const Model::Entity* entity = *it;
-                if (entity->hasProperty(key())) {
-                    const ColorPtr color = Color::parseColor(entity->property(key()));
+                if (entity->hasProperty(name())) {
+                    const ColorPtr color = Color::parseColor(entity->property(name()));
                     colors.push_back(color->toWxColor());
                 }
             }
@@ -407,9 +406,9 @@ namespace TrenchBroom {
         void SmartColorEditor::setColor(const wxColor& wxColor) const {
             ColorPtr color = Color::fromWxColor(wxColor, ColorRange_Byte);
             
-            const UndoableCommandGroup commandGroup(controller(), "Set " + key());
-            const Model::EntityList& entities = SmartAttributeEditor::entities();
-            Model::each(entities.begin(), entities.end(), SetColor(controller(), key(), color), Model::MatchAll());
+            const UndoableCommandGroup commandGroup(controller(), "Set " + name());
+            const Model::AttributableList& attributables = SmartAttributeEditor::entities();
+            Model::each(entities.begin(), entities.end(), SetColor(controller(), name(), color), Model::MatchAll());
         }
     }
 }

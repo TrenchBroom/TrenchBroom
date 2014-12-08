@@ -40,8 +40,8 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
 
             const String& name = command.name();
-            const Model::EntityList& entities = document->allSelectedEntities();
-            m_smartEditorManager->switchEditor(name, entities);
+            const Model::AttributableList& attributables = document->allSelectedAttributables();
+            m_smartEditorManager->switchEditor(name, attributables);
         }
 
         void EntityAttributeEditor::createGui(wxWindow* parent, MapDocumentWPtr document) {
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             sizer->SetItemMinSize(m_smartEditorManager, 100, 120);
             SetSizer(sizer);
             
-            m_attributeGrid->Bind(EVT_ENTITY_PROPERTY_SELECTED_EVENT, EVT_ENTITY_PROPERTY_SELECTED_HANDLER(EntityAttributeEditor::OnEntityAttributeSelected), this);
+            m_attributeGrid->Bind(ENTITY_ATTRIBUTE_SELECTED_EVENT, &EntityAttributeEditor::OnEntityAttributeSelected, this);
         }
     }
 }

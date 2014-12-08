@@ -21,13 +21,12 @@
 
 #include "CollectionUtils.h"
 #include "Notifier.h"
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
-#include "Model/EntityDefinitionFileSpec.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
 #include "View/ChoosePathTypeDialog.h"
-#include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
@@ -42,10 +41,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityDefinitionFileChooser::EntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
+        EntityDefinitionFileChooser::EntityDefinitionFileChooser(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
-        m_document(document),
-        m_controller(controller) {
+        m_document(document) {
             createGui();
             bindEvents();
             bindObservers();
@@ -59,16 +57,15 @@ namespace TrenchBroom {
             assert(m_builtin->GetSelection() != wxNOT_FOUND);
 
             MapDocumentSPtr document = lock(m_document);
-            ControllerSPtr controller = lock(m_controller);
 
-            Model::EntityDefinitionFileSpec::List specs = document->entityDefinitionFiles();
-            std::sort(specs.begin(), specs.end());
+            Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
+            VectorUtils::sort(specs);
             
             const size_t index = static_cast<size_t>(m_builtin->GetSelection());
             assert(index < specs.size());
-            const Model::EntityDefinitionFileSpec& spec = specs[index];
+            const Assets::EntityDefinitionFileSpec& spec = specs[index];
             
-            controller->setEntityDefinitionFile(spec);
+            document->setEntityDefinitionFile(spec);
         }
         
         void EntityDefinitionFileChooser::OnChooseExternalClicked(wxCommandEvent& event) {
@@ -79,11 +76,13 @@ namespace TrenchBroom {
             if (pathWxStr.empty())
                 return;
             
-            loadEntityDefinitionFile(m_document, m_controller, this, pathWxStr);
+            loadEntityDefinitionFile(m_document, this, pathWxStr);
         }
 
         void EntityDefinitionFileChooser::OnReloadExternalClicked(wxCommandEvent& event) {
-            lock(m_controller)->reloadEntityDefinitionFile();
+            MapDocumentSPtr document = lock(m_document);
+            const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
+            document->setEntityDefinitionFile(spec);
         }
         
         void EntityDefinitionFileChooser::OnUpdateReloadExternal(wxUpdateUIEvent& event) {
@@ -156,11 +155,11 @@ namespace TrenchBroom {
             }
         }
         
-        void EntityDefinitionFileChooser::documentWasNewed() {
+        void EntityDefinitionFileChooser::documentWasNewed(MapDocument* document) {
             updateControls();
         }
         
-        void EntityDefinitionFileChooser::documentWasLoaded() {
+        void EntityDefinitionFileChooser::documentWasLoaded(MapDocument* document) {
             updateControls();
         }
         
@@ -172,17 +171,17 @@ namespace TrenchBroom {
             m_builtin->Clear();
             
             MapDocumentSPtr document = lock(m_document);
-            Model::EntityDefinitionFileSpec::List specs = document->entityDefinitionFiles();
-            std::sort(specs.begin(), specs.end());
+            Assets::EntityDefinitionFileSpec::List specs = document->allEntityDefinitionFiles();
+            VectorUtils::sort(specs);
             
-            Model::EntityDefinitionFileSpec::List::const_iterator it, end;
+            Assets::EntityDefinitionFileSpec::List::const_iterator it, end;
             for (it = specs.begin(), end = specs.end(); it != end; ++it) {
-                const Model::EntityDefinitionFileSpec& spec = *it;
+                const Assets::EntityDefinitionFileSpec& spec = *it;
                 const IO::Path& path = spec.path();
                 m_builtin->Append(path.lastComponent().asString());
             }
             
-            const Model::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
+            const Assets::EntityDefinitionFileSpec spec = document->entityDefinitionFile();
             if (spec.builtin()) {
                 const size_t index = VectorUtils::indexOf(specs, spec);
                 if (index < specs.size())

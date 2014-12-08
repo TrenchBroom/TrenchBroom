@@ -17,16 +17,27 @@
  along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SmartChoiceEditorMatcher.h"
+#include "ColorTableSelectedCommand.h"
 
-#include "Assets/AttributeDefinition.h"
-#include "Model/Attributable.h"
+wxDEFINE_EVENT(COLOR_TABLE_SELECTED_EVENT, TrenchBroom::View::ColorTableSelectedCommand);
 
 namespace TrenchBroom {
     namespace View {
-        bool SmartChoiceEditorMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableList& attributables) const {
-            const Assets::AttributeDefinition* attrDef = Model::Attributable::selectAttributeDefinition(name, attributables);
-            return attrDef != NULL && attrDef->type() == Assets::AttributeDefinition::Type_ChoiceAttribute;
+        IMPLEMENT_DYNAMIC_CLASS(ColorTableSelectedCommand, wxNotifyEvent)
+        ColorTableSelectedCommand::ColorTableSelectedCommand() :
+        wxNotifyEvent(COLOR_TABLE_SELECTED_EVENT, wxID_ANY) {}
+        
+        const wxColor& ColorTableSelectedCommand::color() const {
+            return m_color;
         }
+        
+        void ColorTableSelectedCommand::setColor(const wxColor& color) {
+            m_color = color;
+        }
+
+        wxEvent* ColorTableSelectedCommand::Clone() const {
+            return new ColorTableSelectedCommand(*this);
+        }
+        
     }
 }

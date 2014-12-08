@@ -20,15 +20,15 @@
 #include "SmartDefaultAttributeEditor.h"
 
 #include "Assets/EntityDefinition.h"
-#include "Model/ModelUtils.h"
+#include "Model/Attributable.h"
 
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
 
 namespace TrenchBroom {
     namespace View {
-        SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller) :
-        SmartAttributeEditor(document, controller) {}
+        SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(View::MapDocumentWPtr document) :
+        SmartAttributeEditor(document) {}
 
         wxWindow* SmartDefaultAttributeEditor::doCreateVisual(wxWindow* parent) {
             m_descriptionTxt = new wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);
@@ -43,7 +43,7 @@ namespace TrenchBroom {
         void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableList& attributables) {
             m_descriptionTxt->Clear();
 
-            const Assets::EntityDefinition* entityDefinition = Model::selectEntityDefinition(entities);
+            const Assets::EntityDefinition* entityDefinition = Model::Attributable::selectEntityDefinition(attributables);
             if (entityDefinition != NULL)
                 m_descriptionTxt->AppendText(entityDefinition->description());
         }

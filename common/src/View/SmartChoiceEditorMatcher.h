@@ -27,7 +27,7 @@ namespace TrenchBroom {
     namespace View {
         class SmartChoiceEditorMatcher : public SmartAttributeEditorMatcher {
         private:
-            bool doMatches(const Model::PropertyKey& key, const Model::EntityList& entities) const;
+            bool doMatches(const Model::AttributeName& name, const Model::AttributableList& attributables) const;
         };
     }
 }

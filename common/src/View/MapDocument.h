@@ -25,6 +25,7 @@
 #include "VecMath.h"
 #include "Hit.h"
 #include "Assets/AssetTypes.h"
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
@@ -204,6 +205,8 @@ namespace TrenchBroom {
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             bool removeAttribute(const Model::AttributeName& name);
+            
+            bool convertColorRange(const Model::AttributeName& name, )
         public: // modifying face attributes
             bool setTexture(Assets::Texture* texture);
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
@@ -270,6 +273,7 @@ namespace TrenchBroom {
             void removeNodes(const Model::NodeList& nodes);
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
+            Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
             void addTextureCollection(const String& name);

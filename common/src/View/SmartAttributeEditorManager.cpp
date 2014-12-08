@@ -60,41 +60,41 @@ namespace TrenchBroom {
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorKeyMatcher("_color", "_sunlight_color", "_sunlight_color2")),
                                                   EditorPtr(new SmartColorEditor(m_document))));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartChoiceEditorMatcher()),
-                                                  EditorPtr(new SmartChoiceEditor(document, controller))));
+                                                  EditorPtr(new SmartChoiceEditor(m_document))));
             m_editors.push_back(MatcherEditorPair(MatcherPtr(new SmartAttributeEditorDefaultMatcher()),
-                                                  EditorPtr(new SmartDefaultPropertyEditor(m_document))));
+                                                  EditorPtr(new SmartDefaultAttributeEditor(m_document))));
         }
         
         void SmartAttributeEditorManager::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::selectionDidChange);
-            document->objectsDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::objectsDidChange);
+            document->nodesDidChangeNotifier.addObserver(this, &SmartAttributeEditorManager::nodesDidChange);
         }
         
         void SmartAttributeEditorManager::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
                 document->selectionDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::selectionDidChange);
-                document->objectsDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::objectsDidChange);
+                document->nodesDidChangeNotifier.removeObserver(this, &SmartAttributeEditorManager::nodesDidChange);
             }
         }
 
-        void SmartAttributeEditorManager::selectionDidChange(const Model::SelectionResult& result) {
+        void SmartAttributeEditorManager::selectionDidChange(const Selection& selection) {
             MapDocumentSPtr document = lock(m_document);
-            switchEditor(m_key, document->allSelectedEntities());
+            switchEditor(m_name, document->allSelectedAttributables());
         }
         
-        void SmartAttributeEditorManager::objectsDidChange(const Model::ObjectList& objects) {
+        void SmartAttributeEditorManager::nodesDidChange(const Model::NodeList& nodes) {
             MapDocumentSPtr document = lock(m_document);
-            switchEditor(m_key, document->allSelectedEntities());
+            switchEditor(m_name, document->allSelectedAttributables());
         }
-
-        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const Model::PropertyKey& key, const Model::EntityList& entities) const {
+        
+        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const Model::AttributeName& name, const Model::AttributableList& attributables) const {
             EditorList::const_iterator it, end;
             for (it = m_editors.begin(), end = m_editors.end(); it != end; ++it) {
                 const MatcherEditorPair& pair = *it;
                 const MatcherPtr matcher = pair.first;
-                if (matcher->matches(key, entities))
+                if (matcher->matches(name, attributables))
                     return pair.second;
             }
             
@@ -108,12 +108,12 @@ namespace TrenchBroom {
             return m_editors.back().second;
         }
         
-        void SmartAttributeEditorManager::activateEditor(EditorPtr editor, const Model::PropertyKey& key) {
-            if (m_activeEditor != editor || !m_activeEditor->usesKey(key)) {
+        void SmartAttributeEditorManager::activateEditor(EditorPtr editor, const Model::AttributeName& name) {
+            if (m_activeEditor != editor || !m_activeEditor->usesName(name)) {
                 deactivateEditor();
                 m_activeEditor = editor;
-                m_key = key;
-                wxWindow* window = m_activeEditor->activate(this, key);
+                m_name = name;
+                wxWindow* window = m_activeEditor->activate(this, m_name);
                 
                 wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
                 sizer->Add(window, 1, wxEXPAND);
@@ -126,14 +126,14 @@ namespace TrenchBroom {
             if (m_activeEditor != NULL) {
                 m_activeEditor->deactivate();
                 m_activeEditor = EditorPtr();
-                m_key = "";
+                m_name = "";
             }
         }
 
         void SmartAttributeEditorManager::updateEditor() {
             if (m_activeEditor != NULL) {
                 MapDocumentSPtr document = lock(m_document);
-                m_activeEditor->update(document->allSelectedEntities());
+                m_activeEditor->update(document->allSelectedAttributables());
             }
         }
     }

@@ -659,6 +659,10 @@ namespace TrenchBroom {
             return m_game->extractEntityDefinitionFile(m_world);
         }
         
+        Assets::EntityDefinitionFileSpec::List MapDocument::allEntityDefinitionFiles() const {
+            return m_game->allEntityDefinitionFiles();
+        }
+
         void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
             submit(EntityDefinitionFileCommand::set(spec));
         }

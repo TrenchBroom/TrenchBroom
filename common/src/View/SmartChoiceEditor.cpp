@@ -18,9 +18,9 @@
  */
 
 #include "SmartChoiceEditor.h"
-#include "Assets/PropertyDefinition.h"
-#include "Model/ModelUtils.h"
-#include "View/ControllerFacade.h"
+#include "Assets/AttributeDefinition.h"
+#include "Model/Attributable.h"
+#include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
 #include <wx/combobox.h>
@@ -32,19 +32,19 @@
 
 namespace TrenchBroom {
     namespace View {
-        SmartChoiceEditor::SmartChoiceEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller) :
-        SmartAttributeEditor(document, controller),
+        SmartChoiceEditor::SmartChoiceEditor(View::MapDocumentWPtr document) :
+        SmartAttributeEditor(document),
         m_panel(NULL),
         m_comboBox(NULL) {}
 
         void SmartChoiceEditor::OnComboBox(wxCommandEvent& event) {
             const String valueDescStr = m_comboBox->GetValue().ToStdString();
             const String valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
-            controller()->setEntityProperty(entities(), key(), valueStr);
+            document()->setAttribute(name(), valueStr);
         }
         
         void SmartChoiceEditor::OnTextEnter(wxCommandEvent& event) {
-            controller()->setEntityProperty(entities(), key(), m_comboBox->GetValue().ToStdString());
+            document()->setAttribute(name(), m_comboBox->GetValue().ToStdString());
         }
 
         wxWindow* SmartChoiceEditor::doCreateVisual(wxWindow* parent) {
@@ -80,26 +80,26 @@ namespace TrenchBroom {
             m_comboBox= NULL;
         }
         
-        void SmartChoiceEditor::doUpdateVisual(const Model::EntityList& entities) {
+        void SmartChoiceEditor::doUpdateVisual(const Model::AttributableList& attributables) {
             assert(m_panel != NULL);
             assert(m_comboBox != NULL);
             
             m_comboBox->Clear();
 
-            const Assets::PropertyDefinition* propDef = Model::selectPropertyDefinition(key(), entities);
-            if (propDef == NULL || propDef->type() != Assets::PropertyDefinition::Type_ChoiceProperty) {
+            const Assets::AttributeDefinition* attrDef = Model::Attributable::selectAttributeDefinition(name(), attributables);
+            if (attrDef == NULL || attrDef->type() != Assets::AttributeDefinition::Type_ChoiceAttribute) {
                 m_comboBox->Disable();
             } else {
-                const Assets::ChoicePropertyDefinition* choiceDef = static_cast<const Assets::ChoicePropertyDefinition*>(propDef);
-                const Assets::ChoicePropertyOption::List& options = choiceDef->options();
+                const Assets::ChoiceAttributeDefinition* choiceDef = static_cast<const Assets::ChoiceAttributeDefinition*>(attrDef);
+                const Assets::ChoiceAttributeOption::List& options = choiceDef->options();
                 
-                Assets::ChoicePropertyOption::List::const_iterator it, end;
+                Assets::ChoiceAttributeOption::List::const_iterator it, end;
                 for (it = options.begin(), end = options.end(); it != end; ++it) {
-                    const Assets::ChoicePropertyOption& option = *it;
+                    const Assets::ChoiceAttributeOption& option = *it;
                     m_comboBox->Append(option.value() + " : " + option.description());
                 }
                 
-                const Model::PropertyValue value = Model::selectPropertyValue(key(), entities);
+                const Model::AttributeValue value = Model::Attributable::selectAttributeValue(name(), attributables);
                 m_comboBox->SetValue(value);
             }
         }

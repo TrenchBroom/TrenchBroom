@@ -17,40 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__SmartChoiceEditor__
-#define __TrenchBroom__SmartChoiceEditor__
+#ifndef __TrenchBroom__PopupButton__
+#define __TrenchBroom__PopupButton__
 
-#include "Model/ModelTypes.h"
-#include "View/SmartAttributeEditor.h"
-#include "View/ViewTypes.h"
+#include <wx/panel.h>
 
-class wxComboBox;
+class wxToggleButton;
 class wxCommandEvent;
-class wxPanel;
-class wxStaticText;
+class wxPopupTransientWindow;
+class wxShowEvent;
 class wxWindow;
 
 namespace TrenchBroom {
-    namespace Assets {
-        class ChoicePropertyDefinition;
-    }
-    
     namespace View {
-        class SmartChoiceEditor : public SmartAttributeEditor {
+        class PopupButton : public wxPanel {
         private:
-            wxPanel* m_panel;
-            wxComboBox* m_comboBox;
+            wxToggleButton* m_button;
+            wxPopupTransientWindow* m_window;
         public:
-            SmartChoiceEditor(View::MapDocumentWPtr document);
+            PopupButton(wxWindow* parent, const wxString& caption);
             
-            void OnComboBox(wxCommandEvent& event);
-            void OnTextEnter(wxCommandEvent& event);
-        private:
-            wxWindow* doCreateVisual(wxWindow* parent);
-            void doDestroyVisual();
-            void doUpdateVisual(const Model::AttributableList& attributables);
+            wxWindow* GetPopupWindow() const;
+
+            void OnButtonToggled(wxCommandEvent& event);
+            void OnPopupShow(wxShowEvent& event);
+            bool Enable(bool enable = true);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__SmartChoiceEditor__) */
+#endif /* defined(__TrenchBroom__PopupButton__) */

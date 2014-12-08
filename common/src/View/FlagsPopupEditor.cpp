@@ -70,7 +70,7 @@ namespace TrenchBroom {
             sizer->Add(m_button, 0, wxALIGN_CENTER_VERTICAL);
             SetSizerAndFit(sizer);
             
-            m_editor->Bind(EVT_FLAG_CHANGED_EVENT, EVT_FLAG_CHANGED_HANDLER(FlagsPopupEditor::OnFlagChanged), this);
+            m_editor->Bind(FLAG_CHANGED_EVENT, &FlagsPopupEditor::OnFlagChanged, this);
         }
 
         void FlagsPopupEditor::setFlags(const wxArrayString& labels, const wxArrayString& tooltips) {

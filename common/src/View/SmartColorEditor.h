@@ -116,7 +116,7 @@ namespace TrenchBroom {
             wxColourPickerCtrl* m_colorPicker;
             ColorTable* m_colorHistory;
         public:
-            SmartColorEditor(View::MapDocumentWPtr document, View::ControllerWPtr controller);
+            SmartColorEditor(View::MapDocumentWPtr document);
             
             void OnFloatRangeRadioButton(wxCommandEvent& event);
             void OnByteRangeRadioButton(wxCommandEvent& event);
@@ -125,12 +125,12 @@ namespace TrenchBroom {
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
-            void doUpdateVisual(const Model::EntityList& entities);
+            void doUpdateVisual(const Model::AttributableList& attributables);
 
-            void updateColorRange(const Model::EntityList& entities);
+            void updateColorRange(const Model::AttributableList& attributables);
             void updateColorPicker(const wxColor& color);
             void updateColorHistory(const wxColorList& selectedColors);
-            wxColorList collectColors(const Model::EntityList& entities) const;
+            wxColorList collectColors(const Model::AttributableList& attributables) const;
             void setColor(const wxColor& wxColor) const;
         };
     }

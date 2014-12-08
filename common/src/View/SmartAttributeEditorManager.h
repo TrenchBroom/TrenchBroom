@@ -31,11 +31,8 @@
 class wxWindow;
 
 namespace TrenchBroom {
-    namespace Model {
-        class SelectionResult;
-    }
-    
     namespace View {
+        class Selection;
         class SmartAttributeEditor;
         class SmartAttributeEditorMatcher;
         
@@ -62,7 +59,7 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
-            void selectionDidChange(const Model::SelectionResult& result);
+            void selectionDidChange(const Selection& selection);
             void nodesDidChange(const Model::NodeList& nodes);
 
             EditorPtr selectEditor(const Model::AttributeName& name, const Model::AttributableList& attributables) const;
