@@ -37,6 +37,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class TexturedTriangleMeshRenderer;
+        class Vbo;
     }
     
     namespace Assets {
@@ -59,6 +60,9 @@ namespace TrenchBroom {
             mutable ModelMismatches m_modelMismatches;
             mutable RendererCache m_renderers;
             mutable RendererMismatches m_rendererMismatches;
+
+            mutable ModelList m_unpreparedModels;
+            mutable RendererList m_unpreparedRenderers;
         public:
             EntityModelManager(Logger* logger);
             ~EntityModelManager();
@@ -70,6 +74,11 @@ namespace TrenchBroom {
             Renderer::TexturedTriangleMeshRenderer* renderer(const Assets::ModelSpecification& spec) const;
         private:
             EntityModel* loadModel(const IO::Path& path) const;
+        public:
+            void prepare(Renderer::Vbo& vbo);
+        private:
+            void prepareModels();
+            void prepareRenderers(Renderer::Vbo& vbo);
         };
     }
 }

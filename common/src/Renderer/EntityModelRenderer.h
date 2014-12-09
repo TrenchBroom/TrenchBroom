@@ -54,8 +54,6 @@ namespace TrenchBroom {
             const Model::EditorContext& m_editorContext;
             
             EntityMap m_entities;
-            EntityModelList m_unpreparedModels;
-            RendererList m_unpreparedRenderers;
             
             bool m_applyTinting;
             Color m_tintColor;
@@ -106,8 +104,6 @@ namespace TrenchBroom {
             void render(RenderBatch& renderBatch);
         private:
             void doPrepare(Vbo& vbo);
-            void prepareModels();
-            void prepareRenderers(Vbo& vbo);
             
             class MeshFunc;
             void doRender(RenderContext& renderContext);

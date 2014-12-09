@@ -49,14 +49,9 @@ namespace TrenchBroom {
             const Assets::ModelSpecification modelSpec = entity->modelSpecification();
             Assets::EntityModel* model = m_entityModelManager.model(modelSpec.path);
             if (model != NULL) {
-                if (!model->prepared())
-                    m_unpreparedModels.push_back(model);
                 TexturedTriangleMeshRenderer* renderer = m_entityModelManager.renderer(modelSpec);
-                if (renderer != NULL) {
+                if (renderer != NULL)
                     m_entities[entity] = renderer;
-                    if (!renderer->prepared())
-                        m_unpreparedRenderers.push_back(renderer);
-                }
             }
         }
         
@@ -71,8 +66,6 @@ namespace TrenchBroom {
 
         void EntityModelRenderer::clear() {
             m_entities.clear();
-            m_unpreparedModels.clear();
-            m_unpreparedRenderers.clear();
         }
 
         bool EntityModelRenderer::applyTinting() const {
@@ -104,28 +97,9 @@ namespace TrenchBroom {
         }
 
         void EntityModelRenderer::doPrepare(Vbo& vbo) {
-            prepareModels();
-            prepareRenderers(vbo);
+            m_entityModelManager.prepare(vbo);
         }
         
-        void EntityModelRenderer::prepareModels() {
-            EntityModelList::const_iterator it, end;
-            for (it = m_unpreparedModels.begin(), end = m_unpreparedModels.end(); it != end; ++it) {
-                Assets::EntityModel* model = *it;
-                model->prepare();
-            }
-            m_unpreparedModels.clear();
-        }
-        
-        void EntityModelRenderer::prepareRenderers(Vbo& vbo) {
-            RendererList::const_iterator it, end;
-            for (it = m_unpreparedRenderers.begin(), end = m_unpreparedRenderers.end(); it != end; ++it) {
-                TexturedTriangleMeshRenderer* renderer = *it;
-                renderer->prepare(vbo);
-            }
-            m_unpreparedRenderers.clear();
-        }
-
         class EntityModelRenderer::MeshFunc : public TexturedTriangleMeshRenderer::MeshFuncBase {
             void before(const Assets::Texture* const & texture) const {
                 if (texture != NULL)

@@ -42,6 +42,9 @@ namespace TrenchBroom {
             m_rendererMismatches.clear();
             m_modelMismatches.clear();
             
+            m_unpreparedModels.clear();
+            m_unpreparedRenderers.clear();
+            
             if (m_logger != NULL)
                 m_logger->debug("Cleared entity models");
         }
@@ -66,6 +69,7 @@ namespace TrenchBroom {
                 EntityModel* model = loadModel(path);
                 assert(model != NULL);
                 m_models[path] = model;
+                m_unpreparedModels.push_back(model);
                 
                 if (m_logger != NULL)
                     m_logger->debug("Loaded entity model %s", path.asString().c_str());
@@ -99,6 +103,7 @@ namespace TrenchBroom {
                     m_logger->debug("Failed to construct entity model renderer for %s", spec.asString().c_str());
             } else {
                 m_renderers[spec] = renderer;
+                m_unpreparedRenderers.push_back(renderer);
                 
                 if (m_logger != NULL)
                     m_logger->debug("Constructed entity model renderer for %s", spec.asString().c_str());
@@ -109,6 +114,29 @@ namespace TrenchBroom {
         EntityModel* EntityModelManager::loadModel(const IO::Path& path) const {
             assert(m_loader != NULL);
             return m_loader->loadEntityModel(path);
+        }
+
+        void EntityModelManager::prepare(Renderer::Vbo& vbo) {
+            prepareModels();
+            prepareRenderers(vbo);
+        }
+
+        void EntityModelManager::prepareModels() {
+            ModelList::const_iterator it, end;
+            for (it = m_unpreparedModels.begin(), end = m_unpreparedModels.end(); it != end; ++it) {
+                Assets::EntityModel* model = *it;
+                model->prepare();
+            }
+            m_unpreparedModels.clear();
+        }
+        
+        void EntityModelManager::prepareRenderers(Renderer::Vbo& vbo) {
+            RendererList::const_iterator it, end;
+            for (it = m_unpreparedRenderers.begin(), end = m_unpreparedRenderers.end(); it != end; ++it) {
+                Renderer::TexturedTriangleMeshRenderer* renderer = *it;
+                renderer->prepare(vbo);
+            }
+            m_unpreparedRenderers.clear();
         }
     }
 }
