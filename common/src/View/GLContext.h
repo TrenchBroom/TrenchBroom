@@ -25,6 +25,11 @@
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class FontManager;
+        class ShaderManager;
+    }
+    
     namespace View {
         class GLContextManager;
         

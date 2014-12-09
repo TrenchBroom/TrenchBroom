@@ -160,7 +160,8 @@ namespace TrenchBroom {
             virtual ActionContext doGetActionContext() const = 0;
             virtual wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const = 0;
             virtual bool doCancel() = 0;
-            virtual Renderer::RenderContext doCreateRenderContext() const = 0;
+            
+            virtual Renderer::RenderContext doCreateRenderContext() = 0;
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;

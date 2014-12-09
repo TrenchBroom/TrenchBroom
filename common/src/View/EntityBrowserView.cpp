@@ -44,7 +44,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        EntityCellData::EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, Renderer::MeshRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds) :
+        EntityCellData::EntityCellData(Assets::PointEntityDefinition* i_entityDefinition, EntityRenderer* i_modelRenderer, const Renderer::FontDescriptor& i_fontDescriptor, const BBox3f& i_bounds) :
         entityDefinition(i_entityDefinition),
         modelRenderer(i_modelRenderer),
         fontDescriptor(i_fontDescriptor),
@@ -184,7 +184,7 @@ namespace TrenchBroom {
                 
                 const Assets::ModelSpecification spec = definition->defaultModel();
                 Assets::EntityModel* model = safeGetModel(m_entityModelManager, spec, m_logger);
-                Renderer::MeshRenderer* modelRenderer = NULL;
+                Renderer::TexturedTriangleMeshRenderer* modelRenderer = NULL;
                 
                 BBox3f rotatedBounds;
                 if (model != NULL) {
@@ -258,7 +258,7 @@ namespace TrenchBroom {
                             for (size_t k = 0; k < row.size(); ++k) {
                                 const Layout::Group::Row::Cell& cell = row[k];
                                 Assets::PointEntityDefinition* definition = cell.item().entityDefinition;
-                                Renderer::MeshRenderer* modelRenderer = cell.item().modelRenderer;
+                                EntityRenderer* modelRenderer = cell.item().modelRenderer;
                                 
                                 if (modelRenderer == NULL) {
                                     const Mat4x4f itemTrans = itemTransformation(cell, y, height);
@@ -302,7 +302,7 @@ namespace TrenchBroom {
                         if (row.intersectsY(y, height)) {
                             for (size_t k = 0; k < row.size(); ++k) {
                                 const Layout::Group::Row::Cell& cell = row[k];
-                                Renderer::MeshRenderer* modelRenderer = cell.item().modelRenderer;
+                                EntityRenderer* modelRenderer = cell.item().modelRenderer;
                                 
                                 if (modelRenderer != NULL) {
                                     const Mat4x4f itemTrans = itemTransformation(cell, y, height);
@@ -371,14 +371,14 @@ namespace TrenchBroom {
                 StringMap::const_iterator it, end;
                 for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
                     const Renderer::FontDescriptor& descriptor = it->first;
-                    const StringVertex::List& vertices = it->second;
+                    const TextVertex::List& vertices = it->second;
                     stringRenderers[descriptor] = Renderer::VertexArray::ref(GL_QUADS, vertices);
                     stringRenderers[descriptor].prepare(m_vbo);
                 }
             }
             
             PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);
             shader.set("Color", prefs.get(Preferences::BrowserTextColor));
             shader.set("Texture", 0);
             
@@ -399,6 +399,8 @@ namespace TrenchBroom {
             Renderer::FontDescriptor defaultDescriptor(prefs.get(Preferences::RendererFontPath()),
                                                        static_cast<size_t>(prefs.get(Preferences::BrowserFontSize)));
             
+            const Color::List textColor(1, prefs.get(Preferences::BrowserTextColor));
+            
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
@@ -410,9 +412,8 @@ namespace TrenchBroom {
                         
                         Renderer::TextureFont& font = fontManager().font(defaultDescriptor);
                         const Vec2f::List quads = font.quads(title, false, offset);
-                        const StringVertex::List titleVertices = StringVertex::fromLists(quads, quads, quads.size() / 2, 0, 2, 1, 2);
-                        StringVertex::List& vertices = stringVertices[defaultDescriptor];
-                        vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
+                        const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                        VectorUtils::append(stringVertices[defaultDescriptor], titleVertices);
                     }
                     
                     for (size_t j = 0; j < group.size(); ++j) {
@@ -425,9 +426,8 @@ namespace TrenchBroom {
                                 
                                 Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
                                 const Vec2f::List quads = font.quads(cell.item().entityDefinition->name(), false, offset);
-                                const StringVertex::List titleVertices = StringVertex::fromLists(quads, quads, quads.size() / 2, 0, 2, 1, 2);
-                                StringVertex::List& vertices = stringVertices[cell.item().fontDescriptor];
-                                vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
+                                const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                                VectorUtils::append(stringVertices[cell.item().fontDescriptor], titleVertices);
                             }
                         }
                     }
