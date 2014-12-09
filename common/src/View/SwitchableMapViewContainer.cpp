@@ -96,6 +96,14 @@ namespace TrenchBroom {
             m_mapView->SetFocus();
         }
 
+        void SwitchableMapViewContainer::setToolBoxDropTarget() {
+            m_mapView->setToolBoxDropTarget();
+        }
+        
+        void SwitchableMapViewContainer::clearDropTarget() {
+            m_mapView->clearDropTarget();
+        }
+
         Vec3 SwitchableMapViewContainer::pasteObjectsDelta(const BBox3& bounds) const {
             return m_mapView->pasteObjectsDelta(bounds);
         }

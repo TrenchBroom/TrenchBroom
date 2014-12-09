@@ -35,6 +35,7 @@
 #include "View/Grid.h"
 #include "View/Inspector.h"
 #include "View/MapDocument.h"
+#include "View/MapFrameDropTarget.h"
 #include "View/Menu.h"
 #include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
@@ -93,6 +94,8 @@ namespace TrenchBroom {
             
             bindObservers();
             bindEvents();
+            
+            clearDropTarget();
         }
         
         MapFrame::~MapFrame() {
@@ -133,6 +136,16 @@ namespace TrenchBroom {
             return m_console;
         }
         
+        void MapFrame::setToolBoxDropTarget() {
+            SetDropTarget(NULL);
+            m_mapView->setToolBoxDropTarget();
+        }
+        
+        void MapFrame::clearDropTarget() {
+            m_mapView->clearDropTarget();
+            SetDropTarget(new MapFrameDropTarget(m_document, this));
+        }
+
         bool MapFrame::newDocument(Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             if (!confirmOrDiscardChanges())
                 return false;

@@ -40,6 +40,7 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
+#include "View/ToolBoxDropTarget.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
@@ -61,6 +62,14 @@ namespace TrenchBroom {
         MapViewBase::~MapViewBase() {
             unbindObservers();
             delete m_animationManager;
+        }
+
+        void MapViewBase::setToolBoxDropTarget() {
+            SetDropTarget(new ToolBoxDropTarget(this));
+        }
+        
+        void MapViewBase::clearDropTarget() {
+            SetDropTarget(NULL);
         }
 
         void MapViewBase::bindObservers() {

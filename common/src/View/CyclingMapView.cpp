@@ -65,7 +65,7 @@ namespace TrenchBroom {
         }
 
         void CyclingMapView::OnCycleMapView(wxCommandEvent& event) {
-            for (size_t i = 0; i < 4; ++i) {
+            for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 if (m_currentMapView == m_mapViews[i]) {
                     switchToMapView(m_mapViews[Math::succ(i, m_mapViews.size())]);
                     break;
@@ -84,6 +84,16 @@ namespace TrenchBroom {
             SetSizer(sizer);
             Layout();
             m_currentMapView->SetFocus();
+        }
+
+        void CyclingMapView::doSetToolBoxDropTarget() {
+            for (size_t i = 0; i < m_mapViews.size(); ++i)
+                m_mapViews[i]->setToolBoxDropTarget();
+        }
+        
+        void CyclingMapView::doClearDropTarget() {
+            for (size_t i = 0; i < m_mapViews.size(); ++i)
+                m_mapViews[i]->clearDropTarget();
         }
 
         Vec3 CyclingMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {

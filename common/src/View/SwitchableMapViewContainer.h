@@ -65,6 +65,9 @@ namespace TrenchBroom {
             ~SwitchableMapViewContainer();
             
             void switchToMapView(MapViewLayout viewId);
+            
+            void setToolBoxDropTarget();
+            void clearDropTarget();
 
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
             

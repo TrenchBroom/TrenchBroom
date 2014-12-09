@@ -82,6 +82,18 @@ namespace TrenchBroom {
             return m_mapView3D;
         }
 
+        void ThreePaneMapView::doSetToolBoxDropTarget() {
+            m_mapView3D->setToolBoxDropTarget();
+            m_mapViewXY->setToolBoxDropTarget();
+            m_mapViewZZ->setToolBoxDropTarget();
+        }
+        
+        void ThreePaneMapView::doClearDropTarget() {
+            m_mapView3D->clearDropTarget();
+            m_mapViewXY->clearDropTarget();
+            m_mapViewZZ->clearDropTarget();
+        }
+
         Vec3 ThreePaneMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
             return currentMapView()->pasteObjectsDelta(bounds);
         }

@@ -77,6 +77,20 @@ namespace TrenchBroom {
             return m_mapView3D;
         }
         
+        void FourPaneMapView::doSetToolBoxDropTarget() {
+            m_mapView3D->setToolBoxDropTarget();
+            m_mapViewXY->setToolBoxDropTarget();
+            m_mapViewXZ->setToolBoxDropTarget();
+            m_mapViewYZ->setToolBoxDropTarget();
+        }
+        
+        void FourPaneMapView::doClearDropTarget() {
+            m_mapView3D->clearDropTarget();
+            m_mapViewXY->clearDropTarget();
+            m_mapViewXZ->clearDropTarget();
+            m_mapViewYZ->clearDropTarget();
+        }
+        
         Vec3 FourPaneMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
             return currentMapView()->pasteObjectsDelta(bounds);
         }

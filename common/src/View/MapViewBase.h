@@ -68,6 +68,9 @@ namespace TrenchBroom {
             MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, InputSource inputSource, GLContextManager& contextManager);
         public:
             virtual ~MapViewBase();
+        public: // drop targets
+            void setToolBoxDropTarget();
+            void clearDropTarget();
         private:
             const Renderer::Camera& camera() const;
         private:

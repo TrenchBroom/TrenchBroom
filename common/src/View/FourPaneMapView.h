@@ -55,6 +55,9 @@ namespace TrenchBroom {
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
         private:
             MapViewBase* currentMapView() const;
+        private: // implement MapViewContainer interface
+            void doSetToolBoxDropTarget();
+            void doClearDropTarget();
         private: // implement MapView interface
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
             

@@ -159,13 +159,13 @@ namespace TrenchBroom {
         void EntityBrowserView::dndWillStart() {
             MapFrame* mapFrame = findMapFrame(this);
             assert(mapFrame != NULL);
-            mapFrame->setMapViewDropTarget();
+            mapFrame->setToolBoxDropTarget();
         }
         
         void EntityBrowserView::dndDidEnd() {
             MapFrame* mapFrame = findMapFrame(this);
             assert(mapFrame != NULL);
-            mapFrame->clearMapViewDropTarget();
+            mapFrame->clearDropTarget();
         }
 
         wxString EntityBrowserView::dndData(const Layout::Group::Row::Cell& cell) {

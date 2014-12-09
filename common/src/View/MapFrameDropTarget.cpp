@@ -17,27 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MapViewContainer__
-#define __TrenchBroom__MapViewContainer__
+#include "MapFrameDropTarget.h"
 
-#include "View/MapView.h"
-
-#include <wx/panel.h>
+#include "View/ViewUtils.h"
+#include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
-        class MapViewContainer : public wxPanel, public MapView {
-        public:
-            MapViewContainer(wxWindow* parent);
-            virtual ~MapViewContainer();
+        MapFrameDropTarget::MapFrameDropTarget(MapDocumentWPtr document, wxWindow* parent) :
+        wxFileDropTarget(),
+        m_document(document),
+        m_parent(parent) {}
 
-            void setToolBoxDropTarget();
-            void clearDropTarget();
-        private:
-            virtual void doSetToolBoxDropTarget() = 0;
-            virtual void doClearDropTarget() = 0;
-        };
+        bool MapFrameDropTarget::OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames) {
+            size_t count = 0;
+            count += loadTextureCollections(m_document, m_parent, filenames);
+            if (loadEntityDefinitionFile(m_document, m_parent, filenames) < filenames.size())
+                ++count;
+            return count > 0;
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__MapViewContainer__) */
