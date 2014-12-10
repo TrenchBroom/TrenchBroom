@@ -20,7 +20,7 @@
 #include "BrushContentTypeEvaluator.h"
 
 #include "Macros.h"
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 
@@ -80,7 +80,7 @@ namespace TrenchBroom {
             m_matcher(pattern) {}
         private:
             bool doEvaluate(const Brush* brush) const {
-                const Attributable* entity = brush->entity();
+                const AttributableNode* entity = brush->entity();
                 if (entity == NULL)
                     return false;
                 

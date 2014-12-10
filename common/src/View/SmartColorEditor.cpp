@@ -20,7 +20,7 @@
 #include "SmartColorEditor.h"
 
 #include "CollectionUtils.h"
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/World.h"
 #include "View/ColorTable.h"
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             m_colorHistory = NULL;
         }
         
-        void SmartColorEditor::doUpdateVisual(const Model::AttributableList& attributables) {
+        void SmartColorEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
             assert(m_panel != NULL);
             assert(m_floatRadio != NULL);
             assert(m_byteRadio != NULL);
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             updateColorHistory();
         }
         
-        void SmartColorEditor::updateColorRange(const Model::AttributableList& attributables) {
+        void SmartColorEditor::updateColorRange(const Model::AttributableNodeList& attributables) {
             const ColorRange::Type range = detectColorRange(name(), attributables);
             if (range == ColorRange::Float) {
                 m_floatRadio->SetValue(true);
@@ -178,13 +178,13 @@ namespace TrenchBroom {
             const wxColorList& allColors() const { return m_allColors; }
             const wxColorList& selectedColors() const { return m_selectedColors; }
         private:
-            void doVisit(const Model::World* world)   { visitAttributable(world); }
+            void doVisit(const Model::World* world)   { visitAttributableNode(world); }
             void doVisit(const Model::Layer* layer)   {}
             void doVisit(const Model::Group* group)   {}
-            void doVisit(const Model::Entity* entity) { visitAttributable(entity); stopRecursion(); }
+            void doVisit(const Model::Entity* entity) { visitAttributableNode(entity); stopRecursion(); }
             void doVisit(const Model::Brush* brush)   {}
             
-            void visitAttributable(const Model::Attributable* attributable) {
+            void visitAttributableNode(const Model::AttributableNode* attributable) {
                 static const Model::AttributeValue NullValue("");
                 const Model::AttributeValue& value = attributable->attribute(m_name, NullValue);
                 if (value != NullValue) {

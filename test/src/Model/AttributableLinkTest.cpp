@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "CollectionUtils.h"
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
 #include "Model/MapFormat.h"
@@ -29,7 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        TEST(AttributableLinkTest, testCreateLink) {
+        TEST(AttributableNodeLinkTest, testCreateLink) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -39,16 +39,16 @@ namespace TrenchBroom {
             source->addOrUpdateAttribute(AttributeNames::Target, "target_name");
             target->addOrUpdateAttribute(AttributeNames::Targetname, "target_name");
             
-            const AttributableList& targets = source->linkTargets();
+            const AttributableNodeList& targets = source->linkTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
             
-            const AttributableList& sources = target->linkSources();
+            const AttributableNodeList& sources = target->linkSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
         
-        TEST(AttributableLinkTest, testCreateMultiSourceLink) {
+        TEST(AttributableNodeLinkTest, testCreateMultiSourceLink) {
             World world(MapFormat::Standard, NULL);
             Entity* source1 = world.createEntity();
             Entity* source2 = world.createEntity();
@@ -61,22 +61,22 @@ namespace TrenchBroom {
             source2->addOrUpdateAttribute(AttributeNames::Target, "target_name");
             target->addOrUpdateAttribute(AttributeNames::Targetname, "target_name");
             
-            const AttributableList& targets1 = source1->linkTargets();
+            const AttributableNodeList& targets1 = source1->linkTargets();
             ASSERT_EQ(1u, targets1.size());
             ASSERT_EQ(target, targets1.front());
             
-            const AttributableList& targets2 = source2->linkTargets();
+            const AttributableNodeList& targets2 = source2->linkTargets();
             ASSERT_EQ(1u, targets2.size());
             ASSERT_EQ(target, targets2.front());
             
-            const AttributableList& sources = target->linkSources();
+            const AttributableNodeList& sources = target->linkSources();
             ASSERT_EQ(2u, sources.size());
             ASSERT_TRUE(VectorUtils::contains(sources, source1));
             ASSERT_TRUE(VectorUtils::contains(sources, source2));
         }
         
         
-        TEST(AttributableLinkTest, testCreateMultiTargetLink) {
+        TEST(AttributableNodeLinkTest, testCreateMultiTargetLink) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target1 = world.createEntity();
@@ -93,21 +93,21 @@ namespace TrenchBroom {
             target1->addOrUpdateAttribute(AttributeNames::Targetname, "target_name1");
             target2->addOrUpdateAttribute(AttributeNames::Targetname, "target_name2");
             
-            const AttributableList& targets = source->linkTargets();
+            const AttributableNodeList& targets = source->linkTargets();
             ASSERT_EQ(2u, targets.size());
             ASSERT_TRUE(VectorUtils::contains(targets, target1));
             ASSERT_TRUE(VectorUtils::contains(targets, target2));
             
-            const AttributableList& sources1 = target1->linkSources();
+            const AttributableNodeList& sources1 = target1->linkSources();
             ASSERT_EQ(1u, sources1.size());
             ASSERT_EQ(source, sources1.front());
             
-            const AttributableList& sources2 = target2->linkSources();
+            const AttributableNodeList& sources2 = target2->linkSources();
             ASSERT_EQ(1u, sources2.size());
             ASSERT_EQ(source, sources2.front());
         }
 
-        TEST(AttributableLinkTest, testLoadLink) {
+        TEST(AttributableNodeLinkTest, testLoadLink) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -118,16 +118,16 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
             
-            const AttributableList& targets = source->linkTargets();
+            const AttributableNodeList& targets = source->linkTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
             
-            const AttributableList& sources = target->linkSources();
+            const AttributableNodeList& sources = target->linkSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
 
-        TEST(AttributableLinkTest, testRemoveLinkByChangingSource) {
+        TEST(AttributableNodeLinkTest, testRemoveLinkByChangingSource) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -140,14 +140,14 @@ namespace TrenchBroom {
             
             source->addOrUpdateAttribute(AttributeNames::Target, "other_name");
             
-            const AttributableList& targets = source->linkTargets();
+            const AttributableNodeList& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableList& sources = target->linkSources();
+            const AttributableNodeList& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
         }
         
-        TEST(AttributableLinkTest, testRemoveLinkByChangingTarget) {
+        TEST(AttributableNodeLinkTest, testRemoveLinkByChangingTarget) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -160,14 +160,14 @@ namespace TrenchBroom {
             
             target->addOrUpdateAttribute(AttributeNames::Targetname, "other_name");
             
-            const AttributableList& targets = source->linkTargets();
+            const AttributableNodeList& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableList& sources = target->linkSources();
+            const AttributableNodeList& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
         }
 
-        TEST(AttributableLinkTest, testRemoveLinkByRemovingSource) {
+        TEST(AttributableNodeLinkTest, testRemoveLinkByRemovingSource) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -180,16 +180,16 @@ namespace TrenchBroom {
 
             world.defaultLayer()->removeChild(source);
             
-            const AttributableList& targets = source->linkTargets();
+            const AttributableNodeList& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableList& sources = target->linkSources();
+            const AttributableNodeList& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
 
             delete source;
         }
         
-        TEST(AttributableLinkTest, testRemoveLinkByRemovingTarget) {
+        TEST(AttributableNodeLinkTest, testRemoveLinkByRemovingTarget) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -202,16 +202,16 @@ namespace TrenchBroom {
 
             world.defaultLayer()->removeChild(target);
             
-            const AttributableList& targets = source->linkTargets();
+            const AttributableNodeList& targets = source->linkTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableList& sources = target->linkSources();
+            const AttributableNodeList& sources = target->linkSources();
             ASSERT_TRUE(sources.empty());
             
             delete target;
         }
 
-        TEST(AttributableLinkTest, testCreateKillLink) {
+        TEST(AttributableNodeLinkTest, testCreateKillLink) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -221,16 +221,16 @@ namespace TrenchBroom {
             source->addOrUpdateAttribute(AttributeNames::Killtarget, "target_name");
             target->addOrUpdateAttribute(AttributeNames::Targetname, "target_name");
             
-            const AttributableList& targets = source->killTargets();
+            const AttributableNodeList& targets = source->killTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
             
-            const AttributableList& sources = target->killSources();
+            const AttributableNodeList& sources = target->killSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
         
-        TEST(AttributableLinkTest, testLoadKillLink) {
+        TEST(AttributableNodeLinkTest, testLoadKillLink) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -241,16 +241,16 @@ namespace TrenchBroom {
             world.defaultLayer()->addChild(source);
             world.defaultLayer()->addChild(target);
 
-            const AttributableList& targets = source->killTargets();
+            const AttributableNodeList& targets = source->killTargets();
             ASSERT_EQ(1u, targets.size());
             ASSERT_EQ(target, targets.front());
             
-            const AttributableList& sources = target->killSources();
+            const AttributableNodeList& sources = target->killSources();
             ASSERT_EQ(1u, sources.size());
             ASSERT_EQ(source, sources.front());
         }
         
-        TEST(AttributableLinkTest, testRemoveKillLinkByChangingSource) {
+        TEST(AttributableNodeLinkTest, testRemoveKillLinkByChangingSource) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -263,14 +263,14 @@ namespace TrenchBroom {
             
             source->addOrUpdateAttribute(AttributeNames::Killtarget, "other_name");
             
-            const AttributableList& targets = source->killTargets();
+            const AttributableNodeList& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableList& sources = target->killSources();
+            const AttributableNodeList& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
         }
         
-        TEST(AttributableLinkTest, testRemoveKillLinkByChangingTarget) {
+        TEST(AttributableNodeLinkTest, testRemoveKillLinkByChangingTarget) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -283,14 +283,14 @@ namespace TrenchBroom {
             
             target->addOrUpdateAttribute(AttributeNames::Targetname, "other_name");
             
-            const AttributableList& targets = source->killTargets();
+            const AttributableNodeList& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableList& sources = target->killSources();
+            const AttributableNodeList& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
         }
         
-        TEST(AttributableLinkTest, testRemoveKillLinkByRemovingSource) {
+        TEST(AttributableNodeLinkTest, testRemoveKillLinkByRemovingSource) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -303,16 +303,16 @@ namespace TrenchBroom {
             
             world.defaultLayer()->removeChild(source);
             
-            const AttributableList& targets = source->killTargets();
+            const AttributableNodeList& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableList& sources = target->killSources();
+            const AttributableNodeList& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
             
             delete source;
         }
         
-        TEST(AttributableLinkTest, testRemoveKillLinkByRemovingTarget) {
+        TEST(AttributableNodeLinkTest, testRemoveKillLinkByRemovingTarget) {
             World world(MapFormat::Standard, NULL);
             Entity* source = world.createEntity();
             Entity* target = world.createEntity();
@@ -325,10 +325,10 @@ namespace TrenchBroom {
             
             world.defaultLayer()->removeChild(target);
             
-            const AttributableList& targets = source->killTargets();
+            const AttributableNodeList& targets = source->killTargets();
             ASSERT_TRUE(targets.empty());
             
-            const AttributableList& sources = target->killSources();
+            const AttributableNodeList& sources = target->killSources();
             ASSERT_TRUE(sources.empty());
             
             delete target;

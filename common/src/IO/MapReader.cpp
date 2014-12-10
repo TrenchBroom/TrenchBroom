@@ -228,7 +228,7 @@ namespace TrenchBroom {
             return ParentInfo::Type_None;
         }
         
-        void MapReader::stripParentAttributes(Model::Attributable* attributable, const ParentInfo::Type parentType) {
+        void MapReader::stripParentAttributes(Model::AttributableNode* attributable, const ParentInfo::Type parentType) {
             switch (parentType) {
                 case ParentInfo::Type_Layer:
                     attributable->removeAttribute(Model::AttributeNames::Layer);

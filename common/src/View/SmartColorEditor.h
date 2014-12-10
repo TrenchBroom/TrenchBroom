@@ -60,10 +60,10 @@ namespace TrenchBroom {
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
-            void doUpdateVisual(const Model::AttributableList& attributables);
+            void doUpdateVisual(const Model::AttributableNodeList& attributables);
 
             class CollectColorVisitor;
-            void updateColorRange(const Model::AttributableList& attributables);
+            void updateColorRange(const Model::AttributableNodeList& attributables);
             void updateColorHistory();
 
             void setColor(const wxColor& wxColor) const;

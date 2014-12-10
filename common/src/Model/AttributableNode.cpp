@@ -17,18 +17,18 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Attributable.h"
+#include "AttributableNode.h"
 
 #include "Assets/AttributeDefinition.h"
 
 namespace TrenchBroom {
     namespace Model {
-        Assets::EntityDefinition* Attributable::selectEntityDefinition(const AttributableList& attributables) {
+        Assets::EntityDefinition* AttributableNode::selectEntityDefinition(const AttributableNodeList& attributables) {
             Assets::EntityDefinition* definition = NULL;
             
-            AttributableList::const_iterator it, end;
+            AttributableNodeList::const_iterator it, end;
             for (it = attributables.begin(), end = attributables.end(); it != end; ++it) {
-                Attributable* attributable = *it;
+                AttributableNode* attributable = *it;
                 if (definition == NULL) {
                     definition = attributable->definition();
                 } else if (definition != attributable->definition()) {
@@ -40,13 +40,13 @@ namespace TrenchBroom {
             return definition;
         }
         
-        const Assets::AttributeDefinition* Attributable::selectAttributeDefinition(const AttributeName& name, const AttributableList& attributables) {
-            AttributableList::const_iterator it = attributables.begin();
-            AttributableList::const_iterator end = attributables.end();
+        const Assets::AttributeDefinition* AttributableNode::selectAttributeDefinition(const AttributeName& name, const AttributableNodeList& attributables) {
+            AttributableNodeList::const_iterator it = attributables.begin();
+            AttributableNodeList::const_iterator end = attributables.end();
             if (it == end)
                 return NULL;
             
-            const Attributable* attributable = *it;
+            const AttributableNode* attributable = *it;
             const Assets::AttributeDefinition* definition = attributable->attributeDefinition(name);
             if (definition == NULL)
                 return NULL;
@@ -64,13 +64,13 @@ namespace TrenchBroom {
             return definition;
         }
         
-        AttributeValue Attributable::selectAttributeValue(const AttributeName& name, const AttributableList& attributables) {
-            AttributableList::const_iterator it = attributables.begin();
-            AttributableList::const_iterator end = attributables.end();
+        AttributeValue AttributableNode::selectAttributeValue(const AttributeName& name, const AttributableNodeList& attributables) {
+            AttributableNodeList::const_iterator it = attributables.begin();
+            AttributableNodeList::const_iterator end = attributables.end();
             if (it == end)
                 return "";
             
-            const Attributable* attributable = *it;
+            const AttributableNode* attributable = *it;
             if (!attributable->hasAttribute(name))
                 return "";
             
@@ -85,17 +85,17 @@ namespace TrenchBroom {
             return value;
         }
 
-        const String Attributable::DefaultAttributeValue("");
+        const String AttributableNode::DefaultAttributeValue("");
 
-        Attributable::~Attributable() {
+        AttributableNode::~AttributableNode() {
             m_definition = NULL;
         }
         
-        Assets::EntityDefinition* Attributable::definition() const {
+        Assets::EntityDefinition* AttributableNode::definition() const {
             return m_definition;
         }
         
-        void Attributable::setDefinition(Assets::EntityDefinition* definition) {
+        void AttributableNode::setDefinition(Assets::EntityDefinition* definition) {
             if (m_definition == definition)
                 return;
             if (m_definition != NULL)
@@ -107,41 +107,41 @@ namespace TrenchBroom {
             attributesDidChange();
         }
 
-        const Assets::AttributeDefinition* Attributable::attributeDefinition(const AttributeName& name) const {
+        const Assets::AttributeDefinition* AttributableNode::attributeDefinition(const AttributeName& name) const {
             return m_definition == NULL ? NULL : m_definition->attributeDefinition(name);
         }
 
-        const EntityAttribute::List& Attributable::attributes() const {
+        const EntityAttribute::List& AttributableNode::attributes() const {
             return m_attributes.attributes();
         }
         
-        void Attributable::setAttributes(const EntityAttribute::List& attributes) {
+        void AttributableNode::setAttributes(const EntityAttribute::List& attributes) {
             updateAttributeIndex(attributes);
             m_attributes.setAttributes(attributes);
             m_attributes.updateDefinitions(m_definition);
             attributesDidChange();
         }
         
-        bool Attributable::hasAttribute(const AttributeName& name) const {
+        bool AttributableNode::hasAttribute(const AttributeName& name) const {
             return m_attributes.hasAttribute(name);
         }
         
-        const AttributeValue& Attributable::attribute(const AttributeName& name, const AttributeValue& defaultValue) const {
+        const AttributeValue& AttributableNode::attribute(const AttributeName& name, const AttributeValue& defaultValue) const {
             const AttributeValue* value = m_attributes.attribute(name);
             if (value == NULL)
                 return defaultValue;
             return *value;
         }
 
-        const AttributeValue& Attributable::classname(const AttributeValue& defaultClassname) const {
+        const AttributeValue& AttributableNode::classname(const AttributeValue& defaultClassname) const {
             return attribute(AttributeNames::Classname, defaultClassname);
         }
 
-        bool Attributable::canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const {
+        bool AttributableNode::canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const {
             return isAttributeValueMutable(name);
         }
         
-        void Attributable::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) {
+        void AttributableNode::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) {
             const Assets::AttributeDefinition* definition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, name);
             const AttributeValue* oldValue = m_attributes.attribute(name);
             if (oldValue != NULL) {
@@ -155,11 +155,11 @@ namespace TrenchBroom {
             attributesDidChange();
         }
         
-        bool Attributable::canRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
+        bool AttributableNode::canRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
             return isAttributeNameMutable(name) && isAttributeNameMutable(newName);
         }
         
-        void Attributable::renameAttribute(const AttributeName& name, const AttributeName& newName) {
+        void AttributableNode::renameAttribute(const AttributeName& name, const AttributeName& newName) {
             if (name == newName)
                 return;
             
@@ -176,11 +176,11 @@ namespace TrenchBroom {
             attributesDidChange();
         }
         
-        bool Attributable::canRemoveAttribute(const AttributeName& name) const {
+        bool AttributableNode::canRemoveAttribute(const AttributeName& name) const {
             return isAttributeNameMutable(name) && isAttributeValueMutable(name);
         }
         
-        void Attributable::removeAttribute(const AttributeName& name) {
+        void AttributableNode::removeAttribute(const AttributeName& name) {
             const AttributeValue* valuePtr = m_attributes.attribute(name);
             if (valuePtr == NULL)
                 return;
@@ -192,20 +192,20 @@ namespace TrenchBroom {
             attributesDidChange();
         }
         
-        bool Attributable::isAttributeNameMutable(const AttributeName& name) const {
+        bool AttributableNode::isAttributeNameMutable(const AttributeName& name) const {
             return doIsAttributeNameMutable(name);
         }
         
-        bool Attributable::isAttributeValueMutable(const AttributeName& name) const {
+        bool AttributableNode::isAttributeValueMutable(const AttributeName& name) const {
             return doIsAttributeValueMutable(name);
         }
 
-        void Attributable::attributesDidChange() {
+        void AttributableNode::attributesDidChange() {
             nodeDidChange();
             doAttributesDidChange();
         }
 
-        void Attributable::addAttributesToIndex() {
+        void AttributableNode::addAttributesToIndex() {
             const EntityAttribute::List& attributes = m_attributes.attributes();
             EntityAttribute::List::const_iterator it, end;
             for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Attributable::removeAttributesFromIndex() {
+        void AttributableNode::removeAttributesFromIndex() {
             const EntityAttribute::List& attributes = m_attributes.attributes();
             EntityAttribute::List::const_iterator it, end;
             for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
@@ -223,7 +223,7 @@ namespace TrenchBroom {
             }
         }
 
-        void Attributable::updateAttributeIndex(const EntityAttribute::List& newAttributes) {
+        void AttributableNode::updateAttributeIndex(const EntityAttribute::List& newAttributes) {
             EntityAttribute::List oldSorted = m_attributes.attributes();
             EntityAttribute::List newSorted = newAttributes;
             
@@ -261,54 +261,54 @@ namespace TrenchBroom {
             }
         }
         
-        void Attributable::addAttributeToIndex(const AttributeName& name, const AttributeValue& value) {
+        void AttributableNode::addAttributeToIndex(const AttributeName& name, const AttributeValue& value) {
             addToIndex(this, name, value);
         }
         
-        void Attributable::removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value) {
+        void AttributableNode::removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value) {
             removeFromIndex(this, name, value);
         }
         
-        void Attributable::updateAttributeIndex(const AttributeName& oldName, const AttributeValue& oldValue, const AttributeName& newName, const AttributeValue& newValue) {
+        void AttributableNode::updateAttributeIndex(const AttributeName& oldName, const AttributeValue& oldValue, const AttributeName& newName, const AttributeValue& newValue) {
             removeFromIndex(this, oldName, oldValue);
             addToIndex(this, newName, newValue);
         }
         
-        const AttributableList& Attributable::linkSources() const {
+        const AttributableNodeList& AttributableNode::linkSources() const {
             return m_linkSources;
         }
         
-        const AttributableList& Attributable::linkTargets() const {
+        const AttributableNodeList& AttributableNode::linkTargets() const {
             return m_linkTargets;
         }
         
-        const AttributableList& Attributable::killSources() const {
+        const AttributableNodeList& AttributableNode::killSources() const {
             return m_killSources;
         }
         
-        const AttributableList& Attributable::killTargets() const {
+        const AttributableNodeList& AttributableNode::killTargets() const {
             return m_killTargets;
         }
         
-        bool Attributable::hasMissingSources() const {
+        bool AttributableNode::hasMissingSources() const {
             return (m_linkSources.empty() &&
                     m_killSources.empty() &&
                     hasAttribute(AttributeNames::Targetname));
         }
         
-        AttributeNameList Attributable::findMissingLinkTargets() const {
+        AttributeNameList AttributableNode::findMissingLinkTargets() const {
             AttributeNameList result;
             findMissingTargets(AttributeNames::Target, result);
             return result;
         }
         
-        AttributeNameList Attributable::findMissingKillTargets() const {
+        AttributeNameList AttributableNode::findMissingKillTargets() const {
             AttributeNameList result;
             findMissingTargets(AttributeNames::Killtarget, result);
             return result;
         }
 
-        void Attributable::findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const {
+        void AttributableNode::findMissingTargets(const AttributeName& prefix, AttributeNameList& result) const {
             const EntityAttribute::List attributes = m_attributes.numberedAttributes(prefix);
             EntityAttribute::List::const_iterator aIt, aEnd;
             for (aIt = attributes.begin(), aEnd = attributes.end(); aIt != aEnd; ++aIt) {
@@ -317,15 +317,15 @@ namespace TrenchBroom {
                 if (targetname.empty()) {
                     result.push_back(attribute.name());
                 } else {
-                    AttributableList linkTargets;
-                    findAttributablesWithAttribute(AttributeNames::Targetname, targetname, linkTargets);
+                    AttributableNodeList linkTargets;
+                    findAttributableNodesWithAttribute(AttributeNames::Targetname, targetname, linkTargets);
                     if (linkTargets.empty())
                         result.push_back(attribute.name());
                 }
             }
         }
 
-        void Attributable::addLinks(const AttributeName& name, const AttributeValue& value) {
+        void AttributableNode::addLinks(const AttributeName& name, const AttributeValue& value) {
             if (isNumberedAttribute(AttributeNames::Target, name)) {
                 addLinkTargets(value);
             } else if (isNumberedAttribute(AttributeNames::Killtarget, name)) {
@@ -336,7 +336,7 @@ namespace TrenchBroom {
             }
         }
         
-        void Attributable::removeLinks(const AttributeName& name, const AttributeValue& value) {
+        void AttributableNode::removeLinks(const AttributeName& name, const AttributeValue& value) {
             if (isNumberedAttribute(AttributeNames::Target, name)) {
                 removeLinkTargets(value);
             } else if (isNumberedAttribute(AttributeNames::Killtarget, name)) {
@@ -347,33 +347,33 @@ namespace TrenchBroom {
             }
         }
         
-        void Attributable::updateLinks(const AttributeName& oldName, const AttributeName& oldValue, const AttributeName& newName, const AttributeValue& newValue) {
+        void AttributableNode::updateLinks(const AttributeName& oldName, const AttributeName& oldValue, const AttributeName& newName, const AttributeValue& newValue) {
             removeLinks(oldName, oldValue);
             addLinks(newName, newValue);
         }
 
-        void Attributable::addLinkTargets(const AttributeValue& targetname) {
+        void AttributableNode::addLinkTargets(const AttributeValue& targetname) {
             if (!targetname.empty()) {
-                AttributableList targets;
-                findAttributablesWithAttribute(AttributeNames::Targetname, targetname, targets);
+                AttributableNodeList targets;
+                findAttributableNodesWithAttribute(AttributeNames::Targetname, targetname, targets);
                 addLinkTargets(targets);
             }
         }
         
-        void Attributable::addKillTargets(const AttributeValue& targetname) {
+        void AttributableNode::addKillTargets(const AttributeValue& targetname) {
             if (!targetname.empty()) {
-                AttributableList targets;
-                findAttributablesWithAttribute(AttributeNames::Targetname, targetname, targets);
+                AttributableNodeList targets;
+                findAttributableNodesWithAttribute(AttributeNames::Targetname, targetname, targets);
                 addKillTargets(targets);
             }
         }
 
-        void Attributable::removeLinkTargets(const AttributeValue& targetname) {
+        void AttributableNode::removeLinkTargets(const AttributeValue& targetname) {
             if (!targetname.empty()) {
-                AttributableList::iterator rem = m_linkTargets.end();
-                AttributableList::iterator it = m_linkTargets.begin();
+                AttributableNodeList::iterator rem = m_linkTargets.end();
+                AttributableNodeList::iterator it = m_linkTargets.begin();
                 while (it != rem) {
-                    Attributable* target = *it;
+                    AttributableNode* target = *it;
                     const AttributeValue& targetTargetname = target->attribute(AttributeNames::Targetname);
                     if (targetTargetname == targetname) {
                         target->removeLinkSource(this);
@@ -387,12 +387,12 @@ namespace TrenchBroom {
             }
         }
         
-        void Attributable::removeKillTargets(const AttributeValue& targetname) {
+        void AttributableNode::removeKillTargets(const AttributeValue& targetname) {
             if (!targetname.empty()) {
-                AttributableList::iterator rem = m_killTargets.end();
-                AttributableList::iterator it = m_killTargets.begin();
+                AttributableNodeList::iterator rem = m_killTargets.end();
+                AttributableNodeList::iterator it = m_killTargets.begin();
                 while (it != rem) {
-                    Attributable* target = *it;
+                    AttributableNode* target = *it;
                     const AttributeValue& targetTargetname = target->attribute(AttributeNames::Targetname);
                     if (targetTargetname == targetname) {
                         target->removeKillSource(this);
@@ -406,131 +406,131 @@ namespace TrenchBroom {
             }
         }
 
-        void Attributable::addAllLinkSources(const AttributeValue& targetname) {
+        void AttributableNode::addAllLinkSources(const AttributeValue& targetname) {
             if (!targetname.empty()) {
-                AttributableList linkSources;
-                findAttributablesWithNumberedAttribute(AttributeNames::Target, targetname, linkSources);
+                AttributableNodeList linkSources;
+                findAttributableNodesWithNumberedAttribute(AttributeNames::Target, targetname, linkSources);
                 addLinkSources(linkSources);
             }
         }
         
-        void Attributable::addAllLinkTargets() {
+        void AttributableNode::addAllLinkTargets() {
             const EntityAttribute::List attributes = m_attributes.numberedAttributes(AttributeNames::Target);
             EntityAttribute::List::const_iterator aIt, aEnd;
             for (aIt = attributes.begin(), aEnd = attributes.end(); aIt != aEnd; ++aIt) {
                 const EntityAttribute& attribute = *aIt;
                 const String& targetname = attribute.value();
                 if (!targetname.empty()) {
-                    AttributableList linkTargets;
-                    findAttributablesWithAttribute(AttributeNames::Targetname, targetname, linkTargets);
+                    AttributableNodeList linkTargets;
+                    findAttributableNodesWithAttribute(AttributeNames::Targetname, targetname, linkTargets);
                     addLinkTargets(linkTargets);
                 }
             }
         }
         
-        void Attributable::addAllKillSources(const AttributeValue& targetname) {
+        void AttributableNode::addAllKillSources(const AttributeValue& targetname) {
             if (!targetname.empty()) {
-                AttributableList killSources;
-                findAttributablesWithNumberedAttribute(AttributeNames::Killtarget, targetname, killSources);
+                AttributableNodeList killSources;
+                findAttributableNodesWithNumberedAttribute(AttributeNames::Killtarget, targetname, killSources);
                 addKillSources(killSources);
             }
         }
         
-        void Attributable::addAllKillTargets() {
+        void AttributableNode::addAllKillTargets() {
             const EntityAttribute::List attributes = m_attributes.numberedAttributes(AttributeNames::Killtarget);
             EntityAttribute::List::const_iterator aIt, aEnd;
             for (aIt = attributes.begin(), aEnd = attributes.end(); aIt != aEnd; ++aIt) {
                 const EntityAttribute& attribute = *aIt;
                 const String& targetname = attribute.value();
                 if (!targetname.empty()) {
-                    AttributableList killTargets;
-                    findAttributablesWithAttribute(AttributeNames::Targetname, targetname, killTargets);
+                    AttributableNodeList killTargets;
+                    findAttributableNodesWithAttribute(AttributeNames::Targetname, targetname, killTargets);
                     addKillTargets(killTargets);
                 }
             }
         }
 
-        void Attributable::addLinkTargets(const AttributableList& targets) {
+        void AttributableNode::addLinkTargets(const AttributableNodeList& targets) {
             m_linkTargets.reserve(m_linkTargets.size() + targets.size());
             
-            AttributableList::const_iterator it, end;
+            AttributableNodeList::const_iterator it, end;
             for (it = targets.begin(), end = targets.end(); it != end; ++it) {
-                Attributable* target = *it;
+                AttributableNode* target = *it;
                 target->addLinkSource(this);
                 m_linkTargets.push_back(target);
             }
         }
         
-        void Attributable::addKillTargets(const AttributableList& targets) {
+        void AttributableNode::addKillTargets(const AttributableNodeList& targets) {
             m_killTargets.reserve(m_killTargets.size() + targets.size());
             
-            AttributableList::const_iterator it, end;
+            AttributableNodeList::const_iterator it, end;
             for (it = targets.begin(), end = targets.end(); it != end; ++it) {
-                Attributable* target = *it;
+                AttributableNode* target = *it;
                 target->addKillSource(this);
                 m_killTargets.push_back(target);
             }
         }
 
-        void Attributable::addLinkSources(const AttributableList& sources) {
+        void AttributableNode::addLinkSources(const AttributableNodeList& sources) {
             m_linkSources.reserve(m_linkSources.size() + sources.size());
             
-            AttributableList::const_iterator it, end;
+            AttributableNodeList::const_iterator it, end;
             for (it = sources.begin(), end = sources.end(); it != end; ++it) {
-                Attributable* linkSource = *it;
+                AttributableNode* linkSource = *it;
                 linkSource->addLinkTarget(this);
                 m_linkSources.push_back(linkSource);
             }
         }
         
-        void Attributable::addKillSources(const AttributableList& sources) {
+        void AttributableNode::addKillSources(const AttributableNodeList& sources) {
             m_killSources.reserve(m_killSources.size() + sources.size());
             
-            AttributableList::const_iterator it, end;
+            AttributableNodeList::const_iterator it, end;
             for (it = sources.begin(), end = sources.end(); it != end; ++it) {
-                Attributable* killSource = *it;
+                AttributableNode* killSource = *it;
                 killSource->addKillTarget(this);
                 m_killSources.push_back(killSource);
             }
         }
 
-        void Attributable::removeAllLinkSources() {
-            AttributableList::const_iterator it, end;
+        void AttributableNode::removeAllLinkSources() {
+            AttributableNodeList::const_iterator it, end;
             for (it = m_linkSources.begin(), end = m_linkSources.end(); it != end; ++it) {
-                Attributable* linkSource = *it;
+                AttributableNode* linkSource = *it;
                 linkSource->removeLinkTarget(this);
             }
             m_linkSources.clear();
         }
         
-        void Attributable::removeAllLinkTargets() {
-            AttributableList::const_iterator it, end;
+        void AttributableNode::removeAllLinkTargets() {
+            AttributableNodeList::const_iterator it, end;
             for (it = m_linkTargets.begin(), end = m_linkTargets.end(); it != end; ++it) {
-                Attributable* linkTarget = *it;
+                AttributableNode* linkTarget = *it;
                 linkTarget->removeLinkSource(this);
             }
             m_linkTargets.clear();
         }
         
-        void Attributable::removeAllKillSources() {
-            AttributableList::const_iterator it, end;
+        void AttributableNode::removeAllKillSources() {
+            AttributableNodeList::const_iterator it, end;
             for (it = m_killSources.begin(), end = m_killSources.end(); it != end; ++it) {
-                Attributable* killSource = *it;
+                AttributableNode* killSource = *it;
                 killSource->removeKillTarget(this);
             }
             m_killSources.clear();
         }
         
-        void Attributable::removeAllKillTargets() {
-            AttributableList::const_iterator it, end;
+        void AttributableNode::removeAllKillTargets() {
+            AttributableNodeList::const_iterator it, end;
             for (it = m_killTargets.begin(), end = m_killTargets.end(); it != end; ++it) {
-                Attributable* killTarget = *it;
+                AttributableNode* killTarget = *it;
                 killTarget->removeKillSource(this);
             }
             m_killTargets.clear();
         }
 
-        void Attributable::refreshAllLinks() {
+        void AttributableNode::refreshAllLinks() {
             removeAllLinkSources();
             removeAllLinkTargets();
             removeAllKillSources();
@@ -546,55 +546,55 @@ namespace TrenchBroom {
             }
         }
         
-        void Attributable::doAncestorWillChange() {
+        void AttributableNode::doAncestorWillChange() {
             removeAttributesFromIndex();
         }
 
-        void Attributable::doAncestorDidChange() {
+        void AttributableNode::doAncestorDidChange() {
             addAttributesToIndex();
             refreshAllLinks();
         }
 
-        void Attributable::addLinkSource(Attributable* attributable) {
+        void AttributableNode::addLinkSource(AttributableNode* attributable) {
             assert(attributable != NULL);
             m_linkSources.push_back(attributable);
         }
         
-        void Attributable::addLinkTarget(Attributable* attributable) {
+        void AttributableNode::addLinkTarget(AttributableNode* attributable) {
             assert(attributable != NULL);
             m_linkTargets.push_back(attributable);
         }
         
-        void Attributable::addKillSource(Attributable* attributable) {
+        void AttributableNode::addKillSource(AttributableNode* attributable) {
             assert(attributable != NULL);
             m_killSources.push_back(attributable);
         }
         
-        void Attributable::addKillTarget(Attributable* attributable) {
+        void AttributableNode::addKillTarget(AttributableNode* attributable) {
             assert(attributable != NULL);
             m_killTargets.push_back(attributable);
         }
         
-        void Attributable::removeLinkSource(Attributable* attributable) {
+        void AttributableNode::removeLinkSource(AttributableNode* attributable) {
             assert(attributable != NULL);
             VectorUtils::erase(m_linkSources, attributable);
         }
         
-        void Attributable::removeLinkTarget(Attributable* attributable) {
+        void AttributableNode::removeLinkTarget(AttributableNode* attributable) {
             assert(attributable != NULL);
             VectorUtils::erase(m_linkTargets, attributable);
         }
         
-        void Attributable::removeKillSource(Attributable* attributable) {
+        void AttributableNode::removeKillSource(AttributableNode* attributable) {
             assert(attributable != NULL);
             VectorUtils::erase(m_killSources, attributable);
         }
         
-        Attributable::Attributable() :
+        AttributableNode::AttributableNode() :
         Node(),
         m_definition(NULL) {}
 
-        void Attributable::removeKillTarget(Attributable* attributable) {
+        void AttributableNode::removeKillTarget(AttributableNode* attributable) {
             assert(attributable != NULL);
             VectorUtils::erase(m_killTargets, attributable);
         }

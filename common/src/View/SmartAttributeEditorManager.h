@@ -52,7 +52,7 @@ namespace TrenchBroom {
             SmartAttributeEditorManager(wxWindow* parent, View::MapDocumentWPtr document);
             ~SmartAttributeEditorManager();
             
-            void switchEditor(const Model::AttributeName& name, const Model::AttributableList& attributables);
+            void switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
         private:
             void createEditors();
 
@@ -62,7 +62,7 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void nodesDidChange(const Model::NodeList& nodes);
 
-            EditorPtr selectEditor(const Model::AttributeName& name, const Model::AttributableList& attributables) const;
+            EditorPtr selectEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const;
             EditorPtr defaultEditor() const;
             
             void activateEditor(EditorPtr editor, const Model::AttributeName& name);

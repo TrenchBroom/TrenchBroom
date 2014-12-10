@@ -48,7 +48,7 @@ namespace TrenchBroom {
             deactivateEditor();
         }
 
-        void SmartAttributeEditorManager::switchEditor(const Model::AttributeName& name, const Model::AttributableList& attributables) {
+        void SmartAttributeEditorManager::switchEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) {
             EditorPtr editor = selectEditor(name, attributables);
             activateEditor(editor, name);
             updateEditor();
@@ -81,15 +81,15 @@ namespace TrenchBroom {
 
         void SmartAttributeEditorManager::selectionDidChange(const Selection& selection) {
             MapDocumentSPtr document = lock(m_document);
-            switchEditor(m_name, document->allSelectedAttributables());
+            switchEditor(m_name, document->allSelectedAttributableNodes());
         }
         
         void SmartAttributeEditorManager::nodesDidChange(const Model::NodeList& nodes) {
             MapDocumentSPtr document = lock(m_document);
-            switchEditor(m_name, document->allSelectedAttributables());
+            switchEditor(m_name, document->allSelectedAttributableNodes());
         }
         
-        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const Model::AttributeName& name, const Model::AttributableList& attributables) const {
+        SmartAttributeEditorManager::EditorPtr SmartAttributeEditorManager::selectEditor(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
             EditorList::const_iterator it, end;
             for (it = m_editors.begin(), end = m_editors.end(); it != end; ++it) {
                 const MatcherEditorPair& pair = *it;
@@ -133,7 +133,7 @@ namespace TrenchBroom {
         void SmartAttributeEditorManager::updateEditor() {
             if (m_activeEditor != NULL) {
                 MapDocumentSPtr document = lock(m_document);
-                m_activeEditor->update(document->allSelectedAttributables());
+                m_activeEditor->update(document->allSelectedAttributableNodes());
             }
         }
     }

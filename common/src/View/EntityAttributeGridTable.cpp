@@ -21,7 +21,7 @@
 
 #include "Assets/AttributeDefinition.h"
 #include "Assets/EntityDefinition.h"
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "View/MapDocument.h"
@@ -190,7 +190,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        void EntityAttributeGridTable::RowManager::updateRows(const Model::AttributableList& attributables, const bool showDefaultRows) {
+        void EntityAttributeGridTable::RowManager::updateRows(const Model::AttributableNodeList& attributables, const bool showDefaultRows) {
             AttributeRow::List newAttributeRows = collectAttributeRows(attributables);
             DefaultRow::List newDefaultRows;
             if (showDefaultRows)
@@ -201,7 +201,7 @@ namespace TrenchBroom {
             swap(m_defaultRows, newDefaultRows);
         }
 
-        StringList EntityAttributeGridTable::RowManager::insertRows(const size_t rowIndex, const size_t count, const Model::AttributableList& attributables) {
+        StringList EntityAttributeGridTable::RowManager::insertRows(const size_t rowIndex, const size_t count, const Model::AttributableNodeList& attributables) {
             assert(rowIndex <= propertyCount());
             
             const StringList attributeNames = newAttributeNames(count, attributables);
@@ -250,10 +250,10 @@ namespace TrenchBroom {
             return m_defaultRows[rowIndex - m_attributeRows.size()];
         }
         
-        EntityAttributeGridTable::AttributeRow::List EntityAttributeGridTable::RowManager::collectAttributeRows(const Model::AttributableList& attributables) const {
+        EntityAttributeGridTable::AttributeRow::List EntityAttributeGridTable::RowManager::collectAttributeRows(const Model::AttributableNodeList& attributables) const {
             EntityAttributeGridTable::AttributeRow::List rows;
             
-            Model::AttributableList::const_iterator attriutableIt, attributableEnd;
+            Model::AttributableNodeList::const_iterator attriutableIt, attributableEnd;
             Model::EntityAttribute::List::const_iterator attributeIt, attributeEnd;
             
             for (attriutableIt = attributables.begin(),
@@ -261,7 +261,7 @@ namespace TrenchBroom {
                  attriutableIt != attributableEnd;
                  ++attriutableIt) {
                 
-                const Model::Attributable& attributable = **attriutableIt;
+                const Model::AttributableNode& attributable = **attriutableIt;
                 const Model::EntityAttribute::List& attributes = attributable.attributes();
                 for (attributeIt = attributes.begin(),
                      attributeEnd = attributes.end();
@@ -289,9 +289,9 @@ namespace TrenchBroom {
             return rows;
         }
         
-        EntityAttributeGridTable::DefaultRow::List EntityAttributeGridTable::RowManager::collectDefaultRows(const Model::AttributableList& attributables, const AttributeRow::List& AttributeRows) const {
+        EntityAttributeGridTable::DefaultRow::List EntityAttributeGridTable::RowManager::collectDefaultRows(const Model::AttributableNodeList& attributables, const AttributeRow::List& AttributeRows) const {
             DefaultRow::List defaultRows;
-            const Assets::EntityDefinition* definition = Model::Attributable::selectEntityDefinition(attributables);
+            const Assets::EntityDefinition* definition = Model::AttributableNode::selectEntityDefinition(attributables);
             
             if (definition != NULL) {
                 const Assets::AttributeDefinitionList& attributeDefs = definition->attributeDefinitions();
@@ -359,7 +359,7 @@ namespace TrenchBroom {
             return end;
         }
         
-        StringList EntityAttributeGridTable::RowManager::newAttributeNames(const size_t count, const Model::AttributableList& attributables) const {
+        StringList EntityAttributeGridTable::RowManager::newAttributeNames(const size_t count, const Model::AttributableNodeList& attributables) const {
             StringList result;
             result.reserve(count);
             
@@ -370,9 +370,9 @@ namespace TrenchBroom {
                     nameStream << "property " << index;
                     
                     bool indexIsFree = true;
-                    Model::AttributableList::const_iterator it, end;
+                    Model::AttributableNodeList::const_iterator it, end;
                     for (it = attributables.begin(), end = attributables.end(); it != end && indexIsFree; ++it) {
-                        const Model::Attributable& attributable = **it;
+                        const Model::AttributableNode& attributable = **it;
                         indexIsFree = !attributable.hasAttribute(nameStream.str());
                     }
                     
@@ -427,7 +427,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             
             const size_t rowIndex = static_cast<size_t>(row);
-            const Model::AttributableList attributables = document->allSelectedAttributables();
+            const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
             assert(!attributables.empty());
             
             const SetBool ignoreUpdates(m_ignoreUpdates);
@@ -446,7 +446,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
 
-            const Model::AttributableList attributables = document->allSelectedAttributables();
+            const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
             assert(!attributables.empty());
             
             const StringList newKeys = m_rows.insertRows(pos, numRows, attributables);
@@ -482,7 +482,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
 
-            const Model::AttributableList attributables = document->allSelectedAttributables();
+            const Model::AttributableNodeList attributables = document->allSelectedAttributableNodes();
             assert(!attributables.empty());
             
             const StringList names = m_rows.names(pos, numRows);
@@ -564,7 +564,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             const size_t oldRowCount = m_rows.rowCount();
-            m_rows.updateRows(document->allSelectedAttributables(), m_showDefaultRows);
+            m_rows.updateRows(document->allSelectedAttributableNodes(), m_showDefaultRows);
             const size_t newRowCount = m_rows.rowCount();
             
             if (oldRowCount < newRowCount)
@@ -606,7 +606,7 @@ namespace TrenchBroom {
             update();
         }
 
-        void EntityAttributeGridTable::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableList& attributables) {
+        void EntityAttributeGridTable::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
             assert(rowIndex < m_rows.propertyCount());
             
             const String& oldName = m_rows.name(rowIndex);
@@ -624,13 +624,13 @@ namespace TrenchBroom {
             }
         }
         
-        void EntityAttributeGridTable::updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableList& attributables) {
+        void EntityAttributeGridTable::updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables) {
             assert(rowIndex < m_rows.rowCount());
 
             const String& name = m_rows.name(rowIndex);
-            Model::AttributableList::const_iterator it, end;
+            Model::AttributableNodeList::const_iterator it, end;
             for (it = attributables.begin(), end = attributables.end(); it != end; ++it) {
-                const Model::Attributable* attributable = *it;
+                const Model::AttributableNode* attributable = *it;
                 if (attributable->hasAttribute(name)) {
                     if (!attributable->canAddOrUpdateAttribute(name, newValue)) {
                         const Model::AttributeValue& oldValue = attributable->attribute(name);

@@ -35,7 +35,7 @@ namespace TrenchBroom {
             static const Type Mixed = Float | Byte;
         }
         
-        ColorRange::Type detectColorRange(const Model::AttributeName& name, const Model::AttributableList& attributables);
+        ColorRange::Type detectColorRange(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
         ColorRange::Type detectColorRange(const String& str);
         
         wxColor parseEntityColor(const String& str);

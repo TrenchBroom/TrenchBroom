@@ -28,7 +28,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class AttributableIndexQuery {
+        class AttributableNodeIndexQuery {
         public:
             typedef enum {
                 Type_Exact,
@@ -40,28 +40,28 @@ namespace TrenchBroom {
             Type m_type;
             String m_pattern;
         public:
-            static AttributableIndexQuery exact(const String& pattern);
-            static AttributableIndexQuery prefix(const String& pattern);
-            static AttributableIndexQuery numbered(const String& pattern);
-            static AttributableIndexQuery any();
+            static AttributableNodeIndexQuery exact(const String& pattern);
+            static AttributableNodeIndexQuery prefix(const String& pattern);
+            static AttributableNodeIndexQuery numbered(const String& pattern);
+            static AttributableNodeIndexQuery any();
 
-            AttributableSet execute(const StringIndex<Attributable*>& index) const;
+            AttributableNodeSet execute(const StringIndex<AttributableNode*>& index) const;
         private:
-            AttributableIndexQuery(Type type, const String& pattern = "");
+            AttributableNodeIndexQuery(Type type, const String& pattern = "");
         };
         
-        class AttributableIndex {
+        class AttributableNodeIndex {
         private:
-            StringIndex<Attributable*> m_nameIndex;
-            StringIndex<Attributable*> m_valueIndex;
+            StringIndex<AttributableNode*> m_nameIndex;
+            StringIndex<AttributableNode*> m_valueIndex;
         public:
-            void addAttributable(Attributable* attributable);
-            void removeAttributable(Attributable* attributable);
+            void addAttributableNode(AttributableNode* attributable);
+            void removeAttributableNode(AttributableNode* attributable);
             
-            void addAttribute(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
-            void removeAttribute(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
+            void addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            void removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             
-            AttributableList findAttributables(const AttributableIndexQuery& keyQuery, const AttributableIndexQuery& valueQuery) const;
+            AttributableNodeList findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributableNodeIndexQuery& valueQuery) const;
         };
     }
 }

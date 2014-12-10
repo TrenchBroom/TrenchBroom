@@ -48,7 +48,7 @@ namespace TrenchBroom {
         private:
             wxWindow* doCreateVisual(wxWindow* parent);
             void doDestroyVisual();
-            void doUpdateVisual(const Model::AttributableList& attributables);
+            void doUpdateVisual(const Model::AttributableNodeList& attributables);
         };
     }
 }

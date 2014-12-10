@@ -20,7 +20,7 @@
 #include "SmartDefaultAttributeEditor.h"
 
 #include "Assets/EntityDefinition.h"
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 
 #include <wx/sizer.h>
 #include <wx/textctrl.h>
@@ -40,10 +40,10 @@ namespace TrenchBroom {
             m_descriptionTxt = NULL;
         }
 
-        void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableList& attributables) {
+        void SmartDefaultAttributeEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
             m_descriptionTxt->Clear();
 
-            const Assets::EntityDefinition* entityDefinition = Model::Attributable::selectEntityDefinition(attributables);
+            const Assets::EntityDefinition* entityDefinition = Model::AttributableNode::selectEntityDefinition(attributables);
             if (entityDefinition != NULL)
                 m_descriptionTxt->AppendText(entityDefinition->description());
         }

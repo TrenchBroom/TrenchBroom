@@ -30,7 +30,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/CollectAttributablesVisitor.h"
+#include "Model/CollectAttributableNodesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
@@ -308,8 +308,8 @@ namespace TrenchBroom {
             return !m_selectedBrushFaces.empty();
         }
 
-        const Model::AttributableList MapDocument::allSelectedAttributables() const {
-            Model::CollectAttributablesVisitor visitor;
+        const Model::AttributableNodeList MapDocument::allSelectedAttributableNodes() const {
+            Model::CollectAttributableNodesVisitor visitor;
             Model::Node::iterate(m_selectedNodes.begin(), m_selectedNodes.end(), visitor);
             return visitor.nodes();
         }
@@ -783,7 +783,7 @@ namespace TrenchBroom {
             void doVisit(Model::Group* group)   {}
             void doVisit(Model::Entity* entity) { handle(entity); }
             void doVisit(Model::Brush* brush)   {}
-            void handle(Model::Attributable* attributable) {
+            void handle(Model::AttributableNode* attributable) {
                 Assets::EntityDefinition* definition = m_manager.definition(attributable);
                 attributable->setDefinition(definition);
             }

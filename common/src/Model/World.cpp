@@ -220,21 +220,21 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
         
-        void World::doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
-            VectorUtils::append(result, m_attributableIndex.findAttributables(AttributableIndexQuery::exact(name),
-                                                                              AttributableIndexQuery::exact(value)));
+        void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name),
+                                                                              AttributableNodeIndexQuery::exact(value)));
         }
         
-        void World::doFindAttributablesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableList& result) const {
-            VectorUtils::append(result, m_attributableIndex.findAttributables(AttributableIndexQuery::numbered(prefix),
-                                                                              AttributableIndexQuery::exact(value)));
+        void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix),
+                                                                              AttributableNodeIndexQuery::exact(value)));
         }
         
-        void World::doAddToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
+        void World::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             m_attributableIndex.addAttribute(attributable, name, value);
         }
         
-        void World::doRemoveFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
+        void World::doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             m_attributableIndex.removeAttribute(attributable, name, value);
         }
 

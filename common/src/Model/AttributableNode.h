@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Attributable__
-#define __TrenchBroom__Attributable__
+#ifndef __TrenchBroom__AttributableNode__
+#define __TrenchBroom__AttributableNode__
 
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinition.h"
@@ -28,23 +28,23 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class Attributable : public Node {
+        class AttributableNode : public Node {
         public: // some helper methods
-            static Assets::EntityDefinition* selectEntityDefinition(const AttributableList& attributables);
-            static const Assets::AttributeDefinition* selectAttributeDefinition(const AttributeName& name, const AttributableList& attributables);
-            static AttributeValue selectAttributeValue(const AttributeName& name, const AttributableList& attributables);
+            static Assets::EntityDefinition* selectEntityDefinition(const AttributableNodeList& attributables);
+            static const Assets::AttributeDefinition* selectAttributeDefinition(const AttributeName& name, const AttributableNodeList& attributables);
+            static AttributeValue selectAttributeValue(const AttributeName& name, const AttributableNodeList& attributables);
         protected:
             static const String DefaultAttributeValue;
 
             Assets::EntityDefinition* m_definition;
             EntityAttributes m_attributes;
 
-            AttributableList m_linkSources;
-            AttributableList m_linkTargets;
-            AttributableList m_killSources;
-            AttributableList m_killTargets;
+            AttributableNodeList m_linkSources;
+            AttributableNodeList m_linkTargets;
+            AttributableNodeList m_killSources;
+            AttributableNodeList m_killTargets;
         public:
-            virtual ~Attributable();
+            virtual ~AttributableNode();
             
             Assets::EntityDefinition* definition() const;
             void setDefinition(Assets::EntityDefinition* definition);
@@ -98,10 +98,10 @@ namespace TrenchBroom {
             void removeAttributeFromIndex(const AttributeName& name, const AttributeValue& value);
             void updateAttributeIndex(const AttributeName& oldName, const AttributeValue& oldValue, const AttributeName& newName, const AttributeValue& newValue);
         public: // link management
-            const AttributableList& linkSources() const;
-            const AttributableList& linkTargets() const;
-            const AttributableList& killSources() const;
-            const AttributableList& killTargets() const;
+            const AttributableNodeList& linkSources() const;
+            const AttributableNodeList& linkTargets() const;
+            const AttributableNodeList& killSources() const;
+            const AttributableNodeList& killTargets() const;
             
             bool hasMissingSources() const;
             AttributeNameList findMissingLinkTargets() const;
@@ -124,10 +124,10 @@ namespace TrenchBroom {
             void addAllKillSources(const AttributeValue& targetname);
             void addAllKillTargets();
             
-            void addLinkTargets(const AttributableList& targets);
-            void addKillTargets(const AttributableList& targets);
-            void addLinkSources(const AttributableList& sources);
-            void addKillSources(const AttributableList& sources);
+            void addLinkTargets(const AttributableNodeList& targets);
+            void addKillTargets(const AttributableNodeList& targets);
+            void addLinkSources(const AttributableNodeList& sources);
+            void addKillSources(const AttributableNodeList& sources);
             
             void removeAllLinkSources();
             void removeAllLinkTargets();
@@ -136,17 +136,17 @@ namespace TrenchBroom {
             
             void refreshAllLinks();
             
-            void addLinkSource(Attributable* attributable);
-            void addLinkTarget(Attributable* attributable);
-            void addKillSource(Attributable* attributable);
-            void addKillTarget(Attributable* attributable);
+            void addLinkSource(AttributableNode* attributable);
+            void addLinkTarget(AttributableNode* attributable);
+            void addKillSource(AttributableNode* attributable);
+            void addKillTarget(AttributableNode* attributable);
             
-            void removeLinkSource(Attributable* attributable);
-            void removeLinkTarget(Attributable* attributable);
-            void removeKillSource(Attributable* attributable);
-            void removeKillTarget(Attributable* attributable);
+            void removeLinkSource(AttributableNode* attributable);
+            void removeLinkTarget(AttributableNode* attributable);
+            void removeKillSource(AttributableNode* attributable);
+            void removeKillTarget(AttributableNode* attributable);
         protected:
-            Attributable();
+            AttributableNode();
         private: // implemenation of node interface
             virtual void doAncestorWillChange();
             virtual void doAncestorDidChange();
@@ -155,10 +155,10 @@ namespace TrenchBroom {
             virtual bool doIsAttributeNameMutable(const AttributeName& name) const = 0;
             virtual bool doIsAttributeValueMutable(const AttributeName& name) const = 0;
         private: // hide copy constructor and assignment operator
-            Attributable(const Attributable&);
-            Attributable& operator=(const Attributable&);
+            AttributableNode(const AttributableNode&);
+            AttributableNode& operator=(const AttributableNode&);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Attributable__) */
+#endif /* defined(__TrenchBroom__AttributableNode__) */

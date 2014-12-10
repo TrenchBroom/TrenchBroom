@@ -20,12 +20,12 @@
 #include "SmartChoiceEditorMatcher.h"
 
 #include "Assets/AttributeDefinition.h"
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 
 namespace TrenchBroom {
     namespace View {
-        bool SmartChoiceEditorMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableList& attributables) const {
-            const Assets::AttributeDefinition* attrDef = Model::Attributable::selectAttributeDefinition(name, attributables);
+        bool SmartChoiceEditorMatcher::doMatches(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) const {
+            const Assets::AttributeDefinition* attrDef = Model::AttributableNode::selectAttributeDefinition(name, attributables);
             return attrDef != NULL && attrDef->type() == Assets::AttributeDefinition::Type_ChoiceAttribute;
         }
     }

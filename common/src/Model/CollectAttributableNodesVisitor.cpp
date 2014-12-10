@@ -17,35 +17,35 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CollectAttributablesVisitor.h"
+#include "CollectAttributableNodesVisitor.h"
 
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/World.h"
 
 namespace TrenchBroom {
     namespace Model {
-        const AttributableList& CollectAttributablesVisitor::nodes() const {
+        const AttributableNodeList& CollectAttributableNodesVisitor::nodes() const {
             return m_nodes;
         }
 
-        void CollectAttributablesVisitor::doVisit(World* world) {
+        void CollectAttributableNodesVisitor::doVisit(World* world) {
             addNode(world);
         }
         
-        void CollectAttributablesVisitor::doVisit(Layer* layer) {}
-        void CollectAttributablesVisitor::doVisit(Group* group) {}
+        void CollectAttributableNodesVisitor::doVisit(Layer* layer) {}
+        void CollectAttributableNodesVisitor::doVisit(Group* group) {}
         
-        void CollectAttributablesVisitor::doVisit(Entity* entity) {
+        void CollectAttributableNodesVisitor::doVisit(Entity* entity) {
             addNode(entity);
         }
         
-        void CollectAttributablesVisitor::doVisit(Brush* brush) {
+        void CollectAttributableNodesVisitor::doVisit(Brush* brush) {
             addNode(brush->entity());
         }
 
-        void CollectAttributablesVisitor::addNode(Attributable* node) {
+        void CollectAttributableNodesVisitor::addNode(AttributableNode* node) {
             if (m_addedNodes.insert(node).second)
                 m_nodes.push_back(node);
         }

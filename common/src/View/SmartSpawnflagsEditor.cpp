@@ -21,7 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/World.h"
 #include "View/FlagChangedCommand.h"
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             void doVisit(Model::Entity* entity) { m_document->setAttribute(m_name, attributeValue(entity)); }
             void doVisit(Model::Brush* brush)   {}
 
-            Model::AttributeValue attributeValue(Model::Attributable* attributable) const {
+            Model::AttributeValue attributeValue(Model::AttributableNode* attributable) const {
                 int intValue = attributable->hasAttribute(m_name) ? std::atoi(attributable->attribute(m_name).c_str()) : 0;
                 const int flagValue = (1 << m_flagIndex);
                 
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         m_ignoreUpdates(false) {}
 
         void SmartSpawnflagsEditor::OnFlagChanged(FlagChangedCommand& event) {
-            const Model::AttributableList& toUpdate = attributables();
+            const Model::AttributableNodeList& toUpdate = attributables();
             if (toUpdate.empty())
                 return;
 
@@ -115,7 +115,7 @@ namespace TrenchBroom {
             m_flagsEditor = NULL;
         }
 
-        void SmartSpawnflagsEditor::doUpdateVisual(const Model::AttributableList& attributables) {
+        void SmartSpawnflagsEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
             assert(!attributables.empty());
             if (m_ignoreUpdates)
                 return;
@@ -142,8 +142,8 @@ namespace TrenchBroom {
             m_scrolledWindow->Scroll(m_lastScrollPos.x * xRate, m_lastScrollPos.y * yRate);
         }
 
-        void SmartSpawnflagsEditor::getFlags(const Model::AttributableList& attributables, wxArrayString& labels) const {
-            const Assets::EntityDefinition* definition = Model::Attributable::selectEntityDefinition(attributables);
+        void SmartSpawnflagsEditor::getFlags(const Model::AttributableNodeList& attributables, wxArrayString& labels) const {
+            const Assets::EntityDefinition* definition = Model::AttributableNode::selectEntityDefinition(attributables);
             
             for (size_t i = 0; i < NumFlags; ++i) {
                 wxString label;
@@ -163,15 +163,15 @@ namespace TrenchBroom {
             }
         }
 
-        void SmartSpawnflagsEditor::getFlagValues(const Model::AttributableList& attributables, int& setFlags, int& mixedFlags) const {
+        void SmartSpawnflagsEditor::getFlagValues(const Model::AttributableNodeList& attributables, int& setFlags, int& mixedFlags) const {
             if (attributables.empty()) {
                 setFlags = 0;
                 mixedFlags = 0;
                 return;
             }
             
-            Model::AttributableList::const_iterator it = attributables.begin();
-            Model::AttributableList::const_iterator end = attributables.end();
+            Model::AttributableNodeList::const_iterator it = attributables.begin();
+            Model::AttributableNodeList::const_iterator end = attributables.end();
             setFlags = getFlagValue(*it);
             mixedFlags = 0;
             
@@ -179,7 +179,7 @@ namespace TrenchBroom {
                 combineFlags(NumFlags, getFlagValue(*it), setFlags, mixedFlags);
         }
 
-        int SmartSpawnflagsEditor::getFlagValue(const Model::Attributable* attributable) const {
+        int SmartSpawnflagsEditor::getFlagValue(const Model::AttributableNode* attributable) const {
             if (!attributable->hasAttribute(name()))
                 return 0;
 

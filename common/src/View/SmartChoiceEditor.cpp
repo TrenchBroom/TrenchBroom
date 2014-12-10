@@ -19,7 +19,7 @@
 
 #include "SmartChoiceEditor.h"
 #include "Assets/AttributeDefinition.h"
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
@@ -80,13 +80,13 @@ namespace TrenchBroom {
             m_comboBox= NULL;
         }
         
-        void SmartChoiceEditor::doUpdateVisual(const Model::AttributableList& attributables) {
+        void SmartChoiceEditor::doUpdateVisual(const Model::AttributableNodeList& attributables) {
             assert(m_panel != NULL);
             assert(m_comboBox != NULL);
             
             m_comboBox->Clear();
 
-            const Assets::AttributeDefinition* attrDef = Model::Attributable::selectAttributeDefinition(name(), attributables);
+            const Assets::AttributeDefinition* attrDef = Model::AttributableNode::selectAttributeDefinition(name(), attributables);
             if (attrDef == NULL || attrDef->type() != Assets::AttributeDefinition::Type_ChoiceAttribute) {
                 m_comboBox->Disable();
             } else {
@@ -99,7 +99,7 @@ namespace TrenchBroom {
                     m_comboBox->Append(option.value() + " : " + option.description());
                 }
                 
-                const Model::AttributeValue value = Model::Attributable::selectAttributeValue(name(), attributables);
+                const Model::AttributeValue value = Model::AttributableNode::selectAttributeValue(name(), attributables);
                 m_comboBox->SetValue(value);
             }
         }

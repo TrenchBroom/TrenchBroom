@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return visual;
         }
         
-        void SmartAttributeEditor::update(const Model::AttributableList& attributables) {
+        void SmartAttributeEditor::update(const Model::AttributableNodeList& attributables) {
             m_attributables = attributables;
             updateVisual(m_attributables);
         }
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             return m_name;
         }
 
-        const Model::AttributableList SmartAttributeEditor::attributables() const {
+        const Model::AttributableNodeList SmartAttributeEditor::attributables() const {
             return m_attributables;
         }
 
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             doDestroyVisual();
         }
 
-        void SmartAttributeEditor::updateVisual(const Model::AttributableList& attributables) {
+        void SmartAttributeEditor::updateVisual(const Model::AttributableNodeList& attributables) {
             doUpdateVisual(attributables);
         }
     }

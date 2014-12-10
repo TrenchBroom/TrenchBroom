@@ -17,20 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CollectAttributablesVisitor__
-#define __TrenchBroom__CollectAttributablesVisitor__
+#ifndef __TrenchBroom__CollectAttributableNodesVisitor__
+#define __TrenchBroom__CollectAttributableNodesVisitor__
 
 #include "Model/NodeVisitor.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class CollectAttributablesVisitor : public NodeVisitor {
+        class CollectAttributableNodesVisitor : public NodeVisitor {
         private:
             NodeSet m_addedNodes;
-            AttributableList m_nodes;
+            AttributableNodeList m_nodes;
         public:
-            const AttributableList& nodes() const;
+            const AttributableNodeList& nodes() const;
         private:
             void doVisit(World* world);
             void doVisit(Layer* layer);
@@ -38,9 +38,9 @@ namespace TrenchBroom {
             void doVisit(Entity* entity);
             void doVisit(Brush* brush);
             
-            void addNode(Attributable* node);
+            void addNode(AttributableNode* node);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CollectAttributablesVisitor__) */
+#endif /* defined(__TrenchBroom__CollectAttributableNodesVisitor__) */

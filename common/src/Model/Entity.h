@@ -24,13 +24,13 @@
 #include "VecMath.h"
 #include "Hit.h"
 #include "Assets/AssetTypes.h"
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 #include "Model/EntityRotationPolicy.h"
 #include "Model/Object.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Entity : public Attributable, public Object, private EntityRotationPolicy {
+        class Entity : public AttributableNode, public Object, private EntityRotationPolicy {
         public:
             static const Hit::HitType EntityHit;
         private:
@@ -66,7 +66,7 @@ namespace TrenchBroom {
             
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
-        private: // implement Attributable interface
+        private: // implement AttributableNode interface
             void doAttributesDidChange();
             bool doIsAttributeNameMutable(const AttributeName& name) const;
             bool doIsAttributeValueMutable(const AttributeName& name) const;

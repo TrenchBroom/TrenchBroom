@@ -19,7 +19,7 @@
 
 #include "EntityColor.h"
 
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
@@ -40,13 +40,13 @@ namespace TrenchBroom {
             
             ColorRange::Type result() const { return m_range; }
         private:
-            void doVisit(const Model::World* world)   { visitAttributable(world); }
+            void doVisit(const Model::World* world)   { visitAttributableNode(world); }
             void doVisit(const Model::Layer* layer)   {}
             void doVisit(const Model::Group* group)   {}
-            void doVisit(const Model::Entity* entity) { visitAttributable(entity); }
+            void doVisit(const Model::Entity* entity) { visitAttributableNode(entity); }
             void doVisit(const Model::Brush* brush)   {}
             
-            void visitAttributable(const Model::Attributable* attributable) {
+            void visitAttributableNode(const Model::AttributableNode* attributable) {
                 static const Model::AttributeValue NullValue("");
                 const Model::AttributeValue& value = attributable->attribute(m_name, NullValue);
                 if (value != NullValue) {
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             }
         };
         
-        ColorRange::Type detectColorRange(const Model::AttributeName& name, const Model::AttributableList& attributables) {
+        ColorRange::Type detectColorRange(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) {
             DetectColorRangeVisitor visitor(name);
             Model::Node::accept(attributables.begin(), attributables.end(), visitor);
             return visitor.result();

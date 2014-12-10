@@ -54,7 +54,7 @@ namespace TrenchBroom {
             
             Brush* clone(const BBox3& worldBounds) const;
             
-            Attributable* entity() const;
+            AttributableNode* entity() const;
         public: // face management:
             const BrushFaceList& faces() const;
             void setFaces(const BBox3& worldBounds, const BrushFaceList& faces);

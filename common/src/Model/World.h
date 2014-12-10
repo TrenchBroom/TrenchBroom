@@ -23,8 +23,8 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Hit.h"
-#include "Model/Attributable.h"
-#include "Model/AttributableIndex.h"
+#include "Model/AttributableNode.h"
+#include "Model/AttributableNodeIndex.h"
 #include "Model/IssueGeneratorRegistry.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactory.h"
@@ -36,12 +36,12 @@ namespace TrenchBroom {
     namespace Model {
         class BrushContentTypeBuilder;
         
-        class World : public Attributable, public ModelFactory {
+        class World : public AttributableNode, public ModelFactory {
         private:
             ModelFactoryImpl m_factory;
             Layer* m_defaultLayer;
             Picker m_picker;
-            AttributableIndex m_attributableIndex;
+            AttributableNodeIndex m_attributableIndex;
             IssueGeneratorRegistry m_issueGeneratorRegistry;
         public:
             World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder);
@@ -72,11 +72,11 @@ namespace TrenchBroom {
             void doUpdateIssues(Node* node);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
-            void doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const;
-            void doFindAttributablesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableList& result) const;
-            void doAddToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
-            void doRemoveFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
-        private: // implement Attributable interface
+            void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;
+            void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const;
+            void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+        private: // implement AttributableNode interface
             void doAttributesDidChange();
             bool doIsAttributeNameMutable(const AttributeName& name) const;
             bool doIsAttributeValueMutable(const AttributeName& name) const;
