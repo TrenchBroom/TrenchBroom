@@ -30,6 +30,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/CollectAttributablesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
@@ -305,6 +306,12 @@ namespace TrenchBroom {
         
         bool MapDocument::hasSelectedBrushFaces() const {
             return !m_selectedBrushFaces.empty();
+        }
+
+        const Model::AttributableList MapDocument::allSelectedAttributables() const {
+            Model::CollectAttributablesVisitor visitor;
+            Model::Node::iterate(m_selectedNodes.begin(), m_selectedNodes.end(), visitor);
+            return visitor.nodes();
         }
 
         const Model::NodeCollection& MapDocument::selectedNodes() const {

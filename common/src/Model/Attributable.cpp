@@ -191,6 +191,14 @@ namespace TrenchBroom {
             removeLinks(name, value);
             attributesDidChange();
         }
+        
+        bool Attributable::isAttributeNameMutable(const AttributeName& name) const {
+            return doIsAttributeNameMutable(name);
+        }
+        
+        bool Attributable::isAttributeValueMutable(const AttributeName& name) const {
+            return doIsAttributeValueMutable(name);
+        }
 
         void Attributable::attributesDidChange() {
             nodeDidChange();

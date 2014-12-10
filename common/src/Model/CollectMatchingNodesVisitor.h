@@ -47,6 +47,8 @@ namespace TrenchBroom {
         };
         
         class UniqueNodeCollectionStrategy : public NodeCollectionStrategy {
+        private:
+            NodeSet m_addedNodes;
         public:
             virtual ~UniqueNodeCollectionStrategy();
         protected:

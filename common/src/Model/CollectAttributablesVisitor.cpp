@@ -17,34 +17,37 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CollectMatchingNodesVisitor.h"
+#include "CollectAttributablesVisitor.h"
 
-#include "CollectionUtils.h"
+#include "Model/Attributable.h"
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/World.h"
 
 namespace TrenchBroom {
     namespace Model {
-        NodeCollectionStrategy::~NodeCollectionStrategy() {}
-
-        const NodeList& NodeCollectionStrategy::nodes() const {
+        const AttributableList& CollectAttributablesVisitor::nodes() const {
             return m_nodes;
         }
 
-        StandardNodeCollectionStrategy::~StandardNodeCollectionStrategy() {}
-
-        void StandardNodeCollectionStrategy::addNode(Node* node) {
-            m_nodes.push_back(node);
+        void CollectAttributablesVisitor::doVisit(World* world) {
+            addNode(world);
         }
         
-        UniqueNodeCollectionStrategy::~UniqueNodeCollectionStrategy() {}
+        void CollectAttributablesVisitor::doVisit(Layer* layer) {}
+        void CollectAttributablesVisitor::doVisit(Group* group) {}
+        
+        void CollectAttributablesVisitor::doVisit(Entity* entity) {
+            addNode(entity);
+        }
+        
+        void CollectAttributablesVisitor::doVisit(Brush* brush) {
+            addNode(brush->entity());
+        }
 
-        void UniqueNodeCollectionStrategy::addNode(Node* node) {
+        void CollectAttributablesVisitor::addNode(Attributable* node) {
             if (m_addedNodes.insert(node).second)
                 m_nodes.push_back(node);
         }
-
-        bool NeverStopRecursion::operator()(const Node* node, bool matched) const { return false; }
-        
-        bool StopRecursionIfMatched::operator()(const Node* node, bool matched) const { return matched; }
-
     }
 }
