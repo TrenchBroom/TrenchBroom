@@ -47,8 +47,6 @@ namespace TrenchBroom {
         class EntityModelRenderer : public Renderable {
         private:
             typedef std::map<Model::Entity*, TexturedTriangleMeshRenderer*> EntityMap;
-            typedef std::vector<Assets::EntityModel*> EntityModelList;
-            typedef std::vector<TexturedTriangleMeshRenderer*> RendererList;
             
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;

@@ -22,7 +22,6 @@
 
 #include "VecMath.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Renderer/Vbo.h"
 #include "Renderer/VertexSpec.h"
 #include "View/CellView.h"
 #include "View/ViewTypes.h"
@@ -74,8 +73,6 @@ namespace TrenchBroom {
             bool m_hideUnused;
             Assets::EntityDefinition::SortOrder m_sortOrder;
             String m_filterText;
-            
-            Renderer::Vbo m_vbo;
         public:
             EntityBrowserView(wxWindow* parent,
                               wxScrollBar* scrollBar,
