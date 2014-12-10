@@ -52,7 +52,7 @@ namespace TrenchBroom {
             Renderer::OrthographicCamera m_camera;
             CameraTool2D* m_cameraTool;
         public:
-            MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextManager& contextManager, ViewPlane viewPlane);
+            MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, ViewPlane viewPlane);
             ~MapView2D();
         private:
             void initializeCamera(ViewPlane viewPlane);

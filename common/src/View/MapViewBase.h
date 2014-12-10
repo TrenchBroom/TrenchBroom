@@ -63,9 +63,8 @@ namespace TrenchBroom {
             AnimationManager* m_animationManager;
         private:
             Renderer::MapRenderer& m_renderer;
-            Renderer::Vbo& m_vbo;
         protected:
-            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, InputSource inputSource, GLContextManager& contextManager);
+            MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, InputSource inputSource, GLContextManager& contextManager);
         public:
             virtual ~MapViewBase();
         public: // drop targets

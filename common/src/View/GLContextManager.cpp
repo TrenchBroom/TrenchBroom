@@ -22,15 +22,18 @@
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/ShaderManager.h"
+#include "Renderer/Vbo.h"
 
 namespace TrenchBroom {
     namespace View {
         GLContextManager::GLContextManager() :
         m_initialized(false),
+        m_vbo(new Renderer::Vbo(0xFFFFFF)),
         m_fontManager(new Renderer::FontManager()),
         m_shaderManager(new Renderer::ShaderManager()) {}
         
         GLContextManager::~GLContextManager() {
+            delete m_vbo;
             delete m_fontManager;
             delete m_shaderManager;
         }
@@ -57,6 +60,10 @@ namespace TrenchBroom {
                 return true;
             }
             return false;
+        }
+        
+        Renderer::Vbo& GLContextManager::vbo() {
+            return *m_vbo;
         }
         
         Renderer::FontManager& GLContextManager::fontManager() {

@@ -28,6 +28,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class FontManager;
         class ShaderManager;
+        class Vbo;
     }
     
     namespace View {
@@ -41,6 +42,7 @@ namespace TrenchBroom {
         public:
             GLContext(wxGLCanvas* canvas, GLContextManager* contextManager);
 
+            Renderer::Vbo& vbo();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
             

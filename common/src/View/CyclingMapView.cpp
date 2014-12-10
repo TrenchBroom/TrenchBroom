@@ -34,24 +34,24 @@
 
 namespace TrenchBroom {
     namespace View {
-        CyclingMapView::CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager, const View views) :
+        CyclingMapView::CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, const View views) :
         MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
         m_currentMapView(NULL) {
-            createGui(toolBox, mapRenderer, vbo, contextManager, views);
+            createGui(toolBox, mapRenderer, contextManager, views);
             bindEvents();
         }
 
-        void CyclingMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager, const View views) {
+        void CyclingMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, const View views) {
             if (views & View_3D)
-                m_mapViews.push_back(new MapView3D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager));
+                m_mapViews.push_back(new MapView3D(this, m_logger, m_document, toolBox, mapRenderer, contextManager));
             if (views & View_XY)
-                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XY));
+                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY));
             if (views & View_XZ)
-                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XZ));
+                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ));
             if (views & View_YZ)
-                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_YZ));
+                m_mapViews.push_back(new MapView2D(this, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ));
             
             for (size_t i = 0; i < m_mapViews.size(); ++i)
                 m_mapViews[i]->Hide();

@@ -29,7 +29,6 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/Vbo.h"
 #include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
@@ -50,8 +49,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextManager& contextManager) :
-        MapViewBase(parent, logger, document, toolBox, renderer, vbo, IS_MapView3D, contextManager),
+        MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
+        MapViewBase(parent, logger, document, toolBox, renderer, IS_MapView3D, contextManager),
         m_camera(),
         m_compass(new Renderer::Compass(toolBox.movementRestriction())),
         m_flyModeHelper(new FlyModeHelper(this, m_camera)) {

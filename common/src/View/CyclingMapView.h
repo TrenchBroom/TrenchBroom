@@ -34,7 +34,6 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class MapRenderer;
-        class Vbo;
     }
     
     namespace View {
@@ -61,9 +60,9 @@ namespace TrenchBroom {
             MapViewList m_mapViews;
             MapViewBase* m_currentMapView;
         public:
-            CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager, View views);
+            CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
         private:
-            void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager, View views);
+            void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
         private:
             void bindEvents();
             void OnCycleMapView(wxCommandEvent& event);

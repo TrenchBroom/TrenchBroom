@@ -34,7 +34,6 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class MapRenderer;
-        class Vbo;
     }
 
     namespace IO {
@@ -57,7 +56,6 @@ namespace TrenchBroom {
             MapViewToolBox* m_toolBox;
             
             Renderer::MapRenderer* m_mapRenderer;
-            Renderer::Vbo* m_vbo;
             
             MapViewContainer* m_mapView;
         public:

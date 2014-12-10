@@ -36,7 +36,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        FourPaneMapView::FourPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) :
+        FourPaneMapView::FourPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
         MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
@@ -44,18 +44,18 @@ namespace TrenchBroom {
         m_mapViewXY(NULL),
         m_mapViewXZ(NULL),
         m_mapViewYZ(NULL) {
-            createGui(toolBox, mapRenderer, vbo, contextManager);
+            createGui(toolBox, mapRenderer, contextManager);
         }
         
-        void FourPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) {
+        void FourPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
             
             SplitterWindow4* splitter = new SplitterWindow4(this);
             splitter->SetName("4PaneMapViewSplitter");
             
-            m_mapView3D = new MapView3D(splitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager);
-            m_mapViewXY = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViewXZ = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XZ);
-            m_mapViewYZ = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_YZ);
+            m_mapView3D = new MapView3D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
+            m_mapViewXY = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
+            m_mapViewXZ = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ);
+            m_mapViewYZ = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ);
             
             splitter->split(m_mapView3D, m_mapViewXY, m_mapViewXZ, m_mapViewYZ);
             

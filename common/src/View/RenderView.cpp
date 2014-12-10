@@ -75,6 +75,10 @@ namespace TrenchBroom {
             event.Skip();
         }
 
+        Renderer::Vbo& RenderView::sharedVbo() {
+            return m_glContext->vbo();
+        }
+
         Renderer::FontManager& RenderView::fontManager() {
             return m_glContext->fontManager();
         }

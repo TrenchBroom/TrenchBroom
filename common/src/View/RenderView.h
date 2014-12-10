@@ -52,6 +52,7 @@ namespace TrenchBroom {
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
         protected:
+            Renderer::Vbo& sharedVbo();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
             
