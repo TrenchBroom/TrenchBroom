@@ -378,9 +378,7 @@ namespace TrenchBroom {
                 }
             }
             
-            PreferenceManager& prefs = PreferenceManager::instance();
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);
-            shader.set("Color", prefs.get(Preferences::BrowserTextColor));
             shader.set("Texture", 0);
             
             StringRendererMap::iterator it, end;

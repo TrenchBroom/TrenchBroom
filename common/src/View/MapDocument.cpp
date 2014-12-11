@@ -47,6 +47,7 @@
 #include "Model/World.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/ChangeBrushFaceAttributesCommand.h"
+#include "View/ChangeEntityAttributesCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/EntityDefinitionFileCommand.h"
 #include "View/Grid.h"
@@ -499,6 +500,24 @@ namespace TrenchBroom {
         
         bool MapDocument::flipObjects(const Vec3& center, const Math::Axis::Type axis) {
             return submit(TransformObjectsCommand::flip(center, axis, m_textureLock));
+        }
+
+        bool MapDocument::setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
+            return submit(ChangeEntityAttributesCommand::set(name, value));
+        }
+        
+        bool MapDocument::renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+            return submit(ChangeEntityAttributesCommand::rename(oldName, newName));
+        }
+        
+        bool MapDocument::removeAttribute(const Model::AttributeName& name) {
+            return submit(ChangeEntityAttributesCommand::remove(name));
+        }
+        
+        bool MapDocument::setEntityColor(const Model::AttributeName& name, const Color& color) {
+        }
+        
+        bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range) {
         }
 
         bool MapDocument::setTexture(Assets::Texture* texture) {

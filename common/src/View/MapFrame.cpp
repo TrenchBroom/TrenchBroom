@@ -108,6 +108,7 @@ namespace TrenchBroom {
             delete m_autosaver;
             m_autosaver = NULL;
             
+            // this will also delete the VBO, which will then lead to all kinds of errors when closing the frame
             delete m_contextManager;
             m_contextManager = NULL;
         }
