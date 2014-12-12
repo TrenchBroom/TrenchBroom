@@ -311,7 +311,7 @@ namespace TrenchBroom {
 
         const Model::AttributableNodeList MapDocument::allSelectedAttributableNodes() const {
             Model::CollectAttributableNodesVisitor visitor;
-            Model::Node::iterate(m_selectedNodes.begin(), m_selectedNodes.end(), visitor);
+            Model::Node::accept(m_selectedNodes.begin(), m_selectedNodes.end(), visitor);
             return visitor.nodes();
         }
 
