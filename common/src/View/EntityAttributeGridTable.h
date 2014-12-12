@@ -41,49 +41,36 @@ namespace TrenchBroom {
                 bool m_nameMutable;
                 bool m_valueMutable;
                 String m_tooltip;
+                bool m_default;
                 
                 size_t m_maxCount;
                 size_t m_count;
                 bool m_multi;
             public:
                 AttributeRow();
-                AttributeRow(const String& name, const String& value, bool nameMutable, bool valueMutable, const String& tooltip, size_t maxCount);
+                AttributeRow(const String& name, const String& value, bool nameMutable, bool valueMutable, const String& tooltip, bool i_default, size_t maxCount);
                 
                 const String& name() const;
                 const String& value() const;
                 bool nameMutable() const;
                 bool valueMutable() const;
                 const String& tooltip() const;
+                bool isDefault() const;
                 
                 void merge(const String& i_valuec, bool nameMutable, bool valueMutable);
                 bool multi() const;
                 bool subset() const;
                 void reset();
             };
-            
-            class DefaultRow {
-            public:
-                typedef std::vector<DefaultRow> List;
-            private:
-                String m_name;
-                String m_value;
-                String m_tooltip;
-            public:
-                DefaultRow();
-                DefaultRow(const String& name, const String& value, const String& tooltip);
-                
-                const String& name() const;
-                const String& value() const;
-                const String& tooltip() const;
-            };
-            
+
             class RowManager {
             private:
-                AttributeRow::List m_attributeRows;
-                DefaultRow::List m_defaultRows;
+                AttributeRow::List m_rows;
+                size_t m_defaultRowCount;
             public:
-                size_t propertyCount() const;
-                size_t rowCount() const;
+                size_t totalRowCount() const;
+                size_t defaultRowCount() const;
+                size_t attributeRowCount() const;
                 
                 bool isAttributeRow(size_t rowIndex) const;
                 bool isDefaultRow(size_t rowIndex) const;
@@ -103,18 +90,8 @@ namespace TrenchBroom {
                 StringList insertRows(size_t rowIndex, size_t count, const Model::AttributableNodeList& attributables);
                 void deleteRows(size_t rowIndex, size_t count);
             private:
-                const AttributeRow& attributeRow(size_t rowIndex) const;
-                AttributeRow& attributeRow(size_t rowIndex);
-                const DefaultRow& defaultRow(size_t rowIndex) const;
-                DefaultRow& defaultRow(size_t rowIndex);
-                
-                AttributeRow::List collectAttributeRows(const Model::AttributableNodeList& attributables) const;
-                DefaultRow::List collectDefaultRows(const Model::AttributableNodeList& attributables, const AttributeRow::List& AttributeRows) const;
-
-                static AttributeRow::List::iterator findAttributeRow(AttributeRow::List& rows, const String& name);
-                static AttributeRow::List::const_iterator findAttributeRow(const AttributeRow::List& rows, const String& name);
-                static DefaultRow::List::iterator findDefaultRow(DefaultRow::List& rows, const String& name);
-                static DefaultRow::List::const_iterator findDefaultRow(const DefaultRow::List& rows, const String& name);
+                static AttributeRow::List::iterator findRow(AttributeRow::List& rows, const String& name);
+                static AttributeRow::List::const_iterator findRow(const AttributeRow::List& rows, const String& name);
                 
                 StringList newAttributeNames(size_t count, const Model::AttributableNodeList& attributables) const;
             };

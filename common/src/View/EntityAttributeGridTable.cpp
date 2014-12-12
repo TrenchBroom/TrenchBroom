@@ -34,19 +34,23 @@ namespace TrenchBroom {
         EntityAttributeGridTable::AttributeRow::AttributeRow() :
         m_nameMutable(false),
         m_valueMutable(false),
+        m_default(false),
         m_maxCount(0),
         m_count(0),
         m_multi(false) {}
         
-        EntityAttributeGridTable::AttributeRow::AttributeRow(const String& name, const String& value, const bool nameMutable, const bool valueMutable, const String& tooltip, const size_t maxCount) :
+        EntityAttributeGridTable::AttributeRow::AttributeRow(const String& name, const String& value, const bool nameMutable, const bool valueMutable, const String& tooltip, const bool i_default, const size_t maxCount) :
         m_name(name),
         m_value(value),
-        m_nameMutable(false),
-        m_valueMutable(false),
+        m_nameMutable(nameMutable),
+        m_valueMutable(valueMutable),
         m_tooltip(tooltip),
+        m_default(i_default),
         m_maxCount(maxCount),
         m_count(1),
-        m_multi(false) {}
+        m_multi(false) {
+            assert(!m_default || m_valueMutable);
+        }
         
         const String& EntityAttributeGridTable::AttributeRow::name() const {
             return m_name;
@@ -68,10 +72,15 @@ namespace TrenchBroom {
             return m_multi ? EmptyString : m_tooltip;
         }
 
+        bool EntityAttributeGridTable::AttributeRow::isDefault() const {
+            return m_default;
+        }
+        
         void EntityAttributeGridTable::AttributeRow::merge(const String& i_value, const bool nameMutable, const bool valueMutable) {
             m_multi |= (m_value != i_value);
             m_nameMutable &= nameMutable;
             m_valueMutable &= valueMutable;
+            m_default = false;
             ++m_count;
         }
         
@@ -88,170 +97,82 @@ namespace TrenchBroom {
             m_multi = false;
         }
 
-        EntityAttributeGridTable::DefaultRow::DefaultRow() {}
-        
-        EntityAttributeGridTable::DefaultRow::DefaultRow(const String& name, const String& value, const String& tooltip) :
-        m_name(name),
-        m_value(value),
-        m_tooltip(tooltip) {}
-
-        const String& EntityAttributeGridTable::DefaultRow::name() const {
-            return m_name;
+        size_t EntityAttributeGridTable::RowManager::totalRowCount() const {
+            return m_rows.size();
         }
-        
-        const String& EntityAttributeGridTable::DefaultRow::value() const {
-            return m_value;
+
+        size_t EntityAttributeGridTable::RowManager::defaultRowCount() const {
+            return m_defaultRowCount;
+        }
+
+        size_t EntityAttributeGridTable::RowManager::attributeRowCount() const {
+            return totalRowCount() - defaultRowCount();
         }
         
-        const String& EntityAttributeGridTable::DefaultRow::tooltip() const {
-            return m_tooltip;
-        }
-
-        size_t EntityAttributeGridTable::RowManager::propertyCount() const {
-            return m_attributeRows.size();
-        }
-
-        size_t EntityAttributeGridTable::RowManager::rowCount() const {
-            return m_attributeRows.size() + m_defaultRows.size();
-        }
-
         bool EntityAttributeGridTable::RowManager::isAttributeRow(const size_t rowIndex) const {
-            assert(rowIndex < rowCount());
-            return rowIndex < m_attributeRows.size();
+            return !isDefaultRow(rowIndex);
         }
         
         bool EntityAttributeGridTable::RowManager::isDefaultRow(const size_t rowIndex) const {
-            return !isAttributeRow(rowIndex);
+            assert(rowIndex < totalRowCount());
+            return m_rows[rowIndex].isDefault();
         }
 
         size_t EntityAttributeGridTable::RowManager::indexOf(const String& name) const {
-            AttributeRow::List::const_iterator propIt = findAttributeRow(m_attributeRows, name);
-            if (propIt != m_attributeRows.end())
-                return static_cast<size_t>(std::distance(m_attributeRows.begin(), propIt));
-            
-            DefaultRow::List::const_iterator defIt = findDefaultRow(m_defaultRows, name);
-            if (defIt != m_defaultRows.end())
-                return propertyCount() + static_cast<size_t>(std::distance(m_defaultRows.begin(), defIt));
-            return rowCount();
+            AttributeRow::List::const_iterator propIt = findRow(m_rows, name);
+            if (propIt != m_rows.end())
+                return static_cast<size_t>(std::distance(m_rows.begin(), propIt));
+            return totalRowCount();
         }
 
         const String& EntityAttributeGridTable::RowManager::name(const size_t rowIndex) const {
-            if (isAttributeRow(rowIndex))
-                return attributeRow(rowIndex).name();
-            return defaultRow(rowIndex).name();
+            assert(rowIndex < totalRowCount());
+            return m_rows[rowIndex].name();
         }
         
         const String& EntityAttributeGridTable::RowManager::value(const size_t rowIndex) const {
-            if (isAttributeRow(rowIndex)) {
-                const AttributeRow& row = attributeRow(rowIndex);
-                return row.multi() ? EmptyString : row.value();
-            }
-            return defaultRow(rowIndex).value();
+            assert(rowIndex < totalRowCount());
+            const AttributeRow& row = m_rows[rowIndex];
+            return row.multi() ? EmptyString : row.value();
         }
         
         bool EntityAttributeGridTable::RowManager::nameMutable(const size_t rowIndex) const {
-            if (isAttributeRow(rowIndex))
-                return attributeRow(rowIndex).nameMutable();
-            return false;
+            assert(rowIndex < totalRowCount());
+            return m_rows[rowIndex].nameMutable();
         }
         
         bool EntityAttributeGridTable::RowManager::valueMutable(const size_t rowIndex) const {
-            if (isAttributeRow(rowIndex))
-                return attributeRow(rowIndex).valueMutable();
-            return true;
+            assert(rowIndex < totalRowCount());
+            return m_rows[rowIndex].valueMutable();
         }
 
         const String& EntityAttributeGridTable::RowManager::tooltip(const size_t rowIndex) const {
-            if (isAttributeRow(rowIndex))
-                return attributeRow(rowIndex).tooltip();
-            return defaultRow(rowIndex).tooltip();
+            assert(rowIndex < totalRowCount());
+            return m_rows[rowIndex].tooltip();
         }
 
         bool EntityAttributeGridTable::RowManager::multi(const size_t rowIndex) const {
-            if (!isAttributeRow(rowIndex))
-                return false;
-            const AttributeRow& row = attributeRow(rowIndex);
-            return row.multi();
+            assert(rowIndex < totalRowCount());
+            return m_rows[rowIndex].multi();
         }
 
         bool EntityAttributeGridTable::RowManager::subset(const size_t rowIndex) const {
-            if (!isAttributeRow(rowIndex))
-                return false;
-            const AttributeRow& row = attributeRow(rowIndex);
-            return row.subset();
+            assert(rowIndex < totalRowCount());
+            return m_rows[rowIndex].subset();
         }
 
         const StringList EntityAttributeGridTable::RowManager::names(const size_t rowIndex, const size_t count) const {
-            assert(rowIndex + count <= propertyCount());
+            assert(rowIndex + count <= totalRowCount());
             
             StringList result(count);
             for (size_t i = 0; i < count; ++i)
-                result[i] = m_attributeRows[rowIndex + i].name();
+                result[i] = m_rows[rowIndex + i].name();
             return result;
         }
 
         void EntityAttributeGridTable::RowManager::updateRows(const Model::AttributableNodeList& attributables, const bool showDefaultRows) {
-            AttributeRow::List newAttributeRows = collectAttributeRows(attributables);
-            DefaultRow::List newDefaultRows;
-            if (showDefaultRows)
-                newDefaultRows = collectDefaultRows(attributables, newAttributeRows);
-            
-            using std::swap;
-            swap(m_attributeRows, newAttributeRows);
-            swap(m_defaultRows, newDefaultRows);
-        }
-
-        StringList EntityAttributeGridTable::RowManager::insertRows(const size_t rowIndex, const size_t count, const Model::AttributableNodeList& attributables) {
-            assert(rowIndex <= propertyCount());
-            
-            const StringList attributeNames = newAttributeNames(count, attributables);
-            assert(attributeNames.size() == count);
-            
-            AttributeRow::List::iterator entryIt = m_attributeRows.begin();
-            std::advance(entryIt, rowIndex);
-            for (size_t i = 0; i < count; i++) {
-                entryIt = m_attributeRows.insert(entryIt, AttributeRow(attributeNames[i], "", true, true, "", attributables.size()));
-                entryIt->reset();
-                std::advance(entryIt, 1);
-            }
-            
-            return attributeNames;
-        }
-
-        void EntityAttributeGridTable::RowManager::deleteRows(const size_t rowIndex, const size_t count) {
-            assert(rowIndex + count <= propertyCount());
-            
-            AttributeRow::List::iterator first = m_attributeRows.begin();
-            AttributeRow::List::iterator last = first;
-            std::advance(first, rowIndex);
-            std::advance(last, rowIndex + count);
-            m_attributeRows.erase(first, last);
-        }
-
-        const EntityAttributeGridTable::AttributeRow& EntityAttributeGridTable::RowManager::attributeRow(const size_t rowIndex) const {
-            assert(rowIndex < m_attributeRows.size());
-            return m_attributeRows[rowIndex];
-        }
-        
-        EntityAttributeGridTable::AttributeRow& EntityAttributeGridTable::RowManager::attributeRow(const size_t rowIndex) {
-            assert(rowIndex < m_attributeRows.size());
-            return m_attributeRows[rowIndex];
-        }
-        
-        const EntityAttributeGridTable::DefaultRow& EntityAttributeGridTable::RowManager::defaultRow(const size_t rowIndex) const {
-            assert(rowIndex >= m_attributeRows.size());
-            assert(rowIndex < rowCount());
-            return m_defaultRows[rowIndex - m_attributeRows.size()];
-        }
-
-        EntityAttributeGridTable::DefaultRow& EntityAttributeGridTable::RowManager::defaultRow(const size_t rowIndex) {
-            assert(rowIndex >= m_attributeRows.size());
-            assert(rowIndex < rowCount());
-            return m_defaultRows[rowIndex - m_attributeRows.size()];
-        }
-        
-        EntityAttributeGridTable::AttributeRow::List EntityAttributeGridTable::RowManager::collectAttributeRows(const Model::AttributableNodeList& attributables) const {
-            EntityAttributeGridTable::AttributeRow::List rows;
+            m_rows.clear();
+            m_defaultRowCount = 0;
             
             Model::AttributableNodeList::const_iterator attriutableIt, attributableEnd;
             Model::EntityAttribute::List::const_iterator attributeIt, attributeEnd;
@@ -261,8 +182,8 @@ namespace TrenchBroom {
                  attriutableIt != attributableEnd;
                  ++attriutableIt) {
                 
-                const Model::AttributableNode& attributable = **attriutableIt;
-                const Model::EntityAttribute::List& attributes = attributable.attributes();
+                const Model::AttributableNode* attributable = *attriutableIt;
+                const Model::EntityAttribute::List& attributes = attributable->attributes();
                 for (attributeIt = attributes.begin(),
                      attributeEnd = attributes.end();
                      attributeIt != attributeEnd;
@@ -271,55 +192,74 @@ namespace TrenchBroom {
                     const Model::EntityAttribute& attribute = *attributeIt;
                     const Assets::AttributeDefinition* attributeDefinition = attribute.definition();
                     
-                    const bool nameMutable = attributable.isAttributeNameMutable(attribute.name());
-                    const bool valueMutable = attributable.isAttributeValueMutable(attribute.value());
-
-                    AttributeRow::List::iterator rowIt = findAttributeRow(rows, attribute.name());
-                    if (rowIt != rows.end()) {
+                    const bool nameMutable = attributable->isAttributeNameMutable(attribute.name());
+                    const bool valueMutable = attributable->isAttributeValueMutable(attribute.value());
+                    
+                    AttributeRow::List::iterator rowIt = findRow(m_rows, attribute.name());
+                    if (rowIt != m_rows.end()) {
                         rowIt->merge(attribute.value(), nameMutable, valueMutable);
                     } else {
                         const String& tooltip = attributeDefinition != NULL ? attributeDefinition->description() : EmptyString;
-                        rows.push_back(AttributeRow(attribute.name(), attribute.value(),
-                                                    nameMutable, valueMutable,
-                                                    tooltip, attributables.size()));
+                        m_rows.push_back(AttributeRow(attribute.name(), attribute.value(),
+                                                      nameMutable, valueMutable,
+                                                      tooltip, false, attributables.size()));
                     }
                 }
             }
-
-            return rows;
-        }
-        
-        EntityAttributeGridTable::DefaultRow::List EntityAttributeGridTable::RowManager::collectDefaultRows(const Model::AttributableNodeList& attributables, const AttributeRow::List& AttributeRows) const {
-            DefaultRow::List defaultRows;
-            const Assets::EntityDefinition* definition = Model::AttributableNode::selectEntityDefinition(attributables);
             
-            if (definition != NULL) {
-                const Assets::AttributeDefinitionList& attributeDefs = definition->attributeDefinitions();
-                Assets::AttributeDefinitionList::const_iterator definitionIt, definitionEnd;
-                for (definitionIt = attributeDefs.begin(),
-                     definitionEnd = attributeDefs.end();
-                     definitionIt != definitionEnd;
-                     ++definitionIt) {
-                    
-                    const Assets::AttributeDefinitionPtr propertyDef = *definitionIt;
-                    const String& name = propertyDef->name();
-                    
-                    if (findAttributeRow(AttributeRows, name) != AttributeRows.end())
-                        continue;
-                    if (findDefaultRow(defaultRows, name) != defaultRows.end())
-                        continue;
-                    
-                    const String value = Assets::AttributeDefinition::defaultValue(*propertyDef);
-                    const String& tooltip = propertyDef->description();
-                    
-                    defaultRows.push_back(DefaultRow(name, value, tooltip));
+            if (showDefaultRows) {
+                const Assets::EntityDefinition* definition = Model::AttributableNode::selectEntityDefinition(attributables);
+                if (definition != NULL) {
+                    const Assets::AttributeDefinitionList& attributeDefs = definition->attributeDefinitions();
+                    Assets::AttributeDefinitionList::const_iterator definitionIt, definitionEnd;
+                    for (definitionIt = attributeDefs.begin(),
+                         definitionEnd = attributeDefs.end();
+                         definitionIt != definitionEnd;
+                         ++definitionIt) {
+                        
+                        const Assets::AttributeDefinitionPtr propertyDef = *definitionIt;
+                        const String& name = propertyDef->name();
+                        
+                        if (findRow(m_rows, name) != m_rows.end())
+                            continue;
+                        
+                        const String value = Assets::AttributeDefinition::defaultValue(*propertyDef);
+                        const String& tooltip = propertyDef->description();
+                        m_rows.push_back(AttributeRow(name, value, false, true, tooltip, true, attributables.size()));
+                        ++m_defaultRowCount;
+                    }
                 }
             }
+        }
+
+        StringList EntityAttributeGridTable::RowManager::insertRows(const size_t rowIndex, const size_t count, const Model::AttributableNodeList& attributables) {
+            assert(rowIndex <= attributeRowCount());
             
-            return defaultRows;
+            const StringList attributeNames = newAttributeNames(count, attributables);
+            assert(attributeNames.size() == count);
+            
+            AttributeRow::List::iterator entryIt = m_rows.begin();
+            std::advance(entryIt, rowIndex);
+            for (size_t i = 0; i < count; i++) {
+                entryIt = m_rows.insert(entryIt, AttributeRow(attributeNames[i], "", true, true, "", false, attributables.size()));
+                entryIt->reset();
+                std::advance(entryIt, 1);
+            }
+            
+            return attributeNames;
+        }
+
+        void EntityAttributeGridTable::RowManager::deleteRows(const size_t rowIndex, const size_t count) {
+            assert(rowIndex + count <= attributeRowCount());
+            
+            AttributeRow::List::iterator first = m_rows.begin();
+            AttributeRow::List::iterator last = first;
+            std::advance(first, rowIndex);
+            std::advance(last, rowIndex + count);
+            m_rows.erase(first, last);
         }
         
-        EntityAttributeGridTable::AttributeRow::List::iterator EntityAttributeGridTable::RowManager::findAttributeRow(AttributeRow::List& rows, const String& name) {
+        EntityAttributeGridTable::AttributeRow::List::iterator EntityAttributeGridTable::RowManager::findRow(AttributeRow::List& rows, const String& name) {
             AttributeRow::List::iterator it, end;
             for (it = rows.begin(), end = rows.end(); it != end; ++it) {
                 const AttributeRow& row = *it;
@@ -329,30 +269,10 @@ namespace TrenchBroom {
             return end;
         }
 
-        EntityAttributeGridTable::AttributeRow::List::const_iterator EntityAttributeGridTable::RowManager::findAttributeRow(const AttributeRow::List& rows, const String& name) {
+        EntityAttributeGridTable::AttributeRow::List::const_iterator EntityAttributeGridTable::RowManager::findRow(const AttributeRow::List& rows, const String& name) {
             AttributeRow::List::const_iterator it, end;
             for (it = rows.begin(), end = rows.end(); it != end; ++it) {
                 const AttributeRow& row = *it;
-                if (row.name() == name)
-                    return it;
-            }
-            return end;
-        }
-
-        EntityAttributeGridTable::DefaultRow::List::iterator EntityAttributeGridTable::RowManager::findDefaultRow(DefaultRow::List& rows, const String& name) {
-            DefaultRow::List::iterator it, end;
-            for (it = rows.begin(), end = rows.end(); it != end; ++it) {
-                const DefaultRow& row = *it;
-                if (row.name() == name)
-                    return it;
-            }
-            return end;
-        }
-
-        EntityAttributeGridTable::DefaultRow::List::const_iterator EntityAttributeGridTable::RowManager::findDefaultRow(const DefaultRow::List& rows, const String& name) {
-            DefaultRow::List::const_iterator it, end;
-            for (it = rows.begin(), end = rows.end(); it != end; ++it) {
-                const DefaultRow& row = *it;
                 if (row.name() == name)
                     return it;
             }
@@ -395,13 +315,13 @@ namespace TrenchBroom {
         m_specialCellColor(wxColor(128, 128, 128)) {}
         
         int EntityAttributeGridTable::GetNumberRows() {
-            return static_cast<int>(m_rows.rowCount());
+            return static_cast<int>(m_rows.totalRowCount());
         }
         
         int EntityAttributeGridTable::GetNumberAttributeRows() const {
-            return static_cast<int>(m_rows.propertyCount());
+            return static_cast<int>(m_rows.attributeRowCount());
         }
-        
+
         int EntityAttributeGridTable::GetNumberCols() {
             return 2;
         }
@@ -466,19 +386,19 @@ namespace TrenchBroom {
         }
         
         bool EntityAttributeGridTable::AppendRows(const size_t numRows) {
-            return InsertRows(m_rows.propertyCount(), numRows);
+            return InsertRows(m_rows.defaultRowCount(), numRows);
         }
         
         bool EntityAttributeGridTable::DeleteRows(const size_t pos, size_t numRows) {
             // TODO: when deleting a property that has a default value in the property definition, re-add it to the list
             // of default properties...
 
-            numRows = std::min(m_rows.propertyCount(), pos + numRows);
+            numRows = std::min(m_rows.defaultRowCount(), pos + numRows);
             if (pos >= numRows)
                 return false;
             numRows -= pos;
             
-            assert(pos + numRows <= m_rows.propertyCount());
+            assert(pos + numRows <= m_rows.defaultRowCount());
             
             MapDocumentSPtr document = lock(m_document);
 
@@ -530,12 +450,10 @@ namespace TrenchBroom {
                 } else {
                     attr->SetFont(GetView()->GetFont());
                     
-                    const bool subset = m_rows.subset(rowIndex);
-                    const bool readonly = !m_rows.nameMutable(rowIndex) || !m_rows.valueMutable(rowIndex);
-                    if (readonly) {
+                    if (!m_rows.nameMutable(rowIndex)) {
                         attr->SetReadOnly(true);
                         attr->SetBackgroundColour(m_readonlyCellColor);
-                    } else if (subset) {
+                    } else if (m_rows.subset(rowIndex)) {
                         attr->SetTextColour(m_specialCellColor);
                     }
                 }
@@ -545,13 +463,11 @@ namespace TrenchBroom {
                 } else {
                     attr->SetFont(GetView()->GetFont());
 
-                    const bool multi = m_rows.multi(rowIndex);
-                    const bool readonly = !m_rows.valueMutable(rowIndex);
-                    if (readonly) {
+                    if (!m_rows.valueMutable(rowIndex)) {
                         attr->SetReadOnly(true);
                         attr->SetBackgroundColour(m_readonlyCellColor);
                     }
-                    if (multi)
+                    if (m_rows.multi(rowIndex))
                         attr->SetTextColour(m_specialCellColor);
                 }
             }
@@ -563,9 +479,9 @@ namespace TrenchBroom {
                 return;
             
             MapDocumentSPtr document = lock(m_document);
-            const size_t oldRowCount = m_rows.rowCount();
+            const size_t oldRowCount = m_rows.totalRowCount();
             m_rows.updateRows(document->allSelectedAttributableNodes(), m_showDefaultRows);
-            const size_t newRowCount = m_rows.rowCount();
+            const size_t newRowCount = m_rows.totalRowCount();
             
             if (oldRowCount < newRowCount)
                 notifyRowsAppended(newRowCount - oldRowCount);
@@ -583,14 +499,14 @@ namespace TrenchBroom {
         }
         
         Model::AttributeName EntityAttributeGridTable::attributeName(const int row) const {
-            if (row < 0 || row >= static_cast<int>(m_rows.rowCount()))
+            if (row < 0 || row >= static_cast<int>(m_rows.totalRowCount()))
                 return "";
             return m_rows.name(static_cast<size_t>(row));
         }
         
         int EntityAttributeGridTable::rowForName(const Model::AttributeName& name) const {
             const size_t index = m_rows.indexOf(name);
-            if (index >= m_rows.rowCount())
+            if (index >= m_rows.totalRowCount())
                 return -1;
             return static_cast<int>(index);
         }
@@ -607,7 +523,7 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeGridTable::renameAttribute(const size_t rowIndex, const String& newName, const Model::AttributableNodeList& attributables) {
-            assert(rowIndex < m_rows.propertyCount());
+            assert(rowIndex < m_rows.attributeRowCount());
             
             const String& oldName = m_rows.name(rowIndex);
             if (!m_rows.nameMutable(rowIndex)) {
@@ -620,12 +536,12 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (document->renameAttribute(oldName, newName)) {
                 m_rows.updateRows(attributables, m_showDefaultRows);
-                notifyRowsUpdated(0, m_rows.rowCount());
+                notifyRowsUpdated(0, m_rows.totalRowCount());
             }
         }
         
         void EntityAttributeGridTable::updateAttribute(const size_t rowIndex, const String& newValue, const Model::AttributableNodeList& attributables) {
-            assert(rowIndex < m_rows.rowCount());
+            assert(rowIndex < m_rows.totalRowCount());
 
             const String& name = m_rows.name(rowIndex);
             Model::AttributableNodeList::const_iterator it, end;
@@ -645,7 +561,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (document->setAttribute(name, newValue)) {
                 m_rows.updateRows(attributables, m_showDefaultRows);
-                notifyRowsUpdated(0, m_rows.rowCount());
+                notifyRowsUpdated(0, m_rows.totalRowCount());
             }
         }
         
