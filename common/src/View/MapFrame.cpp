@@ -107,8 +107,13 @@ namespace TrenchBroom {
             
             delete m_autosaver;
             m_autosaver = NULL;
+
+            // The order of deletion here is important because both the document and the children
+            // need the context manager (and its embedded VBO) to clean up their resources.
             
-            // this will also delete the VBO, which will then lead to all kinds of errors when closing the frame
+            m_document.reset();
+            DestroyChildren();
+            
             delete m_contextManager;
             m_contextManager = NULL;
         }
