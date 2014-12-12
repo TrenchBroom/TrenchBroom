@@ -69,13 +69,13 @@ namespace TrenchBroom {
             }
         }
 
-        BrushFace* ModelFactory::createFaceWithAxes(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY) const {
+        BrushFace* ModelFactory::createFaceWithAxes(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY, float initialRotation) const {
             assert(m_format != MapFormat::Unknown);
             switch (m_format) {
                 case MapFormat::Valve:
-                    return new BrushFace(point1, point2, point3, textureName, new ParallelTexCoordSystem(texAxisX, texAxisY));
+                    return new BrushFace(point1, point2, point3, textureName, new ParallelTexCoordSystem(texAxisX, texAxisY), initialRotation);
                 default:
-                    return new BrushFace(point1, point2, point3, textureName, new ParaxialTexCoordSystem(point1, point2, point3));
+                    return new BrushFace(point1, point2, point3, textureName, new ParaxialTexCoordSystem(point1, point2, point3), 0.0f);
             }
         }
     }

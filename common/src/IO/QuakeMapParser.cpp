@@ -457,7 +457,7 @@ namespace TrenchBroom {
             expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
             yScale = token.toFloat<float>();
             
-            Model::BrushFace* face = m_factory.createFaceWithAxes(p1, p2, p3, textureName, texAxisX, texAxisY);
+            Model::BrushFace* face = m_factory.createFaceWithAxes(p1, p2, p3, textureName, texAxisX, texAxisY, rotation);
 
             if (m_format == Model::MapFormat::Hexen2) {
                 // noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it
@@ -481,6 +481,8 @@ namespace TrenchBroom {
             
             face->setXOffset(xOffset);
             face->setYOffset(yOffset);
+            // in the valve case, does nothing, because we already initialized the face with the rotation value.
+            // in the q1 map format case, rotates from 0 to the angle given in the map.
             face->setRotation(rotation);
             face->setXScale(xScale);
             face->setYScale(yScale);

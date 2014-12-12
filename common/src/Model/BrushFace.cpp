@@ -162,7 +162,7 @@ namespace TrenchBroom {
 
         const String BrushFace::NoTextureName = "__TB_empty";
         
-        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName, TexCoordSystem* texCoordSystem) :
+        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName, TexCoordSystem* texCoordSystem, float initialRotation) :
         m_parent(NULL),
         m_lineNumber(0),
         m_lineCount(0),
@@ -173,6 +173,7 @@ namespace TrenchBroom {
         m_attribs(textureName) {
             assert(m_texCoordSystem != NULL);
             setPoints(point0, point1, point2);
+            m_attribs.setRotation(initialRotation);
         }
 
         BrushFace* BrushFace::createParaxial(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
