@@ -220,28 +220,27 @@ namespace TrenchBroom {
             visitor.visit(this);
         }
         
-        void World::doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
-            VectorUtils::append(result, m_attributableIndex.findAttributables(AttributableIndexQuery::exact(name),
-                                                                              AttributableIndexQuery::exact(value)));
+        void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name),
+                                                                              AttributableNodeIndexQuery::exact(value)));
         }
         
-        void World::doFindAttributablesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableList& result) const {
-            VectorUtils::append(result, m_attributableIndex.findAttributables(AttributableIndexQuery::numbered(prefix),
-                                                                              AttributableIndexQuery::exact(value)));
+        void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix),
+                                                                              AttributableNodeIndexQuery::exact(value)));
         }
         
-        void World::doAddToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
+        void World::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             m_attributableIndex.addAttribute(attributable, name, value);
         }
         
-        void World::doRemoveFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
+        void World::doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             m_attributableIndex.removeAttribute(attributable, name, value);
         }
 
         void World::doAttributesDidChange() {}
 
-        bool isAttributeMutable(const AttributeName& name);
-        bool isAttributeMutable(const AttributeName& name) {
+        bool World::doIsAttributeNameMutable(const AttributeName& name) const {
             if (name == AttributeNames::Classname)
                 return false;
             if (name == AttributeNames::Mods)
@@ -255,16 +254,16 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool World::doCanAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const {
-            return isAttributeMutable(name);
-        }
-        
-        bool World::doCanRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
-            return isAttributeMutable(name) && isAttributeMutable(newName);
-        }
-        
-        bool World::doCanRemoveAttribute(const AttributeName& name) const {
-            return isAttributeMutable(name);
+        bool World::doIsAttributeValueMutable(const AttributeName& name) const {
+            if (name == AttributeNames::Mods)
+                return false;
+            if (name == AttributeNames::EntityDefinitions)
+                return false;
+            if (name == AttributeNames::Wad)
+                return false;
+            if (name == AttributeNames::Wal)
+                return false;
+            return true;
         }
 
         MapFormat::Type World::doGetFormat() const {

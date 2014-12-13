@@ -53,8 +53,8 @@ namespace TrenchBroom {
             }
         }
         
-        MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextManager& contextManager, const ViewPlane viewPlane) :
-        MapViewBase(parent, logger, document, toolBox, renderer, vbo, inputSource(viewPlane), contextManager),
+        MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :
+        MapViewBase(parent, logger, document, toolBox, renderer, inputSource(viewPlane), contextManager),
         m_camera(),
         m_cameraTool(NULL) {
             bindEvents();
@@ -217,8 +217,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        Renderer::RenderContext MapView2D::doCreateRenderContext(GLContextManager& contextManager) const {
-            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, contextManager.fontManager(), contextManager.shaderManager());
+        Renderer::RenderContext MapView2D::doCreateRenderContext() {
+            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
         }
 
         void MapView2D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

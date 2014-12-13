@@ -437,19 +437,19 @@ namespace TrenchBroom {
                 m_parent->decFamilyIssueCount(delta);
         }
 
-        void Node::findAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
-            return doFindAttributablesWithAttribute(name, value, result);
+        void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
+            return doFindAttributableNodesWithAttribute(name, value, result);
         }
         
-        void Node::findAttributablesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableList& result) const {
-            return doFindAttributablesWithNumberedAttribute(prefix, value, result);
+        void Node::findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
+            return doFindAttributableNodesWithNumberedAttribute(prefix, value, result);
         }
 
-        void Node::addToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
+        void Node::addToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             doAddToIndex(attributable, name, value);
         }
         
-        void Node::removeFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
+        void Node::removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             doRemoveFromIndex(attributable, name, value);
         }
 
@@ -475,22 +475,22 @@ namespace TrenchBroom {
                 m_parent->updateIssues(node);
         }
 
-        void Node::doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const {
+        void Node::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
             if (m_parent != NULL)
-                m_parent->findAttributablesWithAttribute(name, value, result);
+                m_parent->findAttributableNodesWithAttribute(name, value, result);
         }
         
-        void Node::doFindAttributablesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableList& result) const {
+        void Node::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
             if (m_parent != NULL)
-                m_parent->findAttributablesWithNumberedAttribute(prefix, value, result);
+                m_parent->findAttributableNodesWithNumberedAttribute(prefix, value, result);
         }
 
-        void Node::doAddToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
+        void Node::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             if (m_parent != NULL)
                 m_parent->addToIndex(attributable, name, value);
         }
         
-        void Node::doRemoveFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value) {
+        void Node::doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             if (m_parent != NULL)
                 m_parent->removeFromIndex(attributable, name, value);
         }

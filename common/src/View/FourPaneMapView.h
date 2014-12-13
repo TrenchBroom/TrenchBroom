@@ -30,7 +30,6 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class MapRenderer;
-        class Vbo;
     }
     
     namespace View {
@@ -50,11 +49,14 @@ namespace TrenchBroom {
             MapView2D* m_mapViewXZ;
             MapView2D* m_mapViewYZ;
         public:
-            FourPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
+            FourPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private:
-            void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
+            void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private:
             MapViewBase* currentMapView() const;
+        private: // implement MapViewContainer interface
+            void doSetToolBoxDropTarget();
+            void doClearDropTarget();
         private: // implement MapView interface
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
             

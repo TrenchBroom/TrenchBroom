@@ -25,13 +25,16 @@
 #include "VecMath.h"
 #include "Hit.h"
 #include "Assets/AssetTypes.h"
+#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
+#include "View/EntityColor.h"
 #include "View/ViewTypes.h"
 
+class Color;
 namespace TrenchBroom {
     namespace Assets {
         class EntityDefinitionManager;
@@ -130,6 +133,7 @@ namespace TrenchBroom {
             bool textureLock();
             void setTextureLock(bool textureLock);
             
+            Assets::EntityDefinitionManager& entityDefinitionManager();
             Assets::EntityModelManager& entityModelManager();
             
             const MapViewConfig& mapViewConfig() const;
@@ -162,6 +166,7 @@ namespace TrenchBroom {
             bool hasSelectedNodes() const;
             bool hasSelectedBrushFaces() const;
 
+            const Model::AttributableNodeList allSelectedAttributableNodes() const;
             const Model::NodeCollection& selectedNodes() const;
             const Model::BrushFaceList& selectedBrushFaces() const;
 
@@ -199,6 +204,13 @@ namespace TrenchBroom {
             bool translateObjects(const Vec3& delta);
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
             bool flipObjects(const Vec3& center, Math::Axis::Type axis);
+        public: // modifying entity attributes
+            bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
+            bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
+            bool removeAttribute(const Model::AttributeName& name);
+            
+            bool setEntityColor(const Model::AttributeName& name, const Color& color);
+            bool convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range);
         public: // modifying face attributes
             bool setTexture(Assets::Texture* texture);
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
@@ -265,6 +277,7 @@ namespace TrenchBroom {
             void removeNodes(const Model::NodeList& nodes);
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
+            Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
             
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
             void addTextureCollection(const String& name);
@@ -293,6 +306,7 @@ namespace TrenchBroom {
             void unsetEntityDefinitions();
             
             void setEntityModels();
+            void setEntityModels(const Model::NodeList& nodes);
             void unsetEntityModels();
 
             void setTextures();

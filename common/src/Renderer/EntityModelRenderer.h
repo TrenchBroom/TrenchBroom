@@ -47,15 +47,11 @@ namespace TrenchBroom {
         class EntityModelRenderer : public Renderable {
         private:
             typedef std::map<Model::Entity*, TexturedTriangleMeshRenderer*> EntityMap;
-            typedef std::vector<Assets::EntityModel*> EntityModelList;
-            typedef std::vector<TexturedTriangleMeshRenderer*> RendererList;
             
             Assets::EntityModelManager& m_entityModelManager;
             const Model::EditorContext& m_editorContext;
             
             EntityMap m_entities;
-            EntityModelList m_unpreparedModels;
-            RendererList m_unpreparedRenderers;
             
             bool m_applyTinting;
             Color m_tintColor;
@@ -106,8 +102,6 @@ namespace TrenchBroom {
             void render(RenderBatch& renderBatch);
         private:
             void doPrepare(Vbo& vbo);
-            void prepareModels();
-            void prepareRenderers(Vbo& vbo);
             
             class MeshFunc;
             void doRender(RenderContext& renderContext);

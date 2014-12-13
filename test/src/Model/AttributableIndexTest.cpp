@@ -20,25 +20,25 @@
 #include <gtest/gtest.h>
 
 #include "CollectionUtils.h"
-#include "Model/Attributable.h"
-#include "Model/AttributableIndex.h"
+#include "Model/AttributableNode.h"
+#include "Model/AttributableNodeIndex.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        static AttributableList findExactExact(const AttributableIndex& index, const AttributeName& name, const AttributeValue& value) {
-            return index.findAttributables(AttributableIndexQuery::exact(name),
-                                      AttributableIndexQuery::exact(value));
+        static AttributableNodeList findExactExact(const AttributableNodeIndex& index, const AttributeName& name, const AttributeValue& value) {
+            return index.findAttributableNodes(AttributableNodeIndexQuery::exact(name),
+                                      AttributableNodeIndexQuery::exact(value));
         }
         
-        static AttributableList findNumberedExact(const AttributableIndex& index, const AttributeName& name, const AttributeValue& value) {
-            return index.findAttributables(AttributableIndexQuery::numbered(name),
-                                      AttributableIndexQuery::exact(value));
+        static AttributableNodeList findNumberedExact(const AttributableNodeIndex& index, const AttributeName& name, const AttributeValue& value) {
+            return index.findAttributableNodes(AttributableNodeIndexQuery::numbered(name),
+                                      AttributableNodeIndexQuery::exact(value));
         }
         
-        TEST(EntityAttributeIndexTest, addAttributable) {
-            AttributableIndex index;
+        TEST(EntityAttributeIndexTest, addAttributableNode) {
+            AttributableNodeIndex index;
             
             Entity* entity1 = new Entity();
             entity1->addOrUpdateAttribute("test", "somevalue");
@@ -47,12 +47,12 @@ namespace TrenchBroom {
             entity2->addOrUpdateAttribute("test", "somevalue");
             entity2->addOrUpdateAttribute("other", "someothervalue");
             
-            index.addAttributable(entity1);
-            index.addAttributable(entity2);
+            index.addAttributableNode(entity1);
+            index.addAttributableNode(entity2);
             
             ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
             
-            AttributableList attributables = findExactExact(index, "test", "somevalue");
+            AttributableNodeList attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
             ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
             ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
@@ -65,8 +65,8 @@ namespace TrenchBroom {
             delete entity2;
         }
         
-        TEST(EntityAttributeIndexTest, removeAttributable) {
-            AttributableIndex index;
+        TEST(EntityAttributeIndexTest, removeAttributableNode) {
+            AttributableNodeIndex index;
             
             Entity* entity1 = new Entity();
             entity1->addOrUpdateAttribute("test", "somevalue");
@@ -75,12 +75,12 @@ namespace TrenchBroom {
             entity2->addOrUpdateAttribute("test", "somevalue");
             entity2->addOrUpdateAttribute("other", "someothervalue");
             
-            index.addAttributable(entity1);
-            index.addAttributable(entity2);
+            index.addAttributableNode(entity1);
+            index.addAttributableNode(entity2);
             
-            index.removeAttributable(entity2);
+            index.removeAttributableNode(entity2);
             
-            const AttributableList& attributables = findExactExact(index, "test", "somevalue");
+            const AttributableNodeList& attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(1u, attributables.size());
             ASSERT_EQ(entity1, attributables.front());
             
@@ -89,7 +89,7 @@ namespace TrenchBroom {
         }
         
         TEST(EntityAttributeIndexTest, addAttribute) {
-            AttributableIndex index;
+            AttributableNodeIndex index;
             
             Entity* entity1 = new Entity();
             entity1->addOrUpdateAttribute("test", "somevalue");
@@ -97,15 +97,15 @@ namespace TrenchBroom {
             Entity* entity2 = new Entity();
             entity2->addOrUpdateAttribute("test", "somevalue");
             
-            index.addAttributable(entity1);
-            index.addAttributable(entity2);
+            index.addAttributableNode(entity1);
+            index.addAttributableNode(entity2);
             
             entity2->addOrUpdateAttribute("other", "someothervalue");
             index.addAttribute(entity2, "other", "someothervalue");
             
             ASSERT_TRUE(findExactExact(index, "test", "notfound").empty());
             
-            AttributableList attributables = findExactExact(index, "test", "somevalue");
+            AttributableNodeList attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
             ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
             ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
@@ -119,7 +119,7 @@ namespace TrenchBroom {
         }
 
         TEST(EntityAttributeIndexTest, removeAttribute) {
-            AttributableIndex index;
+            AttributableNodeIndex index;
             
             Entity* entity1 = new Entity();
             entity1->addOrUpdateAttribute("test", "somevalue");
@@ -128,12 +128,12 @@ namespace TrenchBroom {
             entity2->addOrUpdateAttribute("test", "somevalue");
             entity2->addOrUpdateAttribute("other", "someothervalue");
             
-            index.addAttributable(entity1);
-            index.addAttributable(entity2);
+            index.addAttributableNode(entity1);
+            index.addAttributableNode(entity2);
             
             index.removeAttribute(entity2, "other", "someothervalue");
             
-            const AttributableList& attributables = findExactExact(index, "test", "somevalue");
+            const AttributableNodeList& attributables = findExactExact(index, "test", "somevalue");
             ASSERT_EQ(2u, attributables.size());
             ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
             ASSERT_TRUE(VectorUtils::contains(attributables, entity2));
@@ -144,18 +144,18 @@ namespace TrenchBroom {
             delete entity2;
         }
 
-        TEST(EntityAttributeIndexTest, addNumberedEntityProperty) {
-            AttributableIndex index;
+        TEST(EntityAttributeIndexTest, addNumberedEntityAttribute) {
+            AttributableNodeIndex index;
             
             Entity* entity1 = new Entity();
             entity1->addOrUpdateAttribute("test1", "somevalue");
             entity1->addOrUpdateAttribute("test2", "somevalue");
             
-            index.addAttributable(entity1);
+            index.addAttributableNode(entity1);
             
             ASSERT_TRUE(findNumberedExact(index, "test", "notfound").empty());
             
-            AttributableList attributables = findNumberedExact(index, "test", "somevalue");
+            AttributableNodeList attributables = findNumberedExact(index, "test", "somevalue");
             ASSERT_EQ(1u, attributables.size());
             ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
             
@@ -164,14 +164,14 @@ namespace TrenchBroom {
         
         
         TEST(EntityAttributeIndexTest, addRemoveFloatProperty) {
-            AttributableIndex index;
+            AttributableNodeIndex index;
             
             Entity* entity1 = new Entity();
             entity1->addOrUpdateAttribute("delay", "3.5");
             
-            index.addAttributable(entity1);
+            index.addAttributableNode(entity1);
 
-            AttributableList attributables = findExactExact(index, "delay", "3.5");
+            AttributableNodeList attributables = findExactExact(index, "delay", "3.5");
             ASSERT_EQ(1u, attributables.size());
             ASSERT_TRUE(VectorUtils::contains(attributables, entity1));
             

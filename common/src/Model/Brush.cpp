@@ -61,7 +61,7 @@ namespace TrenchBroom {
             return new BrushSnapshot(this);
         }
         
-        class FindBrushOwner : public NodeVisitor, public NodeQuery<Attributable*> {
+        class FindBrushOwner : public NodeVisitor, public NodeQuery<AttributableNode*> {
         private:
             void doVisit(World* world)   { setResult(world); cancel(); }
             void doVisit(Layer* layer)   {}
@@ -70,7 +70,7 @@ namespace TrenchBroom {
             void doVisit(Brush* brush)   {}
         };
         
-        Attributable* Brush::entity() const {
+        AttributableNode* Brush::entity() const {
             if (parent() == NULL)
                 return NULL;
             FindBrushOwner visitor;

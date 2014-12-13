@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 
+#include <map>
 #include <vector>
 
 namespace TrenchBroom {
@@ -67,6 +68,7 @@ namespace TrenchBroom {
         
         class EntityAttribute {
         public:
+            typedef std::map<AttributableNode*, EntityAttribute> Map;
             typedef std::vector<EntityAttribute> List;
             static const List EmptyList;
         private:

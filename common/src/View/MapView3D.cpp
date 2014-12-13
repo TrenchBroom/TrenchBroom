@@ -29,12 +29,12 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/Vbo.h"
 #include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraTool3D.h"
 #include "View/CommandIds.h"
+#include "View/CreateEntityTool.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/GLContextManager.h"
@@ -50,8 +50,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextManager& contextManager) :
-        MapViewBase(parent, logger, document, toolBox, renderer, vbo, IS_MapView3D, contextManager),
+        MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
+        MapViewBase(parent, logger, document, toolBox, renderer, IS_MapView3D, contextManager),
         m_camera(),
         m_compass(new Renderer::Compass(toolBox.movementRestriction())),
         m_flyModeHelper(new FlyModeHelper(this, m_camera)) {
@@ -74,6 +74,7 @@ namespace TrenchBroom {
             addTool(toolBox.moveObjectsTool());
             addTool(toolBox.rotateObjectsTool());
             addTool(toolBox.vertexTool());
+            addTool(toolBox.createEntityTool());
             addTool(toolBox.selectionTool());
         }
 
@@ -431,8 +432,8 @@ namespace TrenchBroom {
             return false;
         }
         
-        Renderer::RenderContext MapView3D::doCreateRenderContext(GLContextManager& contextManager) const {
-            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_3D, m_camera, contextManager.fontManager(), contextManager.shaderManager());
+        Renderer::RenderContext MapView3D::doCreateRenderContext() {
+            return Renderer::RenderContext(Renderer::RenderContext::RenderMode_3D, m_camera, fontManager(), shaderManager());
         }
 
         void MapView3D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

@@ -28,11 +28,9 @@
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
 #include "Model/CollectSelectableBrushFacesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
-#include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
-#include "Model/Node.h"
 #include "Model/Snapshot.h"
 #include "Model/TransformObjectVisitor.h"
 #include "Model/World.h"
@@ -299,6 +297,7 @@ namespace TrenchBroom {
             }
             
             setEntityDefinitions(addedNodes);
+            setEntityModels(addedNodes);
             setTextures(addedNodes);
 
             nodesWereAddedNotifier(addedNodes);
@@ -375,6 +374,97 @@ namespace TrenchBroom {
             Model::Node::accept(nodes.begin(), nodes.end(), visitor);
             
             invalidateSelectionBounds();
+        }
+
+        Model::EntityAttribute::Map MapDocumentCommandFacade::performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
+            const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
+            const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
+            const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
+
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            static const Model::AttributeValue DefaultValue = "";
+            Model::EntityAttribute::Map snapshot;
+            
+            Model::AttributableNodeList::const_iterator it, end;
+            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
+                Model::AttributableNode* node = *it;
+                
+                const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
+                node->addOrUpdateAttribute(name, value);
+                
+                if (oldValue != DefaultValue)
+                    snapshot[node] = Model::EntityAttribute(name, oldValue);
+            }
+            
+            setEntityDefinitions(nodes);
+
+            return snapshot;
+        }
+        
+        Model::EntityAttribute::Map MapDocumentCommandFacade::performRemoveAttribute(const Model::AttributeName& name) {
+            const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
+            const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
+            const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            static const Model::AttributeValue DefaultValue = "";
+            Model::EntityAttribute::Map snapshot;
+            
+            Model::AttributableNodeList::const_iterator it, end;
+            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
+                Model::AttributableNode* node = *it;
+                
+                const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
+                node->removeAttribute(name);
+                
+                if (oldValue != DefaultValue)
+                    snapshot[node] = Model::EntityAttribute(name, oldValue);
+            }
+            
+            setEntityDefinitions(nodes);
+
+            return snapshot;
+        }
+        
+        void MapDocumentCommandFacade::performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+            const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
+            const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
+            const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Model::AttributableNodeList::const_iterator it, end;
+            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
+                Model::AttributableNode* node = *it;
+                node->renameAttribute(oldName, newName);
+            }
+
+            setEntityDefinitions(nodes);
+        }
+        
+        void MapDocumentCommandFacade::restoreAttributes(const Model::EntityAttribute::Map& attributes) {
+            const Model::AttributableNodeList attributableNodes = MapUtils::keyList(attributes);
+            const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
+            
+            const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
+            Model::EntityAttribute::Map::const_iterator it, end;
+            for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
+                Model::AttributableNode* node = it->first;
+                const Model::EntityAttribute& attr = it->second;
+                
+                assert(node->selected() || node->descendantSelected());
+                node->addOrUpdateAttribute(attr.name(), attr.value());
+            }
+
+            setEntityDefinitions(nodes);
         }
 
         void MapDocumentCommandFacade::performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
@@ -602,9 +692,7 @@ namespace TrenchBroom {
         }
 
         Model::NodeList MapDocumentCommandFacade::collectParents(const Model::NodeList& nodes) const {
-            Model::CollectUniqueNodesVisitor visitor;
-            Model::Node::escalate(nodes.begin(), nodes.end(), visitor);
-            return visitor.nodes();
+            return collectParents(nodes.begin(), nodes.end());
         }
         
         Model::NodeList MapDocumentCommandFacade::collectParents(const Model::ParentChildrenMap& nodes) const {

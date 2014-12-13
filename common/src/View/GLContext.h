@@ -25,6 +25,12 @@
 #include <wx/glcanvas.h>
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class FontManager;
+        class ShaderManager;
+        class Vbo;
+    }
+    
     namespace View {
         class GLContextManager;
         
@@ -36,6 +42,10 @@ namespace TrenchBroom {
         public:
             GLContext(wxGLCanvas* canvas, GLContextManager* contextManager);
 
+            Renderer::Vbo& vbo();
+            Renderer::FontManager& fontManager();
+            Renderer::ShaderManager& shaderManager();
+            
             bool initialize();
             bool SetCurrent(const wxGLCanvas* canvas) const;
             bool SetCurrent(const wxGLCanvas& canvas) const;

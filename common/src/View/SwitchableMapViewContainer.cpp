@@ -23,7 +23,6 @@
 #include "Preferences.h"
 #include "Model/PointFile.h"
 #include "Renderer/MapRenderer.h"
-#include "Renderer/Vbo.h"
 #include "View/CyclingMapView.h"
 #include "View/TwoPaneMapView.h"
 #include "View/ThreePaneMapView.h"
@@ -45,7 +44,6 @@ namespace TrenchBroom {
         m_mapViewBar(new MapViewBar(this, m_document)),
         m_toolBox(new MapViewToolBox(m_document, m_mapViewBar->toolBook())),
         m_mapRenderer(new Renderer::MapRenderer(m_document)),
-        m_vbo(new Renderer::Vbo(0xFFFFFF)),
         m_mapView(NULL) {
             switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
             bindObservers();
@@ -62,9 +60,6 @@ namespace TrenchBroom {
             
             delete m_mapRenderer;
             m_mapRenderer = NULL;
-            
-            delete m_vbo;
-            m_vbo = NULL;
         }
 
         void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
@@ -75,16 +70,16 @@ namespace TrenchBroom {
 
             switch (viewId) {
                 case MapViewLayout_1Pane:
-                    m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager, CyclingMapView::View_ALL);
+                    m_mapView = new CyclingMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, CyclingMapView::View_ALL);
                     break;
                 case MapViewLayout_2Pane:
-                    m_mapView = new TwoPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
+                    m_mapView = new TwoPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
                     break;
                 case MapViewLayout_3Pane:
-                    m_mapView = new ThreePaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
+                    m_mapView = new ThreePaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
                     break;
                 case MapViewLayout_4Pane:
-                    m_mapView = new FourPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, *m_vbo, m_contextManager);
+                    m_mapView = new FourPaneMapView(this, m_logger, m_document, *m_toolBox, *m_mapRenderer, m_contextManager);
                     break;
             }
             
@@ -94,6 +89,14 @@ namespace TrenchBroom {
             Layout();
             
             m_mapView->SetFocus();
+        }
+
+        void SwitchableMapViewContainer::setToolBoxDropTarget() {
+            m_mapView->setToolBoxDropTarget();
+        }
+        
+        void SwitchableMapViewContainer::clearDropTarget() {
+            m_mapView->clearDropTarget();
         }
 
         Vec3 SwitchableMapViewContainer::pasteObjectsDelta(const BBox3& bounds) const {

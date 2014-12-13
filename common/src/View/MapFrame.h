@@ -65,6 +65,9 @@ namespace TrenchBroom {
             void positionOnScreen(wxFrame* reference);
         public: // getters and such
             Logger* logger() const;
+        public: // drop targets
+            void setToolBoxDropTarget();
+            void clearDropTarget();
         public: // document management
             bool newDocument(Model::GamePtr game, Model::MapFormat::Type mapFormat);
             bool openDocument(Model::GamePtr game, const IO::Path& path);

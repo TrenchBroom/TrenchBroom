@@ -27,6 +27,18 @@ namespace TrenchBroom {
         wxGLContext(canvas, contextManager->mainContext()),
         m_contextManager(contextManager) {}
         
+        Renderer::Vbo& GLContext::vbo() {
+            return m_contextManager->vbo();
+        }
+        
+        Renderer::FontManager& GLContext::fontManager() {
+            return m_contextManager->fontManager();
+        }
+        
+        Renderer::ShaderManager& GLContext::shaderManager() {
+            return m_contextManager->shaderManager();
+        }
+
         bool GLContext::initialize() {
             return m_contextManager->initialize();
         }

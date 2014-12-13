@@ -18,6 +18,7 @@
  */
 
 #include "MapViewToolBox.h"
+#include "View/CreateEntityTool.h"
 #include "View/MovementRestriction.h"
 #include "View/MoveObjectsTool.h"
 #include "View/RotateObjectsTool.h"
@@ -28,6 +29,7 @@ namespace TrenchBroom {
     namespace View {
         MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
         m_movementRestriction(new MovementRestriction()),
+        m_createEntityTool(NULL),
         m_moveObjectsTool(NULL),
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
@@ -48,6 +50,10 @@ namespace TrenchBroom {
         
         MovementRestriction& MapViewToolBox::movementRestriction() {
             return *m_movementRestriction;
+        }
+
+        CreateEntityTool* MapViewToolBox::createEntityTool() {
+            return m_createEntityTool;
         }
 
         MoveObjectsTool* MapViewToolBox::moveObjectsTool() {
@@ -98,6 +104,7 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
+            m_createEntityTool = new CreateEntityTool(document);
             m_moveObjectsTool = new MoveObjectsTool(document, *m_movementRestriction);
             m_rotateObjectsTool = new RotateObjectsTool(document, *m_movementRestriction);
             m_selectionTool = new SelectionTool(document);
@@ -111,6 +118,7 @@ namespace TrenchBroom {
         }
         
         void MapViewToolBox::destroyTools() {
+            delete m_createEntityTool;
             delete m_moveObjectsTool;
             delete m_rotateObjectsTool;
             delete m_selectionTool;

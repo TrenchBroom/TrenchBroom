@@ -25,6 +25,8 @@
 namespace TrenchBroom {
     namespace View {
         typedef std::vector<int> GLAttribs;
+        
+        const GLAttribs& buildAttribs();
     }
 }
 

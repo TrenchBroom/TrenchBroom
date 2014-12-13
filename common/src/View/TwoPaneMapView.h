@@ -48,11 +48,14 @@ namespace TrenchBroom {
             MapView3D* m_mapView3D;
             CyclingMapView* m_mapView2D;
         public:
-            TwoPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
+            TwoPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private:
-            void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
+            void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private:
             MapView* currentMapView() const;
+        private: // implement MapViewContainer interface
+            void doSetToolBoxDropTarget();
+            void doClearDropTarget();
         private: // implement MapView interface
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
             

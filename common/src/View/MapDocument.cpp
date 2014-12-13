@@ -30,6 +30,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/CollectAttributableNodesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
@@ -46,6 +47,7 @@
 #include "Model/World.h"
 #include "View/AddRemoveNodesCommand.h"
 #include "View/ChangeBrushFaceAttributesCommand.h"
+#include "View/ChangeEntityAttributesCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/EntityDefinitionFileCommand.h"
 #include "View/Grid.h"
@@ -135,6 +137,10 @@ namespace TrenchBroom {
             
         void MapDocument::setTextureLock(const bool textureLock) {
             m_editorContext->setTextureLock(textureLock);
+        }
+
+        Assets::EntityDefinitionManager& MapDocument::entityDefinitionManager() {
+            return *m_entityDefinitionManager;
         }
 
         Assets::EntityModelManager& MapDocument::entityModelManager() {
@@ -301,6 +307,12 @@ namespace TrenchBroom {
         
         bool MapDocument::hasSelectedBrushFaces() const {
             return !m_selectedBrushFaces.empty();
+        }
+
+        const Model::AttributableNodeList MapDocument::allSelectedAttributableNodes() const {
+            Model::CollectAttributableNodesVisitor visitor;
+            Model::Node::accept(m_selectedNodes.begin(), m_selectedNodes.end(), visitor);
+            return visitor.nodes();
         }
 
         const Model::NodeCollection& MapDocument::selectedNodes() const {
@@ -490,6 +502,24 @@ namespace TrenchBroom {
             return submit(TransformObjectsCommand::flip(center, axis, m_textureLock));
         }
 
+        bool MapDocument::setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
+            return submit(ChangeEntityAttributesCommand::set(name, value));
+        }
+        
+        bool MapDocument::renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
+            return submit(ChangeEntityAttributesCommand::rename(oldName, newName));
+        }
+        
+        bool MapDocument::removeAttribute(const Model::AttributeName& name) {
+            return submit(ChangeEntityAttributesCommand::remove(name));
+        }
+        
+        bool MapDocument::setEntityColor(const Model::AttributeName& name, const Color& color) {
+        }
+        
+        bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range) {
+        }
+
         bool MapDocument::setTexture(Assets::Texture* texture) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setTexture(texture);
@@ -659,6 +689,10 @@ namespace TrenchBroom {
             return m_game->extractEntityDefinitionFile(m_world);
         }
         
+        Assets::EntityDefinitionFileSpec::List MapDocument::allEntityDefinitionFiles() const {
+            return m_game->allEntityDefinitionFiles();
+        }
+
         void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
             submit(EntityDefinitionFileCommand::set(spec));
         }
@@ -768,7 +802,7 @@ namespace TrenchBroom {
             void doVisit(Model::Group* group)   {}
             void doVisit(Model::Entity* entity) { handle(entity); }
             void doVisit(Model::Brush* brush)   {}
-            void handle(Model::Attributable* attributable) {
+            void handle(Model::AttributableNode* attributable) {
                 Assets::EntityDefinition* definition = m_manager.definition(attributable);
                 attributable->setDefinition(definition);
             }
@@ -841,6 +875,11 @@ namespace TrenchBroom {
             m_world->acceptAndRecurse(visitor);
         }
         
+        void MapDocument::setEntityModels(const Model::NodeList& nodes) {
+            SetEntityModel visitor(*m_entityModelManager, *this);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+        }
+
         void MapDocument::unsetEntityModels() {
             UnsetEntityModel visitor;
             m_world->acceptAndRecurse(visitor);

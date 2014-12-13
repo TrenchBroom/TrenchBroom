@@ -20,7 +20,6 @@
 #ifndef __TrenchBroom__TriangleMeshRenderer__
 #define __TrenchBroom__TriangleMeshRenderer__
 
-#include "Assets/Texture.h"
 #include "Renderer/VertexSpec.h"
 #include "Renderer/TriangleMesh.h"
 
@@ -40,15 +39,11 @@ namespace TrenchBroom {
             typename RenderData::List m_renderData;
             bool m_prepared;
         public:
-            struct MeshFuncBase {
+            class MeshFuncBase {
+            public:
                 virtual ~MeshFuncBase() {}
                 virtual void before(const Key& key) const = 0;
                 virtual void after(const Key& key) const = 0;
-            };
-        private:
-            struct NopMeshFunc : public MeshFuncBase {
-                void before(const Key& key) const {}
-                void after(const Key& key) const {}
             };
         protected:
             TriangleMeshRendererBase() :
@@ -58,6 +53,8 @@ namespace TrenchBroom {
             TriangleMeshRendererBase(TriangleMesh<VertexSpec, Key>& mesh) :
             m_renderData(mesh.renderData()),
             m_prepared(false) {}
+            
+            virtual ~TriangleMeshRendererBase() {}
         public:
             bool empty() const {
                 return m_renderData.empty();
@@ -81,12 +78,8 @@ namespace TrenchBroom {
                 
                 m_prepared = true;
             }
-        public:
-            void render() {
-                render(NopMeshFunc());
-            }
-            
-            void render(const MeshFuncBase& func) {
+        protected:
+            void performRender(const MeshFuncBase& func) {
                 typename RenderData::List::iterator it, end;
                 for (it = m_renderData.begin(),  end = m_renderData.end(); it != end; ++it) {
                     RenderData& renderData = *it;
@@ -102,23 +95,39 @@ namespace TrenchBroom {
         };
         
         class TexturedTriangleMeshRenderer : public TriangleMeshRendererBase<const Assets::Texture*> {
+        private:
+            class DefaultMeshFunc : public MeshFuncBase {
+            public:
+                void before(const Assets::Texture* const & texture) const;
+                void after(const Assets::Texture* const & texture) const;
+            };
         public:
-            TexturedTriangleMeshRenderer() :
-            TriangleMeshRendererBase() {}
+            TexturedTriangleMeshRenderer();
             
             template <typename VertexSpec>
             TexturedTriangleMeshRenderer(TriangleMesh<VertexSpec, const Assets::Texture*>& mesh) :
             TriangleMeshRendererBase(mesh) {}
+
+            void render();
+            void render(const MeshFuncBase& func);
         };
         
         class SimpleTriangleMeshRenderer : public TriangleMeshRendererBase<int> {
+        private:
+            class NopMeshFunc : public MeshFuncBase {
+            public:
+                void before(const int& key) const;
+                void after(const int& key) const;
+            };
         public:
-            SimpleTriangleMeshRenderer() :
-            TriangleMeshRendererBase() {}
+            SimpleTriangleMeshRenderer();
             
             template <typename VertexSpec>
             SimpleTriangleMeshRenderer(TriangleMesh<VertexSpec, int>& mesh) :
             TriangleMeshRendererBase(mesh) {}
+
+            void render();
+            void render(const MeshFuncBase& func);
         };
     }
 }

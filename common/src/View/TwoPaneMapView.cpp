@@ -37,23 +37,23 @@
 
 namespace TrenchBroom {
     namespace View {
-        TwoPaneMapView::TwoPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) :
+        TwoPaneMapView::TwoPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
         MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
         m_mapView3D(NULL),
         m_mapView2D(NULL) {
-            createGui(toolBox, mapRenderer, vbo, contextManager);
+            createGui(toolBox, mapRenderer, contextManager);
         }
         
-        void TwoPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) {
+        void TwoPaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
 
             SplitterWindow2* splitter = new SplitterWindow2(this);
             splitter->setSashGravity(0.5f);
             splitter->SetName("2PaneMapViewHSplitter");
 
-            m_mapView3D = new MapView3D(splitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager);
-            m_mapView2D = new CyclingMapView(splitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, CyclingMapView::View_2D);
+            m_mapView3D = new MapView3D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
+            m_mapView2D = new CyclingMapView(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_2D);
             
             splitter->splitVertically(m_mapView3D, m_mapView2D, wxSize(100, 100), wxSize(100, 100));
             
@@ -69,6 +69,16 @@ namespace TrenchBroom {
             if (m_mapView2D->HasFocus())
                 return m_mapView2D;
             return m_mapView3D;
+        }
+
+        void TwoPaneMapView::doSetToolBoxDropTarget() {
+            m_mapView3D->setToolBoxDropTarget();
+            m_mapView2D->setToolBoxDropTarget();
+        }
+        
+        void TwoPaneMapView::doClearDropTarget() {
+            m_mapView3D->clearDropTarget();
+            m_mapView2D->clearDropTarget();
         }
 
         Vec3 TwoPaneMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {

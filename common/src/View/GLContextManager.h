@@ -28,6 +28,7 @@ namespace TrenchBroom {
     namespace Renderer {
         class FontManager;
         class ShaderManager;
+        class Vbo;
     }
     
     namespace View {
@@ -36,6 +37,7 @@ namespace TrenchBroom {
             GLContext::Ptr m_mainContext;
             bool m_initialized;
             
+            Renderer::Vbo* m_vbo;
             Renderer::FontManager* m_fontManager;
             Renderer::ShaderManager* m_shaderManager;
         public:
@@ -48,6 +50,7 @@ namespace TrenchBroom {
             bool initialized() const;
             bool initialize();
             
+            Renderer::Vbo& vbo();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
         };

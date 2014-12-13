@@ -52,7 +52,7 @@ namespace TrenchBroom {
             Renderer::OrthographicCamera m_camera;
             CameraTool2D* m_cameraTool;
         public:
-            MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextManager& contextManager, ViewPlane viewPlane);
+            MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, ViewPlane viewPlane);
             ~MapView2D();
         private:
             void initializeCamera(ViewPlane viewPlane);
@@ -83,7 +83,7 @@ namespace TrenchBroom {
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;
             bool doCancel();
             
-            Renderer::RenderContext doCreateRenderContext(GLContextManager& contextManager) const;
+            Renderer::RenderContext doCreateRenderContext();
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

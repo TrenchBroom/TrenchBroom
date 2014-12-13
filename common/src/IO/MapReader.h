@@ -100,7 +100,7 @@ namespace TrenchBroom {
             void createBrush(size_t startLine, size_t lineCount, const ExtraAttributes& extraAttributes);
 
             ParentInfo::Type storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes);
-            void stripParentAttributes(Model::Attributable* attributable, ParentInfo::Type parentType);
+            void stripParentAttributes(Model::AttributableNode* attributable, ParentInfo::Type parentType);
             
             void resolveNodes();
             Model::Node* resolveParent(const ParentInfo& parentInfo) const;

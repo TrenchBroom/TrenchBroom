@@ -46,7 +46,7 @@ namespace TrenchBroom {
             void loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader);
             void clear();
             
-            EntityDefinition* definition(const Model::Attributable* attributable) const;
+            EntityDefinition* definition(const Model::AttributableNode* attributable) const;
             EntityDefinition* definition(const Model::AttributeValue& classname) const;
             EntityDefinitionList definitions(EntityDefinition::Type type, const EntityDefinition::SortOrder order = EntityDefinition::Name) const;
 

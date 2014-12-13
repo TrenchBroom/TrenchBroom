@@ -310,11 +310,11 @@ namespace TrenchBroom {
                 }
             }
         protected: // index management
-            void findAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const;
-            void findAttributablesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableList& result) const;
+            void findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;
+            void findAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const;
             
-            void addToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
-            void removeFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
+            void addToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
         private: // subclassing interface
             virtual Node* doClone(const BBox3& worldBounds) const = 0;
             virtual NodeSnapshot* doTakeSnapshot();
@@ -343,11 +343,11 @@ namespace TrenchBroom {
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
             
-            virtual void doFindAttributablesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableList& result) const;
-            virtual void doFindAttributablesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableList& result) const;
+            virtual void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;
+            virtual void doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const;
             
-            virtual void doAddToIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
-            virtual void doRemoveFromIndex(Attributable* attributable, const AttributeName& name, const AttributeValue& value);
+            virtual void doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
+            virtual void doRemoveFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
         };
     }
 }

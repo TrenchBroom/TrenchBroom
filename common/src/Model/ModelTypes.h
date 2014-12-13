@@ -44,11 +44,11 @@ namespace TrenchBroom {
         
         class World;
         
-        class Attributable;
-        typedef std::set<Attributable*> AttributableSet;
-        static const AttributableSet EmptyAttributableSet;
-        typedef std::vector<Attributable*> AttributableList;
-        static const AttributableList EmptyAttributableList(0);
+        class AttributableNode;
+        typedef std::set<AttributableNode*> AttributableNodeSet;
+        static const AttributableNodeSet EmptyAttributableNodeSet;
+        typedef std::vector<AttributableNode*> AttributableNodeList;
+        static const AttributableNodeList EmptyAttributableNodeList(0);
         
         class Layer;
         typedef std::vector<Layer*> LayerList;

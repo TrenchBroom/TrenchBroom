@@ -22,6 +22,9 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/CollectUniqueNodesVisitor.h"
+#include "Model/EntityAttributes.h"
+#include "Model/Node.h"
 #include "View/CommandProcessor.h"
 #include "View/MapDocument.h"
 
@@ -60,6 +63,11 @@ namespace TrenchBroom {
             Model::ParentChildrenMap performReparentNodes(const Model::ParentChildrenMap& nodes);
         public: // transformation
             void performTransform(const Mat4x4& transform, bool lockTextures);
+        public: // entity attributes
+            Model::EntityAttribute::Map performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
+            Model::EntityAttribute::Map performRemoveAttribute(const Model::AttributeName& name);
+            void performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
+            void restoreAttributes(const Model::EntityAttribute::Map& attributes);
         public: // brush face attributes
             void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             void performRotateTextures(float angle);
@@ -85,6 +93,13 @@ namespace TrenchBroom {
         public: // mods management
             void performSetMods(const StringList& mods);
         private: // helper methods
+            template <typename I>
+            Model::NodeList collectParents(const I begin, const I end) const {
+                Model::CollectUniqueNodesVisitor visitor;
+                Model::Node::escalate(begin, end, visitor);
+                return visitor.nodes();
+            }
+            
             Model::NodeList collectParents(const Model::NodeList& nodes) const;
             Model::NodeList collectParents(const Model::ParentChildrenMap& nodes) const;
             Model::NodeList collectChildren(const Model::ParentChildrenMap& nodes) const;

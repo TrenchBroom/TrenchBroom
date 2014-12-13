@@ -22,7 +22,7 @@
 #include "CollectionUtils.h"
 #include "StringUtils.h"
 #include "IO/EntityDefinitionLoader.h"
-#include "Model/Attributable.h"
+#include "Model/AttributableNode.h"
 #include "Model/EntityAttributes.h"
 
 #include <cassert>
@@ -51,7 +51,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_definitions);
         }
 
-        EntityDefinition* EntityDefinitionManager::definition(const Model::Attributable* attributable) const {
+        EntityDefinition* EntityDefinitionManager::definition(const Model::AttributableNode* attributable) const {
             assert(attributable != NULL);
             return definition(attributable->attribute(Model::AttributeNames::Classname));
         }

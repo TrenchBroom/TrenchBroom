@@ -29,7 +29,9 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class FontManager;
         class RenderContext;
+        class ShaderManager;
     }
 
     namespace View {
@@ -50,6 +52,10 @@ namespace TrenchBroom {
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
         protected:
+            Renderer::Vbo& sharedVbo();
+            Renderer::FontManager& fontManager();
+            Renderer::ShaderManager& shaderManager();
+            
             int depthBits() const;
             bool multisample() const;
         private:

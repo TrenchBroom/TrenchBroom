@@ -38,7 +38,8 @@ namespace TrenchBroom {
         UniqueNodeCollectionStrategy::~UniqueNodeCollectionStrategy() {}
 
         void UniqueNodeCollectionStrategy::addNode(Node* node) {
-            VectorUtils::setInsert(m_nodes, node);
+            if (m_addedNodes.insert(node).second)
+                m_nodes.push_back(node);
         }
 
         bool NeverStopRecursion::operator()(const Node* node, bool matched) const { return false; }

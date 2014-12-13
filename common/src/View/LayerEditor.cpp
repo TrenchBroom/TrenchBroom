@@ -135,7 +135,7 @@ namespace TrenchBroom {
             
             void doVisit(Model::Brush* brush)   {
                 assert(brush->selected());
-                Model::Attributable* entity = brush->entity();
+                Model::AttributableNode* entity = brush->entity();
                 if (entity == m_world) {
                     m_moveNodes.insert(brush);
                 } else {

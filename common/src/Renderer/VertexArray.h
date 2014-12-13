@@ -261,7 +261,7 @@ namespace TrenchBroom {
             }
             
             template <typename A1, typename A2, typename A3>
-            static VertexArray ref(const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices, const IndexArray& indices, const CountArray& counts) {
+            static VertexArray ref(const GLenum primType, const std::vector<Vertex3<A1, A2, A3> >& vertices, const IndexArray& indices = EmptyIndexArray, const CountArray& counts = EmptyCountArray) {
                 BaseHolder::Ptr holder(new RefHolder<typename Vertex3<A1, A2, A3>::Spec>(vertices, indices, counts));
                 return VertexArray(primType, holder);
             }

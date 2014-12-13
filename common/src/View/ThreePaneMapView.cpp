@@ -38,17 +38,17 @@
 
 namespace TrenchBroom {
     namespace View {
-        ThreePaneMapView::ThreePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) :
+        ThreePaneMapView::ThreePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
         MapViewContainer(parent),
         m_logger(logger),
         m_document(document),
         m_mapView3D(NULL),
         m_mapViewXY(NULL),
         m_mapViewZZ(NULL) {
-            createGui(toolBox, mapRenderer, vbo, contextManager);
+            createGui(toolBox, mapRenderer, contextManager);
         }
         
-        void ThreePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, Renderer::Vbo& vbo, GLContextManager& contextManager) {
+        void ThreePaneMapView::createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
 
             SplitterWindow2* hSplitter = new SplitterWindow2(this);
             hSplitter->setSashGravity(0.5f);
@@ -58,9 +58,9 @@ namespace TrenchBroom {
             vSplitter->setSashGravity(0.5f);
             vSplitter->SetName("3PaneMapViewVSplitter");
 
-            m_mapView3D = new MapView3D(hSplitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager);
-            m_mapViewXY = new MapView2D(vSplitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, MapView2D::ViewPlane_XY);
-            m_mapViewZZ = new CyclingMapView(vSplitter, m_logger, m_document, toolBox, mapRenderer, vbo, contextManager, CyclingMapView::View_ZZ);
+            m_mapView3D = new MapView3D(hSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
+            m_mapViewXY = new MapView2D(vSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY);
+            m_mapViewZZ = new CyclingMapView(vSplitter, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ);
             
             vSplitter->splitHorizontally(m_mapViewXY, m_mapViewZZ, wxSize(100, 100), wxSize(100, 100));
             hSplitter->splitVertically(m_mapView3D, vSplitter, wxSize(100, 100), wxSize(100, 100));
@@ -80,6 +80,18 @@ namespace TrenchBroom {
             if (m_mapViewZZ->HasFocus())
                 return m_mapViewZZ;
             return m_mapView3D;
+        }
+
+        void ThreePaneMapView::doSetToolBoxDropTarget() {
+            m_mapView3D->setToolBoxDropTarget();
+            m_mapViewXY->setToolBoxDropTarget();
+            m_mapViewZZ->setToolBoxDropTarget();
+        }
+        
+        void ThreePaneMapView::doClearDropTarget() {
+            m_mapView3D->clearDropTarget();
+            m_mapViewXY->clearDropTarget();
+            m_mapViewZZ->clearDropTarget();
         }
 
         Vec3 ThreePaneMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {

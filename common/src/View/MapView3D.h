@@ -49,7 +49,7 @@ namespace TrenchBroom {
             CameraTool3D* m_cameraTool;
             FlyModeHelper* m_flyModeHelper;
         public:
-            MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, Renderer::Vbo& vbo, GLContextManager& contextManager);
+            MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
             ~MapView3D();
         private:
             void initializeToolChain(MapViewToolBox& toolBox);
@@ -100,7 +100,8 @@ namespace TrenchBroom {
             ActionContext doGetActionContext() const;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;
             bool doCancel();
-            Renderer::RenderContext doCreateRenderContext(GLContextManager& contextManager) const;
+            
+            Renderer::RenderContext doCreateRenderContext();
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
