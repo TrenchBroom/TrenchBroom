@@ -102,7 +102,10 @@ namespace TrenchBroom {
             bool doShouldRenderFocusIndicator() const;
 
             void renderBounds(Layout& layout, float y, float height);
+            
+            class MeshFunc;
             void renderModels(Layout& layout, float y, float height, Renderer::Transformation& transformation);
+            
             void renderNames(Layout& layout, float y, float height, const Mat4x4f& projection);
             void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
             void renderStrings(Layout& layout, float y, float height);

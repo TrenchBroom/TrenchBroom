@@ -99,19 +99,7 @@ namespace TrenchBroom {
         void EntityModelRenderer::doPrepare(Vbo& vbo) {
             m_entityModelManager.prepare(vbo);
         }
-        
-        class EntityModelRenderer::MeshFunc : public TexturedTriangleMeshRenderer::MeshFuncBase {
-            void before(const Assets::Texture* const & texture) const {
-                if (texture != NULL)
-                    texture->activate();
-            }
-            
-            void after(const Assets::Texture* const & texture) const {
-                if (texture != NULL)
-                    texture->deactivate();
-            }
-        };
-        
+
         void EntityModelRenderer::doRender(RenderContext& renderContext) {
             PreferenceManager& prefs = PreferenceManager::instance();
             
@@ -138,7 +126,7 @@ namespace TrenchBroom {
                 const Mat4x4f matrix = translationMatrix(position) * rotationMatrix(rotation);
                 MultiplyModelMatrix multMatrix(renderContext.transformation(), matrix);
                 
-                renderer->render(MeshFunc());
+                renderer->render();
             }
         }
     }

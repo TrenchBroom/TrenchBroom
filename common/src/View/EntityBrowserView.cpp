@@ -283,6 +283,7 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation) {
+            
             PreferenceManager& prefs = PreferenceManager::instance();
             
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::EntityModelShader);
