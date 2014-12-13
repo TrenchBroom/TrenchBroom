@@ -101,6 +101,8 @@ namespace TrenchBroom {
             
             const bool result = m_toolBox.dragDrop(m_toolChain, m_inputState, text);
             m_window->Refresh();
+            if (result)
+                m_window->SetFocus();
             return result;
         }
 

@@ -31,6 +31,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
+        class CreateEntityTool;
         class MovementRestriction;
         class MoveObjectsTool;
         class RotateObjectsTool;
@@ -40,6 +41,7 @@ namespace TrenchBroom {
         class MapViewToolBox : public ToolBox {
         private:
             MovementRestriction* m_movementRestriction;
+            CreateEntityTool* m_createEntityTool;
             MoveObjectsTool* m_moveObjectsTool;
             RotateObjectsTool* m_rotateObjectsTool;
             SelectionTool* m_selectionTool;
@@ -51,6 +53,7 @@ namespace TrenchBroom {
             const MovementRestriction& movementRestriction() const;
             MovementRestriction& movementRestriction();
         public: // tools
+            CreateEntityTool* createEntityTool();
             MoveObjectsTool* moveObjectsTool();
             RotateObjectsTool* rotateObjectsTool();
             SelectionTool* selectionTool();

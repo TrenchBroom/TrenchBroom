@@ -297,6 +297,7 @@ namespace TrenchBroom {
             }
             
             setEntityDefinitions(addedNodes);
+            setEntityModels(addedNodes);
             setTextures(addedNodes);
 
             nodesWereAddedNotifier(addedNodes);

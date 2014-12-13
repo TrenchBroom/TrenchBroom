@@ -34,6 +34,7 @@
 #include "View/CameraAnimation.h"
 #include "View/CameraTool3D.h"
 #include "View/CommandIds.h"
+#include "View/CreateEntityTool.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/GLContextManager.h"
@@ -73,6 +74,7 @@ namespace TrenchBroom {
             addTool(toolBox.moveObjectsTool());
             addTool(toolBox.rotateObjectsTool());
             addTool(toolBox.vertexTool());
+            addTool(toolBox.createEntityTool());
             addTool(toolBox.selectionTool());
         }
 

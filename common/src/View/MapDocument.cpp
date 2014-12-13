@@ -875,6 +875,11 @@ namespace TrenchBroom {
             m_world->acceptAndRecurse(visitor);
         }
         
+        void MapDocument::setEntityModels(const Model::NodeList& nodes) {
+            SetEntityModel visitor(*m_entityModelManager, *this);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+        }
+
         void MapDocument::unsetEntityModels() {
             UnsetEntityModel visitor;
             m_world->acceptAndRecurse(visitor);
