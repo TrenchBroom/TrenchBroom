@@ -46,14 +46,14 @@ namespace TrenchBroom {
             unbindObservers();
         }
         
-        void EntityAttributeGrid::OnPropertyGridSize(wxSizeEvent& event) {
+        void EntityAttributeGrid::OnAttributeGridSize(wxSizeEvent& event) {
             m_grid->SetColSize(0, 100);
             const int colSize = std::max(1, m_grid->GetClientSize().x - m_grid->GetColSize(0));
             m_grid->SetColSize(1, colSize);
             event.Skip();
         }
         
-        void EntityAttributeGrid::OnPropertyGridSelectCell(wxGridEvent& event) {
+        void EntityAttributeGrid::OnAttributeGridSelectCell(wxGridEvent& event) {
             const Model::AttributeName name = m_table->attributeName(event.GetRow());
             if (!m_ignoreSelection) {
                 m_lastSelectedName = name;
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             ProcessEvent(command);
         }
         
-        void EntityAttributeGrid::OnPropertyGridTab(wxGridEvent& event) {
+        void EntityAttributeGrid::OnAttributeGridTab(wxGridEvent& event) {
             if (event.ShiftDown()) {
                 if (event.GetCol() > 0) {
                     m_grid->SelectRow(event.GetRow());
@@ -87,30 +87,19 @@ namespace TrenchBroom {
             }
         }
         
-        void EntityAttributeGrid::OnPropertyGridKeyDown(wxKeyEvent& event) {
+        void EntityAttributeGrid::OnAttributeGridKeyDown(wxKeyEvent& event) {
             if (isInsertRowShortcut(event)) {
-                m_grid->AppendRows();
-                m_grid->SelectRow(m_table->GetNumberAttributeRows() - 1);
-                m_grid->GoToCell(m_table->GetNumberAttributeRows() - 1, 0);
-            } else if (isDeleteRowShortcut(event)) {
-                int firstRowIndex = m_grid->GetNumberRows();
-                wxArrayInt selectedRows = m_grid->GetSelectedRows();
-                wxArrayInt::reverse_iterator it, end;
-                for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
-                    
-                    m_grid->DeleteRows(*it, 1);
-                    firstRowIndex = std::min(*it, firstRowIndex);
-                }
-                
-                if (firstRowIndex < m_grid->GetNumberRows())
-                    m_grid->SelectRow(firstRowIndex);
+                addAttribute();
+            } else if (isRemoveRowShortcut(event)) {
+                if (canRemoveSelectedAttributes())
+                    removeSelectedAttributes();
             } else {
                 event.Skip();
             }
         }
         
-        void EntityAttributeGrid::OnPropertyGridKeyUp(wxKeyEvent& event) {
-            if (!isInsertRowShortcut(event) && !isDeleteRowShortcut(event))
+        void EntityAttributeGrid::OnAttributeGridKeyUp(wxKeyEvent& event) {
+            if (!isInsertRowShortcut(event) && !isRemoveRowShortcut(event))
                 event.Skip();
         }
 
@@ -118,11 +107,11 @@ namespace TrenchBroom {
             return event.GetKeyCode() == WXK_RETURN && event.ControlDown();
         }
         
-        bool EntityAttributeGrid::isDeleteRowShortcut(const wxKeyEvent& event) const {
+        bool EntityAttributeGrid::isRemoveRowShortcut(const wxKeyEvent& event) const {
             return (event.GetKeyCode() == WXK_DELETE || event.GetKeyCode() == WXK_BACK) && !m_grid->IsCellEditControlShown();
         }
 
-        void EntityAttributeGrid::OnPropertyGridMouseMove(wxMouseEvent& event) {
+        void EntityAttributeGrid::OnAttributeGridMouseMove(wxMouseEvent& event) {
             int logicalX, logicalY;
             m_grid->CalcUnscrolledPosition(event.GetX(), event.GetY(), &logicalX, &logicalY);
             
@@ -135,14 +124,21 @@ namespace TrenchBroom {
             event.Skip();
         }
         
-        void EntityAttributeGrid::OnUpdatePropertyView(wxUpdateUIEvent& event) {
+        void EntityAttributeGrid::OnUpdateAttributeView(wxUpdateUIEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->hasSelectedNodes());
         }
 
-        void EntityAttributeGrid::OnAddPropertyButton(wxCommandEvent& event) {
-            m_grid->AppendRows();
-            
+        void EntityAttributeGrid::OnAddAttributeButton(wxCommandEvent& event) {
+            addAttribute();
+        }
+
+        void EntityAttributeGrid::OnRemovePropertiesButton(wxCommandEvent& event) {
+            removeSelectedAttributes();
+        }
+        
+        void EntityAttributeGrid::addAttribute() {
+            m_grid->InsertRows(m_table->GetNumberAttributeRows());
             m_grid->SetFocus();
             const int row = m_table->GetNumberAttributeRows() - 1;
             m_grid->SelectRow(row);
@@ -150,7 +146,9 @@ namespace TrenchBroom {
             m_grid->ShowCellEditControl();
         }
         
-        void EntityAttributeGrid::OnRemovePropertiesButton(wxCommandEvent& event) {
+        void EntityAttributeGrid::removeSelectedAttributes() {
+            assert(canRemoveSelectedAttributes());
+            
             int firstRowIndex = m_grid->GetNumberRows();
             wxArrayInt selectedRows = m_grid->GetSelectedRows();
             wxArrayInt::reverse_iterator it, end;
@@ -162,63 +160,34 @@ namespace TrenchBroom {
             if (firstRowIndex < m_grid->GetNumberRows())
                 m_grid->SelectRow(firstRowIndex);
         }
-        
+
         void EntityAttributeGrid::OnShowDefaultPropertiesCheckBox(wxCommandEvent& event) {
             m_table->setShowDefaultRows(event.IsChecked());
         }
         
-        void EntityAttributeGrid::OnUpdateAddPropertyButton(wxUpdateUIEvent& event) {
+        void EntityAttributeGrid::OnUpdateAddAttributeButton(wxUpdateUIEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->hasSelectedNodes());
         }
         
         void EntityAttributeGrid::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
-            event.Enable(!m_grid->GetSelectedRows().IsEmpty());
+            event.Enable(!m_grid->GetSelectedRows().IsEmpty() && canRemoveSelectedAttributes());
         }
 
         void EntityAttributeGrid::OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event) {
             event.Check(m_table->showDefaultRows());
         }
 
-        /*
-         void EntityAttributeGrid::OnAddPropertyPressed(wxCommandEvent& event) {
-         m_grid->AppendRows();
-         
-         m_grid->SetFocus();
-         int row = m_table->GetNumberPropertyRows() - 1;
-         m_grid->SelectRow(row);
-         m_grid->GoToCell(row, 0);
-         m_grid->ShowCellEditControl();
-         }
-
-         void EntityAttributeGrid::OnRemovePropertiesPressed(wxCommandEvent& event) {
-            int firstRowIndex = m_grid->GetNumberRows();
-            wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            wxArrayInt::reverse_iterator it, end;
-            for (it = selectedRows.rbegin(), end = selectedRows.rend(); it != end; ++it) {
-                m_grid->DeleteRows(*it, 1);
-                firstRowIndex = std::min(*it, firstRowIndex);
-            }
-            
-            if (firstRowIndex < m_grid->GetNumberRows())
-                m_grid->SelectRow(firstRowIndex);
-        }
-        
-        void EntityAttributeGrid::OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event) {
-            wxArrayInt selectedRows = m_grid->GetSelectedRows();
-            event.Enable(!selectedRows.empty());
-            
+        bool EntityAttributeGrid::canRemoveSelectedAttributes() const {
+            const wxArrayInt selectedRows = m_grid->GetSelectedRows();
             wxArrayInt::const_iterator it, end;
             for (it = selectedRows.begin(), end = selectedRows.end(); it != end; ++it) {
-                wxGridCellAttr* attr = m_table->GetAttr(*it, 0, wxGridCellAttr::Cell);
-                if (attr != NULL && attr->IsReadOnly()) {
-                    event.Enable(false);
-                    return;
-                }
+                if (!m_table->canRemove(*it))
+                    return false;
             }
+            return true;
         }
-         */
-        
+
         void EntityAttributeGrid::createGui(MapDocumentWPtr document) {
             SetBackgroundColour(*wxWHITE);
             
@@ -240,19 +209,19 @@ namespace TrenchBroom {
             m_grid->DisableDragGridSize();
             m_grid->DisableDragRowSize();
             
-            m_grid->Bind(wxEVT_SIZE, &EntityAttributeGrid::OnPropertyGridSize, this);
-            m_grid->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnPropertyGridSelectCell, this);
-            m_grid->Bind(wxEVT_GRID_TABBING, &EntityAttributeGrid::OnPropertyGridTab, this);
-            m_grid->Bind(wxEVT_KEY_DOWN, &EntityAttributeGrid::OnPropertyGridKeyDown, this);
-            m_grid->Bind(wxEVT_KEY_UP, &EntityAttributeGrid::OnPropertyGridKeyUp, this);
-            m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityAttributeGrid::OnPropertyGridMouseMove, this);
-            m_grid->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdatePropertyView, this);
+            m_grid->Bind(wxEVT_SIZE, &EntityAttributeGrid::OnAttributeGridSize, this);
+            m_grid->Bind(wxEVT_GRID_SELECT_CELL, &EntityAttributeGrid::OnAttributeGridSelectCell, this);
+            m_grid->Bind(wxEVT_GRID_TABBING, &EntityAttributeGrid::OnAttributeGridTab, this);
+            m_grid->Bind(wxEVT_KEY_DOWN, &EntityAttributeGrid::OnAttributeGridKeyDown, this);
+            m_grid->Bind(wxEVT_KEY_UP, &EntityAttributeGrid::OnAttributeGridKeyUp, this);
+            m_grid->GetGridWindow()->Bind(wxEVT_MOTION, &EntityAttributeGrid::OnAttributeGridMouseMove, this);
+            m_grid->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateAttributeView, this);
 
-            wxWindow* addPropertyButton = createBitmapButton(this, "Add.png", "Add a new property");
+            wxWindow* addAttributeButton = createBitmapButton(this, "Add.png", "Add a new property");
             wxWindow* removePropertiesButton = createBitmapButton(this, "Remove.png", "Remove the selected properties");
 
-            addPropertyButton->Bind(wxEVT_BUTTON, &EntityAttributeGrid::OnAddPropertyButton, this);
-            addPropertyButton->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateAddPropertyButton, this);
+            addAttributeButton->Bind(wxEVT_BUTTON, &EntityAttributeGrid::OnAddAttributeButton, this);
+            addAttributeButton->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateAddAttributeButton, this);
             removePropertiesButton->Bind(wxEVT_BUTTON, &EntityAttributeGrid::OnRemovePropertiesButton, this);
             removePropertiesButton->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateRemovePropertiesButton, this);
 
@@ -261,7 +230,7 @@ namespace TrenchBroom {
             showDefaultPropertiesCheckBox->Bind(wxEVT_UPDATE_UI, &EntityAttributeGrid::OnUpdateShowDefaultPropertiesCheckBox, this);
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-            buttonSizer->Add(addPropertyButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(addAttributeButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(removePropertiesButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddSpacer(LayoutConstants::WideHMargin);
             buttonSizer->Add(showDefaultPropertiesCheckBox, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);

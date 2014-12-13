@@ -50,26 +50,32 @@ namespace TrenchBroom {
             EntityAttributeGrid(wxWindow* parent, MapDocumentWPtr document);
             ~EntityAttributeGrid();
             
-            void OnPropertyGridSize(wxSizeEvent& event);
-            void OnPropertyGridSelectCell(wxGridEvent& event);
-            void OnPropertyGridTab(wxGridEvent& event);
+            void OnAttributeGridSize(wxSizeEvent& event);
+            void OnAttributeGridSelectCell(wxGridEvent& event);
+            void OnAttributeGridTab(wxGridEvent& event);
             
-            void OnPropertyGridKeyDown(wxKeyEvent& event);
-            void OnPropertyGridKeyUp(wxKeyEvent& event);
+            void OnAttributeGridKeyDown(wxKeyEvent& event);
+            void OnAttributeGridKeyUp(wxKeyEvent& event);
         private:
             bool isInsertRowShortcut(const wxKeyEvent& event) const;
-            bool isDeleteRowShortcut(const wxKeyEvent& event) const;
-        public:
-            void OnPropertyGridMouseMove(wxMouseEvent& event);
+            bool isRemoveRowShortcut(const wxKeyEvent& event) const;
+        private:
+            void OnAttributeGridMouseMove(wxMouseEvent& event);
 
-            void OnUpdatePropertyView(wxUpdateUIEvent& event);
+            void OnUpdateAttributeView(wxUpdateUIEvent& event);
 
-            void OnAddPropertyButton(wxCommandEvent& event);
+            void OnAddAttributeButton(wxCommandEvent& event);
             void OnRemovePropertiesButton(wxCommandEvent& event);
+            
+            void addAttribute();
+            void removeSelectedAttributes();
+            
             void OnShowDefaultPropertiesCheckBox(wxCommandEvent& event);
-            void OnUpdateAddPropertyButton(wxUpdateUIEvent& event);
+            void OnUpdateAddAttributeButton(wxUpdateUIEvent& event);
             void OnUpdateRemovePropertiesButton(wxUpdateUIEvent& event);
             void OnUpdateShowDefaultPropertiesCheckBox(wxUpdateUIEvent& event);
+            
+            bool canRemoveSelectedAttributes() const;
         private:
             void createGui(MapDocumentWPtr document);
             

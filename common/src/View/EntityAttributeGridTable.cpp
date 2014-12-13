@@ -358,11 +358,11 @@ namespace TrenchBroom {
         }
         
         void EntityAttributeGridTable::Clear() {
-            DeleteRows(0, static_cast<size_t>(GetRowsCount()));
+            DeleteRows(0, m_rows.totalRowCount());
         }
         
         bool EntityAttributeGridTable::InsertRows(const size_t pos, const size_t numRows) {
-            assert(static_cast<int>(pos) <= GetRowsCount());
+            assert(pos < m_rows.totalRowCount());
             
             MapDocumentSPtr document = lock(m_document);
 
@@ -386,19 +386,18 @@ namespace TrenchBroom {
         }
         
         bool EntityAttributeGridTable::AppendRows(const size_t numRows) {
-            return InsertRows(m_rows.defaultRowCount(), numRows);
+            return InsertRows(m_rows.totalRowCount(), numRows);
         }
         
         bool EntityAttributeGridTable::DeleteRows(const size_t pos, size_t numRows) {
             // TODO: when deleting a property that has a default value in the property definition, re-add it to the list
             // of default properties...
 
-            numRows = std::min(m_rows.defaultRowCount(), pos + numRows);
-            if (pos >= numRows)
+            if (pos >= m_rows.totalRowCount())
                 return false;
-            numRows -= pos;
             
-            assert(pos + numRows <= m_rows.defaultRowCount());
+            numRows = std::min(m_rows.totalRowCount() - pos, numRows);
+            assert(pos + numRows <= m_rows.totalRowCount());
             
             MapDocumentSPtr document = lock(m_document);
 
@@ -509,6 +508,13 @@ namespace TrenchBroom {
             if (index >= m_rows.totalRowCount())
                 return -1;
             return static_cast<int>(index);
+        }
+
+        bool EntityAttributeGridTable::canRemove(const int row) {
+            if (row < 0 || row >= GetNumberAttributeRows())
+                return false;
+            const size_t index = static_cast<size_t>(row);
+            return m_rows.nameMutable(index) && m_rows.valueMutable(index);
         }
 
         bool EntityAttributeGridTable::showDefaultRows() const {

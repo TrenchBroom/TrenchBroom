@@ -124,6 +124,7 @@ namespace TrenchBroom {
             String tooltip(wxGridCellCoords cellCoords) const;
             Model::AttributeName attributeName(int row) const;
             int rowForName(const Model::AttributeName& name) const;
+            bool canRemove(int row);
             
             bool showDefaultRows() const;
             void setShowDefaultRows(bool showDefaultRows);
