@@ -38,7 +38,9 @@ namespace TrenchBroom {
         ColorRange::Type detectColorRange(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
         ColorRange::Type detectColorRange(const String& str);
         
+        const String convertEntityColor(const String& str, ColorRange::Type colorRange);
         wxColor parseEntityColor(const String& str);
+        String entityColorAsString(const wxColor& color, ColorRange::Type colorRange);
     }
 }
 

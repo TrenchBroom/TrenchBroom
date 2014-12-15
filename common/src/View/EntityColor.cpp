@@ -83,6 +83,11 @@ namespace TrenchBroom {
             return range;
         }
 
+        const String convertEntityColor(const String& str, const ColorRange::Type colorRange) {
+            const wxColor color = parseEntityColor(str);
+            return entityColorAsString(color, colorRange);
+        }
+
         wxColor parseEntityColor(const String& str) {
             const StringList components = StringUtils::splitAndTrim(str, " ");
             const ColorRange::Type range = detectColorRange(components);
@@ -100,6 +105,16 @@ namespace TrenchBroom {
             }
             
             return wxColor(r, g, b);
+        }
+
+        String entityColorAsString(const wxColor& color, const ColorRange::Type colorRange) {
+            StringStream result;
+            if (colorRange == ColorRange::Byte) {
+                result << color.Red() << " " << color.Green() << " " << color.Blue();
+            } else if (colorRange == ColorRange::Float) {
+                result << float(color.Red()) / 255.0f << " " << float(color.Green()) / 255.0f << " "<< float(color.Blue()) / 255.0f;
+            }
+            return result.str();
         }
     }
 }

@@ -17,48 +17,37 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ChangeEntityAttributesCommand__
-#define __TrenchBroom__ChangeEntityAttributesCommand__
+#ifndef __TrenchBroom__ConvertEntityColorCommand__
+#define __TrenchBroom__ConvertEntityColorCommand__
 
+#include "Color.h"
 #include "Model/EntityAttributes.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
+#include "View/EntityColor.h"
+
+#include <map>
 
 namespace TrenchBroom {
     namespace View {
         class MapDocumentCommandFacade;
         
-        class ChangeEntityAttributesCommand : public DocumentCommand {
+        class ConvertEntityColorCommand : public DocumentCommand {
         public:
             static const CommandType Type;
         private:
-            typedef enum {
-                Action_Set,
-                Action_Remove,
-                Action_Rename
-            } Action;
-            
-            Action m_action;
-            Model::AttributeName m_oldName;
-            Model::AttributeName m_newName;
-            Model::AttributeValue m_newValue;
+            Model::AttributeName m_attributeName;
+            ColorRange::Type m_colorRange;
             
             Model::EntityAttribute::Map m_snapshots;
         public:
-            static ChangeEntityAttributesCommand* set(const Model::AttributeName& name, const Model::AttributeValue& value);
-            static ChangeEntityAttributesCommand* remove(const Model::AttributeName& name);
-            static ChangeEntityAttributesCommand* rename(const Model::AttributeName& oldName, const Model::AttributeName& newName);
-        protected:
-            void setName(const Model::AttributeName& name);
-            void setNewName(const Model::AttributeName& newName);
-            void setNewValue(const Model::AttributeValue& newValue);
+            static ConvertEntityColorCommand* convert(const Model::AttributeName& attributeName, ColorRange::Type colorRange);
         private:
-            ChangeEntityAttributesCommand(Action action);
-            static String makeName(Action action);
-
+            ConvertEntityColorCommand(const Model::AttributeName& attributeName, ColorRange::Type colorRange);
+            
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
-
+            
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             
             bool doCollateWith(UndoableCommand* command);
@@ -66,4 +55,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__ChangeEntityAttributesCommand__) */
+#endif /* defined(__TrenchBroom__ConvertEntityColorCommand__) */

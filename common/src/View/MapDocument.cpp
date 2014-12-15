@@ -48,6 +48,7 @@
 #include "View/AddRemoveNodesCommand.h"
 #include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/ChangeEntityAttributesCommand.h"
+#include "View/ConvertEntityColorCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/EntityDefinitionFileCommand.h"
 #include "View/Grid.h"
@@ -514,10 +515,8 @@ namespace TrenchBroom {
             return submit(ChangeEntityAttributesCommand::remove(name));
         }
         
-        bool MapDocument::setEntityColor(const Model::AttributeName& name, const Color& color) {
-        }
-        
         bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range) {
+            return submit(ConvertEntityColorCommand::convert(name, range));
         }
 
         bool MapDocument::setTexture(Assets::Texture* texture) {

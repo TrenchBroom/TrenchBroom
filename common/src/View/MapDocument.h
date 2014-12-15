@@ -209,7 +209,6 @@ namespace TrenchBroom {
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             bool removeAttribute(const Model::AttributeName& name);
             
-            bool setEntityColor(const Model::AttributeName& name, const Color& color);
             bool convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range);
         public: // modifying face attributes
             bool setTexture(Assets::Texture* texture);

@@ -430,6 +430,32 @@ namespace TrenchBroom {
             return snapshot;
         }
         
+        Model::EntityAttribute::Map MapDocumentCommandFacade::performConvertColorRange(const Model::AttributeName& name, ColorRange::Type colorRange) {
+            const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
+            const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
+            const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            static const Model::AttributeValue DefaultValue = "";
+            Model::EntityAttribute::Map snapshot;
+
+            Model::AttributableNodeList::const_iterator it, end;
+            for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
+                Model::AttributableNode* node = *it;
+                
+                const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
+                if (oldValue != DefaultValue) {
+                    snapshot[node] = Model::EntityAttribute(name, oldValue);
+                    const Model::AttributeValue newValue = convertEntityColor(oldValue, colorRange);
+                    node->addOrUpdateAttribute(name, newValue);
+                }
+            }
+            
+            return snapshot;
+        }
+
         void MapDocumentCommandFacade::performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName) {
             const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
             const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());

@@ -23,6 +23,7 @@
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
 #include "Model/World.h"
+#include "View/BorderLine.h"
 #include "View/ColorTable.h"
 #include "View/ColorTableSelectedCommand.h"
 #include "View/EntityColor.h"
@@ -72,12 +73,14 @@ namespace TrenchBroom {
             
             m_panel = new wxPanel(parent);
             wxStaticText* rangeTxt = new wxStaticText(m_panel, wxID_ANY, "Color range");
+            rangeTxt->SetFont(rangeTxt->GetFont().Bold());
             m_floatRadio = new wxRadioButton(m_panel, wxID_ANY, "Float [0,1]", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
             m_byteRadio = new wxRadioButton(m_panel, wxID_ANY, "Byte [0,255]");
             m_colorPicker = new wxColourPickerCtrl(m_panel, wxID_ANY);
             m_colorHistory = new ColorTable(m_panel, wxID_ANY, ColorHistoryCellSize);
             
             wxSizer* leftSizer = new wxBoxSizer(wxVERTICAL);
+            leftSizer->AddSpacer(LayoutConstants::WideVMargin);
             leftSizer->Add(rangeTxt);
             leftSizer->AddSpacer(LayoutConstants::WideVMargin);
             leftSizer->Add(m_floatRadio);
@@ -88,8 +91,10 @@ namespace TrenchBroom {
             leftSizer->AddStretchSpacer();
             
             wxSizer* outerSizer = new wxBoxSizer(wxHORIZONTAL);
+            outerSizer->AddSpacer(LayoutConstants::WideHMargin);
             outerSizer->Add(leftSizer);
             outerSizer->AddSpacer(LayoutConstants::WideHMargin);
+            outerSizer->Add(new BorderLine(m_panel, BorderLine::Direction_Vertical));
             outerSizer->Add(m_colorHistory, 1, wxEXPAND);
             m_panel->SetSizer(outerSizer);
             
@@ -204,12 +209,15 @@ namespace TrenchBroom {
             
             m_colorHistory->setColors(visitor.allColors());
             m_colorHistory->setSelection(visitor.selectedColors());
-            m_colorPicker->SetColour(visitor.selectedColors().back());
+            
+            const wxColor& color = !visitor.selectedColors().empty() ? visitor.selectedColors().back() : *wxBLACK;
+            m_colorPicker->SetColour(color);
         }
         
-        void SmartColorEditor::setColor(const wxColor& wxColor) const {
-            const Color color(wxColor.Red(), wxColor.Green(), wxColor.Blue());
-            document()->setEntityColor(name(), color);
+        void SmartColorEditor::setColor(const wxColor& color) const {
+            const ColorRange::Type colorRange = m_floatRadio->GetValue() ? ColorRange::Float : ColorRange::Byte;
+            const Model::AttributeValue value = entityColorAsString(color, colorRange);
+            document()->setAttribute(name(), value);
         }
     }
 }
