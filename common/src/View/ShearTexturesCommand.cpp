@@ -23,6 +23,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        const Command::CommandType ShearTexturesCommand::Type = Command::freeType();
+        
         ShearTexturesCommand* ShearTexturesCommand::shear(const Vec2f& factors) {
             return new ShearTexturesCommand(factors);
         }

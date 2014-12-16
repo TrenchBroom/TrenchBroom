@@ -36,11 +36,10 @@ namespace TrenchBroom {
         class TextureCollectionEditor : public wxPanel {
         private:
             MapDocumentWPtr m_document;
-            ControllerWPtr m_controller;
             
             wxListBox* m_collections;
         public:
-            TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller);
+            TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document);
             ~TextureCollectionEditor();
             
             void OnAddTextureCollectionsClicked(wxCommandEvent& event);
@@ -56,8 +55,8 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
-            void documentWasNewed();
-            void documentWasLoaded();
+            void documentWasNewed(MapDocument* document);
+            void documentWasLoaded(MapDocument* document);
             void textureCollectionsDidChange();
             void preferenceDidChange(const IO::Path& path);
             

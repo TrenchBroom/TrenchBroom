@@ -176,7 +176,7 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::createGui(GLContextManager& contextManager) {
-            m_uvEditor = new UVEditor(this, sharedContext, m_document, m_controller);
+            m_uvEditor = new UVEditor(this, m_document, contextManager);
             
             wxStaticText* textureNameLabel = new wxStaticText(this, wxID_ANY, "Texture");
             textureNameLabel->SetFont(textureNameLabel->GetFont().Bold());
@@ -289,30 +289,14 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::bindEvents() {
-            m_xOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                  EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXOffsetChanged),
-                                  this);
-            m_yOffsetEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                  EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnYOffsetChanged),
-                                  this);
-            m_xScaleEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                 EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnXScaleChanged),
-                                 this);
-            m_yScaleEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                 EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnYScaleChanged),
-                                 this);
-            m_rotationEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                   EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnRotationChanged),
-                                   this);
-            m_surfaceValueEditor->Bind(EVT_SPINCONTROL_EVENT,
-                                       EVT_SPINCONTROL_HANDLER(FaceAttribsEditor::OnSurfaceValueChanged),
-                                       this);
-            m_surfaceFlagsEditor->Bind(EVT_FLAG_CHANGED_EVENT,
-                                       EVT_FLAG_CHANGED_HANDLER(FaceAttribsEditor::OnSurfaceFlagChanged),
-                                       this);
-            m_contentFlagsEditor->Bind(EVT_FLAG_CHANGED_EVENT,
-                                       EVT_FLAG_CHANGED_HANDLER(FaceAttribsEditor::OnContentFlagChanged),
-                                       this);
+            m_xOffsetEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnXOffsetChanged, this);
+            m_yOffsetEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnYOffsetChanged, this);
+            m_xScaleEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnXScaleChanged, this);
+            m_yScaleEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnYScaleChanged, this);
+            m_rotationEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnRotationChanged, this);
+            m_surfaceValueEditor->Bind(SPIN_CONTROL_EVENT, &FaceAttribsEditor::OnSurfaceValueChanged, this);
+            m_surfaceFlagsEditor->Bind(FLAG_CHANGED_EVENT, &FaceAttribsEditor::OnSurfaceFlagChanged, this);
+            m_contentFlagsEditor->Bind(FLAG_CHANGED_EVENT, &FaceAttribsEditor::OnContentFlagChanged, this);
             Bind(wxEVT_IDLE, &FaceAttribsEditor::OnIdle, this);
         }
         
@@ -320,7 +304,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             document->documentWasNewedNotifier.addObserver(this, &FaceAttribsEditor::documentWasNewed);
             document->documentWasLoadedNotifier.addObserver(this, &FaceAttribsEditor::documentWasLoaded);
-            document->facesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::facesDidChange);
+            document->brushFacesDidChangeNotifier.addObserver(this, &FaceAttribsEditor::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &FaceAttribsEditor::selectionDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
         }
@@ -330,31 +314,29 @@ namespace TrenchBroom {
                 MapDocumentSPtr document = lock(m_document);
                 document->documentWasNewedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasNewed);
                 document->documentWasLoadedNotifier.removeObserver(this, &FaceAttribsEditor::documentWasLoaded);
-                document->facesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::facesDidChange);
+                document->brushFacesDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::selectionDidChange);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &FaceAttribsEditor::textureCollectionsDidChange);
             }
         }
         
-        void FaceAttribsEditor::documentWasNewed() {
-            MapDocumentSPtr document = lock(m_document);
-            m_faces = document->allSelectedFaces();
+        void FaceAttribsEditor::documentWasNewed(MapDocument* document) {
+            m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
         
-        void FaceAttribsEditor::documentWasLoaded() {
-            MapDocumentSPtr document = lock(m_document);
-            m_faces = document->allSelectedFaces();
+        void FaceAttribsEditor::documentWasLoaded(MapDocument* document) {
+            m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
         
-        void FaceAttribsEditor::facesDidChange(const Model::BrushFaceList& faces) {
+        void FaceAttribsEditor::brushFacesDidChange(const Model::BrushFaceList& faces) {
             updateControls();
         }
         
-        void FaceAttribsEditor::selectionDidChange(const Model::SelectionResult& result) {
+        void FaceAttribsEditor::selectionDidChange(const Selection& selection) {
             MapDocumentSPtr document = lock(m_document);
-            m_faces = document->allSelectedFaces();
+            m_faces = document->allSelectedBrushFaces();
             updateControls();
         }
         

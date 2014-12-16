@@ -35,10 +35,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureBrowser::TextureBrowser(wxWindow* parent, GLContextHolder::Ptr sharedContext, MapDocumentWPtr document) :
+        TextureBrowser::TextureBrowser(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         wxPanel(parent),
         m_document(document) {
-            createGui(sharedContext);
+            createGui(contextManager);
             bindEvents();
             bindObservers();
             reload();
@@ -109,14 +109,12 @@ namespace TrenchBroom {
             ProcessEvent(event);
         }
 
-        void TextureBrowser::createGui(GLContextHolder::Ptr sharedContext) {
+        void TextureBrowser::createGui(GLContextManager& contextManager) {
             wxPanel* browserPanel = new wxPanel(this);
             m_scrollBar = new wxScrollBar(browserPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSB_VERTICAL);
             
             MapDocumentSPtr document = lock(m_document);
-            m_view = new TextureBrowserView(browserPanel, m_scrollBar,
-                                            sharedContext,
-                                            document->textureManager());
+            m_view = new TextureBrowserView(browserPanel, m_scrollBar, contextManager, document->textureManager());
             
             wxSizer* browserPanelSizer = new wxBoxSizer(wxHORIZONTAL);
             browserPanelSizer->Add(m_view, 1, wxEXPAND);
@@ -162,7 +160,7 @@ namespace TrenchBroom {
             m_groupButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnGroupButtonToggled, this);
             m_usedButton->Bind(wxEVT_TOGGLEBUTTON, &TextureBrowser::OnUsedButtonToggled, this);
             m_filterBox->Bind(wxEVT_TEXT, &TextureBrowser::OnFilterPatternChanged, this);
-            m_view->Bind(EVT_TEXTURE_SELECTED_EVENT, EVT_TEXTURE_SELECTED_HANDLER(TextureBrowser::OnTextureSelected), this);
+            m_view->Bind(TEXTURE_SELECTED_EVENT, &TextureBrowser::OnTextureSelected, this);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &TextureBrowser::preferenceDidChange);
@@ -190,11 +188,11 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &TextureBrowser::preferenceDidChange);
         }
         
-        void TextureBrowser::documentWasNewed() {
+        void TextureBrowser::documentWasNewed(MapDocument* document) {
             reload();
         }
         
-        void TextureBrowser::documentWasLoaded() {
+        void TextureBrowser::documentWasLoaded(MapDocument* document) {
             reload();
         }
 

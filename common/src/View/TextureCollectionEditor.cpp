@@ -22,10 +22,7 @@
 #include "PreferenceManager.h"
 #include "Assets/TextureManager.h"
 #include "Assets/TextureCollection.h"
-#include "Model/Game.h"
-#include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
-#include "View/ControllerFacade.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
@@ -39,10 +36,9 @@
 
 namespace TrenchBroom {
     namespace View {
-        TextureCollectionEditor::TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document, ControllerWPtr controller) :
+        TextureCollectionEditor::TextureCollectionEditor(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
-        m_document(document),
-        m_controller(controller) {
+        m_document(document) {
             createGui();
             bindObservers();
         }
@@ -56,7 +52,7 @@ namespace TrenchBroom {
             if (pathWxStr.empty())
                 return;
             
-            loadTextureCollection(m_document, m_controller, this, pathWxStr);
+            loadTextureCollection(m_document, this, pathWxStr);
         }
         
         void TextureCollectionEditor::OnRemoveTextureCollectionsClicked(wxCommandEvent& event) {
@@ -65,9 +61,8 @@ namespace TrenchBroom {
             assert(!selections.empty());
             
             MapDocumentSPtr document = lock(m_document);
-            ControllerSPtr controller = lock(m_controller);
 
-            const StringList names = document->textureManager().externalCollectionNames();
+            const StringList names = document->externalTextureCollectionNames();
             StringList removeNames;
 
             for (size_t i = 0; i < selections.size(); ++i) {
@@ -76,7 +71,7 @@ namespace TrenchBroom {
                 removeNames.push_back(names[index]);
             }
             
-            controller->removeTextureCollections(removeNames);
+            document->removeTextureCollections(removeNames);
         }
         
         void TextureCollectionEditor::OnMoveTextureCollectionUpClicked(wxCommandEvent& event) {
@@ -85,14 +80,13 @@ namespace TrenchBroom {
             assert(selections.size() == 1);
             
             MapDocumentSPtr document = lock(m_document);
-            ControllerSPtr controller = lock(m_controller);
 
-            const StringList names = document->textureManager().externalCollectionNames();
+            const StringList names = document->externalTextureCollectionNames();
             
             const size_t index = static_cast<size_t>(selections.front());
             assert(index > 0 && index < names.size());
             
-            controller->moveTextureCollectionUp(names[index]);
+            document->moveTextureCollectionUp(names[index]);
             m_collections->SetSelection(static_cast<int>(index - 1));
         }
         
@@ -102,14 +96,13 @@ namespace TrenchBroom {
             assert(selections.size() == 1);
             
             MapDocumentSPtr document = lock(m_document);
-            ControllerSPtr controller = lock(m_controller);
 
-            const StringList names = document->textureManager().externalCollectionNames();
+            const StringList names = document->externalTextureCollectionNames();
 
             const size_t index = static_cast<size_t>(selections.front());
             assert(index < names.size() - 1);
             
-            controller->moveTextureCollectionDown(names[index]);
+            document->moveTextureCollectionDown(names[index]);
             m_collections->SetSelection(static_cast<int>(index + 1));
         }
 
@@ -191,11 +184,11 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &TextureCollectionEditor::preferenceDidChange);
         }
         
-        void TextureCollectionEditor::documentWasNewed() {
+        void TextureCollectionEditor::documentWasNewed(MapDocument* document) {
             updateControls();
         }
         
-        void TextureCollectionEditor::documentWasLoaded() {
+        void TextureCollectionEditor::documentWasLoaded(MapDocument* document) {
             updateControls();
         }
         
@@ -213,7 +206,7 @@ namespace TrenchBroom {
             m_collections->Clear();
             
             MapDocumentSPtr document = lock(m_document);
-            const StringList names = document->textureManager().externalCollectionNames();
+            const StringList names = document->externalTextureCollectionNames();
             StringList::const_iterator it, end;
             for (it = names.begin(), end = names.end(); it != end; ++it) {
                 const String& name = *it;

@@ -336,14 +336,6 @@ namespace TrenchBroom {
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
             
-            edgeRenderer.setUseColor(false);
-            
-            glDisable(GL_DEPTH_TEST);
-            glLineWidth(2.0f);
-            edgeRenderer.render(renderContext);
-            glLineWidth(1.0f);
-            glEnable(GL_DEPTH_TEST);
-            
         }
 
         void UVView::renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -355,7 +347,7 @@ namespace TrenchBroom {
         }
         
         Hits UVView::doPick(const Ray3& pickRay) const {
-            Hits hits;
+            Hits hits = hitsByDistance();
             if (!m_helper.valid())
                 return hits;
             

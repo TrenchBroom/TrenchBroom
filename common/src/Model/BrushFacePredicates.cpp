@@ -17,24 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CollectContainedNodesVisitor.h"
-
-#include "Model/Object.h"
-
-#include <cassert>
+#include "BrushFacePredicates.h"
 
 namespace TrenchBroom {
     namespace Model {
-        MatchContainedNodes::MatchContainedNodes(const Object* object) :
-        m_object(object) {
-            assert(m_object != NULL);
+        namespace BrushFacePredicates {
+            bool True::operator()(const BrushFace* face) const  { return true;  }
+            bool False::operator()(const BrushFace* face) const { return false; }
         }
-        
-        bool MatchContainedNodes::operator()(const Node* node) const {
-            return m_object->contains(node);
-        }
-        
-        CollectContainedNodesVisitor::CollectContainedNodesVisitor(const Object* object) :
-        CollectMatchingNodesVisitor(NodePredicates::And<NodePredicates::Not<NodePredicates::EqualsObject>, MatchContainedNodes>(NodePredicates::Not<NodePredicates::EqualsObject>(NodePredicates::EqualsObject(object)), MatchContainedNodes(object))) {}
     }
 }

@@ -33,15 +33,12 @@ class wxSpinEvent;
 class wxStaticText;
 
 namespace TrenchBroom {
-    namespace Model {
-        class SelectionResult;
-    }
-    
     namespace View {
         class ControllerFacade;
         class FlagChangedCommand;
         class FlagsPopupEditor;
         class GLContextManager;
+        class Selection;
         class SpinControl;
         class SpinControlEvent;
         class UVEditor;
@@ -86,10 +83,10 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             
-            void documentWasNewed();
-            void documentWasLoaded();
-            void facesDidChange(const Model::BrushFaceList& faces);
-            void selectionDidChange(const Model::SelectionResult& result);
+            void documentWasNewed(MapDocument* document);
+            void documentWasLoaded(MapDocument* document);
+            void brushFacesDidChange(const Model::BrushFaceList& faces);
+            void selectionDidChange(const Selection& selection);
             void textureCollectionsDidChange();
             
             void updateControls();

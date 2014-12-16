@@ -24,6 +24,9 @@
 #include "Preferences.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Renderer/FontManager.h"
+#include "Renderer/Shaders.h"
+#include "Renderer/ShaderManager.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/VertexArray.h"
 #include "View/TextureSelectedCommand.h"
@@ -34,15 +37,15 @@ namespace TrenchBroom {
         texture(i_texture),
         fontDescriptor(i_fontDescriptor) {}
 
-        TextureBrowserView::TextureBrowserView(wxWindow* parent, wxScrollBar* scrollBar,
-                                               GLContextHolder::Ptr sharedContext,
+        TextureBrowserView::TextureBrowserView(wxWindow* parent,
+                                               wxScrollBar* scrollBar,
+                                               GLContextManager& contextManager,
                                                Assets::TextureManager& textureManager) :
-        CellView(parent, sharedContext, scrollBar),
+        CellView(parent, contextManager, buildAttribs(), scrollBar),
         m_textureManager(textureManager),
         m_group(false),
         m_hideUnused(false),
         m_sortOrder(Assets::TextureManager::SortOrder_Name),
-        m_vbo(0xFFF),
         m_selectedTexture(NULL) {}
         
         TextureBrowserView::~TextureBrowserView() {
@@ -93,8 +96,7 @@ namespace TrenchBroom {
         }
 
         void TextureBrowserView::doInitLayout(Layout& layout) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const float scaleFactor = prefs.get(Preferences::TextureBrowserIconSize);
+            const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
             
             layout.setOuterMargin(5.0f);
             layout.setGroupMargin(5.0f);
@@ -106,9 +108,8 @@ namespace TrenchBroom {
         }
         
         void TextureBrowserView::doReloadLayout(Layout& layout) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath());
-            int fontSize = prefs.get(Preferences::BrowserFontSize);
+            const IO::Path& fontPath = pref(Preferences::RendererFontPath());
+            int fontSize = pref(Preferences::BrowserFontSize);
             assert(fontSize > 0);
             
             const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
@@ -142,13 +143,12 @@ namespace TrenchBroom {
         void TextureBrowserView::addTextureToLayout(Layout& layout, Assets::Texture* texture, const Renderer::FontDescriptor& font) {
             if ((!m_hideUnused || texture->usageCount() > 0) &&
                 (m_filterText.empty() || StringUtils::containsCaseInsensitive(texture->name(), m_filterText))) {
-                Renderer::FontManager& fontManager = contextHolder()->fontManager();
                 const float maxCellWidth = layout.maxCellWidth();
-                const Renderer::FontDescriptor actualFont = fontManager.selectFontSize(font, texture->name(), maxCellWidth, 5);
-                const Vec2f actualSize = fontManager.font(actualFont).measure(texture->name());
+                const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, texture->name(), maxCellWidth, 5);
+                const Vec2f actualSize = fontManager().font(actualFont).measure(texture->name());
                 
                 PreferenceManager& prefs = PreferenceManager::instance();
-                const float scaleFactor = prefs.get(Preferences::TextureBrowserIconSize);
+                const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
                 const size_t scaledTextureWidth = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->width())));
                 const size_t scaledTextureHeight = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->height())));
 
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY) * translationMatrix(Vec3f(0.0f, 0.0f, 0.1f));
             const Renderer::Transformation transformation(projection, view);
             
-            Renderer::SetVboState setVboState(m_vbo);
+            Renderer::SetVboState setVboState(sharedVbo());
             setVboState.active();
             
             glDisable(GL_DEPTH_TEST);
@@ -215,38 +215,35 @@ namespace TrenchBroom {
             }
 
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
-            Renderer::ActiveShader shader(contextHolder()->shaderManager(), Renderer::Shaders::TextureBrowserBorderShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserBorderShader);
             
-            Renderer::SetVboState setVboState(m_vbo);
+            Renderer::SetVboState setVboState(sharedVbo());
             setVboState.mapped();
-            vertexArray.prepare(m_vbo);
+            vertexArray.prepare(sharedVbo());
             setVboState.active();
             vertexArray.render();
         }
         
         const Color& TextureBrowserView::textureColor(const Assets::Texture& texture) const {
-            PreferenceManager& prefs = PreferenceManager::instance();
             if (&texture == m_selectedTexture)
-                return prefs.get(Preferences::TextureBrowserSelectedColor);
+                return pref(Preferences::TextureBrowserSelectedColor);
             if (texture.usageCount() > 0)
-                return prefs.get(Preferences::TextureBrowserUsedColor);
-            return prefs.get(Preferences::TextureBrowserDefaultColor);
+                return pref(Preferences::TextureBrowserUsedColor);
+            return pref(Preferences::TextureBrowserDefaultColor);
         }
 
         void TextureBrowserView::renderTextures(Layout& layout, const float y, const float height) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-
             typedef Renderer::VertexSpecs::P2T2::Vertex TextureVertex;
             TextureVertex::List vertices(4);
 
-            Renderer::ActiveShader shader(contextHolder()->shaderManager(), Renderer::Shaders::TextureBrowserShader);
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::TextureBrowserShader);
             shader.set("ApplyTinting", false);
             shader.set("Texture", 0);
-            shader.set("Brightness", prefs.get(Preferences::Brightness));
+            shader.set("Brightness", pref(Preferences::Brightness));
             
             size_t num = 0;
             
-            Renderer::SetVboState setVboState(m_vbo);
+            Renderer::SetVboState setVboState(sharedVbo());
 
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
@@ -270,7 +267,7 @@ namespace TrenchBroom {
                                 texture->activate();
 
                                 setVboState.mapped();
-                                vertexArray.prepare(m_vbo);
+                                vertexArray.prepare(sharedVbo());
                                 setVboState.active();
                                 vertexArray.render();
                                 
@@ -302,15 +299,14 @@ namespace TrenchBroom {
                 }
             }
             
-            PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::ActiveShader shader(contextHolder()->shaderManager(), Renderer::Shaders::BrowserGroupShader);
-            shader.set("Color", prefs.get(Preferences::BrowserGroupBackgroundColor));
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::BrowserGroupShader);
+            shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
             
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
 
-            Renderer::SetVboState setVboState(m_vbo);
+            Renderer::SetVboState setVboState(sharedVbo());
             setVboState.mapped();
-            vertexArray.prepare(m_vbo);
+            vertexArray.prepare(sharedVbo());
             setVboState.active();
             vertexArray.render();
         }
@@ -319,26 +315,24 @@ namespace TrenchBroom {
             typedef std::map<Renderer::FontDescriptor, Renderer::VertexArray> StringRendererMap;
             StringRendererMap stringRenderers;
             
-            Renderer::SetVboState activateVbo(m_vbo);
+            Renderer::SetVboState activateVbo(sharedVbo());
             activateVbo.active();
 
             { // create and upload all vertex arrays
-                Renderer::SetVboState mapVbo(m_vbo);
+                Renderer::SetVboState mapVbo(sharedVbo());
                 mapVbo.mapped();
                 
                 const StringMap stringVertices = collectStringVertices(layout, y, height);
                 StringMap::const_iterator it, end;
                 for (it = stringVertices.begin(), end = stringVertices.end(); it != end; ++it) {
                     const Renderer::FontDescriptor& descriptor = it->first;
-                    const StringVertex::List& vertices = it->second;
+                    const TextVertex::List& vertices = it->second;
                     stringRenderers[descriptor] = Renderer::VertexArray::ref(GL_QUADS, vertices);
-                    stringRenderers[descriptor].prepare(m_vbo);
+                    stringRenderers[descriptor].prepare(sharedVbo());
                 }
             }
             
-            PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::ActiveShader shader(contextHolder()->shaderManager(), Renderer::Shaders::TextShader);
-            shader.set("Color", prefs.get(Preferences::BrowserTextColor));
+            Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);
             shader.set("Texture", 0);
             
             StringRendererMap::iterator it, end;
@@ -346,7 +340,7 @@ namespace TrenchBroom {
                 const Renderer::FontDescriptor& descriptor = it->first;
                 Renderer::VertexArray& vertexArray = it->second;
                 
-                Renderer::TextureFont& font = contextHolder()->fontManager().font(descriptor);
+                Renderer::TextureFont& font = fontManager().font(descriptor);
                 font.activate();
                 vertexArray.render();
                 font.deactivate();
@@ -354,10 +348,11 @@ namespace TrenchBroom {
         }
         
         TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(Layout& layout, const float y, const float height) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::FontDescriptor defaultDescriptor(prefs.get(Preferences::RendererFontPath()),
-                                                       static_cast<size_t>(prefs.get(Preferences::BrowserFontSize)));
+            Renderer::FontDescriptor defaultDescriptor(pref(Preferences::RendererFontPath()),
+                                                       static_cast<size_t>(pref(Preferences::BrowserFontSize)));
             
+            const Color::List textColor(1, pref(Preferences::BrowserTextColor));
+
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {
                 const Layout::Group& group = layout[i];
@@ -367,10 +362,10 @@ namespace TrenchBroom {
                         const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
                         const Vec2f offset(titleBounds.left() + 2.0f, height - (titleBounds.top() - y) - titleBounds.height());
                         
-                        Renderer::TextureFont& font = contextHolder()->fontManager().font(defaultDescriptor);
+                        Renderer::TextureFont& font = fontManager().font(defaultDescriptor);
                         const Vec2f::List quads = font.quads(title, false, offset);
-                        const StringVertex::List titleVertices = StringVertex::fromLists(quads, quads, quads.size() / 2, 0, 2, 1, 2);
-                        StringVertex::List& vertices = stringVertices[defaultDescriptor];
+                        const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                        TextVertex::List& vertices = stringVertices[defaultDescriptor];
                         vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
                     }
                     
@@ -382,10 +377,10 @@ namespace TrenchBroom {
                                 const LayoutBounds titleBounds = cell.titleBounds();
                                 const Vec2f offset(titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height());
                                 
-                                Renderer::TextureFont& font = contextHolder()->fontManager().font(cell.item().fontDescriptor);
+                                Renderer::TextureFont& font = fontManager().font(cell.item().fontDescriptor);
                                 const Vec2f::List quads = font.quads(cell.item().texture->name(), false, offset);
-                                const StringVertex::List titleVertices = StringVertex::fromLists(quads, quads, quads.size() / 2, 0, 2, 1, 2);
-                                StringVertex::List& vertices = stringVertices[cell.item().fontDescriptor];
+                                const TextVertex::List titleVertices = TextVertex::fromLists(quads, quads, textColor, quads.size() / 2, 0, 2, 1, 2, 0, 0);
+                                TextVertex::List& vertices = stringVertices[cell.item().fontDescriptor];
                                 vertices.insert(vertices.end(), titleVertices.begin(), titleVertices.end());
                             }
                         }

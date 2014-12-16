@@ -127,6 +127,8 @@ namespace TrenchBroom {
             const BBox3& worldBounds() const;
             Model::World* world() const;
 
+            bool isGamePathPreference(const IO::Path& path) const;
+            
             Model::Layer* currentLayer() const;
             void setCurrentLayer(Model::Layer* currentLayer);
             
@@ -136,6 +138,7 @@ namespace TrenchBroom {
             
             Assets::EntityDefinitionManager& entityDefinitionManager();
             Assets::EntityModelManager& entityModelManager();
+            Assets::TextureManager& textureManager();
             
             const MapViewConfig& mapViewConfig() const;
             Grid& grid() const;
@@ -169,6 +172,7 @@ namespace TrenchBroom {
 
             const Model::AttributableNodeList allSelectedAttributableNodes() const;
             const Model::NodeCollection& selectedNodes() const;
+            const Model::BrushFaceList allSelectedBrushFaces() const;
             const Model::BrushFaceList& selectedBrushFaces() const;
 
             const BBox3& selectionBounds() const;
@@ -280,9 +284,13 @@ namespace TrenchBroom {
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
-            
             void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
+            
+            const StringList externalTextureCollectionNames() const;
             void addTextureCollection(const String& name);
+            void moveTextureCollectionUp(const String& name);
+            void moveTextureCollectionDown(const String& name);
+            void removeTextureCollections(const StringList& names);
         private:
             void loadAssets();
             void unloadAssets();
@@ -337,7 +345,6 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
-            bool isGamePathPreference(const IO::Path& path) const;
         };
 
         class Transaction {

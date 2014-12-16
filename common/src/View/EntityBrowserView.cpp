@@ -115,9 +115,8 @@ namespace TrenchBroom {
         }
         
         void EntityBrowserView::doReloadLayout(Layout& layout) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const IO::Path& fontPath = prefs.get(Preferences::RendererFontPath());
-            int fontSize = prefs.get(Preferences::BrowserFontSize);
+            const IO::Path& fontPath = pref(Preferences::RendererFontPath());
+            int fontSize = pref(Preferences::BrowserFontSize);
             assert(fontSize > 0);
             
             const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
@@ -283,12 +282,9 @@ namespace TrenchBroom {
         }
 
         void EntityBrowserView::renderModels(Layout& layout, const float y, const float height, Renderer::Transformation& transformation) {
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::EntityModelShader);
             shader.set("ApplyTinting", false);
-            shader.set("Brightness", prefs.get(Preferences::Brightness));
+            shader.set("Brightness", pref(Preferences::Brightness));
             shader.set("GrayScale", false);
             
             glFrontFace(GL_CW);
@@ -350,9 +346,7 @@ namespace TrenchBroom {
 
             Renderer::VertexArray vertexArray = Renderer::VertexArray::swap(GL_QUADS, vertices);
             Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::BrowserGroupShader);
-
-            PreferenceManager& prefs = PreferenceManager::instance();
-            shader.set("Color", prefs.get(Preferences::BrowserGroupBackgroundColor));
+            shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
             
             Renderer::SetVboState setVboState(sharedVbo());
             setVboState.mapped();
@@ -395,11 +389,10 @@ namespace TrenchBroom {
         }
         
         EntityBrowserView::StringMap EntityBrowserView::collectStringVertices(Layout& layout, const float y, const float height) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            Renderer::FontDescriptor defaultDescriptor(prefs.get(Preferences::RendererFontPath()),
-                                                       static_cast<size_t>(prefs.get(Preferences::BrowserFontSize)));
+            Renderer::FontDescriptor defaultDescriptor(pref(Preferences::RendererFontPath()),
+                                                       static_cast<size_t>(pref(Preferences::BrowserFontSize)));
             
-            const Color::List textColor(1, prefs.get(Preferences::BrowserTextColor));
+            const Color::List textColor(1, pref(Preferences::BrowserTextColor));
             
             StringMap stringVertices;
             for (size_t i = 0; i < layout.size(); ++i) {

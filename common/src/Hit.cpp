@@ -93,6 +93,7 @@ namespace TrenchBroom {
     }
 
     void Hits::addHit(const Hit& hit) {
+        assert(m_compare != NULL);
         List::iterator pos = std::upper_bound(m_hits.begin(), m_hits.end(), hit, CompareWrapper(m_compare.get()));
         m_hits.insert(pos, hit);
     }
