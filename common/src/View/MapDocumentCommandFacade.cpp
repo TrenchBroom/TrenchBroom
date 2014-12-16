@@ -511,6 +511,15 @@ namespace TrenchBroom {
             brushFacesDidChangeNotifier(m_selectedBrushFaces);
         }
 
+        void MapDocumentCommandFacade::performShearTextures(const Vec2f& factors) {
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = m_selectedBrushFaces.begin(), end = m_selectedBrushFaces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                face->shearTexture(factors);
+            }
+            brushFacesDidChangeNotifier(m_selectedBrushFaces);
+        }
+
         void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
             const Model::BrushFaceList& faces = selectedBrushFaces();
             request.evaluate(faces);

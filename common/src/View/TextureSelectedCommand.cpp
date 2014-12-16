@@ -14,29 +14,30 @@
  GNU General Public License for more details.
  
  You should have received a copy of the GNU General Public License
- along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PickRequest.h"
+#include "TextureSelectedCommand.h"
 
-#include <cassert>
+wxDEFINE_EVENT(TEXTURE_SELECTED_EVENT, TrenchBroom::View::TextureSelectedCommand);
 
 namespace TrenchBroom {
     namespace View {
-        PickRequest::PickRequest() :
-        m_camera(NULL) {}
+        IMPLEMENT_DYNAMIC_CLASS(TextureSelectedCommand, wxNotifyEvent)
+        TextureSelectedCommand::TextureSelectedCommand() :
+        wxNotifyEvent(TEXTURE_SELECTED_EVENT, wxID_ANY),
+        m_texture(NULL) {}
         
-        PickRequest::PickRequest(const Ray3& pickRay, const Renderer::Camera& camera) :
-        m_pickRay(pickRay),
-        m_camera(&camera) {}
-        
-        const Ray3& PickRequest::pickRay() const {
-            return m_pickRay;
+        Assets::Texture* TextureSelectedCommand::texture() const {
+            return m_texture;
         }
         
-        const Renderer::Camera& PickRequest::camera() const {
-            assert(m_camera != NULL);
-            return *m_camera;
+        void TextureSelectedCommand::setTexture(Assets::Texture* texture) {
+            m_texture = texture;
+        }
+
+        wxEvent* TextureSelectedCommand::Clone() const {
+            return new TextureSelectedCommand(*this);
         }
     }
 }

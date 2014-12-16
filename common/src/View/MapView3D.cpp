@@ -51,7 +51,7 @@
 namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
-        MapViewBase(parent, logger, document, toolBox, renderer, IS_MapView3D, contextManager),
+        MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_camera(),
         m_compass(new Renderer::Compass(toolBox.movementRestriction())),
         m_flyModeHelper(new FlyModeHelper(this, m_camera)) {
@@ -233,7 +233,7 @@ namespace TrenchBroom {
         }
 
         PickRequest MapView3D::doGetPickRequest(const int x, const int y) const {
-            return PickRequest(Ray3(m_camera.pickRay(x, y)), &m_camera);
+            return PickRequest(Ray3(m_camera.pickRay(x, y)), m_camera);
         }
 
         Hits MapView3D::doPick(const Ray3& pickRay) const {

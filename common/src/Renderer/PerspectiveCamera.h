@@ -36,6 +36,8 @@ namespace TrenchBroom {
             float fov() const;
             void setFov(float fov);
         private:
+            ProjectionType doGetProjectionType() const;
+
             void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const;
             Ray3f doGetPickRay(int x, int y) const;
             void doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const;

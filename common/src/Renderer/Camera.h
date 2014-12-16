@@ -71,11 +71,18 @@ namespace TrenchBroom {
             mutable Mat4x4f m_matrix;
             mutable Mat4x4f m_invertedMatrix;
         protected:
+            typedef enum {
+                Projection_Orthographic,
+                Projection_Perspective
+            } ProjectionType;
             mutable bool m_valid;
         public:
             Notifier1<const Camera*> cameraDidChangeNotifier;
 
             virtual ~Camera();
+            
+            bool orthographicProjection() const;
+            bool perspectiveProjection() const;
             
             float nearPlane() const;
             float farPlane() const;
@@ -124,8 +131,12 @@ namespace TrenchBroom {
             Camera();
             Camera(float nearPlane, float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);
         private:
+            ProjectionType projectionType() const;
+            
             void validateMatrices() const;
             void updateZoomedViewport();
+        private:
+            virtual ProjectionType doGetProjectionType() const = 0;
             
             virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const = 0;
             virtual Ray3f doGetPickRay(int x, int y) const = 0;

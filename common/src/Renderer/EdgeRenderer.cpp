@@ -91,9 +91,14 @@ namespace TrenchBroom {
         m_edgeRenderer(edgeRenderer),
         m_useColor(useColor),
         m_edgeColor(edgeColor),
-        m_offset(offset) {}
+        m_offset(offset),
+        m_width(1.0f) {}
         
         RenderEdges::~RenderEdges() {}
+
+        void RenderEdges::setWidth(const float width) {
+            m_width = width;
+        }
 
         void RenderEdges::doPrepare(Vbo& vbo) {
             m_edgeRenderer.prepare(vbo);
@@ -102,7 +107,19 @@ namespace TrenchBroom {
         void RenderEdges::doRender(RenderContext& renderContext) {
             if (m_offset != 0.0f)
                 glSetEdgeOffset(m_offset);
-            doRenderEdges(renderContext);
+            
+            if (m_width != 1.0f)
+                glLineWidth(m_width);
+            
+            before(renderContext);
+            m_edgeRenderer.setUseColor(m_useColor);
+            m_edgeRenderer.setColor(m_edgeColor);
+            m_edgeRenderer.render(renderContext);
+            after(renderContext);
+            
+            if (m_width != 1.0f)
+                glLineWidth(1.0f);
+            
             if (m_offset != 0.0f)
                 glResetEdgeOffset();
         }
@@ -110,20 +127,17 @@ namespace TrenchBroom {
         RenderUnoccludedEdges::RenderUnoccludedEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
         RenderEdges(edgeRenderer, useColor, edgeColor, offset) {}
 
-        void RenderUnoccludedEdges::doRenderEdges(RenderContext& renderContext) {
-            m_edgeRenderer.setUseColor(m_useColor);
-            m_edgeRenderer.setColor(m_edgeColor);
-            m_edgeRenderer.render(renderContext);
-        }
-        
+        void RenderUnoccludedEdges::before(RenderContext& renderContext) {}
+        void RenderUnoccludedEdges::after(RenderContext& renderContext) {}
+
         RenderOccludedEdges::RenderOccludedEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
         RenderEdges(edgeRenderer, useColor, edgeColor, offset) {}
 
-        void RenderOccludedEdges::doRenderEdges(RenderContext& renderContext) {
+        void RenderOccludedEdges::before(RenderContext& renderContext) {
             glDisable(GL_DEPTH_TEST);
-            m_edgeRenderer.setUseColor(m_useColor);
-            m_edgeRenderer.setColor(m_edgeColor);
-            m_edgeRenderer.render(renderContext);
+        }
+        
+        void RenderOccludedEdges::after(RenderContext& renderContext) {
             glEnable(GL_DEPTH_TEST);
         }
     }

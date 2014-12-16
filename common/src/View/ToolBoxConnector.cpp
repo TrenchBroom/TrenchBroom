@@ -24,11 +24,10 @@
 
 namespace TrenchBroom {
     namespace View {
-        ToolBoxConnector::ToolBoxConnector(wxWindow* window, ToolBox& toolBox, const InputSource inputSource) :
+        ToolBoxConnector::ToolBoxConnector(wxWindow* window) :
         m_window(window),
-        m_toolBox(toolBox),
-        m_toolChain(NULL),
-        m_inputState(inputSource) {
+        m_toolBox(NULL),
+        m_toolChain(NULL) {
             assert(m_window != NULL);
             bindEvents();
         }
@@ -46,15 +45,23 @@ namespace TrenchBroom {
         }
         
         void ToolBoxConnector::updateHits() {
+            assert(m_toolBox != NULL);
+            
             m_inputState.setPickRequest(doGetPickRequest(m_inputState.mouseX(),  m_inputState.mouseY()));
             Hits hits = doPick(m_inputState.pickRay());
             if (m_toolChain != NULL)
-                m_toolBox.pick(m_toolChain, m_inputState, hits);
+                m_toolBox->pick(m_toolChain, m_inputState, hits);
             m_inputState.setHits(hits);
         }
         
         void ToolBoxConnector::updateLastActivation() {
-            m_toolBox.updateLastActivation();
+            assert(m_toolBox != NULL);
+            m_toolBox->updateLastActivation();
+        }
+
+        void ToolBoxConnector::setToolBox(ToolBox& toolBox) {
+            assert(m_toolBox == NULL);
+            m_toolBox = &toolBox;
         }
 
         void ToolBoxConnector::addTool(Tool* tool) {
@@ -65,41 +72,49 @@ namespace TrenchBroom {
         }
 
         bool ToolBoxConnector::dragEnter(const wxCoord x, const wxCoord y, const String& text) {
+            assert(m_toolBox != NULL);
+            
             mouseMoved(wxPoint(x, y));
             updateHits();
 
             if (m_toolChain == NULL)
                 return false;
             
-            const bool result = m_toolBox.dragEnter(m_toolChain, m_inputState, text);
+            const bool result = m_toolBox->dragEnter(m_toolChain, m_inputState, text);
             m_window->Refresh();
             return result;
         }
 
         bool ToolBoxConnector::dragMove(const wxCoord x, const wxCoord y, const String& text) {
+            assert(m_toolBox != NULL);
+            
             mouseMoved(wxPoint(x, y));
             updateHits();
             
             if (m_toolChain == NULL)
                 return false;
             
-            const bool result = m_toolBox.dragMove(m_toolChain, m_inputState, text);
+            const bool result = m_toolBox->dragMove(m_toolChain, m_inputState, text);
             m_window->Refresh();
             return result;
         }
         
         void ToolBoxConnector::dragLeave() {
-            m_toolBox.dragLeave(m_toolChain, m_inputState);
+            assert(m_toolBox != NULL);
+            
+            m_toolBox->dragLeave(m_toolChain, m_inputState);
             m_window->Refresh();
         }
 
         bool ToolBoxConnector::dragDrop(const wxCoord x, const wxCoord y, const String& text) {
+            assert(m_toolBox != NULL);
+            
             updateHits();
             
             if (m_toolChain == NULL)
                 return false;
             
-            const bool result = m_toolBox.dragDrop(m_toolChain, m_inputState, text);
+            const bool result = m_toolBox->dragDrop(m_toolChain, m_inputState, text);
             m_window->Refresh();
             if (result)
                 m_window->SetFocus();
@@ -107,40 +122,50 @@ namespace TrenchBroom {
         }
 
         bool ToolBoxConnector::cancel() {
-            return m_toolBox.cancel(m_toolChain);
+            assert(m_toolBox != NULL);
+            
+            return m_toolBox->cancel(m_toolChain);
         }
 
         void ToolBoxConnector::setRenderOptions(Renderer::RenderContext& renderContext) {
+            assert(m_toolBox != NULL);
+            
             if (m_toolChain != NULL)
-                m_toolBox.setRenderOptions(m_toolChain, m_inputState, renderContext);
+                m_toolBox->setRenderOptions(m_toolChain, m_inputState, renderContext);
         }
         
         void ToolBoxConnector::renderTools(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            assert(m_toolBox != NULL);
+            
             if (m_toolChain != NULL)
-                m_toolBox.renderTools(m_toolChain, m_inputState, renderContext, renderBatch);
+                m_toolBox->renderTools(m_toolChain, m_inputState, renderContext, renderBatch);
         }
 
         void ToolBoxConnector::OnKey(wxKeyEvent& event) {
+            assert(m_toolBox != NULL);
+            
             if (updateModifierKeys()) {
                 updateHits();
                 if (m_toolChain != NULL)
-                    m_toolBox.modifierKeyChange(m_toolChain, m_inputState);
+                    m_toolBox->modifierKeyChange(m_toolChain, m_inputState);
             }
             m_window->Refresh();
         }
         
         void ToolBoxConnector::OnMouseButton(wxMouseEvent& event) {
+            assert(m_toolBox != NULL);
+            
             const MouseButtonState button = mouseButton(event);
-            if (m_toolBox.ignoreNextClick() && button == MouseButtons::MBLeft) {
+            if (m_toolBox->ignoreNextClick() && button == MouseButtons::MBLeft) {
                 if (event.ButtonUp())
-                    m_toolBox.clearIgnoreNextClick();
+                    m_toolBox->clearIgnoreNextClick();
                 event.Skip();
                 return;
             }
             
             m_window->SetFocus();
             if (event.ButtonUp())
-                m_toolBox.clearIgnoreNextClick();
+                m_toolBox->clearIgnoreNextClick();
             
             updateModifierKeys();
             if (event.ButtonDown()) {
@@ -148,14 +173,14 @@ namespace TrenchBroom {
                 m_clickPos = event.GetPosition();
                 m_inputState.mouseDown(button);
                 if (m_toolChain != NULL)
-                    m_toolBox.mouseDown(m_toolChain, m_inputState);
+                    m_toolBox->mouseDown(m_toolChain, m_inputState);
             } else {
-                if (m_toolBox.dragging()) {
-                    m_toolBox.endMouseDrag(m_inputState);
+                if (m_toolBox->dragging()) {
+                    m_toolBox->endMouseDrag(m_inputState);
                     m_inputState.mouseUp(button);
                     releaseMouse();
                 } else if (!m_ignoreNextDrag) {
-                    const bool handled = m_toolChain == NULL ? false : m_toolBox.mouseUp(m_toolChain, m_inputState);
+                    const bool handled = m_toolChain == NULL ? false : m_toolBox->mouseUp(m_toolChain, m_inputState);
                     m_inputState.mouseUp(button);
                     releaseMouse();
                     
@@ -181,13 +206,15 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::OnMouseDoubleClick(wxMouseEvent& event) {
+            assert(m_toolBox != NULL);
+            
             const MouseButtonState button = mouseButton(event);
             updateModifierKeys();
             
             m_clickPos = event.GetPosition();
             m_inputState.mouseDown(button);
             if (m_toolChain != NULL)
-                m_toolBox.mouseDoubleClick(m_toolChain, m_inputState);
+                m_toolBox->mouseDoubleClick(m_toolChain, m_inputState);
             m_inputState.mouseUp(button);
             
             updateHits();
@@ -196,31 +223,33 @@ namespace TrenchBroom {
         }
         
         void ToolBoxConnector::OnMouseMotion(wxMouseEvent& event) {
+            assert(m_toolBox != NULL);
+            
             updateModifierKeys();
-            if (m_toolBox.dragging()) {
+            if (m_toolBox->dragging()) {
                 mouseMoved(event.GetPosition());
                 updateHits();
-                if (!m_toolBox.mouseDrag(m_inputState)) {
-                    m_toolBox.endMouseDrag(m_inputState);
+                if (!m_toolBox->mouseDrag(m_inputState)) {
+                    m_toolBox->endMouseDrag(m_inputState);
                     m_ignoreNextDrag = true;
                 }
             } else if (!m_ignoreNextDrag) {
                 if (m_inputState.mouseButtons() != MouseButtons::MBNone) {
                     if (std::abs(event.GetPosition().x - m_clickPos.x) > 1 ||
                         std::abs(event.GetPosition().y - m_clickPos.y) > 1) {
-                        const bool dragStarted = m_toolChain == NULL ? false : m_toolBox.startMouseDrag(m_toolChain, m_inputState);
+                        const bool dragStarted = m_toolChain == NULL ? false : m_toolBox->startMouseDrag(m_toolChain, m_inputState);
                         if (dragStarted)
                             m_ignoreNextDrag = true;
                         mouseMoved(event.GetPosition());
                         updateHits();
                         if (dragStarted)
-                            m_toolBox.mouseDrag(m_inputState);
+                            m_toolBox->mouseDrag(m_inputState);
                     }
                 } else {
                     mouseMoved(event.GetPosition());
                     updateHits();
                     if (m_toolChain != NULL)
-                        m_toolBox.mouseMove(m_toolChain, m_inputState);
+                        m_toolBox->mouseMove(m_toolChain, m_inputState);
                 }
             }
             
@@ -228,6 +257,8 @@ namespace TrenchBroom {
         }
         
         void ToolBoxConnector::OnMouseWheel(wxMouseEvent& event) {
+            assert(m_toolBox != NULL);
+            
             updateModifierKeys();
             const float delta = static_cast<float>(event.GetWheelRotation()) / event.GetWheelDelta() * event.GetLinesPerAction();
             if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
@@ -235,7 +266,7 @@ namespace TrenchBroom {
             else if (event.GetWheelAxis() == wxMOUSE_WHEEL_VERTICAL)
                 m_inputState.scroll(0.0f, delta);
             if (m_toolChain != NULL)
-                m_toolBox.mouseWheel(m_toolChain, m_inputState);
+                m_toolBox->mouseWheel(m_toolChain, m_inputState);
             
             updateHits();
             m_window->Refresh();
@@ -243,32 +274,38 @@ namespace TrenchBroom {
 
         
         void ToolBoxConnector::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+            assert(m_toolBox != NULL);
+            
             cancelDrag();
             m_window->Refresh();
             event.Skip();
         }
 
         void ToolBoxConnector::OnSetFocus(wxFocusEvent& event) {
+            assert(m_toolBox != NULL);
+            
             if (m_toolChain != NULL && updateModifierKeys())
-                m_toolBox.modifierKeyChange(m_toolChain, m_inputState);
+                m_toolBox->modifierKeyChange(m_toolChain, m_inputState);
             m_window->Refresh();
             m_window->SetCursor(wxCursor(wxCURSOR_ARROW));
             
             mouseMoved(m_window->ScreenToClient(wxGetMousePosition()));
             
             // if this focus event happens as a result of a window activation, the don't ignore the next click
-            m_toolBox.clearIgnoreNextClickWithinActivationTime();
+            m_toolBox->clearIgnoreNextClickWithinActivationTime();
             
             event.Skip();
         }
         
         void ToolBoxConnector::OnKillFocus(wxFocusEvent& event) {
+            assert(m_toolBox != NULL);
+            
             cancelDrag();
             releaseMouse();
             if (m_toolChain != NULL && clearModifierKeys())
-                m_toolBox.modifierKeyChange(m_toolChain, m_inputState);
-            if (m_toolBox.clickToActivate()) {
-                m_toolBox.setIgnoreNextClick();
+                m_toolBox->modifierKeyChange(m_toolChain, m_inputState);
+            if (m_toolBox->clickToActivate()) {
+                m_toolBox->setIgnoreNextClick();
                 m_window->SetCursor(wxCursor(wxCURSOR_HAND));
             }
             m_window->Refresh();
@@ -326,19 +363,19 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::captureMouse() {
-            if (!m_window->HasCapture() && !m_toolBox.dragging())
+            if (!m_window->HasCapture() && !m_toolBox->dragging())
                 m_window->CaptureMouse();
         }
         
         void ToolBoxConnector::releaseMouse() {
-            if (m_window->HasCapture() && !m_toolBox.dragging())
+            if (m_window->HasCapture() && !m_toolBox->dragging())
                 m_window->ReleaseMouse();
         }
         
         
         void ToolBoxConnector::cancelDrag() {
-            if (m_toolBox.dragging()) {
-                m_toolBox.cancelDrag();
+            if (m_toolBox->dragging()) {
+                m_toolBox->cancelDrag();
                 m_inputState.clearMouseButtons();
             }
         }

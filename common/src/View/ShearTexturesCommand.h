@@ -17,27 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__RotateTexturesCommand__
-#define __TrenchBroom__RotateTexturesCommand__
+#ifndef __TrenchBroom__ShearTexturesCommand__
+#define __TrenchBroom__ShearTexturesCommand__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "View/DocumentCommand.h"
 
 namespace TrenchBroom {
     namespace View {
-        class RotateTexturesCommand : public DocumentCommand {
+        class ShearTexturesCommand : public DocumentCommand {
         public:
             static const CommandType Type;
         private:
-            float m_angle;
+            Vec2f m_factors;
         public:
-            static RotateTexturesCommand* rotate(float angle);
+            static ShearTexturesCommand* shear(const Vec2f& factors);
         private:
-            RotateTexturesCommand(float angle);
+            ShearTexturesCommand(const Vec2f& factors);
             
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
-            bool rotateTextures(MapDocumentCommandFacade* document, float angle) const;
+            bool shearTextures(MapDocumentCommandFacade* document, const Vec2f& factors);
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;
@@ -47,4 +49,4 @@ namespace TrenchBroom {
     }
 }
 
-#endif /* defined(__TrenchBroom__RotateTexturesCommand__) */
+#endif /* defined(__TrenchBroom__ShearTexturesCommand__) */

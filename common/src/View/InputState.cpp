@@ -26,7 +26,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        InputState::InputState(const InputSource inputSource) :
+        InputState::InputState() :
         m_modifierKeys(ModifierKeys::MKNone),
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(0),
@@ -34,14 +34,13 @@ namespace TrenchBroom {
         m_mouseDX(0),
         m_mouseDY(0),
         m_scrollX(0.0f),
-        m_scrollY(0.0f),
-        m_inputSource(inputSource) {
+        m_scrollY(0.0f) {
             const wxMouseState mouseState = wxGetMouseState();
             m_mouseX = mouseState.GetX();
             m_mouseY = mouseState.GetY();
         }
 
-        InputState::InputState(const InputSource inputSource, const int mouseX, const int mouseY) :
+        InputState::InputState(const int mouseX, const int mouseY) :
         m_modifierKeys(ModifierKeys::MKNone),
         m_mouseButtons(MouseButtons::MBNone),
         m_mouseX(mouseX),
@@ -49,8 +48,7 @@ namespace TrenchBroom {
         m_mouseDX(0),
         m_mouseDY(0),
         m_scrollX(0.0f),
-        m_scrollY(0.0f),
-        m_inputSource(inputSource) {}
+        m_scrollY(0.0f) {}
         
         InputState::~InputState() {}
 
@@ -163,10 +161,6 @@ namespace TrenchBroom {
         void InputState::scroll(const float scrollX, const float scrollY) {
             m_scrollX = scrollX;
             m_scrollY = scrollY;
-        }
-
-        InputSource InputState::inputSource() const {
-            return m_inputSource;
         }
         
         const Ray3& InputState::pickRay() const {

@@ -31,21 +31,20 @@ namespace TrenchBroom {
         }
         
         RotateTexturesCommand::RotateTexturesCommand(const float angle) :
-        DocumentCommand(Type, "Move textures"),
+        DocumentCommand(Type, "Move Textures"),
         m_angle(angle) {}
         
         bool RotateTexturesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            rotateTextures(document, m_angle);
-            return true;
+            return rotateTextures(document, m_angle);
         }
         
         bool RotateTexturesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            rotateTextures(document, -m_angle);
-            return true;
+            return rotateTextures(document, -m_angle);
         }
         
-        void RotateTexturesCommand::rotateTextures(MapDocumentCommandFacade* document, const float angle) const {
+        bool RotateTexturesCommand::rotateTextures(MapDocumentCommandFacade* document, const float angle) const {
             document->performRotateTextures(angle);
+            return true;
         }
         
         bool RotateTexturesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {

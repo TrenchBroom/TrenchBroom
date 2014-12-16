@@ -44,6 +44,7 @@ namespace TrenchBroom {
     
     namespace Model {
         class BrushFaceAttributes;
+        class ChangeBrushFaceAttributesRequest;
         class EditorContext;
         class PointFile;
     }
@@ -213,8 +214,10 @@ namespace TrenchBroom {
         public: // modifying face attributes
             bool setTexture(Assets::Texture* texture);
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
+            bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
             bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             bool rotateTextures(float angle);
+            bool shearTextures(const Vec2f& factors);
         public: // modifying vertices
             void rebuildBrushGeometry(const Model::BrushList& brushes);
             bool snapVertices(const Model::VertexToBrushesMap& vertices, size_t snapTo);

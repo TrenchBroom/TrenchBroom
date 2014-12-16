@@ -17,30 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PickRequest__
-#define __TrenchBroom__PickRequest__
+#ifndef __TrenchBroom__UVCameraTool__
+#define __TrenchBroom__UVCameraTool__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
+#include "View/Tool.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class Camera;
+        class OrthographicCamera;
     }
     
     namespace View {
-        class PickRequest {
+        class UVCameraTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
         private:
-            Ray3 m_pickRay;
-            const Renderer::Camera* m_camera;
+            Renderer::OrthographicCamera& m_camera;
         public:
-            PickRequest();
-            PickRequest(const Ray3& pickRay, const Renderer::Camera& camera);
-            
-            const Ray3& pickRay() const;
-            const Renderer::Camera& camera() const;
+            UVCameraTool(MapDocumentWPtr document, Renderer::OrthographicCamera& camera);
+        private:
+            void doScroll(const InputState& inputState);
+            bool doStartMouseDrag(const InputState& inputState);
+            bool doMouseDrag(const InputState& inputState);
+            void doEndMouseDrag(const InputState& inputState);
+            void doCancelMouseDrag();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__PickRequest__) */
+#endif /* defined(__TrenchBroom__UVCameraTool__) */

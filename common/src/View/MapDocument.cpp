@@ -61,6 +61,7 @@
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
 #include "View/SetModsCommand.h"
+#include "View/ShearTexturesCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
 #include "View/SplitBrushFacesCommand.h"
@@ -535,6 +536,10 @@ namespace TrenchBroom {
                 request.setTexture(texture);
             }
             
+            return setFaceAttributes(request);
+        }
+
+        bool MapDocument::setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
             return submit(ChangeBrushFaceAttributesCommand::command(request));
         }
 
@@ -544,6 +549,10 @@ namespace TrenchBroom {
         
         bool MapDocument::rotateTextures(const float angle) {
             return submit(RotateTexturesCommand::rotate(angle));
+        }
+
+        bool MapDocument::shearTextures(const Vec2f& factors) {
+            return submit(ShearTexturesCommand::shear(factors));
         }
 
         void MapDocument::rebuildBrushGeometry(const Model::BrushList& brushes) {

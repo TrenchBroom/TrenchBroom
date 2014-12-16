@@ -41,20 +41,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        InputSource inputSource(MapView2D::ViewPlane viewPlane);
-        InputSource inputSource(const MapView2D::ViewPlane viewPlane) {
-            switch (viewPlane) {
-                case MapView2D::ViewPlane_XY:
-                    return IS_MapViewXY;
-                case MapView2D::ViewPlane_XZ:
-                    return IS_MapViewXZ;
-                case MapView2D::ViewPlane_YZ:
-                    return IS_MapViewYZ;
-            }
-        }
-        
         MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :
-        MapViewBase(parent, logger, document, toolBox, renderer, inputSource(viewPlane), contextManager),
+        MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_camera(),
         m_cameraTool(NULL) {
             bindEvents();
@@ -129,7 +117,7 @@ namespace TrenchBroom {
         }
 
         PickRequest MapView2D::doGetPickRequest(const int x, const int y) const {
-            return PickRequest(Ray3(m_camera.pickRay(x, y)), &m_camera);
+            return PickRequest(Ray3(m_camera.pickRay(x, y)), m_camera);
         }
         
         Hits MapView2D::doPick(const Ray3& pickRay) const {
