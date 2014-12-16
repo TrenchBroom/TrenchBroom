@@ -27,6 +27,7 @@
 #include <wx/control.h>
 #include <wx/dcclient.h>
 #include <wx/log.h>
+#include <wx/wupdlock.h>
 
 #include <cassert>
 #include <iostream>
@@ -169,7 +170,6 @@ namespace TrenchBroom {
                     newPosition.y = event.GetPosition().y;
                 setSashPosition(newPosition);
                 sizeWindows();
-                Refresh();
             } else {
                 updateSashCursor();
             }
@@ -275,6 +275,8 @@ namespace TrenchBroom {
             initSashPosition();
             
             if (hasWindows()) {
+                const wxWindowUpdateLocker lockUpdates(this);
+                
                 const wxPoint origin = GetClientAreaOrigin();
                 const wxSize size = GetClientSize();
                 const wxPoint& sash = m_sashPosition;
@@ -295,8 +297,6 @@ namespace TrenchBroom {
                 m_windows[Window_BottomRight]->SetSize(wxSize(rightColW, bottomRowH));
                 m_windows[Window_BottomLeft]->SetPosition(wxPoint(leftColX, bottomRowY));
                 m_windows[Window_BottomLeft]->SetSize(wxSize(leftColW, bottomRowH));
-                
-                Refresh();
             }
         }
         

@@ -27,6 +27,7 @@
 #include <wx/control.h>
 #include <wx/dcclient.h>
 #include <wx/log.h>
+#include <wx/wupdlock.h>
 
 #include <cassert>
 #include <iostream>
@@ -219,6 +220,8 @@ namespace TrenchBroom {
             initSashPosition();
             
             if (m_splitMode != SplitMode_Unset) {
+                const wxWindowUpdateLocker lockUpdates(this);
+                
                 const int origH = h(GetClientAreaOrigin());
                 const int origV = h(GetClientAreaOrigin());
                 const int sizeH = h(GetClientSize());
@@ -241,8 +244,6 @@ namespace TrenchBroom {
                 setHV(sashPos, origH + m_sashPosition, origV);
                 setHV(sashSize, SplitterWindow2::sashSize(), sizeV);
                 m_sash->SetSize(wxRect(sashPos, sashSize));
-                
-                Refresh();
             }
         }
         
