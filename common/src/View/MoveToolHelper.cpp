@@ -170,8 +170,8 @@ namespace TrenchBroom {
                 m_traceRenderer = Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINE_STRIP, vertices));
 
                 PreferenceManager& prefs = PreferenceManager::instance();
-                renderBatch.addOneShot(new Renderer::RenderOccludedEdges(m_traceRenderer, true, prefs.get(Preferences::OccludedMoveTraceColor)));
-                renderBatch.addOneShot(new Renderer::RenderUnoccludedEdges(m_traceRenderer, true, prefs.get(Preferences::MoveTraceColor)));
+                renderBatch.addOneShot(new Renderer::RenderOccludedEdges(Reference::ref(m_traceRenderer), true, prefs.get(Preferences::OccludedMoveTraceColor)));
+                renderBatch.addOneShot(new Renderer::RenderUnoccludedEdges(Reference::ref(m_traceRenderer), true, prefs.get(Preferences::MoveTraceColor)));
             }
         }
     }

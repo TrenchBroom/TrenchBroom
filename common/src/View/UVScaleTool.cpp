@@ -23,6 +23,7 @@
 #include "Model/BrushVertex.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/ModelTypes.h"
+#include "Renderer/EdgeRenderer.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -175,8 +176,8 @@ namespace TrenchBroom {
             EdgeVertex::List vertices = getHandleVertices(hits);
             const Color color(1.0f, 1.0f, 0.0f);
             
-            m_handleRenderer = Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(m_handleRenderer, true, color);
+            Renderer::EdgeRenderer handleRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
+            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(Reference::swap(handleRenderer), true, color);
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
         }

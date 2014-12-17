@@ -87,7 +87,7 @@ namespace TrenchBroom {
             }
         }
 
-        RenderEdges::RenderEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
+        RenderEdges::RenderEdges(const TypedReference<EdgeRenderer>& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
         m_edgeRenderer(edgeRenderer),
         m_useColor(useColor),
         m_edgeColor(edgeColor),
@@ -101,7 +101,8 @@ namespace TrenchBroom {
         }
 
         void RenderEdges::doPrepare(Vbo& vbo) {
-            m_edgeRenderer.prepare(vbo);
+            EdgeRenderer& edgeRenderer = m_edgeRenderer.get();
+            edgeRenderer.prepare(vbo);
         }
         
         void RenderEdges::doRender(RenderContext& renderContext) {
@@ -112,9 +113,10 @@ namespace TrenchBroom {
                 glLineWidth(m_width);
             
             before(renderContext);
-            m_edgeRenderer.setUseColor(m_useColor);
-            m_edgeRenderer.setColor(m_edgeColor);
-            m_edgeRenderer.render(renderContext);
+            EdgeRenderer& edgeRenderer = m_edgeRenderer.get();
+            edgeRenderer.setUseColor(m_useColor);
+            edgeRenderer.setColor(m_edgeColor);
+            edgeRenderer.render(renderContext);
             after(renderContext);
             
             if (m_width != 1.0f)
@@ -124,13 +126,13 @@ namespace TrenchBroom {
                 glResetEdgeOffset();
         }
         
-        RenderUnoccludedEdges::RenderUnoccludedEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
+        RenderUnoccludedEdges::RenderUnoccludedEdges(const TypedReference<EdgeRenderer>& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
         RenderEdges(edgeRenderer, useColor, edgeColor, offset) {}
 
         void RenderUnoccludedEdges::before(RenderContext& renderContext) {}
         void RenderUnoccludedEdges::after(RenderContext& renderContext) {}
 
-        RenderOccludedEdges::RenderOccludedEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
+        RenderOccludedEdges::RenderOccludedEdges(const TypedReference<EdgeRenderer>& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
         RenderEdges(edgeRenderer, useColor, edgeColor, offset) {}
 
         void RenderOccludedEdges::before(RenderContext& renderContext) {

@@ -209,7 +209,7 @@ namespace TrenchBroom {
             EdgeVertex::List vertices = getHandleVertices(inputState.hits());
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(edgeRenderer, false);
+            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(Reference::swap(edgeRenderer), false);
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
         }

@@ -281,6 +281,8 @@ namespace TrenchBroom {
                 shader.set("CameraZoom", m_helper.cameraZoom());
                 shader.set("Texture", 0);
                 
+                m_vertexArray.render();
+                
                 texture->deactivate();
             }
         };
@@ -310,7 +312,7 @@ namespace TrenchBroom {
             const Color edgeColor(1.0f, 1.0f, 1.0f, 0.8f); // TODO: make this a preference
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINE_LOOP, edgeVertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderUnoccludedEdges(edgeRenderer, true, edgeColor);
+            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(Reference::swap(edgeRenderer), true, edgeColor);
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
         }
@@ -333,7 +335,7 @@ namespace TrenchBroom {
             vertices.push_back(Vertex(center + 32.0 * yAxis, pref(Preferences::YAxisColor)));
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(edgeRenderer, false);
+            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(Reference::swap(edgeRenderer), false);
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
             

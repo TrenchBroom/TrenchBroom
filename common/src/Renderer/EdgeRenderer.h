@@ -21,6 +21,7 @@
 #define __TrenchBroom__EdgeRenderer__
 
 #include "Color.h"
+#include "Reference.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexSpec.h"
@@ -56,13 +57,13 @@ namespace TrenchBroom {
         // TODO: rename to RenderEdgesBase or something
         class RenderEdges : public Renderable {
         protected:
-            EdgeRenderer& m_edgeRenderer;
+            TypedReference<EdgeRenderer> m_edgeRenderer;
             bool m_useColor;
             const Color& m_edgeColor;
             float m_offset;
             float m_width;
         public:
-            RenderEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor, float offset);
+            RenderEdges(const TypedReference<EdgeRenderer>& edgeRenderer, bool useColor, const Color& edgeColor, float offset);
             virtual ~RenderEdges();
             
             void setWidth(float width);
@@ -76,7 +77,7 @@ namespace TrenchBroom {
         // TODO: rename to RenderEdges
         class RenderUnoccludedEdges : public RenderEdges {
         public:
-            RenderUnoccludedEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor = Color(), float offset = 0.2f);
+            RenderUnoccludedEdges(const TypedReference<EdgeRenderer>& edgeRenderer, bool useColor, const Color& edgeColor = Color(), float offset = 0.2f);
         private:
             void before(RenderContext& renderContext);
             void after(RenderContext& renderContext);
@@ -86,7 +87,7 @@ namespace TrenchBroom {
         // TODO: rename to RenderEdgesOnTop
         class RenderOccludedEdges : public RenderEdges {
         public:
-            RenderOccludedEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor = Color(), float offset = 0.0f);
+            RenderOccludedEdges(const TypedReference<EdgeRenderer>& edgeRenderer, bool useColor, const Color& edgeColor = Color(), float offset = 0.0f);
         private:
             virtual void before(RenderContext& renderContext);
             virtual void after(RenderContext& renderContext);
