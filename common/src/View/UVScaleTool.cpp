@@ -25,7 +25,6 @@
 #include "Model/ModelTypes.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
-#include "Renderer/EdgeRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexSpec.h"
 #include "View/MapDocument.h"
@@ -163,15 +162,6 @@ namespace TrenchBroom {
             return position - distance;
         }
         
-        class UVScaleTool::Render : public Renderer::Renderable {
-        private:
-            void doPrepare(Renderer::Vbo& vbo) {
-            }
-            
-            void doRender(Renderer::RenderContext& renderContext) {
-            }
-        };
-        
         void UVScaleTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (!m_helper.valid())
                 return;
@@ -185,10 +175,9 @@ namespace TrenchBroom {
             EdgeVertex::List vertices = getHandleVertices(hits);
             const Color color(1.0f, 1.0f, 0.0f);
             
-            Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(edgeRenderer, true, color);
+            m_handleRenderer = Renderer::EdgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
+            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(m_handleRenderer, true, color);
             renderEdges->setWidth(2.0f);
-            
             renderBatch.addOneShot(renderEdges);
         }
 

@@ -184,7 +184,6 @@ namespace TrenchBroom {
                 document->commitPendingAssets();
                 
                 Renderer::RenderContext renderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
-                
                 Renderer::RenderBatch renderBatch(sharedVbo());
                 
                 setupGL(renderContext);
@@ -192,6 +191,8 @@ namespace TrenchBroom {
                 renderFace(renderContext, renderBatch);
                 renderTextureAxes(renderContext, renderBatch);
                 renderToolBox(renderContext, renderBatch);
+                
+                renderBatch.render(renderContext);
             }
         }
         

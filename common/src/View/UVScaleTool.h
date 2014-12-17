@@ -21,6 +21,7 @@
 #define __TrenchBroom__UVScaleTool__
 
 #include "Hit.h"
+#include "Renderer/EdgeRenderer.h"
 #include "Renderer/VertexSpec.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
@@ -50,6 +51,8 @@ namespace TrenchBroom {
             Vec2i m_handle;
             Vec2b m_selector;
             Vec2f m_lastHitPoint; // in non-scaled, non-translated texture coordinates
+            
+            Renderer::EdgeRenderer m_handleRenderer;
         public:
             UVScaleTool(MapDocumentWPtr document, UVViewHelper& helper);
         private:
@@ -67,7 +70,6 @@ namespace TrenchBroom {
             Vec2f getHandlePos() const;
             Vec2f snap(const Vec2f& position) const;
 
-            class Render;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             EdgeVertex::List getHandleVertices(const Hits& hits) const;
         };

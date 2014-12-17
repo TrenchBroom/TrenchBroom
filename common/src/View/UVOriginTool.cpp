@@ -201,8 +201,6 @@ namespace TrenchBroom {
             if (!m_helper.valid())
                 return;
 
-            
-            
             renderLineHandles(inputState, renderContext, renderBatch);
             renderOriginHandle(inputState, renderContext, renderBatch);
         }

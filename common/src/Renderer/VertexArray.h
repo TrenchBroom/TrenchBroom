@@ -143,7 +143,10 @@ namespace TrenchBroom {
             BaseHolder::CountArray m_counts;
         public:
             SwapHolder(VertexList& vertices, BaseHolder::IndexArray& indices, BaseHolder::CountArray& counts) :
-            Holder<VertexSpec>(vertices.size()) {
+            Holder<VertexSpec>(vertices.size()),
+            m_vertices(0),
+            m_indices(0),
+            m_counts(0) {
                 using std::swap;
                 swap(m_vertices, vertices);
                 swap(m_indices, indices);
