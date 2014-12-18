@@ -346,7 +346,6 @@ namespace TrenchBroom {
             renderEdges->setRenderOccluded();
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
-            
         }
 
         void UVView::renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
