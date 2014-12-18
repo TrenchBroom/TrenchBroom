@@ -301,18 +301,21 @@ namespace TrenchBroom {
             
             const Model::BrushFace* face = m_helper.face();
             const Model::BrushVertexList& faceVertices = face->vertices();
-            const size_t count = faceVertices.size();
+            const size_t vertexCount = faceVertices.size();
             
             typedef Renderer::VertexSpecs::P3::Vertex Vertex;
-            Vertex::List edgeVertices(count);
+            Vertex::List edgeVertices;
+            edgeVertices.reserve(vertexCount);
             
-            for (size_t i = 0; i < count; ++i)
-                edgeVertices[i] = Vertex(faceVertices[i]->position);
+            for (size_t i = 0; i < vertexCount; ++i)
+                edgeVertices.push_back(Vertex(faceVertices[i]->position));
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 0.8f); // TODO: make this a preference
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINE_LOOP, edgeVertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(Reference::swap(edgeRenderer), true, edgeColor);
+            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
+            renderEdges->setOnTop(true);
+            renderEdges->setColor(edgeColor);
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
         }
@@ -335,7 +338,7 @@ namespace TrenchBroom {
             vertices.push_back(Vertex(center + 32.0 * yAxis, pref(Preferences::YAxisColor)));
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(Reference::swap(edgeRenderer), false);
+            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
             

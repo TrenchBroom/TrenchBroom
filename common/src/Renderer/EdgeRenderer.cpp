@@ -87,17 +87,33 @@ namespace TrenchBroom {
             }
         }
 
-        RenderEdges::RenderEdges(const TypedReference<EdgeRenderer>& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
+        RenderEdges::RenderEdges(const TypedReference<EdgeRenderer>& edgeRenderer) :
         m_edgeRenderer(edgeRenderer),
-        m_useColor(useColor),
-        m_edgeColor(edgeColor),
-        m_offset(offset),
+        m_onTop(false),
+        m_useColor(false),
+        m_offset(0.0f),
         m_width(1.0f) {}
         
-        RenderEdges::~RenderEdges() {}
+        void RenderEdges::setOnTop(const bool onTop) {
+            m_onTop = onTop;
+        }
+        
+        void RenderEdges::setColor(const Color& color) {
+            m_useColor = true;
+            m_edgeColor = color;
+        }
 
         void RenderEdges::setWidth(const float width) {
             m_width = width;
+        }
+        
+        void RenderEdges::setOffset(const float offset) {
+            m_offset = offset;
+        }
+
+        void RenderEdges::setRenderOccluded(const float offset) {
+            setOnTop(true);
+            setOffset(offset);
         }
 
         void RenderEdges::doPrepare(Vbo& vbo) {
@@ -112,35 +128,22 @@ namespace TrenchBroom {
             if (m_width != 1.0f)
                 glLineWidth(m_width);
             
-            before(renderContext);
+            if (m_onTop)
+                glDisable(GL_DEPTH_TEST);
+            
             EdgeRenderer& edgeRenderer = m_edgeRenderer.get();
             edgeRenderer.setUseColor(m_useColor);
             edgeRenderer.setColor(m_edgeColor);
             edgeRenderer.render(renderContext);
-            after(renderContext);
+            
+            if (m_onTop)
+                glEnable(GL_DEPTH_TEST);
             
             if (m_width != 1.0f)
                 glLineWidth(1.0f);
             
             if (m_offset != 0.0f)
                 glResetEdgeOffset();
-        }
-        
-        RenderUnoccludedEdges::RenderUnoccludedEdges(const TypedReference<EdgeRenderer>& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
-        RenderEdges(edgeRenderer, useColor, edgeColor, offset) {}
-
-        void RenderUnoccludedEdges::before(RenderContext& renderContext) {}
-        void RenderUnoccludedEdges::after(RenderContext& renderContext) {}
-
-        RenderOccludedEdges::RenderOccludedEdges(const TypedReference<EdgeRenderer>& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
-        RenderEdges(edgeRenderer, useColor, edgeColor, offset) {}
-
-        void RenderOccludedEdges::before(RenderContext& renderContext) {
-            glDisable(GL_DEPTH_TEST);
-        }
-        
-        void RenderOccludedEdges::after(RenderContext& renderContext) {
-            glEnable(GL_DEPTH_TEST);
         }
     }
 }

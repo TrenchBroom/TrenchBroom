@@ -177,7 +177,8 @@ namespace TrenchBroom {
             const Color color(1.0f, 1.0f, 0.0f);
             
             Renderer::EdgeRenderer handleRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(Reference::swap(handleRenderer), true, color);
+            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(handleRenderer));
+            renderEdges->setColor(color);
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
         }

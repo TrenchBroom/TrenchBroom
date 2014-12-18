@@ -54,44 +54,26 @@ namespace TrenchBroom {
             void doRender(RenderContext& context);
         };
 
-        // TODO: rename to RenderEdgesBase or something
         class RenderEdges : public Renderable {
         protected:
             TypedReference<EdgeRenderer> m_edgeRenderer;
+            bool m_onTop;
             bool m_useColor;
-            const Color& m_edgeColor;
+            Color m_edgeColor;
             float m_offset;
             float m_width;
         public:
-            RenderEdges(const TypedReference<EdgeRenderer>& edgeRenderer, bool useColor, const Color& edgeColor, float offset);
-            virtual ~RenderEdges();
-            
+            RenderEdges(const TypedReference<EdgeRenderer>& edgeRenderer);
+
+            void setOnTop(bool onTop);
+            void setColor(const Color& color);
             void setWidth(float width);
+            void setOffset(float offset);
+            
+            void setRenderOccluded(float offset = 0.2f);
         private:
             void doPrepare(Vbo& vbo);
             void doRender(RenderContext& renderContext);
-            virtual void before(RenderContext& renderContext) = 0;
-            virtual void after(RenderContext& renderContext) = 0;
-        };
-        
-        // TODO: rename to RenderEdges
-        class RenderUnoccludedEdges : public RenderEdges {
-        public:
-            RenderUnoccludedEdges(const TypedReference<EdgeRenderer>& edgeRenderer, bool useColor, const Color& edgeColor = Color(), float offset = 0.2f);
-        private:
-            void before(RenderContext& renderContext);
-            void after(RenderContext& renderContext);
-            void doRenderEdges(RenderContext& renderContext);
-        };
-
-        // TODO: rename to RenderEdgesOnTop
-        class RenderOccludedEdges : public RenderEdges {
-        public:
-            RenderOccludedEdges(const TypedReference<EdgeRenderer>& edgeRenderer, bool useColor, const Color& edgeColor = Color(), float offset = 0.0f);
-        private:
-            virtual void before(RenderContext& renderContext);
-            virtual void after(RenderContext& renderContext);
-            void doRenderEdges(RenderContext& renderContext);
         };
     }
 }

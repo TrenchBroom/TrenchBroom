@@ -58,7 +58,7 @@ namespace TrenchBroom {
                 
                 const Ray3& pickRay = inputState.pickRay();
                 const Ray3::PointDistance oDistance = pickRay.distanceToPoint(origin);
-                if (oDistance.distance <= 2.0f * OriginHandleRadius / m_helper.cameraZoom()) {
+                if (oDistance.distance <= OriginHandleRadius / m_helper.cameraZoom()) {
                     const Vec3 hitPoint = pickRay.pointAtDistance(oDistance.rayDistance);
                     hits.addHit(Hit(XHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
                     hits.addHit(Hit(YHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
@@ -209,8 +209,9 @@ namespace TrenchBroom {
             EdgeVertex::List vertices = getHandleVertices(inputState.hits());
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
-            Renderer::RenderEdges* renderEdges = new Renderer::RenderOccludedEdges(Reference::swap(edgeRenderer), false);
+            Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
             renderEdges->setWidth(2.0f);
+            renderEdges->setRenderOccluded();
             renderBatch.addOneShot(renderEdges);
         }
 
@@ -240,13 +241,11 @@ namespace TrenchBroom {
             const UVViewHelper& m_helper;
             bool m_highlight;
             Renderer::Circle m_originHandle;
-            Renderer::Circle m_highlightHandle;
         public:
-            RenderOrigin(const UVViewHelper& helper, const float originRadius, const float highlightRadius, const bool highlight) :
+            RenderOrigin(const UVViewHelper& helper, const float originRadius, const bool highlight) :
             m_helper(helper),
             m_highlight(highlight),
-            m_originHandle(makeCircle(m_helper, originRadius, 16, true)),
-            m_highlightHandle(makeCircle(m_helper, highlightRadius, 32, false)) {}
+            m_originHandle(makeCircle(m_helper, originRadius, 16, true)) {}
         private:
             static Renderer::Circle makeCircle(const UVViewHelper& helper, const float radius, const size_t segments, const bool fill) {
                 const float zoom = helper.cameraZoom();
@@ -255,8 +254,6 @@ namespace TrenchBroom {
         private:
             void doPrepare(Renderer::Vbo& vbo) {
                 m_originHandle.prepare(vbo);
-                if (m_highlight)
-                    m_highlightHandle.prepare(vbo);
             }
             
             void doRender(Renderer::RenderContext& renderContext) {
@@ -276,13 +273,8 @@ namespace TrenchBroom {
                 const Renderer::MultiplyModelMatrix centerTransform(renderContext.transformation(), translation);
                 
                 Renderer::ActiveShader shader(renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
-                shader.set("Color", handleColor);
+                shader.set("Color", m_highlight ? highlightColor : handleColor);
                 m_originHandle.render();
-                
-                if (m_highlight) {
-                    shader.set("Color", highlightColor);
-                    m_highlightHandle.render();
-                }
             }
         };
         
@@ -292,7 +284,7 @@ namespace TrenchBroom {
             const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
             
             const bool highlight = xHandleHit.isMatch() && yHandleHit.isMatch();;
-            renderBatch.addOneShot(new RenderOrigin(m_helper, OriginHandleRadius, OriginHandleRadius / 2.0f, highlight));
+            renderBatch.addOneShot(new RenderOrigin(m_helper, OriginHandleRadius, highlight));
         }
     }
 }
