@@ -271,7 +271,7 @@ namespace TrenchBroom {
 
         void ModEditor::preferenceDidChange(const IO::Path& path) {
             MapDocumentSPtr document = lock(m_document);
-            if (document->game()->isGamePathPreference(path)) {
+            if (document->isGamePathPreference(path)) {
                 updateAvailableMods();
                 updateMods();
             }

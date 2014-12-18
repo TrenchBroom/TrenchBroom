@@ -22,7 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Holder.h"
+#include "Reference.h"
 #include "SharedPointer.h"
 
 #include <list>
@@ -39,19 +39,19 @@ namespace TrenchBroom {
         HitType m_type;
         FloatType m_distance;
         Vec3 m_hitPoint;
-        BaseHolder::Ptr m_holder;
+        UntypedReference m_target;
         FloatType m_error;
     public:
         template <typename T>
-        Hit(const HitType type, const FloatType distance, const Vec3& hitPoint, T target, const FloatType error = 0.0) :
+        Hit(const HitType type, const FloatType distance, const Vec3& hitPoint, const T& target, const FloatType error = 0.0) :
         m_type(type),
         m_distance(distance),
         m_hitPoint(hitPoint),
-        m_holder(Holder<T>::newHolder(target)),
+        m_target(Reference::copy(target)),
         m_error(error) {}
         
         template <typename T>
-        static Hit hit(const HitType type, const FloatType distance, const Vec3& hitPoint, T target, const FloatType error = 0.0) {
+        static Hit hit(const HitType type, const FloatType distance, const Vec3& hitPoint, const T& target, const FloatType error = 0.0) {
             return Hit(type, distance, hitPoint, target);
         }
         
@@ -63,8 +63,9 @@ namespace TrenchBroom {
         FloatType error() const;
         
         template <typename T>
-        T target() const {
-            return m_holder->object<T>();
+        const T& target() const {
+            TypedReference<T> target(m_target);
+            return target.get();
         }
     };
 

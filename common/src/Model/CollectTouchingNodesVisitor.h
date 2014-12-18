@@ -34,7 +34,7 @@ namespace TrenchBroom {
             bool operator()(const Node* node) const;
         };
         
-        class CollectTouchingNodesVisitor : public CollectMatchingNodesVisitor<And<Not<EqualsObject>, MatchTouchingNodes>, UniqueNodeCollectionStrategy> {
+        class CollectTouchingNodesVisitor : public CollectMatchingNodesVisitor<NodePredicates::And<NodePredicates::Not<NodePredicates::EqualsObject>, MatchTouchingNodes>, UniqueNodeCollectionStrategy> {
         public:
             CollectTouchingNodesVisitor(const Object* object);
         };

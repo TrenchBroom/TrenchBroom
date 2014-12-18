@@ -43,6 +43,14 @@ namespace TrenchBroom {
         
         Camera::~Camera() {}
         
+        bool Camera::orthographicProjection() const {
+            return projectionType() == Projection_Orthographic;
+        }
+        
+        bool Camera::perspectiveProjection() const {
+            return projectionType() == Projection_Perspective;
+        }
+
         float Camera::nearPlane() const {
             return m_nearPlane;
         }
@@ -349,6 +357,10 @@ namespace TrenchBroom {
             assert(Math::eq(up.length(), 1.0f));
             setDirection(direction, up);
             updateZoomedViewport();
+        }
+
+        Camera::ProjectionType Camera::projectionType() const {
+            return doGetProjectionType();
         }
 
         void Camera::validateMatrices() const {

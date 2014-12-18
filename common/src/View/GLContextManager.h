@@ -53,6 +53,9 @@ namespace TrenchBroom {
             Renderer::Vbo& vbo();
             Renderer::FontManager& fontManager();
             Renderer::ShaderManager& shaderManager();
+        private:
+            GLContextManager(const GLContextManager& other);
+            GLContextManager& operator=(const GLContextManager& other);
         };
     }
 }

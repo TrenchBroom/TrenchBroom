@@ -40,7 +40,7 @@ namespace TrenchBroom {
         class ToolBoxConnector {
         private:
             wxWindow* m_window;
-            ToolBox& m_toolBox;
+            ToolBox* m_toolBox;
             ToolChain* m_toolChain;
             
             InputState m_inputState;
@@ -49,7 +49,7 @@ namespace TrenchBroom {
             wxPoint m_lastMousePos;
             bool m_ignoreNextDrag;
         public:
-            ToolBoxConnector(wxWindow* window, ToolBox& toolBox, InputSource inputSource);
+            ToolBoxConnector(wxWindow* window);
             virtual ~ToolBoxConnector();
             
             const Ray3& pickRay() const;
@@ -58,6 +58,7 @@ namespace TrenchBroom {
             void updateHits();
             void updateLastActivation();
         protected:
+            void setToolBox(ToolBox& toolBox);
             void addTool(Tool* tool);
         public: // drag and drop
             bool dragEnter(wxCoord x, wxCoord y, const String& text);

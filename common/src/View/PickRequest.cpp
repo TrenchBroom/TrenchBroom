@@ -26,9 +26,9 @@ namespace TrenchBroom {
         PickRequest::PickRequest() :
         m_camera(NULL) {}
         
-        PickRequest::PickRequest(const Ray3& pickRay, const Renderer::Camera* camera) :
+        PickRequest::PickRequest(const Ray3& pickRay, const Renderer::Camera& camera) :
         m_pickRay(pickRay),
-        m_camera(camera) {}
+        m_camera(&camera) {}
         
         const Ray3& PickRequest::pickRay() const {
             return m_pickRay;

@@ -37,7 +37,7 @@ namespace TrenchBroom {
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
             
-            void rotateTextures(MapDocumentCommandFacade* document, float angle) const;
+            bool rotateTextures(MapDocumentCommandFacade* document, float angle) const;
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;

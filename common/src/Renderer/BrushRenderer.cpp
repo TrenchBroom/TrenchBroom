@@ -148,9 +148,15 @@ namespace TrenchBroom {
         }
         
         void BrushRenderer::renderEdges(RenderBatch& renderBatch) {
-            if (m_showOccludedEdges)
-                renderBatch.addOneShot(new RenderOccludedEdges(m_edgeRenderer, true, m_occludedEdgeColor));
-            renderBatch.addOneShot(new RenderUnoccludedEdges(m_edgeRenderer, true, m_edgeColor));
+            if (m_showOccludedEdges) {
+                Renderer::RenderEdges* renderOccludedEdges = new Renderer::RenderEdges(Reference::ref(m_edgeRenderer));
+                renderOccludedEdges->setColor(m_occludedEdgeColor);
+                renderBatch.addOneShot(renderOccludedEdges);
+            }
+            
+            Renderer::RenderEdges* renderUnoccludedEdges = new Renderer::RenderEdges(Reference::ref(m_edgeRenderer));
+            renderUnoccludedEdges->setColor(m_edgeColor);
+            renderBatch.addOneShot(renderUnoccludedEdges);
         }
 
         class FilterWrapper : public BrushRenderer::Filter {

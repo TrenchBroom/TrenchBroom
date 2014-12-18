@@ -87,44 +87,63 @@ namespace TrenchBroom {
             }
         }
 
-        RenderEdges::RenderEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
+        RenderEdges::RenderEdges(const TypedReference<EdgeRenderer>& edgeRenderer) :
         m_edgeRenderer(edgeRenderer),
-        m_useColor(useColor),
-        m_edgeColor(edgeColor),
-        m_offset(offset) {}
+        m_onTop(false),
+        m_useColor(false),
+        m_offset(0.0f),
+        m_width(1.0f) {}
         
-        RenderEdges::~RenderEdges() {}
+        void RenderEdges::setOnTop(const bool onTop) {
+            m_onTop = onTop;
+        }
+        
+        void RenderEdges::setColor(const Color& color) {
+            m_useColor = true;
+            m_edgeColor = color;
+        }
+
+        void RenderEdges::setWidth(const float width) {
+            m_width = width;
+        }
+        
+        void RenderEdges::setOffset(const float offset) {
+            m_offset = offset;
+        }
+
+        void RenderEdges::setRenderOccluded(const float offset) {
+            setOnTop(true);
+            setOffset(offset);
+        }
 
         void RenderEdges::doPrepare(Vbo& vbo) {
-            m_edgeRenderer.prepare(vbo);
+            EdgeRenderer& edgeRenderer = m_edgeRenderer.get();
+            edgeRenderer.prepare(vbo);
         }
         
         void RenderEdges::doRender(RenderContext& renderContext) {
             if (m_offset != 0.0f)
                 glSetEdgeOffset(m_offset);
-            doRenderEdges(renderContext);
+            
+            if (m_width != 1.0f)
+                glLineWidth(m_width);
+            
+            if (m_onTop)
+                glDisable(GL_DEPTH_TEST);
+            
+            EdgeRenderer& edgeRenderer = m_edgeRenderer.get();
+            edgeRenderer.setUseColor(m_useColor);
+            edgeRenderer.setColor(m_edgeColor);
+            edgeRenderer.render(renderContext);
+            
+            if (m_onTop)
+                glEnable(GL_DEPTH_TEST);
+            
+            if (m_width != 1.0f)
+                glLineWidth(1.0f);
+            
             if (m_offset != 0.0f)
                 glResetEdgeOffset();
-        }
-        
-        RenderUnoccludedEdges::RenderUnoccludedEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
-        RenderEdges(edgeRenderer, useColor, edgeColor, offset) {}
-
-        void RenderUnoccludedEdges::doRenderEdges(RenderContext& renderContext) {
-            m_edgeRenderer.setUseColor(m_useColor);
-            m_edgeRenderer.setColor(m_edgeColor);
-            m_edgeRenderer.render(renderContext);
-        }
-        
-        RenderOccludedEdges::RenderOccludedEdges(EdgeRenderer& edgeRenderer, const bool useColor, const Color& edgeColor, const float offset) :
-        RenderEdges(edgeRenderer, useColor, edgeColor, offset) {}
-
-        void RenderOccludedEdges::doRenderEdges(RenderContext& renderContext) {
-            glDisable(GL_DEPTH_TEST);
-            m_edgeRenderer.setUseColor(m_useColor);
-            m_edgeRenderer.setColor(m_edgeColor);
-            m_edgeRenderer.render(renderContext);
-            glEnable(GL_DEPTH_TEST);
         }
     }
 }

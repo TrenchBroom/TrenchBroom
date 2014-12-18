@@ -143,8 +143,7 @@ namespace TrenchBroom {
         }
         
         bool CameraTool3D::orbit(const InputState& inputState) const {
-            return (inputState.inputSource() == IS_MapView3D &&
-                    inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
+            return (inputState.mouseButtonsPressed(MouseButtons::MBRight) &&
                     inputState.modifierKeysPressed(ModifierKeys::MKAlt));
         }
         

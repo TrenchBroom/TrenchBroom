@@ -78,7 +78,7 @@ namespace TrenchBroom {
         }
         
         RotateObjectsHandle::Hit RotateObjectsHandle::pick(const InputState& inputState) const {
-            if (inputState.inputSource() == IS_MapView3D)
+            if (inputState.camera().perspectiveProjection())
                 return pick3D(inputState.pickRay(), inputState.camera());
             else
                 return pick2D(inputState.pickRay(), inputState.camera());

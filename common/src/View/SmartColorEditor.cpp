@@ -94,7 +94,7 @@ namespace TrenchBroom {
             outerSizer->AddSpacer(LayoutConstants::WideHMargin);
             outerSizer->Add(leftSizer);
             outerSizer->AddSpacer(LayoutConstants::WideHMargin);
-            outerSizer->Add(new BorderLine(m_panel, BorderLine::Direction_Vertical));
+            outerSizer->Add(new BorderLine(m_panel, BorderLine::Direction_Vertical), 0, wxEXPAND);
             outerSizer->Add(m_colorHistory, 1, wxEXPAND);
             m_panel->SetSizer(outerSizer);
             

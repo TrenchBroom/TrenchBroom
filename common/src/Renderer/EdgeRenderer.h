@@ -21,6 +21,7 @@
 #define __TrenchBroom__EdgeRenderer__
 
 #include "Color.h"
+#include "Reference.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VertexSpec.h"
@@ -55,31 +56,24 @@ namespace TrenchBroom {
 
         class RenderEdges : public Renderable {
         protected:
-            EdgeRenderer& m_edgeRenderer;
+            TypedReference<EdgeRenderer> m_edgeRenderer;
+            bool m_onTop;
             bool m_useColor;
-            const Color& m_edgeColor;
+            Color m_edgeColor;
             float m_offset;
+            float m_width;
         public:
-            RenderEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor, float offset);
-            virtual ~RenderEdges();
+            RenderEdges(const TypedReference<EdgeRenderer>& edgeRenderer);
+
+            void setOnTop(bool onTop);
+            void setColor(const Color& color);
+            void setWidth(float width);
+            void setOffset(float offset);
+            
+            void setRenderOccluded(float offset = 0.2f);
         private:
             void doPrepare(Vbo& vbo);
             void doRender(RenderContext& renderContext);
-            virtual void doRenderEdges(RenderContext& renderContext) = 0;
-        };
-        
-        class RenderUnoccludedEdges : public RenderEdges {
-        public:
-            RenderUnoccludedEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor, float offset = 0.2f);
-        private:
-            void doRenderEdges(RenderContext& renderContext);
-        };
-
-        class RenderOccludedEdges : public RenderEdges {
-        public:
-            RenderOccludedEdges(EdgeRenderer& edgeRenderer, bool useColor, const Color& edgeColor, float offset = 0.0f);
-        private:
-            void doRenderEdges(RenderContext& renderContext);
         };
     }
 }

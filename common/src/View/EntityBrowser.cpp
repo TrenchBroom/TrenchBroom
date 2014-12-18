@@ -22,7 +22,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Model/Game.h"
 #include "View/EntityBrowserView.h"
 #include "View/ViewConstants.h"
 #include "View/MapDocument.h"
@@ -167,7 +166,7 @@ namespace TrenchBroom {
 
         void EntityBrowser::preferenceDidChange(const IO::Path& path) {
             MapDocumentSPtr document = lock(m_document);
-            if (document->game()->isGamePathPreference(path))
+            if (document->isGamePathPreference(path))
                 reload();
             else
                 m_view->Refresh();

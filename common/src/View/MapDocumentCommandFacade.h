@@ -73,6 +73,7 @@ namespace TrenchBroom {
         public: // brush face attributes
             void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             void performRotateTextures(float angle);
+            void performShearTextures(const Vec2f& factors);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
             Vec3::List performSnapVertices(const Model::BrushVerticesMap& vertices, size_t snapTo);

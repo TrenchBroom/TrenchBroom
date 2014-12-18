@@ -32,6 +32,7 @@
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectAttributableNodesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
+#include "Model/CollectMatchingBrushFacesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectTouchingNodesVisitor.h"
@@ -61,6 +62,7 @@
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
 #include "View/SetModsCommand.h"
+#include "View/ShearTexturesCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
 #include "View/SplitBrushFacesCommand.h"
@@ -119,6 +121,10 @@ namespace TrenchBroom {
             return m_world;
         }
 
+        bool MapDocument::isGamePathPreference(const IO::Path& path) const {
+            return m_game != NULL && m_game->isGamePathPreference(path);
+        }
+
         Model::Layer* MapDocument::currentLayer() const {
             assert(m_currentLayer != NULL);
             return m_currentLayer;
@@ -146,6 +152,10 @@ namespace TrenchBroom {
 
         Assets::EntityModelManager& MapDocument::entityModelManager() {
             return *m_entityModelManager;
+        }
+
+        Assets::TextureManager& MapDocument::textureManager() {
+            return *m_textureManager;
         }
 
         const View::MapViewConfig& MapDocument::mapViewConfig() const {
@@ -320,6 +330,14 @@ namespace TrenchBroom {
             return m_selectedNodes;
         }
         
+        const Model::BrushFaceList MapDocument::allSelectedBrushFaces() const {
+            if (hasSelectedBrushFaces())
+                return selectedBrushFaces();
+            Model::CollectBrushFacesVisitor visitor;
+            Model::Node::acceptAndRecurse(m_selectedNodes.begin(), m_selectedNodes.end(), visitor);
+            return visitor.faces();
+        }
+
         const Model::BrushFaceList& MapDocument::selectedBrushFaces() const {
             return m_selectedBrushFaces;
         }
@@ -535,6 +553,10 @@ namespace TrenchBroom {
                 request.setTexture(texture);
             }
             
+            return setFaceAttributes(request);
+        }
+
+        bool MapDocument::setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
             return submit(ChangeBrushFaceAttributesCommand::command(request));
         }
 
@@ -544,6 +566,10 @@ namespace TrenchBroom {
         
         bool MapDocument::rotateTextures(const float angle) {
             return submit(RotateTexturesCommand::rotate(angle));
+        }
+
+        bool MapDocument::shearTextures(const Vec2f& factors) {
+            return submit(ShearTexturesCommand::shear(factors));
         }
 
         void MapDocument::rebuildBrushGeometry(const Model::BrushList& brushes) {
@@ -696,8 +722,24 @@ namespace TrenchBroom {
             submit(EntityDefinitionFileCommand::set(spec));
         }
 
+        const StringList MapDocument::externalTextureCollectionNames() const {
+            return m_textureManager->externalCollectionNames();
+        }
+
         void MapDocument::addTextureCollection(const String& name) {
             submit(TextureCollectionCommand::add(name));
+        }
+
+        void MapDocument::moveTextureCollectionUp(const String& name) {
+            submit(TextureCollectionCommand::moveUp(name));
+        }
+        
+        void MapDocument::moveTextureCollectionDown(const String& name) {
+            submit(TextureCollectionCommand::moveDown(name));
+        }
+
+        void MapDocument::removeTextureCollections(const StringList& names) {
+            submit(TextureCollectionCommand::remove(names));
         }
 
         void MapDocument::loadAssets() {
@@ -1030,10 +1072,6 @@ namespace TrenchBroom {
                        path == Preferences::TextureMagFilter.path()) {
                 m_textureManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
             }
-        }
-
-        bool MapDocument::isGamePathPreference(const IO::Path& path) const {
-            return m_game != NULL && m_game->isGamePathPreference(path);
         }
 
         Transaction::Transaction(MapDocumentWPtr document, const String& name) :

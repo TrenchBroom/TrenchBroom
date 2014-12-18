@@ -195,6 +195,21 @@ namespace TrenchBroom {
         m_contentFlagsOp(FlagOp_None),
         m_surfaceValueOp(ValueOp_None) {}
 
+        void ChangeBrushFaceAttributesRequest::clear() {
+            m_texture = NULL;
+            m_xOffset = m_xOffset = 0.0f;
+            m_rotation = 0.0f;
+            m_xScale = m_yScale = 1.0f;
+            m_surfaceFlags = m_contentFlags = 0;
+            m_surfaceValue = 0.0f;
+            m_setTexture = false;
+            m_xOffsetOp = m_yOffsetOp = ValueOp_None;
+            m_rotationOp = ValueOp_None;
+            m_xScaleOp = m_yScaleOp = ValueOp_None;
+            m_surfaceFlagsOp = m_contentFlagsOp = FlagOp_None;
+            m_surfaceValueOp = ValueOp_None;
+        }
+        
         const String ChangeBrushFaceAttributesRequest::name() const {
             return "Change face attributes";
         }
@@ -221,6 +236,21 @@ namespace TrenchBroom {
             m_setTexture = true;
         }
         
+        void ChangeBrushFaceAttributesRequest::setOffset(const Vec2f& offset) {
+            setXOffset(offset.x());
+            setYOffset(offset.y());
+        }
+        
+        void ChangeBrushFaceAttributesRequest::addOffset(const Vec2f& offset) {
+            addXOffset(offset.x());
+            addYOffset(offset.y());
+        }
+        
+        void ChangeBrushFaceAttributesRequest::mulOffset(const Vec2f& offset) {
+            mulXOffset(offset.x());
+            mulYOffset(offset.y());
+        }
+
         void ChangeBrushFaceAttributesRequest::setXOffset(const float xOffset) {
             m_xOffset = xOffset;
             m_xOffsetOp = ValueOp_Set;
@@ -266,6 +296,21 @@ namespace TrenchBroom {
             m_rotationOp = ValueOp_Mul;
         }
         
+        void ChangeBrushFaceAttributesRequest::setScale(const Vec2f& scale) {
+            setXScale(scale.x());
+            setYScale(scale.y());
+        }
+        
+        void ChangeBrushFaceAttributesRequest::addScale(const Vec2f& scale) {
+            addXScale(scale.x());
+            addYScale(scale.y());
+        }
+        
+        void ChangeBrushFaceAttributesRequest::mulScale(const Vec2f& scale) {
+            mulXScale(scale.x());
+            mulYScale(scale.y());
+        }
+
         void ChangeBrushFaceAttributesRequest::setXScale(const float xScale) {
             m_xScale = xScale;
             m_xScaleOp = ValueOp_Set;

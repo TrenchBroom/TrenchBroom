@@ -198,9 +198,17 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderWireframeBounds(RenderBatch& renderBatch) {
-            if (m_showOccludedBounds)
-                renderBatch.addOneShot(new RenderOccludedEdges(m_wireframeBoundsRenderer, m_overrideBoundsColor, m_boundsColor));
-            renderBatch.addOneShot(new RenderUnoccludedEdges(m_wireframeBoundsRenderer, m_overrideBoundsColor, m_boundsColor));
+            if (m_showOccludedBounds) {
+                Renderer::RenderEdges* renderOccludedEdges = new Renderer::RenderEdges(Reference::ref(m_wireframeBoundsRenderer));
+                if (m_overrideBoundsColor)
+                    renderOccludedEdges->setColor(m_boundsColor);
+                renderBatch.addOneShot(renderOccludedEdges);
+            }
+            
+            Renderer::RenderEdges* renderUnoccludedEdges = new Renderer::RenderEdges(Reference::ref(m_wireframeBoundsRenderer));
+            if (m_overrideBoundsColor)
+                renderUnoccludedEdges->setColor(m_boundsColor);
+            renderBatch.addOneShot(renderUnoccludedEdges);
         }
         
         void EntityRenderer::renderSolidBounds(RenderBatch& renderBatch) {
