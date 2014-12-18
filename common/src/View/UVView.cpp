@@ -189,8 +189,8 @@ namespace TrenchBroom {
                 setupGL(renderContext);
                 renderTexture(renderContext, renderBatch);
                 renderFace(renderContext, renderBatch);
-                renderTextureAxes(renderContext, renderBatch);
                 renderToolBox(renderContext, renderBatch);
+                renderTextureAxes(renderContext, renderBatch);
                 
                 renderBatch.render(renderContext);
             }
@@ -324,21 +324,26 @@ namespace TrenchBroom {
             assert(m_helper.valid());
             
             const Model::BrushFace* face = m_helper.face();
-            const Vec3 xAxis = face->textureXAxis();
-            const Vec3 yAxis = face->textureYAxis();
+            const Vec3& normal = face->boundary().normal;
+            
+            const Vec3 xAxis = face->textureXAxis() - face->textureXAxis().dot(normal) * normal;
+            const Vec3 yAxis = face->textureYAxis() - face->textureYAxis().dot(normal) * normal;
             const Vec3 center = face->boundsCenter();
             
             typedef Renderer::VertexSpecs::P3C4::Vertex Vertex;
             Vertex::List vertices;
             vertices.reserve(4);
             
+            const FloatType length = 32.0 / FloatType(m_helper.cameraZoom());
+            
             vertices.push_back(Vertex(center, pref(Preferences::XAxisColor)));
-            vertices.push_back(Vertex(center + 32.0 * xAxis, pref(Preferences::XAxisColor)));
+            vertices.push_back(Vertex(center + length * xAxis, pref(Preferences::XAxisColor)));
             vertices.push_back(Vertex(center, pref(Preferences::YAxisColor)));
-            vertices.push_back(Vertex(center + 32.0 * yAxis, pref(Preferences::YAxisColor)));
+            vertices.push_back(Vertex(center + length * yAxis, pref(Preferences::YAxisColor)));
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
             Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
+            renderEdges->setRenderOccluded();
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
             
