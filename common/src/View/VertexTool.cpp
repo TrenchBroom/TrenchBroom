@@ -47,7 +47,8 @@ namespace TrenchBroom {
         const FloatType VertexTool::MaxVertexError = 0.01;
         
         VertexTool::VertexTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
-        MoveTool(document, movementRestriction),
+        ToolActivationDelegate(false),
+        MoveTool(document, *this, movementRestriction),
         m_handleManager(document),
         m_mode(Mode_Move),
         m_changeCount(0),
@@ -237,10 +238,6 @@ namespace TrenchBroom {
             document()->endTransaction();
             rebuildBrushGeometry();
             m_mode = Mode_Move;
-        }
-        
-        bool VertexTool::initiallyActive() const {
-            return false;
         }
         
         bool VertexTool::doActivate() {

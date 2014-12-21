@@ -34,21 +34,28 @@ namespace TrenchBroom {
     
     namespace View {
         class InputState;
+        class ToolActivationDelegate;
         
         class ActivationPolicy {
+        private:
+            ToolActivationDelegate& m_delegate;
         public:
+            ActivationPolicy(ToolActivationDelegate& delegate);
             virtual ~ActivationPolicy();
-            
-            virtual bool initiallyActive() const;
-            virtual bool doActivate() = 0;
-            virtual bool doDeactivate() = 0;
+
+            bool doIsActive() const;
+            bool doActivate();
+            bool doDeactivate();
         };
         
         class NoActivationPolicy {
+        private:
+            bool m_active;
         public:
+            NoActivationPolicy();
             ~NoActivationPolicy();
-            
-            bool initiallyActive() const;
+
+            bool doIsActive() const;
             bool doActivate();
             bool doDeactivate();
         };
@@ -206,30 +213,28 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             bool m_dragging;
-            bool m_active;
         public:
+            ToolImpl(MapDocumentWPtr document, ToolActivationDelegate& activationDelegate) :
+            ActivationPolicyType(activationDelegate),
+            m_document(document),
+            m_dragging(false) {}
+
             ToolImpl(MapDocumentWPtr document) :
             m_document(document),
-            m_dragging(false),
-            m_active(false) {
-                m_active = static_cast<ActivationPolicyType&>(*this).initiallyActive();
-            }
+            m_dragging(false) {}
             
             bool active() const {
-                return m_active;
+                return static_cast<const ActivationPolicyType&>(*this).doIsActive();
             }
             
             bool activate() {
                 assert(!active());
-                if (static_cast<ActivationPolicyType&>(*this).doActivate())
-                    m_active = true;
-                return m_active;
+                return static_cast<ActivationPolicyType&>(*this).doActivate();
             }
             
             void deactivate() {
                 assert(active());
-                if (static_cast<ActivationPolicyType&>(*this).doDeactivate())
-                    m_active = false;
+                static_cast<ActivationPolicyType&>(*this).doDeactivate();
             }
             
             bool cancel() {

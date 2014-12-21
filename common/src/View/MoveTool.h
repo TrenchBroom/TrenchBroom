@@ -35,12 +35,18 @@
 
 namespace TrenchBroom {
     namespace View {
+        class ToolActivationDelegate;
+        
         template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class DropPolicyType, class RenderPolicyType>
         class MoveTool : public ToolImpl<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, DropPolicyType, RenderPolicyType>, public MoveDelegate {
         private:
             typedef ToolImpl<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, DropPolicyType, RenderPolicyType> Super;
             MoveHelper m_helper;
         public:
+            MoveTool(MapDocumentWPtr document, ToolActivationDelegate& activationDelegate, MovementRestriction& movementRestriction) :
+            Super(document, activationDelegate),
+            m_helper(movementRestriction, *this) {}
+            
             MoveTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
             Super(document),
             m_helper(movementRestriction, *this) {}

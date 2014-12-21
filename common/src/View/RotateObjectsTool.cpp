@@ -42,7 +42,8 @@ namespace TrenchBroom {
         const Hit::HitType RotateObjectsTool::HandleHit = Hit::freeHitType();
 
         RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
-        ToolImpl(document),
+        ToolActivationDelegate(false),
+        ToolImpl(document, *this),
         m_toolPage(NULL),
         m_helper(NULL),
         m_moveHelper(movementRestriction, *this),
@@ -73,10 +74,6 @@ namespace TrenchBroom {
             m_handle.setPosition(center() + delta);
         }
 
-        bool RotateObjectsTool::initiallyActive() const {
-            return false;
-        }
-        
         bool RotateObjectsTool::doActivate() {
             if (!document()->hasSelectedNodes())
                 return false;

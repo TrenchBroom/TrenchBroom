@@ -26,6 +26,7 @@
 #include "Hit.h"
 #include "View/MoveTool.h"
 #include "View/Tool.h"
+#include "View/ToolActivationDelegate.h"
 #include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
@@ -43,7 +44,7 @@ namespace TrenchBroom {
         class MovementRestriction;
         class Selection;
         
-        class VertexTool : public MoveTool<ActivationPolicy, PickingPolicy, MousePolicy, NoDropPolicy, RenderPolicy> {
+        class VertexTool : public ToolActivationDelegate, public MoveTool<ActivationPolicy, PickingPolicy, MousePolicy, NoDropPolicy, RenderPolicy> {
         private:
             static const FloatType MaxVertexDistance;
             static const FloatType MaxVertexError;
@@ -84,7 +85,6 @@ namespace TrenchBroom {
             MoveResult doMove(const InputState& inputState, const Vec3& delta);
             void doEndMove(const InputState& inputState);
             
-            bool initiallyActive() const;
             bool doActivate();
             bool doDeactivate();
             

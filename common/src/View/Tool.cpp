@@ -20,18 +20,24 @@
 #include "Tool.h"
 
 #include "View/InputState.h"
+#include "View/ToolActivationDelegate.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
+        ActivationPolicy::ActivationPolicy(ToolActivationDelegate& delegate) : m_delegate(delegate) {}
         ActivationPolicy::~ActivationPolicy() {}
-        bool ActivationPolicy::initiallyActive() const { return false; }
+        
+        bool ActivationPolicy::doIsActive() const { return m_delegate.active(); }
+        bool ActivationPolicy::doActivate() { return m_delegate.activate(); }
+        bool ActivationPolicy::doDeactivate() { return m_delegate.deactivate(); }
 
+        NoActivationPolicy::NoActivationPolicy() : m_active(true) {}
         NoActivationPolicy::~NoActivationPolicy() {}
-        bool NoActivationPolicy::initiallyActive() const { return true; }
-        bool NoActivationPolicy::doActivate() { return true; }
-        bool NoActivationPolicy::doDeactivate() { return true; }
+        bool NoActivationPolicy::doIsActive() const { return m_active; }
+        bool NoActivationPolicy::doActivate() { m_active = true; return true; }
+        bool NoActivationPolicy::doDeactivate() { m_active = false; return true; }
 
         PickingPolicy::~PickingPolicy() {}
         NoPickingPolicy::~NoPickingPolicy() {}

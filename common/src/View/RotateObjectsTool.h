@@ -29,6 +29,7 @@
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateToolHelper.h"
 #include "View/Tool.h"
+#include "View/ToolActivationDelegate.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -38,7 +39,7 @@ namespace TrenchBroom {
     
     namespace View {
         class RotateObjectsToolPage;
-        class RotateObjectsTool : public ToolImpl<ActivationPolicy, PickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy>, public MoveDelegate, public RotateDelegate, public MapViewToolPage {
+        class RotateObjectsTool : public ToolActivationDelegate, public ToolImpl<ActivationPolicy, PickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy>, public MoveDelegate, public RotateDelegate, public MapViewToolPage {
         private:
             static const Hit::HitType HandleHit;
             
@@ -64,7 +65,6 @@ namespace TrenchBroom {
 
             void moveCenter(const Vec3& delta);
         private:
-            bool initiallyActive() const;
             bool doActivate();
             bool doDeactivate();
             
