@@ -353,6 +353,7 @@ namespace TrenchBroom {
         Face::Face(const BBoxf& worldBounds, bool forceIntegerFacePoints, const Vec3f& point1, const Vec3f& point2, const Vec3f& point3, const String& textureName) : m_worldBounds(worldBounds), m_textureName(textureName) {
             init();
             m_worldBounds = worldBounds;
+            m_forceIntegerFacePoints = forceIntegerFacePoints;
             m_points[0] = point1;
             m_points[1] = point2;
             m_points[2] = point3;
