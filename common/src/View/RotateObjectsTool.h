@@ -29,7 +29,7 @@
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateToolHelper.h"
 #include "View/Tool.h"
-#include "View/ToolActivationDelegate.h"
+#include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -39,16 +39,17 @@ namespace TrenchBroom {
     
     namespace View {
         class RotateObjectsToolPage;
-        class RotateObjectsTool : public ToolActivationDelegate, public ToolImpl<ActivationPolicy, PickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy>, public MoveDelegate, public RotateDelegate, public MapViewToolPage {
+        class RotateObjectsTool : public ToolAdapterBase<PickingPolicy, KeyPolicy, MousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy>, public Tool, public MoveToolDelegate, public RotateToolDelegate, public MapViewToolPage {
         private:
             static const Hit::HitType HandleHit;
             
+            MapDocumentWPtr m_document;
             RotateObjectsToolPage* m_toolPage;
             
             RotateObjectsHandle m_handle;
             PlaneDragHelper* m_helper;
-            MoveHelper m_moveHelper;
-            RotateHelper m_rotateHelper;
+            MoveToolHelper m_moveHelper;
+            RotateToolHelper m_rotateHelper;
             double m_angle;
             
             Renderer::PointGuideRenderer m_centerGuideRenderer;
@@ -67,6 +68,8 @@ namespace TrenchBroom {
         private:
             bool doActivate();
             bool doDeactivate();
+            
+            Tool* doGetTool();
             
             void doPick(const InputState& inputState, Hits& hits);
 
@@ -102,6 +105,8 @@ namespace TrenchBroom {
             void doEndRotate(const InputState& inputState);
             void doCancelRotate();
 
+            bool doCancel();
+            
             wxWindow* doCreatePage(wxWindow* parent);
         };
     }

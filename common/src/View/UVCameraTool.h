@@ -21,6 +21,7 @@
 #define __TrenchBroom__UVCameraTool__
 
 #include "View/Tool.h"
+#include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -29,17 +30,21 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class UVCameraTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class UVCameraTool : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             Renderer::OrthographicCamera& m_camera;
         public:
-            UVCameraTool(MapDocumentWPtr document, Renderer::OrthographicCamera& camera);
+            UVCameraTool(Renderer::OrthographicCamera& camera);
         private:
+            Tool* doGetTool();
+            
             void doScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
+            
+            bool doCancel();
         };
     }
 }

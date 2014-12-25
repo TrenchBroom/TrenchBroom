@@ -46,8 +46,14 @@ namespace TrenchBroom {
         const float UVRotateTool::RotateHandleWidth  =  5.0f;
 
         UVRotateTool::UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper) :
-        ToolImpl(document),
+        ToolAdapterBase(),
+        Tool(true),
+        m_document(document),
         m_helper(helper) {}
+        
+        Tool* UVRotateTool::doGetTool() {
+            return this;
+        }
         
         void UVRotateTool::doPick(const InputState& inputState, Hits& hits) {
             if (!m_helper.valid())
@@ -92,7 +98,8 @@ namespace TrenchBroom {
             const Vec2f hitPointInFaceCoords(toFace * angleHandleHit.hitPoint());
             m_initalAngle = measureAngle(hitPointInFaceCoords) - face->rotation();
 
-            document()->beginTransaction("Rotate Texture");
+            MapDocumentSPtr document = lock(m_document);
+            document->beginTransaction("Rotate Texture");
             
             return true;
         }
@@ -120,7 +127,9 @@ namespace TrenchBroom {
             
             Model::ChangeBrushFaceAttributesRequest request;
             request.setRotation(snappedAngle);
-            document()->setFaceAttributes(request);
+
+            MapDocumentSPtr document = lock(m_document);
+            document->setFaceAttributes(request);
             
             // Correct the offsets and the position of the rotation center.
             const Mat4x4 toFaceNew = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
@@ -132,7 +141,7 @@ namespace TrenchBroom {
             
             request.clear();
             request.setOffset(newOffset);
-            document()->setFaceAttributes(request);
+            document->setFaceAttributes(request);
             
             return true;
         }
@@ -176,12 +185,13 @@ namespace TrenchBroom {
         }
 
         void UVRotateTool::doEndMouseDrag(const InputState& inputState) {
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->commitTransaction();
         }
         
         void UVRotateTool::doCancelMouseDrag() {
-            document()->rollbackTransaction();
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
         }
 
         class UVRotateTool::Render : public Renderer::Renderable {
@@ -251,6 +261,10 @@ namespace TrenchBroom {
             const bool highlight = angleHandleHit.isMatch() || dragging();
             
             renderBatch.addOneShot(new Render(m_helper, CenterHandleRadius, RotateHandleRadius, highlight));
+        }
+        
+        bool UVRotateTool::doCancel() {
+            return false;
         }
     }
 }

@@ -41,8 +41,14 @@
 namespace TrenchBroom {
     namespace View {
         CreateEntityTool::CreateEntityTool(MapDocumentWPtr document) :
-        ToolImpl(document),
+        ToolAdapterBase(),
+        Tool(true),
+        m_document(document),
         m_entity(NULL) {}
+
+        Tool* CreateEntityTool::doGetTool() {
+            return this;
+        }
 
         bool CreateEntityTool::doDragEnter(const InputState& inputState, const String& payload) {
             assert(m_entity == NULL);
@@ -53,7 +59,8 @@ namespace TrenchBroom {
             if (parts[0] != "entity")
                 return false;
             
-            const Assets::EntityDefinitionManager& definitionManager = document()->entityDefinitionManager();
+            MapDocumentSPtr document = lock(m_document);
+            const Assets::EntityDefinitionManager& definitionManager = document->entityDefinitionManager();
             Assets::EntityDefinition* definition = definitionManager.definition(parts[1]);
             if (definition == NULL)
                 return false;
@@ -61,14 +68,14 @@ namespace TrenchBroom {
             if (definition->type() != Assets::EntityDefinition::Type_PointEntity)
                 return false;
 
-            const Model::World* world = document()->world();
+            const Model::World* world = document->world();
             m_entity = world->createEntity();
             m_entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
 
-            document()->beginTransaction("Create " + definition->name());
-            document()->deselectAll();
-            document()->addNode(m_entity, document()->currentLayer());
-            document()->select(m_entity);
+            document->beginTransaction("Create " + definition->name());
+            document->deselectAll();
+            document->addNode(m_entity, document->currentLayer());
+            document->select(m_entity);
             updateEntityPosition(inputState);
             
             return true;
@@ -82,14 +89,15 @@ namespace TrenchBroom {
         
         void CreateEntityTool::doDragLeave(const InputState& inputState) {
             assert(m_entity != NULL);
-            document()->rollbackTransaction();
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
             m_entity = NULL;
         }
         
         bool CreateEntityTool::doDragDrop(const InputState& inputState) {
             assert(m_entity != NULL);
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
             m_entity = NULL;
             return true;
         }
@@ -97,22 +105,28 @@ namespace TrenchBroom {
         void CreateEntityTool::updateEntityPosition(const InputState& inputState) {
             assert(m_entity != NULL);
 
+            MapDocumentSPtr document = lock(m_document);
+
             Vec3 delta;
-            const Grid& grid = document()->grid();
-            const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit, document()->editorContext(), true);
+            const Grid& grid = document->grid();
+            const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit, document->editorContext(), true);
             if (hit.isMatch()) {
                 const Model::BrushFace* face = Model::hitToFace(hit);
-                delta = grid.moveDeltaForBounds(face, m_entity->bounds(), document()->worldBounds(), inputState.pickRay(), hit.hitPoint());
+                delta = grid.moveDeltaForBounds(face, m_entity->bounds(), document->worldBounds(), inputState.pickRay(), hit.hitPoint());
             } else {
                 const Vec3 newPosition = inputState.defaultPointUnderMouse();
                 const Vec3 center = m_entity->bounds().center();
-                delta = grid.moveDeltaForPoint(center, document()->worldBounds(), newPosition - center);
+                delta = grid.moveDeltaForPoint(center, document->worldBounds(), newPosition - center);
             }
             
             if (delta.null())
                 return;
 
-            document()->translateObjects(delta);
+            document->translateObjects(delta);
+        }
+
+        bool CreateEntityTool::doCancel() {
+            return false;
         }
     }
 }

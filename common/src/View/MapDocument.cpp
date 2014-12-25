@@ -647,17 +647,17 @@ namespace TrenchBroom {
             doBeginTransaction(name);
         }
         
-        void MapDocument::endTransaction() {
-            doEndTransaction();
-        }
-        
         void MapDocument::rollbackTransaction() {
             doRollbackTransaction();
         }
 
+        void MapDocument::commitTransaction() {
+            doEndTransaction();
+        }
+        
         void MapDocument::cancelTransaction() {
-            rollbackTransaction();
-            endTransaction();
+            doRollbackTransaction();
+            doEndTransaction();
         }
 
         bool MapDocument::submit(UndoableCommand* command) {
@@ -1094,7 +1094,7 @@ namespace TrenchBroom {
 
         Transaction::~Transaction() {
             if (!m_cancelled)
-                end();
+                commit();
         }
 
         void Transaction::rollback() {
@@ -1110,8 +1110,8 @@ namespace TrenchBroom {
             m_document->beginTransaction(name);
         }
         
-        void Transaction::end() {
-            m_document->endTransaction();
+        void Transaction::commit() {
+            m_document->commitTransaction();
         }
     }
 }

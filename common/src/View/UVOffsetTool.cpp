@@ -32,8 +32,14 @@
 namespace TrenchBroom {
     namespace View {
         UVOffsetTool::UVOffsetTool(MapDocumentWPtr document, const UVViewHelper& helper) :
-        ToolImpl(document),
+        ToolAdapterBase(),
+        Tool(true),
+        m_document(document),
         m_helper(helper) {}
+        
+        Tool* UVOffsetTool::doGetTool() {
+            return this;
+        }
         
         bool UVOffsetTool::doStartMouseDrag(const InputState& inputState) {
             assert(m_helper.valid());
@@ -43,8 +49,9 @@ namespace TrenchBroom {
                 return false;
             
             m_lastPoint = computeHitPoint(inputState.pickRay());
-            
-            document()->beginTransaction("Move Texture");
+
+            MapDocumentSPtr document = lock(m_document);
+            document->beginTransaction("Move Texture");
             return true;
         }
         
@@ -63,19 +70,22 @@ namespace TrenchBroom {
             
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(corrected);
-            document()->setFaceAttributes(request);
+
+            MapDocumentSPtr document = lock(m_document);
+            document->setFaceAttributes(request);
             
             m_lastPoint += snapped;
             return true;
         }
         
         void UVOffsetTool::doEndMouseDrag(const InputState& inputState) {
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->commitTransaction();
         }
         
         void UVOffsetTool::doCancelMouseDrag() {
-            document()->rollbackTransaction();
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
         }
 
         Vec2f UVOffsetTool::computeHitPoint(const Ray3& ray) const {
@@ -107,5 +117,8 @@ namespace TrenchBroom {
             return m_helper.snapDelta(delta, distance);
         }
         
+        bool UVOffsetTool::doCancel() {
+            return false;
+        }
     }
 }

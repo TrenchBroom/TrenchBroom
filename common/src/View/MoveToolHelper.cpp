@@ -29,41 +29,41 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveDelegate::~MoveDelegate() {}
+        MoveToolDelegate::~MoveToolDelegate() {}
         
-        bool MoveDelegate::handleMove(const InputState& inputState) const {
+        bool MoveToolDelegate::handleMove(const InputState& inputState) const {
             return doHandleMove(inputState);
         }
         
-        Vec3 MoveDelegate::getMoveOrigin(const InputState& inputState) const {
+        Vec3 MoveToolDelegate::getMoveOrigin(const InputState& inputState) const {
             return doGetMoveOrigin(inputState);
         }
         
-        bool MoveDelegate::startMove(const InputState& inputState) {
+        bool MoveToolDelegate::startMove(const InputState& inputState) {
             return doStartMove(inputState);
         }
         
-        Vec3 MoveDelegate::snapDelta(const InputState& inputState, const Vec3& delta) const {
+        Vec3 MoveToolDelegate::snapDelta(const InputState& inputState, const Vec3& delta) const {
             return doSnapDelta(inputState, delta);
         }
         
-        MoveResult MoveDelegate::move(const InputState& inputState, const Vec3& delta) {
+        MoveResult MoveToolDelegate::move(const InputState& inputState, const Vec3& delta) {
             return doMove(inputState, delta);
         }
         
-        void MoveDelegate::endMove(const InputState& inputState) {
+        void MoveToolDelegate::endMove(const InputState& inputState) {
             doEndMove(inputState);
         }
         
-        void MoveDelegate::cancelMove() {
+        void MoveToolDelegate::cancelMove() {
             doCancelMove();
         }
 
-        MoveHelper::MoveHelper(MovementRestriction& movementRestriction, MoveDelegate& delegate) :
+        MoveToolHelper::MoveToolHelper(MovementRestriction& movementRestriction, MoveToolDelegate& delegate) :
         m_movementRestriction(movementRestriction),
         m_delegate(delegate) {}
         
-        bool MoveHelper::startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        bool MoveToolHelper::startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             if (!m_delegate.handleMove(inputState))
@@ -78,7 +78,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool MoveHelper::planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+        bool MoveToolHelper::planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
             const Vec3 delta = m_delegate.snapDelta(inputState, m_movementRestriction.apply(curPoint - refPoint));
             if (delta.null())
                 return true;
@@ -93,17 +93,17 @@ namespace TrenchBroom {
             return true;
         }
         
-        void MoveHelper::endPlaneDrag(const InputState& inputState) {
+        void MoveToolHelper::endPlaneDrag(const InputState& inputState) {
             m_delegate.endMove(inputState);
             m_trace.clear();
         }
         
-        void MoveHelper::cancelPlaneDrag() {
+        void MoveToolHelper::cancelPlaneDrag() {
             m_delegate.cancelMove();
             m_trace.clear();
         }
         
-        void MoveHelper::resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        void MoveToolHelper::resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             const FloatType distance = plane.intersectWithRay(inputState.pickRay());
             if (Math::isnan(distance))
                 return;
@@ -111,12 +111,12 @@ namespace TrenchBroom {
             plane = dragPlane(inputState, initialPoint);
         }
         
-        void MoveHelper::render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void MoveToolHelper::render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderMoveIndicator(inputState, renderContext, renderBatch);
             renderMoveTrace(renderContext, renderBatch);
         }
 
-        Plane3 MoveHelper::dragPlane(const InputState& inputState, const Vec3& initialPoint) const {
+        Plane3 MoveToolHelper::dragPlane(const InputState& inputState, const Vec3& initialPoint) const {
             if (m_movementRestriction.isRestricted(Math::Axis::AZ)) {
                 Vec3 planeNorm = inputState.pickRay().direction;
                 planeNorm[2] = 0.0;
@@ -126,7 +126,7 @@ namespace TrenchBroom {
             return horizontalDragPlane(initialPoint);
         }
         
-        void MoveHelper::addTracePoint(const Vec3& point) {
+        void MoveToolHelper::addTracePoint(const Vec3& point) {
             if (m_trace.size() < 2) {
                 m_trace.push_back(point);
             } else {
@@ -145,7 +145,7 @@ namespace TrenchBroom {
             }
         }
 
-        void MoveHelper::renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void MoveToolHelper::renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (renderContext.showMouseIndicators()) {
                 const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
                 const Renderer::MoveIndicatorRenderer::Direction direction = getDirection();
@@ -153,7 +153,7 @@ namespace TrenchBroom {
             }
         }
 
-        Renderer::MoveIndicatorRenderer::Direction MoveHelper::getDirection() const {
+        Renderer::MoveIndicatorRenderer::Direction MoveToolHelper::getDirection() const {
             if (m_movementRestriction.isRestricted(Math::Axis::AZ))
                 return Renderer::MoveIndicatorRenderer::Direction_Z;
             if (m_movementRestriction.isRestricted(Math::Axis::AX))
@@ -163,7 +163,7 @@ namespace TrenchBroom {
             return Renderer::MoveIndicatorRenderer::Direction_XY;
         }
         
-        void MoveHelper::renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void MoveToolHelper::renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (m_trace.size() > 1) {
                 typedef Renderer::VertexSpecs::P3::Vertex Vertex;
                 Vertex::List vertices = Vertex::fromLists(m_trace, m_trace.size());

@@ -21,6 +21,7 @@
 #include "SetBool.h"
 #include "View/InputState.h"
 #include "View/Tool.h"
+#include "View/ToolAdapter.h"
 #include "View/ToolChain.h"
 
 #include <cassert>
@@ -29,9 +30,9 @@ namespace TrenchBroom {
     namespace View {
         ToolBox::ToolBox() :
         m_dragReceiver(NULL),
-        m_modalReceiver(NULL),
         m_dropReceiver(NULL),
         m_savedDropReceiver(NULL),
+        m_modalTool(NULL),
         m_clickToActivate(true),
         m_ignoreNextClick(false),
         m_lastActivation(wxDateTime::Now()),
@@ -118,7 +119,7 @@ namespace TrenchBroom {
             
             if (m_dropReceiver == NULL) {
                 m_dropReceiver = m_savedDropReceiver;
-                m_dropReceiver->activate(); // GTK2 fix: has been deactivated by dragLeave()
+                m_dropReceiver->tool()->activate(); // GTK2 fix: has been deactivated by dragLeave()
                 m_dropReceiver->dragEnter(inputState, text);
             }
             
@@ -182,9 +183,9 @@ namespace TrenchBroom {
             m_dragReceiver = NULL;
         }
         
-        void ToolBox::mouseWheel(ToolChain* chain, const InputState& inputState) {
+        void ToolBox::mouseScroll(ToolChain* chain, const InputState& inputState) {
             if (m_enabled)
-                chain->scroll(inputState);
+                chain->mouseScroll(inputState);
         }
         
         bool ToolBox::cancel(ToolChain* chain) {
@@ -212,30 +213,30 @@ namespace TrenchBroom {
         }
 
         bool ToolBox::anyToolActive() const {
-            return m_modalReceiver != NULL;
+            return m_modalTool != NULL;
         }
         
         bool ToolBox::toolActive(const Tool* tool) const {
-            return m_modalReceiver == tool;
+            return m_modalTool == tool;
         }
         
         void ToolBox::toggleTool(Tool* tool) {
             if (tool == NULL) {
-                if (m_modalReceiver != NULL) {
-                    deactivateTool(m_modalReceiver);
-                    m_modalReceiver = NULL;
+                if (m_modalTool != NULL) {
+                    deactivateTool(m_modalTool);
+                    m_modalTool = NULL;
                 }
             } else {
-                if (m_modalReceiver == tool) {
-                    deactivateTool(m_modalReceiver);
-                    m_modalReceiver = NULL;
+                if (m_modalTool == tool) {
+                    deactivateTool(m_modalTool);
+                    m_modalTool = NULL;
                 } else {
-                    if (m_modalReceiver != NULL) {
-                        deactivateTool(m_modalReceiver);
-                        m_modalReceiver = NULL;
+                    if (m_modalTool != NULL) {
+                        deactivateTool(m_modalTool);
+                        m_modalTool = NULL;
                     }
                     if (activateTool(tool))
-                        m_modalReceiver = tool;
+                        m_modalTool = tool;
                 }
             }
         }
@@ -263,8 +264,8 @@ namespace TrenchBroom {
         }
         
         void ToolBox::renderTools(ToolChain* chain, const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            /* if (m_modalReceiver != NULL)
-                m_modalReceiver->renderOnly(m_inputState, renderContext);
+            /* if (m_modalTool != NULL)
+                m_modalTool->renderOnly(m_inputState, renderContext);
             else */
             chain->render(inputState, renderContext, renderBatch);
         }

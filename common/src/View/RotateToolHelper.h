@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "View/Tool.h"
+#include "View/ToolAdapter.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -41,9 +41,9 @@ namespace TrenchBroom {
             Plane3 plane;
         };
         
-        class RotateDelegate {
+        class RotateToolDelegate {
         public:
-            virtual ~RotateDelegate();
+            virtual ~RotateToolDelegate();
             
             bool handleRotate(const InputState& inputState) const;
             RotateInfo getRotateInfo(const InputState& inputState) const;
@@ -62,12 +62,12 @@ namespace TrenchBroom {
             virtual void doCancelRotate() = 0;
         };
         
-        class RotateHelper : public PlaneDragHelper {
+        class RotateToolHelper : public PlaneDragHelper {
         private:
             static const size_t SnapAngleKey;
             static const size_t AngleKey;
             
-            RotateDelegate& m_delegate;
+            RotateToolDelegate& m_delegate;
             Vec3 m_center;
             Vec3 m_axis;
             FloatType m_lastAngle;
@@ -75,7 +75,7 @@ namespace TrenchBroom {
             
             class AngleIndicatorRenderer;
         public:
-            RotateHelper(RotateDelegate& delegate);
+            RotateToolHelper(RotateToolDelegate& delegate);
             
             bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);

@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__MoveTool__
-#define __TrenchBroom__MoveTool__
+#ifndef __TrenchBroom__MoveToolAdapter__
+#define __TrenchBroom__MoveToolAdapter__
 
-#include "View/Tool.h"
+#include "View/ToolAdapter.h"
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
@@ -37,18 +37,13 @@ namespace TrenchBroom {
     namespace View {
         class ToolActivationDelegate;
         
-        template <class ActivationPolicyType, class PickingPolicyType, class MousePolicyType, class DropPolicyType, class RenderPolicyType>
-        class MoveTool : public ToolImpl<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, DropPolicyType, RenderPolicyType>, public MoveDelegate {
+        template <class PickingPolicyType, class MousePolicyType, class RenderPolicyType>
+        class MoveToolAdapter : public ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, PlaneDragPolicy, RenderPolicyType, NoDropPolicy>, public MoveToolDelegate {
         private:
-            typedef ToolImpl<ActivationPolicyType, PickingPolicyType, MousePolicyType, PlaneDragPolicy, DropPolicyType, RenderPolicyType> Super;
-            MoveHelper m_helper;
+            typedef ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, PlaneDragPolicy, RenderPolicyType, NoDropPolicy> Super;
+            MoveToolHelper m_helper;
         public:
-            MoveTool(MapDocumentWPtr document, ToolActivationDelegate& activationDelegate, MovementRestriction& movementRestriction) :
-            Super(document, activationDelegate),
-            m_helper(movementRestriction, *this) {}
-            
-            MoveTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
-            Super(document),
+            MoveToolAdapter(MovementRestriction& movementRestriction) :
             m_helper(movementRestriction, *this) {}
         protected:
             void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -63,10 +58,7 @@ namespace TrenchBroom {
             }
 
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-                if (!m_helper.startPlaneDrag(inputState, plane, initialPoint))
-                    return false;
-                Super::document()->beginTransaction(getActionName(inputState));
-                return true;
+                return m_helper.startPlaneDrag(inputState, plane, initialPoint);
             }
             
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
@@ -75,23 +67,15 @@ namespace TrenchBroom {
             
             void doEndPlaneDrag(const InputState& inputState) {
                 m_helper.endPlaneDrag(inputState);
-                Super::document()->endTransaction();
             }
             
             void doCancelPlaneDrag() {
                 m_helper.cancelPlaneDrag();
-                Super::document()->cancelTransaction();
             }
             
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
                 m_helper.resetPlane(inputState, plane, initialPoint);
             }
-            
-            String getActionName(const InputState& inputState) const {
-                return doGetActionName(inputState);
-            }
-
-            virtual String doGetActionName(const InputState& inputState) const = 0;
             
             // MoveDelegate protocol must be implemented by derived classes
             virtual bool doHandleMove(const InputState& inputState) const = 0;
@@ -100,7 +84,7 @@ namespace TrenchBroom {
             virtual Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const = 0;
             virtual MoveResult doMove(const InputState& inputState, const Vec3& delta) = 0;
             virtual void doEndMove(const InputState& inputState) {}
-            virtual void doCancelMove() {}
+            virtual void doCancelMove() = 0;
         };
     }
 }
@@ -109,4 +93,4 @@ namespace TrenchBroom {
 #pragma warning(pop)
 #endif
 
-#endif /* defined(__TrenchBroom__MoveTool__) */
+#endif /* defined(__TrenchBroom__MoveToolAdapter__) */

@@ -19,102 +19,43 @@
 
 #include "Tool.h"
 
-#include "View/InputState.h"
-#include "View/ToolActivationDelegate.h"
-
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        ActivationPolicy::ActivationPolicy(ToolActivationDelegate& delegate) : m_delegate(delegate) {}
-        ActivationPolicy::~ActivationPolicy() {}
-        
-        bool ActivationPolicy::doIsActive() const { return m_delegate.active(); }
-        bool ActivationPolicy::doActivate() { return m_delegate.activate(); }
-        bool ActivationPolicy::doDeactivate() { return m_delegate.deactivate(); }
+        Tool::Tool(const bool initiallyActive) :
+        m_active(initiallyActive) {}
 
-        NoActivationPolicy::NoActivationPolicy() : m_active(true) {}
-        NoActivationPolicy::~NoActivationPolicy() {}
-        bool NoActivationPolicy::doIsActive() const { return m_active; }
-        bool NoActivationPolicy::doActivate() { m_active = true; return true; }
-        bool NoActivationPolicy::doDeactivate() { m_active = false; return true; }
-
-        PickingPolicy::~PickingPolicy() {}
-        NoPickingPolicy::~NoPickingPolicy() {}
-        void NoPickingPolicy::doPick(const InputState& inputState, Hits& hits) {}
-
-        MousePolicy::~MousePolicy() {}
-        bool MousePolicy::doMouseDown(const InputState& inputState) { return false;}
-        bool MousePolicy::doMouseUp(const InputState& inputState) { return false; }
-        bool MousePolicy::doMouseDoubleClick(const InputState& inputState) { return false; }
-        void MousePolicy::doScroll(const InputState& inputState) {}
-        void MousePolicy::doMouseMove(const InputState& inputState) {}
-
-        NoMousePolicy::~NoMousePolicy() {}
-        bool NoMousePolicy::doMouseDown(const InputState& inputState) { return false; }
-        bool NoMousePolicy::doMouseUp(const InputState& inputState) { return false; }
-        bool NoMousePolicy::doMouseDoubleClick(const InputState& inputState) { return false; }
-        void NoMousePolicy::doScroll(const InputState& inputState) {}
-        void NoMousePolicy::doMouseMove(const InputState& inputState) {}
-
-        MouseDragPolicy::~MouseDragPolicy() {}
-        
-        NoMouseDragPolicy::~NoMouseDragPolicy() {}
-        bool NoMouseDragPolicy::doStartMouseDrag(const InputState& inputState) { return false; }
-        bool NoMouseDragPolicy::doMouseDrag(const InputState& inputState) { return false; }
-        void NoMouseDragPolicy::doEndMouseDrag(const InputState& inputState) {}
-        void NoMouseDragPolicy::doCancelMouseDrag() {}
-
-        PlaneDragPolicy::~PlaneDragPolicy() {}
-        
-        PlaneDragHelper::~PlaneDragHelper() {}
-        
-        bool PlaneDragPolicy::doStartMouseDrag(const InputState& inputState) {
-            if (doStartPlaneDrag(inputState, m_plane, m_lastPoint)) {
-                m_refPoint = m_lastPoint;
-                return true;
-            }
-            return false;
-        }
-        
-        bool PlaneDragPolicy::doMouseDrag(const InputState& inputState) {
-            const FloatType distance = m_plane.intersectWithRay(inputState.pickRay());
-            if (Math::isnan(distance))
-                return true;
-            
-            const Vec3 curPoint = inputState.pickRay().pointAtDistance(distance);
-            if (curPoint.equals(m_lastPoint))
-                return true;
-            
-            const bool result = doPlaneDrag(inputState, m_lastPoint, curPoint, m_refPoint);
-            m_lastPoint = curPoint;
-            return result;
-        }
-        
-        void PlaneDragPolicy::doEndMouseDrag(const InputState& inputState) {
-            doEndPlaneDrag(inputState);
-        }
-        
-        void PlaneDragPolicy::doCancelMouseDrag() {
-            doCancelPlaneDrag();
-        }
-        
-        void PlaneDragPolicy::resetPlane(const InputState& inputState) {
-            doResetPlane(inputState, m_plane, m_lastPoint);
-        }
-        
-        DropPolicy::~DropPolicy() {}
-
-        NoDropPolicy::~NoDropPolicy() {}
-        bool NoDropPolicy::doDragEnter(const InputState& inputState, const String& payload) { return false; }
-        bool NoDropPolicy::doDragMove(const InputState& inputState) { assert(false); return false; }
-        void NoDropPolicy::doDragLeave(const InputState& inputState) { assert(false); }
-        bool NoDropPolicy::doDragDrop(const InputState& inputState) { assert(false); return false; }
-
-        RenderPolicy::~RenderPolicy() {}
-        void RenderPolicy::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
-        void RenderPolicy::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
-        
         Tool::~Tool() {}
+        
+        bool Tool::active() const {
+            return m_active;
+        }
+        
+        bool Tool::activate() {
+            assert(!active());
+            if (doActivate()) {
+                m_active = true;
+                toolActivatedNotifier(this);
+            }
+            return m_active;
+        }
+        
+        bool Tool::deactivate() {
+            assert(active());
+            if (doDeactivate()) {
+                m_active = false;
+                toolDeactivatedNotifier(this);
+            }
+            return !m_active;
+        }
+        
+        bool Tool::doActivate() {
+            return true;
+        }
+        
+        bool Tool::doDeactivate() {
+            return true;
+        }
     }
 }

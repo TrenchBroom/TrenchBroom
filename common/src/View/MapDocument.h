@@ -250,8 +250,8 @@ namespace TrenchBroom {
             void clearRepeatableCommands();
         public: // transactions
             void beginTransaction(const String& name = "");
-            void endTransaction();
             void rollbackTransaction();
+            void commitTransaction();
             void cancelTransaction();
         private:
             bool submit(UndoableCommand* command);
@@ -361,7 +361,7 @@ namespace TrenchBroom {
             void cancel();
         private:
             void begin(const String& name);
-            void end();
+            void commit();
         };
     }
 }

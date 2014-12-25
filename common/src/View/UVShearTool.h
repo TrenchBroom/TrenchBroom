@@ -22,17 +22,19 @@
 
 #include "Hit.h"
 #include "View/Tool.h"
+#include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVShearTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class UVShearTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
             static const Hit::HitType XHandleHit;
             static const Hit::HitType YHandleHit;
         private:
+            MapDocumentWPtr m_document;
             UVViewHelper& m_helper;
             
             Vec2b m_selector;
@@ -43,6 +45,8 @@ namespace TrenchBroom {
         public:
             UVShearTool(MapDocumentWPtr document, UVViewHelper& helper);
         private:
+            Tool* doGetTool();
+            
             void doPick(const InputState& inputState, Hits& hits);
             
             bool doStartMouseDrag(const InputState& inputState);
@@ -51,6 +55,8 @@ namespace TrenchBroom {
             void doCancelMouseDrag();
             
             Vec2f getHit(const Ray3& pickRay) const;
+            
+            bool doCancel();
         };
     }
 }

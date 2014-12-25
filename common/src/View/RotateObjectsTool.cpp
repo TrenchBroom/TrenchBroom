@@ -42,8 +42,9 @@ namespace TrenchBroom {
         const Hit::HitType RotateObjectsTool::HandleHit = Hit::freeHitType();
 
         RotateObjectsTool::RotateObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
-        ToolActivationDelegate(false),
-        ToolImpl(document, *this),
+        ToolAdapterBase(),
+        Tool(false),
+        m_document(document),
         m_toolPage(NULL),
         m_helper(NULL),
         m_moveHelper(movementRestriction, *this),
@@ -65,8 +66,9 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsTool::resetHandlePosition() {
-            const BBox3& bounds = document()->selectionBounds();
-            const Vec3 position = document()->grid().snap(bounds.center());
+            MapDocumentSPtr document = lock(m_document);
+            const BBox3& bounds = document->selectionBounds();
+            const Vec3 position = document->grid().snap(bounds.center());
             m_handle.setPosition(position);
         }
 
@@ -75,7 +77,8 @@ namespace TrenchBroom {
         }
 
         bool RotateObjectsTool::doActivate() {
-            if (!document()->hasSelectedNodes())
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedNodes())
                 return false;
             if (m_firstActivation) {
                 resetHandlePosition();
@@ -88,8 +91,13 @@ namespace TrenchBroom {
             return true;
         }
         
+        Tool* RotateObjectsTool::doGetTool() {
+            return this;
+        }
+
         void RotateObjectsTool::doPick(const InputState& inputState, Hits& hits) {
-            if (!document()->hasSelectedNodes())
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedNodes())
                 return;
 
             const RotateObjectsHandle::Hit hit = m_handle.pick(inputState);
@@ -99,7 +107,7 @@ namespace TrenchBroom {
         
         void RotateObjectsTool::doModifierKeyChange(const InputState& inputState) {
             if (m_helper != NULL && dragging())
-                resetPlane(inputState);
+                static_cast<PlaneDragPolicy*>(this)->resetPlane(inputState);
         }
 
         bool RotateObjectsTool::doMouseDown(const InputState& inputState) {
@@ -211,7 +219,8 @@ namespace TrenchBroom {
         }
         
         Vec3 RotateObjectsTool::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
-            return document()->grid().snap(delta);
+            MapDocumentSPtr document = lock(m_document);
+            return document->grid().snap(delta);
         }
         
         MoveResult RotateObjectsTool::doMove(const InputState& inputState, const Vec3& delta) {
@@ -249,7 +258,8 @@ namespace TrenchBroom {
         }
         
         bool RotateObjectsTool::doStartRotate(const InputState& inputState) {
-            document()->beginTransaction("Rotate objects");
+            MapDocumentSPtr document = lock(m_document);
+            document->beginTransaction("Rotate objects");
 
             const Hit& hit = inputState.hits().findFirst(HandleHit, true);
             _UNUSED(hit);
@@ -262,31 +272,39 @@ namespace TrenchBroom {
         }
         
         FloatType RotateObjectsTool::doGetAngle(const InputState& inputState, const Vec3& handlePoint, const Vec3& curPoint, const Vec3& axis) const {
+            MapDocumentSPtr document = lock(m_document);
             const Vec3& cameraPos = inputState.pickRay().origin;
             const Vec3 handlePos = m_handle.getPointHandlePosition(RotateObjectsHandle::HitArea_Center, cameraPos);
             const Vec3 refVector = (handlePoint - handlePos).normalized();
             const Vec3 curVector = (curPoint - handlePos).normalized();
-            const FloatType angle = document()->grid().snapAngle(angleBetween(curVector, refVector, axis));
+            const FloatType angle = document->grid().snapAngle(angleBetween(curVector, refVector, axis));
             return Math::remainder(angle, Math::C::twoPi());
         }
         
         bool RotateObjectsTool::doRotate(const Vec3& center, const Vec3& axis, const FloatType angle) {
-            document()->rollbackTransaction();
-            document()->rotateObjects(center, axis, angle);
+            MapDocumentSPtr document = lock(m_document);
+            document->rollbackTransaction();
+            document->rotateObjects(center, axis, angle);
             return true;
         }
         
         void RotateObjectsTool::doEndRotate(const InputState& inputState) {
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->commitTransaction();
         }
         
         void RotateObjectsTool::doCancelRotate() {
-            document()->cancelTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
+        }
+
+        bool RotateObjectsTool::doCancel() {
+            return false;
         }
 
         wxWindow* RotateObjectsTool::doCreatePage(wxWindow* parent) {
             assert(m_toolPage == NULL);
-            m_toolPage = new RotateObjectsToolPage(parent, document(), this);
+            m_toolPage = new RotateObjectsToolPage(parent, m_document, this);
             return m_toolPage;
         }
     }

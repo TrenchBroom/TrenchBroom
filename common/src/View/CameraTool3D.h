@@ -23,6 +23,7 @@
 #include "VecMath.h"
 #include "Model/Picker.h"
 #include "View/Tool.h"
+#include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -31,8 +32,9 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CameraTool3D : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class CameraTool3D : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
+            MapDocumentWPtr m_document;
             Renderer::PerspectiveCamera& m_camera;
             bool m_orbit;
             Vec3f m_orbitCenter;
@@ -40,6 +42,8 @@ namespace TrenchBroom {
             CameraTool3D(MapDocumentWPtr document, Renderer::PerspectiveCamera& camera);
             void fly(int dx, int dy, bool forward, bool backward, bool left, bool right, unsigned int time);
         private:
+            Tool* doGetTool();
+            
             void doScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
@@ -56,6 +60,8 @@ namespace TrenchBroom {
             float panSpeedH() const;
             float panSpeedV() const;
             float moveSpeed(const bool altMode) const;
+            
+            bool doCancel();
         };
     }
 }

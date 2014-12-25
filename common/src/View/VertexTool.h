@@ -24,9 +24,8 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Hit.h"
-#include "View/MoveTool.h"
+#include "View/MoveToolAdapter.h"
 #include "View/Tool.h"
-#include "View/ToolActivationDelegate.h"
 #include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
@@ -44,7 +43,7 @@ namespace TrenchBroom {
         class MovementRestriction;
         class Selection;
         
-        class VertexTool : public ToolActivationDelegate, public MoveTool<ActivationPolicy, PickingPolicy, MousePolicy, NoDropPolicy, RenderPolicy> {
+        class VertexTool : public MoveToolAdapter<PickingPolicy, MousePolicy, RenderPolicy>, public Tool {
         private:
             static const FloatType MaxVertexDistance;
             static const FloatType MaxVertexError;
@@ -55,6 +54,7 @@ namespace TrenchBroom {
                 Mode_Snap
             } Mode;
 
+            MapDocumentWPtr m_document;
             VertexHandleManager m_handleManager;
             Mode m_mode;
             size_t m_changeCount;
@@ -77,6 +77,22 @@ namespace TrenchBroom {
 
             void rebuildBrushGeometry();
 
+            bool doActivate();
+            bool doDeactivate();
+            
+            Tool* doGetTool();
+            
+            void doPick(const InputState& inputState, Hits& hits);
+            
+            bool doMouseDown(const InputState& inputState);
+            bool doMouseUp(const InputState& inputState);
+            bool doMouseDoubleClick(const InputState& inputState);
+            
+            bool dismissClick(const InputState& inputState) const;
+            void vertexHandleClicked(const InputState& inputState, const Hits::List& hits);
+            void edgeHandleClicked(const InputState& inputState, const Hits::List& hits);
+            void faceHandleClicked(const InputState& inputState, const Hits::List& hits);
+            
             bool doHandleMove(const InputState& inputState) const;
             Vec3 doGetMoveOrigin(const InputState& inputState) const;
             String doGetActionName(const InputState& inputState) const;
@@ -84,25 +100,12 @@ namespace TrenchBroom {
             Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;
             MoveResult doMove(const InputState& inputState, const Vec3& delta);
             void doEndMove(const InputState& inputState);
+            void doCancelMove();
             
-            bool doActivate();
-            bool doDeactivate();
-            
-            bool doCancel();
-            
-            void doPick(const InputState& inputState, Hits& hits);
-
-            bool doMouseDown(const InputState& inputState);
-            bool doMouseUp(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
-
-            bool dismissClick(const InputState& inputState) const;
-            void vertexHandleClicked(const InputState& inputState, const Hits::List& hits);
-            void edgeHandleClicked(const InputState& inputState, const Hits::List& hits);
-            void faceHandleClicked(const InputState& inputState, const Hits::List& hits);
-
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            
+            bool doCancel();
             
             void bindObservers();
             void unbindObservers();

@@ -25,9 +25,14 @@
 
 namespace TrenchBroom {
     namespace View {
-        UVCameraTool::UVCameraTool(MapDocumentWPtr document, Renderer::OrthographicCamera& camera) :
-        ToolImpl(document),
+        UVCameraTool::UVCameraTool(Renderer::OrthographicCamera& camera) :
+        ToolAdapterBase(),
+        Tool(true),
         m_camera(camera) {}
+        
+        Tool* UVCameraTool::doGetTool() {
+            return this;
+        }
         
         void UVCameraTool::doScroll(const InputState& inputState) {
             const Vec3f oldWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
@@ -69,5 +74,9 @@ namespace TrenchBroom {
         void UVCameraTool::doEndMouseDrag(const InputState& inputState) {}
         
         void UVCameraTool::doCancelMouseDrag() {}
+        
+        bool UVCameraTool::doCancel() {
+            return false;
+        }
     }
 }

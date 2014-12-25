@@ -34,7 +34,9 @@
 namespace TrenchBroom {
     namespace View {
         CameraTool3D::CameraTool3D(MapDocumentWPtr document, Renderer::PerspectiveCamera& camera) :
-        ToolImpl(document),
+        ToolAdapterBase(),
+        Tool(true),
+        m_document(document),
         m_camera(camera),
         m_orbit(false) {}
         
@@ -59,6 +61,10 @@ namespace TrenchBroom {
             m_camera.rotate(hAngle, vAngle);
         }
         
+        Tool* CameraTool3D::doGetTool() {
+            return this;
+        }
+        
         void CameraTool3D::doScroll(const InputState& inputState) {
             if (m_orbit) {
                 const Plane3f orbitPlane(m_orbitCenter, m_camera.direction());
@@ -75,7 +81,8 @@ namespace TrenchBroom {
         
         bool CameraTool3D::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
-                const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit | Model::Entity::EntityHit, document()->editorContext(), true);
+                MapDocumentSPtr document = lock(m_document);
+                const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit | Model::Entity::EntityHit, document->editorContext(), true);
                 if (hit.isMatch()) {
                     m_orbit = true;
                     m_orbitCenter = hit.hitPoint();
@@ -185,6 +192,10 @@ namespace TrenchBroom {
             if (altMode && prefs.get(Preferences::CameraAltMoveInvert))
                 speed *= -1.0f;
             return speed;
+        }
+        
+        bool CameraTool3D::doCancel() {
+            return false;
         }
     }
 }

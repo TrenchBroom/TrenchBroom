@@ -22,19 +22,23 @@
 
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"
+#include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVOffsetTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, NoRenderPolicy> {
+        class UVOffsetTool : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, NoRenderPolicy, NoDropPolicy>, public Tool {
         private:
+            MapDocumentWPtr m_document;
             const UVViewHelper& m_helper;
             Vec2f m_lastPoint;
         public:
             UVOffsetTool(MapDocumentWPtr document, const UVViewHelper& helper);
         private:
+            Tool* doGetTool();
+            
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
@@ -42,6 +46,8 @@ namespace TrenchBroom {
             
             Vec2f computeHitPoint(const Ray3& ray) const;
             Vec2f snapDelta(const Vec2f& delta) const;
+            
+            bool doCancel();
         };
     }
 }

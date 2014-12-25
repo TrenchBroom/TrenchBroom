@@ -77,7 +77,7 @@ namespace TrenchBroom {
         }
 
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
-            m_cameraTool = new CameraTool2D(m_document, m_camera);
+            m_cameraTool = new CameraTool2D(m_camera);
             addTool(m_cameraTool);
             addTool(toolBox.moveObjectsTool());
             addTool(toolBox.rotateObjectsTool());

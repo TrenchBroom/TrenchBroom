@@ -24,7 +24,7 @@
 #include "VecMath.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/MoveIndicatorRenderer.h"
-#include "View/Tool.h"
+#include "View/ToolAdapter.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -42,9 +42,9 @@ namespace TrenchBroom {
             MoveResult_Continue
         } MoveResult;
         
-        class MoveDelegate {
+        class MoveToolDelegate {
         public:
-            virtual ~MoveDelegate();
+            virtual ~MoveToolDelegate();
             
             bool handleMove(const InputState& inputState) const;
             Vec3 getMoveOrigin(const InputState& inputState) const;
@@ -63,14 +63,14 @@ namespace TrenchBroom {
             virtual void doCancelMove() = 0;
         };
         
-        class MoveHelper : public PlaneDragHelper {
+        class MoveToolHelper : public PlaneDragHelper {
         private:
             MovementRestriction& m_movementRestriction;
-            MoveDelegate& m_delegate;
+            MoveToolDelegate& m_delegate;
             Vec3f::List m_trace;
             Renderer::EdgeRenderer m_traceRenderer;
         public:
-            MoveHelper(MovementRestriction& movementRestriction, MoveDelegate& delegate);
+            MoveToolHelper(MovementRestriction& movementRestriction, MoveToolDelegate& delegate);
             
             bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);

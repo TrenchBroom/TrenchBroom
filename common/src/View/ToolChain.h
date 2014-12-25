@@ -32,23 +32,17 @@ namespace TrenchBroom {
     
     namespace View {
         class InputState;
-        class Tool;
+        class ToolAdapter;
         
         class ToolChain {
         private:
-            Tool* m_tool;
+            ToolAdapter* m_tool;
             ToolChain* m_suffix;
         public:
-            ToolChain(Tool* tool);
+            ToolChain();
             ~ToolChain();
             
-            void append(ToolChain* suffix);
-            
-            bool active() const;
-            bool activate();
-            void deactivate();
-            
-            bool cancel();
+            void append(ToolAdapter* adapter);
             
             void pick(const InputState& inputState, Hits& hits);
             
@@ -57,14 +51,19 @@ namespace TrenchBroom {
             bool mouseDown(const InputState& inputState);
             bool mouseUp(const InputState& inputState);
             bool mouseDoubleClick(const InputState& inputState);
-            void scroll(const InputState& inputState);
+            void mouseScroll(const InputState& inputState);
             void mouseMove(const InputState& inputState);
             
-            Tool* startMouseDrag(const InputState& inputState);
-            Tool* dragEnter(const InputState& inputState, const String& payload);
+            ToolAdapter* startMouseDrag(const InputState& inputState);
+            ToolAdapter* dragEnter(const InputState& inputState, const String& payload);
             
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+
+            bool cancel();
+        private:
+            bool checkInvariant() const;
+            bool chainEndsHere() const;
         };
     }
 }

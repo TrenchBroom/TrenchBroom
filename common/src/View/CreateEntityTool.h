@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "View/Tool.h"
+#include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -30,17 +31,22 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class CreateEntityTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoMouseDragPolicy, DropPolicy, NoRenderPolicy> {
+        class CreateEntityTool : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, DropPolicy>, public Tool {
         private:
+            MapDocumentWPtr m_document;
             Model::Entity* m_entity;
         public:
             CreateEntityTool(MapDocumentWPtr document);
         private:
+            Tool* doGetTool();
+
             bool doDragEnter(const InputState& inputState, const String& payload);
             bool doDragMove(const InputState& inputState);
             void doDragLeave(const InputState& inputState);
             bool doDragDrop(const InputState& inputState);
             void updateEntityPosition(const InputState& inputState);
+
+            bool doCancel();
         };
     }
 }
