@@ -65,7 +65,7 @@ namespace TrenchBroom {
             return this;
         }
         
-        void CameraTool3D::doScroll(const InputState& inputState) {
+        void CameraTool3D::doMouseScroll(const InputState& inputState) {
             if (m_orbit) {
                 const Plane3f orbitPlane(m_orbitCenter, m_camera.direction());
                 const float maxDistance = std::max(orbitPlane.intersectWithRay(m_camera.viewRay()) - 32.0f, 0.0f);

@@ -90,7 +90,7 @@ namespace TrenchBroom {
         PlaneDragHelper::~PlaneDragHelper() {}
 
         RenderPolicy::~RenderPolicy() {}
-        void RenderPolicy::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) {}
+        void RenderPolicy::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         void RenderPolicy::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
 
         DropPolicy::~DropPolicy() {}

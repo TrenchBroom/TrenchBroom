@@ -135,8 +135,8 @@ namespace TrenchBroom {
         public:
             virtual ~RenderPolicy();
         public:
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext);
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            virtual void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
         
         typedef RenderPolicy NoRenderPolicy;

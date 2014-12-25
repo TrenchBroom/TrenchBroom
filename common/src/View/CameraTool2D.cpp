@@ -35,7 +35,7 @@ namespace TrenchBroom {
             return this;
         }
         
-        void CameraTool2D::doScroll(const InputState& inputState) {
+        void CameraTool2D::doMouseScroll(const InputState& inputState) {
             if (zoom(inputState)) {
                 const float speed = 1.0f;
                 if (inputState.scrollY() != 0.0f) {

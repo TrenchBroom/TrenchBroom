@@ -38,7 +38,7 @@ namespace TrenchBroom {
         private:
             Tool* doGetTool();
             
-            void doScroll(const InputState& inputState);
+            void doMouseScroll(const InputState& inputState);
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);

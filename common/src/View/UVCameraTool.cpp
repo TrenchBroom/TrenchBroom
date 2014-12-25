@@ -34,7 +34,7 @@ namespace TrenchBroom {
             return this;
         }
         
-        void UVCameraTool::doScroll(const InputState& inputState) {
+        void UVCameraTool::doMouseScroll(const InputState& inputState) {
             const Vec3f oldWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
                                                          static_cast<float>(inputState.mouseY()),
                                                          0.0f);
