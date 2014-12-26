@@ -40,35 +40,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        RotateObjectsHandle::Hit::Hit() :
-        m_area(HitArea_None) {}
-        
-        RotateObjectsHandle::Hit::Hit(const HitArea area, const FloatType distance, const Vec3& point) :
-        m_area(area),
-        m_distance(distance),
-        m_point(point) {
-            assert(m_area != HitArea_None);
-        }
-        
-        bool RotateObjectsHandle::Hit::matches() const {
-            return m_area != HitArea_None;
-        }
-        
-        RotateObjectsHandle::HitArea RotateObjectsHandle::Hit::area() const {
-            assert(matches());
-            return m_area;
-        }
-        
-        FloatType RotateObjectsHandle::Hit::distance() const {
-            assert(matches());
-            return m_distance;
-        }
-        
-        const Vec3& RotateObjectsHandle::Hit::point() const {
-            assert(matches());
-            return m_point;
-        }
-        
+        const Hit::HitType RotateObjectsHandle::HandleHit = Hit::freeHitType();
+
         const Vec3& RotateObjectsHandle::position() const {
             return m_position;
         }
@@ -77,14 +50,7 @@ namespace TrenchBroom {
             m_position = position;
         }
         
-        RotateObjectsHandle::Hit RotateObjectsHandle::pick(const InputState& inputState) const {
-            if (inputState.camera().perspectiveProjection())
-                return pick3D(inputState.pickRay(), inputState.camera());
-            else
-                return pick2D(inputState.pickRay(), inputState.camera());
-        }
-        
-        RotateObjectsHandle::Hit RotateObjectsHandle::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const {
+        Hit RotateObjectsHandle::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const {
             Vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
             
@@ -104,7 +70,7 @@ namespace TrenchBroom {
             return hit;
         }
         
-        RotateObjectsHandle::Hit RotateObjectsHandle::pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const {
+        Hit RotateObjectsHandle::pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const {
             Vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
             
@@ -115,7 +81,7 @@ namespace TrenchBroom {
             return hit;
         }
 
-        Vec3 RotateObjectsHandle::getPointHandlePosition(const HitArea area, const Vec3& cameraPos) const {
+        Vec3 RotateObjectsHandle::pointHandlePosition(const HitArea area, const Vec3& cameraPos) const {
             Vec3 xAxis, yAxis, zAxis;
             computeAxes(cameraPos, xAxis, yAxis, zAxis);
             switch (area) {
@@ -132,7 +98,7 @@ namespace TrenchBroom {
             }
         }
         
-        Vec3 RotateObjectsHandle::getPointHandleAxis(const HitArea area, const Vec3& cameraPos) const {
+        Vec3 RotateObjectsHandle::pointHandleAxis(const HitArea area, const Vec3& cameraPos) const {
             Vec3 xAxis, yAxis, zAxis;
             computeAxes(cameraPos, xAxis, yAxis, zAxis);
             switch (area) {
@@ -149,7 +115,7 @@ namespace TrenchBroom {
             }
         }
         
-        Vec3 RotateObjectsHandle::getRotationAxis(const HitArea area, const Vec3& cameraPos) const {
+        Vec3 RotateObjectsHandle::rotationAxis(const HitArea area) const {
             switch (area) {
                 case HitArea_XAxis:
                     return Vec3::PosZ;
@@ -164,14 +130,7 @@ namespace TrenchBroom {
             }
         }
         
-        void RotateObjectsHandle::renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
-            if (renderContext.render2D())
-                render2DHandle(renderContext, renderBatch, highlight);
-            if (renderContext.render3D())
-                render3DHandle(renderContext, renderBatch, highlight);
-        }
-        
-        void RotateObjectsHandle::render2DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
+        void RotateObjectsHandle::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
             
             const Renderer::Camera& camera = renderContext.camera();
             const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
@@ -198,7 +157,7 @@ namespace TrenchBroom {
             };
         }
         
-        void RotateObjectsHandle::render3DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
+        void RotateObjectsHandle::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
             const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
 
             Vec3f xAxis, yAxis, zAxis;
@@ -287,19 +246,19 @@ namespace TrenchBroom {
         }
         */
         
-        RotateObjectsHandle::Hit RotateObjectsHandle::pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const {
+        Hit RotateObjectsHandle::pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const {
             const PointHandle handle(position, Color());
             const FloatType distance = handle.pick(pickRay, camera);
             
             if (Math::isnan(distance))
-                return Hit();
-            return Hit(area, distance, pickRay.pointAtDistance(distance));
+                return Hit::NoHit;
+            return Hit(HandleHit, distance, pickRay.pointAtDistance(distance), area);
         }
         
-        RotateObjectsHandle::Hit RotateObjectsHandle::selectHit(const Hit& closest, const Hit& hit) const {
-            if (!closest.matches())
+        Hit RotateObjectsHandle::selectHit(const Hit& closest, const Hit& hit) const {
+            if (!closest.isMatch())
                 return hit;
-            if (hit.matches()) {
+            if (hit.isMatch()) {
                 if (hit.distance() < closest.distance())
                     return hit;
             }

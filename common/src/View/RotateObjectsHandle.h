@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
+#include "Hit.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "View/ViewTypes.h"
 
@@ -38,6 +39,8 @@ namespace TrenchBroom {
         
         class RotateObjectsHandle {
         public:
+            static const Hit::HitType HandleHit;
+
             typedef enum {
                 HitArea_None,
                 HitArea_Center,
@@ -45,42 +48,24 @@ namespace TrenchBroom {
                 HitArea_YAxis,
                 HitArea_ZAxis
             } HitArea;
-            
-            class Hit {
-            private:
-                HitArea m_area;
-                FloatType m_distance;
-                Vec3 m_point;
-            public:
-                Hit();
-                Hit(const HitArea area, const FloatType distance, const Vec3& point);
-                
-                bool matches() const;
-                HitArea area() const;
-                FloatType distance() const;
-                const Vec3& point() const;
-            };
         private:
             Vec3 m_position;
         public:
             const Vec3& position() const;
             void setPosition(const Vec3& position);
             
-            Hit pick(const InputState& inputState) const;
-        private:
             Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const;
             Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const;
-        public:
-            Vec3 getPointHandlePosition(const HitArea area, const Vec3& cameraPos) const;
-            Vec3 getPointHandleAxis(const HitArea area, const Vec3& cameraPos) const;
-            Vec3 getRotationAxis(const HitArea area, const Vec3& cameraPos) const;
-        public:
-            void renderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
-//            void renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle);
-        private:
-            void render2DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
-            void render3DHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
+
+            Vec3 pointHandlePosition(const HitArea area, const Vec3& cameraPos) const;
             
+            Vec3 rotationAxis(const HitArea area) const;
+            Vec3 pointHandleAxis(const HitArea area, const Vec3& cameraPos) const;
+        public:
+//            void renderAngle(Renderer::RenderContext& renderContext, const HitArea handle, const FloatType angle);
+            void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
+            void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, HitArea highlight);
+        private:
             template <typename T>
             void computeAxes(const Vec<T,3>& cameraPos, Vec<T,3>& xAxis, Vec<T,3>& yAxis, Vec<T,3>& zAxis) const {
                 const Vec<T,3> viewDir = (m_position - cameraPos).normalized();

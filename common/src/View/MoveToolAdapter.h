@@ -41,13 +41,19 @@ namespace TrenchBroom {
         class MoveToolAdapter : public ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, PlaneDragPolicy, RenderPolicyType, NoDropPolicy>, public MoveToolDelegate {
         private:
             typedef ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, PlaneDragPolicy, RenderPolicyType, NoDropPolicy> Super;
-            MoveToolHelper m_helper;
+            MoveToolHelper* m_helper;
+        protected:
+            MoveToolAdapter(MoveToolHelper* helper) :
+            m_helper(helper) {
+                assert(m_helper != NULL);
+            }
         public:
-            MoveToolAdapter(MovementRestriction& movementRestriction) :
-            m_helper(movementRestriction, *this) {}
+            virtual ~MoveToolAdapter() {
+                delete m_helper;
+            }
         protected:
             void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                m_helper.render(inputState, Super::dragging(), renderContext, renderBatch);
+                m_helper->render(inputState, Super::dragging(), renderContext, renderBatch);
             }
         private:
             void doModifierKeyChange(const InputState& inputState) {
@@ -58,23 +64,23 @@ namespace TrenchBroom {
             }
 
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-                return m_helper.startPlaneDrag(inputState, plane, initialPoint);
+                return m_helper->startPlaneDrag(inputState, plane, initialPoint);
             }
             
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-                return m_helper.planeDrag(inputState, lastPoint, curPoint, refPoint);
+                return m_helper->planeDrag(inputState, lastPoint, curPoint, refPoint);
             }
             
             void doEndPlaneDrag(const InputState& inputState) {
-                m_helper.endPlaneDrag(inputState);
+                m_helper->endPlaneDrag(inputState);
             }
             
             void doCancelPlaneDrag() {
-                m_helper.cancelPlaneDrag();
+                m_helper->cancelPlaneDrag();
             }
             
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-                m_helper.resetPlane(inputState, plane, initialPoint);
+                m_helper->resetPlane(inputState, plane, initialPoint);
             }
             
             // MoveDelegate protocol must be implemented by derived classes

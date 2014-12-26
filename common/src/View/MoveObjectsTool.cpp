@@ -35,13 +35,10 @@
 namespace TrenchBroom {
     namespace View {
         MoveObjectsTool::MoveObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
-        MoveToolAdapter(movementRestriction),
         Tool(true),
-        m_document(document) {}
-
-        Tool* MoveObjectsTool::doGetTool() {
-            return this;
-        }
+        MoveToolDelegate(),
+        m_document(document),
+        m_duplicateObjects(false) {}
 
         bool MoveObjectsTool::doHandleMove(const InputState& inputState) const {
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) &&
@@ -118,22 +115,8 @@ namespace TrenchBroom {
             document->cancelTransaction();
         }
 
-        void MoveObjectsTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            if (dragging())
-                renderContext.setForceShowSelectionGuide();
-        }
-        
-        void MoveObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (dragging() || handleMove(inputState))
-                renderMoveIndicator(inputState, renderContext, renderBatch);
-        }
-
         bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const {
             return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-        }
-
-        bool MoveObjectsTool::doCancel() {
-            return false;
         }
 
         wxWindow* MoveObjectsTool::doCreatePage(wxWindow* parent) {

@@ -65,12 +65,13 @@ namespace TrenchBroom {
         
         class MoveToolHelper : public PlaneDragHelper {
         private:
-            MovementRestriction& m_movementRestriction;
-            MoveToolDelegate& m_delegate;
+            MoveToolDelegate* m_delegate;
             Vec3f::List m_trace;
             Renderer::EdgeRenderer m_traceRenderer;
+        protected:
+            MoveToolHelper(MoveToolDelegate* delegate);
         public:
-            MoveToolHelper(MovementRestriction& movementRestriction, MoveToolDelegate& delegate);
+            virtual ~MoveToolHelper();
             
             bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
@@ -83,8 +84,32 @@ namespace TrenchBroom {
             void addTracePoint(const Vec3& point);
             
             void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            Renderer::MoveIndicatorRenderer::Direction getDirection() const;
             void renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        private:
+            virtual Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const = 0;
+            virtual Vec3 doGetDelta(const Vec3& delta) const = 0;
+            virtual void doRenderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
+        };
+        
+        class MoveToolHelper2D : public MoveToolHelper {
+        public:
+            MoveToolHelper2D(MoveToolDelegate* delegate);
+        private:
+            Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const;
+            Vec3 doGetDelta(const Vec3& delta) const;
+            void doRenderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        };
+
+        class MoveToolHelper3D : public MoveToolHelper {
+        private:
+            MovementRestriction& m_movementRestriction;
+        public:
+            MoveToolHelper3D(MoveToolDelegate* delegate, MovementRestriction& movementRestriction);
+        private:
+            Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const;
+            Vec3 doGetDelta(const Vec3& delta) const;
+            void doRenderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            Renderer::MoveIndicatorRenderer::Direction getDirection() const;
         };
     }
 }
