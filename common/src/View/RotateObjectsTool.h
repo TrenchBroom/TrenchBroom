@@ -46,6 +46,8 @@ namespace TrenchBroom {
         public:
             RotateObjectsTool(MapDocumentWPtr document);
 
+            bool doActivate();
+
             void updateToolPageAxis(RotateObjectsHandle::HitArea area);
             
             double angle() const;

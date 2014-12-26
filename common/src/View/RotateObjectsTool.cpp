@@ -33,6 +33,14 @@ namespace TrenchBroom {
         m_angle(Math::radians(15.0)),
         m_firstActivation(true) {}
 
+        bool RotateObjectsTool::doActivate() {
+            if (m_firstActivation) {
+                resetRotationCenter();
+                m_firstActivation = false;
+            }
+            return true;
+        }
+
         void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area) {
             if (area == RotateObjectsHandle::HitArea_XAxis)
                 m_toolPage->setAxis(Math::Axis::AX);

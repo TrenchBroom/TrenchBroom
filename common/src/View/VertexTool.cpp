@@ -43,17 +43,148 @@
 
 namespace TrenchBroom {
     namespace View {
-        const FloatType VertexTool::MaxVertexDistance = 0.25;
-        const FloatType VertexTool::MaxVertexError = 0.01;
-        
         VertexTool::VertexTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
-        MoveToolAdapter(movementRestriction),
         Tool(false),
+        MoveToolDelegate(),
         m_document(document),
-        m_handleManager(document),
+        m_handleManager(m_document),
         m_mode(Mode_Move),
         m_changeCount(0),
-        m_ignoreChangeNotifications(false) {}
+        m_ignoreChangeNotifications(false),
+        m_dragging(false) {}
+
+        void VertexTool::pick(const Ray3& pickRay, Hits& hits) {
+            m_handleManager.pick(pickRay, hits, m_mode == Mode_Split);
+        }
+        
+        bool VertexTool::deselectAll() {
+            if (m_handleManager.selectedVertexHandles().empty() &&
+                m_handleManager.selectedEdgeHandles().empty() &&
+                m_handleManager.selectedFaceHandles().empty())
+                return false;
+            
+            m_handleManager.deselectAllHandles();
+            m_mode = Mode_Move;
+            return true;
+        }
+        
+        bool VertexTool::mergeVertices(const Hit& hit) {
+            if (m_handleManager.selectedVertexCount() != 1)
+                return false;
+            if (hit.type() != VertexHandleManager::VertexHandleHit)
+                return false;
+            const Vec3 targetPosition = hit.target<Vec3>();
+            const Vec3 originalPosition = m_handleManager.selectedVertexHandlePositions().front();
+            const Vec3 delta = targetPosition - originalPosition;
+            moveVerticesAndRebuildBrushGeometry(delta);
+            return true;
+        }
+        
+        bool VertexTool::select(const Hits::List& hits, const bool addToSelection) {
+            assert(!hits.empty());
+            const Hit& hit = hits.front();
+            if (hit.type() == VertexHandleManager::VertexHandleHit)
+                selectVertex(hits, addToSelection);
+            else if (hit.type() == VertexHandleManager::EdgeHandleHit)
+                selectEdge(hits, addToSelection);
+            else
+                selectFace(hits, addToSelection);
+            return true;
+        }
+        
+        bool VertexTool::handleDoubleClicked(const Hit& hit) {
+            if (hit.type() == VertexHandleManager::VertexHandleHit) {
+                m_handleManager.deselectAllHandles();
+                m_handleManager.selectVertexHandle(hit.target<Vec3>());
+                m_mode = Mode_Snap;
+            } else if (hit.type() == VertexHandleManager::EdgeHandleHit) {
+                m_handleManager.deselectAllHandles();
+                m_handleManager.selectEdgeHandle(hit.target<Vec3>());
+                m_mode = Mode_Split;
+            } else {
+                m_handleManager.deselectAllHandles();
+                m_handleManager.selectFaceHandle(hit.target<Vec3>());
+                m_mode = Mode_Split;
+            }
+            return true;
+        }
+        
+        bool VertexTool::beginMove(const Hit& hit) {
+            assert(hit.isMatch());
+            m_dragHandlePosition = hit.target<Vec3>();
+            MapDocumentSPtr document = lock(m_document);
+            document->beginTransaction(actionName());
+            m_dragging = true;
+            return true;
+        }
+
+        Vec3 VertexTool::snapMoveDelta(const Vec3& delta, const Hit& hit, const bool relative) {
+            if (m_mode == Mode_Snap) {
+                if (hit.isMatch() && !m_handleManager.isVertexHandleSelected(hit.target<Vec3>()))
+                    return hit.target<Vec3>() - m_dragHandlePosition;
+                return Vec3::Null;
+            }
+            
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            if (relative)
+                return grid.snap(delta);
+            return grid.snap(m_dragHandlePosition + delta) - m_dragHandlePosition;
+        }
+
+        MoveResult VertexTool::move(const Vec3& delta) {
+            return moveVertices(delta);
+        }
+
+        void VertexTool::endMove() {
+            MapDocumentSPtr document = lock(m_document);
+            document->commitTransaction();
+            rebuildBrushGeometry();
+            m_mode = Mode_Move;
+            m_dragging = false;
+        }
+        
+        void VertexTool::cancelMove() {
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
+            m_mode = Mode_Move;
+            m_dragging = false;
+        }
+
+        void VertexTool::renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            m_handleManager.render(renderContext, renderBatch, m_mode == Mode_Split);
+        }
+        
+        void VertexTool::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            renderHighlight(renderContext, renderBatch, m_dragHandlePosition);
+        }
+        
+        void VertexTool::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
+            m_handleManager.renderHighlight(renderContext, renderBatch, position);
+        }
+
+        bool VertexTool::cancel() {
+            if (m_handleManager.hasSelectedHandles()) {
+                m_handleManager.deselectAllHandles();
+                return true;
+            }
+            return false;
+        }
+
+        bool VertexTool::handleBrushes(const Vec3& position, Model::BrushSet& brushes) const {
+            bool newBrush = true;
+            const Model::BrushList& handleBrushes = m_handleManager.brushes(position);
+            Model::BrushList::const_iterator bIt, bEnd;
+            for (bIt = handleBrushes.begin(), bEnd = handleBrushes.end(); bIt != bEnd; ++bIt) {
+                Model::Brush* brush = *bIt;
+                newBrush &= brushes.insert(brush).second;
+            }
+            return newBrush;
+        }
+
+        bool VertexTool::handleSelected(const Vec3& position) const {
+            return m_handleManager.isEdgeHandleSelected(position);
+        }
 
         bool VertexTool::hasSelectedHandles() const {
             return (m_handleManager.selectedVertexCount() > 0 ||
@@ -81,6 +212,125 @@ namespace TrenchBroom {
             document->snapVertices(m_handleManager.selectedVertexHandles(), snapTo);
         }
 
+        void VertexTool::selectVertex(const Hits::List& hits, const bool addToSelection) {
+            m_handleManager.deselectAllEdgeHandles();
+            m_handleManager.deselectAllFaceHandles();
+            
+            size_t selected = 0;
+            Hits::List::const_iterator it, end;
+            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                const Hit& hit = *it;
+                const Vec3 position = hit.target<Vec3>();
+                if (m_handleManager.isVertexHandleSelected(position))
+                    ++selected;
+            }
+            
+            if (selected < hits.size()) {
+                if (!addToSelection)
+                    m_handleManager.deselectAllHandles();
+                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                    const Hit& hit = *it;
+                    const Vec3 position = hit.target<Vec3>();
+                    m_handleManager.selectVertexHandle(position);
+                }
+            } else {
+                if (addToSelection) {
+                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                        const Hit& hit = *it;
+                        const Vec3 position = hit.target<Vec3>();
+                        m_handleManager.deselectVertexHandle(position);
+                    }
+                }
+            }
+        }
+        
+        void VertexTool::selectEdge(const Hits::List& hits, const bool addToSelection) {
+            m_handleManager.deselectAllVertexHandles();
+            m_handleManager.deselectAllFaceHandles();
+            
+            size_t selected = 0;
+            Hits::List::const_iterator it, end;
+            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                const Hit& hit = *it;
+                const Vec3 position = hit.target<Vec3>();
+                if (m_handleManager.isEdgeHandleSelected(position))
+                    ++selected;
+            }
+            
+            if (selected < hits.size()) {
+                if (!addToSelection)
+                    m_handleManager.deselectAllHandles();
+                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                    const Hit& hit = *it;
+                    const Vec3 position = hit.target<Vec3>();
+                    m_handleManager.selectEdgeHandle(position);
+                }
+            } else {
+                if (addToSelection) {
+                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                        const Hit& hit = *it;
+                        const Vec3 position = hit.target<Vec3>();
+                        m_handleManager.deselectEdgeHandle(position);
+                    }
+                }
+            }
+        }
+        
+        void VertexTool::selectFace(const Hits::List& hits, const bool addToSelection) {
+            m_handleManager.deselectAllVertexHandles();
+            m_handleManager.deselectAllEdgeHandles();
+            
+            size_t selected = 0;
+            Hits::List::const_iterator it, end;
+            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                const Hit& hit = *it;
+                const Vec3 position = hit.target<Vec3>();
+                if (m_handleManager.isFaceHandleSelected(position))
+                    selected++;
+            }
+            
+            if (selected < hits.size()) {
+                if (!addToSelection)
+                    m_handleManager.deselectAllHandles();
+                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                    const Hit& hit = *it;
+                    const Vec3 position = hit.target<Vec3>();
+                    m_handleManager.selectFaceHandle(position);
+                }
+            } else {
+                if (addToSelection) {
+                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
+                        const Hit& hit = *it;
+                        const Vec3 position = hit.target<Vec3>();
+                        m_handleManager.deselectFaceHandle(position);
+                    }
+                }
+            }
+        }
+        
+        String VertexTool::actionName() const {
+            if (m_mode == Mode_Move || m_mode == Mode_Snap) {
+                assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
+                       (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
+                       (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
+                
+                if (!m_handleManager.selectedVertexHandles().empty())
+                    return m_handleManager.selectedVertexHandles().size() == 1 ? "Move Vertex" : "Move Vertices";
+                if (!m_handleManager.selectedEdgeHandles().empty())
+                    return m_handleManager.selectedEdgeHandles().size() == 1 ? "Move Edge" : "Move Edges";
+                return m_handleManager.selectedFaceHandles().size() == 1 ? "Move Face" : "Move Faces";
+            }
+            
+            assert(m_handleManager.selectedVertexHandles().size() == 0 &&
+                   ((m_handleManager.selectedEdgeHandles().size() == 1) ^
+                    (m_handleManager.selectedFaceHandles().size() == 1))
+                   );
+            
+            if (!m_handleManager.selectedEdgeHandles().empty())
+                return "Split Edge";
+            return "Split Face";
+        }
+        
         MoveResult VertexTool::moveVertices(const Vec3& delta) {
             if (m_mode == Mode_Move || m_mode == Mode_Snap) {
                 assert((m_handleManager.selectedVertexCount() > 0) ^
@@ -200,305 +450,6 @@ namespace TrenchBroom {
             return true;
         }
         
-        Tool* VertexTool::doGetTool() {
-            return this;
-        }
-
-        void VertexTool::doPick(const InputState& inputState, Hits& hits) {
-            m_handleManager.pick(inputState.pickRay(), hits, m_mode == Mode_Split);
-        }
-        
-        bool VertexTool::doMouseDown(const InputState& inputState) {
-            if (dismissClick(inputState))
-                return false;
-            
-            const Hits::List hits = firstHits(inputState.hits());
-            if (hits.empty())
-                return false;
-            
-            const Hit& hit = hits.front();
-            if (hit.type() == VertexHandleManager::VertexHandleHit)
-                vertexHandleClicked(inputState, hits);
-            else if (hit.type() == VertexHandleManager::EdgeHandleHit)
-                edgeHandleClicked(inputState, hits);
-            else
-                faceHandleClicked(inputState, hits);
-            return true;
-        }
-        
-        bool VertexTool::doMouseUp(const InputState& inputState) {
-            if (dismissClick(inputState))
-                return false;
-            
-            const Hits::List hits = firstHits(inputState.hits());
-            if (!hits.empty())
-                return true;
-            
-            if (m_handleManager.selectedVertexHandles().empty() &&
-                m_handleManager.selectedEdgeHandles().empty() &&
-                m_handleManager.selectedFaceHandles().empty())
-                return false;
-            
-            m_handleManager.deselectAllHandles();
-            m_mode = Mode_Move;
-            return true;
-        }
-        
-        bool VertexTool::doMouseDoubleClick(const InputState& inputState) {
-            if (dismissClick(inputState))
-                return false;
-            
-            const Hits::List hits = firstHits(inputState.hits());
-            if (hits.empty())
-                return false;
-            
-            const Hit& hit = hits.front();
-            if (hit.type() == VertexHandleManager::VertexHandleHit) {
-                m_handleManager.deselectAllHandles();
-                m_handleManager.selectVertexHandle(hit.target<Vec3>());
-                m_mode = Mode_Snap;
-            } else if (hit.type() == VertexHandleManager::EdgeHandleHit) {
-                m_handleManager.deselectAllHandles();
-                m_handleManager.selectEdgeHandle(hit.target<Vec3>());
-                m_mode = Mode_Split;
-            } else {
-                m_handleManager.deselectAllHandles();
-                m_handleManager.selectFaceHandle(hit.target<Vec3>());
-                m_mode = Mode_Split;
-            }
-            
-            return true;
-        }
-        
-        bool VertexTool::dismissClick(const InputState& inputState) const {
-            return !(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
-                     (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                      inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
-                      inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
-                      inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift) ||
-                      inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd)));
-        }
-        
-        void VertexTool::vertexHandleClicked(const InputState& inputState, const Hits::List& hits) {
-            if (inputState.modifierKeysPressed(ModifierKeys::MKShift) &&
-                m_handleManager.selectedVertexCount() == 1) {
-                const Hit& hit = hits.front();
-                if (hit.type() == VertexHandleManager::VertexHandleHit) {
-                    const Vec3 targetPosition = hit.target<Vec3>();
-                    const Vec3 originalPosition = m_handleManager.selectedVertexHandlePositions().front();
-                    const Vec3 delta = targetPosition - originalPosition;
-                    moveVerticesAndRebuildBrushGeometry(delta);
-                }
-                return;
-            }
-            
-            m_handleManager.deselectAllEdgeHandles();
-            m_handleManager.deselectAllFaceHandles();
-            
-            size_t selected = 0;
-            Hits::List::const_iterator it, end;
-            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                const Hit& hit = *it;
-                const Vec3 position = hit.target<Vec3>();
-                if (m_handleManager.isVertexHandleSelected(position))
-                    ++selected;
-            }
-            
-            if (selected < hits.size()) {
-                if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
-                    m_handleManager.deselectAllHandles();
-                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                    const Hit& hit = *it;
-                    const Vec3 position = hit.target<Vec3>();
-                    m_handleManager.selectVertexHandle(position);
-                }
-            } else {
-                if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
-                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                        const Hit& hit = *it;
-                        const Vec3 position = hit.target<Vec3>();
-                        m_handleManager.deselectVertexHandle(position);
-                    }
-                }
-            }
-        }
-        
-        void VertexTool::edgeHandleClicked(const InputState& inputState, const Hits::List& hits) {
-            m_handleManager.deselectAllVertexHandles();
-            m_handleManager.deselectAllFaceHandles();
-            
-            size_t selected = 0;
-            Hits::List::const_iterator it, end;
-            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                const Hit& hit = *it;
-                const Vec3 position = hit.target<Vec3>();
-                if (m_handleManager.isEdgeHandleSelected(position))
-                    ++selected;
-            }
-            
-            if (selected < hits.size()) {
-                if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
-                    m_handleManager.deselectAllHandles();
-                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                    const Hit& hit = *it;
-                    const Vec3 position = hit.target<Vec3>();
-                    m_handleManager.selectEdgeHandle(position);
-                }
-            } else {
-                if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
-                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                        const Hit& hit = *it;
-                        const Vec3 position = hit.target<Vec3>();
-                        m_handleManager.deselectEdgeHandle(position);
-                    }
-                }
-            }
-        }
-        
-        void VertexTool::faceHandleClicked(const InputState& inputState, const Hits::List& hits) {
-            m_handleManager.deselectAllVertexHandles();
-            m_handleManager.deselectAllEdgeHandles();
-            
-            size_t selected = 0;
-            Hits::List::const_iterator it, end;
-            for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                const Hit& hit = *it;
-                const Vec3 position = hit.target<Vec3>();
-                if (m_handleManager.isFaceHandleSelected(position))
-                    selected++;
-            }
-            
-            if (selected < hits.size()) {
-                if (inputState.modifierKeys() != ModifierKeys::MKCtrlCmd)
-                    m_handleManager.deselectAllHandles();
-                for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                    const Hit& hit = *it;
-                    const Vec3 position = hit.target<Vec3>();
-                    m_handleManager.selectFaceHandle(position);
-                }
-            } else {
-                if (inputState.modifierKeys() == ModifierKeys::MKCtrlCmd) {
-                    for (it = hits.begin(), end = hits.end(); it != end; ++it) {
-                        const Hit& hit = *it;
-                        const Vec3 position = hit.target<Vec3>();
-                        m_handleManager.deselectFaceHandle(position);
-                    }
-                }
-            }
-        }
-        
-        bool VertexTool::doHandleMove(const InputState& inputState) const {
-            if (!(inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
-                  (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||
-                   inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||
-                   inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
-                   inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift))))
-                return false;
-            
-            const Hit& hit = firstHit(inputState.hits());
-            return hit.isMatch();
-        }
-        
-        Vec3 VertexTool::doGetMoveOrigin(const InputState& inputState) const {
-            const Hit& hit = firstHit(inputState.hits());
-            assert(hit.isMatch());
-            return hit.hitPoint();
-        }
-        
-        String VertexTool::doGetActionName(const InputState& inputState) const {
-            if (m_mode == Mode_Move || m_mode == Mode_Snap) {
-                assert((m_handleManager.selectedVertexHandles().empty() ? 0 : 1) +
-                       (m_handleManager.selectedEdgeHandles().empty() ? 0 : 1) +
-                       (m_handleManager.selectedFaceHandles().empty() ? 0 : 1) == 1);
-                
-                if (!m_handleManager.selectedVertexHandles().empty())
-                    return m_handleManager.selectedVertexHandles().size() == 1 ? "Move Vertex" : "Move Vertices";
-                if (!m_handleManager.selectedEdgeHandles().empty())
-                    return m_handleManager.selectedEdgeHandles().size() == 1 ? "Move Edge" : "Move Edges";
-                return m_handleManager.selectedFaceHandles().size() == 1 ? "Move Face" : "Move Faces";
-            }
-            
-            assert(m_handleManager.selectedVertexHandles().size() == 0 &&
-                   ((m_handleManager.selectedEdgeHandles().size() == 1) ^
-                    (m_handleManager.selectedFaceHandles().size() == 1))
-                   );
-            
-            if (!m_handleManager.selectedEdgeHandles().empty())
-                return "Split Edge";
-            return "Split Face";
-        }
-        
-        bool VertexTool::doStartMove(const InputState& inputState) {
-            const Hit& hit = firstHit(inputState.hits());
-            assert(hit.isMatch());
-            m_dragHandlePosition = hit.target<Vec3>();
-            MapDocumentSPtr document = lock(m_document);
-            document->beginTransaction();
-            return true;
-        }
-        
-        Vec3 VertexTool::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
-            if (m_mode == Mode_Snap) {
-                const Hit& hit = firstHit(inputState.hits());
-                if (hit.isMatch() && !m_handleManager.isVertexHandleSelected(hit.target<Vec3>()))
-                    return hit.target<Vec3>() - m_dragHandlePosition;
-                return Vec3::Null;
-            }
-
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            if (inputState.modifierKeysDown(ModifierKeys::MKShift))
-                return grid.snap(delta);
-            
-            return grid.snap(m_dragHandlePosition + delta) - m_dragHandlePosition;
-        }
-        
-        MoveResult VertexTool::doMove(const InputState& inputState, const Vec3& delta) {
-            return moveVertices(delta);
-        }
-        
-        void VertexTool::doEndMove(const InputState& inputState) {
-            MapDocumentSPtr document = lock(m_document);
-            document->commitTransaction();
-            rebuildBrushGeometry();
-            m_mode = Mode_Move;
-        }
-        
-        void VertexTool::doCancelMove() {
-            MapDocumentSPtr document = lock(m_document);
-            document->cancelTransaction();
-            m_mode = Mode_Move;
-        }
-
-        void VertexTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            renderContext.setForceHideSelectionGuide();
-        }
-
-        void VertexTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_handleManager.render(renderContext, renderBatch, m_mode == Mode_Split);
-
-            if (dragging()) {
-                m_handleManager.renderHighlight(renderContext, renderBatch, m_dragHandlePosition);
-                renderMoveIndicator(inputState, renderContext, renderBatch);
-            } else {
-                const Hit& hit = firstHit(inputState.hits());
-                if (hit.isMatch()) {
-                    const Vec3 position = hit.target<Vec3>();
-                    m_handleManager.renderHighlight(renderContext, renderBatch, position);
-                    if (m_handleManager.isHandleSelected(position))
-                        renderMoveIndicator(inputState, renderContext, renderBatch);
-                }
-            }
-        }
-
-        bool VertexTool::doCancel() {
-            if (m_handleManager.hasSelectedHandles()) {
-                m_handleManager.deselectAllHandles();
-                return true;
-            }
-            return false;
-        }
-        
         void VertexTool::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->selectionDidChangeNotifier.addObserver(this, &VertexTool::selectionDidChange);
@@ -542,7 +493,7 @@ namespace TrenchBroom {
                 vertexCommand->selectNewHandlePositions(m_handleManager);
                 m_ignoreChangeNotifications = false;
                 
-                if (!dragging())
+                if (!m_dragging)
                     rebuildBrushGeometry();
             }
         }
@@ -554,7 +505,7 @@ namespace TrenchBroom {
                 vertexCommand->selectOldHandlePositions(m_handleManager);
                 m_ignoreChangeNotifications = false;
                 
-                if (!dragging())
+                if (!m_dragging)
                     rebuildBrushGeometry();
             }
         }
@@ -618,44 +569,6 @@ namespace TrenchBroom {
                 AddToHandleManager addVisitor(m_handleManager);
                 Model::Node::accept(nodes.begin(), nodes.end(), addVisitor);
             }
-        }
-
-        const Hit& VertexTool::firstHit(const Hits& hits) const {
-            static const Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
-            return hits.findFirst(any, true);
-        }
-
-        Hits::List VertexTool::firstHits(const Hits& hits) const {
-            Hits::List result;
-            Model::BrushSet brushes;
-            
-            static const Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
-            const Hit& first = hits.findFirst(any, true);
-            if (first.isMatch()) {
-                const Vec3 firstHitPosition = first.target<Vec3>();
-
-                const Hits::List matches = hits.filter(any);
-                Hits::List::const_iterator hIt, hEnd;
-                for (hIt = matches.begin(), hEnd = matches.end(); hIt != hEnd; ++hIt) {
-                    const Hit& hit = *hIt;
-                    const Vec3 hitPosition = hit.target<Vec3>();
-                    
-                    if (hitPosition.distanceTo(firstHitPosition) < MaxVertexDistance) {
-                        bool newBrush = true;
-                        const Model::BrushList& handleBrushes = m_handleManager.brushes(hitPosition);
-                        Model::BrushList::const_iterator bIt, bEnd;
-                        for (bIt = handleBrushes.begin(), bEnd = handleBrushes.end(); bIt != bEnd; ++bIt) {
-                            Model::Brush* brush = *bIt;
-                            newBrush &= brushes.insert(brush).second;
-                        }
-                        
-                        if (newBrush)
-                            result.push_back(hit);
-                    }
-                }
-            }
-            
-            return result;
         }
     }
 }
