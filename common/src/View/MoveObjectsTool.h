@@ -32,14 +32,13 @@ namespace TrenchBroom {
     
     namespace View {
         class InputState;
-        class MovementRestriction;
         
         class MoveObjectsTool : public Tool, public MoveToolDelegate, public MapViewToolPage {
         private:
             MapDocumentWPtr m_document;
             bool m_duplicateObjects;
         public:
-            MoveObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction);
+            MoveObjectsTool(MapDocumentWPtr document);
         private:
             bool doHandleMove(const InputState& inputState) const;
             Vec3 doGetMoveOrigin(const InputState& inputState) const;

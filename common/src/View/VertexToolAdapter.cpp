@@ -37,6 +37,10 @@ namespace TrenchBroom {
 
         VertexToolAdapter::~VertexToolAdapter() {}
 
+        Tool* VertexToolAdapter::doGetTool() {
+            return m_tool;
+        }
+
         bool VertexToolAdapter::doMouseDown(const InputState& inputState) {
             if (dismissClick(inputState))
                 return false;
@@ -134,6 +138,10 @@ namespace TrenchBroom {
             }
         }
 
+        bool VertexToolAdapter::doCancel() {
+            return m_tool->cancel();
+        }
+
         const Hit& VertexToolAdapter::firstHit(const Hits& hits) const {
             static const Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
             return hits.findFirst(any, true);
@@ -166,14 +174,14 @@ namespace TrenchBroom {
         }
 
         VertexToolAdapter2D::VertexToolAdapter2D(VertexTool* tool) :
-        VertexToolAdapter(tool, new MoveToolHelper2D(tool)) {}
+        VertexToolAdapter(tool, new MoveToolHelper2D(this)) {}
         
         void VertexToolAdapter2D::doPick(const InputState& inputState, Hits& hits) {
             m_tool->pick(inputState.pickRay(), hits);
         }
 
         VertexToolAdapter3D::VertexToolAdapter3D(VertexTool* tool, MovementRestriction& movementRestriction) :
-        VertexToolAdapter(tool, new MoveToolHelper3D(tool, movementRestriction)) {}
+        VertexToolAdapter(tool, new MoveToolHelper3D(this, movementRestriction)) {}
         
         void VertexToolAdapter3D::doPick(const InputState& inputState, Hits& hits) {
             m_tool->pick(inputState.pickRay(), hits);

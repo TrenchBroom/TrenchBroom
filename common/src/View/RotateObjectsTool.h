@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "View/MapViewToolPage.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
 
@@ -36,7 +37,7 @@ namespace TrenchBroom {
         class RotateObjectsHandle;
         class RotateObjectsToolPage;
 
-        class RotateObjectsTool : public Tool {
+        class RotateObjectsTool : public Tool, public MapViewToolPage {
         private:
             MapDocumentWPtr m_document;
             RotateObjectsToolPage* m_toolPage;
@@ -74,6 +75,8 @@ namespace TrenchBroom {
 
             void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
             void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
+        private:
+            wxWindow* doCreatePage(wxWindow* parent);
         };
     }
 }

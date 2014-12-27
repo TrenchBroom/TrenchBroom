@@ -31,7 +31,7 @@ namespace TrenchBroom {
         class MovementRestriction;
         class VertexTool;
         
-        class VertexToolAdapter : public MoveToolAdapter<PickingPolicy, MousePolicy, RenderPolicy> {
+        class VertexToolAdapter : public MoveToolAdapter<PickingPolicy, MousePolicy, RenderPolicy>, public MoveToolDelegate {
         private:
             static const FloatType MaxVertexDistance;
         protected:
@@ -41,8 +41,9 @@ namespace TrenchBroom {
         public:
             virtual ~VertexToolAdapter();
         private:
+            Tool* doGetTool();
+            
             bool doMouseDown(const InputState& inputState);
-            bool doMouseUp(const InputState& inputState);
             bool doMouseDoubleClick(const InputState& inputState);
             bool dismissClick(const InputState& inputState) const;
 

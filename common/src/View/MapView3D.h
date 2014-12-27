@@ -25,6 +25,7 @@
 #include "Renderer/PerspectiveCamera.h"
 #include "View/Action.h"
 #include "View/MapViewBase.h"
+#include "View/MovementRestriction.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -41,12 +42,21 @@ namespace TrenchBroom {
         class CameraTool3D;
         class FlyModeHelper;
         class GLContextManager;
+        class MoveObjectsToolAdapter;
+        class RotateObjectsToolAdapter;
+        class VertexToolAdapter;
         
         class MapView3D : public MapViewBase {
         private:
+            MovementRestriction m_movementRestriction;
             Renderer::PerspectiveCamera m_camera;
             Renderer::Compass* m_compass;
+            
+            MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
+            RotateObjectsToolAdapter* m_rotateObjectsToolAdapter;
+            VertexToolAdapter* m_vertexToolAdapter;
             CameraTool3D* m_cameraTool;
+            
             FlyModeHelper* m_flyModeHelper;
         public:
             MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);

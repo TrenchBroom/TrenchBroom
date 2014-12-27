@@ -38,7 +38,7 @@ namespace TrenchBroom {
         class ToolActivationDelegate;
         
         template <class PickingPolicyType, class MousePolicyType, class RenderPolicyType>
-        class MoveToolAdapter : public ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, PlaneDragPolicy, RenderPolicyType, NoDropPolicy>, public MoveToolDelegate {
+        class MoveToolAdapter : public ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, PlaneDragPolicy, RenderPolicyType, NoDropPolicy> {
         private:
             typedef ToolAdapterBase<PickingPolicyType, KeyPolicy, MousePolicyType, PlaneDragPolicy, RenderPolicyType, NoDropPolicy> Super;
             MoveToolHelper* m_helper;
@@ -57,7 +57,7 @@ namespace TrenchBroom {
             }
         private:
             void doModifierKeyChange(const InputState& inputState) {
-                if (!handleMove(inputState))
+                if (!m_helper->handleMove(inputState))
                     return;
                 if (Super::dragging())
                     PlaneDragPolicy::resetPlane(inputState);
@@ -82,15 +82,6 @@ namespace TrenchBroom {
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
                 m_helper->resetPlane(inputState, plane, initialPoint);
             }
-            
-            // MoveDelegate protocol must be implemented by derived classes
-            virtual bool doHandleMove(const InputState& inputState) const = 0;
-            virtual Vec3 doGetMoveOrigin(const InputState& inputState) const = 0;
-            virtual bool doStartMove(const InputState& inputState) = 0;
-            virtual Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const = 0;
-            virtual MoveResult doMove(const InputState& inputState, const Vec3& delta) = 0;
-            virtual void doEndMove(const InputState& inputState) {}
-            virtual void doCancelMove() = 0;
         };
     }
 }

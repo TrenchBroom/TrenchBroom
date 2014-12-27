@@ -62,10 +62,16 @@ namespace TrenchBroom {
         MoveToolHelper::MoveToolHelper(MoveToolDelegate* delegate) :
         m_delegate(delegate) {}
         
+        MoveToolHelper::~MoveToolHelper() {}
+
+        bool MoveToolHelper::handleMove(const InputState& inputState) const {
+            return m_delegate->handleMove(inputState);
+        }
+
         bool MoveToolHelper::startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
-            if (!m_delegate->handleMove(inputState))
+            if (!handleMove(inputState))
                 return false;
             initialPoint = m_delegate->getMoveOrigin(inputState);
             plane = dragPlane(inputState, initialPoint);

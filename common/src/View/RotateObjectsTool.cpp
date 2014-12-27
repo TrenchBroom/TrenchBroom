@@ -127,5 +127,11 @@ namespace TrenchBroom {
         void RotateObjectsTool::renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const RotateObjectsHandle::HitArea area) {
             m_handle.renderHandle3D(renderContext, renderBatch, area);
         }
+
+        wxWindow* RotateObjectsTool::doCreatePage(wxWindow* parent) {
+            assert(m_toolPage == NULL);
+            m_toolPage = new RotateObjectsToolPage(parent, m_document, this);
+            return m_toolPage;
+        }
     }
 }

@@ -32,6 +32,7 @@ namespace TrenchBroom {
     namespace View {
         RotateObjectsToolAdapter::RotateObjectsToolAdapter(RotateObjectsTool* tool, MoveToolHelper* moveHelper) :
         ToolAdapterBase(),
+        m_tool(tool),
         m_moveHelper(moveHelper),
         m_rotateHelper(new RotateToolHelper(*this)),
         m_helper(NULL) {}
@@ -119,6 +120,8 @@ namespace TrenchBroom {
             
             if (m_helper != NULL)
                 m_helper->render(inputState, dragging(), renderContext, renderBatch);
+            else if (highlight == RotateObjectsHandle::HitArea_Center)
+                m_moveHelper->render(inputState, dragging(), renderContext, renderBatch);
         }
         
         RotateObjectsHandle::HitArea RotateObjectsToolAdapter::highlightHandleArea(const InputState& inputState) const {

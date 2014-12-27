@@ -43,17 +43,25 @@
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
 #include "View/MoveObjectsTool.h"
+#include "View/MoveObjectsToolAdapter.h"
 #include "View/RotateObjectsTool.h"
+#include "View/RotateObjectsToolAdapter.h"
 #include "View/SelectionTool.h"
 #include "View/VertexTool.h"
+#include "View/VertexToolAdapter.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
+        m_movementRestriction(),
         m_camera(),
-        m_compass(new Renderer::Compass(toolBox.movementRestriction())),
+        m_compass(new Renderer::Compass(m_movementRestriction)),
+        m_moveObjectsToolAdapter(NULL),
+        m_rotateObjectsToolAdapter(NULL),
+        m_vertexToolAdapter(NULL),
+        m_cameraTool(NULL),
         m_flyModeHelper(new FlyModeHelper(this, m_camera)) {
             bindEvents();
             bindObservers();
@@ -63,17 +71,24 @@ namespace TrenchBroom {
         MapView3D::~MapView3D() {
             unbindObservers();
             
-            delete m_cameraTool;
             delete m_flyModeHelper;
+            delete m_cameraTool;
+            delete m_vertexToolAdapter;
+            delete m_rotateObjectsToolAdapter;
+            delete m_moveObjectsToolAdapter;
             delete m_compass;
         }
         
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
+            m_moveObjectsToolAdapter = new MoveObjectsToolAdapter3D(toolBox.moveObjectsTool(), m_movementRestriction);
+            m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter3D(toolBox.rotateObjectsTool(), m_movementRestriction);
+            m_vertexToolAdapter = new VertexToolAdapter3D(toolBox.vertexTool(), m_movementRestriction);
             m_cameraTool = new CameraTool3D(m_document, m_camera);
+            
             addTool(m_cameraTool);
-            addTool(toolBox.moveObjectsTool());
-            addTool(toolBox.rotateObjectsTool());
-            addTool(toolBox.vertexTool());
+            addTool(m_moveObjectsToolAdapter);
+            addTool(m_rotateObjectsToolAdapter);
+            addTool(m_vertexToolAdapter);
             addTool(toolBox.createEntityTool());
             addTool(toolBox.selectionTool());
         }

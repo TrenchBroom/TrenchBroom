@@ -51,7 +51,7 @@ namespace TrenchBroom {
         }
         
         void MoveObjectsToolAdapter::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (dragging() || handleMove(inputState))
+            if (dragging() || m_tool->handleMove(inputState))
                 renderMoveIndicator(inputState, renderContext, renderBatch);
         }
         

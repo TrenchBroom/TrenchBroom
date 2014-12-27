@@ -256,12 +256,14 @@ namespace TrenchBroom {
             
             void endMouseDrag(const InputState& inputState) {
                 assert(dragging() && toolActive());
-                static_cast<MouseDragPolicyType*>(this)->doMouseDrag(inputState);
+                static_cast<MouseDragPolicyType*>(this)->doEndMouseDrag(inputState);
+                m_dragging = false;
             }
             
             void cancelMouseDrag() {
                 assert(dragging() && toolActive());
                 static_cast<MouseDragPolicyType*>(this)->doCancelMouseDrag();
+                m_dragging = false;
             }
             
             void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) {

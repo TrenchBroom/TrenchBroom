@@ -43,7 +43,7 @@ namespace TrenchBroom {
         class MovementRestriction;
         class Selection;
         
-        class VertexTool : public Tool, public MoveToolDelegate {
+        class VertexTool : public Tool {
         private:
             typedef enum {
                 Mode_Move,
@@ -59,7 +59,7 @@ namespace TrenchBroom {
             Vec3 m_dragHandlePosition;
             bool m_dragging;
         public:
-            VertexTool(MapDocumentWPtr document, MovementRestriction& movementRestriction);
+            VertexTool(MapDocumentWPtr document);
             
             void pick(const Ray3& pickRay, Hits& hits);
             

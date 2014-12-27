@@ -73,6 +73,7 @@ namespace TrenchBroom {
         public:
             virtual ~MoveToolHelper();
             
+            bool handleMove(const InputState& inputState) const;
             bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
             void endPlaneDrag(const InputState& inputState);

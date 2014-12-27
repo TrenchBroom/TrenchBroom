@@ -43,9 +43,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        VertexTool::VertexTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
+        VertexTool::VertexTool(MapDocumentWPtr document) :
         Tool(false),
-        MoveToolDelegate(),
         m_document(document),
         m_handleManager(m_document),
         m_mode(Mode_Move),
