@@ -19,12 +19,12 @@ Build environment
 - Change into wxwidgets/build-release
 - Run 
   - If you copied the 10.6 SDK to /Developer/SDKs
-  ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --with-macosx-version-min=10.6
+  ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --with-macosx-version-min=10.6 --without-liblzma
 - Run make (don't run make install!)
 - Change into wxwidgets/build-debug
 - Run 
   - If you copied the 10.6 SDK to /Developer/SDKs
-  ../configure --enable-debug --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --with-macosx-version-min=10.6
+  ../configure --enable-debug --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --with-macosx-version-min=10.6 --without-liblzma
 - Run make, then sudo make install
 - Create a link from TrenchBroom/Mac/wxWidgets to your wxWidgets directory, e.g.
   ln -s ~/Documents/Code/wxWidgets-2.9.5 ~/Documents/Code/TrenchBroom/Mac/wxWidgets
