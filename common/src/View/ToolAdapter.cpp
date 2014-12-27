@@ -36,8 +36,9 @@ namespace TrenchBroom {
         
         MousePolicy::~MousePolicy() {}
 
-        bool MousePolicy::doMouseDown(const InputState& inputState) { return false; }
-        bool MousePolicy::doMouseUp(const InputState& inputState) { return false; }
+        void MousePolicy::doMouseDown(const InputState& inputState) {}
+        void MousePolicy::doMouseUp(const InputState& inputState) {}
+        bool MousePolicy::doMouseClick(const InputState& inputState) { return false; }
         bool MousePolicy::doMouseDoubleClick(const InputState& inputState) { return false; }
         void MousePolicy::doMouseMove(const InputState& inputState) {}
         void MousePolicy::doMouseScroll(const InputState& inputState) {}

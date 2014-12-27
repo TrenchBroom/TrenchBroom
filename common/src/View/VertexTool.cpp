@@ -52,8 +52,8 @@ namespace TrenchBroom {
         m_ignoreChangeNotifications(false),
         m_dragging(false) {}
 
-        void VertexTool::pick(const Ray3& pickRay, Hits& hits) {
-            m_handleManager.pick(pickRay, hits, m_mode == Mode_Split);
+        void VertexTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Hits& hits) {
+            m_handleManager.pick(pickRay, camera, hits, m_mode == Mode_Split);
         }
         
         bool VertexTool::deselectAll() {

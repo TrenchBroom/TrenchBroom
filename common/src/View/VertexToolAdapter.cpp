@@ -41,7 +41,7 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        bool VertexToolAdapter::doMouseDown(const InputState& inputState) {
+        bool VertexToolAdapter::doMouseClick(const InputState& inputState) {
             if (dismissClick(inputState))
                 return false;
             
@@ -177,14 +177,14 @@ namespace TrenchBroom {
         VertexToolAdapter(tool, new MoveToolHelper2D(this)) {}
         
         void VertexToolAdapter2D::doPick(const InputState& inputState, Hits& hits) {
-            m_tool->pick(inputState.pickRay(), hits);
+            m_tool->pick(inputState.pickRay(), inputState.camera(), hits);
         }
 
         VertexToolAdapter3D::VertexToolAdapter3D(VertexTool* tool, MovementRestriction& movementRestriction) :
         VertexToolAdapter(tool, new MoveToolHelper3D(this, movementRestriction)) {}
         
         void VertexToolAdapter3D::doPick(const InputState& inputState, Hits& hits) {
-            m_tool->pick(inputState.pickRay(), hits);
+            m_tool->pick(inputState.pickRay(), inputState.camera(), hits);
         }
     }
 }

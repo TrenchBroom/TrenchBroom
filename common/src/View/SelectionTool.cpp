@@ -42,7 +42,7 @@ namespace TrenchBroom {
             return this;
         }
 
-        bool SelectionTool::doMouseUp(const InputState& inputState) {
+        bool SelectionTool::doMouseClick(const InputState& inputState) {
             if (!handleClick(inputState))
                 return false;
             

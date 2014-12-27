@@ -34,6 +34,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class Camera;
         class RenderBatch;
         class RenderContext;
     }
@@ -61,7 +62,7 @@ namespace TrenchBroom {
         public:
             VertexTool(MapDocumentWPtr document);
             
-            void pick(const Ray3& pickRay, Hits& hits);
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Hits& hits);
             
             bool deselectAll();
             bool mergeVertices(const Hit& hit);

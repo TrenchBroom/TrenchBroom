@@ -157,23 +157,24 @@ namespace TrenchBroom {
             } else {
                 if (m_toolBox->dragging()) {
                     m_toolBox->endMouseDrag(m_inputState);
+                    m_toolBox->mouseUp(m_toolChain, m_inputState);
                     m_inputState.mouseUp(button);
                     releaseMouse();
                 } else if (!m_ignoreNextDrag) {
-                    const bool handled = m_toolBox->mouseUp(m_toolChain, m_inputState);
+                    m_toolBox->mouseUp(m_toolChain, m_inputState);
+                    const bool handled = m_toolBox->mouseClick(m_toolChain, m_inputState);
                     m_inputState.mouseUp(button);
                     releaseMouse();
                     
                     if (button == MouseButtons::MBRight && !handled) {
                         // We miss mouse events when a popup menu is already open, so we must make sure that the input
                         // state is up to date.
-                        
                         mouseMoved(event.GetPosition());
                         updateHits();
-                        
                         showPopupMenu();
                     }
                 } else {
+                    m_toolBox->mouseUp(m_toolChain, m_inputState);
                     m_inputState.mouseUp(button);
                     releaseMouse();
                 }

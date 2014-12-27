@@ -48,8 +48,9 @@ namespace TrenchBroom {
             
             void modifierKeyChange(const InputState& inputState);
             
-            bool mouseDown(const InputState& inputState);
-            bool mouseUp(const InputState& inputState);
+            void mouseDown(const InputState& inputState);
+            void mouseUp(const InputState& inputState);
+            bool mouseClick(const InputState& inputState);
             bool mouseDoubleClick(const InputState& inputState);
             void mouseScroll(const InputState& inputState);
             void mouseMove(const InputState& inputState);

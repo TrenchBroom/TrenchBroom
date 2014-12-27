@@ -43,7 +43,7 @@ namespace TrenchBroom {
         private:
             Tool* doGetTool();
             
-            bool doMouseDown(const InputState& inputState);
+            bool doMouseClick(const InputState& inputState);
             bool doMouseDoubleClick(const InputState& inputState);
             bool dismissClick(const InputState& inputState) const;
 

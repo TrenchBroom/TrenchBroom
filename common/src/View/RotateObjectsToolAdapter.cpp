@@ -57,7 +57,7 @@ namespace TrenchBroom {
                 resetPlane(inputState);
         }
         
-        bool RotateObjectsToolAdapter::doMouseDown(const InputState& inputState) {
+        bool RotateObjectsToolAdapter::doMouseClick(const InputState& inputState) {
             const Hit& hit = inputState.hits().findFirst(RotateObjectsHandle::HandleHit, true);
             if (hit.isMatch() && inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
@@ -65,11 +65,6 @@ namespace TrenchBroom {
                 return true;
             }
             return false;
-        }
-        
-        bool RotateObjectsToolAdapter::doMouseUp(const InputState& inputState) {
-            const Hit& hit = inputState.hits().findFirst(RotateObjectsHandle::HandleHit, true);
-            return hit.isMatch() && inputState.mouseButtonsPressed(MouseButtons::MBLeft);
         }
 
         bool RotateObjectsToolAdapter::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {

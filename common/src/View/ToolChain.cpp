@@ -62,24 +62,31 @@ namespace TrenchBroom {
             }
         }
         
-        bool ToolChain::mouseDown(const InputState& inputState) {
+        void ToolChain::mouseDown(const InputState& inputState) {
+            assert(checkInvariant());
+            if (!chainEndsHere()) {
+                m_tool->mouseDown(inputState);
+                m_suffix->mouseDown(inputState);
+            }
+        }
+        
+        void ToolChain::mouseUp(const InputState& inputState) {
+            assert(checkInvariant());
+            if (!chainEndsHere()) {
+                m_tool->mouseUp(inputState);
+                m_suffix->mouseUp(inputState);
+            }
+        }
+        
+        bool ToolChain::mouseClick(const InputState& inputState) {
             assert(checkInvariant());
             if (chainEndsHere())
                 return false;
-            if (m_tool->mouseDown(inputState))
+            if (m_tool->mouseClick(inputState))
                 return true;
-            return m_suffix->mouseDown(inputState);
+            return m_suffix->mouseClick(inputState);
         }
-        
-        bool ToolChain::mouseUp(const InputState& inputState) {
-            assert(checkInvariant());
-            if (chainEndsHere())
-                return false;
-            if (m_tool->mouseUp(inputState))
-                return true;
-            return m_suffix->mouseUp(inputState);
-        }
-        
+
         bool ToolChain::mouseDoubleClick(const InputState& inputState) {
             assert(checkInvariant());
             if (chainEndsHere())

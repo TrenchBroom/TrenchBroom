@@ -83,7 +83,8 @@ namespace TrenchBroom {
 
             void modifierKeyChange(ToolChain* chain, const InputState& inputState);
             void mouseDown(ToolChain* chain, const InputState& inputState);
-            bool mouseUp(ToolChain* chain, const InputState& inputState);
+            void mouseUp(ToolChain* chain, const InputState& inputState);
+            bool mouseClick(ToolChain* chain, const InputState& inputState);
             void mouseDoubleClick(ToolChain* chain, const InputState& inputState);
             void mouseMove(ToolChain* chain, const InputState& inputState);
             

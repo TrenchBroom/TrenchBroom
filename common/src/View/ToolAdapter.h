@@ -67,8 +67,9 @@ namespace TrenchBroom {
         public:
             virtual ~MousePolicy();
         public:
-            virtual bool doMouseDown(const InputState& inputState);
-            virtual bool doMouseUp(const InputState& inputState);
+            virtual void doMouseDown(const InputState& inputState);
+            virtual void doMouseUp(const InputState& inputState);
+            virtual bool doMouseClick(const InputState& inputState);
             virtual bool doMouseDoubleClick(const InputState& inputState);
             virtual void doMouseMove(const InputState& inputState);
             virtual void doMouseScroll(const InputState& inputState);
@@ -172,8 +173,9 @@ namespace TrenchBroom {
             
             virtual void modifierKeyChange(const InputState& inputState) = 0;
 
-            virtual bool mouseDown(const InputState& inputState) = 0;
-            virtual bool mouseUp(const InputState& inputState) = 0;
+            virtual void mouseDown(const InputState& inputState) = 0;
+            virtual void mouseUp(const InputState& inputState) = 0;
+            virtual bool mouseClick(const InputState& inputState) = 0;
             virtual bool mouseDoubleClick(const InputState& inputState) = 0;
             virtual void mouseMove(const InputState& inputState) = 0;
             virtual void mouseScroll(const InputState& inputState) = 0;
@@ -216,15 +218,19 @@ namespace TrenchBroom {
                     static_cast<KeyPolicyType*>(this)->doModifierKeyChange(inputState);
             }
             
-            bool mouseDown(const InputState& inputState) {
+            void mouseDown(const InputState& inputState) {
                 if (toolActive())
-                    return static_cast<MousePolicyType*>(this)->doMouseDown(inputState);
-                return false;
+                    static_cast<MousePolicyType*>(this)->doMouseDown(inputState);
             }
             
-            bool mouseUp(const InputState& inputState) {
+            void mouseUp(const InputState& inputState) {
                 if (toolActive())
-                    return static_cast<MousePolicyType*>(this)->doMouseUp(inputState);
+                    static_cast<MousePolicyType*>(this)->doMouseUp(inputState);
+            }
+            
+            bool mouseClick(const InputState& inputState) {
+                if (toolActive())
+                    return static_cast<MousePolicyType*>(this)->doMouseClick(inputState);
                 return false;
             }
             

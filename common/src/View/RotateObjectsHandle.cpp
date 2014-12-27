@@ -34,7 +34,6 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 #include "View/InputState.h"
-#include "View/PointHandle.h"
 
 #include <cassert>
 
@@ -247,9 +246,7 @@ namespace TrenchBroom {
         */
         
         Hit RotateObjectsHandle::pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const {
-            const PointHandle handle(position, Color());
-            const FloatType distance = handle.pick(pickRay, camera);
-            
+            const FloatType distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
             if (Math::isnan(distance))
                 return Hit::NoHit;
             return Hit(HandleHit, distance, pickRay.pointAtDistance(distance), area);

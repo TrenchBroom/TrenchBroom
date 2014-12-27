@@ -139,10 +139,15 @@ namespace TrenchBroom {
                 chain->mouseDown(inputState);
         }
 
-        bool ToolBox::mouseUp(ToolChain* chain, const InputState& inputState) {
-            if (!m_enabled)
-                return false;
-            return chain->mouseUp(inputState);
+        void ToolBox::mouseUp(ToolChain* chain, const InputState& inputState) {
+            if (m_enabled)
+                chain->mouseUp(inputState);
+        }
+
+        bool ToolBox::mouseClick(ToolChain* chain, const InputState& inputState) {
+            if (m_enabled)
+                return chain->mouseClick(inputState);
+            return false;
         }
 
         void ToolBox::mouseDoubleClick(ToolChain* chain, const InputState& inputState) {

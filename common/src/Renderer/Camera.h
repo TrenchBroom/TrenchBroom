@@ -127,6 +127,8 @@ namespace TrenchBroom {
             
             void renderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const;
             float pickFrustum(float size, const Ray3f& ray) const;
+            
+            FloatType pickPointHandle(const Ray3& pickRay, const Vec3& handlePosition, const FloatType handleRadius) const;
         protected:
             Camera();
             Camera(float nearPlane, float farPlane, const Viewport& viewport, const Vec3f& position, const Vec3f& direction, const Vec3f& up);

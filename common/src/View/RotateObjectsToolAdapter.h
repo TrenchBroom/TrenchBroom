@@ -50,8 +50,7 @@ namespace TrenchBroom {
             void doPick(const InputState& inputState, Hits& hits);
 
             void doModifierKeyChange(const InputState& inputState);
-            bool doMouseDown(const InputState& inputState);
-            bool doMouseUp(const InputState& inputState);
+            bool doMouseClick(const InputState& inputState);
             
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
