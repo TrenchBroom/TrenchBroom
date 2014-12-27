@@ -108,14 +108,14 @@ XCopy "$(ProjectDir)..\..\Resources\Help\Documentation\*" "$(TargetDir)Resources
 Copy "$(ProjectDir)..\Lib\freetype6.dll" "$(TargetDir)"
 Copy "$(ProjectDir)..\Lib\zlib1.dll" "$(TargetDir)"
 
-Copy "$(WXWIN)\lib\vc_dll\wxbase295ud_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc_dll\wxbase295ud_vc100.pdb" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_core_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_core_vc100.pdb" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_adv_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_adv_vc100.pdb" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_gl_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc_dll\wxmsw295ud_gl_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxbase295ud_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxbase295ud_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw295ud_core_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw295ud_core_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw295ud_adv_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw295ud_adv_vc100.pdb" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw295ud_gl_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw295ud_gl_vc100.pdb" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
     <PreBuildEvent>
@@ -188,10 +188,10 @@ XCopy "$(ProjectDir)..\..\Resources\Help\Documentation\*" "$(TargetDir)Resources
 Copy "$(ProjectDir)..\Lib\freetype6.dll" "$(TargetDir)"
 Copy "$(ProjectDir)..\Lib\zlib1.dll" "$(TargetDir)"
 
-Copy "$(WXWIN)\lib\vc_dll\wxbase295u_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc_dll\wxmsw295u_core_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc_dll\wxmsw295u_adv_vc100.dll" "$(TargetDir)"
-Copy "$(WXWIN)\lib\vc_dll\wxmsw295u_gl_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxbase295u_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw295u_core_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw295u_adv_vc100.dll" "$(TargetDir)"
+Copy "$(WXWIN)\lib\vc100_dll\wxmsw295u_gl_vc100.dll" "$(TargetDir)"
 </Command>
     </PostBuildEvent>
     <PreBuildEvent>

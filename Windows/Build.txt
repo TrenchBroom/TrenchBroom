@@ -1,9 +1,9 @@
 Build environment
-1. You need Microsoft Visual C++ 2010. The Express edition won't work. Sorry.
+1. You need Microsoft Visual C++ 2010. The Express edition will work.
 
 2. wxWidgets
 - Get the binary build of wxWidgets 2.9.5 for your platform from
-  http://sourceforge.net/projects/wxwindows/files/2.9.4/binaries/
+  http://sourceforge.net/projects/wxwindows/files/2.9.5/binaries/
 
   - For 32bit builds, you need the following files:
     - wxWidgets-2.9.5_Headers.7z
@@ -12,9 +12,8 @@ Build environment
     - wxMSW-2.9.5_vc100_ReleasePDB.7z
 
 - Unpack all files into the same directory so that "include" and "lib" directories are at the same level after unpacking.
-- Rename the directory lib/vc100_dll to lib/vc_dll
 - Set up an environment variable named "WXWIN" pointing to the directory that contains the aforementioned directories.
-- Add C:\wxWidgets-2.9.5\lib\vc_dll to the "PATH" environment variable.
+- Add C:\wxWidgets-2.9.5\lib\vc100_dll to the "PATH" environment variable.
 
 3. Build
 Open the Visual Studio solution at Windows/TrenchBroom.sln and compile / run it!
