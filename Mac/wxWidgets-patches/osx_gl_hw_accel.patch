@@ -1,5 +1,5 @@
---- glcanvas_orig.mm	2013-07-16 17:47:14.000000000 +0200
-+++ glcanvas.mm	2013-09-25 20:02:54.000000000 +0200
+--- src/osx/cocoa/glcanvas_orig.mm	2013-07-16 17:47:14.000000000 +0200
++++ src/osx/cocoa/glcanvas.mm	2013-09-25 20:02:54.000000000 +0200
 @@ -89,6 +89,7 @@
          NSOpenGLPFAColorSize,(NSOpenGLPixelFormatAttribute)8,
          NSOpenGLPFAAlphaSize,(NSOpenGLPixelFormatAttribute)0,
