@@ -342,6 +342,16 @@ namespace TrenchBroom {
             return m_selectedBrushFaces;
         }
 
+        const BBox3& MapDocument::referenceBounds() const {
+            if (hasSelectedNodes())
+                return selectionBounds();
+            return lastSelectionBounds();
+        }
+
+        const BBox3& MapDocument::lastSelectionBounds() const {
+            return m_lastSelectionBounds;
+        }
+
         const BBox3& MapDocument::selectionBounds() const {
             if (!m_selectionBoundsValid)
                 validateSelectionBounds();
@@ -448,6 +458,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::invalidateSelectionBounds() {
+            m_lastSelectionBounds = selectionBounds();
             m_selectionBoundsValid = false;
         }
 

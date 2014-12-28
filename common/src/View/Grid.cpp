@@ -134,9 +134,7 @@ namespace TrenchBroom {
             return actualDelta;
         }
         
-        Vec3 Grid::moveDeltaForBounds(const Model::BrushFace* face, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const Vec3& position) const {
-            const Plane3 dragPlane = alignedOrthogonalDragPlane(position, face->boundary().normal);
-            
+        Vec3 Grid::moveDeltaForBounds(const Plane3& dragPlane, const BBox3& bounds, const BBox3& worldBounds, const Ray3& ray, const Vec3& position) const {
             const Vec3 halfSize = bounds.size() * 0.5;
             FloatType offsetLength = halfSize.dot(dragPlane.normal);
             if (offsetLength < 0.0)

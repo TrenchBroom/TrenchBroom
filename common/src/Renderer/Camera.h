@@ -53,9 +53,9 @@ namespace TrenchBroom {
                             i_y >= static_cast<T>(0) && i_y <= static_cast<T>(height));
                 }
             };
-        private:
+        public:
             static const float DefaultPointDistance;
-            
+        private:
             float m_nearPlane;
             float m_farPlane;
             Viewport m_unzoomedViewport;

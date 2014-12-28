@@ -112,6 +112,7 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::nodesDidChange(const Model::NodeList& nodes) {
+            updateHits();
             Refresh();
         }
 

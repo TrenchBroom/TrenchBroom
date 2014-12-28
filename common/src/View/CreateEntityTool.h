@@ -20,33 +20,34 @@
 #ifndef __TrenchBroom__CreateEntityTool__
 #define __TrenchBroom__CreateEntityTool__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "StringUtils.h"
 #include "View/Tool.h"
-#include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    class Hits;
+    
     namespace Model {
         class Entity;
     }
     
     namespace View {
-        class CreateEntityTool : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, NoMouseDragPolicy, NoRenderPolicy, DropPolicy>, public Tool {
+        class CreateEntityTool : public Tool {
         private:
             MapDocumentWPtr m_document;
             Model::Entity* m_entity;
+            BBox3 m_referenceBounds;
         public:
             CreateEntityTool(MapDocumentWPtr document);
-        private:
-            Tool* doGetTool();
-
-            bool doDragEnter(const InputState& inputState, const String& payload);
-            bool doDragMove(const InputState& inputState);
-            void doDragLeave(const InputState& inputState);
-            bool doDragDrop(const InputState& inputState);
-            void updateEntityPosition(const InputState& inputState);
-
-            bool doCancel();
+            
+            bool createEntity(const String& classname);
+            void removeEntity();
+            void commitEntity();
+            
+            void updateEntityPosition2D(const Ray3& pickRay);
+            void updateEntityPosition3D(const Ray3& pickRay, const Hits& hits);
         };
     }
 }

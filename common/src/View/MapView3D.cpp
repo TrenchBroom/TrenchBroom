@@ -20,6 +20,7 @@
 #include "MapView3D.h"
 #include "Logger.h"
 #include "Model/Brush.h"
+#include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
@@ -34,7 +35,7 @@
 #include "View/CameraAnimation.h"
 #include "View/CameraTool3D.h"
 #include "View/CommandIds.h"
-#include "View/CreateEntityTool.h"
+#include "View/CreateEntityToolAdapter.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
 #include "View/GLContextManager.h"
@@ -58,6 +59,7 @@ namespace TrenchBroom {
         m_movementRestriction(),
         m_camera(),
         m_compass(new Renderer::Compass(m_movementRestriction)),
+        m_createEntityToolAdapter(NULL),
         m_moveObjectsToolAdapter(NULL),
         m_rotateObjectsToolAdapter(NULL),
         m_vertexToolAdapter(NULL),
@@ -76,10 +78,12 @@ namespace TrenchBroom {
             delete m_vertexToolAdapter;
             delete m_rotateObjectsToolAdapter;
             delete m_moveObjectsToolAdapter;
+            delete m_createEntityToolAdapter;
             delete m_compass;
         }
         
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
+            m_createEntityToolAdapter = new CreateEntityToolAdapter3D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter3D(toolBox.moveObjectsTool(), m_movementRestriction);
             m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter3D(toolBox.rotateObjectsTool(), m_movementRestriction);
             m_vertexToolAdapter = new VertexToolAdapter3D(toolBox.vertexTool(), m_movementRestriction);
@@ -89,7 +93,7 @@ namespace TrenchBroom {
             addTool(m_moveObjectsToolAdapter);
             addTool(m_rotateObjectsToolAdapter);
             addTool(m_vertexToolAdapter);
-            addTool(toolBox.createEntityTool());
+            addTool(m_createEntityToolAdapter);
             addTool(toolBox.selectionTool());
         }
 
@@ -276,7 +280,8 @@ namespace TrenchBroom {
                 if (hit.isMatch()) {
                     const Model::BrushFace* face = Model::hitToFace(hit);
                     const Vec3 snappedHitPoint = grid.snap(hit.hitPoint());
-                    return grid.moveDeltaForBounds(face, bounds, document->worldBounds(), pickRay, snappedHitPoint);
+                    const Plane3 dragPlane = alignedOrthogonalDragPlane(snappedHitPoint, face->boundary().normal);
+                    return grid.moveDeltaForBounds(dragPlane, bounds, document->worldBounds(), pickRay, snappedHitPoint);
                 } else {
                     const Vec3 snappedCenter = grid.snap(bounds.center());
                     const Vec3 snappedDefaultPoint = grid.snap(m_camera.defaultPoint(pickRay));

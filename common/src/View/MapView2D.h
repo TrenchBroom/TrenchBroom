@@ -39,6 +39,7 @@ namespace TrenchBroom {
     
     namespace View {
         class CameraTool2D;
+        class CreateEntityToolAdapter;
         class GLContextManager;
         class MoveObjectsToolAdapter;
         class RotateObjectsToolAdapter;
@@ -54,6 +55,7 @@ namespace TrenchBroom {
         private:
             Renderer::OrthographicCamera m_camera;
 
+            CreateEntityToolAdapter* m_createEntityToolAdapter;
             MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
             RotateObjectsToolAdapter* m_rotateObjectsToolAdapter;
             VertexToolAdapter* m_vertexToolAdapter;
