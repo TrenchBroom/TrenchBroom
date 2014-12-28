@@ -98,6 +98,8 @@ namespace TrenchBroom {
         void AttributableNode::setDefinition(Assets::EntityDefinition* definition) {
             if (m_definition == definition)
                 return;
+            
+            attributesWillChange();
             if (m_definition != NULL)
                 m_definition->decUsageCount();
             m_definition = definition;
@@ -116,6 +118,7 @@ namespace TrenchBroom {
         }
         
         void AttributableNode::setAttributes(const EntityAttribute::List& attributes) {
+            attributesWillChange();
             updateAttributeIndex(attributes);
             m_attributes.setAttributes(attributes);
             m_attributes.updateDefinitions(m_definition);
@@ -142,6 +145,8 @@ namespace TrenchBroom {
         }
         
         void AttributableNode::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) {
+            attributesWillChange();
+
             const Assets::AttributeDefinition* definition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, name);
             const AttributeValue* oldValue = m_attributes.attribute(name);
             if (oldValue != NULL) {
@@ -167,6 +172,8 @@ namespace TrenchBroom {
             if (valuePtr == NULL)
                 return;
             
+            attributesWillChange();
+
             const Assets::AttributeDefinition* newDefinition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, newName);
             m_attributes.renameAttribute(name, newName, newDefinition);
             
@@ -184,6 +191,9 @@ namespace TrenchBroom {
             const AttributeValue* valuePtr = m_attributes.attribute(name);
             if (valuePtr == NULL)
                 return;
+
+            attributesWillChange();
+
             const AttributeValue value = *valuePtr;
             m_attributes.removeAttribute(name);
             
@@ -198,6 +208,10 @@ namespace TrenchBroom {
         
         bool AttributableNode::isAttributeValueMutable(const AttributeName& name) const {
             return doIsAttributeValueMutable(name);
+        }
+
+        void AttributableNode::attributesWillChange() {
+            nodeWillChange();
         }
 
         void AttributableNode::attributesDidChange() {

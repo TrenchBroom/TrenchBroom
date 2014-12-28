@@ -39,7 +39,11 @@ namespace TrenchBroom {
     
     namespace View {
         class CameraTool2D;
+        class CreateEntityToolAdapter;
         class GLContextManager;
+        class MoveObjectsToolAdapter;
+        class RotateObjectsToolAdapter;
+        class VertexToolAdapter;
         
         class MapView2D : public MapViewBase {
         public:
@@ -50,6 +54,11 @@ namespace TrenchBroom {
             } ViewPlane;
         private:
             Renderer::OrthographicCamera m_camera;
+
+            CreateEntityToolAdapter* m_createEntityToolAdapter;
+            MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
+            RotateObjectsToolAdapter* m_rotateObjectsToolAdapter;
+            VertexToolAdapter* m_vertexToolAdapter;
             CameraTool2D* m_cameraTool;
         public:
             MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, ViewPlane viewPlane);

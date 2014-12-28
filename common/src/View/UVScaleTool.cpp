@@ -39,9 +39,15 @@ namespace TrenchBroom {
         const Hit::HitType UVScaleTool::YHandleHit = Hit::freeHitType();
         
         UVScaleTool::UVScaleTool(MapDocumentWPtr document, UVViewHelper& helper) :
-        ToolImpl(document),
+        ToolAdapterBase(),
+        Tool(true),
+        m_document(document),
         m_helper(helper) {}
 
+        Tool* UVScaleTool::doGetTool() {
+            return this;
+        }
+        
         void UVScaleTool::doPick(const InputState& inputState, Hits& hits) {
             static const Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
             if (m_helper.valid())
@@ -82,7 +88,8 @@ namespace TrenchBroom {
             m_selector = Vec2b(xHit.isMatch(), yHit.isMatch());
             m_lastHitPoint = getHitPoint(inputState.pickRay());
             
-            document()->beginTransaction("Scale Texture");
+            MapDocumentSPtr document = lock(m_document);
+            document->beginTransaction("Scale Texture");
             return true;
         }
         
@@ -110,26 +117,28 @@ namespace TrenchBroom {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setScale(newScale);
             
-            document()->setFaceAttributes(request);
+            MapDocumentSPtr document = lock(m_document);
+            document->setFaceAttributes(request);
             
             const Vec2f newOriginInTexCoords = m_helper.originInTexCoords().corrected(4, 0.0f);
             const Vec2f originDelta = originHandlePosTexCoords - newOriginInTexCoords;
             
             request.clear();
             request.addOffset(originDelta);
-            document()->setFaceAttributes(request);
+            document->setFaceAttributes(request);
             
             m_lastHitPoint += (dragDeltaFaceCoords - newHandlePosFaceCoords + newHandlePosSnapped);
             return true;
         }
         
         void UVScaleTool::doEndMouseDrag(const InputState& inputState) {
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->commitTransaction();
         }
         
         void UVScaleTool::doCancelMouseDrag() {
-            document()->rollbackTransaction();
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
         }
 
         Vec2f UVScaleTool::getScaledTranslatedHandlePos() const {
@@ -209,6 +218,10 @@ namespace TrenchBroom {
             }
             
             return vertices;
+        }
+        
+        bool UVScaleTool::doCancel() {
+            return false;
         }
     }
 }

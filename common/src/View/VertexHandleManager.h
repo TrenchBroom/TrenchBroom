@@ -33,6 +33,7 @@
 
 namespace TrenchBroom {
     namespace Renderer {
+        class Camera;
         class RenderBatch;
         class RenderContext;
     }
@@ -126,7 +127,7 @@ namespace TrenchBroom {
             void reselectEdgeHandles(const Model::BrushList& brushes, const Vec3::List& positions, FloatType maxDistance);
             void reselectFaceHandles(const Model::BrushList& brushes, const Vec3::List& positions, FloatType maxDistance);
             
-            void pick(const Ray3& ray, Hits& hits, bool splitMode) const;
+            void pick(const Ray3& ray, const Renderer::Camera& camera, Hits& hits, bool splitMode) const;
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, bool splitMode);
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
         private:
@@ -185,7 +186,7 @@ namespace TrenchBroom {
             Vec3::List findEdgeHandlePositions(const Model::BrushList& brushes, const Vec3& query, FloatType maxDistance);
             Vec3::List findFaceHandlePositions(const Model::BrushList& brushes, const Vec3& query, FloatType maxDistance);
             
-            Hit pickHandle(const Ray3& ray, const Vec3& position, Hit::HitType type) const;
+            Hit pickHandle(const Ray3& ray, const Renderer::Camera& camera, const Vec3& position, Hit::HitType type) const;
             void validateRenderState(bool splitMode);
         };
     }

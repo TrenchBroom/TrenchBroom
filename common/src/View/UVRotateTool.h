@@ -22,6 +22,7 @@
 
 #include "Hit.h"
 #include "View/Tool.h"
+#include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -33,7 +34,7 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
 
-        class UVRotateTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class UVRotateTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
             static const Hit::HitType AngleHandleHit;
         private:
@@ -41,12 +42,15 @@ namespace TrenchBroom {
             static const float RotateHandleRadius;
             static const float RotateHandleWidth;
             
+            MapDocumentWPtr m_document;
             UVViewHelper& m_helper;
 
             float m_initalAngle;
         public:
             UVRotateTool(MapDocumentWPtr document, UVViewHelper& helper);
         private:
+            Tool* doGetTool();
+            
             void doPick(const InputState& inputState, Hits& hits);
             
             bool doStartMouseDrag(const InputState& inputState);
@@ -60,6 +64,8 @@ namespace TrenchBroom {
 
             class Render;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            
+            bool doCancel();
         };
     }
 }

@@ -68,7 +68,6 @@ namespace TrenchBroom {
                 addOrUpdateAttribute(name, value.asString());
             }
             
-            
             bool canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const;
             void addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value);
             
@@ -88,6 +87,7 @@ namespace TrenchBroom {
                 str << value;
                 return str.str();
             }
+            void attributesWillChange();
             void attributesDidChange();
         private: // search index management
             void addAttributesToIndex();

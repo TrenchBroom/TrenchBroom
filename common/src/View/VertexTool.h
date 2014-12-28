@@ -24,7 +24,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Hit.h"
-#include "View/MoveTool.h"
+#include "View/MoveToolAdapter.h"
 #include "View/Tool.h"
 #include "View/VertexHandleManager.h"
 
@@ -34,6 +34,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class Camera;
         class RenderBatch;
         class RenderContext;
     }
@@ -43,30 +44,56 @@ namespace TrenchBroom {
         class MovementRestriction;
         class Selection;
         
-        class VertexTool : public MoveTool<ActivationPolicy, PickingPolicy, MousePolicy, NoDropPolicy, RenderPolicy> {
+        class VertexTool : public Tool {
         private:
-            static const FloatType MaxVertexDistance;
-            static const FloatType MaxVertexError;
-            
             typedef enum {
                 Mode_Move,
                 Mode_Split,
                 Mode_Snap
             } Mode;
 
+            MapDocumentWPtr m_document;
             VertexHandleManager m_handleManager;
             Mode m_mode;
             size_t m_changeCount;
             bool m_ignoreChangeNotifications;
             Vec3 m_dragHandlePosition;
+            bool m_dragging;
         public:
-            VertexTool(MapDocumentWPtr document, MovementRestriction& movementRestriction);
+            VertexTool(MapDocumentWPtr document);
             
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Hits& hits);
+            
+            bool deselectAll();
+            bool mergeVertices(const Hit& hit);
+            bool select(const Hits::List& hits, bool addToSelection);
+            bool handleDoubleClicked(const Hit& hit);
+
+            bool beginMove(const Hit& hit);
+            Vec3 snapMoveDelta(const Vec3& delta, const Hit& hit, bool relative);
+            MoveResult move(const Vec3& delta);
+            void endMove();
+            void cancelMove();
+            
+            void renderHandles(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
+            
+            bool cancel();
+            
+            bool handleBrushes(const Vec3& position, Model::BrushSet& brushes) const;
+            bool handleSelected(const Vec3& position) const;
             bool hasSelectedHandles() const;
             void moveVerticesAndRebuildBrushGeometry(const Vec3& delta);
             bool canSnapVertices() const;
             void snapVertices(size_t snapTo);
         private:
+            void selectVertex(const Hits::List& hits, bool addToSelection);
+            void selectEdge(const Hits::List& hits, bool addToSelection);
+            void selectFace(const Hits::List& hits, bool addToSelection);
+            
+            String actionName() const;
+            
             MoveResult moveVertices(const Vec3& delta);
             MoveResult doMoveVertices(const Vec3& delta);
             MoveResult doMoveEdges(const Vec3& delta);
@@ -76,33 +103,8 @@ namespace TrenchBroom {
 
             void rebuildBrushGeometry();
 
-            bool doHandleMove(const InputState& inputState) const;
-            Vec3 doGetMoveOrigin(const InputState& inputState) const;
-            String doGetActionName(const InputState& inputState) const;
-            bool doStartMove(const InputState& inputState);
-            Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;
-            MoveResult doMove(const InputState& inputState, const Vec3& delta);
-            void doEndMove(const InputState& inputState);
-            
-            bool initiallyActive() const;
             bool doActivate();
             bool doDeactivate();
-            
-            bool doCancel();
-            
-            void doPick(const InputState& inputState, Hits& hits);
-
-            bool doMouseDown(const InputState& inputState);
-            bool doMouseUp(const InputState& inputState);
-            bool doMouseDoubleClick(const InputState& inputState);
-
-            bool dismissClick(const InputState& inputState) const;
-            void vertexHandleClicked(const InputState& inputState, const Hits::List& hits);
-            void edgeHandleClicked(const InputState& inputState, const Hits::List& hits);
-            void faceHandleClicked(const InputState& inputState, const Hits::List& hits);
-
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
             void bindObservers();
             void unbindObservers();
@@ -115,9 +117,6 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const Model::NodeList& nodes);
             void nodesDidChange(const Model::NodeList& nodes);
-            
-            const Hit& firstHit(const Hits& hits) const;
-            Hits::List firstHits(const Hits& hits) const;
         };
     }
 }

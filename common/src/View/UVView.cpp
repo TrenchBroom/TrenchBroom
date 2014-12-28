@@ -81,11 +81,11 @@ namespace TrenchBroom {
 
         void UVView::createTools() {
             m_rotateTool = new UVRotateTool(m_document, m_helper);
-            m_originTool = new UVOriginTool(m_document, m_helper);
+            m_originTool = new UVOriginTool(m_helper);
             m_scaleTool = new UVScaleTool(m_document, m_helper);
             m_shearTool = new UVShearTool(m_document, m_helper);
             m_offsetTool = new UVOffsetTool(m_document, m_helper);
-            m_cameraTool = new UVCameraTool(m_document, m_camera);
+            m_cameraTool = new UVCameraTool(m_camera);
 
             addTool(m_rotateTool);
             addTool(m_originTool);
@@ -346,7 +346,6 @@ namespace TrenchBroom {
             renderEdges->setRenderOccluded();
             renderEdges->setWidth(2.0f);
             renderBatch.addOneShot(renderEdges);
-            
         }
 
         void UVView::renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

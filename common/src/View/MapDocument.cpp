@@ -342,6 +342,16 @@ namespace TrenchBroom {
             return m_selectedBrushFaces;
         }
 
+        const BBox3& MapDocument::referenceBounds() const {
+            if (hasSelectedNodes())
+                return selectionBounds();
+            return lastSelectionBounds();
+        }
+
+        const BBox3& MapDocument::lastSelectionBounds() const {
+            return m_lastSelectionBounds;
+        }
+
         const BBox3& MapDocument::selectionBounds() const {
             if (!m_selectionBoundsValid)
                 validateSelectionBounds();
@@ -448,6 +458,7 @@ namespace TrenchBroom {
         }
 
         void MapDocument::invalidateSelectionBounds() {
+            m_lastSelectionBounds = selectionBounds();
             m_selectionBoundsValid = false;
         }
 
@@ -647,17 +658,17 @@ namespace TrenchBroom {
             doBeginTransaction(name);
         }
         
-        void MapDocument::endTransaction() {
-            doEndTransaction();
-        }
-        
         void MapDocument::rollbackTransaction() {
             doRollbackTransaction();
         }
 
+        void MapDocument::commitTransaction() {
+            doEndTransaction();
+        }
+        
         void MapDocument::cancelTransaction() {
-            rollbackTransaction();
-            endTransaction();
+            doRollbackTransaction();
+            doEndTransaction();
         }
 
         bool MapDocument::submit(UndoableCommand* command) {
@@ -1094,7 +1105,7 @@ namespace TrenchBroom {
 
         Transaction::~Transaction() {
             if (!m_cancelled)
-                end();
+                commit();
         }
 
         void Transaction::rollback() {
@@ -1110,8 +1121,8 @@ namespace TrenchBroom {
             m_document->beginTransaction(name);
         }
         
-        void Transaction::end() {
-            m_document->endTransaction();
+        void Transaction::commit() {
+            m_document->commitTransaction();
         }
     }
 }

@@ -21,16 +21,27 @@
 #define __TrenchBroom__SelectionTool__
 
 #include "View/Tool.h"
+#include "View/ToolAdapter.h"
 #include "Hit.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class RenderContext;
+    }
+    
     namespace View {
-        class SelectionTool : public ToolImpl<NoActivationPolicy, NoPickingPolicy, MousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class InputState;
+        
+        class SelectionTool : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
+        private:
+            MapDocumentWPtr m_document;
         public:
             SelectionTool(MapDocumentWPtr document);
         private:
-            bool doMouseUp(const InputState& inputState);
+            Tool* doGetTool();
+            
+            bool doMouseClick(const InputState& inputState);
             bool doMouseDoubleClick(const InputState& inputState);
             
             bool handleClick(const InputState& inputState) const;
@@ -45,6 +56,8 @@ namespace TrenchBroom {
             void doCancelMouseDrag();
 
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+            
+            bool doCancel();
         };
     }
 }

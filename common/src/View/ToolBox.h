@@ -40,14 +40,15 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
         class Tool;
+        class ToolAdapter;
         class ToolChain;
         
         class ToolBox {
         private:
-            Tool* m_dragReceiver;
-            Tool* m_modalReceiver;
-            Tool* m_dropReceiver;
-            Tool* m_savedDropReceiver;
+            ToolAdapter* m_dragReceiver;
+            ToolAdapter* m_dropReceiver;
+            ToolAdapter* m_savedDropReceiver;
+            Tool* m_modalTool;
             
             typedef std::vector<Tool*> ToolList;
             typedef std::map<Tool*, ToolList> ToolMap;
@@ -82,7 +83,8 @@ namespace TrenchBroom {
 
             void modifierKeyChange(ToolChain* chain, const InputState& inputState);
             void mouseDown(ToolChain* chain, const InputState& inputState);
-            bool mouseUp(ToolChain* chain, const InputState& inputState);
+            void mouseUp(ToolChain* chain, const InputState& inputState);
+            bool mouseClick(ToolChain* chain, const InputState& inputState);
             void mouseDoubleClick(ToolChain* chain, const InputState& inputState);
             void mouseMove(ToolChain* chain, const InputState& inputState);
             
@@ -92,7 +94,7 @@ namespace TrenchBroom {
             void endMouseDrag(const InputState& inputState);
             void cancelDrag();
             
-            void mouseWheel(ToolChain* chain, const InputState& inputState);
+            void mouseScroll(ToolChain* chain, const InputState& inputState);
 
             bool cancel(ToolChain* chain);
         public: // tool management

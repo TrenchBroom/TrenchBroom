@@ -19,7 +19,6 @@
 
 #include "MapViewToolBox.h"
 #include "View/CreateEntityTool.h"
-#include "View/MovementRestriction.h"
 #include "View/MoveObjectsTool.h"
 #include "View/RotateObjectsTool.h"
 #include "View/SelectionTool.h"
@@ -28,7 +27,6 @@
 namespace TrenchBroom {
     namespace View {
         MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
-        m_movementRestriction(new MovementRestriction()),
         m_createEntityTool(NULL),
         m_moveObjectsTool(NULL),
         m_rotateObjectsTool(NULL),
@@ -41,15 +39,6 @@ namespace TrenchBroom {
         MapViewToolBox::~MapViewToolBox() {
             unbindObservers();
             destroyTools();
-            delete m_movementRestriction;
-        }
-
-        const MovementRestriction& MapViewToolBox::movementRestriction() const {
-            return *m_movementRestriction;
-        }
-        
-        MovementRestriction& MapViewToolBox::movementRestriction() {
-            return *m_movementRestriction;
         }
 
         CreateEntityTool* MapViewToolBox::createEntityTool() {
@@ -87,12 +76,13 @@ namespace TrenchBroom {
         
         const Vec3 MapViewToolBox::rotateToolCenter() const {
             assert(rotateObjectsToolActive());
-            return m_rotateObjectsTool->center();
+            return m_rotateObjectsTool->rotationCenter();
         }
 
         void MapViewToolBox::moveRotationCenter(const Vec3& delta) {
             assert(rotateObjectsToolActive());
-            m_rotateObjectsTool->moveCenter(delta);
+            const Vec3 center = m_rotateObjectsTool->rotationCenter();
+            m_rotateObjectsTool->setRotationCenter(center + delta);
         }
 
         void MapViewToolBox::toggleVertexTool() {
@@ -105,10 +95,10 @@ namespace TrenchBroom {
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
             m_createEntityTool = new CreateEntityTool(document);
-            m_moveObjectsTool = new MoveObjectsTool(document, *m_movementRestriction);
-            m_rotateObjectsTool = new RotateObjectsTool(document, *m_movementRestriction);
+            m_moveObjectsTool = new MoveObjectsTool(document);
+            m_rotateObjectsTool = new RotateObjectsTool(document);
             m_selectionTool = new SelectionTool(document);
-            m_vertexTool = new VertexTool(document, *m_movementRestriction);
+            m_vertexTool = new VertexTool(document);
             
             deactivateWhen(m_rotateObjectsTool, m_moveObjectsTool);
             deactivateWhen(m_vertexTool, m_moveObjectsTool);

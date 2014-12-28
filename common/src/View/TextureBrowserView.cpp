@@ -147,7 +147,6 @@ namespace TrenchBroom {
                 const Renderer::FontDescriptor actualFont = fontManager().selectFontSize(font, texture->name(), maxCellWidth, 5);
                 const Vec2f actualSize = fontManager().font(actualFont).measure(texture->name());
                 
-                PreferenceManager& prefs = PreferenceManager::instance();
                 const float scaleFactor = pref(Preferences::TextureBrowserIconSize);
                 const size_t scaledTextureWidth = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->width())));
                 const size_t scaledTextureHeight = static_cast<size_t>(Math::round(scaleFactor * static_cast<float>(texture->height())));

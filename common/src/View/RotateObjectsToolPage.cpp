@@ -109,7 +109,7 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsToolPage::OnRotate(wxCommandEvent& event) {
-            const Vec3 center = m_tool->center();
+            const Vec3 center = m_tool->rotationCenter();
             const Vec3 axis = getAxis();
             const FloatType angle = Math::radians(m_angle->GetValue());
             
@@ -118,7 +118,7 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsToolPage::OnReset(wxCommandEvent& event) {
-            m_tool->resetHandlePosition();
+            m_tool->resetRotationCenter();
         }
 
         Vec3 RotateObjectsToolPage::getAxis() const {

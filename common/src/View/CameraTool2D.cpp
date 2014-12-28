@@ -21,24 +21,21 @@
 
 #include "Preferences.h"
 #include "PreferenceManager.h"
-#include "Model/Brush.h"
-#include "Model/Entity.h"
-#include "Model/HitAdapter.h"
-#include "Model/ModelHitFilters.h"
 #include "View/InputState.h"
-#include "View/MapDocument.h"
-#include "Renderer/Camera.h"
 #include "Renderer/OrthographicCamera.h"
-
-#include <iostream>
 
 namespace TrenchBroom {
     namespace View {
-        CameraTool2D::CameraTool2D(MapDocumentWPtr document, Renderer::OrthographicCamera& camera) :
-        ToolImpl(document),
+        CameraTool2D::CameraTool2D(Renderer::OrthographicCamera& camera) :
+        ToolAdapterBase(),
+        Tool(true),
         m_camera(camera) {}
         
-        void CameraTool2D::doScroll(const InputState& inputState) {
+        Tool* CameraTool2D::doGetTool() {
+            return this;
+        }
+        
+        void CameraTool2D::doMouseScroll(const InputState& inputState) {
             if (zoom(inputState)) {
                 const float speed = 1.0f;
                 if (inputState.scrollY() != 0.0f) {
@@ -81,6 +78,10 @@ namespace TrenchBroom {
         
         void CameraTool2D::doEndMouseDrag(const InputState& inputState) {}
         void CameraTool2D::doCancelMouseDrag() {}
+        
+        bool CameraTool2D::doCancel() {
+            return false;
+        }
         
         bool CameraTool2D::zoom(const InputState& inputState) const {
             return (inputState.mouseButtonsPressed(MouseButtons::MBNone) &&

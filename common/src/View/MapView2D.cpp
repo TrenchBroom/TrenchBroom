@@ -28,15 +28,19 @@
 #include "View/CameraAnimation.h"
 #include "View/CameraTool2D.h"
 #include "View/CommandIds.h"
+#include "View/CreateEntityToolAdapter.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
 #include "View/MoveObjectsTool.h"
+#include "View/MoveObjectsToolAdapter.h"
 #include "View/RotateObjectsTool.h"
+#include "View/RotateObjectsToolAdapter.h"
 #include "View/SelectionTool.h"
 #include "View/VertexTool.h"
+#include "View/VertexToolAdapter.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
@@ -44,6 +48,10 @@ namespace TrenchBroom {
         MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_camera(),
+        m_createEntityToolAdapter(NULL),
+        m_moveObjectsToolAdapter(NULL),
+        m_rotateObjectsToolAdapter(NULL),
+        m_vertexToolAdapter(NULL),
         m_cameraTool(NULL) {
             bindEvents();
             bindObservers();
@@ -54,6 +62,10 @@ namespace TrenchBroom {
         MapView2D::~MapView2D() {
             unbindObservers();
             delete m_cameraTool;
+            delete m_vertexToolAdapter;
+            delete m_rotateObjectsToolAdapter;
+            delete m_moveObjectsToolAdapter;
+            delete m_createEntityToolAdapter;
         }
         
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
@@ -77,11 +89,17 @@ namespace TrenchBroom {
         }
 
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
-            m_cameraTool = new CameraTool2D(m_document, m_camera);
+            m_createEntityToolAdapter = new CreateEntityToolAdapter2D(toolBox.createEntityTool());
+            m_moveObjectsToolAdapter = new MoveObjectsToolAdapter2D(toolBox.moveObjectsTool());
+            m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter2D(toolBox.rotateObjectsTool());
+            m_vertexToolAdapter = new VertexToolAdapter2D(toolBox.vertexTool());
+            m_cameraTool = new CameraTool2D(m_camera);
+            
             addTool(m_cameraTool);
-            addTool(toolBox.moveObjectsTool());
-            addTool(toolBox.rotateObjectsTool());
-            addTool(toolBox.vertexTool());
+            addTool(m_moveObjectsToolAdapter);
+            addTool(m_rotateObjectsToolAdapter);
+            addTool(m_vertexToolAdapter);
+            addTool(m_createEntityToolAdapter);
             addTool(toolBox.selectionTool());
         }
 

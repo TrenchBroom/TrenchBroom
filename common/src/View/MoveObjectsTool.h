@@ -23,21 +23,22 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "View/MapViewToolPage.h"
-#include "View/MoveTool.h"
+#include "View/MoveToolHelper.h"
 #include "View/Tool.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     class Hit;
     
     namespace View {
         class InputState;
-        class MovementRestriction;
         
-        class MoveObjectsTool : public MoveTool<NoActivationPolicy, NoPickingPolicy, NoMousePolicy, NoDropPolicy, RenderPolicy>, public MapViewToolPage {
+        class MoveObjectsTool : public Tool, public MoveToolDelegate, public MapViewToolPage {
         private:
+            MapDocumentWPtr m_document;
             bool m_duplicateObjects;
         public:
-            MoveObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction);
+            MoveObjectsTool(MapDocumentWPtr document);
         private:
             bool doHandleMove(const InputState& inputState) const;
             Vec3 doGetMoveOrigin(const InputState& inputState) const;
@@ -48,10 +49,8 @@ namespace TrenchBroom {
             Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;
             MoveResult doMove(const InputState& inputState, const Vec3& delta);
             void doEndMove(const InputState& inputState);
+            void doCancelMove();
             
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-
             bool duplicateObjects(const InputState& inputState) const;
             
             wxWindow* doCreatePage(wxWindow* parent);

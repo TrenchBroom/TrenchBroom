@@ -34,8 +34,11 @@
 
 namespace TrenchBroom {
     namespace View {
-        MoveObjectsTool::MoveObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction) :
-        MoveTool(document, movementRestriction) {}
+        MoveObjectsTool::MoveObjectsTool(MapDocumentWPtr document) :
+        Tool(true),
+        MoveToolDelegate(),
+        m_document(document),
+        m_duplicateObjects(false) {}
 
         bool MoveObjectsTool::doHandleMove(const InputState& inputState) const {
             if (!inputState.modifierKeysPressed(ModifierKeys::MKNone) &&
@@ -44,7 +47,8 @@ namespace TrenchBroom {
                 !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt))
                 return false;
             
-            if (!document()->hasSelectedNodes())
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedNodes())
                 return false;
 
             const Hit& hit = findHit(inputState);
@@ -62,7 +66,8 @@ namespace TrenchBroom {
 
         const Hit& MoveObjectsTool::findHit(const InputState& inputState) const {
             static const Hit::HitType types = Model::Entity::EntityHit | Model::Brush::BrushHit;
-            return Model::firstHit(inputState.hits(), types, document()->editorContext(), true, true);
+            MapDocumentSPtr document = lock(m_document);
+            return Model::firstHit(inputState.hits(), types, document->editorContext(), true, true);
         }
 
         String MoveObjectsTool::doGetActionName(const InputState& inputState) const {
@@ -70,42 +75,44 @@ namespace TrenchBroom {
         }
         
         bool MoveObjectsTool::doStartMove(const InputState& inputState) {
+            MapDocumentSPtr document = lock(m_document);
+            document->beginTransaction(duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects");
             m_duplicateObjects = duplicateObjects(inputState);
             return true;
         }
         
         Vec3 MoveObjectsTool::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
-            const Grid& grid = document()->grid();
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
             return grid.snap(delta);
         }
         
         MoveResult MoveObjectsTool::doMove(const InputState& inputState, const Vec3& delta) {
-            const BBox3& worldBounds = document()->worldBounds();
-            const BBox3 bounds = document()->selectionBounds();
+            MapDocumentSPtr document = lock(m_document);
+            const BBox3& worldBounds = document->worldBounds();
+            const BBox3 bounds = document->selectionBounds();
             if (!worldBounds.contains(bounds.translated(delta)))
                 return MoveResult_Deny;
             
             if (m_duplicateObjects) {
                 m_duplicateObjects = false;
-                if (!document()->duplicateObjects())
+                if (!document->duplicateObjects())
                     return MoveResult_Conclude;
             }
             
-            if (!document()->translateObjects(delta))
+            if (!document->translateObjects(delta))
                 return MoveResult_Deny;
             return MoveResult_Continue;
         }
         
-        void MoveObjectsTool::doEndMove(const InputState& inputState) {}
-        
-        void MoveObjectsTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            if (dragging())
-                renderContext.setForceShowSelectionGuide();
+        void MoveObjectsTool::doEndMove(const InputState& inputState) {
+            MapDocumentSPtr document = lock(m_document);
+            document->commitTransaction();
         }
         
-        void MoveObjectsTool::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (dragging() || handleMove(inputState))
-                renderMoveIndicator(inputState, renderContext, renderBatch);
+        void MoveObjectsTool::doCancelMove() {
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
         }
 
         bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const {
@@ -113,7 +120,7 @@ namespace TrenchBroom {
         }
 
         wxWindow* MoveObjectsTool::doCreatePage(wxWindow* parent) {
-            return new MoveObjectsToolPage(parent, document());
+            return new MoveObjectsToolPage(parent, m_document);
         }
     }
 }

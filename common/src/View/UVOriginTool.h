@@ -23,6 +23,7 @@
 #include "Hit.h"
 #include "Renderer/VertexSpec.h"
 #include "View/Tool.h"
+#include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
@@ -34,7 +35,7 @@ namespace TrenchBroom {
     namespace View {
         class UVViewHelper;
         
-        class UVOriginTool : public ToolImpl<NoActivationPolicy, PickingPolicy, NoMousePolicy, MouseDragPolicy, NoDropPolicy, RenderPolicy> {
+        class UVOriginTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
             static const Hit::HitType XHandleHit;
             static const Hit::HitType YHandleHit;
@@ -49,8 +50,10 @@ namespace TrenchBroom {
             Vec2f m_lastPoint;
             Vec2f m_selector;
         public:
-            UVOriginTool(MapDocumentWPtr document, UVViewHelper& helper);
+            UVOriginTool(UVViewHelper& helper);
         private:
+            Tool* doGetTool();
+            
             void doPick(const InputState& inputState, Hits& hits);
 
             void computeOriginHandles(Line3& xHandle, Line3& yHandle) const;
@@ -71,6 +74,8 @@ namespace TrenchBroom {
             
             class RenderOrigin;
             void renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            
+            bool doCancel();
         };
     }
 }

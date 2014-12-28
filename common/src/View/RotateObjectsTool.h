@@ -22,86 +22,60 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Hit.h"
-#include "Renderer/PointGuideRenderer.h"
 #include "View/MapViewToolPage.h"
-#include "View/MoveToolHelper.h"
-#include "View/RotateObjectsHandle.h"
-#include "View/RotateToolHelper.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
+#include "View/RotateObjectsHandle.h"
 
 namespace TrenchBroom {
+    class Hits;
+    
     namespace Renderer {
         class Camera;
     }
     
     namespace View {
+        class RotateObjectsHandle;
         class RotateObjectsToolPage;
-        class RotateObjectsTool : public ToolImpl<ActivationPolicy, PickingPolicy, MousePolicy, PlaneDragPolicy, NoDropPolicy, RenderPolicy>, public MoveDelegate, public RotateDelegate, public MapViewToolPage {
+
+        class RotateObjectsTool : public Tool, public MapViewToolPage {
         private:
-            static const Hit::HitType HandleHit;
-            
+            MapDocumentWPtr m_document;
             RotateObjectsToolPage* m_toolPage;
-            
             RotateObjectsHandle m_handle;
-            PlaneDragHelper* m_helper;
-            MoveHelper m_moveHelper;
-            RotateHelper m_rotateHelper;
             double m_angle;
-            
-            Renderer::PointGuideRenderer m_centerGuideRenderer;
-            
             bool m_firstActivation;
         public:
-            RotateObjectsTool(MapDocumentWPtr document, MovementRestriction& movementRestriction);
+            RotateObjectsTool(MapDocumentWPtr document);
+
+            bool doActivate();
+
+            void updateToolPageAxis(RotateObjectsHandle::HitArea area);
             
             double angle() const;
             void setAngle(double angle);
             
-            Vec3 center() const;
-            void resetHandlePosition();
+            Vec3 rotationCenter() const;
+            void setRotationCenter(const Vec3& position);
+            void resetRotationCenter();
+            
+            Vec3 snapRotationCenterMoveDelta(const Vec3& delta) const;
+            
+            void beginRotation();
+            void commitRotation();
+            void cancelRotation();
 
-            void moveCenter(const Vec3& delta);
+            FloatType snapRotationAngle(FloatType angle) const;
+            void applyRotation(const Vec3& center, const Vec3& axis, FloatType angle);
+            
+            Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera);
+            Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera);
+            
+            Vec3 rotationAxis(RotateObjectsHandle::HitArea area) const;
+            Vec3 rotationAxisHandle(RotateObjectsHandle::HitArea area, const Vec3& cameraPos) const;
+
+            void renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
+            void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
         private:
-            bool initiallyActive() const;
-            bool doActivate();
-            bool doDeactivate();
-            
-            void doPick(const InputState& inputState, Hits& hits);
-
-            void doModifierKeyChange(const InputState& inputState);
-            bool doMouseDown(const InputState& inputState);
-            bool doMouseUp(const InputState& inputState);
-            
-            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void doEndPlaneDrag(const InputState& inputState);
-            void doCancelPlaneDrag();
-            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            RotateObjectsHandle::HitArea highlightHandleArea(const InputState& inputState) const;
-            
-            // MoveDelegate protocol
-            bool doHandleMove(const InputState& inputState) const;
-            Vec3 doGetMoveOrigin(const InputState& inputState) const;
-            bool doStartMove(const InputState& inputState);
-            Vec3 doSnapDelta(const InputState& inputState, const Vec3& delta) const;
-            MoveResult doMove(const InputState& inputState, const Vec3& delta);
-            void doEndMove(const InputState& inputState);
-            void doCancelMove();
-            
-            // RotateDelegate protocol
-            bool doHandleRotate(const InputState& inputState) const;
-            RotateInfo doGetRotateInfo(const InputState& inputState) const;
-            bool doStartRotate(const InputState& inputState);
-            FloatType doGetAngle(const InputState& inputState, const Vec3& handlePoint, const Vec3& curPoint, const Vec3& axis) const;
-            bool doRotate(const Vec3& center, const Vec3& axis, const FloatType angle);
-            void doEndRotate(const InputState& inputState);
-            void doCancelRotate();
-
             wxWindow* doCreatePage(wxWindow* parent);
         };
     }

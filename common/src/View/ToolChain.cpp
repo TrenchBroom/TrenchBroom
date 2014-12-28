@@ -19,112 +19,148 @@
 
 #include "ToolChain.h"
 
-#include "View/Tool.h"
+#include "View/ToolAdapter.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        ToolChain::ToolChain(Tool* tool) :
-        m_tool(tool),
-        m_suffix(NULL) {
-            assert(m_tool != NULL);
-        }
+        ToolChain::ToolChain() :
+        m_tool(NULL),
+        m_suffix(NULL) {}
         
         ToolChain::~ToolChain() {
             delete m_suffix;
         }
 
-        void ToolChain::append(ToolChain* suffix) {
-            assert(suffix != NULL);
-            if (m_suffix == NULL)
-                m_suffix = suffix;
-            else
-                m_suffix->append(suffix);
-        }
-        
-        bool ToolChain::cancel() {
-            if (m_tool->cancel())
-                return true;
-            if (m_suffix != NULL)
-                return m_suffix->cancel();
-            return false;
+        void ToolChain::append(ToolAdapter* tool) {
+            assert(checkInvariant());
+            if (chainEndsHere()) {
+                assert(m_suffix == NULL);
+                m_tool = tool;
+                m_suffix = new ToolChain();
+            } else {
+                assert(m_suffix != NULL);
+                m_suffix->append(tool);
+            }
+            assert(checkInvariant());
         }
         
         void ToolChain::pick(const InputState& inputState, Hits& hits) {
-            m_tool->pick(inputState, hits);
-            if (m_suffix != NULL)
+            assert(checkInvariant());
+            if (!chainEndsHere()) {
+                m_tool->pick(inputState, hits);
                 m_suffix->pick(inputState, hits);
+            }
         }
         
         void ToolChain::modifierKeyChange(const InputState& inputState) {
-            m_tool->modifierKeyChange(inputState);
-            if (m_suffix != NULL)
+            assert(checkInvariant());
+            if (!chainEndsHere()) {
+                m_tool->modifierKeyChange(inputState);
                 m_suffix->modifierKeyChange(inputState);
+            }
         }
         
-        bool ToolChain::mouseDown(const InputState& inputState) {
-            if (m_tool->mouseDown(inputState))
+        void ToolChain::mouseDown(const InputState& inputState) {
+            assert(checkInvariant());
+            if (!chainEndsHere()) {
+                m_tool->mouseDown(inputState);
+                m_suffix->mouseDown(inputState);
+            }
+        }
+        
+        void ToolChain::mouseUp(const InputState& inputState) {
+            assert(checkInvariant());
+            if (!chainEndsHere()) {
+                m_tool->mouseUp(inputState);
+                m_suffix->mouseUp(inputState);
+            }
+        }
+        
+        bool ToolChain::mouseClick(const InputState& inputState) {
+            assert(checkInvariant());
+            if (chainEndsHere())
+                return false;
+            if (m_tool->mouseClick(inputState))
                 return true;
-            if (m_suffix != NULL)
-                return m_suffix->mouseDown(inputState);
-            return false;
+            return m_suffix->mouseClick(inputState);
         }
-        
-        bool ToolChain::mouseUp(const InputState& inputState) {
-            if (m_tool->mouseUp(inputState))
-                return true;
-            if (m_suffix != NULL)
-                return m_suffix->mouseUp(inputState);
-            return false;
-        }
-        
+
         bool ToolChain::mouseDoubleClick(const InputState& inputState) {
+            assert(checkInvariant());
+            if (chainEndsHere())
+                return false;
             if (m_tool->mouseDoubleClick(inputState))
                 return true;
-            if (m_suffix != NULL)
-                return m_suffix->mouseDoubleClick(inputState);
-            return false;
+            return m_suffix->mouseDoubleClick(inputState);
         }
         
-        void ToolChain::scroll(const InputState& inputState) {
-            m_tool->scroll(inputState);
-            if (m_suffix != NULL)
-                m_suffix->scroll(inputState);
+        void ToolChain::mouseScroll(const InputState& inputState) {
+            assert(checkInvariant());
+            if (!chainEndsHere()) {
+                m_tool->mouseScroll(inputState);
+                m_suffix->mouseScroll(inputState);
+            }
         }
         
         void ToolChain::mouseMove(const InputState& inputState) {
-            m_tool->mouseMove(inputState);
-            if (m_suffix != NULL)
+            assert(checkInvariant());
+            if (!chainEndsHere()) {
+                m_tool->mouseMove(inputState);
                 m_suffix->mouseMove(inputState);
+            }
         }
         
-        Tool* ToolChain::startMouseDrag(const InputState& inputState) {
+        ToolAdapter* ToolChain::startMouseDrag(const InputState& inputState) {
+            assert(checkInvariant());
+            if (chainEndsHere())
+                return NULL;
             if (m_tool->startMouseDrag(inputState))
                 return m_tool;
-            if (m_suffix != NULL)
-                return m_suffix->startMouseDrag(inputState);
-            return NULL;
+            return m_suffix->startMouseDrag(inputState);
         }
         
-        Tool* ToolChain::dragEnter(const InputState& inputState, const String& payload) {
+        ToolAdapter* ToolChain::dragEnter(const InputState& inputState, const String& payload) {
+            assert(checkInvariant());
+            if (chainEndsHere())
+                return NULL;
             if (m_tool->dragEnter(inputState, payload))
                 return m_tool;
-            if (m_suffix)
-                return m_suffix->dragEnter(inputState, payload);
-            return NULL;
+            return m_suffix->dragEnter(inputState, payload);
         }
         
         void ToolChain::setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            m_tool->setRenderOptions(inputState, renderContext);
-            if (m_suffix)
+            assert(checkInvariant());
+            if (!chainEndsHere()) {
+                m_tool->setRenderOptions(inputState, renderContext);
                 m_suffix->setRenderOptions(inputState, renderContext);
+            }
         }
         
         void ToolChain::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_tool->render(inputState, renderContext, renderBatch);
-            if (m_suffix)
+            assert(checkInvariant());
+            if (!chainEndsHere()) {
+                m_tool->render(inputState, renderContext, renderBatch);
                 m_suffix->render(inputState, renderContext, renderBatch);
+            }
+        }
+        
+        bool ToolChain::cancel() {
+            assert(checkInvariant());
+            if (chainEndsHere())
+                return false;
+            if (m_tool->cancel())
+                return true;
+            return m_suffix->cancel();
+        }
+
+        bool ToolChain::checkInvariant() const {
+            return (m_tool == NULL) == (m_suffix == NULL);
+        }
+
+        bool ToolChain::chainEndsHere() const {
+            return m_tool == NULL;
         }
     }
 }

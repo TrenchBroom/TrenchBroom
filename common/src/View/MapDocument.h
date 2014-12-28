@@ -84,6 +84,7 @@ namespace TrenchBroom {
             Model::NodeCollection m_selectedNodes;
             Model::BrushFaceList m_selectedBrushFaces;
             
+            BBox3 m_lastSelectionBounds;
             mutable BBox3 m_selectionBounds;
             mutable bool m_selectionBoundsValid;
         public: // notification
@@ -175,6 +176,8 @@ namespace TrenchBroom {
             const Model::BrushFaceList allSelectedBrushFaces() const;
             const Model::BrushFaceList& selectedBrushFaces() const;
 
+            const BBox3& referenceBounds() const;
+            const BBox3& lastSelectionBounds() const;
             const BBox3& selectionBounds() const;
             
             void selectAllNodes();
@@ -250,8 +253,8 @@ namespace TrenchBroom {
             void clearRepeatableCommands();
         public: // transactions
             void beginTransaction(const String& name = "");
-            void endTransaction();
             void rollbackTransaction();
+            void commitTransaction();
             void cancelTransaction();
         private:
             bool submit(UndoableCommand* command);
@@ -361,7 +364,7 @@ namespace TrenchBroom {
             void cancel();
         private:
             void begin(const String& name);
-            void end();
+            void commit();
         };
     }
 }

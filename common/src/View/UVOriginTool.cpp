@@ -43,10 +43,15 @@ namespace TrenchBroom {
         const FloatType UVOriginTool::MaxPickDistance = 5.0;
         const float UVOriginTool::OriginHandleRadius =  5.0f;
 
-        UVOriginTool::UVOriginTool(MapDocumentWPtr document, UVViewHelper& helper) :
-        ToolImpl(document),
+        UVOriginTool::UVOriginTool(UVViewHelper& helper) :
+        ToolAdapterBase(),
+        Tool(true),
         m_helper(helper) {}
 
+        Tool* UVOriginTool::doGetTool() {
+            return this;
+        }
+        
         void UVOriginTool::doPick(const InputState& inputState, Hits& hits) {
             if (m_helper.valid()) {
                 Line3 xHandle, yHandle;
@@ -285,6 +290,10 @@ namespace TrenchBroom {
             
             const bool highlight = xHandleHit.isMatch() && yHandleHit.isMatch();;
             renderBatch.addOneShot(new RenderOrigin(m_helper, OriginHandleRadius, highlight));
+        }
+        
+        bool UVOriginTool::doCancel() {
+            return false;
         }
     }
 }

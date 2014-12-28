@@ -31,9 +31,15 @@ namespace TrenchBroom {
         const Hit::HitType UVShearTool::YHandleHit = Hit::freeHitType();
         
         UVShearTool::UVShearTool(MapDocumentWPtr document, UVViewHelper& helper) :
-        ToolImpl(document),
+        ToolAdapterBase(),
+        Tool(true),
+        m_document(document),
         m_helper(helper) {}
 
+        Tool* UVShearTool::doGetTool() {
+            return this;
+        }
+        
         void UVShearTool::doPick(const InputState& inputState, Hits& hits) {
             static const Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
             if (m_helper.valid())
@@ -61,7 +67,8 @@ namespace TrenchBroom {
             m_yAxis = face->textureYAxis();
             m_initialHit = m_lastHit = getHit(inputState.pickRay());
             
-            document()->beginTransaction("Shear Texture");
+            MapDocumentSPtr document = lock(m_document);
+            document->beginTransaction("Shear Texture");
             return true;
         }
         
@@ -73,12 +80,13 @@ namespace TrenchBroom {
             const Vec3 origin = m_helper.origin();
             const Vec2f oldCoords = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale(), true) * origin;
             
+            MapDocumentSPtr document = lock(m_document);
             if (m_selector[0]) {
                 const Vec2f factors = Vec2f(-delta.y() / m_initialHit.x(), 0.0f);
-                document()->shearTextures(factors);
+                document->shearTextures(factors);
             } else if (m_selector[1]) {
                 const Vec2f factors = Vec2f(0.0f, -delta.x() / m_initialHit.y());
-                document()->shearTextures(factors);
+                document->shearTextures(factors);
             }
             
             const Vec2f newCoords = face->toTexCoordSystemMatrix(Vec2f::Null, face->scale(), true) * origin;
@@ -86,7 +94,7 @@ namespace TrenchBroom {
 
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(newOffset);
-            document()->setFaceAttributes(request);
+            document->setFaceAttributes(request);
 
             const Vec3 newOrigin = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true) * origin;
             m_helper.setOrigin(newOrigin);
@@ -96,12 +104,13 @@ namespace TrenchBroom {
         }
         
         void UVShearTool::doEndMouseDrag(const InputState& inputState) {
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->commitTransaction();
         }
         
         void UVShearTool::doCancelMouseDrag() {
-            document()->rollbackTransaction();
-            document()->endTransaction();
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
         }
 
         Vec2f UVShearTool::getHit(const Ray3& pickRay) const {
@@ -113,6 +122,10 @@ namespace TrenchBroom {
             
             return Vec2f(hitVec.dot(m_xAxis),
                          hitVec.dot(m_yAxis));
+        }
+        
+        bool UVShearTool::doCancel() {
+            return false;
         }
     }
 }
