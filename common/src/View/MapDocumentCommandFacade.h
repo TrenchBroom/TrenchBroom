@@ -70,6 +70,8 @@ namespace TrenchBroom {
             Model::EntityAttribute::Map performConvertColorRange(const Model::AttributeName& name, ColorRange::Type colorRange);
             void performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             void restoreAttributes(const Model::EntityAttribute::Map& attributes);
+        public: // brush resizing
+            bool performResizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta);
         public: // brush face attributes
             void performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             void performRotateTextures(float angle);

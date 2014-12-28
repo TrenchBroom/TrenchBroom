@@ -33,6 +33,7 @@ namespace TrenchBroom {
     namespace View {
         class CreateEntityTool;
         class MoveObjectsTool;
+        class ResizeBrushesTool;
         class RotateObjectsTool;
         class SelectionTool;
         class VertexTool;
@@ -41,6 +42,7 @@ namespace TrenchBroom {
         private:
             CreateEntityTool* m_createEntityTool;
             MoveObjectsTool* m_moveObjectsTool;
+            ResizeBrushesTool* m_resizeBrushesTool;
             RotateObjectsTool* m_rotateObjectsTool;
             SelectionTool* m_selectionTool;
             VertexTool* m_vertexTool;
@@ -50,6 +52,7 @@ namespace TrenchBroom {
         public: // tools
             CreateEntityTool* createEntityTool();
             MoveObjectsTool* moveObjectsTool();
+            ResizeBrushesTool* resizeBrushesTool();
             RotateObjectsTool* rotateObjectsTool();
             SelectionTool* selectionTool();
             VertexTool* vertexTool();

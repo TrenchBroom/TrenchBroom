@@ -493,6 +493,34 @@ namespace TrenchBroom {
             setEntityDefinitions(nodes);
         }
 
+        bool MapDocumentCommandFacade::performResizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta) {
+            Model::NodeList nodes;
+            
+            Model::BrushFaceList::const_iterator it, end;
+            for (it = faces.begin(), end = faces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                Model::Brush* brush = face->brush();
+                assert(brush->selected());
+                
+                if (!brush->canMoveBoundary(m_worldBounds, face, delta))
+                    return false;
+                
+                nodes.push_back(brush);
+            }
+            
+            const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            for (it = faces.begin(), faces.end(); it != end; ++it) {
+                Model::BrushFace* face = *it;
+                Model::Brush* brush = face->brush();
+                brush->moveBoundary(m_worldBounds, face, delta, textureLock());
+            }
+            
+            return true;
+        }
+
         void MapDocumentCommandFacade::performMoveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta) {
             Model::BrushFaceList::const_iterator it, end;
             for (it = m_selectedBrushFaces.begin(), end = m_selectedBrushFaces.end(); it != end; ++it) {

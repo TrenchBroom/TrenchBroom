@@ -202,6 +202,10 @@ namespace TrenchBroom {
         public: // adding, removing, reparenting, and duplicating nodes
             void addNode(Model::Node* node, Model::Node* parent);
             void removeNode(Model::Node* node);
+            
+            Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
+            void removeNodes(const Model::NodeList& nodes);
+
             void reparentNodes(Model::Node* newParent, const Model::NodeList& children);
             bool deleteObjects();
             bool duplicateObjects();
@@ -218,6 +222,8 @@ namespace TrenchBroom {
             bool removeAttribute(const Model::AttributeName& name);
             
             bool convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range);
+        public: // brush resizing
+            bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta);
         public: // modifying face attributes
             bool setTexture(Assets::Texture* texture);
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
@@ -281,9 +287,6 @@ namespace TrenchBroom {
             void createWorld(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
             void clearWorld();
-            
-            Model::NodeList addNodes(const Model::ParentChildrenMap& nodes);
-            void removeNodes(const Model::NodeList& nodes);
         public: // asset management
             Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
             Assets::EntityDefinitionFileSpec::List allEntityDefinitionFiles() const;
