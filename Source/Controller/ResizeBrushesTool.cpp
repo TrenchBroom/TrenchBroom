@@ -201,14 +201,15 @@ namespace TrenchBroom {
             const Vec3f dragVector2D = rayPoint - m_dragOrigin;
             
             const float dragDistance = dragVector2D.dot(faceNormal2D);
+            const float dragDistance2 = dragDistance * dragDistance;
             
             Utility::Grid& grid = document().grid();
             const Vec3f relativeFaceDelta = grid.snap(dragDistance) * faceNormal3D;
             const Vec3f absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal3D * dragDistance);
             
             // select the delta that is closest to the actual delta indicated by the mouse cursor
-            const Vec3f faceDelta = (std::abs(relativeFaceDelta.length() - dragDistance) <
-                                     std::abs(absoluteFaceDelta.length() - dragDistance) ?
+            const Vec3f faceDelta = (std::abs(relativeFaceDelta.lengthSquared() - dragDistance2) <
+                                     std::abs(absoluteFaceDelta.lengthSquared() - dragDistance2) ?
                                      relativeFaceDelta :
                                      absoluteFaceDelta);
 

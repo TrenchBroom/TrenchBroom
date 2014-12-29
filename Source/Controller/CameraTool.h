@@ -36,7 +36,7 @@ namespace TrenchBroom {
 
             float lookSpeed(bool vertical);
             float panSpeed(bool vertical);
-            float moveSpeed();
+            float moveSpeed(bool altMode);
         protected:
             void handleScroll(InputState& inputState);
 

@@ -49,6 +49,7 @@ namespace TrenchBroom {
             wxCheckBox* m_invertPanYAxisCheckBox;
             wxSlider* m_moveSpeedSlider;
             wxCheckBox* m_enableAltMoveCheckBox;
+            wxCheckBox* m_invertAltMoveAxisCheckBox;
             wxCheckBox* m_moveInCursorDirCheckBox;
             
             void updateControls();
