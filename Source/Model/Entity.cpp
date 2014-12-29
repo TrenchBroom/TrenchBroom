@@ -110,6 +110,8 @@ namespace TrenchBroom {
                     it = m_linkTargets.erase(it);
                     continue;
                 }
+		    
+                ++it;
             }
         }
         
@@ -140,6 +142,8 @@ namespace TrenchBroom {
                     it = m_killTargets.erase(it);
                     continue;
                 }
+		    
+                ++it;
             }
         }
         
