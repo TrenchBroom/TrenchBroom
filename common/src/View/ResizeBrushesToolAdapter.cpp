@@ -49,7 +49,7 @@ namespace TrenchBroom {
         
         void ResizeBrushesToolAdapter::doPick(const InputState& inputState, Hits& hits) {
             if (handleInput(inputState)) {
-                const Hit hit = m_tool->pick(inputState.pickRay(), inputState.hits());
+                const Hit hit = doPick(inputState.pickRay(), inputState.hits());
                 if (hit.isMatch())
                     hits.addHit(hit);
             }
@@ -89,6 +89,7 @@ namespace TrenchBroom {
         void ResizeBrushesToolAdapter::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             if (dragging())
                 renderContext.setForceShowSelectionGuide();
+            // TODO: force rendering of all other map views if the input applies and the tool has drag faces
         }
         
         void ResizeBrushesToolAdapter::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -135,6 +136,20 @@ namespace TrenchBroom {
             return ((inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
                      inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd)) &&
                     m_tool->applies());
+        }
+
+        ResizeBrushesToolAdapter2D::ResizeBrushesToolAdapter2D(ResizeBrushesTool* tool) :
+        ResizeBrushesToolAdapter(tool) {}
+
+        Hit ResizeBrushesToolAdapter2D::doPick(const Ray3& pickRay, const Hits& hits) {
+            return m_tool->pick2D(pickRay, hits);
+        }
+        
+        ResizeBrushesToolAdapter3D::ResizeBrushesToolAdapter3D(ResizeBrushesTool* tool) :
+        ResizeBrushesToolAdapter(tool) {}
+        
+        Hit ResizeBrushesToolAdapter3D::doPick(const Ray3& pickRay, const Hits& hits) {
+            return m_tool->pick3D(pickRay, hits);
         }
     }
 }

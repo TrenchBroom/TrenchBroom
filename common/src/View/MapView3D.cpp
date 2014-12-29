@@ -86,7 +86,7 @@ namespace TrenchBroom {
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
             m_createEntityToolAdapter = new CreateEntityToolAdapter3D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter3D(toolBox.moveObjectsTool(), m_movementRestriction);
-            m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter(toolBox.resizeBrushesTool());
+            m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter3D(toolBox.resizeBrushesTool());
             m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter3D(toolBox.rotateObjectsTool(), m_movementRestriction);
             m_vertexToolAdapter = new VertexToolAdapter3D(toolBox.vertexTool(), m_movementRestriction);
             m_cameraTool = new CameraTool3D(m_document, m_camera);

@@ -38,7 +38,8 @@ namespace TrenchBroom {
     namespace View {
         class ResizeBrushesTool : public Tool {
         private:
-            static const Hit::HitType ResizeHit;
+            static const Hit::HitType ResizeHit3D;
+            static const Hit::HitType ResizeHit2D;
 
             MapDocumentWPtr m_document;
             Model::BrushFaceList m_dragFaces;
@@ -50,16 +51,18 @@ namespace TrenchBroom {
             
             bool applies() const;
             
-            Hit pick(const Ray3& pickRay, const Hits& hits);
+            Hit pick2D(const Ray3& pickRay, const Hits& hits);
+            Hit pick3D(const Ray3& pickRay, const Hits& hits);
         private:
             class PickProximateFace;
-            Hit pickProximateFace(const Ray3& pickRay) const;
+            Hit pickProximateFace(Hit::HitType hitType, const Ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
             const Model::BrushFaceList& dragFaces() const;
             void updateDragFaces(const Hits& hits);
         private:
             class MatchFaceBoundary;
+            Model::BrushFaceList collectDragFaces(const Hit& hit) const;
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
             bool beginResize(const Hits& hits, bool split);

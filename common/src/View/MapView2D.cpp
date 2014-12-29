@@ -92,7 +92,7 @@ namespace TrenchBroom {
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
             m_createEntityToolAdapter = new CreateEntityToolAdapter2D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter2D(toolBox.moveObjectsTool());
-            m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter(toolBox.resizeBrushesTool());
+            m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter2D(toolBox.resizeBrushesTool());
             m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter2D(toolBox.rotateObjectsTool());
             m_vertexToolAdapter = new VertexToolAdapter2D(toolBox.vertexTool());
             m_cameraTool = new CameraTool2D(m_camera);

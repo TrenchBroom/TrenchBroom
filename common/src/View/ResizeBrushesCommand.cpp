@@ -43,7 +43,7 @@ namespace TrenchBroom {
         }
         
         bool ResizeBrushesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            return document->performResizeBrushes(m_faces, m_delta);
+            return document->performResizeBrushes(m_faces, -m_delta);
         }
         
         bool ResizeBrushesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {

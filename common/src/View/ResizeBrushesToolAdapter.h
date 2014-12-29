@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__ResizeBrushesToolAdapter__
 #define __TrenchBroom__ResizeBrushesToolAdapter__
 
+#include "Hit.h"
 #include "Renderer/EdgeRenderer.h"
 #include "View/ToolAdapter.h"
 
@@ -38,7 +39,7 @@ namespace TrenchBroom {
         class ResizeBrushesToolAdapter : public ToolAdapterBase<PickingPolicy, KeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ResizeBrushesTool* m_tool;
-        public:
+        protected:
             ResizeBrushesToolAdapter(ResizeBrushesTool* tool);
         public:
             virtual ~ResizeBrushesToolAdapter();
@@ -46,7 +47,7 @@ namespace TrenchBroom {
             Tool* doGetTool();
             
             void doPick(const InputState& inputState, Hits& hits);
-            
+
             void doModifierKeyChange(const InputState& inputState);
             
             void doMouseMove(const InputState& inputState);
@@ -61,9 +62,25 @@ namespace TrenchBroom {
             Renderer::EdgeRenderer buildEdgeRenderer();
             
             bool doCancel();
-            
+
             void updateDragFaces(const InputState& inputState);
             bool handleInput(const InputState& inputState) const;
+        private:
+            virtual Hit doPick(const Ray3& pickRay, const Hits& hits) = 0;
+        };
+        
+        class ResizeBrushesToolAdapter2D : public ResizeBrushesToolAdapter {
+        public:
+            ResizeBrushesToolAdapter2D(ResizeBrushesTool* tool);
+        private:
+            Hit doPick(const Ray3& pickRay, const Hits& hits);
+        };
+        
+        class ResizeBrushesToolAdapter3D : public ResizeBrushesToolAdapter {
+        public:
+            ResizeBrushesToolAdapter3D(ResizeBrushesTool* tool);
+        private:
+            Hit doPick(const Ray3& pickRay, const Hits& hits);
         };
     }
 }
