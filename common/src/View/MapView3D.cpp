@@ -47,6 +47,7 @@
 #include "View/ResizeBrushesToolAdapter.h"
 #include "View/RotateObjectsToolAdapter.h"
 #include "View/SelectionTool.h"
+#include "View/SetBrushFaceAttributesTool.h"
 #include "View/VertexTool.h"
 #include "View/VertexToolAdapter.h"
 #include "View/wxUtils.h"
@@ -62,6 +63,7 @@ namespace TrenchBroom {
         m_moveObjectsToolAdapter(NULL),
         m_resizeBrushesToolAdapter(NULL),
         m_rotateObjectsToolAdapter(NULL),
+        m_setBrushFaceAttributesTool(NULL),
         m_vertexToolAdapter(NULL),
         m_cameraTool(NULL),
         m_flyModeHelper(new FlyModeHelper(this, m_camera)) {
@@ -76,6 +78,7 @@ namespace TrenchBroom {
             delete m_flyModeHelper;
             delete m_cameraTool;
             delete m_vertexToolAdapter;
+            delete m_setBrushFaceAttributesTool;
             delete m_rotateObjectsToolAdapter;
             delete m_resizeBrushesToolAdapter;
             delete m_moveObjectsToolAdapter;
@@ -88,6 +91,7 @@ namespace TrenchBroom {
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter3D(toolBox.moveObjectsTool(), m_movementRestriction);
             m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter3D(toolBox.resizeBrushesTool());
             m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter3D(toolBox.rotateObjectsTool(), m_movementRestriction);
+            m_setBrushFaceAttributesTool = new SetBrushFaceAttributesTool(m_document);
             m_vertexToolAdapter = new VertexToolAdapter3D(toolBox.vertexTool(), m_movementRestriction);
             m_cameraTool = new CameraTool3D(m_document, m_camera);
             
@@ -97,6 +101,7 @@ namespace TrenchBroom {
             addTool(m_moveObjectsToolAdapter);
             addTool(m_resizeBrushesToolAdapter);
             addTool(m_createEntityToolAdapter);
+            addTool(m_setBrushFaceAttributesTool);
             addTool(toolBox.selectionTool());
         }
 

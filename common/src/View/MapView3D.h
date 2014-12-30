@@ -46,6 +46,7 @@ namespace TrenchBroom {
         class MoveObjectsToolAdapter;
         class ResizeBrushesToolAdapter;
         class RotateObjectsToolAdapter;
+        class SetBrushFaceAttributesTool;
         class VertexToolAdapter;
         
         class MapView3D : public MapViewBase {
@@ -58,6 +59,7 @@ namespace TrenchBroom {
             MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
             ResizeBrushesToolAdapter* m_resizeBrushesToolAdapter;
             RotateObjectsToolAdapter* m_rotateObjectsToolAdapter;
+            SetBrushFaceAttributesTool* m_setBrushFaceAttributesTool;
             VertexToolAdapter* m_vertexToolAdapter;
             CameraTool3D* m_cameraTool;
             
