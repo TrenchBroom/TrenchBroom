@@ -59,6 +59,7 @@
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
 #include "View/ReparentNodesCommand.h"
+#include "View/ResizeBrushesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
 #include "View/SetModsCommand.h"
@@ -489,6 +490,17 @@ namespace TrenchBroom {
             removeNodes(Model::NodeList(1, node));
         }
 
+        Model::NodeList MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
+            AddRemoveNodesCommand* command = AddRemoveNodesCommand::add(nodes);
+            if (!submit(command))
+                return Model::EmptyNodeList;
+            return command->addedNodes();
+        }
+        
+        void MapDocument::removeNodes(const Model::NodeList& nodes) {
+            submit(AddRemoveNodesCommand::remove(nodes));
+        }
+        
         void MapDocument::reparentNodes(Model::Node* newParent, const Model::NodeList& children) {
             submit(ReparentNodesCommand::reparent(newParent, children));
         }
@@ -546,6 +558,10 @@ namespace TrenchBroom {
         
         bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range) {
             return submit(ConvertEntityColorCommand::convert(name, range));
+        }
+
+        bool MapDocument::resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta) {
+            return submit(ResizeBrushesCommand::resize(faces, delta));
         }
 
         bool MapDocument::setTexture(Assets::Texture* texture) {
@@ -708,17 +724,6 @@ namespace TrenchBroom {
             delete m_world;
             m_world = NULL;
             m_currentLayer = NULL;
-        }
-
-        Model::NodeList MapDocument::addNodes(const Model::ParentChildrenMap& nodes) {
-            AddRemoveNodesCommand* command = AddRemoveNodesCommand::add(nodes);
-            if (!submit(command))
-                return Model::EmptyNodeList;
-            return command->addedNodes();
-        }
-
-        void MapDocument::removeNodes(const Model::NodeList& nodes) {
-            submit(AddRemoveNodesCommand::remove(nodes));
         }
 
         Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const {

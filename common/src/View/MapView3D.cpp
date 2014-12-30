@@ -43,9 +43,8 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/MapViewToolBox.h"
-#include "View/MoveObjectsTool.h"
 #include "View/MoveObjectsToolAdapter.h"
-#include "View/RotateObjectsTool.h"
+#include "View/ResizeBrushesToolAdapter.h"
 #include "View/RotateObjectsToolAdapter.h"
 #include "View/SelectionTool.h"
 #include "View/VertexTool.h"
@@ -61,6 +60,7 @@ namespace TrenchBroom {
         m_compass(new Renderer::Compass(m_movementRestriction)),
         m_createEntityToolAdapter(NULL),
         m_moveObjectsToolAdapter(NULL),
+        m_resizeBrushesToolAdapter(NULL),
         m_rotateObjectsToolAdapter(NULL),
         m_vertexToolAdapter(NULL),
         m_cameraTool(NULL),
@@ -77,6 +77,7 @@ namespace TrenchBroom {
             delete m_cameraTool;
             delete m_vertexToolAdapter;
             delete m_rotateObjectsToolAdapter;
+            delete m_resizeBrushesToolAdapter;
             delete m_moveObjectsToolAdapter;
             delete m_createEntityToolAdapter;
             delete m_compass;
@@ -85,14 +86,16 @@ namespace TrenchBroom {
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
             m_createEntityToolAdapter = new CreateEntityToolAdapter3D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter3D(toolBox.moveObjectsTool(), m_movementRestriction);
+            m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter3D(toolBox.resizeBrushesTool());
             m_rotateObjectsToolAdapter = new RotateObjectsToolAdapter3D(toolBox.rotateObjectsTool(), m_movementRestriction);
             m_vertexToolAdapter = new VertexToolAdapter3D(toolBox.vertexTool(), m_movementRestriction);
             m_cameraTool = new CameraTool3D(m_document, m_camera);
             
             addTool(m_cameraTool);
-            addTool(m_moveObjectsToolAdapter);
             addTool(m_rotateObjectsToolAdapter);
             addTool(m_vertexToolAdapter);
+            addTool(m_moveObjectsToolAdapter);
+            addTool(m_resizeBrushesToolAdapter);
             addTool(m_createEntityToolAdapter);
             addTool(toolBox.selectionTool());
         }

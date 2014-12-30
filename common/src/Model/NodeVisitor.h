@@ -174,8 +174,9 @@ namespace TrenchBroom {
             bool m_hasResult;
             T m_result;
         public:
-            NodeQuery() :
-            m_hasResult(false) {}
+            NodeQuery(const T& defaultResult = T()) :
+            m_hasResult(false),
+            m_result(defaultResult) {}
             
             virtual ~NodeQuery() {}
             

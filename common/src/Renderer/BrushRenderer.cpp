@@ -150,6 +150,7 @@ namespace TrenchBroom {
         void BrushRenderer::renderEdges(RenderBatch& renderBatch) {
             if (m_showOccludedEdges) {
                 Renderer::RenderEdges* renderOccludedEdges = new Renderer::RenderEdges(Reference::ref(m_edgeRenderer));
+                renderOccludedEdges->setRenderOccluded();
                 renderOccludedEdges->setColor(m_occludedEdgeColor);
                 renderBatch.addOneShot(renderOccludedEdges);
             }
