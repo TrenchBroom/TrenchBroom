@@ -115,6 +115,13 @@ namespace TrenchBroom {
             
             m_moveObjectsTool->createPage(bookCtrl);
             m_rotateObjectsTool->createPage(bookCtrl);
+            
+            m_createEntityTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
+            m_moveObjectsTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
+            m_resizeBrushesTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
+            m_rotateObjectsTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
+            m_selectionTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
+            m_vertexTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
         }
         
         void MapViewToolBox::destroyTools() {

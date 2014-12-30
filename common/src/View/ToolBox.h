@@ -62,6 +62,7 @@ namespace TrenchBroom {
         public:
             Notifier1<Tool*> toolActivatedNotifier;
             Notifier1<Tool*> toolDeactivatedNotifier;
+            Notifier1<Tool*> refreshViewsNotifier;
         public:
             ToolBox();
         public: // picking

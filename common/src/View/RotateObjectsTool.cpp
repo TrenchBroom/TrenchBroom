@@ -64,13 +64,14 @@ namespace TrenchBroom {
         
         void RotateObjectsTool::setRotationCenter(const Vec3& position) {
             m_handle.setPosition(position);
+            refreshViews();
         }
         
         void RotateObjectsTool::resetRotationCenter() {
             MapDocumentSPtr document = lock(m_document);
             const BBox3& bounds = document->selectionBounds();
             const Vec3 position = document->grid().snap(bounds.center());
-            m_handle.setPosition(position);
+            setRotationCenter(position);
         }
         
         Vec3 RotateObjectsTool::snapRotationCenterMoveDelta(const Vec3& delta) const {

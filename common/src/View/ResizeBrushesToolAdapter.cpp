@@ -56,7 +56,8 @@ namespace TrenchBroom {
         }
         
         void ResizeBrushesToolAdapter::doModifierKeyChange(const InputState& inputState) {
-            updateDragFaces(inputState);
+            // here we must always update the drag faces, otherwise the won't get cleared when the shift key is released
+            m_tool->updateDragFaces(inputState.hits());
         }
         
         void ResizeBrushesToolAdapter::doMouseMove(const InputState& inputState) {

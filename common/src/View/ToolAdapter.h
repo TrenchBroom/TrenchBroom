@@ -194,6 +194,8 @@ namespace TrenchBroom {
             virtual bool dragDrop(const InputState& inputState) = 0;
             
             virtual bool cancel() = 0;
+        protected:
+            void refreshViews();
         private:
             virtual Tool* doGetTool() = 0;
         };

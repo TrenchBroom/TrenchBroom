@@ -61,6 +61,7 @@ namespace TrenchBroom {
             const Model::BrushFaceList& dragFaces() const;
             void updateDragFaces(const Hits& hits);
         private:
+            Model::BrushFaceList getDragFaces(const Hit& hit) const;
             class MatchFaceBoundary;
             Model::BrushFaceList collectDragFaces(const Hit& hit) const;
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;

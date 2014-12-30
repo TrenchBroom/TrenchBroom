@@ -140,12 +140,18 @@ namespace TrenchBroom {
         
         void ResizeBrushesTool::updateDragFaces(const Hits& hits) {
             const Hit& hit = hits.findFirst(ResizeHit2D | ResizeHit3D, true);
-            if (!hit.isMatch())
-                m_dragFaces.clear();
-            else
-                m_dragFaces = collectDragFaces(hit);
+            Model::BrushFaceList newDragFaces = getDragFaces(hit);
+            if (newDragFaces != m_dragFaces)
+                refreshViews();
+            
+            using std::swap;
+            swap(m_dragFaces, newDragFaces);
         }
         
+        Model::BrushFaceList ResizeBrushesTool::getDragFaces(const Hit& hit) const {
+            return !hit.isMatch() ? Model::EmptyBrushFaceList : collectDragFaces(hit);
+        }
+
         class ResizeBrushesTool::MatchFaceBoundary {
         private:
             const Model::BrushFace* m_reference;

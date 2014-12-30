@@ -106,5 +106,6 @@ namespace TrenchBroom {
         ToolAdapter::~ToolAdapter() {}
         Tool* ToolAdapter::tool() { return doGetTool(); }
         bool ToolAdapter::toolActive() { return tool()->active(); }
+        void ToolAdapter::refreshViews() { tool()->refreshViews(); }
     }
 }

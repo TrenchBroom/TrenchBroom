@@ -45,6 +45,7 @@ namespace TrenchBroom {
         class MapViewBar;
         class MapViewContainer;
         class MapViewToolBox;
+        class Tool;
         
         class SwitchableMapViewContainer : public wxPanel {
         private:
@@ -80,6 +81,7 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
+            void refreshViews(Tool* tool);
         };
     }
 }

@@ -30,6 +30,7 @@ namespace TrenchBroom {
         public:
             Notifier1<Tool*> toolActivatedNotifier;
             Notifier1<Tool*> toolDeactivatedNotifier;
+            Notifier1<Tool*> refreshViewsNotifier;
         protected:
             Tool(bool initiallyActive);
         public:
@@ -38,6 +39,8 @@ namespace TrenchBroom {
             bool active() const;
             bool activate();
             bool deactivate();
+
+            void refreshViews();
         private:
             virtual bool doActivate();
             virtual bool doDeactivate();

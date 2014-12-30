@@ -50,6 +50,10 @@ namespace TrenchBroom {
             return !m_active;
         }
         
+        void Tool::refreshViews() {
+            refreshViewsNotifier(this);
+        }
+
         bool Tool::doActivate() {
             return true;
         }
