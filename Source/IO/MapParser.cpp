@@ -358,7 +358,7 @@ namespace TrenchBroom {
             size_t oldSize = entities.size();
             try {
                 Model::Entity* entity = NULL;
-                while ((entity = parseEntity(worldBounds, forceIntegerFacePoints ? Integer : Float, NULL)) != NULL)
+                while ((entity = parseEntity(worldBounds, forceIntegerFacePoints, NULL)) != NULL)
                     entities.push_back(entity);
                 return !entities.empty();
             } catch (MapParserException&) {
