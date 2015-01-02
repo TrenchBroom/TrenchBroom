@@ -23,8 +23,11 @@
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
 #include "Model/Entity.h"
+#include "Model/Group.h"
+#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
-#include "Model/ModelHitFilters.h"
+#include "Model/HitQuery.h"
+#include "Model/PickResult.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "Renderer/PerspectiveCamera.h"
@@ -81,8 +84,7 @@ namespace TrenchBroom {
         
         bool CameraTool3D::doStartMouseDrag(const InputState& inputState) {
             if (orbit(inputState)) {
-                MapDocumentSPtr document = lock(m_document);
-                const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit | Model::Entity::EntityHit, document->editorContext(), true);
+                const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit | Model::Entity::EntityHit | Model::Group::GroupHit).first();
                 if (hit.isMatch()) {
                     m_orbit = true;
                     m_orbitCenter = hit.hitPoint();

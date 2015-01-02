@@ -17,30 +17,36 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Picker__
-#define __TrenchBroom__Picker__
+#ifndef __TrenchBroom__HitQuery__
+#define __TrenchBroom__HitQuery__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
-#include "Model/Octree.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Pickable;
-        class PickResult;
+        class EditorContext;
         
-        class Picker {
+        class HitQuery {
         private:
-            Octree<FloatType, Pickable*> m_octree;
+            const Hit::List& m_hits;
+            const EditorContext* m_editorContext;
+            HitFilter* m_include;
+            HitFilter* m_exclude;
         public:
-            Picker(const BBox<FloatType, 3>& worldBounds);
+            HitQuery(const Hit::List& hits, const EditorContext& editorContext);
+            HitQuery(const Hit::List& hits);
+            ~HitQuery();
             
-            void addObject(Pickable* object);
-            void removeObject(Pickable* object);
+            HitQuery& pickable();
+            HitQuery& type(Hit::HitType type);
+            HitQuery& occluded(Hit::HitType type = Hit::AnyType);
+            HitQuery& selected();
             
-            void pick(const Ray3& ray, PickResult& pickResult) const;
+            const Hit& first() const;
+            Hit::List all() const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Picker__) */
+#endif /* defined(__TrenchBroom__HitQuery__) */

@@ -20,12 +20,16 @@
 #ifndef __TrenchBroom__UVRotateTool__
 #define __TrenchBroom__UVRotateTool__
 
-#include "Hit.h"
+#include "Model/Hit.h"
 #include "View/Tool.h"
 #include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
@@ -36,7 +40,7 @@ namespace TrenchBroom {
 
         class UVRotateTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
-            static const Hit::HitType AngleHandleHit;
+            static const Model::Hit::HitType AngleHandleHit;
         private:
             static const float CenterHandleRadius;
             static const float RotateHandleRadius;
@@ -51,7 +55,7 @@ namespace TrenchBroom {
         private:
             Tool* doGetTool();
             
-            void doPick(const InputState& inputState, Hits& hits);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
             
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);

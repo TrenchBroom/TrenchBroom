@@ -19,10 +19,6 @@
 
 #include "TwoPaneMapView.h"
 
-#include "Hit.h"
-#include "Model/Brush.h"
-#include "Model/HitAdapter.h"
-#include "Model/ModelHitFilters.h"
 #include "Model/PointFile.h"
 #include "Renderer/Camera.h"
 #include "View/CommandIds.h"

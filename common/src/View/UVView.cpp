@@ -20,7 +20,6 @@
 #include "UVView.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Hit.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
@@ -49,7 +48,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType UVView::FaceHit = Hit::freeHitType();
+        const Model::Hit::HitType UVView::FaceHit = Model::Hit::freeHitType();
         
         UVView::UVView(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager) :
         RenderView(parent, contextManager, buildAttribs()),
@@ -356,18 +355,18 @@ namespace TrenchBroom {
             return PickRequest(Ray3(m_camera.pickRay(x, y)), m_camera);
         }
         
-        Hits UVView::doPick(const Ray3& pickRay) const {
-            Hits hits = hitsByDistance();
+        Model::PickResult UVView::doPick(const Ray3& pickRay) const {
+            Model::PickResult pickResult = Model::PickResult::byDistance(lock(m_document)->editorContext());
             if (!m_helper.valid())
-                return hits;
+                return pickResult;
             
             Model::BrushFace* face = m_helper.face();
             const FloatType distance = face->intersectWithRay(pickRay);
             if (!Math::isnan(distance)) {
                 const Vec3 hitPoint = pickRay.pointAtDistance(distance);
-                hits.addHit(Hit(UVView::FaceHit, distance, hitPoint, face));
+                pickResult.addHit(Model::Hit(UVView::FaceHit, distance, hitPoint, face));
             }
-            return hits;
+            return pickResult;
         }
     }
 }

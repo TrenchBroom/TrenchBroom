@@ -20,12 +20,14 @@
 #ifndef __TrenchBroom__ResizeBrushesToolAdapter__
 #define __TrenchBroom__ResizeBrushesToolAdapter__
 
-#include "Hit.h"
+#include "Model/Hit.h"
 #include "Renderer/EdgeRenderer.h"
 #include "View/ToolAdapter.h"
 
 namespace TrenchBroom {
-    class Hits;
+    namespace Model {
+        class PickResult;
+    }
     
     namespace Renderer {
         class RenderBatch;
@@ -46,7 +48,7 @@ namespace TrenchBroom {
         private:
             Tool* doGetTool();
             
-            void doPick(const InputState& inputState, Hits& hits);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
 
             void doModifierKeyChange(const InputState& inputState);
             
@@ -66,21 +68,21 @@ namespace TrenchBroom {
             void updateDragFaces(const InputState& inputState);
             bool handleInput(const InputState& inputState) const;
         private:
-            virtual Hit doPick(const Ray3& pickRay, const Hits& hits) = 0;
+            virtual Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult) = 0;
         };
         
         class ResizeBrushesToolAdapter2D : public ResizeBrushesToolAdapter {
         public:
             ResizeBrushesToolAdapter2D(ResizeBrushesTool* tool);
         private:
-            Hit doPick(const Ray3& pickRay, const Hits& hits);
+            Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult);
         };
         
         class ResizeBrushesToolAdapter3D : public ResizeBrushesToolAdapter {
         public:
             ResizeBrushesToolAdapter3D(ResizeBrushesTool* tool);
         private:
-            Hit doPick(const Ray3& pickRay, const Hits& hits);
+            Model::Hit doPick(const Ray3& pickRay, const Model::PickResult& pickResult);
         };
     }
 }

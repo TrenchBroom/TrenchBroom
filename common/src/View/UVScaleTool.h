@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__UVScaleTool__
 #define __TrenchBroom__UVScaleTool__
 
-#include "Hit.h"
+#include "Model/Hit.h"
 #include "Renderer/VertexSpec.h"
 #include "View/Tool.h"
 #include "View/ToolAdapter.h"
@@ -29,6 +29,10 @@
 namespace TrenchBroom {
     namespace Assets {
         class Texture;
+    }
+    
+    namespace Model {
+        class PickResult;
     }
     
     namespace Renderer {
@@ -41,8 +45,8 @@ namespace TrenchBroom {
         
         class UVScaleTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         private:
-            static const Hit::HitType XHandleHit;
-            static const Hit::HitType YHandleHit;
+            static const Model::Hit::HitType XHandleHit;
+            static const Model::Hit::HitType YHandleHit;
         private:
             typedef Renderer::VertexSpecs::P3::Vertex EdgeVertex;
 
@@ -57,9 +61,9 @@ namespace TrenchBroom {
         private:
             Tool* doGetTool();
             
-            void doPick(const InputState& inputState, Hits& hits);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
             
-            Vec2i getScaleHandle(const Hit& xHit, const Hit& yHit) const;
+            Vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) const;
             Vec2f getHitPoint(const Ray3& pickRay) const;
             
             bool doStartMouseDrag(const InputState& inputState);
@@ -72,7 +76,7 @@ namespace TrenchBroom {
             Vec2f snap(const Vec2f& position) const;
 
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            EdgeVertex::List getHandleVertices(const Hits& hits) const;
+            EdgeVertex::List getHandleVertices(const Model::PickResult& pickResult) const;
             
             bool doCancel();
         };

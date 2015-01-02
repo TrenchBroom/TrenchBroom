@@ -23,7 +23,8 @@
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/ModelHitFilters.h"
+#include "Model/HitQuery.h"
+#include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
@@ -51,7 +52,7 @@ namespace TrenchBroom {
             if (!document->hasSelectedNodes())
                 return false;
 
-            const Hit& hit = findHit(inputState);
+            const Model::Hit& hit = findHit(inputState);
             if (!hit.isMatch())
                 return false;
             const Model::Node* node = Model::hitToNode(hit);
@@ -59,15 +60,14 @@ namespace TrenchBroom {
         }
         
         Vec3 MoveObjectsTool::doGetMoveOrigin(const InputState& inputState) const {
-            const Hit& hit = findHit(inputState);
+            const Model::Hit& hit = findHit(inputState);
             assert(hit.isMatch());
             return hit.hitPoint();
         }
 
-        const Hit& MoveObjectsTool::findHit(const InputState& inputState) const {
-            static const Hit::HitType types = Model::Entity::EntityHit | Model::Brush::BrushHit;
-            MapDocumentSPtr document = lock(m_document);
-            return Model::firstHit(inputState.hits(), types, document->editorContext(), true, true);
+        const Model::Hit& MoveObjectsTool::findHit(const InputState& inputState) const {
+            const Model::PickResult& pickResult = inputState.pickResult();
+            return pickResult.query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().selected().first();
         }
 
         String MoveObjectsTool::doGetActionName(const InputState& inputState) const {

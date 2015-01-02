@@ -27,7 +27,7 @@ namespace TrenchBroom {
         PickingPolicy::~PickingPolicy() {}
 
         NoPickingPolicy::~NoPickingPolicy() {}
-        void NoPickingPolicy::doPick(const InputState& inputState, Hits& hits) {}
+        void NoPickingPolicy::doPick(const InputState& inputState, Model::PickResult& pickResult) {}
 
         KeyPolicy::~KeyPolicy() {}
 

@@ -30,6 +30,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class PickResult;
+        
         class Entity : public AttributableNode, public Object, private EntityRotationPolicy {
         public:
             static const Hit::HitType EntityHit;
@@ -72,7 +74,7 @@ namespace TrenchBroom {
             bool doIsAttributeValueMutable(const AttributeName& name) const;
         private: // implement Object interface
             const BBox3& doGetBounds() const;
-            void doPick(const Ray3& ray, Hits& hits) const;
+            void doPick(const Ray3& ray, PickResult& pickResult) const;
 
             Node* doGetContainer() const;
             Layer* doGetLayer() const;

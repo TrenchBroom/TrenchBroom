@@ -19,7 +19,6 @@
 
 #include "RotateObjectsToolAdapter.h"
 
-#include "Hit.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -46,10 +45,10 @@ namespace TrenchBroom {
             return m_tool;
         }
 
-        void RotateObjectsToolAdapter::doPick(const InputState& inputState, Hits& hits) {
-            const Hit hit = doPick(inputState);
+        void RotateObjectsToolAdapter::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+            const Model::Hit hit = doPick(inputState);
             if (hit.isMatch())
-                hits.addHit(hit);
+                pickResult.addHit(hit);
         }
 
         void RotateObjectsToolAdapter::doModifierKeyChange(const InputState& inputState) {
@@ -58,7 +57,7 @@ namespace TrenchBroom {
         }
         
         bool RotateObjectsToolAdapter::doMouseClick(const InputState& inputState) {
-            const Hit& hit = inputState.hits().findFirst(RotateObjectsHandle::HandleHit, true);
+            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             if (hit.isMatch() && inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
                 const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
                 m_tool->updateToolPageAxis(area);
@@ -104,7 +103,7 @@ namespace TrenchBroom {
         }
 
         void RotateObjectsToolAdapter::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            const Hit& hit = inputState.hits().findFirst(RotateObjectsHandle::HandleHit, true);
+            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             if (dragging() || hit.isMatch())
                 renderContext.setForceShowSelectionGuide();
         }
@@ -123,7 +122,7 @@ namespace TrenchBroom {
             if (dragging() && m_helper == m_moveHelper)
                 return RotateObjectsHandle::HitArea_Center;
             
-            const Hit& hit = inputState.hits().findFirst(RotateObjectsHandle::HandleHit, true);
+            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             if (!hit.isMatch())
                 return RotateObjectsHandle::HitArea_None;
             return hit.target<RotateObjectsHandle::HitArea>();
@@ -134,7 +133,7 @@ namespace TrenchBroom {
         }
 
         bool RotateObjectsToolAdapter::doHandleMove(const InputState& inputState) const {
-            const Hit& hit = inputState.hits().findFirst(RotateObjectsHandle::HandleHit, true);
+            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             return hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() == RotateObjectsHandle::HitArea_Center;
         }
         
@@ -159,12 +158,12 @@ namespace TrenchBroom {
         void RotateObjectsToolAdapter::doCancelMove() {}
 
         bool RotateObjectsToolAdapter::doHandleRotate(const InputState& inputState) const {
-            const Hit& hit = inputState.hits().findFirst(RotateObjectsHandle::HandleHit, true);
+            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             return hit.isMatch() && hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea_Center;
         }
         
         RotateInfo RotateObjectsToolAdapter::doGetRotateInfo(const InputState& inputState) const {
-            const Hit& hit = inputState.hits().findFirst(RotateObjectsHandle::HandleHit, true);
+            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             assert(hit.isMatch());
             const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
             assert(area != RotateObjectsHandle::HitArea_None &&
@@ -181,7 +180,7 @@ namespace TrenchBroom {
         bool RotateObjectsToolAdapter::doStartRotate(const InputState& inputState) {
             m_tool->beginRotation();
             
-            const Hit& hit = inputState.hits().findFirst(RotateObjectsHandle::HandleHit, true);
+            const Model::Hit& hit = inputState.pickResult().query().type(RotateObjectsHandle::HandleHit).occluded().first();
             _UNUSED(hit);
             assert(hit.isMatch());
             assert(hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea_None &&
@@ -214,7 +213,7 @@ namespace TrenchBroom {
         RotateObjectsToolAdapter2D::RotateObjectsToolAdapter2D(RotateObjectsTool* tool) :
         RotateObjectsToolAdapter(tool, new MoveToolHelper2D(this)) {}
 
-        Hit RotateObjectsToolAdapter2D::doPick(const InputState& inputState) {
+        Model::Hit RotateObjectsToolAdapter2D::doPick(const InputState& inputState) {
             return m_tool->pick2D(inputState.pickRay(), inputState.camera());
         }
 
@@ -233,7 +232,7 @@ namespace TrenchBroom {
         RotateObjectsToolAdapter3D::RotateObjectsToolAdapter3D(RotateObjectsTool* tool, MovementRestriction& movementRestriction) :
         RotateObjectsToolAdapter(tool, new MoveToolHelper3D(this, movementRestriction)) {}
         
-        Hit RotateObjectsToolAdapter3D::doPick(const InputState& inputState) {
+        Model::Hit RotateObjectsToolAdapter3D::doPick(const InputState& inputState) {
             return m_tool->pick3D(inputState.pickRay(), inputState.camera());
         }
         

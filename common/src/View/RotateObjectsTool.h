@@ -22,13 +22,12 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/Hit.h"
 #include "View/MapViewToolPage.h"
 #include "View/Tool.h"
 #include "View/RotateObjectsHandle.h"
 
 namespace TrenchBroom {
-    class Hits;
-    
     namespace Renderer {
         class Camera;
     }
@@ -67,8 +66,8 @@ namespace TrenchBroom {
             FloatType snapRotationAngle(FloatType angle) const;
             void applyRotation(const Vec3& center, const Vec3& axis, FloatType angle);
             
-            Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera);
-            Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera);
+            Model::Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera);
+            Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera);
             
             Vec3 rotationAxis(RotateObjectsHandle::HitArea area) const;
             Vec3 rotationAxisHandle(RotateObjectsHandle::HitArea area, const Vec3& cameraPos) const;

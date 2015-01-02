@@ -23,7 +23,6 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "StringUtils.h"
-#include "Hit.h"
 #include "Notifier.h"
 
 #include <wx/wx.h>
@@ -32,6 +31,10 @@
 #include <vector>
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
@@ -66,7 +69,7 @@ namespace TrenchBroom {
         public:
             ToolBox();
         public: // picking
-            void pick(ToolChain* chain, const InputState& inputState, Hits& hits);
+            void pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult);
         public: // event handling
             bool clickToActivate() const;
             void setClickToActivate(bool clickToActivate);

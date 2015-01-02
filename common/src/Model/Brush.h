@@ -33,6 +33,7 @@ namespace TrenchBroom {
         struct BrushAlgorithmResult;
         class BrushContentTypeBuilder;
         class BrushGeometry;
+        class PickResult;
         
         class Brush : public Node, public Object {
         public:
@@ -148,7 +149,7 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Object interface
             const BBox3& doGetBounds() const;
-            void doPick(const Ray3& ray, Hits& hits) const;
+            void doPick(const Ray3& ray, PickResult& pickResult) const;
 
             Node* doGetContainer() const;
             Layer* doGetLayer() const;

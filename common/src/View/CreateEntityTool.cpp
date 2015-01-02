@@ -29,9 +29,11 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
+#include "Model/Hit.h"
+#include "Model/HitQuery.h"
 #include "Model/Layer.h"
-#include "Model/ModelHitFilters.h"
 #include "Model/Picker.h"
+#include "Model/PickResult.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
@@ -109,14 +111,14 @@ namespace TrenchBroom {
             document->translateObjects(delta);
         }
 
-        void CreateEntityTool::updateEntityPosition3D(const Ray3& pickRay, const Hits& hits) {
+        void CreateEntityTool::updateEntityPosition3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
             assert(m_entity != NULL);
             
             MapDocumentSPtr document = lock(m_document);
             
             Vec3 delta;
             const Grid& grid = document->grid();
-            const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), true);
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
                 const Model::BrushFace* face = Model::hitToFace(hit);
                 const Plane3 dragPlane = alignedOrthogonalDragPlane(hit.hitPoint(), face->boundary().normal);

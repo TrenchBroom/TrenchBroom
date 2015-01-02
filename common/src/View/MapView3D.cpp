@@ -24,7 +24,8 @@
 #include "Model/BrushVertex.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/ModelHitFilters.h"
+#include "Model/HitQuery.h"
+#include "Model/PickResult.h"
 #include "Model/PointFile.h"
 #include "Renderer/Compass.h"
 #include "Renderer/MapRenderer.h"
@@ -263,10 +264,13 @@ namespace TrenchBroom {
             return PickRequest(Ray3(m_camera.pickRay(x, y)), m_camera);
         }
 
-        Hits MapView3D::doPick(const Ray3& pickRay) const {
-            Hits hits = hitsByDistance();
-            lock(m_document)->pick(pickRay, hits);
-            return hits;
+        Model::PickResult MapView3D::doPick(const Ray3& pickRay) const {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::EditorContext& editorContext = document->editorContext();
+            Model::PickResult pickResult = Model::PickResult::byDistance(editorContext);
+
+            document->pick(pickRay, pickResult);
+            return pickResult;
         }
 
         void MapView3D::doUpdateViewport(const int x, const int y, const int width, const int height) {
@@ -282,9 +286,12 @@ namespace TrenchBroom {
             
             if (HitTest(clientCoords) == wxHT_WINDOW_INSIDE) {
                 const Ray3f pickRay = m_camera.pickRay(clientCoords.x, clientCoords.y);
-                Hits hits = hitsByDistance();
-                document->pick(Ray3(pickRay), hits);
-                const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), true);
+                
+                const Model::EditorContext& editorContext = document->editorContext();
+                Model::PickResult pickResult = Model::PickResult::byDistance(editorContext);
+
+                document->pick(Ray3(pickRay), pickResult);
+                const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).first();
                 if (hit.isMatch()) {
                     const Model::BrushFace* face = Model::hitToFace(hit);
                     const Vec3 snappedHitPoint = grid.snap(hit.hitPoint());

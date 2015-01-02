@@ -22,17 +22,16 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Hit.h"
+#include "Model/Hit.h"
 
 namespace TrenchBroom {
-    class Hits;
-    
     namespace Assets {
         class Texture;
     }
 
     namespace Model {
         class BrushFace;
+        class PickResult;
     }
     
     namespace Renderer {
@@ -77,7 +76,7 @@ namespace TrenchBroom {
             const Renderer::Camera& camera() const;
             float cameraZoom() const;
 
-            void pickTextureGrid(const Ray3& ray, const Hit::HitType hitTypes[2], Hits& hits) const;
+            void pickTextureGrid(const Ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const;
             
             Vec2f snapDelta(const Vec2f& delta, const Vec2f& distance) const;
             Vec2f computeDistanceFromTextureGrid(const Vec3& position) const;

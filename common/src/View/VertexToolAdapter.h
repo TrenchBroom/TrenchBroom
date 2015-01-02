@@ -20,12 +20,11 @@
 #ifndef __TrenchBroom__VertexToolAdapter__
 #define __TrenchBroom__VertexToolAdapter__
 
+#include "Model/Hit.h"
 #include "View/MoveToolAdapter.h"
 #include "View/ToolAdapter.h"
 
 namespace TrenchBroom {
-    class Hits;
-    
     namespace View {
         class InputState;
         class MovementRestriction;
@@ -60,22 +59,22 @@ namespace TrenchBroom {
 
             bool doCancel();
             
-            const Hit& firstHit(const Hits& hits) const;
-            Hits::List firstHits(const Hits& hits) const;
+            const Model::Hit& firstHit(const Model::PickResult& pickResult) const;
+            Model::Hit::List firstHits(const Model::PickResult& pickResult) const;
         };
         
         class VertexToolAdapter2D : public VertexToolAdapter {
         public:
             VertexToolAdapter2D(VertexTool* tool);
         private:
-            void doPick(const InputState& inputState, Hits& hits);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
         };
         
         class VertexToolAdapter3D : public VertexToolAdapter {
         public:
             VertexToolAdapter3D(VertexTool* tool, MovementRestriction& movementRestriction);
         private:
-            void doPick(const InputState& inputState, Hits& hits);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
         };
     }
 }

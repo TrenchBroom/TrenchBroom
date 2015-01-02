@@ -23,7 +23,9 @@
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
+#include "Model/HitQuery.h"
 #include "Model/ModelTypes.h"
+#include "Model/PickResult.h"
 #include "Renderer/Circle.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/Renderable.h"
@@ -38,8 +40,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType UVOriginTool::XHandleHit = Hit::freeHitType();
-        const Hit::HitType UVOriginTool::YHandleHit = Hit::freeHitType();
+        const Model::Hit::HitType UVOriginTool::XHandleHit = Model::Hit::freeHitType();
+        const Model::Hit::HitType UVOriginTool::YHandleHit = Model::Hit::freeHitType();
         const FloatType UVOriginTool::MaxPickDistance = 5.0;
         const float UVOriginTool::OriginHandleRadius =  5.0f;
 
@@ -52,7 +54,7 @@ namespace TrenchBroom {
             return this;
         }
         
-        void UVOriginTool::doPick(const InputState& inputState, Hits& hits) {
+        void UVOriginTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (m_helper.valid()) {
                 Line3 xHandle, yHandle;
                 computeOriginHandles(xHandle, yHandle);
@@ -65,8 +67,8 @@ namespace TrenchBroom {
                 const Ray3::PointDistance oDistance = pickRay.distanceToPoint(origin);
                 if (oDistance.distance <= OriginHandleRadius / m_helper.cameraZoom()) {
                     const Vec3 hitPoint = pickRay.pointAtDistance(oDistance.rayDistance);
-                    hits.addHit(Hit(XHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
-                    hits.addHit(Hit(YHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
+                    pickResult.addHit(Model::Hit(XHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
+                    pickResult.addHit(Model::Hit(YHandleHit, oDistance.rayDistance, hitPoint, xHandle, oDistance.distance));
                 } else {
                     const Ray3::LineDistance xDistance = pickRay.distanceToLine(xHandle.point, xHandle.direction);
                     const Ray3::LineDistance yDistance = pickRay.distanceToLine(yHandle.point, yHandle.direction);
@@ -77,12 +79,12 @@ namespace TrenchBroom {
                     const FloatType maxDistance  = MaxPickDistance / m_helper.cameraZoom();
                     if (xDistance.distance <= maxDistance) {
                         const Vec3 hitPoint = pickRay.pointAtDistance(xDistance.rayDistance);
-                        hits.addHit(Hit(XHandleHit, xDistance.rayDistance, hitPoint, xHandle, xDistance.distance));
+                        pickResult.addHit(Model::Hit(XHandleHit, xDistance.rayDistance, hitPoint, xHandle, xDistance.distance));
                     }
                     
                     if (yDistance.distance <= maxDistance) {
                         const Vec3 hitPoint = pickRay.pointAtDistance(yDistance.rayDistance);
-                        hits.addHit(Hit(YHandleHit, yDistance.rayDistance, hitPoint, yHandle, yDistance.distance));
+                        pickResult.addHit(Model::Hit(YHandleHit, yDistance.rayDistance, hitPoint, yHandle, yDistance.distance));
                     }
                 }
             }
@@ -106,9 +108,9 @@ namespace TrenchBroom {
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
-            const Hits& hits = inputState.hits();
-            const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
-            const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
+            const Model::PickResult& pickResult = inputState.pickResult();
+            const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
+            const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
 
             if (!xHandleHit.isMatch() && !yHandleHit.isMatch())
                 return false;
@@ -211,7 +213,7 @@ namespace TrenchBroom {
         }
 
         void UVOriginTool::renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            EdgeVertex::List vertices = getHandleVertices(inputState.hits());
+            EdgeVertex::List vertices = getHandleVertices(inputState.pickResult());
             
             Renderer::EdgeRenderer edgeRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
             Renderer::RenderEdges* renderEdges = new Renderer::RenderEdges(Reference::swap(edgeRenderer));
@@ -220,9 +222,9 @@ namespace TrenchBroom {
             renderBatch.addOneShot(renderEdges);
         }
 
-        UVOriginTool::EdgeVertex::List UVOriginTool::getHandleVertices(const Hits& hits) const {
-            const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
-            const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
+        UVOriginTool::EdgeVertex::List UVOriginTool::getHandleVertices(const Model::PickResult& pickResult) const {
+            const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
+            const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             
             const bool highlightXHandle = (dragging() && m_selector.x() > 0.0) || (!dragging() && xHandleHit.isMatch());
             const bool highlightYHandle = (dragging() && m_selector.y() > 0.0) || (!dragging() && yHandleHit.isMatch());
@@ -284,9 +286,9 @@ namespace TrenchBroom {
         };
         
         void UVOriginTool::renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            const Hits& hits = inputState.hits();
-            const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
-            const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
+            const Model::PickResult& pickResult = inputState.pickResult();
+            const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
+            const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             
             const bool highlight = xHandleHit.isMatch() && yHandleHit.isMatch();;
             renderBatch.addOneShot(new RenderOrigin(m_helper, OriginHandleRadius, highlight));

@@ -22,12 +22,14 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "View/RenderView.h"
+#include "Model/Hit.h"
+#include "Model/PickResult.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/OrthographicCamera.h"
-#include "View/UVViewHelper.h"
+#include "View/RenderView.h"
 #include "View/ToolBox.h"
 #include "View/ToolBoxConnector.h"
+#include "View/UVViewHelper.h"
 #include "View/ViewTypes.h"
 
 class wxWindow;
@@ -59,7 +61,7 @@ namespace TrenchBroom {
          */
         class UVView : public RenderView, public ToolBoxConnector {
         public:
-            static const Hit::HitType FaceHit;
+            static const Model::Hit::HitType FaceHit;
         private:
             MapDocumentWPtr m_document;
             
@@ -107,7 +109,7 @@ namespace TrenchBroom {
             void renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             PickRequest doGetPickRequest(const int x, const int y) const;
-            Hits doPick(const Ray3& pickRay) const;
+            Model::PickResult doPick(const Ray3& pickRay) const;
         };
     }
 }

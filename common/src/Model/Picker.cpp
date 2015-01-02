@@ -37,14 +37,14 @@ namespace TrenchBroom {
             m_octree.removeObject(object);
         }
         
-        void Picker::pick(const Ray3& ray, Hits& hits) const {
+        void Picker::pick(const Ray3& ray, PickResult& pickResult) const {
             typedef std::vector<Pickable*> PickableList;
             
             const PickableList candidates = m_octree.findObjects(ray);
             PickableList::const_iterator it, end;
             for (it = candidates.begin(), end = candidates.end(); it != end; ++it) {
                 Pickable* object = *it;
-                object->pick(ray, hits);
+                object->pick(ray, pickResult);
             }
         }
     }

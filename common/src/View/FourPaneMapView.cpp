@@ -19,10 +19,6 @@
 
 #include "FourPaneMapView.h"
 
-#include "Hit.h"
-#include "Model/Brush.h"
-#include "Model/HitAdapter.h"
-#include "Model/ModelHitFilters.h"
 #include "Renderer/Camera.h"
 #include "View/CommandIds.h"
 #include "View/Grid.h"

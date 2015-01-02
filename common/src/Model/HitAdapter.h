@@ -23,8 +23,9 @@
 #include <stdio.h>
 
 namespace TrenchBroom {
-    class Hit;
     namespace Model {
+        class Hit;
+        
         class Brush;
         class BrushFace;
         class Entity;

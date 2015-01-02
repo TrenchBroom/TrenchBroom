@@ -22,7 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Hit.h"
 #include "Model/AttributableNode.h"
 #include "Model/AttributableNodeIndex.h"
 #include "Model/IssueGeneratorRegistry.h"
@@ -35,6 +34,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushContentTypeBuilder;
+        class PickResult;
         
         class World : public AttributableNode, public ModelFactory {
         private:
@@ -58,7 +58,7 @@ namespace TrenchBroom {
         private:
             void updateAllIssues();
         public: // picking
-            void pick(const Ray3& ray, Hits& hits) const;
+            void pick(const Ray3& ray, PickResult& pickResult) const;
         private: // implement Node interface
             Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;

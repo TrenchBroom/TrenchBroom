@@ -30,6 +30,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class PickResult;
+        
         class Group : public Node, public Object {
         public:
             static const Hit::HitType GroupHit;
@@ -58,7 +60,7 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement methods inherited from Object
             const BBox3& doGetBounds() const;
-            void doPick(const Ray3& ray, Hits& hits) const;
+            void doPick(const Ray3& ray, PickResult& pickResult) const;
 
             Node* doGetContainer() const;
             Layer* doGetLayer() const;

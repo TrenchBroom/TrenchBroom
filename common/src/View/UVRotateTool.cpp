@@ -25,6 +25,8 @@
 #include "Model/BrushEdge.h"
 #include "Model/BrushVertex.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/HitQuery.h"
+#include "Model/PickResult.h"
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
@@ -40,7 +42,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType UVRotateTool::AngleHandleHit = Hit::freeHitType();
+        const Model::Hit::HitType UVRotateTool::AngleHandleHit = Model::Hit::freeHitType();
         const float UVRotateTool::CenterHandleRadius =  2.5f;
         const float UVRotateTool::RotateHandleRadius = 32.0f;
         const float UVRotateTool::RotateHandleWidth  =  5.0f;
@@ -55,7 +57,7 @@ namespace TrenchBroom {
             return this;
         }
         
-        void UVRotateTool::doPick(const InputState& inputState, Hits& hits) {
+        void UVRotateTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (!m_helper.valid())
                 return;
 
@@ -76,7 +78,7 @@ namespace TrenchBroom {
             const float zoom = m_helper.cameraZoom();
             const FloatType error = std::abs(RotateHandleRadius / zoom - hitPointOnPlane.distanceTo(originOnPlane));
             if (error <= RotateHandleWidth / zoom)
-                hits.addHit(Hit(AngleHandleHit, distance, hitPoint, 0, error));
+                pickResult.addHit(Model::Hit(AngleHandleHit, distance, hitPoint, 0, error));
         }
         
         bool UVRotateTool::doStartMouseDrag(const InputState& inputState) {
@@ -86,8 +88,8 @@ namespace TrenchBroom {
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
 
-            const Hits& hits = inputState.hits();
-            const Hit& angleHandleHit = hits.findFirst(AngleHandleHit, true);
+            const Model::PickResult& pickResult = inputState.pickResult();
+            const Model::Hit& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
 
             if (!angleHandleHit.isMatch())
                 return false;
@@ -256,8 +258,8 @@ namespace TrenchBroom {
             if (!m_helper.valid())
                 return;
             
-            const Hits& hits = inputState.hits();
-            const Hit& angleHandleHit = hits.findFirst(AngleHandleHit, true);
+            const Model::PickResult& pickResult = inputState.pickResult();
+            const Model::Hit& angleHandleHit = pickResult.query().type(AngleHandleHit).occluded().first();
             const bool highlight = angleHandleHit.isMatch() || dragging();
             
             renderBatch.addOneShot(new Render(m_helper, CenterHandleRadius, RotateHandleRadius, highlight));

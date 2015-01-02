@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Color.h"
-#include "Hit.h"
+#include "Model/Hit.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "View/ViewTypes.h"
 
@@ -39,7 +39,7 @@ namespace TrenchBroom {
         
         class RotateObjectsHandle {
         public:
-            static const Hit::HitType HandleHit;
+            static const Model::Hit::HitType HandleHit;
 
             typedef enum {
                 HitArea_None,
@@ -54,8 +54,8 @@ namespace TrenchBroom {
             const Vec3& position() const;
             void setPosition(const Vec3& position);
             
-            Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const;
-            Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const;
+            Model::Hit pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const;
+            Model::Hit pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const;
 
             Vec3 pointHandlePosition(const HitArea area, const Vec3& cameraPos) const;
             
@@ -79,8 +79,8 @@ namespace TrenchBroom {
                 zAxis = Math::pos(viewDir.z()) ? Vec<T,3>::NegZ : Vec<T,3>::PosZ;
             }
 
-            Hit pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const;
-            Hit selectHit(const Hit& closest, const Hit& hit) const;
+            Model::Hit pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const;
+            Model::Hit selectHit(const Model::Hit& closest, const Model::Hit& hit) const;
             
             Vec3 getPointHandlePosition(const Vec3& axis) const;
             Color getAngleIndicatorColor(const HitArea area) const;

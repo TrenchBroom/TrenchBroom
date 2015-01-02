@@ -39,7 +39,7 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType RotateObjectsHandle::HandleHit = Hit::freeHitType();
+        const Model::Hit::HitType RotateObjectsHandle::HandleHit = Model::Hit::freeHitType();
 
         const Vec3& RotateObjectsHandle::position() const {
             return m_position;
@@ -49,11 +49,11 @@ namespace TrenchBroom {
             m_position = position;
         }
         
-        Hit RotateObjectsHandle::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const {
+        Model::Hit RotateObjectsHandle::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) const {
             Vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
             
-            Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
+            Model::Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
             switch (camera.direction().firstComponent()) {
                 case Math::Axis::AX:
                     hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
@@ -69,11 +69,11 @@ namespace TrenchBroom {
             return hit;
         }
         
-        Hit RotateObjectsHandle::pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const {
+        Model::Hit RotateObjectsHandle::pick3D(const Ray3& pickRay, const Renderer::Camera& camera) const {
             Vec3 xAxis, yAxis, zAxis;
             computeAxes(pickRay.origin, xAxis, yAxis, zAxis);
             
-            Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
+            Model::Hit hit = pickPointHandle(pickRay, camera, m_position, HitArea_Center);
             hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(xAxis), HitArea_XAxis));
             hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(yAxis), HitArea_YAxis));
             hit = selectHit(hit, pickPointHandle(pickRay, camera, getPointHandlePosition(zAxis), HitArea_ZAxis));
@@ -245,14 +245,14 @@ namespace TrenchBroom {
         }
         */
         
-        Hit RotateObjectsHandle::pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const {
+        Model::Hit RotateObjectsHandle::pickPointHandle(const Ray3& pickRay, const Renderer::Camera& camera, const Vec3& position, const HitArea area) const {
             const FloatType distance = camera.pickPointHandle(pickRay, position, pref(Preferences::HandleRadius));
             if (Math::isnan(distance))
-                return Hit::NoHit;
-            return Hit(HandleHit, distance, pickRay.pointAtDistance(distance), area);
+                return Model::Hit::NoHit;
+            return Model::Hit(HandleHit, distance, pickRay.pointAtDistance(distance), area);
         }
         
-        Hit RotateObjectsHandle::selectHit(const Hit& closest, const Hit& hit) const {
+        Model::Hit RotateObjectsHandle::selectHit(const Model::Hit& closest, const Model::Hit& hit) const {
             if (!closest.isMatch())
                 return hit;
             if (hit.isMatch()) {

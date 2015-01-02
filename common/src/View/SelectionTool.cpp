@@ -24,9 +24,10 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
-#include "Model/ModelHitFilters.h"
+#include "Model/HitQuery.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
+#include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -48,7 +49,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             if (isFaceClick(inputState)) {
-                const Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
+                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     Model::BrushFace* face = Model::hitToFace(hit);
                     if (isMultiClick(inputState)) {
@@ -77,7 +78,7 @@ namespace TrenchBroom {
                     document->deselectAll();
                 }
             } else {
-                const Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     Model::Node* node = Model::hitToNode(hit);
                     if (isMultiClick(inputState)) {
@@ -104,7 +105,7 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             if (isFaceClick(inputState)) {
-                const Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
+                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     Model::BrushFace* face = Model::hitToFace(hit);
                     const Model::Brush* brush = face->brush();
@@ -117,7 +118,7 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
+                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     const Model::Brush* brush = Model::hitToBrush(hit);
                     const Model::Node* container = brush->container();
@@ -147,9 +148,8 @@ namespace TrenchBroom {
             return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
         }
 
-        const Hit& SelectionTool::firstHit(const InputState& inputState, const Hit::HitType type) const {
-            MapDocumentSPtr document = lock(m_document);
-            return Model::firstHit(inputState.hits(), type, document->editorContext(), true);
+        const Model::Hit& SelectionTool::firstHit(const InputState& inputState, const Model::Hit::HitType type) const {
+            return inputState.pickResult().query().pickable().type(type).occluded().first();
         }
 
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {
@@ -166,8 +166,7 @@ namespace TrenchBroom {
 
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             MapDocumentSPtr document = lock(m_document);
-            static const Hit::HitType types = Model::Entity::EntityHit | Model::Brush::BrushHit;
-            const Hit& hit = Model::firstHit(inputState.hits(), types, document->editorContext(), true);
+            const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
             if (hit.isMatch() && Model::hitToNode(hit)->selected())
                 renderContext.setShowSelectionGuide();
         }

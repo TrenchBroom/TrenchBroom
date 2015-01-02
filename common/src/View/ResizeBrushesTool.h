@@ -22,15 +22,16 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Hit.h"
+#include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    class Hit;
-    class Hits;
-
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace Renderer {
         class Camera;
     }
@@ -38,8 +39,8 @@ namespace TrenchBroom {
     namespace View {
         class ResizeBrushesTool : public Tool {
         private:
-            static const Hit::HitType ResizeHit3D;
-            static const Hit::HitType ResizeHit2D;
+            static const Model::Hit::HitType ResizeHit3D;
+            static const Model::Hit::HitType ResizeHit2D;
 
             MapDocumentWPtr m_document;
             Model::BrushFaceList m_dragFaces;
@@ -51,22 +52,22 @@ namespace TrenchBroom {
             
             bool applies() const;
             
-            Hit pick2D(const Ray3& pickRay, const Hits& hits);
-            Hit pick3D(const Ray3& pickRay, const Hits& hits);
+            Model::Hit pick2D(const Ray3& pickRay, const Model::PickResult& pickResult);
+            Model::Hit pick3D(const Ray3& pickRay, const Model::PickResult& pickResult);
         private:
             class PickProximateFace;
-            Hit pickProximateFace(Hit::HitType hitType, const Ray3& pickRay) const;
+            Model::Hit pickProximateFace(Model::Hit::HitType hitType, const Ray3& pickRay) const;
         public:
             bool hasDragFaces() const;
             const Model::BrushFaceList& dragFaces() const;
-            void updateDragFaces(const Hits& hits);
+            void updateDragFaces(const Model::PickResult& pickResult);
         private:
-            Model::BrushFaceList getDragFaces(const Hit& hit) const;
+            Model::BrushFaceList getDragFaces(const Model::Hit& hit) const;
             class MatchFaceBoundary;
-            Model::BrushFaceList collectDragFaces(const Hit& hit) const;
+            Model::BrushFaceList collectDragFaces(const Model::Hit& hit) const;
             Model::BrushFaceList collectDragFaces(Model::BrushFace* face) const;
         public:
-            bool beginResize(const Hits& hits, bool split);
+            bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const Ray3& pickRay, const Renderer::Camera& camera);
             void commitResize();
             void cancelResize();

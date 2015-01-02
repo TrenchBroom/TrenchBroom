@@ -23,13 +23,14 @@
 #include "StringUtils.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Hit.h"
+#include "Model/Hit.h"
 #include "View/MoveToolAdapter.h"
 #include "View/Tool.h"
 #include "View/VertexHandleManager.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class PickResult;
         class SelectionResult;
     }
     
@@ -62,15 +63,15 @@ namespace TrenchBroom {
         public:
             VertexTool(MapDocumentWPtr document);
             
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Hits& hits);
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
             
             bool deselectAll();
-            bool mergeVertices(const Hit& hit);
-            bool select(const Hits::List& hits, bool addToSelection);
-            bool handleDoubleClicked(const Hit& hit);
+            bool mergeVertices(const Model::Hit& hit);
+            bool select(const Model::Hit::List& hits, bool addToSelection);
+            bool handleDoubleClicked(const Model::Hit& hit);
 
-            bool beginMove(const Hit& hit);
-            Vec3 snapMoveDelta(const Vec3& delta, const Hit& hit, bool relative);
+            bool beginMove(const Model::Hit& hit);
+            Vec3 snapMoveDelta(const Vec3& delta, const Model::Hit& hit, bool relative);
             MoveResult move(const Vec3& delta);
             void endMove();
             void cancelMove();
@@ -88,9 +89,9 @@ namespace TrenchBroom {
             bool canSnapVertices() const;
             void snapVertices(size_t snapTo);
         private:
-            void selectVertex(const Hits::List& hits, bool addToSelection);
-            void selectEdge(const Hits::List& hits, bool addToSelection);
-            void selectFace(const Hits::List& hits, bool addToSelection);
+            void selectVertex(const Model::Hit::List& hits, bool addToSelection);
+            void selectEdge(const Model::Hit::List& hits, bool addToSelection);
+            void selectFace(const Model::Hit::List& hits, bool addToSelection);
             
             String actionName() const;
             

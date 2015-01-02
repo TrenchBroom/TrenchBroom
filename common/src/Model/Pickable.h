@@ -24,13 +24,14 @@
 #include "VecMath.h"
 
 namespace TrenchBroom {
-    class Hits;
     namespace Model {
+        class PickResult;
+        
         class Pickable {
         public:
             virtual ~Pickable() {}
             virtual const BBox3& bounds() const = 0;
-            virtual void pick(const Ray3& ray, Hits& hits) const = 0;
+            virtual void pick(const Ray3& ray, PickResult& pickResult) const = 0;
         };
     }
 }

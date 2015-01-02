@@ -105,11 +105,11 @@ namespace TrenchBroom {
             document->rotateObjects(center, axis, angle);
         }
         
-        Hit RotateObjectsTool::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) {
+        Model::Hit RotateObjectsTool::pick2D(const Ray3& pickRay, const Renderer::Camera& camera) {
             return m_handle.pick2D(pickRay, camera);
         }
         
-        Hit RotateObjectsTool::pick3D(const Ray3& pickRay, const Renderer::Camera& camera) {
+        Model::Hit RotateObjectsTool::pick3D(const Ray3& pickRay, const Renderer::Camera& camera) {
             return m_handle.pick3D(pickRay, camera);
         }
         

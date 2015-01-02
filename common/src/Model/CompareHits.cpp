@@ -17,16 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CompareHitsBySize.h"
+#include "CompareHits.h"
 
+#include "Model/Hit.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
 
 namespace TrenchBroom {
     namespace Model {
-        CompareHitsBySize::CompareHitsBySize(const Math::Axis::Type axis) : m_axis(axis) {}
+        CompareHits::~CompareHits() {}
+        
+        int CompareHits::compare(const Hit& lhs, const Hit& rhs) const {
+            return doCompare(lhs, rhs);
+        }
+        
+        int CompareHitsByDistance::doCompare(const Hit& lhs, const Hit& rhs) const {
+            if (lhs.distance() < rhs.distance())
+                return -1;
+            if (lhs.distance() > rhs.distance())
+                return 1;
+            return 0;
+        }
 
+        CompareHitsBySize::CompareHitsBySize(const Math::Axis::Type axis) : m_axis(axis) {}
+        
         int CompareHitsBySize::doCompare(const Hit& lhs, const Hit& rhs) const {
             const FloatType lhsSize = getSize(lhs);
             const FloatType rhsSize = getSize(rhs);
@@ -36,7 +51,7 @@ namespace TrenchBroom {
                 return 1;
             return m_compareByDistance.compare(lhs, rhs);
         }
-
+        
         FloatType CompareHitsBySize::getSize(const Hit& hit) const {
             const BrushFace* face = hitToFace(hit);
             if (face != NULL)
@@ -45,10 +60,6 @@ namespace TrenchBroom {
             if (entity != NULL)
                 return entity->area(m_axis);
             return 0.0;
-        }
-
-        Hits hitsBySize(const Math::Axis::Type axis) {
-            return Hits(CompareHitsBySize(axis));
         }
     }
 }
