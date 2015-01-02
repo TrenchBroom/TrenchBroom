@@ -20,13 +20,17 @@
 #ifndef __TrenchBroom__UVOriginTool__
 #define __TrenchBroom__UVOriginTool__
 
-#include "Hit.h"
+#include "Model//Hit.h"
 #include "Renderer/VertexSpec.h"
 #include "View/Tool.h"
 #include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
@@ -37,8 +41,8 @@ namespace TrenchBroom {
         
         class UVOriginTool : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, NoMousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy>, public Tool {
         public:
-            static const Hit::HitType XHandleHit;
-            static const Hit::HitType YHandleHit;
+            static const Model::Hit::HitType XHandleHit;
+            static const Model::Hit::HitType YHandleHit;
         private:
             static const FloatType MaxPickDistance;
             static const float OriginHandleRadius;
@@ -54,7 +58,7 @@ namespace TrenchBroom {
         private:
             Tool* doGetTool();
             
-            void doPick(const InputState& inputState, Hits& hits);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
 
             void computeOriginHandles(Line3& xHandle, Line3& yHandle) const;
             
@@ -70,7 +74,7 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
             void renderLineHandles(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            EdgeVertex::List getHandleVertices(const Hits& hits) const;
+            EdgeVertex::List getHandleVertices(const Model::PickResult& pickResult) const;
             
             class RenderOrigin;
             void renderOriginHandle(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

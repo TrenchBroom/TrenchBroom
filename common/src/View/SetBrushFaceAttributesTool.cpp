@@ -22,7 +22,6 @@
 #include "Model/BrushFace.h"
 #include "Model/Brush.h"
 #include "Model/HitAdapter.h"
-#include "Model/ModelHitFilters.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
@@ -55,7 +54,7 @@ namespace TrenchBroom {
             if (selectedFaces.size() != 1)
                 return false;
             
-            const Hit& hit = Model::firstHit(inputState.hits(), Model::Brush::BrushHit, document->editorContext(), true);
+            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (!hit.isMatch())
                 return false;
             

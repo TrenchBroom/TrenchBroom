@@ -46,11 +46,11 @@ namespace TrenchBroom {
             assert(checkInvariant());
         }
         
-        void ToolChain::pick(const InputState& inputState, Hits& hits) {
+        void ToolChain::pick(const InputState& inputState, Model::PickResult& pickResult) {
             assert(checkInvariant());
             if (!chainEndsHere()) {
-                m_tool->pick(inputState, hits);
-                m_suffix->pick(inputState, hits);
+                m_tool->pick(inputState, pickResult);
+                m_suffix->pick(inputState, pickResult);
             }
         }
         

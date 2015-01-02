@@ -17,13 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CompareHitsBySize__
-#define __TrenchBroom__CompareHitsBySize__
+#ifndef __TrenchBroom__CompareHits__
+#define __TrenchBroom__CompareHits__
 
-#include "Hit.h"
+#include "TrenchBroom.h"
+#include "VecMath.h"
 
 namespace TrenchBroom {
     namespace Model {
+        class Hit;
+        
+        class CompareHits {
+        public:
+            virtual ~CompareHits();
+            int compare(const Hit& lhs, const Hit& rhs) const;
+        private:
+            virtual int doCompare(const Hit& lhs, const Hit& rhs) const = 0;
+        };
+
+        class CompareHitsByDistance : public CompareHits {
+        private:
+            int doCompare(const Hit& lhs, const Hit& rhs) const;
+        };
+
         class CompareHitsBySize : public CompareHits {
         private:
             const Math::Axis::Type m_axis;
@@ -34,9 +50,7 @@ namespace TrenchBroom {
             int doCompare(const Hit& lhs, const Hit& rhs) const;
             FloatType getSize(const Hit& hit) const;
         };
-        
-        Hits hitsBySize(Math::Axis::Type axis);
     }
 }
 
-#endif /* defined(__TrenchBroom__CompareHitsBySize__) */
+#endif /* defined(__TrenchBroom__CompareHits__) */

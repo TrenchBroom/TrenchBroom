@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__RotateObjectsToolAdapter__
 #define __TrenchBroom__RotateObjectsToolAdapter__
 
-#include "Hit.h"
+#include "Model/Hit.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/MoveToolHelper.h"
 #include "View/RotateObjectsHandle.h"
@@ -29,6 +29,10 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace View {
         class MovementRestriction;
         class RotateObjectsTool;
@@ -47,7 +51,7 @@ namespace TrenchBroom {
         private:
             Tool* doGetTool();
             
-            void doPick(const InputState& inputState, Hits& hits);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
 
             void doModifierKeyChange(const InputState& inputState);
             bool doMouseClick(const InputState& inputState);
@@ -80,7 +84,7 @@ namespace TrenchBroom {
             void doEndRotate(const InputState& inputState);
             void doCancelRotate();
         private: // subclassing interface
-            virtual Hit doPick(const InputState& inputState) = 0;
+            virtual Model::Hit doPick(const InputState& inputState) = 0;
             virtual Vec3 doGetRotationAxis(const InputState& inputState, RotateObjectsHandle::HitArea area) const = 0;
             virtual Vec3 doGetRotationAxisHandle(const InputState& inputState, RotateObjectsHandle::HitArea area) const = 0;
             virtual void doRenderHandle(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea highlight) = 0;
@@ -90,7 +94,7 @@ namespace TrenchBroom {
         public:
             RotateObjectsToolAdapter2D(RotateObjectsTool* tool);
         private:
-            Hit doPick(const InputState& inputState);
+            Model::Hit doPick(const InputState& inputState);
             
             Vec3 doGetRotationAxis(const InputState& inputState, RotateObjectsHandle::HitArea area) const;
             Vec3 doGetRotationAxisHandle(const InputState& inputState, RotateObjectsHandle::HitArea area) const;
@@ -101,7 +105,7 @@ namespace TrenchBroom {
         public:
             RotateObjectsToolAdapter3D(RotateObjectsTool* tool, MovementRestriction& movementRestriction);
         private:
-            Hit doPick(const InputState& inputState);
+            Model::Hit doPick(const InputState& inputState);
             
             Vec3 doGetRotationAxis(const InputState& inputState, RotateObjectsHandle::HitArea area) const;
             Vec3 doGetRotationAxisHandle(const InputState& inputState, RotateObjectsHandle::HitArea area) const;

@@ -19,7 +19,7 @@
 
 #include "MapView2D.h"
 #include "Logger.h"
-#include "Model/CompareHitsBySize.h"
+#include "Model/CompareHits.h"
 #include "Model/PointFile.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
@@ -141,10 +141,15 @@ namespace TrenchBroom {
             return PickRequest(Ray3(m_camera.pickRay(x, y)), m_camera);
         }
         
-        Hits MapView2D::doPick(const Ray3& pickRay) const {
-            Hits hits = Model::hitsBySize(pickRay.direction.firstComponent());
-            lock(m_document)->pick(pickRay, hits);
-            return hits;
+        Model::PickResult MapView2D::doPick(const Ray3& pickRay) const {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::EditorContext& editorContext = document->editorContext();
+            const Math::Axis::Type axis = pickRay.direction.firstComponent();
+            
+            Model::PickResult pickResult = Model::PickResult::bySize(editorContext, axis);
+            document->pick(pickRay, pickResult);
+            
+            return pickResult;
         }
         
         void MapView2D::doUpdateViewport(const int x, const int y, const int width, const int height) {

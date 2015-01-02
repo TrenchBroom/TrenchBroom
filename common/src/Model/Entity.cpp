@@ -28,6 +28,7 @@
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/NodeVisitor.h"
+#include "Model/PickResult.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -167,13 +168,13 @@ namespace TrenchBroom {
             return m_bounds;
         }
         
-        void Entity::doPick(const Ray3& ray, Hits& hits) const {
+        void Entity::doPick(const Ray3& ray, PickResult& pickResult) const {
             const BBox3& myBounds = bounds();
             if (!myBounds.contains(ray.origin)) {
                 const FloatType distance = myBounds.intersectWithRay(ray);
                 if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    hits.addHit(Hit(EntityHit, distance, hitPoint, this));
+                    pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
                 }
             }
         }

@@ -23,7 +23,9 @@
 #include "StringUtils.h"
 
 namespace TrenchBroom {
-    class Hits;
+    namespace Model {
+        class PickResult;
+    }
     
     namespace Renderer {
         class RenderBatch;
@@ -44,7 +46,7 @@ namespace TrenchBroom {
             
             void append(ToolAdapter* adapter);
             
-            void pick(const InputState& inputState, Hits& hits);
+            void pick(const InputState& inputState, Model::PickResult& pickResult);
             
             void modifierKeyChange(const InputState& inputState);
             

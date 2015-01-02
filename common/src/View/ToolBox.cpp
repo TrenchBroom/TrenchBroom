@@ -38,8 +38,8 @@ namespace TrenchBroom {
         m_lastActivation(wxDateTime::Now()),
         m_enabled(true) {}
 
-        void ToolBox::pick(ToolChain* chain, const InputState& inputState, Hits& hits) {
-            chain->pick(inputState, hits);
+        void ToolBox::pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult) {
+            chain->pick(inputState, pickResult);
         }
         
         bool ToolBox::clickToActivate() const {

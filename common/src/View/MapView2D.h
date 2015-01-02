@@ -30,6 +30,10 @@
 namespace TrenchBroom {
     class Logger;
 
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace Renderer {
         class Compass;
         class MapRenderer;
@@ -76,7 +80,7 @@ namespace TrenchBroom {
             void bindEvents();
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(int x, int y) const;
-            Hits doPick(const Ray3& pickRay) const;
+            Model::PickResult doPick(const Ray3& pickRay) const;
         private: // implement RenderView interface
             void doUpdateViewport(int x, int y, int width, int height);
         private: // implement MapView interface

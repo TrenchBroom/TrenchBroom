@@ -45,7 +45,7 @@ namespace TrenchBroom {
             if (dismissClick(inputState))
                 return false;
             
-            const Hits::List hits = firstHits(inputState.hits());
+            const Model::Hit::List hits = firstHits(inputState.pickResult());
             if (hits.empty())
                 return m_tool->deselectAll();
             else if (inputState.modifierKeysPressed(ModifierKeys::MKShift))
@@ -58,11 +58,11 @@ namespace TrenchBroom {
             if (dismissClick(inputState))
                 return false;
             
-            const Hits::List hits = firstHits(inputState.hits());
+            const Model::Hit::List hits = firstHits(inputState.pickResult());
             if (hits.empty())
                 return false;
             
-            const Hit& hit = hits.front();
+            const Model::Hit& hit = hits.front();
             return m_tool->handleDoubleClicked(hit);
         }
 
@@ -83,24 +83,24 @@ namespace TrenchBroom {
                    inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift))))
                 return false;
             
-            const Hit& hit = firstHit(inputState.hits());
+            const Model::Hit& hit = firstHit(inputState.pickResult());
             return hit.isMatch();
         }
         
         Vec3 VertexToolAdapter::doGetMoveOrigin(const InputState& inputState) const {
-            const Hit& hit = firstHit(inputState.hits());
+            const Model::Hit& hit = firstHit(inputState.pickResult());
             assert(hit.isMatch());
             return hit.hitPoint();
         }
         
         bool VertexToolAdapter::doStartMove(const InputState& inputState) {
-            const Hit& hit = firstHit(inputState.hits());
+            const Model::Hit& hit = firstHit(inputState.pickResult());
             assert(hit.isMatch());
             return m_tool->beginMove(hit);
         }
         
         Vec3 VertexToolAdapter::doSnapDelta(const InputState& inputState, const Vec3& delta) const {
-            const Hit& hit = firstHit(inputState.hits());
+            const Model::Hit& hit = firstHit(inputState.pickResult());
             const bool shiftDown = inputState.modifierKeysDown(ModifierKeys::MKShift);
             return m_tool->snapMoveDelta(delta, hit, shiftDown);
         }
@@ -128,7 +128,7 @@ namespace TrenchBroom {
                 m_tool->renderHighlight(renderContext, renderBatch);
                 renderMoveIndicator(inputState, renderContext, renderBatch);
             } else {
-                const Hit& hit = firstHit(inputState.hits());
+                const Model::Hit& hit = firstHit(inputState.pickResult());
                 if (hit.isMatch()) {
                     const Vec3 position = hit.target<Vec3>();
                     m_tool->renderHighlight(renderContext, renderBatch, position);
@@ -142,24 +142,24 @@ namespace TrenchBroom {
             return m_tool->cancel();
         }
 
-        const Hit& VertexToolAdapter::firstHit(const Hits& hits) const {
-            static const Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
-            return hits.findFirst(any, true);
+        const Model::Hit& VertexToolAdapter::firstHit(const Model::PickResult& pickResult) const {
+            static const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
+            return pickResult.query().type(any).occluded().first();
         }
         
-        Hits::List VertexToolAdapter::firstHits(const Hits& hits) const {
-            Hits::List result;
+        Model::Hit::List VertexToolAdapter::firstHits(const Model::PickResult& pickResult) const {
+            Model::Hit::List result;
             Model::BrushSet brushes;
             
-            static const Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
-            const Hit& first = hits.findFirst(any, true);
+            static const Model::Hit::HitType any = VertexHandleManager::VertexHandleHit | VertexHandleManager::EdgeHandleHit | VertexHandleManager::FaceHandleHit;
+            const Model::Hit& first = pickResult.query().type(any).occluded().first();
             if (first.isMatch()) {
                 const Vec3 firstHitPosition = first.target<Vec3>();
-                
-                const Hits::List matches = hits.filter(any);
-                Hits::List::const_iterator hIt, hEnd;
+
+                const Model::Hit::List matches = pickResult.query().type(any).all();
+                Model::Hit::List::const_iterator hIt, hEnd;
                 for (hIt = matches.begin(), hEnd = matches.end(); hIt != hEnd; ++hIt) {
-                    const Hit& hit = *hIt;
+                    const Model::Hit& hit = *hIt;
                     const Vec3 hitPosition = hit.target<Vec3>();
                     
                     if (hitPosition.distanceTo(firstHitPosition) < MaxVertexDistance) {
@@ -176,15 +176,15 @@ namespace TrenchBroom {
         VertexToolAdapter2D::VertexToolAdapter2D(VertexTool* tool) :
         VertexToolAdapter(tool, new MoveToolHelper2D(this)) {}
         
-        void VertexToolAdapter2D::doPick(const InputState& inputState, Hits& hits) {
-            m_tool->pick(inputState.pickRay(), inputState.camera(), hits);
+        void VertexToolAdapter2D::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+            m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
         }
 
         VertexToolAdapter3D::VertexToolAdapter3D(VertexTool* tool, MovementRestriction& movementRestriction) :
         VertexToolAdapter(tool, new MoveToolHelper3D(this, movementRestriction)) {}
         
-        void VertexToolAdapter3D::doPick(const InputState& inputState, Hits& hits) {
-            m_tool->pick(inputState.pickRay(), inputState.camera(), hits);
+        void VertexToolAdapter3D::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+            m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
         }
     }
 }

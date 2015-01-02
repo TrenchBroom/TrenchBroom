@@ -23,6 +23,7 @@
 #include "Model/BrushVertex.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/ModelTypes.h"
+#include "Model/PickResult.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/RenderBatch.h"
@@ -35,8 +36,8 @@
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType UVScaleTool::XHandleHit = Hit::freeHitType();
-        const Hit::HitType UVScaleTool::YHandleHit = Hit::freeHitType();
+        const Model::Hit::HitType UVScaleTool::XHandleHit = Model::Hit::freeHitType();
+        const Model::Hit::HitType UVScaleTool::YHandleHit = Model::Hit::freeHitType();
         
         UVScaleTool::UVScaleTool(MapDocumentWPtr document, UVViewHelper& helper) :
         ToolAdapterBase(),
@@ -48,13 +49,13 @@ namespace TrenchBroom {
             return this;
         }
         
-        void UVScaleTool::doPick(const InputState& inputState, Hits& hits) {
-            static const Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
+        void UVScaleTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+            static const Model::Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
             if (m_helper.valid())
-                m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, hits);
+                m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
         }
 
-        Vec2i UVScaleTool::getScaleHandle(const Hit& xHit, const Hit& yHit) const {
+        Vec2i UVScaleTool::getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit) const {
             const int x = xHit.isMatch() ? xHit.target<int>() : 0;
             const int y = yHit.isMatch() ? yHit.target<int>() : 0;
             return Vec2i(x, y);
@@ -77,9 +78,9 @@ namespace TrenchBroom {
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
-            const Hits& hits = inputState.hits();
-            const Hit& xHit = hits.findFirst(XHandleHit, true);
-            const Hit& yHit = hits.findFirst(YHandleHit, true);
+            const Model::PickResult& pickResult = inputState.pickResult();
+            const Model::Hit& xHit = pickResult.query().type(XHandleHit).occluded().first();
+            const Model::Hit& yHit = pickResult.query().type(YHandleHit).occluded().first();
             
             if (!xHit.isMatch() && !yHit.isMatch())
                 return false;
@@ -177,12 +178,11 @@ namespace TrenchBroom {
                 return;
             
             // don't overdraw the origin handles
-            const Hits& hits = inputState.hits();
-            if (hits.findFirst(UVOriginTool::XHandleHit, true).isMatch() ||
-                hits.findFirst(UVOriginTool::YHandleHit, true).isMatch())
+            const Model::PickResult& pickResult = inputState.pickResult();
+            if (pickResult.query().type(UVOriginTool::XHandleHit | UVOriginTool::YHandleHit).occluded().first().isMatch())
                 return;
                 
-            EdgeVertex::List vertices = getHandleVertices(hits);
+            EdgeVertex::List vertices = getHandleVertices(pickResult);
             const Color color(1.0f, 1.0f, 0.0f);
             
             Renderer::EdgeRenderer handleRenderer(Renderer::VertexArray::swap(GL_LINES, vertices));
@@ -192,9 +192,9 @@ namespace TrenchBroom {
             renderBatch.addOneShot(renderEdges);
         }
 
-        UVScaleTool::EdgeVertex::List UVScaleTool::getHandleVertices(const Hits& hits) const {
-            const Hit& xHandleHit = hits.findFirst(XHandleHit, true);
-            const Hit& yHandleHit = hits.findFirst(YHandleHit, true);
+        UVScaleTool::EdgeVertex::List UVScaleTool::getHandleVertices(const Model::PickResult& pickResult) const {
+            const Model::Hit& xHandleHit = pickResult.query().type(XHandleHit).occluded().first();
+            const Model::Hit& yHandleHit = pickResult.query().type(YHandleHit).occluded().first();
             const Vec2 stripeSize = m_helper.stripeSize();
 
             const int xIndex = xHandleHit.target<int>();

@@ -28,6 +28,7 @@
 namespace TrenchBroom {
     namespace Model {
         class NodeSnapshot;
+        class PickResult;
         
         class Object : public Pickable {
         protected:
@@ -37,7 +38,7 @@ namespace TrenchBroom {
             
             // implement Pickable interface
             const BBox3& bounds() const;
-            void pick(const Ray3& ray, Hits& hits) const;
+            void pick(const Ray3& ray, PickResult& pickResult) const;
         
             Node* container() const;
             Layer* layer() const;
@@ -48,7 +49,7 @@ namespace TrenchBroom {
             bool intersects(const Node* object) const;
         private: // subclassing interface
             virtual const BBox3& doGetBounds() const = 0;
-            virtual void doPick(const Ray3& ray, Hits& hits) const = 0;
+            virtual void doPick(const Ray3& ray, PickResult& pickResult) const = 0;
             
             virtual Node* doGetContainer() const = 0;
             virtual Layer* doGetLayer() const = 0;

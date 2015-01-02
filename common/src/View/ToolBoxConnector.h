@@ -26,6 +26,10 @@
 #include <wx/wx.h>
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace Renderer {
         class Camera;
         class RenderBatch;
@@ -53,9 +57,9 @@ namespace TrenchBroom {
             virtual ~ToolBoxConnector();
             
             const Ray3& pickRay() const;
-            const Hits& hits() const;
+            const Model::PickResult& pickResult() const;
 
-            void updateHits();
+            void updatePickResult();
             void updateLastActivation();
         protected:
             void setToolBox(ToolBox& toolBox);
@@ -96,7 +100,7 @@ namespace TrenchBroom {
             void showPopupMenu();
         private:
             virtual PickRequest doGetPickRequest(int x, int y) const = 0;
-            virtual Hits doPick(const Ray3& pickRay) const = 0;
+            virtual Model::PickResult doPick(const Ray3& pickRay) const = 0;
             virtual void doShowPopupMenu();
         };
     }

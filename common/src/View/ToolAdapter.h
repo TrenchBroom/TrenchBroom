@@ -24,7 +24,9 @@
 #include "VecMath.h"
 
 namespace TrenchBroom {
-    class Hits;
+    namespace Model {
+        class PickResult;
+    }
     
     namespace Renderer {
         class RenderBatch;
@@ -39,14 +41,14 @@ namespace TrenchBroom {
         public:
             virtual ~PickingPolicy();
         public:
-            virtual void doPick(const InputState& inputState, Hits& hits) = 0;
+            virtual void doPick(const InputState& inputState, Model::PickResult& pickResult) = 0;
         };
         
         class NoPickingPolicy : public PickingPolicy {
         public:
             virtual ~NoPickingPolicy();
         public:
-            void doPick(const InputState& inputState, Hits& hits);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
         };
         
         class KeyPolicy {
@@ -169,7 +171,7 @@ namespace TrenchBroom {
             Tool* tool();
             bool toolActive();
             
-            virtual void pick(const InputState& inputState, Hits& hits) = 0;
+            virtual void pick(const InputState& inputState, Model::PickResult& pickResult) = 0;
             
             virtual void modifierKeyChange(const InputState& inputState) = 0;
 
@@ -210,9 +212,9 @@ namespace TrenchBroom {
             
             virtual ~ToolAdapterBase() {}
             
-            void pick(const InputState& inputState, Hits& hits) {
+            void pick(const InputState& inputState, Model::PickResult& pickResult) {
                 if (toolActive())
-                    static_cast<PickingPolicyType*>(this)->doPick(inputState, hits);
+                    static_cast<PickingPolicyType*>(this)->doPick(inputState, pickResult);
             }
             
             void modifierKeyChange(const InputState& inputState) {

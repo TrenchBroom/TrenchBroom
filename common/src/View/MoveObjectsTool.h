@@ -28,7 +28,9 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    class Hit;
+    namespace Model {
+        class Hit;
+    }
     
     namespace View {
         class InputState;
@@ -42,7 +44,7 @@ namespace TrenchBroom {
         private:
             bool doHandleMove(const InputState& inputState) const;
             Vec3 doGetMoveOrigin(const InputState& inputState) const;
-            const Hit& findHit(const InputState& inputState) const;
+            const Model::Hit& findHit(const InputState& inputState) const;
             
             String doGetActionName(const InputState& inputState) const;
             bool doStartMove(const InputState& inputState);

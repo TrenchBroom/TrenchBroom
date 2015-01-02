@@ -40,17 +40,17 @@ namespace TrenchBroom {
             return m_inputState.pickRay();
         }
         
-        const Hits& ToolBoxConnector::hits() const {
-            return m_inputState.hits();
+        const Model::PickResult& ToolBoxConnector::pickResult() const {
+            return m_inputState.pickResult();
         }
         
-        void ToolBoxConnector::updateHits() {
+        void ToolBoxConnector::updatePickResult() {
             assert(m_toolBox != NULL);
             
             m_inputState.setPickRequest(doGetPickRequest(m_inputState.mouseX(),  m_inputState.mouseY()));
-            Hits hits = doPick(m_inputState.pickRay());
-            m_toolBox->pick(m_toolChain, m_inputState, hits);
-            m_inputState.setHits(hits);
+            Model::PickResult pickResult = doPick(m_inputState.pickRay());
+            m_toolBox->pick(m_toolChain, m_inputState, pickResult);
+            m_inputState.setPickResult(pickResult);
         }
         
         void ToolBoxConnector::updateLastActivation() {
@@ -71,7 +71,7 @@ namespace TrenchBroom {
             assert(m_toolBox != NULL);
             
             mouseMoved(wxPoint(x, y));
-            updateHits();
+            updatePickResult();
 
             const bool result = m_toolBox->dragEnter(m_toolChain, m_inputState, text);
             m_window->Refresh();
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             assert(m_toolBox != NULL);
             
             mouseMoved(wxPoint(x, y));
-            updateHits();
+            updatePickResult();
             
             const bool result = m_toolBox->dragMove(m_toolChain, m_inputState, text);
             m_window->Refresh();
@@ -99,7 +99,7 @@ namespace TrenchBroom {
         bool ToolBoxConnector::dragDrop(const wxCoord x, const wxCoord y, const String& text) {
             assert(m_toolBox != NULL);
             
-            updateHits();
+            updatePickResult();
             
             const bool result = m_toolBox->dragDrop(m_toolChain, m_inputState, text);
             m_window->Refresh();
@@ -127,7 +127,7 @@ namespace TrenchBroom {
             assert(m_toolBox != NULL);
             
             if (updateModifierKeys()) {
-                updateHits();
+                updatePickResult();
                 m_toolBox->modifierKeyChange(m_toolChain, m_inputState);
             }
             m_window->Refresh();
@@ -170,7 +170,7 @@ namespace TrenchBroom {
                         // We miss mouse events when a popup menu is already open, so we must make sure that the input
                         // state is up to date.
                         mouseMoved(event.GetPosition());
-                        updateHits();
+                        updatePickResult();
                         showPopupMenu();
                     }
                 } else {
@@ -180,7 +180,7 @@ namespace TrenchBroom {
                 }
             }
             
-            updateHits();
+            updatePickResult();
             m_ignoreNextDrag = false;
             
             m_window->Refresh();
@@ -197,7 +197,7 @@ namespace TrenchBroom {
             m_toolBox->mouseDoubleClick(m_toolChain, m_inputState);
             m_inputState.mouseUp(button);
             
-            updateHits();
+            updatePickResult();
             
             m_window->Refresh();
         }
@@ -208,7 +208,7 @@ namespace TrenchBroom {
             updateModifierKeys();
             if (m_toolBox->dragging()) {
                 mouseMoved(event.GetPosition());
-                updateHits();
+                updatePickResult();
                 if (!m_toolBox->mouseDrag(m_inputState)) {
                     m_toolBox->endMouseDrag(m_inputState);
                     m_ignoreNextDrag = true;
@@ -221,13 +221,13 @@ namespace TrenchBroom {
                         if (dragStarted)
                             m_ignoreNextDrag = true;
                         mouseMoved(event.GetPosition());
-                        updateHits();
+                        updatePickResult();
                         if (dragStarted)
                             m_toolBox->mouseDrag(m_inputState);
                     }
                 } else {
                     mouseMoved(event.GetPosition());
-                    updateHits();
+                    updatePickResult();
                     m_toolBox->mouseMove(m_toolChain, m_inputState);
                 }
             }
@@ -246,7 +246,7 @@ namespace TrenchBroom {
                 m_inputState.scroll(0.0f, delta);
             m_toolBox->mouseScroll(m_toolChain, m_inputState);
             
-            updateHits();
+            updatePickResult();
             m_window->Refresh();
         }
 

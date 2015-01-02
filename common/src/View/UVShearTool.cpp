@@ -21,14 +21,15 @@
 
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
+#include "Model/PickResult.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/UVViewHelper.h"
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType UVShearTool::XHandleHit = Hit::freeHitType();
-        const Hit::HitType UVShearTool::YHandleHit = Hit::freeHitType();
+        const Model::Hit::HitType UVShearTool::XHandleHit = Model::Hit::freeHitType();
+        const Model::Hit::HitType UVShearTool::YHandleHit = Model::Hit::freeHitType();
         
         UVShearTool::UVShearTool(MapDocumentWPtr document, UVViewHelper& helper) :
         ToolAdapterBase(),
@@ -40,10 +41,10 @@ namespace TrenchBroom {
             return this;
         }
         
-        void UVShearTool::doPick(const InputState& inputState, Hits& hits) {
-            static const Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
+        void UVShearTool::doPick(const InputState& inputState, Model::PickResult& pickResult) {
+            static const Model::Hit::HitType HitTypes[] = { XHandleHit, YHandleHit };
             if (m_helper.valid())
-                m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, hits);
+                m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
         }
         
         bool UVShearTool::doStartMouseDrag(const InputState& inputState) {
@@ -53,9 +54,9 @@ namespace TrenchBroom {
                 !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             
-            const Hits& hits = inputState.hits();
-            const Hit& xHit = hits.findFirst(XHandleHit, true);
-            const Hit& yHit = hits.findFirst(YHandleHit, true);
+            const Model::PickResult& pickResult = inputState.pickResult();
+            const Model::Hit& xHit = pickResult.query().type(XHandleHit).occluded().first();
+            const Model::Hit& yHit = pickResult.query().type(YHandleHit).occluded().first();
             
             if (!(xHit.isMatch() ^ yHit.isMatch()))
                 return false;

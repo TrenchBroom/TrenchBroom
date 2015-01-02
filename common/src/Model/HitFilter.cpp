@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ModelHitFilters.h"
+#include "HitFilter.h"
 
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -25,12 +25,62 @@
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
 
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Model {
+        class HitFilter::Always : public HitFilter {
+        private:
+            bool doMatches(const Hit& hit) const {
+                return true;
+            }
+        };
+        
+        class HitFilter::Never : public HitFilter {
+        private:
+            bool doMatches(const Hit& hit) const {
+                return false;
+            }
+        };
+        
+        HitFilter* HitFilter::always() { return new Always(); }
+        HitFilter* HitFilter::never() { return new Never(); }
+        
+        HitFilter::~HitFilter() {}
+        
+        bool HitFilter::matches(const Hit& hit) const {
+            return doMatches(hit);
+        }
+        
+        HitFilterChain::HitFilterChain(const HitFilter* filter, const HitFilter* next) :
+        m_filter(filter),
+        m_next(next) {
+            assert(m_filter != NULL);
+            assert(m_next != NULL);
+        }
+        
+        HitFilterChain::~HitFilterChain() {
+            delete m_filter;
+            delete m_next;
+        }
+        
+        bool HitFilterChain::doMatches(const Hit& hit) const {
+            if (!m_filter->matches(hit))
+                return false;
+            return m_next->matches(hit);
+        }
+        
+        TypedHitFilter::TypedHitFilter(const Hit::HitType typeMask) :
+        m_typeMask(typeMask) {}
+        
+        bool TypedHitFilter::doMatches(const Hit& hit) const {
+            return (hit.type() & m_typeMask) != 0;
+        }
+
         bool SelectionHitFilter::doMatches(const Hit& hit) const {
-            if (hit.type() == Model::Entity::EntityHit)
+            if (hit.type() == Entity::EntityHit)
                 return hitToEntity(hit)->selected();
-            if (hit.type() == Model::Brush::BrushHit)
+            if (hit.type() == Brush::BrushHit)
                 return hitToBrush(hit)->selected() || hitToFace(hit)->selected();
             return false;
         }
@@ -44,28 +94,6 @@ namespace TrenchBroom {
             if (hit.type() == Brush::BrushHit)
                 return m_context.pickable(hitToBrush(hit));
             return false;
-        }
-        
-        const Hit& firstHit(const Hits& hits, const Hit::HitType type, const EditorContext& context, const bool ignoreOccluders) {
-            return firstHit(hits, type, context, ignoreOccluders, false);
-        }
-        
-        const Hit& firstHit(const Hits& hits, Hit::HitType type, const EditorContext& context, const bool ignoreOccluders, const bool selectedOnly) {
-            HitFilterChain hitFilter = chainHitFilter(TypedHitFilter(type), ContextHitFilter(context));
-            if (selectedOnly)
-                hitFilter = chainHitFilter(SelectionHitFilter(), hitFilter);
-            return hits.findFirst(hitFilter, ignoreOccluders);
-        }
-        
-        const Hit& smallestHit(const Hits& hits, const Hit::HitType type, const EditorContext& context, const bool ignoreOccluders) {
-            return smallestHit(hits, type, context, ignoreOccluders, false);
-        }
-
-        const Hit& smallestHit(const Hits& hits, const Hit::HitType type, const EditorContext& context, const bool ignoreOccluders, const bool selectedOnly) {
-            HitFilterChain hitFilter = chainHitFilter(TypedHitFilter(type), ContextHitFilter(context));
-            if (selectedOnly)
-                hitFilter = chainHitFilter(SelectionHitFilter(), hitFilter);
-            return hits.findFirst(hitFilter, ignoreOccluders);
         }
     }
 }

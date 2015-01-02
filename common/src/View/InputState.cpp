@@ -183,12 +183,13 @@ namespace TrenchBroom {
             m_pickRequest = pickRequest;
         }
 
-        const Hits& InputState::hits() const {
-            return m_hits;
+        const Model::PickResult& InputState::pickResult() const {
+            return m_pickResult;
         }
         
-        void InputState::setHits(const Hits& hits) {
-            m_hits = hits;
+        void InputState::setPickResult(Model::PickResult& pickResult) {
+            using std::swap;
+            swap(m_pickResult, pickResult);
         }
     }
 }

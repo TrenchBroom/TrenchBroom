@@ -28,8 +28,8 @@ namespace TrenchBroom {
             return doGetBounds();
         }
 
-        void Object::pick(const Ray3& ray, Hits& hits) const {
-            doPick(ray, hits);
+        void Object::pick(const Ray3& ray, PickResult& pickResult) const {
+            doPick(ray, pickResult);
         }
 
         Node* Object::container() const {

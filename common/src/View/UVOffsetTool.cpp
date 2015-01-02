@@ -19,7 +19,6 @@
 
 #include "UVOffsetTool.h"
 
-#include "Hit.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"

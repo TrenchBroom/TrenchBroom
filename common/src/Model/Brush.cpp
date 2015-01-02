@@ -30,6 +30,7 @@
 #include "Model/FindLayerVisitor.h"
 #include "Model/Group.h"
 #include "Model/NodeVisitor.h"
+#include "Model/PickResult.h"
 #include "Model/World.h"
 
 namespace TrenchBroom {
@@ -486,7 +487,7 @@ namespace TrenchBroom {
             return m_geometry->bounds;
         }
 
-        void Brush::doPick(const Ray3& ray, Hits& hits) const {
+        void Brush::doPick(const Ray3& ray, PickResult& pickResult) const {
             if (Math::isnan(bounds().intersectWithRay(ray)))
                 return;
             
@@ -496,7 +497,7 @@ namespace TrenchBroom {
                 const FloatType distance = face->intersectWithRay(ray);
                 if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    hits.addHit(Hit(BrushHit, distance, hitPoint, face));
+                    pickResult.addHit(Hit(BrushHit, distance, hitPoint, face));
                     break;
                 }
             }

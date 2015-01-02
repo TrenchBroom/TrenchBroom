@@ -27,10 +27,9 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    class Hits;
-    
     namespace Model {
         class Entity;
+        class PickResult;
     }
     
     namespace View {
@@ -47,7 +46,7 @@ namespace TrenchBroom {
             void commitEntity();
             
             void updateEntityPosition2D(const Ray3& pickRay);
-            void updateEntityPosition3D(const Ray3& pickRay, const Hits& hits);
+            void updateEntityPosition3D(const Ray3& pickRay, const Model::PickResult& pickResult);
         };
     }
 }

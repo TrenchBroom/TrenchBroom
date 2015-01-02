@@ -22,8 +22,8 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Hit.h"
 #include "Model/BrushGeometryTypes.h"
+#include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/PointGuideRenderer.h"
@@ -32,6 +32,10 @@
 #include <map>
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace Renderer {
         class Camera;
         class RenderBatch;
@@ -41,9 +45,9 @@ namespace TrenchBroom {
     namespace View {
         class VertexHandleManager {
         public:
-            static const Hit::HitType VertexHandleHit;
-            static const Hit::HitType EdgeHandleHit;
-            static const Hit::HitType FaceHandleHit;
+            static const Model::Hit::HitType VertexHandleHit;
+            static const Model::Hit::HitType EdgeHandleHit;
+            static const Model::Hit::HitType FaceHandleHit;
         private:
             Model::VertexToBrushesMap m_unselectedVertexHandles;
             Model::VertexToBrushesMap m_selectedVertexHandles;
@@ -127,7 +131,7 @@ namespace TrenchBroom {
             void reselectEdgeHandles(const Model::BrushList& brushes, const Vec3::List& positions, FloatType maxDistance);
             void reselectFaceHandles(const Model::BrushList& brushes, const Vec3::List& positions, FloatType maxDistance);
             
-            void pick(const Ray3& ray, const Renderer::Camera& camera, Hits& hits, bool splitMode) const;
+            void pick(const Ray3& ray, const Renderer::Camera& camera, Model::PickResult& pickResult, bool splitMode) const;
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, bool splitMode);
             void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position);
         private:
@@ -186,7 +190,7 @@ namespace TrenchBroom {
             Vec3::List findEdgeHandlePositions(const Model::BrushList& brushes, const Vec3& query, FloatType maxDistance);
             Vec3::List findFaceHandlePositions(const Model::BrushList& brushes, const Vec3& query, FloatType maxDistance);
             
-            Hit pickHandle(const Ray3& ray, const Renderer::Camera& camera, const Vec3& position, Hit::HitType type) const;
+            Model::Hit pickHandle(const Ray3& ray, const Renderer::Camera& camera, const Vec3& position, Model::Hit::HitType type) const;
             void validateRenderState(bool splitMode);
         };
     }

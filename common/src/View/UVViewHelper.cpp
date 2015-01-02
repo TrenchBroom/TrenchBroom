@@ -25,6 +25,7 @@
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
+#include "Model/PickResult.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
@@ -124,7 +125,7 @@ namespace TrenchBroom {
             return zoom.x();
         }
         
-        void UVViewHelper::pickTextureGrid(const Ray3& ray, const Hit::HitType hitTypes[2], Hits& hits) const {
+        void UVViewHelper::pickTextureGrid(const Ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const {
             assert(valid());
             
             const Assets::Texture* texture = m_face->texture();
@@ -142,7 +143,7 @@ namespace TrenchBroom {
                     const FloatType error = Math::abs(Math::remainder(hitPointInTexCoords[i], stripeSize[i]));
                     if (error <= maxDistance) {
                         const int index = static_cast<int>(Math::round(hitPointInTexCoords[i] / stripeSize[i]));
-                        hits.addHit(Hit(hitTypes[i], rayDistance, hitPointInWorldCoords, index, error));
+                        pickResult.addHit(Model::Hit(hitTypes[i], rayDistance, hitPointInWorldCoords, index, error));
                     }
                 }
             }

@@ -17,21 +17,55 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__ModelHitFilters__
-#define __TrenchBroom__ModelHitFilters__
+#ifndef __TrenchBroom__HitFilter__
+#define __TrenchBroom__HitFilter__
 
 #include "Hit.h"
-#include "HitFilter.h"
+#include "SharedPointer.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class EditorContext;
+        class HitFilter {
+        private:
+            class Always;
+            class Never;
+        public:
+            static HitFilter* always();
+            static HitFilter* never();
+            
+            virtual ~HitFilter();
+            bool matches(const Hit& hit) const;
+        private:
+            virtual bool doMatches(const Hit& hit) const = 0;
+        };
         
+        class HitFilterChain : public HitFilter {
+        private:
+            const HitFilter* m_filter;
+            const HitFilter* m_next;
+        public:
+            HitFilterChain(const HitFilter* filter, const HitFilter* next);
+            ~HitFilterChain();
+        private:
+            bool doMatches(const Hit& hit) const;
+        };
+        
+        class TypedHitFilter : public HitFilter {
+        private:
+            Hit::HitType m_typeMask;
+        public:
+            TypedHitFilter(Hit::HitType typeMask);
+        private:
+            bool doMatches(const Hit& hit) const;
+        };
+
         class SelectionHitFilter : public HitFilter {
         private:
             bool doMatches(const Hit& hit) const;
         };
         
+        class EditorContext;
+
         class ContextHitFilter : public HitFilter {
         private:
             const EditorContext& m_context;
@@ -40,13 +74,7 @@ namespace TrenchBroom {
         private:
             bool doMatches(const Hit& hit) const;
         };
-        
-        const Hit& firstHit(const Hits& hits, Hit::HitType type, const EditorContext& context, bool ignoreOccluders);
-        const Hit& firstHit(const Hits& hits, Hit::HitType type, const EditorContext& context, bool ignoreOccluders, bool selectedOnly);
-        
-        const Hit& smallestHit(const Hits& hits, Hit::HitType type, const EditorContext& context, bool ignoreOccluders);
-        const Hit& smallestHit(const Hits& hits, Hit::HitType type, const EditorContext& context, bool ignoreOccluders, bool selectedOnly);
     }
 }
 
-#endif /* defined(__TrenchBroom__ModelHitFilters__) */
+#endif /* defined(__TrenchBroom__HitFilter__) */

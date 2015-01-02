@@ -26,16 +26,17 @@
 #include "Model/CollectMatchingBrushFacesVisitor.h"
 #include "Model/FindMatchingBrushFaceVisitor.h"
 #include "Model/HitAdapter.h"
-#include "Model/ModelHitFilters.h"
+#include "Model/HitQuery.h"
 #include "Model/NodeVisitor.h"
+#include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace View {
-        const Hit::HitType ResizeBrushesTool::ResizeHit2D = Hit::freeHitType();
-        const Hit::HitType ResizeBrushesTool::ResizeHit3D = Hit::freeHitType();
+        const Model::Hit::HitType ResizeBrushesTool::ResizeHit2D = Model::Hit::freeHitType();
+        const Model::Hit::HitType ResizeBrushesTool::ResizeHit3D = Model::Hit::freeHitType();
 
         ResizeBrushesTool::ResizeBrushesTool(MapDocumentWPtr document) :
         Tool(true),
@@ -46,30 +47,30 @@ namespace TrenchBroom {
             return document->selectedNodes().hasBrushes();
         }
         
-        Hit ResizeBrushesTool::pick2D(const Ray3& pickRay, const Hits& hits) {
+        Model::Hit ResizeBrushesTool::pick2D(const Ray3& pickRay, const Model::PickResult& pickResult) {
             MapDocumentSPtr document = lock(m_document);
-            const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), true, true);
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch())
-                return Hit::NoHit;
+                return Model::Hit::NoHit;
             return pickProximateFace(ResizeHit2D, pickRay);
         }
         
-        Hit ResizeBrushesTool::pick3D(const Ray3& pickRay, const Hits& hits) {
+        Model::Hit ResizeBrushesTool::pick3D(const Ray3& pickRay, const Model::PickResult& pickResult) {
             MapDocumentSPtr document = lock(m_document);
-            const Hit& hit = Model::firstHit(hits, Model::Brush::BrushHit, document->editorContext(), true, true);
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().selected().first();
             if (hit.isMatch())
-                return Hit(ResizeHit3D, hit.distance(), hit.hitPoint(), Model::hitToFace(hit));
+                return Model::Hit(ResizeHit3D, hit.distance(), hit.hitPoint(), Model::hitToFace(hit));
             return pickProximateFace(ResizeHit3D, pickRay);
         }
         
-        class ResizeBrushesTool::PickProximateFace : public Model::ConstNodeVisitor, public Model::NodeQuery<Hit> {
+        class ResizeBrushesTool::PickProximateFace : public Model::ConstNodeVisitor, public Model::NodeQuery<Model::Hit> {
         private:
-            const Hit::HitType m_hitType;
+            const Model::Hit::HitType m_hitType;
             const Ray3& m_pickRay;
             FloatType m_closest;
         public:
-            PickProximateFace(const Hit::HitType hitType, const Ray3& pickRay) :
-            NodeQuery(Hit::NoHit),
+            PickProximateFace(const Model::Hit::HitType hitType, const Ray3& pickRay) :
+            NodeQuery(Model::Hit::NoHit),
             m_hitType(hitType),
             m_pickRay(pickRay),
             m_closest(std::numeric_limits<FloatType>::max()) {}
@@ -108,17 +109,17 @@ namespace TrenchBroom {
                                 if (Math::abs(rightDot) < 1.0)
                                     faces.push_back(right);
                             }
-                            setResult(Hit(m_hitType, result.rayDistance, hitPoint, faces));
+                            setResult(Model::Hit(m_hitType, result.rayDistance, hitPoint, faces));
                         } else {
                             Model::BrushFace* face = leftDot > rightDot ? left : right;
-                            setResult(Hit(m_hitType, result.rayDistance, hitPoint, face));
+                            setResult(Model::Hit(m_hitType, result.rayDistance, hitPoint, face));
                         }
                     }
                 }
             }
         };
         
-        Hit ResizeBrushesTool::pickProximateFace(const Hit::HitType hitType, const Ray3& pickRay) const {
+        Model::Hit ResizeBrushesTool::pickProximateFace(const Model::Hit::HitType hitType, const Ray3& pickRay) const {
             PickProximateFace visitor(hitType, pickRay);
             
             MapDocumentSPtr document = lock(m_document);
@@ -126,7 +127,7 @@ namespace TrenchBroom {
             Model::Node::accept(nodes.begin(), nodes.end(), visitor);
             
             if (!visitor.hasResult())
-                return Hit::NoHit;
+                return Model::Hit::NoHit;
             return visitor.result();
         }
 
@@ -138,8 +139,8 @@ namespace TrenchBroom {
             return m_dragFaces;
         }
         
-        void ResizeBrushesTool::updateDragFaces(const Hits& hits) {
-            const Hit& hit = hits.findFirst(ResizeHit2D | ResizeHit3D, true);
+        void ResizeBrushesTool::updateDragFaces(const Model::PickResult& pickResult) {
+            const Model::Hit& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
             Model::BrushFaceList newDragFaces = getDragFaces(hit);
             if (newDragFaces != m_dragFaces)
                 refreshViews();
@@ -148,7 +149,7 @@ namespace TrenchBroom {
             swap(m_dragFaces, newDragFaces);
         }
         
-        Model::BrushFaceList ResizeBrushesTool::getDragFaces(const Hit& hit) const {
+        Model::BrushFaceList ResizeBrushesTool::getDragFaces(const Model::Hit& hit) const {
             return !hit.isMatch() ? Model::EmptyBrushFaceList : collectDragFaces(hit);
         }
 
@@ -166,7 +167,7 @@ namespace TrenchBroom {
             }
         };
         
-        Model::BrushFaceList ResizeBrushesTool::collectDragFaces(const Hit& hit) const {
+        Model::BrushFaceList ResizeBrushesTool::collectDragFaces(const Model::Hit& hit) const {
             assert(hit.isMatch());
             assert(hit.type() == ResizeHit2D || hit.type() == ResizeHit3D);
             
@@ -197,8 +198,8 @@ namespace TrenchBroom {
             return visitor.faces();
         }
 
-        bool ResizeBrushesTool::beginResize(const Hits& hits, const bool split) {
-            const Hit& hit = hits.findFirst(ResizeHit2D | ResizeHit3D, true);
+        bool ResizeBrushesTool::beginResize(const Model::PickResult& pickResult, const bool split) {
+            const Model::Hit& hit = pickResult.query().type(ResizeHit2D | ResizeHit3D).occluded().first();
             if (!hit.isMatch())
                 return false;
             

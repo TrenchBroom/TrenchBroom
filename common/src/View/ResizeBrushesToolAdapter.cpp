@@ -19,13 +19,14 @@
 
 #include "ResizeBrushesToolAdapter.h"
 
-#include "Hit.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Reference.h"
 #include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
+#include "Model/HitQuery.h"
+#include "Model/PickResult.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
@@ -47,17 +48,17 @@ namespace TrenchBroom {
             return m_tool;
         }
         
-        void ResizeBrushesToolAdapter::doPick(const InputState& inputState, Hits& hits) {
+        void ResizeBrushesToolAdapter::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             if (handleInput(inputState)) {
-                const Hit hit = doPick(inputState.pickRay(), inputState.hits());
+                const Model::Hit hit = doPick(inputState.pickRay(), pickResult);
                 if (hit.isMatch())
-                    hits.addHit(hit);
+                    pickResult.addHit(hit);
             }
         }
         
         void ResizeBrushesToolAdapter::doModifierKeyChange(const InputState& inputState) {
             // here we must always update the drag faces, otherwise the won't get cleared when the shift key is released
-            m_tool->updateDragFaces(inputState.hits());
+            m_tool->updateDragFaces(inputState.pickResult());
         }
         
         void ResizeBrushesToolAdapter::doMouseMove(const InputState& inputState) {
@@ -68,7 +69,7 @@ namespace TrenchBroom {
             if (!handleInput(inputState))
                 return false;
             const bool split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
-            if (m_tool->beginResize(inputState.hits(), split)) {
+            if (m_tool->beginResize(inputState.pickResult(), split)) {
                 updateDragFaces(inputState);
                 return true;
             }
@@ -130,7 +131,7 @@ namespace TrenchBroom {
 
         void ResizeBrushesToolAdapter::updateDragFaces(const InputState& inputState) {
             if (handleInput(inputState) && !dragging())
-                m_tool->updateDragFaces(inputState.hits());
+                m_tool->updateDragFaces(inputState.pickResult());
         }
 
         bool ResizeBrushesToolAdapter::handleInput(const InputState& inputState) const {
@@ -142,15 +143,15 @@ namespace TrenchBroom {
         ResizeBrushesToolAdapter2D::ResizeBrushesToolAdapter2D(ResizeBrushesTool* tool) :
         ResizeBrushesToolAdapter(tool) {}
 
-        Hit ResizeBrushesToolAdapter2D::doPick(const Ray3& pickRay, const Hits& hits) {
-            return m_tool->pick2D(pickRay, hits);
+        Model::Hit ResizeBrushesToolAdapter2D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
+            return m_tool->pick2D(pickRay, pickResult);
         }
         
         ResizeBrushesToolAdapter3D::ResizeBrushesToolAdapter3D(ResizeBrushesTool* tool) :
         ResizeBrushesToolAdapter(tool) {}
         
-        Hit ResizeBrushesToolAdapter3D::doPick(const Ray3& pickRay, const Hits& hits) {
-            return m_tool->pick3D(pickRay, hits);
+        Model::Hit ResizeBrushesToolAdapter3D::doPick(const Ray3& pickRay, const Model::PickResult& pickResult) {
+            return m_tool->pick3D(pickRay, pickResult);
         }
     }
 }

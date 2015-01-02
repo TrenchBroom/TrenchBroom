@@ -80,7 +80,7 @@ namespace TrenchBroom {
         CreateEntityToolAdapter(tool) {}
         
         void CreateEntityToolAdapter3D::doUpdateEntityPosition(const InputState& inputState) {
-            m_tool->updateEntityPosition3D(inputState.pickRay(), inputState.hits());
+            m_tool->updateEntityPosition3D(inputState.pickRay(), inputState.pickResult());
         }
     }
 }

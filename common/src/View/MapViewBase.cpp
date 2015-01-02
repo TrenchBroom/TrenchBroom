@@ -112,18 +112,18 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::nodesDidChange(const Model::NodeList& nodes) {
-            updateHits();
+            updatePickResult();
             Refresh();
         }
 
         void MapViewBase::toolChanged(Tool* tool) {
-            updateHits();
+            updatePickResult();
             updateAcceleratorTable(HasFocus());
             Refresh();
         }
         
         void MapViewBase::commandProcessed(Command* command) {
-            updateHits();
+            updatePickResult();
             Refresh();
         }
         

@@ -23,7 +23,6 @@
 #include "Notifier.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Hit.h"
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
@@ -46,6 +45,7 @@ namespace TrenchBroom {
         class BrushFaceAttributes;
         class ChangeBrushFaceAttributesRequest;
         class EditorContext;
+        class PickResult;
         class PointFile;
     }
     
@@ -282,7 +282,7 @@ namespace TrenchBroom {
         public: // asset state management
             void commitPendingAssets();
         public: // picking
-            void pick(const Ray3& pickRay, Hits& hits) const;
+            void pick(const Ray3& pickRay, Model::PickResult& pickResult) const;
         private: // world management
             void createWorld(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadWorld(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);
