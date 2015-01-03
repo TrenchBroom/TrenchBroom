@@ -148,12 +148,11 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
             
-            /*
-             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipTool,               this, CommandIds::Actions::ToggleClipTool);
-             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
-             Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
-             Bind(wxEVT_MENU, &MapViewBase::OnDeleteLastClipPoint,          this, CommandIds::Actions::DeleteLastClipPoint);
-             */
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleClipTool,               this, CommandIds::Actions::ToggleClipTool);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
+            Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
+            Bind(wxEVT_MENU, &MapViewBase::OnDeleteLastClipPoint,          this, CommandIds::Actions::DeleteLastClipPoint);
+            
             Bind(wxEVT_MENU, &MapViewBase::OnToggleVertexTool,             this, CommandIds::Actions::ToggleVertexTool);
             /*
              Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
@@ -422,6 +421,25 @@ namespace TrenchBroom {
             Refresh();
         }
         
+        void MapViewBase::OnToggleClipTool(wxCommandEvent& event) {
+            m_toolBox.toggleClipTool();
+        }
+        
+        void MapViewBase::OnToggleClipSide(wxCommandEvent& event) {
+            if (m_toolBox.canToggleClipSide())
+                m_toolBox.toggleClipSide();
+        }
+        
+        void MapViewBase::OnPerformClip(wxCommandEvent& event) {
+            if (m_toolBox.canPerformClip())
+                m_toolBox.performClip();
+        }
+        
+        void MapViewBase::OnDeleteLastClipPoint(wxCommandEvent& event) {
+            if (m_toolBox.canDeleteLastClipPoint())
+                m_toolBox.deleteLastClipPoint();
+        }
+
         void MapViewBase::OnToggleVertexTool(wxCommandEvent& event) {
             m_toolBox.toggleVertexTool();
         }

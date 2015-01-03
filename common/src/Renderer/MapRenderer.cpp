@@ -34,6 +34,7 @@
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/ObjectRenderer.h"
 #include "Renderer/RenderBatch.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "View/Selection.h"
 #include "View/MapDocument.h"
@@ -100,11 +101,9 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::overrideSelectionColors(const Color& color, const float mix) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
-            const Color edgeColor = prefs.get(Preferences::SelectedEdgeColor).mixed(color, mix);
-            const Color occludedEdgeColor = prefs.get(Preferences::SelectedFaceColor).mixed(color, mix);
-            const Color tintColor = prefs.get(Preferences::SelectedFaceColor).mixed(color, mix);
+            const Color edgeColor = pref(Preferences::SelectedEdgeColor).mixed(color, mix);
+            const Color occludedEdgeColor = pref(Preferences::SelectedFaceColor).mixed(color, mix);
+            const Color tintColor = pref(Preferences::SelectedFaceColor).mixed(color, mix);
             
             m_selectionRenderer->setEntityBoundsColor(edgeColor);
             m_selectionRenderer->setBrushEdgeColor(edgeColor);
@@ -157,7 +156,8 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderSelection(RenderContext& renderContext, RenderBatch& renderBatch) {
-            m_selectionRenderer->render(renderContext, renderBatch);
+            if (!renderContext.hideSelection())
+                m_selectionRenderer->render(renderContext, renderBatch);
         }
         
         void MapRenderer::setupRenderers() {
@@ -174,36 +174,32 @@ namespace TrenchBroom {
         }
 
         void MapRenderer::setupLayerRenderer(ObjectRenderer* renderer) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
-            renderer->setOverlayTextColor(prefs.get(Preferences::InfoOverlayTextColor));
-            renderer->setOverlayBackgroundColor(prefs.get(Preferences::InfoOverlayBackgroundColor));
+            renderer->setOverlayTextColor(pref(Preferences::InfoOverlayTextColor));
+            renderer->setOverlayBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
             renderer->setTint(false);
-            renderer->setTransparencyAlpha(prefs.get(Preferences::TransparentFaceAlpha));
+            renderer->setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
             
-            renderer->setEntityBoundsColor(prefs.get(Preferences::UndefinedEntityColor));
+            renderer->setEntityBoundsColor(pref(Preferences::UndefinedEntityColor));
             
-            renderer->setBrushFaceColor(prefs.get(Preferences::FaceColor));
-            renderer->setBrushEdgeColor(prefs.get(Preferences::EdgeColor));
+            renderer->setBrushFaceColor(pref(Preferences::FaceColor));
+            renderer->setBrushEdgeColor(pref(Preferences::EdgeColor));
         }
         
         void MapRenderer::setupSelectionRenderer(ObjectRenderer* renderer) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            
-            renderer->setOverlayTextColor(prefs.get(Preferences::SelectedInfoOverlayTextColor));
-            renderer->setOverlayBackgroundColor(prefs.get(Preferences::SelectedInfoOverlayBackgroundColor));
+            renderer->setOverlayTextColor(pref(Preferences::SelectedInfoOverlayTextColor));
+            renderer->setOverlayBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
             renderer->setShowOccludedObjects(true);
-            renderer->setOccludedEdgeColor(prefs.get(Preferences::OccludedSelectedEdgeColor));
+            renderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
             renderer->setTint(true);
-            renderer->setTintColor(prefs.get(Preferences::SelectedFaceColor));
+            renderer->setTintColor(pref(Preferences::SelectedFaceColor));
 
             renderer->setOverrideEntityBoundsColor(true);
-            renderer->setEntityBoundsColor(prefs.get(Preferences::SelectedEdgeColor));
+            renderer->setEntityBoundsColor(pref(Preferences::SelectedEdgeColor));
             renderer->setShowEntityAngles(true);
-            renderer->setEntityAngleColor(prefs.get(Preferences::AngleIndicatorColor));
+            renderer->setEntityAngleColor(pref(Preferences::AngleIndicatorColor));
 
-            renderer->setBrushFaceColor(prefs.get(Preferences::FaceColor));
-            renderer->setBrushEdgeColor(prefs.get(Preferences::SelectedEdgeColor));
+            renderer->setBrushFaceColor(pref(Preferences::FaceColor));
+            renderer->setBrushEdgeColor(pref(Preferences::SelectedEdgeColor));
         }
 
         void MapRenderer::bindObservers() {

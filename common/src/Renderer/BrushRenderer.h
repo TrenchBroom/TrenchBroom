@@ -65,6 +65,13 @@ namespace TrenchBroom {
                 bool selected(const Model::BrushEdge* edge) const;
                 bool hasSelectedFaces(const Model::Brush* brush) const;
             };
+            
+            class NoFilter : public Filter {
+            public:
+                bool operator()(const Model::Brush* brush) const;
+                bool operator()(const Model::BrushFace* face) const;
+                bool operator()(const Model::BrushEdge* edge) const;
+            };
         private:
             Filter* m_filter;
             Model::BrushSet m_brushes;
@@ -94,6 +101,8 @@ namespace TrenchBroom {
             m_transparencyAlpha(1.0f),
             m_showHiddenBrushes(false) {}
             
+            BrushRenderer();
+            
             ~BrushRenderer();
 
             void addBrush(Model::Brush* brush);
@@ -102,7 +111,7 @@ namespace TrenchBroom {
             
             template <typename I>
             void addBrushes(I cur, I end, const size_t count) {
-                // m_brushes.reserve(m_brushes.size() * count);
+                // m_brushes.reserve(m_brushes.size() + count);
                 // m_brushes.insert(m_brushes.end(), cur, end);
                 m_brushes.insert(cur, end);
                 invalidate();
@@ -117,7 +126,7 @@ namespace TrenchBroom {
             }
             
             template <typename I>
-            void updateBBrushes(I cur, I end) {
+            void updateBrushes(I cur, I end) {
                 invalidate();
             }
             

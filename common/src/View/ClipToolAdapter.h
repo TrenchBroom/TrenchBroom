@@ -20,10 +20,14 @@
 #ifndef __TrenchBroom__ClipToolAdapter__
 #define __TrenchBroom__ClipToolAdapter__
 
-#include "Hit.h"
+#include "Model/Hit.h"
 #include "View/ToolAdapter.h"
 
 namespace TrenchBroom {
+    namespace Model {
+        class PickResult;
+    }
+    
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
@@ -36,14 +40,13 @@ namespace TrenchBroom {
         class ClipToolAdapter : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ClipTool* m_tool;
-        protected:
-            ClipToolAdapter(ClipTool* tool);
         public:
+            ClipToolAdapter(ClipTool* tool);
             virtual ~ClipToolAdapter();
         private:
             Tool* doGetTool();
             
-            void doPick(const InputState& inputState, Hits& hits);
+            void doPick(const InputState& inputState, Model::PickResult& pickResult);
             
             bool doMouseClick(const InputState& inputState);
             
@@ -56,8 +59,6 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             bool doCancel();
-        private:
-            virtual Hit doPick(const Ray3& pickRay) = 0;
         };
     }
 }

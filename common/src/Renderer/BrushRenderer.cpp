@@ -55,6 +55,19 @@ namespace TrenchBroom {
         }
         bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::Brush* brush) const { return brush->descendantSelected(); }
 
+        bool BrushRenderer::NoFilter::operator()(const Model::Brush* brush) const { return true; }
+        bool BrushRenderer::NoFilter::operator()(const Model::BrushFace* face) const { return true; }
+        bool BrushRenderer::NoFilter::operator()(const Model::BrushEdge* edge) const { return true; }
+
+        BrushRenderer::BrushRenderer() :
+        m_filter(new NoFilter()),
+        m_valid(false),
+        m_grayscale(false),
+        m_tint(false),
+        m_showOccludedEdges(false),
+        m_transparencyAlpha(1.0f),
+        m_showHiddenBrushes(false) {}
+        
         BrushRenderer::~BrushRenderer() {
             delete m_filter;
             m_filter = NULL;

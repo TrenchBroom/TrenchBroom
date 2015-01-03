@@ -343,16 +343,16 @@ namespace TrenchBroom {
             m_attribs.setSurfaceValue(surfaceValue);
         }
 
-        void BrushFace::setAttributes(const BrushFace& other) {
-            setTexture(other.texture());
-            setXOffset(other.xOffset());
-            setYOffset(other.yOffset());
-            setRotation(other.rotation());
-            setXScale(other.xScale());
-            setYScale(other.yScale());
-            setSurfaceContents(other.surfaceContents());
-            setSurfaceFlags(other.surfaceFlags());
-            setSurfaceValue(other.surfaceValue());
+        void BrushFace::setAttributes(const BrushFace* other) {
+            setTexture(other->texture());
+            setXOffset(other->xOffset());
+            setYOffset(other->yOffset());
+            setRotation(other->rotation());
+            setXScale(other->xScale());
+            setYScale(other->yScale());
+            setSurfaceContents(other->surfaceContents());
+            setSurfaceFlags(other->surfaceFlags());
+            setSurfaceValue(other->surfaceValue());
         }
 
         Vec3 BrushFace::textureXAxis() const {

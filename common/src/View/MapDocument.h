@@ -84,6 +84,7 @@ namespace TrenchBroom {
             Model::NodeCollection m_selectedNodes;
             Model::BrushFaceList m_selectedBrushFaces;
             
+            String m_currentTextureName;
             BBox3 m_lastSelectionBounds;
             mutable BBox3 m_selectionBounds;
             mutable bool m_selectionBoundsValid;
@@ -179,6 +180,7 @@ namespace TrenchBroom {
             const BBox3& referenceBounds() const;
             const BBox3& lastSelectionBounds() const;
             const BBox3& selectionBounds() const;
+            const String& currentTextureName() const;
             
             void selectAllNodes();
             void selectSiblings();
@@ -193,6 +195,7 @@ namespace TrenchBroom {
             
             void deselectAll();
             void deselect(Model::Node* node);
+            void deselect(const Model::NodeList& nodes);
             void deselect(Model::BrushFace* face);
         protected:
             void invalidateSelectionBounds();

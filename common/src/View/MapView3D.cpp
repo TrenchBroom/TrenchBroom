@@ -35,6 +35,7 @@
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraTool3D.h"
+#include "View/ClipToolAdapter.h"
 #include "View/CommandIds.h"
 #include "View/CreateEntityToolAdapter.h"
 #include "View/FlashSelectionAnimation.h"
@@ -60,6 +61,7 @@ namespace TrenchBroom {
         m_movementRestriction(),
         m_camera(),
         m_compass(new Renderer::Compass(m_movementRestriction)),
+        m_clipToolAdapter(NULL),
         m_createEntityToolAdapter(NULL),
         m_moveObjectsToolAdapter(NULL),
         m_resizeBrushesToolAdapter(NULL),
@@ -84,10 +86,12 @@ namespace TrenchBroom {
             delete m_resizeBrushesToolAdapter;
             delete m_moveObjectsToolAdapter;
             delete m_createEntityToolAdapter;
+            delete m_clipToolAdapter;
             delete m_compass;
         }
         
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
+            m_clipToolAdapter = new ClipToolAdapter(toolBox.clipTool());
             m_createEntityToolAdapter = new CreateEntityToolAdapter3D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter3D(toolBox.moveObjectsTool(), m_movementRestriction);
             m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter3D(toolBox.resizeBrushesTool());
@@ -97,6 +101,7 @@ namespace TrenchBroom {
             m_cameraTool = new CameraTool3D(m_document, m_camera);
             
             addTool(m_cameraTool);
+            addTool(m_clipToolAdapter);
             addTool(m_rotateObjectsToolAdapter);
             addTool(m_vertexToolAdapter);
             addTool(m_moveObjectsToolAdapter);

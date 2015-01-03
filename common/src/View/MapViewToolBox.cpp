@@ -18,6 +18,7 @@
  */
 
 #include "MapViewToolBox.h"
+#include "View/ClipTool.h"
 #include "View/CreateEntityTool.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
@@ -28,6 +29,7 @@
 namespace TrenchBroom {
     namespace View {
         MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
+        m_clipTool(NULL),
         m_createEntityTool(NULL),
         m_moveObjectsTool(NULL),
         m_resizeBrushesTool(NULL),
@@ -41,6 +43,10 @@ namespace TrenchBroom {
         MapViewToolBox::~MapViewToolBox() {
             unbindObservers();
             destroyTools();
+        }
+        
+        ClipTool* MapViewToolBox::clipTool() {
+            return m_clipTool;
         }
 
         CreateEntityTool* MapViewToolBox::createEntityTool() {
@@ -65,6 +71,44 @@ namespace TrenchBroom {
         
         VertexTool* MapViewToolBox::vertexTool() {
             return m_vertexTool;
+        }
+
+        void MapViewToolBox::toggleClipTool() {
+            toggleTool(m_clipTool);
+        }
+        
+        bool MapViewToolBox::clipToolActive() const {
+            return toolActive(m_clipTool);
+        }
+        
+        bool MapViewToolBox::canToggleClipSide() const {
+            assert(clipToolActive());
+            return m_clipTool->canToggleClipSide();
+        }
+        
+        void MapViewToolBox::toggleClipSide() {
+            assert(canToggleClipSide());
+            m_clipTool->toggleClipSide();
+        }
+            
+        bool MapViewToolBox::canPerformClip() const {
+            assert(clipToolActive());
+            return m_clipTool->canPerformClip();
+        }
+        
+        void MapViewToolBox::performClip() {
+            assert(canPerformClip());
+            m_clipTool->performClip();
+        }
+        
+        bool MapViewToolBox::canDeleteLastClipPoint() const {
+            assert(clipToolActive());
+            return m_clipTool->canDeleteLastClipPoint();
+        }
+        
+        void MapViewToolBox::deleteLastClipPoint() {
+            assert(canDeleteLastClipPoint());
+            m_clipTool->deleteLastClipPoint();
         }
 
         void MapViewToolBox::toggleRotateObjectsTool() {
@@ -100,6 +144,7 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
+            m_clipTool = new ClipTool(document);
             m_createEntityTool = new CreateEntityTool(document);
             m_moveObjectsTool = new MoveObjectsTool(document);
             m_resizeBrushesTool = new ResizeBrushesTool(document);
@@ -131,6 +176,7 @@ namespace TrenchBroom {
             delete m_resizeBrushesTool;
             delete m_moveObjectsTool;
             delete m_createEntityTool;
+            delete m_clipTool;
         }
         
         void MapViewToolBox::bindObservers() {

@@ -135,7 +135,7 @@ namespace TrenchBroom {
             void setSurfaceContents(int surfaceContents);
             void setSurfaceFlags(int surfaceFlags);
             void setSurfaceValue(float surfaceValue);
-            void setAttributes(const BrushFace& other);
+            void setAttributes(const BrushFace* other);
 
             Vec3 textureXAxis() const;
             Vec3 textureYAxis() const;

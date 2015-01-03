@@ -104,6 +104,8 @@ namespace TrenchBroom {
             
             bool containsPoint(const Vec3& point) const;
             
+            BrushFaceList incidentFaces(const BrushVertex* vertex) const;
+            
             // vertex operations
             bool canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
             Vec3::List moveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta);
