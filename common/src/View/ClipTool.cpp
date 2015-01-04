@@ -29,6 +29,7 @@
 #include "Model/PickResult.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/Camera.h"
+#include "Renderer/RenderService.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
@@ -168,9 +169,43 @@ namespace TrenchBroom {
             m_brushRenderer->render(renderContext, renderBatch);
         }
         
-        void ClipTool::renderClipPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
-        void ClipTool::renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
-        void ClipTool::renderHighlight(const Model::PickResult& pickResult, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
+        void ClipTool::renderClipPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            
+            const Vec3::List& points = m_clipper.clipPointPositions();
+            for (size_t i = 0; i < points.size(); ++i) {
+                const Vec3& point = points[i];
+                renderService.renderPointHandle(point);
+            }
+        }
+        
+        void ClipTool::renderCurrentClipPoint(const Model::PickResult& pickResult, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            const Model::Hit& handleHit = pickResult.query().type(HandleHit).occluded().first();
+            const Model::Hit& brushHit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            
+            if (handleHit.isMatch()) {
+                const size_t index = handleHit.target<size_t>();
+                renderHighlight(renderContext, renderBatch, index);
+            } else if (brushHit.isMatch()) {
+                const Model::BrushFace* face = brushHit.target<Model::BrushFace*>();
+                const Vec3 point = computeClipPoint(brushHit.hitPoint(), face->boundary());
+                
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.renderPointHandle(point);
+            }
+        }
+
+        void ClipTool::renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            renderHighlight(renderContext, renderBatch, m_dragPointIndex);
+        }
+
+        void ClipTool::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const size_t index) {
+            const Vec3::List& points = m_clipper.clipPointPositions();
+            assert(index < points.size());
+            
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.renderPointHandleHighlight(points[index]);
+        }
 
         bool ClipTool::doActivate() {
             MapDocumentSPtr document = lock(m_document);

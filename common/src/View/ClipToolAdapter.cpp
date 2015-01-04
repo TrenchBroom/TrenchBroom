@@ -94,10 +94,10 @@ namespace TrenchBroom {
             if (!inputState.modifierKeysPressed(ModifierKeys::MKShift)) {
                 m_tool->renderClipPoints(renderContext, renderBatch);
 
-                if (dragging())
-                    m_tool->renderDragHighlight(renderContext, renderBatch);
+                if (!dragging())
+                    m_tool->renderCurrentClipPoint(inputState.pickResult(), renderContext, renderBatch);
                 else
-                    m_tool->renderHighlight(inputState.pickResult(), renderContext, renderBatch);
+                    m_tool->renderDragHighlight(renderContext, renderBatch);
             }
         }
         

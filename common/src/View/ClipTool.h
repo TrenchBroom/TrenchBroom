@@ -74,8 +74,10 @@ namespace TrenchBroom {
 
             void renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderClipPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderCurrentClipPoint(const Model::PickResult& pickResult, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderHighlight(const Model::PickResult& pickResult, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        private:
+            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, size_t index);
         private:
             bool doActivate();
             bool doDeactivate();
