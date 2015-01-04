@@ -93,17 +93,18 @@ namespace TrenchBroom {
         m_textureLock(false),
         m_path(DefaultDocumentName),
         m_modificationCount(0),
-        m_selectionBoundsValid(true),
-        m_currentTextureName(Model::BrushFace::NoTextureName) {
+        m_currentTextureName(Model::BrushFace::NoTextureName),
+        m_selectionBoundsValid(true) {
             bindObservers();
         }
-        
+
         MapDocument::~MapDocument() {
             unbindObservers();
             
             if (isPointFileLoaded())
                 unloadPointFile();
             clearWorld();
+            
             delete m_grid;
             delete m_mapViewConfig;
             delete m_textureManager;
