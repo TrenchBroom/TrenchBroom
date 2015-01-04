@@ -46,16 +46,20 @@ namespace TrenchBroom {
             SelectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            bool operator()(const Model::Brush* brush) const {
+            bool doShow(const Model::Brush* brush) const {
                 return !locked(brush) && (selected(brush) || hasSelectedFaces(brush)) && visible(brush);
             }
             
-            bool operator()(const Model::BrushFace* face) const {
+            bool doShow(const Model::BrushFace* face) const {
                 return !locked(face) && (selected(face) || selected(face->brush())) && visible(face);
             }
             
-            bool operator()(const Model::BrushEdge* edge) const {
+            bool doShow(const Model::BrushEdge* edge) const {
                 return selected(edge);
+            }
+            
+            bool doIsTransparent(const Model::Brush* brush) const {
+                return false;
             }
         };
 
@@ -64,16 +68,20 @@ namespace TrenchBroom {
             UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            bool operator()(const Model::Brush* brush) const {
+            bool doShow(const Model::Brush* brush) const {
                 return !locked(brush) && !selected(brush) && visible(brush);
             }
             
-            bool operator()(const Model::BrushFace* face) const {
+            bool doShow(const Model::BrushFace* face) const {
                 return !locked(face) && !selected(face) && visible(face);
             }
             
-            bool operator()(const Model::BrushEdge* edge) const {
+            bool doShow(const Model::BrushEdge* edge) const {
                 return !selected(edge);
+            }
+            
+            bool doIsTransparent(const Model::Brush* brush) const {
+                return brush->transparent();
             }
         };
         

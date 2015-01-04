@@ -222,7 +222,7 @@ namespace TrenchBroom {
         }
         
         bool ToolBox::toolActive(const Tool* tool) const {
-            return m_modalTool == tool;
+            return tool->active();
         }
         
         void ToolBox::toggleTool(Tool* tool) {

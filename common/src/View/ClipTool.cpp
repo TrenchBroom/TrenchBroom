@@ -30,6 +30,7 @@
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
+#include "Renderer/TextAnchor.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
@@ -40,11 +41,13 @@ namespace TrenchBroom {
         ClipTool::ClipTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
-        m_brushRenderer(new Renderer::BrushRenderer()) {}
+        m_remainingBrushRenderer(new Renderer::BrushRenderer(false)),
+        m_clippedBrushRenderer(new Renderer::BrushRenderer(true)){}
         
         ClipTool::~ClipTool() {
             clearClipResult();
-            delete m_brushRenderer;
+            delete m_remainingBrushRenderer;
+            delete m_clippedBrushRenderer;
         }
 
         bool ClipTool::canToggleClipSide() const {
@@ -158,24 +161,44 @@ namespace TrenchBroom {
         }
         
         void ClipTool::renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_brushRenderer->setFaceColor(pref(Preferences::FaceColor));
-            m_brushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
+            m_remainingBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
+            m_remainingBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
+            m_remainingBrushRenderer->setShowOccludedEdges(true);
+            m_remainingBrushRenderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
+            m_remainingBrushRenderer->setTint(true);
+            m_remainingBrushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));
+            m_remainingBrushRenderer->render(renderContext, renderBatch);
             
-            m_brushRenderer->setShowOccludedEdges(true);
-            m_brushRenderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
-            m_brushRenderer->setTint(true);
-            m_brushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));
-            
-            m_brushRenderer->render(renderContext, renderBatch);
+            m_clippedBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
+            m_clippedBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
+            m_clippedBrushRenderer->setShowOccludedEdges(true);
+            m_clippedBrushRenderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
+            m_clippedBrushRenderer->setTint(false);
+            m_clippedBrushRenderer->setTransparencyAlpha(0.5f);
+            m_clippedBrushRenderer->render(renderContext, renderBatch);
         }
         
         void ClipTool::renderClipPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             Renderer::RenderService renderService(renderContext, renderBatch);
             
             const Vec3::List& points = m_clipper.clipPointPositions();
+            if (points.size() > 1) {
+                renderService.renderLine(pref(Preferences::HandleColor), points[0], points[1]);
+                if (points.size() > 2) {
+                    renderService.renderLine(pref(Preferences::HandleColor), points[1], points[2]);
+                    renderService.renderLine(pref(Preferences::HandleColor), points[2], points[0]);
+                }
+            }
+            
             for (size_t i = 0; i < points.size(); ++i) {
                 const Vec3& point = points[i];
                 renderService.renderPointHandle(point);
+                
+                StringStream str;
+                str << i << ": " << point.asString();
+                
+                const Renderer::SimpleTextAnchor anchor(point, Renderer::TextAlignment::Bottom, Vec2f(0.0f, 10.0f));
+                renderService.renderStringOnTop(pref(Preferences::HandleColor), pref(Preferences::InfoOverlayBackgroundColor), str.str(), anchor);
             }
         }
         
@@ -266,8 +289,15 @@ namespace TrenchBroom {
             else
                 m_clipper.reset();
             
-            addBrushesToRenderer(m_clipResult.frontBrushes);
-            addBrushesToRenderer(m_clipResult.backBrushes);
+            if (m_clipper.keepFrontBrushes())
+                addBrushesToRenderer(m_clipResult.frontBrushes, m_remainingBrushRenderer);
+            else
+                addBrushesToRenderer(m_clipResult.frontBrushes, m_clippedBrushRenderer);
+            
+            if (m_clipper.keepBackBrushes())
+                addBrushesToRenderer(m_clipResult.backBrushes, m_remainingBrushRenderer);
+            else
+                addBrushesToRenderer(m_clipResult.backBrushes, m_clippedBrushRenderer);
         }
         
         class ClipTool::AddBrushesToRendererVisitor : public Model::NodeVisitor {
@@ -283,8 +313,8 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush)   { m_renderer->addBrush(brush); }
         };
         
-        void ClipTool::addBrushesToRenderer(const Model::ParentChildrenMap& map) {
-            AddBrushesToRendererVisitor visitor(m_brushRenderer);
+        void ClipTool::addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer) {
+            AddBrushesToRendererVisitor visitor(renderer);
             
             Model::ParentChildrenMap::const_iterator it, end;
             for (it = map.begin(), end = map.end(); it != end; ++it) {
@@ -294,7 +324,8 @@ namespace TrenchBroom {
         }
 
         void ClipTool::clearClipResult() {
-            m_brushRenderer->clear();
+            m_remainingBrushRenderer->clear();
+            m_clippedBrushRenderer->clear();
             MapUtils::clearAndDelete(m_clipResult.frontBrushes);
             MapUtils::clearAndDelete(m_clipResult.backBrushes);
         }

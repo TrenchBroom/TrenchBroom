@@ -85,6 +85,7 @@ namespace TrenchBroom {
             grid.gridDidChangeNotifier.addObserver(this, &MapViewBase::gridDidChange);
             
             m_toolBox.toolActivatedNotifier.addObserver(this, &MapViewBase::toolChanged);
+            m_toolBox.toolDeactivatedNotifier.addObserver(this, &MapViewBase::toolChanged);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapViewBase::preferenceDidChange);
@@ -490,10 +491,8 @@ namespace TrenchBroom {
             if (derivedContext != ActionContext_Default)
                 return derivedContext;
             
-            /*
-             if (clipToolActive())
-             return Action::Context_ClipTool;
-             */
+            if (m_toolBox.clipToolActive())
+                return ActionContext_ClipTool;
             if (m_toolBox.vertexToolActive())
                 return ActionContext_VertexTool;
             if (m_toolBox.rotateObjectsToolActive())

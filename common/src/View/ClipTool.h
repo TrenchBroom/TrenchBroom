@@ -51,7 +51,8 @@ namespace TrenchBroom {
             ClipResult m_clipResult;
             size_t m_dragPointIndex;
             
-            Renderer::BrushRenderer* m_brushRenderer;
+            Renderer::BrushRenderer* m_remainingBrushRenderer;
+            Renderer::BrushRenderer* m_clippedBrushRenderer;
         public:
             ClipTool(MapDocumentWPtr document);
             ~ClipTool();
@@ -93,7 +94,7 @@ namespace TrenchBroom {
             void updateBrushes();
             
             class AddBrushesToRendererVisitor;
-            void addBrushesToRenderer(const Model::ParentChildrenMap& map);
+            void addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer);
             
             void clearClipResult();
         };
