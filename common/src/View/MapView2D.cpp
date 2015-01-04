@@ -27,6 +27,7 @@
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraTool2D.h"
+#include "View/ClipToolAdapter.h"
 #include "View/CommandIds.h"
 #include "View/CreateEntityToolAdapter.h"
 #include "View/FlashSelectionAnimation.h"
@@ -47,6 +48,7 @@ namespace TrenchBroom {
         MapView2D::MapView2D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager, const ViewPlane viewPlane) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_camera(),
+        m_clipToolAdapter(NULL),
         m_createEntityToolAdapter(NULL),
         m_moveObjectsToolAdapter(NULL),
         m_resizeBrushesToolAdapter(NULL),
@@ -67,6 +69,7 @@ namespace TrenchBroom {
             delete m_rotateObjectsToolAdapter;
             delete m_moveObjectsToolAdapter;
             delete m_createEntityToolAdapter;
+            delete m_clipToolAdapter;
         }
         
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
@@ -90,6 +93,7 @@ namespace TrenchBroom {
         }
 
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
+            m_clipToolAdapter = new ClipToolAdapter(toolBox.clipTool());
             m_createEntityToolAdapter = new CreateEntityToolAdapter2D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter2D(toolBox.moveObjectsTool());
             m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter2D(toolBox.resizeBrushesTool());
@@ -98,6 +102,7 @@ namespace TrenchBroom {
             m_cameraTool = new CameraTool2D(m_camera);
             
             addTool(m_cameraTool);
+            addTool(m_clipToolAdapter);
             addTool(m_rotateObjectsToolAdapter);
             addTool(m_vertexToolAdapter);
             addTool(m_moveObjectsToolAdapter);

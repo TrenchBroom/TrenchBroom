@@ -20,7 +20,11 @@
 #ifndef __TrenchBroom__ClipToolAdapter__
 #define __TrenchBroom__ClipToolAdapter__
 
-#include "Model/Hit.h"
+#include "TrenchBroom.h"
+#include "VecMath.h"
+#include "Renderer/RenderContext.h"
+#include "View/ClipTool.h"
+#include "View/InputState.h"
 #include "View/ToolAdapter.h"
 
 namespace TrenchBroom {
@@ -35,30 +39,84 @@ namespace TrenchBroom {
     
     namespace View {
         class ClipTool;
+        class Grid;
         class InputState;
+        class Tool;
         
-        class ClipToolAdapter : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, MousePolicy, MouseDragPolicy, RenderPolicy, NoDropPolicy> {
+        template <typename DragPolicy>
+        class ClipToolAdapter : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, MousePolicy, DragPolicy, RenderPolicy, NoDropPolicy> {
         protected:
             ClipTool* m_tool;
-        public:
-            ClipToolAdapter(ClipTool* tool);
-            virtual ~ClipToolAdapter();
+            const Grid& m_grid;
+        protected:
+            ClipToolAdapter(ClipTool* tool, const Grid& grid) :
+            m_tool(tool),
+            m_grid(grid) {}
+            
+            virtual ~ClipToolAdapter() {}
         private:
-            Tool* doGetTool();
+            Tool* doGetTool() {
+                return m_tool;
+            }
             
-            void doPick(const InputState& inputState, Model::PickResult& pickResult);
+            bool doMouseClick(const InputState& inputState) {
+                if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
+                    !inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
+                    return false;
+                return doAddClipPoint(inputState);
+            }
+
+            void doPick(const InputState& inputState, Model::PickResult& pickResult) {
+                m_tool->pick(inputState.pickRay(), pickResult);
+            }
             
-            bool doMouseClick(const InputState& inputState);
+            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
+                renderContext.setHideSelection();
+                renderContext.setForceHideSelectionGuide();
+            }
             
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            }
+            
+            bool doCancel() {
+                if (m_tool->reset())
+                    return true;
+                return false;
+            }
+        protected:
+            bool canStartDrag(const InputState& inputState) {
+                if (inputState.mouseButtons() != MouseButtons::MBLeft ||
+                    inputState.modifierKeys() != ModifierKeys::MKNone)
+                    return false;
+                return true;
+            }
+        private: // subclassing interface
+            virtual bool doAddClipPoint(const InputState& inputState);
+        };
+        
+        class ClipToolAdapter2D : public ClipToolAdapter<PlaneDragPolicy> {
+        public:
+            ClipToolAdapter2D(ClipTool* tool, const Grid& grid);
+        private:
+            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
+            void doEndPlaneDrag(const InputState& inputState);
+            void doCancelPlaneDrag();
+            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            
+            bool doAddClipPoint(const InputState& inputState);
+        };
+        
+        class ClipToolAdapter3D : public ClipToolAdapter<MouseDragPolicy> {
+        public:
+            ClipToolAdapter3D(ClipTool* tool, const Grid& grid);
+        private:
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
             
-            void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
-            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-
-            bool doCancel();
+            bool doAddClipPoint(const InputState& inputState);
         };
     }
 }

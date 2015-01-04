@@ -68,6 +68,8 @@ namespace TrenchBroom {
             Notifier1<Tool*> refreshViewsNotifier;
         public:
             ToolBox();
+        protected:
+            void addTool(Tool* tool);
         public: // picking
             void pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult);
         public: // event handling

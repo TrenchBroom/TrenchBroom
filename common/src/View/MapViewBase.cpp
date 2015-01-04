@@ -105,8 +105,8 @@ namespace TrenchBroom {
                 grid.gridDidChangeNotifier.removeObserver(this, &MapViewBase::gridDidChange);
             }
             
-            // toolbox has already been deleted at this point
-            // m_toolBox.toolActivatedNotifier.removeObserver(this, &MapViewBase::toolChanged);
+            m_toolBox.toolActivatedNotifier.removeObserver(this, &MapViewBase::toolChanged);
+            m_toolBox.toolDeactivatedNotifier.removeObserver(this, &MapViewBase::toolChanged);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);

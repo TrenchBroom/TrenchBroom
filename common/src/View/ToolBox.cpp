@@ -38,6 +38,11 @@ namespace TrenchBroom {
         m_lastActivation(wxDateTime::Now()),
         m_enabled(true) {}
 
+        void ToolBox::addTool(Tool* tool) {
+            assert(tool != NULL);
+            tool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
+        }
+
         void ToolBox::pick(ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult) {
             chain->pick(inputState, pickResult);
         }

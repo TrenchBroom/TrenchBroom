@@ -156,17 +156,19 @@ namespace TrenchBroom {
             deactivateWhen(m_rotateObjectsTool, m_resizeBrushesTool);
             deactivateWhen(m_vertexTool, m_moveObjectsTool);
             deactivateWhen(m_vertexTool, m_resizeBrushesTool);
-            // deactivateWhen(m_clipTool, m_resizeBrushesTool);
+            deactivateWhen(m_clipTool, m_moveObjectsTool);
+            deactivateWhen(m_clipTool, m_resizeBrushesTool);
             
             m_moveObjectsTool->createPage(bookCtrl);
             m_rotateObjectsTool->createPage(bookCtrl);
             
-            m_createEntityTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            m_moveObjectsTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            m_resizeBrushesTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            m_rotateObjectsTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            m_selectionTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            m_vertexTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
+            addTool(m_clipTool);
+            addTool(m_createEntityTool);
+            addTool(m_moveObjectsTool);
+            addTool(m_resizeBrushesTool);
+            addTool(m_rotateObjectsTool);
+            addTool(m_selectionTool);
+            addTool(m_vertexTool);
         }
         
         void MapViewToolBox::destroyTools() {

@@ -22,81 +22,37 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/Hit.h"
-#include "View/Clipper.h"
 #include "View/Tool.h"
-#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
         class PickResult;
     }
     
-    namespace Renderer {
-        class BrushRenderer;
-        class Camera;
-        class RenderBatch;
-        class RenderContext;
-    }
-    
     namespace View {
-        class Selection;
-        
         class ClipTool : public Tool {
-        private:
-            static const Model::Hit::HitType HandleHit;
-        private:
-            MapDocumentWPtr m_document;
-            Clipper m_clipper;
-            ClipResult m_clipResult;
-            size_t m_dragPointIndex;
-            
-            Renderer::BrushRenderer* m_remainingBrushRenderer;
-            Renderer::BrushRenderer* m_clippedBrushRenderer;
         public:
-            ClipTool(MapDocumentWPtr document);
-            ~ClipTool();
-            
-            bool canToggleClipSide() const;
-            void toggleClipSide();
-            bool canPerformClip() const;
-            void performClip();
-            bool canDeleteLastClipPoint() const;
-            void deleteLastClipPoint();
-
-            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
-            
-            bool addClipPoint(const Vec3& clickPoint, const Model::BrushFace* face, const Renderer::Camera& camera);
-            void setClipPoints(const Vec3& clickPoint, const Model::BrushFace* face, const Renderer::Camera& camera);
-            bool resetClipper();
-            
-            bool beginDragClipPoint(const Model::PickResult& pickResult);
-            void dragClipPoint(const Vec3& hitPoint, const Model::BrushFace* face);
-
-            void renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderClipPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderCurrentClipPoint(const Model::PickResult& pickResult, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderDragHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-        private:
-            void renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, size_t index);
+            class ClipPlaneStrategy {
+            public:
+                virtual ~ClipPlaneStrategy();
+                
+                bool computeClipPlane(const Vec3& point1, const Vec3& point2, Plane3& clipPlane) const;
+                bool computeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, Plane3& clipPlane) const;
+            private:
+                virtual bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, Plane3& clipPlane) const = 0;
+                virtual bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, Plane3& clipPlane) const = 0;
+            };
         private:
             bool doActivate();
             bool doDeactivate();
+        public:
+            void pick(const Ray3& pickRay, Model::PickResult& pickResult);
             
-            void bindObservers();
-            void unbindObservers();
-            void selectionDidChange(const Selection& selection);
-            void nodesWillChange(const Model::NodeList& nodes);
-            void nodesDidChange(const Model::NodeList& nodes);
+            bool addClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy);
+            bool updateClipPoint(size_t index, const Vec3& newPosition, const ClipPlaneStrategy& strategy);
+            void deleteLastClipPoint();
             
-            Vec3 computeClipPoint(const Vec3& point, const Plane3& boundary) const;
-
-            void updateBrushes();
-            
-            class AddBrushesToRendererVisitor;
-            void addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer);
-            
-            void clearClipResult();
+            bool reset();
         };
     }
 }

@@ -19,90 +19,44 @@
 
 #include "ClipToolAdapter.h"
 
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitQuery.h"
-#include "Model/PickResult.h"
-#include "Renderer/RenderContext.h"
-#include "View/ClipTool.h"
-#include "View/InputState.h"
+#include "Renderer/Camera.h"
 
 namespace TrenchBroom {
     namespace View {
-        ClipToolAdapter::ClipToolAdapter(ClipTool* tool) :
-        ToolAdapterBase(),
-        m_tool(tool) {}
-        
-        ClipToolAdapter::~ClipToolAdapter() {}
+        ClipToolAdapter2D::ClipToolAdapter2D(ClipTool* tool, const Grid& grid) :
+        ClipToolAdapter(tool, grid) {}
 
-        Tool* ClipToolAdapter::doGetTool() {
-            return m_tool;
-        }
-        
-        void ClipToolAdapter::doPick(const InputState& inputState, Model::PickResult& pickResult) {
-            m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
-        }
-        
-        
-        bool ClipToolAdapter::doMouseClick(const InputState& inputState) {
-            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
-                !inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
-                return false;
-
-            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (hit.isMatch()) {
-                const Model::BrushFace* face = Model::hitToFace(hit);
-                const Renderer::Camera& camera = inputState.camera();
-                if (inputState.modifierKeysPressed(ModifierKeys::MKShift))
-                    m_tool->setClipPoints(hit.hitPoint(), face, camera);
-                else
-                    m_tool->addClipPoint(hit.hitPoint(), face, camera);
-                return true;
-            }
-            return false;
-        }
-        
-        bool ClipToolAdapter::doStartMouseDrag(const InputState& inputState) {
-            if (inputState.mouseButtons() != MouseButtons::MBLeft ||
-                inputState.modifierKeys() != ModifierKeys::MKNone)
+        bool ClipToolAdapter2D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+            if (!canStartDrag(inputState))
                 return false;
             
-            return m_tool->beginDragClipPoint(inputState.pickResult());
         }
         
-        bool ClipToolAdapter::doMouseDrag(const InputState& inputState) {
-            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (hit.isMatch()) {
-                const Model::BrushFace* face = Model::hitToFace(hit);
-                m_tool->dragClipPoint(hit.hitPoint(), face);
-            }
-            return true;
-        }
+        bool ClipToolAdapter2D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {}
         
-        void ClipToolAdapter::doEndMouseDrag(const InputState& inputState) {}
-        void ClipToolAdapter::doCancelMouseDrag() {}
+        void ClipToolAdapter2D::doEndPlaneDrag(const InputState& inputState) {}
         
-        void ClipToolAdapter::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
-            renderContext.setHideSelection();
-            renderContext.setForceHideSelectionGuide();
-        }
+        void ClipToolAdapter2D::doCancelPlaneDrag() {}
         
-        void ClipToolAdapter::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_tool->renderBrushes(renderContext, renderBatch);
-            
-            if (!inputState.modifierKeysPressed(ModifierKeys::MKShift)) {
-                m_tool->renderClipPoints(renderContext, renderBatch);
+        void ClipToolAdapter2D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
 
-                if (!dragging())
-                    m_tool->renderCurrentClipPoint(inputState.pickResult(), renderContext, renderBatch);
-                else
-                    m_tool->renderDragHighlight(renderContext, renderBatch);
-            }
+        bool ClipToolAdapter2D::doAddClipPoint(const InputState& inputState) {}
+
+        
+        ClipToolAdapter3D::ClipToolAdapter3D(ClipTool* tool, const Grid& grid) :
+        ClipToolAdapter(tool, grid) {}
+
+        bool ClipToolAdapter3D::doStartMouseDrag(const InputState& inputState) {
+            if (!canStartDrag(inputState))
+                return false;
         }
         
-        bool ClipToolAdapter::doCancel() {
-            return m_tool->resetClipper();
-        }
+        bool ClipToolAdapter3D::doMouseDrag(const InputState& inputState) {}
+        
+        void ClipToolAdapter3D::doEndMouseDrag(const InputState& inputState) {}
+        
+        void ClipToolAdapter3D::doCancelMouseDrag() {}
+        
+        bool ClipToolAdapter3D::doAddClipPoint(const InputState& inputState) {}
     }
 }
