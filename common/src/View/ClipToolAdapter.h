@@ -29,6 +29,7 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFace;
         class PickResult;
     }
     
@@ -45,6 +46,8 @@ namespace TrenchBroom {
         
         template <typename DragPolicy>
         class ClipToolAdapter : public ToolAdapterBase<PickingPolicy, NoKeyPolicy, MousePolicy, DragPolicy, RenderPolicy, NoDropPolicy> {
+        private:
+            typedef ToolAdapterBase<PickingPolicy, NoKeyPolicy, MousePolicy, DragPolicy, RenderPolicy, NoDropPolicy> Super;
         protected:
             ClipTool* m_tool;
             const Grid& m_grid;
@@ -76,6 +79,9 @@ namespace TrenchBroom {
             }
             
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+                m_tool->renderBrushes(renderContext, renderBatch);
+                m_tool->renderClipPoints(renderContext, renderBatch);
+                m_tool->renderHighlight(Super::dragging(), inputState.pickResult(), renderContext, renderBatch);
             }
             
             bool doCancel() {
@@ -91,7 +97,7 @@ namespace TrenchBroom {
                 return true;
             }
         private: // subclassing interface
-            virtual bool doAddClipPoint(const InputState& inputState);
+            virtual bool doAddClipPoint(const InputState& inputState) = 0;
         };
         
         class ClipToolAdapter2D : public ClipToolAdapter<PlaneDragPolicy> {
@@ -104,11 +110,13 @@ namespace TrenchBroom {
             void doCancelPlaneDrag();
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             
-            class ClipPlaneStrategy2D;
+            class ClipPlaneStrategy;
             bool doAddClipPoint(const InputState& inputState);
         };
         
         class ClipToolAdapter3D : public ClipToolAdapter<MouseDragPolicy> {
+        private:
+            const Model::BrushFace* m_firstFace;
         public:
             ClipToolAdapter3D(ClipTool* tool, const Grid& grid);
         private:
@@ -117,7 +125,7 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
             
-            class ClipPlaneStrategy3D;
+            class ClipPlaneStrategy;
             bool doAddClipPoint(const InputState& inputState);
         };
     }
