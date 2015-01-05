@@ -43,7 +43,7 @@ namespace TrenchBroom {
     
     namespace View {
         class CameraTool2D;
-        class ClipToolAdapter;
+        class ClipToolAdapter2D;
         class CreateEntityToolAdapter;
         class GLContextManager;
         class MoveObjectsToolAdapter;
@@ -61,7 +61,7 @@ namespace TrenchBroom {
         private:
             Renderer::OrthographicCamera m_camera;
 
-            ClipToolAdapter* m_clipToolAdapter;
+            ClipToolAdapter2D* m_clipToolAdapter;
             CreateEntityToolAdapter* m_createEntityToolAdapter;
             MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
             ResizeBrushesToolAdapter* m_resizeBrushesToolAdapter;

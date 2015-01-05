@@ -104,6 +104,7 @@ namespace TrenchBroom {
             void doCancelPlaneDrag();
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             
+            class ClipPlaneStrategy2D;
             bool doAddClipPoint(const InputState& inputState);
         };
         
@@ -116,6 +117,7 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
             
+            class ClipPlaneStrategy3D;
             bool doAddClipPoint(const InputState& inputState);
         };
     }

@@ -40,7 +40,14 @@ namespace TrenchBroom {
         
         void ClipToolAdapter2D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
 
-        bool ClipToolAdapter2D::doAddClipPoint(const InputState& inputState) {}
+        class ClipToolAdapter2D::ClipPlaneStrategy2D : public ClipTool::ClipPlaneStrategy {
+        private:
+            bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, Plane3& clipPlane) const {}
+            bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, Plane3& clipPlane) const {}
+        };
+        
+        bool ClipToolAdapter2D::doAddClipPoint(const InputState& inputState) {
+        }
 
         
         ClipToolAdapter3D::ClipToolAdapter3D(ClipTool* tool, const Grid& grid) :
@@ -56,6 +63,12 @@ namespace TrenchBroom {
         void ClipToolAdapter3D::doEndMouseDrag(const InputState& inputState) {}
         
         void ClipToolAdapter3D::doCancelMouseDrag() {}
+        
+        class ClipToolAdapter3D::ClipPlaneStrategy3D : public ClipTool::ClipPlaneStrategy {
+        private:
+            bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, Plane3& clipPlane) const {}
+            bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, Plane3& clipPlane) const {}
+        };
         
         bool ClipToolAdapter3D::doAddClipPoint(const InputState& inputState) {}
     }
