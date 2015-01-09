@@ -140,6 +140,7 @@ namespace TrenchBroom {
                 VboBlock* block = new VboBlock(*this, m_last->address() + m_last->capacity(), addedCapacity);
                 block->insertBetween(m_last, NULL);
                 insertFreeBlock(*block);
+                m_last = block;
             }
             
             if (m_vboId != 0) {
