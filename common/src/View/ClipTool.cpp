@@ -38,16 +38,8 @@ namespace TrenchBroom {
             return doSnapClipPoint(grid, point);
         }
 
-        bool ClipTool::ClipPlaneStrategy::computeClipPlane(const Vec3& point1, const Vec3& point2, Plane3& clipPlane) const {
-            return doComputeClipPlane(point1, point2, clipPlane);
-        }
-        
-        bool ClipTool::ClipPlaneStrategy::computeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, const Plane3& clipPlane2, Plane3& clipPlane3) const {
-            if (!doComputeClipPlane(point1, point2, point3, clipPlane3))
-                return false;
-            if (clipPlane2.normal.dot(clipPlane3.normal) < 0.0)
-                clipPlane3.normal *= -1.0;
-            return true;
+        bool ClipTool::ClipPlaneStrategy::computeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const {
+            return doComputeThirdClipPoint(point1, point2, point3);
         }
 
         ClipTool::ClipTool(MapDocumentWPtr document) :
@@ -92,35 +84,63 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::addClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy) {
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            const Vec3 snappedPoint = strategy.snapClipPoint(grid, point);
             switch (m_numClipPoints) {
                 case 0:
-                    m_clipPoints[0] = snappedPoint;
-                    ++m_numClipPoints;
-                    return true;
+                    return addFirstClipPoint(point, strategy);
                 case 1:
-                    if (strategy.computeClipPlane(m_clipPoints[0], snappedPoint, m_clipPlanes[0])) {
-                        m_clipPoints[1] = snappedPoint;
-                        ++m_numClipPoints;
-                        update();
-                        return true;
-                    }
-                    return false;
+                    return addSecondClipPoint(point, strategy);
                 case 2:
-                    if (strategy.computeClipPlane(m_clipPoints[0], m_clipPoints[1], snappedPoint, m_clipPlanes[0], m_clipPlanes[1])) {
-                        m_clipPoints[2] = snappedPoint;
-                        ++m_numClipPoints;
-                        update();
-                        return true;
-                    }
-                    return false;
+                    return addThirdClipPoint(point, strategy);
                 default:
                     return false;
             }
         }
         
+        bool ClipTool::addFirstClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy) {
+            assert(m_numClipPoints == 0);
+            
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            m_clipPoints[0] = strategy.snapClipPoint(grid, point);
+            ++m_numClipPoints;
+            return true;
+        }
+        
+        bool ClipTool::addSecondClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy) {
+            assert(m_numClipPoints == 1);
+
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            const Vec3 snappedPoint = strategy.snapClipPoint(grid, point);
+            if (snappedPoint == m_clipPoints[0])
+                return false;
+            
+            strategy.computeThirdClipPoint(m_clipPoints[0], snappedPoint, m_virtualClipPoint);
+            if (linearlyDependent(m_clipPoints[0], snappedPoint, m_virtualClipPoint))
+                return false;
+            
+            m_clipPoints[1] = snappedPoint;
+            m_clipPoints[2] = m_virtualClipPoint;
+            ++m_numClipPoints;
+            
+            return true;
+        }
+        
+        bool ClipTool::addThirdClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy) {
+            assert(m_numClipPoints == 2);
+            
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            const Vec3 snappedPoint = strategy.snapClipPoint(grid, point);
+            if (linearlyDependent(m_clipPoints[0], m_clipPoints[1], snappedPoint))
+                return false;
+
+            m_clipPoints[2] = snappedPoint;
+            ++m_numClipPoints;
+            
+            return true;
+        }
+
         bool ClipTool::updateClipPoint(const size_t index, const Vec3& newPosition, const ClipPlaneStrategy& strategy) {
             return false;
         }
@@ -132,6 +152,8 @@ namespace TrenchBroom {
         void ClipTool::deleteLastClipPoint() {
             if (m_numClipPoints > 0) {
                 --m_numClipPoints;
+                if (m_numClipPoints == 2)
+                    m_clipPoints[2] = m_virtualClipPoint;
                 update();
             }
         }

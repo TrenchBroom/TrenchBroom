@@ -48,12 +48,10 @@ namespace TrenchBroom {
                 virtual ~ClipPlaneStrategy();
                 
                 Vec3 snapClipPoint(const Grid& grid, const Vec3& point) const;
-                bool computeClipPlane(const Vec3& point1, const Vec3& point2, Plane3& clipPlane) const;
-                bool computeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, const Plane3& clipPlane2, Plane3& clipPlane3) const;
+                void computeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const;
             private:
                 virtual Vec3 doSnapClipPoint(const Grid& grid, const Vec3& point) const = 0;
-                virtual bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, Plane3& clipPlane) const = 0;
-                virtual bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, Plane3& clipPlane) const = 0;
+                virtual void doComputeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const = 0;
             };
         private:
             enum ClipSide {
@@ -64,7 +62,7 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             Vec3 m_clipPoints[3];
-            Plane3 m_clipPlanes[2];
+            Vec3 m_virtualClipPoint;
             size_t m_numClipPoints;
             ClipSide m_clipSide;
             
@@ -85,6 +83,11 @@ namespace TrenchBroom {
             Vec3 defaultClipPointPos() const;
             
             bool addClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy);
+        private:
+            bool addFirstClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy);
+            bool addSecondClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy);
+            bool addThirdClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy);
+        public:
             bool updateClipPoint(size_t index, const Vec3& newPosition, const ClipPlaneStrategy& strategy);
 
             bool hasClipPoints() const;

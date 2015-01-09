@@ -60,13 +60,9 @@ namespace TrenchBroom {
                 return grid.snap(point);
             }
             
-            bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, Plane3& clipPlane) const {
-                const Vec3 point3 = point1 + 128.0 * m_viewDir;
-                return doComputeClipPlane(point1, point2, point3, clipPlane);
-            }
-            
-            bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, Plane3& clipPlane) const {
-                return setPlanePoints(clipPlane, point1, point2, point3);
+            void doComputeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const {
+                assert(point1 != point2);
+                point3 = point1 + 128.0 * m_viewDir.firstAxis();
             }
         };
         
@@ -121,18 +117,11 @@ namespace TrenchBroom {
                 return grid.snap(point, m_currentFace->boundary());
             }
             
-            bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, Plane3& clipPlane) const {
-                if (point1 == point2)
-                    return false;
-                
+            void doComputeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const {
+                assert(point1 != point2);
                 const Vec3::List normals = getNormals(point2, m_currentFace);
                 const Vec3 normal = Vec3::average(normals);
-                const Vec3 point3 = point2 + 10.0 * normal.firstAxis();
-                return setPlanePoints(clipPlane, point1, point2, point3);
-            }
-            
-            bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, Plane3& clipPlane) const {
-                return setPlanePoints(clipPlane, point1, point2, point3);
+                point3 = point2 + 128.0 * normal.firstAxis();
             }
 
             Vec3::List getNormals(const Vec3& point, const Model::BrushFace* face) const {
