@@ -24,6 +24,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityDefinitionManager.h"
 #include "Model/MapDocument.h"
+#include "Model/Map.h"
 #include "Model/TextureManager.h"
 #include "Utility/CommandProcessor.h"
 #include "Utility/List.h"
@@ -232,6 +233,7 @@ namespace TrenchBroom {
             const Model::PropertyValue* value = worldspawn.propertyForKey(Model::Entity::FacePointFormatKey);
             if (value != NULL && *value == "1")
                 forceIntegerCoordinates = true;
+            assert(forceIntegerCoordinates == m_document->map().forceIntegerFacePoints());
             m_intFacePointsCheckBox->SetValue(forceIntegerCoordinates);
 
             String wad = "";

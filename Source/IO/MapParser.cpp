@@ -212,6 +212,9 @@ namespace TrenchBroom {
                 FacePointFormat facePointFormat = Unknown;
                 while ((entity = parseEntity(map.worldBounds(), facePointFormat, indicator)) != NULL)
                     map.addEntity(*entity);
+                
+                if (facePointFormat == Integer)
+                    map.setForceIntegerFacePoints(true);
             } catch (MapParserException& e) {
                 m_console.error(e.what());
             }
