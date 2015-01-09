@@ -85,8 +85,10 @@ namespace TrenchBroom {
             }
             
             bool doCancel() {
-                if (m_tool->reset())
+                if (m_tool->hasClipPoints()) {
+                    m_tool->reset();
                     return true;
+                }
                 return false;
             }
         protected:
@@ -115,8 +117,6 @@ namespace TrenchBroom {
         };
         
         class ClipToolAdapter3D : public ClipToolAdapter<MouseDragPolicy> {
-        private:
-            const Model::BrushFace* m_firstFace;
         public:
             ClipToolAdapter3D(ClipTool* tool, const Grid& grid);
         private:

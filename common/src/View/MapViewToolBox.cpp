@@ -81,33 +81,18 @@ namespace TrenchBroom {
             return toolActive(m_clipTool);
         }
         
-        bool MapViewToolBox::canToggleClipSide() const {
-            assert(clipToolActive());
-            return m_clipTool->canToggleClipSide();
-        }
-        
         void MapViewToolBox::toggleClipSide() {
-            assert(canToggleClipSide());
+            assert(clipToolActive());
             m_clipTool->toggleClipSide();
         }
             
-        bool MapViewToolBox::canPerformClip() const {
-            assert(clipToolActive());
-            return m_clipTool->canPerformClip();
-        }
-        
         void MapViewToolBox::performClip() {
-            assert(canPerformClip());
+            assert(clipToolActive());
             m_clipTool->performClip();
         }
         
-        bool MapViewToolBox::canDeleteLastClipPoint() const {
-            assert(clipToolActive());
-            return m_clipTool->canDeleteLastClipPoint();
-        }
-        
         void MapViewToolBox::deleteLastClipPoint() {
-            assert(canDeleteLastClipPoint());
+            assert(clipToolActive());
             m_clipTool->deleteLastClipPoint();
         }
 

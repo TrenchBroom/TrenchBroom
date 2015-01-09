@@ -776,6 +776,14 @@ public:
         const T distance = (*this - closestPoint).length();
         return EdgeDistance(closestPoint, distance);
     }
+
+    static Vec<T,S> average(const typename Vec<T,S>::List& vecs) {
+        assert(!vecs.empty());
+        Vec<T,S> sum;
+        for (size_t i = 0; i < vecs.size(); ++i)
+            sum += vecs[i];
+        return sum / static_cast<T>(vecs.size());
+    }
 };
 
 template <typename T, size_t S>

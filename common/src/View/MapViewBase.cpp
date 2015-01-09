@@ -427,18 +427,15 @@ namespace TrenchBroom {
         }
         
         void MapViewBase::OnToggleClipSide(wxCommandEvent& event) {
-            if (m_toolBox.canToggleClipSide())
-                m_toolBox.toggleClipSide();
+            m_toolBox.toggleClipSide();
         }
         
         void MapViewBase::OnPerformClip(wxCommandEvent& event) {
-            if (m_toolBox.canPerformClip())
-                m_toolBox.performClip();
+            m_toolBox.performClip();
         }
         
         void MapViewBase::OnDeleteLastClipPoint(wxCommandEvent& event) {
-            if (m_toolBox.canDeleteLastClipPoint())
-                m_toolBox.deleteLastClipPoint();
+            m_toolBox.deleteLastClipPoint();
         }
 
         void MapViewBase::OnToggleVertexTool(wxCommandEvent& event) {

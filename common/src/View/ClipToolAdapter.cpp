@@ -94,8 +94,7 @@ namespace TrenchBroom {
         }
 
         ClipToolAdapter3D::ClipToolAdapter3D(ClipTool* tool, const Grid& grid) :
-        ClipToolAdapter(tool, grid),
-        m_firstFace(NULL) {}
+        ClipToolAdapter(tool, grid) {}
 
         bool ClipToolAdapter3D::doStartMouseDrag(const InputState& inputState) {
             if (!canStartDrag(inputState))
@@ -111,14 +110,10 @@ namespace TrenchBroom {
         void ClipToolAdapter3D::doCancelMouseDrag() {}
         
         class ClipToolAdapter3D::ClipPlaneStrategy : public ClipTool::ClipPlaneStrategy {
-        private:
-            const Model::BrushFace* m_firstFace;
             const Model::BrushFace* m_currentFace;
         public:
-            ClipPlaneStrategy(const Model::BrushFace* firstFace, const Model::BrushFace* currentFace) :
-            m_firstFace(firstFace),
+            ClipPlaneStrategy(const Model::BrushFace* currentFace) :
             m_currentFace(currentFace) {
-                assert(m_firstFace != NULL);
                 assert(m_currentFace != NULL);
             }
         private:
@@ -130,12 +125,10 @@ namespace TrenchBroom {
                 if (point1 == point2)
                     return false;
                 
-                assert(m_firstFace != m_currentFace);
-                const Vec3::List normals1 = getNormals(point1, m_firstFace);
-                const Vec3::List normals2 = getNormals(point2, m_currentFace);
-                const Vec3 normal = selectNormal(normals1, normals2);
-                clipPlane = Plane3(point1, normal);
-                return true;
+                const Vec3::List normals = getNormals(point2, m_currentFace);
+                const Vec3 normal = Vec3::average(normals);
+                const Vec3 point3 = point2 + 10.0 * normal.firstAxis();
+                return setPlanePoints(clipPlane, point1, point2, point3);
             }
             
             bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, Plane3& clipPlane) const {
@@ -175,28 +168,6 @@ namespace TrenchBroom {
                 
                 return normals;
             }
-
-            Vec3 selectNormal(const Vec3::List& normals1, const Vec3::List& normals2) const {
-                assert(!normals1.empty());
-                
-                Vec3f sum;
-                // first, try to find two normals with the same first axis
-                for (size_t i = 0; i < normals1.size(); ++i) {
-                    const Vec3& normal1 = normals1[i];
-                    for (size_t j =  0; j < normals2.size(); ++j) {
-                        const Vec3& normal2 = normals2[j];
-                        if (normal1.firstAxis() == normal2.firstAxis())
-                            return normal1;
-                    }
-                    sum += normal1;
-                }
-                
-                // otherwise, use the average of all normals
-                for (size_t i = 0; i < normals2.size(); ++i)
-                    sum += normals2[i];
-                
-                return sum / static_cast<float>((normals1.size() + normals2.size()));
-            }
         };
 
         bool ClipToolAdapter3D::doAddClipPoint(const InputState& inputState) {
@@ -206,10 +177,8 @@ namespace TrenchBroom {
             
             const Vec3& point = hit.hitPoint();
             const Model::BrushFace* face = hit.target<Model::BrushFace*>();
-            if (!m_tool->hasClipPoints())
-                m_firstFace = face;
             
-            const ClipPlaneStrategy strategy(m_firstFace, face);
+            const ClipPlaneStrategy strategy(face);
             return m_tool->addClipPoint(point, strategy);
         }
     }

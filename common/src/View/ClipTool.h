@@ -32,6 +32,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class BrushRenderer;
         class RenderBatch;
         class RenderContext;
     }
@@ -55,12 +56,26 @@ namespace TrenchBroom {
                 virtual bool doComputeClipPlane(const Vec3& point1, const Vec3& point2, const Vec3& point3, Plane3& clipPlane) const = 0;
             };
         private:
+            enum ClipSide {
+                ClipSide_Front,
+                ClipSide_Both,
+                ClipSide_Back
+            };
+        private:
             MapDocumentWPtr m_document;
             Vec3 m_clipPoints[3];
             Plane3 m_clipPlanes[2];
             size_t m_numClipPoints;
+            ClipSide m_clipSide;
+            
+            Model::ParentChildrenMap m_frontBrushes;
+            Model::ParentChildrenMap m_backBrushes;
+
+            Renderer::BrushRenderer* m_remainingBrushRenderer;
+            Renderer::BrushRenderer* m_clippedBrushRenderer;
         public:
             ClipTool(MapDocumentWPtr document);
+            ~ClipTool();
             
             void toggleClipSide();
             void performClip();
@@ -75,8 +90,11 @@ namespace TrenchBroom {
             bool hasClipPoints() const;
             void deleteLastClipPoint();
             
-            bool reset();
-            
+            void reset();
+        private:
+            void resetClipPoints();
+            void resetClipSide();
+        public:
             void renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderClipPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHighlight(bool dragging, const Model::PickResult& pickResult, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -91,6 +109,19 @@ namespace TrenchBroom {
             void nodesDidChange(const Model::NodeList& nodes);
             
             void update();
+            
+            void updateBrushes();
+            void clipBrushes();
+            void deleteBrushes();
+            void setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const;
+            
+            void clearRenderers();
+            void updateRenderers();
+            bool keepFrontBrushes() const;
+            bool keepBackBrushes() const;
+
+            class AddBrushesToRendererVisitor;
+            void addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer);
         };
     }
 }
