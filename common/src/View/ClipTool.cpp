@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SetBool.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/HitQuery.h"
@@ -36,13 +37,13 @@
 namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ClipTool::ClipPointHit = Model::Hit::freeHitType();
-
+        
         ClipTool::ClipPlaneStrategy::~ClipPlaneStrategy() {}
         
         Vec3 ClipTool::ClipPlaneStrategy::snapClipPoint(const Grid& grid, const Vec3& point) const {
             return doSnapClipPoint(grid, point);
         }
-
+        
         ClipTool::ClipTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
@@ -50,7 +51,8 @@ namespace TrenchBroom {
         m_dragIndex(4),
         m_clipSide(ClipSide_Front),
         m_remainingBrushRenderer(new Renderer::BrushRenderer(false)),
-        m_clippedBrushRenderer(new Renderer::BrushRenderer(true)) {}
+        m_clippedBrushRenderer(new Renderer::BrushRenderer(true)),
+        m_ignoreNotifications(false) {}
         
         ClipTool::~ClipTool() {
             deleteBrushes();
@@ -74,8 +76,42 @@ namespace TrenchBroom {
         }
         
         void ClipTool::performClip() {
-
-            reset();
+            if (m_numClipPoints == 3) {
+                const SetBool ignoreNotifications(m_ignoreNotifications);
+                
+                MapDocumentSPtr document = lock(m_document);
+                
+                // need to make a copies here so that we are not affected by the deselection
+                const Model::NodeList toRemove = document->selectedNodes().nodes();
+                Model::NodeList addedNodes;
+                
+                const Transaction transaction(document, "Clip Brushes");
+                if (!m_frontBrushes.empty()) {
+                    if (keepFrontBrushes()) {
+                        const Model::NodeList addedFrontNodes = document->addNodes(m_frontBrushes);
+                        VectorUtils::append(addedNodes, addedFrontNodes);
+                        m_frontBrushes.clear();
+                    } else {
+                        MapUtils::clearAndDelete(m_frontBrushes);
+                    }
+                }
+                
+                if (!m_backBrushes.empty()) {
+                    if (keepBackBrushes()) {
+                        const Model::NodeList addedBackNodes = document->addNodes(m_backBrushes);
+                        VectorUtils::append(addedNodes, addedBackNodes);
+                        m_backBrushes.clear();
+                    } else {
+                        MapUtils::clearAndDelete(m_backBrushes);
+                    }
+                }
+                
+                document->deselectAll();
+                document->removeNodes(toRemove);
+                document->select(addedNodes);
+                
+                reset();
+            }
         }
         
         void ClipTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
@@ -109,7 +145,7 @@ namespace TrenchBroom {
             
             return true;
         }
-
+        
         bool ClipTool::beginDragClipPoint(const Model::PickResult& pickResult) {
             const Model::Hit& hit = pickResult.query().type(ClipPointHit).occluded().first();
             if (!hit.isMatch())
@@ -117,12 +153,12 @@ namespace TrenchBroom {
             m_dragIndex = hit.target<size_t>();
             return true;
         }
-
+        
         Vec3 ClipTool::draggedPointPosition() const {
             assert(m_dragIndex < m_numClipPoints);
             return m_clipPoints[m_dragIndex];
         }
-
+        
         bool ClipTool::dragClipPoint(const Vec3& newPosition, const ClipPlaneStrategy& strategy) {
             assert(m_dragIndex < m_numClipPoints);
             const Vec3 oldPosition = m_clipPoints[m_dragIndex];
@@ -130,7 +166,7 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
             m_clipPoints[m_dragIndex] = strategy.snapClipPoint(grid, newPosition);
-
+            
             if (m_numClipPoints == 3 && linearlyDependent(m_clipPoints[0], m_clipPoints[1], m_clipPoints[2])) {
                 m_clipPoints[m_dragIndex] = oldPosition;
                 return false;
@@ -164,7 +200,7 @@ namespace TrenchBroom {
         void ClipTool::resetClipSide() {
             m_clipSide = ClipSide_Front;
         }
-
+        
         void ClipTool::renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_remainingBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
             m_remainingBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
@@ -175,9 +211,8 @@ namespace TrenchBroom {
             m_remainingBrushRenderer->render(renderContext, renderBatch);
             
             m_clippedBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
-            m_clippedBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
-            m_clippedBrushRenderer->setShowOccludedEdges(true);
-            m_clippedBrushRenderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
+            m_clippedBrushRenderer->setEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
+            m_clippedBrushRenderer->setShowOccludedEdges(false);
             m_clippedBrushRenderer->setTint(false);
             m_clippedBrushRenderer->setTransparencyAlpha(0.5f);
             m_clippedBrushRenderer->render(renderContext, renderBatch);
@@ -217,14 +252,14 @@ namespace TrenchBroom {
                 }
             }
         }
-
+        
         void ClipTool::renderHighlight(const size_t index, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             assert(index < m_numClipPoints);
             
             Renderer::RenderService renderService(renderContext, renderBatch);
             renderService.renderPointHandleHighlight(m_clipPoints[index]);
         }
-
+        
         bool ClipTool::doActivate() {
             MapDocumentSPtr document = lock(m_document);
             if (!document->selectedNodes().hasOnlyBrushes())
@@ -257,24 +292,27 @@ namespace TrenchBroom {
         }
         
         void ClipTool::selectionDidChange(const Selection& selection) {
-            updateBrushes();
+            if (!m_ignoreNotifications)
+                update();
         }
         
         void ClipTool::nodesWillChange(const Model::NodeList& nodes) {
-            updateBrushes();
+            if (!m_ignoreNotifications)
+                update();
         }
         
         void ClipTool::nodesDidChange(const Model::NodeList& nodes) {
-            updateBrushes();
+            if (!m_ignoreNotifications)
+                update();
         }
-
+        
         void ClipTool::update() {
             clearRenderers();
             updateBrushes();
             updateRenderers();
             refreshViews();
         }
-
+        
         void ClipTool::updateBrushes() {
             deleteBrushes();
             clipBrushes();
@@ -324,7 +362,7 @@ namespace TrenchBroom {
             MapUtils::clearAndDelete(m_frontBrushes);
             MapUtils::clearAndDelete(m_backBrushes);
         }
-
+        
         void ClipTool::setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const {
             assert(!faces.empty());
             
@@ -353,7 +391,7 @@ namespace TrenchBroom {
             frontFace->setAttributes(bestFrontFace);
             backFace->setAttributes(bestBackFace);
         }
-
+        
         void ClipTool::clearRenderers() {
             m_remainingBrushRenderer->clear();
             m_clippedBrushRenderer->clear();
@@ -370,7 +408,7 @@ namespace TrenchBroom {
             else
                 addBrushesToRenderer(m_backBrushes, m_clippedBrushRenderer);
         }
-
+        
         bool ClipTool::keepFrontBrushes() const {
             return m_clipSide != ClipSide_Back;
         }
@@ -378,7 +416,7 @@ namespace TrenchBroom {
         bool ClipTool::keepBackBrushes() const {
             return m_clipSide != ClipSide_Front;
         }
-
+        
         class ClipTool::AddBrushesToRendererVisitor : public Model::NodeVisitor {
         private:
             Renderer::BrushRenderer* m_renderer;
