@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "CollectionUtils.h"
 #include "ToolBox.h"
 #include "SetBool.h"
 #include "View/InputState.h"
@@ -37,6 +38,41 @@ namespace TrenchBroom {
         m_ignoreNextClick(false),
         m_lastActivation(wxDateTime::Now()),
         m_enabled(true) {}
+
+        void ToolBox::addWindow(wxWindow* window) {
+            assert(window != NULL);
+            
+            window->Bind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
+            window->Bind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
+            m_focusGroup.push_back(window);
+        }
+
+        void ToolBox::OnSetFocus(wxFocusEvent& event) {
+            if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
+                m_ignoreNextClick = false;
+            clearFocusCursor();
+        }
+        
+        void ToolBox::OnKillFocus(wxFocusEvent& event) {
+            if (m_clickToActivate) {
+                const wxWindow* focusedWindow = event.GetWindow();
+                if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
+                    m_ignoreNextClick = true;
+                    setFocusCursor();
+                }
+            }
+            event.Skip();
+        }
+
+        void ToolBox::setFocusCursor() {
+            for (size_t i = 0; i < m_focusGroup.size(); ++i)
+                m_focusGroup[i]->SetCursor(wxCursor(wxCURSOR_HAND));
+        }
+        
+        void ToolBox::clearFocusCursor() {
+            for (size_t i = 0; i < m_focusGroup.size(); ++i)
+                m_focusGroup[i]->SetCursor(wxCursor(wxCURSOR_ARROW));
+        }
 
         void ToolBox::addTool(Tool* tool) {
             assert(tool != NULL);
@@ -65,17 +101,8 @@ namespace TrenchBroom {
             return m_ignoreNextClick;
         }
         
-        void ToolBox::setIgnoreNextClick() {
-            m_ignoreNextClick = true;
-        }
-        
         void ToolBox::clearIgnoreNextClick() {
             m_ignoreNextClick = false;
-        }
-
-        void ToolBox::clearIgnoreNextClickWithinActivationTime() {
-            if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
-                m_ignoreNextClick = false;
         }
 
         bool ToolBox::dragEnter(ToolChain* chain, const InputState& inputState, const String& text) {

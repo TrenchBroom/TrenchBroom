@@ -54,6 +54,7 @@ namespace TrenchBroom {
         m_animationManager(new AnimationManager()),
         m_renderer(renderer) {
             setToolBox(toolBox);
+            toolBox.addWindow(this);
             bindEvents();
             bindObservers();
             updateAcceleratorTable(HasFocus());

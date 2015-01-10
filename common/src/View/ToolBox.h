@@ -57,6 +57,9 @@ namespace TrenchBroom {
             typedef std::map<Tool*, ToolList> ToolMap;
             ToolMap m_deactivateWhen;
             
+            typedef std::vector<wxWindow*> WindowList;
+            WindowList m_focusGroup;
+            
             bool m_clickToActivate;
             bool m_ignoreNextClick;
             wxDateTime m_lastActivation;
@@ -68,6 +71,13 @@ namespace TrenchBroom {
             Notifier1<Tool*> refreshViewsNotifier;
         public:
             ToolBox();
+        public: // focus window management
+            void addWindow(wxWindow* window);
+        private:
+            void OnSetFocus(wxFocusEvent& event);
+            void OnKillFocus(wxFocusEvent& event);
+            void setFocusCursor();
+            void clearFocusCursor();
         protected:
             void addTool(Tool* tool);
         public: // picking
@@ -78,9 +88,7 @@ namespace TrenchBroom {
             void updateLastActivation();
             
             bool ignoreNextClick() const;
-            void setIgnoreNextClick();
             void clearIgnoreNextClick();
-            void clearIgnoreNextClickWithinActivationTime();
             
             bool dragEnter(ToolChain* chain, const InputState& inputState, const String& text);
             bool dragMove(ToolChain* chain, const InputState& inputState, const String& text);
