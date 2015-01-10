@@ -41,9 +41,16 @@ namespace TrenchBroom {
             class Filter {
             public:
                 virtual ~Filter();
-                virtual bool operator()(const Model::Brush* brush) const = 0;
-                virtual bool operator()(const Model::BrushFace* face) const = 0;
-                virtual bool operator()(const Model::BrushEdge* edge) const = 0;
+                
+                bool show(const Model::Brush* brush) const;
+                bool show(const Model::BrushFace* face) const;
+                bool show(const Model::BrushEdge* edge) const;
+                bool transparent(const Model::Brush* brush) const;
+            private:
+                virtual bool doShow(const Model::Brush* brush) const = 0;
+                virtual bool doShow(const Model::BrushFace* face) const = 0;
+                virtual bool doShow(const Model::BrushEdge* edge) const = 0;
+                virtual bool doIsTransparent(const Model::Brush* brush) const = 0;
             };
             
             class DefaultFilter : public Filter {
@@ -64,6 +71,18 @@ namespace TrenchBroom {
                 bool selected(const Model::BrushFace* face) const;
                 bool selected(const Model::BrushEdge* edge) const;
                 bool hasSelectedFaces(const Model::Brush* brush) const;
+            };
+            
+            class NoFilter : public Filter {
+            private:
+                bool m_transparent;
+            public:
+                NoFilter(bool transparent);
+            private:
+                bool doShow(const Model::Brush* brush) const;
+                bool doShow(const Model::BrushFace* face) const;
+                bool doShow(const Model::BrushEdge* edge) const;
+                bool doIsTransparent(const Model::Brush* brush) const;
             };
         private:
             Filter* m_filter;
@@ -94,6 +113,8 @@ namespace TrenchBroom {
             m_transparencyAlpha(1.0f),
             m_showHiddenBrushes(false) {}
             
+            BrushRenderer(bool transparent);
+            
             ~BrushRenderer();
 
             void addBrush(Model::Brush* brush);
@@ -102,7 +123,7 @@ namespace TrenchBroom {
             
             template <typename I>
             void addBrushes(I cur, I end, const size_t count) {
-                // m_brushes.reserve(m_brushes.size() * count);
+                // m_brushes.reserve(m_brushes.size() + count);
                 // m_brushes.insert(m_brushes.end(), cur, end);
                 m_brushes.insert(cur, end);
                 invalidate();
@@ -117,7 +138,7 @@ namespace TrenchBroom {
             }
             
             template <typename I>
-            void updateBBrushes(I cur, I end) {
+            void updateBrushes(I cur, I end) {
                 invalidate();
             }
             

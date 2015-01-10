@@ -54,6 +54,7 @@ namespace TrenchBroom {
         m_animationManager(new AnimationManager()),
         m_renderer(renderer) {
             setToolBox(toolBox);
+            toolBox.addWindow(this);
             bindEvents();
             bindObservers();
             updateAcceleratorTable(HasFocus());
@@ -85,6 +86,7 @@ namespace TrenchBroom {
             grid.gridDidChangeNotifier.addObserver(this, &MapViewBase::gridDidChange);
             
             m_toolBox.toolActivatedNotifier.addObserver(this, &MapViewBase::toolChanged);
+            m_toolBox.toolDeactivatedNotifier.addObserver(this, &MapViewBase::toolChanged);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapViewBase::preferenceDidChange);
@@ -104,8 +106,8 @@ namespace TrenchBroom {
                 grid.gridDidChangeNotifier.removeObserver(this, &MapViewBase::gridDidChange);
             }
             
-            // toolbox has already been deleted at this point
-            // m_toolBox.toolActivatedNotifier.removeObserver(this, &MapViewBase::toolChanged);
+            m_toolBox.toolActivatedNotifier.removeObserver(this, &MapViewBase::toolChanged);
+            m_toolBox.toolDeactivatedNotifier.removeObserver(this, &MapViewBase::toolChanged);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapViewBase::preferenceDidChange);
@@ -148,12 +150,11 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
             
-            /*
-             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipTool,               this, CommandIds::Actions::ToggleClipTool);
-             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
-             Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
-             Bind(wxEVT_MENU, &MapViewBase::OnDeleteLastClipPoint,          this, CommandIds::Actions::DeleteLastClipPoint);
-             */
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleClipTool,               this, CommandIds::Actions::ToggleClipTool);
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
+            Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
+            Bind(wxEVT_MENU, &MapViewBase::OnDeleteLastClipPoint,          this, CommandIds::Actions::DeleteLastClipPoint);
+            
             Bind(wxEVT_MENU, &MapViewBase::OnToggleVertexTool,             this, CommandIds::Actions::ToggleVertexTool);
             /*
              Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
@@ -422,6 +423,22 @@ namespace TrenchBroom {
             Refresh();
         }
         
+        void MapViewBase::OnToggleClipTool(wxCommandEvent& event) {
+            m_toolBox.toggleClipTool();
+        }
+        
+        void MapViewBase::OnToggleClipSide(wxCommandEvent& event) {
+            m_toolBox.toggleClipSide();
+        }
+        
+        void MapViewBase::OnPerformClip(wxCommandEvent& event) {
+            m_toolBox.performClip();
+        }
+        
+        void MapViewBase::OnDeleteLastClipPoint(wxCommandEvent& event) {
+            m_toolBox.deleteLastClipPoint();
+        }
+
         void MapViewBase::OnToggleVertexTool(wxCommandEvent& event) {
             m_toolBox.toggleVertexTool();
         }
@@ -472,10 +489,8 @@ namespace TrenchBroom {
             if (derivedContext != ActionContext_Default)
                 return derivedContext;
             
-            /*
-             if (clipToolActive())
-             return Action::Context_ClipTool;
-             */
+            if (m_toolBox.clipToolActive())
+                return ActionContext_ClipTool;
             if (m_toolBox.vertexToolActive())
                 return ActionContext_VertexTool;
             if (m_toolBox.rotateObjectsToolActive())

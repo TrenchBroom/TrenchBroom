@@ -265,12 +265,8 @@ namespace TrenchBroom {
             if (updateModifierKeys())
                 m_toolBox->modifierKeyChange(m_toolChain, m_inputState);
             m_window->Refresh();
-            m_window->SetCursor(wxCursor(wxCURSOR_ARROW));
             
             mouseMoved(m_window->ScreenToClient(wxGetMousePosition()));
-            
-            // if this focus event happens as a result of a window activation, the don't ignore the next click
-            m_toolBox->clearIgnoreNextClickWithinActivationTime();
             
             event.Skip();
         }
@@ -282,10 +278,6 @@ namespace TrenchBroom {
             releaseMouse();
             if (clearModifierKeys())
                 m_toolBox->modifierKeyChange(m_toolChain, m_inputState);
-            if (m_toolBox->clickToActivate()) {
-                m_toolBox->setIgnoreNextClick();
-                m_window->SetCursor(wxCursor(wxCURSOR_HAND));
-            }
             m_window->Refresh();
             event.Skip();
         }

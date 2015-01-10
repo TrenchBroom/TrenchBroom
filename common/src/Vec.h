@@ -776,6 +776,14 @@ public:
         const T distance = (*this - closestPoint).length();
         return EdgeDistance(closestPoint, distance);
     }
+
+    static Vec<T,S> average(const typename Vec<T,S>::List& vecs) {
+        assert(!vecs.empty());
+        Vec<T,S> sum;
+        for (size_t i = 0; i < vecs.size(); ++i)
+            sum += vecs[i];
+        return sum / static_cast<T>(vecs.size());
+    }
 };
 
 template <typename T, size_t S>
@@ -928,6 +936,19 @@ Vec<T,S> absMax(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
     for (size_t i = 0; i < S; ++i)
         result[i] = Math::absMax(lhs[i], rhs[i]);
     return result;
+}
+
+template <typename T>
+Vec<T,3> crossed(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
+    const Vec<T,3> v1 = point2 - point0;
+    const Vec<T,3> v2 = point1 - point0;
+    return crossed(v1, v2);
+}
+
+template <typename T>
+bool linearlyDependent(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
+    const Vec<T,3> normal = crossed(point0, point1, point2);
+    return normal.null();
 }
 
 #endif

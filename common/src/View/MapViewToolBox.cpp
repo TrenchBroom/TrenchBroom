@@ -18,6 +18,7 @@
  */
 
 #include "MapViewToolBox.h"
+#include "View/ClipTool.h"
 #include "View/CreateEntityTool.h"
 #include "View/MoveObjectsTool.h"
 #include "View/ResizeBrushesTool.h"
@@ -28,6 +29,7 @@
 namespace TrenchBroom {
     namespace View {
         MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
+        m_clipTool(NULL),
         m_createEntityTool(NULL),
         m_moveObjectsTool(NULL),
         m_resizeBrushesTool(NULL),
@@ -41,6 +43,10 @@ namespace TrenchBroom {
         MapViewToolBox::~MapViewToolBox() {
             unbindObservers();
             destroyTools();
+        }
+        
+        ClipTool* MapViewToolBox::clipTool() {
+            return m_clipTool;
         }
 
         CreateEntityTool* MapViewToolBox::createEntityTool() {
@@ -65,6 +71,29 @@ namespace TrenchBroom {
         
         VertexTool* MapViewToolBox::vertexTool() {
             return m_vertexTool;
+        }
+
+        void MapViewToolBox::toggleClipTool() {
+            toggleTool(m_clipTool);
+        }
+        
+        bool MapViewToolBox::clipToolActive() const {
+            return toolActive(m_clipTool);
+        }
+        
+        void MapViewToolBox::toggleClipSide() {
+            assert(clipToolActive());
+            m_clipTool->toggleClipSide();
+        }
+            
+        void MapViewToolBox::performClip() {
+            assert(clipToolActive());
+            m_clipTool->performClip();
+        }
+        
+        void MapViewToolBox::deleteLastClipPoint() {
+            assert(clipToolActive());
+            m_clipTool->deleteLastClipPoint();
         }
 
         void MapViewToolBox::toggleRotateObjectsTool() {
@@ -100,6 +129,7 @@ namespace TrenchBroom {
         }
 
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
+            m_clipTool = new ClipTool(document);
             m_createEntityTool = new CreateEntityTool(document);
             m_moveObjectsTool = new MoveObjectsTool(document);
             m_resizeBrushesTool = new ResizeBrushesTool(document);
@@ -111,17 +141,19 @@ namespace TrenchBroom {
             deactivateWhen(m_rotateObjectsTool, m_resizeBrushesTool);
             deactivateWhen(m_vertexTool, m_moveObjectsTool);
             deactivateWhen(m_vertexTool, m_resizeBrushesTool);
-            // deactivateWhen(m_clipTool, m_resizeBrushesTool);
+            deactivateWhen(m_clipTool, m_moveObjectsTool);
+            deactivateWhen(m_clipTool, m_resizeBrushesTool);
             
             m_moveObjectsTool->createPage(bookCtrl);
             m_rotateObjectsTool->createPage(bookCtrl);
             
-            m_createEntityTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            m_moveObjectsTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            m_resizeBrushesTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            m_rotateObjectsTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            m_selectionTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
-            m_vertexTool->refreshViewsNotifier.addObserver(refreshViewsNotifier);
+            addTool(m_clipTool);
+            addTool(m_createEntityTool);
+            addTool(m_moveObjectsTool);
+            addTool(m_resizeBrushesTool);
+            addTool(m_rotateObjectsTool);
+            addTool(m_selectionTool);
+            addTool(m_vertexTool);
         }
         
         void MapViewToolBox::destroyTools() {
@@ -131,6 +163,7 @@ namespace TrenchBroom {
             delete m_resizeBrushesTool;
             delete m_moveObjectsTool;
             delete m_createEntityTool;
+            delete m_clipTool;
         }
         
         void MapViewToolBox::bindObservers() {

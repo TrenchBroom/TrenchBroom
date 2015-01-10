@@ -36,6 +36,11 @@ namespace TrenchBroom {
     namespace Renderer {
         BrushRenderer::Filter::~Filter() {}
         
+        bool BrushRenderer::Filter::show(const Model::Brush* brush) const         { return doShow(brush); }
+        bool BrushRenderer::Filter::show(const Model::BrushFace* face) const      { return doShow(face);  }
+        bool BrushRenderer::Filter::show(const Model::BrushEdge* edge) const      { return doShow(edge);  }
+        bool BrushRenderer::Filter::transparent(const Model::Brush* brush) const  { return doIsTransparent(brush); }
+
         BrushRenderer::DefaultFilter::~DefaultFilter() {}
         BrushRenderer::DefaultFilter::DefaultFilter(const Model::EditorContext& context) : m_context(context) {}
 
@@ -55,6 +60,22 @@ namespace TrenchBroom {
         }
         bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::Brush* brush) const { return brush->descendantSelected(); }
 
+        BrushRenderer::NoFilter::NoFilter(const bool transparent) : m_transparent(transparent) {}
+
+        bool BrushRenderer::NoFilter::doShow(const Model::Brush* brush) const { return true; }
+        bool BrushRenderer::NoFilter::doShow(const Model::BrushFace* face) const { return true; }
+        bool BrushRenderer::NoFilter::doShow(const Model::BrushEdge* edge) const { return true; }
+        bool BrushRenderer::NoFilter::doIsTransparent(const Model::Brush* brush) const { return m_transparent; }
+
+        BrushRenderer::BrushRenderer(const bool transparent) :
+        m_filter(new NoFilter(transparent)),
+        m_valid(false),
+        m_grayscale(false),
+        m_tint(false),
+        m_showOccludedEdges(false),
+        m_transparencyAlpha(1.0f),
+        m_showHiddenBrushes(false) {}
+        
         BrushRenderer::~BrushRenderer() {
             delete m_filter;
             m_filter = NULL;
@@ -169,9 +190,10 @@ namespace TrenchBroom {
             m_filter(filter),
             m_showHiddenBrushes(showHiddenBrushes) {}
             
-            bool operator()(const Model::Brush* brush) const    { return m_showHiddenBrushes || m_filter(brush); }
-            bool operator()(const Model::BrushFace* face) const { return m_showHiddenBrushes || m_filter(face); }
-            bool operator()(const Model::BrushEdge* edge) const { return m_showHiddenBrushes || m_filter(edge); }
+            bool doShow(const Model::Brush* brush) const    { return m_showHiddenBrushes || m_filter.show(brush); }
+            bool doShow(const Model::BrushFace* face) const { return m_showHiddenBrushes || m_filter.show(face); }
+            bool doShow(const Model::BrushEdge* edge) const { return m_showHiddenBrushes || m_filter.show(edge); }
+            bool doIsTransparent(const Model::Brush* brush) const { return m_filter.transparent(brush); }
         };
 
         class CountRenderDataSize : public Model::ConstNodeVisitor {
@@ -200,8 +222,8 @@ namespace TrenchBroom {
                 Model::BrushFaceList::const_iterator it, end;
                 for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                     const Model::BrushFace* face = *it;
-                    if (filter(face)) {
-                        if (brush->transparent())
+                    if (filter.show(face)) {
+                        if (filter.transparent(brush))
                             transparentMeshSize.addSet(face->texture(), face->vertexCount());
                         else
                             opaqueMeshSize.addSet(face->texture(), face->vertexCount());
@@ -214,7 +236,7 @@ namespace TrenchBroom {
                 Model::BrushEdgeList::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
-                    if (filter(edge))
+                    if (filter.show(edge))
                         edgeVertexCount += 2;
                 }
             }
@@ -252,8 +274,8 @@ namespace TrenchBroom {
                 Model::BrushFaceList::const_iterator it, end;
                 for (it = faces.begin(), end = faces.end(); it != end; ++it) {
                     const Model::BrushFace* face = *it;
-                    if (filter(face)) {
-                        if (brush->transparent())
+                    if (filter.show(face)) {
+                        if (filter.transparent(brush))
                             face->addToMesh(transparentMesh);
                         else
                             face->addToMesh(opaqueMesh);
@@ -266,7 +288,7 @@ namespace TrenchBroom {
                 Model::BrushEdgeList::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
-                    if (filter(edge)) {
+                    if (filter.show(edge)) {
                         edgeVertices.push_back(VertexSpecs::P3::Vertex(edge->start->position));
                         edgeVertices.push_back(VertexSpecs::P3::Vertex(edge->end->position));
                     }

@@ -229,10 +229,8 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>* points) {
             
 template <typename T>
 bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
-    const Vec<T,3> v1 = point2 - point0;
-    const Vec<T,3> v2 = point1 - point0;
-    const Vec<T,3> normal = crossed(v1, v2);
-    if (normal.equals(Vec<T,3>::Null, Math::Constants<T>::almostZero()))
+    const Vec<T,3> normal = crossed(point0, point1, point2);
+    if (normal.null())
         return false;
     plane.normal = normal.normalized();
     plane.distance = point0.dot(plane.normal);

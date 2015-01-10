@@ -130,6 +130,11 @@ namespace TrenchBroom {
             void OnMoveRotationCenterDown(wxCommandEvent& event);
             void moveRotationCenter(Math::Direction direction);
             
+            void OnToggleClipTool(wxCommandEvent& event);
+            void OnToggleClipSide(wxCommandEvent& event);
+            void OnPerformClip(wxCommandEvent& event);
+            void OnDeleteLastClipPoint(wxCommandEvent& event);
+            
             void OnToggleVertexTool(wxCommandEvent& event);
             
             void OnCancel(wxCommandEvent& event);

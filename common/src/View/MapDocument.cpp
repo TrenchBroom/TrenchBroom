@@ -24,6 +24,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/TextureCollectionSpec.h"
+#include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/SystemPaths.h"
@@ -92,16 +93,18 @@ namespace TrenchBroom {
         m_textureLock(false),
         m_path(DefaultDocumentName),
         m_modificationCount(0),
+        m_currentTextureName(Model::BrushFace::NoTextureName),
         m_selectionBoundsValid(true) {
             bindObservers();
         }
-        
+
         MapDocument::~MapDocument() {
             unbindObservers();
             
             if (isPointFileLoaded())
                 unloadPointFile();
             clearWorld();
+            
             delete m_grid;
             delete m_mapViewConfig;
             delete m_textureManager;
@@ -359,6 +362,10 @@ namespace TrenchBroom {
             return m_selectionBounds;
         }
 
+        const String& MapDocument::currentTextureName() const {
+            return m_currentTextureName;
+        }
+
         void MapDocument::selectAllNodes() {
             submit(SelectionCommand::selectAllNodes());
         }
@@ -440,6 +447,7 @@ namespace TrenchBroom {
         
         void MapDocument::select(Model::BrushFace* face) {
             submit(SelectionCommand::select(Model::BrushFaceList(1, face)));
+            m_currentTextureName = face->textureName();
         }
         
         void MapDocument::convertToFaceSelection() {
@@ -451,9 +459,13 @@ namespace TrenchBroom {
         }
         
         void MapDocument::deselect(Model::Node* node) {
-            submit(SelectionCommand::deselect(Model::NodeList(1, node)));
+            deselect(Model::NodeList(1, node));
         }
         
+        void MapDocument::deselect(const Model::NodeList& nodes) {
+            submit(SelectionCommand::deselect(nodes));
+        }
+
         void MapDocument::deselect(Model::BrushFace* face) {
             submit(SelectionCommand::deselect(Model::BrushFaceList(1, face)));
         }
@@ -567,7 +579,12 @@ namespace TrenchBroom {
         bool MapDocument::setTexture(Assets::Texture* texture) {
             Model::ChangeBrushFaceAttributesRequest request;
             request.setTexture(texture);
-            return submit(ChangeBrushFaceAttributesCommand::command(request));
+            if (submit(ChangeBrushFaceAttributesCommand::command(request))) {
+                if (texture != NULL)
+                    m_currentTextureName = texture->name();
+                return true;
+            }
+            return false;
         }
         
         bool MapDocument::setFaceAttributes(const Model::BrushFaceAttributes& attributes) {

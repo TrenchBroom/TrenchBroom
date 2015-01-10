@@ -226,6 +226,20 @@ namespace TrenchBroom {
             return true;
         }
 
+        BrushFaceList Brush::incidentFaces(const BrushVertex* vertex) const {
+            const BrushFaceGeometryList sides = m_geometry->incidentSides(vertex);
+            BrushFaceList result;
+            result.reserve(sides.size());
+            
+            BrushFaceGeometryList::const_iterator it, end;
+            for (it = sides.begin(), end = sides.end(); it != end; ++it) {
+                const BrushFaceGeometry& side = **it;
+                result.push_back(side.face);
+            }
+            
+            return result;
+        }
+
         bool Brush::canMoveVertices(const BBox3& worldBounds, const Vec3::List& vertexPositions, const Vec3& delta) {
             assert(m_geometry != NULL);
             assert(!vertexPositions.empty());

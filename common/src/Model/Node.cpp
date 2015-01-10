@@ -34,6 +34,8 @@ namespace TrenchBroom {
         m_selected(false),
         m_childSelectionCount(0),
         m_descendantSelectionCount(0),
+        m_lineNumber(0),
+        m_lineCount(0),
         m_familyIssueCount(0),
         m_hiddenIssues(0) {}
         
