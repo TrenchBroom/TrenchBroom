@@ -38,24 +38,40 @@ namespace TrenchBroom {
     namespace View {
         const Model::Hit::HitType ClipTool::ClipPointHit = Model::Hit::freeHitType();
         
-        ClipTool::ClipPlaneStrategy::~ClipPlaneStrategy() {}
+        ClipTool::ClipPointSnapper::~ClipPointSnapper() {}
         
-        Vec3 ClipTool::ClipPlaneStrategy::snapClipPoint(const Grid& grid, const Vec3& point) const {
+        Vec3 ClipTool::ClipPointSnapper::snapClipPoint(const Grid& grid, const Vec3& point) const {
             return doSnapClipPoint(grid, point);
         }
         
+        ClipTool::ClipPointStrategy::~ClipPointStrategy() {}
+        
+        bool ClipTool::ClipPointStrategy::computeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const {
+            return doComputeThirdClipPoint(point1, point2, point3);
+        }
+
+        ClipTool::ClipPointStrategyFactory::~ClipPointStrategyFactory() {}
+        
+        const ClipTool::ClipPointStrategy* ClipTool::ClipPointStrategyFactory::createStrategy() const {
+            return doCreateStrategy();
+        }
+
+        ClipTool::ClipPointStrategy* ClipTool::NullClipPointStrategyFactory::doCreateStrategy() const { return NULL; }
+
         ClipTool::ClipTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
         m_numClipPoints(0),
         m_dragIndex(4),
         m_clipSide(ClipSide_Front),
+        m_clipPointStrategy(NULL),
         m_remainingBrushRenderer(new Renderer::BrushRenderer(false)),
         m_clippedBrushRenderer(new Renderer::BrushRenderer(true)),
         m_ignoreNotifications(false) {}
         
         ClipTool::~ClipTool() {
             deleteBrushes();
+            delete m_clipPointStrategy;
             delete m_remainingBrushRenderer;
             delete m_clippedBrushRenderer;
         }
@@ -130,13 +146,16 @@ namespace TrenchBroom {
             return document->selectionBounds().center();
         }
         
-        bool ClipTool::addClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy) {
+        bool ClipTool::addClipPoint(const Vec3& point, const ClipPointSnapper& snapper, const ClipPointStrategyFactory& factory) {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
             
-            const Vec3 snappedPoint = strategy.snapClipPoint(grid, point);
+            const Vec3 snappedPoint = snapper.snapClipPoint(grid, point);
             if (m_numClipPoints == 2 && linearlyDependent(m_clipPoints[0], m_clipPoints[1], snappedPoint))
                 return false;
+            
+            if (m_numClipPoints == 1)
+                m_clipPointStrategy = factory.createStrategy();
             
             m_clipPoints[m_numClipPoints] = snappedPoint;
             ++m_numClipPoints;
@@ -159,13 +178,13 @@ namespace TrenchBroom {
             return m_clipPoints[m_dragIndex];
         }
         
-        bool ClipTool::dragClipPoint(const Vec3& newPosition, const ClipPlaneStrategy& strategy) {
+        bool ClipTool::dragClipPoint(const Vec3& newPosition, const ClipPointSnapper& snapper) {
             assert(m_dragIndex < m_numClipPoints);
             const Vec3 oldPosition = m_clipPoints[m_dragIndex];
             
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
-            m_clipPoints[m_dragIndex] = strategy.snapClipPoint(grid, newPosition);
+            m_clipPoints[m_dragIndex] = snapper.snapClipPoint(grid, newPosition);
             
             if (m_numClipPoints == 3 && linearlyDependent(m_clipPoints[0], m_clipPoints[1], m_clipPoints[2])) {
                 m_clipPoints[m_dragIndex] = oldPosition;
@@ -183,6 +202,8 @@ namespace TrenchBroom {
         void ClipTool::deleteLastClipPoint() {
             if (m_numClipPoints > 0) {
                 --m_numClipPoints;
+                if (m_numClipPoints < 2)
+                    resetClipPointStrategy();
                 update();
             }
         }
@@ -195,12 +216,52 @@ namespace TrenchBroom {
         
         void ClipTool::resetClipPoints() {
             m_numClipPoints = 0;
+            resetClipPointStrategy();
         }
         
         void ClipTool::resetClipSide() {
             m_clipSide = ClipSide_Front;
         }
         
+        void ClipTool::resetClipPointStrategy() {
+            delete m_clipPointStrategy;
+            m_clipPointStrategy = NULL;
+        }
+
+        bool ClipTool::canClip() const {
+            if (m_numClipPoints < 2)
+                return false;
+            if (m_numClipPoints == 2 && m_clipPointStrategy == NULL)
+                return false;
+
+            if (m_numClipPoints == 2 && m_clipPointStrategy != NULL) {
+                Vec3 point;
+                if (!virtualClipPoint(point))
+                    return false;
+            }
+            
+            return true;
+        }
+        
+        Vec3 ClipTool::clipPoint(const size_t index) const {
+            assert(index < m_numClipPoints || (m_numClipPoints == 2 && m_clipPointStrategy != NULL));
+
+            if (index == 2 && m_numClipPoints == 2) {
+                Vec3 thirdPoint;
+                const bool success = virtualClipPoint(thirdPoint);
+                assert(success);
+                return thirdPoint;
+            }
+            
+            return m_clipPoints[index];
+        }
+
+        bool ClipTool::virtualClipPoint(Vec3& point) const {
+            assert(m_clipPointStrategy != NULL);
+            assert(m_numClipPoints == 2);
+            return m_clipPointStrategy->computeThirdClipPoint(m_clipPoints[0], m_clipPoints[1], point);
+        }
+
         void ClipTool::renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_remainingBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
             m_remainingBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
@@ -323,15 +384,19 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = document->selectedNodes().brushes();
             const BBox3& worldBounds = document->worldBounds();
             
-            if (m_numClipPoints == 3) {
+            if (canClip()) {
+                const Vec3 point1 = clipPoint(0);
+                const Vec3 point2 = clipPoint(1);
+                const Vec3 point3 = clipPoint(2);
+                
                 Model::World* world = document->world();
                 Model::BrushList::const_iterator bIt, bEnd;
                 for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                     Model::Brush* brush = *bIt;
                     Model::Node* parent = brush->parent();
                     
-                    Model::BrushFace* frontFace = world->createFace(m_clipPoints[0], m_clipPoints[1], m_clipPoints[2], document->currentTextureName());
-                    Model::BrushFace* backFace = world->createFace(m_clipPoints[0], m_clipPoints[2], m_clipPoints[1], document->currentTextureName());
+                    Model::BrushFace* frontFace = world->createFace(point1, point2, point3, document->currentTextureName());
+                    Model::BrushFace* backFace = world->createFace(point1, point3, point2, document->currentTextureName());
                     setFaceAttributes(brush->faces(), frontFace, backFace);
                     
                     Model::Brush* frontBrush = brush->clone(worldBounds);

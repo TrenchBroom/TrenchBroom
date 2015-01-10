@@ -47,12 +47,33 @@ namespace TrenchBroom {
         public:
             static const Model::Hit::HitType ClipPointHit;
 
-            class ClipPlaneStrategy {
+            class ClipPointSnapper {
             public:
-                virtual ~ClipPlaneStrategy();
+                virtual ~ClipPointSnapper();
                 Vec3 snapClipPoint(const Grid& grid, const Vec3& point) const;
             private:
                 virtual Vec3 doSnapClipPoint(const Grid& grid, const Vec3& point) const = 0;
+            };
+            
+            class ClipPointStrategy {
+            public:
+                virtual ~ClipPointStrategy();
+                bool computeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const;
+            private:
+                virtual bool doComputeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const = 0;
+            };
+            
+            class ClipPointStrategyFactory {
+            public:
+                virtual ~ClipPointStrategyFactory();
+                const ClipPointStrategy* createStrategy() const;
+            private:
+                virtual ClipPointStrategy* doCreateStrategy() const = 0;
+            };
+            
+            class NullClipPointStrategyFactory : public ClipPointStrategyFactory {
+            private:
+                ClipPointStrategy* doCreateStrategy() const;
             };
         private:
             enum ClipSide {
@@ -66,6 +87,8 @@ namespace TrenchBroom {
             size_t m_numClipPoints;
             size_t m_dragIndex;
             ClipSide m_clipSide;
+            
+            const ClipPointStrategy* m_clipPointStrategy;
             
             Model::ParentChildrenMap m_frontBrushes;
             Model::ParentChildrenMap m_backBrushes;
@@ -85,11 +108,11 @@ namespace TrenchBroom {
             
             Vec3 defaultClipPointPos() const;
             
-            bool addClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy);
+            bool addClipPoint(const Vec3& point, const ClipPointSnapper& snapper, const ClipPointStrategyFactory& factory = NullClipPointStrategyFactory());
         public:
             bool beginDragClipPoint(const Model::PickResult& pickResult);
             Vec3 draggedPointPosition() const;
-            bool dragClipPoint(const Vec3& newPosition, const ClipPlaneStrategy& strategy);
+            bool dragClipPoint(const Vec3& newPosition, const ClipPointSnapper& snapper);
 
             bool hasClipPoints() const;
             void deleteLastClipPoint();
@@ -98,6 +121,11 @@ namespace TrenchBroom {
         private:
             void resetClipPoints();
             void resetClipSide();
+            void resetClipPointStrategy();
+            
+            bool canClip() const;
+            Vec3 clipPoint(size_t index) const;
+            bool virtualClipPoint(Vec3& point) const;
         public:
             void renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderClipPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

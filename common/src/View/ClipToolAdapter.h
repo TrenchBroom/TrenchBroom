@@ -106,7 +106,9 @@ namespace TrenchBroom {
         public:
             ClipToolAdapter2D(ClipTool* tool, const Grid& grid);
         private:
-            class ClipPlaneStrategy;
+            class ClipPointSnapper;
+            class ClipPointStrategy;
+            class ClipPointStrategyFactory;
 
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
@@ -121,7 +123,7 @@ namespace TrenchBroom {
         public:
             ClipToolAdapter3D(ClipTool* tool, const Grid& grid);
         private:
-            class ClipPlaneStrategy;
+            class ClipPointSnapper;
             
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
