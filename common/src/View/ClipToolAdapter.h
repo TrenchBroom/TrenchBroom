@@ -70,7 +70,7 @@ namespace TrenchBroom {
             }
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) {
-                m_tool->pick(inputState.pickRay(), pickResult);
+                m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
             }
             
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
@@ -92,11 +92,11 @@ namespace TrenchBroom {
                 return false;
             }
         protected:
-            bool canStartDrag(const InputState& inputState) {
+            bool startDrag(const InputState& inputState) {
                 if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                     inputState.modifierKeys() != ModifierKeys::MKNone)
                     return false;
-                return true;
+                return m_tool->beginDragClipPoint(inputState.pickResult());
             }
         private: // subclassing interface
             virtual bool doAddClipPoint(const InputState& inputState) = 0;
@@ -106,13 +106,14 @@ namespace TrenchBroom {
         public:
             ClipToolAdapter2D(ClipTool* tool, const Grid& grid);
         private:
+            class ClipPlaneStrategy;
+
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
             void doEndPlaneDrag(const InputState& inputState);
             void doCancelPlaneDrag();
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             
-            class ClipPlaneStrategy;
             bool doAddClipPoint(const InputState& inputState);
         };
         
@@ -120,12 +121,13 @@ namespace TrenchBroom {
         public:
             ClipToolAdapter3D(ClipTool* tool, const Grid& grid);
         private:
+            class ClipPlaneStrategy;
+            
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
             
-            class ClipPlaneStrategy;
             bool doAddClipPoint(const InputState& inputState);
         };
     }

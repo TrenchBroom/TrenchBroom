@@ -939,11 +939,16 @@ Vec<T,S> absMax(const Vec<T,S>& lhs, const Vec<T,S>& rhs) {
 }
 
 template <typename T>
-bool linearlyDependent(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
+Vec<T,3> crossed(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
     const Vec<T,3> v1 = point2 - point0;
     const Vec<T,3> v2 = point1 - point0;
-    const Vec<T,3> normal = crossed(v1, v2);
-    return normal.equals(Vec<T,3>::Null, Math::Constants<T>::almostZero());
+    return crossed(v1, v2);
+}
+
+template <typename T>
+bool linearlyDependent(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
+    const Vec<T,3> normal = crossed(point0, point1, point2);
+    return normal.null();
 }
 
 #endif

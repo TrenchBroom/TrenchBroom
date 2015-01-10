@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Model/Hit.h"
 #include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
@@ -33,6 +34,7 @@ namespace TrenchBroom {
     
     namespace Renderer {
         class BrushRenderer;
+        class Camera;
         class RenderBatch;
         class RenderContext;
     }
@@ -43,15 +45,14 @@ namespace TrenchBroom {
 
         class ClipTool : public Tool {
         public:
+            static const Model::Hit::HitType ClipPointHit;
+
             class ClipPlaneStrategy {
             public:
                 virtual ~ClipPlaneStrategy();
-                
                 Vec3 snapClipPoint(const Grid& grid, const Vec3& point) const;
-                void computeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const;
             private:
                 virtual Vec3 doSnapClipPoint(const Grid& grid, const Vec3& point) const = 0;
-                virtual void doComputeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const = 0;
             };
         private:
             enum ClipSide {
@@ -62,8 +63,8 @@ namespace TrenchBroom {
         private:
             MapDocumentWPtr m_document;
             Vec3 m_clipPoints[3];
-            Vec3 m_virtualClipPoint;
             size_t m_numClipPoints;
+            size_t m_dragIndex;
             ClipSide m_clipSide;
             
             Model::ParentChildrenMap m_frontBrushes;
@@ -78,17 +79,15 @@ namespace TrenchBroom {
             void toggleClipSide();
             void performClip();
 
-            void pick(const Ray3& pickRay, Model::PickResult& pickResult);
+            void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
             
             Vec3 defaultClipPointPos() const;
             
             bool addClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy);
-        private:
-            bool addFirstClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy);
-            bool addSecondClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy);
-            bool addThirdClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy);
         public:
-            bool updateClipPoint(size_t index, const Vec3& newPosition, const ClipPlaneStrategy& strategy);
+            bool beginDragClipPoint(const Model::PickResult& pickResult);
+            Vec3 draggedPointPosition() const;
+            bool dragClipPoint(const Vec3& newPosition, const ClipPlaneStrategy& strategy);
 
             bool hasClipPoints() const;
             void deleteLastClipPoint();
@@ -101,6 +100,8 @@ namespace TrenchBroom {
             void renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderClipPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderHighlight(bool dragging, const Model::PickResult& pickResult, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        private:
+            void renderHighlight(size_t index, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             bool doActivate();
             bool doDeactivate();

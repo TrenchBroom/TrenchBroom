@@ -24,28 +24,30 @@
 #include "Preferences.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/HitQuery.h"
 #include "Model/World.h"
+#include "Model/PickResult.h"
 #include "Renderer/BrushRenderer.h"
+#include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
     namespace View {
+        const Model::Hit::HitType ClipTool::ClipPointHit = Model::Hit::freeHitType();
+
         ClipTool::ClipPlaneStrategy::~ClipPlaneStrategy() {}
         
         Vec3 ClipTool::ClipPlaneStrategy::snapClipPoint(const Grid& grid, const Vec3& point) const {
             return doSnapClipPoint(grid, point);
         }
 
-        bool ClipTool::ClipPlaneStrategy::computeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const {
-            return doComputeThirdClipPoint(point1, point2, point3);
-        }
-
         ClipTool::ClipTool(MapDocumentWPtr document) :
         Tool(false),
         m_document(document),
         m_numClipPoints(0),
+        m_dragIndex(4),
         m_clipSide(ClipSide_Front),
         m_remainingBrushRenderer(new Renderer::BrushRenderer(false)),
         m_clippedBrushRenderer(new Renderer::BrushRenderer(true)) {}
@@ -68,6 +70,7 @@ namespace TrenchBroom {
                     m_clipSide = ClipSide_Front;
                     break;
             }
+            update();
         }
         
         void ClipTool::performClip() {
@@ -75,7 +78,15 @@ namespace TrenchBroom {
             reset();
         }
         
-        void ClipTool::pick(const Ray3& pickRay, Model::PickResult& pickResult) {
+        void ClipTool::pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) {
+            for (size_t i = 0; i < m_numClipPoints; ++i) {
+                const Vec3& point = m_clipPoints[i];
+                const FloatType distance = camera.pickPointHandle(pickRay, point, pref(Preferences::HandleRadius));
+                if (!Math::isnan(distance)) {
+                    const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+                    pickResult.addHit(Model::Hit(ClipPointHit, distance, hitPoint, i));
+                }
+            }
         }
         
         Vec3 ClipTool::defaultClipPointPos() const {
@@ -84,65 +95,49 @@ namespace TrenchBroom {
         }
         
         bool ClipTool::addClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy) {
-            switch (m_numClipPoints) {
-                case 0:
-                    return addFirstClipPoint(point, strategy);
-                case 1:
-                    return addSecondClipPoint(point, strategy);
-                case 2:
-                    return addThirdClipPoint(point, strategy);
-                default:
-                    return false;
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            
+            const Vec3 snappedPoint = strategy.snapClipPoint(grid, point);
+            if (m_numClipPoints == 2 && linearlyDependent(m_clipPoints[0], m_clipPoints[1], snappedPoint))
+                return false;
+            
+            m_clipPoints[m_numClipPoints] = snappedPoint;
+            ++m_numClipPoints;
+            
+            update();
+            
+            return true;
+        }
+
+        bool ClipTool::beginDragClipPoint(const Model::PickResult& pickResult) {
+            const Model::Hit& hit = pickResult.query().type(ClipPointHit).occluded().first();
+            if (!hit.isMatch())
+                return false;
+            m_dragIndex = hit.target<size_t>();
+            return true;
+        }
+
+        Vec3 ClipTool::draggedPointPosition() const {
+            assert(m_dragIndex < m_numClipPoints);
+            return m_clipPoints[m_dragIndex];
+        }
+
+        bool ClipTool::dragClipPoint(const Vec3& newPosition, const ClipPlaneStrategy& strategy) {
+            assert(m_dragIndex < m_numClipPoints);
+            const Vec3 oldPosition = m_clipPoints[m_dragIndex];
+            
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            m_clipPoints[m_dragIndex] = strategy.snapClipPoint(grid, newPosition);
+
+            if (m_numClipPoints == 3 && linearlyDependent(m_clipPoints[0], m_clipPoints[1], m_clipPoints[2])) {
+                m_clipPoints[m_dragIndex] = oldPosition;
+                return false;
             }
-        }
-        
-        bool ClipTool::addFirstClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy) {
-            assert(m_numClipPoints == 0);
             
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            m_clipPoints[0] = strategy.snapClipPoint(grid, point);
-            ++m_numClipPoints;
+            update();
             return true;
-        }
-        
-        bool ClipTool::addSecondClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy) {
-            assert(m_numClipPoints == 1);
-
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            const Vec3 snappedPoint = strategy.snapClipPoint(grid, point);
-            if (snappedPoint == m_clipPoints[0])
-                return false;
-            
-            strategy.computeThirdClipPoint(m_clipPoints[0], snappedPoint, m_virtualClipPoint);
-            if (linearlyDependent(m_clipPoints[0], snappedPoint, m_virtualClipPoint))
-                return false;
-            
-            m_clipPoints[1] = snappedPoint;
-            m_clipPoints[2] = m_virtualClipPoint;
-            ++m_numClipPoints;
-            
-            return true;
-        }
-        
-        bool ClipTool::addThirdClipPoint(const Vec3& point, const ClipPlaneStrategy& strategy) {
-            assert(m_numClipPoints == 2);
-            
-            MapDocumentSPtr document = lock(m_document);
-            const Grid& grid = document->grid();
-            const Vec3 snappedPoint = strategy.snapClipPoint(grid, point);
-            if (linearlyDependent(m_clipPoints[0], m_clipPoints[1], snappedPoint))
-                return false;
-
-            m_clipPoints[2] = snappedPoint;
-            ++m_numClipPoints;
-            
-            return true;
-        }
-
-        bool ClipTool::updateClipPoint(const size_t index, const Vec3& newPosition, const ClipPlaneStrategy& strategy) {
-            return false;
         }
         
         bool ClipTool::hasClipPoints() const {
@@ -152,8 +147,6 @@ namespace TrenchBroom {
         void ClipTool::deleteLastClipPoint() {
             if (m_numClipPoints > 0) {
                 --m_numClipPoints;
-                if (m_numClipPoints == 2)
-                    m_clipPoints[2] = m_virtualClipPoint;
                 update();
             }
         }
@@ -214,6 +207,22 @@ namespace TrenchBroom {
         }
         
         void ClipTool::renderHighlight(const bool dragging, const Model::PickResult& pickResult, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            if (dragging) {
+                renderHighlight(m_dragIndex, renderContext, renderBatch);
+            } else {
+                const Model::Hit& hit = pickResult.query().type(ClipPointHit).occluded().first();
+                if (hit.isMatch()) {
+                    const size_t index = hit.target<size_t>();
+                    renderHighlight(index, renderContext, renderBatch);
+                }
+            }
+        }
+
+        void ClipTool::renderHighlight(const size_t index, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            assert(index < m_numClipPoints);
+            
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.renderPointHandleHighlight(m_clipPoints[index]);
         }
 
         bool ClipTool::doActivate() {
@@ -263,6 +272,7 @@ namespace TrenchBroom {
             clearRenderers();
             updateBrushes();
             updateRenderers();
+            refreshViews();
         }
 
         void ClipTool::updateBrushes() {
@@ -275,7 +285,7 @@ namespace TrenchBroom {
             const Model::BrushList& brushes = document->selectedNodes().brushes();
             const BBox3& worldBounds = document->worldBounds();
             
-            if (m_numClipPoints >= 2) {
+            if (m_numClipPoints == 3) {
                 Model::World* world = document->world();
                 Model::BrushList::const_iterator bIt, bEnd;
                 for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {

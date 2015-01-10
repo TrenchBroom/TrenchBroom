@@ -24,6 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
 #include "Model/Hit.h"
+#include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
@@ -35,36 +36,36 @@ namespace TrenchBroom {
     namespace View {
         ClipToolAdapter2D::ClipToolAdapter2D(ClipTool* tool, const Grid& grid) :
         ClipToolAdapter(tool, grid) {}
+        
+        class ClipToolAdapter2D::ClipPlaneStrategy : public ClipTool::ClipPlaneStrategy {
+        public:
+            ClipPlaneStrategy() {}
+        private:
+            Vec3 doSnapClipPoint(const Grid& grid, const Vec3& point) const {
+                return grid.snap(point);
+            }
+        };
 
         bool ClipToolAdapter2D::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
-            if (!canStartDrag(inputState))
+            if (!startDrag(inputState))
                 return false;
-            return false;
+            
+            initialPoint = m_tool->draggedPointPosition();
+            plane = Plane3(initialPoint, inputState.camera().direction().firstAxis());
+            return true;
         }
         
         bool ClipToolAdapter2D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+            
+            const ClipPlaneStrategy strategy;
+            if (m_tool->dragClipPoint(curPoint, strategy))
+                refPoint = m_tool->draggedPointPosition();
             return true;
         }
         
         void ClipToolAdapter2D::doEndPlaneDrag(const InputState& inputState) {}
         void ClipToolAdapter2D::doCancelPlaneDrag() {}
         void ClipToolAdapter2D::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
-
-        class ClipToolAdapter2D::ClipPlaneStrategy : public ClipTool::ClipPlaneStrategy {
-        private:
-            Vec3 m_viewDir;
-        public:
-            ClipPlaneStrategy(const Vec3& viewDir) : m_viewDir(viewDir) {}
-        private:
-            Vec3 doSnapClipPoint(const Grid& grid, const Vec3& point) const {
-                return grid.snap(point);
-            }
-            
-            void doComputeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const {
-                assert(point1 != point2);
-                point3 = point1 + 128.0 * m_viewDir.firstAxis();
-            }
-        };
         
         bool ClipToolAdapter2D::doAddClipPoint(const InputState& inputState) {
             const Renderer::Camera& camera = inputState.camera();
@@ -85,26 +86,13 @@ namespace TrenchBroom {
             }
             
             
-            const ClipPlaneStrategy strategy(viewDir);
+            const ClipPlaneStrategy strategy;
             return m_tool->addClipPoint(hitPoint, strategy);
         }
 
         ClipToolAdapter3D::ClipToolAdapter3D(ClipTool* tool, const Grid& grid) :
         ClipToolAdapter(tool, grid) {}
 
-        bool ClipToolAdapter3D::doStartMouseDrag(const InputState& inputState) {
-            if (!canStartDrag(inputState))
-                return false;
-            return false;
-        }
-        
-        bool ClipToolAdapter3D::doMouseDrag(const InputState& inputState) {
-            return true;
-        }
-        
-        void ClipToolAdapter3D::doEndMouseDrag(const InputState& inputState) {}
-        void ClipToolAdapter3D::doCancelMouseDrag() {}
-        
         class ClipToolAdapter3D::ClipPlaneStrategy : public ClipTool::ClipPlaneStrategy {
             const Model::BrushFace* m_currentFace;
         public:
@@ -116,49 +104,24 @@ namespace TrenchBroom {
             Vec3 doSnapClipPoint(const Grid& grid, const Vec3& point) const {
                 return grid.snap(point, m_currentFace->boundary());
             }
-            
-            void doComputeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const {
-                assert(point1 != point2);
-                const Vec3::List normals = getNormals(point2, m_currentFace);
-                const Vec3 normal = Vec3::average(normals);
-                point3 = point2 + 128.0 * normal.firstAxis();
-            }
-
-            Vec3::List getNormals(const Vec3& point, const Model::BrushFace* face) const {
-                const Model::Brush* brush = face->brush();
-                const Model::BrushEdgeList edges = brush->edges();
-                Model::BrushEdgeList::const_iterator it, end;
-                for (it = edges.begin(), end = edges.end(); it != end; ++it) {
-                    const Model::BrushEdge& edge = **it;
-                    if (point.equals(edge.start->position)) {
-                        return getNormals(brush->incidentFaces(edge.start));
-                    } else if (point.equals(edge.end->position)) {
-                        return getNormals(brush->incidentFaces(edge.end));
-                    } else if (edge.contains(point)) {
-                        Vec3::List normals(2);
-                        normals[0] = edge.leftFace()->boundary().normal;
-                        normals[1] = edge.rightFace()->boundary().normal;
-                        return normals;
-                    }
-                }
-                
-                return Vec3::List(1, face->boundary().normal);
-            }
-            
-            Vec3::List getNormals(const Model::BrushFaceList& faces) const {
-                Vec3::List normals;
-                normals.reserve(faces.size());
-                
-                Model::BrushFaceList::const_iterator it, end;
-                for (it = faces.begin(), end = faces.end(); it != end; ++it) {
-                    const Model::BrushFace& face = **it;
-                    normals.push_back(face.boundary().normal);
-                }
-                
-                return normals;
-            }
         };
-
+        
+        bool ClipToolAdapter3D::doStartMouseDrag(const InputState& inputState) {
+            return startDrag(inputState);
+        }
+        
+        bool ClipToolAdapter3D::doMouseDrag(const InputState& inputState) {
+            const Model::Hit& hit = inputState.pickResult().query().type(Model::Brush::BrushHit).occluded().first();
+            if (hit.isMatch()) {
+                const ClipPlaneStrategy strategy(Model::hitToFace(hit));
+                m_tool->dragClipPoint(hit.hitPoint(), strategy);
+            }
+            return true;
+        }
+        
+        void ClipToolAdapter3D::doEndMouseDrag(const InputState& inputState) {}
+        void ClipToolAdapter3D::doCancelMouseDrag() {}
+        
         bool ClipToolAdapter3D::doAddClipPoint(const InputState& inputState) {
             const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (!hit.isMatch())

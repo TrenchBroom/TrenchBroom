@@ -334,7 +334,7 @@ namespace TrenchBroom {
         }
 
         FloatType Camera::pickPointHandle(const Ray3& pickRay, const Vec3& handlePosition, const FloatType handleRadius) const {
-            const FloatType scaling = static_cast<FloatType>(perspectiveScalingFactor(handlePosition));
+            const FloatType scaling = static_cast<FloatType>(perspectiveScalingFactor(Vec3f(handlePosition)));
             return pickRay.intersectWithSphere(handlePosition, 2.0 * handleRadius * scaling);
         }
 
