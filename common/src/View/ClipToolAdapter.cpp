@@ -94,19 +94,13 @@ namespace TrenchBroom {
             const Renderer::Camera& camera = inputState.camera();
             const Vec3 viewDir = camera.direction().firstAxis();
             
-            Vec3 hitPoint;
-            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
-            if (hit.isMatch()) {
-                hitPoint = hit.hitPoint();
-            } else {
-                const Ray3& pickRay = inputState.pickRay();
-                const Vec3 defaultPos = m_tool->defaultClipPointPos();
-                const FloatType distance = pickRay.intersectWithPlane(viewDir, defaultPos);
-                if (Math::isnan(distance))
-                    return false;
-                
-                hitPoint = pickRay.pointAtDistance(distance);
-            }
+            const Ray3& pickRay = inputState.pickRay();
+            const Vec3 defaultPos = m_tool->defaultClipPointPos();
+            const FloatType distance = pickRay.intersectWithPlane(viewDir, defaultPos);
+            if (Math::isnan(distance))
+                return false;
+            
+            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
             
             
             const ClipPointSnapper snapper;
