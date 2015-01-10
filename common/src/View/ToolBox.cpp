@@ -50,16 +50,20 @@ namespace TrenchBroom {
         void ToolBox::OnSetFocus(wxFocusEvent& event) {
             if ((wxDateTime::Now() - m_lastActivation).IsShorterThan(wxTimeSpan(0, 0, 0, 100)))
                 m_ignoreNextClick = false;
-            clearFocusCursor();
+            wxWindow* newFocus = static_cast<wxWindow*>(event.GetEventObject());
+            newFocus->SetCursor(wxCursor(wxCURSOR_ARROW));
+            // clearFocusCursor();
         }
         
         void ToolBox::OnKillFocus(wxFocusEvent& event) {
             if (m_clickToActivate) {
-                const wxWindow* focusedWindow = event.GetWindow();
-                if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
+                // const wxWindow* focusedWindow = event.GetWindow();
+                // if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
                     m_ignoreNextClick = true;
-                    setFocusCursor();
-                }
+                    wxWindow* oldFocus = static_cast<wxWindow*>(event.GetEventObject());
+                    oldFocus->SetCursor(wxCursor(wxCURSOR_HAND));
+                    // setFocusCursor();
+                // }
             }
             event.Skip();
         }
