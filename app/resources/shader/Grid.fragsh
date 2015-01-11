@@ -1,0 +1,98 @@
+#version 120
+
+/*
+ Copyright (C) 2010-2014 Kristian Duske
+ 
+ This file is part of TrenchBroom.
+ 
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+float getSoftStripes(float value, float gridSize, float stripeSize) {
+    float mainVal = value * gridSize;
+    float triangle = abs(2.0 * fract(mainVal) - 1.0);
+    float filterWidth = fwidth(value);
+    float edge = filterWidth * gridSize * 2.0;
+    
+    // major line shading, currently set to place a major line every 64 units ( candidate for view preferences ?)
+    float mValue = 1.0 / (64.0 * gridSize);
+    float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
+    float isMajor = step(1.0 - mValue, triMajor);
+    
+    float outIntensity = isMajor * 0.7 + 0.85; // tweak intensities here
+    float sSize = stripeSize;
+    
+    return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
+}
+
+float gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float baseStripeSize, float gridBlend) {
+    float stripeRatio = baseStripeSize * gridRatio;
+    float stripeRatio2 = baseStripeSize * gridRatio2;
+    float stripeSize = 1.0 - stripeRatio;
+    float stripeSize2 = 1.0 - stripeRatio2;
+    
+    float theGrid, nextGrid;
+    
+    theGrid = getSoftStripes(inCoords.x, gridRatio, stripeSize);
+    theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatio, stripeSize));
+    nextGrid = getSoftStripes(inCoords.x, gridRatio2, stripeSize2);
+    nextGrid = max(nextGrid, getSoftStripes(inCoords.y, gridRatio2, stripeSize2));
+    
+    theGrid = mix(theGrid, nextGrid, gridBlend);
+    
+    return theGrid * 0.5;
+}
+
+float grid(vec3 coords, vec3 normal, float depth, float gridSize) {
+    float lineWidth = gridSize < 4 ? 0.25 : 0.5;
+
+    float gridBlend = 0;
+    float baseGridSize = gridSize;
+    float nextGridSize = gridSize;
+
+    if (depth > 1024.0) {
+        baseGridSize 	= gridSize * 4.0;
+        nextGridSize 	= gridSize * 8.0;
+        gridBlend = (depth - 1024.0) / 1024.0;
+    } else if(depth > 512.0) {
+        baseGridSize 	= gridSize * 2.0;
+        nextGridSize 	= gridSize * 4.0;
+        gridBlend = (depth - 512.0) / 512.0;
+    } else if (depth > 256.0) {
+        baseGridSize 	= gridSize;
+        nextGridSize 	= gridSize * 2.0;
+        gridBlend = (depth - 256.0) / 256.0;
+    }
+
+    float blendScale = 2.0; // sharpness of the grid falloff
+    gridBlend = clamp(gridBlend * blendScale - (blendScale - 1.0), 0.0, 1.0);
+
+    float gridRatio = 1.0 / baseGridSize;
+    float gridRatio2 = 1.0 / nextGridSize;
+    
+    vec2 baseCoords; // coordinates used for overlay creation
+    
+    if (abs(normal.x) > abs(normal.y)) {
+        if (abs(normal.x) > abs(normal.z))
+            baseCoords = coords.yz;
+        else
+            baseCoords = coords.xy;
+    } else if (abs(normal.y) > abs(normal.z)) {
+        baseCoords = coords.xz;
+    } else {
+        baseCoords = coords.xy;
+    }
+
+    return gridLinesSoft(baseCoords, gridRatio, gridRatio2, lineWidth, gridBlend);
+}

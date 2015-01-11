@@ -344,6 +344,13 @@ namespace VectorUtils {
         vec1.insert(vec1.end(), vec2.begin(), vec2.end());
     }
     
+    template <typename T1, typename T2>
+    void append(std::vector<T1>& vec1, const T2* values, const size_t count) {
+        vec1.reserve(vec1.size() + count);
+        for (size_t i = 0; i < count; ++i)
+            vec1.push_back(*(values + i));
+    }
+    
     template <typename T>
     void sort(std::vector<T>& vec) {
         std::sort(vec.begin(), vec.end());

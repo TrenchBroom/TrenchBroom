@@ -236,4 +236,42 @@ namespace StringUtils {
         assert(longValue >= 0);
         return static_cast<size_t>(longValue);
     }
+
+    StringList list(const String& s1) {
+        return StringList(1, s1);
+    }
+    
+    StringList list(const String& s1, const String& s2) {
+        StringList result(2);
+        result[0] = s1;
+        result[1] = s2;
+        return result;
+    }
+    
+    StringList list(const String& s1, const String& s2, const String& s3) {
+        StringList result(3);
+        result[0] = s1;
+        result[1] = s2;
+        result[2] = s3;
+        return result;
+    }
+    
+    StringList list(const String& s1, const String& s2, const String& s3, const String& s4) {
+        StringList result(4);
+        result[0] = s1;
+        result[1] = s2;
+        result[2] = s3;
+        result[3] = s4;
+        return result;
+    }
+    
+    StringList list(const String& s1, const String& s2, const String& s3, const String& s4, const String& s5) {
+        StringList result(5);
+        result[0] = s1;
+        result[1] = s2;
+        result[2] = s3;
+        result[3] = s4;
+        result[4] = s5;
+        return result;
+    }
 }

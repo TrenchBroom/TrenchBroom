@@ -37,40 +37,7 @@ varying vec3 modelNormal;
 varying vec4 faceColor;
 varying vec3 viewVector;
 
-float getSoftStripes(float value, float gridSize, float stripeSize) {
-	float mainVal = value * gridSize;
-	float triangle = abs(2.0 * fract(mainVal) - 1.0);
-	float filterWidth = fwidth(value);
-	float edge = filterWidth * gridSize * 2.0;
-
-	// major line shading, currently set to place a major line every 64 units ( candidate for view preferences ?)
-	float mValue = 1.0 / (64.0 * gridSize);
-	float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
-	float isMajor = step(1.0 - mValue, triMajor);
-
-	float outIntensity = isMajor * 0.7 + 0.85; // tweak intensities here
-	float sSize = stripeSize;
-
-	return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
-}
-
-void gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float baseStripeSize, float gridBlend) {
-	float stripeRatio = baseStripeSize * gridRatio;
-	float stripeRatio2 = baseStripeSize * gridRatio2;
-	float stripeSize = 1.0 - stripeRatio;
-    float stripeSize2 = 1.0 - stripeRatio2;
-
-	float theGrid, nextGrid;
-
-	theGrid = getSoftStripes(inCoords.x, gridRatio, stripeSize);
-	theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatio, stripeSize));
-	nextGrid = getSoftStripes(inCoords.x, gridRatio2, stripeSize2);
-	nextGrid = max(nextGrid, getSoftStripes(inCoords.y, gridRatio2, stripeSize2));
-
-	theGrid = mix(theGrid, nextGrid, gridBlend);
-
-	gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), theGrid * GridAlpha * 0.5);
-}
+float grid(vec3 coords, vec3 normal, float depth, float gridSize);
 
 void main() {
 	if (ApplyTexture)
@@ -118,50 +85,7 @@ void main() {
 	}
 
 	if (RenderGrid && GridAlpha > 0.0) {
-		float normX = abs(modelNormal.x);
-		float normY = abs(modelNormal.y);
-		float normZ = abs(modelNormal.z);
-
-		float gridThickness = GridSize < 4 ? 0.25 : 0.5;
-		float fragDepth = length(viewVector); //gl_FragCoord.z / gl_FragCoord.w,
-        float gridBlend = 0;
-        float baseGridSize = GridSize;
-        float nextGridSize = GridSize;
-
-		if (fragDepth > 1024.0) {
-			baseGridSize 	= GridSize * 4.0;
-			nextGridSize 	= GridSize * 8.0;
-			gridBlend = (fragDepth - 1024.0) / 1024.0;
-		} else if(fragDepth > 512.0) {
-			baseGridSize 	= GridSize * 2.0;
-			nextGridSize 	= GridSize * 4.0;
-			gridBlend = (fragDepth - 512.0) / 512.0;
-		} else if (fragDepth > 256.0) {
-			baseGridSize 	= GridSize;
-			nextGridSize 	= GridSize * 2.0;
-			gridBlend = (fragDepth - 256.0) / 256.0;
-		}
-
-		float blendScale = 2.0; // sharpness of the grid falloff
-
-		gridBlend = clamp(gridBlend * blendScale - (blendScale - 1.0), 0.0, 1.0);
-
-		float gridRatio = 1.0 / baseGridSize;
-		float gridRatio2 = 1.0 / nextGridSize;
-
-		vec2 baseCoords; // coordinates used for overlay creation
-
-		if (normX > normY) {
-			if (normX > normZ)
-				baseCoords = modelCoordinates.yz;
-			else
-				baseCoords = modelCoordinates.xy;
-		} else if (normY > normZ) {
-			baseCoords = modelCoordinates.xz;
-		} else {
-			baseCoords = modelCoordinates.xy;
-		}
-
-		gridLinesSoft(baseCoords, gridRatio, gridRatio2, gridThickness, gridBlend);
+        float gridValue = grid(modelCoordinates.xyz, modelNormal.xyz, length(viewVector), GridSize);
+        gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), gridValue * GridAlpha);
 	}
 }

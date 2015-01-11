@@ -18,6 +18,7 @@
  */
 
 #include "Shaders.h"
+#include "StringUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -26,7 +27,7 @@ namespace TrenchBroom {
             const ShaderConfig VaryingPUniformCShader     = ShaderConfig("Varying Position / Uniform Color", "VaryingPUniformC.vertsh",     "VaryingPC.fragsh");
             const ShaderConfig MiniMapEdgeShader          = ShaderConfig("MiniMap Edges",                    "MiniMapEdge.vertsh",          "MiniMapEdge.fragsh");
             const ShaderConfig EntityModelShader          = ShaderConfig("Entity Model",                     "EntityModel.vertsh",          "EntityModel.fragsh");
-            const ShaderConfig FaceShader                 = ShaderConfig("Face",                             "Face.vertsh",                 "Face.fragsh");
+            const ShaderConfig FaceShader                 = ShaderConfig("Face",                             "Face.vertsh",                 StringUtils::list("Grid.fragsh", "Face.fragsh"));
             const ShaderConfig ColoredTextShader          = ShaderConfig("Colored Text",                     "ColoredText.vertsh",          "Text.fragsh");
             const ShaderConfig TextShader                 = ShaderConfig("Text",                             "Text.vertsh",                 "Text.fragsh");
             const ShaderConfig TextBackgroundShader       = ShaderConfig("Text Background",                  "TextBackground.vertsh",       "TextBackground.fragsh");
