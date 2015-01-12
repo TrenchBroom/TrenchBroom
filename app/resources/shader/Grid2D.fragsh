@@ -28,11 +28,13 @@ uniform vec3 Normal;
 
 varying vec4 modelCoordinates;
 
-float grid(vec3 coords, vec3 normal, float depth, float zoom, float gridSize);
+float grid(vec3 coords, vec3 normal, float gridSize, float blendFactor, float lineWidthFactor);
 
 void main() {
 	if (RenderGrid && GridAlpha > 0.0) {
-        float gridValue = grid(modelCoordinates.xyz, Normal.xyz, 0.0, CameraZoom, GridSize);
+        float blendFactor = 1.0 - clamp((CameraZoom - 0.1) / 4.0, 0.0, 1.0);
+        float lineWidthFactor = 1.0 / CameraZoom;
+        float gridValue = grid(modelCoordinates.xyz, Normal.xyz, GridSize, blendFactor, lineWidthFactor);
         gl_FragColor = vec4(0.0, 0.0, 0.0, gridValue * GridAlpha);
 	}
 }

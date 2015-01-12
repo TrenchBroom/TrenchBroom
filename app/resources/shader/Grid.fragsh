@@ -54,40 +54,40 @@ float gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float line
     return theGrid * 0.5;
 }
 
-float grid(vec3 coords, vec3 normal, float depth, float zoom, float gridSize) {
-    float lineWidth = gridSize < 4 ? 0.25 : 0.5;
-    lineWidth /= zoom;
+float grid(vec3 coords, vec3 normal, float gridSize, float blendFactor, float lineWidthFactor) {
+    float lineWidth = (gridSize < 4 ? 0.25 : 0.5) * lineWidthFactor;
 
-float baseGridSize = gridSize;
-float nextGridSize = baseGridSize;
-float gridBlend = 0;
+    float baseGridSize = gridSize;
+    float nextGridSize = baseGridSize;
+    float gridBlend = 0.0;
 
-if (zoom != 1.0) {
-    float maxGridSize = 128.0;
-    if (zoom > 1.0) {
-        maxGridSize = pow(2.0, ceil(log2(pow(2.0, 4.0 - zoom))));
+    if (blendFactor == 0.0) {
+        baseGridSize = gridSize;
+        nextGridSize = gridSize;
+        gridBlend = 0.0;
     } else {
-        float invertedZoom = 1.0 / zoom;
-        maxGridSize = min(maxGridSize, 8.0 * pow(2.0, ceil(invertedZoom)));
+        float magic = 7.0;
+        baseGridSize = max(gridSize, pow(2.0, floor(magic * blendFactor)));
+        nextGridSize = max(gridSize, pow(2.0, floor(magic * blendFactor) + 1.0));
+        gridBlend = magic * blendFactor - floor(magic * blendFactor);
     }
     
-    baseGridSize = max(gridSize, maxGridSize);
-    nextGridSize = baseGridSize;
-}
-
-    if (depth > 1024.0) {
-        baseGridSize 	= gridSize * 4.0;
-        nextGridSize 	= gridSize * 8.0;
-        gridBlend = (depth - 1024.0) / 1024.0;
-    } else if(depth > 512.0) {
-        baseGridSize 	= gridSize * 2.0;
-        nextGridSize 	= gridSize * 4.0;
-        gridBlend = (depth - 512.0) / 512.0;
-    } else if (depth > 256.0) {
-        baseGridSize 	= gridSize;
-        nextGridSize 	= gridSize * 2.0;
-        gridBlend = (depth - 256.0) / 256.0;
+    baseGridSize = min(baseGridSize, max(gridSize, 256.0));
+    nextGridSize = min(nextGridSize, max(gridSize, 256.0));
+    
+/*
+    float logDist = floor(log2(depth));
+    if (logDist < 6.0) { // if we are closer than 64 units, show the full grid
+        baseGridSize = gridSize;
+        nextGridSize = gridSize;
+        gridBlend = 0.0;
+    } else { // otherwise start fading out the grid lines
+        float distFactor = logDist - 6.0;
+        baseGridSize = max(gridSize, pow(2.0, max(0, distFactor)));
+        nextGridSize = max(gridSize, pow(2.0, distFactor + 1.0));
+        gridBlend = (depth - pow(2.0, logDist)) / pow(2.0, logDist);
     }
+*/
 
     float blendScale = 2.0; // sharpness of the grid falloff
     gridBlend = clamp(gridBlend * blendScale - (blendScale - 1.0), 0.0, 1.0);

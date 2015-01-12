@@ -31,14 +31,13 @@ uniform float GridSize;
 uniform float GridAlpha;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
-uniform float CameraZoom;
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
 varying vec3 viewVector;
 
-float grid(vec3 coords, vec3 normal, float depth, float zoom, float gridSize);
+float grid(vec3 coords, vec3 normal, float gridSize, float blendFactor, float lineWidthFactor);
 
 void main() {
 	if (ApplyTexture)
@@ -86,7 +85,8 @@ void main() {
 	}
 
 	if (RenderGrid && GridAlpha > 0.0) {
-        float gridValue = grid(modelCoordinates.xyz, modelNormal.xyz, length(viewVector), CameraZoom, GridSize);
+        float blendFactor = clamp((length(viewVector) - 128.0) / 1024.0, 0.0, 1.0);
+        float gridValue = grid(modelCoordinates.xyz, modelNormal.xyz, GridSize, blendFactor, 1.0);
         gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(1.0), gridValue * GridAlpha);
 	}
 }
