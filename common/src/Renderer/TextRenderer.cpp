@@ -97,7 +97,7 @@ namespace TrenchBroom {
             if (!onTop) {
                 if (renderContext.render3D() && distance > m_maxViewDistance)
                     return false;
-                if (renderContext.render2D() && renderContext.camera().zoom().x() < m_minZoomFactor)
+                if (renderContext.render2D() && renderContext.camera().zoom() < m_minZoomFactor)
                     return false;
             }
             
@@ -121,7 +121,7 @@ namespace TrenchBroom {
                     return 1.0f;
                 return a / 128.0f;
             } else {
-                const float z = renderContext.camera().zoom().x();
+                const float z = renderContext.camera().zoom();
                 const float d = z - m_minZoomFactor;
                 if (d > 0.3f)
                     return 1.0f;

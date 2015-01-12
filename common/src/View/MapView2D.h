@@ -60,7 +60,7 @@ namespace TrenchBroom {
             } ViewPlane;
         private:
             Renderer::OrthographicCamera m_camera;
-
+            
             ClipToolAdapter2D* m_clipToolAdapter;
             CreateEntityToolAdapter* m_createEntityToolAdapter;
             MoveObjectsToolAdapter* m_moveObjectsToolAdapter;

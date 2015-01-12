@@ -78,7 +78,7 @@ namespace TrenchBroom {
         }
 
         float OrthographicCamera::doGetPerspectiveScalingFactor(const Vec3f& position) const {
-            return 1.0f / zoom().x();
+            return 1.0f / zoom();
         }
     }
 }

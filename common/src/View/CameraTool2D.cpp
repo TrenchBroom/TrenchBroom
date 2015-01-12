@@ -42,14 +42,14 @@ namespace TrenchBroom {
                     const Vec2f mousePos(static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()));
                     const Vec3f oldWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
                     
-                    const Vec2f factors = Vec2f::One * (1.0f + inputState.scrollY() / 50.0f * speed);
-                    m_camera.zoom(factors);
+                    const float factor = 1.0f + inputState.scrollY() / 50.0f * speed;
+                    m_camera.zoom(factor);
                     
-                    if (inputState.scrollY() > 0.0f) {
+//                    if (inputState.scrollY() > 0.0f) {
                         const Vec3f newWorldPos = m_camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
                         const Vec3f delta = newWorldPos - oldWorldPos;
                         m_camera.moveBy(-delta);
-                    }
+//                    }
                 }
             }
         }

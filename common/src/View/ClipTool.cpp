@@ -92,7 +92,7 @@ namespace TrenchBroom {
         }
         
         void ClipTool::performClip() {
-            if (m_numClipPoints == 3) {
+            if (canClip()) {
                 const SetBool ignoreNotifications(m_ignoreNotifications);
                 
                 MapDocumentSPtr document = lock(m_document);

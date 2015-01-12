@@ -120,9 +120,7 @@ namespace TrenchBroom {
         }
 
         float UVViewHelper::cameraZoom() const {
-            const Vec2f& zoom = m_camera.zoom();
-            assert(zoom.x() == zoom.y());
-            return zoom.x();
+            return m_camera.zoom();
         }
         
         void UVViewHelper::pickTextureGrid(const Ray3& ray, const Model::Hit::HitType hitTypes[2], Model::PickResult& pickResult) const {

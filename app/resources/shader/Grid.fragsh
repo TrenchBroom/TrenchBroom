@@ -25,7 +25,7 @@ float getSoftStripes(float value, float gridSize, float stripeSize) {
     float filterWidth = fwidth(value);
     float edge = filterWidth * gridSize * 2.0;
     
-    // major line shading, currently set to place a major line every 64 units ( candidate for view preferences ?)
+    // major line shading, currently set to place a major line every 64 units
     float mValue = 1.0 / (64.0 * gridSize);
     float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
     float isMajor = step(1.0 - mValue, triMajor);
@@ -36,9 +36,9 @@ float getSoftStripes(float value, float gridSize, float stripeSize) {
     return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
 }
 
-float gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float baseStripeSize, float gridBlend) {
-    float stripeRatio = baseStripeSize * gridRatio;
-    float stripeRatio2 = baseStripeSize * gridRatio2;
+float gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float lineWidth, float gridBlend) {
+    float stripeRatio = lineWidth * gridRatio;
+    float stripeRatio2 = lineWidth * gridRatio2;
     float stripeSize = 1.0 - stripeRatio;
     float stripeSize2 = 1.0 - stripeRatio2;
     
@@ -54,12 +54,26 @@ float gridLinesSoft(vec2 inCoords, float gridRatio, float gridRatio2, float base
     return theGrid * 0.5;
 }
 
-float grid(vec3 coords, vec3 normal, float depth, float gridSize) {
+float grid(vec3 coords, vec3 normal, float depth, float zoom, float gridSize) {
     float lineWidth = gridSize < 4 ? 0.25 : 0.5;
+    lineWidth /= zoom;
 
-    float gridBlend = 0;
-    float baseGridSize = gridSize;
-    float nextGridSize = gridSize;
+float baseGridSize = gridSize;
+float nextGridSize = baseGridSize;
+float gridBlend = 0;
+
+if (zoom != 1.0) {
+    float maxGridSize = 128.0;
+    if (zoom > 1.0) {
+        maxGridSize = pow(2.0, ceil(log2(pow(2.0, 4.0 - zoom))));
+    } else {
+        float invertedZoom = 1.0 / zoom;
+        maxGridSize = min(maxGridSize, 8.0 * pow(2.0, ceil(invertedZoom)));
+    }
+    
+    baseGridSize = max(gridSize, maxGridSize);
+    nextGridSize = baseGridSize;
+}
 
     if (depth > 1024.0) {
         baseGridSize 	= gridSize * 4.0;

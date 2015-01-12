@@ -25,6 +25,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         namespace Shaders {
+            extern const ShaderConfig Grid2DShader;
             extern const ShaderConfig VaryingPCShader;
             extern const ShaderConfig VaryingPUniformCShader;
             extern const ShaderConfig MiniMapEdgeShader;

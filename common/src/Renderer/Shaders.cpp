@@ -24,6 +24,7 @@
 namespace TrenchBroom {
     namespace Renderer {
         namespace Shaders {
+            const ShaderConfig Grid2DShader               = ShaderConfig("2D Grid",                          "Grid2D.vertsh",               VectorUtils::create<String>("Grid.fragsh", "Grid2D.fragsh"));
             const ShaderConfig VaryingPCShader            = ShaderConfig("Varying Position / Color",         "VaryingPC.vertsh",            "VaryingPC.fragsh");
             const ShaderConfig VaryingPUniformCShader     = ShaderConfig("Varying Position / Uniform Color", "VaryingPUniformC.vertsh",     "VaryingPC.fragsh");
             const ShaderConfig MiniMapEdgeShader          = ShaderConfig("MiniMap Edges",                    "MiniMapEdge.vertsh",          "MiniMapEdge.fragsh");

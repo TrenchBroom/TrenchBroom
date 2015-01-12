@@ -67,24 +67,19 @@ namespace TrenchBroom {
             return m_zoomedViewport;
         }
 
-        const Vec2f& Camera::zoom() const {
+        float Camera::zoom() const {
             return m_zoom;
         }
         
-        void Camera::zoom(const Vec2f& factors) {
-            assert(factors.x() > 0.0f && factors.y() > 0.0f);
-            if (factors == Vec2f::One)
+        void Camera::zoom(const float factor) {
+            assert(factor > 0.0f);
+            if (factor == 1.0f)
                 return;
-            m_zoom *= factors;
-            setZoom(m_zoom * factors);
+            setZoom(m_zoom * factor);
         }
         
         void Camera::setZoom(const float zoom) {
-            setZoom(Vec2f(zoom, zoom));
-        }
-        
-        void Camera::setZoom(const Vec2f& zoom) {
-            assert(zoom.x() > 0.0f && zoom.y() > 0.0f);
+            assert(zoom > 0.0f);
             if (zoom == m_zoom)
                 return;
             m_zoom = zoom;
@@ -342,7 +337,7 @@ namespace TrenchBroom {
         m_nearPlane(1.0f),
         m_farPlane(8000.0f),
         m_zoomedViewport(Viewport(0, 0, 1024, 768)),
-        m_zoom(Vec2f::One),
+        m_zoom(1.0f),
         m_position(Vec3f::Null),
         m_valid(false) {
             setDirection(Vec3f::PosX, Vec3f::PosZ);
@@ -353,7 +348,7 @@ namespace TrenchBroom {
         m_nearPlane(nearPlane),
         m_farPlane(farPlane),
         m_zoomedViewport(viewport),
-        m_zoom(Vec2f::One),
+        m_zoom(1.0f),
         m_position(position),
         m_valid(false) {
             assert(m_nearPlane >= 0.0f);
@@ -380,8 +375,8 @@ namespace TrenchBroom {
 
         void Camera::updateZoomedViewport() {
             m_zoomedViewport = Viewport(m_unzoomedViewport.x, m_unzoomedViewport.y,
-                                        static_cast<int>(Math::round(m_unzoomedViewport.width / m_zoom.x())),
-                                        static_cast<int>(Math::round(m_unzoomedViewport.height / m_zoom.y())));
+                                        static_cast<int>(Math::round(m_unzoomedViewport.width / zoom())),
+                                        static_cast<int>(Math::round(m_unzoomedViewport.height / zoom())));
         }
     }
 }

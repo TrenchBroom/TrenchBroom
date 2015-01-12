@@ -150,6 +150,7 @@ namespace TrenchBroom {
             shader.set("CameraPosition", context.camera().position());
             shader.set("ShadeFaces", shadeFaces);
             shader.set("ShowFog", showFog);
+            shader.set("CameraZoom", context.camera().zoom());
             
             shader.set("Alpha", m_alpha);
             if (m_alpha < 1.0f) {

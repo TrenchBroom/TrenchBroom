@@ -141,8 +141,8 @@ namespace VectorUtils {
         return std::vector<O>(1, item);
     }
     
-    template <typename O, typename I>
-    std::vector<O> create(const I& item1, const I& item2) {
+    template <typename O, typename I1, typename I2>
+    std::vector<O> create(const I1& item1, const I2& item2) {
         std::vector<O> result;
         result.reserve(2);
         result.push_back(item1);
@@ -150,8 +150,8 @@ namespace VectorUtils {
         return result;
     }
     
-    template <typename O, typename I>
-    std::vector<O> create(const I& item1, const I& item2, const I& item3) {
+    template <typename O, typename I1, typename I2, typename I3>
+    std::vector<O> create(const I1& item1, const I2& item2, const I3& item3) {
         std::vector<O> result;
         result.reserve(3);
         result.push_back(item1);
@@ -160,8 +160,8 @@ namespace VectorUtils {
         return result;
     }
     
-    template <typename O, typename I>
-    std::vector<O> create(const I& item1, const I& item2, const I& item3, const I& item4) {
+    template <typename O, typename I1, typename I2, typename I3, typename I4>
+    std::vector<O> create(const I1& item1, const I2& item2, const I3& item3, const I4& item4) {
         std::vector<O> result;
         result.reserve(4);
         result.push_back(item1);
@@ -171,8 +171,8 @@ namespace VectorUtils {
         return result;
     }
     
-    template <typename O, typename I>
-    std::vector<O> create(const I& item1, const I& item2, const I& item3, const I& item4, const I& item5) {
+    template <typename O, typename I1, typename I2, typename I3, typename I4, typename I5>
+    std::vector<O> create(const I1& item1, const I2& item2, const I3& item3, const I4& item4, const I5& item5) {
         std::vector<O> result;
         result.reserve(5);
         result.push_back(item1);
