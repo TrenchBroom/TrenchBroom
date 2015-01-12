@@ -204,12 +204,6 @@ namespace StringUtils {
     long stringToLong(const String& str);
     size_t stringToSize(const String& str);
     
-    StringList list(const String& s1);
-    StringList list(const String& s1, const String& s2);
-    StringList list(const String& s1, const String& s2, const String& s3);
-    StringList list(const String& s1, const String& s2, const String& s3, const String& s4);
-    StringList list(const String& s1, const String& s2, const String& s3, const String& s4, const String& s5);
-    
     template <typename D>
     StringList split(const String& str, D d) {
         if (str.empty())

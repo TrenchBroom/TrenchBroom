@@ -21,6 +21,7 @@
 #define TrenchBroom_CollectionUtils_h
 
 #include <algorithm>
+#include <cstdarg>
 #include <iterator>
 #include <limits>
 #include <list>
@@ -135,6 +136,53 @@ namespace ListUtils {
 }
 
 namespace VectorUtils {
+    template <typename O, typename I>
+    std::vector<O> create(const I& item) {
+        return std::vector<O>(1, item);
+    }
+    
+    template <typename O, typename I>
+    std::vector<O> create(const I& item1, const I& item2) {
+        std::vector<O> result;
+        result.reserve(2);
+        result.push_back(item1);
+        result.push_back(item2);
+        return result;
+    }
+    
+    template <typename O, typename I>
+    std::vector<O> create(const I& item1, const I& item2, const I& item3) {
+        std::vector<O> result;
+        result.reserve(3);
+        result.push_back(item1);
+        result.push_back(item2);
+        result.push_back(item3);
+        return result;
+    }
+    
+    template <typename O, typename I>
+    std::vector<O> create(const I& item1, const I& item2, const I& item3, const I& item4) {
+        std::vector<O> result;
+        result.reserve(4);
+        result.push_back(item1);
+        result.push_back(item2);
+        result.push_back(item3);
+        result.push_back(item4);
+        return result;
+    }
+    
+    template <typename O, typename I>
+    std::vector<O> create(const I& item1, const I& item2, const I& item3, const I& item4, const I& item5) {
+        std::vector<O> result;
+        result.reserve(5);
+        result.push_back(item1);
+        result.push_back(item2);
+        result.push_back(item3);
+        result.push_back(item4);
+        result.push_back(item5);
+        return result;
+    }
+    
     template <typename T>
     void clearToZero(std::vector<T>& vec) {
         using std::swap;
