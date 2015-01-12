@@ -20,6 +20,7 @@
 #include "StringUtils.h"
 
 #include <algorithm>
+#include <cstdarg>
 #include <cstdio>
 
 namespace StringUtils {

@@ -60,7 +60,7 @@ namespace TrenchBroom {
             float m_farPlane;
             Viewport m_unzoomedViewport;
             Viewport m_zoomedViewport;
-            Vec2f m_zoom;
+            float m_zoom;
             Vec3f m_position;
             Vec3f m_direction;
             Vec3f m_up;
@@ -88,10 +88,9 @@ namespace TrenchBroom {
             float farPlane() const;
             const Viewport& unzoomedViewport() const;
             const Viewport& zoomedViewport() const;
-            const Vec2f& zoom() const;
-            void zoom(const Vec2f& factors);
+            float zoom() const;
+            void zoom(float factor);
             void setZoom(float zoom);
-            void setZoom(const Vec2f& zoom);
             const Vec3f& direction() const;
             const Vec3f& position() const;
             const Vec3f& up() const;

@@ -40,9 +40,9 @@ namespace TrenchBroom {
                                                          0.0f);
             
             if (inputState.scrollY() > 0)
-                m_camera.zoom(Vec2f(1.1f, 1.1f));
+                m_camera.zoom(1.1f);
             else
-                m_camera.zoom(Vec2f(1.0f, 1.0f) / 1.1f);
+                m_camera.zoom(1.0f / 1.1f);
             
             const Vec3f newWorldPos = m_camera.unproject(static_cast<float>(inputState.mouseX()),
                                                          static_cast<float>(inputState.mouseY()),

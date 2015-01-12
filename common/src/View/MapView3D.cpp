@@ -58,8 +58,6 @@ namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
-        m_movementRestriction(),
-        m_camera(),
         m_compass(new Renderer::Compass(m_movementRestriction)),
         m_clipToolAdapter(NULL),
         m_createEntityToolAdapter(NULL),

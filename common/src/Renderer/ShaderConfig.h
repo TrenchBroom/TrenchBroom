@@ -21,6 +21,7 @@
 #define __TrenchBroom__ShaderConfig__
 
 #include "StringUtils.h"
+#include "CollectionUtils.h"
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -31,7 +32,10 @@ namespace TrenchBroom {
             StringList m_fragmentShaders;
         public:
             ShaderConfig(const String& name, const String& vertexShader, const String& fragmentShader);
-            
+            ShaderConfig(const String& name, const String& vertexShader, const StringList& fragmentShaders);
+            ShaderConfig(const String& name, const StringList& vertexShaders, const String& fragmentShader);
+            ShaderConfig(const String& name, const StringList& vertexShaders, const StringList& fragmentShaders);
+        public:
             const String& name() const;
             const StringList& vertexShaders() const;
             const StringList& fragmentShaders() const;

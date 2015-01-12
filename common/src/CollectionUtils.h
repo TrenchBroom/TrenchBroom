@@ -21,6 +21,7 @@
 #define TrenchBroom_CollectionUtils_h
 
 #include <algorithm>
+#include <cstdarg>
 #include <iterator>
 #include <limits>
 #include <list>
@@ -135,6 +136,53 @@ namespace ListUtils {
 }
 
 namespace VectorUtils {
+    template <typename O, typename I>
+    std::vector<O> create(const I& item) {
+        return std::vector<O>(1, item);
+    }
+    
+    template <typename O, typename I1, typename I2>
+    std::vector<O> create(const I1& item1, const I2& item2) {
+        std::vector<O> result;
+        result.reserve(2);
+        result.push_back(item1);
+        result.push_back(item2);
+        return result;
+    }
+    
+    template <typename O, typename I1, typename I2, typename I3>
+    std::vector<O> create(const I1& item1, const I2& item2, const I3& item3) {
+        std::vector<O> result;
+        result.reserve(3);
+        result.push_back(item1);
+        result.push_back(item2);
+        result.push_back(item3);
+        return result;
+    }
+    
+    template <typename O, typename I1, typename I2, typename I3, typename I4>
+    std::vector<O> create(const I1& item1, const I2& item2, const I3& item3, const I4& item4) {
+        std::vector<O> result;
+        result.reserve(4);
+        result.push_back(item1);
+        result.push_back(item2);
+        result.push_back(item3);
+        result.push_back(item4);
+        return result;
+    }
+    
+    template <typename O, typename I1, typename I2, typename I3, typename I4, typename I5>
+    std::vector<O> create(const I1& item1, const I2& item2, const I3& item3, const I4& item4, const I5& item5) {
+        std::vector<O> result;
+        result.reserve(5);
+        result.push_back(item1);
+        result.push_back(item2);
+        result.push_back(item3);
+        result.push_back(item4);
+        result.push_back(item5);
+        return result;
+    }
+    
     template <typename T>
     void clearToZero(std::vector<T>& vec) {
         using std::swap;
@@ -342,6 +390,13 @@ namespace VectorUtils {
     template <typename T1, typename T2>
     void append(std::vector<T1>& vec1, const std::vector<T2>& vec2) {
         vec1.insert(vec1.end(), vec2.begin(), vec2.end());
+    }
+    
+    template <typename T1, typename T2>
+    void append(std::vector<T1>& vec1, const T2* values, const size_t count) {
+        vec1.reserve(vec1.size() + count);
+        for (size_t i = 0; i < count; ++i)
+            vec1.push_back(*(values + i));
     }
     
     template <typename T>

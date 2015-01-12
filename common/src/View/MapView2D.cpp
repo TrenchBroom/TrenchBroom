@@ -21,6 +21,7 @@
 #include "Logger.h"
 #include "Model/CompareHits.h"
 #include "Model/PointFile.h"
+#include "Renderer/GridRenderer.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "View/ActionManager.h"
@@ -250,6 +251,7 @@ namespace TrenchBroom {
         }
         
         void MapView2D::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            renderBatch.addOneShot(new Renderer::GridRenderer(m_camera));
         }
     }
 }
