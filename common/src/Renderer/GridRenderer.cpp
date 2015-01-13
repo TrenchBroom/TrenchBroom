@@ -38,19 +38,27 @@ namespace TrenchBroom {
             const float w = float(viewport.width) / 2.0f;
             const float h = float(viewport.height) / 2.0f;
 
-            /*
-            result[0] = Vertex(Vec2f(x + 0, y + 0));
-            result[1] = Vertex(Vec2f(x + w, y + 0));
-            result[2] = Vertex(Vec2f(x + w, y + h));
-            result[3] = Vertex(Vec2f(x + 0, y + h));
-            */
-
             const Vec3f& p = camera.position();
-            
-            result[0] = Vertex(Vec3f(p.x() - w, p.y() - h, 0.0f));
-            result[1] = Vertex(Vec3f(p.x() - w, p.y() + h, 0.0f));
-            result[2] = Vertex(Vec3f(p.x() + w, p.y() + h, 0.0f));
-            result[3] = Vertex(Vec3f(p.x() + w, p.y() - h, 0.0f));
+            switch (camera.direction().firstComponent()) {
+                case Math::Axis::AX:
+                    result[0] = Vertex(Vec3f(0.0f, p.y() - w, p.z() - h));
+                    result[1] = Vertex(Vec3f(0.0f, p.y() - w, p.z() + h));
+                    result[2] = Vertex(Vec3f(0.0f, p.y() + w, p.z() + h));
+                    result[3] = Vertex(Vec3f(0.0f, p.y() + w, p.z() - h));
+                    break;
+                case Math::Axis::AY:
+                    result[0] = Vertex(Vec3f(p.x() - w, 0.0f, p.z() - h));
+                    result[1] = Vertex(Vec3f(p.x() - w, 0.0f, p.z() + h));
+                    result[2] = Vertex(Vec3f(p.x() + w, 0.0f, p.z() + h));
+                    result[3] = Vertex(Vec3f(p.x() + w, 0.0f, p.z() - h));
+                    break;
+                case Math::Axis::AZ:
+                    result[0] = Vertex(Vec3f(p.x() - w, p.y() - h, 0.0f));
+                    result[1] = Vertex(Vec3f(p.x() - w, p.y() + h, 0.0f));
+                    result[2] = Vertex(Vec3f(p.x() + w, p.y() + h, 0.0f));
+                    result[3] = Vertex(Vec3f(p.x() + w, p.y() - h, 0.0f));
+                    break;
+            }
 
             return result;
         }
