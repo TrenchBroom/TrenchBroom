@@ -41,8 +41,9 @@ namespace TrenchBroom {
         public:
             ClipPointSnapper() {}
         private:
-            Vec3 doSnapClipPoint(const Grid& grid, const Vec3& point) const {
-                return grid.snap(point);
+            bool doSnapClipPoint(const Grid& grid, const Vec3& point, Vec3& snappedPoint) const {
+                snappedPoint = grid.snap(point);
+                return true;
             }
         };
 
@@ -119,8 +120,13 @@ namespace TrenchBroom {
                 assert(m_currentFace != NULL);
             }
         private:
-            Vec3 doSnapClipPoint(const Grid& grid, const Vec3& point) const {
-                return grid.snap(point, m_currentFace->boundary());
+            bool doSnapClipPoint(const Grid& grid, const Vec3& point, Vec3& snappedPoint) const {
+                const Vec3 snapAttempt = grid.snap(point, m_currentFace->boundary());
+                if (!m_currentFace->containsPoint(snapAttempt))
+                    return false;
+                
+                snappedPoint = snapAttempt;
+                return true;
             }
         };
         

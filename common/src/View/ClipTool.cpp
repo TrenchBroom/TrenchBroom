@@ -40,8 +40,8 @@ namespace TrenchBroom {
         
         ClipTool::ClipPointSnapper::~ClipPointSnapper() {}
         
-        Vec3 ClipTool::ClipPointSnapper::snapClipPoint(const Grid& grid, const Vec3& point) const {
-            return doSnapClipPoint(grid, point);
+        bool ClipTool::ClipPointSnapper::snapClipPoint(const Grid& grid, const Vec3& point, Vec3& snapped) const {
+            return doSnapClipPoint(grid, point, snapped);
         }
         
         ClipTool::ClipPointStrategy::~ClipPointStrategy() {}
@@ -150,7 +150,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
             
-            const Vec3 snappedPoint = snapper.snapClipPoint(grid, point);
+            Vec3 snappedPoint;
+            if (!snapper.snapClipPoint(grid, point, snappedPoint))
+                return false;
             if (m_numClipPoints == 2 && linearlyDependent(m_clipPoints[0], m_clipPoints[1], snappedPoint))
                 return false;
             
@@ -184,7 +186,11 @@ namespace TrenchBroom {
             
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
-            m_clipPoints[m_dragIndex] = snapper.snapClipPoint(grid, newPosition);
+
+            if (!snapper.snapClipPoint(grid, newPosition, m_clipPoints[m_dragIndex])) {
+                m_clipPoints[m_dragIndex] = oldPosition;
+                return false;
+            }
             
             if (m_numClipPoints == 3 && linearlyDependent(m_clipPoints[0], m_clipPoints[1], m_clipPoints[2])) {
                 m_clipPoints[m_dragIndex] = oldPosition;

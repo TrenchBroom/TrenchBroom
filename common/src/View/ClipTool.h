@@ -50,9 +50,9 @@ namespace TrenchBroom {
             class ClipPointSnapper {
             public:
                 virtual ~ClipPointSnapper();
-                Vec3 snapClipPoint(const Grid& grid, const Vec3& point) const;
+                bool snapClipPoint(const Grid& grid, const Vec3& point, Vec3& snapped) const;
             private:
-                virtual Vec3 doSnapClipPoint(const Grid& grid, const Vec3& point) const = 0;
+                virtual bool doSnapClipPoint(const Grid& grid, const Vec3& point, Vec3& snapped) const = 0;
             };
             
             class ClipPointStrategy {

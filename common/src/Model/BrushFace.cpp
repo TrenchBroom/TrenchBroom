@@ -541,6 +541,15 @@ namespace TrenchBroom {
             invalidateVertexCache();
         }
 
+        bool BrushFace::containsPoint(const Vec3& point) const {
+            const Vec3 toPoint = point - m_boundary.anchor();
+            if (!Math::zero(toPoint.dot(m_boundary.normal)))
+                return false;
+            
+            const Ray3 ray(point + m_boundary.normal, -m_boundary.normal);
+            return !Math::isnan(intersectWithRay(ray));
+        }
+
         FloatType BrushFace::intersectWithRay(const Ray3& ray) const {
             assert(m_side != NULL);
             
