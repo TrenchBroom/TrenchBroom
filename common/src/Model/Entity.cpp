@@ -96,7 +96,7 @@ namespace TrenchBroom {
             Entity* entity = new Entity();
             entity->setDefinition(definition());
             entity->setAttributes(attributes());
-            entity->addChildren(clone(worldBounds, children()));
+            // entity->addChildren(clone(worldBounds, children()));
             return entity;
         }
 

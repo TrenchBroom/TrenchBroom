@@ -37,6 +37,7 @@ namespace TrenchBroom {
         typedef std::vector<Node*> NodeList;
         static const NodeList EmptyNodeList(0);
         
+        typedef std::map<Node*, Node*> NodeMap;
         typedef std::map<Node*, NodeList> ParentChildrenMap;
         
         class NodeVisitor;

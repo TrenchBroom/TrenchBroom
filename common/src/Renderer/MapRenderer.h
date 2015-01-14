@@ -50,7 +50,6 @@ namespace TrenchBroom {
             RendererMap m_layerRenderers;
             ObjectRenderer* m_selectionRenderer;
             
-            class AddLayer;
             class HandleSelectedNode;
             class UpdateSelectedNode;
             class UpdateNode;

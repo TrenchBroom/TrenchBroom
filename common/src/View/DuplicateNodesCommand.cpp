@@ -20,6 +20,7 @@
 #include "DuplicateNodesCommand.h"
 
 #include "Model/Node.h"
+#include "Model/NodeVisitor.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
@@ -34,21 +35,43 @@ namespace TrenchBroom {
         DocumentCommand(Type, "Duplicate objects") {}
         
         bool DuplicateNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
+            typedef std::pair<bool, Model::NodeMap::iterator> NodeMapInsertPos;
+            
+            Model::NodeMap newParentMap;
+            Model::ParentChildrenMap nodesToAdd;
+            Model::NodeList nodesToSelect;
+
             const BBox3& worldBounds = document->worldBounds();
             m_previouslySelectedNodes = document->selectedNodes().nodes();
-            Model::ParentChildrenMap nodesToAdd;
             
             Model::NodeList::const_iterator it, end;
             for (it = m_previouslySelectedNodes.begin(), end = m_previouslySelectedNodes.end(); it != end; ++it) {
                 const Model::Node* original = *it;
-                Model::Node* parent = original->parent();
                 Model::Node* clone = original->clone(worldBounds);
-                nodesToAdd[parent].push_back(clone);
+
+                Model::Node* parent = original->parent();
+                if (cloneParent(parent)) {
+                    NodeMapInsertPos insertPos = MapUtils::findInsertPos(newParentMap, parent);
+                    Model::Node* newParent = NULL;
+                    if (insertPos.first) {
+                        newParent = (insertPos.second)->second;
+                    } else {
+                        newParent = parent->clone(worldBounds);
+                        newParentMap.insert(insertPos.second, std::make_pair(parent, newParent));
+                        nodesToAdd[parent->parent()].push_back(newParent);
+                    }
+                    
+                    newParent->addChild(clone);
+                } else {
+                    nodesToAdd[parent].push_back(clone);
+                }
+                
+                nodesToSelect.push_back(clone);
             }
             
             m_addedNodes = document->performAddNodes(nodesToAdd);
             document->performDeselectAll();
-            document->performSelect(m_addedNodes);
+            document->performSelect(nodesToSelect);
             return true;
         }
         
@@ -62,6 +85,21 @@ namespace TrenchBroom {
             return true;
         }
         
+        class DuplicateNodesCommand::CloneParentQuery : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
+        private:
+            void doVisit(const Model::World* world)   { setResult(false); }
+            void doVisit(const Model::Layer* layer)   { setResult(false); }
+            void doVisit(const Model::Group* group)   { setResult(false);  }
+            void doVisit(const Model::Entity* entity) { setResult(true);  }
+            void doVisit(const Model::Brush* brush)   { setResult(false); }
+        };
+        
+        bool DuplicateNodesCommand::cloneParent(const Model::Node* node) const {
+            CloneParentQuery query;
+            node->accept(query);
+            return query.result();
+        }
+
         bool DuplicateNodesCommand::doIsRepeatable(MapDocumentCommandFacade* document) const {
             return document->hasSelectedNodes();
         }

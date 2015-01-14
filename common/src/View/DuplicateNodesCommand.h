@@ -35,9 +35,12 @@ namespace TrenchBroom {
             static DuplicateNodesCommand* duplicate();
         private:
             DuplicateNodesCommand();
-            
+
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);
+            
+            class CloneParentQuery;
+            bool cloneParent(const Model::Node* node) const;
             
             bool doIsRepeatable(MapDocumentCommandFacade* document) const;
             UndoableCommand* doRepeat(MapDocumentCommandFacade* document) const;

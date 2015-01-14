@@ -43,13 +43,13 @@ namespace TrenchBroom {
         
         void ObjectRenderer::addObjects(const Model::NodeList& nodes) {
             AddNodeToObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
         }
 
         void ObjectRenderer::addObject(Model::Node* object) {
             assert(object != NULL);
             AddNodeToObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
-            object->acceptAndRecurse(visitor);
+            object->accept(visitor);
         }
         
         class RemoveNodeFromObjectRenderer : public Model::NodeVisitor {
@@ -70,13 +70,13 @@ namespace TrenchBroom {
 
         void ObjectRenderer::removeObjects(const Model::NodeList& nodes) {
             RemoveNodeFromObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
         }
 
         void ObjectRenderer::removeObject(Model::Node* object) {
             assert(object != NULL);
             RemoveNodeFromObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
-            object->acceptAndRecurse(visitor);
+            object->accept(visitor);
         }
 
         class UpdateNodesInObjectRenderer : public Model::NodeVisitor {

@@ -243,43 +243,6 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
         }
 
-        void MapRenderer::documentWasCleared(View::MapDocument* document) {
-            m_layerRenderers.clear();
-        }
-        
-        class MapRenderer::AddLayer : public Model::NodeVisitor {
-        private:
-            Assets::EntityModelManager& m_modelManager;
-            const Model::EditorContext& m_editorContext;
-            
-            RendererMap& m_layerRenderers;
-        public:
-            AddLayer(Assets::EntityModelManager& modelManager, const Model::EditorContext& editorContext, RendererMap& layerRenderers) :
-            m_modelManager(modelManager),
-            m_editorContext(editorContext),
-            m_layerRenderers(layerRenderers) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {
-                ObjectRenderer* renderer = new ObjectRenderer(m_modelManager, m_editorContext, UnselectedBrushRendererFilter(m_editorContext));
-                MapUtils::insertOrFail(m_layerRenderers, layer, renderer);
-                renderer->addObjects(layer->children());
-                stopRecursion(); // don't visit my children
-            }
-            void doVisit(Model::Group* group)   { assert(false); }
-            void doVisit(Model::Entity* entity) { assert(false); }
-            void doVisit(Model::Brush* brush)   { assert(false); }
-        };
-        
-        void MapRenderer::documentWasNewedOrLoaded(View::MapDocument* document) {
-            Model::World* world = document->world();
-            Assets::EntityModelManager& modelManager = document->entityModelManager();
-            const Model::EditorContext& editorContext = document->editorContext();
-            AddLayer visitor(modelManager, editorContext, m_layerRenderers);
-            world->acceptAndRecurse(visitor);
-            setupLayerRenderers();
-        }
-
         class MapRenderer::HandleSelectedNode : public Model::NodeVisitor {
         private:
             RendererMap& m_layerRenderers;
@@ -367,6 +330,17 @@ namespace TrenchBroom {
                 layerRenderer->addObject(node);
             }
         };
+        
+        void MapRenderer::documentWasCleared(View::MapDocument* document) {
+            m_layerRenderers.clear();
+        }
+        
+        void MapRenderer::documentWasNewedOrLoaded(View::MapDocument* document) {
+            Model::World* world = document->world();
+            AddNode visitor(document->entityModelManager(), document->editorContext(), m_layerRenderers);
+            world->acceptAndRecurse(visitor);
+            setupLayerRenderers();
+        }
         
         void MapRenderer::nodesWereAdded(const Model::NodeList& nodes) {
             View::MapDocumentSPtr document = lock(m_document);
