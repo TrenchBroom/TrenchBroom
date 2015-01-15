@@ -34,7 +34,8 @@
 namespace TrenchBroom {
     namespace Model {
         ModelFactoryImpl::ModelFactoryImpl() :
-        m_format(MapFormat::Unknown) {}
+        m_format(MapFormat::Unknown),
+        m_brushContentTypeBuilder(NULL) {}
         
         ModelFactoryImpl::ModelFactoryImpl(const MapFormat::Type format, const BrushContentTypeBuilder* brushContentTypeBuilder) :
         m_format(format),

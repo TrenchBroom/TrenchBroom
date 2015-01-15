@@ -30,6 +30,7 @@ namespace TrenchBroom {
         Tool(false),
         m_document(document),
         m_toolPage(NULL),
+        m_handle(),
         m_angle(Math::radians(15.0)),
         m_firstActivation(true) {}
 

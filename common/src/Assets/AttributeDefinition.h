@@ -117,8 +117,8 @@ namespace TrenchBroom {
         private:
             ChoiceAttributeOption::List m_options;
         public:
-            ChoiceAttributeDefinition(const String& name, const String& description, const ChoiceAttributeOption::List options, const size_t defaultValue);
-            ChoiceAttributeDefinition(const String& name, const String& description, const ChoiceAttributeOption::List options);
+            ChoiceAttributeDefinition(const String& name, const String& description, const ChoiceAttributeOption::List& options, const size_t defaultValue);
+            ChoiceAttributeDefinition(const String& name, const String& description, const ChoiceAttributeOption::List& options);
             const ChoiceAttributeOption::List& options() const;
         private:
             bool doEquals(const AttributeDefinition* other) const;

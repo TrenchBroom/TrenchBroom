@@ -63,7 +63,7 @@ namespace TrenchBroom {
     ConfigEntry::ConfigEntry(const Type type) :
     m_type(type) {}
 
-    std::ostream& operator<<(std::ostream& stream, const ConfigEntry::Ptr entry) {
+    std::ostream& operator<<(std::ostream& stream, const ConfigEntry::Ptr& entry) {
         entry->appendToStream(stream);
         return stream;
     }

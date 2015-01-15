@@ -268,7 +268,7 @@ Mat<T,R,C> operator* (const T left, const Mat<T,R,C>& right) {
 
 // Vector left multiplication with vector of dimension R
 template <typename T, size_t R, size_t C>
-const Vec<T,R> operator* (const Vec<T,R> left, const Mat<T,R,C>& right) {
+const Vec<T,R> operator* (const Vec<T,R>& left, const Mat<T,R,C>& right) {
     Vec<T,R> result;
     for (size_t c = 0; c < C; c++)
         result[c] = left.dot(right[c]);

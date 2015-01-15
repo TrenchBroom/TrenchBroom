@@ -60,7 +60,7 @@ namespace TrenchBroom {
         ConfigEntry(const Type type);
     };
     
-    std::ostream& operator<<(std::ostream& stream, const ConfigEntry::Ptr entry);
+    std::ostream& operator<<(std::ostream& stream, const ConfigEntry::Ptr& entry);
     std::ostream& operator<<(std::ostream& stream, const ConfigEntry* entry);
     
     class ConfigValue : public ConfigEntry {

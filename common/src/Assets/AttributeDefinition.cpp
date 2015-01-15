@@ -135,11 +135,11 @@ namespace TrenchBroom {
             return m_description;
         }
 
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& description, const ChoiceAttributeOption::List options, const size_t defaultValue) :
+        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& description, const ChoiceAttributeOption::List& options, const size_t defaultValue) :
         AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, description, defaultValue),
         m_options(options) {}
         
-        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& description, const ChoiceAttributeOption::List options) :
+        ChoiceAttributeDefinition::ChoiceAttributeDefinition(const String& name, const String& description, const ChoiceAttributeOption::List& options) :
         AttributeDefinitionWithDefaultValue(name, Type_ChoiceAttribute, description),
         m_options(options) {}
         

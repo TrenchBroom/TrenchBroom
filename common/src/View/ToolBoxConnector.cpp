@@ -27,7 +27,8 @@ namespace TrenchBroom {
         ToolBoxConnector::ToolBoxConnector(wxWindow* window) :
         m_window(window),
         m_toolBox(NULL),
-        m_toolChain(new ToolChain()) {
+        m_toolChain(new ToolChain()),
+        m_ignoreNextDrag(false) {
             assert(m_window != NULL);
             bindEvents();
         }

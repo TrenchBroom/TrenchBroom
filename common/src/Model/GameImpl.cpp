@@ -292,21 +292,21 @@ namespace TrenchBroom {
             }
         }
         
-        Assets::EntityModel* GameImpl::loadBspModel(const String& name, const IO::MappedFile::Ptr file) const {
+        Assets::EntityModel* GameImpl::loadBspModel(const String& name, const IO::MappedFile::Ptr& file) const {
             assert(m_palette != NULL);
             
             IO::Bsp29Parser parser(name, file->begin(), file->end(), *m_palette);
             return parser.parseModel();
         }
         
-        Assets::EntityModel* GameImpl::loadMdlModel(const String& name, const IO::MappedFile::Ptr file) const {
+        Assets::EntityModel* GameImpl::loadMdlModel(const String& name, const IO::MappedFile::Ptr& file) const {
             assert(m_palette != NULL);
             
             IO::MdlParser parser(name, file->begin(), file->end(), *m_palette);
             return parser.parseModel();
         }
         
-        Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr file) const {
+        Assets::EntityModel* GameImpl::loadMd2Model(const String& name, const IO::MappedFile::Ptr& file) const {
             assert(m_palette != NULL);
             
             IO::Md2Parser parser(name, file->begin(), file->end(), *m_palette, m_fs);

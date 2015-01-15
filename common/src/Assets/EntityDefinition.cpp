@@ -99,7 +99,7 @@ namespace TrenchBroom {
         }
         
         struct FindSpawnflagsDefinition {
-            bool operator()(const AttributeDefinitionPtr attributeDefinition) const {
+            bool operator()(const AttributeDefinitionPtr& attributeDefinition) const {
                 return (attributeDefinition->type() == AttributeDefinition::Type_FlagsAttribute &&
                         attributeDefinition->name() == Model::AttributeNames::Spawnflags);
             }
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             String name;
             FindAttributeDefinitionByName(const String& i_name) : name(i_name) {}
             
-            bool operator()(const AttributeDefinitionPtr attributeDefinition) const {
+            bool operator()(const AttributeDefinitionPtr& attributeDefinition) const {
                 return attributeDefinition->name() == name;
             }
         };
@@ -153,7 +153,7 @@ namespace TrenchBroom {
         m_usageCount(0),
         m_attributeDefinitions(attributeDefinitions) {}
 
-        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList attributeDefinitions, const ModelDefinitionList& modelDefinitions) :
+        PointEntityDefinition::PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinitionList& modelDefinitions) :
         EntityDefinition(name, color, description, attributeDefinitions),
         m_bounds(bounds),
         m_modelDefinitions(modelDefinitions) {}

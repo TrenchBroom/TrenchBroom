@@ -45,7 +45,7 @@ namespace TrenchBroom {
             MdlTimeList m_times;
         public:
             MdlSkin(Texture* texture);
-            MdlSkin(const TextureList& textures, const MdlTimeList times);
+            MdlSkin(const TextureList& textures, const MdlTimeList& times);
             
             void prepare(int minFilter, int magFilter);
             const Texture* firstPicture() const;

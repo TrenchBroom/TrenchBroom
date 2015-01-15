@@ -38,12 +38,11 @@ namespace TrenchBroom {
         m_applyTinting(false),
         m_prepared(false) {}
         
-        TriangleRenderer::TriangleRenderer(const TriangleRenderer& other) {
-            m_vertexArray = other.m_vertexArray;
-            m_color = other.m_color;
-            m_useColor = other.m_useColor;
-            m_prepared = other.m_prepared;
-        }
+        TriangleRenderer::TriangleRenderer(const TriangleRenderer& other) :
+        m_vertexArray(other.m_vertexArray),
+        m_color(other.m_color),
+        m_useColor(other.m_useColor),
+        m_prepared(other.m_prepared) {}
         
         TriangleRenderer& TriangleRenderer::operator= (TriangleRenderer other) {
             using std::swap;

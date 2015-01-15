@@ -501,7 +501,8 @@ namespace VectorUtils {
     template <typename T, typename Compare>
     void setCreate(std::vector<T>& vec) {
         std::sort(vec.begin(), vec.end(), Compare());
-        std::unique(vec.begin(), vec.end());
+        typename std::vector<T>::iterator end = std::unique(vec.begin(), vec.end());
+        vec.erase(end, vec.end());
     }
     
     template <typename T>

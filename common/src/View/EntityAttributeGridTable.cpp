@@ -309,6 +309,7 @@ namespace TrenchBroom {
 
         EntityAttributeGridTable::EntityAttributeGridTable(MapDocumentWPtr document) :
         m_document(document),
+        m_rows(),
         m_ignoreUpdates(false),
         m_showDefaultRows(true),
         m_readonlyCellColor(wxColor(224, 224, 224)),

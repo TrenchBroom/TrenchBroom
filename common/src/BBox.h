@@ -379,7 +379,7 @@ struct RotateBBox {
 };
 
 template <typename T>
-BBox<T,3> rotateBBox(const BBox<T,3> bbox, const Quat<T>& rotation, const Vec<T,3>& center = Vec<T,3>::Null) {
+BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Quat<T>& rotation, const Vec<T,3>& center = Vec<T,3>::Null) {
     RotateBBox<T> rotator(rotation);
     eachBBoxVertex(bbox.translated(-center), rotator);
     return rotator.bbox.translated(center);
@@ -406,7 +406,7 @@ struct TransformBBox {
 };
 
 template <typename T>
-BBox<T,3> rotateBBox(const BBox<T,3> bbox, const Mat<T,4,4>& transformation) {
+BBox<T,3> rotateBBox(const BBox<T,3>& bbox, const Mat<T,4,4>& transformation) {
     TransformBBox<T> transformator(transformation);
     eachBBoxVertex(bbox, transformator);
     return transformator.bbox;

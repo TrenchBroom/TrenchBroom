@@ -39,6 +39,7 @@ namespace TrenchBroom {
         EntityModelRenderer::EntityModelRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext) :
         m_entityModelManager(entityModelManager),
         m_editorContext(editorContext),
+        m_applyTinting(false),
         m_showHiddenEntities(false) {}
 
         EntityModelRenderer::~EntityModelRenderer() {

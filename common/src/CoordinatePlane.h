@@ -31,7 +31,7 @@ public:
     CoordinatePlane(const size_t axis) :
     m_axis(axis) {}
     
-    CoordinatePlane(const Vec<T,S> axis) :
+    CoordinatePlane(const Vec<T,S>& axis) :
     m_axis(axis.firstComponent()) {}
     
     Vec<T,S> project(const Vec<T,S>& point) const {

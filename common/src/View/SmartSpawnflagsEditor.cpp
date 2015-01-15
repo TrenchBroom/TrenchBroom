@@ -74,6 +74,7 @@ namespace TrenchBroom {
         SmartSpawnflagsEditor::SmartSpawnflagsEditor(View::MapDocumentWPtr document) :
         SmartAttributeEditor(document),
         m_scrolledWindow(NULL),
+        m_flagsEditor(NULL),
         m_ignoreUpdates(false) {}
 
         void SmartSpawnflagsEditor::OnFlagChanged(FlagChangedCommand& event) {

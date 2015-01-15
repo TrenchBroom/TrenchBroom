@@ -82,7 +82,7 @@ namespace TrenchBroom {
             BBox3 m_bounds;
             ModelDefinitionList m_modelDefinitions;
         public:
-            PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList attributeDefinitions, const ModelDefinitionList& modelDefinitions = EmptyModelDefinitionList);
+            PointEntityDefinition(const String& name, const Color& color, const BBox3& bounds, const String& description, const AttributeDefinitionList& attributeDefinitions, const ModelDefinitionList& modelDefinitions = EmptyModelDefinitionList);
             
             Type type() const;
             const BBox3& bounds() const;

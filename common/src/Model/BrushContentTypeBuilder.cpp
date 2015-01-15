@@ -25,7 +25,7 @@ namespace TrenchBroom {
         contentType(i_contentType),
         transparent(i_transparent) {}
 
-        BrushContentTypeBuilder::BrushContentTypeBuilder(const BrushContentType::List contentTypes) :
+        BrushContentTypeBuilder::BrushContentTypeBuilder(const BrushContentType::List& contentTypes) :
         m_contentTypes(contentTypes) {}
         
         BrushContentTypeBuilder::Result BrushContentTypeBuilder::buildContentType(const Brush* brush) const {

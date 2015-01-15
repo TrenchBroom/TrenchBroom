@@ -28,7 +28,8 @@
 namespace TrenchBroom {
     namespace View {
         SmartDefaultAttributeEditor::SmartDefaultAttributeEditor(View::MapDocumentWPtr document) :
-        SmartAttributeEditor(document) {}
+        SmartAttributeEditor(document),
+        m_descriptionTxt(NULL) {}
 
         wxWindow* SmartDefaultAttributeEditor::doCreateVisual(wxWindow* parent) {
             m_descriptionTxt = new wxTextCtrl(parent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY | wxTE_BESTWRAP | wxBORDER_NONE);

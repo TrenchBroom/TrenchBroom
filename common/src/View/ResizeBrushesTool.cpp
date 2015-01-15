@@ -40,7 +40,8 @@ namespace TrenchBroom {
 
         ResizeBrushesTool::ResizeBrushesTool(MapDocumentWPtr document) :
         Tool(true),
-        m_document(document) {}
+        m_document(document),
+        m_splitBrushes(false) {}
         
         bool ResizeBrushesTool::applies() const {
             MapDocumentSPtr document = lock(m_document);

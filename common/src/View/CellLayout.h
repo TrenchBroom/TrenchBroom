@@ -323,7 +323,6 @@ namespace TrenchBroom {
             LayoutBounds m_contentBounds;
 
             RowList m_rows;
-            float m_maxWidth;
         public:
             const Row& operator[] (const size_t index) const {
                 assert(index >= 0 && index < m_rows.size());
@@ -350,7 +349,8 @@ namespace TrenchBroom {
             m_minCellHeight(minCellHeight),
             m_maxCellHeight(maxCellHeight),
             m_titleBounds(0.0f, y, width + 2.0f * x, titleHeight),
-            m_contentBounds(x, y + titleHeight + m_rowMargin, width, 0.0f) {}
+            m_contentBounds(x, y + titleHeight + m_rowMargin, width, 0.0f),
+            m_rows() {}
 
             LayoutGroup(const float x, const float y,
                         const float cellMargin, const float titleMargin, const float rowMargin,
@@ -369,7 +369,8 @@ namespace TrenchBroom {
             m_minCellHeight(minCellHeight),
             m_maxCellHeight(maxCellHeight),
             m_titleBounds(x, y, width, 0.0f),
-            m_contentBounds(x, y, width, 0.0f) {}
+            m_contentBounds(x, y, width, 0.0f),
+            m_rows() {}
 
             void addItem(CellType item,
                          const float itemWidth, const float itemHeight,
@@ -541,7 +542,10 @@ namespace TrenchBroom {
             m_minCellWidth(100.0f),
             m_maxCellWidth(100.0f),
             m_minCellHeight(100.0f),
-            m_maxCellHeight(100.0f) {
+            m_maxCellHeight(100.0f),
+            m_groups(),
+            m_valid(false),
+            m_height(0.0f) {
                 invalidate();
             }
 

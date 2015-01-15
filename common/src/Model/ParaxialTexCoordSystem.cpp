@@ -42,12 +42,14 @@ namespace TrenchBroom {
             true   // 5
         };
 
-        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) :
+        m_index(0) {
             const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
             setRotation(normal, 0.0f, 0.0f);
         }
 
-        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& normal) {
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& normal) :
+        m_index(0) {
             setRotation(normal, 0.0f, 0.0f);
         }
         

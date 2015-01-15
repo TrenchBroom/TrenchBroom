@@ -896,7 +896,7 @@ const Vec<T,3> crossed(const Vec<T,3>& left, const Vec<T,3>& right) {
 }
 
 template <typename T>
-T angleBetween(const Vec<T,3> vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
+T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
     // computes the CCW angle between axis and vector in relation to the given up vector
     // all vectors are expected to be normalized
     const T cos = vec.dot(axis);

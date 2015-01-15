@@ -51,7 +51,8 @@ namespace TrenchBroom {
         ToolAdapterBase(),
         Tool(true),
         m_document(document),
-        m_helper(helper) {}
+        m_helper(helper),
+        m_initalAngle(0.0f) {}
         
         Tool* UVRotateTool::doGetTool() {
             return this;
