@@ -69,6 +69,8 @@ namespace TrenchBroom {
         public:
             bool beginResize(const Model::PickResult& pickResult, bool split);
             bool resize(const Ray3& pickRay, const Renderer::Camera& camera);
+            Vec3 selectDelta(const Vec3& relativeDelta, const Vec3& absoluteDelta, FloatType mouseDistance) const;
+
             void commitResize();
             void cancelResize();
         private:

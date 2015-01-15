@@ -96,7 +96,7 @@ namespace TrenchBroom {
                     const Ray3::LineDistance result = m_pickRay.distanceToSegment(edge->start->position, edge->end->position);
                     if (!Math::isnan(result.distance) && result.distance < m_closest) {
                         m_closest = result.distance;
-                        const Vec3 hitPoint = m_pickRay.pointAtDistance(result.distance);
+                        const Vec3 hitPoint = m_pickRay.pointAtDistance(result.rayDistance);
                         if (m_hitType == ResizeBrushesTool::ResizeHit2D) {
                             Model::BrushFaceList faces;
                             if (Math::zero(leftDot)) {
@@ -218,25 +218,20 @@ namespace TrenchBroom {
             const Plane3 dragPlane = orthogonalDragPlane(m_dragOrigin, Vec3(camera.direction()));
             
             Model::BrushFace* dragFace = m_dragFaces.front();
-            const Vec3& faceNormal3D = dragFace->boundary().normal;
-            const Vec3 faceNormal2D = dragPlane.project(faceNormal3D);
+            const Vec3& faceNormal = dragFace->boundary().normal;
             const FloatType rayPointDist = dragPlane.intersectWithRay(pickRay);
+            assert(!Math::isnan(rayPointDist));
+            
             const Vec3 rayPoint = pickRay.pointAtDistance(rayPointDist);
-            const Vec3 dragVector2D = rayPoint - m_dragOrigin;
-            const FloatType dragDist = dragVector2D.dot(faceNormal2D);
-            const FloatType dragDist2 = dragDist * dragDist;
+            const Vec3 dragVector = rayPoint - m_dragOrigin;
+            const FloatType dragDist = dragVector.dot(faceNormal);
             
             MapDocumentSPtr document = lock(m_document);
             const View::Grid& grid = document->grid();
-            const Vec3 relativeFaceDelta = grid.snap(dragDist) * faceNormal3D;
-            const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal3D * dragDist);
+            const Vec3 relativeFaceDelta = grid.snap(dragDist) * faceNormal;
+            const Vec3 absoluteFaceDelta = grid.moveDelta(dragFace, faceNormal * dragDist);
             
-            // select the delta that is closest to the actual delta indicated by the mouse cursor
-            const Vec3f faceDelta = (std::abs(relativeFaceDelta.squaredLength() - dragDist2) <
-                                     std::abs(absoluteFaceDelta.squaredLength() - dragDist2) ?
-                                     relativeFaceDelta :
-                                     absoluteFaceDelta);
-            
+            const Vec3 faceDelta = selectDelta(relativeFaceDelta, absoluteFaceDelta, dragDist);
             if (faceDelta.null())
                 return true;
             
@@ -256,6 +251,15 @@ namespace TrenchBroom {
             return true;
         }
         
+        Vec3 ResizeBrushesTool::selectDelta(const Vec3& relativeDelta, const Vec3& absoluteDelta, const FloatType mouseDistance) const {
+            // select the delta that is closest to the actual delta indicated by the mouse cursor
+            const FloatType mouseDistance2 = mouseDistance * mouseDistance;
+            return (std::abs(relativeDelta.squaredLength() - mouseDistance2) <
+                    std::abs(absoluteDelta.squaredLength() - mouseDistance2) ?
+                    relativeDelta :
+                    absoluteDelta);
+        }
+
         void ResizeBrushesTool::commitResize() {
             MapDocumentSPtr document = lock(m_document);
             if (m_totalDelta.null())
