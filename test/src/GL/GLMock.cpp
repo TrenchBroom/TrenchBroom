@@ -51,6 +51,9 @@ namespace TrenchBroom {
         
         glGetIntegerv.bindMemFunc(this, &GLMock::GetIntegerv);
         
+        glPixelStoref.bindMemFunc(this, &GLMock::PixelStoref);
+        glPixelStorei.bindMemFunc(this, &GLMock::PixelStorei);
+        
         glGenTextures.bindMemFunc(this, &GLMock::GenTextures);
         glDeleteTextures.bindMemFunc(this, &GLMock::DeleteTextures);
         glBindTexture.bindMemFunc(this, &GLMock::BindTexture);

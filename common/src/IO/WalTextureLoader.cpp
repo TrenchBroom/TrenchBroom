@@ -65,12 +65,6 @@ namespace TrenchBroom {
             MappedFile::Ptr file = m_fs.openFile(path);
             const char* cursor = file->begin();
             
-            /*
-             char textureNameC[33];
-             textureNameC[32] = 0;
-             readBytes(cursor, textureNameC, 32);
-             */
-            
             advance<char[32]>(cursor);
             const size_t width = readSize<uint32_t>(cursor);
             const size_t height = readSize<uint32_t>(cursor);

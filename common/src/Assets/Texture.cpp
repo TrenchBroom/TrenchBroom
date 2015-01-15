@@ -18,6 +18,7 @@
  */
 
 #include "Texture.h"
+#include "Assets/ImageUtils.h"
 #include "Assets/TextureCollection.h"
 
 #include <cassert>
@@ -126,6 +127,13 @@ namespace TrenchBroom {
             assert(textureId > 0);
             assert(!m_buffers.empty());
             
+            glPixelStorei(GL_UNPACK_SWAP_BYTES, false);
+            glPixelStorei(GL_UNPACK_LSB_FIRST, false);
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+            glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+            glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            
             glBindTexture(GL_TEXTURE_2D, textureId);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1));
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
@@ -134,8 +142,16 @@ namespace TrenchBroom {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             GL_CHECK_ERROR()
             
-            size_t mipWidth = m_width;
-            size_t mipHeight = m_height;
+            /* Uncomment this and the assignments below to rescale npot textures to pot images before uploading them.
+            const size_t potWidth = Math::nextPOT(m_width);
+            const size_t potHeight = Math::nextPOT(m_height);
+            
+            if (potWidth != m_width || potHeight != m_height)
+                resizeMips(m_buffers, Vec2s(m_width, m_height), Vec2s(potWidth, potHeight));
+            */
+            
+            size_t mipWidth = m_width; //potWidth;
+            size_t mipHeight = m_height; //potHeight;
             for (size_t j = 0; j < m_buffers.size(); ++j) {
                 const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
                 glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,

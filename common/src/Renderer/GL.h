@@ -65,6 +65,19 @@ namespace TrenchBroom {
 #define GL_DEPTH_TEST 0x0B71
 #define GL_DEPTH_FUNC 0x0B74
 
+#define GL_UNPACK_SWAP_BYTES 0x0CF0
+#define GL_UNPACK_LSB_FIRST 0x0CF1
+#define GL_UNPACK_ROW_LENGTH 0x0CF2
+#define GL_UNPACK_SKIP_ROWS 0x0CF3
+#define GL_UNPACK_SKIP_PIXELS 0x0CF4
+#define GL_UNPACK_ALIGNMENT 0x0CF5
+#define GL_PACK_SWAP_BYTES 0x0D00
+#define GL_PACK_LSB_FIRST 0x0D01
+#define GL_PACK_ROW_LENGTH 0x0D02
+#define GL_PACK_SKIP_ROWS 0x0D03
+#define GL_PACK_SKIP_PIXELS 0x0D04
+#define GL_PACK_ALIGNMENT 0x0D05
+
 #define GL_TEXTURE_2D 0x0DE1
 #define GL_BYTE 0x1400
 #define GL_UNSIGNED_BYTE 0x1401
@@ -200,6 +213,9 @@ namespace TrenchBroom {
     extern Func1<void, GLenum> glMatrixMode;
 
     extern Func2<void, GLenum, GLint*> glGetIntegerv;
+    
+    extern Func2<void, GLenum, GLfloat> glPixelStoref;
+    extern Func2<void, GLenum, GLint> glPixelStorei;
     
     extern Func2<void, GLsizei, GLuint*> glGenTextures;
     extern Func2<void, GLsizei, const GLuint*> glDeleteTextures;
