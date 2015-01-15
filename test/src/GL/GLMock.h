@@ -58,6 +58,9 @@ namespace TrenchBroom {
         
         MOCK_METHOD2(GetIntegerv, void(GLenum, GLint*));
         
+        MOCK_METHOD2(PixelStoref, void(GLenum, GLfloat));
+        MOCK_METHOD2(PixelStorei, void(GLenum, GLint));
+        
         MOCK_METHOD2(GenTextures, void(GLsizei, GLuint*));
         MOCK_METHOD2(DeleteTextures, void(GLsizei, const GLuint*));
         MOCK_METHOD2(BindTexture, void(GLenum, GLuint));

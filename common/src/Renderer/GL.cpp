@@ -51,6 +51,9 @@ namespace TrenchBroom {
     
     Func2<void, GLenum, GLint*> glGetIntegerv;
     
+    Func2<void, GLenum, GLfloat> glPixelStoref;
+    Func2<void, GLenum, GLint> glPixelStorei;
+    
     Func2<void, GLsizei, GLuint*> glGenTextures;
     Func2<void, GLsizei, const GLuint*> glDeleteTextures;
     Func2<void, GLenum, GLuint> glBindTexture;

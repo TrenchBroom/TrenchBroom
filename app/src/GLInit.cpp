@@ -55,6 +55,9 @@ namespace TrenchBroom {
     
     static Func2<void, GLenum, GLint*>& _glGetIntegerv = glGetIntegerv;
     
+    static Func2<void, GLenum, GLfloat>& _glPixelStoref = glPixelStoref;
+    static Func2<void, GLenum, GLint>& _glPixelStorei = glPixelStorei;
+    
     static Func2<void, GLsizei, GLuint*>& _glGenTextures = glGenTextures;
     static Func2<void, GLsizei, const GLuint*>& _glDeleteTextures = glDeleteTextures;
     static Func2<void, GLenum, GLuint>& _glBindTexture = glBindTexture;
@@ -176,6 +179,9 @@ namespace TrenchBroom {
         _glMatrixMode.bindFunc(&::glMatrixMode);
         
         _glGetIntegerv.bindFunc(&::glGetIntegerv);
+        
+        _glPixelStoref.bindFunc(&::glPixelStoref);
+        _glPixelStorei.bindFunc(&::glPixelStorei);
         
         _glGenTextures.bindFunc(&::glGenTextures);
         _glDeleteTextures.bindFunc(&::glDeleteTextures);
