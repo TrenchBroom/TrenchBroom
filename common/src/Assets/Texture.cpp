@@ -18,6 +18,7 @@
  */
 
 #include "Texture.h"
+#include "Assets/ImageUtils.h"
 #include "Assets/TextureCollection.h"
 
 #include <cassert>
@@ -134,8 +135,14 @@ namespace TrenchBroom {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             GL_CHECK_ERROR()
             
-            size_t mipWidth = m_width;
-            size_t mipHeight = m_height;
+            const size_t potWidth = Math::nextPOT(m_width);
+            const size_t potHeight = Math::nextPOT(m_height);
+            
+            if (potWidth != m_width || potHeight != m_height)
+                resizeMips(m_buffers, Vec2s(m_width, m_height), Vec2s(potWidth, potHeight));
+            
+            size_t mipWidth = potWidth;
+            size_t mipHeight = potHeight;
             for (size_t j = 0; j < m_buffers.size(); ++j) {
                 const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].ptr());
                 glTexImage2D(GL_TEXTURE_2D, static_cast<GLint>(j), GL_RGBA,
