@@ -27,12 +27,24 @@ namespace TrenchBroom {
     namespace Model {
         Issue::~Issue() {}
 
+        size_t Issue::seqId() const {
+            return m_seqId;
+        }
+
         size_t Issue::lineNumber() const {
             return m_node->lineNumber();
         }
         
         const String& Issue::description() const {
             return doGetDescription();
+        }
+
+        IssueType Issue::type() const {
+            return doGetType();
+        }
+
+        Node* Issue::node() const {
+            return m_node;
         }
 
         bool Issue::hidden() const {
@@ -44,12 +56,14 @@ namespace TrenchBroom {
         }
 
         Issue::Issue(Node* node) :
+        m_seqId(nextSeqId()),
         m_node(node) {
             assert(m_node != NULL);
         }
 
-        IssueType Issue::type() const {
-            return doGetType();
+        size_t Issue::nextSeqId() {
+            static size_t seqId = 0;
+            return seqId++;
         }
 
         IssueType Issue::freeType() {

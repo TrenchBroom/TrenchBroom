@@ -96,7 +96,7 @@ namespace TrenchBroom {
         class NodeSnapshot;
         typedef std::vector<NodeSnapshot*> NodeSnapshotList;
         
-        typedef size_t IssueType;
+        typedef int IssueType;
 
         class Issue;
         typedef std::vector<Issue*> IssueList;

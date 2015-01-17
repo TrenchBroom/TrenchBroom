@@ -341,6 +341,10 @@ namespace TrenchBroom {
             void setMods(const StringList& mods);
         private: // issue management
             void registerIssueGenerators();
+        public:
+            void setIssueHidden(Model::Issue* issue, bool hidden);
+        private:
+            virtual void doSetIssueHidden(Model::Issue* issue, bool hidden) = 0;
         public: // document path
             const String filename() const;
             const IO::Path& path() const;

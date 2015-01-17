@@ -25,13 +25,28 @@
 namespace TrenchBroom {
     namespace Model {
         class IssueGenerator {
+        private:
+            IssueType m_type;
+            String m_description;
         public:
             virtual ~IssueGenerator();
-            void generate(Node* node, IssueList& issues) const;
+            
+            IssueType type() const;
+            const String& description() const;
+            
+            void generate(World* world,   IssueList& issues) const;
+            void generate(Layer* layer,   IssueList& issues) const;
+            void generate(Group* group,   IssueList& issues) const;
+            void generate(Entity* entity, IssueList& issues) const;
+            void generate(Brush* brush,   IssueList& issues) const;
         protected:
-            IssueGenerator();
+            IssueGenerator(IssueType type, const String& description);
         private:
-            virtual void doGenerate(Node* node, IssueList& issues) const = 0;
+            virtual void doGenerate(World* world,   IssueList& issues) const;
+            virtual void doGenerate(Layer* layer,   IssueList& issues) const;
+            virtual void doGenerate(Group* group,   IssueList& issues) const;
+            virtual void doGenerate(Entity* entity, IssueList& issues) const;
+            virtual void doGenerate(Brush* brush,   IssueList& issues) const;
         };
     }
 }

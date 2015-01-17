@@ -31,6 +31,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
+#include "Model/Issue.h"
 #include "Model/Snapshot.h"
 #include "Model/TransformObjectVisitor.h"
 #include "Model/World.h"
@@ -822,6 +823,13 @@ namespace TrenchBroom {
                 nodes.erase(node);
                 assert(!VectorUtils::contains(nodes[parent], node));
                 nodes[parent].push_back(node);
+            }
+        }
+
+        void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {
+            if (issue->hidden() != hidden) {
+                issue->setHidden(hidden);
+                incModificationCount();
             }
         }
 

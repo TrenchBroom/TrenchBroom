@@ -23,10 +23,42 @@ namespace TrenchBroom {
     namespace Model {
         IssueGenerator::~IssueGenerator() {}
         
-        void IssueGenerator::generate(Node* node, IssueList& issues) const {
-            doGenerate(node, issues);
+        IssueType IssueGenerator::type() const {
+            return m_type;
+        }
+        
+        const String& IssueGenerator::description() const {
+            return m_description;
         }
 
-        IssueGenerator::IssueGenerator() {}
+        void IssueGenerator::generate(World* world, IssueList& issues) const {
+            doGenerate(world, issues);
+        }
+        
+        void IssueGenerator::generate(Layer* layer, IssueList& issues) const {
+            doGenerate(layer, issues);
+        }
+        
+        void IssueGenerator::generate(Group* group, IssueList& issues) const {
+            doGenerate(group, issues);
+        }
+        
+        void IssueGenerator::generate(Entity* entity, IssueList& issues) const {
+            doGenerate(entity, issues);
+        }
+        
+        void IssueGenerator::generate(Brush* brush, IssueList& issues) const {
+            doGenerate(brush, issues);
+        }
+
+        IssueGenerator::IssueGenerator(const IssueType type, const String& description) :
+        m_type(type),
+        m_description(description) {}
+        
+        void IssueGenerator::doGenerate(World* world,   IssueList& issues) const {}
+        void IssueGenerator::doGenerate(Layer* layer,   IssueList& issues) const {}
+        void IssueGenerator::doGenerate(Group* group,   IssueList& issues) const {}
+        void IssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {}
+        void IssueGenerator::doGenerate(Brush* brush,   IssueList& issues) const {}
     }
 }

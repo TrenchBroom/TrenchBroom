@@ -17,40 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Issue__
-#define __TrenchBroom__Issue__
+#ifndef __TrenchBroom__EmptyBrushEntityIssueGenerator__
+#define __TrenchBroom__EmptyBrushEntityIssueGenerator__
 
+#include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        
-        class Issue {
+        class EmptyBrushEntityIssueGenerator : public IssueGenerator {
         private:
-            size_t m_seqId;
-        protected:
-            Node* const m_node;
+            class EmptyBrushEntityIssue;
         public:
-            virtual ~Issue();
-
-            size_t seqId() const;
-            size_t lineNumber() const;
-            const String& description() const;
-            
-            IssueType type() const;
-            Node* node() const;
-            
-            bool hidden() const;
-            void setHidden(bool hidden);
-        protected:
-            Issue(Node* node);
-            static size_t nextSeqId();
-            static IssueType freeType();
-        private: // subclassing interface
-            virtual IssueType doGetType() const = 0;
-            virtual const String& doGetDescription() const = 0;
+            EmptyBrushEntityIssueGenerator();
+        private:
+            void doGenerate(Entity* entity, IssueList& issues) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Issue__) */
+#endif /* defined(__TrenchBroom__EmptyBrushEntityIssueGenerator__) */

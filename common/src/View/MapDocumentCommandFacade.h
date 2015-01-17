@@ -113,6 +113,8 @@ namespace TrenchBroom {
             void addEmptyNodes(Model::ParentChildrenMap& nodes) const;
             Model::NodeList collectEmptyNodes(const Model::ParentChildrenMap& nodes) const;
             void removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const;
+        private:
+            void doSetIssueHidden(Model::Issue* issue, bool hidden);
         public: // modification count
             void incModificationCount(size_t delta = 1);
             void decModificationCount(size_t delta = 1);

@@ -29,6 +29,7 @@
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/Group.h"
+#include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
@@ -96,7 +97,7 @@ namespace TrenchBroom {
         
         void Brush::faceDidChange() {
             invalidateContentType();
-            updateIssues();
+            nodeDidChange();
         }
 
         void Brush::addFaces(const BrushFaceList& faces) {
@@ -488,6 +489,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        void Brush::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+            generator->generate(this, issues);
+        }
+
         void Brush::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }

@@ -1051,6 +1051,10 @@ namespace TrenchBroom {
             submit(SetModsCommand::set(mods));
         }
 
+        void MapDocument::setIssueHidden(Model::Issue* issue, const bool hidden) {
+            doSetIssueHidden(issue, hidden);
+        }
+
         void MapDocument::registerIssueGenerators() {
         }
 

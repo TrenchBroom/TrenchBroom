@@ -66,6 +66,7 @@ namespace TrenchBroom {
 
             bool doSelectable() const;
             
+            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement AttributableNode interface

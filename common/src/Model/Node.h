@@ -24,7 +24,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class IssueGenerator;
+        class IssueGeneratorRegistry;
 
         class Node {
         private:
@@ -116,7 +116,7 @@ namespace TrenchBroom {
             void clearChildren();
             
             void descendantWasAdded(Node* node);
-            void descendantWasRemoved(Node* node);
+            void descendantWasRemoved(Node* oldParent, Node* node);
             
             void incDescendantCount(size_t delta);
             void decDescendantCount(size_t delta);
@@ -167,14 +167,13 @@ namespace TrenchBroom {
             bool issueHidden(IssueType type) const;
             void setIssueHidden(IssueType type, bool hidden);
             
-            // should only be called by world
-            void updateIssues(const IssueGenerator& generator);
+            // should only be called by UpdateIssuesVisitor
+            void updateIssues(const IssueGeneratorList& issueGenerators);
         protected:
             void updateIssues();
         private:
             void updateIssues(Node* node);
             void clearIssues();
-            void generateIssues(const IssueGenerator& generator);
             void incFamilyIssueCount(size_t delta);
             void decFamilyIssueCount(size_t delta);
         public: // visitors
@@ -324,7 +323,7 @@ namespace TrenchBroom {
             virtual bool doRemoveIfEmpty() const = 0;
             
             virtual void doDescendantWasAdded(Node* node);
-            virtual void doDescendantWasRemoved(Node* node);
+            virtual void doDescendantWasRemoved(Node* oldParent, Node* node);
 
             virtual void doParentWillChange();
             virtual void doParentDidChange();
@@ -338,7 +337,7 @@ namespace TrenchBroom {
             
             virtual bool doSelectable() const = 0;
             
-            virtual void doUpdateIssues(Node* node);
+            virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) = 0;
             
             virtual void doAccept(NodeVisitor& visitor) = 0;
             virtual void doAccept(ConstNodeVisitor& visitor) const = 0;
