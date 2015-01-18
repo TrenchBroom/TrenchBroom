@@ -26,11 +26,12 @@
 #include "Assets/AssetTypes.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/Path.h"
+#include "Model/EntityColor.h"
+#include "Model/MapFacade.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
-#include "View/EntityColor.h"
 #include "View/ViewTypes.h"
 
 class Color;
@@ -57,7 +58,7 @@ namespace TrenchBroom {
         class UndoableCommand;
         class VertexHandleManager;
         
-        class MapDocument : public CachingLogger {
+        class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
             static const BBox3 DefaultWorldBounds;
             static const String DefaultDocumentName;
@@ -202,7 +203,7 @@ namespace TrenchBroom {
         private:
             void validateSelectionBounds() const;
             void clearSelection();
-        public: // adding, removing, reparenting, and duplicating nodes
+        public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade interface
             void addNode(Model::Node* node, Model::Node* parent);
             void removeNode(Model::Node* node);
             
@@ -212,37 +213,31 @@ namespace TrenchBroom {
             void reparentNodes(Model::Node* newParent, const Model::NodeList& children);
             bool deleteObjects();
             bool duplicateObjects();
-        public: // modifying transient layer attributes
+        public: // modifying transient layer attributes, declared in MapFacade interface
             void setLayerHidden(Model::Layer* layer, bool hidden);
             void setLayerLocked(Model::Layer* layer, bool locked);
-        public: // modifying objects
+        public: // modifying objects, declared in MapFacade interface
             bool translateObjects(const Vec3& delta);
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);
             bool flipObjects(const Vec3& center, Math::Axis::Type axis);
-        public: // modifying entity attributes
+        public: // modifying entity attributes, declared in MapFacade interface
             bool setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             bool removeAttribute(const Model::AttributeName& name);
             
-            bool convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range);
-        public: // brush resizing
+            bool convertEntityColorRange(const Model::AttributeName& name, Model::ColorRange::Type range);
+        public: // brush resizing, declared in MapFacade interface
             bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta);
-        public: // modifying face attributes
+        public: // modifying face attributes, declared in MapFacade interface
             bool setTexture(Assets::Texture* texture);
             bool setFaceAttributes(const Model::BrushFaceAttributes& attributes);
             bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
             bool moveTextures(const Vec3f& cameraUp, const Vec3f& cameraRight, const Vec2f& delta);
             bool rotateTextures(float angle);
             bool shearTextures(const Vec2f& factors);
-        public: // modifying vertices
+        public: // modifying vertices, declared in MapFacade interface
             void rebuildBrushGeometry(const Model::BrushList& brushes);
             bool snapVertices(const Model::VertexToBrushesMap& vertices, size_t snapTo);
-            
-            struct MoveVerticesResult {
-                bool success;
-                bool hasRemainingVertices;
-                MoveVerticesResult(bool i_success, bool i_hasRemainingVertices);
-            };
             
             MoveVerticesResult moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta);
             bool moveEdges(const Model::VertexToEdgesMap& edges, const Vec3& delta);

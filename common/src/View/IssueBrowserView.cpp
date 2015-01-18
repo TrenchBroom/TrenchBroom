@@ -21,6 +21,7 @@
 
 #include "Model/CollectMatchingIssuesVisitor.h"
 #include "Model/Issue.h"
+#include "Model/IssueQuickFix.h"
 #include "Model/World.h"
 #include "View/MapDocument.h"
 #include "View/wxUtils.h"
@@ -74,42 +75,32 @@ namespace TrenchBroom {
             if (GetSelectedItemCount() == 0 || event.GetIndex() < 0)
                 return;
             
+            updateSelection();
+            
             wxMenu popupMenu;
-            popupMenu.Append(SelectObjectsCommandId, "Select");
-            popupMenu.AppendSeparator();
             popupMenu.Append(ShowIssuesCommandId, "Show");
             popupMenu.Append(HideIssuesCommandId, "Hide");
-            popupMenu.Bind(wxEVT_MENU, &IssueBrowserView::OnSelectIssues, this, SelectObjectsCommandId);
             popupMenu.Bind(wxEVT_MENU, &IssueBrowserView::OnShowIssues, this, ShowIssuesCommandId);
             popupMenu.Bind(wxEVT_MENU, &IssueBrowserView::OnHideIssues, this, HideIssuesCommandId);
             
-            /*
-            const Model::QuickFix::List quickFixes = collectQuickFixes(getSelection());
+            const Model::IssueQuickFixList quickFixes = collectQuickFixes(getSelection());
             if (!quickFixes.empty()) {
                 wxMenu* quickFixMenu = new wxMenu();
+                
                 for (size_t i = 0; i < quickFixes.size(); ++i) {
-                    const Model::QuickFix* quickFix = quickFixes[i];
+                    Model::IssueQuickFix* quickFix = quickFixes[i];
                     const int quickFixId = FixObjectsBaseId + static_cast<int>(i);
                     quickFixMenu->Append(quickFixId, quickFix->description());
+                    
+                    wxVariant* data = new wxVariant(reinterpret_cast<void*>(quickFix));
+                    quickFixMenu->Bind(wxEVT_MENU, &IssueBrowserView::OnApplyQuickFix, this, quickFixId, quickFixId, data);
                 }
-
+                
                 popupMenu.AppendSeparator();
                 popupMenu.AppendSubMenu(quickFixMenu, "Fix");
-                
-                const int firstId = FixObjectsBaseId;
-                const int lastId = firstId + static_cast<int>(quickFixes.size());
-                quickFixMenu->Bind(wxEVT_MENU, &IssueBrowserView::OnApplyQuickFix, this, firstId, lastId);
             }
-            */
+
             PopupMenu(&popupMenu);
-        }
-        
-        void IssueBrowserView::OnSelectIssues(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            
-            const Transaction transaction(document);
-            const IndexList selection = getSelection();
-            selectIssueObjects(selection);
         }
         
         void IssueBrowserView::OnShowIssues(wxCommandEvent& event) {
@@ -140,40 +131,46 @@ namespace TrenchBroom {
             }
         };
         
+        void IssueBrowserView::updateSelection() {
+            const IndexList selection = getSelection();
+            
+            Model::NodeList nodes;
+            for (size_t i = 0; i < selection.size(); ++i) {
+                Model::Issue* issue = m_issues[selection[i]];
+                issue->addSelectableNodes(nodes);
+            }
+            
+            MapDocumentSPtr document = lock(m_document);
+            document->deselectAll();
+            document->select(nodes);
+        }
+
         void IssueBrowserView::updateIssues() {
+            m_issues.clear();
+            
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
-            
-            Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
-            world->acceptAndRecurse(visitor);
-            m_issues = visitor.issues();
-            VectorUtils::sort(m_issues, IssueCmp());
+            if (world != NULL) {
+                Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
+                world->acceptAndRecurse(visitor);
+                m_issues = visitor.issues();
+                VectorUtils::sort(m_issues, IssueCmp());
+            }
         }
 
         void IssueBrowserView::OnApplyQuickFix(wxCommandEvent& event) {
-            /*
-            const IndexList selection = getSelection();
-            deselectAll();
+            const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
+            assert(data != NULL);
+            
+            const Model::IssueQuickFix* quickFix = reinterpret_cast<const Model::IssueQuickFix*>(data->GetVoidPtr());
+            assert(quickFix != NULL);
 
-            assert(!selection.empty());
-            
-            const Model::IssueList issues = collectIssues(selection);
-            const Model::QuickFix::List quickFixes = collectQuickFixes(selection);
-            
-            const size_t index = static_cast<size_t>(event.GetId()) - FixObjectsBaseId;
-            assert(index < quickFixes.size());
-            const Model::QuickFix* quickFix = quickFixes[index];
-            
-            View::ControllerSPtr controller = lock(m_controller);
-            const UndoableCommandGroup commandGroup(controller);
-            selectIssueObjects(selection, controller);
-            
-            Model::IssueList::const_iterator it, end;
-            for (it = issues.begin(), end = issues.end(); it != end; ++it) {
-                Model::Issue* issue = *it;
-                issue->applyQuickFix(quickFix, controller);
-            }
-             */
+            MapDocumentSPtr document = lock(m_document);
+            const Model::IssueList issues = collectIssues(getSelection());
+
+            const Transaction transaction(document, "Apply Quick Fix (" + quickFix->description() + ")");
+            updateSelection();
+            quickFix->apply(document.get(), issues);
         }
         
         Model::IssueList IssueBrowserView::collectIssues(const IndexList& indices) const {
@@ -183,24 +180,31 @@ namespace TrenchBroom {
             return result;
         }
 
-        /*
-        Model::QuickFix::List IssueBrowserView::collectQuickFixes(const IndexList& indices) const {
+        Model::IssueQuickFixList IssueBrowserView::collectQuickFixes(const IndexList& indices) const {
             if (indices.empty())
-                return Model::QuickFix::List(0);
+                return Model::IssueQuickFixList(0);
             
-            const Model::Issue* issue = m_issues[indices[0]];
-            const Model::IssueType type = issue->type();
-            Model::QuickFix::List result = issue->quickFixes();
+            Model::IssueType issueTypes = ~0;
+            for (size_t i = 0; i < indices.size(); ++i) {
+                const Model::Issue* issue = m_issues[indices[i]];
+                issueTypes &= issue->type();
+            }
             
-            for (size_t i = 1; i < indices.size(); ++i) {
-                issue = m_issues[indices[i]];
-                if (issue->type() != type)
-                    return Model::QuickFix::List(0);
+            MapDocumentSPtr document = lock(m_document);
+            const Model::World* world = document->world();
+            return world->quickFixes(issueTypes);
+        }
+        
+        Model::IssueType IssueBrowserView::issueTypeMask() const {
+            Model::IssueType result = ~static_cast<Model::IssueType>(0);
+            const IndexList selection = getSelection();
+            for (size_t i = 0; i < selection.size(); ++i) {
+                Model::Issue* issue = m_issues[selection[i]];
+                result &= issue->type();
             }
             return result;
         }
-        */
-         
+
         void IssueBrowserView::setIssueVisibility(const bool show) {
             const IndexList selection = getSelection();
             
@@ -213,37 +217,8 @@ namespace TrenchBroom {
             reset();
         }
         
-        void IssueBrowserView::selectIssueObjects(const IndexList& selection) {
-            Model::NodeList nodes;
-            nodes.reserve(selection.size());
-            
-            for (size_t i = 0; i < selection.size(); ++i) {
-                Model::Issue* issue = m_issues[selection[i]];
-                nodes.push_back(issue->node());
-            }
-            
-            MapDocumentSPtr document = lock(m_document);
-            document->deselectAll();
-            document->select(nodes);
-        }
-
         IssueBrowserView::IndexList IssueBrowserView::getSelection() const {
             return getListCtrlSelection(this);
-        }
-        
-        void IssueBrowserView::select(const IndexList& selection) {
-            for (size_t i = 0; i < selection.size(); ++i) {
-                const long index = static_cast<long>(selection[i]);
-                SetItemState(index, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
-            }
-        }
-
-        void IssueBrowserView::deselectAll() {
-            const IndexList selection = getSelection();
-            for (size_t i = 0; i < selection.size(); ++i) {
-                const long index = static_cast<long>(selection[i]);
-                SetItemState(index, 0, wxLIST_STATE_SELECTED);
-            }
         }
         
         wxListItemAttr* IssueBrowserView::OnGetItemAttr(const long item) const {

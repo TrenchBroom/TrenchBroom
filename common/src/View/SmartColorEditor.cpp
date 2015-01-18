@@ -22,11 +22,11 @@
 #include "CollectionUtils.h"
 #include "Model/AttributableNode.h"
 #include "Model/Entity.h"
+#include "Model/EntityColor.h"
 #include "Model/World.h"
 #include "View/BorderLine.h"
 #include "View/ColorTable.h"
 #include "View/ColorTableSelectedCommand.h"
-#include "View/EntityColor.h"
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
@@ -49,11 +49,11 @@ namespace TrenchBroom {
         m_colorHistory(NULL) {}
         
         void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
-            document()->convertEntityColorRange(name(), ColorRange::Float);
+            document()->convertEntityColorRange(name(), Model::ColorRange::Float);
         }
         
         void SmartColorEditor::OnByteRangeRadioButton(wxCommandEvent& event) {
-            document()->convertEntityColorRange(name(), ColorRange::Byte);
+            document()->convertEntityColorRange(name(), Model::ColorRange::Byte);
         }
         
         void SmartColorEditor::OnColorPickerChanged(wxColourPickerEvent& event) {
@@ -133,11 +133,11 @@ namespace TrenchBroom {
         }
         
         void SmartColorEditor::updateColorRange(const Model::AttributableNodeList& attributables) {
-            const ColorRange::Type range = detectColorRange(name(), attributables);
-            if (range == ColorRange::Float) {
+            const Model::ColorRange::Type range = detectColorRange(name(), attributables);
+            if (range == Model::ColorRange::Float) {
                 m_floatRadio->SetValue(true);
                 m_byteRadio->SetValue(false);
-            } else if (range == ColorRange::Byte) {
+            } else if (range == Model::ColorRange::Byte) {
                 m_floatRadio->SetValue(false);
                 m_byteRadio->SetValue(true);
             } else {
@@ -193,7 +193,7 @@ namespace TrenchBroom {
                 static const Model::AttributeValue NullValue("");
                 const Model::AttributeValue& value = attributable->attribute(m_name, NullValue);
                 if (value != NullValue) {
-                    const wxColor color = parseEntityColor(value);
+                    const wxColor color = Model::parseEntityColor(value);
                     
                     if (VectorUtils::setInsert(m_allColors, color, ColorCmp())) {
                         if (attributable->selected() || attributable->descendantSelected())
@@ -215,8 +215,8 @@ namespace TrenchBroom {
         }
         
         void SmartColorEditor::setColor(const wxColor& color) const {
-            const ColorRange::Type colorRange = m_floatRadio->GetValue() ? ColorRange::Float : ColorRange::Byte;
-            const Model::AttributeValue value = entityColorAsString(color, colorRange);
+            const Model::ColorRange::Type colorRange = m_floatRadio->GetValue() ? Model::ColorRange::Float : Model::ColorRange::Byte;
+            const Model::AttributeValue value = Model::entityColorAsString(color, colorRange);
             document()->setAttribute(name(), value);
         }
     }

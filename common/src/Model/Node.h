@@ -169,10 +169,7 @@ namespace TrenchBroom {
             
             // should only be called by UpdateIssuesVisitor
             void updateIssues(const IssueGeneratorList& issueGenerators);
-        protected:
-            void updateIssues();
         private:
-            void updateIssues(Node* node);
             void clearIssues();
             void incFamilyIssueCount(size_t delta);
             void decFamilyIssueCount(size_t delta);

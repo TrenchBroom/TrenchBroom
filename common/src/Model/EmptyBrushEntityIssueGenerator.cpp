@@ -24,19 +24,19 @@
 #include "Model/Brush.h"
 #include "Model/Entity.h"
 #include "Model/Issue.h"
-#include "Model/Object.h"
-#include "View/ViewTypes.h"
+#include "Model/IssueQuickFix.h"
+#include "Model/MapFacade.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
-        class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssue : public Issue {
+        class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssue : public EntityIssue {
         public:
             static const IssueType Type;
         public:
             EmptyBrushEntityIssue(Entity* entity) :
-            Issue(entity) {}
+            EntityIssue(entity) {}
         private:
             IssueType doGetType() const {
                 return Type;
@@ -50,8 +50,20 @@ namespace TrenchBroom {
         
         const IssueType EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssue::Type = Issue::freeType();
         
+        class EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssueQuickFix : public IssueQuickFix {
+        public:
+            EmptyBrushEntityIssueQuickFix() :
+            IssueQuickFix("Delete entities") {}
+        private:
+            void doApply(MapFacade* facade, const IssueList& issues) const {
+                facade->deleteObjects();
+            }
+        };
+        
         EmptyBrushEntityIssueGenerator::EmptyBrushEntityIssueGenerator() :
-        IssueGenerator(EmptyBrushEntityIssue::Type, "Empty brush entity") {}
+        IssueGenerator(EmptyBrushEntityIssue::Type, "Empty brush entity") {
+            addQuickFix(new EmptyBrushEntityIssueQuickFix());
+        }
         
         void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
             assert(entity != NULL);

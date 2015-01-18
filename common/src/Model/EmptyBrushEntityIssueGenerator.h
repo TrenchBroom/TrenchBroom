@@ -28,6 +28,7 @@ namespace TrenchBroom {
         class EmptyBrushEntityIssueGenerator : public IssueGenerator {
         private:
             class EmptyBrushEntityIssue;
+            class EmptyBrushEntityIssueQuickFix;
         public:
             EmptyBrushEntityIssueGenerator();
         private:

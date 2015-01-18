@@ -227,8 +227,8 @@ namespace TrenchBroom {
             } else {
                 setOrigin(transformation * origin());
                 applyRotation(stripTranslation(transformation));
-                updateIssues();
             }
+            nodeDidChange();
         }
         
         bool Entity::doContains(const Node* node) const {

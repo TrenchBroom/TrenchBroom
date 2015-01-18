@@ -19,9 +19,16 @@
 
 #include "IssueGenerator.h"
 
+#include "CollectionUtils.h"
+#include "Model/IssueQuickFix.h"
+
+#include <cassert>
+
 namespace TrenchBroom {
     namespace Model {
-        IssueGenerator::~IssueGenerator() {}
+        IssueGenerator::~IssueGenerator() {
+            VectorUtils::clearAndDelete(m_quickFixes);
+        }
         
         IssueType IssueGenerator::type() const {
             return m_type;
@@ -29,6 +36,10 @@ namespace TrenchBroom {
         
         const String& IssueGenerator::description() const {
             return m_description;
+        }
+
+        const IssueQuickFixList& IssueGenerator::quickFixes() const {
+            return m_quickFixes;
         }
 
         void IssueGenerator::generate(World* world, IssueList& issues) const {
@@ -55,6 +66,12 @@ namespace TrenchBroom {
         m_type(type),
         m_description(description) {}
         
+        void IssueGenerator::addQuickFix(IssueQuickFix* quickFix) {
+            assert(quickFix != NULL);
+            assert(!VectorUtils::contains(m_quickFixes, quickFix));
+            m_quickFixes.push_back(quickFix);
+        }
+
         void IssueGenerator::doGenerate(World* world,   IssueList& issues) const {}
         void IssueGenerator::doGenerate(Layer* layer,   IssueList& issues) const {}
         void IssueGenerator::doGenerate(Group* group,   IssueList& issues) const {}

@@ -26,7 +26,7 @@
 #include <wx/colour.h>
 
 namespace TrenchBroom {
-    namespace View {
+    namespace Model {
         namespace ColorRange {
             typedef int Type;
             static const Type Unset = 0;
@@ -35,7 +35,7 @@ namespace TrenchBroom {
             static const Type Mixed = Float | Byte;
         }
         
-        ColorRange::Type detectColorRange(const Model::AttributeName& name, const Model::AttributableNodeList& attributables);
+        ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables);
         ColorRange::Type detectColorRange(const String& str);
         
         const String convertEntityColor(const String& str, ColorRange::Type colorRange);

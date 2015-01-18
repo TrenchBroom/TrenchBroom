@@ -28,11 +28,13 @@ namespace TrenchBroom {
         private:
             IssueType m_type;
             String m_description;
+            IssueQuickFixList m_quickFixes;
         public:
             virtual ~IssueGenerator();
             
             IssueType type() const;
             const String& description() const;
+            const IssueQuickFixList& quickFixes() const;
             
             void generate(World* world,   IssueList& issues) const;
             void generate(Layer* layer,   IssueList& issues) const;
@@ -41,6 +43,7 @@ namespace TrenchBroom {
             void generate(Brush* brush,   IssueList& issues) const;
         protected:
             IssueGenerator(IssueType type, const String& description);
+            void addQuickFix(IssueQuickFix* quickFix);
         private:
             virtual void doGenerate(World* world,   IssueList& issues) const;
             virtual void doGenerate(Layer* layer,   IssueList& issues) const;

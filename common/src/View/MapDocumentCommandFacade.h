@@ -24,9 +24,9 @@
 #include "VecMath.h"
 #include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/EntityAttributes.h"
+#include "Model/EntityColor.h"
 #include "Model/Node.h"
 #include "View/CommandProcessor.h"
-#include "View/EntityColor.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -67,7 +67,7 @@ namespace TrenchBroom {
         public: // entity attributes
             Model::EntityAttribute::Map performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             Model::EntityAttribute::Map performRemoveAttribute(const Model::AttributeName& name);
-            Model::EntityAttribute::Map performConvertColorRange(const Model::AttributeName& name, ColorRange::Type colorRange);
+            Model::EntityAttribute::Map performConvertColorRange(const Model::AttributeName& name, Model::ColorRange::Type colorRange);
             void performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             void restoreAttributes(const Model::EntityAttribute::Map& attributes);
         public: // brush resizing

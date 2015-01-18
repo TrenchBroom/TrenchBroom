@@ -35,17 +35,16 @@ namespace TrenchBroom {
     namespace View {
         class IssueBrowserView : public wxListCtrl {
         private:
-            static const int SelectObjectsCommandId = 1;
-            static const int ShowIssuesCommandId = 2;
-            static const int HideIssuesCommandId = 3;
-            static const int FixObjectsBaseId = 4;
+            static const int ShowIssuesCommandId = 1;
+            static const int HideIssuesCommandId = 2;
+            static const int FixObjectsBaseId = 3;
             
             typedef std::vector<size_t> IndexList;
             
             MapDocumentWPtr m_document;
             Model::IssueList m_issues;
             
-            int m_hiddenGenerators;
+            Model::IssueType m_hiddenGenerators;
             bool m_showHiddenIssues;
         public:
             IssueBrowserView(wxWindow* parent, MapDocumentWPtr document);
@@ -56,8 +55,8 @@ namespace TrenchBroom {
             void reset();
             
             void OnSize(wxSizeEvent& event);
+            
             void OnItemRightClick(wxListEvent& event);
-            void OnSelectIssues(wxCommandEvent& event);
             void OnShowIssues(wxCommandEvent& event);
             void OnHideIssues(wxCommandEvent& event);
             void OnApplyQuickFix(wxCommandEvent& event);
@@ -68,13 +67,13 @@ namespace TrenchBroom {
             void updateIssues();
             
             Model::IssueList collectIssues(const IndexList& indices) const;
-            // Model::QuickFix::List collectQuickFixes(const IndexList& indices) const;
-            void setIssueVisibility(bool show);
-            void selectIssueObjects(const IndexList& selection);
+            Model::IssueQuickFixList collectQuickFixes(const IndexList& indices) const;
+            Model::IssueType issueTypeMask() const;
             
+            void setIssueVisibility(bool show);
+            
+            void updateSelection();
             IndexList getSelection() const;
-            void select(const IndexList& indices);
-            void deselectAll();
             
             wxListItemAttr* OnGetItemAttr(long item) const;
             wxString OnGetItemText(long item, long column) const;

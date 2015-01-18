@@ -22,9 +22,9 @@
 
 #include "Color.h"
 #include "Model/EntityAttributes.h"
+#include "Model/EntityColor.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
-#include "View/EntityColor.h"
 
 #include <map>
 
@@ -37,13 +37,13 @@ namespace TrenchBroom {
             static const CommandType Type;
         private:
             Model::AttributeName m_attributeName;
-            ColorRange::Type m_colorRange;
+            Model::ColorRange::Type m_colorRange;
             
             Model::EntityAttribute::Map m_snapshots;
         public:
-            static ConvertEntityColorCommand* convert(const Model::AttributeName& attributeName, ColorRange::Type colorRange);
+            static ConvertEntityColorCommand* convert(const Model::AttributeName& attributeName, Model::ColorRange::Type colorRange);
         private:
-            ConvertEntityColorCommand(const Model::AttributeName& attributeName, ColorRange::Type colorRange);
+            ConvertEntityColorCommand(const Model::AttributeName& attributeName, Model::ColorRange::Type colorRange);
             
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);

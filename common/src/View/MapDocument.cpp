@@ -40,6 +40,7 @@
 #include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EditorContext.h"
+#include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
@@ -568,7 +569,7 @@ namespace TrenchBroom {
             return submit(ChangeEntityAttributesCommand::remove(name));
         }
         
-        bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range) {
+        bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, Model::ColorRange::Type range) {
             return submit(ConvertEntityColorCommand::convert(name, range));
         }
 
@@ -627,10 +628,6 @@ namespace TrenchBroom {
             }
             return submit(SnapBrushVerticesCommand::snap(vertices, snapTo));
         }
-
-        MapDocument::MoveVerticesResult::MoveVerticesResult(const bool i_success, const bool i_hasRemainingVertices) :
-        success(i_success),
-        hasRemainingVertices(i_hasRemainingVertices) {}
 
         MapDocument::MoveVerticesResult MapDocument::moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
             MoveBrushVerticesCommand* command = MoveBrushVerticesCommand::move(vertices, delta);
@@ -1056,6 +1053,9 @@ namespace TrenchBroom {
         }
 
         void MapDocument::registerIssueGenerators() {
+            assert(m_world != NULL);
+            
+            m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
         }
 
         const String MapDocument::filename() const {

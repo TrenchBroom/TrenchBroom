@@ -19,6 +19,7 @@
 
 #include "Model/Issue.h"
 
+#include "CollectionUtils.h"
 #include "Model/Node.h"
 
 #include <cassert>
@@ -47,6 +48,10 @@ namespace TrenchBroom {
             return m_node;
         }
 
+        void Issue::addSelectableNodes(Model::NodeList& nodes) const {
+            doAddSelectableNodes(nodes);
+        }
+
         bool Issue::hidden() const {
             return m_node->issueHidden(type());
         }
@@ -71,6 +76,20 @@ namespace TrenchBroom {
             const IssueType result = type;
             type = (type << 1);
             return result;
+        }
+
+        void Issue::doAddSelectableNodes(Model::NodeList& nodes) const {
+            nodes.push_back(m_node);
+        }
+
+        EntityIssue::EntityIssue(Node* node) :
+        Issue(node) {}
+
+        void EntityIssue::doAddSelectableNodes(Model::NodeList& nodes) const {
+            if (m_node->hasChildren())
+                VectorUtils::append(nodes, node()->children());
+            else
+                nodes.push_back(m_node);
         }
     }
 }

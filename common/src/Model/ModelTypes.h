@@ -102,6 +102,9 @@ namespace TrenchBroom {
         typedef std::vector<Issue*> IssueList;
         static const IssueList EmptyIssueList(0);
 
+        class IssueQuickFix;
+        typedef std::vector<IssueQuickFix*> IssueQuickFixList;
+        
         class IssueGenerator;
         typedef std::vector<IssueGenerator*> IssueGeneratorList;
         

@@ -69,12 +69,12 @@ namespace TrenchBroom {
             return m_issueGeneratorRegistry.registeredGenerators();
         }
 
-        void World::registerIssueGenerators(const IssueGeneratorList& generators) {
-            IssueGeneratorList::const_iterator it, end;
-            for (it = generators.begin(), end = generators.end(); it != end; ++it) {
-                IssueGenerator* generator = *it;
-                m_issueGeneratorRegistry.registerGenerator(generator);
-            }
+        IssueQuickFixList World::quickFixes(const IssueType issueTypes) const {
+            return m_issueGeneratorRegistry.quickFixes(issueTypes);
+        }
+
+        void World::registerIssueGenerator(IssueGenerator* issueGenerator) {
+            m_issueGeneratorRegistry.registerGenerator(issueGenerator);
             updateAllIssues();
         }
 

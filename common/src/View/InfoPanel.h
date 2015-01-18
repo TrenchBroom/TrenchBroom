@@ -17,32 +17,39 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__IssueGeneratorRegistry__
-#define __TrenchBroom__IssueGeneratorRegistry__
+#ifndef __TrenchBroom__InfoPanel__
+#define __TrenchBroom__InfoPanel__
 
-#include "Model/ModelTypes.h"
+#include "View/ViewTypes.h"
 
-#include <vector>
+#include <wx/bitmap.h>
+#include <wx/panel.h>
+
+class wxBookCtrlEvent;
+class wxButton;
+class wxCommandEvent;
+class wxSimplebook;
+class wxWindow;
 
 namespace TrenchBroom {
-    namespace Model {
-        class IssueGenerator;
+    class Logger;
+
+    namespace View {
+        class ContainerBar;
+        class Console;
+        class IssueBrowser;
+        class TabBook;
         
-        class IssueGeneratorRegistry {
+        class InfoPanel : public wxPanel {
         private:
-            IssueGeneratorList m_generators;
+            TabBook* m_tabBook;
+            Console* m_console;
+            IssueBrowser* m_issueBrowser;
         public:
-            ~IssueGeneratorRegistry();
-            
-            const IssueGeneratorList& registeredGenerators() const;
-            IssueQuickFixList quickFixes(IssueType issueTypes) const;
-            
-            void registerGenerator(IssueGenerator* generator);
-            void unregisterAllGenerators();
-        private:
-            void clearGenerators();
+            InfoPanel(wxWindow* parent, MapDocumentWPtr document);
+            Console* console() const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__IssueGeneratorRegistry__) */
+#endif /* defined(__TrenchBroom__InfoPanel__) */

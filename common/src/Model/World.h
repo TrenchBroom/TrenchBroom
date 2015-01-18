@@ -54,7 +54,8 @@ namespace TrenchBroom {
         public: // selection
             // issue generator registration
             const IssueGeneratorList& registeredIssueGenerators() const;
-            void registerIssueGenerators(const IssueGeneratorList& generators);
+            IssueQuickFixList quickFixes(IssueType issueTypes) const;
+            void registerIssueGenerator(IssueGenerator* issueGenerator);
             void unregisterAllIssueGenerators();
         private:
             void updateAllIssues();

@@ -220,7 +220,6 @@ namespace TrenchBroom {
                 Node* child = *it;
                 child->ancestorDidChange();
             }
-            updateIssues();
         }
         
         void Node::nodeWillChange() {
