@@ -556,6 +556,25 @@ namespace TrenchBroom {
             brushFacesDidChangeNotifier(faces);
         }
 
+        Model::Snapshot* MapDocumentCommandFacade::performFindPlanePoints() {
+            const Model::BrushList& brushes = m_selectedNodes.brushes();
+            Model::Snapshot* snapshot = new Model::Snapshot(brushes.begin(), brushes.end());
+            
+            const Model::NodeList nodes(brushes.begin(), brushes.end());
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Model::Brush* brush = *it;
+                brush->findIntegerPlanePoints(m_worldBounds);
+            }
+            
+            return snapshot;
+        }
+
         Vec3::List MapDocumentCommandFacade::performSnapVertices(const Model::BrushVerticesMap& vertices, const size_t snapTo) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);

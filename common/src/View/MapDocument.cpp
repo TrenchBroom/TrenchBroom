@@ -48,6 +48,7 @@
 #include "Model/GameFactory.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/NodeVisitor.h"
+#include "Model/PlanePointsIssueGenerator.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
 #include "View/AddRemoveNodesCommand.h"
@@ -56,6 +57,7 @@
 #include "View/ConvertEntityColorCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/EntityDefinitionFileCommand.h"
+#include "View/FindPlanePointsCommand.h"
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
 #include "View/MoveBrushEdgesCommand.h"
@@ -631,6 +633,10 @@ namespace TrenchBroom {
             return submit(SnapBrushVerticesCommand::snap(vertices, snapTo));
         }
 
+        bool MapDocument::findPlanePoints() {
+            return submit(FindPlanePointsCommand::findPlanePoints());
+        }
+
         MapDocument::MoveVerticesResult MapDocument::moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
             MoveBrushVerticesCommand* command = MoveBrushVerticesCommand::move(vertices, delta);
             const bool success = submit(command);
@@ -1060,6 +1066,7 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
             m_world->registerIssueGenerator(new Model::EntityLinkSourceIssueGenerator());
             m_world->registerIssueGenerator(new Model::EntityLinkTargetIssueGenerator());
+            m_world->registerIssueGenerator(new Model::PlanePointsIssueGenerator());
         }
 
         const String MapDocument::filename() const {

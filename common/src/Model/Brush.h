@@ -127,6 +127,7 @@ namespace TrenchBroom {
             void invalidateFaces();
         public: // brush geometry
             void rebuildGeometry(const BBox3& worldBounds);
+            void findIntegerPlanePoints(const BBox3& worldBounds);
         private:
             bool checkGeometry() const;
         public: // content type

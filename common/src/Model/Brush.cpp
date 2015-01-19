@@ -397,6 +397,16 @@ namespace TrenchBroom {
             invalidateContentType();
         }
 
+        void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* brushFace = *it;
+                brushFace->findIntegerPlanePoints();
+            }
+            rebuildGeometry(worldBounds);
+            nodeDidChange();
+        }
+
         bool Brush::checkGeometry() const {
             BrushFaceList::const_iterator fIt, fEnd;
             for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {

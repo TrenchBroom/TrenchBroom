@@ -98,6 +98,7 @@ namespace TrenchBroom {
         public: // modifying vertices
             virtual void rebuildBrushGeometry(const BrushList& brushes) = 0;
             virtual bool snapVertices(const VertexToBrushesMap& vertices, size_t snapTo) = 0;
+            virtual bool findPlanePoints() = 0;
             
             struct MoveVerticesResult {
                 bool success;
