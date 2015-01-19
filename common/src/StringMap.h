@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__StringIndex__
-#define __TrenchBroom__StringIndex__
+#ifndef __TrenchBroom__StringMap__
+#define __TrenchBroom__StringMap__
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
@@ -31,19 +31,18 @@
 
 namespace TrenchBroom {
     template <typename V>
-    class StringIndex {
+    class StringMap {
     public:
-        typedef std::set<V> ValueSet;
+        typedef std::vector<V> ValueList;
     private:
         class Node {
         private:
             typedef std::set<Node> NodeSet;
-            typedef std::map<V, size_t> ValueMap;
             
             // The key is declared mutable because we must change in splitNode and mergeNode, but the resulting new key
             // will still compare equal to the old key.
             mutable String m_key;
-            mutable ValueMap m_values;
+            mutable ValueList m_values;
             mutable NodeSet m_children;
         public:
             explicit Node(const String& key) :
@@ -127,7 +126,7 @@ namespace TrenchBroom {
                 return m_values.empty() && m_children.empty();
             }
             
-            void queryExact(const String& key, ValueSet& result) const {
+            void queryExact(const String& key, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(key, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
@@ -148,7 +147,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void queryPrefix(const String& prefix, ValueSet& result) const {
+            void queryPrefix(const String& prefix, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
@@ -169,7 +168,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void collectValues(ValueSet& result) const {
+            void collectValues(ValueList& result) const {
                 getValues(result);
                 typename NodeSet::const_iterator it, end;
                 for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
@@ -178,7 +177,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void queryNumbered(const String& prefix, ValueSet& result) const {
+            void queryNumbered(const String& prefix, ValueList& result) const {
                 const size_t firstDiff = StringUtils::findFirstDifference(prefix, m_key);
                 if (firstDiff == 0 && !m_key.empty())
                     // no common prefix
@@ -208,7 +207,7 @@ namespace TrenchBroom {
                 }
             }
             
-            void collectIfNumbered(ValueSet& result) const {
+            void collectIfNumbered(ValueList& result) const {
                 if (StringUtils::isNumber(m_key)) {
                     getValues(result);
                     typename NodeSet::const_iterator it, end;
@@ -220,18 +219,14 @@ namespace TrenchBroom {
             }
         private:
             void insertValue(const V& value) const {
-                typename ValueMap::iterator it = MapUtils::findOrInsert(m_values, value, 0u);
-                ++it->second;
+                m_values.push_back(value);
             }
             
             void removeValue(const V& value) const {
-                typename ValueMap::iterator it = m_values.find(value);
+                typename ValueList::iterator it = std::find(m_values.begin(), m_values.end(), value);
                 if (it == m_values.end())
                     throw Exception("Cannot remove value (does not belong to this node)");
-                if (it->second == 1)
-                    m_values.erase(it);
-                else
-                    --it->second;
+                m_values.erase(it);
             }
             
             const Node& findOrCreateChild(const String& key) const {
@@ -277,19 +272,17 @@ namespace TrenchBroom {
                 m_key += child.m_key;
             }
             
-            void getValues(ValueSet& result) const {
-                typename ValueMap::const_iterator it, end;
-                for (it = m_values.begin(), end = m_values.end(); it != end; ++it)
-                    result.insert(it->first);
+            void getValues(ValueList& result) const {
+                result.insert(result.end(), m_values.begin(), m_values.end());
             }
         };
         
         Node* m_root;
     public:
-        StringIndex() :
+        StringMap() :
         m_root(new Node("")) {}
         
-        ~StringIndex() {
+        ~StringMap() {
             delete m_root;
             m_root = NULL;
         }
@@ -309,30 +302,30 @@ namespace TrenchBroom {
             m_root = new Node("");
         }
         
-        ValueSet queryPrefixMatches(const String& prefix) const {
+        ValueList queryPrefixMatches(const String& prefix) const {
             assert(m_root != NULL);
-            ValueSet result;
+            ValueList result;
             m_root->queryPrefix(prefix, result);
             return result;
         }
         
-        ValueSet queryNumberedMatches(const String& prefix) const {
+        ValueList queryNumberedMatches(const String& prefix) const {
             assert(m_root != NULL);
-            ValueSet result;
+            ValueList result;
             m_root->queryNumbered(prefix, result);
             return result;
         }
         
-        ValueSet queryExactMatches(const String& prefix) const {
+        ValueList queryExactMatches(const String& prefix) const {
             assert(m_root != NULL);
-            ValueSet result;
+            ValueList result;
             m_root->queryExact(prefix, result);
             return result;
         }
     private:
-        StringIndex(const StringIndex& other);
-        StringIndex& operator=(const StringIndex& other);
+        StringMap(const StringMap& other);
+        StringMap& operator=(const StringMap& other);
     };
 }
 
-#endif /* defined(__TrenchBroom__StringIndex__) */
+#endif /* defined(__TrenchBroom__StringMap__) */

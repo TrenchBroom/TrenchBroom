@@ -20,6 +20,7 @@
 #include "Model/Issue.h"
 
 #include "CollectionUtils.h"
+#include "Model/Entity.h"
 #include "Model/Node.h"
 
 #include <cassert>
@@ -36,7 +37,7 @@ namespace TrenchBroom {
             return m_node->lineNumber();
         }
         
-        const String& Issue::description() const {
+        const String Issue::description() const {
             return doGetDescription();
         }
 
@@ -84,6 +85,10 @@ namespace TrenchBroom {
 
         EntityIssue::EntityIssue(Node* node) :
         Issue(node) {}
+
+        Entity* EntityIssue::entity() const {
+            return static_cast<Entity*>(m_node);
+        }
 
         void EntityIssue::doAddSelectableNodes(Model::NodeList& nodes) const {
             if (m_node->hasChildren())

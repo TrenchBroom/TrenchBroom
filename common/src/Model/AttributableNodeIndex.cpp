@@ -43,7 +43,7 @@ namespace TrenchBroom {
             return AttributableNodeIndexQuery(Type_Any);
         }
         
-        AttributableNodeSet AttributableNodeIndexQuery::execute(const StringIndex<AttributableNode*>& index) const {
+        AttributableNodeSet AttributableNodeIndexQuery::execute(const StringMultiMap<AttributableNode*>& index) const {
             switch (m_type) {
                 case Type_Exact:
                     return index.queryExactMatches(m_pattern);
@@ -57,6 +57,20 @@ namespace TrenchBroom {
             }
         }
         
+        bool AttributableNodeIndexQuery::execute(const AttributableNode* node, const String& value) const {
+            switch (m_type) {
+                case Type_Exact:
+                    return node->hasAttribute(m_pattern, value);
+                case Type_Prefix:
+                    return node->hasAttributeWithPrefix(m_pattern, value);
+                case Type_Numbered:
+                    return node->hasNumberedAttribute(m_pattern, value);
+                case Type_Any:
+                    return true;
+                DEFAULT_SWITCH()
+            }
+        }
+
         AttributableNodeIndexQuery::AttributableNodeIndexQuery(const Type type, const String& pattern) :
         m_type(type),
         m_pattern(pattern) {}
@@ -89,15 +103,25 @@ namespace TrenchBroom {
             m_valueIndex.remove(value, attributable);
         }
 
-        AttributableNodeList AttributableNodeIndex::findAttributableNodes(const AttributableNodeIndexQuery& nameQuery, const AttributableNodeIndexQuery& valueQuery) const {
+        AttributableNodeList AttributableNodeIndex::findAttributableNodes(const AttributableNodeIndexQuery& nameQuery, const AttributeValue& value) const {
             const AttributableNodeSet nameResult = nameQuery.execute(m_nameIndex);
-            const AttributableNodeSet valueResult = valueQuery.execute(m_valueIndex);
+            const AttributableNodeSet valueResult = m_valueIndex.queryExactMatches(value);
             
             if (nameResult.empty() || valueResult.empty())
                 return EmptyAttributableNodeList;
 
             AttributableNodeList result;
             SetUtils::intersection(nameResult, valueResult, result);
+            
+            AttributableNodeList::iterator it = result.begin();
+            while (it != result.end()) {
+                const AttributableNode* node = *it;
+                if (!nameQuery.execute(node, value))
+                    it = result.erase(it);
+                else
+                    ++it;
+            }
+            
             return result;
         }
     }

@@ -136,6 +136,7 @@ namespace StringUtils {
     String trim(const String& str, const String& chars = " \n\t\r");
 
     size_t findFirstDifference(const String& str1, const String& str2);
+    bool isNumberedPrefix(const String& str, const String& prefix);
     bool isPrefix(const String& str, const String& prefix);
     bool isNumber(const String& str);
     

@@ -154,6 +154,7 @@ namespace TrenchBroom {
         
         void EntityAttributes::setAttributes(const EntityAttribute::List& attributes) {
             m_attributes = attributes;
+            rebuildIndex();
         }
 
         const EntityAttribute& EntityAttributes::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value, const Assets::AttributeDefinition* definition) {
@@ -164,6 +165,7 @@ namespace TrenchBroom {
                 return *it;
             } else {
                 m_attributes.push_back(EntityAttribute(name, value, definition));
+                m_index.insert(name, --m_attributes.end());
                 return m_attributes.back();
             }
         }
@@ -172,7 +174,9 @@ namespace TrenchBroom {
             EntityAttribute::List::iterator it = findAttribute(name);
             if (it == m_attributes.end())
                 return;
+            m_index.remove(it->name(), it);
             it->setName(newName, newDefinition);
+            m_index.insert(it->name(), it);
         }
 
         void EntityAttributes::removeAttribute(const AttributeName& name) {
@@ -180,6 +184,7 @@ namespace TrenchBroom {
             if (it == m_attributes.end())
                 return;
             m_attributes.erase(it);
+            m_index.remove(name, it);
         }
 
         void EntityAttributes::updateDefinitions(const Assets::EntityDefinition* entityDefinition) {
@@ -194,6 +199,36 @@ namespace TrenchBroom {
 
         bool EntityAttributes::hasAttribute(const AttributeName& name) const {
             return findAttribute(name) != m_attributes.end();
+        }
+
+        bool EntityAttributes::hasAttribute(const AttributeName& name, const AttributeValue& value) const {
+            const EntityAttribute::List::const_iterator it = findAttribute(name);
+            if (it == m_attributes.end())
+                return false;
+            return it->value() == value;
+        }
+        
+        bool EntityAttributes::hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const {
+            return containsValue(m_index.queryPrefixMatches(prefix), value);
+        }
+        
+        bool EntityAttributes::hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const {
+            return containsValue(m_index.queryNumberedMatches(prefix), value);
+        }
+
+        bool EntityAttributes::containsValue(const AttributeIndex::ValueList& matches, const AttributeValue& value) const {
+            if (matches.empty())
+                return false;
+            
+            AttributeIndex::ValueList::const_iterator it, end;
+            for (it = matches.begin(), end = matches.end(); it != end; ++it) {
+                const EntityAttribute::List::iterator attrIt = *it;
+                const EntityAttribute& attribute = *attrIt;
+                if (attribute.value() == value)
+                    return true;
+            }
+            
+            return false;
         }
 
         const AttributeValue* EntityAttributes::attribute(const AttributeName& name) const {
@@ -224,25 +259,31 @@ namespace TrenchBroom {
         }
 
         EntityAttribute::List::const_iterator EntityAttributes::findAttribute(const AttributeName& name) const {
-            EntityAttribute::List::const_iterator it, end;
-            for (it = m_attributes.begin(), end = m_attributes.end(); it != end; ++it) {
-                const EntityAttribute& attribute = *it;
-                if (attribute.name() == name)
-                    return it;
-            }
+            const AttributeIndex::ValueList matches = m_index.queryExactMatches(name);
+            if (matches.empty())
+                return m_attributes.end();
             
-            return end;
+            assert(matches.size() == 1);
+            return matches.front();
         }
         
         EntityAttribute::List::iterator EntityAttributes::findAttribute(const AttributeName& name) {
+            const AttributeIndex::ValueList matches = m_index.queryExactMatches(name);
+            if (matches.empty())
+                return m_attributes.end();
+            
+            assert(matches.size() == 1);
+            return matches.front();
+        }
+
+        void EntityAttributes::rebuildIndex() {
+            m_index.clear();
+            
             EntityAttribute::List::iterator it, end;
             for (it = m_attributes.begin(), end = m_attributes.end(); it != end; ++it) {
                 const EntityAttribute& attribute = *it;
-                if (attribute.name() == name)
-                    return it;
+                m_index.insert(attribute.name(), it);
             }
-            
-            return end;
         }
     }
 }

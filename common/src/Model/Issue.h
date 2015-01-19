@@ -35,7 +35,7 @@ namespace TrenchBroom {
 
             size_t seqId() const;
             size_t lineNumber() const;
-            const String& description() const;
+            const String description() const;
             
             IssueType type() const;
             Node* node() const;
@@ -49,13 +49,15 @@ namespace TrenchBroom {
             static IssueType freeType();
         private: // subclassing interface
             virtual IssueType doGetType() const = 0;
-            virtual const String& doGetDescription() const = 0;
+            virtual const String doGetDescription() const = 0;
             virtual void doAddSelectableNodes(Model::NodeList& nodes) const;
         };
         
         class EntityIssue : public Issue {
         protected:
             EntityIssue(Node* node);
+        protected:
+            Entity* entity() const;
         private:
             void doAddSelectableNodes(Model::NodeList& nodes) const;
         };

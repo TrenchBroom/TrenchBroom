@@ -21,10 +21,11 @@
 #define __TrenchBroom__EntityProperties__
 
 #include "StringUtils.h"
+#include "StringMap.h"
 #include "Model/ModelTypes.h"
 
 #include <map>
-#include <vector>
+#include <list>
 
 namespace TrenchBroom {
     namespace Assets {
@@ -69,7 +70,7 @@ namespace TrenchBroom {
         class EntityAttribute {
         public:
             typedef std::map<AttributableNode*, EntityAttribute> Map;
-            typedef std::vector<EntityAttribute> List;
+            typedef std::list<EntityAttribute> List;
             static const List EmptyList;
         private:
             AttributeName m_name;
@@ -97,6 +98,9 @@ namespace TrenchBroom {
         class EntityAttributes {
         private:
             EntityAttribute::List m_attributes;
+            
+            typedef StringMap<EntityAttribute::List::iterator> AttributeIndex;
+            AttributeIndex m_index;
         public:
             const EntityAttribute::List& attributes() const;
             void setAttributes(const EntityAttribute::List& attributes);
@@ -107,6 +111,12 @@ namespace TrenchBroom {
             void updateDefinitions(const Assets::EntityDefinition* entityDefinition);
             
             bool hasAttribute(const AttributeName& name) const;
+            bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
+            bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
+            bool hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const;
+        private:
+            bool containsValue(const AttributeIndex::ValueList& matches, const AttributeValue& value) const;
+        public:
             const AttributeValue* attribute(const AttributeName& name) const;
             const AttributeValue& safeAttribute(const AttributeName& name, const AttributeValue& defaultValue) const;
             
@@ -114,6 +124,8 @@ namespace TrenchBroom {
         private:
             EntityAttribute::List::const_iterator findAttribute(const AttributeName& name) const;
             EntityAttribute::List::iterator findAttribute(const AttributeName& name);
+            
+            void rebuildIndex();
         };
     }
 }

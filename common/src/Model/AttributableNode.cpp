@@ -129,6 +129,18 @@ namespace TrenchBroom {
             return m_attributes.hasAttribute(name);
         }
         
+        bool AttributableNode::hasAttribute(const AttributeName& name, const AttributeValue& value) const {
+            return m_attributes.hasAttribute(name, value);
+        }
+        
+        bool AttributableNode::hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const {
+            return m_attributes.hasAttributeWithPrefix(prefix, value);
+        }
+        
+        bool AttributableNode::hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const {
+            return m_attributes.hasNumberedAttribute(prefix, value);
+        }
+        
         const AttributeValue& AttributableNode::attribute(const AttributeName& name, const AttributeValue& defaultValue) const {
             const AttributeValue* value = m_attributes.attribute(name);
             if (value == NULL)
@@ -241,37 +253,41 @@ namespace TrenchBroom {
             EntityAttribute::List oldSorted = m_attributes.attributes();
             EntityAttribute::List newSorted = newAttributes;
             
-            VectorUtils::sort(oldSorted);
-            VectorUtils::sort(newSorted);
+            oldSorted.sort();
+            newSorted.sort();
             
-            size_t i = 0, j = 0;
-            while (i < oldSorted.size() && j < newSorted.size()) {
-                const EntityAttribute& oldAttr = oldSorted[i];
-                const EntityAttribute& newAttr = newSorted[j];
+            EntityAttribute::List::const_iterator oldIt = oldSorted.begin();
+            EntityAttribute::List::const_iterator oldEnd = oldSorted.end();
+            EntityAttribute::List::const_iterator newIt = newSorted.begin();
+            EntityAttribute::List::const_iterator newEnd = newSorted.end();
+            
+            while (oldIt != oldEnd && newIt != newEnd) {
+                const EntityAttribute& oldAttr = *oldIt;
+                const EntityAttribute& newAttr = *newIt;
                 
                 const int cmp = oldAttr.compare(newAttr);
                 if (cmp < 0) {
                     removeAttributeFromIndex(oldAttr.name(), oldAttr.value());
-                    ++i;
+                    ++oldIt;
                 } else if (cmp > 0) {
                     addAttributeToIndex(newAttr.name(), newAttr.value());
-                    ++j;
+                    ++newIt;
                 } else {
                     updateAttributeIndex(oldAttr.name(), oldAttr.value(), newAttr.name(), newAttr.value());
-                    ++i; ++j;
+                    ++oldIt; ++newIt;
                 }
             }
             
-            while (i < oldSorted.size()) {
-                const EntityAttribute& oldAttr = oldSorted[i];
+            while (oldIt != oldEnd) {
+                const EntityAttribute& oldAttr = *oldIt;
                 removeAttributeFromIndex(oldAttr.name(), oldAttr.value());
-                ++i;
+                ++oldIt;
             }
             
-            while (j < newSorted.size()) {
-                const EntityAttribute& newAttr = newSorted[j];
+            while (newIt != newEnd) {
+                const EntityAttribute& newAttr = *newIt;
                 addAttributeToIndex(newAttr.name(), newAttr.value());
-                ++j;
+                ++newIt;
             }
         }
         

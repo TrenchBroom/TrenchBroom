@@ -22,7 +22,7 @@
 
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
-#include "StringIndex.h"
+#include "StringMultiMap.h"
 
 #include <map>
 
@@ -45,15 +45,16 @@ namespace TrenchBroom {
             static AttributableNodeIndexQuery numbered(const String& pattern);
             static AttributableNodeIndexQuery any();
 
-            AttributableNodeSet execute(const StringIndex<AttributableNode*>& index) const;
+            AttributableNodeSet execute(const StringMultiMap<AttributableNode*>& index) const;
+            bool execute(const AttributableNode* node, const String& value) const;
         private:
             AttributableNodeIndexQuery(Type type, const String& pattern = "");
         };
         
         class AttributableNodeIndex {
         private:
-            StringIndex<AttributableNode*> m_nameIndex;
-            StringIndex<AttributableNode*> m_valueIndex;
+            StringMultiMap<AttributableNode*> m_nameIndex;
+            StringMultiMap<AttributableNode*> m_valueIndex;
         public:
             void addAttributableNode(AttributableNode* attributable);
             void removeAttributableNode(AttributableNode* attributable);
@@ -61,7 +62,7 @@ namespace TrenchBroom {
             void addAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             void removeAttribute(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             
-            AttributableNodeList findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributableNodeIndexQuery& valueQuery) const;
+            AttributableNodeList findAttributableNodes(const AttributableNodeIndexQuery& keyQuery, const AttributeValue& value) const;
         };
     }
 }

@@ -42,6 +42,7 @@
 #include "Model/EditorContext.h"
 #include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/Entity.h"
+#include "Model/EntityLinkSourceIssueGenerator.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
@@ -1056,6 +1057,7 @@ namespace TrenchBroom {
             assert(m_world != NULL);
             
             m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
+            m_world->registerIssueGenerator(new Model::EntityLinkSourceIssueGenerator());
         }
 
         const String MapDocument::filename() const {

@@ -223,13 +223,11 @@ namespace TrenchBroom {
         }
         
         void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
-            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name),
-                                                                              AttributableNodeIndexQuery::exact(value)));
+            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
         
         void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
-            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix),
-                                                                              AttributableNodeIndexQuery::exact(value)));
+            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
         
         void World::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
