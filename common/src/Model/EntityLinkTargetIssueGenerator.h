@@ -17,31 +17,25 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapFacade.h"
+#ifndef __TrenchBroom__EntityLinkTargetIssueGenerator__
+#define __TrenchBroom__EntityLinkTargetIssueGenerator__
 
-#include "Model/NodeCollection.h"
-
-#include <cassert>
+#include "Model/IssueGenerator.h"
+#include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        MapFacade::~MapFacade() {}
-
-        MapFacade::MoveVerticesResult::MoveVerticesResult(const bool i_success, const bool i_hasRemainingVertices) :
-        success(i_success),
-        hasRemainingVertices(i_hasRemainingVertices) {}
-
-        PushSelection::PushSelection(MapFacade* facade) :
-        m_facade(facade),
-        m_nodes(m_facade->selectedNodes().nodes()),
-        m_faces(m_facade->selectedBrushFaces()) {}
-        
-        PushSelection::~PushSelection() {
-            m_facade->deselectAll();
-            if (!m_nodes.empty())
-                m_facade->select(m_nodes);
-            else if (!m_faces.empty())
-                m_facade->select(m_faces);
-        }
+        class EntityLinkTargetIssueGenerator : public IssueGenerator {
+        private:
+            class EntityLinkTargetIssue;
+            class EntityLinkTargetIssueQuickFix;
+        public:
+            EntityLinkTargetIssueGenerator();
+        private:
+            void doGenerate(Entity* entity, IssueList& issues) const;
+            void processKeys(Entity* entity, const Model::AttributeNameList& names, IssueList& issues) const;
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__EntityLinkTargetIssueGenerator__) */

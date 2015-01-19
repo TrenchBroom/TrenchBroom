@@ -50,7 +50,7 @@ namespace TrenchBroom {
         class EntityLinkSourceIssueGenerator::EntityLinkSourceIssueQuickFix : public IssueQuickFix {
         public:
             EntityLinkSourceIssueQuickFix() :
-            IssueQuickFix("Delete targetname property") {}
+            IssueQuickFix("Delete property") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
                 facade->removeAttribute(AttributeNames::Targetname);
@@ -58,7 +58,9 @@ namespace TrenchBroom {
         };
         
         EntityLinkSourceIssueGenerator::EntityLinkSourceIssueGenerator() :
-        IssueGenerator(EntityLinkSourceIssue::Type, "Missing entity link source") {}
+        IssueGenerator(EntityLinkSourceIssue::Type, "Missing entity link source") {
+            addQuickFix(new EntityLinkSourceIssueQuickFix());
+        }
 
         void EntityLinkSourceIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
             if (entity->hasMissingSources())

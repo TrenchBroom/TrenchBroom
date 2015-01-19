@@ -28,10 +28,41 @@ namespace TrenchBroom {
     namespace Model {
         class BrushFaceAttributes;
         class ChangeBrushFaceAttributesRequest;
+        class NodeCollection;
 
         class MapFacade {
         public:
             virtual ~MapFacade();
+        public: // selection
+            virtual bool hasSelection() const = 0;
+            virtual bool hasSelectedNodes() const = 0;
+            virtual bool hasSelectedBrushFaces() const = 0;
+            
+            virtual const AttributableNodeList allSelectedAttributableNodes() const = 0;
+            virtual const NodeCollection& selectedNodes() const = 0;
+            virtual const BrushFaceList allSelectedBrushFaces() const = 0;
+            virtual const BrushFaceList& selectedBrushFaces() const = 0;
+            
+            virtual const BBox3& referenceBounds() const = 0;
+            virtual const BBox3& lastSelectionBounds() const = 0;
+            virtual const BBox3& selectionBounds() const = 0;
+            virtual const String& currentTextureName() const = 0;
+            
+            virtual void selectAllNodes() = 0;
+            virtual void selectSiblings() = 0;
+            virtual void selectTouching(bool del) = 0;
+            virtual void selectInside(bool del) = 0;
+            virtual void selectNodesWithFilePosition(const std::vector<size_t>& positions) = 0;
+            virtual void select(const NodeList& nodes) = 0;
+            virtual void select(Node* node) = 0;
+            virtual void select(const BrushFaceList& faces) = 0;
+            virtual void select(BrushFace* face) = 0;
+            virtual void convertToFaceSelection() = 0;
+            
+            virtual void deselectAll() = 0;
+            virtual void deselect(Node* node) = 0;
+            virtual void deselect(const NodeList& nodes) = 0;
+            virtual void deselect(BrushFace* face) = 0;
         public: // adding, removing, reparenting, and duplicating nodes
             virtual void addNode(Node* node, Node* parent) = 0;
             virtual void removeNode(Node* node) = 0;
@@ -79,6 +110,16 @@ namespace TrenchBroom {
             virtual bool moveFaces(const VertexToFacesMap& faces, const Vec3& delta) = 0;
             virtual bool splitEdges(const VertexToEdgesMap& edges, const Vec3& delta) = 0;
             virtual bool splitFaces(const VertexToFacesMap& faces, const Vec3& delta) = 0;
+        };
+        
+        class PushSelection {
+        private:
+            MapFacade* m_facade;
+            NodeList m_nodes;
+            BrushFaceList m_faces;
+        public:
+            PushSelection(MapFacade* facade);
+            ~PushSelection();
         };
     }
 }
