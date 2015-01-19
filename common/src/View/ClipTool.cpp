@@ -20,6 +20,7 @@
 #include "ClipTool.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "SetBool.h"
@@ -254,8 +255,7 @@ namespace TrenchBroom {
 
             if (index == 2 && m_numClipPoints == 2) {
                 Vec3 thirdPoint;
-                const bool success = virtualClipPoint(thirdPoint);
-                assert(success);
+                CHECK_BOOL(virtualClipPoint(thirdPoint));
                 return thirdPoint;
             }
             

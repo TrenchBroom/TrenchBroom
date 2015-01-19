@@ -57,6 +57,7 @@ namespace TrenchBroom {
             void OnSize(wxSizeEvent& event);
             
             void OnItemRightClick(wxListEvent& event);
+            void OnItemSelectionChanged(wxListEvent& event);
             void OnShowIssues(wxCommandEvent& event);
             void OnHideIssues(wxCommandEvent& event);
             void OnApplyQuickFix(wxCommandEvent& event);

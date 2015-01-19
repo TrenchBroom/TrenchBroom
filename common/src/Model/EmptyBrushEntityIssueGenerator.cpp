@@ -43,8 +43,7 @@ namespace TrenchBroom {
             }
             
             const String doGetDescription() const {
-                static const String description("Brush entity contains no brushes");
-                return description;
+                return entity()->classname() + " does not contain any brushes";
             }
         };
         

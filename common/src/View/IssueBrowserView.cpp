@@ -75,8 +75,6 @@ namespace TrenchBroom {
             if (GetSelectedItemCount() == 0 || event.GetIndex() < 0)
                 return;
             
-            updateSelection();
-            
             wxMenu popupMenu;
             popupMenu.Append(ShowIssuesCommandId, "Show");
             popupMenu.Append(HideIssuesCommandId, "Hide");
@@ -103,6 +101,10 @@ namespace TrenchBroom {
             PopupMenu(&popupMenu);
         }
         
+        void IssueBrowserView::OnItemSelectionChanged(wxListEvent& event) {
+            updateSelection();
+        }
+
         void IssueBrowserView::OnShowIssues(wxCommandEvent& event) {
             setIssueVisibility(true);
         }
@@ -252,6 +254,8 @@ namespace TrenchBroom {
         void IssueBrowserView::bindEvents() {
             Bind(wxEVT_SIZE, &IssueBrowserView::OnSize, this);
             Bind(wxEVT_LIST_ITEM_RIGHT_CLICK, &IssueBrowserView::OnItemRightClick, this);
+            Bind(wxEVT_LIST_ITEM_SELECTED, &IssueBrowserView::OnItemSelectionChanged, this);
+            Bind(wxEVT_LIST_ITEM_DESELECTED, &IssueBrowserView::OnItemSelectionChanged, this);
         }
     }
 }
