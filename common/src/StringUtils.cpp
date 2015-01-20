@@ -73,6 +73,19 @@ namespace StringUtils {
         return index;
     }
 
+    bool isNumberedPrefix(const String& str, const String& prefix) {
+        if (prefix.empty())
+            return true;
+        if (prefix.size() > str.size())
+            return false;
+        
+        const size_t firstDiff = findFirstDifference(str, prefix);
+        if (firstDiff < prefix.size())
+            return false;
+
+        return isNumber(String(str, firstDiff, str.length() - firstDiff));
+    }
+
     bool isPrefix(const String& str, const String& prefix) {
         if (prefix.empty())
             return true;

@@ -33,6 +33,7 @@
 #include "View/Console.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
+#include "View/InfoPanel.h"
 #include "View/Inspector.h"
 #include "View/MapDocument.h"
 #include "View/MapFrameDropTarget.h"
@@ -271,11 +272,12 @@ namespace TrenchBroom {
             vSplitter->setSashGravity(1.0f);
             vSplitter->SetName("MapFrameVSplitter");
             
-            m_console = new Console(vSplitter);
+            InfoPanel* infoPanel = new InfoPanel(vSplitter, m_document);
+            m_console = infoPanel->console();
             m_mapView = new SwitchableMapViewContainer(vSplitter, m_console, m_document, *m_contextManager);
             m_inspector = new Inspector(hSplitter, m_document, *m_contextManager);
             
-            vSplitter->splitHorizontally(m_mapView, m_console, wxSize(100, 100), wxSize(100, 100));
+            vSplitter->splitHorizontally(m_mapView, infoPanel, wxSize(100, 100), wxSize(100, 100));
             hSplitter->splitVertically(vSplitter, m_inspector, wxSize(100, 100), wxSize(350, 100));
             
             wxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);

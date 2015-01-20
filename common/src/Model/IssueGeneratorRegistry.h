@@ -20,25 +20,27 @@
 #ifndef __TrenchBroom__IssueGeneratorRegistry__
 #define __TrenchBroom__IssueGeneratorRegistry__
 
-#include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
 
 #include <vector>
 
 namespace TrenchBroom {
     namespace Model {
-        class IssueGeneratorRegistry : public IssueGenerator {
+        class IssueGenerator;
+        
+        class IssueGeneratorRegistry {
         private:
             IssueGeneratorList m_generators;
         public:
             ~IssueGeneratorRegistry();
             
+            const IssueGeneratorList& registeredGenerators() const;
+            IssueQuickFixList quickFixes(IssueType issueTypes) const;
+            
             void registerGenerator(IssueGenerator* generator);
             void unregisterAllGenerators();
         private:
             void clearGenerators();
-        private: // implement IssueGenerator interface
-            void doGenerate(Node* node, IssueList& issues) const;
         };
     }
 }

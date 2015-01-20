@@ -113,7 +113,7 @@ namespace TrenchBroom {
         }
         
         void Node::removeChild(Node* child) {
-            m_children.erase(doRemoveChild(m_children.begin(), m_children.end(), child), m_children.end());
+            doRemoveChild(child);
             decDescendantCount(child->descendantCount() + 1);
             decChildSelectionCount(child->selected() ? 1 : 0);
             decDescendantSelectionCount(child->descendantSelectionCount());
@@ -138,16 +138,14 @@ namespace TrenchBroom {
             descendantWasAdded(child);
         }
 
-        NodeList::iterator Node::doRemoveChild(NodeList::iterator begin, NodeList::iterator end, Node* child) {
+        void Node::doRemoveChild(Node* child) {
             assert(child != NULL);
             assert(child->parent() == this);
             assert(canRemoveChild(child));
 
-            NodeList::iterator it = std::remove(begin, end, child);
-            assert(it != m_children.end());
             child->setParent(NULL);
-            descendantWasRemoved(child);
-            return it;
+            VectorUtils::erase(m_children, child);
+            descendantWasRemoved(this, child);
         }
         
         void Node::clearChildren() {
@@ -156,16 +154,14 @@ namespace TrenchBroom {
 
         void Node::descendantWasAdded(Node* node) {
             doDescendantWasAdded(node);
-            updateIssues();
             if (m_parent != NULL)
                 m_parent->descendantWasAdded(node);
         }
         
-        void Node::descendantWasRemoved(Node* node) {
-            doDescendantWasRemoved(node);
-            updateIssues();
+        void Node::descendantWasRemoved(Node* oldParent, Node* node) {
+            doDescendantWasRemoved(oldParent, node);
             if (m_parent != NULL)
-                m_parent->descendantWasRemoved(node);
+                m_parent->descendantWasRemoved(oldParent, node);
         }
 
         void Node::incDescendantCount(const size_t delta) {
@@ -222,7 +218,6 @@ namespace TrenchBroom {
                 Node* child = *it;
                 child->ancestorDidChange();
             }
-            updateIssues();
         }
         
         void Node::nodeWillChange() {
@@ -233,7 +228,6 @@ namespace TrenchBroom {
         void Node::nodeDidChange() {
             if (m_parent != NULL)
                 m_parent->childDidChange(this);
-            updateIssues();
         }
         
         void Node::childWillChange(Node* node) {
@@ -394,17 +388,16 @@ namespace TrenchBroom {
                 m_hiddenIssues &= ~type;
         }
 
-        void Node::updateIssues() {
-            updateIssues(this);
-        }
-
-        void Node::updateIssues(Node* node) {
-            doUpdateIssues(node);
-        }
-
-        void Node::updateIssues(const IssueGenerator& generator) {
+        void Node::updateIssues(const IssueGeneratorList& issueGenerators) {
             clearIssues();
-            generateIssues(generator);
+            
+            IssueGeneratorList::const_iterator it, end;
+            for (it = issueGenerators.begin(), end = issueGenerators.end(); it != end; ++it) {
+                const IssueGenerator* generator = *it;
+                doGenerateIssues(generator, m_issues);
+            }
+
+            incFamilyIssueCount(m_issues.size());
         }
         
         void Node::clearIssues() {
@@ -412,16 +405,6 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_issues);
         }
         
-        void Node::generateIssues(const IssueGenerator& generator) {
-            const size_t oldIssueCount = m_issues.size();
-            generator.generate(this, m_issues);
-            const size_t newIssueCount = m_issues.size();
-            if (newIssueCount > oldIssueCount)
-                incFamilyIssueCount(newIssueCount - oldIssueCount);
-            else if (newIssueCount < oldIssueCount)
-                decFamilyIssueCount(oldIssueCount - newIssueCount);
-        }
-
         void Node::incFamilyIssueCount(const size_t delta) {
             if (delta == 0)
                 return;
@@ -460,7 +443,7 @@ namespace TrenchBroom {
         }
 
         void Node::doDescendantWasAdded(Node* node) {}
-        void Node::doDescendantWasRemoved(Node* node) {}
+        void Node::doDescendantWasRemoved(Node* oldParent, Node* node) {}
 
         void Node::doParentWillChange() {}
         void Node::doParentDidChange() {}
@@ -471,11 +454,6 @@ namespace TrenchBroom {
         void Node::doChildDidChange(Node* node) {}
         void Node::doDescendantWillChange(Node* node) {}
         void Node::doDescendantDidChange(Node* node) {}
-
-        void Node::doUpdateIssues(Node* node) {
-            if (m_parent != NULL)
-                m_parent->updateIssues(node);
-        }
 
         void Node::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
             if (m_parent != NULL)

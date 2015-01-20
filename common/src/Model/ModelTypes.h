@@ -96,12 +96,15 @@ namespace TrenchBroom {
         class NodeSnapshot;
         typedef std::vector<NodeSnapshot*> NodeSnapshotList;
         
-        typedef size_t IssueType;
+        typedef int IssueType;
 
         class Issue;
         typedef std::vector<Issue*> IssueList;
         static const IssueList EmptyIssueList(0);
 
+        class IssueQuickFix;
+        typedef std::vector<IssueQuickFix*> IssueQuickFixList;
+        
         class IssueGenerator;
         typedef std::vector<IssueGenerator*> IssueGeneratorList;
         

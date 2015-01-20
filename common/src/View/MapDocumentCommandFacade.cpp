@@ -31,6 +31,7 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
+#include "Model/Issue.h"
 #include "Model/Snapshot.h"
 #include "Model/TransformObjectVisitor.h"
 #include "Model/World.h"
@@ -430,7 +431,7 @@ namespace TrenchBroom {
             return snapshot;
         }
         
-        Model::EntityAttribute::Map MapDocumentCommandFacade::performConvertColorRange(const Model::AttributeName& name, ColorRange::Type colorRange) {
+        Model::EntityAttribute::Map MapDocumentCommandFacade::performConvertColorRange(const Model::AttributeName& name, Model::ColorRange::Type colorRange) {
             const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
             const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
             const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
@@ -448,7 +449,7 @@ namespace TrenchBroom {
                 const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
                 if (oldValue != DefaultValue) {
                     snapshot[node] = Model::EntityAttribute(name, oldValue);
-                    const Model::AttributeValue newValue = convertEntityColor(oldValue, colorRange);
+                    const Model::AttributeValue newValue = Model::convertEntityColor(oldValue, colorRange);
                     node->addOrUpdateAttribute(name, newValue);
                 }
             }
@@ -553,6 +554,25 @@ namespace TrenchBroom {
             request.evaluate(faces);
             setTextures(faces);
             brushFacesDidChangeNotifier(faces);
+        }
+
+        Model::Snapshot* MapDocumentCommandFacade::performFindPlanePoints() {
+            const Model::BrushList& brushes = m_selectedNodes.brushes();
+            Model::Snapshot* snapshot = new Model::Snapshot(brushes.begin(), brushes.end());
+            
+            const Model::NodeList nodes(brushes.begin(), brushes.end());
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            Model::BrushList::const_iterator it, end;
+            for (it = brushes.begin(), end = brushes.end(); it != end; ++it) {
+                Model::Brush* brush = *it;
+                brush->findIntegerPlanePoints(m_worldBounds);
+            }
+            
+            return snapshot;
         }
 
         Vec3::List MapDocumentCommandFacade::performSnapVertices(const Model::BrushVerticesMap& vertices, const size_t snapTo) {
@@ -822,6 +842,13 @@ namespace TrenchBroom {
                 nodes.erase(node);
                 assert(!VectorUtils::contains(nodes[parent], node));
                 nodes[parent].push_back(node);
+            }
+        }
+
+        void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {
+            if (issue->hidden() != hidden) {
+                issue->setHidden(hidden);
+                incModificationCount();
             }
         }
 

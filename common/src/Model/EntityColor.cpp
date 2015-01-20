@@ -27,28 +27,28 @@
 #include <cassert>
 
 namespace TrenchBroom {
-    namespace View {
+    namespace Model {
         
-        class DetectColorRangeVisitor : public Model::ConstNodeVisitor {
+        class DetectColorRangeVisitor : public ConstNodeVisitor {
         private:
-            const Model::AttributeName& m_name;
+            const AttributeName& m_name;
             ColorRange::Type m_range;
         public:
-            DetectColorRangeVisitor(const Model::AttributeName& name) :
+            DetectColorRangeVisitor(const AttributeName& name) :
             m_name(name),
             m_range(ColorRange::Unset) {}
             
             ColorRange::Type result() const { return m_range; }
         private:
-            void doVisit(const Model::World* world)   { visitAttributableNode(world); }
-            void doVisit(const Model::Layer* layer)   {}
-            void doVisit(const Model::Group* group)   {}
-            void doVisit(const Model::Entity* entity) { visitAttributableNode(entity); }
-            void doVisit(const Model::Brush* brush)   {}
+            void doVisit(const World* world)   { visitAttributableNode(world); }
+            void doVisit(const Layer* layer)   {}
+            void doVisit(const Group* group)   {}
+            void doVisit(const Entity* entity) { visitAttributableNode(entity); }
+            void doVisit(const Brush* brush)   {}
             
-            void visitAttributableNode(const Model::AttributableNode* attributable) {
-                static const Model::AttributeValue NullValue("");
-                const Model::AttributeValue& value = attributable->attribute(m_name, NullValue);
+            void visitAttributableNode(const AttributableNode* attributable) {
+                static const AttributeValue NullValue("");
+                const AttributeValue& value = attributable->attribute(m_name, NullValue);
                 if (value != NullValue) {
                     const ColorRange::Type attrRange = detectColorRange(value);
                     if (m_range == ColorRange::Unset)
@@ -59,9 +59,9 @@ namespace TrenchBroom {
             }
         };
         
-        ColorRange::Type detectColorRange(const Model::AttributeName& name, const Model::AttributableNodeList& attributables) {
+        ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables) {
             DetectColorRangeVisitor visitor(name);
-            Model::Node::accept(attributables.begin(), attributables.end(), visitor);
+            Node::accept(attributables.begin(), attributables.end(), visitor);
             return visitor.result();
         }
         

@@ -25,9 +25,11 @@
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
+#include "Model/IssueGenerator.h"
 #include "Model/Layer.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Picker.h"
+#include "Model/UpdateIssuesVisitor.h"
 
 #include <cassert>
 
@@ -63,26 +65,16 @@ namespace TrenchBroom {
             addChild(m_defaultLayer);
         }
 
-        class UpdateIssuesVisitor : public NodeVisitor {
-        private:
-            const IssueGenerator& m_generator;
-        public:
-            UpdateIssuesVisitor(const IssueGenerator& generator) :
-            m_generator(generator) {}
-        private:
-            void doVisit(World* world)   {  world->updateIssues(m_generator); }
-            void doVisit(Layer* layer)   {  layer->updateIssues(m_generator); }
-            void doVisit(Group* group)   {  group->updateIssues(m_generator); }
-            void doVisit(Entity* entity) { entity->updateIssues(m_generator); }
-            void doVisit(Brush* brush)   {  brush->updateIssues(m_generator); }
-        };
-        
-        void World::registerIssueGenerators(const IssueGeneratorList& generators) {
-            IssueGeneratorList::const_iterator it, end;
-            for (it = generators.begin(), end = generators.end(); it != end; ++it) {
-                IssueGenerator* generator = *it;
-                m_issueGeneratorRegistry.registerGenerator(generator);
-            }
+        const IssueGeneratorList& World::registeredIssueGenerators() const {
+            return m_issueGeneratorRegistry.registeredGenerators();
+        }
+
+        IssueQuickFixList World::quickFixes(const IssueType issueTypes) const {
+            return m_issueGeneratorRegistry.quickFixes(issueTypes);
+        }
+
+        void World::registerIssueGenerator(IssueGenerator* issueGenerator) {
+            m_issueGeneratorRegistry.registerGenerator(issueGenerator);
             updateAllIssues();
         }
 
@@ -92,7 +84,7 @@ namespace TrenchBroom {
         }
 
         void World::updateAllIssues() {
-            UpdateIssuesVisitor visitor(m_issueGeneratorRegistry);
+            UpdateIssuesVisitor visitor(m_issueGeneratorRegistry.registeredGenerators());
             acceptAndRecurse(visitor);
         }
 
@@ -185,13 +177,20 @@ namespace TrenchBroom {
         };
         
         void World::doDescendantWasAdded(Node* node) {
-            AddNodeToPicker visitor(m_picker);
-            node->acceptAndRecurse(visitor);
+            AddNodeToPicker addToPicker(m_picker);
+            node->acceptAndRecurse(addToPicker);
+
+            UpdateIssuesVisitor updateIssues(m_issueGeneratorRegistry.registeredGenerators());
+            node->acceptAndRecurse(updateIssues);
+            node->escalate(updateIssues);
         }
         
-        void World::doDescendantWasRemoved(Node* node) {
+        void World::doDescendantWasRemoved(Node* oldParent, Node* node) {
             RemoveNodeFromPicker visitor(m_picker);
             node->acceptAndRecurse(visitor);
+            
+            UpdateIssuesVisitor updateIssues(m_issueGeneratorRegistry.registeredGenerators());
+            oldParent->acceptAndEscalate(updateIssues);
         }
 
         void World::doDescendantWillChange(Node* node) {
@@ -202,14 +201,17 @@ namespace TrenchBroom {
         void World::doDescendantDidChange(Node* node) {
             AddNodeToPicker visitor(m_picker);
             node->accept(visitor);
+
+            UpdateIssuesVisitor updateIssues(m_issueGeneratorRegistry.registeredGenerators());
+            node->acceptAndEscalate(updateIssues);
         }
 
         bool World::doSelectable() const {
             return false;
         }
 
-        void World::doUpdateIssues(Node* node) {
-            node->updateIssues(m_issueGeneratorRegistry);
+        void World::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+            generator->generate(this, issues);
         }
 
         void World::doAccept(NodeVisitor& visitor) {
@@ -221,13 +223,11 @@ namespace TrenchBroom {
         }
         
         void World::doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {
-            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name),
-                                                                              AttributableNodeIndexQuery::exact(value)));
+            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value));
         }
         
         void World::doFindAttributableNodesWithNumberedAttribute(const AttributeName& prefix, const AttributeValue& value, AttributableNodeList& result) const {
-            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix),
-                                                                              AttributableNodeIndexQuery::exact(value)));
+            VectorUtils::append(result, m_attributableIndex.findAttributableNodes(AttributableNodeIndexQuery::numbered(prefix), value));
         }
         
         void World::doAddToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {

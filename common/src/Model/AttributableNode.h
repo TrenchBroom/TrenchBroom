@@ -55,6 +55,10 @@ namespace TrenchBroom {
             void setAttributes(const EntityAttribute::List& attributes);
 
             bool hasAttribute(const AttributeName& name) const;
+            bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
+            bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
+            bool hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const;
+            
             const AttributeValue& attribute(const AttributeName& name, const AttributeValue& defaultValue = DefaultAttributeValue) const;
             const AttributeValue& classname(const AttributeValue& defaultClassname = AttributeValues::NoClassname) const;
             

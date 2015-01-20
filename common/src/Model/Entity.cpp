@@ -27,6 +27,7 @@
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
+#include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 
@@ -96,7 +97,7 @@ namespace TrenchBroom {
             Entity* entity = new Entity();
             entity->setDefinition(definition());
             entity->setAttributes(attributes());
-            // entity->addChildren(clone(worldBounds, children()));
+            entity->addChildren(clone(worldBounds, children()));
             return entity;
         }
 
@@ -140,6 +141,10 @@ namespace TrenchBroom {
             return !hasChildren();
         }
 
+        void Entity::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+            generator->generate(this, issues);
+        }
+        
         void Entity::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }
@@ -222,8 +227,8 @@ namespace TrenchBroom {
             } else {
                 setOrigin(transformation * origin());
                 applyRotation(stripTranslation(transformation));
-                updateIssues();
             }
+            nodeDidChange();
         }
         
         bool Entity::doContains(const Node* node) const {

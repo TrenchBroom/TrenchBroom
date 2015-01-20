@@ -79,7 +79,7 @@ namespace TrenchBroom {
         Vec3 SnapBrushVerticesAlgorithm::snapVertex(const Vec3& position, const size_t snapTo) const {
             Vec3 result;
             for (size_t i = 0; i < 3; ++i)
-                result[i] = snapTo * Math::round(position[i] / snapTo);
+                result[i] = snapTo * Math::round(position[i] / static_cast<FloatType>(snapTo));
             return result;
         }
     }

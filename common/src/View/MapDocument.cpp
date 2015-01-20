@@ -40,11 +40,21 @@
 #include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/EditorContext.h"
+#include "Model/EmptyBrushEntityIssueGenerator.h"
 #include "Model/Entity.h"
+#include "Model/EntityLinkSourceIssueGenerator.h"
+#include "Model/EntityLinkTargetIssueGenerator.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
+#include "Model/MissingEntityClassnameIssueGenerator.h"
+#include "Model/MissingEntityDefinitionIssueGenerator.h"
+#include "Model/MixedBrushContentsIssueGenerator.h"
 #include "Model/NodeVisitor.h"
+#include "Model/NonIntegerPlanePointsIssueGenerator.h"
+#include "Model/NonIntegerVerticesIssueGenerator.h"
+#include "Model/WorldBoundsIssueGenerator.h"
+#include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
 #include "View/AddRemoveNodesCommand.h"
@@ -53,6 +63,7 @@
 #include "View/ConvertEntityColorCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/EntityDefinitionFileCommand.h"
+#include "View/FindPlanePointsCommand.h"
 #include "View/Grid.h"
 #include "View/MapViewConfig.h"
 #include "View/MoveBrushEdgesCommand.h"
@@ -517,6 +528,10 @@ namespace TrenchBroom {
             submit(ReparentNodesCommand::reparent(newParent, children));
         }
 
+        void MapDocument::reparentNodes(const Model::ParentChildrenMap& nodes) {
+            submit(ReparentNodesCommand::reparent(nodes));
+        }
+
         bool MapDocument::deleteObjects() {
             Transaction transaction(this, "Delete objects");
             const Model::NodeList nodes = m_selectedNodes.nodes();
@@ -568,7 +583,7 @@ namespace TrenchBroom {
             return submit(ChangeEntityAttributesCommand::remove(name));
         }
         
-        bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, ColorRange::Type range) {
+        bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, Model::ColorRange::Type range) {
             return submit(ConvertEntityColorCommand::convert(name, range));
         }
 
@@ -628,9 +643,9 @@ namespace TrenchBroom {
             return submit(SnapBrushVerticesCommand::snap(vertices, snapTo));
         }
 
-        MapDocument::MoveVerticesResult::MoveVerticesResult(const bool i_success, const bool i_hasRemainingVertices) :
-        success(i_success),
-        hasRemainingVertices(i_hasRemainingVertices) {}
+        bool MapDocument::findPlanePoints() {
+            return submit(FindPlanePointsCommand::findPlanePoints());
+        }
 
         MapDocument::MoveVerticesResult MapDocument::moveVertices(const Model::VertexToBrushesMap& vertices, const Vec3& delta) {
             MoveBrushVerticesCommand* command = MoveBrushVerticesCommand::move(vertices, delta);
@@ -1051,7 +1066,23 @@ namespace TrenchBroom {
             submit(SetModsCommand::set(mods));
         }
 
+        void MapDocument::setIssueHidden(Model::Issue* issue, const bool hidden) {
+            doSetIssueHidden(issue, hidden);
+        }
+
         void MapDocument::registerIssueGenerators() {
+            assert(m_world != NULL);
+            
+            m_world->registerIssueGenerator(new Model::MissingEntityClassnameIssueGenerator());
+            m_world->registerIssueGenerator(new Model::MissingEntityDefinitionIssueGenerator());
+            m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
+            m_world->registerIssueGenerator(new Model::PointEntityWithBrushesIssueGenerator());
+            m_world->registerIssueGenerator(new Model::EntityLinkSourceIssueGenerator());
+            m_world->registerIssueGenerator(new Model::EntityLinkTargetIssueGenerator());
+            m_world->registerIssueGenerator(new Model::NonIntegerPlanePointsIssueGenerator());
+            m_world->registerIssueGenerator(new Model::NonIntegerVerticesIssueGenerator());
+            m_world->registerIssueGenerator(new Model::MixedBrushContentsIssueGenerator());
+            m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(m_worldBounds));
         }
 
         const String MapDocument::filename() const {

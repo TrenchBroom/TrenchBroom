@@ -28,6 +28,7 @@
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupSnapshot.h"
+#include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/TransformObjectVisitor.h"
@@ -89,6 +90,10 @@ namespace TrenchBroom {
             return true;
         }
 
+        void Group::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+            generator->generate(this, issues);
+        }
+        
         void Group::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }

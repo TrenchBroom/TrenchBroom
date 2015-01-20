@@ -53,7 +53,9 @@ namespace TrenchBroom {
             void createDefaultLayer();
         public: // selection
             // issue generator registration
-            void registerIssueGenerators(const IssueGeneratorList& generators);
+            const IssueGeneratorList& registeredIssueGenerators() const;
+            IssueQuickFixList quickFixes(IssueType issueTypes) const;
+            void registerIssueGenerator(IssueGenerator* issueGenerator);
             void unregisterAllIssueGenerators();
         private:
             void updateAllIssues();
@@ -65,11 +67,11 @@ namespace TrenchBroom {
             bool doCanRemoveChild(const Node* child) const;
             bool doRemoveIfEmpty() const;
             void doDescendantWasAdded(Node* node);
-            void doDescendantWasRemoved(Node* node);
+            void doDescendantWasRemoved(Node* oldParent, Node* node);
             void doDescendantWillChange(Node* node);
             void doDescendantDidChange(Node* node);
             bool doSelectable() const;
-            void doUpdateIssues(Node* node);
+            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
             void doFindAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const;

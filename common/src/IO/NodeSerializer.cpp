@@ -149,7 +149,6 @@ namespace TrenchBroom {
         
         Model::EntityAttribute::List NodeSerializer::layerAttributes(const Model::Layer* layer) {
             Model::EntityAttribute::List attrs;
-            attrs.reserve(3);
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()));
@@ -158,7 +157,6 @@ namespace TrenchBroom {
         
         Model::EntityAttribute::List NodeSerializer::groupAttributes(const Model::Group* group) {
             Model::EntityAttribute::List attrs;
-            attrs.reserve(3);
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::GroupClassname));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeGroup));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupName, group->name()));

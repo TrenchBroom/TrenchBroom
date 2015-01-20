@@ -26,24 +26,40 @@ namespace TrenchBroom {
     namespace Model {
         
         class Issue {
+        private:
+            size_t m_seqId;
         protected:
             Node* const m_node;
         public:
             virtual ~Issue();
 
+            size_t seqId() const;
             size_t lineNumber() const;
-            const String& description() const;
+            const String description() const;
+            
+            IssueType type() const;
+            Node* node() const;
+            void addSelectableNodes(Model::NodeList& nodes) const;
             
             bool hidden() const;
             void setHidden(bool hidden);
         protected:
             Issue(Node* node);
+            static size_t nextSeqId();
             static IssueType freeType();
-        private:
-            IssueType type() const;
         private: // subclassing interface
             virtual IssueType doGetType() const = 0;
-            virtual const String& doGetDescription() const = 0;
+            virtual const String doGetDescription() const = 0;
+            virtual void doAddSelectableNodes(Model::NodeList& nodes) const;
+        };
+        
+        class EntityIssue : public Issue {
+        protected:
+            EntityIssue(Node* node);
+        protected:
+            Entity* entity() const;
+        private:
+            void doAddSelectableNodes(Model::NodeList& nodes) const;
         };
     }
 }

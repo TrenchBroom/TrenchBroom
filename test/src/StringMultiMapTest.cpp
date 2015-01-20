@@ -21,12 +21,12 @@
 
 #include "CollectionUtils.h"
 #include "Exceptions.h"
-#include "StringIndex.h"
+#include "StringMultiMap.h"
 #include "StringUtils.h"
 
 namespace TrenchBroom {
-    TEST(StringIndexTest, insert) {
-        StringIndex<String> index;
+    TEST(StringMultiMapTest, insert) {
+        StringMultiMap<String> index;
         index.insert("key", "value");
         index.insert("key2", "value");
         index.insert("key22", "value2");
@@ -71,8 +71,8 @@ namespace TrenchBroom {
         ASSERT_TRUE(result7.count("value4") > 0);
     }
     
-    TEST(StringIndexTest, remove) {
-        StringIndex<String> index;
+    TEST(StringMultiMapTest, remove) {
+        StringMultiMap<String> index;
         index.insert("andrew", "value");
         index.insert("andreas", "value");
         index.insert("andrar", "value2");
@@ -125,8 +125,8 @@ namespace TrenchBroom {
         ASSERT_TRUE(index.queryPrefixMatches("andrew").empty());
     }
 
-    TEST(StringIndexTest, queryExactMatches) {
-        StringIndex<String> index;
+    TEST(StringMultiMapTest, queryExactMatches) {
+        StringMultiMap<String> index;
         index.insert("key", "value");
         index.insert("key2", "value");
         index.insert("key22", "value2");
@@ -155,8 +155,8 @@ namespace TrenchBroom {
         ASSERT_TRUE(result6.empty());
     }
     
-    TEST(StringIndexTest, queryNumberedMatches) {
-        StringIndex<String> index;
+    TEST(StringMultiMapTest, queryNumberedMatches) {
+        StringMultiMap<String> index;
         index.insert("key", "value");
         index.insert("key2", "value");
         index.insert("key22", "value2");
@@ -186,8 +186,8 @@ namespace TrenchBroom {
         ASSERT_TRUE(result5.empty());
     }
     
-    TEST(StringIndexTest, splitMergeWithNumbers) {
-        StringIndex<String> index;
+    TEST(StringMultiMapTest, splitMergeWithNumbers) {
+        StringMultiMap<String> index;
         index.insert("3.67", "value3");
         index.insert("3.6", "value2");
         index.insert("3.5", "value1");

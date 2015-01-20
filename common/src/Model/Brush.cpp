@@ -29,6 +29,7 @@
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/Group.h"
+#include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
@@ -96,7 +97,7 @@ namespace TrenchBroom {
         
         void Brush::faceDidChange() {
             invalidateContentType();
-            updateIssues();
+            nodeDidChange();
         }
 
         void Brush::addFaces(const BrushFaceList& faces) {
@@ -396,6 +397,16 @@ namespace TrenchBroom {
             invalidateContentType();
         }
 
+        void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {
+            BrushFaceList::const_iterator it, end;
+            for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+                BrushFace* brushFace = *it;
+                brushFace->findIntegerPlanePoints();
+            }
+            rebuildGeometry(worldBounds);
+            nodeDidChange();
+        }
+
         bool Brush::checkGeometry() const {
             BrushFaceList::const_iterator fIt, fEnd;
             for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
@@ -488,6 +499,10 @@ namespace TrenchBroom {
             return true;
         }
         
+        void Brush::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+            generator->generate(this, issues);
+        }
+
         void Brush::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }

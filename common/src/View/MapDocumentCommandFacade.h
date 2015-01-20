@@ -24,9 +24,9 @@
 #include "VecMath.h"
 #include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/EntityAttributes.h"
+#include "Model/EntityColor.h"
 #include "Model/Node.h"
 #include "View/CommandProcessor.h"
-#include "View/EntityColor.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom {
@@ -67,7 +67,7 @@ namespace TrenchBroom {
         public: // entity attributes
             Model::EntityAttribute::Map performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
             Model::EntityAttribute::Map performRemoveAttribute(const Model::AttributeName& name);
-            Model::EntityAttribute::Map performConvertColorRange(const Model::AttributeName& name, ColorRange::Type colorRange);
+            Model::EntityAttribute::Map performConvertColorRange(const Model::AttributeName& name, Model::ColorRange::Type colorRange);
             void performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             void restoreAttributes(const Model::EntityAttribute::Map& attributes);
         public: // brush resizing
@@ -78,6 +78,7 @@ namespace TrenchBroom {
             void performShearTextures(const Vec2f& factors);
             void performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request);
         public: // vertices
+            Model::Snapshot* performFindPlanePoints();
             Vec3::List performSnapVertices(const Model::BrushVerticesMap& vertices, size_t snapTo);
             Vec3::List performMoveVertices(const Model::BrushVerticesMap& vertices, const Vec3& delta);
             Edge3::List performMoveEdges(const Model::BrushEdgesMap& edges, const Vec3& delta);
@@ -113,6 +114,8 @@ namespace TrenchBroom {
             void addEmptyNodes(Model::ParentChildrenMap& nodes) const;
             Model::NodeList collectEmptyNodes(const Model::ParentChildrenMap& nodes) const;
             void removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const;
+        private:
+            void doSetIssueHidden(Model::Issue* issue, bool hidden);
         public: // modification count
             void incModificationCount(size_t delta = 1);
             void decModificationCount(size_t delta = 1);

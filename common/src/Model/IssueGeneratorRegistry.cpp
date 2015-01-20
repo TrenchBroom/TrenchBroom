@@ -19,6 +19,9 @@
 
 #include "IssueGeneratorRegistry.h"
 
+#include "CollectionUtils.h"
+#include "Model/IssueGenerator.h"
+
 #include <cassert>
 
 namespace TrenchBroom {
@@ -27,6 +30,21 @@ namespace TrenchBroom {
             clearGenerators();
         }
         
+        const IssueGeneratorList& IssueGeneratorRegistry::registeredGenerators() const {
+            return m_generators;
+        }
+
+        IssueQuickFixList IssueGeneratorRegistry::quickFixes(const IssueType issueTypes) const {
+            IssueQuickFixList result;
+            IssueGeneratorList::const_iterator it, end;
+            for (it = m_generators.begin(), end = m_generators.end(); it != end; ++it) {
+                const IssueGenerator* generator = *it;
+                if ((generator->type() & issueTypes) != 0)
+                    VectorUtils::append(result, generator->quickFixes());
+            }
+            return result;
+        }
+
         void IssueGeneratorRegistry::registerGenerator(IssueGenerator* generator) {
             assert(generator != NULL);
             assert(!VectorUtils::contains(m_generators, generator));
@@ -39,14 +57,6 @@ namespace TrenchBroom {
 
         void IssueGeneratorRegistry::clearGenerators() {
             VectorUtils::clearAndDelete(m_generators);
-        }
-
-        void IssueGeneratorRegistry::doGenerate(Node* node, IssueList& issues) const {
-            IssueGeneratorList::const_iterator it, end;
-            for (it = m_generators.begin(), end = m_generators.end(); it != end; ++it) {
-                const IssueGenerator* generator = *it;
-                generator->generate(node, issues);
-            }
         }
     }
 }

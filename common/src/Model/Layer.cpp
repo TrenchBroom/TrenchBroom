@@ -19,6 +19,7 @@
 
 #include "Layer.h"
 
+#include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
@@ -85,6 +86,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        void Layer::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
+            generator->generate(this, issues);
+        }
+        
         void Layer::doAccept(NodeVisitor& visitor) {
             visitor.visit(this);
         }
