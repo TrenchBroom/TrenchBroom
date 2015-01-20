@@ -53,6 +53,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/NonIntegerPlanePointsIssueGenerator.h"
 #include "Model/NonIntegerVerticesIssueGenerator.h"
+#include "Model/WorldBoundsIssueGenerator.h"
 #include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
@@ -1081,6 +1082,7 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::NonIntegerPlanePointsIssueGenerator());
             m_world->registerIssueGenerator(new Model::NonIntegerVerticesIssueGenerator());
             m_world->registerIssueGenerator(new Model::MixedBrushContentsIssueGenerator());
+            m_world->registerIssueGenerator(new Model::WorldBoundsIssueGenerator(m_worldBounds));
         }
 
         const String MapDocument::filename() const {
