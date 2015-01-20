@@ -95,14 +95,12 @@ namespace TrenchBroom {
             template <typename I>
             void removeChildren(I cur, I end) {
                 size_t descendantCountDelta = 0;
-                NodeList::iterator rem = m_children.end();
                 while (cur != end) {
                     Node* child = *cur;
-                    rem = doRemoveChild(m_children.begin(), rem, child);
+                    doRemoveChild(child);
                     descendantCountDelta += child->descendantCount() + 1;
                     ++cur;
                 }
-                m_children.erase(rem, m_children.end());
                 decDescendantCount(descendantCountDelta);
             }
             
@@ -112,7 +110,7 @@ namespace TrenchBroom {
             bool canRemoveChild(Node* child) const;
         private:
             void doAddChild(Node* child);
-            NodeList::iterator doRemoveChild(NodeList::iterator begin, NodeList::iterator end, Node* child);
+            void doRemoveChild(Node* child);
             void clearChildren();
             
             void descendantWasAdded(Node* node);

@@ -49,9 +49,11 @@
 #include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/MissingEntityClassnameIssueGenerator.h"
 #include "Model/MissingEntityDefinitionIssueGenerator.h"
+#include "Model/MixedBrushContentsIssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/NonIntegerPlanePointsIssueGenerator.h"
 #include "Model/NonIntegerVerticesIssueGenerator.h"
+#include "Model/PointEntityWithBrushesIssueGenerator.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
 #include "View/AddRemoveNodesCommand.h"
@@ -523,6 +525,10 @@ namespace TrenchBroom {
         
         void MapDocument::reparentNodes(Model::Node* newParent, const Model::NodeList& children) {
             submit(ReparentNodesCommand::reparent(newParent, children));
+        }
+
+        void MapDocument::reparentNodes(const Model::ParentChildrenMap& nodes) {
+            submit(ReparentNodesCommand::reparent(nodes));
         }
 
         bool MapDocument::deleteObjects() {
@@ -1069,10 +1075,12 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::MissingEntityClassnameIssueGenerator());
             m_world->registerIssueGenerator(new Model::MissingEntityDefinitionIssueGenerator());
             m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
+            m_world->registerIssueGenerator(new Model::PointEntityWithBrushesIssueGenerator());
             m_world->registerIssueGenerator(new Model::EntityLinkSourceIssueGenerator());
             m_world->registerIssueGenerator(new Model::EntityLinkTargetIssueGenerator());
             m_world->registerIssueGenerator(new Model::NonIntegerPlanePointsIssueGenerator());
             m_world->registerIssueGenerator(new Model::NonIntegerVerticesIssueGenerator());
+            m_world->registerIssueGenerator(new Model::MixedBrushContentsIssueGenerator());
         }
 
         const String MapDocument::filename() const {

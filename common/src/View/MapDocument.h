@@ -211,6 +211,7 @@ namespace TrenchBroom {
             void removeNodes(const Model::NodeList& nodes);
 
             void reparentNodes(Model::Node* newParent, const Model::NodeList& children);
+            void reparentNodes(const Model::ParentChildrenMap& nodes);
             bool deleteObjects();
             bool duplicateObjects();
         public: // modifying transient layer attributes, declared in MapFacade interface

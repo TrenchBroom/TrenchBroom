@@ -113,7 +113,7 @@ namespace TrenchBroom {
         }
         
         void Node::removeChild(Node* child) {
-            m_children.erase(doRemoveChild(m_children.begin(), m_children.end(), child), m_children.end());
+            doRemoveChild(child);
             decDescendantCount(child->descendantCount() + 1);
             decChildSelectionCount(child->selected() ? 1 : 0);
             decDescendantSelectionCount(child->descendantSelectionCount());
@@ -138,16 +138,14 @@ namespace TrenchBroom {
             descendantWasAdded(child);
         }
 
-        NodeList::iterator Node::doRemoveChild(NodeList::iterator begin, NodeList::iterator end, Node* child) {
+        void Node::doRemoveChild(Node* child) {
             assert(child != NULL);
             assert(child->parent() == this);
             assert(canRemoveChild(child));
 
-            NodeList::iterator it = std::remove(begin, end, child);
-            assert(it != m_children.end());
             child->setParent(NULL);
+            VectorUtils::erase(m_children, child);
             descendantWasRemoved(this, child);
-            return it;
         }
         
         void Node::clearChildren() {

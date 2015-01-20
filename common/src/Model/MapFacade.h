@@ -71,6 +71,7 @@ namespace TrenchBroom {
             virtual void removeNodes(const NodeList& nodes) = 0;
             
             virtual void reparentNodes(Node* newParent, const NodeList& children) = 0;
+            virtual void reparentNodes(const ParentChildrenMap& nodes) = 0;
             virtual bool deleteObjects() = 0;
             virtual bool duplicateObjects() = 0;
         public: // modifying transient layer attributes

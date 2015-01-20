@@ -67,7 +67,7 @@ namespace TrenchBroom {
         void EmptyBrushEntityIssueGenerator::doGenerate(Entity* entity, IssueList& issues) const {
             assert(entity != NULL);
             const Assets::EntityDefinition* definition = entity->definition();
-            if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_BrushEntity && entity->children().empty())
+            if (definition != NULL && definition->type() == Assets::EntityDefinition::Type_BrushEntity && !entity->hasChildren())
                 issues.push_back(new EmptyBrushEntityIssue(entity));
         }
     }
