@@ -250,13 +250,13 @@ namespace TrenchBroom {
             if (edges.size() > 3)
                 return edges.size();
             
-            Vec3 edgeVector1 = edges[0]->vector();
-            Vec3 edgeVector2 = edges[1]->vector();
+            const Vec3 edgeVector1 = edges[0]->vector();
+            const Vec3 edgeVector2 = edges[1]->vector();
+            const Vec3 edgeVector3 = edges[2]->vector();
             
-            if (edgeVector1.parallelTo(edgeVector2)) {
-                const Vec3 edgeVector3 = edges[2]->vector();
-                assert(edgeVector1.parallelTo(edgeVector3));
-                assert(edgeVector2.parallelTo(edgeVector3));
+            if (edgeVector1.parallelTo(edgeVector2) &&
+                edgeVector1.parallelTo(edgeVector3) &&
+                edgeVector2.parallelTo(edgeVector3)) {
                 
                 const FloatType length1 = edgeVector1.squaredLength();
                 const FloatType length2 = edgeVector2.squaredLength();

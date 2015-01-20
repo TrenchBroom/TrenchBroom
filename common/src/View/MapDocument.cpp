@@ -48,7 +48,8 @@
 #include "Model/GameFactory.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/NodeVisitor.h"
-#include "Model/PlanePointsIssueGenerator.h"
+#include "Model/NonIntegerPlanePointsIssueGenerator.h"
+#include "Model/NonIntegerVerticesIssueGenerator.h"
 #include "Model/PointFile.h"
 #include "Model/World.h"
 #include "View/AddRemoveNodesCommand.h"
@@ -1066,7 +1067,8 @@ namespace TrenchBroom {
             m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
             m_world->registerIssueGenerator(new Model::EntityLinkSourceIssueGenerator());
             m_world->registerIssueGenerator(new Model::EntityLinkTargetIssueGenerator());
-            m_world->registerIssueGenerator(new Model::PlanePointsIssueGenerator());
+            m_world->registerIssueGenerator(new Model::NonIntegerPlanePointsIssueGenerator());
+            m_world->registerIssueGenerator(new Model::NonIntegerVerticesIssueGenerator());
         }
 
         const String MapDocument::filename() const {

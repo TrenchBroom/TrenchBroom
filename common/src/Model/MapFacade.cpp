@@ -31,6 +31,10 @@ namespace TrenchBroom {
         success(i_success),
         hasRemainingVertices(i_hasRemainingVertices) {}
 
+        bool MapFacade::snapVertices() {
+            return snapVertices(VertexToBrushesMap(), 1);
+        }
+
         PushSelection::PushSelection(MapFacade* facade) :
         m_facade(facade),
         m_nodes(m_facade->selectedNodes().nodes()),

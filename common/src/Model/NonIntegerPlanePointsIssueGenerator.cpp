@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PlanePointsIssueGenerator.h"
+#include "NonIntegerPlanePointsIssueGenerator.h"
 
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -30,13 +30,13 @@
 
 namespace TrenchBroom {
     namespace Model {
-        class PlanePointsIssueGenerator::PlanePointsIssue : public Issue {
+        class NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssue : public Issue {
         public:
-            friend class PlanePointsIssueQuickFix;
+            friend class NonIntegerPlanePointsIssueQuickFix;
         public:
             static const IssueType Type;
         public:
-            PlanePointsIssue(Brush* brush) :
+            NonIntegerPlanePointsIssue(Brush* brush) :
             Issue(brush) {}
             
             IssueType doGetType() const {
@@ -48,11 +48,11 @@ namespace TrenchBroom {
             }
         };
         
-        const IssueType PlanePointsIssueGenerator::PlanePointsIssue::Type = Issue::freeType();
+        const IssueType NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssue::Type = Issue::freeType();
 
-        class PlanePointsIssueGenerator::PlanePointsIssueQuickFix : public IssueQuickFix {
+        class NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssueQuickFix : public IssueQuickFix {
         public:
-            PlanePointsIssueQuickFix() :
+            NonIntegerPlanePointsIssueQuickFix() :
             IssueQuickFix("Convert plane points to integer") {}
         private:
             void doApply(MapFacade* facade, const IssueList& issues) const {
@@ -60,12 +60,12 @@ namespace TrenchBroom {
             }
         };
         
-        PlanePointsIssueGenerator::PlanePointsIssueGenerator() :
-        IssueGenerator(PlanePointsIssue::Type, "Non-integer plane points") {
-            addQuickFix(new PlanePointsIssueQuickFix());
+        NonIntegerPlanePointsIssueGenerator::NonIntegerPlanePointsIssueGenerator() :
+        IssueGenerator(NonIntegerPlanePointsIssue::Type, "Non-integer plane points") {
+            addQuickFix(new NonIntegerPlanePointsIssueQuickFix());
         }
 
-        void PlanePointsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
+        void NonIntegerPlanePointsIssueGenerator::doGenerate(Brush* brush, IssueList& issues) const {
             const BrushFaceList& faces = brush->faces();
             BrushFaceList::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
@@ -74,7 +74,7 @@ namespace TrenchBroom {
                 for (size_t i = 0; i < 3; ++i) {
                     const Vec3& point = points[i];
                     if (!point.isInteger()) {
-                        issues.push_back(new PlanePointsIssue(brush));
+                        issues.push_back(new NonIntegerPlanePointsIssue(brush));
                         return;
                     }
                 }

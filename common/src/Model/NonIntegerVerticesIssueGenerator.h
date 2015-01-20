@@ -17,24 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__PlanePointsIssueGenerator__
-#define __TrenchBroom__PlanePointsIssueGenerator__
+#ifndef __TrenchBroom__NonIntegerVerticesIssueGenerator__
+#define __TrenchBroom__NonIntegerVerticesIssueGenerator__
 
 #include "Model/IssueGenerator.h"
 #include "Model/ModelTypes.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class PlanePointsIssueGenerator : public IssueGenerator {
+        class NonIntegerVerticesIssueGenerator : public IssueGenerator {
         private:
-            class PlanePointsIssue;
-            class PlanePointsIssueQuickFix;
+            class NonIntegerVerticesIssue;
+            class NonIntegerVerticesIssueQuickFix;
         public:
-            PlanePointsIssueGenerator();
+            NonIntegerVerticesIssueGenerator();
         private:
             void doGenerate(Brush* brush, IssueList& issues) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__PlanePointsIssueGenerator__) */
+#endif /* defined(__TrenchBroom__NonIntegerVerticesIssueGenerator__) */
