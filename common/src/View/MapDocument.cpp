@@ -48,6 +48,7 @@
 #include "Model/GameFactory.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/MissingEntityClassnameIssueGenerator.h"
+#include "Model/MissingEntityDefinitionIssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/NonIntegerPlanePointsIssueGenerator.h"
 #include "Model/NonIntegerVerticesIssueGenerator.h"
@@ -1066,6 +1067,7 @@ namespace TrenchBroom {
             assert(m_world != NULL);
             
             m_world->registerIssueGenerator(new Model::MissingEntityClassnameIssueGenerator());
+            m_world->registerIssueGenerator(new Model::MissingEntityDefinitionIssueGenerator());
             m_world->registerIssueGenerator(new Model::EmptyBrushEntityIssueGenerator());
             m_world->registerIssueGenerator(new Model::EntityLinkSourceIssueGenerator());
             m_world->registerIssueGenerator(new Model::EntityLinkTargetIssueGenerator());
