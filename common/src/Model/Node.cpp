@@ -36,7 +36,7 @@ namespace TrenchBroom {
         m_descendantSelectionCount(0),
         m_lineNumber(0),
         m_lineCount(0),
-        m_familyIssueCount(0),
+        m_issuesValid(false),
         m_hiddenIssues(0) {}
         
         Node::~Node() {
@@ -156,12 +156,14 @@ namespace TrenchBroom {
             doDescendantWasAdded(node);
             if (m_parent != NULL)
                 m_parent->descendantWasAdded(node);
+            invalidateIssues();
         }
         
         void Node::descendantWasRemoved(Node* oldParent, Node* node) {
             doDescendantWasRemoved(oldParent, node);
             if (m_parent != NULL)
                 m_parent->descendantWasRemoved(oldParent, node);
+            invalidateIssues();
         }
 
         void Node::incDescendantCount(const size_t delta) {
@@ -208,7 +210,7 @@ namespace TrenchBroom {
                 Node* child = *it;
                 child->ancestorWillChange();
             }
-            clearIssues();
+            invalidateIssues();
         }
 
         void Node::ancestorDidChange() {
@@ -218,16 +220,19 @@ namespace TrenchBroom {
                 Node* child = *it;
                 child->ancestorDidChange();
             }
+            invalidateIssues();
         }
         
         void Node::nodeWillChange() {
             if (m_parent != NULL)
                 m_parent->childWillChange(this);
+            invalidateIssues();
         }
         
         void Node::nodeDidChange() {
             if (m_parent != NULL)
                 m_parent->childDidChange(this);
+            invalidateIssues();
         }
         
         void Node::childWillChange(Node* node) {
@@ -244,12 +249,14 @@ namespace TrenchBroom {
             doDescendantWillChange(node);
             if (m_parent != NULL)
                 m_parent->descendantWillChange(node);
+            invalidateIssues();
         }
         
         void Node::descendantDidChange(Node* node) {
             doDescendantDidChange(node);
             if (m_parent != NULL)
                 m_parent->descendantDidChange(node);
+            invalidateIssues();
         }
 
         bool Node::selected() const {
@@ -347,36 +354,12 @@ namespace TrenchBroom {
         bool Node::containsLine(const size_t lineNumber) const {
             return lineNumber >= m_lineNumber && lineNumber < m_lineNumber + m_lineCount;
         }
-        
-        size_t Node::familyIssueCount() const {
-            return m_familyIssueCount;
-        }
 
-        const IssueList& Node::issues() const {
+        const IssueList& Node::issues(const IssueGeneratorList& issueGenerators) {
+            validateIssues(issueGenerators);
             return m_issues;
         }
         
-        Issue* Node::findIssue(const size_t index) const {
-            assert(index < m_familyIssueCount);
-            
-            if (index < m_issues.size())
-                return m_issues[index];
-
-            size_t childIndex = index - m_issues.size();
-            NodeList::const_iterator it, end;
-            for (it = m_children.begin(), end = m_children.end(); it != end; ++it) {
-                Node* child = *it;
-                const size_t childIssueCount = child->familyIssueCount();
-                if (childIndex < childIssueCount)
-                    return child->findIssue(childIndex);
-                childIndex -= childIssueCount;
-            }
-            
-            // should never happen!
-            assert(false);
-            return NULL;
-        }
-
         bool Node::issueHidden(const IssueType type) const {
             return (type & m_hiddenIssues) != 0;
         }
@@ -388,38 +371,24 @@ namespace TrenchBroom {
                 m_hiddenIssues &= ~type;
         }
 
-        void Node::updateIssues(const IssueGeneratorList& issueGenerators) {
-            clearIssues();
-            
-            IssueGeneratorList::const_iterator it, end;
-            for (it = issueGenerators.begin(), end = issueGenerators.end(); it != end; ++it) {
-                const IssueGenerator* generator = *it;
-                doGenerateIssues(generator, m_issues);
+        void Node::validateIssues(const IssueGeneratorList& issueGenerators) {
+            if (!m_issuesValid) {
+                IssueGeneratorList::const_iterator it, end;
+                for (it = issueGenerators.begin(), end = issueGenerators.end(); it != end; ++it) {
+                    const IssueGenerator* generator = *it;
+                    doGenerateIssues(generator, m_issues);
+                }
+                m_issuesValid = true;
             }
-
-            incFamilyIssueCount(m_issues.size());
         }
         
-        void Node::clearIssues() {
-            decFamilyIssueCount(m_issues.size());
+        void Node::invalidateIssues() const {
+            clearIssues();
+            m_issuesValid = false;
+        }
+        
+        void Node::clearIssues() const {
             VectorUtils::clearAndDelete(m_issues);
-        }
-        
-        void Node::incFamilyIssueCount(const size_t delta) {
-            if (delta == 0)
-                return;
-            m_familyIssueCount += delta;
-            if (m_parent != NULL)
-                m_parent->incFamilyIssueCount(delta);
-        }
-        
-        void Node::decFamilyIssueCount(const size_t delta) {
-            if (delta == 0)
-                return;
-            assert(m_familyIssueCount >= delta);
-            m_familyIssueCount -= delta;
-            if (m_parent != NULL)
-                m_parent->decFamilyIssueCount(delta);
         }
 
         void Node::findAttributableNodesWithAttribute(const AttributeName& name, const AttributeValue& value, AttributableNodeList& result) const {

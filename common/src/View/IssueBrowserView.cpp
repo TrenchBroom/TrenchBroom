@@ -151,9 +151,10 @@ namespace TrenchBroom {
             m_issues.clear();
             
             MapDocumentSPtr document = lock(m_document);
-            const Model::World* world = document->world();
+            Model::World* world = document->world();
             if (world != NULL) {
-                Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
+                const Model::IssueGeneratorList& issueGenerators = world->registeredIssueGenerators();
+                Model::CollectMatchingIssuesVisitor<IssueVisible> visitor(issueGenerators, IssueVisible(m_hiddenGenerators, m_showHiddenIssues));
                 world->acceptAndRecurse(visitor);
                 m_issues = visitor.issues();
                 VectorUtils::sort(m_issues, IssueCmp());

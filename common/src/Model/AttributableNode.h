@@ -138,7 +138,8 @@ namespace TrenchBroom {
             void removeAllKillSources();
             void removeAllKillTargets();
             
-            void refreshAllLinks();
+            void removeAllLinks();
+            void addAllLinks();
             
             void addLinkSource(AttributableNode* attributable);
             void addLinkTarget(AttributableNode* attributable);

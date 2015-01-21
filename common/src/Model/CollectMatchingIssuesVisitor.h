@@ -31,25 +31,28 @@
 namespace TrenchBroom {
     namespace Model {
         template <typename P>
-        class CollectMatchingIssuesVisitor : public ConstNodeVisitor {
+        class CollectMatchingIssuesVisitor : public NodeVisitor {
         private:
+            const IssueGeneratorList& m_issueGenerators;
             P m_p;
             IssueList m_issues;
         public:
-            CollectMatchingIssuesVisitor(const P& p = P()) : m_p(p) {}
+            CollectMatchingIssuesVisitor(const IssueGeneratorList& issueGenerators, const P& p = P()) :
+            m_issueGenerators(issueGenerators),
+            m_p(p) {}
             
             const IssueList& issues() const {
                 return m_issues;
             }
         private:
-            void doVisit(const World* world)   { collectIssues(world);  }
-            void doVisit(const Layer* layer)   { collectIssues(layer);  }
-            void doVisit(const Group* group)   { collectIssues(group);  }
-            void doVisit(const Entity* entity) { collectIssues(entity); }
-            void doVisit(const Brush* brush)   { collectIssues(brush);  }
+            void doVisit(World* world)   { collectIssues(world);  }
+            void doVisit(Layer* layer)   { collectIssues(layer);  }
+            void doVisit(Group* group)   { collectIssues(group);  }
+            void doVisit(Entity* entity) { collectIssues(entity); }
+            void doVisit(Brush* brush)   { collectIssues(brush);  }
             
-            void collectIssues(const Node* node) {
-                const IssueList& issues = node->issues();
+            void collectIssues(Node* node) {
+                const IssueList& issues = node->issues(m_issueGenerators);
                 IssueList::const_iterator it, end;
                 for (it = issues.begin(), end = issues.end(); it != end; ++it) {
                     Issue* issue = *it;

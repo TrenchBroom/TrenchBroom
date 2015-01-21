@@ -489,6 +489,7 @@ namespace TrenchBroom {
                 target->addLinkSource(this);
                 m_linkTargets.push_back(target);
             }
+            invalidateIssues();
         }
         
         void AttributableNode::addKillTargets(const AttributableNodeList& targets) {
@@ -500,6 +501,7 @@ namespace TrenchBroom {
                 target->addKillSource(this);
                 m_killTargets.push_back(target);
             }
+            invalidateIssues();
         }
 
         void AttributableNode::addLinkSources(const AttributableNodeList& sources) {
@@ -511,6 +513,7 @@ namespace TrenchBroom {
                 linkSource->addLinkTarget(this);
                 m_linkSources.push_back(linkSource);
             }
+            invalidateIssues();
         }
         
         void AttributableNode::addKillSources(const AttributableNodeList& sources) {
@@ -522,6 +525,7 @@ namespace TrenchBroom {
                 killSource->addKillTarget(this);
                 m_killSources.push_back(killSource);
             }
+            invalidateIssues();
         }
 
         void AttributableNode::removeAllLinkSources() {
@@ -531,6 +535,7 @@ namespace TrenchBroom {
                 linkSource->removeLinkTarget(this);
             }
             m_linkSources.clear();
+            invalidateIssues();
         }
         
         void AttributableNode::removeAllLinkTargets() {
@@ -540,6 +545,7 @@ namespace TrenchBroom {
                 linkTarget->removeLinkSource(this);
             }
             m_linkTargets.clear();
+            invalidateIssues();
         }
         
         void AttributableNode::removeAllKillSources() {
@@ -549,6 +555,7 @@ namespace TrenchBroom {
                 killSource->removeKillTarget(this);
             }
             m_killSources.clear();
+            invalidateIssues();
         }
         
         void AttributableNode::removeAllKillTargets() {
@@ -558,14 +565,17 @@ namespace TrenchBroom {
                 killTarget->removeKillSource(this);
             }
             m_killTargets.clear();
+            invalidateIssues();
         }
 
-        void AttributableNode::refreshAllLinks() {
+        void AttributableNode::removeAllLinks() {
             removeAllLinkSources();
             removeAllLinkTargets();
             removeAllKillSources();
             removeAllKillTargets();
-
+        }
+        
+        void AttributableNode::addAllLinks() {
             addAllLinkTargets();
             addAllKillTargets();
             
@@ -577,47 +587,55 @@ namespace TrenchBroom {
         }
         
         void AttributableNode::doAncestorWillChange() {
+            removeAllLinks();
             removeAttributesFromIndex();
         }
 
         void AttributableNode::doAncestorDidChange() {
             addAttributesToIndex();
-            refreshAllLinks();
+            addAllLinks();
         }
 
         void AttributableNode::addLinkSource(AttributableNode* attributable) {
             assert(attributable != NULL);
             m_linkSources.push_back(attributable);
+            invalidateIssues();
         }
         
         void AttributableNode::addLinkTarget(AttributableNode* attributable) {
             assert(attributable != NULL);
             m_linkTargets.push_back(attributable);
+            invalidateIssues();
         }
         
         void AttributableNode::addKillSource(AttributableNode* attributable) {
             assert(attributable != NULL);
             m_killSources.push_back(attributable);
+            invalidateIssues();
         }
         
         void AttributableNode::addKillTarget(AttributableNode* attributable) {
             assert(attributable != NULL);
             m_killTargets.push_back(attributable);
+            invalidateIssues();
         }
         
         void AttributableNode::removeLinkSource(AttributableNode* attributable) {
             assert(attributable != NULL);
             VectorUtils::erase(m_linkSources, attributable);
+            invalidateIssues();
         }
         
         void AttributableNode::removeLinkTarget(AttributableNode* attributable) {
             assert(attributable != NULL);
             VectorUtils::erase(m_linkTargets, attributable);
+            invalidateIssues();
         }
         
         void AttributableNode::removeKillSource(AttributableNode* attributable) {
             assert(attributable != NULL);
             VectorUtils::erase(m_killSources, attributable);
+            invalidateIssues();
         }
         
         AttributableNode::AttributableNode() :

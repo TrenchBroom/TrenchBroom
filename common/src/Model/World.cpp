@@ -29,7 +29,6 @@
 #include "Model/Layer.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Picker.h"
-#include "Model/UpdateIssuesVisitor.h"
 
 #include <cassert>
 
@@ -75,16 +74,27 @@ namespace TrenchBroom {
 
         void World::registerIssueGenerator(IssueGenerator* issueGenerator) {
             m_issueGeneratorRegistry.registerGenerator(issueGenerator);
-            updateAllIssues();
+            invalidateAllIssues();
         }
 
         void World::unregisterAllIssueGenerators() {
             m_issueGeneratorRegistry.unregisterAllGenerators();
-            updateAllIssues();
+            invalidateAllIssues();
         }
 
-        void World::updateAllIssues() {
-            UpdateIssuesVisitor visitor(m_issueGeneratorRegistry.registeredGenerators());
+        class World::InvalidateAllIssuesVisitor : public NodeVisitor {
+        private:
+            void doVisit(World* world)   { invalidateIssues(world);  }
+            void doVisit(Layer* layer)   { invalidateIssues(layer);  }
+            void doVisit(Group* group)   { invalidateIssues(group);  }
+            void doVisit(Entity* entity) { invalidateIssues(entity); }
+            void doVisit(Brush* brush)   { invalidateIssues(brush);  }
+            
+            void invalidateIssues(Node* node) { node->invalidateIssues(); }
+        };
+        
+        void World::invalidateAllIssues() {
+            InvalidateAllIssuesVisitor visitor;
             acceptAndRecurse(visitor);
         }
 
@@ -179,18 +189,11 @@ namespace TrenchBroom {
         void World::doDescendantWasAdded(Node* node) {
             AddNodeToPicker addToPicker(m_picker);
             node->acceptAndRecurse(addToPicker);
-
-            UpdateIssuesVisitor updateIssues(m_issueGeneratorRegistry.registeredGenerators());
-            node->acceptAndRecurse(updateIssues);
-            node->escalate(updateIssues);
         }
         
         void World::doDescendantWasRemoved(Node* oldParent, Node* node) {
             RemoveNodeFromPicker visitor(m_picker);
             node->acceptAndRecurse(visitor);
-            
-            UpdateIssuesVisitor updateIssues(m_issueGeneratorRegistry.registeredGenerators());
-            oldParent->acceptAndEscalate(updateIssues);
         }
 
         void World::doDescendantWillChange(Node* node) {
@@ -201,9 +204,6 @@ namespace TrenchBroom {
         void World::doDescendantDidChange(Node* node) {
             AddNodeToPicker visitor(m_picker);
             node->accept(visitor);
-
-            UpdateIssuesVisitor updateIssues(m_issueGeneratorRegistry.registeredGenerators());
-            node->acceptAndEscalate(updateIssues);
         }
 
         bool World::doSelectable() const {

@@ -43,6 +43,7 @@ namespace TrenchBroom {
             Picker m_picker;
             AttributableNodeIndex m_attributableIndex;
             IssueGeneratorRegistry m_issueGeneratorRegistry;
+            bool m_issuesMustBeValidated;
         public:
             World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder);
         public: // layer management
@@ -58,7 +59,8 @@ namespace TrenchBroom {
             void registerIssueGenerator(IssueGenerator* issueGenerator);
             void unregisterAllIssueGenerators();
         private:
-            void updateAllIssues();
+            class InvalidateAllIssuesVisitor;
+            void invalidateAllIssues();
         public: // picking
             void pick(const Ray3& ray, PickResult& pickResult) const;
         private: // implement Node interface

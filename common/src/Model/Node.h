@@ -39,8 +39,8 @@ namespace TrenchBroom {
             size_t m_lineNumber;
             size_t m_lineCount;
 
-            IssueList m_issues;
-            size_t m_familyIssueCount;
+            mutable IssueList m_issues;
+            mutable bool m_issuesValid;
             IssueType m_hiddenIssues;
         protected:
             Node();
@@ -158,19 +158,15 @@ namespace TrenchBroom {
             void setFilePosition(size_t lineNumber, size_t lineCount);
             bool containsLine(size_t lineNumber) const;
         public: // issue management
-            size_t familyIssueCount() const;
-            const IssueList& issues() const;
-            Issue* findIssue(size_t index) const;
-
+            const IssueList& issues(const IssueGeneratorList& issueGenerators);
+            
             bool issueHidden(IssueType type) const;
             void setIssueHidden(IssueType type, bool hidden);
-            
-            // should only be called by UpdateIssuesVisitor
-            void updateIssues(const IssueGeneratorList& issueGenerators);
+        public: // should only be called from this and from the world
+            void invalidateIssues() const;
         private:
-            void clearIssues();
-            void incFamilyIssueCount(size_t delta);
-            void decFamilyIssueCount(size_t delta);
+            void validateIssues(const IssueGeneratorList& issueGenerators);
+            void clearIssues() const;
         public: // visitors
             template <class V>
             void acceptAndRecurse(V& visitor) {
