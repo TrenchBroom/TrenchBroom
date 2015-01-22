@@ -84,6 +84,7 @@ namespace TrenchBroom {
             }
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+            sizer->Add(m_mapViewBar, 0, wxEXPAND);
             sizer->Add(m_mapView, 1, wxEXPAND);
             SetSizer(sizer);
             Layout();
