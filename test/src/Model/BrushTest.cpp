@@ -21,13 +21,14 @@
 
 #include "TestUtils.h"
 
-#include "Hit.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushContentTypeBuilder.h"
 #include "Model/BrushFace.h"
+#include "Model/Hit.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelFactoryImpl.h"
+#include "Model/PickResult.h"
 #include "Model/World.h"
 
 #include <algorithm>
@@ -125,7 +126,7 @@ namespace TrenchBroom {
             
             Brush brush(worldBounds, faces);
             
-            Hits hits1;
+            PickResult hits1;
             brush.pick(Ray3(Vec3(8.0, -8.0, 8.0), Vec3::PosY), hits1);
             ASSERT_EQ(1u, hits1.size());
             
@@ -134,7 +135,7 @@ namespace TrenchBroom {
             BrushFace* face1 = hit1.target<BrushFace*>();
             ASSERT_EQ(front, face1);
             
-            Hits hits2;
+            PickResult hits2;
             brush.pick(Ray3(Vec3(8.0, -8.0, 8.0), Vec3::NegY), hits2);
             ASSERT_TRUE(hits2.empty());
         }

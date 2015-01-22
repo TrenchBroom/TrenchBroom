@@ -28,13 +28,11 @@
 namespace TrenchBroom {
     namespace Model {
         static AttributableNodeList findExactExact(const AttributableNodeIndex& index, const AttributeName& name, const AttributeValue& value) {
-            return index.findAttributableNodes(AttributableNodeIndexQuery::exact(name),
-                                      AttributableNodeIndexQuery::exact(value));
+            return index.findAttributableNodes(AttributableNodeIndexQuery::exact(name), value);
         }
         
         static AttributableNodeList findNumberedExact(const AttributableNodeIndex& index, const AttributeName& name, const AttributeValue& value) {
-            return index.findAttributableNodes(AttributableNodeIndexQuery::numbered(name),
-                                      AttributableNodeIndexQuery::exact(value));
+            return index.findAttributableNodes(AttributableNodeIndexQuery::numbered(name), value);
         }
         
         TEST(EntityAttributeIndexTest, addAttributableNode) {

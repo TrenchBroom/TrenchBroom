@@ -71,6 +71,8 @@ namespace TrenchBroom {
             void doAccept(ConstNodeVisitor& visitor) const {
                 mockDoAccept(visitor);
             }
+        
+            void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {}
         public:
             MOCK_CONST_METHOD1(mockDoCanAddChild, bool(const Node*));
             MOCK_CONST_METHOD1(mockDoCanRemoveChild, bool(const Node*));
@@ -113,6 +115,7 @@ namespace TrenchBroom {
             virtual void doAncestorDidChange() {}
             virtual void doAccept(NodeVisitor& visitor) {}
             virtual void doAccept(ConstNodeVisitor& visitor) const {}
+            virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {}
         };
         
         class DestroyableNode : public TestNode {
