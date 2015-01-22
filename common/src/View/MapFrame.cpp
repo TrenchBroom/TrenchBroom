@@ -38,6 +38,7 @@
 #include "View/MapDocument.h"
 #include "View/MapFrameDropTarget.h"
 #include "View/Menu.h"
+#include "View/ReplaceTextureFrame.h"
 #include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
 
@@ -354,6 +355,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
 
+            Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
+
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
             
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleShowGrid, this, CommandIds::Menu::ViewToggleShowGrid);
@@ -521,6 +524,12 @@ namespace TrenchBroom {
             m_document->deselectAll();
         }
 
+        void MapFrame::OnEditReplaceTexture(wxCommandEvent& event) {
+            ReplaceTextureFrame* frame = new ReplaceTextureFrame(this, m_document, *m_contextManager);
+            frame->CenterOnParent();
+            frame->Show();
+        }
+
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
             m_document->setTextureLock(!m_document->textureLock());
         }
@@ -644,10 +653,10 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditSnapVertices:
                     event.Enable(m_mapView->canSnapVertices());
                     break;
+                     */
                 case CommandIds::Menu::EditReplaceTexture:
                     event.Enable(true);
                     break;
-                     */
                 case CommandIds::Menu::EditToggleTextureLock:
                     event.Enable(true);
                     event.Check(m_document->textureLock());

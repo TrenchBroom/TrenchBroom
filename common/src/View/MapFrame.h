@@ -122,6 +122,8 @@ namespace TrenchBroom {
             void OnEditSelectByLineNumber(wxCommandEvent& event);
             void OnEditSelectNone(wxCommandEvent& event);
 
+            void OnEditReplaceTexture(wxCommandEvent& event);
+
             void OnEditToggleTextureLock(wxCommandEvent& event);
 
             void OnViewToggleShowGrid(wxCommandEvent& event);
