@@ -200,7 +200,6 @@ namespace TrenchBroom {
         };
         
         Md2Parser::Md2Frame::Md2Frame(const size_t vertexCount) :
-        name("\0"),
         vertices(vertexCount) {}
 
         Vec3f Md2Parser::Md2Frame::vertex(const size_t index) const {

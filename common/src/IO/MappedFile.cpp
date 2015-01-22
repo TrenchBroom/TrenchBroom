@@ -96,7 +96,7 @@ namespace TrenchBroom {
             
             const String pathStr = path.asString();
 		    const size_t numChars = pathStr.size();
-		    LPWSTR uFilename = new TCHAR[numChars + 1];
+		    LPWSTR uFilename = new wchar_t[numChars + 1];
 		    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, pathStr.c_str(), numChars, uFilename, numChars + 1);
 		    uFilename[numChars] = 0;
             
