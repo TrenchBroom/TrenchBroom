@@ -46,6 +46,7 @@ namespace TrenchBroom {
             if (showPointEntities == m_showPointEntities)
                 return;
             m_showPointEntities = showPointEntities;
+            editorContextDidChangeNotifier();
         }
         
         bool EditorContext::showBrushes() const {
@@ -56,6 +57,7 @@ namespace TrenchBroom {
             if (showBrushes == m_showBrushes)
                 return;
             m_showBrushes = showBrushes;
+            editorContextDidChangeNotifier();
         }
         
         Model::BrushContentType::FlagType EditorContext::hiddenBrushContentTypes() const {
@@ -66,6 +68,7 @@ namespace TrenchBroom {
             if (brushContentTypes == m_hiddenBrushContentTypes)
                 return;
             m_hiddenBrushContentTypes = brushContentTypes;
+            editorContextDidChangeNotifier();
         }
         
         bool EditorContext::entityDefinitionHidden(const Assets::EntityDefinition* definition) const {
@@ -78,6 +81,7 @@ namespace TrenchBroom {
             if (definition == NULL || entityDefinitionHidden(definition) == hidden)
                 return;
             m_hiddenEntityDefinitions[definition->index()] = hidden;
+            editorContextDidChangeNotifier();
         }
         
         EditorContext::EntityLinkMode EditorContext::entityLinkMode() const {
@@ -88,6 +92,7 @@ namespace TrenchBroom {
             if (entityLinkMode == m_entityLinkMode)
                 return;
             m_entityLinkMode = entityLinkMode;
+            editorContextDidChangeNotifier();
         }
 
         bool EditorContext::textureLock() const {
@@ -96,6 +101,7 @@ namespace TrenchBroom {
         
         void EditorContext::setTextureLock(const bool textureLock) {
             m_textureLock = textureLock;
+            editorContextDidChangeNotifier();
         }
 
         class NodeVisible : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {

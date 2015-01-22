@@ -39,6 +39,7 @@
 #include "View/FlyModeHelper.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
+#include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
 #include "View/ToolBoxDropTarget.h"
 #include "View/wxUtils.h"
@@ -81,6 +82,8 @@ namespace TrenchBroom {
             document->commandDoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
             document->commandUndoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
             document->selectionDidChangeNotifier.addObserver(this, &MapViewBase::selectionDidChange);
+            document->editorContextDidChangeNotifier.addObserver(this, &MapViewBase::editorContextDidChange);
+            document->mapViewConfigDidChangeNotifier.addObserver(this, &MapViewBase::mapViewConfigDidChange);
             
             Grid& grid = document->grid();
             grid.gridDidChangeNotifier.addObserver(this, &MapViewBase::gridDidChange);
@@ -101,6 +104,8 @@ namespace TrenchBroom {
                 document->commandDoneNotifier.removeObserver(this, &MapViewBase::commandProcessed);
                 document->commandUndoneNotifier.removeObserver(this, &MapViewBase::commandProcessed);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapViewBase::selectionDidChange);
+                document->editorContextDidChangeNotifier.removeObserver(this, &MapViewBase::editorContextDidChange);
+                document->mapViewConfigDidChangeNotifier.removeObserver(this, &MapViewBase::mapViewConfigDidChange);
                 
                 Grid& grid = document->grid();
                 grid.gridDidChangeNotifier.removeObserver(this, &MapViewBase::gridDidChange);
@@ -133,6 +138,14 @@ namespace TrenchBroom {
             updateAcceleratorTable(HasFocus());
         }
         
+        void MapViewBase::editorContextDidChange() {
+            Refresh();
+        }
+        
+        void MapViewBase::mapViewConfigDidChange() {
+            Refresh();
+        }
+
         void MapViewBase::gridDidChange() {
             Refresh();
         }
@@ -550,9 +563,19 @@ namespace TrenchBroom {
         
         Renderer::RenderContext MapViewBase::createRenderContext() {
             MapDocumentSPtr document = lock(m_document);
+            const MapViewConfig& mapViewConfig = document->mapViewConfig();
             const Grid& grid = document->grid();
             
             Renderer::RenderContext renderContext = doCreateRenderContext();
+            renderContext.setShowTextures(mapViewConfig.showTextures());
+            renderContext.setShowFaces(mapViewConfig.showFaces());
+            renderContext.setShowEdges(mapViewConfig.showEdges());
+            renderContext.setShadeFaces(mapViewConfig.shadeFaces());
+            renderContext.setShowPointEntities(mapViewConfig.showPointEntities());
+            renderContext.setShowPointEntityModels(mapViewConfig.showPointEntityModels());
+            renderContext.setShowEntityClassnames(mapViewConfig.showEntityClassnames());
+            renderContext.setShowEntityBounds(mapViewConfig.showEntityBounds());
+            renderContext.setShowFog(mapViewConfig.showFog());
             renderContext.setShowGrid(grid.visible());
             renderContext.setGridSize(grid.actualSize());
             return renderContext;

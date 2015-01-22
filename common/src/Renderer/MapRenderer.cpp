@@ -210,6 +210,18 @@ namespace TrenchBroom {
             renderer->setBrushEdgeColor(pref(Preferences::SelectedEdgeColor));
         }
 
+        void MapRenderer::invalidateLayerRenderers() {
+            RendererMap::iterator it, end;
+            for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
+                ObjectRenderer* renderer = it->second;
+                renderer->invalidate();
+            }
+        }
+        
+        void MapRenderer::invalidateSelectionRenderer() {
+            m_selectionRenderer->invalidate();
+        }
+
         void MapRenderer::bindObservers() {
             assert(!expired(m_document));
             View::MapDocumentSPtr document = lock(m_document);
@@ -221,6 +233,8 @@ namespace TrenchBroom {
             document->nodesDidChangeNotifier.addObserver(this, &MapRenderer::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &MapRenderer::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
+            document->editorContextDidChangeNotifier.addObserver(this, &MapRenderer::editorContextDidChange);
+            document->mapViewConfigDidChangeNotifier.addObserver(this, &MapRenderer::mapViewConfigDidChange);
             
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapRenderer::preferenceDidChange);
@@ -237,6 +251,8 @@ namespace TrenchBroom {
                 document->nodesDidChangeNotifier.removeObserver(this, &MapRenderer::nodesDidChange);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &MapRenderer::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
+                document->editorContextDidChangeNotifier.removeObserver(this, &MapRenderer::editorContextDidChange);
+                document->mapViewConfigDidChangeNotifier.removeObserver(this, &MapRenderer::mapViewConfigDidChange);
             }
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -456,6 +472,14 @@ namespace TrenchBroom {
                 result.insert(brush);
             }
             return result;
+        }
+
+        void MapRenderer::editorContextDidChange() {
+            invalidateLayerRenderers();
+        }
+        
+        void MapRenderer::mapViewConfigDidChange() {
+            invalidateLayerRenderers();
         }
 
         void MapRenderer::preferenceDidChange(const IO::Path& path) {

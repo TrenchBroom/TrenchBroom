@@ -76,6 +76,9 @@ namespace TrenchBroom {
             void setupLayerRenderers();
             void setupLayerRenderer(ObjectRenderer* renderer);
             void setupSelectionRenderer(ObjectRenderer* renderer);
+
+            void invalidateLayerRenderers();
+            void invalidateSelectionRenderer();
         private: // notification
             void bindObservers();
             void unbindObservers();
@@ -91,6 +94,9 @@ namespace TrenchBroom {
             
             void selectionDidChange(const View::Selection& selection);
             Model::BrushSet collectBrushes(const Model::BrushFaceList& faces);
+            
+            void editorContextDidChange();
+            void mapViewConfigDidChange();
             
             void preferenceDidChange(const IO::Path& path);
         };

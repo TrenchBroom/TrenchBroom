@@ -150,7 +150,7 @@ namespace TrenchBroom {
             m_currentLayer = currentLayer != NULL ? currentLayer : m_world->defaultLayer();
         }
 
-        const Model::EditorContext& MapDocument::editorContext() const {
+        Model::EditorContext& MapDocument::editorContext() const {
             return *m_editorContext;
         }
 
@@ -174,7 +174,7 @@ namespace TrenchBroom {
             return *m_textureManager;
         }
 
-        const View::MapViewConfig& MapDocument::mapViewConfig() const {
+        View::MapViewConfig& MapDocument::mapViewConfig() const {
             return *m_mapViewConfig;
         }
 
@@ -1117,11 +1117,15 @@ namespace TrenchBroom {
         void MapDocument::bindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
+            m_editorContext->editorContextDidChangeNotifier.addObserver(editorContextDidChangeNotifier);
+            m_mapViewConfig->mapViewConfigDidChangeNotifier.addObserver(mapViewConfigDidChangeNotifier);
         }
         
         void MapDocument::unbindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
+            m_editorContext->editorContextDidChangeNotifier.removeObserver(editorContextDidChangeNotifier);
+            m_mapViewConfig->mapViewConfigDidChangeNotifier.removeObserver(mapViewConfigDidChangeNotifier);
         }
         
         void MapDocument::preferenceDidChange(const IO::Path& path) {

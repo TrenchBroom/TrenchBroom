@@ -29,14 +29,13 @@ class wxStaticText;
 
 namespace TrenchBroom {
     namespace View {
-        class ModelFilterPopupEditor;
+        class ViewPopupEditor;
         
         class MapViewBar : public ContainerBar {
         private:
             MapDocumentWPtr m_document;
             wxBookCtrlBase* m_toolBook;
-            wxSearchCtrl* m_searchBox;
-            ModelFilterPopupEditor* m_filterEditor;
+            ViewPopupEditor* m_viewEditor;
         public:
             MapViewBar(wxWindow* parent, MapDocumentWPtr document);
             

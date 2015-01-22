@@ -81,6 +81,8 @@ namespace TrenchBroom {
             void toolChanged(Tool* tool);
             void commandProcessed(Command* command);
             void selectionDidChange(const Selection& selection);
+            void editorContextDidChange();
+            void mapViewConfigDidChange();
             void gridDidChange();
             void preferenceDidChange(const IO::Path& path);
         private: // interaction events

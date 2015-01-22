@@ -213,8 +213,10 @@ namespace TrenchBroom {
             void doVisit(const Model::Group* group) {}
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
-                countMesh(brush);
-                countEdges(brush);
+                if (filter.show(brush)) {
+                    countMesh(brush);
+                    countEdges(brush);
+                }
             }
             
             void countMesh(const Model::Brush* brush) {
@@ -265,8 +267,10 @@ namespace TrenchBroom {
             void doVisit(const Model::Group* group) {}
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
-                buildMesh(brush);
-                buildEdges(brush);
+                if (filter.show(brush)) {
+                    buildMesh(brush);
+                    buildEdges(brush);
+                }
             }
             
             void buildMesh(const Model::Brush* brush) {

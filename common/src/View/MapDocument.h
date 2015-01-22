@@ -105,6 +105,9 @@ namespace TrenchBroom {
             Notifier1<MapDocument*> documentWasSavedNotifier;
             Notifier0 documentModificationStateDidChangeNotifier;
             
+            Notifier0 editorContextDidChangeNotifier;
+            Notifier0 mapViewConfigDidChangeNotifier;
+            
             Notifier0 selectionWillChangeNotifier;
             Notifier1<const Selection&> selectionDidChangeNotifier;
             
@@ -136,7 +139,7 @@ namespace TrenchBroom {
             Model::Layer* currentLayer() const;
             void setCurrentLayer(Model::Layer* currentLayer);
             
-            const Model::EditorContext& editorContext() const;
+            Model::EditorContext& editorContext() const;
             bool textureLock();
             void setTextureLock(bool textureLock);
             
@@ -144,7 +147,7 @@ namespace TrenchBroom {
             Assets::EntityModelManager& entityModelManager();
             Assets::TextureManager& textureManager();
             
-            const MapViewConfig& mapViewConfig() const;
+            MapViewConfig& mapViewConfig() const;
             Grid& grid() const;
             
             Model::PointFile* pointFile() const;

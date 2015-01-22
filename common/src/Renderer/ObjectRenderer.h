@@ -55,6 +55,7 @@ namespace TrenchBroom {
             
             void updateBrushFaces(const Model::BrushFaceList& faces);
             
+            void invalidate();
             void clear();
         public: // configuration
             void setOverlayTextColor(const Color& overlayTextColor);

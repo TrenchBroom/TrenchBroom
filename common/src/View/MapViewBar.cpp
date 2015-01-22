@@ -21,6 +21,7 @@
 
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
+#include "View/ViewEditor.h"
 
 #include <wx/dcclient.h>
 #include <wx/simplebook.h>
@@ -34,8 +35,7 @@ namespace TrenchBroom {
         ContainerBar(parent, wxBOTTOM),
         m_document(document),
         m_toolBook(NULL),
-        m_searchBox(NULL),
-        m_filterEditor(NULL) {
+        m_viewEditor(NULL) {
 #if defined __APPLE__
             SetWindowVariant(wxWINDOW_VARIANT_SMALL);
 #endif
@@ -51,21 +51,14 @@ namespace TrenchBroom {
 
         void MapViewBar::createGui(MapDocumentWPtr document) {
             m_toolBook = new wxSimplebook(this);
-            m_searchBox = new wxSearchCtrl(this, wxID_ANY);
-            
-            m_searchBox->Bind(wxEVT_COMMAND_TEXT_UPDATED, &MapViewBar::OnSearchPatternChanged, this);
-            
-            // m_filterEditor = new ModelFilterPopupEditor(this, document);
+            m_viewEditor = new ViewPopupEditor(this, document);
             
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
             hSizer->Add(m_toolBook, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
             hSizer->AddSpacer(LayoutConstants::MediumHMargin);
-            hSizer->Add(m_searchBox, 0, wxEXPAND | wxALIGN_RIGHT | wxTOP);
-            // hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            // hSizer->Add(m_filterEditor, 0, wxALIGN_CENTRE_VERTICAL);
+            hSizer->Add(m_viewEditor, 0, wxALIGN_CENTRE_VERTICAL);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-            hSizer->SetItemMinSize(m_searchBox, 200, wxDefaultSize.y);
             
             wxSizer* vSizer = new wxBoxSizer(wxVERTICAL);
             vSizer->AddSpacer(LayoutConstants::NarrowVMargin);

@@ -118,6 +118,11 @@ namespace TrenchBroom {
             m_brushRenderer.invalidate();
         }
 
+        void ObjectRenderer::invalidate() {
+            m_brushRenderer.invalidate();
+            m_entityRenderer.invalidate();
+        }
+
         void ObjectRenderer::clear() {
             m_brushRenderer.clear();
             m_entityRenderer.clear();

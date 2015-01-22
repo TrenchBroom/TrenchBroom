@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__EditorContext__
 #define __TrenchBroom__EditorContext__
 
+#include "Notifier.h"
 #include "Model/BrushContentType.h"
 #include "Model/ModelTypes.h"
 
@@ -45,6 +46,8 @@ namespace TrenchBroom {
             EntityLinkMode m_entityLinkMode;
             
             bool m_textureLock;
+        public:
+            Notifier0 editorContextDidChangeNotifier;
         public:
             EditorContext();
             

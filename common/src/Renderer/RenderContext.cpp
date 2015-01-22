@@ -73,38 +73,74 @@ namespace TrenchBroom {
             return m_showTextures;
         }
         
+        void RenderContext::setShowTextures(const bool showTextures) {
+            m_showTextures = showTextures;
+        }
+
         bool RenderContext::showFaces() const {
             return m_renderMode == RenderMode_3D && m_showFaces;
         }
         
+        void RenderContext::setShowFaces(const bool showFaces) {
+            m_showFaces = showFaces;
+        }
+
         bool RenderContext::showEdges() const {
-            return m_showEdges;
+            return m_renderMode == RenderMode_2D || m_showEdges;
+        }
+
+        void RenderContext::setShowEdges(const bool showEdges) {
+            m_showEdges = showEdges;
         }
 
         bool RenderContext::shadeFaces() const {
             return m_shadeFaces;
         }
         
+        void RenderContext::setShadeFaces(const bool shadeFaces) {
+            m_shadeFaces = shadeFaces;
+        }
+
         bool RenderContext::showPointEntities() const {
             return m_showPointEntities;
         }
         
+        void RenderContext::setShowPointEntities(const bool showPointEntities) {
+            m_showPointEntities = showPointEntities;
+        }
+
         bool RenderContext::showPointEntityModels() const {
             return m_showPointEntityModels;
         }
         
+        void RenderContext::setShowPointEntityModels(const bool showPointEntityModels) {
+            m_showPointEntityModels = showPointEntityModels;
+        }
+
         bool RenderContext::showEntityClassnames() const {
             return m_showEntityClassnames;
+        }
+
+        void RenderContext::setShowEntityClassnames(const bool showEntityClassnames) {
+            m_showEntityClassnames = showEntityClassnames;
         }
 
         bool RenderContext::showEntityBounds() const {
             return m_showEntityBounds;
         }
 
+        void RenderContext::setShowEntityBounds(const bool showEntityBounds) {
+            m_showEntityBounds = showEntityBounds;
+        }
+
         bool RenderContext::showFog() const {
             return m_showFog;
         }
        
+        void RenderContext::setShowFog(const bool showFog) {
+            m_showFog = showFog;
+        }
+
         bool RenderContext::showGrid() const {
             return m_showGrid;
         }

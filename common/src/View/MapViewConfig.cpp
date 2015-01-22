@@ -41,7 +41,7 @@ namespace TrenchBroom {
             if (showEntityClassnames == m_showEntityClassnames)
                 return;
             m_showEntityClassnames = showEntityClassnames;
-            renderConfigDidChangeNotifier();
+            mapViewConfigDidChangeNotifier();
         }
         
         bool MapViewConfig::showPointEntities() const {
@@ -56,7 +56,7 @@ namespace TrenchBroom {
             if (showPointEntityModels == m_showPointEntityModels)
                 return;
             m_showPointEntityModels = showPointEntityModels;
-            renderConfigDidChangeNotifier();
+            mapViewConfigDidChangeNotifier();
         }
         
         bool MapViewConfig::showEntityBounds() const {
@@ -67,7 +67,7 @@ namespace TrenchBroom {
             if (showEntityBounds == m_showEntityBounds)
                 return;
             m_showEntityBounds = showEntityBounds;
-            renderConfigDidChangeNotifier();
+            mapViewConfigDidChangeNotifier();
         }
         
         bool MapViewConfig::showBrushes() const {
@@ -90,7 +90,7 @@ namespace TrenchBroom {
             if (faceRenderMode == m_faceRenderMode)
                 return;
             m_faceRenderMode = faceRenderMode;
-            renderConfigDidChangeNotifier();
+            mapViewConfigDidChangeNotifier();
         }
         
         bool MapViewConfig::shadeFaces() const {
@@ -101,7 +101,7 @@ namespace TrenchBroom {
             if (shadeFaces == m_shadeFaces)
                 return;
             m_shadeFaces = shadeFaces;
-            renderConfigDidChangeNotifier();
+            mapViewConfigDidChangeNotifier();
         }
         
         
@@ -113,7 +113,7 @@ namespace TrenchBroom {
             if (showFog == m_showFog)
                 return;
             m_showFog = showFog;
-            renderConfigDidChangeNotifier();
+            mapViewConfigDidChangeNotifier();
         }
         
         bool MapViewConfig::showEdges() const {
@@ -124,7 +124,7 @@ namespace TrenchBroom {
             if (showEdges == m_showEdges)
                 return;
             m_showEdges = showEdges;
-            renderConfigDidChangeNotifier();
+            mapViewConfigDidChangeNotifier();
         }
     }
 }

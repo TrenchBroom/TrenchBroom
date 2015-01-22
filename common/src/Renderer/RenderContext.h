@@ -88,16 +88,31 @@ namespace TrenchBroom {
             ShaderManager& shaderManager();
             
             bool showTextures() const;
+            void setShowTextures(bool showTextures);
+
             bool showFaces() const;
+            void setShowFaces(bool showFaces);
+            
             bool showEdges() const;
+            void setShowEdges(bool showEdges);
+            
             bool shadeFaces() const;
+            void setShadeFaces(bool shadeFaces);
             
             bool showPointEntities() const;
+            void setShowPointEntities(bool showPointEntities);
+            
             bool showPointEntityModels() const;
+            void setShowPointEntityModels(bool showPointEntityModels);
+            
             bool showEntityClassnames() const;
+            void setShowEntityClassnames(bool showEntityClassnames);
+            
             bool showEntityBounds() const;
+            void setShowEntityBounds(bool showEntityBounds);
             
             bool showFog() const;
+            void setShowFog(bool showFog);
             
             bool showGrid() const;
             void setShowGrid(bool showGrid);
