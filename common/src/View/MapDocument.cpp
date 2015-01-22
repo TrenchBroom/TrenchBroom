@@ -103,6 +103,7 @@ namespace TrenchBroom {
         m_grid(new Grid(4)),
         m_textureLock(false),
         m_path(DefaultDocumentName),
+        m_lastSaveModificationCount(0),
         m_modificationCount(0),
         m_currentTextureName(Model::BrushFace::NoTextureName),
         m_selectionBoundsValid(true) {
@@ -225,7 +226,7 @@ namespace TrenchBroom {
 
         void MapDocument::doSaveDocument(const IO::Path& path) {
             saveDocumentTo(path);
-            clearModificationCount();
+            setLastSaveModificationCount();
             setPath(path);
             documentWasSavedNotifier(this);
         }
@@ -1100,11 +1101,16 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::modified() const {
-            return m_modificationCount > 0;
+            return m_modificationCount != m_lastSaveModificationCount;
+        }
+
+        void MapDocument::setLastSaveModificationCount() {
+            m_lastSaveModificationCount = m_modificationCount;
+            documentModificationStateDidChangeNotifier();
         }
 
         void MapDocument::clearModificationCount() {
-            m_modificationCount = 0;
+            m_lastSaveModificationCount = m_modificationCount = 0;
             documentModificationStateDidChangeNotifier();
         }
         

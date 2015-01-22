@@ -79,6 +79,7 @@ namespace TrenchBroom {
             bool m_textureLock;
             
             IO::Path m_path;
+            size_t m_lastSaveModificationCount;
             size_t m_modificationCount;
 
             Model::NodeCollection m_partiallySelectedNodes;
@@ -350,6 +351,7 @@ namespace TrenchBroom {
         public: // modification count
             bool modified() const;
         private:
+            void setLastSaveModificationCount();
             void clearModificationCount();
         private: // observers
             void bindObservers();

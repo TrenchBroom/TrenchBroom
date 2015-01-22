@@ -167,7 +167,7 @@ namespace TrenchBroom {
         }
         
         Texture* TextureManager::texture(const String& name) const {
-            TextureMap::const_iterator it = m_texturesByName.find(name);
+            TextureMap::const_iterator it = m_texturesByName.find(StringUtils::toLower(name));
             if (it == m_texturesByName.end())
                 return NULL;
             return it->second;
@@ -287,14 +287,15 @@ namespace TrenchBroom {
                 TextureList::const_iterator tIt, tEnd;
                 for (tIt = textures.begin(), tEnd = textures.end(); tIt != tEnd; ++tIt) {
                     Texture* texture = *tIt;
+                    const String key = StringUtils::toLower(texture->name());
                     texture->setOverridden(false);
                     
-                    TextureMap::iterator mIt = m_texturesByName.find(texture->name());
+                    TextureMap::iterator mIt = m_texturesByName.find(key);
                     if (mIt != m_texturesByName.end()) {
                         mIt->second->setOverridden(true);
                         mIt->second = texture;
                     } else {
-                        m_texturesByName.insert(std::make_pair(texture->name(), texture));
+                        m_texturesByName.insert(std::make_pair(key, texture));
                     }
                 }
                 
