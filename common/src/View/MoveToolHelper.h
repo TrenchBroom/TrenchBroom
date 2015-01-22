@@ -79,7 +79,7 @@ namespace TrenchBroom {
             void endPlaneDrag(const InputState& inputState);
             void cancelPlaneDrag();
             void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void render(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             Plane3 dragPlane(const InputState& inputState, const Vec3& initialPoint) const;
             void addTracePoint(const Vec3& point);

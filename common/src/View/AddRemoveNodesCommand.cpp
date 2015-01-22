@@ -20,6 +20,7 @@
 #include "AddRemoveNodesCommand.h"
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"
 
@@ -69,6 +70,7 @@ namespace TrenchBroom {
                     return "Add objects";
                 case Action_Remove:
                     return "Remove objects";
+				DEFAULT_SWITCH()
             }
         }
         

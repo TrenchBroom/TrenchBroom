@@ -52,7 +52,7 @@ namespace TrenchBroom {
             deleteNode(layer);
         }
         
-        void MergeNodesIntoWorldVisitor::MergeNodesIntoWorldVisitor::doVisit(Group* group) {
+        void MergeNodesIntoWorldVisitor::doVisit(Group* group) {
             addNode(group);
         }
         

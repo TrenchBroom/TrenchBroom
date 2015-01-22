@@ -57,7 +57,7 @@ namespace TrenchBroom {
             virtual RotateInfo doGetRotateInfo(const InputState& inputState) const = 0;
             virtual bool doStartRotate(const InputState& inputState) = 0;
             virtual FloatType doGetAngle(const InputState& inputState, const Vec3& handlePoint, const Vec3& curPoint, const Vec3& axis) const = 0;
-            virtual bool doRotate(const Vec3& center, const Vec3& axis, const FloatType angle) = 0;
+            virtual bool doRotate(const Vec3& center, const Vec3& axis, FloatType angle) = 0;
             virtual void doEndRotate(const InputState& inputState) = 0;
             virtual void doCancelRotate() = 0;
         };
@@ -82,7 +82,7 @@ namespace TrenchBroom {
             void endPlaneDrag(const InputState& inputState);
             void cancelPlaneDrag();
             void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void render(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
         private:
             void renderAngleIndicator(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

@@ -19,6 +19,7 @@
 
 #include "ChangeEntityAttributesCommand.h"
 
+#include "Macros.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
@@ -72,6 +73,7 @@ namespace TrenchBroom {
                     return "Remove Attribute";
                 case Action_Rename:
                     return "Rename Attribute";
+				DEFAULT_SWITCH()
             }
         }
         

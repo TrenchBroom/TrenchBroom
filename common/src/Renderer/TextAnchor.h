@@ -58,7 +58,7 @@ namespace TrenchBroom {
         private:
             Vec3f basePosition() const;
             TextAlignment::Type alignment() const;
-            Vec2f extraOffsets(const TextAlignment::Type a, const Vec2f& size) const;
+            Vec2f extraOffsets(TextAlignment::Type a, const Vec2f& size) const;
         };
     }
 }
