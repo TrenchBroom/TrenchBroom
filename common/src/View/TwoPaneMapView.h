@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__TwoPaneMapView__
 #define __TrenchBroom__TwoPaneMapView__
 
+#include "View/CameraLinkHelper.h"
 #include "View/MapViewContainer.h"
 #include "View/ViewTypes.h"
 
@@ -45,6 +46,7 @@ namespace TrenchBroom {
             Logger* m_logger;
             MapDocumentWPtr m_document;
 
+            CameraLinkHelper m_linkHelper;
             MapView3D* m_mapView3D;
             CyclingMapView* m_mapView2D;
         public:

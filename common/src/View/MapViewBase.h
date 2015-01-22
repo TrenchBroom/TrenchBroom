@@ -22,9 +22,10 @@
 
 #include "Model/ModelTypes.h"
 #include "View/ActionContext.h"
+#include "View/CameraLinkHelper.h"
 #include "View/GLAttribs.h"
 #include "View/InputState.h"
-#include "MapView.h"
+#include "View/MapView.h"
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
 #include "View/ViewTypes.h"
@@ -54,7 +55,7 @@ namespace TrenchBroom {
         class Selection;
         class Tool;
         
-        class MapViewBase : public MapView, public RenderView, public ToolBoxConnector {
+        class MapViewBase : public MapView, public RenderView, public ToolBoxConnector, public CameraLinkableView {
         protected:
             Logger* m_logger;
             MapDocumentWPtr m_document;

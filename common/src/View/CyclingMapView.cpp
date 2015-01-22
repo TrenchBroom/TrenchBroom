@@ -109,5 +109,10 @@ namespace TrenchBroom {
             for (size_t i = 0; i < m_mapViews.size(); ++i)
                 m_mapViews[i]->moveCameraToCurrentTracePoint();
         }
+
+        void CyclingMapView::doLinkCamera(CameraLinkHelper& helper) {
+            for (size_t i = 0; i < m_mapViews.size(); ++i)
+                m_mapViews[i]->linkCamera(helper);
+        }
     }
 }

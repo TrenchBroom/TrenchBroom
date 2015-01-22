@@ -27,6 +27,7 @@
 #include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
+#include "View/CameraLinkHelper.h"
 #include "View/CameraTool2D.h"
 #include "View/ClipToolAdapter.h"
 #include "View/CommandIds.h"
@@ -252,6 +253,10 @@ namespace TrenchBroom {
         
         void MapView2D::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderBatch.addOneShot(new Renderer::GridRenderer(m_camera));
+        }
+        
+        void MapView2D::doLinkCamera(CameraLinkHelper& helper) {
+            helper.addCamera(&m_camera);
         }
     }
 }

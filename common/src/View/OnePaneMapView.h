@@ -17,58 +17,41 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__CyclingMapView__
-#define __TrenchBroom__CyclingMapView__
+#ifndef __TrenchBroom__OnePaneMapView__
+#define __TrenchBroom__OnePaneMapView__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MapViewContainer.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
 
-#include <vector>
-
 namespace TrenchBroom {
     class Logger;
     
     namespace Renderer {
         class MapRenderer;
+        class Vbo;
     }
     
     namespace View {
+        class CyclingMapView;
         class GLContextManager;
         class MapViewBase;
+        class MapView3D;
         class MapViewToolBox;
         
-        class CyclingMapView : public MapViewContainer, public CameraLinkableView {
-        public:
-            typedef enum {
-                View_3D  = 1,
-                View_XY  = 2,
-                View_XZ  = 4,
-                View_YZ  = 8,
-                View_ZZ  = View_XZ | View_YZ,
-                View_2D  = View_XY | View_ZZ,
-                View_ALL = View_3D | View_2D
-            } View;
+        class OnePaneMapView : public MapViewContainer {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
             
-            typedef std::vector<MapViewBase*> MapViewList;
-            MapViewList m_mapViews;
-            MapViewBase* m_currentMapView;
+            CameraLinkHelper m_linkHelper;
+            CyclingMapView* m_mapView;
         public:
-            CyclingMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
+            OnePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private:
-            void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views);
-        private:
-            void bindEvents();
-            void OnCycleMapView(wxCommandEvent& event);
-        private:
-            void switchToMapView(MapViewBase* mapView);
+            void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private: // implement MapViewContainer interface
             void doSetToolBoxDropTarget();
             void doClearDropTarget();
@@ -79,10 +62,8 @@ namespace TrenchBroom {
             void doMoveCameraToPosition(const Vec3& position);
             
             void doMoveCameraToCurrentTracePoint();
-        private: // implement CameraLinkableView interface
-            void doLinkCamera(CameraLinkHelper& linkHelper);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__CyclingMapView__) */
+#endif /* defined(__TrenchBroom__OnePaneMapView__) */

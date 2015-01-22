@@ -51,6 +51,9 @@ namespace TrenchBroom {
             m_mapView3D = new MapView3D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager);
             m_mapView2D = new CyclingMapView(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_2D);
             
+            m_mapView3D->linkCamera(m_linkHelper);
+            m_mapView2D->linkCamera(m_linkHelper);
+            
             splitter->splitVertically(m_mapView3D, m_mapView2D, wxSize(100, 100), wxSize(100, 100));
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);

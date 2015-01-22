@@ -127,6 +127,8 @@ namespace TrenchBroom {
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        private: // implement CameraLinkableView interface
+            void doLinkCamera(CameraLinkHelper& linkHelper);
         };
     }
 }

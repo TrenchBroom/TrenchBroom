@@ -486,5 +486,7 @@ namespace TrenchBroom {
         void MapView3D::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_compass->render(renderBatch);
         }
+        
+        void MapView3D::doLinkCamera(CameraLinkHelper& helper) {}
     }
 }

@@ -53,6 +53,11 @@ namespace TrenchBroom {
             m_mapViewXZ = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ);
             m_mapViewYZ = new MapView2D(splitter, m_logger, m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ);
             
+            m_mapView3D->linkCamera(m_linkHelper);
+            m_mapViewXY->linkCamera(m_linkHelper);
+            m_mapViewXZ->linkCamera(m_linkHelper);
+            m_mapViewYZ->linkCamera(m_linkHelper);
+            
             splitter->split(m_mapView3D, m_mapViewXY, m_mapViewXZ, m_mapViewYZ);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
