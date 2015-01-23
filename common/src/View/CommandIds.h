@@ -87,7 +87,7 @@ namespace TrenchBroom {
             
             namespace Actions {
                 const int Lowest                             = Menu::Highest + 1;
-                const int None                               = wxID_NONE;
+                const int Nothing                            = wxID_NONE;
                 const int ToggleClipTool                     = Lowest +   1;
                 const int ToggleClipSide                     = Lowest +   2;
                 const int PerformClip                        = Lowest +   3;
