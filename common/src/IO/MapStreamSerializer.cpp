@@ -24,9 +24,12 @@
 namespace TrenchBroom {
     namespace IO {
         class StandardStreamSerializer : public MapStreamSerializer {
+        private:
+            bool m_longFormat;
         public:
-            StandardStreamSerializer(std::ostream& stream) :
-            MapStreamSerializer(stream) {}
+            StandardStreamSerializer(std::ostream& stream, const bool longFormat) :
+            MapStreamSerializer(stream),
+            m_longFormat(longFormat) {}
         private:
             void doWriteBrushFace(std::ostream& stream, Model::BrushFace* face) {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
@@ -52,7 +55,7 @@ namespace TrenchBroom {
                 StringUtils::ftos(face->xScale(), FloatPrecision)   << " " <<
                 StringUtils::ftos(face->yScale(), FloatPrecision);
                 
-                if (face->hasSurfaceAttributes()) {
+                if (m_longFormat) {
                     stream << " " <<
                     face->surfaceContents()  << " " <<
                     face->surfaceFlags()     << " " <<
@@ -149,7 +152,9 @@ namespace TrenchBroom {
         NodeSerializer::Ptr MapStreamSerializer::create(const Model::MapFormat::Type format, std::ostream& stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
-                    return NodeSerializer::Ptr(new StandardStreamSerializer(stream));
+                    return NodeSerializer::Ptr(new StandardStreamSerializer(stream, false));
+                case Model::MapFormat::Quake2:
+                    return NodeSerializer::Ptr(new StandardStreamSerializer(stream, true));
                 case Model::MapFormat::Valve:
                     return NodeSerializer::Ptr(new ValveStreamSerializer(stream));
                 case Model::MapFormat::Hexen2:

@@ -256,20 +256,6 @@ namespace TrenchBroom {
             }
         }
         
-        /*
-        GameImpl::MapWriterPtr GameImpl::mapWriter(const MapFormat::Type format) const {
-            switch (format) {
-                case MapFormat::Standard:
-                    return MapWriterPtr(new IO::StandardMapWriter());
-                case MapFormat::Hexen2:
-                    return MapWriterPtr(new IO::Hexen2MapWriter());
-                case MapFormat::Valve:
-                    return MapWriterPtr(new IO::ValveMapWriter());
-            }
-            throw GameException("Map format is not supported for writing");
-        }
-         */
-        
         Assets::TextureCollection* GameImpl::loadWadTextureCollection(const Assets::TextureCollectionSpec& spec) const {
             assert(m_palette != NULL);
             

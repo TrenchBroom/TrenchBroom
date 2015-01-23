@@ -24,6 +24,8 @@ namespace TrenchBroom {
         MapFormat::Type mapFormat(const String& formatName) {
             if (formatName == "Standard")
                 return MapFormat::Standard;
+            if (formatName == "Quake2")
+                return MapFormat::Quake2;
             if (formatName == "Valve")
                 return MapFormat::Valve;
             if (formatName == "Hexen 2")

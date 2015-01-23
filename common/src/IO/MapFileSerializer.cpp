@@ -27,11 +27,12 @@ namespace TrenchBroom {
     namespace IO {
         class StandardFileSerializer : public MapFileSerializer {
         private:
-            String ShortFaceFormat;
-            String LongFaceFormat;
+            bool m_longFormat;
+            String FaceFormat;
         public:
-            StandardFileSerializer(const IO::Path& path) :
-            MapFileSerializer(path) {
+            StandardFileSerializer(const IO::Path& path, const bool longFormat) :
+            MapFileSerializer(path),
+            m_longFormat(longFormat) {
                 StringStream str;
                 str <<
                 "( %." << FloatPrecision << "g " <<
@@ -44,19 +45,17 @@ namespace TrenchBroom {
                 "%." << FloatPrecision << "g " <<
                 "%." << FloatPrecision << "g ) " <<
                 "%s %.6g %.6g %.6g %.6g %.6g";
-                ShortFaceFormat = str.str();
-                
-                str <<
-                " %d %d %.6g";
-                LongFaceFormat = str.str();
+                if (m_longFormat)
+                    str << " %d %d %.6g";
+                FaceFormat = str.str();
             }
         private:
             size_t doWriteBrushFace(FILE* stream, Model::BrushFace* face) {
                 const String& textureName = face->textureName().empty() ? Model::BrushFace::NoTextureName : face->textureName();
                 const Model::BrushFace::Points& points = face->points();
                 
-                if (face->hasSurfaceAttributes()) {
-                    std::fprintf(stream, LongFaceFormat.c_str(),
+                if (m_longFormat) {
+                    std::fprintf(stream, FaceFormat.c_str(),
                                  points[0].x(),
                                  points[0].y(),
                                  points[0].z(),
@@ -76,7 +75,7 @@ namespace TrenchBroom {
                                  face->surfaceFlags(),
                                  face->surfaceValue());
                 } else {
-                    std::fprintf(stream, ShortFaceFormat.c_str(),
+                    std::fprintf(stream, FaceFormat.c_str(),
                                  points[0].x(),
                                  points[0].y(),
                                  points[0].z(),
@@ -211,7 +210,9 @@ namespace TrenchBroom {
 
             switch (format) {
                 case Model::MapFormat::Standard:
-                    return NodeSerializer::Ptr(new StandardFileSerializer(path));
+                    return NodeSerializer::Ptr(new StandardFileSerializer(path, false));
+                case Model::MapFormat::Quake2:
+                    return NodeSerializer::Ptr(new StandardFileSerializer(path, true));
                 case Model::MapFormat::Valve:
                     return NodeSerializer::Ptr(new ValveFileSerializer(path));
                 case Model::MapFormat::Hexen2:

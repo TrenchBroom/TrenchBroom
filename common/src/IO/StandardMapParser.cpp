@@ -163,10 +163,9 @@ namespace TrenchBroom {
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal | QuakeMapToken::OParenthesis | QuakeMapToken::CBrace, token = m_tokenizer.nextToken()); // unknown Hexen 2 flag or Quake 2 surface contents
                 if (token.type() == QuakeMapToken::OParenthesis || token.type() == QuakeMapToken::CBrace)
                     format = Model::MapFormat::Hexen2;
+                else
+                    format = Model::MapFormat::Quake2;
             }
-            
-            if (format == Model::MapFormat::Unknown)
-                format = Model::MapFormat::Standard;
             
             m_tokenizer.reset();
             return format;
@@ -385,11 +384,8 @@ namespace TrenchBroom {
             if (m_format == Model::MapFormat::Hexen2) {
                 // noone seems to know what the extra face attribute in Hexen 2 maps does, so we discard it
                 expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
-                attribs.setSurfaceContents(0);
-                attribs.setSurfaceFlags(0);
-                attribs.setSurfaceValue(0.0f);
-            } else {
-                // if there is are additional values, then these are content and surface flags and surface value
+            } else if (m_format == Model::MapFormat::Quake2) {
+                // if there are additional values, then these are content and surface flags and surface value
                 if (m_tokenizer.peekToken().type() == QuakeMapToken::Integer) {
                     token = m_tokenizer.nextToken();
                     attribs.setSurfaceContents(token.toInteger<int>());
@@ -397,10 +393,6 @@ namespace TrenchBroom {
                     attribs.setSurfaceFlags(token.toInteger<int>());
                     expect(QuakeMapToken::Integer | QuakeMapToken::Decimal, token = m_tokenizer.nextToken());
                     attribs.setSurfaceValue(token.toFloat<float>());
-                } else {
-                    attribs.setSurfaceContents(0);
-                    attribs.setSurfaceFlags(0);
-                    attribs.setSurfaceValue(0.0f);
                 }
             }
             
