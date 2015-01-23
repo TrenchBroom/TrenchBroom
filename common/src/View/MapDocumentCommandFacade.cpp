@@ -712,13 +712,17 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
-            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
-            m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, spec.asString());
+            const Model::NodeList nodes(1, m_world);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
+             m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, spec.asString());
             entityDefinitionsDidChangeNotifier();
         }
 
         void MapDocumentCommandFacade::performAddExternalTextureCollections(const StringList& names) {
-            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            const Model::NodeList nodes(1, m_world);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
             addExternalTextureCollections(names);
             setTextures();
             updateExternalTextureCollectionProperty();
@@ -726,7 +730,9 @@ namespace TrenchBroom {
         }
         
         void MapDocumentCommandFacade::performRemoveExternalTextureCollections(const StringList& names) {
-            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            const Model::NodeList nodes(1, m_world);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
             unsetTextures();
             
             StringList::const_iterator it, end;
@@ -741,7 +747,9 @@ namespace TrenchBroom {
         }
         
         void MapDocumentCommandFacade::performMoveExternalTextureCollectionUp(const String& name) {
-            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            const Model::NodeList nodes(1, m_world);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
             m_textureManager->moveExternalTextureCollectionUp(name);
             setTextures();
             updateExternalTextureCollectionProperty();
@@ -749,7 +757,9 @@ namespace TrenchBroom {
         }
         
         void MapDocumentCommandFacade::performMoveExternalTextureCollectionDown(const String& name) {
-            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            const Model::NodeList nodes(1, m_world);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
             m_textureManager->moveExternalTextureCollectionDown(name);
             setTextures();
             updateExternalTextureCollectionProperty();
@@ -757,7 +767,9 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performSetMods(const StringList& mods) {
-            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, Model::NodeList(1, m_world));
+            const Model::NodeList nodes(1, m_world);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
             unsetEntityDefinitions();
             m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
             setEntityDefinitions();

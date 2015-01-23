@@ -82,6 +82,9 @@ namespace TrenchBroom {
             document->commandDoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
             document->commandUndoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
             document->selectionDidChangeNotifier.addObserver(this, &MapViewBase::selectionDidChange);
+            document->textureCollectionsDidChangeNotifier.addObserver(this, &MapViewBase::textureCollectionsDidChange);
+            document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapViewBase::entityDefinitionsDidChange);
+            document->modsDidChangeNotifier.addObserver(this, &MapViewBase::modsDidChange);
             document->editorContextDidChangeNotifier.addObserver(this, &MapViewBase::editorContextDidChange);
             document->mapViewConfigDidChangeNotifier.addObserver(this, &MapViewBase::mapViewConfigDidChange);
             
@@ -104,6 +107,9 @@ namespace TrenchBroom {
                 document->commandDoneNotifier.removeObserver(this, &MapViewBase::commandProcessed);
                 document->commandUndoneNotifier.removeObserver(this, &MapViewBase::commandProcessed);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapViewBase::selectionDidChange);
+                document->textureCollectionsDidChangeNotifier.removeObserver(this, &MapViewBase::textureCollectionsDidChange);
+                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapViewBase::entityDefinitionsDidChange);
+                document->modsDidChangeNotifier.removeObserver(this, &MapViewBase::modsDidChange);
                 document->editorContextDidChangeNotifier.removeObserver(this, &MapViewBase::editorContextDidChange);
                 document->mapViewConfigDidChangeNotifier.removeObserver(this, &MapViewBase::mapViewConfigDidChange);
                 
@@ -138,6 +144,18 @@ namespace TrenchBroom {
             updateAcceleratorTable(HasFocus());
         }
         
+        void MapViewBase::textureCollectionsDidChange() {
+            Refresh();
+        }
+        
+        void MapViewBase::entityDefinitionsDidChange() {
+            Refresh();
+        }
+        
+        void MapViewBase::modsDidChange() {
+            Refresh();
+        }
+
         void MapViewBase::editorContextDidChange() {
             Refresh();
         }

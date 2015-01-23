@@ -233,6 +233,9 @@ namespace TrenchBroom {
             document->nodesDidChangeNotifier.addObserver(this, &MapRenderer::nodesDidChange);
             document->brushFacesDidChangeNotifier.addObserver(this, &MapRenderer::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
+            document->textureCollectionsDidChangeNotifier.addObserver(this, &MapRenderer::textureCollectionsDidChange);
+            document->entityDefinitionsDidChangeNotifier.addObserver(this, &MapRenderer::entityDefinitionsDidChange);
+            document->modsDidChangeNotifier.addObserver(this, &MapRenderer::modsDidChange);
             document->editorContextDidChangeNotifier.addObserver(this, &MapRenderer::editorContextDidChange);
             document->mapViewConfigDidChangeNotifier.addObserver(this, &MapRenderer::mapViewConfigDidChange);
             
@@ -251,6 +254,9 @@ namespace TrenchBroom {
                 document->nodesDidChangeNotifier.removeObserver(this, &MapRenderer::nodesDidChange);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &MapRenderer::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
+                document->textureCollectionsDidChangeNotifier.removeObserver(this, &MapRenderer::textureCollectionsDidChange);
+                document->entityDefinitionsDidChangeNotifier.removeObserver(this, &MapRenderer::entityDefinitionsDidChange);
+                document->modsDidChangeNotifier.removeObserver(this, &MapRenderer::modsDidChange);
                 document->editorContextDidChangeNotifier.removeObserver(this, &MapRenderer::editorContextDidChange);
                 document->mapViewConfigDidChangeNotifier.removeObserver(this, &MapRenderer::mapViewConfigDidChange);
             }
@@ -472,6 +478,21 @@ namespace TrenchBroom {
                 result.insert(brush);
             }
             return result;
+        }
+
+        void MapRenderer::textureCollectionsDidChange() {
+            invalidateLayerRenderers();
+            invalidateSelectionRenderer();
+        }
+        
+        void MapRenderer::entityDefinitionsDidChange() {
+            invalidateLayerRenderers();
+            invalidateSelectionRenderer();
+        }
+        
+        void MapRenderer::modsDidChange() {
+            invalidateLayerRenderers();
+            invalidateSelectionRenderer();
         }
 
         void MapRenderer::editorContextDidChange() {
