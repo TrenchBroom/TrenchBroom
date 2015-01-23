@@ -21,7 +21,7 @@
 #define __TrenchBroom__ConvertEntityColorCommand__
 
 #include "Color.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
@@ -39,7 +39,7 @@ namespace TrenchBroom {
             Model::AttributeName m_attributeName;
             Model::ColorRange::Type m_colorRange;
             
-            Model::EntityAttribute::Map m_snapshots;
+            Model::EntityAttributeSnapshot::Map m_snapshots;
         public:
             static ConvertEntityColorCommand* convert(const Model::AttributeName& attributeName, Model::ColorRange::Type colorRange);
         private:

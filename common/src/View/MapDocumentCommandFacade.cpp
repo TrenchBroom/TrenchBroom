@@ -377,7 +377,7 @@ namespace TrenchBroom {
             invalidateSelectionBounds();
         }
 
-        Model::EntityAttribute::Map MapDocumentCommandFacade::performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
+        Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
             const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
             const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
             const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
@@ -385,18 +385,13 @@ namespace TrenchBroom {
             NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
-            static const Model::AttributeValue DefaultValue = "";
-            Model::EntityAttribute::Map snapshot;
+            Model::EntityAttributeSnapshot::Map snapshot;
             
             Model::AttributableNodeList::const_iterator it, end;
             for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
                 Model::AttributableNode* node = *it;
-                
-                const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
+                snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
                 node->addOrUpdateAttribute(name, value);
-                
-                if (oldValue != DefaultValue)
-                    snapshot[node] = Model::EntityAttribute(name, oldValue);
             }
             
             setEntityDefinitions(nodes);
@@ -404,7 +399,7 @@ namespace TrenchBroom {
             return snapshot;
         }
         
-        Model::EntityAttribute::Map MapDocumentCommandFacade::performRemoveAttribute(const Model::AttributeName& name) {
+        Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performRemoveAttribute(const Model::AttributeName& name) {
             const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
             const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
             const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
@@ -413,17 +408,13 @@ namespace TrenchBroom {
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
             static const Model::AttributeValue DefaultValue = "";
-            Model::EntityAttribute::Map snapshot;
+            Model::EntityAttributeSnapshot::Map snapshot;
             
             Model::AttributableNodeList::const_iterator it, end;
             for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
                 Model::AttributableNode* node = *it;
-                
-                const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
+                snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
                 node->removeAttribute(name);
-                
-                if (oldValue != DefaultValue)
-                    snapshot[node] = Model::EntityAttribute(name, oldValue);
             }
             
             setEntityDefinitions(nodes);
@@ -431,7 +422,7 @@ namespace TrenchBroom {
             return snapshot;
         }
         
-        Model::EntityAttribute::Map MapDocumentCommandFacade::performConvertColorRange(const Model::AttributeName& name, Model::ColorRange::Type colorRange) {
+        Model::EntityAttributeSnapshot::Map MapDocumentCommandFacade::performConvertColorRange(const Model::AttributeName& name, Model::ColorRange::Type colorRange) {
             const Model::AttributableNodeList attributableNodes = allSelectedAttributableNodes();
             const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
             const Model::NodeList parents = collectParents(nodes.begin(), nodes.end());
@@ -440,7 +431,7 @@ namespace TrenchBroom {
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
             
             static const Model::AttributeValue DefaultValue = "";
-            Model::EntityAttribute::Map snapshot;
+            Model::EntityAttributeSnapshot::Map snapshot;
 
             Model::AttributableNodeList::const_iterator it, end;
             for (it = attributableNodes.begin(), end = attributableNodes.end(); it != end; ++it) {
@@ -448,9 +439,8 @@ namespace TrenchBroom {
                 
                 const Model::AttributeValue& oldValue = node->attribute(name, DefaultValue);
                 if (oldValue != DefaultValue) {
-                    snapshot[node] = Model::EntityAttribute(name, oldValue);
-                    const Model::AttributeValue newValue = Model::convertEntityColor(oldValue, colorRange);
-                    node->addOrUpdateAttribute(name, newValue);
+                    snapshot.insert(std::make_pair(node, node->attributeSnapshot(name)));
+                    node->addOrUpdateAttribute(name, Model::convertEntityColor(oldValue, colorRange));
                 }
             }
             
@@ -474,7 +464,7 @@ namespace TrenchBroom {
             setEntityDefinitions(nodes);
         }
         
-        void MapDocumentCommandFacade::restoreAttributes(const Model::EntityAttribute::Map& attributes) {
+        void MapDocumentCommandFacade::restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes) {
             const Model::AttributableNodeList attributableNodes = MapUtils::keyList(attributes);
             const Model::NodeList nodes(attributableNodes.begin(), attributableNodes.end());
             
@@ -482,13 +472,13 @@ namespace TrenchBroom {
             NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
-            Model::EntityAttribute::Map::const_iterator it, end;
+            Model::EntityAttributeSnapshot::Map::const_iterator it, end;
             for (it = attributes.begin(), end = attributes.end(); it != end; ++it) {
                 Model::AttributableNode* node = it->first;
-                const Model::EntityAttribute& attr = it->second;
-                
                 assert(node->selected() || node->descendantSelected());
-                node->addOrUpdateAttribute(attr.name(), attr.value());
+                
+                const Model::EntityAttributeSnapshot& snapshot = it->second;
+                snapshot.restore(node);
             }
 
             setEntityDefinitions(nodes);

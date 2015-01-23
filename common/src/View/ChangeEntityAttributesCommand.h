@@ -20,7 +20,7 @@
 #ifndef __TrenchBroom__ChangeEntityAttributesCommand__
 #define __TrenchBroom__ChangeEntityAttributesCommand__
 
-#include "Model/EntityAttributes.h"
+#include "Model/EntityAttributeSnapshot.h"
 #include "Model/ModelTypes.h"
 #include "View/DocumentCommand.h"
 
@@ -43,7 +43,7 @@ namespace TrenchBroom {
             Model::AttributeName m_newName;
             Model::AttributeValue m_newValue;
             
-            Model::EntityAttribute::Map m_snapshots;
+            Model::EntityAttributeSnapshot::Map m_snapshots;
         public:
             static ChangeEntityAttributesCommand* set(const Model::AttributeName& name, const Model::AttributeValue& value);
             static ChangeEntityAttributesCommand* remove(const Model::AttributeName& name);

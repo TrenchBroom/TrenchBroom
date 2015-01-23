@@ -62,6 +62,8 @@ namespace TrenchBroom {
             const AttributeValue& attribute(const AttributeName& name, const AttributeValue& defaultValue = DefaultAttributeValue) const;
             const AttributeValue& classname(const AttributeValue& defaultClassname = AttributeValues::NoClassname) const;
             
+            EntityAttributeSnapshot attributeSnapshot(const AttributeName& name) const;
+            
             template <typename T>
             void addOrUpdateAttribute(const AttributeName& name, const T& value) {
                 addOrUpdateAttribute(name, convertValue(value));

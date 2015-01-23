@@ -152,6 +152,10 @@ namespace TrenchBroom {
             return attribute(AttributeNames::Classname, defaultClassname);
         }
 
+        EntityAttributeSnapshot AttributableNode::attributeSnapshot(const AttributeName& name) const {
+            return m_attributes.snapshot(name);
+        }
+
         bool AttributableNode::canAddOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) const {
             return isAttributeValueMutable(name);
         }

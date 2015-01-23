@@ -216,6 +216,15 @@ namespace TrenchBroom {
             return containsValue(m_index.queryNumberedMatches(prefix), value);
         }
 
+        EntityAttributeSnapshot EntityAttributes::snapshot(const AttributeName& name) const {
+            const AttributeIndex::ValueList matches = m_index.queryExactMatches(name);
+            if (matches.empty())
+                return EntityAttributeSnapshot(name);
+            
+            assert(matches.size() == 1);
+            return EntityAttributeSnapshot(name, matches.front()->value());
+        }
+
         bool EntityAttributes::containsValue(const AttributeIndex::ValueList& matches, const AttributeValue& value) const {
             if (matches.empty())
                 return false;

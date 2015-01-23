@@ -22,6 +22,7 @@
 
 #include "StringUtils.h"
 #include "StringMap.h"
+#include "Model/EntityAttributeSnapshot.h"
 #include "Model/ModelTypes.h"
 
 #include <map>
@@ -114,6 +115,8 @@ namespace TrenchBroom {
             bool hasAttribute(const AttributeName& name, const AttributeValue& value) const;
             bool hasAttributeWithPrefix(const AttributeName& prefix, const AttributeValue& value) const;
             bool hasNumberedAttribute(const AttributeName& prefix, const AttributeValue& value) const;
+            
+            EntityAttributeSnapshot snapshot(const AttributeName& name) const;
         private:
             bool containsValue(const AttributeIndex::ValueList& matches, const AttributeValue& value) const;
         public:

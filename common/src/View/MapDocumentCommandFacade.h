@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Model/CollectUniqueNodesVisitor.h"
-#include "Model/EntityAttributes.h"
+#include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"
 #include "Model/Node.h"
 #include "View/CommandProcessor.h"
@@ -65,11 +65,11 @@ namespace TrenchBroom {
         public: // transformation
             void performTransform(const Mat4x4& transform, bool lockTextures);
         public: // entity attributes
-            Model::EntityAttribute::Map performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
-            Model::EntityAttribute::Map performRemoveAttribute(const Model::AttributeName& name);
-            Model::EntityAttribute::Map performConvertColorRange(const Model::AttributeName& name, Model::ColorRange::Type colorRange);
+            Model::EntityAttributeSnapshot::Map performSetAttribute(const Model::AttributeName& name, const Model::AttributeValue& value);
+            Model::EntityAttributeSnapshot::Map performRemoveAttribute(const Model::AttributeName& name);
+            Model::EntityAttributeSnapshot::Map performConvertColorRange(const Model::AttributeName& name, Model::ColorRange::Type colorRange);
             void performRenameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
-            void restoreAttributes(const Model::EntityAttribute::Map& attributes);
+            void restoreAttributes(const Model::EntityAttributeSnapshot::Map& attributes);
         public: // brush resizing
             bool performResizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta);
         public: // brush face attributes
