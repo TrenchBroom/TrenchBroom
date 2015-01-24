@@ -139,10 +139,8 @@ namespace TrenchBroom {
         }
         
         void MapView3D::bindEvents() {
-            /*
             Bind(wxEVT_KEY_DOWN, &MapView3D::OnKey, this);
             Bind(wxEVT_KEY_UP, &MapView3D::OnKey, this);
-            */
             
             Bind(wxEVT_KILL_FOCUS, &MapView3D::OnKillFocus, this);
             
@@ -246,6 +244,12 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedBrushFaces())
                 document->rotateTextures(angle);
+        }
+
+        void MapView3D::OnKey(wxKeyEvent& event) {
+            m_movementRestriction.setVerticalRestriction(event.AltDown());
+            Refresh();
+            event.Skip();
         }
 
         void MapView3D::OnToggleFlyMode(wxCommandEvent& event) {
