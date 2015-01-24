@@ -509,9 +509,9 @@ namespace TrenchBroom {
         void MapViewBase::updateAcceleratorTable(const bool hasFocus) {
             if (hasFocus) {
                 const wxAcceleratorTable acceleratorTable = doCreateAccelerationTable(actionContext());
-                // SetAcceleratorTable(acceleratorTable);
+                SetAcceleratorTable(acceleratorTable);
             } else {
-                // SetAcceleratorTable(wxNullAcceleratorTable);
+                SetAcceleratorTable(wxNullAcceleratorTable);
             }
         }
 
