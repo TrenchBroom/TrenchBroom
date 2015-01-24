@@ -19,6 +19,7 @@
 
 #include "SelectionCommand.h"
 
+#include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
@@ -87,6 +88,7 @@ namespace TrenchBroom {
                     return  StringUtils::safePlural(faces.size(), "Deselect face", "Select faces");
                 case Action_DeselectAll:
                     return "Deselect all";
+                DEFAULT_SWITCH()
             }
         }
 
