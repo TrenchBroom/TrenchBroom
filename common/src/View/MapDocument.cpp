@@ -410,7 +410,7 @@ namespace TrenchBroom {
                 ++cur;
             }
             return result;
-        };
+        }
         
         void MapDocument::selectTouching(const bool del) {
             const Model::BrushList& brushes = m_selectedNodes.brushes();

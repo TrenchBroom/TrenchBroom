@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2014 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,27 +42,27 @@ namespace TrenchBroom {
         LayerCommand::LayerCommand(const wxEventType commandType, const int id) :
         wxCommandEvent(commandType, id),
         m_layer(NULL) {}
-        
+
         Model::Layer* LayerCommand::layer() const {
             return m_layer;
         }
-        
+
         void LayerCommand::setLayer(Model::Layer* layer) {
             m_layer = layer;
         }
-        
+
         wxEvent* LayerCommand::Clone() const {
             return new LayerCommand(*this);
         }
-        
-        class LayerEntry : public wxPanel {
+
+        class LayerListView::LayerEntry : public wxPanel {
         private:
             int m_index;
             Model::Layer* m_layer;
             wxStaticText* m_nameText;
             wxStaticText* m_infoText;
         public:
-            LayerEntry(wxPanel* parent, int index, Model::Layer* layer) :
+            LayerEntry(wxWindow* parent, int index, Model::Layer* layer) :
             wxPanel(parent),
             m_index(index),
             m_layer(layer) {
@@ -70,14 +70,14 @@ namespace TrenchBroom {
                 m_nameText->SetFont(m_nameText->GetFont().Bold());
                 m_infoText = new wxStaticText(this, wxID_ANY, "");
                 refresh();
-                
+
                 wxWindow* hiddenButton = createBitmapToggleButton(this, "Visible.png", "Invisible.png", "Show or hide this layer");
                 wxWindow* lockButton = createBitmapToggleButton(this, "Unlocked.png", "Locked.png", "Lock or unlock this layer");
-                
+
                 bindMouseEvents(this);
                 bindMouseEvents(m_nameText);
                 bindMouseEvents(m_infoText);
-                
+
                 hiddenButton->Bind(wxEVT_BUTTON, &LayerEntry::OnToggleVisible, this);
                 hiddenButton->Bind(wxEVT_UPDATE_UI, &LayerEntry::OnUpdateVisibleButton, this);
                 lockButton->Bind(wxEVT_BUTTON, &LayerEntry::OnToggleLocked, this);
@@ -89,39 +89,39 @@ namespace TrenchBroom {
                 itemPanelBottomSizer->Add(m_infoText, 0, wxALIGN_CENTRE_VERTICAL);
                 itemPanelBottomSizer->AddStretchSpacer();
                 itemPanelBottomSizer->AddSpacer(LayoutConstants::NarrowHMargin);
-                
+
                 wxSizer* itemPanelSizer = new wxBoxSizer(wxVERTICAL);
                 itemPanelSizer->AddSpacer(LayoutConstants::NarrowVMargin);
                 itemPanelSizer->Add(m_nameText, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
                 itemPanelSizer->Add(itemPanelBottomSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, LayoutConstants::NarrowHMargin);
                 itemPanelSizer->AddSpacer(LayoutConstants::NarrowVMargin);
                 SetSizer(itemPanelSizer);
-                
+
                 setSelected(false);
             }
-            
+
             int index() const {
                 return m_index;
             }
-            
+
             Model::Layer* layer() const {
                 return m_layer;
             }
 
             void refresh() {
                 m_nameText->SetLabel(m_layer->name());
-                
+
                 wxString info;
                 info << m_layer->childCount() << " objects";
                 m_infoText->SetLabel(info);
             }
-            
+
             void bindMouseEvents(wxWindow* window) {
                 window->Bind(wxEVT_LEFT_DOWN, &LayerEntry::OnMouse, this);
                 window->Bind(wxEVT_RIGHT_DOWN, &LayerEntry::OnMouse, this);
                 window->Bind(wxEVT_RIGHT_UP, &LayerEntry::OnMouse, this);
             }
-            
+
             void setSelected(const bool selected) {
                 wxColour foreground, background;
                 if (selected) {
@@ -131,17 +131,17 @@ namespace TrenchBroom {
                     foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT);
                     background = *wxWHITE;
                 }
-                
+
                 SetBackgroundColour(background);
                 SetForegroundColour(foreground);
-                
+
                 const wxWindowList& children = GetChildren();
                 for (size_t i = 0; i < children.size(); ++i) {
                     children[i]->SetBackgroundColour(background);
                     children[i]->SetForegroundColour(foreground);
                 }
             }
-            
+
             void OnToggleVisible(wxCommandEvent& event) {
                 LayerCommand* command = new LayerCommand(LAYER_TOGGLE_VISIBLE_EVENT);
                 command->SetId(GetId());
@@ -149,11 +149,11 @@ namespace TrenchBroom {
                 command->setLayer(m_layer);
                 QueueEvent(command);
             }
-            
+
             void OnUpdateVisibleButton(wxUpdateUIEvent& event) {
                 event.Check(m_layer->hidden());
             }
-            
+
             void OnToggleLocked(wxCommandEvent& event) {
                 LayerCommand* command = new LayerCommand(LAYER_TOGGLE_LOCKED_EVENT);
                 command->SetId(GetId());
@@ -161,18 +161,18 @@ namespace TrenchBroom {
                 command->setLayer(m_layer);
                 QueueEvent(command);
             }
-            
+
             void OnUpdateLockButton(wxUpdateUIEvent& event) {
                 event.Check(m_layer->locked());
             }
-            
+
             void OnMouse(wxMouseEvent& event) {
                 wxMouseEvent newEvent(event);
                 newEvent.SetEventObject(this);
                 ProcessEvent(newEvent);
             }
         };
-        
+
         LayerListView::LayerListView(wxWindow* parent, MapDocumentWPtr document) :
         wxPanel(parent),
         m_document(document),
@@ -182,7 +182,7 @@ namespace TrenchBroom {
             createGui();
             bindObservers();
         }
-        
+
         LayerListView::~LayerListView() {
             unbindObservers();
         }
@@ -190,7 +190,7 @@ namespace TrenchBroom {
         Model::Layer* LayerListView::selectedLayer() const {
             if (m_selection == -1)
                 return NULL;
-            
+
             const Model::World* world = lock(m_document)->world();
             const Model::LayerList layers = world->allLayers();
 
@@ -219,26 +219,26 @@ namespace TrenchBroom {
 
             LayerEntry* entry = static_cast<LayerEntry*>(data->GetWxObjectPtr());
             assert(entry != NULL);
-            
+
             Model::Layer* layer = entry->layer();
             setSelectedLayer(layer);
-            
+
             LayerCommand* command = new LayerCommand(LAYER_SELECTED_EVENT);
             command->SetId(GetId());
             command->SetEventObject(this);
             command->setLayer(layer);
             QueueEvent(command);
         }
-        
+
         void LayerListView::OnMouseEntryRightUp(wxMouseEvent& event) {
             const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
             assert(data != NULL);
-            
+
             LayerEntry* entry = static_cast<LayerEntry*>(data->GetWxObjectPtr());
             assert(entry != NULL);
-            
+
             Model::Layer* layer = entry->layer();
-            
+
             LayerCommand* command = new LayerCommand(LAYER_RIGHT_CLICK_EVENT);
             command->SetId(GetId());
             command->SetEventObject(this);
@@ -248,7 +248,7 @@ namespace TrenchBroom {
 
         void LayerListView::OnMouseVoidDown(wxMouseEvent& event) {
             setSelectedLayer(NULL);
-            
+
             LayerCommand* command = new LayerCommand(LAYER_SELECTED_EVENT);
             command->SetId(GetId());
             command->SetEventObject(this);
@@ -265,7 +265,7 @@ namespace TrenchBroom {
             document->nodesWereRemovedNotifier.addObserver(this, &LayerListView::nodesDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &LayerListView::nodesDidChange);
         }
-        
+
         void LayerListView::unbindObservers() {
             if (!expired(m_document)) {
                 MapDocumentSPtr document = lock(m_document);
@@ -281,7 +281,7 @@ namespace TrenchBroom {
         void LayerListView::documentDidChange(MapDocument* document) {
             reload();
         }
-        
+
         void LayerListView::nodesDidChange(const Model::NodeList& nodes) {
             reload();
         }
@@ -290,23 +290,23 @@ namespace TrenchBroom {
             m_scrollWindow = new wxScrolledWindow(this);
             m_scrollWindow->Bind(wxEVT_LEFT_DOWN, &LayerListView::OnMouseVoidDown, this);
             m_scrollWindow->Bind(wxEVT_RIGHT_DOWN, &LayerListView::OnMouseVoidDown, this);
-            
+
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
             outerSizer->Add(m_scrollWindow, 1, wxEXPAND);
             SetSizer(outerSizer);
         }
-        
+
         void LayerListView::reload() {
             m_selection = -1;
             m_scrollWindow->DestroyChildren();
             m_entries.clear();
-            
+
             wxSizer* scrollWindowSizer = new wxBoxSizer(wxVERTICAL);
-            
+
             MapDocumentSPtr document = lock(m_document);
             const Model::World* world = document->world();
             const Model::LayerList layers = world->allLayers();
-            
+
             for (size_t i = 0; i < layers.size(); ++i) {
                 Model::Layer* layer = layers[i];
                 LayerEntry* entry = new LayerEntry(m_scrollWindow, static_cast<int>(i), layer);
@@ -318,7 +318,7 @@ namespace TrenchBroom {
                 scrollWindowSizer->Add(new BorderLine(m_scrollWindow), 0, wxEXPAND);
                 m_entries.push_back(entry);
             }
-            
+
             scrollWindowSizer->AddStretchSpacer();
             m_scrollWindow->SetSizer(scrollWindowSizer);
             m_scrollWindow->SetScrollRate(0, 1);

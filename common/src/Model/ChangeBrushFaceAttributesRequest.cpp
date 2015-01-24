@@ -197,7 +197,7 @@ namespace TrenchBroom {
 
         void ChangeBrushFaceAttributesRequest::clear() {
             m_texture = NULL;
-            m_xOffset = m_xOffset = 0.0f;
+            m_xOffset = m_yOffset = 0.0f;
             m_rotation = 0.0f;
             m_xScale = m_yScale = 1.0f;
             m_surfaceFlags = m_contentFlags = 0;

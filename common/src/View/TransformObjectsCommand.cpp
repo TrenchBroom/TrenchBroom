@@ -19,6 +19,7 @@
 
 #include "TransformObjectsCommand.h"
 
+#include "Macros.h"
 #include "Model/Snapshot.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -61,6 +62,7 @@ namespace TrenchBroom {
                     return "Rotate objects";
                 case Action_Flip:
                     return "Flip objects";
+                DEFAULT_SWITCH()
             }
         }
         

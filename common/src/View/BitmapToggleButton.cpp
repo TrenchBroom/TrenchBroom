@@ -27,14 +27,13 @@
 namespace TrenchBroom {
     namespace View {
         BitmapToggleButton::BitmapToggleButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap) :
+        wxPanel(parent, windowId),
+        m_upBitmap(upBitmap),
+        m_downBitmap(downBitmap),
         m_state(false) {
-            assert(upBitmap.IsOk());
-            assert(downBitmap.IsOk());
-            
-            Create(parent, windowId);
-            
-            SetBitmap(upBitmap);
-            SetBitmapPressed(downBitmap);
+            assert(m_upBitmap.IsOk());
+            assert(m_downBitmap.IsOk());
+
             SetMinClientSize(bitmapSize());
             
             Bind(wxEVT_PAINT, &BitmapToggleButton::OnPaint, this);
@@ -77,14 +76,12 @@ namespace TrenchBroom {
         }
 
         wxSize BitmapToggleButton::bitmapSize() const {
-            const wxBitmap upBitmap = GetBitmap();
-            const wxBitmap downBitmap = GetBitmapPressed();
-            return wxSize(std::max(upBitmap.GetWidth(), downBitmap.GetWidth()),
-                          std::max(upBitmap.GetHeight(), downBitmap.GetHeight()));
+            return wxSize(std::max(m_upBitmap.GetWidth(), m_downBitmap.GetWidth()),
+                          std::max(m_upBitmap.GetHeight(), m_downBitmap.GetHeight()));
         }
 
         wxBitmap BitmapToggleButton::currentBitmap() const {
-            return m_state ? GetBitmapPressed() : GetBitmap();
+            return m_state ? m_downBitmap : m_upBitmap;
         }
     }
 }

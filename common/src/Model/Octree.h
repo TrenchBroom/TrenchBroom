@@ -21,6 +21,7 @@
 #define __TrenchBroom__Octree__
 
 #include "CollectionUtils.h"
+#include "Macros.h"
 #include "VecMath.h"
 #include "Exceptions.h"
 #include "SharedPointer.h"
@@ -97,6 +98,7 @@ namespace TrenchBroom {
                     }
                 }
                 
+                assert(!VectorUtils::contains(m_objects, object));
                 m_objects.push_back(object);
                 return this;
             }
@@ -176,7 +178,7 @@ namespace TrenchBroom {
                 OctreeNode<F,T>* node = m_root->addObject(bounds, object);
                 if (node == NULL)
                     throw OctreeException("Unknown error when inserting into octree");
-                MapUtils::insertOrFail(m_objectMap, object, node);
+                CHECK_BOOL(MapUtils::insertOrFail(m_objectMap, object, node));
             }
             
             void removeObject(T object) {

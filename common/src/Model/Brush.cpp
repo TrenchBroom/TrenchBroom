@@ -97,7 +97,6 @@ namespace TrenchBroom {
         
         void Brush::faceDidChange() {
             invalidateContentType();
-            nodeDidChange();
         }
 
         void Brush::addFaces(const BrushFaceList& faces) {

@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2014 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -63,7 +63,7 @@ namespace TrenchBroom {
         m_mapView(NULL),
         m_console(NULL),
         m_inspector(NULL) {}
-        
+
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, "MapFrame"),
         m_frameManager(NULL),
@@ -75,47 +75,47 @@ namespace TrenchBroom {
         m_inspector(NULL)  {
             Create(frameManager, document);
         }
-        
+
         void MapFrame::Create(FrameManager* frameManager, MapDocumentSPtr document) {
             assert(frameManager != NULL);
             assert(document != NULL);
-            
+
             m_frameManager = frameManager;
             m_document = document;
             m_autosaver = new Autosaver(m_document);
 
             m_contextManager = new GLContextManager();
-            
+
             createGui();
             createMenuBar();
-            
+
             m_document->setParentLogger(logger());
 
             m_autosaveTimer = new wxTimer(this);
             m_autosaveTimer->Start(1000);
-            
+
             bindObservers();
             bindEvents();
-            
+
             clearDropTarget();
         }
-        
+
         MapFrame::~MapFrame() {
             unbindObservers();
             removeRecentDocumentsMenu(GetMenuBar());
-            
+
             delete m_autosaveTimer;
             m_autosaveTimer = NULL;
-            
+
             delete m_autosaver;
             m_autosaver = NULL;
 
             // The order of deletion here is important because both the document and the children
             // need the context manager (and its embedded VBO) to clean up their resources.
-            
+
             m_document.reset();
             DestroyChildren();
-            
+
             delete m_contextManager;
             m_contextManager = NULL;
         }
@@ -130,11 +130,11 @@ namespace TrenchBroom {
                 wxPoint position = reference->GetPosition();
                 position.x += 23;
                 position.y += 23;
-                
+
                 if (displaySize.GetBottom() - position.x < 100 ||
                     displaySize.GetRight() - position.y < 70)
                     position = displaySize.GetTopLeft();
-                
+
                 SetPosition(position);
                 SetSize(std::min(displaySize.GetRight() - position.x, 1024), std::min(displaySize.GetBottom() - position.y, 768));
             }
@@ -143,12 +143,12 @@ namespace TrenchBroom {
         Logger* MapFrame::logger() const {
             return m_console;
         }
-        
+
         void MapFrame::setToolBoxDropTarget() {
             SetDropTarget(NULL);
             m_mapView->setToolBoxDropTarget();
         }
-        
+
         void MapFrame::clearDropTarget() {
             m_mapView->clearDropTarget();
             SetDropTarget(new MapFrameDropTarget(m_document, this));
@@ -160,7 +160,7 @@ namespace TrenchBroom {
             m_document->newDocument(MapDocument::DefaultWorldBounds, game, mapFormat);
             return true;
         }
-        
+
         bool MapFrame::openDocument(Model::GamePtr game, const IO::Path& path) {
             if (!confirmOrDiscardChanges())
                 return false;
@@ -185,13 +185,13 @@ namespace TrenchBroom {
                 return false;
             }
         }
-        
+
         bool MapFrame::saveDocumentAs() {
             try {
                 wxFileDialog saveDialog(this, "Save map file", "", "", "Map files (*.map)|*.map", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
                 if (saveDialog.ShowModal() == wxID_CANCEL)
                     return false;
-                
+
                 const IO::Path path(saveDialog.GetPath().ToStdString());
                 m_document->saveDocumentAs(path);
                 logger()->info("Saved " + m_document->path().asString());
@@ -232,13 +232,13 @@ namespace TrenchBroom {
         void MapFrame::rebuildMenuBar() {
             wxMenuBar* oldMenuBar = GetMenuBar();
             removeRecentDocumentsMenu(oldMenuBar);
-            
+
             SetMenuBar(NULL);
             delete oldMenuBar;
-            
+
             createMenuBar();
         }
-        
+
         void MapFrame::createMenuBar() {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar();
@@ -250,7 +250,7 @@ namespace TrenchBroom {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
             assert(recentDocumentsMenu != NULL);
-            
+
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.addRecentDocumentMenu(recentDocumentsMenu);
         }
@@ -259,31 +259,31 @@ namespace TrenchBroom {
             const ActionManager& actionManager = ActionManager::instance();
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
             assert(recentDocumentsMenu != NULL);
-            
+
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.removeRecentDocumentMenu(recentDocumentsMenu);
         }
-        
+
         void MapFrame::createGui() {
             SplitterWindow2* hSplitter = new SplitterWindow2(this);
             hSplitter->setSashGravity(1.0f);
             hSplitter->SetName("MapFrameHSplitter");
-            
+
             SplitterWindow2* vSplitter = new SplitterWindow2(hSplitter);
             vSplitter->setSashGravity(1.0f);
             vSplitter->SetName("MapFrameVSplitter");
-            
+
             InfoPanel* infoPanel = new InfoPanel(vSplitter, m_document);
             m_console = infoPanel->console();
             m_mapView = new SwitchableMapViewContainer(vSplitter, m_console, m_document, *m_contextManager);
             m_inspector = new Inspector(hSplitter, m_document, *m_contextManager);
-            
+
             vSplitter->splitHorizontally(m_mapView, infoPanel, wxSize(100, 100), wxSize(100, 100));
             hSplitter->splitVertically(vSplitter, m_inspector, wxSize(100, 100), wxSize(350, 100));
-            
+
             wxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
             frameSizer->Add(hSplitter, 1, wxEXPAND);
-            
+
             SetSizer(frameSizer);
 
             wxPersistenceManager::Get().RegisterAndRestore(hSplitter);
@@ -300,7 +300,7 @@ namespace TrenchBroom {
             m_document->documentWasSavedNotifier.addObserver(this, &MapFrame::documentDidChange);
             m_document->documentModificationStateDidChangeNotifier.addObserver(this, &MapFrame::documentModificationStateDidChange);
         }
-        
+
         void MapFrame::unbindObservers() {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapFrame::preferenceDidChange);
@@ -315,7 +315,7 @@ namespace TrenchBroom {
         void MapFrame::documentWasCleared(View::MapDocument* document) {
             updateTitle();
         }
-        
+
         void MapFrame::documentDidChange(View::MapDocument* document) {
             updateTitle();
             View::TrenchBroomApp::instance().updateRecentDocument(m_document->path());
@@ -342,12 +342,12 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditRedo, this, wxID_REDO);
             Bind(wxEVT_MENU, &MapFrame::OnEditRepeat, this, CommandIds::Menu::EditRepeat);
             Bind(wxEVT_MENU, &MapFrame::OnEditClearRepeat, this, CommandIds::Menu::EditClearRepeat);
-            
+
             Bind(wxEVT_MENU, &MapFrame::OnEditCut, this, wxID_CUT);
             Bind(wxEVT_MENU, &MapFrame::OnEditCopy, this, wxID_COPY);
             Bind(wxEVT_MENU, &MapFrame::OnEditPaste, this, wxID_PASTE);
             Bind(wxEVT_MENU, &MapFrame::OnEditPasteAtOriginalPosition, this, CommandIds::Menu::EditPasteAtOriginalPosition);
-             
+
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectAll, this, CommandIds::Menu::EditSelectAll);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectSiblings, this, CommandIds::Menu::EditSelectSiblings);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectTouching, this, CommandIds::Menu::EditSelectTouching);
@@ -358,13 +358,13 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
-            
+
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleShowGrid, this, CommandIds::Menu::ViewToggleShowGrid);
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleSnapToGrid, this, CommandIds::Menu::ViewToggleSnapToGrid);
             Bind(wxEVT_MENU, &MapFrame::OnViewIncGridSize, this, CommandIds::Menu::ViewIncGridSize);
             Bind(wxEVT_MENU, &MapFrame::OnViewDecGridSize, this, CommandIds::Menu::ViewDecGridSize);
             Bind(wxEVT_MENU, &MapFrame::OnViewSetGridSize, this, CommandIds::Menu::ViewSetGridSize1, CommandIds::Menu::ViewSetGridSize256);
-            
+
             Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToNextPoint, this, CommandIds::Menu::ViewMoveCameraToNextPoint);
             Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPreviousPoint, this, CommandIds::Menu::ViewMoveCameraToPreviousPoint);
             Bind(wxEVT_MENU, &MapFrame::OnViewCenterCameraOnSelection, this, CommandIds::Menu::ViewCenterCameraOnSelection);
@@ -378,29 +378,28 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CUT);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_COPY);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
-            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DELETE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
         }
-        
+
         void MapFrame::OnFileSave(wxCommandEvent& event) {
             saveDocument();
         }
-        
+
         void MapFrame::OnFileSaveAs(wxCommandEvent& event) {
             saveDocumentAs();
         }
-        
+
         void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
             m_document->loadPointFile();
         }
-        
+
         void MapFrame::OnFileUnloadPointFile(wxCommandEvent& event) {
             m_document->unloadPointFile();
         }
-        
+
         void MapFrame::OnFileClose(wxCommandEvent& event) {
             Close();
         }
@@ -408,7 +407,7 @@ namespace TrenchBroom {
         void MapFrame::OnEditUndo(wxCommandEvent& event) {
             m_document->undoLastCommand();
         }
-        
+
         void MapFrame::OnEditRedo(wxCommandEvent& event) {
             m_document->redoNextCommand();
         }
@@ -416,7 +415,7 @@ namespace TrenchBroom {
         void MapFrame::OnEditRepeat(wxCommandEvent& event) {
             m_document->repeatLastCommands();
         }
-        
+
         void MapFrame::OnEditClearRepeat(wxCommandEvent& event) {
             m_document->clearRepeatableCommands();
         }
@@ -426,7 +425,7 @@ namespace TrenchBroom {
             Transaction transaction(m_document, "Cut");
             m_document->deleteObjects();
         }
-        
+
         void MapFrame::OnEditCopy(wxCommandEvent& event) {
             copyToClipboard();
         }
@@ -437,7 +436,7 @@ namespace TrenchBroom {
                 if (!wxTheClipboard->IsOpened())
                     wxTheClipboard->Open();
             }
-            
+
             ~OpenClipboard() {
                 if (wxTheClipboard->IsOpened())
                     wxTheClipboard->Close();
@@ -464,7 +463,7 @@ namespace TrenchBroom {
                 m_document->translateObjects(delta);
             }
         }
-        
+
         void MapFrame::OnEditPasteAtOriginalPosition(wxCommandEvent& event) {
             paste();
         }
@@ -481,7 +480,7 @@ namespace TrenchBroom {
                 logger()->error("Could not get clipboard contents");
                 return false;
             }
-            
+
             const String text = textData.GetText().ToStdString();
             return m_document->paste(text);
         }
@@ -497,7 +496,7 @@ namespace TrenchBroom {
         void MapFrame::OnEditSelectTouching(wxCommandEvent& event) {
             m_document->selectTouching(true);
         }
-        
+
         void MapFrame::OnEditSelectInside(wxCommandEvent& event) {
             m_document->selectInside(true);
         }
@@ -516,7 +515,7 @@ namespace TrenchBroom {
                     positions.push_back(static_cast<size_t>(position));
                 }
             }
-            
+
             m_document->selectNodesWithFilePosition(positions);
         }
 
@@ -537,37 +536,37 @@ namespace TrenchBroom {
         void MapFrame::OnViewToggleShowGrid(wxCommandEvent& event) {
             m_document->grid().toggleVisible();
         }
-        
+
         void MapFrame::OnViewToggleSnapToGrid(wxCommandEvent& event) {
             m_document->grid().toggleSnap();
         }
-        
+
         void MapFrame::OnViewIncGridSize(wxCommandEvent& event) {
             m_document->grid().incSize();
         }
-        
+
         void MapFrame::OnViewDecGridSize(wxCommandEvent& event) {
             m_document->grid().decSize();
         }
-        
+
         void MapFrame::OnViewSetGridSize(wxCommandEvent& event) {
             const size_t size = static_cast<size_t>(event.GetId() - CommandIds::Menu::ViewSetGridSize1);
             assert(size < Grid::MaxSize);
             m_document->grid().setSize(size);
         }
-        
+
         void MapFrame::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {
             m_mapView->moveCameraToNextTracePoint();
         }
-        
+
         void MapFrame::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
             m_mapView->moveCameraToPreviousTracePoint();
         }
-        
+
         void MapFrame::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
             m_mapView->centerCameraOnSelection();
         }
-        
+
         void MapFrame::OnViewMoveCameraToPosition(wxCommandEvent& event) {
             wxTextEntryDialog dialog(this, "Enter a position (x y z) for the camera.", "Move Camera", "0.0 0.0 0.0");
             if (dialog.ShowModal() == wxID_OK) {
@@ -579,7 +578,7 @@ namespace TrenchBroom {
 
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             const ActionManager& actionManager = ActionManager::instance();
-            
+
             switch (event.GetId()) {
                 case wxID_OPEN:
                 case wxID_SAVE:
@@ -752,7 +751,7 @@ namespace TrenchBroom {
                     m_frameManager->removeAndDestroyFrame(this);
             }
         }
-        
+
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
             m_autosaver->triggerAutosave(logger());
         }
