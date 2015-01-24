@@ -20,12 +20,15 @@
 #ifndef __TrenchBroom__BitmapToggleButton__
 #define __TrenchBroom__BitmapToggleButton__
 
-#include <wx/anybutton.h>
+#include <wx/bitmap.h>
+#include <wx/panel.h>
 
 namespace TrenchBroom {
     namespace View {
-        class BitmapToggleButton : public wxAnyButton {
+        class BitmapToggleButton : public wxPanel {
         private:
+            wxBitmap m_upBitmap;
+            wxBitmap m_downBitmap;
             bool m_state;
         public:
             BitmapToggleButton(wxWindow* parent, wxWindowID windowId, const wxBitmap& upBitmap, const wxBitmap& downBitmap);

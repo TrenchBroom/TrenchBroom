@@ -104,8 +104,7 @@ namespace TrenchBroom {
                         return t.x;
                     case Dim_Y:
                         return t.y;
-                    default:
-                        return 0;
+                    DEFAULT_SWITCH()
                 }
             }
         };
