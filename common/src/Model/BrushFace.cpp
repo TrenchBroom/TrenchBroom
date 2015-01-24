@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2014 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,7 +34,7 @@
 namespace TrenchBroom {
     namespace Model {
         const String BrushFace::NoTextureName = "__TB_empty";
-        
+
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName, TexCoordSystem* texCoordSystem) :
         m_brush(NULL),
         m_lineNumber(0),
@@ -51,7 +51,7 @@ namespace TrenchBroom {
         BrushFace* BrushFace::createParaxial(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
             return new BrushFace(point0, point1, point2, textureName, new ParaxialTexCoordSystem(point0, point1, point2));
         }
-        
+
         BrushFace* BrushFace::createParallel(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
             return new BrushFace(point0, point1, point2, textureName, new ParallelTexCoordSystem(point0, point1, point2));
         }
@@ -62,7 +62,7 @@ namespace TrenchBroom {
         public:
             PlaneWeightOrder(const bool deterministic) :
             m_deterministic(deterministic) {}
-            
+
             template <typename T, size_t S>
             bool operator()(const Plane<T,S>& lhs, const Plane<T,S>& rhs) const {
                 int result = lhs.normal.weight() - rhs.normal.weight();
@@ -71,19 +71,19 @@ namespace TrenchBroom {
                 return result < 0;
             }
         };
-        
+
         class FaceWeightOrder {
         private:
             const PlaneWeightOrder& m_planeOrder;
         public:
             FaceWeightOrder(const PlaneWeightOrder& planeOrder) :
             m_planeOrder(planeOrder) {}
-            
+
             bool operator()(const Model::BrushFace* lhs, const Model::BrushFace* rhs) const {
                 return m_planeOrder(lhs->boundary(), rhs->boundary());
             }
         };
-        
+
         void BrushFace::sortFaces(BrushFaceList& faces) {
             std::sort(faces.begin(), faces.end(), FaceWeightOrder(PlaneWeightOrder(true)));
             std::sort(faces.begin(), faces.end(), FaceWeightOrder(PlaneWeightOrder(false)));
@@ -102,7 +102,7 @@ namespace TrenchBroom {
             m_cachedVertices.clear();
             m_vertexCacheValid = false;
         }
-        
+
         BrushFace* BrushFace::clone() const {
             BrushFace* result = new BrushFace(points()[0], points()[1], points()[2], textureName(), m_texCoordSystem->clone());
             result->m_attribs = m_attribs;
@@ -119,27 +119,27 @@ namespace TrenchBroom {
         Brush* BrushFace::brush() const {
             return m_brush;
         }
-        
+
         void BrushFace::setBrush(Brush* brush) {
-            assert((m_brush == NULL ^ brush == NULL));
+            assert((m_brush == NULL) ^ (brush == NULL));
             m_brush = brush;
         }
-        
+
         const BrushFace::Points& BrushFace::points() const {
             return m_points;
         }
-        
+
         bool BrushFace::arePointsOnPlane(const Plane3& plane) const {
             for (size_t i = 0; i < 3; i++)
                 if (plane.pointStatus(m_points[i]) != Math::PointStatus::PSInside)
                     return false;
             return true;
         }
-        
+
         const Plane3& BrushFace::boundary() const {
             return m_boundary;
         }
-        
+
         Vec3 BrushFace::center() const {
             assert(m_side != NULL);
             return centerOfVertices(m_side->vertices);
@@ -147,10 +147,10 @@ namespace TrenchBroom {
 
         Vec3 BrushFace::boundsCenter() const {
             assert(m_side != NULL);
-            
+
             const Mat4x4 toPlane = planeProjectionMatrix(m_boundary.distance, m_boundary.normal);
             const Mat4x4 fromPlane = invertedMatrix(toPlane);
-            
+
             BBox3 bounds;
             bounds.min = bounds.max = toPlane * m_side->vertices[0]->position;
             for (size_t i = 1; i < m_side->vertices.size(); ++i)
@@ -187,14 +187,14 @@ namespace TrenchBroom {
         const BrushFaceAttributes& BrushFace::attribs() const {
             return m_attribs;
         }
-        
+
         void BrushFace::setAttribs(const BrushFaceAttributes& attribs) {
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->decUsageCount();
-            
+
             const float oldRotation = m_attribs.rotation();
             m_attribs = attribs;
-            
+
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->incUsageCount();
 
@@ -208,11 +208,11 @@ namespace TrenchBroom {
         const String& BrushFace::textureName() const {
             return m_attribs.textureName();
         }
-        
+
         Assets::Texture* BrushFace::texture() const {
             return m_attribs.texture();
         }
-        
+
         Vec2f BrushFace::textureSize() const {
             return m_attribs.textureSize();
         }
@@ -220,15 +220,15 @@ namespace TrenchBroom {
         const Vec2f& BrushFace::offset() const {
             return m_attribs.offset();
         }
-        
+
         float BrushFace::xOffset() const {
             return m_attribs.xOffset();
         }
-        
+
         float BrushFace::yOffset() const {
             return m_attribs.yOffset();
         }
-        
+
         Vec2f BrushFace::modOffset(const Vec2f& offset) const {
             return m_attribs.modOffset(offset);
         }
@@ -236,27 +236,27 @@ namespace TrenchBroom {
         const Vec2f& BrushFace::scale() const {
             return m_attribs.scale();
         }
-        
+
         float BrushFace::xScale() const {
             return m_attribs.xScale();
         }
-        
+
         float BrushFace::yScale() const {
             return m_attribs.yScale();
         }
-        
+
         float BrushFace::rotation() const {
             return m_attribs.rotation();
         }
-        
+
         int BrushFace::surfaceContents() const {
             return m_attribs.surfaceContents();
         }
-        
+
         int BrushFace::surfaceFlags() const {
             return m_attribs.surfaceFlags();
         }
-        
+
         float BrushFace::surfaceValue() const {
             return m_attribs.surfaceValue();
         }
@@ -283,36 +283,36 @@ namespace TrenchBroom {
             if (m_brush != NULL)
                 m_brush->faceDidChange();
         }
-        
+
         void BrushFace::setXOffset(const float i_xOffset) {
             if (i_xOffset == xOffset())
                 return;
-            
+
             m_attribs.setXOffset(i_xOffset);
             invalidateVertexCache();
         }
-        
+
         void BrushFace::setYOffset(const float i_yOffset) {
             if (i_yOffset == yOffset())
                 return;
             m_attribs.setYOffset(i_yOffset);
             invalidateVertexCache();
         }
-        
+
         void BrushFace::setXScale(const float i_xScale) {
             if (i_xScale == xScale())
                 return;
             m_attribs.setXScale(i_xScale);
             invalidateVertexCache();
         }
-        
+
         void BrushFace::setYScale(const float i_yScale) {
             if (i_yScale == yScale())
                 return;
             m_attribs.setYScale(i_yScale);
             invalidateVertexCache();
         }
-        
+
         void BrushFace::setRotation(const float rotation) {
             if (rotation == m_attribs.rotation())
                 return;
@@ -330,13 +330,13 @@ namespace TrenchBroom {
             if (m_brush != NULL)
                 m_brush->faceDidChange();
         }
-        
+
         void BrushFace::setSurfaceFlags(const int surfaceFlags) {
             if (surfaceFlags == m_attribs.surfaceFlags())
                 return;
             m_attribs.setSurfaceFlags(surfaceFlags);
         }
-        
+
         void BrushFace::setSurfaceValue(const float surfaceValue) {
             if (surfaceValue == m_attribs.surfaceValue())
                 return;
@@ -358,7 +358,7 @@ namespace TrenchBroom {
         Vec3 BrushFace::textureXAxis() const {
             return m_texCoordSystem->xAxis();
         }
-        
+
         Vec3 BrushFace::textureYAxis() const {
             return m_texCoordSystem->yAxis();
         }
@@ -385,7 +385,7 @@ namespace TrenchBroom {
 
             const Vec3 invariant = m_side != NULL ? center() : m_boundary.anchor();
             m_texCoordSystem->transform(m_boundary, transform, m_attribs, lockTexture, invariant);
-            
+
             m_boundary.transform(transform);
             for (size_t i = 0; i < 3; ++i)
                 m_points[i] = transform * m_points[i];
@@ -405,11 +405,11 @@ namespace TrenchBroom {
 
         void BrushFace::updatePointsFromVertices() {
             Vec3 v1, v2;
-            
+
             assert(m_side != NULL);
             const size_t vertexCount = m_side->vertices.size();
             assert(vertexCount >= 3);
-            
+
             // Find a triple of consecutive vertices s.t. the (normalized) vectors from the mid vertex to the other two
             // have the smallest dot value of all such triples. This is to have better precision when computing the
             // boundary plane normal from these vectors.
@@ -419,7 +419,7 @@ namespace TrenchBroom {
                 m_points[2] = m_side->vertices[Math::pred(i, vertexCount)]->position;
                 m_points[0] = m_side->vertices[i]->position;
                 m_points[1] = m_side->vertices[Math::succ(i, vertexCount)]->position;
-                
+
                 v1 = (m_points[2] - m_points[0]).normalized();
                 v2 = (m_points[1] - m_points[0]).normalized();
                 const FloatType dot = std::abs(v1.dot(v2));
@@ -428,12 +428,12 @@ namespace TrenchBroom {
                     best = i;
                 }
             }
-            
+
             const Vec3 oldNormal = m_boundary.normal;
             setPoints(m_side->vertices[best]->position,
                       m_side->vertices[Math::succ(best, vertexCount)]->position,
                       m_side->vertices[Math::pred(best, vertexCount)]->position);
-            
+
             m_texCoordSystem->updateNormal(oldNormal, m_boundary.normal, m_attribs);
             invalidateVertexCache();
         }
@@ -444,7 +444,7 @@ namespace TrenchBroom {
             setPoints(m_points[0], m_points[1], m_points[2]);
             invalidateVertexCache();
         }
-        
+
         void BrushFace::findIntegerPlanePoints() {
             PlanePointFinder::findPoints(m_boundary, m_points, 3);
             setPoints(m_points[0], m_points[1], m_points[2]);
@@ -464,13 +464,13 @@ namespace TrenchBroom {
             else
                 return m_texCoordSystem->toMatrix(offset, scale);
         }
-        
+
         Mat4x4 BrushFace::fromTexCoordSystemMatrix(const Vec2f& offset, const Vec2f& scale, const bool project) const {
             if (project)
                 return projectToBoundaryMatrix() * m_texCoordSystem->fromMatrix(offset, scale);
             return m_texCoordSystem->fromMatrix(offset, scale);
         }
-        
+
         float BrushFace::measureTextureAngle(const Vec2f& center, const Vec2f& point) const {
             return m_texCoordSystem->measureAngle(m_attribs.rotation(), center, point);
         }
@@ -499,44 +499,44 @@ namespace TrenchBroom {
             m_side = side;
             invalidateVertexCache();
         }
-        
+
         void BrushFace::setFilePosition(const size_t lineNumber, const size_t lineCount) {
             m_lineNumber = lineNumber;
             m_lineCount = lineCount;
         }
-        
+
         bool BrushFace::selected() const {
             return m_selected;
         }
-        
+
         void BrushFace::select() {
             assert(!m_selected);
             m_selected = true;
             if (m_brush != NULL)
                 m_brush->childWasSelected();
         }
-        
+
         void BrushFace::deselect() {
             assert(m_selected);
             m_selected = false;
             if (m_brush != NULL)
                 m_brush->childWasDeselected();
         }
-        
+
         void BrushFace::addToMesh(Mesh& mesh) const {
             assert(m_side != NULL);
             if (!m_vertexCacheValid)
                 validateVertexCache();
-            
+
             mesh.beginTriangleSet(m_attribs.texture());
             mesh.addTrianglesToSet(m_cachedVertices);
             mesh.endTriangleSet();
         }
-        
+
         Vec2f BrushFace::textureCoords(const Vec3& point) const {
             return m_texCoordSystem->getTexCoords(point, m_attribs);
         }
-        
+
         void BrushFace::invalidate() {
             invalidateVertexCache();
         }
@@ -545,41 +545,41 @@ namespace TrenchBroom {
             const Vec3 toPoint = point - m_boundary.anchor();
             if (!Math::zero(toPoint.dot(m_boundary.normal)))
                 return false;
-            
+
             const Ray3 ray(point + m_boundary.normal, -m_boundary.normal);
             return !Math::isnan(intersectWithRay(ray));
         }
 
         FloatType BrushFace::intersectWithRay(const Ray3& ray) const {
             assert(m_side != NULL);
-            
+
             const FloatType dot = m_boundary.normal.dot(ray.direction);
             if (!Math::neg(dot))
                 return Math::nan<FloatType>();
-            
+
             const FloatType dist = m_boundary.intersectWithRay(ray);
             if (Math::isnan(dist))
                 return Math::nan<FloatType>();
-            
+
             const size_t axis = m_boundary.normal.firstComponent();
             const Vec3 hit = ray.pointAtDistance(dist);
             const Vec3 projectedHit = swizzle(hit, axis);
-            
+
             const BrushVertex* vertex = m_side->vertices.back();
             Vec3 v0 = swizzle(vertex->position, axis) - projectedHit;
-            
+
             int c = 0;
             for (size_t i = 0; i < m_side->vertices.size(); i++) {
                 vertex = m_side->vertices[i];
                 const Vec3 v1 = swizzle(vertex->position, axis) - projectedHit;
-                
+
                 if ((Math::zero(v0.x()) && Math::zero(v0.y())) ||
                     (Math::zero(v1.x()) && Math::zero(v1.y()))) {
                     // the point is identical to a polygon vertex, cancel search
                     c = 1;
                     break;
                 }
-                
+
                 /*
                  * A polygon edge intersects with the positive X axis if the
                  * following conditions are met: The Y coordinates of its
@@ -593,7 +593,7 @@ namespace TrenchBroom {
                  * the X axis and determine whether its X coordinate is positive
                  * or zero.
                  */
-                
+
                 // do the Y coordinates have different signs?
                 if ((v0.y() > 0.0 && v1.y() <= 0.0) || (v0.y() <= 0.0 && v1.y() > 0.0)) {
                     // Is segment entirely on the positive side of the X axis?
@@ -608,21 +608,21 @@ namespace TrenchBroom {
                             c += 1; // edge intersects with the X axis
                     }
                 }
-                
+
                 v0 = v1;
             }
-            
+
             if (c % 2 == 0)
                 return Math::nan<FloatType>();
             return dist;
         }
-        
+
         void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {
             m_points[0] = point0;
             m_points[1] = point1;
             m_points[2] = point2;
             correctPoints();
-            
+
             if (!setPlanePoints(m_boundary, m_points)) {
                 GeometryException e;
                 e << "Colinear face points: (" <<
@@ -632,7 +632,7 @@ namespace TrenchBroom {
                 throw e;
             }
         }
-        
+
         void BrushFace::correctPoints() {
             for (size_t i = 0; i < 3; ++i)
                 m_points[i].correct();
@@ -640,10 +640,10 @@ namespace TrenchBroom {
 
         void BrushFace::validateVertexCache() const {
             m_cachedVertices.clear();
-            
+
             const BrushVertexList& vertices = m_side->vertices;
             m_cachedVertices.reserve(3 * (vertices.size() - 2));
-            
+
             for (size_t i = 1; i < vertices.size() - 1; i++) {
                 m_cachedVertices.push_back(Vertex(vertices[0]->position,
                                                   m_boundary.normal,

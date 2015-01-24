@@ -35,3 +35,8 @@ Thumbs.db
 /.lvimrc
 
 /vc2010
+
+/Debug
+/Release
+/CodeBlocks
+

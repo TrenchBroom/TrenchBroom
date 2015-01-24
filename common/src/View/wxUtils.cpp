@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2014 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -55,7 +55,7 @@ namespace TrenchBroom {
             const float a = static_cast<float>(color.Alpha()) / 255.0f;
             return Color(r, g, b, a);
         }
-        
+
         wxColor toWxColor(const Color& color) {
             const unsigned char r = static_cast<unsigned char>(color.r() * 255.0f);
             const unsigned char g = static_cast<unsigned char>(color.g() * 255.0f);
@@ -66,10 +66,10 @@ namespace TrenchBroom {
 
         std::vector<size_t> getListCtrlSelection(const wxListCtrl* listCtrl) {
             assert(listCtrl != NULL);
-            
-            
+
+
             std::vector<size_t> result(static_cast<size_t>(listCtrl->GetSelectedItemCount()));
-            
+
             size_t i = 0;
             long itemIndex = listCtrl->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
             while (itemIndex >= 0) {
@@ -82,8 +82,8 @@ namespace TrenchBroom {
         wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip) {
             wxBitmap bitmap = IO::loadImageResource(IO::Path("images") + IO::Path(image));
             assert(bitmap.IsOk());
-            
-            wxBitmapButton* button = new wxBitmapButton(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxBU_EXACTFIT);
+
+            wxBitmapButton* button = new wxBitmapButton(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             button->SetToolTip(tooltip);
             button->SetBackgroundColour(*wxWHITE);
             return button;
@@ -95,14 +95,14 @@ namespace TrenchBroom {
 
             wxBitmap downBitmap = IO::loadImageResource(IO::Path("images") + IO::Path(downImage));
             assert(downBitmap.IsOk());
-            
+
             /*
             wxBitmapToggleButton* button = new wxBitmapToggleButton(parent, wxID_ANY, offBitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE | wxBU_EXACTFIT);
             button->SetBitmapPressed(onBitmap);
             button->SetToolTip(tooltip);
             button->SetBackgroundColour(*wxWHITE);
             */
-            
+
             BitmapToggleButton* button = new BitmapToggleButton(parent, wxID_ANY, upBitmap, downBitmap);
             button->SetToolTip(tooltip);
             button->SetBackgroundColour(*wxWHITE);
