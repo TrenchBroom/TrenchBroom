@@ -794,6 +794,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnFileLoadPointFile, this, CommandIds::Menu::FileLoadPointFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileUnloadPointFile, this, CommandIds::Menu::FileUnloadPointFile);
             Bind(wxEVT_MENU, &MapFrame::OnFileClose, this, wxID_CLOSE);
+
             Bind(wxEVT_MENU, &MapFrame::OnEditUndo, this, wxID_UNDO);
             Bind(wxEVT_MENU, &MapFrame::OnEditRedo, this, wxID_REDO);
             Bind(wxEVT_MENU, &MapFrame::OnEditCut, this, wxID_CUT);

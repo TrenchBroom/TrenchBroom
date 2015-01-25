@@ -167,6 +167,7 @@ namespace TrenchBroom {
                 updateHits();
                 m_toolChain->modifierKeyChange(m_inputState);
             }
+            event.Skip();
             m_window->Refresh();
         }
         
