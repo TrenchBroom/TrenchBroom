@@ -85,6 +85,9 @@ namespace TrenchBroom {
         private: // interaction events
             void bindEvents();
             
+            void OnKey(wxKeyEvent& event);
+            void OnToggleMovementRestriction(wxCommandEvent& event);
+
             void OnMoveTexturesUp(wxCommandEvent& event);
             void OnMoveTexturesDown(wxCommandEvent& event);
             void OnMoveTexturesLeft(wxCommandEvent& event);
@@ -96,8 +99,6 @@ namespace TrenchBroom {
             void moveTextures(const Vec2f& offset);
             float rotateTextureAngle(bool clockwise) const;
             void rotateTextures(float angle);
-
-            void OnKey(wxKeyEvent& event);
         private: // tool mode events
             void OnToggleFlyMode(wxCommandEvent& event);
         private: // other events

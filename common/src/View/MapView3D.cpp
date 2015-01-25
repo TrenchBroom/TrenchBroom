@@ -144,9 +144,7 @@ namespace TrenchBroom {
             
             Bind(wxEVT_KILL_FOCUS, &MapView3D::OnKillFocus, this);
             
-            /*
             Bind(wxEVT_MENU, &MapView3D::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
-             */
             
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesUp,               this, CommandIds::Actions::MoveTexturesUp);
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesDown,             this, CommandIds::Actions::MoveTexturesDown);
@@ -174,6 +172,17 @@ namespace TrenchBroom {
             frame->Bind(wxEVT_ACTIVATE, &MapView3D::OnActivateFrame, this);
         }
         
+        void MapView3D::OnKey(wxKeyEvent& event) {
+            m_movementRestriction.setVerticalRestriction(event.AltDown());
+            Refresh();
+            event.Skip();
+        }
+        
+        void MapView3D::OnToggleMovementRestriction(wxCommandEvent& event) {
+            m_movementRestriction.toggleHorizontalRestriction(m_camera);
+            Refresh();
+        }
+
         void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {
             moveTextures(Vec2f(0.0f, moveTextureDistance()));
         }
@@ -244,12 +253,6 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedBrushFaces())
                 document->rotateTextures(angle);
-        }
-
-        void MapView3D::OnKey(wxKeyEvent& event) {
-            m_movementRestriction.setVerticalRestriction(event.AltDown());
-            Refresh();
-            event.Skip();
         }
 
         void MapView3D::OnToggleFlyMode(wxCommandEvent& event) {
