@@ -30,11 +30,13 @@ namespace TrenchBroom {
             static const CommandType Type;
         private:
             Model::ParentChildrenMap m_nodes;
+            Model::ParentChildrenMap m_removedNodes;
         public:
             static ReparentNodesCommand* reparent(Model::Node* newParent, const Model::NodeList& children);
             static ReparentNodesCommand* reparent(const Model::ParentChildrenMap& nodes);
         private:
             ReparentNodesCommand(const Model::ParentChildrenMap& nodes);
+            ~ReparentNodesCommand();
             
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);

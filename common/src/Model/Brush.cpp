@@ -467,6 +467,11 @@ namespace TrenchBroom {
             }
         }
 
+        const String& Brush::doGetName() const {
+            static const String name("brush");
+            return name;
+        }
+
         Node* Brush::doClone(const BBox3& worldBounds) const {
             BrushFaceList faceClones;
             faceClones.reserve(m_faces.size());
@@ -492,6 +497,10 @@ namespace TrenchBroom {
         
         bool Brush::doRemoveIfEmpty() const {
             return false;
+        }
+
+        void Brush::doParentDidChange() {
+            invalidateContentType();
         }
 
         bool Brush::doSelectable() const {

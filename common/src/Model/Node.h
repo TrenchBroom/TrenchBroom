@@ -49,6 +49,8 @@ namespace TrenchBroom {
             Node& operator=(const Node&);
         public:
             virtual ~Node();
+        public: // getters
+            const String& name() const;
         public: // cloning and snapshots
             Node* clone(const BBox3& worldBounds) const;
             NodeSnapshot* takeSnapshot();
@@ -306,6 +308,8 @@ namespace TrenchBroom {
             void addToIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
             void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
         private: // subclassing interface
+            virtual const String& doGetName() const = 0;
+            
             virtual Node* doClone(const BBox3& worldBounds) const = 0;
             virtual NodeSnapshot* doTakeSnapshot();
             

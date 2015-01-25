@@ -34,7 +34,6 @@ namespace TrenchBroom {
         public:
             Layer(const String& name);
             
-            const String& name() const;
             void setName(const String& name);
             
             bool hidden() const;
@@ -43,6 +42,8 @@ namespace TrenchBroom {
             bool locked() const;
             void setLocked(bool locked);
         private: // implement Node interface
+            const String& doGetName() const;
+            
             Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;

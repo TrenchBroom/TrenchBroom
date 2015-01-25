@@ -22,7 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Model/CollectUniqueNodesVisitor.h"
 #include "Model/EntityAttributeSnapshot.h"
 #include "Model/EntityColor.h"
 #include "Model/Node.h"
@@ -61,7 +60,13 @@ namespace TrenchBroom {
         public: // adding and removing nodes
             Model::NodeList performAddNodes(const Model::ParentChildrenMap& nodes);
             Model::ParentChildrenMap performRemoveNodes(const Model::NodeList& nodes);
-            Model::ParentChildrenMap performReparentNodes(const Model::ParentChildrenMap& nodes);
+            
+            struct ReparentResult {
+                Model::ParentChildrenMap movedNodes;
+                Model::ParentChildrenMap removedNodes;
+                ReparentResult(const Model::ParentChildrenMap& i_movedNodes, const Model::ParentChildrenMap& i_removedNodes);
+            };
+            ReparentResult performReparentNodes(const Model::ParentChildrenMap& nodes);
         public: // transformation
             void performTransform(const Mat4x4& transform, bool lockTextures);
         public: // entity attributes
@@ -99,18 +104,6 @@ namespace TrenchBroom {
         public: // mods management
             void performSetMods(const StringList& mods);
         private: // helper methods
-            template <typename I>
-            Model::NodeList collectParents(const I begin, const I end) const {
-                Model::CollectUniqueNodesVisitor visitor;
-                Model::Node::escalate(begin, end, visitor);
-                return visitor.nodes();
-            }
-            
-            Model::NodeList collectParents(const Model::NodeList& nodes) const;
-            Model::NodeList collectParents(const Model::ParentChildrenMap& nodes) const;
-            Model::NodeList collectChildren(const Model::ParentChildrenMap& nodes) const;
-            
-            Model::ParentChildrenMap parentChildrenMap(const Model::NodeList& nodes) const;
             void addEmptyNodes(Model::ParentChildrenMap& nodes) const;
             Model::NodeList collectEmptyNodes(const Model::ParentChildrenMap& nodes) const;
             void removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const;

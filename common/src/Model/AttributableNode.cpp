@@ -646,6 +646,10 @@ namespace TrenchBroom {
         Node(),
         m_definition(NULL) {}
 
+        const String& AttributableNode::doGetName() const {
+            return classname("<missing classname>");
+        }
+
         void AttributableNode::removeKillTarget(AttributableNode* attributable) {
             assert(attributable != NULL);
             VectorUtils::erase(m_killTargets, attributable);
