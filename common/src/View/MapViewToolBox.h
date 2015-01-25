@@ -74,6 +74,7 @@ namespace TrenchBroom {
             
             void toggleVertexTool();
             bool vertexToolActive() const;
+            void moveVertices(const Vec3& delta);
         private: // Tool related methods
             void createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
             void destroyTools();

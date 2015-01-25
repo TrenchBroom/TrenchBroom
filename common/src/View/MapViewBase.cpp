@@ -182,11 +182,6 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::bindEvents() {
-            /*
-             Bind(wxEVT_KEY_DOWN, &MapViewBase::OnKey, this);
-             Bind(wxEVT_KEY_UP, &MapViewBase::OnKey, this);
-             */
-
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
 
@@ -196,19 +191,13 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnDeleteLastClipPoint,          this, CommandIds::Actions::DeleteLastClipPoint);
 
             Bind(wxEVT_MENU, &MapViewBase::OnToggleVertexTool,             this, CommandIds::Actions::ToggleVertexTool);
-            /*
-             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
-             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesBackward,         this, CommandIds::Actions::MoveVerticesBackward);
-             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesLeft,             this, CommandIds::Actions::MoveVerticesLeft);
-             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesRight,            this, CommandIds::Actions::MoveVerticesRight);
-             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesUp,               this, CommandIds::Actions::MoveVerticesUp);
-             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
-             */
-
-            /*
-             Bind(wxEVT_MENU, &MapViewBase::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
-             */
-
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesBackward,         this, CommandIds::Actions::MoveVerticesBackward);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesLeft,             this, CommandIds::Actions::MoveVerticesLeft);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesRight,            this, CommandIds::Actions::MoveVerticesRight);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesUp,               this, CommandIds::Actions::MoveVerticesUp);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
+            
             Bind(wxEVT_MENU, &MapViewBase::OnDeleteObjects,                this, CommandIds::Actions::DeleteObjects);
 
             Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsForward,           this, CommandIds::Actions::MoveObjectsForward);
@@ -479,6 +468,37 @@ namespace TrenchBroom {
 
         void MapViewBase::OnToggleVertexTool(wxCommandEvent& event) {
             m_toolBox.toggleVertexTool();
+        }
+
+        void MapViewBase::OnMoveVerticesForward(wxCommandEvent& event) {
+            moveVertices(Math::Direction_Forward);
+        }
+        
+        void MapViewBase::OnMoveVerticesBackward(wxCommandEvent& event) {
+            moveVertices(Math::Direction_Backward);
+        }
+        
+        void MapViewBase::OnMoveVerticesLeft(wxCommandEvent& event) {
+            moveVertices(Math::Direction_Left);
+        }
+        
+        void MapViewBase::OnMoveVerticesRight(wxCommandEvent& event) {
+            moveVertices(Math::Direction_Right);
+        }
+        
+        void MapViewBase::OnMoveVerticesUp(wxCommandEvent& event) {
+            moveVertices(Math::Direction_Up);
+        }
+        
+        void MapViewBase::OnMoveVerticesDown(wxCommandEvent& event) {
+            moveVertices(Math::Direction_Down);
+        }
+
+        void MapViewBase::moveVertices(const Math::Direction direction) {
+            MapDocumentSPtr document = lock(m_document);
+            const Grid& grid = document->grid();
+            const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+            m_toolBox.moveVertices(delta);
         }
 
         void MapViewBase::OnCancel(wxCommandEvent& event) {

@@ -192,9 +192,11 @@ namespace TrenchBroom {
         }
 
         void VertexTool::moveVerticesAndRebuildBrushGeometry(const Vec3& delta) {
-            moveVertices(delta);
-            rebuildBrushGeometry();
-            m_mode = Mode_Move;
+            if (hasSelectedHandles()) {
+                moveVertices(delta);
+                rebuildBrushGeometry();
+                m_mode = Mode_Move;
+            }
         }
 
         bool VertexTool::canSnapVertices() const {

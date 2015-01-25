@@ -141,6 +141,13 @@ namespace TrenchBroom {
             void OnDeleteLastClipPoint(wxCommandEvent& event);
             
             void OnToggleVertexTool(wxCommandEvent& event);
+            void OnMoveVerticesForward(wxCommandEvent& event);
+            void OnMoveVerticesBackward(wxCommandEvent& event);
+            void OnMoveVerticesLeft(wxCommandEvent& event);
+            void OnMoveVerticesRight(wxCommandEvent& event);
+            void OnMoveVerticesUp(wxCommandEvent& event);
+            void OnMoveVerticesDown(wxCommandEvent& event);
+            void moveVertices(Math::Direction direction);
             
             void OnCancel(wxCommandEvent& event);
             bool cancel();

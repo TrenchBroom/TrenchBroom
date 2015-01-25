@@ -128,6 +128,11 @@ namespace TrenchBroom {
             return toolActive(m_vertexTool);
         }
 
+        void MapViewToolBox::moveVertices(const Vec3& delta) {
+            assert(vertexToolActive());
+            m_vertexTool->moveVerticesAndRebuildBrushGeometry(delta);
+        }
+
         void MapViewToolBox::createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) {
             m_clipTool = new ClipTool(document);
             m_createEntityTool = new CreateEntityTool(document);
