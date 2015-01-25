@@ -121,6 +121,7 @@ namespace TrenchBroom {
             void doMoveCameraToCurrentTracePoint();
         private: // implement MapViewBase interface
             Vec3 doGetMoveDirection(Math::Direction direction) const;
+            Vec3 doComputePointEntityPosition(const BBox3& bounds) const;
             
             ActionContext doGetActionContext() const;
             wxAcceleratorTable doCreateAccelerationTable(ActionContext context) const;

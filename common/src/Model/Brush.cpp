@@ -87,12 +87,11 @@ namespace TrenchBroom {
         }
 
         void Brush::setFaces(const BBox3& worldBounds, const BrushFaceList& faces) {
-            nodeWillChange();
+            const NotifyNodeChange nodeChange(this);
             detachFaces(m_faces);
             VectorUtils::clearAndDelete(m_faces);
             addFaces(faces);
             rebuildGeometry(worldBounds);
-            nodeDidChange();
         }
         
         void Brush::faceDidChange() {
@@ -145,14 +144,12 @@ namespace TrenchBroom {
         }
         
         bool Brush::clip(const BBox3& worldBounds, BrushFace* face) {
-            nodeWillChange();
+            const NotifyNodeChange nodeChange(this);
             try {
                 addFace(face);
                 rebuildGeometry(worldBounds);
-                nodeDidChange();
                 return !m_faces.empty();
             } catch (GeometryException&) {
-                nodeDidChange();
                 return false;
             }
         }
@@ -187,10 +184,9 @@ namespace TrenchBroom {
         void Brush::moveBoundary(const BBox3& worldBounds, BrushFace* face, const Vec3& delta, const bool lockTexture) {
             assert(canMoveBoundary(worldBounds, face, delta));
             
-            nodeWillChange();
+            const NotifyNodeChange nodeChange(this);
             face->transform(translationMatrix(delta), lockTexture);
             rebuildGeometry(worldBounds);
-            nodeDidChange();
         }
 
         size_t Brush::vertexCount() const {
@@ -253,10 +249,9 @@ namespace TrenchBroom {
             assert(!vertexPositions.empty());
             assert(canMoveVertices(worldBounds, vertexPositions, delta));
             
-            nodeWillChange();
+            const NotifyNodeChange nodeChange(this);
             const MoveVerticesResult result = m_geometry->moveVertices(worldBounds, vertexPositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
-            nodeDidChange();
             
             return result.newVertexPositions;
         }
@@ -265,10 +260,9 @@ namespace TrenchBroom {
             assert(m_geometry != NULL);
             assert(!vertexPositions.empty());
             
-            nodeWillChange();
+            const NotifyNodeChange nodeChange(this);
             const SnapVerticesResult result = m_geometry->snapVertices(vertexPositions, snapTo);
             processBrushAlgorithmResult(worldBounds, result);
-            nodeDidChange();
             
             return result.newVertexPositions;
         }
@@ -286,10 +280,9 @@ namespace TrenchBroom {
             assert(!edgePositions.empty());
             assert(canMoveEdges(worldBounds, edgePositions, delta));
             
-            nodeWillChange();
+            const NotifyNodeChange nodeChange(this);
             const MoveEdgesResult result = m_geometry->moveEdges(worldBounds, edgePositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
-            nodeDidChange();
             
             return result.newEdgePositions;
         }
@@ -305,10 +298,9 @@ namespace TrenchBroom {
             assert(m_geometry != NULL);
             assert(canSplitEdge(worldBounds, edgePosition, delta));
             
-            nodeWillChange();
+            const NotifyNodeChange nodeChange(this);
             const SplitResult result = m_geometry->splitEdge(worldBounds, edgePosition, delta);
             processBrushAlgorithmResult(worldBounds, result);
-            nodeDidChange();
             
             return result.newVertexPosition;
         }
@@ -326,10 +318,9 @@ namespace TrenchBroom {
             assert(!facePositions.empty());
             assert(canMoveFaces(worldBounds, facePositions, delta));
             
-            nodeWillChange();
+            const NotifyNodeChange nodeChange(this);
             const MoveFacesResult result = m_geometry->moveFaces(worldBounds, facePositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
-            nodeDidChange();
             
             return result.newFacePositions;
         }
@@ -345,10 +336,9 @@ namespace TrenchBroom {
             assert(m_geometry != NULL);
             assert(canSplitFace(worldBounds, facePosition, delta));
             
-            nodeWillChange();
+            const NotifyNodeChange nodeChange(this);
             const SplitResult result = m_geometry->splitFace(worldBounds, facePosition, delta);
             processBrushAlgorithmResult(worldBounds, result);
-            nodeDidChange();
             
             return result.newVertexPosition;
         }
@@ -397,13 +387,14 @@ namespace TrenchBroom {
         }
 
         void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {
+            const NotifyNodeChange nodeChange(this);
+            
             BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 BrushFace* brushFace = *it;
                 brushFace->findIntegerPlanePoints();
             }
             rebuildGeometry(worldBounds);
-            nodeDidChange();
         }
 
         bool Brush::checkGeometry() const {
@@ -559,14 +550,14 @@ namespace TrenchBroom {
         }
         
         void Brush::doTransform(const Mat4x4& transformation, bool lockTextures, const BBox3& worldBounds) {
-            nodeWillChange();
+            const NotifyNodeChange nodeChange(this);
+
             BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 BrushFace* face = *it;
                 face->transform(transformation, lockTextures);
             }
             rebuildGeometry(worldBounds);
-            nodeDidChange();
         }
         
         class Brush::Contains : public ConstNodeVisitor, public NodeQuery<bool> {

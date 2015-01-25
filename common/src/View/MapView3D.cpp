@@ -156,18 +156,6 @@ namespace TrenchBroom {
             
             Bind(wxEVT_MENU, &MapView3D::OnToggleFlyMode,                this, CommandIds::Actions::ToggleFlyMode);
             
-            /*
-            Bind(wxEVT_MENU, &MapView3D::OnPopupReparentBrushes,         this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
-            Bind(wxEVT_MENU, &MapView3D::OnPopupMoveBrushesToWorld,      this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_MENU, &MapView3D::OnPopupCreatePointEntity,       this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_MENU, &MapView3D::OnPopupCreateBrushEntity,       this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
-            
-            Bind(wxEVT_UPDATE_UI, &MapView3D::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
-            Bind(wxEVT_UPDATE_UI, &MapView3D::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_UPDATE_UI, &MapView3D::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_UPDATE_UI, &MapView3D::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
-            */
-            
             wxFrame* frame = findFrame(this);
             frame->Bind(wxEVT_ACTIVATE, &MapView3D::OnActivateFrame, this);
         }
@@ -456,6 +444,25 @@ namespace TrenchBroom {
                 case Math::Direction_Down:
                     return Vec3::NegZ;
                     DEFAULT_SWITCH()
+            }
+        }
+
+        Vec3 MapView3D::doComputePointEntityPosition(const BBox3& bounds) const {
+            MapDocumentSPtr document = lock(m_document);
+            
+            Vec3 delta;
+            View::Grid& grid = document->grid();
+            
+            const BBox3& worldBounds = document->worldBounds();
+            
+            const Model::Hit& hit = pickResult().query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().first();
+            if (hit.isMatch()) {
+                const Model::BrushFace* face = Model::hitToFace(hit);
+                return grid.moveDeltaForBounds(face->boundary(), bounds, worldBounds, pickRay(), hit.hitPoint());
+            } else {
+                const Vec3 newPosition = Renderer::Camera::defaultPoint(pickRay());
+                const Vec3 defCenter = bounds.center();
+                return grid.moveDeltaForPoint(defCenter, worldBounds, newPosition - defCenter);
             }
         }
 

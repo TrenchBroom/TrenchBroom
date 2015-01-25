@@ -99,14 +99,13 @@ namespace TrenchBroom {
             if (m_definition == definition)
                 return;
             
-            attributesWillChange();
+            const NotifyAttributeChange notifyChange(this);
             if (m_definition != NULL)
                 m_definition->decUsageCount();
             m_definition = definition;
             m_attributes.updateDefinitions(m_definition);
             if (m_definition != NULL)
                 m_definition->incUsageCount();
-            attributesDidChange();
         }
 
         const Assets::AttributeDefinition* AttributableNode::attributeDefinition(const AttributeName& name) const {
@@ -118,11 +117,10 @@ namespace TrenchBroom {
         }
         
         void AttributableNode::setAttributes(const EntityAttribute::List& attributes) {
-            attributesWillChange();
+            const NotifyAttributeChange notifyChange(this);
             updateAttributeIndex(attributes);
             m_attributes.setAttributes(attributes);
             m_attributes.updateDefinitions(m_definition);
-            attributesDidChange();
         }
         
         bool AttributableNode::hasAttribute(const AttributeName& name) const {
@@ -161,7 +159,7 @@ namespace TrenchBroom {
         }
         
         void AttributableNode::addOrUpdateAttribute(const AttributeName& name, const AttributeValue& value) {
-            attributesWillChange();
+            const NotifyAttributeChange notifyChange(this);
 
             const Assets::AttributeDefinition* definition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, name);
             const AttributeValue* oldValue = m_attributes.attribute(name);
@@ -173,7 +171,6 @@ namespace TrenchBroom {
             m_attributes.addOrUpdateAttribute(name, value, definition);
             addAttributeToIndex(name, value);
             addLinks(name, value);
-            attributesDidChange();
         }
         
         bool AttributableNode::canRenameAttribute(const AttributeName& name, const AttributeName& newName) const {
@@ -188,7 +185,7 @@ namespace TrenchBroom {
             if (valuePtr == NULL)
                 return;
             
-            attributesWillChange();
+            const NotifyAttributeChange notifyChange(this);
 
             const Assets::AttributeDefinition* newDefinition = Assets::EntityDefinition::safeGetAttributeDefinition(m_definition, newName);
             m_attributes.renameAttribute(name, newName, newDefinition);
@@ -196,7 +193,6 @@ namespace TrenchBroom {
             const AttributeValue value = *valuePtr;
             updateAttributeIndex(name, value, newName, value);
             updateLinks(name, value, newName, value);
-            attributesDidChange();
         }
         
         bool AttributableNode::canRemoveAttribute(const AttributeName& name) const {
@@ -208,14 +204,13 @@ namespace TrenchBroom {
             if (valuePtr == NULL)
                 return;
 
-            attributesWillChange();
+            const NotifyAttributeChange notifyChange(this);
 
             const AttributeValue value = *valuePtr;
             m_attributes.removeAttribute(name);
             
             removeAttributeFromIndex(name, value);
             removeLinks(name, value);
-            attributesDidChange();
         }
         
         bool AttributableNode::isAttributeNameMutable(const AttributeName& name) const {
@@ -226,12 +221,20 @@ namespace TrenchBroom {
             return doIsAttributeValueMutable(name);
         }
 
-        void AttributableNode::attributesWillChange() {
-            nodeWillChange();
+        AttributableNode::NotifyAttributeChange::NotifyAttributeChange(AttributableNode* node) :
+        m_nodeChange(node),
+        m_node(node) {
+            assert(m_node != NULL);
+            m_node->attributesWillChange();
+        }
+        
+        AttributableNode::NotifyAttributeChange::~NotifyAttributeChange() {
+            m_node->attributesDidChange();
         }
 
+        void AttributableNode::attributesWillChange() {}
+
         void AttributableNode::attributesDidChange() {
-            nodeDidChange();
             doAttributesDidChange();
         }
 

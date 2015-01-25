@@ -93,6 +93,16 @@ namespace TrenchBroom {
                 str << value;
                 return str.str();
             }
+            
+            class NotifyAttributeChange {
+            private:
+                NotifyNodeChange m_nodeChange;
+                AttributableNode* m_node;
+            public:
+                NotifyAttributeChange(AttributableNode* node);
+                ~NotifyAttributeChange();
+            };
+            
             void attributesWillChange();
             void attributesDidChange();
         private: // search index management

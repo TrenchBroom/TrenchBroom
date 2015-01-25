@@ -226,6 +226,27 @@ namespace TrenchBroom {
             }
         }
 
+        Vec3 MapView2D::doComputePointEntityPosition(const BBox3& bounds) const {
+            MapDocumentSPtr document = lock(m_document);
+            const BBox3 referenceBounds = document->referenceBounds();
+            const Ray3& pickRay = MapView2D::pickRay();
+            
+            const Vec3 toMin = referenceBounds.min - pickRay.origin;
+            const Vec3 toMax = referenceBounds.max - pickRay.origin;
+            const Vec3 anchor = toMin.dot(pickRay.direction) > toMax.dot(pickRay.direction) ? referenceBounds.min : referenceBounds.max;
+            const Plane3 dragPlane(anchor, -pickRay.direction);
+            
+            const FloatType distance = dragPlane.intersectWithRay(pickRay);
+            if (Math::isnan(distance))
+                return Vec3::Null;
+            
+            const BBox3& worldBounds = document->worldBounds();
+            const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            
+            const Grid& grid = document->grid();
+            return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay, hitPoint);
+        }
+
         ActionContext MapView2D::doGetActionContext() const {
             return ActionContext_Default;
         }

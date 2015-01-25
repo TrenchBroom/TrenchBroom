@@ -127,6 +127,14 @@ namespace TrenchBroom {
             void ancestorWillChange();
             void ancestorDidChange();
         protected: // notification for parents
+            class NotifyNodeChange {
+            private:
+                Node* m_node;
+            public:
+                NotifyNodeChange(Node* node);
+                ~NotifyNodeChange();
+            };
+        private: // call these methods via the NotifyNodeChange class, it's much safer
             void nodeWillChange();
             void nodeDidChange();
         private:

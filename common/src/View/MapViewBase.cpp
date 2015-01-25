@@ -768,28 +768,13 @@ namespace TrenchBroom {
             assert(definition != NULL);
             
             MapDocumentSPtr document = lock(m_document);
-            
             Model::Entity* entity = document->world()->createEntity();
             entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
             
-            Vec3 delta;
-            View::Grid& grid = document->grid();
-
-            const BBox3& worldBounds = document->worldBounds();
-            const BBox3& defBounds = definition->bounds();
-            
-            const Model::Hit& hit = pickResult().query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().first();
-            if (hit.isMatch()) {
-                const Model::BrushFace* face = Model::hitToFace(hit);
-                delta = grid.moveDeltaForBounds(face->boundary(), defBounds, worldBounds, pickRay(), hit.hitPoint());
-            } else {
-                const Vec3 newPosition = Renderer::Camera::defaultPoint(pickRay());
-                const Vec3 defCenter = defBounds.center();
-                delta = grid.moveDeltaForPoint(defCenter, worldBounds, newPosition - defCenter);
-            }
-            
             StringStream name;
             name << "Create " << definition->name();
+            
+            const Vec3 delta = doComputePointEntityPosition(definition->bounds());
             
             const Transaction transaction(document, name.str());
             document->deselectAll();

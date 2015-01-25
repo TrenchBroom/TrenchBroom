@@ -230,13 +230,14 @@ namespace TrenchBroom {
 
         void Entity::doTransform(const Mat4x4& transformation, const bool lockTextures, const BBox3& worldBounds) {
             if (hasChildren()) {
+                const NotifyNodeChange nodeChange(this);
                 TransformEntity visitor(transformation, lockTextures, worldBounds);
                 iterate(visitor);
             } else {
+                // node change is called by setOrigin already
                 setOrigin(transformation * origin());
                 applyRotation(stripTranslation(transformation));
             }
-            nodeDidChange();
         }
         
         bool Entity::doContains(const Node* node) const {

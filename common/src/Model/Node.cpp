@@ -239,6 +239,16 @@ namespace TrenchBroom {
             invalidateIssues();
         }
         
+        Node::NotifyNodeChange::NotifyNodeChange(Node* node) :
+        m_node(node) {
+            assert(m_node != NULL);
+            m_node->nodeWillChange();
+        }
+        
+        Node::NotifyNodeChange::~NotifyNodeChange() {
+            m_node->nodeDidChange();
+        }
+
         void Node::childWillChange(Node* node) {
             doChildWillChange(node);
             descendantWillChange(node);
