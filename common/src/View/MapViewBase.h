@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__MapViewBase__
 #define __TrenchBroom__MapViewBase__
 
+#include "Assets/EntityDefinition.h"
 #include "Model/ModelTypes.h"
 #include "View/ActionContext.h"
 #include "View/CameraLinkHelper.h"
@@ -71,8 +72,6 @@ namespace TrenchBroom {
         public: // drop targets
             void setToolBoxDropTarget();
             void clearDropTarget();
-        private:
-            const Renderer::Camera& camera() const;
         private:
             void bindObservers();
             void unbindObservers();
@@ -164,6 +163,27 @@ namespace TrenchBroom {
             void setupGL(Renderer::RenderContext& renderContext);
         private: // implement ToolBoxConnector
             void doShowPopupMenu();
+            wxMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
+            
+            // Popup menu events
+            void OnPopupReparentBrushes(wxCommandEvent& event);
+            Model::Node* findNewNodeParent(const Model::NodeList& nodes) const;
+            
+            bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+            void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent);
+            Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+
+            void OnPopupMoveBrushesToWorld(wxCommandEvent& event);
+            void OnPopupCreatePointEntity(wxCommandEvent& event);
+            void OnPopupCreateBrushEntity(wxCommandEvent& event);
+            
+            Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
+            void createPointEntity(const Assets::PointEntityDefinition* definition);
+            void createBrushEntity(const Assets::BrushEntityDefinition* definition);
+
+            void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
+            void updateReparentBrushesMenuItem(wxUpdateUIEvent& event) const;
+            void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
         private: // subclassing interface
             virtual Vec3 doGetMoveDirection(Math::Direction direction) const = 0;
 

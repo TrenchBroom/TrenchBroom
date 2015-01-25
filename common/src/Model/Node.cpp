@@ -44,6 +44,10 @@ namespace TrenchBroom {
             clearIssues();
         }
         
+        const String& Node::name() const {
+            return doGetName();
+        }
+
         Node* Node::clone(const BBox3& worldBounds) const {
             return doClone(worldBounds);
         }

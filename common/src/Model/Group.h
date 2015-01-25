@@ -42,9 +42,10 @@ namespace TrenchBroom {
         public:
             Group(const String& name);
             
-            const String& name() const;
             void setName(const String& name);
         private: // implement methods inherited from Node
+            const String& doGetName() const;
+            
             Node* doClone(const BBox3& worldBounds) const;
             NodeSnapshot* doTakeSnapshot();
 

@@ -133,6 +133,14 @@ namespace TrenchBroom {
             return true;
         }
 
+        void Entity::doDescendantWasAdded(Node* node) {
+            invalidateBounds();
+        }
+        
+        void Entity::doDescendantWasRemoved(Node* oldParent, Node* node) {
+            invalidateBounds();
+        }
+
         void Entity::doDescendantDidChange(Node* node) {
             invalidateBounds();
         }

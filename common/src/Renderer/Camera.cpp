@@ -179,10 +179,6 @@ namespace TrenchBroom {
             return defaultPoint(ray);
         }
 
-        Vec3f Camera::defaultPoint(const Ray3f& ray) const {
-            return ray.pointAtDistance(DefaultPointDistance);
-        }
-
         float Camera::perspectiveScalingFactor(const Vec3f& position) const {
             return doGetPerspectiveScalingFactor(position);
         }

@@ -108,7 +108,11 @@ namespace TrenchBroom {
             float perpendicularDistanceTo(const Vec3f& point) const;
             Vec3f defaultPoint() const;
             Vec3f defaultPoint(int x, int y) const;
-            Vec3f defaultPoint(const Ray3f& ray) const;
+            
+            template <typename T>
+            static Vec<T,3> defaultPoint(const Ray<T,3>& ray) {
+                return ray.pointAtDistance(DefaultPointDistance);
+            }
 
             float perspectiveScalingFactor(const Vec3f& position) const;
             Vec3f project(const Vec3f& point) const;

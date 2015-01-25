@@ -29,10 +29,6 @@ namespace TrenchBroom {
         m_hidden(false),
         m_locked(false) {}
         
-        const String& Layer::name() const {
-            return m_name;
-        }
-        
         void Layer::setName(const String& name) {
             m_name = name;
         }
@@ -51,6 +47,10 @@ namespace TrenchBroom {
         
         void Layer::setLocked(const bool locked) {
             m_locked = locked;
+        }
+
+        const String& Layer::doGetName() const {
+            return m_name;
         }
 
         Node* Layer::doClone(const BBox3& worldBounds) const {

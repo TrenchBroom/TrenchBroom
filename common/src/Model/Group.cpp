@@ -41,14 +41,14 @@ namespace TrenchBroom {
         m_name(name),
         m_boundsValid(false) {}
         
-        const String& Group::name() const {
-            return m_name;
-        }
-        
         void Group::setName(const String& name) {
             m_name = name;
         }
         
+        const String& Group::doGetName() const {
+            return m_name;
+        }
+
         Node* Group::doClone(const BBox3& worldBounds) const {
             Group* group = new Group(m_name);
             group->addChildren(clone(worldBounds, children()));

@@ -140,6 +140,8 @@ namespace TrenchBroom {
             void invalidateContentType();
             void validateContentType() const;
         private: // implement Node interface
+            const String& doGetName() const;
+            
             Node* doClone(const BBox3& worldBounds) const;
             NodeSnapshot* doTakeSnapshot();
             
