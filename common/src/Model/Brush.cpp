@@ -499,6 +499,10 @@ namespace TrenchBroom {
             return false;
         }
 
+        void Brush::doParentDidChange() {
+            invalidateContentType();
+        }
+
         bool Brush::doSelectable() const {
             return true;
         }

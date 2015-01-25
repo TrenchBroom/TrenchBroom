@@ -28,6 +28,7 @@
 #include "Model/BrushVertex.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
+#include "Model/FindLayerVisitor.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
@@ -691,7 +692,7 @@ namespace TrenchBroom {
             Model::NodeList::const_iterator it, end;
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
                 const Model::Node* node = *it;
-                if (!node->isDescendantOf(newParent))
+                if (node->parent() != newParent)
                     return true;
             }
             return false;
@@ -728,7 +729,7 @@ namespace TrenchBroom {
         void MapViewBase::OnPopupMoveBrushesToWorld(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
-            reparentNodes(nodes, document->world());
+            reparentNodes(nodes, document->currentLayer());
         }
         
         void MapViewBase::OnPopupCreatePointEntity(wxCommandEvent& event) {
@@ -854,10 +855,10 @@ namespace TrenchBroom {
                 event.Enable(false);
                 name << "Entity";
             } else {
-                const Model::Node* newParent = findNewNodeParent(nodes);
+                Model::Node* newParent = findNewNodeParent(nodes);
                 if (newParent != NULL) {
                     event.Enable(true);
-                    name << newParent->name();
+                    name << newParent->name() << " in layer " << Model::findLayer(newParent)->name();
                 } else {
                     event.Enable(false);
                     name << "Entity";
@@ -868,10 +869,13 @@ namespace TrenchBroom {
         
         void MapViewBase::updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const {
             MapDocumentSPtr document = lock(m_document);
+            Model::World* world = document->world();
+            Model::Layer* layer = document->currentLayer();
+            
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             StringStream name;
-            name << "Move " << StringUtils::safePlural(nodes.size(), "Brush", "Brushes") << " to World";
-            event.Enable(canReparentNodes(nodes, document->world()));
+            name << "Move " << StringUtils::safePlural(nodes.size(), "Brush", "Brushes") << " to " << world->name() << " in layer " << layer->name();
+            event.Enable(canReparentNodes(nodes, layer));
             event.SetText(name.str());
         }
     }

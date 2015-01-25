@@ -19,6 +19,7 @@
 
 #include "ReparentNodesCommand.h"
 
+#include "CollectionUtils.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <cassert>
@@ -45,13 +46,24 @@ namespace TrenchBroom {
         DocumentCommand(Type, "Reparent Nodes"),
         m_nodes(nodes) {}
         
+        ReparentNodesCommand::~ReparentNodesCommand() {
+            MapUtils::clearAndDelete(m_removedNodes);
+        }
+
         bool ReparentNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            m_nodes = document->performReparentNodes(m_nodes);
+            const MapDocumentCommandFacade::ReparentResult result = document->performReparentNodes(m_nodes);
+            m_nodes = result.movedNodes;
+            m_removedNodes = result.removedNodes;
             return true;
         }
         
         bool ReparentNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
-            m_nodes = document->performReparentNodes(m_nodes);
+            document->addNodes(m_removedNodes);
+            
+            const MapDocumentCommandFacade::ReparentResult result = document->performReparentNodes(m_nodes);
+            m_nodes = result.movedNodes;
+            m_removedNodes = result.removedNodes;
+            assert(m_removedNodes.empty());
             return true;
         }
         

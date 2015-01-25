@@ -149,6 +149,8 @@ namespace TrenchBroom {
             bool doCanRemoveChild(const Node* child) const;
             bool doRemoveIfEmpty() const;
 
+            void doParentDidChange();
+
             bool doSelectable() const;
 
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
