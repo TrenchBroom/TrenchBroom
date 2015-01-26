@@ -84,6 +84,8 @@ namespace TrenchBroom {
             void doAttributesDidChange();
             bool doIsAttributeNameMutable(const AttributeName& name) const;
             bool doIsAttributeValueMutable(const AttributeName& name) const;
+            Vec3 doGetLinkSourceAnchor() const;
+            Vec3 doGetLinkTargetAnchor() const;
         private: // implement ModelFactory interface
             MapFormat::Type doGetFormat() const;
             World* doCreateWorld() const;

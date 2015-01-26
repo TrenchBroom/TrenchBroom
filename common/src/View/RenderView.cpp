@@ -47,9 +47,6 @@ namespace TrenchBroom {
         }
         
         void RenderView::OnPaint(wxPaintEvent& event) {
-            if (!IsShownOnScreen())
-                return;
-            
             if (m_glContext->SetCurrent(this)) {
                 if (!m_initialized)
                     initializeGL();

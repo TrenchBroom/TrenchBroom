@@ -32,6 +32,7 @@
 #include "Model/NodeVisitor.h"
 #include "Model/World.h"
 #include "Renderer/BrushRenderer.h"
+#include "Renderer/EntityLinkRenderer.h"
 #include "Renderer/ObjectRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -87,7 +88,8 @@ namespace TrenchBroom {
         
         MapRenderer::MapRenderer(View::MapDocumentWPtr document) :
         m_document(document),
-        m_selectionRenderer(createSelectionRenderer(document)) {
+        m_selectionRenderer(createSelectionRenderer(document)),
+        m_entityLinkRenderer(new EntityLinkRenderer(document)) {
             bindObservers();
             setupRenderers();
         }
@@ -96,6 +98,7 @@ namespace TrenchBroom {
             unbindObservers();
             clear();
             delete m_selectionRenderer;
+            delete m_entityLinkRenderer;
         }
 
         ObjectRenderer* MapRenderer::createSelectionRenderer(View::MapDocumentWPtr document) {
@@ -128,6 +131,7 @@ namespace TrenchBroom {
             setupGL(renderBatch);
             renderLayers(renderContext, renderBatch);
             renderSelection(renderContext, renderBatch);
+            renderEntityLinks(renderContext, renderBatch);
         }
         
         void MapRenderer::commitPendingChanges() {
@@ -168,9 +172,14 @@ namespace TrenchBroom {
                 m_selectionRenderer->render(renderContext, renderBatch);
         }
         
+        void MapRenderer::renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch) {
+            m_entityLinkRenderer->render(renderContext, renderBatch);
+        }
+
         void MapRenderer::setupRenderers() {
             setupLayerRenderers();
             setupSelectionRenderer(m_selectionRenderer);
+            setupEntityLinkRenderer();
         }
 
         void MapRenderer::setupLayerRenderers() {
@@ -210,6 +219,9 @@ namespace TrenchBroom {
             renderer->setBrushEdgeColor(pref(Preferences::SelectedEdgeColor));
         }
 
+        void MapRenderer::setupEntityLinkRenderer() {
+        }
+
         void MapRenderer::invalidateLayerRenderers() {
             RendererMap::iterator it, end;
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
@@ -220,6 +232,10 @@ namespace TrenchBroom {
         
         void MapRenderer::invalidateSelectionRenderer() {
             m_selectionRenderer->invalidate();
+        }
+        
+        void MapRenderer::invalidateEntityLinkRenderer() {
+            m_entityLinkRenderer->invalidate();
         }
 
         void MapRenderer::bindObservers() {
@@ -355,6 +371,7 @@ namespace TrenchBroom {
         
         void MapRenderer::documentWasCleared(View::MapDocument* document) {
             m_layerRenderers.clear();
+            invalidateEntityLinkRenderer();
         }
         
         void MapRenderer::documentWasNewedOrLoaded(View::MapDocument* document) {
@@ -362,6 +379,7 @@ namespace TrenchBroom {
             AddNode visitor(document->entityModelManager(), document->editorContext(), m_layerRenderers);
             world->acceptAndRecurse(visitor);
             setupLayerRenderers();
+            invalidateEntityLinkRenderer();
         }
         
         void MapRenderer::nodesWereAdded(const Model::NodeList& nodes) {
@@ -369,6 +387,7 @@ namespace TrenchBroom {
             AddNode visitor(document->entityModelManager(), document->editorContext(), m_layerRenderers);
             Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
             setupLayerRenderers();
+            invalidateEntityLinkRenderer();
         }
         
         class MapRenderer::RemoveNode : public Model::NodeVisitor {
@@ -396,6 +415,7 @@ namespace TrenchBroom {
             RemoveNode visitor(m_layerRenderers);
             Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
             setupLayerRenderers();
+            invalidateEntityLinkRenderer();
         }
 
         class MapRenderer::UpdateNode : public Model::NodeVisitor {
@@ -421,6 +441,7 @@ namespace TrenchBroom {
         void MapRenderer::nodesDidChange(const Model::NodeList& nodes) {
             MapRenderer::UpdateNode visitor(m_selectionRenderer);
             Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::brushFacesDidChange(const Model::BrushFaceList& faces) {
@@ -467,6 +488,8 @@ namespace TrenchBroom {
 
             const Model::BrushSet parentsOfDeselectedFaces = collectBrushes(selection.deselectedBrushFaces());
             Model::Node::accept(parentsOfDeselectedFaces.begin(), parentsOfDeselectedFaces.end(), updateNode);
+
+            invalidateEntityLinkRenderer();
         }
 
         Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {
@@ -488,19 +511,23 @@ namespace TrenchBroom {
         void MapRenderer::entityDefinitionsDidChange() {
             invalidateLayerRenderers();
             invalidateSelectionRenderer();
+            invalidateEntityLinkRenderer();
         }
         
         void MapRenderer::modsDidChange() {
             invalidateLayerRenderers();
             invalidateSelectionRenderer();
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::editorContextDidChange() {
             invalidateLayerRenderers();
+            invalidateEntityLinkRenderer();
         }
         
         void MapRenderer::mapViewConfigDidChange() {
             invalidateLayerRenderers();
+            invalidateEntityLinkRenderer();
         }
 
         void MapRenderer::preferenceDidChange(const IO::Path& path) {

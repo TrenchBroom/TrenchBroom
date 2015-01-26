@@ -75,6 +75,8 @@ namespace TrenchBroom {
             void doAttributesDidChange();
             bool doIsAttributeNameMutable(const AttributeName& name) const;
             bool doIsAttributeValueMutable(const AttributeName& name) const;
+            Vec3 doGetLinkSourceAnchor() const;
+            Vec3 doGetLinkTargetAnchor() const;
         private: // implement Object interface
             const BBox3& doGetBounds() const;
             void doPick(const Ray3& ray, PickResult& pickResult) const;

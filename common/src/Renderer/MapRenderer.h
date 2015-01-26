@@ -36,6 +36,7 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
+        class EntityLinkRenderer;
         class FontManager;
         class ObjectRenderer;
         class RenderBatch;
@@ -49,6 +50,7 @@ namespace TrenchBroom {
             
             RendererMap m_layerRenderers;
             ObjectRenderer* m_selectionRenderer;
+            EntityLinkRenderer* m_entityLinkRenderer;
             
             class HandleSelectedNode;
             class UpdateSelectedNode;
@@ -71,14 +73,17 @@ namespace TrenchBroom {
             void setupGL(RenderBatch& renderBatch);
             void renderLayers(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderSelection(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch);
             
             void setupRenderers();
             void setupLayerRenderers();
             void setupLayerRenderer(ObjectRenderer* renderer);
             void setupSelectionRenderer(ObjectRenderer* renderer);
+            void setupEntityLinkRenderer();
 
             void invalidateLayerRenderers();
             void invalidateSelectionRenderer();
+            void invalidateEntityLinkRenderer();
         private: // notification
             void bindObservers();
             void unbindObservers();

@@ -327,6 +327,14 @@ namespace TrenchBroom {
             return m_killTargets;
         }
         
+        Vec3 AttributableNode::linkSourceAnchor() const {
+            return doGetLinkSourceAnchor();
+        }
+        
+        Vec3 AttributableNode::linkTargetAnchor() const {
+            return doGetLinkTargetAnchor();
+        }
+
         bool AttributableNode::hasMissingSources() const {
             return (m_linkSources.empty() &&
                     m_killSources.empty() &&

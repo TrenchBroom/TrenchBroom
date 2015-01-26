@@ -266,6 +266,14 @@ namespace TrenchBroom {
             return true;
         }
 
+        Vec3 World::doGetLinkSourceAnchor() const {
+            return Vec3::Null;
+        }
+        
+        Vec3 World::doGetLinkTargetAnchor() const {
+            return Vec3::Null;
+        }
+
         MapFormat::Type World::doGetFormat() const {
             return m_factory.format();
         }

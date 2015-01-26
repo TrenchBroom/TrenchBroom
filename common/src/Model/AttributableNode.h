@@ -119,6 +119,9 @@ namespace TrenchBroom {
             const AttributableNodeList& killSources() const;
             const AttributableNodeList& killTargets() const;
             
+            Vec3 linkSourceAnchor() const;
+            Vec3 linkTargetAnchor() const;
+            
             bool hasMissingSources() const;
             AttributeNameList findMissingLinkTargets() const;
             AttributeNameList findMissingKillTargets() const;
@@ -172,6 +175,8 @@ namespace TrenchBroom {
             virtual void doAttributesDidChange() = 0;
             virtual bool doIsAttributeNameMutable(const AttributeName& name) const = 0;
             virtual bool doIsAttributeValueMutable(const AttributeName& name) const = 0;
+            virtual Vec3 doGetLinkSourceAnchor() const = 0;
+            virtual Vec3 doGetLinkTargetAnchor() const = 0;
         private: // hide copy constructor and assignment operator
             AttributableNode(const AttributableNode&);
             AttributableNode& operator=(const AttributableNode&);

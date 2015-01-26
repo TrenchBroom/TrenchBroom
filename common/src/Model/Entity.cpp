@@ -175,6 +175,14 @@ namespace TrenchBroom {
             return true;
         }
 
+        Vec3 Entity::doGetLinkSourceAnchor() const {
+            return bounds().center();
+        }
+        
+        Vec3 Entity::doGetLinkTargetAnchor() const {
+            return bounds().center();
+        }
+
         const BBox3& Entity::doGetBounds() const {
             if (!m_boundsValid)
                 validateBounds();
