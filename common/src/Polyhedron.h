@@ -57,6 +57,8 @@ private:
         Edge* m_next;
         Edge* m_previous;
         Face* m_face;
+        
+        friend class Face;
     public:
         Edge(Vertex* origin) :
         m_origin(origin),
@@ -107,6 +109,17 @@ private:
         Face(Edge* edges) :
         m_edges(edges) {
             assert(m_edges != NULL);
+            Edge* edge = m_edges;
+            do {
+                assert(edge->m_origin != NULL);
+                assert(edge->m_twin != NULL);
+                assert(edge->m_previous != NULL);
+                assert(edge->m_next != NULL);
+                assert(edge->m_face == NULL);
+                
+                edge->m_face = this;
+                edge = edge->m_next;
+            } while (edge->m_next != m_edges);
         }
     };
 
@@ -133,54 +146,43 @@ public:
         Edge* e1 = new Edge(v2);
         Edge* e2 = new Edge(v3);
         Edge* e3 = new Edge(v4);
+        Edge* e4 = new Edge(v1);
+        Edge* e5 = new Edge(v3);
+        Edge* e6 = new Edge(v2);
+        Edge* e7 = new Edge(v1);
+        Edge* e8 = new Edge(v2);
+        Edge* e9 = new Edge(v4);
+        Edge* e10 = new Edge(v1);
+        Edge* e11 = new Edge(v4);
+        Edge* e12 = new Edge(v3);
         
         e1->insertAfter(e2);
         e2->insertAfter(e3);
         e3->close(e1);
-        
-        Face* f1 = new Face(e1);
-        
-        
-        Edge* e4 = new Edge(v1);
-        Edge* e5 = new Edge(v3);
-        Edge* e6 = new Edge(v2);
-        
+
         e4->insertAfter(e5);
         e5->insertAfter(e6);
         e6->close(e4);
-        
-        e1->conjoin(e5);
-        
-        Face* f2 = new Face(e4);
-        
-        
-        Edge* e7 = new Edge(v1);
-        Edge* e8 = new Edge(v2);
-        Edge* e9 = new Edge(v4);
-        
+
         e7->insertAfter(e8);
         e8->insertAfter(e9);
         e9->close(e7);
-        
-        e6->conjoin(e7);
-        e3->conjoin(e8);
-        
-        Face* f3 = new Face(e7);
-        
-        
-        Edge* e10 = new Edge(v1);
-        Edge* e11 = new Edge(v4);
-        Edge* e12 = new Edge(v3);
         
         e10->insertAfter(e11);
         e11->insertAfter(e12);
         e12->close(e10);
         
-        e9->conjoin(e10);
+        e1->conjoin(e5);
         e2->conjoin(e11);
+        e3->conjoin(e8);
         e4->conjoin(e12);
-        
-        Face* f4 = new Face(e9);
+        e6->conjoin(e7);
+        e9->conjoin(e10);
+
+        new Face(e1);
+        new Face(e4);
+        new Face(e7);
+        new Face(e10);
         
         m_edges = e1;
     }

@@ -929,7 +929,7 @@ T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
 template <typename T>
 bool commonPlane(const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& p4, const T epsilon = Math::Constants<T>::almostZero()) {
     assert(!p1.colinear(p2, p3, epsilon));
-    const Vec<T,3> normal = (p3 - p1).crossed(p2 - p1);
+    const Vec<T,3> normal = crossed(p3 - p1, p2 - p1);
     const T offset = p1.dot(normal);
     const T dist = p4.dot(normal) - offset;
     return Math::abs(dist) < epsilon;
