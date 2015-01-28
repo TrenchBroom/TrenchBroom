@@ -566,6 +566,22 @@ public:
                 return false;
         return true;
     }
+
+    static bool colinear(const Vec<T,S>::List& points) {
+        assert(points.size() == 3);
+        return colinear(points[0], points[1], points[2]);
+    }
+    
+    bool colinear(const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::almostZero()) const {
+        return colinear(*this, p2, p3, epsilon);
+    }
+
+    static bool colinear(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3, const T epsilon = Math::Constants<T>::almostZero()) {
+        const Vec<T,S> v1 = p2 - p1;
+        const Vec<T,S> v2 = p3 - p2;
+        const Vec<T,S> v3 = p1 - p3;
+        return v1.parallelTo(v2, epsilon) && v1.parallelTo(v3, epsilon) && v2.parallelTo(v3, epsilon);
+    }
     
     bool parallelTo(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
         const T d = normalized().dot(other.normalized());
@@ -908,6 +924,15 @@ T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
     if (cross.dot(up) >= static_cast<T>(0.0))
         return std::acos(cos);
     return Math::Constants<T>::twoPi() - std::acos(cos);
+}
+
+template <typename T>
+bool commonPlane(const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& p4, const T epsilon = Math::Constants<T>::almostZero()) {
+    assert(!p1.colinear(p2, p3, epsilon));
+    const Vec<T,3> normal = (p3 - p1).crossed(p2 - p1);
+    const T offset = p1.dot(normal);
+    const T dist = p4.dot(normal) - offset;
+    return Math::abs(dist) < epsilon;
 }
 
 template <typename T, size_t S>
