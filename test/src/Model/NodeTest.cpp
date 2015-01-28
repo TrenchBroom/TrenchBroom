@@ -32,6 +32,11 @@ namespace TrenchBroom {
                 return new MockNode();
             }
             
+            const String& doGetName() const {
+                static const String name("some name");
+                return name;
+            }
+            
             bool doCanAddChild(const Node* child) const {
                 return mockDoCanAddChild(child);
             }
@@ -91,6 +96,11 @@ namespace TrenchBroom {
         private: // implement Node interface
             virtual Node* doClone(const BBox3& worldBounds) const {
                 return new TestNode();
+            }
+            
+            virtual const String& doGetName() const {
+                static const String name("some name");
+                return name;
             }
             
             virtual bool doCanAddChild(const Node* child) const {
