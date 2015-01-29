@@ -658,7 +658,7 @@ namespace TrenchBroom {
         m_definition(NULL) {}
 
         const String& AttributableNode::doGetName() const {
-            static String defaultName("<missing classname>");
+            static const String defaultName("<missing classname>");
             return classname(defaultName);
         }
 
