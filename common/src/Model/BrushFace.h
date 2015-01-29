@@ -102,7 +102,8 @@ namespace TrenchBroom {
             FloatType area(Math::Axis::Type axis) const;
             
             const BrushFaceAttributes& attribs() const;
-            void setAttribs(const BrushFaceAttributes& attribs, bool isloading = false);
+            void setAttribs(const BrushFaceAttributes& attribs);
+            void initializeAttribs(const BrushFaceAttributes& attribs);
             
             const String& textureName() const;
             Assets::Texture* texture() const;
@@ -181,6 +182,7 @@ namespace TrenchBroom {
             void correctPoints();
             void validateVertexCache() const;
             void invalidateVertexCache();
+            void setAttribs(const BrushFaceAttributes& attribs, bool isloading);
             
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);
