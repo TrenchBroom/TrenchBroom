@@ -188,7 +188,7 @@ namespace TrenchBroom {
             return m_attribs;
         }
 
-        void BrushFace::setAttribs(const BrushFaceAttributes& attribs) {
+        void BrushFace::setAttribs(const BrushFaceAttributes& attribs, bool isloading) {
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->decUsageCount();
 
@@ -198,7 +198,9 @@ namespace TrenchBroom {
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->incUsageCount();
 
-            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
+            // don't rotate the texCoordSystem further when we're loading a valve220 map, the rotatation is already part of the texture vectors
+            if (!(dynamic_cast<ParallelTexCoordSystem *>(m_texCoordSystem) && isloading))
+                m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
             invalidate();
 
             if (m_brush != NULL)
