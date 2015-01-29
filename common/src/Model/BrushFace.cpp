@@ -207,7 +207,7 @@ namespace TrenchBroom {
                 m_brush->faceDidChange();
         }
 
-        void BrushFace::setAttribs(const BrushFaceAttributes& attribs) {
+        void BrushFace::updateAttribs(const BrushFaceAttributes& attribs) {
             setAttribs(attribs, false);
         }
 

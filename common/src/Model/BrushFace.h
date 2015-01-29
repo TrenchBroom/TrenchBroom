@@ -102,7 +102,7 @@ namespace TrenchBroom {
             FloatType area(Math::Axis::Type axis) const;
             
             const BrushFaceAttributes& attribs() const;
-            void setAttribs(const BrushFaceAttributes& attribs);
+            void updateAttribs(const BrushFaceAttributes& attribs);
             void initializeAttribs(const BrushFaceAttributes& attribs);
             
             const String& textureName() const;
