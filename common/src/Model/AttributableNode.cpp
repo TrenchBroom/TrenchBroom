@@ -658,7 +658,8 @@ namespace TrenchBroom {
         m_definition(NULL) {}
 
         const String& AttributableNode::doGetName() const {
-            return classname("<missing classname>");
+            static String defaultName("<missing classname>");
+            return classname(defaultName);
         }
 
         void AttributableNode::removeKillTarget(AttributableNode* attributable) {
