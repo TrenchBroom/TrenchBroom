@@ -701,15 +701,20 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {
-            const Model::NodeList& nodes = m_selectedNodes.nodes();
-            const Model::NodeList parents = collectParents(nodes);
-            
-            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-            
-            snapshot->restoreNodes(m_worldBounds);
-
-            invalidateSelectionBounds();
+            if (!m_selectedNodes.empty()) {
+                const Model::NodeList& nodes = m_selectedNodes.nodes();
+                const Model::NodeList parents = collectParents(nodes);
+                
+                NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+                NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+                
+                snapshot->restoreNodes(m_worldBounds);
+                
+                invalidateSelectionBounds();
+            } else if (!m_selectedBrushFaces.empty()) {
+                snapshot->restoreBrushFaces();
+                brushFacesDidChangeNotifier(m_selectedBrushFaces);
+            }
         }
 
         void MapDocumentCommandFacade::performSetEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec) {
