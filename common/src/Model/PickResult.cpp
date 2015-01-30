@@ -32,7 +32,8 @@ namespace TrenchBroom {
         };
         
         PickResult::PickResult() :
-        m_editorContext(NULL) {}
+        m_editorContext(NULL),
+        m_compare(new CompareHitsByDistance()) {}
 
         PickResult PickResult::byDistance(const EditorContext& editorContext) {
             return PickResult(editorContext, (CompareHitsByDistance()));
