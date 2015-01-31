@@ -47,43 +47,6 @@ private:
             return previous == next;
         }
     };
-    
-    template <typename Item>
-    struct LinkItem {
-        Link<Item>& link;
-        Item* item;
-
-        LinkItem(Link<Item>& i_link, Item* i_item) :
-        link(i_link),
-        item(i_item) {
-            assert(item != NULL);
-        }
-        
-        bool selfLoop() const {
-            assert(!link.selfLoop() || (link.next == item && link.previous == item));
-            return link.selfLoop();
-        }
-        
-        bool predecessorOf(const LinkItem& succ) const {
-            return succ.successorOf(*this);
-        }
-        
-        bool successorOf(const LinkItem& pred) const {
-            assert((pred.link.next == item) == (link.previous == pred.item));
-            return pred.link.next == item;
-        }
-    };
-    
-    template <typename Item>
-    static void insertBetween(LinkItem<Item>& pred, LinkItem<Item>& toInsert, LinkItem<Item>& succ) {
-        assert(succ.successorOf(pred));
-        assert(toInsert.selfLoop());
-        
-        pred.link.next = toInsert.item;
-        toInsert.link.previous = pred.item;
-        succ.link.previous = toInsert.item;
-        toInsert.link.next = succ.item;
-    }
 public:
     class Edge;
     class Vertex {
@@ -93,6 +56,7 @@ public:
         Edge* m_leaving;
         
         friend class Edge;
+        friend class Polyhedron<T>;
     public:
         Vertex(const V& position) :
         m_position(position),
@@ -106,26 +70,6 @@ public:
         Vertex* next() const {
             return m_link.next;
         }
-        
-        void insertAfter(Vertex* next) {
-            assert(next != NULL);
-            
-            LinkItem<Vertex> pred(m_link, this);
-            LinkItem<Vertex> toInsert(next->m_link, next);
-            LinkItem<Vertex> succ(m_link.next->m_link, m_link.next);
-            insertBetween(pred, toInsert, succ);
-        }
-        
-        void deleteAll() {
-            Vertex* vertex = m_link.next;
-            while (vertex != this) {
-                Vertex* next = vertex->m_link.next;
-                delete vertex;
-                vertex = next;
-            }
-            
-            delete this;
-        }
     };
     
     class Face;
@@ -138,6 +82,7 @@ public:
         Link<Edge> m_faceLink;
         
         friend class Face;
+        friend class Polyhedron<T>;
     public:
         Edge(Vertex* origin) :
         m_origin(origin),
@@ -171,61 +116,17 @@ public:
         Edge* previousFaceEdge() const {
             return m_faceLink.previous;
         }
-        
-        void insertEdgeLinkAfter(Edge* next) {
-            assert(m_twin != NULL);
-            assert(next != NULL);
-            assert(next->m_twin != NULL);
-            
-            doInsertEdgeLinkAfter(next);
-            m_twin->doInsertEdgeLinkAfter(next->m_twin);
+
+        Face* face() const {
+            return m_face;
         }
-        
-        void insertFaceLinkAfter(Edge* next) {
-            assert(next != NULL);
-            
-            LinkItem<Edge> pred(m_faceLink, this);
-            LinkItem<Edge> toInsert(next->m_faceLink, next);
-            LinkItem<Edge> succ(m_faceLink.next->m_faceLink, m_faceLink.next);
-            insertBetween(pred, toInsert, succ);
-        }
-        
-        void conjoin(Edge* twin) {
-            assert(twin != NULL);
-            assert(twin->m_twin == NULL);
-            assert(m_twin == NULL);
-            
-            m_twin = twin;
-            m_twin->m_twin = this;
-        }
-        
-        void deleteAll() {
-            Edge* edge = m_edgeLink.next;
-            while (edge != this) {
-                Edge* next = edge->m_edgeLink.next;
-                delete edge->m_twin;
-                delete edge;
-                edge = next;
-            }
-            
-            delete this;
-        }
-    private:
-        void doInsertEdgeLinkAfter(Edge* next) {
-            assert(next != NULL);
-            
-            LinkItem<Edge> pred(m_edgeLink, this);
-            LinkItem<Edge> toInsert(next->m_edgeLink, next);
-            LinkItem<Edge> succ(m_edgeLink.next->m_edgeLink, m_edgeLink.next);
-            insertBetween(pred, toInsert, succ);
-        }
-        
     };
     
     class Face {
     private:
         Edge* m_edges;
         Link<Face> m_link;
+        friend class Polyhedron<T>;
     public:
         Face(Edge* edges) :
         m_edges(edges),
@@ -242,7 +143,7 @@ public:
             } while (edge != m_edges);
         }
 
-        V normal() const {
+        V orthogonal() const {
             const Edge* edge = m_edges;
             const V p1 = edge->origin()->position();
             
@@ -252,7 +153,11 @@ public:
             edge = nextEdge(edge);
             const V p3 = edge->origin()->position();
             
-            return crossed(p2 - p1, p3 - p1).normalized();
+            return crossed(p2 - p1, p3 - p1);
+        }
+        
+        V normal() const {
+            return orthogonal().normalized();
         }
         
         Math::PointStatus::Type pointStatus(const V& point, const T epsilon = Math::Constants<T>::pointStatusEpsilon()) const {
@@ -279,44 +184,12 @@ public:
             assert(edge->m_face == this);
             return edge->m_faceLink.next;
         }
-        
-        void insertAfter(Face* next) {
-            assert(next != NULL);
-            
-            LinkItem<Face> pred(m_link, this);
-            LinkItem<Face> toInsert(next->m_link, next);
-            LinkItem<Face> succ(m_link.next->m_link, m_link.next);
-            insertBetween(pred, toInsert, succ);
-        }
-        
-        void deleteAll() {
-            Face* face = m_link.next;
-            while (face != this) {
-                Face* next = face->m_link.next;
-                delete face;
-                face = next;
-            }
-            
-            delete this;
-        }
     };
 private:
-    Vertex* m_vertices;
-    size_t m_vertexCount;
-    
     Edge* m_edges;
-    size_t m_edgeCount;
-    
-    Face* m_faces;
-    size_t m_faceCount;
 public:
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) :
-    m_vertices(NULL),
-    m_vertexCount(0),
-    m_edges(NULL),
-    m_edgeCount(0),
-    m_faces(NULL),
-    m_faceCount(0) {
+    m_edges(NULL) {
         using std::swap;
         assert(!commonPlane(p1, p2, p3, p4));
         
@@ -325,9 +198,9 @@ public:
         Vertex* v3 = new Vertex(p3);
         Vertex* v4 = new Vertex(p4);
         
-        v1->insertAfter(v2);
-        v2->insertAfter(v3);
-        v3->insertAfter(v4);
+        insertVertex(v1, v2);
+        insertVertex(v2, v3);
+        insertVertex(v3, v4);
         
         const V d1 = v4->position() - v2->position();
         const V d2 = v4->position() - v3->position();
@@ -350,91 +223,134 @@ public:
         Edge* e11 = new Edge(v4);
         Edge* e12 = new Edge(v3);
         
-        e1->conjoin(e5);
-        e2->conjoin(e11);
-        e3->conjoin(e8);
-        e4->conjoin(e12);
-        e6->conjoin(e7);
-        e9->conjoin(e10);
+        conjoinTwins(e1, e5);
+        conjoinTwins(e2, e11);
+        conjoinTwins(e3, e8);
+        conjoinTwins(e4, e12);
+        conjoinTwins(e6, e7);
+        conjoinTwins(e9, e10);
         
-        e1->insertEdgeLinkAfter(e2);
-        e2->insertEdgeLinkAfter(e3);
-        e3->insertEdgeLinkAfter(e4);
-        e4->insertEdgeLinkAfter(e6);
-        e6->insertEdgeLinkAfter(e9);
-        
-        e1->insertFaceLinkAfter(e2);
-        e2->insertFaceLinkAfter(e3);
+        insertEdge(e1, e2);
+        insertEdge(e2, e3);
+        insertEdge(e3, e4);
+        insertEdge(e4, e6);
+        insertEdge(e6, e9);
 
-        e4->insertFaceLinkAfter(e5);
-        e5->insertFaceLinkAfter(e6);
-
-        e7->insertFaceLinkAfter(e8);
-        e8->insertFaceLinkAfter(e9);
-        
-        e10->insertFaceLinkAfter(e11);
-        e11->insertFaceLinkAfter(e12);
+        linkTriangle(e1, e2, e3);
+        linkTriangle(e4, e5, e6);
+        linkTriangle(e7, e8, e9);
+        linkTriangle(e10, e11, e12);
         
         Face* f1 = new Face(e1);
         Face* f2 = new Face(e4);
         Face* f3 = new Face(e7);
         Face* f4 = new Face(e10);
         
-        f1->insertAfter(f2);
-        f2->insertAfter(f3);
-        f3->insertAfter(f4);
+        insertFace(f1, f2);
+        insertFace(f2, f3);
+        insertFace(f3, f4);
         
-        m_vertexCount = 4;
-        m_vertices = v1;
-        
-        m_edgeCount = 6;
         m_edges = e1;
-        
-        m_faceCount = 4;
-        m_faces = f1;
-    }
-    
-    size_t vertexCount() const {
-        return m_vertexCount;
     }
     
     Vertex* vertices() const {
-        return m_vertices;
-    }
-    
-    size_t edgeCount() const {
-        return m_edgeCount;
+        return m_edges->m_origin;
     }
     
     Edge* edges() const {
         return m_edges;
     }
-    
-    size_t faceCount() const {
-        return m_faceCount;
-    }
-    
     Face* faces() const {
-        return m_faces;
-    }
-    
-    bool containsPoint(const V& point, const T epsilon = Math::Constants<T>::pointStatusEpsilon()) const {
-        const Face* face = m_faces;
-        for (size_t i = 0; i < m_faceCount; ++i) {
-            if (face->pointStatus(point) == Math::PointStatus::PSAbove)
-                return false;
-            face = face->next();
-        }
-        return true;
+        return m_edges->m_face;
     }
     
     ~Polyhedron() {
-        m_faces->deleteAll();
-        m_edges->deleteAll();
-        m_vertices->deleteAll();
+        deleteFaces();
+        deleteVertices();
+        deleteEdges();
     }
     
+private:
+    void conjoinTwins(Edge* e1, Edge* e2) {
+        assert(e1 != NULL);
+        assert(e1->m_twin == NULL);
+        assert(e2 != NULL);
+        assert(e2->m_twin == NULL);
+        assert(e1->m_face == NULL || e1->m_face != e2->m_face);
+
+        e1->m_twin = e2;
+        e2->m_twin = e1;
+    }
     
+    void insertVertex(Vertex* v1, Vertex* v2) {
+        Vertex* v3 = v1->next();
+        insertBetween(v1->m_link, v1, v2->m_link, v2, v3->m_link, v3);
+    }
+    
+    void insertEdge(Edge* e1, Edge* e2) {
+        Edge* e3 = e1->next();
+        insertBetween(e1->m_edgeLink, e1, e2->m_edgeLink, e2, e3->m_edgeLink, e3);
+    }
+
+    void linkTriangle(Edge* e1, Edge* e2, Edge* e3) {
+        insertBoundary(e1, e2);
+        insertBoundary(e2, e3);
+    }
+    
+    void insertBoundary(Edge* e1, Edge* e2) {
+        Edge* e3 = e1->nextFaceEdge();
+        insertBetween(e1->m_faceLink, e1, e2->m_faceLink, e2, e3->m_faceLink, e3);
+    }
+    
+    void insertFace(Face* f1, Face* f2) {
+        Face* f3 = f1->next();
+        insertBetween(f1->m_link, f1, f2->m_link, f2, f3->m_link, f3);
+    }
+    
+    template <typename Item>
+    void insertBetween(Link<Item>& predLink, Item* predItem, Link<Item>& insertLink, Item* insertItem, Link<Item>& succLink, Item* succItem) {
+        insertBetween(predLink, predItem, insertLink, insertItem, insertLink, insertItem, succLink, succItem);
+    }
+    
+    template <typename Item>
+    void insertBetween(Link<Item>& predLink, Item* predItem, Link<Item>& insertFromLink, Item* insertFromItem, Link<Item>& insertToLink, Item* insertToItem, Link<Item>& succLink, Item* succItem) {
+        predLink.next = insertFromItem;
+        insertFromLink.previous = predItem;
+        insertToLink.next = succItem;
+        succLink.previous = insertToItem;
+    }
+    
+    void deleteFaces() {
+        assert(m_edges != NULL);
+        Face* face = m_edges->face();
+        do {
+            Face* next = face->next();
+            delete face;
+            face = next;
+        } while (face != m_edges->face());
+    }
+    
+    void deleteEdges() {
+        assert(m_edges != NULL);
+        Edge* edge = m_edges;
+        do {
+            Edge* next = edge->next();
+            delete edge;
+            delete edge->m_twin;
+            edge = next;
+        } while (edge != m_edges);
+        m_edges = NULL;
+    }
+    
+    void deleteVertices() {
+        assert(m_edges != NULL);
+        Vertex* vertex = m_edges->origin();
+        do {
+            Vertex* next = vertex->next();
+            delete vertex;
+            vertex = next;
+        } while (vertex != m_edges->origin());
+    }
 };
 
 #endif /* defined(__TrenchBroom__Polyhedron__) */
