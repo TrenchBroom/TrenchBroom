@@ -35,7 +35,8 @@ public:
     class Edge;
     class Face;
 private:
-    typedef Vec<T,3> V;
+    typedef Vec<T,3> Pos;
+    typedef typename Vec<T,3>::List PosList;
     
     typedef typename DoublyLinkedList<Vertex>::Link VertexLink;
     typedef typename DoublyLinkedList<Edge>::Link EdgeLink;
@@ -70,15 +71,16 @@ public:
         friend class Edge;
         friend class VertexList;
     private:
-        V m_position;
+        Pos m_position;
         VertexLink m_link;
         Edge* m_leaving;
     public:
-        Vertex(const V& position) :
+        Vertex(const Pos& position) :
         m_position(position),
+        m_link(this),
         m_leaving(NULL) {}
         
-        const V& position() const {
+        const Pos& position() const {
             return m_position;
         }
     private:
@@ -103,6 +105,8 @@ public:
         Edge(Vertex* origin) :
         m_origin(origin),
         m_twin(NULL),
+        m_edgeLink(this),
+        m_boundaryLink(this),
         m_face(NULL) {
             assert(m_origin != NULL);
             m_origin->setLeaving(this);
@@ -143,7 +147,8 @@ public:
         FaceLink m_link;
     public:
         Face(const BoundaryList& boundary) :
-        m_boundary(boundary) {
+        m_boundary(boundary),
+        m_link(this) {
             assert(m_boundary.size() >= 3);
         }
         
@@ -156,23 +161,38 @@ public:
     EdgeList m_edges;
     FaceList m_faces;
 public:
-    Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) {
+    Polyhedron(const Pos& p1, const Pos& p2, const Pos& p3, const Pos& p4) {
         initialize(p1, p2, p3, p4);
+    }
+    
+    size_t vertexCount() const {
+        return m_vertices.size();
     }
     
     const VertexList& vertices() const {
         return m_vertices;
     }
     
+    size_t edgeCount() const {
+        return m_edges.size();
+    }
+    
     const EdgeList& edges() const {
         return m_edges;
+    }
+    
+    size_t faceCount() const {
+        return m_faces.size();
     }
     
     const FaceList& faces() const {
         return m_faces;
     }
+    
+    void addPoints(const PosList& points) {
+    }
 private:
-    void initialize(const V& p1, const V& p2, const V& p3, const V& p4) {
+    void initialize(const Pos& p1, const Pos& p2, const Pos& p3, const Pos& p4) {
         using std::swap;
         assert(!commonPlane(p1, p2, p3, p4));
         
@@ -181,10 +201,10 @@ private:
         Vertex* v3 = new Vertex(p3);
         Vertex* v4 = new Vertex(p4);
         
-        const V d1 = v4->position() - v2->position();
-        const V d2 = v4->position() - v3->position();
-        const V d3 = v1->position() - v4->position();
-        const V n1 = crossed(d1, d2);
+        const Pos d1 = v4->position() - v2->position();
+        const Pos d2 = v4->position() - v3->position();
+        const Pos d3 = v1->position() - v4->position();
+        const Pos n1 = crossed(d1, d2);
         
         if (d3.dot(n1) > 0.0)
             swap(v2, v3);

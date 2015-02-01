@@ -306,9 +306,9 @@ TEST(PolyhedronTest, convexHullWithNewPointAndFaceMerging) {
  */
 
 bool hasVertices(const VertexList& vertices, Vec3d::List points) {
-    VertexList::const_iterator vIt, vEnd;
-    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-        const Vertex* vertex = *vIt;
+    VertexList::ConstIter vIt = vertices.iterator();
+    while (vIt.hasNext()) {
+        const Vertex* vertex = vIt.next();
         Vec3d::List::iterator pIt = VectorUtils::find(points, vertex->position());
         if (pIt == points.end())
             return false;
@@ -320,9 +320,9 @@ bool hasVertices(const VertexList& vertices, Vec3d::List points) {
 EdgeInfoList::iterator findEdgeInfo(EdgeInfoList& edgeInfos, const Edge* edge);
 
 bool hasEdges(const EdgeList& edges, EdgeInfoList edgeInfos) {
-    EdgeList::const_iterator eIt, eEnd;
-    for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
-        const Edge* edge = *eIt;
+    EdgeList::ConstIter eIt = edges.iterator();
+    while (eIt.hasNext()) {
+        const Edge* edge = eIt.next();
         EdgeInfoList::iterator it = findEdgeInfo(edgeInfos, edge);
         if (it == edgeInfos.end())
             return false;
@@ -348,9 +348,9 @@ EdgeInfoList::iterator findEdgeInfo(EdgeInfoList& edgeInfos, const Edge* edge) {
 bool isTriangleOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3);
 
 bool hasTriangleOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3) {
-    FaceList::const_iterator fIt, fEnd;
-    for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
-        const Face* face = *fIt;
+    FaceList::ConstIter fIt = faces.iterator();
+    while (fIt.hasNext()) {
+        const Face* face = fIt.next();
         if (isTriangleOf(face, p1, p2, p3))
             return true;
     }
@@ -364,9 +364,9 @@ bool isTriangleOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3
     if (boundary.size() != 3)
         return false;
     
-    BoundaryList::const_iterator it, end;
-    for (it = boundary.begin(), end = boundary.end(); it != end; ++it) {
-        const Edge* e1 = *it;
+    BoundaryList::ConstIter it = boundary.iterator();
+    while (it.hasNext()) {
+        const Edge* e1 = it.next();
         if (e1->origin()->position() == p1) {
             const Edge* e2 = e1->nextBoundaryEdge();
             const Edge* e3 = e2->nextBoundaryEdge();

@@ -32,9 +32,11 @@ public:
         Item* m_previous;
         Item* m_next;
     public:
-        Link():
-        m_previous(NULL),
-        m_next(NULL) {}
+        Link(Item* item):
+        m_previous(item),
+        m_next(item) {
+            assert(item != NULL);
+        }
         
         Item* previous() const {
             return m_previous;
@@ -45,108 +47,73 @@ public:
         }
     private:
         void setPrevious(Item* previous) {
+            assert(previous != NULL);
             m_previous = previous;
         }
         
         void setNext(Item* next) {
+            assert(next != NULL);
             m_next = next;
         }
         
-        void unlink() {
-            m_previous = m_next = NULL;
+        bool selfLoop(Item* item) const {
+            return m_previous == item && m_next == item;
+        }
+        
+        void unlink(Item* item) {
+            m_previous = m_next = item;
         }
     };
 public:
     template <typename ListType, typename ItemType, typename LinkType>
-    class IteratorBase : public std::iterator<std::bidirectional_iterator_tag,ItemType> {
+    class IteratorBase {
     private:
-        ListType* m_list;
-        ItemType m_current;
+        ListType& m_list;
+        size_t m_listVersion;
+        ItemType m_next;
+        size_t m_index;
     public:
-        IteratorBase() :
-        m_list(NULL),
-        m_current(NULL) {}
-        
-        IteratorBase(ListType* list, ItemType current) :
+        IteratorBase(ListType& list) :
         m_list(list),
-        m_current(current) {
-            assert(m_list != NULL);
-        }
-        
-        IteratorBase(const IteratorBase& other) :
-        m_list(other.m_list),
-        m_current(other.m_current) {}
-        
-        IteratorBase& operator++() {
-            forward();
-            return *this;
-        }
-        
-        IteratorBase operator++(int) {
-            IteratorBase temp(*this);
-            forward();
-            return temp;
-        }
-        
-        IteratorBase& operator--() {
-            backward();
-            return *this;
-        }
-        
-        IteratorBase operator--(int) {
-            IteratorBase temp(*this);
-            backward();
-            return temp;
-        }
+        m_listVersion(m_list.m_version),
+        m_next(m_list.m_head),
+        m_index(0) {}
 
-        bool operator==(const IteratorBase& rhs) {
-            return m_current == rhs.m_current;
-        }
-
-        bool operator!=(const IteratorBase& rhs) {
-            return m_current != rhs.m_current;
+        bool hasNext() const {
+            assert(m_listVersion == m_list.m_version);
+            
+            return m_index < m_list.size();
         }
         
-        ItemType operator*() {
-            return m_current;
+        ItemType next() {
+            assert(m_listVersion == m_list.m_version);
+            
+            ItemType item = m_next;
+            advance();
+            return item;
         }
     private:
-        void forward() {
-            if (m_list != NULL) {
-                if (m_current == NULL) {
-                    m_current = m_list->m_head;
-                } else {
-                    LinkType& link = m_list->getLink(m_current);
-                    m_current = link.next();
-                }
-            }
-        }
-        
-        void backward() {
-            if (m_list != NULL) {
-                if (m_current == NULL) {
-                    m_current = m_list->m_tail;
-                } else {
-                    LinkType& link = m_list->getLink(m_current);
-                    m_current = link.previous();
-                }
-            }
+        void advance() {
+            assert(hasNext());
+            LinkType& link = m_list.getLink(m_next);
+            m_next = link.next();
+            ++m_index;
         }
     };
     
-    typedef IteratorBase<DoublyLinkedList<Item>, Item*, Link> iterator;
-    typedef IteratorBase<const DoublyLinkedList<Item>, const Item*, const Link> const_iterator;
+    typedef IteratorBase<DoublyLinkedList<Item>, Item*, Link> Iter;
+    typedef IteratorBase<const DoublyLinkedList<Item>, const Item*, const Link> ConstIter;
 private:
     friend class ListIterator;
     
     Item* m_head;
-    Item* m_tail;
     size_t m_size;
+    size_t m_version;
 public:
     DoublyLinkedList() :
     m_head(NULL),
-    m_tail(NULL),
-    m_size(0) {}
+    m_size(0),
+    m_version(0) {}
     
     virtual ~DoublyLinkedList() {}
     
@@ -158,31 +125,26 @@ public:
         return m_size;
     }
     
-    iterator begin() {
-        return iterator(this, m_head);
+    Iter iterator() {
+        return Iter(*this);
     }
     
-    iterator end() {
-        return iterator(this, NULL);
-    }
-    
-    const_iterator begin() const {
-        return const_iterator(this, m_head);
-    }
-    
-    const_iterator end() const {
-        return const_iterator(this, NULL);
+    ConstIter iterator() const {
+        return ConstIter(*this);
     }
 
     bool contains(Item* item) const {
         assert(item != NULL);
         
+        if (m_head == NULL)
+            return false;
+        
         Item* curItem = m_head;
-        while (curItem != NULL) {
+        do {
             if (curItem == item)
                 return true;
             curItem = next(curItem);
-        }
+        } while (curItem != m_head);
         return false;
     }
     
@@ -191,16 +153,23 @@ public:
         assert(!contains(item));
         
         Link& itemLink = getLink(item);
+        assert(itemLink.selfLoop(item));
+        
         if (m_head == NULL) {
-            m_head = m_tail = item;
+            m_head = item;
         } else {
-            Link& tailLink = getLink(m_tail);
-            itemLink.setPrevious(m_tail);
+            Item* tail = getTail();
+            Link& tailLink = getLink(tail);
+            Link& headLink = getLink(m_head);
+
             tailLink.setNext(item);
-            m_tail = item;
+            itemLink.setPrevious(tail);
+            itemLink.setNext(m_head);
+            headLink.setPrevious(item);
         }
         
         ++m_size;
+        ++m_version;
     }
     
     void remove(Item* item) {
@@ -208,31 +177,33 @@ public:
         assert(contains(item));
         
         Link& itemLink = getLink(item);
+        Item* pred = itemLink.previous();
+        Link& predLink = getLink(pred);
+        Item* succ = itemLink.next();
+        Link& succLink = getLink(succ);
         
-        if (m_head == item) {
-            m_head = itemLink.next();
-        } else {
-            Item* pred = itemLink.previous();
-            Link& predLink = getLink(pred);
-            predLink.next = itemLink.next;
-        }
-        
-        if (m_tail == item) {
-            m_tail = itemLink.previous;
-        } else {
-            Item* succ = itemLink.next();
-            Link& succLink = getLink(succ);
-            succLink.previous = itemLink.previous;
-        }
-        
+        predLink.setNext(succ);
+        succLink.setPrevious(pred);
         itemLink.unlink(item);
+
+        if (m_head == item)
+            m_head = succ;
+        
         --m_size;
+        ++m_version;
     }
 private:
     Item* next(Item* item) const {
         assert(item != NULL);
         Link& link = getLink(item);
         return link.next();
+    }
+    
+    Item* getTail() const {
+        if (m_head == NULL)
+            return NULL;
+        Link& headLink = getLink(m_head);
+        return headLink.previous();
     }
     
     Link& getLink(Item* item) const {
