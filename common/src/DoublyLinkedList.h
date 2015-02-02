@@ -72,12 +72,14 @@ public:
         size_t m_listVersion;
         ItemType m_next;
         size_t m_index;
+        bool m_removed;
     public:
         IteratorBase(ListType& list) :
         m_list(list),
         m_listVersion(m_list.m_version),
         m_next(m_list.m_head),
-        m_index(0) {}
+        m_index(0),
+        m_removed(false) {}
 
         bool hasNext() const {
             assert(m_listVersion == m_list.m_version);
@@ -88,7 +90,19 @@ public:
             assert(m_listVersion == m_list.m_version);
             ItemType item = m_next;
             advance();
+            m_removed = false;
             return item;
+        }
+        
+        void remove() {
+            assert(m_listVersion == m_list.m_version);
+            assert(m_index > 0);
+            LinkType& link = m_list.getLink(m_next);
+            ItemType previous = link.previous();
+            m_list.remove(previous);
+            m_listVersion = m_list.m_version;
+            m_removed = true;
+            --m_index;
         }
     private:
         void advance() {
@@ -205,6 +219,18 @@ public:
         
         --m_size;
         ++m_version;
+    }
+    
+    void deleteAll() {
+        if (m_head != NULL) {
+            Item* item = m_head;
+            while (item != m_head) {
+                Item* nextItem = next(item);
+                delete item;
+                item = nextItem;
+            }
+            m_head = NULL;
+        }
     }
 private:
     Item* next(Item* item) const {

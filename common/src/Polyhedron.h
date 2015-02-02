@@ -43,6 +43,8 @@ private:
     typedef typename DoublyLinkedList<Edge>::Link EdgeLink;
     typedef typename DoublyLinkedList<HalfEdge>::Link HalfEdgeLink;
     typedef typename DoublyLinkedList<Face>::Link FaceLink;
+    
+    typedef std::vector<Edge*> EdgeVec;
 public:
     class VertexList : public DoublyLinkedList<Vertex> {
     private:
@@ -67,6 +69,76 @@ public:
         FaceLink& doGetLink(Face* face) const { return face->m_link; }
         const FaceLink& doGetLink(const Face* face) const { return face->m_link; }
     };
+    
+    class SplittingCriterion {
+    private:
+        typedef enum {
+            MatchResult_First,
+            MatchResult_Second,
+            MatchResult_Both,
+            MatchResult_Neither,
+            MatchResult_Unitialized
+        } MatchResult;
+    public:
+        virtual ~SplittingCriterion() {}
+    public:
+        Edge* findFirstSplittingEdge(const EdgeList& edges) const {
+            typename EdgeList::Iterator it = edges.iterator();
+            while (it.hasNext()) {
+                Edge* edge = it.next();
+                const MatchResult result = matches(edge);
+                switch (result) {
+                    case MatchResult_Second:
+                        edge->flip();
+                    case MatchResult_First:
+                        return edge;
+                    default:
+                        break;
+                }
+            }
+            return NULL;
+        }
+        
+        Edge* findNextSplittingEdge(Edge* last) const {
+            assert(last != NULL);
+            assert(matches(last) == MatchResult_First);
+
+            HalfEdge* halfEdge = last->firstEdge()->next();
+            Edge* next = halfEdge->edge();
+            MatchResult result = matches(next);
+            while (result != MatchResult_First && result != MatchResult_Second && next != last) {
+                halfEdge = halfEdge->twin()->next();
+                next = halfEdge->edge();
+                result = matches(next);
+            }
+            
+            if (result != MatchResult_First && result != MatchResult_Second)
+                return NULL;
+            
+            if (result == MatchResult_Second)
+                next->flip();
+            return next;
+        }
+    private:
+        MatchResult matches(const Edge* edge) const {
+            const bool firstResult = matches(edge->firstFace());
+            const bool secondResult = matches(edge->secondFace());
+            if (firstResult) {
+                if (secondResult)
+                    return MatchResult_Both;
+                return MatchResult_First;
+            }
+            if (secondResult)
+                return MatchResult_Second;
+            return MatchResult_Neither;
+        }
+    public:
+        bool matches(const Face* face) const {
+            return doMatches(face);
+        }
+    private:
+        virtual bool doMatches(const Face* face) const = 0;
+    };
 public:
     class Vertex {
     private:
@@ -85,6 +157,10 @@ public:
         const Pos& position() const {
             return m_position;
         }
+        
+        Edge* leaving() const {
+            return m_leaving;
+        }
     private:
         void setLeaving(HalfEdge* edge) {
             assert(edge != NULL);
@@ -100,6 +176,7 @@ public:
         EdgeLink m_link;
         
         friend class EdgeList;
+        friend class Polyhedron<T>;
     public:
         Edge(HalfEdge* first, HalfEdge* second) :
         m_first(first),
@@ -110,7 +187,15 @@ public:
             m_first->setEdge(this);
             m_second->setEdge(this);
         }
-
+    private:
+        Edge(HalfEdge* first) :
+        m_first(first),
+        m_second(NULL),
+        m_link(this) {
+            assert(m_first != NULL);
+            m_first->setEdge(this);
+        }
+    public:
         Vertex* firstVertex() const {
             assert(m_first != NULL);
             return m_first->origin();
@@ -121,6 +206,59 @@ public:
             if (m_second != NULL)
                 return m_second->origin();
             return m_first->next()->origin();
+        }
+        
+        HalfEdge* firstEdge() const {
+            assert(m_first != NULL);
+            return m_first;
+        }
+        
+        HalfEdge* secondEdge() const {
+            assert(m_second != NULL);
+            return m_second;
+        }
+        
+        HalfEdge* twin(const HalfEdge* halfEdge) const {
+            assert(halfEdge != NULL);
+            assert(halfEdge == m_first || halfEdge == m_second);
+            if (halfEdge == m_first)
+                return m_second;
+            return m_first;
+        }
+        
+        Face* firstFace() const {
+            assert(m_first != NULL);
+            return m_first->face();
+        }
+        
+        Face* secondFace() const {
+            assert(m_second != NULL);
+            return m_second->face();
+        }
+        
+        Vertex* commonVertex(const Edge* other) const {
+            assert(other != NULL);
+            if (other->hasVertex(firstVertex()))
+                return firstVertex();
+            if (other->hasVertex(secondVertex()))
+                return secondVertex();
+            return NULL;
+        }
+        
+        bool hasVertex(const Vertex* vertex) const {
+            return firstVertex() == vertex || secondVertex() == vertex;
+        }
+    private:
+        void flip() {
+            using std::swap;
+            swap(m_first, m_second);
+        }
+        
+        Edge* split() {
+            Edge* result = new Edge(m_second);
+            m_first->setAsLeaving();
+            m_second = NULL;
+            return result;
         }
     };
     
@@ -141,10 +279,15 @@ public:
         m_face(NULL),
         m_link(this) {
             assert(m_origin != NULL);
+            setAsLeaving();
         }
         
         Vertex* origin() const {
             return m_origin;
+        }
+        
+        Edge* edge() const {
+            return m_edge;
         }
         
         Face* face() const {
@@ -158,13 +301,28 @@ public:
         HalfEdge* previous() const {
             return m_link.previous();
         }
+        
+        HalfEdge* twin() const {
+            assert(m_edge != NULL);
+            return m_edge->twin(this);
+        }
     private:
+        void setOrigin(Vertex* origin) {
+            assert(origin != NULL);
+            m_origin = origin;
+            setAsLeaving();
+        }
+        
         void setEdge(Edge* edge) {
             m_edge = edge;
         }
         
         void setFace(Face* face) {
             m_face = face;
+        }
+        
+        void setAsLeaving() {
+            m_origin->setLeaving(this);
         }
     };
     
@@ -187,6 +345,10 @@ public:
             }
         }
         
+        ~Face() {
+            m_boundary.deleteAll();
+        }
+        
         const HalfEdgeList& boundary() const {
             return m_boundary;
         }
@@ -198,6 +360,17 @@ public:
 public:
     Polyhedron(const Pos& p1, const Pos& p2, const Pos& p3, const Pos& p4) {
         initialize(p1, p2, p3, p4);
+    }
+private:
+    Polyhedron(const VertexList& vertices, const EdgeList& edges, const FaceList& faces) :
+    m_vertices(vertices),
+    m_edges(edges),
+    m_faces(faces) {}
+public:
+    ~Polyhedron() {
+        m_faces.deleteAll();
+        m_edges.deleteAll();
+        m_vertices.deleteAll();
     }
     
     size_t vertexCount() const {
@@ -224,7 +397,114 @@ public:
         return m_faces;
     }
     
-    void addPoints(const PosList& points) {
+    // This algorithm splits this polyhedron along the edges where one of the adjacant faces matches
+    // the given criterion and the other does not. The algorithm runs linear in the sum of the numbers
+    // of all vertices, edges, and faces.
+    Polyhedron* split(const SplittingCriterion& criterion) {
+        
+        VertexList vertices;
+        EdgeList edges;
+        FaceList faces;
+        
+        Edge* firstSplittingEdge = criterion.findFirstSplittingEdge(m_edges);
+        Edge* splittingEdge = firstSplittingEdge;
+
+        // First, go along the splitting seam and split the edges into two edges with one half edge each.
+        // Both the resulting edges have their only half edge as their first edge.
+        do {
+            assert(splittingEdge != NULL);
+            Edge* duplicate = splittingEdge->split();
+            edges.append(duplicate);
+            
+            Edge* nextSplittingEdge = criterion.findNextSplittingEdge(splittingEdge);
+            assert(nextSplittingEdge != NULL);
+            assert(splittingEdge->secondVertex() == nextSplittingEdge->firstVertex());
+            splittingEdge = nextSplittingEdge;
+        } while (splittingEdge != firstSplittingEdge);
+        
+        typename VertexList::iterator vertexIt;
+        typename EdgeList::Iterator edgeIt;
+        typename FaceList::Iterator faceIt;
+        
+        // Now iterate all the edges we have created so far and duplicate the vertices, as these are shared
+        // between the two resulting polyhedra.
+        edgeIt = edges.iterator();
+        while (edgeIt.hasNext()) {
+            Edge* edge = edgeIt->next();
+            HalfEdge* halfEdge = edge->firstEdge();
+            Vertex* vertex = halfEdge->origin();
+            Vertex* duplicate = new Vertex(vertex->origin());
+            
+            // This vertex should remain in this polyhedron, so we duplicate it and set it
+            // as the origin of all half edges leaving from it that belong to this polyhedron.
+            // For this, we iterate over the half edges in clockwise order and go to their twins.
+            // Since the vertex is shared, we will reach another edge that was previously split.
+            // At that edge, the twin of the half edge's predecessor will be NULL.
+            
+            while (halfEdge != NULL) {
+                halfEdge->setOrigin(duplicate);
+                halfEdge = halfEdge->previous()->twin();
+            }
+            
+            vertices.append(duplicate);
+        }
+        
+        // Now handle the remaining faces, edge, and vertices by sorting them into the correct polyhedra.
+        vertexIt = m_vertices.iterator();
+        while (vertexIt.hasNext()) {
+            Vertex* vertex = vertexIt.next();
+            HalfEdge* edge = vertex->leaving();
+            assert(edge != NULL);
+            
+            // As we have already handled the shared vertices, it holds that for each remaining vertex,
+            // either all adjacent faces match or not. There are no mixed vertices anymore at this point.
+            
+            Face* face = edge->face();
+            assert(face != NULL);
+            
+            if (!criterion.matches(face)) {
+                vertexIt.remove();
+                vertices.append(vertex);
+            }
+        }
+        
+        edgeIt = m_edges.iterator();
+        while (edgeIt.hasNext()) {
+            Edge* edge = edgeIt.next();
+            Face* face = edge->firstFace();
+            assert(face != NULL);
+            
+            // There are no mixed edges at this point anymore either, and all remaining edges have at least
+            // one edge, and that is their first edge.
+            
+            if (!criterion.matches(face)) {
+                assert(edge->secondFace() == NULL || !criterion.matches(edge->secondFace()));
+                edgeIt.remove();
+                edges.append(edge);
+            }
+        }
+        
+        faceIt = m_faces.iterator();
+        while (faceIt.hasNext()) {
+            Face* face = faceIt.next();
+            
+            if (!criterion.matches(face)) {
+                faceIt.remove();
+                faces.append(face);
+            }
+        }
+        
+        return new Polyhedron(vertices, edges, faces);
+    }
+private:
+    Edge* findFirstSplittingEdge(const SplittingCriterion& criterion) {
+        typename EdgeList::Iterator it = m_edges.iterator();
+        while (it.hasNext()) {
+            Edge* edge = it.next();
+            if (edge->flipIfMatches(criterion))
+                return edge;
+        }
+        return NULL;
     }
 private:
     void initialize(const Pos& p1, const Pos& p2, const Pos& p3, const Pos& p4) {
@@ -294,6 +574,20 @@ private:
         boundary.append(h3);
         
         return new Face(boundary);
+    }
+    
+    bool isSeam(const EdgeVec& seam) const {
+        if (seam.size() < 3)
+            return false;
+        const Edge* last = seam.back();
+        for (size_t i = 0; i < seam.size(); ++i) {
+            const Edge* current = seam[i];
+            const Vertex* common = current->commonVertex(last);
+            if (common == NULL)
+                return false;
+            last = current;
+        }
+        return true;
     }
 };
 
