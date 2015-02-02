@@ -81,13 +81,11 @@ public:
 
         bool hasNext() const {
             assert(m_listVersion == m_list.m_version);
-            
             return m_index < m_list.size();
         }
         
         ItemType next() {
             assert(m_listVersion == m_list.m_version);
-            
             ItemType item = m_next;
             advance();
             return item;
