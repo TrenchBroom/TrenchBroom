@@ -148,26 +148,42 @@ public:
     
     void append(Item* item) {
         assert(item != NULL);
+        
+        if (m_head == NULL) {
+            m_head = item;
+            ++m_size;
+            ++m_version;
+        } else {
+            insertAfter(getTail(), item);
+        }
+    }
+    
+    void insertAfter(Item* pred, Item* item) {
+        assert(pred != NULL);
+        assert(item != NULL);
+        assert(m_head != NULL);
+        assert(contains(pred));
         assert(!contains(item));
         
         Link& itemLink = getLink(item);
         assert(itemLink.selfLoop(item));
-        
-        if (m_head == NULL) {
-            m_head = item;
-        } else {
-            Item* tail = getTail();
-            Link& tailLink = getLink(tail);
-            Link& headLink = getLink(m_head);
 
-            tailLink.setNext(item);
-            itemLink.setPrevious(tail);
-            itemLink.setNext(m_head);
-            headLink.setPrevious(item);
-        }
+        Link& predLink = getLink(pred);
+        Item* succ = predLink.next();
+        Link& succLink = getLink(succ);
+        
+        predLink.setNext(item);
+        itemLink.setPrevious(pred);
+        itemLink.setNext(succ);
+        succLink.setPrevious(item);
         
         ++m_size;
         ++m_version;
+    }
+    
+    void replace(Item* item, Item* replacement) {
+        insertAfter(item, replacement);
+        remove(item);
     }
     
     void remove(Item* item) {

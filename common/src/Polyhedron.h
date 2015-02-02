@@ -33,13 +33,15 @@ class Polyhedron {
 public:
     class Vertex;
     class Edge;
+    class LinkedEdge;
     class Face;
 private:
     typedef Vec<T,3> Pos;
     typedef typename Vec<T,3>::List PosList;
     
     typedef typename DoublyLinkedList<Vertex>::Link VertexLink;
-    typedef typename DoublyLinkedList<Edge>::Link EdgeLink;
+    typedef typename DoublyLinkedList<Edge>::Link BoundaryLink;
+    typedef typename DoublyLinkedList<LinkedEdge>::Link EdgeLink;
     typedef typename DoublyLinkedList<Face>::Link FaceLink;
 public:
     class VertexList : public DoublyLinkedList<Vertex> {
@@ -50,14 +52,14 @@ public:
     
     class BoundaryList : public DoublyLinkedList<Edge> {
     private:
-        EdgeLink& doGetLink(Edge* edge) const { return edge->m_boundaryLink; }
-        const EdgeLink& doGetLink(const Edge* edge) const { return edge->m_boundaryLink; }
+        BoundaryLink& doGetLink(Edge* edge) const { return edge->m_boundaryLink; }
+        const BoundaryLink& doGetLink(const Edge* edge) const { return edge->m_boundaryLink; }
     };
     
-    class EdgeList : public DoublyLinkedList<Edge> {
+    class EdgeList : public DoublyLinkedList<LinkedEdge> {
     private:
-        EdgeLink& doGetLink(Edge* edge) const { return edge->m_edgeLink; }
-        const EdgeLink& doGetLink(const Edge* edge) const { return edge->m_edgeLink; }
+        EdgeLink& doGetLink(LinkedEdge* edge) const { return edge->m_edgeLink; }
+        const EdgeLink& doGetLink(const LinkedEdge* edge) const { return edge->m_edgeLink; }
     };
     
     class FaceList : public DoublyLinkedList<Face> {
@@ -91,34 +93,39 @@ public:
         }
     };
     
+    class UnlinkedEdge;
+    
     class Edge {
     private:
         friend class BoundaryList;
-        friend class EdgeList;
-    private:
+        friend class LinkedEdge;
+        friend class UnlinkedEdge;
+    protected:
         Vertex* m_origin;
-        Edge* m_twin;
-        EdgeLink m_edgeLink;
-        EdgeLink m_boundaryLink;
+        BoundaryLink m_boundaryLink;
         Face* m_face;
     public:
         Edge(Vertex* origin) :
         m_origin(origin),
-        m_twin(NULL),
-        m_edgeLink(this),
         m_boundaryLink(this),
         m_face(NULL) {
             assert(m_origin != NULL);
             m_origin->setLeaving(this);
         }
         
+        virtual ~Edge() {}
+        
         Vertex* origin() const {
             return m_origin;
         }
         
         Vertex* destination() const {
-            assert(m_twin != NULL);
-            return m_twin->origin();
+            assert(twin() != NULL);
+            return twin()->origin();
+        }
+        
+        Edge* twin() const {
+            return doGetTwin();
         }
         
         Edge* previousBoundaryEdge() const {
@@ -131,11 +138,73 @@ public:
         
         void conjoin(Edge* twin) {
             assert(twin != NULL);
+            doConjoin(twin);
+        }
+    private:
+        virtual void doConjoin(Edge* twin) = 0;
+        virtual void doConjoin(LinkedEdge* twin) = 0;
+        virtual void doConjoin(UnlinkedEdge* twin) = 0;
+        virtual Edge* doGetTwin() const = 0;
+    };
+    
+    class LinkedEdge : public Edge {
+    private:
+        friend class EdgeList;
+        friend class UnlinkedEdge;
+        UnlinkedEdge* m_twin;
+        EdgeLink m_edgeLink;
+    public:
+        LinkedEdge(Vertex* origin) :
+        Edge(origin),
+        m_twin(NULL),
+        m_edgeLink(this) {}
+    private:
+        void doConjoin(Edge* twin) {
             assert(m_twin == NULL);
+            twin->doConjoin(this);
+        }
+        
+        void doConjoin(LinkedEdge* twin) {
+            assert(false);
+        }
+        
+        void doConjoin(UnlinkedEdge* twin) {
             assert(twin->m_twin == NULL);
-            
             m_twin = twin;
             m_twin->m_twin = this;
+        }
+        
+        Edge* doGetTwin() const {
+            return m_twin;
+        }
+    };
+    
+    class UnlinkedEdge : public Edge {
+    private:
+        friend class LinkedEdge;
+        LinkedEdge* m_twin;
+    public:
+        UnlinkedEdge(Vertex* origin) :
+        Edge(origin),
+        m_twin(NULL) {}
+    private:
+        void doConjoin(Edge* twin) {
+            assert(m_twin == NULL);
+            twin->doConjoin(this);
+        }
+        
+        void doConjoin(LinkedEdge* twin) {
+            assert(twin->m_twin == NULL);
+            m_twin = twin;
+            m_twin->m_twin = this;
+        }
+        
+        void doConjoin(UnlinkedEdge* twin) {
+            assert(false);
+        }
+        
+        Edge* doGetTwin() const {
+            return m_twin;
         }
     };
     
@@ -214,18 +283,18 @@ private:
         m_vertices.append(v3);
         m_vertices.append(v4);
         
-        Edge* e1 = new Edge(v2);
-        Edge* e2 = new Edge(v3);
-        Edge* e3 = new Edge(v4);
-        Edge* e4 = new Edge(v1);
-        Edge* e5 = new Edge(v3);
-        Edge* e6 = new Edge(v2);
-        Edge* e7 = new Edge(v1);
-        Edge* e8 = new Edge(v2);
-        Edge* e9 = new Edge(v4);
-        Edge* e10 = new Edge(v1);
-        Edge* e11 = new Edge(v4);
-        Edge* e12 = new Edge(v3);
+        LinkedEdge* e1 = new LinkedEdge(v2);
+        LinkedEdge* e2 = new LinkedEdge(v3);
+        LinkedEdge* e3 = new LinkedEdge(v4);
+        LinkedEdge* e4 = new LinkedEdge(v1);
+        UnlinkedEdge* e5 = new UnlinkedEdge(v3);
+        LinkedEdge* e6 = new LinkedEdge(v2);
+        UnlinkedEdge* e7 = new UnlinkedEdge(v1);
+        UnlinkedEdge* e8 = new UnlinkedEdge(v2);
+        UnlinkedEdge* e9 = new UnlinkedEdge(v4);
+        LinkedEdge* e10 = new LinkedEdge(v1);
+        UnlinkedEdge* e11 = new UnlinkedEdge(v4);
+        UnlinkedEdge* e12 = new UnlinkedEdge(v3);
         
         e1->conjoin(e5);
         e2->conjoin(e11);
@@ -239,7 +308,7 @@ private:
         m_edges.append(e3);
         m_edges.append(e4);
         m_edges.append(e6);
-        m_edges.append(e9);
+        m_edges.append(e10);
         
         Face* f1 = createTriangle(e1, e2, e3);
         Face* f2 = createTriangle(e4, e5, e6);
