@@ -29,6 +29,7 @@ typedef Polyhedron<double> Polyhedron3d;
 typedef Polyhedron3d::Vertex Vertex;
 typedef Polyhedron3d::VertexList VertexList;
 typedef Polyhedron3d::Edge Edge;
+typedef Polyhedron3d::HalfEdge HalfEdge;
 typedef Polyhedron3d::EdgeList EdgeList;
 typedef Polyhedron3d::Face Face;
 typedef Polyhedron3d::FaceList FaceList;
@@ -332,8 +333,8 @@ bool hasEdges(const EdgeList& edges, EdgeInfoList edgeInfos) {
 }
 
 EdgeInfoList::iterator findEdgeInfo(EdgeInfoList& edgeInfos, const Edge* edge) {
-    Vertex* v1 = edge->origin();
-    Vertex* v2 = edge->destination();
+    Vertex* v1 = edge->firstVertex();
+    Vertex* v2 = edge->secondVertex();
     
     EdgeInfoList::iterator it, end;
     for (it = edgeInfos.begin(), end = edgeInfos.end(); it != end; ++it) {
@@ -358,7 +359,7 @@ bool hasTriangleOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, cons
 }
 
 bool isTriangleOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3) {
-    typedef Polyhedron3d::BoundaryList BoundaryList;
+    typedef Polyhedron3d::HalfEdgeList BoundaryList;
     
     const BoundaryList& boundary = face->boundary();
     if (boundary.size() != 3)
@@ -366,10 +367,10 @@ bool isTriangleOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3
     
     BoundaryList::ConstIter it = boundary.iterator();
     while (it.hasNext()) {
-        const Edge* e1 = it.next();
+        const HalfEdge* e1 = it.next();
         if (e1->origin()->position() == p1) {
-            const Edge* e2 = e1->nextBoundaryEdge();
-            const Edge* e3 = e2->nextBoundaryEdge();
+            const HalfEdge* e2 = e1->next();
+            const HalfEdge* e3 = e2->next();
             return e2->origin()->position() == p2 && e3->origin()->position() == p3;
         }
     }

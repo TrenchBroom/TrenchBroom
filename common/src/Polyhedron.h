@@ -33,15 +33,15 @@ class Polyhedron {
 public:
     class Vertex;
     class Edge;
-    class LinkedEdge;
+    class HalfEdge;
     class Face;
 private:
     typedef Vec<T,3> Pos;
     typedef typename Vec<T,3>::List PosList;
     
     typedef typename DoublyLinkedList<Vertex>::Link VertexLink;
-    typedef typename DoublyLinkedList<Edge>::Link BoundaryLink;
-    typedef typename DoublyLinkedList<LinkedEdge>::Link EdgeLink;
+    typedef typename DoublyLinkedList<Edge>::Link EdgeLink;
+    typedef typename DoublyLinkedList<HalfEdge>::Link HalfEdgeLink;
     typedef typename DoublyLinkedList<Face>::Link FaceLink;
 public:
     class VertexList : public DoublyLinkedList<Vertex> {
@@ -50,16 +50,16 @@ public:
         const VertexLink& doGetLink(const Vertex* vertex) const { return vertex->m_link; }
     };
     
-    class BoundaryList : public DoublyLinkedList<Edge> {
+    class EdgeList : public DoublyLinkedList<Edge> {
     private:
-        BoundaryLink& doGetLink(Edge* edge) const { return edge->m_boundaryLink; }
-        const BoundaryLink& doGetLink(const Edge* edge) const { return edge->m_boundaryLink; }
+        EdgeLink& doGetLink(Edge* edge) const { return edge->m_link; }
+        const EdgeLink& doGetLink(const Edge* edge) const { return edge->m_link; }
     };
     
-    class EdgeList : public DoublyLinkedList<LinkedEdge> {
+    class HalfEdgeList : public DoublyLinkedList<HalfEdge> {
     private:
-        EdgeLink& doGetLink(LinkedEdge* edge) const { return edge->m_edgeLink; }
-        const EdgeLink& doGetLink(const LinkedEdge* edge) const { return edge->m_edgeLink; }
+        HalfEdgeLink& doGetLink(HalfEdge* edge) const { return edge->m_link; }
+        const HalfEdgeLink& doGetLink(const HalfEdge* edge) const { return edge->m_link; }
     };
     
     class FaceList : public DoublyLinkedList<Face> {
@@ -70,12 +70,12 @@ public:
 public:
     class Vertex {
     private:
-        friend class Edge;
+        friend class HalfEdge;
         friend class VertexList;
     private:
         Pos m_position;
         VertexLink m_link;
-        Edge* m_leaving;
+        HalfEdge* m_leaving;
     public:
         Vertex(const Pos& position) :
         m_position(position),
@@ -86,142 +86,108 @@ public:
             return m_position;
         }
     private:
-        void setLeaving(Edge* edge) {
+        void setLeaving(HalfEdge* edge) {
             assert(edge != NULL);
             assert(edge->origin() == this);
             m_leaving = edge;
         }
     };
     
-    class UnlinkedEdge;
-    
     class Edge {
     private:
-        friend class BoundaryList;
-        friend class LinkedEdge;
-        friend class UnlinkedEdge;
-    protected:
-        Vertex* m_origin;
-        BoundaryLink m_boundaryLink;
-        Face* m_face;
+        HalfEdge* m_first;
+        HalfEdge* m_second;
+        EdgeLink m_link;
+        
+        friend class EdgeList;
     public:
-        Edge(Vertex* origin) :
-        m_origin(origin),
-        m_boundaryLink(this),
-        m_face(NULL) {
-            assert(m_origin != NULL);
-            m_origin->setLeaving(this);
+        Edge(HalfEdge* first, HalfEdge* second) :
+        m_first(first),
+        m_second(second),
+        m_link(this) {
+            assert(m_first != NULL);
+            assert(m_second != NULL);
+            m_first->setEdge(this);
+            m_second->setEdge(this);
+        }
+
+        Vertex* firstVertex() const {
+            assert(m_first != NULL);
+            return m_first->origin();
         }
         
-        virtual ~Edge() {}
+        Vertex* secondVertex() const {
+            assert(m_first != NULL);
+            if (m_second != NULL)
+                return m_second->origin();
+            return m_first->next()->origin();
+        }
+    };
+    
+    class HalfEdge {
+    private:
+        Vertex* m_origin;
+        Edge* m_edge;
+        Face* m_face;
+        HalfEdgeLink m_link;
+
+        friend class Edge;
+        friend class HalfEdgeList;
+        friend class Face;
+    public:
+        HalfEdge(Vertex* origin) :
+        m_origin(origin),
+        m_edge(NULL),
+        m_face(NULL),
+        m_link(this) {
+            assert(m_origin != NULL);
+        }
         
         Vertex* origin() const {
             return m_origin;
         }
         
-        Vertex* destination() const {
-            assert(twin() != NULL);
-            return twin()->origin();
+        Face* face() const {
+            return m_face;
         }
         
-        Edge* twin() const {
-            return doGetTwin();
+        HalfEdge* next() const {
+            return m_link.next();
         }
         
-        Edge* previousBoundaryEdge() const {
-            return m_boundaryLink.previous();
-        }
-        
-        Edge* nextBoundaryEdge() const {
-            return m_boundaryLink.next();
-        }
-        
-        void conjoin(Edge* twin) {
-            assert(twin != NULL);
-            doConjoin(twin);
+        HalfEdge* previous() const {
+            return m_link.previous();
         }
     private:
-        virtual void doConjoin(Edge* twin) = 0;
-        virtual void doConjoin(LinkedEdge* twin) = 0;
-        virtual void doConjoin(UnlinkedEdge* twin) = 0;
-        virtual Edge* doGetTwin() const = 0;
-    };
-    
-    class LinkedEdge : public Edge {
-    private:
-        friend class EdgeList;
-        friend class UnlinkedEdge;
-        UnlinkedEdge* m_twin;
-        EdgeLink m_edgeLink;
-    public:
-        LinkedEdge(Vertex* origin) :
-        Edge(origin),
-        m_twin(NULL),
-        m_edgeLink(this) {}
-    private:
-        void doConjoin(Edge* twin) {
-            assert(m_twin == NULL);
-            twin->doConjoin(this);
+        void setEdge(Edge* edge) {
+            m_edge = edge;
         }
         
-        void doConjoin(LinkedEdge* twin) {
-            assert(false);
-        }
-        
-        void doConjoin(UnlinkedEdge* twin) {
-            assert(twin->m_twin == NULL);
-            m_twin = twin;
-            m_twin->m_twin = this;
-        }
-        
-        Edge* doGetTwin() const {
-            return m_twin;
-        }
-    };
-    
-    class UnlinkedEdge : public Edge {
-    private:
-        friend class LinkedEdge;
-        LinkedEdge* m_twin;
-    public:
-        UnlinkedEdge(Vertex* origin) :
-        Edge(origin),
-        m_twin(NULL) {}
-    private:
-        void doConjoin(Edge* twin) {
-            assert(m_twin == NULL);
-            twin->doConjoin(this);
-        }
-        
-        void doConjoin(LinkedEdge* twin) {
-            assert(twin->m_twin == NULL);
-            m_twin = twin;
-            m_twin->m_twin = this;
-        }
-        
-        void doConjoin(UnlinkedEdge* twin) {
-            assert(false);
-        }
-        
-        Edge* doGetTwin() const {
-            return m_twin;
+        void setFace(Face* face) {
+            m_face = face;
         }
     };
     
     class Face {
     private:
-        friend class FaceList;
-    private:
-        BoundaryList m_boundary;
+        HalfEdgeList m_boundary;
         FaceLink m_link;
+        
+        friend class FaceList;
     public:
-        Face(const BoundaryList& boundary) :
+        Face(const HalfEdgeList& boundary) :
         m_boundary(boundary),
         m_link(this) {
             assert(m_boundary.size() >= 3);
+            
+            typename HalfEdgeList::Iter it = m_boundary.iterator();
+            while (it.hasNext()) {
+                HalfEdge* edge = it.next();
+                edge->setFace(this);
+            }
         }
         
-        const BoundaryList& boundary() const {
+        const HalfEdgeList& boundary() const {
             return m_boundary;
         }
     };
@@ -283,37 +249,37 @@ private:
         m_vertices.append(v3);
         m_vertices.append(v4);
         
-        LinkedEdge* e1 = new LinkedEdge(v2);
-        LinkedEdge* e2 = new LinkedEdge(v3);
-        LinkedEdge* e3 = new LinkedEdge(v4);
-        LinkedEdge* e4 = new LinkedEdge(v1);
-        UnlinkedEdge* e5 = new UnlinkedEdge(v3);
-        LinkedEdge* e6 = new LinkedEdge(v2);
-        UnlinkedEdge* e7 = new UnlinkedEdge(v1);
-        UnlinkedEdge* e8 = new UnlinkedEdge(v2);
-        UnlinkedEdge* e9 = new UnlinkedEdge(v4);
-        LinkedEdge* e10 = new LinkedEdge(v1);
-        UnlinkedEdge* e11 = new UnlinkedEdge(v4);
-        UnlinkedEdge* e12 = new UnlinkedEdge(v3);
+        HalfEdge* h1 = new HalfEdge(v2);
+        HalfEdge* h2 = new HalfEdge(v3);
+        HalfEdge* h3 = new HalfEdge(v4);
+        HalfEdge* h4 = new HalfEdge(v1);
+        HalfEdge* h5 = new HalfEdge(v3);
+        HalfEdge* h6 = new HalfEdge(v2);
+        HalfEdge* h7 = new HalfEdge(v1);
+        HalfEdge* h8 = new HalfEdge(v2);
+        HalfEdge* h9 = new HalfEdge(v4);
+        HalfEdge* h10 = new HalfEdge(v1);
+        HalfEdge* h11 = new HalfEdge(v4);
+        HalfEdge* h12 = new HalfEdge(v3);
         
-        e1->conjoin(e5);
-        e2->conjoin(e11);
-        e3->conjoin(e8);
-        e4->conjoin(e12);
-        e6->conjoin(e7);
-        e9->conjoin(e10);
+        Edge* e1 = new Edge(h1, h5);
+        Edge* e2 = new Edge(h2, h11);
+        Edge* e3 = new Edge(h3, h8);
+        Edge* e4 = new Edge(h4, h12);
+        Edge* e5 = new Edge(h6, h7);
+        Edge* e6 = new Edge(h9, h10);
         
         m_edges.append(e1);
         m_edges.append(e2);
         m_edges.append(e3);
         m_edges.append(e4);
+        m_edges.append(e5);
         m_edges.append(e6);
-        m_edges.append(e10);
         
-        Face* f1 = createTriangle(e1, e2, e3);
-        Face* f2 = createTriangle(e4, e5, e6);
-        Face* f3 = createTriangle(e7, e8, e9);
-        Face* f4 = createTriangle(e10, e11, e12);
+        Face* f1 = createTriangle(h1, h2, h3);
+        Face* f2 = createTriangle(h4, h5, h6);
+        Face* f3 = createTriangle(h7, h8, h9);
+        Face* f4 = createTriangle(h10, h11, h12);
 
         m_faces.append(f1);
         m_faces.append(f2);
@@ -321,11 +287,11 @@ private:
         m_faces.append(f4);
     }
     
-    Face* createTriangle(Edge* e1, Edge* e2, Edge* e3) {
-        BoundaryList boundary;
-        boundary.append(e1);
-        boundary.append(e2);
-        boundary.append(e3);
+    Face* createTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3) {
+        HalfEdgeList boundary;
+        boundary.append(h1);
+        boundary.append(h2);
+        boundary.append(h3);
         
         return new Face(boundary);
     }
