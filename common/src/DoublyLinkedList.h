@@ -68,26 +68,35 @@ public:
     template <typename ListType, typename ItemType, typename LinkType>
     class IteratorBase {
     private:
-        ListType& m_list;
+        ListType* m_list;
         size_t m_listVersion;
         ItemType m_next;
         size_t m_index;
         bool m_removed;
     public:
+        IteratorBase() :
+        m_list(NULL),
+        m_listVersion(0),
+        m_next(NULL),
+        m_index(0),
+        m_removed(false) {}
+        
         IteratorBase(ListType& list) :
-        m_list(list),
-        m_listVersion(m_list.m_version),
-        m_next(m_list.m_head),
+        m_list(&list),
+        m_listVersion(m_list->m_version),
+        m_next(m_list->m_head),
         m_index(0),
         m_removed(false) {}
 
         bool hasNext() const {
-            assert(m_listVersion == m_list.m_version);
-            return m_index < m_list.size();
+            assert(m_list != NULL);
+            assert(m_listVersion == m_list->m_version);
+            return m_index < m_list->size();
         }
         
         ItemType next() {
-            assert(m_listVersion == m_list.m_version);
+            assert(m_list != NULL);
+            assert(m_listVersion == m_list->m_version);
             ItemType item = m_next;
             advance();
             m_removed = false;
@@ -95,26 +104,28 @@ public:
         }
         
         void remove() {
-            assert(m_listVersion == m_list.m_version);
+            assert(m_list != NULL);
+            assert(m_listVersion == m_list->m_version);
             assert(m_index > 0);
-            LinkType& link = m_list.getLink(m_next);
+            LinkType& link = m_list->getLink(m_next);
             ItemType previous = link.previous();
-            m_list.remove(previous);
-            m_listVersion = m_list.m_version;
+            m_list->remove(previous);
+            m_listVersion = m_list->m_version;
             m_removed = true;
             --m_index;
         }
     private:
         void advance() {
+            assert(m_list != NULL);
             assert(hasNext());
-            LinkType& link = m_list.getLink(m_next);
+            LinkType& link = m_list->getLink(m_next);
             m_next = link.next();
             ++m_index;
         }
     };
     
-    typedef IteratorBase<DoublyLinkedList<Item>, Item*, Link> Iter;
-    typedef IteratorBase<const DoublyLinkedList<Item>, const Item*, const Link> ConstIter;
+    typedef IteratorBase<DoublyLinkedList<Item>, Item*, Link> Iterator;
+    typedef IteratorBase<const DoublyLinkedList<Item>, const Item*, const Link> ConstIterator;
 private:
     friend class ListIterator;
     
@@ -137,12 +148,12 @@ public:
         return m_size;
     }
     
-    Iter iterator() {
-        return Iter(*this);
+    Iterator iterator() {
+        return Iterator(*this);
     }
     
-    ConstIter iterator() const {
-        return ConstIter(*this);
+    ConstIterator iterator() const {
+        return ConstIterator(*this);
     }
 
     bool contains(Item* item) const {

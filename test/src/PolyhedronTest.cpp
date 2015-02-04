@@ -48,6 +48,7 @@ TEST(PolyhedronTest, initWith4Points) {
     const Vec3d p4( 0.0, 8.0, 0.0);
     
     const Polyhedron3d p(p1, p2, p3, p4);
+    ASSERT_TRUE(p.closed());
     
     const VertexList& vertices = p.vertices();
     ASSERT_EQ(4u, vertices.size());
@@ -79,8 +80,51 @@ TEST(PolyhedronTest, initWith4Points) {
     ASSERT_TRUE(hasTriangleOf(faces, p1, p2, p4));
     ASSERT_TRUE(hasTriangleOf(faces, p1, p4, p3));
 }
-/*
 
+TEST(PolyhedronTest, testImpossibleSplit) {
+    const Vec3d p1( 0.0, 4.0, 8.0);
+    const Vec3d p2( 8.0, 0.0, 0.0);
+    const Vec3d p3(-8.0, 0.0, 0.0);
+    const Vec3d p4( 0.0, 8.0, 0.0);
+    const Vec3d p5( 0.0, 4.0, 4.0);
+    
+    Polyhedron3d p(p1, p2, p3, p4);
+    Polyhedron3d::SplitResult result = p.split(Polyhedron3d::SplitByVisibilityCriterion(p5));
+    ASSERT_FALSE(result.success());
+}
+
+TEST(PolyhedronTest, testSimpleSplit) {
+    const Vec3d p1( 0.0, 4.0, 8.0);
+    const Vec3d p2( 8.0, 0.0, 0.0);
+    const Vec3d p3(-8.0, 0.0, 0.0);
+    const Vec3d p4( 0.0, 8.0, 0.0);
+    const Vec3d p5( 0.0, 4.0, 12.0);
+    
+    Polyhedron3d p(p1, p2, p3, p4);
+    Polyhedron3d::SplitResult result = p.split(Polyhedron3d::SplitByVisibilityCriterion(p5));
+    ASSERT_TRUE(result.success());
+    
+    ASSERT_FALSE(p.closed());
+    ASSERT_EQ(3u, p.vertexCount());
+    ASSERT_EQ(3u, p.edgeCount());
+    ASSERT_EQ(1u, p.faceCount());
+
+    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p3, p4));
+    
+    Polyhedron3d* q = result.unmatched;
+    ASSERT_FALSE(q->closed());
+    ASSERT_EQ(4u, q->vertexCount());
+    ASSERT_EQ(6u, q->edgeCount());
+    ASSERT_EQ(3u, q->faceCount());
+    
+    ASSERT_TRUE(hasTriangleOf(q->faces(), p1, p3, p2));
+    ASSERT_TRUE(hasTriangleOf(q->faces(), p1, p4, p3));
+    ASSERT_TRUE(hasTriangleOf(q->faces(), p1, p2, p4));
+
+    delete q;
+}
+
+/*
 TEST(PolyhedronTest, convexHullWithContainedPoint) {
     const Vec3d p1( 0.0, 0.0, 8.0);
     const Vec3d p2( 8.0, 0.0, 0.0);
@@ -307,7 +351,7 @@ TEST(PolyhedronTest, convexHullWithNewPointAndFaceMerging) {
  */
 
 bool hasVertices(const VertexList& vertices, Vec3d::List points) {
-    VertexList::ConstIter vIt = vertices.iterator();
+    VertexList::ConstIterator vIt = vertices.iterator();
     while (vIt.hasNext()) {
         const Vertex* vertex = vIt.next();
         Vec3d::List::iterator pIt = VectorUtils::find(points, vertex->position());
@@ -321,7 +365,7 @@ bool hasVertices(const VertexList& vertices, Vec3d::List points) {
 EdgeInfoList::iterator findEdgeInfo(EdgeInfoList& edgeInfos, const Edge* edge);
 
 bool hasEdges(const EdgeList& edges, EdgeInfoList edgeInfos) {
-    EdgeList::ConstIter eIt = edges.iterator();
+    EdgeList::ConstIterator eIt = edges.iterator();
     while (eIt.hasNext()) {
         const Edge* edge = eIt.next();
         EdgeInfoList::iterator it = findEdgeInfo(edgeInfos, edge);
@@ -349,7 +393,7 @@ EdgeInfoList::iterator findEdgeInfo(EdgeInfoList& edgeInfos, const Edge* edge) {
 bool isTriangleOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3);
 
 bool hasTriangleOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3) {
-    FaceList::ConstIter fIt = faces.iterator();
+    FaceList::ConstIterator fIt = faces.iterator();
     while (fIt.hasNext()) {
         const Face* face = fIt.next();
         if (isTriangleOf(face, p1, p2, p3))
@@ -365,7 +409,7 @@ bool isTriangleOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3
     if (boundary.size() != 3)
         return false;
     
-    BoundaryList::ConstIter it = boundary.iterator();
+    BoundaryList::ConstIterator it = boundary.iterator();
     while (it.hasNext()) {
         const HalfEdge* e1 = it.next();
         if (e1->origin()->position() == p1) {
