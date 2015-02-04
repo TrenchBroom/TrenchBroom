@@ -277,11 +277,17 @@ public:
             swap(m_first, m_second);
         }
         
-        Edge* split() {
-            Edge* result = new Edge(m_second);
+        Edge* unsetSecondEdge() {
             m_first->setAsLeaving();
             m_second = NULL;
-            return result;
+        }
+        
+        void setSecondEdge(HalfEdge* second) {
+            assert(second != NULL);
+            assert(m_second == NULL);
+            assert(second->edge() == NULL);
+            m_second = second;
+            m_second->setEdge(this);
         }
     };
     
@@ -421,6 +427,13 @@ public:
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) {
         initialize(p1, p2, p3, p4);
     }
+
+    Polyhedron(typename V::List points) {
+        if (chooseInitialPoints(points)) {
+            initialize(points[0], points[1], points[2], points[3]);
+            addPoints(points.begin() + 4, points.end());
+        }
+    }
 private:
     Polyhedron(const VertexList& vertices, const EdgeList& edges, const FaceList& faces) :
     m_vertices(vertices),
@@ -461,21 +474,25 @@ public:
         return vertexCount() + faceCount() == edgeCount() + 2;
     }
     
+    template <typename I>
+    void addPoints(I cur, I end) {
+        while (cur != end) {
+            const V& point = *cur;
+            addPoint(point);
+            ++cur;
+        }
+    }
+    
+    void addPoint(const V& point) {
+        SplitResult result = split(SplitByVisibilityCriterion(point));
+        if (result.success()) {
+            delete result.unmatched;
+            weaveCap(result.seam, point);
+        }
+    }
+    
+    typedef std::vector<Edge*> Seam;
     struct SplitResult {
-        struct SeamElement {
-            Edge* matched;
-            Edge* unmatched;
-            
-            SeamElement(Edge* i_matched, Edge* i_unmatched) :
-            matched(i_matched),
-            unmatched(i_unmatched) {
-                assert(matched != NULL);
-                assert(unmatched != NULL);
-            }
-        };
-        
-        typedef std::vector<SeamElement> Seam;
-        
         Polyhedron* unmatched;
         Seam seam;
         
@@ -497,60 +514,33 @@ public:
     // This algorithm splits this polyhedron along the edges where one of the adjacant faces matches
     // the given criterion and the other does not. The algorithm runs linear in the sum of the numbers
     // of all vertices, edges, and faces.
-    SplitResult split(const SplittingCriterion& criterion) {
-        typedef typename SplitResult::SeamElement SeamElement;
-        
+    Seam split(const SplittingCriterion& criterion) {
         VertexList vertices;
         EdgeList edges;
         FaceList faces;
-        typename SplitResult::Seam seam;
+        Seam seam;
         
         Edge* splittingEdge = criterion.findFirstSplittingEdge(m_edges);
         if (splittingEdge == NULL)
-            return SplitResult();
+            return Seam(0);
         
         // First, go along the splitting seam and split the edges into two edges with one half edge each.
         // Both the resulting edges have their only half edge as their first edge.
         do {
             assert(splittingEdge != NULL);
-            
-            Edge* duplicate = splittingEdge->split();
-            edges.append(duplicate);
-            
-            seam.push_back(SeamElement(splittingEdge, duplicate));
-            
             Edge* nextSplittingEdge = criterion.findNextSplittingEdge(splittingEdge);
             assert(nextSplittingEdge != splittingEdge);
             assert(nextSplittingEdge == NULL || splittingEdge->secondVertex() == nextSplittingEdge->firstVertex());
+
+            splittingEdge->unsetSecondEdge();
+            seam.push_back(splittingEdge);
+            
             splittingEdge = nextSplittingEdge;
         } while (splittingEdge != NULL);
         
         typename VertexList::Iterator vertexIt;
         typename EdgeList::Iterator edgeIt;
         typename FaceList::Iterator faceIt;
-        
-        // Now iterate all the edges we have created so far and duplicate the vertices, as these are shared
-        // between the two resulting polyhedra.
-        edgeIt = edges.iterator();
-        while (edgeIt.hasNext()) {
-            Edge* edge = edgeIt.next();
-            HalfEdge* halfEdge = edge->firstEdge();
-            Vertex* vertex = halfEdge->origin();
-            Vertex* duplicate = new Vertex(vertex->position());
-            
-            // This vertex should remain in this polyhedron, so we duplicate it and set it
-            // as the origin of all half edges leaving from it that belong to this polyhedron.
-            // For this, we iterate over the half edges in clockwise order and go to their twins.
-            // Since the vertex is shared, we will reach another edge that was previously split.
-            // At that edge, the twin of the half edge's predecessor will be NULL.
-            
-            while (halfEdge != NULL) {
-                halfEdge->setOrigin(duplicate);
-                halfEdge = halfEdge->previous()->twin();
-            }
-            
-            vertices.append(duplicate);
-        }
         
         // Now handle the remaining faces, edge, and vertices by sorting them into the correct polyhedra.
         vertexIt = m_vertices.iterator();
@@ -597,7 +587,44 @@ public:
             }
         }
         
-        return SplitResult(new Polyhedron(vertices, edges, faces), seam);
+        faces.deleteAll();
+        edges.deleteAll();
+        vertices.deleteAll();
+        
+        return seam;
+    }
+    
+    void weaveCap(const Seam& seam, const V& point) {
+        assert(seam.size() >= 3);
+        
+        Vertex* top = new Vertex(point);
+        
+        HalfEdge* first = NULL;
+        HalfEdge* last = NULL;
+        for (size_t i = 0; i < seam.size(); ++i) {
+            Edge* edge = seam[i];
+            assert(!edge->fullySpecified());
+            
+            Vertex* v1 = edge->secondVertex();
+            Vertex* v2 = edge->firstVertex();
+            
+            HalfEdge* h1 = new HalfEdge(top);
+            HalfEdge* h2 = new HalfEdge(v1);
+            HalfEdge* h3 = new HalfEdge(v2);
+            
+            m_faces.append(createTriangle(h1, h2, h3));
+            
+            if (last != NULL)
+                m_edges.append(new Edge(h3, last));
+            edge->setSecondEdge(h2);
+            
+            if (first == NULL)
+                first = h3;
+            last = h1;
+        }
+        
+        m_edges.append(new Edge(first, last));
+        m_vertices.append(top);
     }
 private:
     Edge* findFirstSplittingEdge(const SplittingCriterion& criterion) {
@@ -668,6 +695,27 @@ private:
         m_faces.append(f2);
         m_faces.append(f3);
         m_faces.append(f4);
+    }
+    
+    bool chooseInitialPoints(typename V::List& points) {
+        // first, choose a third point that is not colinear to the first two
+        size_t index = 2;
+        while (index < points.size() && V::colinear(points[0], points[1], points[index]))
+            ++index;
+        if (index == points.size())
+            return false;
+        if (index != 2)
+            swap(points[2], points[index]);
+        
+        // now choose a fourth point such that it doesn't lie on the plane defined by the first three
+        index = 3;
+        while (index < points.size() && commonPlane(points[0], points[1], points[2], points[index]))
+            ++index;
+        if (index == points.size())
+            return false;
+        if (index != 3)
+            swap(points[3], points[index]);
+        return true;
     }
     
     Face* createTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3) {

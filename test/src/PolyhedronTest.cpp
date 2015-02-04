@@ -89,8 +89,8 @@ TEST(PolyhedronTest, testImpossibleSplit) {
     const Vec3d p5( 0.0, 4.0, 4.0);
     
     Polyhedron3d p(p1, p2, p3, p4);
-    Polyhedron3d::SplitResult result = p.split(Polyhedron3d::SplitByVisibilityCriterion(p5));
-    ASSERT_FALSE(result.success());
+    Polyhedron3d::Seam seam = p.split(Polyhedron3d::SplitByVisibilityCriterion(p5));
+    ASSERT_TRUE(seam.empty());
 }
 
 TEST(PolyhedronTest, testSimpleSplit) {
@@ -101,8 +101,8 @@ TEST(PolyhedronTest, testSimpleSplit) {
     const Vec3d p5( 0.0, 4.0, 12.0);
     
     Polyhedron3d p(p1, p2, p3, p4);
-    Polyhedron3d::SplitResult result = p.split(Polyhedron3d::SplitByVisibilityCriterion(p5));
-    ASSERT_TRUE(result.success());
+    Polyhedron3d::Seam seam = p.split(Polyhedron3d::SplitByVisibilityCriterion(p5));
+    ASSERT_EQ(3u, seam.size());
     
     ASSERT_FALSE(p.closed());
     ASSERT_EQ(3u, p.vertexCount());
@@ -110,18 +110,35 @@ TEST(PolyhedronTest, testSimpleSplit) {
     ASSERT_EQ(1u, p.faceCount());
 
     ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p3, p4));
-    
-    Polyhedron3d* q = result.unmatched;
-    ASSERT_FALSE(q->closed());
-    ASSERT_EQ(4u, q->vertexCount());
-    ASSERT_EQ(6u, q->edgeCount());
-    ASSERT_EQ(3u, q->faceCount());
-    
-    ASSERT_TRUE(hasTriangleOf(q->faces(), p1, p3, p2));
-    ASSERT_TRUE(hasTriangleOf(q->faces(), p1, p4, p3));
-    ASSERT_TRUE(hasTriangleOf(q->faces(), p1, p2, p4));
+}
 
-    delete q;
+TEST(PolyhedronTest, testWeaveSimpleCap) {
+    const Vec3d p1( 0.0, 4.0, 8.0);
+    const Vec3d p2( 8.0, 0.0, 0.0);
+    const Vec3d p3(-8.0, 0.0, 0.0);
+    const Vec3d p4( 0.0, 8.0, 0.0);
+    const Vec3d p5( 0.0, 4.0, 12.0);
+    
+    Polyhedron3d p(p1, p2, p3, p4);
+    Polyhedron3d::Seam seam = p.split(Polyhedron3d::SplitByVisibilityCriterion(p5));
+    
+    p.weaveCap(seam, p5);
+    ASSERT_TRUE(p.closed());
+    ASSERT_EQ(4u, p.vertexCount());
+    ASSERT_EQ(6u, p.edgeCount());
+    ASSERT_EQ(4u, p.faceCount());
+}
+
+TEST(PolyhedronTest, testSimpleConvexHull) {
+    const Vec3d p1( -8.0, -8.0, -8.0);
+    const Vec3d p2( +8.0, -8.0, -8.0);
+    const Vec3d p3( +8.0, +8.0, -8.0);
+    const Vec3d p4( -8.0, +8.0, -8.0);
+    const Vec3d p5( -8.0, -8.0, +8.0);
+    const Vec3d p6( +8.0, -8.0, +8.0);
+    const Vec3d p7( +8.0, +8.0, +8.0);
+    const Vec3d p8( -8.0, +8.0, +8.0);
+    const Vec3d p9( +4.0, +3.0, +1.0);
 }
 
 /*
