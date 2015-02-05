@@ -144,10 +144,10 @@
 # Helper macro to control the debugging output globally. There are
 # two versions for controlling how verbose your output should be.
 macro(DBG_MSG _MSG)
-    # message(STATUS "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
+#    message(STATUS "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
 endmacro()
 macro(DBG_MSG_V _MSG)
-    # message(STATUS "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
+#    message(STATUS "${CMAKE_CURRENT_LIST_FILE}(${CMAKE_CURRENT_LIST_LINE}): ${_MSG}")
 endmacro()
 
 # Clear return values in case the module is loaded more than once.
@@ -488,8 +488,17 @@ if(wxWidgets_FIND_STYLE STREQUAL "win32")
     if(MINGW)
       set(WX_LIB_DIR_PREFIX gcc)
     else()
-      set(WX_LIB_DIR_PREFIX vc)
+	  if(CMAKE_GENERATOR STREQUAL "Visual Studio 10 2010")
+		set(WX_LIB_DIR_PREFIX vc100)
+	  elseif(CMAKE_GENERATOR STREQUAL "Visual Studio 11 2012")
+		set(WX_LIB_DIR_PREFIX vc110)
+	  elseif(CMAKE_GENERATOR STREQUAL "Visual Studio 12 2013")
+		set(WX_LIB_DIR_PREFIX vc120)
+	  else()
+		set(WX_LIB_DIR_PREFIX vc)
+	  endif()
     endif()
+	DBG_MSG("Searching in ${WX_ROOT_DIR}/lib/${WX_LIB_DIR_PREFIX}_dll")
     if(BUILD_SHARED_LIBS)
       find_path(wxWidgets_LIB_DIR
         NAMES
