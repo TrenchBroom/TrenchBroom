@@ -50,9 +50,11 @@ TEST(PolyhedronTest, initWith4Points) {
     const Polyhedron3d p(p1, p2, p3, p4);
     ASSERT_TRUE(p.closed());
     
-    const VertexList& vertices = p.vertices();
-    ASSERT_EQ(4u, vertices.size());
+    ASSERT_EQ(4u, p.vertexCount());
+    ASSERT_EQ(6u, p.edgeCount());
+    ASSERT_EQ(4u, p.faceCount());
     
+    const VertexList& vertices = p.vertices();
     Vec3d::List points;
     points.push_back(p1);
     points.push_back(p2);
@@ -61,7 +63,6 @@ TEST(PolyhedronTest, initWith4Points) {
     ASSERT_TRUE(hasVertices(vertices, points));
 
     const EdgeList& edges = p.edges();
-    ASSERT_EQ(6u, edges.size());
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p2, p3));
@@ -130,15 +131,89 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
 }
 
 TEST(PolyhedronTest, testSimpleConvexHull) {
-    const Vec3d p1( -8.0, -8.0, -8.0);
-    const Vec3d p2( +8.0, -8.0, -8.0);
-    const Vec3d p3( +8.0, +8.0, -8.0);
-    const Vec3d p4( -8.0, +8.0, -8.0);
-    const Vec3d p5( -8.0, -8.0, +8.0);
-    const Vec3d p6( +8.0, -8.0, +8.0);
-    const Vec3d p7( +8.0, +8.0, +8.0);
-    const Vec3d p8( -8.0, +8.0, +8.0);
-    const Vec3d p9( +4.0, +3.0, +1.0);
+    const Vec3d p1( 0.0, 4.0, 8.0);
+    const Vec3d p2( 8.0, 0.0, 0.0);
+    const Vec3d p3(-8.0, 0.0, 0.0);
+    const Vec3d p4( 0.0, 8.0, 0.0);
+    const Vec3d p5( 0.0, 4.0, 12.0);
+    
+    Polyhedron3d p(p1, p2, p3, p4);
+    p.addPoint(p5);
+    
+    ASSERT_TRUE(p.closed());
+    ASSERT_EQ(4u, p.vertexCount());
+    ASSERT_EQ(6u, p.edgeCount());
+    ASSERT_EQ(4u, p.faceCount());
+
+    const VertexList& vertices = p.vertices();
+    Vec3d::List points;
+    points.push_back(p5);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
+    ASSERT_TRUE(hasVertices(vertices, points));
+    
+    const EdgeList& edges = p.edges();
+    
+    EdgeInfoList edgeInfos;
+    edgeInfos.push_back(std::make_pair(p2, p3));
+    edgeInfos.push_back(std::make_pair(p3, p4));
+    edgeInfos.push_back(std::make_pair(p4, p2));
+    edgeInfos.push_back(std::make_pair(p5, p3));
+    edgeInfos.push_back(std::make_pair(p5, p2));
+    edgeInfos.push_back(std::make_pair(p4, p5));
+    
+    ASSERT_TRUE(hasEdges(edges, edgeInfos));
+    
+    const FaceList& faces = p.faces();
+    
+    ASSERT_TRUE(hasTriangleOf(faces, p2, p3, p4));
+    ASSERT_TRUE(hasTriangleOf(faces, p5, p3, p2));
+    ASSERT_TRUE(hasTriangleOf(faces, p5, p2, p4));
+    ASSERT_TRUE(hasTriangleOf(faces, p5, p4, p3));
+}
+
+TEST(PolyhedronTest, testSimpleConvexHullWithCoplanarFaces) {
+    const Vec3d p1( 0.0, 0.0, 8.0);
+    const Vec3d p2( 8.0, 0.0, 0.0);
+    const Vec3d p3(-8.0, 0.0, 0.0);
+    const Vec3d p4( 0.0, 8.0, 0.0);
+    const Vec3d p5( 0.0, 0.0, 12.0);
+    
+    Polyhedron3d p(p1, p2, p3, p4);
+    p.addPoint(p5);
+    
+    ASSERT_TRUE(p.closed());
+    ASSERT_EQ(4u, p.vertexCount());
+    ASSERT_EQ(6u, p.edgeCount());
+    ASSERT_EQ(4u, p.faceCount());
+    
+    const VertexList& vertices = p.vertices();
+    Vec3d::List points;
+    points.push_back(p5);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
+    ASSERT_TRUE(hasVertices(vertices, points));
+    
+    const EdgeList& edges = p.edges();
+    
+    EdgeInfoList edgeInfos;
+    edgeInfos.push_back(std::make_pair(p2, p3));
+    edgeInfos.push_back(std::make_pair(p3, p4));
+    edgeInfos.push_back(std::make_pair(p4, p2));
+    edgeInfos.push_back(std::make_pair(p5, p3));
+    edgeInfos.push_back(std::make_pair(p5, p2));
+    edgeInfos.push_back(std::make_pair(p4, p5));
+    
+    ASSERT_TRUE(hasEdges(edges, edgeInfos));
+    
+    const FaceList& faces = p.faces();
+    
+    ASSERT_TRUE(hasTriangleOf(faces, p2, p3, p4));
+    ASSERT_TRUE(hasTriangleOf(faces, p5, p3, p2));
+    ASSERT_TRUE(hasTriangleOf(faces, p5, p2, p4));
+    ASSERT_TRUE(hasTriangleOf(faces, p5, p4, p3));
 }
 
 /*

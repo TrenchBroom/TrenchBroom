@@ -24,6 +24,8 @@
 #include "DoublyLinkedList.h"
 
 #include <cassert>
+#include <deque>
+#include <queue>
 #include <vector>
 
 // implements a doubly-connected edge list, see de Berg et. al - Computational Geometry (3rd. Ed.), PP. 29
@@ -35,6 +37,8 @@ public:
     class Edge;
     class HalfEdge;
     class Face;
+
+    typedef std::deque<Edge*> Seam;
 private:
     typedef Vec<T,3> V;
     typedef typename Vec<T,3>::List PosList;
@@ -100,17 +104,18 @@ public:
             return NULL;
         }
         
+        // finds the next seam edge in counter clockwise orientation
         Edge* findNextSplittingEdge(Edge* last) const {
             assert(last != NULL);
 
-            HalfEdge* halfEdge = last->firstEdge()->next();
+            HalfEdge* halfEdge = last->firstEdge()->previous();
             Edge* next = halfEdge->edge();
             if (!next->fullySpecified())
                 return NULL;
             
             MatchResult result = matches(next);
             while (result != MatchResult_First && result != MatchResult_Second && next != last) {
-                halfEdge = halfEdge->twin()->next();
+                halfEdge = halfEdge->twin()->previous();
                 next = halfEdge->edge();
                 if (!next->fullySpecified())
                     return NULL;
@@ -155,6 +160,18 @@ public:
     private:
         bool doMatches(const Face* face) const {
             return !face->visibleFrom(m_point);
+        }
+    };
+    
+    class SplitByNormalCriterion : public SplittingCriterion {
+    private:
+        V m_normal;
+    public:
+        SplitByNormalCriterion(const V& normal) :
+        m_normal(normal) {}
+    private:
+        bool doMatches(const Face* face) const {
+            return !face->normal().equals(m_normal);
         }
     };
 public:
@@ -277,7 +294,7 @@ public:
             swap(m_first, m_second);
         }
         
-        Edge* unsetSecondEdge() {
+        void unsetSecondEdge() {
             m_first->setAsLeaving();
             m_second = NULL;
         }
@@ -362,6 +379,7 @@ public:
         FaceLink m_link;
         
         friend class FaceList;
+        friend class Polyhedron<T>;
     public:
         Face(const HalfEdgeList& boundary) :
         m_boundary(boundary),
@@ -410,8 +428,7 @@ public:
     private:
         Math::PointStatus::Type pointStatus(const V& point, const T epsilon = Math::Constants<T>::pointStatusEpsilon()) const {
             const V norm = normal();
-            const T offset = origin().dot(norm);
-            const T distance = point.dot(norm) - offset;
+            const T distance = (point - origin()).dot(norm);
             if (distance > epsilon)
                 return Math::PointStatus::PSAbove;
             if (distance < -epsilon)
@@ -484,36 +501,18 @@ public:
     }
     
     void addPoint(const V& point) {
-        SplitResult result = split(SplitByVisibilityCriterion(point));
-        if (result.success()) {
-            delete result.unmatched;
-            weaveCap(result.seam, point);
+        assert(checkInvariant());
+        const Seam seam = split(SplitByVisibilityCriterion(point));
+        if (!seam.empty()) {
+            weaveCap(seam, point);
+            mergeCoplanarFaces(seam);
+            assert(checkInvariant());
         }
     }
     
-    typedef std::vector<Edge*> Seam;
-    struct SplitResult {
-        Polyhedron* unmatched;
-        Seam seam;
-        
-        SplitResult(Polyhedron* i_unmatched, const Seam& i_seam) :
-        unmatched(i_unmatched),
-        seam(i_seam) {
-            assert(unmatched != NULL);
-            assert(seam.size() >= 3);
-        }
-        
-        SplitResult() :
-        unmatched(NULL) {}
-        
-        bool success() const {
-            return unmatched != NULL;
-        }
-    };
-    
     // This algorithm splits this polyhedron along the edges where one of the adjacant faces matches
     // the given criterion and the other does not. The algorithm runs linear in the sum of the numbers
-    // of all vertices, edges, and faces.
+    // of all vertices, edges, and faces. The returned seam is oriented in counter-clockwise order.
     Seam split(const SplittingCriterion& criterion) {
         VertexList vertices;
         EdgeList edges;
@@ -530,7 +529,7 @@ public:
             assert(splittingEdge != NULL);
             Edge* nextSplittingEdge = criterion.findNextSplittingEdge(splittingEdge);
             assert(nextSplittingEdge != splittingEdge);
-            assert(nextSplittingEdge == NULL || splittingEdge->secondVertex() == nextSplittingEdge->firstVertex());
+            assert(nextSplittingEdge == NULL || splittingEdge->firstVertex() == nextSplittingEdge->secondVertex());
 
             splittingEdge->unsetSecondEdge();
             seam.push_back(splittingEdge);
@@ -591,6 +590,8 @@ public:
         edges.deleteAll();
         vertices.deleteAll();
         
+        assert(isConvex());
+        
         return seam;
     }
     
@@ -615,26 +616,59 @@ public:
             m_faces.append(createTriangle(h1, h2, h3));
             
             if (last != NULL)
-                m_edges.append(new Edge(h3, last));
+                m_edges.append(new Edge(h1, last));
             edge->setSecondEdge(h2);
             
             if (first == NULL)
-                first = h3;
-            last = h1;
+                first = h1;
+            last = h3;
         }
         
         m_edges.append(new Edge(first, last));
         m_vertices.append(top);
+
+        assert(isConvex());
     }
-private:
-    Edge* findFirstSplittingEdge(const SplittingCriterion& criterion) {
-        typename EdgeList::Iterator it = m_edges.iterator();
-        while (it.hasNext()) {
-            Edge* edge = it.next();
-            if (edge->flipIfMatches(criterion))
-                return edge;
+    
+    void mergeCoplanarFaces(const Seam& seam) {
+        std::queue<Edge*> queue(seam);
+        while (!queue.empty()) {
+            Edge* first = queue.front(); queue.pop();
+            const V firstNorm = first->firstFace()->normal();
+            if (firstNorm.equals(first->secondFace()->normal())) {
+                // fast forward through all edges that cut through the coplanar region
+                Edge* last = first;
+                Edge* cur = queue.front();
+                while (cur->firstFace()->normal().equals(firstNorm)) {
+                    assert(cur->firstFace()->normal().equals(firstNorm) == cur->secondFace()->normal().equals(firstNorm));
+                    queue.pop(); last = cur; cur = queue.front();
+                }
+                
+                const Seam mergeSeam = split(SplitByNormalCriterion(firstNorm));
+                weaveCap(mergeSeam);
+            }
         }
-        return NULL;
+
+        assert(isConvex());
+    }
+    
+    void weaveCap(const Seam& seam) {
+        assert(seam.size() >= 3);
+        
+        HalfEdgeList halfEdges;
+        for (size_t i = 0; i < seam.size(); ++i) {
+            Edge* edge = seam[i];
+            assert(!edge->fullySpecified());
+            
+            HalfEdge* halfEdge = new HalfEdge(edge->secondVertex());
+            edge->setSecondEdge(halfEdge);
+            halfEdges.append(halfEdge);
+        }
+
+        Face* face = new Face(halfEdges);
+        m_faces.append(face);
+
+        assert(isConvex());
     }
 private:
     void initialize(const V& p1, const V& p2, const V& p3, const V& p4) {
@@ -695,6 +729,8 @@ private:
         m_faces.append(f2);
         m_faces.append(f3);
         m_faces.append(f4);
+        
+        assert(checkInvariant());
     }
     
     bool chooseInitialPoints(typename V::List& points) {
@@ -725,6 +761,26 @@ private:
         boundary.append(h3);
         
         return new Face(boundary);
+    }
+    
+    bool checkInvariant() const {
+        if (!isConvex())
+            return false;
+        return true;
+    }
+    
+    bool isConvex() const {
+        typename FaceList::ConstIterator fIt = m_faces.iterator();
+        while (fIt.hasNext()) {
+            const Face* face = fIt.next();
+            typename VertexList::ConstIterator vIt = m_vertices.iterator();
+            while (vIt.hasNext()) {
+                const Vertex* vertex = vIt.next();
+                if (face->pointStatus(vertex->position()) == Math::PointStatus::PSAbove)
+                    return false;
+            }
+        }
+        return true;
     }
 };
 
