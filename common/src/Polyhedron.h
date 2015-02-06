@@ -634,16 +634,22 @@ public:
         std::queue<Edge*> queue(seam);
         while (!queue.empty()) {
             Edge* first = queue.front(); queue.pop();
+            assert(first->fullySpecified());
+
             const V firstNorm = first->firstFace()->normal();
             if (firstNorm.equals(first->secondFace()->normal())) {
-                // fast forward through all edges that cut through the coplanar region
-                Edge* last = first;
-                Edge* cur = queue.front();
-                while (cur->firstFace()->normal().equals(firstNorm)) {
-                    assert(cur->firstFace()->normal().equals(firstNorm) == cur->secondFace()->normal().equals(firstNorm));
-                    queue.pop(); last = cur; cur = queue.front();
+                // fast forward through all seam edges which have both of their incident faces coplanar to the first face
+                if (!queue.empty()) {
+                    Edge* cur = queue.front();
+                    while (cur != NULL && cur->firstFace()->normal().equals(firstNorm)) {
+                        assert(cur->fullySpecified());
+                        assert(cur->firstFace()->normal().equals(firstNorm) == cur->secondFace()->normal().equals(firstNorm));
+                        queue.pop();
+                        cur = !queue.empty() ? queue.front() : NULL;
+                    }
                 }
-                
+
+                // now remove all coplanar faces and replace them with a new cap
                 const Seam mergeSeam = split(SplitByNormalCriterion(firstNorm));
                 weaveCap(mergeSeam);
             }
@@ -651,7 +657,7 @@ public:
 
         assert(isConvex());
     }
-    
+
     void weaveCap(const Seam& seam) {
         assert(seam.size() >= 3);
         
@@ -734,6 +740,8 @@ private:
     }
     
     bool chooseInitialPoints(typename V::List& points) {
+        using std::swap;
+        
         // first, choose a third point that is not colinear to the first two
         size_t index = 2;
         while (index < points.size() && V::colinear(points[0], points[1], points[index]))

@@ -40,6 +40,7 @@ typedef std::vector<EdgeInfo> EdgeInfoList;
 bool hasVertices(const VertexList& vertices, Vec3d::List points);
 bool hasEdges(const EdgeList& edges, EdgeInfoList edgeInfos);
 bool hasTriangleOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3);
+bool hasQuadOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4);
 
 TEST(PolyhedronTest, initWith4Points) {
     const Vec3d p1( 0.0, 0.0, 8.0);
@@ -216,231 +217,63 @@ TEST(PolyhedronTest, testSimpleConvexHullWithCoplanarFaces) {
     ASSERT_TRUE(hasTriangleOf(faces, p5, p4, p3));
 }
 
-/*
-TEST(PolyhedronTest, convexHullWithContainedPoint) {
-    const Vec3d p1( 0.0, 0.0, 8.0);
-    const Vec3d p2( 8.0, 0.0, 0.0);
-    const Vec3d p3(-8.0, 0.0, 0.0);
-    const Vec3d p4( 0.0, 8.0, 0.0);
-    const Vec3d p5( 0.0, 0.0, 4.0);
-    
-    Polyhedron3d p(p1, p2, p3, p4);
-    p.addPoints(Vec3d::List(1, p5));
+TEST(PolyhedronTest, testSimpleConvexHullOfCube) {
+    const Vec3d p1( -8.0, -8.0, -8.0);
+    const Vec3d p2( -8.0, -8.0, +8.0);
+    const Vec3d p3( -8.0, +8.0, -8.0);
+    const Vec3d p4( -8.0, +8.0, +8.0);
+    const Vec3d p5( +8.0, -8.0, -8.0);
+    const Vec3d p6( +8.0, -8.0, +8.0);
+    const Vec3d p7( +8.0, +8.0, -8.0);
+    const Vec3d p8( +8.0, +8.0, +8.0);
 
-    const Vertex* v1 = p.vertices();
-    const Vertex* v2 = v1->next();
-    const Vertex* v3 = v2->next();
-    const Vertex* v4 = v3->next();
-    ASSERT_EQ(v1, v4->next());
-    
     Vec3d::List points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
     points.push_back(p4);
-    ASSERT_TRUE(hasVertices(v1, points));
-    
-    const Edge* e1 = p.edges();
-    const Edge* e2 = e1->next();
-    const Edge* e3 = e2->next();
-    const Edge* e4 = e3->next();
-    const Edge* e5 = e4->next();
-    const Edge* e6 = e5->next();
-    ASSERT_EQ(e1, e6->next());
-    
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(v2, v3));
-    edgeInfos.push_back(std::make_pair(v3, v4));
-    edgeInfos.push_back(std::make_pair(v4, v2));
-    edgeInfos.push_back(std::make_pair(v1, v3));
-    edgeInfos.push_back(std::make_pair(v1, v2));
-    edgeInfos.push_back(std::make_pair(v4, v1));
-    
-    const Face* f1 = p.faces();
-    const Face* f2 = f1->next();
-    const Face* f3 = f2->next();
-    const Face* f4 = f3->next();
-    ASSERT_EQ(f1, f4->next());
-    
-    ASSERT_TRUE(hasTriangleOf(f1, p2, p3, p4));
-    ASSERT_TRUE(hasTriangleOf(f1, p1, p3, p2));
-    ASSERT_TRUE(hasTriangleOf(f1, p1, p2, p4));
-    ASSERT_TRUE(hasTriangleOf(f1, p1, p4, p3));
-    
-    const Edge* f1e1 = f1->edges();
-    const Edge* f1e2 = f1e1->nextBoundaryEdge();
-    const Edge* f1e3 = f1e2->nextBoundaryEdge();
-    ASSERT_EQ(f1e1, f1e3->nextBoundaryEdge());
-    
-    
-    const Edge* f2e1 = f2->edges();
-    const Edge* f2e2 = f2e1->nextBoundaryEdge();
-    const Edge* f2e3 = f2e2->nextBoundaryEdge();
-    ASSERT_EQ(f2e1, f2e3->nextBoundaryEdge());
-    
-    
-    const Edge* f3e1 = f3->edges();
-    const Edge* f3e2 = f3e1->nextBoundaryEdge();
-    const Edge* f3e3 = f3e2->nextBoundaryEdge();
-    ASSERT_EQ(f3e1, f3e3->nextBoundaryEdge());
-    
-    
-    const Edge* f4e1 = f4->edges();
-    const Edge* f4e2 = f4e1->nextBoundaryEdge();
-    const Edge* f4e3 = f4e2->nextBoundaryEdge();
-    ASSERT_EQ(f4e1, f4e3->nextBoundaryEdge());
-}
-
-TEST(PolyhedronTest, convexHullWithNewPoint) {
-    const Vec3d p1( 0.0, 4.0, 8.0);
-    const Vec3d p2( 8.0, 0.0, 0.0);
-    const Vec3d p3(-8.0, 0.0, 0.0);
-    const Vec3d p4( 0.0, 8.0, 0.0);
-    const Vec3d p5( 0.0, 4.0, 12.0);
-    
-    Polyhedron3d p(p1, p2, p3, p4);
-    p.addPoints(Vec3d::List(1, p5));
-
-    const Vertex* v1 = p.vertices();
-    const Vertex* v2 = v1->next();
-    const Vertex* v3 = v2->next();
-    const Vertex* v4 = v3->next();
-    ASSERT_EQ(v1, v4->next());
-    
-    Vec3d::List points;
-    points.push_back(p2);
-    points.push_back(p3);
-    points.push_back(p4);
     points.push_back(p5);
-    ASSERT_TRUE(hasVertices(v1, points));
+    points.push_back(p6);
+    points.push_back(p7);
+    points.push_back(p8);
     
-    const Edge* e1 = p.edges();
-    const Edge* e2 = e1->next();
-    const Edge* e3 = e2->next();
-    const Edge* e4 = e3->next();
-    const Edge* e5 = e4->next();
-    const Edge* e6 = e5->next();
-    ASSERT_EQ(e1, e6->next());
+    Polyhedron3d p(points);
     
-    EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(v2, v3));
-    edgeInfos.push_back(std::make_pair(v3, v4));
-    edgeInfos.push_back(std::make_pair(v4, v2));
-    edgeInfos.push_back(std::make_pair(v1, v3));
-    edgeInfos.push_back(std::make_pair(v1, v2));
-    edgeInfos.push_back(std::make_pair(v4, v1));
+    ASSERT_TRUE(p.closed());
+    ASSERT_EQ(8u, p.vertexCount());
+    ASSERT_EQ(12u, p.edgeCount());
+    ASSERT_EQ(6u, p.faceCount());
     
-    const Face* f1 = p.faces();
-    const Face* f2 = f1->next();
-    const Face* f3 = f2->next();
-    const Face* f4 = f3->next();
-    ASSERT_EQ(f1, f4->next());
+    const VertexList& vertices = p.vertices();
+    ASSERT_TRUE(hasVertices(vertices, points));
     
-    ASSERT_TRUE(hasTriangleOf(f1, p2, p3, p4));
-    ASSERT_TRUE(hasTriangleOf(f1, p5, p3, p2));
-    ASSERT_TRUE(hasTriangleOf(f1, p5, p2, p4));
-    ASSERT_TRUE(hasTriangleOf(f1, p5, p4, p3));
-    
-    const Edge* f1e1 = f1->edges();
-    const Edge* f1e2 = f1e1->nextBoundaryEdge();
-    const Edge* f1e3 = f1e2->nextBoundaryEdge();
-    ASSERT_EQ(f1e1, f1e3->nextBoundaryEdge());
-    
-    
-    const Edge* f2e1 = f2->edges();
-    const Edge* f2e2 = f2e1->nextBoundaryEdge();
-    const Edge* f2e3 = f2e2->nextBoundaryEdge();
-    ASSERT_EQ(f2e1, f2e3->nextBoundaryEdge());
-    
-    
-    const Edge* f3e1 = f3->edges();
-    const Edge* f3e2 = f3e1->nextBoundaryEdge();
-    const Edge* f3e3 = f3e2->nextBoundaryEdge();
-    ASSERT_EQ(f3e1, f3e3->nextBoundaryEdge());
-    
-    
-    const Edge* f4e1 = f4->edges();
-    const Edge* f4e2 = f4e1->nextBoundaryEdge();
-    const Edge* f4e3 = f4e2->nextBoundaryEdge();
-    ASSERT_EQ(f4e1, f4e3->nextBoundaryEdge());
-}
-
-
-TEST(PolyhedronTest, convexHullWithNewPointAndFaceMerging) {
-    const Vec3d p1( 0.0, 0.0, 8.0);
-    const Vec3d p2( 8.0, 0.0, 0.0);
-    const Vec3d p3(-8.0, 0.0, 0.0);
-    const Vec3d p4( 0.0, 8.0, 0.0);
-    const Vec3d p5( 0.0, 0.0, 12.0);
-    
-    Polyhedron3d p(p1, p2, p3, p4);
-    p.addPoints(Vec3d::List(1, p5));
-    
-    const Vertex* v1 = p.vertices();
-    const Vertex* v2 = v1->next();
-    const Vertex* v3 = v2->next();
-    const Vertex* v4 = v3->next();
-    ASSERT_EQ(v1, v4->next());
-    
-    Vec3d::List points;
-    points.push_back(p2);
-    points.push_back(p3);
-    points.push_back(p4);
-    points.push_back(p5);
-    ASSERT_TRUE(hasVertices(v1, points));
-    
-    const Edge* e1 = p.edges();
-    const Edge* e2 = e1->next();
-    const Edge* e3 = e2->next();
-    const Edge* e4 = e3->next();
-    const Edge* e5 = e4->next();
-    const Edge* e6 = e5->next();
-    ASSERT_EQ(e1, e6->next());
+    const EdgeList& edges = p.edges();
     
     EdgeInfoList edgeInfos;
-    edgeInfos.push_back(std::make_pair(v2, v3));
-    edgeInfos.push_back(std::make_pair(v3, v4));
-    edgeInfos.push_back(std::make_pair(v4, v2));
-    edgeInfos.push_back(std::make_pair(v1, v3));
-    edgeInfos.push_back(std::make_pair(v1, v2));
-    edgeInfos.push_back(std::make_pair(v4, v1));
+    edgeInfos.push_back(std::make_pair(p1, p2));
+    edgeInfos.push_back(std::make_pair(p1, p3));
+    edgeInfos.push_back(std::make_pair(p1, p5));
+    edgeInfos.push_back(std::make_pair(p2, p4));
+    edgeInfos.push_back(std::make_pair(p2, p6));
+    edgeInfos.push_back(std::make_pair(p3, p4));
+    edgeInfos.push_back(std::make_pair(p3, p7));
+    edgeInfos.push_back(std::make_pair(p4, p8));
+    edgeInfos.push_back(std::make_pair(p5, p6));
+    edgeInfos.push_back(std::make_pair(p5, p7));
+    edgeInfos.push_back(std::make_pair(p6, p8));
+    edgeInfos.push_back(std::make_pair(p7, p8));
     
-    const Face* f1 = p.faces();
-    const Face* f2 = f1->next();
-    const Face* f3 = f2->next();
-    const Face* f4 = f3->next();
-    ASSERT_EQ(f1, f4->next());
+    ASSERT_TRUE(hasEdges(edges, edgeInfos));
     
-    ASSERT_TRUE(hasTriangleOf(f1, p2, p3, p4));
-    ASSERT_TRUE(hasTriangleOf(f1, p5, p3, p2));
-    ASSERT_TRUE(hasTriangleOf(f1, p5, p2, p4));
-    ASSERT_TRUE(hasTriangleOf(f1, p5, p4, p3));
+    const FaceList& faces = p.faces();
     
-    const Edge* f1e1 = f1->edges();
-    const Edge* f1e2 = f1e1->nextBoundaryEdge();
-    const Edge* f1e3 = f1e2->nextBoundaryEdge();
-    ASSERT_EQ(f1e1, f1e3->nextBoundaryEdge());
-    
-    
-    const Edge* f2e1 = f2->edges();
-    const Edge* f2e2 = f2e1->nextBoundaryEdge();
-    const Edge* f2e3 = f2e2->nextBoundaryEdge();
-    ASSERT_EQ(f2e1, f2e3->nextBoundaryEdge());
-    
-    
-    const Edge* f3e1 = f3->edges();
-    const Edge* f3e2 = f3e1->nextBoundaryEdge();
-    const Edge* f3e3 = f3e2->nextBoundaryEdge();
-    ASSERT_EQ(f3e1, f3e3->nextBoundaryEdge());
-    
-    
-    const Edge* f4e1 = f4->edges();
-    const Edge* f4e2 = f4e1->nextBoundaryEdge();
-    const Edge* f4e3 = f4e2->nextBoundaryEdge();
-    ASSERT_EQ(f4e1, f4e3->nextBoundaryEdge());
+    ASSERT_TRUE(hasQuadOf(faces, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(faces, p3, p1, p2, p4));
+    ASSERT_TRUE(hasQuadOf(faces, p7, p3, p4, p8));
+    ASSERT_TRUE(hasQuadOf(faces, p5, p7, p8, p6));
+    ASSERT_TRUE(hasQuadOf(faces, p3, p7, p5, p1));
+    ASSERT_TRUE(hasQuadOf(faces, p2, p6, p8, p4));
 }
- 
- */
 
 bool hasVertices(const VertexList& vertices, Vec3d::List points) {
     VertexList::ConstIterator vIt = vertices.iterator();
@@ -483,12 +316,22 @@ EdgeInfoList::iterator findEdgeInfo(EdgeInfoList& edgeInfos, const Edge* edge) {
 }
 
 bool isTriangleOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3);
-
 bool hasTriangleOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3) {
     FaceList::ConstIterator fIt = faces.iterator();
     while (fIt.hasNext()) {
         const Face* face = fIt.next();
         if (isTriangleOf(face, p1, p2, p3))
+            return true;
+    }
+    return false;
+}
+
+bool isQuadOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4);
+bool hasQuadOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4) {
+    FaceList::ConstIterator fIt = faces.iterator();
+    while (fIt.hasNext()) {
+        const Face* face = fIt.next();
+        if (isQuadOf(face, p1, p2, p3, p4))
             return true;
     }
     return false;
@@ -508,6 +351,26 @@ bool isTriangleOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3
             const HalfEdge* e2 = e1->next();
             const HalfEdge* e3 = e2->next();
             return e2->origin()->position() == p2 && e3->origin()->position() == p3;
+        }
+    }
+    return false;
+}
+
+bool isQuadOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4) {
+    typedef Polyhedron3d::HalfEdgeList BoundaryList;
+    
+    const BoundaryList& boundary = face->boundary();
+    if (boundary.size() != 4)
+        return false;
+    
+    BoundaryList::ConstIterator it = boundary.iterator();
+    while (it.hasNext()) {
+        const HalfEdge* e1 = it.next();
+        if (e1->origin()->position() == p1) {
+            const HalfEdge* e2 = e1->next();
+            const HalfEdge* e3 = e2->next();
+            const HalfEdge* e4 = e3->next();
+            return e2->origin()->position() == p2 && e3->origin()->position() == p3 && e4->origin()->position() == p4;
         }
     }
     return false;
