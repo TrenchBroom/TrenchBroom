@@ -5,14 +5,13 @@
     http://www.wxwidgets.org
 
     - For 32bit builds, you need the following files:
-      If you are using a different version of Visual Studio, you will have to download other binaries, e.g., wxMSW-<version>-vc120_Dev.7z etc.
+      If you are using a different version of Visual Studio, you will have to download other binaries, e.g., wxMSW-<version>-vc120_Dev.7z etc. and you will also have to use different directory names instead of vc100_dll below.
       - wxWidgets-<version>_headers.7z
       - wxMSW-<version>_vc100_Dev.7z
       - wxMSW-<version>_vc100_ReleaseDLL.7z
       - wxMSW-<version>_vc100_ReleasePDB.7z
       
     - Unpack all files into c:\wxWidgets-<version> so that "include" and "lib" directories are at the same level after unpacking.
-    - In this directory, rename lib/vc100_dll to lib/vc_dll
     - The directory layout should look like this:
       wxWidgets-3.0.0
         \include
@@ -21,12 +20,12 @@
           \wx
             <wxwidgets header files>
         \lib
-          \vc_dll
+          \vc100_dll
             <wxwidgets libraries>
 
     - Set a new environment variable WXWIN=C:\wxWidgets-<version> (replace the path with the path where you unpacked wxWidgets).
-    - If you want to run the binaries without using the installer, add %WXWIN%\lib\vc_dll to your path. The relevant parts of my PATH variable look something like this:
-    C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.0.0\lib\vc_dll;
+    - If you want to run the binaries without using the installer, add %WXWIN%\lib\vc100_dll to your path. The relevant parts of my PATH variable look something like this:
+    C:\Program Files (x86)\CMake 2.8\bin;c:\wxWidgets-3.0.0\lib\vc100_dll;
   - Download and install CMake for Windows (www.cmake.org)
   - Open a command prompt and change into the directory where you unpacked the TrenchBroom sources.
   - Create a new directory, e.g. "build", and change into it.
