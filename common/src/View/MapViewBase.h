@@ -135,6 +135,9 @@ namespace TrenchBroom {
             void OnMoveRotationCenterDown(wxCommandEvent& event);
             void moveRotationCenter(Math::Direction direction);
             
+            void OnToggleCreateBrushTool(wxCommandEvent& event);
+            void OnPerformCreateBrush(wxCommandEvent& event);
+            
             void OnToggleClipTool(wxCommandEvent& event);
             void OnToggleClipSide(wxCommandEvent& event);
             void OnPerformClip(wxCommandEvent& event);

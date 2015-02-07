@@ -37,6 +37,7 @@
 #include "View/CameraTool3D.h"
 #include "View/ClipToolAdapter.h"
 #include "View/CommandIds.h"
+#include "View/CreateBrushToolAdapter3D.h"
 #include "View/CreateEntityToolAdapter.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
@@ -60,6 +61,7 @@ namespace TrenchBroom {
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_compass(new Renderer::Compass(m_movementRestriction)),
         m_clipToolAdapter(NULL),
+        m_createBrushToolAdapter(NULL),
         m_createEntityToolAdapter(NULL),
         m_moveObjectsToolAdapter(NULL),
         m_resizeBrushesToolAdapter(NULL),
@@ -75,22 +77,12 @@ namespace TrenchBroom {
 
         MapView3D::~MapView3D() {
             unbindObservers();
-            
-            delete m_flyModeHelper;
-            delete m_cameraTool;
-            delete m_vertexToolAdapter;
-            delete m_setBrushFaceAttributesTool;
-            delete m_rotateObjectsToolAdapter;
-            delete m_resizeBrushesToolAdapter;
-            delete m_moveObjectsToolAdapter;
-            delete m_createEntityToolAdapter;
-            delete m_clipToolAdapter;
-            delete m_compass;
         }
         
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
             const Grid& grid = lock(m_document)->grid();
             m_clipToolAdapter = new ClipToolAdapter3D(toolBox.clipTool(), grid);
+            m_createBrushToolAdapter = new CreateBrushToolAdapter3D(toolBox.createBrushTool());
             m_createEntityToolAdapter = new CreateEntityToolAdapter3D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter3D(toolBox.moveObjectsTool(), m_movementRestriction);
             m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter3D(toolBox.resizeBrushesTool());
@@ -100,14 +92,29 @@ namespace TrenchBroom {
             m_cameraTool = new CameraTool3D(m_document, m_camera);
             
             addTool(m_cameraTool);
-            addTool(m_clipToolAdapter);
-            addTool(m_rotateObjectsToolAdapter);
-            addTool(m_vertexToolAdapter);
             addTool(m_moveObjectsToolAdapter);
+            addTool(m_rotateObjectsToolAdapter);
             addTool(m_resizeBrushesToolAdapter);
+            addTool(m_createBrushToolAdapter);
+            addTool(m_clipToolAdapter);
+            addTool(m_vertexToolAdapter);
             addTool(m_createEntityToolAdapter);
             addTool(m_setBrushFaceAttributesTool);
             addTool(toolBox.selectionTool());
+        }
+
+        void MapView3D::destroyToolChain() {
+            delete m_flyModeHelper;
+            delete m_cameraTool;
+            delete m_vertexToolAdapter;
+            delete m_setBrushFaceAttributesTool;
+            delete m_rotateObjectsToolAdapter;
+            delete m_resizeBrushesToolAdapter;
+            delete m_moveObjectsToolAdapter;
+            delete m_createEntityToolAdapter;
+            delete m_createBrushToolAdapter;
+            delete m_clipToolAdapter;
+            delete m_compass;
         }
 
         bool MapView3D::cameraFlyModeActive() const {

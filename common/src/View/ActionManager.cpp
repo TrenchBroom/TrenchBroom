@@ -209,6 +209,10 @@ namespace TrenchBroom {
         }
 
         void ActionManager::createViewShortcuts() {
+            createViewShortcut(KeyboardShortcut('B'), ActionContext_NodeSelection | ActionContext_AnyTool,
+                               Action(View::CommandIds::Actions::ToggleCreateBrushTool, "Toggle create brush tool", true));
+            createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_CreateBrushTool,
+                               Action(View::CommandIds::Actions::PerformCreateBrush, "Create brush", true));
             createViewShortcut(KeyboardShortcut('C'), ActionContext_NodeSelection | ActionContext_AnyTool,
                                Action(View::CommandIds::Actions::ToggleClipTool, "Toggle clip tool", true));
             createViewShortcut(KeyboardShortcut(WXK_RETURN, WXK_CONTROL), ActionContext_ClipTool,

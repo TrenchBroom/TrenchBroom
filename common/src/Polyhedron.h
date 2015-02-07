@@ -30,6 +30,7 @@
 
 // implements a doubly-connected edge list, see de Berg et. al - Computational Geometry (3rd. Ed.), PP. 29
 // see also http://www.holmes3d.net/graphics/dcel/
+// This data structure extends the one described above by keeping circular lists of all vertices, all edges, and all faces.
 template <typename T>
 class Polyhedron {
 public:

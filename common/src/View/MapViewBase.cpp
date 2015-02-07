@@ -185,6 +185,9 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
 
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleCreateBrushTool,        this, CommandIds::Actions::ToggleCreateBrushTool);
+            Bind(wxEVT_MENU, &MapViewBase::OnPerformCreateBrush,           this, CommandIds::Actions::PerformCreateBrush);
+
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipTool,               this, CommandIds::Actions::ToggleClipTool);
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
             Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
@@ -448,6 +451,14 @@ namespace TrenchBroom {
             const Vec3 delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
             m_toolBox.moveRotationCenter(delta);
             Refresh();
+        }
+
+        void MapViewBase::OnToggleCreateBrushTool(wxCommandEvent& event) {
+            m_toolBox.toggleCreateBrushTool();
+        }
+        
+        void MapViewBase::OnPerformCreateBrush(wxCommandEvent& event) {
+            m_toolBox.performCreateBrush();
         }
 
         void MapViewBase::OnToggleClipTool(wxCommandEvent& event) {

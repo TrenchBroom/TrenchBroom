@@ -45,6 +45,7 @@ namespace TrenchBroom {
     namespace View {
         class CameraTool3D;
         class ClipToolAdapter3D;
+        class CreateBrushToolAdapter3D;
         class CreateEntityToolAdapter;
         class FlyModeHelper;
         class GLContextManager;
@@ -61,6 +62,7 @@ namespace TrenchBroom {
             Renderer::Compass* m_compass;
             
             ClipToolAdapter3D* m_clipToolAdapter;
+            CreateBrushToolAdapter3D* m_createBrushToolAdapter;
             CreateEntityToolAdapter* m_createEntityToolAdapter;
             MoveObjectsToolAdapter* m_moveObjectsToolAdapter;
             ResizeBrushesToolAdapter* m_resizeBrushesToolAdapter;
@@ -75,6 +77,7 @@ namespace TrenchBroom {
             ~MapView3D();
         private:
             void initializeToolChain(MapViewToolBox& toolBox);
+            void destroyToolChain();
         public: // camera control
             bool cameraFlyModeActive() const;
             void toggleCameraFlyMode();
