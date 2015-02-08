@@ -203,6 +203,7 @@ namespace TrenchBroom {
             void deselect(const Model::NodeList& nodes);
             void deselect(Model::BrushFace* face);
         protected:
+            void updateLastSelectionBounds();
             void invalidateSelectionBounds();
         private:
             void validateSelectionBounds() const;

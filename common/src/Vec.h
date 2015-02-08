@@ -732,8 +732,17 @@ public:
         return *this;
     }
     
-    const Vec<T,S> rounded() const {
+    Vec<T,S> rounded() const {
         return Vec<T,S>(*this).round();
+    }
+    
+    Vec<T,S>& mix(const Vec<T,S>& vec, const Vec<T,S>& factor) {
+        *this = *this * (Vec<T,S>::One - factor) + vec * factor;
+        return *this;
+    }
+    
+    Vec<T,S> mixed(const Vec<T,S>& vec, const Vec<T,S>& factor) const {
+        return Vec<T,S>(*this).mix(vec, factor);
     }
     
     bool isInteger(const T epsilon = Math::Constants<T>::almostZero()) const {

@@ -106,6 +106,7 @@ namespace TrenchBroom {
         m_lastSaveModificationCount(0),
         m_modificationCount(0),
         m_currentTextureName(Model::BrushFace::NoTextureName),
+        m_lastSelectionBounds(0.0, 32.0),
         m_selectionBoundsValid(true) {
             bindObservers();
         }
@@ -482,8 +483,11 @@ namespace TrenchBroom {
             submit(SelectionCommand::deselect(Model::BrushFaceList(1, face)));
         }
 
-        void MapDocument::invalidateSelectionBounds() {
+        void MapDocument::updateLastSelectionBounds() {
             m_lastSelectionBounds = selectionBounds();
+        }
+
+        void MapDocument::invalidateSelectionBounds() {
             m_selectionBoundsValid = false;
         }
 

@@ -162,8 +162,6 @@ namespace TrenchBroom {
             m_selectionTool = new SelectionTool(document);
             m_vertexTool = new VertexTool(document);
             
-            deactivateWhen(m_createBrushTool, m_moveObjectsTool);
-            deactivateWhen(m_createBrushTool, m_resizeBrushesTool);
             deactivateWhen(m_rotateObjectsTool, m_moveObjectsTool);
             deactivateWhen(m_rotateObjectsTool, m_resizeBrushesTool);
             deactivateWhen(m_vertexTool, m_moveObjectsTool);

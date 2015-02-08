@@ -538,6 +538,7 @@ namespace TrenchBroom {
                 validateRenderState(splitMode);
             
             Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
             if (m_selectedEdgeHandles.empty() && m_selectedFaceHandles.empty() && !splitMode)
                 renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_unselectedVertexHandlePositions));
             
@@ -548,25 +549,28 @@ namespace TrenchBroom {
                 renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_unselectedFaceHandlePositions));
             
             if ((!m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty()) && !splitMode)
-                renderService.renderLines(pref(Preferences::HandleColor), m_edgeVertices);
+                renderService.renderLines(m_edgeVertices);
             
-            renderService.renderSelectedPointHandles(VectorUtils::cast<Vec3f>(m_selectedHandlePositions));
+            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+            renderService.renderPointHandles(VectorUtils::cast<Vec3f>(m_selectedHandlePositions));
         }
 
         void VertexHandleManager::renderHighlight(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Vec3& position) {
             
             Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
             renderService.renderPointHandleHighlight(position);
             
             m_guideRenderer.setPosition(position);
             m_guideRenderer.setColor(pref(Preferences::HandleColor));
             renderBatch.add(&m_guideRenderer);
 
-            const Color& textColor = pref(Preferences::SelectedInfoOverlayTextColor);
-            const Color& backgroundColor = pref(Preferences::SelectedInfoOverlayBackgroundColor);
             const AttrString string(position.asString());
             const Renderer::SimpleTextAnchor anchor(position, Renderer::TextAlignment::Bottom, Vec2f(0.0f, 16.0f));
-            renderService.renderStringOnTop(textColor, backgroundColor, string, anchor);
+            
+            renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
+            renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
+            renderService.renderStringOnTop(string, anchor);
         }
 
         Vec3::List VertexHandleManager::findVertexHandlePositions(const Model::BrushList& brushes, const Vec3& query, const FloatType maxDistance) {

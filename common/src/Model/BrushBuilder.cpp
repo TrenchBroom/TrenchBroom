@@ -43,26 +43,32 @@ namespace TrenchBroom {
         
         Brush* BrushBuilder::createCuboid(const BBox3& bounds, const String& textureName) const {
             BrushFaceList faces(6);
+            // left face
             faces[0] = m_factory->createFace(bounds.min + Vec3::Null,
                                              bounds.min + Vec3::PosY,
                                              bounds.min + Vec3::PosZ,
                                              textureName);
+            // right face
             faces[1] = m_factory->createFace(bounds.max + Vec3::Null,
                                              bounds.max + Vec3::PosZ,
                                              bounds.max + Vec3::PosY,
                                              textureName);
+            // front face
             faces[2] = m_factory->createFace(bounds.min + Vec3::Null,
                                              bounds.min + Vec3::PosZ,
                                              bounds.min + Vec3::PosX,
                                              textureName);
+            // back face
             faces[3] = m_factory->createFace(bounds.max + Vec3::Null,
                                              bounds.max + Vec3::PosX,
                                              bounds.max + Vec3::PosZ,
                                              textureName);
+            // top face
             faces[4] = m_factory->createFace(bounds.max + Vec3::Null,
                                              bounds.max + Vec3::PosY,
                                              bounds.max + Vec3::PosX,
                                              textureName);
+            // bottom face
             faces[5] = m_factory->createFace(bounds.min + Vec3::Null,
                                              bounds.min + Vec3::PosX,
                                              bounds.min + Vec3::PosY,

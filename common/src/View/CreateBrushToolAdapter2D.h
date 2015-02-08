@@ -21,16 +21,21 @@
 #define __TrenchBroom__CreateBrushToolAdapter2D__
 
 #include "View/ToolAdapter.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace View {
         class CreateBrushTool;
+        class Grid;
         
         class CreateBrushToolAdapter2D : public ToolAdapterBase<NoPickingPolicy, NoKeyPolicy, NoMousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
-        protected:
+        private:
             CreateBrushTool* m_tool;
+            MapDocumentWPtr m_document;
+            Vec3 m_initialPoint;
+            BBox3 m_bounds;
         public:
-            CreateBrushToolAdapter2D(CreateBrushTool* tool);
+            CreateBrushToolAdapter2D(CreateBrushTool* tool, MapDocumentWPtr document);
         public:
             virtual ~CreateBrushToolAdapter2D();
         private:
@@ -46,6 +51,8 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
             bool doCancel();
+        private:
+            void snapBounds(const InputState& inputState);
         };
     }
 }

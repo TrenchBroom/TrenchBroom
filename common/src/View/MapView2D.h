@@ -105,6 +105,7 @@ namespace TrenchBroom {
             bool doCancel();
             
             Renderer::RenderContext doCreateRenderContext();
+            void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

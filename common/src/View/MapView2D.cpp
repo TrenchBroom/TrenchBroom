@@ -93,7 +93,7 @@ namespace TrenchBroom {
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
             const Grid& grid = lock(m_document)->grid();
             m_clipToolAdapter = new ClipToolAdapter2D(toolBox.clipTool(), grid);
-            m_createBrushToolAdapter = new CreateBrushToolAdapter2D(toolBox.createBrushTool());
+            m_createBrushToolAdapter = new CreateBrushToolAdapter2D(toolBox.createBrushTool(), m_document);
             m_createEntityToolAdapter = new CreateEntityToolAdapter2D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter2D(toolBox.moveObjectsTool());
             m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter2D(toolBox.resizeBrushesTool());
@@ -262,6 +262,11 @@ namespace TrenchBroom {
         Renderer::RenderContext MapView2D::doCreateRenderContext() {
             return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
         }
+        
+        void MapView2D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            MapDocumentSPtr document = lock(m_document);
+            renderBatch.addOneShot(new Renderer::GridRenderer(m_camera, document->worldBounds()));
+        }
 
         void MapView2D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);
@@ -271,9 +276,7 @@ namespace TrenchBroom {
             renderTools(renderContext, renderBatch);
         }
         
-        void MapView2D::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            renderBatch.addOneShot(new Renderer::GridRenderer(m_camera));
-        }
+        void MapView2D::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
         
         void MapView2D::doLinkCamera(CameraLinkHelper& helper) {
             helper.addCamera(&m_camera);

@@ -92,6 +92,7 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::performSelect(const Model::NodeList& nodes) {
             selectionWillChangeNotifier();
+            updateLastSelectionBounds();
 
             Model::NodeList selected;
             selected.reserve(nodes.size());
@@ -118,7 +119,6 @@ namespace TrenchBroom {
             selection.addPartiallySelectedNodes(partiallySelected);
             
             selectionDidChangeNotifier(selection);
-            
             invalidateSelectionBounds();
         }
         
@@ -178,6 +178,7 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::performDeselect(const Model::NodeList& nodes) {
             selectionWillChangeNotifier();
+            updateLastSelectionBounds();
             
             Model::NodeList deselected;
             deselected.reserve(nodes.size());
@@ -204,7 +205,6 @@ namespace TrenchBroom {
             selection.addPartiallyDeselectedNodes(partiallyDeselected);
             
             selectionDidChangeNotifier(selection);
-
             invalidateSelectionBounds();
         }
         
@@ -247,6 +247,7 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::deselectAllNodes() {
             selectionWillChangeNotifier();
+            updateLastSelectionBounds();
 
             Model::NodeList::const_iterator it, end;
             for (it = m_selectedNodes.begin(), end = m_selectedNodes.end(); it != end; ++it) {
@@ -262,7 +263,6 @@ namespace TrenchBroom {
             m_partiallySelectedNodes.clear();
             
             selectionDidChangeNotifier(selection);
-
             invalidateSelectionBounds();
         }
         
