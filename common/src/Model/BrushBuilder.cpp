@@ -19,6 +19,7 @@
 
 #include "BrushBuilder.h"
 
+#include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ModelFactory.h"
@@ -75,6 +76,32 @@ namespace TrenchBroom {
                                              textureName);
             
             return m_factory->createBrush(m_worldBounds, faces);
+        }
+ 
+        Brush* BrushBuilder::createBrush(const Polyhedron3& polyhedron, const String& textureName) const {
+            assert(polyhedron.closed());
+            
+            BrushFaceList brushFaces;
+            
+            const Polyhedron3::FaceList& faces = polyhedron.faces();
+            Polyhedron3::FaceList::ConstIterator fIt = faces.iterator();
+            while (fIt.hasNext()) {
+                const Polyhedron3::Face* face = fIt.next();
+                const Polyhedron3::HalfEdgeList& boundary = face->boundary();
+                
+                Polyhedron3::HalfEdgeList::ConstIterator bIt = boundary.iterator();
+                const Polyhedron3::HalfEdge* edge1 = bIt.next();
+                const Polyhedron3::HalfEdge* edge2 = bIt.next();
+                const Polyhedron3::HalfEdge* edge3 = bIt.next();
+                
+                const Vec3& p1 = edge1->origin()->position();
+                const Vec3& p2 = edge2->origin()->position();
+                const Vec3& p3 = edge3->origin()->position();
+                
+                brushFaces.push_back(m_factory->createFace(p1, p3, p2, textureName));
+            }
+            
+            return m_factory->createBrush(m_worldBounds, brushFaces);
         }
     }
 }

@@ -47,6 +47,7 @@ namespace TrenchBroom {
         }
         
         void CreateBrushToolAdapter3D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            m_tool->render(renderContext, renderBatch);
         }
 
         bool CreateBrushToolAdapter3D::doCancel() {

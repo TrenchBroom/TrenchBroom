@@ -98,6 +98,17 @@ public:
         return min == right.min && max == right.max;
     }
     
+    bool operator!= (const BBox<T,S>& right) const {
+        return min != right.min || max != right.max;
+    }
+    
+    bool empty() const {
+        for (size_t i = 0; i < S; ++i)
+            if (min[i] >= max[i])
+                return true;
+        return false;
+    }
+    
     const Vec<T,S> center() const {
         return (min + max) / static_cast<T>(2.0);
     }

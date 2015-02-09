@@ -446,6 +446,23 @@ public:
         initialize(p1, p2, p3, p4);
     }
 
+    Polyhedron(const BBox<T,3>& bounds) {
+        const V p1(bounds.min.x(), bounds.min.y(), bounds.min.z());
+        const V p2(bounds.min.x(), bounds.min.y(), bounds.max.z());
+        const V p3(bounds.min.x(), bounds.max.y(), bounds.min.z());
+        const V p4(bounds.min.x(), bounds.max.y(), bounds.max.z());
+        const V p5(bounds.max.x(), bounds.min.y(), bounds.min.z());
+        const V p6(bounds.max.x(), bounds.min.y(), bounds.max.z());
+        const V p7(bounds.max.x(), bounds.max.y(), bounds.min.z());
+        const V p8(bounds.max.x(), bounds.max.y(), bounds.max.z());
+        
+        initialize(p1, p2, p3, p5);
+        addPoint(p4);
+        addPoint(p6);
+        addPoint(p7);
+        addPoint(p8);
+    }
+    
     Polyhedron(typename V::List points) {
         if (chooseInitialPoints(points)) {
             initialize(points[0], points[1], points[2], points[3]);

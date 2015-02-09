@@ -33,7 +33,7 @@ namespace TrenchBroom {
             CreateBrushTool* m_tool;
             MapDocumentWPtr m_document;
             Vec3 m_initialPoint;
-            BBox3 m_bounds;
+            BBox3 m_lastBounds;
         public:
             CreateBrushToolAdapter2D(CreateBrushTool* tool, MapDocumentWPtr document);
         public:
@@ -52,7 +52,8 @@ namespace TrenchBroom {
             
             bool doCancel();
         private:
-            void snapBounds(const InputState& inputState);
+            void updateBounds(const InputState& inputState, const Vec3& currentPoint);
+            void snapBounds(const InputState& inputState, BBox3& bounds);
         };
     }
 }

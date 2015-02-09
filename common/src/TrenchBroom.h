@@ -36,6 +36,9 @@ typedef Line<FloatType, 3> Line3;
 typedef Ray<FloatType, 3> Ray3;
 typedef CoordinatePlane<FloatType, 3> CoordinatePlane3;
 
+template<typename T> class Polyhedron;
+typedef Polyhedron<FloatType> Polyhedron3;
+
 namespace TrenchBroom {
     typedef Edge<FloatType, 3> Edge3;
     typedef Polygon<FloatType, 3> Polygon3;

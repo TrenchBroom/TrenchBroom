@@ -20,18 +20,30 @@
 #ifndef __TrenchBroom__CreateBrushTool__
 #define __TrenchBroom__CreateBrushTool__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
+    namespace Renderer {
+        class RenderBatch;
+        class RenderContext;
+    }
+    
     namespace View {
         class CreateBrushTool : public Tool {
         private:
             MapDocumentWPtr m_document;
+            Polyhedron3* m_polyhedron;
         public:
             CreateBrushTool(MapDocumentWPtr document);
+            ~CreateBrushTool();
             
+            void update(const BBox3& bounds);
             void performCreateBrush();
+            
+            void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
     }
 }

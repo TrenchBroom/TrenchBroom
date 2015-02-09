@@ -19,14 +19,7 @@
 
 #include "CreateBrushToolAdapter2D.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
-#include "Model/Brush.h"
-#include "Model/BrushBuilder.h"
-#include "Model/Layer.h"
-#include "Model/World.h"
 #include "Renderer/Camera.h"
-#include "Renderer/RenderService.h"
 #include "View/CreateBrushTool.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
@@ -62,30 +55,18 @@ namespace TrenchBroom {
             initialPoint = pickRay.pointAtDistance(plane.intersectWithRay(pickRay));
 
             m_initialPoint = initialPoint;
-            m_bounds.min = m_bounds.max = m_initialPoint;
-            snapBounds(inputState);
+            updateBounds(inputState, m_initialPoint);
             
             return true;
         }
         
         bool CreateBrushToolAdapter2D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-            
-            m_bounds.min = m_bounds.max = m_initialPoint;
-            m_bounds.mergeWith(curPoint);
-            snapBounds(inputState);
-            
+            updateBounds(inputState, curPoint);
             return true;
         }
         
         void CreateBrushToolAdapter2D::doEndPlaneDrag(const InputState& inputState) {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::BrushBuilder builder(document->world(), document->worldBounds());
-            Model::Brush* brush = builder.createCuboid(m_bounds, document->currentTextureName());
-            
-            const Transaction transaction(document, "Create brush");
-            document->deselectAll();
-            document->addNode(brush, document->currentLayer());
-            document->select(brush);
+            m_tool->performCreateBrush();
         }
         
         void CreateBrushToolAdapter2D::doCancelPlaneDrag() {}
@@ -95,27 +76,33 @@ namespace TrenchBroom {
         void CreateBrushToolAdapter2D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         
         void CreateBrushToolAdapter2D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (dragging()) {
-                Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(pref(Preferences::HandleColor));
-                renderService.setLineWidth(2.0f);
-                renderService.renderBounds(BBox3f(m_bounds));
-            }
+            m_tool->render(renderContext, renderBatch);
         }
 
         bool CreateBrushToolAdapter2D::doCancel() {
             return false;
         }
 
-        void CreateBrushToolAdapter2D::snapBounds(const InputState& inputState) {
+        void CreateBrushToolAdapter2D::updateBounds(const InputState& inputState, const Vec3& currentPoint) {
+            BBox3 bounds(m_initialPoint, m_initialPoint);
+            bounds.mergeWith(currentPoint);
+            snapBounds(inputState, bounds);
+            
+            if (!bounds.empty() && bounds != m_lastBounds) {
+                m_tool->update(bounds);
+                m_lastBounds = bounds;
+            }
+        }
+
+        void CreateBrushToolAdapter2D::snapBounds(const InputState& inputState, BBox3& bounds) {
             MapDocumentSPtr document = lock(m_document);
             const Grid& grid = document->grid();
-            m_bounds.min = grid.snapDown(m_bounds.min);
-            m_bounds.max = grid.snapUp(m_bounds.max);
+            bounds.min = grid.snapDown(bounds.min);
+            bounds.max = grid.snapUp(bounds.max);
             
             const Renderer::Camera& camera = inputState.camera();
             const BBox3& refBounds = document->referenceBounds();
-            m_bounds = m_bounds.mixed(refBounds, camera.direction().firstAxis().absolute());
+            bounds.mix(refBounds, camera.direction().firstAxis().absolute());
         }
     }
 }
