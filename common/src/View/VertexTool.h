@@ -67,8 +67,8 @@ namespace TrenchBroom {
             
             bool deselectAll();
             bool mergeVertices(const Model::Hit& hit);
-            bool select(const Model::Hit::List& hits, bool addToSelection);
             bool handleDoubleClicked(const Model::Hit& hit);
+            bool select(const Model::Hit::List& hits, bool addToSelection);
 
             bool beginMove(const Model::Hit& hit);
             Vec3 snapMoveDelta(const Vec3& delta, const Model::Hit& hit, bool relative);

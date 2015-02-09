@@ -87,6 +87,8 @@ namespace TrenchBroom {
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
         private:
+            bool isWithinClickDistance(const wxPoint& pos) const;
+            
             void captureMouse();
             void releaseMouse();
             void cancelDrag();

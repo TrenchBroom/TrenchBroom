@@ -650,6 +650,7 @@ namespace TrenchBroom {
             m_unselectedEdgeHandlePositions.clear();
             m_unselectedFaceHandlePositions.clear();
             m_selectedHandlePositions.clear();
+            m_edgeVertices.clear();
             
             m_unselectedVertexHandlePositions.reserve(m_unselectedVertexHandles.size());
             m_unselectedEdgeHandlePositions.reserve(m_unselectedEdgeHandles.size());
