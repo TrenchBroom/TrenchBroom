@@ -938,7 +938,7 @@ T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
 template <typename T>
 bool commonPlane(const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& p4, const T epsilon = Math::Constants<T>::almostZero()) {
     assert(!p1.colinear(p2, p3, epsilon));
-    const Vec<T,3> normal = crossed(p3 - p1, p2 - p1);
+    const Vec<T,3> normal = crossed(p3 - p1, p2 - p1).normalized();
     const T offset = p1.dot(normal);
     const T dist = p4.dot(normal) - offset;
     return Math::abs(dist) < epsilon;
@@ -987,6 +987,165 @@ template <typename T>
 bool linearlyDependent(const Vec<T,3>& point0, const Vec<T,3>& point1, const Vec<T,3>& point2) {
     const Vec<T,3> normal = crossed(point0, point1, point2);
     return normal.null();
+}
+
+/*
+ Returns > 0 if p3.xy() is to the left of the line through p1.xy() and p2.xy(),
+         < 0 if it is to the right of that line, or
+         = 0 if it is on the line.
+ */
+template <typename T, size_t S>
+int isLeft(const Vec<T,S>& p1, const Vec<T,S>& p2, const Vec<T,S>& p3) {
+    assert(S >= 2);
+    const T result = ( (p2.x() - p1.x()) * (p3.y() - p1.y())
+                      -(p3.x() - p1.x()) * (p2.y() - p1.y()));
+    if (result < 0.0)
+        return -1;
+    if (result > 0.0)
+        return 1;
+    return 0;
+}
+
+
+template <typename T>
+class ConvexHull2D {
+private:
+    class LessThanByAngle {
+    private:
+        const Vec<T,3>& m_anchor;
+    public:
+        LessThanByAngle(const Vec<T,3>& anchor) : m_anchor(anchor) {}
+    public:
+        bool operator()(const Vec<T,3>& lhs, const Vec<T,3>& rhs) const {
+            return isLeft(m_anchor, lhs, rhs) > 0;
+        }
+    };
+    
+    class EqualsByAngle {
+    private:
+        const Vec<T,3>& m_anchor;
+    public:
+        EqualsByAngle(const Vec<T,3>& anchor) : m_anchor(anchor) {}
+    public:
+        bool operator()(const Vec<T,3>& lhs, const Vec<T,3>& rhs) const {
+            return isLeft(m_anchor, lhs, rhs) == 0;
+        }
+    };
+
+    typename Vec<T,3>::List m_points;
+    bool m_hasResult;
+public:
+    ConvexHull2D(const typename Vec<T,3>::List& points) :
+    m_points(points),
+    m_hasResult(m_points.size() > 2) {
+        if (m_hasResult) {
+            const size_t thirdPointIndex = findLinearlyIndependentPoint();
+            m_hasResult = (thirdPointIndex < m_points.size());
+            
+            if (m_hasResult) {
+                const Math::Axis::Type axis = computeAxis(thirdPointIndex);
+                swizzleTo(axis);
+                
+                findAnchor();
+                sortPoints();
+                buildHull();
+                
+                swizzleFrom(axis);
+            }
+        }
+    }
+    
+    bool hasResult() const {
+        return m_hasResult;
+    }
+    
+    const typename Vec<T,3>::List& result() const {
+        assert(m_hasResult);
+        return m_points;
+    }
+private:
+    size_t findLinearlyIndependentPoint() const {
+        size_t index = 2;
+        while (index < m_points.size() && linearlyDependent(m_points[0], m_points[1], m_points[index]))
+            ++index;
+        return index;
+    }
+    
+    Math::Axis::Type computeAxis(const size_t thirdPointIndex) const {
+        const Vec<T,3> ortho = crossed(m_points[thirdPointIndex] - m_points[0], m_points[1] - m_points[0]);
+        return ortho.firstComponent();
+    }
+    
+    void swizzleTo(const Math::Axis::Type axis) {
+        for (size_t i = 0; i < m_points.size(); ++i)
+            swizzle(m_points[i], axis);
+    }
+    
+    void swizzleFrom(const Math::Axis::Type axis) {
+        swizzleTo(axis);
+        swizzleTo(axis);
+    }
+    
+    void findAnchor() {
+        size_t anchor = 0;
+        for (size_t i = 1; i < m_points.size(); ++i) {
+            if ((m_points[i].y() < m_points[anchor].y()) ||
+                (m_points[i].y() == m_points[anchor].y() &&
+                 m_points[i].x() >  m_points[anchor].x()))
+                anchor = i;
+        }
+        
+        if (anchor > 0) {
+            using std::swap;
+            swap(m_points[0], m_points[anchor]);
+        }
+    }
+    
+    void sortPoints() {
+        const Vec<T,3>& anchor = m_points[0];
+        std::sort(m_points.begin() + 1, m_points.end(), LessThanByAngle(anchor));
+        
+        typename Vec<T,3>::List::iterator it = std::unique(m_points.begin() + 1, m_points.end(), EqualsByAngle(anchor));
+        m_points.erase(it, m_points.end());
+    }
+    
+    void buildHull() {
+        typename Vec<T,3>::List stack;
+        stack.reserve(m_points.size());
+        stack.push_back(m_points[0]);
+        stack.push_back(m_points[1]);
+        
+        for (size_t i = 2; i < m_points.size(); ++i) {
+            const Vec<T,3>& p = m_points[i];
+            popStalePoints(stack, p);
+            stack.push_back(p);
+        }
+        
+        using std::swap;
+        swap(m_points, stack);
+        assert(m_points.size() > 2);
+    }
+    
+    void popStalePoints(typename Vec<T,3>::List& stack, const Vec<T,3>& p) {
+        if (stack.size() > 1) {
+            const Vec<T,3>& t1 = stack[stack.size() - 2];
+            const Vec<T,3>& t2 = stack[stack.size() - 1];
+            const int side = isLeft(t1, t2, p);
+            if (side <= 0) {
+                stack.pop_back();
+                popStalePoints(stack, p);
+            }
+        }
+    }
+};
+
+// see http://geomalgorithms.com/a10-_hull-1.html
+template <typename T>
+typename Vec<T,3>::List convexHull2D(const typename Vec<T,3>::List& points) {
+    const ConvexHull2D<T> hull(points);
+    if (!hull.hasResult())
+        return Vec<T,3>::EmptyList;
+    return hull.result();
 }
 
 #endif
