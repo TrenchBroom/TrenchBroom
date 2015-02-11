@@ -1017,18 +1017,16 @@ private:
         LessThanByAngle(const Vec<T,3>& anchor) : m_anchor(anchor) {}
     public:
         bool operator()(const Vec<T,3>& lhs, const Vec<T,3>& rhs) const {
-            return isLeft(m_anchor, lhs, rhs) > 0;
-        }
-    };
-    
-    class EqualsByAngle {
-    private:
-        const Vec<T,3>& m_anchor;
-    public:
-        EqualsByAngle(const Vec<T,3>& anchor) : m_anchor(anchor) {}
-    public:
-        bool operator()(const Vec<T,3>& lhs, const Vec<T,3>& rhs) const {
-            return isLeft(m_anchor, lhs, rhs) == 0;
+            const int side = isLeft(m_anchor, lhs, rhs);
+            if (side > 0)
+                return true;
+            if (side < 0)
+                return false;
+            
+            // the points are colinear, the one that is further from the anchor is considered less
+            const T dxl = Math::abs(lhs.x() - m_anchor.x());
+            const T dxr = Math::abs(rhs.x() - m_anchor.x());
+            return dxl > dxr;
         }
     };
 
@@ -1105,8 +1103,18 @@ private:
         const Vec<T,3>& anchor = m_points[0];
         std::sort(m_points.begin() + 1, m_points.end(), LessThanByAngle(anchor));
         
-        typename Vec<T,3>::List::iterator it = std::unique(m_points.begin() + 1, m_points.end(), EqualsByAngle(anchor));
-        m_points.erase(it, m_points.end());
+        // now remove the duplicates
+        typename Vec<T,3>::List::iterator i = m_points.begin() + 1;
+        while (i != m_points.end()) {
+            const Vec<T,3>& p1 = *(i++);
+            while (i != m_points.end()) {
+                const Vec<T,3>& p2 = *i;
+                if (isLeft(anchor, p1, p2) == 0)
+                    i = m_points.erase(i);
+                else
+                    break;
+            };
+        }
     }
     
     void buildHull() {
