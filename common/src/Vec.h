@@ -809,6 +809,12 @@ public:
             sum += vecs[i];
         return sum / static_cast<T>(vecs.size());
     }
+
+    bool containedWithinSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
+        const Vec<T,S> dir = end - start;
+        const T d = (*this - start).dot(dir);
+        return Math::between(d, static_cast<T>(0.0), static_cast<T>(1.0));
+    }
 };
 
 template <typename T, size_t S>
@@ -1046,7 +1052,9 @@ public:
                 
                 findAnchor();
                 sortPoints();
-                buildHull();
+                m_hasResult = (m_points.size() > 2);
+                if (m_hasResult)
+                    buildHull();
                 
                 swizzleFrom(axis);
             }
@@ -1076,7 +1084,7 @@ private:
     
     void swizzleTo(const Math::Axis::Type axis) {
         for (size_t i = 0; i < m_points.size(); ++i)
-            swizzle(m_points[i], axis);
+            m_points[i] = swizzle(m_points[i], axis);
     }
     
     void swizzleFrom(const Math::Axis::Type axis) {
@@ -1139,7 +1147,7 @@ private:
             const Vec<T,3>& t1 = stack[stack.size() - 2];
             const Vec<T,3>& t2 = stack[stack.size() - 1];
             const int side = isLeft(t1, t2, p);
-            if (side <= 0) {
+            if (side < 0) {
                 stack.pop_back();
                 popStalePoints(stack, p);
             }

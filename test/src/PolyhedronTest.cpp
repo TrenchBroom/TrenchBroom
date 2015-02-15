@@ -82,7 +82,7 @@ TEST(PolyhedronTest, initWith4Points) {
     ASSERT_TRUE(hasTriangleOf(faces, p1, p2, p4));
     ASSERT_TRUE(hasTriangleOf(faces, p1, p4, p3));
 }
-
+/*
 TEST(PolyhedronTest, testImpossibleSplit) {
     const Vec3d p1( 0.0, 4.0, 8.0);
     const Vec3d p2( 8.0, 0.0, 0.0);
@@ -130,7 +130,7 @@ TEST(PolyhedronTest, testWeaveSimpleCap) {
     ASSERT_EQ(6u, p.edgeCount());
     ASSERT_EQ(4u, p.faceCount());
 }
-
+*/
 TEST(PolyhedronTest, testSimpleConvexHull) {
     const Vec3d p1( 0.0, 4.0, 8.0);
     const Vec3d p2( 8.0, 0.0, 0.0);
@@ -273,6 +273,204 @@ TEST(PolyhedronTest, testSimpleConvexHullOfCube) {
     ASSERT_TRUE(hasQuadOf(faces, p5, p7, p8, p6));
     ASSERT_TRUE(hasQuadOf(faces, p3, p7, p5, p1));
     ASSERT_TRUE(hasQuadOf(faces, p2, p6, p8, p4));
+}
+
+TEST(PolyhedronTest, initEmpty) {
+    Polyhedron3d p;
+    ASSERT_TRUE(p.empty());
+}
+
+TEST(PolyhedronTest, initEmptyAndAddOnePoint) {
+    const Vec3d p1( -8.0, -8.0, -8.0);
+
+    Polyhedron3d p;
+    p.addPoint(p1);
+    
+    ASSERT_FALSE(p.empty());
+    ASSERT_TRUE(p.point());
+    ASSERT_FALSE(p.edge());
+    ASSERT_FALSE(p.polygon());
+    ASSERT_FALSE(p.polyhedron());
+
+    Vec3d::List points;
+    points.push_back(p1);
+    
+    const VertexList& vertices = p.vertices();
+    ASSERT_TRUE(hasVertices(vertices, points));
+}
+
+
+TEST(PolyhedronTest, initEmptyAndAddTwoIdenticalPoints) {
+    const Vec3d p1( -8.0, -8.0, -8.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p1);
+    
+    ASSERT_FALSE(p.empty());
+    ASSERT_TRUE(p.point());
+    ASSERT_FALSE(p.edge());
+    ASSERT_FALSE(p.polygon());
+    ASSERT_FALSE(p.polyhedron());
+    
+    Vec3d::List points;
+    points.push_back(p1);
+    
+    const VertexList& vertices = p.vertices();
+    ASSERT_TRUE(hasVertices(vertices, points));
+}
+
+TEST(PolyhedronTest, initEmptyAndAddTwoPoints) {
+    const Vec3d p1(0.0, 0.0, 0.0);
+    const Vec3d p2(3.0, 0.0, 0.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    
+    ASSERT_FALSE(p.empty());
+    ASSERT_FALSE(p.point());
+    ASSERT_TRUE(p.edge());
+    ASSERT_FALSE(p.polygon());
+    ASSERT_FALSE(p.polyhedron());
+    
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p2);
+    
+    const VertexList& vertices = p.vertices();
+    ASSERT_TRUE(hasVertices(vertices, points));
+}
+
+TEST(PolyhedronTest, initEmptyAndAddThreeColinearPoints) {
+    const Vec3d p1(0.0, 0.0, 0.0);
+    const Vec3d p2(3.0, 0.0, 0.0);
+    const Vec3d p3(6.0, 0.0, 0.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    
+    ASSERT_FALSE(p.empty());
+    ASSERT_FALSE(p.point());
+    ASSERT_TRUE(p.edge());
+    ASSERT_FALSE(p.polygon());
+    ASSERT_FALSE(p.polyhedron());
+    
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p3);
+    
+    const VertexList& vertices = p.vertices();
+    ASSERT_TRUE(hasVertices(vertices, points));
+}
+
+TEST(PolyhedronTest, initEmptyAndAddThreePoints) {
+    const Vec3d p1(0.0, 0.0, 0.0);
+    const Vec3d p2(3.0, 0.0, 0.0);
+    const Vec3d p3(6.0, 5.0, 0.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    
+    ASSERT_FALSE(p.empty());
+    ASSERT_FALSE(p.point());
+    ASSERT_FALSE(p.edge());
+    ASSERT_TRUE(p.polygon());
+    ASSERT_FALSE(p.polyhedron());
+    
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    
+    const VertexList& vertices = p.vertices();
+    ASSERT_TRUE(hasVertices(vertices, points));
+}
+
+TEST(PolyhedronTest, initEmptyAndAddThreePointsAndOneInnerPoint) {
+    const Vec3d p1(0.0, 0.0, 0.0);
+    const Vec3d p2(6.0, 0.0, 0.0);
+    const Vec3d p3(3.0, 6.0, 0.0);
+    const Vec3d p4(3.0, 3.0, 0.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    
+    ASSERT_FALSE(p.empty());
+    ASSERT_FALSE(p.point());
+    ASSERT_FALSE(p.edge());
+    ASSERT_TRUE(p.polygon());
+    ASSERT_FALSE(p.polyhedron());
+    
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    
+    const VertexList& vertices = p.vertices();
+    ASSERT_TRUE(hasVertices(vertices, points));
+}
+
+TEST(PolyhedronTest, initEmptyAndAddFourCoplanarPoints) {
+    const Vec3d p1(0.0, 0.0, 0.0);
+    const Vec3d p2(6.0, 0.0, 0.0);
+    const Vec3d p3(3.0, 3.0, 0.0);
+    const Vec3d p4(3.0, 6.0, 0.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    
+    ASSERT_FALSE(p.empty());
+    ASSERT_FALSE(p.point());
+    ASSERT_FALSE(p.edge());
+    ASSERT_TRUE(p.polygon());
+    ASSERT_FALSE(p.polyhedron());
+    
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p4);
+    
+    const VertexList& vertices = p.vertices();
+    ASSERT_TRUE(hasVertices(vertices, points));
+}
+
+TEST(PolyhedronTest, initEmptyAndAddFourPoints) {
+    const Vec3d p1(0.0, 0.0, 0.0);
+    const Vec3d p2(6.0, 0.0, 0.0);
+    const Vec3d p3(3.0, 6.0, 0.0);
+    const Vec3d p4(3.0, 3.0, 6.0);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    
+    ASSERT_FALSE(p.empty());
+    ASSERT_FALSE(p.point());
+    ASSERT_FALSE(p.edge());
+    ASSERT_FALSE(p.polygon());
+    ASSERT_TRUE(p.polyhedron());
+    
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
+    
+    const VertexList& vertices = p.vertices();
+    ASSERT_TRUE(hasVertices(vertices, points));
 }
 
 bool hasVertices(const VertexList& vertices, Vec3d::List points) {

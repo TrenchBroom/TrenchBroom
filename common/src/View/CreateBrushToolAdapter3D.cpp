@@ -19,14 +19,23 @@
 
 #include "CreateBrushToolAdapter3D.h"
 
+#include "Model/Brush.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushVertex.h"
+#include "Model/HitAdapter.h"
+#include "Model/HitQuery.h"
+#include "Model/PickResult.h"
 #include "View/CreateBrushTool.h"
+#include "View/Grid.h"
+#include "View/InputState.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace View {
-        CreateBrushToolAdapter3D::CreateBrushToolAdapter3D(CreateBrushTool* tool) :
-        m_tool(tool) {
+        CreateBrushToolAdapter3D::CreateBrushToolAdapter3D(CreateBrushTool* tool, const Grid& grid) :
+        m_tool(tool),
+        m_grid(grid) {
             assert(tool != NULL);
         }
 
@@ -40,7 +49,25 @@ namespace TrenchBroom {
         }
         
         bool CreateBrushToolAdapter3D::doMouseClick(const InputState& inputState) {
-            return false;
+            const Model::PickResult& pickResult = inputState.pickResult();
+            const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            if (!hit.isMatch())
+                return false;
+            
+            if (inputState.modifierKeysPressed(ModifierKeys::MKShift)) {
+                const Model::BrushFace* face = Model::hitToFace(hit);
+                const Model::BrushVertexList& vertices = face->vertices();
+                for (size_t i = 0; i < vertices.size(); ++i) {
+                    const Model::BrushVertex* vertex = vertices[i];
+                    m_tool->addPoint(vertex->position);
+                }
+            } else {
+                const Model::BrushFace* face = Model::hitToFace(hit);
+                const Vec3 snapped = m_grid.snap(hit.hitPoint(), face->boundary());
+                m_tool->addPoint(snapped);
+            }
+            
+            return true;
         }
         
         void CreateBrushToolAdapter3D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
@@ -51,7 +78,7 @@ namespace TrenchBroom {
         }
 
         bool CreateBrushToolAdapter3D::doCancel() {
-            return false;
+            return m_tool->clear();
         }
     }
 }

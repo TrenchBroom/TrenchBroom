@@ -349,6 +349,9 @@ namespace TrenchBroom {
             
             createViewShortcut(KeyboardShortcut(WXK_TAB), ActionContext_Any,
                                Action(View::CommandIds::Actions::CycleMapViews, "Cycle map view", true));
+
+            createViewShortcut(KeyboardShortcut(WXK_ESCAPE), ActionContext_Any,
+                               Action(View::CommandIds::Actions::Cancel, "Cancel", true));
         }
 
         void ActionManager::createViewShortcut(const KeyboardShortcut& shortcut, const int context, const Action& action2D, const Action& action3D) {

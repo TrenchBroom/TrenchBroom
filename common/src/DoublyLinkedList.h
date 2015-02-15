@@ -63,6 +63,11 @@ public:
         void unlink(Item* item) {
             m_previous = m_next = item;
         }
+        
+        void flip() {
+            using std::swap;
+            swap(m_previous, m_next);
+        }
     };
 public:
     template <typename ListType, typename ItemType, typename LinkType>
@@ -171,7 +176,7 @@ public:
         return false;
     }
     
-    void append(Item* item) {
+    void append(Item* item, const size_t count) {
         assert(item != NULL);
         
         if (m_head == NULL) {
@@ -179,57 +184,84 @@ public:
             ++m_size;
             ++m_version;
         } else {
-            insertAfter(getTail(), item);
+            insertAfter(getTail(), item, count);
         }
     }
     
-    void insertAfter(Item* pred, Item* item) {
+    void insertAfter(Item* pred, Item* items, const size_t count) {
         assert(pred != NULL);
-        assert(item != NULL);
+        assert(items != NULL);
         assert(m_head != NULL);
         assert(contains(pred));
-        assert(!contains(item));
-        
-        Link& itemLink = getLink(item);
-        assert(itemLink.selfLoop(item));
 
+        Item* first = items;
+        Link& firstLink = getLink(first);
+        Item* last = firstLink.previous();
+        Link& lastLink = getLink(last);
+        
         Link& predLink = getLink(pred);
         Item* succ = predLink.next();
         Link& succLink = getLink(succ);
         
-        predLink.setNext(item);
-        itemLink.setPrevious(pred);
-        itemLink.setNext(succ);
-        succLink.setPrevious(item);
+        predLink.setNext(first);
+        firstLink.setPrevious(pred);
+        lastLink.setNext(succ);
+        succLink.setPrevious(last);
         
-        ++m_size;
+        m_size += count;
         ++m_version;
     }
     
-    void replace(Item* item, Item* replacement) {
-        insertAfter(item, replacement);
-        remove(item);
+    void replace(Item* from, Item* to, const size_t removeCount, Item* with, const size_t insertCount) {
+        insertAfter(to, with, insertCount);
+        remove(from, to, removeCount);
     }
     
     void remove(Item* item) {
         assert(!empty());
         assert(contains(item));
+        remove(item, item, 1);
+    }
+    
+    void remove(Item* from, Item* to, const size_t count) {
+        assert(!empty());
         
-        Link& itemLink = getLink(item);
-        Item* pred = itemLink.previous();
+        Link& fromLink = getLink(from);
+        Link& toLink = getLink(to);
+        
+        Item* pred = fromLink.previous();
         Link& predLink = getLink(pred);
-        Item* succ = itemLink.next();
+        
+        Item* succ = toLink.next();
         Link& succLink = getLink(succ);
         
         predLink.setNext(succ);
         succLink.setPrevious(pred);
-        itemLink.unlink(item);
-
-        if (m_head == item)
+        
+        fromLink.setPrevious(to);
+        toLink.setNext(from);
+        
+        if (succ == from)
+            m_head = NULL;
+        else
             m_head = succ;
         
-        --m_size;
+        m_size -= count;
         ++m_version;
+    }
+    
+    void reverse() {
+        if (!empty()) {
+            Item* cur = m_head;
+            do {
+                Link& link = getLink(cur);
+                Item* next = link.next();
+                
+                link.flip();
+                cur = next;
+            } while (cur != m_head);
+            ++m_version;
+        }
     }
     
     void deleteAll() {
@@ -241,6 +273,8 @@ public:
                 item = nextItem;
             }
             m_head = NULL;
+            m_size = 0;
+            ++m_version;
         }
     }
 private:

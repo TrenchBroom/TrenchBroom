@@ -40,13 +40,29 @@ namespace TrenchBroom {
         }
         
         void CreateBrushTool::update(const BBox3& bounds) {
-            delete m_polyhedron;
+            clear();
             m_polyhedron = new Polyhedron3(bounds);
             refreshViews();
         }
 
-        void CreateBrushTool::performCreateBrush() {
+        void CreateBrushTool::addPoint(const Vec3& point) {
+            if (m_polyhedron == NULL)
+                m_polyhedron = new Polyhedron3();
+            m_polyhedron->addPoint(point);
+            refreshViews();
+        }
+
+        bool CreateBrushTool::clear() {
             if (m_polyhedron != NULL) {
+                delete m_polyhedron;
+                m_polyhedron = NULL;
+                return true;
+            }
+            return false;
+        }
+
+        void CreateBrushTool::performCreateBrush() {
+            if (m_polyhedron != NULL && m_polyhedron->closed()) {
                 MapDocumentSPtr document = lock(m_document);
                 const Model::BrushBuilder builder(document->world(), document->worldBounds());
                 Model::Brush* brush = builder.createBrush(*m_polyhedron, document->currentTextureName());
@@ -62,18 +78,30 @@ namespace TrenchBroom {
         }
 
         void CreateBrushTool::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (m_polyhedron != NULL) {
+            if (m_polyhedron != NULL && !m_polyhedron->empty()) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::HandleColor));
                 renderService.setLineWidth(2.0f);
                 
                 const Polyhedron3::EdgeList& edges = m_polyhedron->edges();
-                Polyhedron3::EdgeList::ConstIterator it = edges.iterator();
-                while (it.hasNext()) {
-                    const Polyhedron3::Edge* edge = it.next();
+                Polyhedron3::EdgeList::ConstIterator eIt = edges.iterator();
+                while (eIt.hasNext()) {
+                    const Polyhedron3::Edge* edge = eIt.next();
                     renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
                 }
+                
+                const Polyhedron3::VertexList& vertices = m_polyhedron->vertices();
+                Polyhedron3::VertexList::ConstIterator vIt = vertices.iterator();
+                while (vIt.hasNext()) {
+                    const Polyhedron3::Vertex* vertex = vIt.next();
+                    renderService.renderPointHandle(vertex->position());
+                }
             }
+        }
+
+        bool CreateBrushTool::doActivate() {
+            clear();
+            return true;
         }
     }
 }

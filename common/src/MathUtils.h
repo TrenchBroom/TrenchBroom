@@ -262,6 +262,15 @@ namespace Math {
         return gt(v, e, epsilon) && lt(v, s, epsilon);
     }
    
+    template <typename T>
+    bool within(const T v, const T s, const T e, const T epsilon = Constants<T>::almostZero()) {
+        if (eq(v, s, epsilon) || eq(v, e, epsilon))
+            return true;
+        if (lte(s, e, epsilon))
+            return gte(v, s, epsilon) && lte(v, e, epsilon);
+        return gte(v, e, epsilon) && lte(v, s, epsilon);
+    }
+    
     size_t succ(size_t index, size_t count, size_t offset = 1);
 
     size_t pred(size_t index, size_t count, size_t offset = 1);

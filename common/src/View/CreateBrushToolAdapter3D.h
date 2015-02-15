@@ -25,12 +25,14 @@
 namespace TrenchBroom {
     namespace View {
         class CreateBrushTool;
+        class Grid;
 
         class CreateBrushToolAdapter3D : public ToolAdapterBase<NoPickingPolicy, KeyPolicy, MousePolicy, NoMouseDragPolicy, RenderPolicy, NoDropPolicy> {
-        protected:
+        private:
             CreateBrushTool* m_tool;
+            const Grid& m_grid;
         public:
-            CreateBrushToolAdapter3D(CreateBrushTool* tool);
+            CreateBrushToolAdapter3D(CreateBrushTool* tool, const Grid& grid);
         public:
             virtual ~CreateBrushToolAdapter3D();
         private:

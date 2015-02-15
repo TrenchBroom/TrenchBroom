@@ -159,7 +159,7 @@ namespace TrenchBroom {
                             const FloatType dot = end.dot(boundary.normal) - boundary.distance;
                             
                             if (Math::neg(dot)) {
-                                // Vertex will move the boundary: Chop off one triangle.
+                                // Vertex will move into the boundary: Chop off one triangle.
                                 const size_t vertexIndex = VectorUtils::indexOf(side->vertices, vertex);
                                 chopFace(geometry, side, vertexIndex);
                             } else {

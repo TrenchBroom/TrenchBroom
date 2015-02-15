@@ -41,9 +41,14 @@ namespace TrenchBroom {
             ~CreateBrushTool();
             
             void update(const BBox3& bounds);
+            void addPoint(const Vec3& point);
+            bool clear();
+            
             void performCreateBrush();
             
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        private:
+            bool doActivate();
         };
     }
 }
