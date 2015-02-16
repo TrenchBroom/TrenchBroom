@@ -567,7 +567,7 @@ public:
         return true;
     }
 
-    static bool colinear(const Vec<T,S>::List& points) {
+    static bool colinear(const typename Vec<T,S>::List& points) {
         assert(points.size() == 3);
         return colinear(points[0], points[1], points[2]);
     }

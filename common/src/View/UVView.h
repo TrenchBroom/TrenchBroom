@@ -108,7 +108,7 @@ namespace TrenchBroom {
             void renderTextureAxes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderToolBox(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
-            PickRequest doGetPickRequest(const int x, const int y) const;
+            PickRequest doGetPickRequest(int x, int y) const;
             Model::PickResult doPick(const Ray3& pickRay) const;
         };
     }
