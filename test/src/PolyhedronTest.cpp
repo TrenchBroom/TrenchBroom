@@ -473,6 +473,14 @@ TEST(PolyhedronTest, initEmptyAndAddFourPoints) {
     ASSERT_TRUE(hasVertices(vertices, points));
 }
 
+TEST(PolyhedronTest, moveVertexWithoutMerges) {
+    Polyhedron3d p(BBox3d(-64.0, 64.0));
+    
+    const Vec3d::List result = p.moveVertices(Vec3d::List(1, Vec3d(64.0, 64.0, 64.0)), Vec3d(-8.0, -8.0, -8.0));
+    ASSERT_EQ(1u, result.size());
+    ASSERT_VEC_EQ(Vec3d(56.0, 56.0, 56.0), result.front());
+}
+
 bool hasVertices(const VertexList& vertices, Vec3d::List points) {
     VertexList::ConstIterator vIt = vertices.iterator();
     while (vIt.hasNext()) {

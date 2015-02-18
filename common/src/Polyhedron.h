@@ -650,7 +650,7 @@ public:
     }
     
     Vertex* findVertexByPosition(const V& position, const T epsilon = Math::Constants<T>::almostZero()) const {
-        typename VertexList::Iterator it = m_vertices.iterator();
+        typename VertexList::ConstIterator it = m_vertices.iterator();
         while (it.hasNext()) {
             Vertex* vertex = it.next();
             if (position.equals(vertex->position(), epsilon))
@@ -708,7 +708,7 @@ private:
         T lastFrac = 0.0;
         const V origin = vertex->position();
         while (!vertex->position().equals(destination, 0.0)) {
-            splitIncidientFaces(vertex, destination);
+            splitIncidentFaces(vertex, destination);
             
             const T curFrac = computeMinFrac(vertex, origin, destination, lastFrac);
             if (curFrac < 0.0)
@@ -720,7 +720,11 @@ private:
             // We can now safely move the vertex to its new position without the brush becoming convex.
             vertex->setPosition(origin + lastFrac * (destination - origin));
             vertex = cleanupAfterVertexMove(vertex);
+            if (vertex == NULL)
+                return MoveVertexResult(MoveVertexResult::Type_VertexDeleted);
         }
+        
+        return MoveVertexResult(MoveVertexResult::Type_VertexMoved, vertex);
     }
 private:
     void splitIncidentFaces(Vertex* vertex, const V& destination) {
@@ -841,7 +845,6 @@ private:
         
         HalfEdge* myBorder = edge->next();
         HalfEdge* theirBorder = myBorder->twin();
-        Face* neighbour = theirBorder->face();
         
         Vertex* v1 = edge->destination();
         Vertex* v2 = theirBorder->origin();
@@ -938,7 +941,7 @@ private:
         std::swap(boundary, face->m_boundary);
         
         boundary.remove(border);
-        neighbour->replaceBoundary(twin, boundary);
+        neighbour->replaceBoundary(twin, border);
         
         Edge* edge = border->edge();
         m_edges.remove(edge);

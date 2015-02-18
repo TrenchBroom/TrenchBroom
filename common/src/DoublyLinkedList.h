@@ -130,7 +130,7 @@ public:
     };
     
     typedef IteratorBase<DoublyLinkedList<Item>, Item*, Link> Iterator;
-    typedef IteratorBase<const DoublyLinkedList<Item>, const Item*, const Link> ConstIterator;
+    typedef IteratorBase<const DoublyLinkedList<Item>, Item*, const Link> ConstIterator;
 private:
     friend class ListIterator;
     
