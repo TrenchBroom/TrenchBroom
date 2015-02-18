@@ -350,6 +350,18 @@ public:
             return next()->origin();
         }
         
+        T length() const {
+            return vector().length();
+        }
+        
+        T squaredLength() const {
+            return vector().squaredLength();
+        }
+        
+        V vector() const {
+            return destination() - origin();
+        }
+        
         Edge* edge() const {
             return m_edge;
         }
@@ -371,6 +383,10 @@ public:
             return m_edge->twin(this);
         }
         
+        HalfEdge* previousIncident() const {
+            return twin()->next();
+        }
+
         HalfEdge* nextIncident() const {
             return previous()->twin();
         }
@@ -452,7 +468,36 @@ public:
         
         bool visibleFrom(const V& point) const {
             return pointStatus(point) == Math::PointStatus::PSAbove;
+        }
+
+        bool coplanar(const Face* other) const {
+            assert(other != NULL);
+            return normal().equals(other->normal(), Math::Constants<T>::colinearEpsilon());
+        }
+        
+        bool isDegenerateTriangle(const T epsilon = Math::Constants<T>::almostZero()) const {
+            if (vertexCount() != 3)
+                return false;
             
+            typename HalfEdgeList::ConstIterator it = m_boundary.iterator();
+            const HalfEdge* edge = it.next();
+            const T l1 = edge->squaredLength();
+            
+            edge = it.next();
+            const T l2 = edge->squaredLength();
+            
+            edge = it.next();
+            const T l3 = edge->squaredLength();
+            
+            const T epsilon2 = epsilon * epsilon;
+            if (l1 > l2) {
+                if (l1 > l3)
+                    return Math::eq(l1, l2 + l3, epsilon2);
+            } else {
+                if (l2 > l3)
+                    return Math::eq(l2, l1 + l3, epsilon2);
+            }
+            return Math::eq(l3, l1 + l2, epsilon2);
         }
     private:
         Math::PointStatus::Type pointStatus(const V& point, const T epsilon = Math::Constants<T>::pointStatusEpsilon()) const {
@@ -467,6 +512,10 @@ public:
         
         void flip() {
             m_boundary.reverse();
+        }
+        
+        void replaceBoundary(HalfEdge* edge, HalfEdge* with) {
+            replaceBoundary(edge, edge, with);
         }
         
         void replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
@@ -670,7 +719,7 @@ private:
             
             // We can now safely move the vertex to its new position without the brush becoming convex.
             vertex->setPosition(origin + lastFrac * (destination - origin));
-            mergeIncidentFaces(vertex);
+            vertex = cleanupAfterVertexMove(vertex);
         }
     }
 private:
@@ -831,8 +880,81 @@ private:
         return 1.0;
     }
     
-    void mergeIncidentFaces(Vertex* vertex) {
+    Vertex* cleanupAfterVertexMove(Vertex* vertex) {
+        // If any of the incident sides have become degenerate triangles, that is, the length of the longest side
+        // is the sum of the shorter two, then delete those triangles.
         
+        vertex = mergeIncidentFaces(vertex);
+        if (vertex != NULL) {
+            // Merge all colinear edges. This might also delete the vertex, so be careful.
+        }
+        
+        return vertex;
+    }
+
+    Vertex* mergeIncidentFaces(Vertex* vertex) {
+        HalfEdge* firstEdge = vertex->leaving();
+        HalfEdge* curEdge = firstEdge;
+    
+        bool allInnerMerged = true;
+        do {
+            Face* face = curEdge->face();
+            
+            HalfEdge* outerBorder = curEdge->next();
+            Face* outerNeighbour = outerBorder->twin()->face();
+            
+            HalfEdge* innerBorder = curEdge->previous();
+            Face* innerNeighbour = innerBorder->twin()->face();
+            
+            if (face->coplanar(outerNeighbour)) {
+                allInnerMerged = false;
+                mergeNeighbours(outerBorder);
+                curEdge = curEdge->previous()->twin();
+            } else if (face->coplanar(innerNeighbour)) {
+                mergeNeighbours(innerBorder);
+            } else {
+                allInnerMerged = false;
+                curEdge = curEdge->previous()->twin();
+            }
+        } while (curEdge != firstEdge);
+        
+        if (allInnerMerged) {
+            m_vertices.remove(vertex);
+            return NULL;
+        }
+        
+        return vertex;
+    }
+    
+    
+                                             
+    void mergeNeighbours(HalfEdge* border) {
+        HalfEdge* twin = border->twin();
+        Face* face = border->face();
+        Face* neighbour = twin->face();
+        
+        using std::swap;
+        HalfEdgeList boundary;
+        std::swap(boundary, face->m_boundary);
+        
+        boundary.remove(border);
+        neighbour->replaceBoundary(twin, boundary);
+        
+        Edge* edge = border->edge();
+        m_edges.remove(edge);
+        
+        m_faces.remove(face);
+        
+        delete border;
+        delete twin;
+        delete edge;
+        delete face;
+    }
+    
+    bool coplanarWithOuterNeighbour(HalfEdge* edge) const {
+        Face* face = edge->face();
+        Face* outerNeighbour = edge->next()->twin()->face();
+        return face->normal().equals(outerNeighbour->normal());
     }
 public: // adding points and convex hull computations
     template <typename I>
