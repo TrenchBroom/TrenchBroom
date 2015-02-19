@@ -181,7 +181,7 @@ public:
         
         if (m_head == NULL) {
             m_head = item;
-            ++m_size;
+            m_size += count;
             ++m_version;
         } else {
             insertAfter(getTail(), item, count);

@@ -408,10 +408,6 @@ public:
         void setAsLeaving() {
             m_origin->setLeaving(this);
         }
-        
-        void unlink() {
-            m_link.unlink();
-        }
     };
     
     class Face {
@@ -759,10 +755,11 @@ private:
         assert(next->next() == previous);
         assert(previous->previous() == next);
 
-        previous->unlink();
-        next->unlink();
+        HalfEdgeList boundary;
+        boundary.append(previous, 2);
+        boundary.append(newEdge2, 1);
         
-        m_faces.append(createTriangle(previous, next, newEdge2), 1);
+        m_faces.append(new Face(boundary), 1);
         m_edges.append(new Edge(newEdge1, newEdge2), 1);
     }
     

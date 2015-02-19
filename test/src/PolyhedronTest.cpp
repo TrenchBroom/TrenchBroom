@@ -41,6 +41,7 @@ bool hasVertices(const VertexList& vertices, Vec3d::List points);
 bool hasEdges(const EdgeList& edges, EdgeInfoList edgeInfos);
 bool hasTriangleOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3);
 bool hasQuadOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4);
+bool hasPolygonOf(const FaceList faces, const Vec3d::List& points);
 
 TEST(PolyhedronTest, initWith4Points) {
     const Vec3d p1( 0.0, 0.0, 8.0);
@@ -479,6 +480,55 @@ TEST(PolyhedronTest, moveVertexWithoutMerges) {
     const Vec3d::List result = p.moveVertices(Vec3d::List(1, Vec3d(64.0, 64.0, 64.0)), Vec3d(-8.0, -8.0, -8.0));
     ASSERT_EQ(1u, result.size());
     ASSERT_VEC_EQ(Vec3d(56.0, 56.0, 56.0), result.front());
+    
+    const Vec3d p1(-64.0, -64.0, -64.0);
+    const Vec3d p2(-64.0, -64.0, +64.0);
+    const Vec3d p3(-64.0, +64.0, -64.0);
+    const Vec3d p4(-64.0, +64.0, +64.0);
+    const Vec3d p5(+64.0, -64.0, -64.0);
+    const Vec3d p6(+64.0, -64.0, +64.0);
+    const Vec3d p7(+64.0, +64.0, -64.0);
+    const Vec3d p8(+56.0, +56.0, +56.0);
+    
+    Vec3d::List positions;
+    positions.push_back(p1);
+    positions.push_back(p2);
+    positions.push_back(p3);
+    positions.push_back(p4);
+    positions.push_back(p5);
+    positions.push_back(p6);
+    positions.push_back(p7);
+    positions.push_back(p8);
+    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    
+    EdgeInfoList edgeInfos;
+    edgeInfos.push_back(std::make_pair(p1, p2));
+    edgeInfos.push_back(std::make_pair(p1, p3));
+    edgeInfos.push_back(std::make_pair(p1, p5));
+    edgeInfos.push_back(std::make_pair(p2, p4));
+    edgeInfos.push_back(std::make_pair(p2, p6));
+    edgeInfos.push_back(std::make_pair(p3, p4));
+    edgeInfos.push_back(std::make_pair(p3, p7));
+    edgeInfos.push_back(std::make_pair(p4, p6));
+    edgeInfos.push_back(std::make_pair(p4, p7));
+    edgeInfos.push_back(std::make_pair(p4, p8));
+    edgeInfos.push_back(std::make_pair(p5, p6));
+    edgeInfos.push_back(std::make_pair(p5, p7));
+    edgeInfos.push_back(std::make_pair(p6, p7));
+    edgeInfos.push_back(std::make_pair(p6, p8));
+    edgeInfos.push_back(std::make_pair(p7, p8));
+    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    
+    ASSERT_EQ(9u, p.faceCount());
+    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
+    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p6, p4));
+    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p7, p6));
+    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p4, p7));
+    ASSERT_TRUE(hasTriangleOf(p.faces(), p8, p6, p7));
+    ASSERT_TRUE(hasTriangleOf(p.faces(), p8, p4, p6));
+    ASSERT_TRUE(hasTriangleOf(p.faces(), p8, p7, p4));
 }
 
 bool hasVertices(const VertexList& vertices, Vec3d::List points) {
@@ -521,63 +571,55 @@ EdgeInfoList::iterator findEdgeInfo(EdgeInfoList& edgeInfos, const Edge* edge) {
     return end;
 }
 
-bool isTriangleOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3);
 bool hasTriangleOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3) {
-    FaceList::ConstIterator fIt = faces.iterator();
-    while (fIt.hasNext()) {
-        const Face* face = fIt.next();
-        if (isTriangleOf(face, p1, p2, p3))
-            return true;
-    }
-    return false;
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    return hasPolygonOf(faces, points);
 }
 
-bool isQuadOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4);
 bool hasQuadOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4) {
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
+    return hasPolygonOf(faces, points);
+}
+
+bool isPolygonOf(const Face* face, const Vec3d::List& points);
+bool hasPolygonOf(const FaceList faces, const Vec3d::List& points) {
     FaceList::ConstIterator fIt = faces.iterator();
     while (fIt.hasNext()) {
         const Face* face = fIt.next();
-        if (isQuadOf(face, p1, p2, p3, p4))
+        if (isPolygonOf(face, points))
             return true;
     }
     return false;
 }
 
-bool isTriangleOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3) {
+bool isPolygonOf(const HalfEdge* edge, const Vec3d::List& points);
+bool isPolygonOf(const Face* face, const Vec3d::List& points) {
     typedef Polyhedron3d::HalfEdgeList BoundaryList;
     
     const BoundaryList& boundary = face->boundary();
-    if (boundary.size() != 3)
+    if (boundary.size() != points.size())
         return false;
-    
+
     BoundaryList::ConstIterator it = boundary.iterator();
     while (it.hasNext()) {
-        const HalfEdge* e1 = it.next();
-        if (e1->origin()->position() == p1) {
-            const HalfEdge* e2 = e1->next();
-            const HalfEdge* e3 = e2->next();
-            return e2->origin()->position() == p2 && e3->origin()->position() == p3;
-        }
+        if (isPolygonOf(it.next(), points))
+            return true;
     }
     return false;
 }
 
-bool isQuadOf(const Face* face, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4) {
-    typedef Polyhedron3d::HalfEdgeList BoundaryList;
-    
-    const BoundaryList& boundary = face->boundary();
-    if (boundary.size() != 4)
-        return false;
-    
-    BoundaryList::ConstIterator it = boundary.iterator();
-    while (it.hasNext()) {
-        const HalfEdge* e1 = it.next();
-        if (e1->origin()->position() == p1) {
-            const HalfEdge* e2 = e1->next();
-            const HalfEdge* e3 = e2->next();
-            const HalfEdge* e4 = e3->next();
-            return e2->origin()->position() == p2 && e3->origin()->position() == p3 && e4->origin()->position() == p4;
-        }
+bool isPolygonOf(const HalfEdge* edge, const Vec3d::List& points) {
+    for (size_t i = 0; i < points.size(); ++i) {
+        if (edge->origin()->position() != points[i])
+            return false;
+        edge = edge->next();
     }
-    return false;
+    return true;
 }
