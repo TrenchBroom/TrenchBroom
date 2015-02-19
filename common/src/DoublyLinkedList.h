@@ -186,6 +186,8 @@ public:
         } else {
             insertAfter(getTail(), item, count);
         }
+
+        assert(check());
     }
     
     void insertAfter(Item* pred, Item* items, const size_t count) {
@@ -210,6 +212,8 @@ public:
         
         m_size += count;
         ++m_version;
+
+        assert(check());
     }
     
     void replace(Item* from, Item* to, const size_t removeCount, Item* with, const size_t insertCount) {
@@ -248,6 +252,8 @@ public:
         
         m_size -= count;
         ++m_version;
+
+        assert(check());
     }
     
     void reverse() {
@@ -262,6 +268,7 @@ public:
             } while (cur != m_head);
             ++m_version;
         }
+        assert(check());
     }
     
     void deleteAll() {
@@ -276,6 +283,7 @@ public:
             m_size = 0;
             ++m_version;
         }
+        assert(check());
     }
 private:
     Item* next(Item* item) const {
@@ -299,6 +307,42 @@ private:
     const Link& getLink(const Item* item) const {
         assert(item != NULL);
         return doGetLink(item);
+    }
+    
+    bool check() const {
+        return checkLinks() && checkSize();
+    }
+    
+    bool checkLinks() const {
+        if (m_head == NULL)
+            return true;
+        
+        const Item* item = m_head;
+        do {
+            const Link& link = getLink(item);
+            const Item* next = link.next();
+            if (next == NULL)
+                return false;
+            const Link& nextLink = getLink(next);
+            if (nextLink.previous() != item)
+                return false;
+            item = next;
+        } while (item != m_head);
+        return true;
+    }
+    
+    bool checkSize() const {
+        if (m_head == NULL)
+            return m_size == 0;
+
+        size_t size = 0;
+        const Item* item = m_head;
+        do {
+            const Link& link = getLink(item);
+            item = link.next();
+            ++size;
+        } while (item != m_head);
+        return m_size == size;
     }
     
     virtual Link& doGetLink(Item* item) const = 0;
