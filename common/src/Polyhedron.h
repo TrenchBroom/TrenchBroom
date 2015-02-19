@@ -510,6 +510,20 @@ public:
             m_boundary.reverse();
         }
         
+        void removeFromBoundary(HalfEdge* edge) {
+            removeFromBoundary(edge, edge);
+        }
+        
+        void removeFromBoundary(HalfEdge* from, HalfEdge* to) {
+            assert(from != NULL);
+            assert(to != NULL);
+            assert(from->face() == this);
+            assert(to->face() == this);
+            
+            const size_t removeCount = countAndSetFace(from, to->next(), NULL);
+            m_boundary.remove(from, to, removeCount);
+        }
+        
         void replaceBoundary(HalfEdge* edge, HalfEdge* with) {
             replaceBoundary(edge, edge, with);
         }
@@ -933,12 +947,13 @@ private:
         Face* face = border->face();
         Face* neighbour = twin->face();
         
-        using std::swap;
-        HalfEdgeList boundary;
-        std::swap(boundary, face->m_boundary);
+        HalfEdge* next = border->next();
+        HalfEdge* previous = border->previous();
+        assert(next != previous);
         
-        boundary.remove(border);
-        neighbour->replaceBoundary(twin, border);
+        face->removeFromBoundary(border);
+        face->removeFromBoundary(previous, next);
+        neighbour->replaceBoundary(twin, next);
         
         Edge* edge = border->edge();
         m_edges.remove(edge);
