@@ -803,25 +803,24 @@ private:
          We consider the plane made up by the points p1, p2 and p3 of side and next. If the movement
          of the vertex were to go through this plane, the brush would become convex, which we must prevent.
          
-         v----p1
-         |\ s |
+         v----p3
+         |\ n |
          | \  |
          |  \ |
-         | n \|
-         p3----p2
+         | s \|
+         p1---p2
          
          */
 
         HalfEdge* nextEdge = edge->nextIncident();
-        Face* face = edge->face();
-        Face* neighbour = nextEdge->face();
+        HalfEdge* nextNextEdge = nextEdge->nextIncident();
         
-        assert(face->vertexCount() == 3);
-        assert(neighbour->vertexCount() == 3);
+        assert(edge->face()->vertexCount() == 3);
+        assert(nextEdge->face()->vertexCount() == 3);
         
         Vertex* v1 = edge->destination();
-        Vertex* v2 = edge->origin();
-        Vertex* v3 = nextEdge->next()->destination();
+        Vertex* v2 = nextEdge->destination();
+        Vertex* v3 = nextNextEdge->destination();
 
         const V& p1 = v1->position();
         const V& p2 = v2->position();
@@ -878,17 +877,14 @@ private:
         const T origDot = origin.dot(plane.normal) - plane.distance;
         const T destDot = destination.dot(plane.normal) - plane.distance;
         
-        // Let's allow for some error.
-        if (std::abs(origDot) >= 0.001 || std::abs(destDot) >= 0.001) {
-            // Does the vertex lie above the plane?
-            if (origDot > 0.0) {
-                // Does it actually travel into the plane?
-                if (destDot <= 0.0) {
-                    // The distance must grow because we use the original vertex origin.
-                    const T frac = std::abs(origDot) / (std::abs(origDot) + std::abs(destDot));
-                    if (frac > lastFrac)
-                        return frac;
-                }
+        // We only consider this a merge point if the origin does not lie (almost) within the plane.
+        if (std::abs(origDot) >= 0.001) {
+            // Does the vertex travel through the plane?
+            if ((origDot > 0.0) != (destDot > 0.0)) {
+                // The distance must grow because we use the original vertex origin.
+                const T frac = std::abs(origDot) / (std::abs(origDot) + std::abs(destDot));
+                if (frac > lastFrac)
+                    return frac;
             }
         }
         return 1.0;
@@ -923,12 +919,15 @@ private:
             if (face->coplanar(outerNeighbour)) {
                 allInnerMerged = false;
                 mergeNeighbours(outerBorder);
-                curEdge = curEdge->previous()->twin();
+                curEdge = curEdge->nextIncident();
             } else if (face->coplanar(innerNeighbour)) {
+                // Ensure that we don't remove the first edge, otherwise we'll loop endlessly.
+                if (innerBorder->twin() == firstEdge)
+                    firstEdge = firstEdge->nextIncident();
                 mergeNeighbours(innerBorder);
             } else {
                 allInnerMerged = false;
-                curEdge = curEdge->previous()->twin();
+                curEdge = curEdge->nextIncident();
             }
         } while (curEdge != firstEdge);
         
@@ -946,6 +945,7 @@ private:
         HalfEdge* twin = border->twin();
         Face* face = border->face();
         Face* neighbour = twin->face();
+        assert(face->coplanar(neighbour));
         
         HalfEdge* next = border->next();
         HalfEdge* previous = border->previous();
