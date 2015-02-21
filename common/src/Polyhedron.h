@@ -206,8 +206,7 @@ public:
         }
         
         void setLeaving(HalfEdge* edge) {
-            assert(edge != NULL);
-            assert(edge->origin() == this);
+            assert(edge == NULL || edge->origin() == this);
             m_leaving = edge;
         }
     };
@@ -342,12 +341,21 @@ public:
             setAsLeaving();
         }
         
+        ~HalfEdge() {
+            if (m_origin->leaving() == this)
+                m_origin->setLeaving(NULL);
+        }
+        
         Vertex* origin() const {
             return m_origin;
         }
         
         Vertex* destination() const {
             return next()->origin();
+        }
+        
+        bool isLeavingEdge() const {
+            return m_origin->leaving() == this;
         }
         
         T length() const {
@@ -903,73 +911,137 @@ private:
     }
 
     Vertex* mergeIncidentFaces(Vertex* vertex) {
+        size_t incidentFaceCount = 0;
+        bool allCoplanar = true;
+        
         HalfEdge* firstEdge = vertex->leaving();
         HalfEdge* curEdge = firstEdge;
-    
-        bool allInnerMerged = true;
         do {
             Face* face = curEdge->face();
-            
-            HalfEdge* outerBorder = curEdge->next();
-            Face* outerNeighbour = outerBorder->twin()->face();
-            
             HalfEdge* innerBorder = curEdge->previous();
             Face* innerNeighbour = innerBorder->twin()->face();
             
-            if (face->coplanar(outerNeighbour)) {
-                allInnerMerged = false;
-                mergeNeighbours(outerBorder);
-                curEdge = curEdge->nextIncident();
-            } else if (face->coplanar(innerNeighbour)) {
-                // Ensure that we don't remove the first edge, otherwise we'll loop endlessly.
-                if (innerBorder->twin() == firstEdge)
-                    firstEdge = firstEdge->nextIncident();
-                mergeNeighbours(innerBorder);
-            } else {
-                allInnerMerged = false;
-                curEdge = curEdge->nextIncident();
+            if (!face->coplanar(innerNeighbour)) {
+                allCoplanar = false;
+                firstEdge = curEdge;
             }
-        } while (curEdge != firstEdge);
+            curEdge = innerBorder->twin();
+            ++incidentFaceCount;
+        } while (allCoplanar && curEdge != firstEdge);
         
-        if (allInnerMerged) {
+        if (allCoplanar) {
+            HalfEdgeList boundary;
+            
+            // Now we iterate using the incident face count because we can't rely
+            // on the curEdge's twin while we're deleting the edges we encounter.
+            curEdge = firstEdge;
+            for (size_t i = 0; i < incidentFaceCount; ++i) {
+                Face* face = curEdge->face();
+                Edge* edge = curEdge->edge();
+                
+                HalfEdge* twin = curEdge->twin();
+                HalfEdge* outerBorder = curEdge->next();
+                
+                // Don't increment past the last edge because its twin will already have been deleted.
+                if (i < incidentFaceCount - 1)
+                    curEdge = curEdge->nextIncident();
+                
+                twin->origin()->setLeaving(outerBorder);
+                
+                face->removeFromBoundary(outerBorder);
+                boundary.append(outerBorder, 1);
+                
+                m_faces.remove(face);
+                m_edges.remove(edge);
+                
+                delete face;
+                delete edge;
+            }
+            
+            Face* face = new Face(boundary);
+            m_faces.append(face, 1);
+            
             m_vertices.remove(vertex);
-            return NULL;
+            delete vertex;
+            vertex = NULL;
+        } else {
+            // Due to how we have chosen the first edge, we know that the first two
+            // incident faces are not coplanar and thus won't be merged. This is important
+            // because otherwise, the loop would immediately terminate after one iteration
+            // because curEdge is not incremented when two inner neighbours are merged.
+            curEdge = firstEdge;
+            do {
+                Face* face = curEdge->face();
+                
+                HalfEdge* outerBorder = curEdge->next();
+                Face* outerNeighbour = outerBorder->twin()->face();
+                
+                HalfEdge* innerBorder = curEdge->previous();
+                Face* innerNeighbour = innerBorder->twin()->face();
+                
+                if (face->coplanar(outerNeighbour)) {
+                    mergeNeighbours(outerBorder);
+                    curEdge = curEdge->nextIncident();
+                } else if (face->coplanar(innerNeighbour)) {
+                    // Ensure that we don't remove the first edge, otherwise we'll loop endlessly.
+                    if (innerBorder->twin() == firstEdge)
+                        firstEdge = firstEdge->nextIncident();
+                    mergeNeighbours(innerBorder);
+                } else {
+                    curEdge = curEdge->nextIncident();
+                }
+            } while (curEdge != firstEdge);
         }
-        
         return vertex;
     }
     
-    
-                                             
-    void mergeNeighbours(HalfEdge* border) {
-        HalfEdge* twin = border->twin();
-        Face* face = border->face();
-        Face* neighbour = twin->face();
-        assert(face->coplanar(neighbour));
+    void mergeNeighbours(HalfEdge* borderFirst) {
+        HalfEdge* twinLast = borderFirst->twin();
         
-        HalfEdge* next = border->next();
-        HalfEdge* previous = border->previous();
-        assert(next != previous);
+        Face* face = borderFirst->face();
+        Face* neighbour = twinLast->face();
+
+        HalfEdge* borderLast = borderFirst;
+        while (borderLast->next()->face() == face &&
+               borderLast->next()->twin()->face() == neighbour) {
+            borderLast = borderLast->next();
+        }
+
+        HalfEdge* twinFirst = borderLast->twin();
         
-        face->removeFromBoundary(border);
-        face->removeFromBoundary(previous, next);
-        neighbour->replaceBoundary(twin, next);
+        borderFirst->origin()->setLeaving(twinLast->next());
+        twinFirst->origin()->setLeaving(borderLast->next());
         
-        Edge* edge = border->edge();
-        m_edges.remove(edge);
+        HalfEdge* remainingFirst = borderLast->next();
+        HalfEdge* remainingLast = borderFirst->previous();
+        
+        face->removeFromBoundary(borderFirst, borderLast);
+        face->removeFromBoundary(remainingFirst, remainingLast);
+        
+        neighbour->replaceBoundary(twinFirst, twinLast, remainingFirst);
+        
+        HalfEdge* cur = borderFirst;
+        do {
+            Edge* edge = cur->edge();
+            HalfEdge* next = cur->next();
+            HalfEdge* twin = cur->twin();
+            
+            if (cur != borderFirst) {
+                Vertex* origin = cur->origin();
+                m_vertices.remove(origin);
+                delete origin;
+            }
+            
+            m_edges.remove(edge);
+            delete edge;
+            
+            delete cur;
+            delete twin;
+            cur = next;
+        } while (cur != borderFirst);
         
         m_faces.remove(face);
-        
-        delete border;
-        delete twin;
-        delete edge;
         delete face;
-    }
-    
-    bool coplanarWithOuterNeighbour(HalfEdge* edge) const {
-        Face* face = edge->face();
-        Face* outerNeighbour = edge->next()->twin()->face();
-        return face->normal().equals(outerNeighbour->normal());
     }
 public: // adding points and convex hull computations
     template <typename I>
