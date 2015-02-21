@@ -200,6 +200,19 @@ public:
         HalfEdge* leaving() const {
             return m_leaving;
         }
+        
+        HalfEdge* findConnectingEdge(const Vertex* vertex) const {
+            assert(vertex != NULL);
+            assert(m_leaving != NULL);
+            
+            HalfEdge* curEdge = m_leaving;
+            do {
+                if (vertex == curEdge->destination())
+                    return curEdge;
+                curEdge = curEdge->nextIncident();
+            } while (curEdge != m_leaving);
+            return NULL;
+        }
     private:
         void setPosition(const V& position) {
             m_position = position;
@@ -689,8 +702,8 @@ public: // moving vertices
             assert(vertex != NULL);
             
             const V destination = vertex->position() + delta;
-            const MoveVertexResult result = moveVertex(vertex, destination);
-            if (result.moved())
+            const MoveVertexResult result = moveVertex(vertex, destination, true);
+            if (!result.deleted())
                 newPositions.push_back(result.vertex->position());
         }
         
@@ -718,7 +731,7 @@ private:
         bool unchanged() const { return type == Type_VertexUnchanged; }
     };
     
-    MoveVertexResult moveVertex(Vertex* vertex, const V& destination) {
+    MoveVertexResult moveVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex) {
         assert(vertex != NULL);
         assert(vertex->position() != destination);
         assert(checkInvariant());
@@ -735,7 +748,19 @@ private:
             assert(curFrac > lastFrac);
             lastFrac = curFrac;
             
-            // We can now safely move the vertex to its new position without the brush becoming convex.
+            const V newPosition = origin + lastFrac * (destination - origin);
+            Vertex* occupant = findVertexByPosition(newPosition);
+            if (occupant != NULL) {
+                HalfEdge* connectingEdge = vertex->findConnectingEdge(occupant);
+                if (!allowMergeIncidentVertex || connectingEdge == NULL) {
+                    mergeIncidentFaces(vertex);
+                    const MoveVertexResult result = moveVertex(vertex, origin, false);
+                    assert(result.moved());
+                    return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged);
+                }
+                mergeVertices(connectingEdge);
+            }
+            
             vertex->setPosition(origin + lastFrac * (destination - origin));
             vertex = cleanupAfterVertexMove(vertex);
             if (vertex == NULL)
@@ -899,9 +924,6 @@ private:
     }
     
     Vertex* cleanupAfterVertexMove(Vertex* vertex) {
-        // If any of the incident sides have become degenerate triangles, that is, the length of the longest side
-        // is the sum of the shorter two, then delete those triangles.
-        
         vertex = mergeIncidentFaces(vertex);
         if (vertex != NULL) {
             // Merge all colinear edges. This might also delete the vertex, so be careful.
@@ -910,6 +932,51 @@ private:
         return vertex;
     }
 
+    void mergeVertices(HalfEdge* connectingEdge) {
+        HalfEdge* oppositeEdge = connectingEdge->twin();
+        
+        Vertex* origin = connectingEdge->origin();
+        Vertex* destination = oppositeEdge->origin();
+        
+        // First we merge the triangles that will become invalid by the merge to their neighbours.
+        // We assume they are both triangles.
+        assert(connectingEdge->face()->vertexCount() == 3);
+        assert(oppositeEdge->face()->vertexCount() == 3);
+        mergeNeighbours(connectingEdge->previous());
+        mergeNeighbours(oppositeEdge->next());
+        
+        // Now we delete the destination of the connecting edge.
+        // First we have to change the origin of all edges originating
+        // at the destination to the origin of the connecting edge.
+        // We also have to delete the connecting edge and its twin from the incident faces.
+
+        destination->setLeaving(connectingEdge->next());
+        
+        HalfEdge* firstEdge = destination->leaving();
+        HalfEdge* curEdge = firstEdge;
+        do {
+            HalfEdge* next = curEdge->nextIncident();
+            curEdge->setOrigin(origin);
+            curEdge = next;
+        } while (curEdge != firstEdge);
+        
+        Face* leftFace = connectingEdge->face();
+        leftFace->removeFromBoundary(connectingEdge);
+        
+        Face* rightFace = oppositeEdge->face();
+        rightFace->removeFromBoundary(oppositeEdge);
+        
+        Edge* edge = connectingEdge->edge();
+        m_edges.remove(edge);
+        delete edge;
+        
+        delete connectingEdge;
+        delete oppositeEdge;
+        
+        m_vertices.remove(destination);
+        delete destination;
+    }
+    
     Vertex* mergeIncidentFaces(Vertex* vertex) {
         size_t incidentFaceCount = 0;
         bool allCoplanar = true;
@@ -995,6 +1062,9 @@ private:
         return vertex;
     }
     
+    // The given border belongs to the face that's being merged with its
+    // neighbour over the given edge. The face is deleted while the neighbour
+    // remains.
     void mergeNeighbours(HalfEdge* borderFirst) {
         HalfEdge* twinLast = borderFirst->twin();
         
