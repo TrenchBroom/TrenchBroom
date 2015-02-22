@@ -213,6 +213,20 @@ public:
             } while (curEdge != m_leaving);
             return NULL;
         }
+        
+        HalfEdge* findColinearEdge(const HalfEdge* arriving) const {
+            assert(arriving != NULL);
+            assert(m_leaving != NULL);
+            assert(arriving->destination() == this);
+            
+            HalfEdge* curEdge = m_leaving;
+            do {
+                if (arriving->colinear(curEdge))
+                    return curEdge;
+                curEdge = curEdge->nextIncident();
+            } while (curEdge != m_leaving);
+            return NULL;
+        }
     private:
         void setPosition(const V& position) {
             m_position = position;
@@ -380,7 +394,7 @@ public:
         }
         
         V vector() const {
-            return destination() - origin();
+            return destination()->position() - origin()->position();
         }
         
         Edge* edge() const {
@@ -410,6 +424,12 @@ public:
 
         HalfEdge* nextIncident() const {
             return previous()->twin();
+        }
+        
+        bool colinear(const HalfEdge* other) const {
+            const V dir = vector().normalized();
+            const V otherDir = other->vector().normalized();
+            return Math::eq(otherDir.dot(dir), 1.0);
         }
     private:
         void setOrigin(Vertex* origin) {
@@ -761,7 +781,7 @@ private:
                 mergeVertices(connectingEdge);
             }
             
-            vertex->setPosition(origin + lastFrac * (destination - origin));
+            vertex->setPosition(newPosition);
             vertex = cleanupAfterVertexMove(vertex);
             if (vertex == NULL)
                 return MoveVertexResult(MoveVertexResult::Type_VertexDeleted);
@@ -923,15 +943,6 @@ private:
         return 1.0;
     }
     
-    Vertex* cleanupAfterVertexMove(Vertex* vertex) {
-        vertex = mergeIncidentFaces(vertex);
-        if (vertex != NULL) {
-            // Merge all colinear edges. This might also delete the vertex, so be careful.
-        }
-        
-        return vertex;
-    }
-
     void mergeVertices(HalfEdge* connectingEdge) {
         HalfEdge* oppositeEdge = connectingEdge->twin();
         
@@ -949,7 +960,7 @@ private:
         // First we have to change the origin of all edges originating
         // at the destination to the origin of the connecting edge.
         // We also have to delete the connecting edge and its twin from the incident faces.
-
+        
         destination->setLeaving(connectingEdge->next());
         
         HalfEdge* firstEdge = destination->leaving();
@@ -975,6 +986,82 @@ private:
         
         m_vertices.remove(destination);
         delete destination;
+    }
+    
+    Vertex* cleanupAfterVertexMove(Vertex* vertex) {
+        mergeLeavingEdges(vertex);
+        vertex = mergeIncidentFaces(vertex);
+        if (vertex != NULL)
+            vertex = mergeIncomingAndLeavingEdges(vertex);
+        return vertex;
+    }
+
+    void mergeLeavingEdges(Vertex* vertex) {
+        HalfEdge* curEdge = vertex->leaving();
+        do {
+            Vertex* destination = curEdge->destination();
+            HalfEdge* colinearEdge = destination->findColinearEdge(curEdge);
+            if (colinearEdge != NULL) {
+                mergeNeighboursOfColinearEdges(curEdge, colinearEdge);
+                mergeColinearEdges(curEdge, colinearEdge);
+            }
+            curEdge = curEdge->nextIncident();
+        } while (curEdge != vertex->leaving());
+    }
+
+    void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2) {
+        assert(edge1->destination() == edge2->origin());
+        
+        if (edge1->next() == edge2) // the left side is a degenerate triangle now
+            mergeNeighbours(edge1->previous());
+        else
+            mergeNeighbours(edge1->next());
+        if (edge1->twin()->previous() == edge2->twin())
+            mergeNeighbours(edge1->twin()->next());
+        else
+            mergeNeighbours(edge1->twin()->previous());
+    }
+    
+    Vertex* mergeIncomingAndLeavingEdges(Vertex* vertex) {
+        HalfEdge* arriving = vertex->leaving()->twin();
+        do {
+            HalfEdge* colinearLeaving = vertex->findColinearEdge(arriving);
+            if (colinearLeaving != NULL) {
+                mergeColinearEdges(arriving, colinearLeaving);
+                return NULL;
+            }
+            arriving = arriving->next()->twin();
+        } while (arriving != vertex->leaving()->twin());
+        return vertex;
+    }
+    
+    void mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2) {
+        assert(edge1->destination() == edge2->origin());
+        
+        Vertex* vertex = edge2->origin();
+        Vertex* succ = edge2->destination();
+        
+        edge1->twin()->setOrigin(succ);
+        succ->setLeaving(edge1->twin());
+
+        HalfEdge* toRemove1 = edge2;
+        HalfEdge* toRemove2 = toRemove1->twin();
+        
+        Face* left = toRemove1->face();
+        left->removeFromBoundary(toRemove1);
+        
+        Face* right = toRemove2->face();
+        right->removeFromBoundary(toRemove2);
+
+        Edge* edge = toRemove1->edge();
+        m_edges.remove(edge);
+        delete edge;
+        
+        delete toRemove1;
+        delete toRemove2;
+        
+        m_vertices.remove(vertex);
+        delete vertex;
     }
     
     Vertex* mergeIncidentFaces(Vertex* vertex) {
