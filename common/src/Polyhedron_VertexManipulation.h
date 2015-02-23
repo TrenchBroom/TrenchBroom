@@ -67,6 +67,75 @@ typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::moveVertex(Vertex* verte
     assert(vertex->position() != destination);
     assert(checkInvariant());
     
+    if (point())
+        return movePointVertex(vertex, destination);
+    else if (edge())
+        return moveEdgeVertex(vertex, destination, allowMergeIncidentVertex);
+    else if (polygon())
+        return movePolygonVertex(vertex, destination, allowMergeIncidentVertex);
+    else
+        return movePolyhedronVertex(vertex, destination, allowMergeIncidentVertex);
+}
+
+template <typename T>
+typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::movePointVertex(Vertex* vertex, const V& destination) {
+    vertex->setPosition(destination);
+    return MoveVertexResult(MoveVertexResult::Type_VertexMoved, vertex);
+}
+
+template <typename T>
+typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::moveEdgeVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex) {
+    Edge* edge = m_edges.iterator().next();
+    Vertex* other = edge->otherVertex(vertex);
+    if (other->position() == destination) {
+        if (!allowMergeIncidentVertex)
+            return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, vertex);
+        
+        m_edges.remove(edge);
+        delete edge;
+        m_vertices.remove(vertex);
+        delete vertex;
+        
+        return MoveVertexResult(MoveVertexResult::Type_VertexMoved, other);
+    } else {
+        return movePointVertex(vertex, destination);
+    }
+}
+
+template <typename T>
+typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::movePolygonVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex) {
+    Face* face = m_faces.iterator().next();
+    if (face->pointStatus(destination) != Math::PointStatus::PSInside)
+        return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, vertex);
+    
+    Vertex* occupant = findVertexByPosition(destination);
+    if (occupant != NULL) {
+        HalfEdge* connectingEdge = vertex->findConnectingEdge(occupant);
+        if (connectingEdge == NULL)
+            connectingEdge = occupant->findConnectingEdge(vertex);
+        if (!allowMergeIncidentVertex || connectingEdge == NULL)
+            return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, vertex);
+
+        Vertex* origin = connectingEdge->origin();
+        Vertex* destVertex = connectingEdge->destination();
+        
+        Edge* edge = connectingEdge->edge();
+        face->removeFromBoundary(connectingEdge);
+        
+        m_edges.remove(edge);
+        delete edge;
+        delete connectingEdge;
+        m_vertices.remove(origin);
+        delete origin;
+        
+        return MoveVertexResult(MoveVertexResult::Type_VertexMoved, destVertex);
+    } else {
+        return movePointVertex(vertex, destination);
+    }
+}
+
+template <typename T>
+typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::movePolyhedronVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex) {
     // The idea of this algorithm can be summarized as follows:
     // First, break up all faces incident to the given vertex so that they become triangles.
     // Second, examine the (straight) path along which the given vertex will travel when moved to the

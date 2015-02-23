@@ -63,7 +63,7 @@ private:
             if (vertex == curEdge->destination())
                 return curEdge;
             curEdge = curEdge->nextIncident();
-        } while (curEdge != m_leaving);
+        } while (curEdge != NULL && curEdge != m_leaving);
         return NULL;
     }
     

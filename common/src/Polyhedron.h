@@ -115,6 +115,10 @@ public: // Moving vertices
 private:
     struct MoveVertexResult;
     MoveVertexResult moveVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex);
+    MoveVertexResult movePointVertex(Vertex* vertex, const V& destination);
+    MoveVertexResult moveEdgeVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex);
+    MoveVertexResult movePolygonVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex);
+    MoveVertexResult movePolyhedronVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex);
 
     void splitIncidentFaces(Vertex* vertex, const V& destination);
     void chopFace(Face* face, HalfEdge* halfEdge);

@@ -70,6 +70,14 @@ public:
         return m_first->next()->origin();
     }
     
+    Vertex* otherVertex(Vertex* vertex) const {
+        assert(vertex != NULL);
+        assert(vertex == firstVertex() || vertex == secondVertex());
+        if (vertex == firstVertex())
+            return secondVertex();
+        return firstVertex();
+    }
+    
     HalfEdge* firstEdge() const {
         assert(m_first != NULL);
         return m_first;
