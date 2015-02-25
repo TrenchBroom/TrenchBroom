@@ -474,6 +474,26 @@ TEST(PolyhedronTest, initEmptyAndAddFourPoints) {
     ASSERT_TRUE(hasVertices(vertices, points));
 }
 
+TEST(PolyhedronTest, testAddManyPointsCrash) {
+    Polyhedron3d p;
+    p.addPoint(Vec3d(320, 554, -0));
+    p.addPoint(Vec3d(320, 256, -0));
+    p.addPoint(Vec3d(192, 306, -0));
+    p.addPoint(Vec3d(192, 526, -0));
+    p.addPoint(Vec3d(320, 256, 128));
+    p.addPoint(Vec3d(352, 272, 128));
+    p.addPoint(Vec3d(352, 480, 128));
+    p.addPoint(Vec3d(160, 480, 128));
+    p.addPoint(Vec3d(256, 256, 128));
+    p.addPoint(Vec3d(256, 256, 128));
+    p.addPoint(Vec3d(160, 480, 128));
+    p.addPoint(Vec3d(-96, 352, 128));
+    p.addPoint(Vec3d(192, 192, 128));
+    p.addPoint(Vec3d(352, 96, 128)); // This fails.
+    
+    ASSERT_TRUE(p.closed());
+}
+
 TEST(PolyhedronTest, moveSingleVertex) {
     const Vec3d p1(0.0, 0.0, 0.0);
     const Vec3d p2(32.0, -16.0, 8.0);

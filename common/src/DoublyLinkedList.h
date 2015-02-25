@@ -161,7 +161,7 @@ public:
         return ConstIterator(*this);
     }
 
-    bool contains(Item* item) const {
+    bool contains(const Item* item) const {
         assert(item != NULL);
         
         if (m_head == NULL)

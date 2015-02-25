@@ -192,7 +192,7 @@ void Polyhedron<T>::addPointToPolyhedron(const V& position, const Seam& seam) {
     assert(!seam.empty());
     weaveCap(seam, position);
     mergeCoplanarFaces(seam);
-    assert(checkInvariant());
+    assert(checkInvariant() && closed());
 }
 
 // Splits this polyhedron along the edges where one of the adjacent faces matches the given
@@ -278,7 +278,7 @@ typename Polyhedron<T>::Seam Polyhedron<T>::split(const SplittingCriterion& crit
     edges.deleteAll();
     vertices.deleteAll();
     
-    assert(isConvex());
+    assert(checkConvex());
     
     return seam;
 }
@@ -302,7 +302,7 @@ void Polyhedron<T>::weaveCap(const Seam& seam) {
     Face* face = new Face(halfEdges);
     m_faces.append(face, 1);
     
-    assert(isConvex());
+    assert(checkConvex() && closed());
 }
 
 // Weaves a new cap onto the given seam edges. The new cap will form a triangle fan (actually a cone) with a new vertex
@@ -340,7 +340,7 @@ void Polyhedron<T>::weaveCap(const Seam& seam, const V& position) {
     m_edges.append(new Edge(first, last), 1);
     m_vertices.append(top, 1);
     
-    assert(isConvex());
+    assert(checkConvex() && closed());
 }
 
 // Merges all coplanar incident faces of the given seam edges.
@@ -370,7 +370,7 @@ void Polyhedron<T>::mergeCoplanarFaces(const Seam& seam) {
         }
     }
     
-    assert(isConvex());
+    assert(checkConvex() && closed());
 }
 
 template <typename T>

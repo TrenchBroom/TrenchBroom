@@ -109,7 +109,8 @@ private: // General purpose methods
     void clear();
     
     bool checkInvariant() const;
-    bool isConvex() const;
+    bool checkConvex() const;
+    bool checkClosed() const;
 public: // Moving vertices
     typename V::List moveVertices(const typename V::List& positions, const V& delta);
 private:
@@ -414,13 +415,15 @@ void Polyhedron<T>::clear() {
 
 template <typename T>
 bool Polyhedron<T>::checkInvariant() const {
-    if (!isConvex())
+    if (!checkConvex())
+        return false;
+    if (polyhedron() && !checkClosed())
         return false;
     return true;
 }
 
 template <typename T>
-bool Polyhedron<T>::isConvex() const {
+bool Polyhedron<T>::checkConvex() const {
     typename FaceList::ConstIterator fIt = m_faces.iterator();
     while (fIt.hasNext()) {
         const Face* face = fIt.next();
@@ -430,6 +433,25 @@ bool Polyhedron<T>::isConvex() const {
             if (face->pointStatus(vertex->position()) == Math::PointStatus::PSAbove)
                 return false;
         }
+    }
+    return true;
+}
+
+template <typename T>
+bool Polyhedron<T>::checkClosed() const {
+    typename EdgeList::ConstIterator eIt = m_edges.iterator();
+    while (eIt.hasNext()) {
+        const Edge* edge = eIt.next();
+        if (!edge->fullySpecified())
+            return false;
+        
+        const Face* firstFace = edge->firstFace();
+        const Face* secondFace = edge->secondFace();
+        
+        if (!m_faces.contains(firstFace))
+            return false;
+        if (!m_faces.contains(secondFace))
+            return false;
     }
     return true;
 }

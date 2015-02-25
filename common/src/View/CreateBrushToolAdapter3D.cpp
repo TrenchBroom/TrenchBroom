@@ -49,6 +49,9 @@ namespace TrenchBroom {
         }
         
         bool CreateBrushToolAdapter3D::doMouseClick(const InputState& inputState) {
+            if (!inputState.mouseButtonsDown(MouseButtons::MBLeft))
+                return false;
+            
             const Model::PickResult& pickResult = inputState.pickResult();
             const Model::Hit& hit = pickResult.query().pickable().type(Model::Brush::BrushHit).occluded().first();
             if (!hit.isMatch())
