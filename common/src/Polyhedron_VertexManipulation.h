@@ -602,16 +602,20 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::mergeIncidentFaces(Vertex* vertex
 // Merges the face incident to the given edge (called border) with its neighbour, i.e.
 // the face incident to the given face's twin. The face incident to the border is deleted
 // while the neighbour consumes the boundary of the incident face.
-// Also handles the case where the border is longer than just one edge, but we assume that
-// the given edge is the first edge of the border.
+// Also handles the case where the border is longer than just one edge.
 template <typename T>
 void Polyhedron<T>::mergeNeighbours(HalfEdge* borderFirst) {
-    HalfEdge* twinLast = borderFirst->twin();
-    
     Face* face = borderFirst->face();
-    Face* neighbour = twinLast->face();
+    Face* neighbour = borderFirst->twin()->face();
     
+    while (borderFirst->previous()->face() == face &&
+           borderFirst->previous()->twin()->face() == neighbour) {
+        borderFirst = borderFirst->previous();
+    }
+    
+    HalfEdge* twinLast = borderFirst->twin();
     HalfEdge* borderLast = borderFirst;
+    
     while (borderLast->next()->face() == face &&
            borderLast->next()->twin()->face() == neighbour) {
         borderLast = borderLast->next();
@@ -635,18 +639,19 @@ void Polyhedron<T>::mergeNeighbours(HalfEdge* borderFirst) {
         Edge* edge = cur->edge();
         HalfEdge* next = cur->next();
         HalfEdge* twin = cur->twin();
-        
-        if (cur != borderFirst) {
-            Vertex* origin = cur->origin();
-            m_vertices.remove(origin);
-            delete origin;
-        }
+        Vertex* origin = cur->origin();
         
         m_edges.remove(edge);
         delete edge;
         
         delete cur;
         delete twin;
+
+        if (cur != borderFirst) {
+            m_vertices.remove(origin);
+            delete origin;
+        }
+        
         cur = next;
     } while (cur != borderFirst);
     

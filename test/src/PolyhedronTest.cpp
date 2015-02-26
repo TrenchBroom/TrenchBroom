@@ -600,6 +600,138 @@ TEST(PolyhedronTest, testAddManyPointsCrash) {
     ASSERT_TRUE(hasTriangleOf(p, p7, p5, p6));
 }
 
+TEST(PolyhedronTest, testMergeManyFacesAfterAddingPoint) {
+    const Vec3d  p1(0.0,  0.0, 0.0);
+    const Vec3d  p2(0.0,  0.0, 4.0);
+    const Vec3d  p3(0.0, 10.0, 0.0);
+    const Vec3d  p4(0.0, 10.0, 4.0);
+    const Vec3d  p5(4.0,  0.0, 0.0);
+    const Vec3d  p6(4.0,  0.0, 4.0);
+    const Vec3d  p7(4.0, 10.0, 0.0);
+    const Vec3d  p8(4.0, 10.0, 4.0);
+    const Vec3d  p9(6.0,  4.0, 4.0);
+    const Vec3d p10(6.0,  6.0, 4.0);
+    const Vec3d p11(8.0,  5.0, 2.0);
+    const Vec3d p12(8.0,  5.0, 4.0);
+    
+    Vec3d::List topOld;
+    topOld.push_back(p2);
+    topOld.push_back(p6);
+    topOld.push_back(p9);
+    topOld.push_back(p10);
+    topOld.push_back(p8);
+    topOld.push_back(p4);
+    
+    Vec3d::List topNew;
+    topNew.push_back(p2);
+    topNew.push_back(p6);
+    topNew.push_back(p12);
+    topNew.push_back(p8);
+    topNew.push_back(p4);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    p.addPoint(p5);
+    p.addPoint(p6);
+    p.addPoint(p7);
+    p.addPoint(p8);
+    p.addPoint(p9);
+    p.addPoint(p10);
+    p.addPoint(p11);
+    
+    ASSERT_EQ(11u, p.vertexCount());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_TRUE(p.hasVertex(p3));
+    ASSERT_TRUE(p.hasVertex(p4));
+    ASSERT_TRUE(p.hasVertex(p5));
+    ASSERT_TRUE(p.hasVertex(p6));
+    ASSERT_TRUE(p.hasVertex(p7));
+    ASSERT_TRUE(p.hasVertex(p8));
+    ASSERT_TRUE(p.hasVertex(p9));
+    ASSERT_TRUE(p.hasVertex(p10));
+    ASSERT_TRUE(p.hasVertex(p11));
+
+    ASSERT_EQ(20u, p.edgeCount());
+    ASSERT_TRUE(p.hasEdge(p1, p2));
+    ASSERT_TRUE(p.hasEdge(p1, p3));
+    ASSERT_TRUE(p.hasEdge(p1, p5));
+    ASSERT_TRUE(p.hasEdge(p2, p4));
+    ASSERT_TRUE(p.hasEdge(p2, p6));
+    ASSERT_TRUE(p.hasEdge(p3, p4));
+    ASSERT_TRUE(p.hasEdge(p3, p7));
+    ASSERT_TRUE(p.hasEdge(p4, p8));
+    ASSERT_TRUE(p.hasEdge(p5, p6));
+    ASSERT_TRUE(p.hasEdge(p5, p7));
+    ASSERT_TRUE(p.hasEdge(p5, p11));
+    ASSERT_TRUE(p.hasEdge(p6, p9));
+    ASSERT_TRUE(p.hasEdge(p6, p11));
+    ASSERT_TRUE(p.hasEdge(p7, p8));
+    ASSERT_TRUE(p.hasEdge(p7, p11));
+    ASSERT_TRUE(p.hasEdge(p8, p10));
+    ASSERT_TRUE(p.hasEdge(p8, p11));
+    ASSERT_TRUE(p.hasEdge(p9, p10));
+    ASSERT_TRUE(p.hasEdge(p9, p11));
+    ASSERT_TRUE(p.hasEdge(p10, p11));
+    
+    ASSERT_EQ(11u, p.faceCount());
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p8, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p11,  p6,  p5));
+    ASSERT_TRUE(hasTriangleOf(p, p11,  p9,  p6));
+    ASSERT_TRUE(hasTriangleOf(p, p11, p10,  p9));
+    ASSERT_TRUE(hasTriangleOf(p, p11,  p8, p10));
+    ASSERT_TRUE(hasTriangleOf(p, p11,  p7,  p8));
+    ASSERT_TRUE(hasTriangleOf(p, p11,  p5,  p7));
+    ASSERT_TRUE(p.hasFace(topOld));
+    
+    p.addPoint(p12);
+
+    ASSERT_EQ(10u, p.vertexCount());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_TRUE(p.hasVertex(p3));
+    ASSERT_TRUE(p.hasVertex(p4));
+    ASSERT_TRUE(p.hasVertex(p5));
+    ASSERT_TRUE(p.hasVertex(p6));
+    ASSERT_TRUE(p.hasVertex(p7));
+    ASSERT_TRUE(p.hasVertex(p8));
+    ASSERT_TRUE(p.hasVertex(p11));
+
+    ASSERT_EQ(16u, p.edgeCount());
+    ASSERT_TRUE(p.hasEdge( p1, p2));
+    ASSERT_TRUE(p.hasEdge( p1, p3));
+    ASSERT_TRUE(p.hasEdge( p1, p5));
+    ASSERT_TRUE(p.hasEdge( p2, p4));
+    ASSERT_TRUE(p.hasEdge( p2, p6));
+    ASSERT_TRUE(p.hasEdge( p3, p4));
+    ASSERT_TRUE(p.hasEdge( p3, p7));
+    ASSERT_TRUE(p.hasEdge( p4, p8));
+    ASSERT_TRUE(p.hasEdge( p5, p6));
+    ASSERT_TRUE(p.hasEdge( p5, p7));
+    ASSERT_TRUE(p.hasEdge( p5, p11));
+    ASSERT_TRUE(p.hasEdge( p7, p8));
+    ASSERT_TRUE(p.hasEdge( p7, p11));
+    ASSERT_TRUE(p.hasEdge( p6, p12));
+    ASSERT_TRUE(p.hasEdge( p8, p12));
+    ASSERT_TRUE(p.hasEdge(p11, p12));
+
+    ASSERT_EQ(8u, p.faceCount());
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p8, p7));
+    ASSERT_TRUE(hasQuadOf(p, p5, p11, p12, p6));
+    ASSERT_TRUE(hasQuadOf(p, p7, p8, p12, p11));
+    ASSERT_TRUE(hasTriangleOf(p, p11,  p5,  p7));
+    ASSERT_TRUE(p.hasFace(topNew));
+}
+
 TEST(PolyhedronTest, moveSingleVertex) {
     const Vec3d p1(0.0, 0.0, 0.0);
     const Vec3d p2(32.0, -16.0, 8.0);
