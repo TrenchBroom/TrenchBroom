@@ -732,6 +732,25 @@ TEST(PolyhedronTest, testMergeManyFacesAfterAddingPoint) {
     ASSERT_TRUE(p.hasFace(topNew));
 }
 
+TEST(PolyhedronTest, crashWhileAddingPoints) {
+    const Vec3d p1(224, 336, 0);
+    const Vec3d p2(272, 320, 0);
+    const Vec3d p3(-96, 352, 128);
+    const Vec3d p4(192, 192, 128);
+    const Vec3d p5(256, 256, 128);
+    const Vec3d p6(320, 480, 128);
+    const Vec3d p7(320, 256, 128);
+    
+    Polyhedron3d p;
+    p.addPoint(p1);
+    p.addPoint(p2);
+    p.addPoint(p3);
+    p.addPoint(p4);
+    p.addPoint(p5);
+    p.addPoint(p6);
+    p.addPoint(p7); // Assertion failure here.
+}
+
 TEST(PolyhedronTest, moveSingleVertex) {
     const Vec3d p1(0.0, 0.0, 0.0);
     const Vec3d p2(32.0, -16.0, 8.0);

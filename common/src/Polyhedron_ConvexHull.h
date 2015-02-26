@@ -37,6 +37,7 @@ void Polyhedron<T>::addPoint(const V& position) {
             addFurtherPoint(position);
             break;
     }
+    assert(checkInvariant());
 }
 
 // Adds the given point to an empty polyhedron.

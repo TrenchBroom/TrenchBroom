@@ -22,6 +22,8 @@
 
 template <typename T>
 typename Polyhedron<T>::V::List Polyhedron<T>::moveVertices(const typename V::List& positions, const V& delta) {
+    assert(checkInvariant());
+
     if (delta.null())
         return positions;
     
@@ -36,6 +38,7 @@ typename Polyhedron<T>::V::List Polyhedron<T>::moveVertices(const typename V::Li
             newPositions.push_back(result.vertex->position());
     }
     
+    assert(checkInvariant());
     return newPositions;
 }
 
@@ -422,6 +425,7 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::cleanupAfterVertexMove(Vertex* ve
     vertex = mergeIncidentFaces(vertex);
     if (vertex != NULL)
         vertex = mergeIncomingAndLeavingEdges(vertex);
+    assert(checkNoCoplanarFaces());
     return vertex;
 }
 
