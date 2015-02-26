@@ -175,9 +175,7 @@ private:
     
     Seam split(const SplittingCriterion& criterion);
     
-    void weaveCap(const Seam& seam);
-    void weaveCap(const Seam& seam, const V& position);
-    void mergeCoplanarFaces(const Seam& seam);
+    Vertex* weaveCap(const Seam& seam, const V& position);
 };
 
 

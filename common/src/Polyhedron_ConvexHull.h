@@ -190,8 +190,8 @@ void Polyhedron<T>::addFurtherPointToPolyhedron(const V& position) {
 template <typename T>
 void Polyhedron<T>::addPointToPolyhedron(const V& position, const Seam& seam) {
     assert(!seam.empty());
-    weaveCap(seam, position);
-    mergeCoplanarFaces(seam);
+    Vertex* newVertex = weaveCap(seam, position);
+    cleanupAfterVertexMove(newVertex);
     assert(checkInvariant() && closed());
 }
 
@@ -283,32 +283,11 @@ typename Polyhedron<T>::Seam Polyhedron<T>::split(const SplittingCriterion& crit
     return seam;
 }
 
-// Weaves a new cap onto the given seam edges. The vertices of the seam are assumed to be
-// coplanar, because the new cap is just one face.
-template <typename T>
-void Polyhedron<T>::weaveCap(const Seam& seam) {
-    assert(seam.size() >= 3);
-    
-    HalfEdgeList halfEdges;
-    for (size_t i = 0; i < seam.size(); ++i) {
-        Edge* edge = seam[i];
-        assert(!edge->fullySpecified());
-        
-        HalfEdge* halfEdge = new HalfEdge(edge->secondVertex());
-        edge->setSecondEdge(halfEdge);
-        halfEdges.append(halfEdge, 1);
-    }
-    
-    Face* face = new Face(halfEdges);
-    m_faces.append(face, 1);
-    
-    assert(checkConvex() && closed());
-}
 
 // Weaves a new cap onto the given seam edges. The new cap will form a triangle fan (actually a cone) with a new vertex
 // at the location of the given point being shared by all the newly created triangles.
 template <typename T>
-void Polyhedron<T>::weaveCap(const Seam& seam, const V& position) {
+typename Polyhedron<T>::Vertex* Polyhedron<T>::weaveCap(const Seam& seam, const V& position) {
     assert(seam.size() >= 3);
     
     Vertex* top = new Vertex(position);
@@ -340,37 +319,7 @@ void Polyhedron<T>::weaveCap(const Seam& seam, const V& position) {
     m_edges.append(new Edge(first, last), 1);
     m_vertices.append(top, 1);
     
-    assert(checkConvex() && closed());
-}
-
-// Merges all coplanar incident faces of the given seam edges.
-template <typename T>
-void Polyhedron<T>::mergeCoplanarFaces(const Seam& seam) {
-    std::queue<Edge*> queue(seam);
-    while (!queue.empty()) {
-        Edge* first = queue.front(); queue.pop();
-        assert(first->fullySpecified());
-        
-        const V firstNorm = first->firstFace()->normal();
-        if (firstNorm.equals(first->secondFace()->normal())) {
-            // fast forward through all seam edges which have both of their incident faces coplanar to the first face
-            if (!queue.empty()) {
-                Edge* cur = queue.front();
-                while (cur != NULL && cur->firstFace()->normal().equals(firstNorm)) {
-                    assert(cur->fullySpecified());
-                    assert(cur->firstFace()->normal().equals(firstNorm) == cur->secondFace()->normal().equals(firstNorm));
-                    queue.pop();
-                    cur = !queue.empty() ? queue.front() : NULL;
-                }
-            }
-            
-            // now remove all coplanar faces and replace them with a new cap
-            const Seam mergeSeam = split(SplitByNormalCriterion(firstNorm));
-            weaveCap(mergeSeam);
-        }
-    }
-    
-    assert(checkConvex() && closed());
+    return top;
 }
 
 template <typename T>
@@ -461,19 +410,6 @@ public:
 private:
     bool doMatches(const Face* face) const {
         return !face->visibleFrom(m_point);
-    }
-};
-
-template <typename T>
-class Polyhedron<T>::SplitByNormalCriterion : public SplittingCriterion {
-private:
-    V m_normal;
-public:
-    SplitByNormalCriterion(const V& normal) :
-    m_normal(normal) {}
-private:
-    bool doMatches(const Face* face) const {
-        return !face->normal().equals(m_normal);
     }
 };
 

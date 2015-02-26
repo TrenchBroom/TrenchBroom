@@ -529,9 +529,9 @@ TEST(PolyhedronTest, testAddManyPointsCrash) {
     ASSERT_TRUE(p.hasVertex(p4));
     ASSERT_TRUE(p.hasVertex(p5));
     ASSERT_TRUE(p.hasVertex(p6));
-    ASSERT_EQ(10u, p.edgeCount());
+    ASSERT_EQ(9u, p.edgeCount());
     ASSERT_TRUE(p.hasEdge(p1, p2));
-    ASSERT_TRUE(p.hasEdge(p1, p3));
+    // ASSERT_TRUE(p.hasEdge(p1, p3));
     // ASSERT_TRUE(p.hasEdge(p2, p3));
     ASSERT_TRUE(p.hasEdge(p1, p4));
     // ASSERT_TRUE(p.hasEdge(p2, p4));
@@ -558,7 +558,46 @@ TEST(PolyhedronTest, testAddManyPointsCrash) {
     ASSERT_TRUE(hasTriangleOf(p, p6, p4, p5));
     ASSERT_TRUE(hasTriangleOf(p, p6, p1, p4));
     
-    // p.addPoint(p7);
+    p.addPoint(p7);
+    ASSERT_EQ(5u, p.vertexCount());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    // ASSERT_TRUE(p.hasVertex(p3));
+    // ASSERT_TRUE(p.hasVertex(p4));
+    ASSERT_TRUE(p.hasVertex(p5));
+    ASSERT_TRUE(p.hasVertex(p6));
+    ASSERT_TRUE(p.hasVertex(p7));
+    ASSERT_EQ(9u, p.edgeCount());
+    ASSERT_TRUE(p.hasEdge(p1, p2));
+    // ASSERT_TRUE(p.hasEdge(p1, p3));
+    // ASSERT_TRUE(p.hasEdge(p2, p3));
+    // ASSERT_TRUE(p.hasEdge(p1, p4));
+    // ASSERT_TRUE(p.hasEdge(p2, p4));
+    // ASSERT_TRUE(p.hasEdge(p3, p4));
+    ASSERT_TRUE(p.hasEdge(p5, p1));
+    ASSERT_TRUE(p.hasEdge(p5, p2));
+    // ASSERT_TRUE(p.hasEdge(p5, p3));
+    // ASSERT_TRUE(p.hasEdge(p5, p4));
+    ASSERT_TRUE(p.hasEdge(p6, p2));
+    ASSERT_TRUE(p.hasEdge(p6, p5));
+    // ASSERT_TRUE(p.hasEdge(p6, p4));
+    ASSERT_TRUE(p.hasEdge(p6, p1));
+    ASSERT_EQ(6u, p.faceCount());
+    // ASSERT_TRUE(hasTriangleOf(p, p1, p3, p2));
+    // ASSERT_TRUE(hasTriangleOf(p, p1, p2, p4));
+    // ASSERT_TRUE(hasTriangleOf(p, p1, p4, p3));
+    // ASSERT_TRUE(hasTriangleOf(p, p3, p4, p2));
+    // ASSERT_TRUE(hasTriangleOf(p, p5, p4, p1));
+    // ASSERT_TRUE(hasTriangleOf(p, p5, p3, p4));
+    // ASSERT_TRUE(hasTriangleOf(p, p5, p2, p3));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p1, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p6, p2, p1));
+    ASSERT_TRUE(hasTriangleOf(p, p6, p5, p2));
+    // ASSERT_TRUE(hasTriangleOf(p, p6, p4, p5));
+    // ASSERT_TRUE(hasTriangleOf(p, p6, p1, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p7, p1, p5));
+    ASSERT_TRUE(hasTriangleOf(p, p7, p6, p1));
+    ASSERT_TRUE(hasTriangleOf(p, p7, p5, p6));
 }
 
 TEST(PolyhedronTest, moveSingleVertex) {

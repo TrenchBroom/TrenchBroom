@@ -311,17 +311,17 @@ T Polyhedron<T>::computeNextMergePointForOppositeNeighbour(HalfEdge* edge, const
      We consider the boundary plane of the one neighbour to the side which is not incident to the
      moved vertex. This neighbour is not necessarily a triangle, but that does not matter.
      
-     p3------
-     /    n  |
-     /     e  |
+             p3------
+            /    n  |
+           /     e  |
      v----p2     i  |
      |\ s |      g  |
      | \  |      h  |
      |  \ |      b  |
      |   \|      o  |
      -----p1     u  |
-     \     r  |
-     ---------
+           \     r  |
+            ---------
      */
     
     HalfEdge* myBorder = edge->next();
@@ -583,14 +583,14 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::mergeIncidentFaces(Vertex* vertex
             HalfEdge* innerBorder = curEdge->previous();
             Face* innerNeighbour = innerBorder->twin()->face();
             
-            if (face->coplanar(outerNeighbour)) {
-                mergeNeighbours(outerBorder);
-                curEdge = curEdge->nextIncident();
-            } else if (face->coplanar(innerNeighbour)) {
+            if (face->coplanar(innerNeighbour)) {
                 // Ensure that we don't remove the first edge, otherwise we'll loop endlessly.
                 if (innerBorder->twin() == firstEdge)
                     firstEdge = firstEdge->nextIncident();
                 mergeNeighbours(innerBorder);
+            } else if (face->coplanar(outerNeighbour)) {
+                mergeNeighbours(outerBorder);
+                curEdge = curEdge->nextIncident();
             } else {
                 curEdge = curEdge->nextIncident();
             }
