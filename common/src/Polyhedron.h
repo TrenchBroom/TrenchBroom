@@ -85,12 +85,15 @@ public: // Accessors
     const VertexList& vertices() const;
     typename V::List vertexPositions() const;
     typename V::List& vertexPositions(typename V::List& positions) const;
+    bool hasVertex(const V& position) const;
     
     size_t edgeCount() const;
     const EdgeList& edges() const;
+    bool hasEdge(const V& pos1, const V& pos2) const;
     
     size_t faceCount() const;
     const FaceList& faces() const;
+    bool hasFace(const typename V::List& positions) const;
     
     bool empty() const;
     bool point() const;
@@ -103,6 +106,8 @@ private: // General purpose methods
     bool chooseNonColinearPoints(typename V::List& positions) const;
     
     Vertex* findVertexByPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
+    Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
+    Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     
     Face* createTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3) const;
     
@@ -249,6 +254,12 @@ typename Polyhedron<T>::V::List& Polyhedron<T>::vertexPositions(typename V::List
 }
 
 template <typename T>
+bool Polyhedron<T>::hasVertex(const V& position) const {
+    return findVertexByPosition(position) != NULL;
+}
+
+
+template <typename T>
 size_t Polyhedron<T>::edgeCount() const {
     return m_edges.size();
 }
@@ -259,6 +270,11 @@ const typename Polyhedron<T>::EdgeList& Polyhedron<T>::edges() const {
 }
 
 template <typename T>
+bool Polyhedron<T>::hasEdge(const V& pos1, const V& pos2) const {
+    return findEdgeByPositions(pos1, pos2) != NULL;
+}
+
+template <typename T>
 size_t Polyhedron<T>::faceCount() const {
     return m_faces.size();
 }
@@ -266,6 +282,11 @@ size_t Polyhedron<T>::faceCount() const {
 template <typename T>
 const typename Polyhedron<T>::FaceList& Polyhedron<T>::faces() const {
     return m_faces;
+}
+
+template <typename T>
+bool Polyhedron<T>::hasFace(const typename V::List& positions) const {
+    return findFaceByPositions(positions) != NULL;
 }
 
 template <typename T>
@@ -392,6 +413,28 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::findVertexByPosition(const V& pos
         Vertex* vertex = it.next();
         if (position.equals(vertex->position(), epsilon))
             return vertex;
+    }
+    return NULL;
+}
+
+template <typename T>
+typename Polyhedron<T>::Edge* Polyhedron<T>::findEdgeByPositions(const V& pos1, const V& pos2, const T epsilon) const {
+    typename EdgeList::ConstIterator it = m_edges.iterator();
+    while (it.hasNext()) {
+        Edge* edge = it.next();
+        if (edge->hasPositions(pos1, pos2, epsilon))
+            return edge;
+    }
+    return NULL;
+}
+
+template <typename T>
+typename Polyhedron<T>::Face* Polyhedron<T>::findFaceByPositions(const typename V::List& positions, const T epsilon) const {
+    typename FaceList::ConstIterator it = m_faces.iterator();
+    while (it.hasNext()) {
+        Face* face = it.next();
+        if (face->hasPositions(positions, epsilon))
+            return face;
     }
     return NULL;
 }

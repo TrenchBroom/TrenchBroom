@@ -119,6 +119,19 @@ public:
         return firstVertex() == vertex || secondVertex() == vertex;
     }
     
+    bool hasPosition(const V& position, const T epsilon = Math::Constants<T>::almostZero()) const {
+        return ( firstVertex()->position().equals(position, epsilon) ||
+                secondVertex()->position().equals(position, epsilon));
+    }
+    
+    bool hasPositions(const V& position1, const V& position2, const T epsilon = Math::Constants<T>::almostZero()) const {
+        return (( firstVertex()->position().equals(position1, epsilon) &&
+                 secondVertex()->position().equals(position2, epsilon)) ||
+                ( firstVertex()->position().equals(position2, epsilon) &&
+                 secondVertex()->position().equals(position1, epsilon))
+                );
+    }
+    
     bool fullySpecified() const {
         assert(m_first != NULL);
         return m_second != NULL;

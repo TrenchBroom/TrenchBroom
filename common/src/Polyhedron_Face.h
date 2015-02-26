@@ -69,6 +69,19 @@ public:
         return edge->origin()->position();
     }
     
+    bool hasPositions(const typename V::List& positions, const T epsilon = Math::Constants<T>::almostZero()) const {
+        if (positions.size() != vertexCount())
+            return false;
+        
+        typename HalfEdgeList::ConstIterator it = m_boundary.iterator();
+        while (it.hasNext()) {
+            const HalfEdge* edge = it.next();
+            if (edge->hasOrigins(positions))
+                return true;
+        }
+        return false;
+    }
+    
     V normal() const {
         typename HalfEdgeList::ConstIterator it = m_boundary.iterator();
         const HalfEdge* edge = it.next();

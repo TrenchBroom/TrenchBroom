@@ -105,6 +105,16 @@ public:
     HalfEdge* nextIncident() const {
         return previous()->twin();
     }
+    
+    bool hasOrigins(const typename V::List& positions, const T epsilon = Math::Constants<T>::almostZero()) const {
+        const HalfEdge* edge = this;
+        for (size_t i = 0; i < positions.size(); ++i) {
+            if (edge->origin()->position() != positions[i])
+                return false;
+            edge = edge->next();
+        }
+        return true;
+    }
 private:
     bool isLeavingEdge() const {
         return m_origin->leaving() == this;

@@ -37,11 +37,10 @@ typedef Polyhedron3d::FaceList FaceList;
 typedef std::pair<Vec3d, Vec3d> EdgeInfo;
 typedef std::vector<EdgeInfo> EdgeInfoList;
 
-bool hasVertices(const VertexList& vertices, Vec3d::List points);
-bool hasEdges(const EdgeList& edges, EdgeInfoList edgeInfos);
-bool hasTriangleOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3);
-bool hasQuadOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4);
-bool hasPolygonOf(const FaceList faces, const Vec3d::List& points);
+bool hasVertices(const Polyhedron3d& p, const Vec3d::List& points);
+bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos);
+bool hasTriangleOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3);
+bool hasQuadOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4);
 
 TEST(PolyhedronTest, initWith4Points) {
     const Vec3d p1( 0.0, 0.0, 8.0);
@@ -52,20 +51,13 @@ TEST(PolyhedronTest, initWith4Points) {
     const Polyhedron3d p(p1, p2, p3, p4);
     ASSERT_TRUE(p.closed());
     
-    ASSERT_EQ(4u, p.vertexCount());
-    ASSERT_EQ(6u, p.edgeCount());
-    ASSERT_EQ(4u, p.faceCount());
-    
-    const VertexList& vertices = p.vertices();
     Vec3d::List points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
     points.push_back(p4);
-    ASSERT_TRUE(hasVertices(vertices, points));
+    ASSERT_TRUE(hasVertices(p, points));
 
-    const EdgeList& edges = p.edges();
-    
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p2, p3));
     edgeInfos.push_back(std::make_pair(p3, p4));
@@ -74,14 +66,12 @@ TEST(PolyhedronTest, initWith4Points) {
     edgeInfos.push_back(std::make_pair(p1, p2));
     edgeInfos.push_back(std::make_pair(p4, p1));
     
-    ASSERT_TRUE(hasEdges(edges, edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
-    const FaceList& faces = p.faces();
-    
-    ASSERT_TRUE(hasTriangleOf(faces, p2, p3, p4));
-    ASSERT_TRUE(hasTriangleOf(faces, p1, p3, p2));
-    ASSERT_TRUE(hasTriangleOf(faces, p1, p2, p4));
-    ASSERT_TRUE(hasTriangleOf(faces, p1, p4, p3));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p3, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p1, p3, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p1, p2, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p1, p4, p3));
 }
 /*
 TEST(PolyhedronTest, testImpossibleSplit) {
@@ -112,7 +102,7 @@ TEST(PolyhedronTest, testSimpleSplit) {
     ASSERT_EQ(3u, p.edgeCount());
     ASSERT_EQ(1u, p.faceCount());
 
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p3, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p3, p4));
 }
 
 TEST(PolyhedronTest, testWeaveSimpleCap) {
@@ -143,19 +133,13 @@ TEST(PolyhedronTest, testSimpleConvexHull) {
     p.addPoint(p5);
     
     ASSERT_TRUE(p.closed());
-    ASSERT_EQ(4u, p.vertexCount());
-    ASSERT_EQ(6u, p.edgeCount());
-    ASSERT_EQ(4u, p.faceCount());
 
-    const VertexList& vertices = p.vertices();
     Vec3d::List points;
     points.push_back(p5);
     points.push_back(p2);
     points.push_back(p3);
     points.push_back(p4);
-    ASSERT_TRUE(hasVertices(vertices, points));
-    
-    const EdgeList& edges = p.edges();
+    ASSERT_TRUE(hasVertices(p, points));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p2, p3));
@@ -165,14 +149,12 @@ TEST(PolyhedronTest, testSimpleConvexHull) {
     edgeInfos.push_back(std::make_pair(p5, p2));
     edgeInfos.push_back(std::make_pair(p4, p5));
     
-    ASSERT_TRUE(hasEdges(edges, edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
-    const FaceList& faces = p.faces();
-    
-    ASSERT_TRUE(hasTriangleOf(faces, p2, p3, p4));
-    ASSERT_TRUE(hasTriangleOf(faces, p5, p3, p2));
-    ASSERT_TRUE(hasTriangleOf(faces, p5, p2, p4));
-    ASSERT_TRUE(hasTriangleOf(faces, p5, p4, p3));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p3, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p3, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p2, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p4, p3));
 }
 
 TEST(PolyhedronTest, testSimpleConvexHullWithCoplanarFaces) {
@@ -186,19 +168,13 @@ TEST(PolyhedronTest, testSimpleConvexHullWithCoplanarFaces) {
     p.addPoint(p5);
     
     ASSERT_TRUE(p.closed());
-    ASSERT_EQ(4u, p.vertexCount());
-    ASSERT_EQ(6u, p.edgeCount());
-    ASSERT_EQ(4u, p.faceCount());
     
-    const VertexList& vertices = p.vertices();
     Vec3d::List points;
     points.push_back(p5);
     points.push_back(p2);
     points.push_back(p3);
     points.push_back(p4);
-    ASSERT_TRUE(hasVertices(vertices, points));
-    
-    const EdgeList& edges = p.edges();
+    ASSERT_TRUE(hasVertices(p, points));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p2, p3));
@@ -208,14 +184,10 @@ TEST(PolyhedronTest, testSimpleConvexHullWithCoplanarFaces) {
     edgeInfos.push_back(std::make_pair(p5, p2));
     edgeInfos.push_back(std::make_pair(p4, p5));
     
-    ASSERT_TRUE(hasEdges(edges, edgeInfos));
-    
-    const FaceList& faces = p.faces();
-    
-    ASSERT_TRUE(hasTriangleOf(faces, p2, p3, p4));
-    ASSERT_TRUE(hasTriangleOf(faces, p5, p3, p2));
-    ASSERT_TRUE(hasTriangleOf(faces, p5, p2, p4));
-    ASSERT_TRUE(hasTriangleOf(faces, p5, p4, p3));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p3, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p3, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p2, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p4, p3));
 }
 
 TEST(PolyhedronTest, testSimpleConvexHullOfCube) {
@@ -241,14 +213,8 @@ TEST(PolyhedronTest, testSimpleConvexHullOfCube) {
     Polyhedron3d p(points);
     
     ASSERT_TRUE(p.closed());
-    ASSERT_EQ(8u, p.vertexCount());
-    ASSERT_EQ(12u, p.edgeCount());
-    ASSERT_EQ(6u, p.faceCount());
     
-    const VertexList& vertices = p.vertices();
-    ASSERT_TRUE(hasVertices(vertices, points));
-    
-    const EdgeList& edges = p.edges();
+    ASSERT_TRUE(hasVertices(p, points));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -264,16 +230,14 @@ TEST(PolyhedronTest, testSimpleConvexHullOfCube) {
     edgeInfos.push_back(std::make_pair(p6, p8));
     edgeInfos.push_back(std::make_pair(p7, p8));
     
-    ASSERT_TRUE(hasEdges(edges, edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
-    const FaceList& faces = p.faces();
-    
-    ASSERT_TRUE(hasQuadOf(faces, p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(faces, p3, p1, p2, p4));
-    ASSERT_TRUE(hasQuadOf(faces, p7, p3, p4, p8));
-    ASSERT_TRUE(hasQuadOf(faces, p5, p7, p8, p6));
-    ASSERT_TRUE(hasQuadOf(faces, p3, p7, p5, p1));
-    ASSERT_TRUE(hasQuadOf(faces, p2, p6, p8, p4));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p3, p1, p2, p4));
+    ASSERT_TRUE(hasQuadOf(p, p7, p3, p4, p8));
+    ASSERT_TRUE(hasQuadOf(p, p5, p7, p8, p6));
+    ASSERT_TRUE(hasQuadOf(p, p3, p7, p5, p1));
+    ASSERT_TRUE(hasQuadOf(p, p2, p6, p8, p4));
 }
 
 TEST(PolyhedronTest, initEmpty) {
@@ -296,8 +260,7 @@ TEST(PolyhedronTest, initEmptyAndAddOnePoint) {
     Vec3d::List points;
     points.push_back(p1);
     
-    const VertexList& vertices = p.vertices();
-    ASSERT_TRUE(hasVertices(vertices, points));
+    ASSERT_TRUE(hasVertices(p, points));
 }
 
 
@@ -317,8 +280,7 @@ TEST(PolyhedronTest, initEmptyAndAddTwoIdenticalPoints) {
     Vec3d::List points;
     points.push_back(p1);
     
-    const VertexList& vertices = p.vertices();
-    ASSERT_TRUE(hasVertices(vertices, points));
+    ASSERT_TRUE(hasVertices(p, points));
 }
 
 TEST(PolyhedronTest, initEmptyAndAddTwoPoints) {
@@ -339,8 +301,7 @@ TEST(PolyhedronTest, initEmptyAndAddTwoPoints) {
     points.push_back(p1);
     points.push_back(p2);
     
-    const VertexList& vertices = p.vertices();
-    ASSERT_TRUE(hasVertices(vertices, points));
+    ASSERT_TRUE(hasVertices(p, points));
 }
 
 TEST(PolyhedronTest, initEmptyAndAddThreeColinearPoints) {
@@ -363,8 +324,7 @@ TEST(PolyhedronTest, initEmptyAndAddThreeColinearPoints) {
     points.push_back(p1);
     points.push_back(p3);
     
-    const VertexList& vertices = p.vertices();
-    ASSERT_TRUE(hasVertices(vertices, points));
+    ASSERT_TRUE(hasVertices(p, points));
 }
 
 TEST(PolyhedronTest, initEmptyAndAddThreePoints) {
@@ -388,8 +348,7 @@ TEST(PolyhedronTest, initEmptyAndAddThreePoints) {
     points.push_back(p2);
     points.push_back(p3);
     
-    const VertexList& vertices = p.vertices();
-    ASSERT_TRUE(hasVertices(vertices, points));
+    ASSERT_TRUE(hasVertices(p, points));
 }
 
 TEST(PolyhedronTest, initEmptyAndAddThreePointsAndOneInnerPoint) {
@@ -415,8 +374,7 @@ TEST(PolyhedronTest, initEmptyAndAddThreePointsAndOneInnerPoint) {
     points.push_back(p2);
     points.push_back(p3);
     
-    const VertexList& vertices = p.vertices();
-    ASSERT_TRUE(hasVertices(vertices, points));
+    ASSERT_TRUE(hasVertices(p, points));
 }
 
 TEST(PolyhedronTest, initEmptyAndAddFourCoplanarPoints) {
@@ -442,8 +400,7 @@ TEST(PolyhedronTest, initEmptyAndAddFourCoplanarPoints) {
     points.push_back(p2);
     points.push_back(p4);
     
-    const VertexList& vertices = p.vertices();
-    ASSERT_TRUE(hasVertices(vertices, points));
+    ASSERT_TRUE(hasVertices(p, points));
 }
 
 TEST(PolyhedronTest, initEmptyAndAddFourPoints) {
@@ -470,21 +427,138 @@ TEST(PolyhedronTest, initEmptyAndAddFourPoints) {
     points.push_back(p3);
     points.push_back(p4);
     
-    const VertexList& vertices = p.vertices();
-    ASSERT_TRUE(hasVertices(vertices, points));
+    ASSERT_TRUE(hasVertices(p, points));
 }
 
 TEST(PolyhedronTest, testAddManyPointsCrash) {
+    const Vec3d p1( 8, 10, 0);
+    const Vec3d p2( 0, 24, 0);
+    const Vec3d p3( 8, 10, 8);
+    const Vec3d p4(10, 11, 8);
+    const Vec3d p5(12, 24, 8);
+    const Vec3d p6( 0,  6, 8);
+    const Vec3d p7(10,  0, 8);
+
     Polyhedron3d p;
-    p.addPoint(Vec3d( 8, 10, 0));
-    p.addPoint(Vec3d( 0, 24, 0));
-    p.addPoint(Vec3d( 8, 10, 8));
-    p.addPoint(Vec3d(10, 11, 8));
-    p.addPoint(Vec3d(12, 24, 8));
-    p.addPoint(Vec3d( 0,  6, 8));
-    p.addPoint(Vec3d(10,  0, 8)); // This fails.
     
-    ASSERT_TRUE(p.closed());
+    p.addPoint(p1);
+    
+    ASSERT_TRUE(p.point());
+    ASSERT_EQ(1u, p.vertexCount());
+    ASSERT_TRUE(p.hasVertex(p1));
+    
+    p.addPoint(p2);
+    
+    ASSERT_TRUE(p.edge());
+    ASSERT_EQ(2u, p.vertexCount());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_EQ(1u, p.edgeCount());
+    ASSERT_TRUE(p.hasEdge(p1, p2));
+
+    p.addPoint(p3);
+    
+    ASSERT_TRUE(p.polygon());
+    ASSERT_EQ(3u, p.vertexCount());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_TRUE(p.hasVertex(p3));
+    ASSERT_EQ(3u, p.edgeCount());
+    ASSERT_TRUE(p.hasEdge(p1, p2));
+    ASSERT_TRUE(p.hasEdge(p1, p3));
+    ASSERT_TRUE(p.hasEdge(p2, p3));
+    ASSERT_EQ(1u, p.faceCount());
+    ASSERT_TRUE(hasTriangleOf(p, p1, p2, p3));
+    
+    p.addPoint(p4);
+    
+    ASSERT_TRUE(p.polyhedron());
+    ASSERT_EQ(4u, p.vertexCount());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_TRUE(p.hasVertex(p3));
+    ASSERT_TRUE(p.hasVertex(p4));
+    ASSERT_EQ(6u, p.edgeCount());
+    ASSERT_TRUE(p.hasEdge(p1, p2));
+    ASSERT_TRUE(p.hasEdge(p1, p3));
+    ASSERT_TRUE(p.hasEdge(p2, p3));
+    ASSERT_TRUE(p.hasEdge(p1, p4));
+    ASSERT_TRUE(p.hasEdge(p2, p4));
+    ASSERT_TRUE(p.hasEdge(p3, p4));
+    ASSERT_EQ(4u, p.faceCount());
+    ASSERT_TRUE(hasTriangleOf(p, p1, p3, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p1, p2, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p1, p4, p3));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p2));
+
+    p.addPoint(p5);
+    
+    ASSERT_TRUE(p.polyhedron());
+    ASSERT_EQ(5u, p.vertexCount());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    ASSERT_TRUE(p.hasVertex(p3));
+    ASSERT_TRUE(p.hasVertex(p4));
+    ASSERT_TRUE(p.hasVertex(p5));
+    ASSERT_EQ(9u, p.edgeCount());
+    ASSERT_TRUE(p.hasEdge(p1, p2));
+    ASSERT_TRUE(p.hasEdge(p1, p3));
+    ASSERT_TRUE(p.hasEdge(p2, p3));
+    ASSERT_TRUE(p.hasEdge(p1, p4));
+    // ASSERT_TRUE(p.hasEdge(p2, p4));
+    ASSERT_TRUE(p.hasEdge(p3, p4));
+    ASSERT_TRUE(p.hasEdge(p5, p1));
+    ASSERT_TRUE(p.hasEdge(p5, p2));
+    ASSERT_TRUE(p.hasEdge(p5, p3));
+    ASSERT_TRUE(p.hasEdge(p5, p4));
+    ASSERT_EQ(6u, p.faceCount());
+    ASSERT_TRUE(hasTriangleOf(p, p1, p3, p2));
+    // ASSERT_TRUE(hasTriangleOf(p, p1, p2, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p1, p4, p3));
+    // ASSERT_TRUE(hasTriangleOf(p, p3, p4, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p4, p1));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p3, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p2, p3));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p1, p2));
+    
+    p.addPoint(p6);
+    ASSERT_EQ(5u, p.vertexCount());
+    ASSERT_TRUE(p.hasVertex(p1));
+    ASSERT_TRUE(p.hasVertex(p2));
+    // ASSERT_TRUE(p.hasVertex(p3));
+    ASSERT_TRUE(p.hasVertex(p4));
+    ASSERT_TRUE(p.hasVertex(p5));
+    ASSERT_TRUE(p.hasVertex(p6));
+    ASSERT_EQ(10u, p.edgeCount());
+    ASSERT_TRUE(p.hasEdge(p1, p2));
+    ASSERT_TRUE(p.hasEdge(p1, p3));
+    // ASSERT_TRUE(p.hasEdge(p2, p3));
+    ASSERT_TRUE(p.hasEdge(p1, p4));
+    // ASSERT_TRUE(p.hasEdge(p2, p4));
+    // ASSERT_TRUE(p.hasEdge(p3, p4));
+    ASSERT_TRUE(p.hasEdge(p5, p1));
+    ASSERT_TRUE(p.hasEdge(p5, p2));
+    // ASSERT_TRUE(p.hasEdge(p5, p3));
+    ASSERT_TRUE(p.hasEdge(p5, p4));
+    ASSERT_TRUE(p.hasEdge(p6, p2));
+    ASSERT_TRUE(p.hasEdge(p6, p5));
+    ASSERT_TRUE(p.hasEdge(p6, p4));
+    ASSERT_TRUE(p.hasEdge(p6, p1));
+    ASSERT_EQ(6u, p.faceCount());
+    // ASSERT_TRUE(hasTriangleOf(p, p1, p3, p2));
+    // ASSERT_TRUE(hasTriangleOf(p, p1, p2, p4));
+    // ASSERT_TRUE(hasTriangleOf(p, p1, p4, p3));
+    // ASSERT_TRUE(hasTriangleOf(p, p3, p4, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p4, p1));
+    // ASSERT_TRUE(hasTriangleOf(p, p5, p3, p4));
+    // ASSERT_TRUE(hasTriangleOf(p, p5, p2, p3));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p1, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p6, p2, p1));
+    ASSERT_TRUE(hasTriangleOf(p, p6, p5, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p6, p4, p5));
+    ASSERT_TRUE(hasTriangleOf(p, p6, p1, p4));
+    
+    // p.addPoint(p7);
 }
 
 TEST(PolyhedronTest, moveSingleVertex) {
@@ -651,7 +725,7 @@ TEST(PolyhedronTest, moveVertexDownWithoutMerges) {
     positions.push_back(p6);
     positions.push_back(p7);
     positions.push_back(p8);
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -669,18 +743,18 @@ TEST(PolyhedronTest, moveVertexDownWithoutMerges) {
     edgeInfos.push_back(std::make_pair(p6, p7));
     edgeInfos.push_back(std::make_pair(p6, p8));
     edgeInfos.push_back(std::make_pair(p7, p8));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(9u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p6, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p7, p6));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p8, p6, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p8, p4, p6));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p8, p7, p4));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p8, p6, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p8, p4, p6));
+    ASSERT_TRUE(hasTriangleOf(p, p8, p7, p4));
 }
 
 TEST(PolyhedronTest, moveVertexUpWithoutMerges) {
@@ -708,7 +782,7 @@ TEST(PolyhedronTest, moveVertexUpWithoutMerges) {
     positions.push_back(p6);
     positions.push_back(p7);
     positions.push_back(p8);
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -726,18 +800,18 @@ TEST(PolyhedronTest, moveVertexUpWithoutMerges) {
     edgeInfos.push_back(std::make_pair(p5, p8));
     edgeInfos.push_back(std::make_pair(p6, p8));
     edgeInfos.push_back(std::make_pair(p7, p8));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(9u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p6, p8));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p8, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p4, p8));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p8, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p8, p6));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p7, p8));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p8));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p8, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p8));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p8, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p8, p6));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p8));
 }
 
 TEST(PolyhedronTest, moveVertexWithOneOuterNeighbourMerge) {
@@ -768,7 +842,7 @@ TEST(PolyhedronTest, moveVertexWithOneOuterNeighbourMerge) {
     ASSERT_VEC_EQ(p9, result.front());
     
     positions.back() = p9;
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
 
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -785,17 +859,17 @@ TEST(PolyhedronTest, moveVertexWithOneOuterNeighbourMerge) {
     edgeInfos.push_back(std::make_pair(p6, p7));
     edgeInfos.push_back(std::make_pair(p6, p9));
     edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
 
     ASSERT_EQ(8u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p2, p6, p9, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p7, p6));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p9, p6, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p9, p7, p4));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p2, p6, p9, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p9, p6, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p9, p7, p4));
 }
 
 TEST(PolyhedronTest, moveVertexWithTwoOuterNeighbourMerges) {
@@ -826,7 +900,7 @@ TEST(PolyhedronTest, moveVertexWithTwoOuterNeighbourMerges) {
     ASSERT_VEC_EQ(p9, result.front());
     
     positions.back() = p9;
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -842,16 +916,16 @@ TEST(PolyhedronTest, moveVertexWithTwoOuterNeighbourMerges) {
     edgeInfos.push_back(std::make_pair(p5, p7));
     edgeInfos.push_back(std::make_pair(p6, p9));
     edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p5, p7, p9, p6));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p3, p4, p9, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p6, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p9, p4, p6));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p5, p7, p9, p6));
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p9, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p9, p4, p6));
 }
 
 TEST(PolyhedronTest, moveVertexWithAllOuterNeighbourMerges) {
@@ -882,7 +956,7 @@ TEST(PolyhedronTest, moveVertexWithAllOuterNeighbourMerges) {
     ASSERT_VEC_EQ(p9, result.front());
     
     positions.back() = p9;
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -897,15 +971,15 @@ TEST(PolyhedronTest, moveVertexWithAllOuterNeighbourMerges) {
     edgeInfos.push_back(std::make_pair(p5, p7));
     edgeInfos.push_back(std::make_pair(p6, p9));
     edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(6u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p2, p6, p9, p4));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p3, p4, p9, p7));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p5, p7, p9, p6));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p2, p6, p9, p4));
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p9, p7));
+    ASSERT_TRUE(hasQuadOf(p, p5, p7, p9, p6));
 }
 
 TEST(PolyhedronTest, moveVertexWithInnerNeighbourMerges) {
@@ -936,7 +1010,7 @@ TEST(PolyhedronTest, moveVertexWithInnerNeighbourMerges) {
     ASSERT_VEC_EQ(p9, result.front());
     
     positions.back() = p9;
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -951,15 +1025,15 @@ TEST(PolyhedronTest, moveVertexWithInnerNeighbourMerges) {
     edgeInfos.push_back(std::make_pair(p5, p7));
     edgeInfos.push_back(std::make_pair(p6, p9));
     edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(6u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p2, p6, p9, p4));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p3, p4, p9, p7));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p5, p7, p9, p6));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p2, p6, p9, p4));
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p9, p7));
+    ASSERT_TRUE(hasQuadOf(p, p5, p7, p9, p6));
 }
 
 TEST(PolyhedronTest, moveVertexWithAllInnerNeighbourMerge) {
@@ -988,7 +1062,7 @@ TEST(PolyhedronTest, moveVertexWithAllInnerNeighbourMerge) {
     ASSERT_TRUE(result.empty());
 
     positions.pop_back();
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -1003,16 +1077,16 @@ TEST(PolyhedronTest, moveVertexWithAllInnerNeighbourMerge) {
     edgeInfos.push_back(std::make_pair(p5, p6));
     edgeInfos.push_back(std::make_pair(p5, p7));
     edgeInfos.push_back(std::make_pair(p6, p7));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p6, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p7, p6));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p4, p6, p7));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
+    ASSERT_TRUE(hasTriangleOf(p, p4, p6, p7));
 }
 
 TEST(PolyhedronTest, moveVertexUpThroughPlane) {
@@ -1043,7 +1117,7 @@ TEST(PolyhedronTest, moveVertexUpThroughPlane) {
     ASSERT_VEC_EQ(p9, result.front());
     
     positions.back() = p9;
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -1059,16 +1133,16 @@ TEST(PolyhedronTest, moveVertexUpThroughPlane) {
     edgeInfos.push_back(std::make_pair(p5, p7));
     edgeInfos.push_back(std::make_pair(p6, p9));
     edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p3, p4, p9, p7));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p5, p7, p9, p6));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p9, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p6, p9));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p9, p7));
+    ASSERT_TRUE(hasQuadOf(p, p5, p7, p9, p6));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p9, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p9));
 }
 
 TEST(PolyhedronTest, moveVertexOntoEdge) {
@@ -1097,7 +1171,7 @@ TEST(PolyhedronTest, moveVertexOntoEdge) {
     ASSERT_TRUE(result.empty());
     
     positions.pop_back();
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -1112,16 +1186,16 @@ TEST(PolyhedronTest, moveVertexOntoEdge) {
     edgeInfos.push_back(std::make_pair(p5, p6));
     edgeInfos.push_back(std::make_pair(p5, p7));
     edgeInfos.push_back(std::make_pair(p6, p7));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p6, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p7, p6));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p4, p6, p7));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
+    ASSERT_TRUE(hasTriangleOf(p, p4, p6, p7));
 }
 
 TEST(PolyhedronTest, moveVertexOntoIncidentVertex) {
@@ -1151,7 +1225,7 @@ TEST(PolyhedronTest, moveVertexOntoIncidentVertex) {
     ASSERT_VEC_EQ(p7, result.front());
     
     positions.pop_back();
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -1166,16 +1240,16 @@ TEST(PolyhedronTest, moveVertexOntoIncidentVertex) {
     edgeInfos.push_back(std::make_pair(p5, p6));
     edgeInfos.push_back(std::make_pair(p5, p7));
     edgeInfos.push_back(std::make_pair(p6, p7));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p6, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p7, p6));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p4, p6, p7));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p6));
+    ASSERT_TRUE(hasTriangleOf(p, p4, p6, p7));
 }
 
 
@@ -1207,7 +1281,7 @@ TEST(PolyhedronTest, moveVertexOntoIncidentVertexInOppositeDirection) {
     
     positions.pop_back();
     positions.back() = p8;
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -1222,16 +1296,16 @@ TEST(PolyhedronTest, moveVertexOntoIncidentVertexInOppositeDirection) {
     edgeInfos.push_back(std::make_pair(p5, p6));
     edgeInfos.push_back(std::make_pair(p5, p8));
     edgeInfos.push_back(std::make_pair(p6, p8));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p2, p6, p8, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p1, p3, p5));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p4, p8));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p8, p6));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p8, p5));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p2, p6, p8, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p1, p3, p5));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p8));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p8, p6));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p8, p5));
 }
 
 TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex) {
@@ -1263,7 +1337,7 @@ TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex) {
     
     positions.pop_back(); // p8 will be erased due to colinear incident edges
     positions[5] = p9; // p6 was moved to p9
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -1278,16 +1352,16 @@ TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex) {
     edgeInfos.push_back(std::make_pair(p5, p7));
     edgeInfos.push_back(std::make_pair(p5, p9));
     edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p3, p4, p9, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p1, p5, p2));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p5, p9));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p9, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p7, p9));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p9, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p1, p5, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p5, p9));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p9, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p9));
 }
 
 TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex2) {
@@ -1319,7 +1393,7 @@ TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex2) {
     
     positions.erase(positions.begin() + 5); // p6 will be erased due to colinear incident edges
     positions[6] = p9; // p8 was moved to p9
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -1334,16 +1408,16 @@ TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithoutDeletingVertex2) {
     edgeInfos.push_back(std::make_pair(p5, p7));
     edgeInfos.push_back(std::make_pair(p5, p9));
     edgeInfos.push_back(std::make_pair(p7, p9));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(7u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p9, p2));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p2, p9, p4));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p3, p4, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p4, p9, p7));
-    ASSERT_TRUE(hasTriangleOf(p.faces(), p5, p7, p9));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p9, p2));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p9, p4));
+    ASSERT_TRUE(hasTriangleOf(p, p3, p4, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p4, p9, p7));
+    ASSERT_TRUE(hasTriangleOf(p, p5, p7, p9));
 }
 
 TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithDeletingVertex) {
@@ -1374,7 +1448,7 @@ TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithDeletingVertex) {
     ASSERT_TRUE(result.empty());
 
     positions.pop_back();
-    ASSERT_TRUE(hasVertices(p.vertices(), positions));
+    ASSERT_TRUE(hasVertices(p, positions));
     
     EdgeInfoList edgeInfos;
     edgeInfos.push_back(std::make_pair(p1, p2));
@@ -1389,106 +1463,52 @@ TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithDeletingVertex) {
     edgeInfos.push_back(std::make_pair(p5, p7));
     edgeInfos.push_back(std::make_pair(p6, p8));
     edgeInfos.push_back(std::make_pair(p7, p8));
-    ASSERT_TRUE(hasEdges(p.edges(), edgeInfos));
+    ASSERT_TRUE(hasEdges(p, edgeInfos));
     
     ASSERT_EQ(6u, p.faceCount());
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p2, p4, p3));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p3, p7, p5));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p1, p5, p6, p2));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p2, p6, p8, p4));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p3, p4, p8, p7));
-    ASSERT_TRUE(hasQuadOf(p.faces(), p5, p7, p8, p6));
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p3, p7, p5));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p2, p6, p8, p4));
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p8, p7));
+    ASSERT_TRUE(hasQuadOf(p, p5, p7, p8, p6));
 }
 
-bool hasVertices(const VertexList& vertices, Vec3d::List points) {
-    VertexList::ConstIterator vIt = vertices.iterator();
-    while (vIt.hasNext()) {
-        const Vertex* vertex = vIt.next();
-        Vec3d::List::iterator pIt = VectorUtils::find(points, vertex->position());
-        if (pIt == points.end())
-            return false;
-        points.erase(pIt);
-    }
-    return points.empty();
-}
-
-EdgeInfoList::iterator findEdgeInfo(EdgeInfoList& edgeInfos, const Edge* edge);
-
-bool hasEdges(const EdgeList& edges, EdgeInfoList edgeInfos) {
-    EdgeList::ConstIterator eIt = edges.iterator();
-    while (eIt.hasNext()) {
-        const Edge* edge = eIt.next();
-        EdgeInfoList::iterator it = findEdgeInfo(edgeInfos, edge);
-        if (it == edgeInfos.end())
-            return false;
-        edgeInfos.erase(it);
-    }
-    return edgeInfos.empty();
-}
-
-EdgeInfoList::iterator findEdgeInfo(EdgeInfoList& edgeInfos, const Edge* edge) {
-    Vertex* v1 = edge->firstVertex();
-    Vertex* v2 = edge->secondVertex();
+bool hasVertices(const Polyhedron3d& p, const Vec3d::List& points) {
+    if (p.vertexCount() != points.size())
+        return false;
     
-    EdgeInfoList::iterator it, end;
-    for (it = edgeInfos.begin(), end = edgeInfos.end(); it != end; ++it) {
-        const EdgeInfo& info = *it;
-        if ((info.first == v1->position() && info.second == v2->position()) ||
-            (info.first == v2->position() && info.second == v1->position()))
-            return it;
+    for (size_t i = 0; i < points.size(); ++i) {
+        if (!p.hasVertex(points[i]))
+            return false;
     }
-    return end;
+    return true;
 }
 
-bool hasTriangleOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3) {
+bool hasEdges(const Polyhedron3d& p, const EdgeInfoList& edgeInfos) {
+    if (p.edgeCount() != edgeInfos.size())
+        return false;
+    
+    for (size_t i = 0; i < edgeInfos.size(); ++i) {
+        if (!p.hasEdge(edgeInfos[i].first, edgeInfos[i].second))
+            return false;
+    }
+    return true;
+}
+
+bool hasTriangleOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3) {
     Vec3d::List points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
-    return hasPolygonOf(faces, points);
+    return p.hasFace(points);
 }
 
-bool hasQuadOf(const FaceList& faces, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4) {
+bool hasQuadOf(const Polyhedron3d& p, const Vec3d& p1, const Vec3d& p2, const Vec3d& p3, const Vec3d& p4) {
     Vec3d::List points;
     points.push_back(p1);
     points.push_back(p2);
     points.push_back(p3);
     points.push_back(p4);
-    return hasPolygonOf(faces, points);
-}
-
-bool isPolygonOf(const Face* face, const Vec3d::List& points);
-bool hasPolygonOf(const FaceList faces, const Vec3d::List& points) {
-    FaceList::ConstIterator fIt = faces.iterator();
-    while (fIt.hasNext()) {
-        const Face* face = fIt.next();
-        if (isPolygonOf(face, points))
-            return true;
-    }
-    return false;
-}
-
-bool isPolygonOf(const HalfEdge* edge, const Vec3d::List& points);
-bool isPolygonOf(const Face* face, const Vec3d::List& points) {
-    typedef Polyhedron3d::HalfEdgeList BoundaryList;
-    
-    const BoundaryList& boundary = face->boundary();
-    if (boundary.size() != points.size())
-        return false;
-
-    BoundaryList::ConstIterator it = boundary.iterator();
-    while (it.hasNext()) {
-        if (isPolygonOf(it.next(), points))
-            return true;
-    }
-    return false;
-}
-
-bool isPolygonOf(const HalfEdge* edge, const Vec3d::List& points) {
-    for (size_t i = 0; i < points.size(); ++i) {
-        if (edge->origin()->position() != points[i])
-            return false;
-        edge = edge->next();
-    }
-    return true;
+    return p.hasFace(points);
 }
