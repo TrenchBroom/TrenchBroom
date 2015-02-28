@@ -449,13 +449,14 @@ template <typename T>
 void Polyhedron<T>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2) {
     assert(edge1->destination() == edge2->origin());
     
-    if (edge1->next() == edge2) // the left side is a degenerate triangle now
+    if (edge1->face()->vertexCount() == 3 && edge1->next() == edge2) // the left side is a degenerate triangle now
         mergeNeighbours(edge1->previous());
-    else
+    else if (edge1->next()->face() != edge2->face()) // the face might already have been merged previously
         mergeNeighbours(edge1->next());
-    if (edge1->twin()->previous() == edge2->twin())
+    
+    if (edge1->twin()->face()->vertexCount() == 3 && edge1->twin()->previous() == edge2->twin())
         mergeNeighbours(edge1->twin()->next());
-    else
+    else if (edge1->twin()->face() != edge2->twin()->face())
         mergeNeighbours(edge1->twin()->previous());
 }
 
