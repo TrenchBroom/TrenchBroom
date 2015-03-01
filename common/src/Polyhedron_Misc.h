@@ -38,8 +38,10 @@ Polyhedron<T>::Polyhedron(const BBox<T,3>& bounds) {
     const V p6(bounds.max.x(), bounds.min.y(), bounds.max.z());
     const V p7(bounds.max.x(), bounds.max.y(), bounds.min.z());
     const V p8(bounds.max.x(), bounds.max.y(), bounds.max.z());
-    
-    initializeTetrahedron(p1, p2, p3, p5);
+
+    addPoint(p1);
+    addPoint(p2);
+    addPoint(p3);
     addPoint(p4);
     addPoint(p6);
     addPoint(p7);
@@ -48,10 +50,7 @@ Polyhedron<T>::Polyhedron(const BBox<T,3>& bounds) {
 
 template <typename T>
 Polyhedron<T>::Polyhedron(typename V::List positions) {
-    if (chooseNonColinearPoints(positions)) {
-        initializeTetrahedron(positions[0], positions[1], positions[2], positions[3]);
-        addPoints(positions.begin() + 4, positions.end());
-    }
+    addPoints(positions.begin(), positions.end());
 }
 
 template <typename T>

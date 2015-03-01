@@ -41,6 +41,7 @@ namespace TrenchBroom {
             ~CreateBrushTool();
             
             void update(const BBox3& bounds);
+            void update(const Vec3::List& points);
             void addPoint(const Vec3& point);
             bool clear();
             

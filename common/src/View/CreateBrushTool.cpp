@@ -45,6 +45,12 @@ namespace TrenchBroom {
             refreshViews();
         }
 
+        void CreateBrushTool::update(const Vec3::List& points) {
+            clear();
+            m_polyhedron = new Polyhedron3(points);
+            refreshViews();
+        }
+
         void CreateBrushTool::addPoint(const Vec3& point) {
             if (m_polyhedron == NULL)
                 m_polyhedron = new Polyhedron3();
