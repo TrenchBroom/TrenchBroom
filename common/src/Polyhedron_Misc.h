@@ -84,9 +84,9 @@ typename Polyhedron<T>::V::List Polyhedron<T>::vertexPositions() const {
 
 template <typename T>
 typename Polyhedron<T>::V::List& Polyhedron<T>::vertexPositions(typename V::List& positions) const {
-    typename VertexList::ConstIterator it = m_vertices.iterator();
-    while (it.hasNext()) {
-        const Vertex* v = it.next();
+    typename VertexList::const_iterator it, end;
+    for (it = m_vertices.begin(), end = m_vertices.end(); it != end; ++it) {
+        const Vertex* v = *it;
         positions.push_back(v->position());
     }
     return positions;
@@ -247,9 +247,9 @@ bool Polyhedron<T>::chooseNonColinearPoints(typename V::List& positions) const {
 
 template <typename T>
 typename Polyhedron<T>::Vertex* Polyhedron<T>::findVertexByPosition(const V& position, const T epsilon) const {
-    typename VertexList::ConstIterator it = m_vertices.iterator();
-    while (it.hasNext()) {
-        Vertex* vertex = it.next();
+    typename VertexList::const_iterator it, end;
+    for (it = m_vertices.begin(), end = m_vertices.end(); it != end; ++it) {
+        Vertex* vertex = *it;
         if (position.equals(vertex->position(), epsilon))
             return vertex;
     }
@@ -258,9 +258,9 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::findVertexByPosition(const V& pos
 
 template <typename T>
 typename Polyhedron<T>::Edge* Polyhedron<T>::findEdgeByPositions(const V& pos1, const V& pos2, const T epsilon) const {
-    typename EdgeList::ConstIterator it = m_edges.iterator();
-    while (it.hasNext()) {
-        Edge* edge = it.next();
+    typename EdgeList::const_iterator it, end;
+    for (it = m_edges.begin(), end = m_edges.end(); it != end; ++it) {
+        Edge* edge = *it;
         if (edge->hasPositions(pos1, pos2, epsilon))
             return edge;
     }
@@ -269,9 +269,9 @@ typename Polyhedron<T>::Edge* Polyhedron<T>::findEdgeByPositions(const V& pos1, 
 
 template <typename T>
 typename Polyhedron<T>::Face* Polyhedron<T>::findFaceByPositions(const typename V::List& positions, const T epsilon) const {
-    typename FaceList::ConstIterator it = m_faces.iterator();
-    while (it.hasNext()) {
-        Face* face = it.next();
+    typename FaceList::const_iterator it, end;
+    for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+        Face* face = *it;
         if (face->hasPositions(positions, epsilon))
             return face;
     }
@@ -310,12 +310,12 @@ bool Polyhedron<T>::checkInvariant() const {
 
 template <typename T>
 bool Polyhedron<T>::checkConvex() const {
-    typename FaceList::ConstIterator fIt = m_faces.iterator();
-    while (fIt.hasNext()) {
-        const Face* face = fIt.next();
-        typename VertexList::ConstIterator vIt = m_vertices.iterator();
-        while (vIt.hasNext()) {
-            const Vertex* vertex = vIt.next();
+    typename FaceList::const_iterator fIt, fEnd;
+    for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+        const Face* face = *fIt;
+        typename VertexList::const_iterator vIt, vEnd;
+        for (vIt = m_vertices.begin(), vEnd = m_vertices.end(); vIt != vEnd; ++vIt) {
+            const Vertex* vertex = *vIt;
             if (face->pointStatus(vertex->position()) == Math::PointStatus::PSAbove)
                 return false;
         }
@@ -325,9 +325,9 @@ bool Polyhedron<T>::checkConvex() const {
 
 template <typename T>
 bool Polyhedron<T>::checkClosed() const {
-    typename EdgeList::ConstIterator eIt = m_edges.iterator();
-    while (eIt.hasNext()) {
-        const Edge* edge = eIt.next();
+    typename EdgeList::const_iterator eIt, eEnd;
+    for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
+        const Edge* edge = *eIt;
         if (!edge->fullySpecified())
             return false;
         
@@ -344,9 +344,9 @@ bool Polyhedron<T>::checkClosed() const {
 
 template <typename T>
 bool Polyhedron<T>::checkNoCoplanarFaces() const {
-    typename EdgeList::ConstIterator eIt = m_edges.iterator();
-    while (eIt.hasNext()) {
-        const Edge* edge = eIt.next();
+    typename EdgeList::const_iterator eIt, eEnd;
+    for (eIt = m_edges.begin(), eEnd = m_edges.end(); eIt != eEnd; ++eIt) {
+        const Edge* edge = *eIt;
         const Face* firstFace = edge->firstFace();
         const Face* secondFace = edge->secondFace();
         
@@ -360,16 +360,16 @@ bool Polyhedron<T>::checkNoCoplanarFaces() const {
 
 template <typename T>
 bool Polyhedron<T>::checkNoDegenerateFaces() const {
-    typename FaceList::ConstIterator fIt = m_faces.iterator();
-    while (fIt.hasNext()) {
-        const Face* face = fIt.next();
+    typename FaceList::const_iterator fIt, fEnd;
+    for (fIt = m_faces.begin(), fEnd = m_faces.end(); fIt != fEnd; ++fIt) {
+        const Face* face = *fIt;
         if (face->vertexCount() < 3)
             return false;
         
         const HalfEdgeList& boundary = face->boundary();
-        typename HalfEdgeList::ConstIterator hIt = boundary.iterator();
-        while (hIt.hasNext()) {
-            const HalfEdge* halfEdge = hIt.next();
+        typename HalfEdgeList::const_iterator hIt, hEnd;
+        for (hIt = boundary.begin(), hEnd = boundary.end(); hIt != hEnd; ++hIt) {
+            const HalfEdge* halfEdge = *hIt;
             const Edge* edge = halfEdge->edge();
             
             if (edge == NULL || !edge->fullySpecified())

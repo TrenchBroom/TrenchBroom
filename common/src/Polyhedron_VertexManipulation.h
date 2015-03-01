@@ -88,7 +88,7 @@ typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::movePointVertex(Vertex* 
 
 template <typename T>
 typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::moveEdgeVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex) {
-    Edge* edge = m_edges.iterator().next();
+    Edge* edge = *m_edges.begin();
     Vertex* other = edge->otherVertex(vertex);
     if (other->position() == destination) {
         if (!allowMergeIncidentVertex)
@@ -107,7 +107,7 @@ typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::moveEdgeVertex(Vertex* v
 
 template <typename T>
 typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::movePolygonVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex) {
-    Face* face = m_faces.iterator().next();
+    Face* face = *m_faces.begin();
     if (face->pointStatus(destination) != Math::PointStatus::PSInside)
         return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged, vertex);
     
@@ -171,6 +171,7 @@ typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::movePolyhedronVertex(Ver
             if (!allowMergeIncidentVertex || connectingEdge == NULL) {
                 mergeIncidentFaces(vertex);
                 const MoveVertexResult result = moveVertex(vertex, origin, false);
+                _UNUSED(result);
                 assert(result.moved());
                 return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged);
             }

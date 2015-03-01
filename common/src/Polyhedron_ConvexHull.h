@@ -52,7 +52,7 @@ template <typename T>
 void Polyhedron<T>::addSecondPoint(const V& position) {
     assert(point());
     
-    Vertex* onlyVertex = m_vertices.iterator().next();
+    Vertex* onlyVertex = *m_vertices.begin();
     if (position != onlyVertex->position()) {
         Vertex* newVertex = new Vertex(position);
         m_vertices.append(newVertex, 1);
@@ -69,9 +69,9 @@ template <typename T>
 void Polyhedron<T>::addThirdPoint(const V& position) {
     assert(edge());
     
-    typename VertexList::Iterator it = m_vertices.iterator();
-    const Vertex* v1 = it.next();
-    const Vertex* v2 = it.next();
+    typename VertexList::iterator it = m_vertices.begin();
+    const Vertex* v1 = *it++;
+    const Vertex* v2 = *it++;
     
     if (linearlyDependent(v1->position(), v2->position(), position))
         addPointToEdge(position);
@@ -84,9 +84,9 @@ template <typename T>
 void Polyhedron<T>::addPointToEdge(const V& position) {
     assert(edge());
     
-    typename VertexList::Iterator it = m_vertices.iterator();
-    Vertex* v1 = it.next();
-    Vertex* v2 = it.next();
+    typename VertexList::iterator it = m_vertices.begin();
+    Vertex* v1 = *it++;
+    Vertex* v2 = *it++;
     assert(linearlyDependent(v1->position(), v2->position(), position));
     
     if (!position.containedWithinSegment(v1->position(), v2->position()))
@@ -107,7 +107,7 @@ void Polyhedron<T>::addFurtherPoint(const V& position) {
 // given point is not coplanar.
 template <typename T>
 void Polyhedron<T>::addFurtherPointToPolygon(const V& position) {
-    Face* face = m_faces.iterator().next();
+    Face* face = *m_faces.begin();
     const Math::PointStatus::Type status = face->pointStatus(position);
     switch (status) {
         case Math::PointStatus::PSInside:
@@ -165,11 +165,11 @@ void Polyhedron<T>::makePolyhedron(const V& position) {
     assert(polygon());
     
     Seam seam;
-    Face* face = m_faces.iterator().next();
+    Face* face = *m_faces.begin();
     const HalfEdgeList& boundary = face->boundary();
-    typename HalfEdgeList::ConstIterator it = boundary.iterator();
-    while (it.hasNext()) {
-        const HalfEdge* h = it.next();
+    typename HalfEdgeList::const_iterator hIt, hEnd;
+    for (hIt = boundary.begin(), hEnd = boundary.end(); hIt != hEnd; ++hIt) {
+        const HalfEdge* h = *hIt;
         Edge* e = h->edge();
         seam.push_front(e); // ensure that the seam is in CCW order
     }
@@ -226,14 +226,14 @@ typename Polyhedron<T>::Seam Polyhedron<T>::split(const SplittingCriterion& crit
         splittingEdge = nextSplittingEdge;
     } while (splittingEdge != NULL);
     
-    typename VertexList::Iterator vertexIt;
-    typename EdgeList::Iterator edgeIt;
-    typename FaceList::Iterator faceIt;
+    typename VertexList::iterator vertexIt;
+    typename EdgeList::iterator edgeIt;
+    typename FaceList::iterator faceIt;
     
     // Now handle the remaining faces, edge, and vertices by sorting them into the correct polyhedra.
-    vertexIt = m_vertices.iterator();
-    while (vertexIt.hasNext()) {
-        Vertex* vertex = vertexIt.next();
+    vertexIt = m_vertices.begin();
+    while (vertexIt != m_vertices.end()) {
+        Vertex* vertex = *vertexIt;
         HalfEdge* edge = vertex->leaving();
         assert(edge != NULL);
         
@@ -244,14 +244,16 @@ typename Polyhedron<T>::Seam Polyhedron<T>::split(const SplittingCriterion& crit
         assert(face != NULL);
         
         if (!criterion.matches(face)) {
-            vertexIt.remove();
+            vertexIt = m_vertices.erase(vertexIt);
             vertices.append(vertex, 1);
+        } else {
+            ++vertexIt;
         }
     }
     
-    edgeIt = m_edges.iterator();
-    while (edgeIt.hasNext()) {
-        Edge* edge = edgeIt.next();
+    edgeIt = m_edges.begin();
+    while (edgeIt != m_edges.end()) {
+        Edge* edge = *edgeIt;
         Face* face = edge->firstFace();
         assert(face != NULL);
         
@@ -260,18 +262,22 @@ typename Polyhedron<T>::Seam Polyhedron<T>::split(const SplittingCriterion& crit
         
         if (!criterion.matches(face)) {
             assert(edge->secondFace() == NULL || !criterion.matches(edge->secondFace()));
-            edgeIt.remove();
+            edgeIt = m_edges.erase(edgeIt);
             edges.append(edge, 1);
+        } else {
+            ++edgeIt;
         }
     }
     
-    faceIt = m_faces.iterator();
-    while (faceIt.hasNext()) {
-        Face* face = faceIt.next();
+    faceIt = m_faces.begin();
+    while (faceIt != m_faces.end()) {
+        Face* face = *faceIt;
         
         if (!criterion.matches(face)) {
-            faceIt.remove();
+            faceIt = m_faces.erase(faceIt);
             faces.append(face, 1);
+        } else {
+            ++faceIt;
         }
     }
     
@@ -336,9 +342,9 @@ public:
     virtual ~SplittingCriterion() {}
 public:
     Edge* findFirstSplittingEdge(EdgeList& edges) const {
-        typename EdgeList::Iterator it = edges.iterator();
-        while (it.hasNext()) {
-            Edge* edge = it.next();
+        typename EdgeList::iterator it, end;
+        for (it = edges.begin(), end = edges.end(); it != end; ++it) {
+            Edge* edge = *it;
             const MatchResult result = matches(edge);
             switch (result) {
                 case MatchResult_Second:

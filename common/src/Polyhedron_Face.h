@@ -44,9 +44,9 @@ private:
     m_link(this) {
         assert(m_boundary.size() >= 3);
         
-        typename HalfEdgeList::Iterator it = m_boundary.iterator();
-        while (it.hasNext()) {
-            HalfEdge* edge = it.next();
+        typename HalfEdgeList::iterator hIt, hEnd;
+        for (hIt = m_boundary.begin(), hEnd = m_boundary.end(); hIt != hEnd; ++hIt) {
+            HalfEdge* edge = *hIt;
             edge->setFace(this);
         }
     }
@@ -64,8 +64,7 @@ public:
     }
     
     V origin() const {
-        typename HalfEdgeList::ConstIterator it = m_boundary.iterator();
-        const HalfEdge* edge = it.next();
+        const HalfEdge* edge = *m_boundary.begin();
         return edge->origin()->position();
     }
     
@@ -73,9 +72,9 @@ public:
         if (positions.size() != vertexCount())
             return false;
         
-        typename HalfEdgeList::ConstIterator it = m_boundary.iterator();
-        while (it.hasNext()) {
-            const HalfEdge* edge = it.next();
+        typename HalfEdgeList::const_iterator it, end;
+        for (it = m_boundary.begin(), end = m_boundary.end(); it != end; ++it) {
+            const HalfEdge* edge = *it;
             if (edge->hasOrigins(positions))
                 return true;
         }
@@ -83,14 +82,14 @@ public:
     }
     
     V normal() const {
-        typename HalfEdgeList::ConstIterator it = m_boundary.iterator();
-        const HalfEdge* edge = it.next();
+        typename HalfEdgeList::const_iterator it  = m_boundary.begin();
+        const HalfEdge* edge = *it++;
         const V p1 = edge->origin()->position();
         
-        edge = it.next();
+        edge = *it++;
         const V p2 = edge->origin()->position();
         
-        edge = it.next();
+        edge = *it++;
         const V p3 = edge->origin()->position();
         
         return crossed(p2 - p1, p3 - p1).normalized();

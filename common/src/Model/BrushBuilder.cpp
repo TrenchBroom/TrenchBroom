@@ -84,15 +84,15 @@ namespace TrenchBroom {
             BrushFaceList brushFaces;
             
             const Polyhedron3::FaceList& faces = polyhedron.faces();
-            Polyhedron3::FaceList::ConstIterator fIt = faces.iterator();
-            while (fIt.hasNext()) {
-                const Polyhedron3::Face* face = fIt.next();
+            Polyhedron3::FaceList::const_iterator fIt, fEnd;
+            for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+                const Polyhedron3::Face* face = *fIt;
                 const Polyhedron3::HalfEdgeList& boundary = face->boundary();
                 
-                Polyhedron3::HalfEdgeList::ConstIterator bIt = boundary.iterator();
-                const Polyhedron3::HalfEdge* edge1 = bIt.next();
-                const Polyhedron3::HalfEdge* edge2 = bIt.next();
-                const Polyhedron3::HalfEdge* edge3 = bIt.next();
+                Polyhedron3::HalfEdgeList::const_iterator bIt = boundary.begin();
+                const Polyhedron3::HalfEdge* edge1 = *bIt++;
+                const Polyhedron3::HalfEdge* edge2 = *bIt++;
+                const Polyhedron3::HalfEdge* edge3 = *bIt++;
                 
                 const Vec3& p1 = edge1->origin()->position();
                 const Vec3& p2 = edge2->origin()->position();

@@ -85,16 +85,16 @@ namespace TrenchBroom {
                 renderService.setLineWidth(2.0f);
                 
                 const Polyhedron3::EdgeList& edges = m_polyhedron->edges();
-                Polyhedron3::EdgeList::ConstIterator eIt = edges.iterator();
-                while (eIt.hasNext()) {
-                    const Polyhedron3::Edge* edge = eIt.next();
+                Polyhedron3::EdgeList::const_iterator eIt, eEnd;
+                for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
+                    const Polyhedron3::Edge* edge = *eIt;
                     renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
                 }
                 
                 const Polyhedron3::VertexList& vertices = m_polyhedron->vertices();
-                Polyhedron3::VertexList::ConstIterator vIt = vertices.iterator();
-                while (vIt.hasNext()) {
-                    const Polyhedron3::Vertex* vertex = vIt.next();
+                Polyhedron3::VertexList::const_iterator vIt, vEnd;
+                for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                    const Polyhedron3::Vertex* vertex = *vIt;
                     renderService.renderPointHandle(vertex->position());
                 }
             }

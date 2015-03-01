@@ -161,7 +161,9 @@ namespace TrenchBroom {
             MockNode* grandChild1 = new MockNode();
             MockNode* grandChild2 = new MockNode();
             
+#ifndef NDEBUG
             EXPECT_CALL(*child, mockDoCanAddChild(grandChild1)).WillOnce(Return(true));
+#endif
             EXPECT_CALL(*grandChild1, mockDoParentWillChange());
             EXPECT_CALL(*grandChild1, mockDoAncestorWillChange());
             EXPECT_CALL(*grandChild1, mockDoParentDidChange());
@@ -172,7 +174,9 @@ namespace TrenchBroom {
             ASSERT_EQ(child, grandChild1->parent());
             ASSERT_TRUE(VectorUtils::contains(child->children(), grandChild1));
             
+#ifndef NDEBUG
             EXPECT_CALL(root, mockDoCanAddChild(child)).WillOnce(Return(true));
+#endif
             EXPECT_CALL(*child, mockDoParentWillChange());
             EXPECT_CALL(*child, mockDoAncestorWillChange());
             EXPECT_CALL(*child, mockDoParentDidChange());
@@ -186,7 +190,9 @@ namespace TrenchBroom {
             ASSERT_EQ(&root, child->parent());
             ASSERT_TRUE(VectorUtils::contains(root.children(), child));
             
+#ifndef NDEBUG
             EXPECT_CALL(*child, mockDoCanAddChild(grandChild2)).WillOnce(Return(true));
+#endif
             EXPECT_CALL(*grandChild2, mockDoParentWillChange());
             EXPECT_CALL(*grandChild2, mockDoAncestorWillChange());
             EXPECT_CALL(*grandChild2, mockDoParentDidChange());
@@ -199,7 +205,9 @@ namespace TrenchBroom {
             ASSERT_EQ(child, grandChild2->parent());
             ASSERT_TRUE(VectorUtils::contains(child->children(), grandChild2));
             
+#ifndef NDEBUG
             EXPECT_CALL(root, mockDoCanRemoveChild(child)).WillOnce(Return(true));
+#endif
             EXPECT_CALL(*child, mockDoParentWillChange());
             EXPECT_CALL(*child, mockDoAncestorWillChange());
             EXPECT_CALL(*child, mockDoParentDidChange());
@@ -217,7 +225,9 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, child->childCount());
             ASSERT_EQ(3u, child->familySize());
             
+#ifndef NDEBUG
             EXPECT_CALL(root, mockDoCanAddChild(child)).WillOnce(Return(true));
+#endif
             EXPECT_CALL(*child, mockDoParentWillChange());
             EXPECT_CALL(*child, mockDoAncestorWillChange());
             EXPECT_CALL(*child, mockDoParentDidChange());
