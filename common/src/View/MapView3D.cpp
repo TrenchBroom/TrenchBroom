@@ -152,7 +152,8 @@ namespace TrenchBroom {
             Bind(wxEVT_KILL_FOCUS, &MapView3D::OnKillFocus, this);
             
             Bind(wxEVT_MENU, &MapView3D::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
-            
+            Bind(wxEVT_MENU, &MapView3D::OnPerformCreateBrush,           this, CommandIds::Actions::PerformCreateBrush);
+
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesUp,               this, CommandIds::Actions::MoveTexturesUp);
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesDown,             this, CommandIds::Actions::MoveTexturesDown);
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesLeft,             this, CommandIds::Actions::MoveTexturesLeft);
@@ -176,6 +177,11 @@ namespace TrenchBroom {
         void MapView3D::OnToggleMovementRestriction(wxCommandEvent& event) {
             m_movementRestriction.toggleHorizontalRestriction(m_camera);
             Refresh();
+        }
+
+        void MapView3D::OnPerformCreateBrush(wxCommandEvent& event) {
+            if (m_toolBox.createBrushToolActive())
+                m_createBrushToolAdapter->performCreateBrush();
         }
 
         void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {

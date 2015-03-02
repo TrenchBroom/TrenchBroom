@@ -35,19 +35,12 @@ namespace TrenchBroom {
         class CreateBrushTool : public Tool {
         private:
             MapDocumentWPtr m_document;
-            Polyhedron3* m_polyhedron;
         public:
             CreateBrushTool(MapDocumentWPtr document);
-            ~CreateBrushTool();
             
-            void update(const BBox3& bounds);
-            void update(const Vec3::List& points);
-            void addPoint(const Vec3& point);
-            bool clear();
+            void createBrush(const Polyhedron3& polyhedron);
             
-            void performCreateBrush();
-            
-            void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polyhedron3& polyhedron);
         private:
             bool doActivate();
         };

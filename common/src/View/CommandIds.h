@@ -153,6 +153,8 @@ namespace TrenchBroom {
                 const int MoveRotationCenterDown             = Lowest +  51;
 
                 const int CycleMapViews                      = Lowest +  52;
+                
+                const int CreateConvexHull                   = Lowest +  53;
 
                 /*
                 const int CorrectVertices                    = Lowest +  82;

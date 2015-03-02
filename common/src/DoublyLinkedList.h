@@ -302,6 +302,16 @@ public:
         return false;
     }
     
+    Item* front() const {
+        assert(!empty());
+        return m_head;
+    }
+    
+    Item* back() const {
+        assert(!empty());
+        return getTail();
+    }
+    
     void append(Item* item, const size_t count) {
         assert(item != NULL);
         
@@ -418,11 +428,16 @@ private:
         return link.next();
     }
     
+    Item* previous(Item* item) const {
+        assert(item != NULL);
+        Link& link = getLink(item);
+        return link.previous();
+    }
+    
     Item* getTail() const {
         if (m_head == NULL)
             return NULL;
-        Link& headLink = getLink(m_head);
-        return headLink.previous();
+        return previous(m_head);
     }
     
     Link& getLink(Item* item) const {

@@ -86,11 +86,6 @@ namespace TrenchBroom {
         bool MapViewToolBox::createBrushToolActive() const {
             return toolActive(m_createBrushTool);
         }
-        
-        void MapViewToolBox::performCreateBrush() {
-            assert(createBrushToolActive());
-            m_createBrushTool->performCreateBrush();
-        }
 
         void MapViewToolBox::toggleClipTool() {
             toggleTool(m_clipTool);

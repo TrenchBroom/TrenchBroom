@@ -32,72 +32,34 @@ namespace TrenchBroom {
     namespace View {
         CreateBrushTool::CreateBrushTool(MapDocumentWPtr document) :
         Tool(false),
-        m_document(document),
-        m_polyhedron(NULL) {}
-        
-        CreateBrushTool::~CreateBrushTool() {
-            delete m_polyhedron;
-        }
-        
-        void CreateBrushTool::update(const BBox3& bounds) {
-            clear();
-            m_polyhedron = new Polyhedron3(bounds);
-            refreshViews();
-        }
+        m_document(document) {}
 
-        void CreateBrushTool::update(const Vec3::List& points) {
-            clear();
-            m_polyhedron = new Polyhedron3(points);
-            refreshViews();
-        }
-
-        void CreateBrushTool::addPoint(const Vec3& point) {
-            if (m_polyhedron == NULL)
-                m_polyhedron = new Polyhedron3();
-            std::cout << "points.push_back(Vec3d(" << point.x() << ", " << point.y() << ", " << point.z() << "));" << std::endl;
-            m_polyhedron->addPoint(point);
-            refreshViews();
-        }
-
-        bool CreateBrushTool::clear() {
-            if (m_polyhedron != NULL) {
-                delete m_polyhedron;
-                m_polyhedron = NULL;
-                return true;
-            }
-            return false;
-        }
-
-        void CreateBrushTool::performCreateBrush() {
-            if (m_polyhedron != NULL && m_polyhedron->closed()) {
+        void CreateBrushTool::createBrush(const Polyhedron3& polyhedron) {
+            if (polyhedron.closed()) {
                 MapDocumentSPtr document = lock(m_document);
                 const Model::BrushBuilder builder(document->world(), document->worldBounds());
-                Model::Brush* brush = builder.createBrush(*m_polyhedron, document->currentTextureName());
+                Model::Brush* brush = builder.createBrush(polyhedron, document->currentTextureName());
                 
                 const Transaction transaction(document, "Create brush");
                 document->deselectAll();
                 document->addNode(brush, document->currentLayer());
-                document->select(brush);
-                
-                delete m_polyhedron;
-                m_polyhedron = NULL;
             }
         }
 
-        void CreateBrushTool::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (m_polyhedron != NULL && !m_polyhedron->empty()) {
+        void CreateBrushTool::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polyhedron3& polyhedron) {
+            if (!polyhedron.empty()) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(pref(Preferences::HandleColor));
                 renderService.setLineWidth(2.0f);
                 
-                const Polyhedron3::EdgeList& edges = m_polyhedron->edges();
+                const Polyhedron3::EdgeList& edges = polyhedron.edges();
                 Polyhedron3::EdgeList::const_iterator eIt, eEnd;
                 for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
                     const Polyhedron3::Edge* edge = *eIt;
                     renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
                 }
                 
-                const Polyhedron3::VertexList& vertices = m_polyhedron->vertices();
+                const Polyhedron3::VertexList& vertices = polyhedron.vertices();
                 Polyhedron3::VertexList::const_iterator vIt, vEnd;
                 for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                     const Polyhedron3::Vertex* vertex = *vIt;
@@ -107,7 +69,6 @@ namespace TrenchBroom {
         }
 
         bool CreateBrushTool::doActivate() {
-            clear();
             return true;
         }
     }

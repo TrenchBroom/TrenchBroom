@@ -186,7 +186,6 @@ namespace TrenchBroom {
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
 
             Bind(wxEVT_MENU, &MapViewBase::OnToggleCreateBrushTool,        this, CommandIds::Actions::ToggleCreateBrushTool);
-            Bind(wxEVT_MENU, &MapViewBase::OnPerformCreateBrush,           this, CommandIds::Actions::PerformCreateBrush);
 
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipTool,               this, CommandIds::Actions::ToggleClipTool);
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
@@ -237,6 +236,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterDown,       this, CommandIds::Actions::MoveRotationCenterDown);
 
             Bind(wxEVT_MENU, &MapViewBase::OnCancel,                       this, CommandIds::Actions::Cancel);
+            
+            Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushFromConvexHull,    this, CommandIds::Actions::CreateConvexHull);
 
             Bind(wxEVT_MENU, &MapViewBase::OnPopupReparentBrushes,         this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
             Bind(wxEVT_MENU, &MapViewBase::OnPopupMoveBrushesToWorld,      this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
@@ -456,10 +457,6 @@ namespace TrenchBroom {
         void MapViewBase::OnToggleCreateBrushTool(wxCommandEvent& event) {
             m_toolBox.toggleCreateBrushTool();
         }
-        
-        void MapViewBase::OnPerformCreateBrush(wxCommandEvent& event) {
-            m_toolBox.performCreateBrush();
-        }
 
         void MapViewBase::OnToggleClipTool(wxCommandEvent& event) {
             m_toolBox.toggleClipTool();
@@ -522,6 +519,11 @@ namespace TrenchBroom {
 
         bool MapViewBase::cancel() {
             return doCancel();
+        }
+
+        void MapViewBase::OnCreateBrushFromConvexHull(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            document->createBrushFromConvexHull();
         }
 
         void MapViewBase::OnSetFocus(wxFocusEvent& event) {

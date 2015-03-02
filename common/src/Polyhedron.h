@@ -101,17 +101,17 @@ public: // Accessors
     bool polygon() const;
     bool polyhedron() const;
     bool closed() const;
-private: // General purpose methods
-    void initializeTetrahedron(const V& p1, const V& p2, const V& p3, const V& p4);
-    bool chooseNonColinearPoints(typename V::List& positions) const;
+
+    void clear();
     
+    struct FaceHit;
+    FaceHit pickFace(const Ray<T,3>& ray) const;
+private: // General purpose methods
     Vertex* findVertexByPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
     
     Face* createTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3) const;
-    
-    void clear();
     
     bool checkInvariant() const;
     bool checkConvex() const;

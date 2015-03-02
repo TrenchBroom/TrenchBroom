@@ -43,6 +43,7 @@ Polyhedron<T>::Polyhedron(const BBox<T,3>& bounds) {
     addPoint(p2);
     addPoint(p3);
     addPoint(p4);
+    addPoint(p5);
     addPoint(p6);
     addPoint(p7);
     addPoint(p8);
@@ -158,90 +159,33 @@ bool Polyhedron<T>::closed() const {
 }
 
 template <typename T>
-void Polyhedron<T>::initializeTetrahedron(const V& p1, const V& p2, const V& p3, const V& p4) {
-    using std::swap;
-    assert(!commonPlane(p1, p2, p3, p4));
-    
-    Vertex* v1 = new Vertex(p1);
-    Vertex* v2 = new Vertex(p2);
-    Vertex* v3 = new Vertex(p3);
-    Vertex* v4 = new Vertex(p4);
-    
-    const V d1 = v4->position() - v2->position();
-    const V d2 = v4->position() - v3->position();
-    const V d3 = v1->position() - v4->position();
-    const V n1 = crossed(d1, d2);
-    
-    if (d3.dot(n1) > 0.0)
-        swap(v2, v3);
-    
-    m_vertices.append(v1, 1);
-    m_vertices.append(v2, 1);
-    m_vertices.append(v3, 1);
-    m_vertices.append(v4, 1);
-    
-    HalfEdge* h1 = new HalfEdge(v2);
-    HalfEdge* h2 = new HalfEdge(v3);
-    HalfEdge* h3 = new HalfEdge(v4);
-    HalfEdge* h4 = new HalfEdge(v1);
-    HalfEdge* h5 = new HalfEdge(v3);
-    HalfEdge* h6 = new HalfEdge(v2);
-    HalfEdge* h7 = new HalfEdge(v1);
-    HalfEdge* h8 = new HalfEdge(v2);
-    HalfEdge* h9 = new HalfEdge(v4);
-    HalfEdge* h10 = new HalfEdge(v1);
-    HalfEdge* h11 = new HalfEdge(v4);
-    HalfEdge* h12 = new HalfEdge(v3);
-    
-    Edge* e1 = new Edge(h1, h5);
-    Edge* e2 = new Edge(h2, h11);
-    Edge* e3 = new Edge(h3, h8);
-    Edge* e4 = new Edge(h4, h12);
-    Edge* e5 = new Edge(h6, h7);
-    Edge* e6 = new Edge(h9, h10);
-    
-    m_edges.append(e1, 1);
-    m_edges.append(e2, 1);
-    m_edges.append(e3, 1);
-    m_edges.append(e4, 1);
-    m_edges.append(e5, 1);
-    m_edges.append(e6, 1);
-    
-    Face* f1 = createTriangle(h1, h2, h3);
-    Face* f2 = createTriangle(h4, h5, h6);
-    Face* f3 = createTriangle(h7, h8, h9);
-    Face* f4 = createTriangle(h10, h11, h12);
-    
-    m_faces.append(f1, 1);
-    m_faces.append(f2, 1);
-    m_faces.append(f3, 1);
-    m_faces.append(f4, 1);
-    
-    assert(checkInvariant());
+void Polyhedron<T>::clear() {
+    m_faces.deleteAll();
+    m_edges.deleteAll();
+    m_vertices.deleteAll();
 }
 
 template <typename T>
-bool Polyhedron<T>::chooseNonColinearPoints(typename V::List& positions) const {
-    using std::swap;
+struct Polyhedron<T>::FaceHit {
+    Face* face;
+    T distance;
     
-    // first, choose a third point that is not colinear to the first two
-    size_t index = 2;
-    while (index < positions.size() && V::colinear(positions[0], positions[1], positions[index]))
-        ++index;
-    if (index == positions.size())
-        return false;
-    if (index != 2)
-        swap(positions[2], positions[index]);
-    
-    // now choose a fourth point such that it doesn't lie on the plane defined by the first three
-    index = 3;
-    while (index < positions.size() && commonPlane(positions[0], positions[1], positions[2], positions[index]))
-        ++index;
-    if (index == positions.size())
-        return false;
-    if (index != 3)
-        swap(positions[3], positions[index]);
-    return true;
+    FaceHit(Face* i_face, const T i_distance) : face(i_face), distance(i_distance) {}
+    FaceHit() : face(NULL), distance(Math::nan<T>()) {}
+    bool isMatch() const { return face != NULL; }
+};
+
+template <typename T>
+typename Polyhedron<T>::FaceHit Polyhedron<T>::pickFace(const Ray<T,3>& ray) const {
+    const Math::Side side = polygon() ? Math::Side_Both : Math::Side_Front;
+    typename FaceList::const_iterator it, end;
+    for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
+        Face* face = *it;
+        const T distance = face->intersectWithRay(ray, side);
+        if (!Math::isnan(distance))
+            return FaceHit(face, distance);
+    }
+    return FaceHit();
 }
 
 template <typename T>
@@ -285,13 +229,6 @@ typename Polyhedron<T>::Face* Polyhedron<T>::createTriangle(HalfEdge* h1, HalfEd
     boundary.append(h3, 1);
     
     return new Face(boundary);
-}
-
-template <typename T>
-void Polyhedron<T>::clear() {
-    m_faces.deleteAll();
-    m_edges.deleteAll();
-    m_vertices.deleteAll();
 }
 
 template <typename T>

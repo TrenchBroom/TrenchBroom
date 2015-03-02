@@ -328,6 +328,12 @@ namespace Math {
     };
     
     typedef enum {
+        Side_Front = 1,
+        Side_Back  = 2,
+        Side_Both  = 3
+    } Side;
+    
+    typedef enum {
         Direction_Forward,
         Direction_Backward,
         Direction_Left,

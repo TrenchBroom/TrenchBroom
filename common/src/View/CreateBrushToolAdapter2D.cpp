@@ -19,6 +19,7 @@
 
 #include "CreateBrushToolAdapter2D.h"
 
+#include "Polyhedron.h"
 #include "Renderer/Camera.h"
 #include "View/CreateBrushTool.h"
 #include "View/Grid.h"
@@ -35,8 +36,6 @@ namespace TrenchBroom {
             assert(m_tool != NULL);
         }
 
-        CreateBrushToolAdapter2D::~CreateBrushToolAdapter2D() {}
-        
         Tool* CreateBrushToolAdapter2D::doGetTool() {
             return m_tool;
         }
@@ -56,17 +55,20 @@ namespace TrenchBroom {
 
             m_initialPoint = initialPoint;
             updateBounds(inputState, m_initialPoint);
+            m_tool->refreshViews();
             
             return true;
         }
         
         bool CreateBrushToolAdapter2D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-            updateBounds(inputState, curPoint);
+            if (updateBounds(inputState, curPoint))
+                m_tool->refreshViews();
             return true;
         }
         
         void CreateBrushToolAdapter2D::doEndPlaneDrag(const InputState& inputState) {
-            m_tool->performCreateBrush();
+            if (!m_bounds.empty())
+                m_tool->createBrush(Polyhedron3(m_bounds));
         }
         
         void CreateBrushToolAdapter2D::doCancelPlaneDrag() {}
@@ -76,22 +78,26 @@ namespace TrenchBroom {
         void CreateBrushToolAdapter2D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         
         void CreateBrushToolAdapter2D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_tool->render(renderContext, renderBatch);
+            if (dragging() && !m_bounds.empty())
+                m_tool->render(renderContext, renderBatch, Polyhedron3(m_bounds));
         }
 
         bool CreateBrushToolAdapter2D::doCancel() {
             return false;
         }
 
-        void CreateBrushToolAdapter2D::updateBounds(const InputState& inputState, const Vec3& currentPoint) {
+        bool CreateBrushToolAdapter2D::updateBounds(const InputState& inputState, const Vec3& currentPoint) {
             BBox3 bounds(m_initialPoint, m_initialPoint);
             bounds.mergeWith(currentPoint);
             snapBounds(inputState, bounds);
             
-            if (!bounds.empty() && bounds != m_lastBounds) {
-                m_tool->update(bounds);
-                m_lastBounds = bounds;
-            }
+            if (bounds.empty() || bounds == m_bounds)
+                return false;
+            
+            using std::swap;
+            swap(m_bounds, bounds);
+            
+            return true;
         }
 
         void CreateBrushToolAdapter2D::snapBounds(const InputState& inputState, BBox3& bounds) {

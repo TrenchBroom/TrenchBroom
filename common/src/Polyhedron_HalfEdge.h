@@ -37,6 +37,10 @@ private:
     friend class HalfEdgeList;
     friend class Face;
     friend class Polyhedron<T>;
+public:
+    struct GetOriginPosition {
+        const V& operator()(const HalfEdge* edge) const { return edge->origin()->position(); }
+    };
 private:
     Vertex* m_origin;
     Edge* m_edge;

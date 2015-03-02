@@ -91,6 +91,8 @@ namespace TrenchBroom {
             void OnKey(wxKeyEvent& event);
             void OnToggleMovementRestriction(wxCommandEvent& event);
 
+            void OnPerformCreateBrush(wxCommandEvent& event);
+
             void OnMoveTexturesUp(wxCommandEvent& event);
             void OnMoveTexturesDown(wxCommandEvent& event);
             void OnMoveTexturesLeft(wxCommandEvent& event);

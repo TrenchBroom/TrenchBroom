@@ -94,6 +94,24 @@ public:
         
         return crossed(p2 - p1, p3 - p1).normalized();
     }
+    
+    T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const {
+        const Plane<T,3> plane(origin(), normal());
+        const FloatType dot = plane.normal.dot(ray.direction);
+        if (Math::zero(dot))
+            return Math::nan<T>();
+        if (side != Math::Side_Both) {
+            if (side == Math::Side_Front) {
+                if (dot > 0.0)
+                    return Math::nan<T>();
+            } else if (dot < 0.0) { // and side == Math::Side_Back
+                return Math::nan<T>();
+            }
+        }
+        
+        typename HalfEdge::GetOriginPosition getPosition;
+        return intersectPolygonWithRay(ray, plane, m_boundary.begin(), m_boundary.end(), getPosition);
+    }
 private:
     bool visibleFrom(const V& point) const {
         return pointStatus(point) == Math::PointStatus::PSAbove;

@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Polyhedron.h"
 #include "View/ToolAdapter.h"
 
 #include <vector>
@@ -33,34 +34,22 @@ namespace TrenchBroom {
 
         class CreateBrushToolAdapter3D : public ToolAdapterBase<NoPickingPolicy, KeyPolicy, MousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
-            class PointHistory {
-            private:
-                typedef std::vector<size_t> IndexList;
-                Vec3::List m_points;
-                IndexList m_indices;
-            public:
-                bool empty() const;
-                const Vec3::List& points() const;
-                
-                void push(const Vec3& point);
-                void push(const Vec3::List& points);
-                void pop();
-                void clear();
-            };
-        private:
-            class DragHelper;
             class CreatePolygonDragHelper;
+            class DuplicatePolygonDragHelper;
             
             CreateBrushTool* m_tool;
             const Grid& m_grid;
-            PointHistory m_history;
+            Polyhedron3 m_polyhedron;
             
             CreatePolygonDragHelper* m_createPolygonDragHelper;
-            DragHelper* m_dragHelper;
+            DuplicatePolygonDragHelper* m_duplicatePolygonDragHelper;
+            PlaneDragHelper* m_dragHelper;
         public:
             CreateBrushToolAdapter3D(CreateBrushTool* tool, const Grid& grid);
         public:
             virtual ~CreateBrushToolAdapter3D();
+        public:
+            void performCreateBrush();
         private:
             Tool* doGetTool();
 
@@ -77,8 +66,6 @@ namespace TrenchBroom {
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
             bool doCancel();
-        private:
-            void updateTool();
         };
     }
 }

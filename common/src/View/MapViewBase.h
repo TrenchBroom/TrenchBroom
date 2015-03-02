@@ -136,7 +136,6 @@ namespace TrenchBroom {
             void moveRotationCenter(Math::Direction direction);
             
             void OnToggleCreateBrushTool(wxCommandEvent& event);
-            void OnPerformCreateBrush(wxCommandEvent& event);
             
             void OnToggleClipTool(wxCommandEvent& event);
             void OnToggleClipSide(wxCommandEvent& event);
@@ -154,6 +153,8 @@ namespace TrenchBroom {
             
             void OnCancel(wxCommandEvent& event);
             bool cancel();
+        private: // create brush from convex hull
+            void OnCreateBrushFromConvexHull(wxCommandEvent& event);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
