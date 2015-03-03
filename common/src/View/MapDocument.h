@@ -203,6 +203,7 @@ namespace TrenchBroom {
             void deselect(const Model::NodeList& nodes);
             void deselect(Model::BrushFace* face);
         protected:
+            void updateLastSelectionBounds();
             void invalidateSelectionBounds();
         private:
             void validateSelectionBounds() const;
@@ -218,6 +219,8 @@ namespace TrenchBroom {
             void reparentNodes(const Model::ParentChildrenMap& nodes);
             bool deleteObjects();
             bool duplicateObjects();
+        public: // creating new brushes from convex hull of selection
+            bool createBrushFromConvexHull();
         public: // modifying transient layer attributes, declared in MapFacade interface
             void setLayerHidden(Model::Layer* layer, bool hidden);
             void setLayerLocked(Model::Layer* layer, bool locked);

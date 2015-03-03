@@ -17,34 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__GridRenderer__
-#define __TrenchBroom__GridRenderer__
+#ifndef __TrenchBroom__CreateBrushTool__
+#define __TrenchBroom__CreateBrushTool__
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "Renderer/Renderable.h"
-#include "Renderer/VertexArray.h"
-#include "Renderer/VertexSpec.h"
+#include "View/Tool.h"
+#include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {
-        class OrthographicCamera;
+        class RenderBatch;
         class RenderContext;
-        class Vbo;
-        
-        class GridRenderer : public Renderable {
+    }
+    
+    namespace View {
+        class CreateBrushTool : public Tool {
         private:
-            typedef VertexSpecs::P3::Vertex Vertex;
-            VertexArray m_vertexArray;
+            MapDocumentWPtr m_document;
         public:
-            GridRenderer(const OrthographicCamera& camera, const BBox3& worldBounds);
-        private:
-            static Vertex::List vertices(const OrthographicCamera& camera, const BBox3& worldBounds);
+            CreateBrushTool(MapDocumentWPtr document);
             
-            void doPrepare(Vbo& vbo);
-            void doRender(RenderContext& renderContext);
+            void createBrush(const Polyhedron3& polyhedron);
+            
+            void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polyhedron3& polyhedron);
+        private:
+            bool doActivate();
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__GridRenderer__) */
+#endif /* defined(__TrenchBroom__CreateBrushTool__) */

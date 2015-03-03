@@ -28,10 +28,10 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        GridRenderer::GridRenderer(const OrthographicCamera& camera) :
-        m_vertexArray(VertexArray::copy(GL_QUADS, vertices(camera))) {}
+        GridRenderer::GridRenderer(const OrthographicCamera& camera, const BBox3& worldBounds) :
+        m_vertexArray(VertexArray::copy(GL_QUADS, vertices(camera, worldBounds))) {}
 
-        GridRenderer::Vertex::List GridRenderer::vertices(const OrthographicCamera& camera) {
+        GridRenderer::Vertex::List GridRenderer::vertices(const OrthographicCamera& camera, const BBox3& worldBounds) {
             Vertex::List result(4);
             
             const Camera::Viewport& viewport = camera.zoomedViewport();
@@ -41,22 +41,22 @@ namespace TrenchBroom {
             const Vec3f& p = camera.position();
             switch (camera.direction().firstComponent()) {
                 case Math::Axis::AX:
-                    result[0] = Vertex(Vec3f(0.0f, p.y() - w, p.z() - h));
-                    result[1] = Vertex(Vec3f(0.0f, p.y() - w, p.z() + h));
-                    result[2] = Vertex(Vec3f(0.0f, p.y() + w, p.z() + h));
-                    result[3] = Vertex(Vec3f(0.0f, p.y() + w, p.z() - h));
+                    result[0] = Vertex(Vec3f(float(worldBounds.min.x()), p.y() - w, p.z() - h));
+                    result[1] = Vertex(Vec3f(float(worldBounds.min.x()), p.y() - w, p.z() + h));
+                    result[2] = Vertex(Vec3f(float(worldBounds.min.x()), p.y() + w, p.z() + h));
+                    result[3] = Vertex(Vec3f(float(worldBounds.min.x()), p.y() + w, p.z() - h));
                     break;
                 case Math::Axis::AY:
-                    result[0] = Vertex(Vec3f(p.x() - w, 0.0f, p.z() - h));
-                    result[1] = Vertex(Vec3f(p.x() - w, 0.0f, p.z() + h));
-                    result[2] = Vertex(Vec3f(p.x() + w, 0.0f, p.z() + h));
-                    result[3] = Vertex(Vec3f(p.x() + w, 0.0f, p.z() - h));
+                    result[0] = Vertex(Vec3f(p.x() - w, float(worldBounds.max.y()), p.z() - h));
+                    result[1] = Vertex(Vec3f(p.x() - w, float(worldBounds.max.y()), p.z() + h));
+                    result[2] = Vertex(Vec3f(p.x() + w, float(worldBounds.max.y()), p.z() + h));
+                    result[3] = Vertex(Vec3f(p.x() + w, float(worldBounds.max.y()), p.z() - h));
                     break;
                 case Math::Axis::AZ:
-                    result[0] = Vertex(Vec3f(p.x() - w, p.y() - h, 0.0f));
-                    result[1] = Vertex(Vec3f(p.x() - w, p.y() + h, 0.0f));
-                    result[2] = Vertex(Vec3f(p.x() + w, p.y() + h, 0.0f));
-                    result[3] = Vertex(Vec3f(p.x() + w, p.y() - h, 0.0f));
+                    result[0] = Vertex(Vec3f(p.x() - w, p.y() - h, float(worldBounds.min.z())));
+                    result[1] = Vertex(Vec3f(p.x() - w, p.y() + h, float(worldBounds.min.z())));
+                    result[2] = Vertex(Vec3f(p.x() + w, p.y() + h, float(worldBounds.min.z())));
+                    result[3] = Vertex(Vec3f(p.x() + w, p.y() - h, float(worldBounds.min.z())));
                     break;
             }
 

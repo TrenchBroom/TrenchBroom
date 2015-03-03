@@ -185,6 +185,8 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
 
+            Bind(wxEVT_MENU, &MapViewBase::OnToggleCreateBrushTool,        this, CommandIds::Actions::ToggleCreateBrushTool);
+
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipTool,               this, CommandIds::Actions::ToggleClipTool);
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
             Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
@@ -234,6 +236,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterDown,       this, CommandIds::Actions::MoveRotationCenterDown);
 
             Bind(wxEVT_MENU, &MapViewBase::OnCancel,                       this, CommandIds::Actions::Cancel);
+            
+            Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushFromConvexHull,    this, CommandIds::Actions::CreateConvexHull);
 
             Bind(wxEVT_MENU, &MapViewBase::OnPopupReparentBrushes,         this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
             Bind(wxEVT_MENU, &MapViewBase::OnPopupMoveBrushesToWorld,      this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
@@ -450,6 +454,10 @@ namespace TrenchBroom {
             Refresh();
         }
 
+        void MapViewBase::OnToggleCreateBrushTool(wxCommandEvent& event) {
+            m_toolBox.toggleCreateBrushTool();
+        }
+
         void MapViewBase::OnToggleClipTool(wxCommandEvent& event) {
             m_toolBox.toggleClipTool();
         }
@@ -513,6 +521,11 @@ namespace TrenchBroom {
             return doCancel();
         }
 
+        void MapViewBase::OnCreateBrushFromConvexHull(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            document->createBrushFromConvexHull();
+        }
+
         void MapViewBase::OnSetFocus(wxFocusEvent& event) {
             updateAcceleratorTable(true);
             event.Skip();
@@ -547,6 +560,8 @@ namespace TrenchBroom {
             if (derivedContext != ActionContext_Default)
                 return derivedContext;
 
+            if (m_toolBox.createBrushToolActive())
+                return ActionContext_CreateBrushTool;
             if (m_toolBox.clipToolActive())
                 return ActionContext_ClipTool;
             if (m_toolBox.vertexToolActive())
@@ -599,6 +614,7 @@ namespace TrenchBroom {
 
             Renderer::RenderBatch renderBatch(sharedVbo());
 
+            doRenderGrid(renderContext, renderBatch);
             doRenderMap(m_renderer, renderContext, renderBatch);
             doRenderTools(m_toolBox, renderContext, renderBatch);
             doRenderExtras(renderContext, renderBatch);

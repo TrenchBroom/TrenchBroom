@@ -19,6 +19,7 @@
 
 #include "BrushBuilder.h"
 
+#include "Polyhedron.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/ModelFactory.h"
@@ -43,32 +44,64 @@ namespace TrenchBroom {
         
         Brush* BrushBuilder::createCuboid(const BBox3& bounds, const String& textureName) const {
             BrushFaceList faces(6);
+            // left face
             faces[0] = m_factory->createFace(bounds.min + Vec3::Null,
                                              bounds.min + Vec3::PosY,
                                              bounds.min + Vec3::PosZ,
                                              textureName);
+            // right face
             faces[1] = m_factory->createFace(bounds.max + Vec3::Null,
                                              bounds.max + Vec3::PosZ,
                                              bounds.max + Vec3::PosY,
                                              textureName);
+            // front face
             faces[2] = m_factory->createFace(bounds.min + Vec3::Null,
                                              bounds.min + Vec3::PosZ,
                                              bounds.min + Vec3::PosX,
                                              textureName);
+            // back face
             faces[3] = m_factory->createFace(bounds.max + Vec3::Null,
                                              bounds.max + Vec3::PosX,
                                              bounds.max + Vec3::PosZ,
                                              textureName);
+            // top face
             faces[4] = m_factory->createFace(bounds.max + Vec3::Null,
                                              bounds.max + Vec3::PosY,
                                              bounds.max + Vec3::PosX,
                                              textureName);
+            // bottom face
             faces[5] = m_factory->createFace(bounds.min + Vec3::Null,
                                              bounds.min + Vec3::PosX,
                                              bounds.min + Vec3::PosY,
                                              textureName);
             
             return m_factory->createBrush(m_worldBounds, faces);
+        }
+ 
+        Brush* BrushBuilder::createBrush(const Polyhedron3& polyhedron, const String& textureName) const {
+            assert(polyhedron.closed());
+            
+            BrushFaceList brushFaces;
+            
+            const Polyhedron3::FaceList& faces = polyhedron.faces();
+            Polyhedron3::FaceList::const_iterator fIt, fEnd;
+            for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+                const Polyhedron3::Face* face = *fIt;
+                const Polyhedron3::HalfEdgeList& boundary = face->boundary();
+                
+                Polyhedron3::HalfEdgeList::const_iterator bIt = boundary.begin();
+                const Polyhedron3::HalfEdge* edge1 = *bIt++;
+                const Polyhedron3::HalfEdge* edge2 = *bIt++;
+                const Polyhedron3::HalfEdge* edge3 = *bIt++;
+                
+                const Vec3& p1 = edge1->origin()->position();
+                const Vec3& p2 = edge2->origin()->position();
+                const Vec3& p3 = edge3->origin()->position();
+                
+                brushFaces.push_back(m_factory->createFace(p1, p3, p2, textureName));
+            }
+            
+            return m_factory->createBrush(m_worldBounds, brushFaces);
         }
     }
 }

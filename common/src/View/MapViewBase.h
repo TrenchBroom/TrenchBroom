@@ -135,6 +135,8 @@ namespace TrenchBroom {
             void OnMoveRotationCenterDown(wxCommandEvent& event);
             void moveRotationCenter(Math::Direction direction);
             
+            void OnToggleCreateBrushTool(wxCommandEvent& event);
+            
             void OnToggleClipTool(wxCommandEvent& event);
             void OnToggleClipSide(wxCommandEvent& event);
             void OnPerformClip(wxCommandEvent& event);
@@ -151,6 +153,8 @@ namespace TrenchBroom {
             
             void OnCancel(wxCommandEvent& event);
             bool cancel();
+        private: // create brush from convex hull
+            void OnCreateBrushFromConvexHull(wxCommandEvent& event);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
@@ -200,6 +204,7 @@ namespace TrenchBroom {
             virtual bool doCancel() = 0;
             
             virtual Renderer::RenderContext doCreateRenderContext() = 0;
+            virtual void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;

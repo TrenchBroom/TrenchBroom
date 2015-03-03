@@ -32,6 +32,10 @@ namespace TrenchBroom {
     namespace Model {
         class BrushVertex : public Allocator<BrushVertex> {
         public:
+            struct GetPosition {
+                const Vec3& operator()(const BrushVertex* vertex) const { return vertex->position; }
+            };
+        public:
             typedef enum {
                 Mark_Drop,
                 Mark_Keep,

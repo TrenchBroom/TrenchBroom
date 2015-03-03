@@ -37,16 +37,12 @@ namespace TrenchBroom {
         m_handle(pref(Preferences::HandleRadius), 16, true),
         m_highlight(2.0f * pref(Preferences::HandleRadius), 16, false) {}
         
-        void PointHandleRenderer::addPoint(const Vec3f& position) {
-            m_points.push_back(position);
-        }
-        
-        void PointHandleRenderer::addSelectedPoint(const Vec3f& position) {
-            m_selectedPoints.push_back(position);
+        void PointHandleRenderer::addPoint(const Color& color, const Vec3f& position) {
+            m_pointHandles[color].push_back(position);
         }
 
-        void PointHandleRenderer::addHighlight(const Vec3f& position) {
-            m_highlights.push_back(position);
+        void PointHandleRenderer::addHighlight(const Color& color, const Vec3f& position) {
+            m_highlights[color].push_back(position);
         }
         
         void PointHandleRenderer::doPrepare(Vbo& vbo) {
@@ -66,44 +62,37 @@ namespace TrenchBroom {
             const Mat4x4f view = viewMatrix(Vec3f::NegZ, Vec3f::PosY);
             ReplaceTransformation ortho(renderContext.transformation(), projection, view);
 
-            ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
-            
             glDisable(GL_DEPTH_TEST);
-
-            shader.set("Color", pref(Preferences::HandleColor));
-            Vec3f::List::const_iterator it, end;
-            for (it = m_points.begin(), end = m_points.end(); it != end; ++it) {
-                const Vec3f& position = *it;
-                const Vec3f offset = camera.project(position);
-                MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
-                
-                m_handle.render();
-            }
-            
-            shader.set("Color", pref(Preferences::SelectedHandleColor));
-            for (it = m_selectedPoints.begin(), end = m_selectedPoints.end(); it != end; ++it) {
-                const Vec3f& position = *it;
-                const Vec3f offset = camera.project(position);
-                MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
-                
-                m_handle.render();
-            }
-            
-            shader.set("Color", pref(Preferences::SelectedHandleColor));
-            for (it = m_highlights.begin(), end = m_highlights.end(); it != end; ++it) {
-                const Vec3f& position = *it;
-                const Vec3f offset(camera.project(position), 0.0f);
-                MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
-                m_highlight.render();
-            }
+            renderHandles(renderContext, m_pointHandles, m_handle);
+            renderHandles(renderContext, m_highlights, m_highlight);
             glEnable(GL_DEPTH_TEST);
             
             clear();
         }
 
+        void PointHandleRenderer::renderHandles(RenderContext& renderContext, const HandleMap& map, Circle& circle) {
+            const Camera& camera = renderContext.camera();
+            ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
+
+            HandleMap::const_iterator hIt, hEnd;
+            Vec3f::List::const_iterator pIt, pEnd;
+            
+            for (hIt = map.begin(), hEnd = map.end(); hIt != hEnd; ++hIt) {
+                const Color& color = hIt->first;
+                shader.set("Color", color);
+                
+                const Vec3f::List& positions = hIt->second;
+                for (pIt = positions.begin(), pEnd = positions.end(); pIt != pEnd; ++pIt) {
+                    const Vec3f& position = *pIt;
+                    const Vec3f offset = camera.project(position);
+                    MultiplyModelMatrix translate(renderContext.transformation(), translationMatrix(offset));
+                    circle.render();
+                }
+            }
+        }
+
         void PointHandleRenderer::clear() {
-            m_points.clear();
-            m_selectedPoints.clear();
+            m_pointHandles.clear();
             m_highlights.clear();
         }
     }

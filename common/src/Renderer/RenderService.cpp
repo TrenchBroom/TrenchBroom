@@ -39,18 +39,32 @@ namespace TrenchBroom {
         m_renderBatch(renderBatch),
         m_textRenderer(new TextRenderer(makeRenderServiceFont())),
         m_pointHandleRenderer(new PointHandleRenderer()),
-        m_primitiveRenderer(new PrimitiveRenderer()) {}
+        m_primitiveRenderer(new PrimitiveRenderer()),
+        m_foregroundColor(1.0f, 1.0f, 1.0f, 1.0f),
+        m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f) {}
         
         RenderService::~RenderService() {
             flush();
         }
 
-        void RenderService::renderString(const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
-            m_textRenderer->renderString(m_renderContext, textColor, backgroundColor, string, position);
+        void RenderService::setForegroundColor(const Color& foregroundColor) {
+            m_foregroundColor = foregroundColor;
         }
         
-        void RenderService::renderStringOnTop(const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position) {
-            m_textRenderer->renderStringOnTop(m_renderContext, textColor, backgroundColor, string, position);
+        void RenderService::setBackgroundColor(const Color& backgroundColor) {
+            m_backgroundColor = backgroundColor;
+        }
+        
+        void RenderService::setLineWidth(const float lineWidth) {
+            m_lineWidth = lineWidth;
+        }
+
+        void RenderService::renderString(const AttrString& string, const TextAnchor& position) {
+            m_textRenderer->renderString(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
+        }
+        
+        void RenderService::renderStringOnTop(const AttrString& string, const TextAnchor& position) {
+            m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
         }
 
         void RenderService::renderPointHandles(const Vec3f::List& positions) {
@@ -60,49 +74,67 @@ namespace TrenchBroom {
         }
         
         void RenderService::renderPointHandle(const Vec3f& position) {
-            m_pointHandleRenderer->addPoint(position);
-        }
-        
-        void RenderService::renderSelectedPointHandles(const Vec3f::List& positions) {
-            Vec3f::List::const_iterator it, end;
-            for (it = positions.begin(), end = positions.end(); it != end; ++it)
-                renderSelectedPointHandle(*it);
-        }
-
-        void RenderService::renderSelectedPointHandle(const Vec3f& position) {
-            m_pointHandleRenderer->addSelectedPoint(position);
+            m_pointHandleRenderer->addPoint(m_foregroundColor, position);
         }
 
         void RenderService::renderPointHandleHighlight(const Vec3f& position) {
-            m_pointHandleRenderer->addHighlight(position);
+            m_pointHandleRenderer->addHighlight(m_foregroundColor, position);
         }
 
-        void RenderService::renderLine(const Color& color, const Vec3f& start, const Vec3f& end) {
-            m_primitiveRenderer->renderLine(color, start, end);
+        void RenderService::renderLine(const Vec3f& start, const Vec3f& end) {
+            m_primitiveRenderer->renderLine(m_foregroundColor, m_lineWidth, start, end);
         }
         
-        void RenderService::renderLines(const Color& color, const Vec3f::List& positions) {
-            m_primitiveRenderer->renderLines(color, positions);
+        void RenderService::renderLines(const Vec3f::List& positions) {
+            m_primitiveRenderer->renderLines(m_foregroundColor, m_lineWidth, positions);
         }
 
         void RenderService::renderCoordinateSystem(const BBox3f& bounds) {
-            m_primitiveRenderer->renderCoordinateSystem(bounds, pref(Preferences::XAxisColor), pref(Preferences::YAxisColor), pref(Preferences::ZAxisColor));
+            m_primitiveRenderer->renderCoordinateSystem(pref(Preferences::XAxisColor), pref(Preferences::YAxisColor), pref(Preferences::ZAxisColor), m_lineWidth, bounds);
         }
         
-        void RenderService::renderCircle(const Color& color, const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const Vec3f& startAxis, const Vec3f& endAxis) {
-            m_primitiveRenderer->renderCircle(color, position, normal, segments, radius, startAxis, endAxis);
+        void RenderService::renderBounds(const BBox3f& bounds) {
+            const Vec3f p1(bounds.min.x(), bounds.min.y(), bounds.min.z());
+            const Vec3f p2(bounds.min.x(), bounds.min.y(), bounds.max.z());
+            const Vec3f p3(bounds.min.x(), bounds.max.y(), bounds.min.z());
+            const Vec3f p4(bounds.min.x(), bounds.max.y(), bounds.max.z());
+            const Vec3f p5(bounds.max.x(), bounds.min.y(), bounds.min.z());
+            const Vec3f p6(bounds.max.x(), bounds.min.y(), bounds.max.z());
+            const Vec3f p7(bounds.max.x(), bounds.max.y(), bounds.min.z());
+            const Vec3f p8(bounds.max.x(), bounds.max.y(), bounds.max.z());
+            
+            Vec3f::List positions;
+            positions.reserve(12 * 2);
+            positions.push_back(p1); positions.push_back(p2);
+            positions.push_back(p1); positions.push_back(p3);
+            positions.push_back(p1); positions.push_back(p5);
+            positions.push_back(p2); positions.push_back(p4);
+            positions.push_back(p2); positions.push_back(p6);
+            positions.push_back(p3); positions.push_back(p4);
+            positions.push_back(p3); positions.push_back(p7);
+            positions.push_back(p4); positions.push_back(p8);
+            positions.push_back(p5); positions.push_back(p6);
+            positions.push_back(p5); positions.push_back(p7);
+            positions.push_back(p6); positions.push_back(p8);
+            positions.push_back(p7); positions.push_back(p8);
+            
+            renderLines(positions);
+        }
+
+        void RenderService::renderCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const Vec3f& startAxis, const Vec3f& endAxis) {
+            m_primitiveRenderer->renderCircle(m_foregroundColor, m_lineWidth, position, normal, segments, radius, startAxis, endAxis);
         }
         
-        void RenderService::renderCircle(const Color& color, const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
-            m_primitiveRenderer->renderCircle(color, position, normal, segments, radius, startAngle, angleLength);
+        void RenderService::renderCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
+            m_primitiveRenderer->renderCircle(m_foregroundColor, m_lineWidth, position, normal, segments, radius, startAngle, angleLength);
         }
         
-        void RenderService::renderFilledCircle(const Color& color, const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const Vec3f& startAxis, const Vec3f& endAxis) {
-            m_primitiveRenderer->renderFilledCircle(color, position, normal, segments, radius, startAxis, endAxis);
+        void RenderService::renderFilledCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const Vec3f& startAxis, const Vec3f& endAxis) {
+            m_primitiveRenderer->renderFilledCircle(m_foregroundColor, position, normal, segments, radius, startAxis, endAxis);
         }
         
-        void RenderService::renderFilledCircle(const Color& color, const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
-            m_primitiveRenderer->renderFilledCircle(color, position, normal, segments, radius, startAngle, angleLength);
+        void RenderService::renderFilledCircle(const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const float startAngle, const float angleLength) {
+            m_primitiveRenderer->renderFilledCircle(m_foregroundColor, position, normal, segments, radius, startAngle, angleLength);
         }
         
         void RenderService::flush() {

@@ -84,28 +84,6 @@ namespace TrenchBroom {
             gridDidChangeNotifier();
         }
         
-        Vec3 Grid::snap(const Vec3& p, const Plane3& onPlane) const {
-            Vec3 result;
-            switch(onPlane.normal.firstComponent()) {
-                case Math::Axis::AX:
-                    result[1] = snap(p.y());
-                    result[2] = snap(p.z());
-                    result[0] = onPlane.xAt(result.yz());
-                    break;
-                case Math::Axis::AY:
-                    result[0] = snap(p.x());
-                    result[2] = snap(p.z());
-                    result[1] = onPlane.yAt(result.xz());
-                    break;
-                case Math::Axis::AZ:
-                    result[0] = snap(p.x());
-                    result[1] = snap(p.y());
-                    result[2] = onPlane.zAt(result.xy());
-                    break;
-            }
-            return result;
-        }
-        
         FloatType Grid::intersectWithRay(const Ray3& ray, const size_t skip) const {
             Vec3 planeAnchor;
             

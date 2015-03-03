@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Polyhedron.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/TextureCollectionSpec.h"
@@ -29,7 +30,9 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/SystemPaths.h"
 #include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushVertex.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectAttributableNodesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
@@ -106,6 +109,7 @@ namespace TrenchBroom {
         m_lastSaveModificationCount(0),
         m_modificationCount(0),
         m_currentTextureName(Model::BrushFace::NoTextureName),
+        m_lastSelectionBounds(0.0, 32.0),
         m_selectionBoundsValid(true) {
             bindObservers();
         }
@@ -482,8 +486,11 @@ namespace TrenchBroom {
             submit(SelectionCommand::deselect(Model::BrushFaceList(1, face)));
         }
 
-        void MapDocument::invalidateSelectionBounds() {
+        void MapDocument::updateLastSelectionBounds() {
             m_lastSelectionBounds = selectionBounds();
+        }
+
+        void MapDocument::invalidateSelectionBounds() {
             m_selectionBoundsValid = false;
         }
 
@@ -544,6 +551,49 @@ namespace TrenchBroom {
             return submit(DuplicateNodesCommand::duplicate());
         }
 
+        bool MapDocument::createBrushFromConvexHull() {
+            if (!hasSelectedBrushFaces() && !selectedNodes().hasOnlyBrushes())
+                return false;
+            
+            Polyhedron3 polyhedron;
+            if (hasSelectedBrushFaces()) {
+                const Model::BrushFaceList& faces = selectedBrushFaces();
+                Model::BrushFaceList::const_iterator fIt, fEnd;
+                for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+                    const Model::BrushFace* face = *fIt;
+                    const Model::BrushVertexList& vertices = face->vertices();
+                    Model::BrushVertexList::const_iterator vIt, vEnd;
+                    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                        const Model::BrushVertex* vertex = *vIt;
+                        polyhedron.addPoint(vertex->position);
+                    }
+                }
+            } else if (selectedNodes().hasOnlyBrushes()) {
+                const Model::BrushList& brushes = selectedNodes().brushes();
+                Model::BrushList::const_iterator bIt, bEnd;
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    const Model::Brush* brush = *bIt;
+                    const Model::BrushVertexList& vertices = brush->vertices();
+                    Model::BrushVertexList::const_iterator vIt, vEnd;
+                    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                        const Model::BrushVertex* vertex = *vIt;
+                        polyhedron.addPoint(vertex->position);
+                    }
+                }
+            }
+            
+            if (!polyhedron.polyhedron() || !polyhedron.closed())
+                return false;
+            
+            const Model::BrushBuilder builder(m_world, m_worldBounds);
+            Model::Brush* brush = builder.createBrush(polyhedron, currentTextureName());
+            
+            const Transaction transaction(this, "Create brush");
+            deselectAll();
+            addNode(brush, currentLayer());
+            return true;
+        }
+
         void MapDocument::setLayerHidden(Model::Layer* layer, const bool hidden) {
             assert(layer != NULL);
             if (layer->hidden() != hidden) {
@@ -593,11 +643,16 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::setTexture(Assets::Texture* texture) {
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.setTexture(texture);
-            if (submit(ChangeBrushFaceAttributesCommand::command(request))) {
-                if (texture != NULL)
-                    m_currentTextureName = texture->name();
+            if (hasSelectedBrushFaces()) {
+                Model::ChangeBrushFaceAttributesRequest request;
+                request.setTexture(texture);
+                if (submit(ChangeBrushFaceAttributesCommand::command(request))) {
+                    if (texture != NULL)
+                        m_currentTextureName = texture->name();
+                    return true;
+                }
+            } else if (texture != NULL) {
+                m_currentTextureName = texture->name();
                 return true;
             }
             return false;

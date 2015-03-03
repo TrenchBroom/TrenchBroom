@@ -98,6 +98,17 @@ public:
         return min == right.min && max == right.max;
     }
     
+    bool operator!= (const BBox<T,S>& right) const {
+        return min != right.min || max != right.max;
+    }
+    
+    bool empty() const {
+        for (size_t i = 0; i < S; ++i)
+            if (min[i] >= max[i])
+                return true;
+        return false;
+    }
+    
     const Vec<T,S> center() const {
         return (min + max) / static_cast<T>(2.0);
     }
@@ -143,7 +154,7 @@ public:
         return BBox<T,S>(*this).mergeWith(right);
     }
     
-    const BBox<T,S>& intersectWith(const BBox<T,S>& right) {
+    BBox<T,S>& intersectWith(const BBox<T,S>& right) {
         for (size_t i = 0; i < S; ++i) {
             min[i] = std::max(min[i], right.min[i]);
             max[i] = std::min(max[i], right.max[i]);
@@ -155,6 +166,15 @@ public:
         return BBox<T,S>(*this).insersectWith(right);
     }
     
+    BBox<T,S>& mix(const BBox<T,S>& box, const Vec<T,S>& factor) {
+        min.mix(box.min, factor);
+        max.mix(box.max, factor);
+        return *this;
+    }
+    
+    BBox<T,S> mixed(const BBox<T,S>& box, const Vec<T,S>& factor) const {
+        return BBox<T,S>(*this).mix(box, factor);
+    }
     
     BBox<T,S>& translateToOrigin() {
         const Vec<T,S> c = center();

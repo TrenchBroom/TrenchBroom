@@ -209,6 +209,11 @@ namespace TrenchBroom {
         }
 
         void ActionManager::createViewShortcuts() {
+            createViewShortcut(KeyboardShortcut('B'), ActionContext_Any,
+                               Action(View::CommandIds::Actions::ToggleCreateBrushTool, "Toggle create brush tool", true));
+            createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_CreateBrushTool,
+                               Action(View::CommandIds::Actions::Nothing, "", false),
+                               Action(View::CommandIds::Actions::PerformCreateBrush, "Create brush", true));
             createViewShortcut(KeyboardShortcut('C'), ActionContext_NodeSelection | ActionContext_AnyTool,
                                Action(View::CommandIds::Actions::ToggleClipTool, "Toggle clip tool", true));
             createViewShortcut(KeyboardShortcut(WXK_RETURN, WXK_CONTROL), ActionContext_ClipTool,
@@ -345,6 +350,12 @@ namespace TrenchBroom {
             
             createViewShortcut(KeyboardShortcut(WXK_TAB), ActionContext_Any,
                                Action(View::CommandIds::Actions::CycleMapViews, "Cycle map view", true));
+
+            createViewShortcut(KeyboardShortcut('B', WXK_CONTROL), ActionContext_FaceSelection | ActionContext_NodeSelection,
+                               Action(View::CommandIds::Actions::CreateConvexHull, "Cycle brush from convex hull", true));
+            
+            createViewShortcut(KeyboardShortcut(WXK_ESCAPE), ActionContext_Any,
+                               Action(View::CommandIds::Actions::Cancel, "Cancel", true));
         }
 
         void ActionManager::createViewShortcut(const KeyboardShortcut& shortcut, const int context, const Action& action2D, const Action& action3D) {

@@ -79,18 +79,6 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool VertexTool::select(const Model::Hit::List& hits, const bool addToSelection) {
-            assert(!hits.empty());
-            const Model::Hit& hit = hits.front();
-            if (hit.type() == VertexHandleManager::VertexHandleHit)
-                selectVertex(hits, addToSelection);
-            else if (hit.type() == VertexHandleManager::EdgeHandleHit)
-                selectEdge(hits, addToSelection);
-            else
-                selectFace(hits, addToSelection);
-            return true;
-        }
-        
         bool VertexTool::handleDoubleClicked(const Model::Hit& hit) {
             if (hit.type() == VertexHandleManager::VertexHandleHit) {
                 m_handleManager.deselectAllHandles();
@@ -108,11 +96,36 @@ namespace TrenchBroom {
             return true;
         }
         
+        bool VertexTool::select(const Model::Hit::List& hits, const bool addToSelection) {
+            assert(!hits.empty());
+            const Model::Hit& hit = hits.front();
+            if (hit.type() == VertexHandleManager::VertexHandleHit)
+                selectVertex(hits, addToSelection);
+            else if (hit.type() == VertexHandleManager::EdgeHandleHit)
+                selectEdge(hits, addToSelection);
+            else
+                selectFace(hits, addToSelection);
+            return true;
+        }
+        
         bool VertexTool::beginMove(const Model::Hit& hit) {
             assert(hit.isMatch());
-            m_dragHandlePosition = hit.target<Vec3>();
+            
+            const Vec3 handlePosition = hit.target<Vec3>();
+            if (!m_handleManager.isHandleSelected(handlePosition)) {
+                m_handleManager.deselectAllHandles();
+                if (hit.type() == VertexHandleManager::VertexHandleHit)
+                    m_handleManager.selectVertexHandle(handlePosition);
+                else if (hit.type() == VertexHandleManager::EdgeHandleHit)
+                    m_handleManager.selectEdgeHandle(handlePosition);
+                else
+                    m_handleManager.selectFaceHandle(handlePosition);
+            }
+            
             MapDocumentSPtr document = lock(m_document);
             document->beginTransaction(actionName());
+            
+            m_dragHandlePosition = handlePosition;
             m_dragging = true;
             return true;
         }
