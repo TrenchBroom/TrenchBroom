@@ -153,16 +153,71 @@ namespace TrenchBroom {
         }
 
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {
-            return false;
+            if (!handleClick(inputState) || !isMultiClick(inputState))
+                return false;
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (isFaceClick(inputState)) {
+                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
+                if (!hit.isMatch())
+                    return false;
+                
+                document->beginTransaction("Drag select faces");
+                if (document->hasSelection() && !document->hasSelectedBrushFaces())
+                    document->deselectAll();
+                
+                Model::BrushFace* face = Model::hitToFace(hit);
+                if (!face->selected())
+                    document->select(face);
+                
+                return true;
+            } else {
+                const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+                if (!hit.isMatch())
+                    return false;
+                
+                document->beginTransaction("Drag select objects");
+                if (document->hasSelection() && !document->hasSelectedNodes())
+                    document->deselectAll();
+                
+                Model::Node* node = Model::hitToNode(hit);
+                if (!node->selected())
+                    document->select(node);
+                
+                return true;
+            }
         }
         
         bool SelectionTool::doMouseDrag(const InputState& inputState) {
-            return false;
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedBrushFaces()) {
+                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
+                if (hit.isMatch()) {
+                    Model::BrushFace* face = Model::hitToFace(hit);
+                    if (!face->selected())
+                        document->select(face);
+                }
+            } else {
+                assert(document->hasSelectedNodes());
+                const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+                if (hit.isMatch()) {
+                    Model::Node* node = Model::hitToNode(hit);
+                    if (!node->selected())
+                        document->select(node);
+                }
+            }
+            return true;
         }
         
-        void SelectionTool::doEndMouseDrag(const InputState& inputState) {}
+        void SelectionTool::doEndMouseDrag(const InputState& inputState) {
+            MapDocumentSPtr document = lock(m_document);
+            document->commitTransaction();
+        }
         
-        void SelectionTool::doCancelMouseDrag() {}
+        void SelectionTool::doCancelMouseDrag() {
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
+        }
 
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             MapDocumentSPtr document = lock(m_document);
@@ -172,6 +227,11 @@ namespace TrenchBroom {
         }
 
         bool SelectionTool::doCancel() {
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelection()) {
+                document->deselectAll();
+                return true;
+            }
             return false;
         }
     }

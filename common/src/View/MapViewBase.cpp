@@ -514,7 +514,6 @@ namespace TrenchBroom {
                 return;
             if (ToolBoxConnector::cancel())
                 return;
-            lock(m_document)->deselectAll();
         }
 
         bool MapViewBase::cancel() {

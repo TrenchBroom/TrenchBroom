@@ -198,7 +198,7 @@ namespace TrenchBroom {
             const Model::NodeList& partiallyDeselected = visitor.nodes();
             
             m_selectedNodes.removeNodes(deselected);
-            m_selectedNodes.removeNodes(partiallyDeselected);
+            m_partiallySelectedNodes.removeNodes(partiallyDeselected);
             
             Selection selection;
             selection.addDeselectedNodes(deselected);
