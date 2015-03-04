@@ -221,6 +221,9 @@ namespace TrenchBroom {
             bool duplicateObjects();
         public: // creating new brushes from convex hull of selection
             bool createBrushFromConvexHull();
+        public: // group management
+            void groupSelection(const String& name);
+            void ungroupSelection();
         public: // modifying transient layer attributes, declared in MapFacade interface
             void setLayerHidden(Model::Layer* layer, bool hidden);
             void setLayerLocked(Model::Layer* layer, bool locked);

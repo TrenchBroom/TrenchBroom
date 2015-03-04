@@ -39,8 +39,10 @@ namespace TrenchBroom {
             const AttributeName Targetname        = "targetname";
             const AttributeName Killtarget        = "killtarget";
             const AttributeName GroupType         = "_tb_type";
+            const AttributeName LayerId           = "_tb_id";
             const AttributeName LayerName         = "_tb_name";
             const AttributeName Layer             = "_tb_layer";
+            const AttributeName GroupId           = "_tb_id";
             const AttributeName GroupName         = "_tb_name";
             const AttributeName Group             = "_tb_group";
         }

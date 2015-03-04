@@ -39,7 +39,7 @@ namespace TrenchBroom {
             void doVisit(Model::Entity* entity) {}
             void doVisit(Model::Brush* brush)   { m_serializer.brush(brush); }
         };
-        
+
         NodeSerializer::~NodeSerializer() {}
         
         void NodeSerializer::defaultLayer(Model::World* world) {
@@ -152,6 +152,7 @@ namespace TrenchBroom {
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()));
+            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerId, layerId(layer)));
             return attrs;
         }
         
@@ -160,7 +161,42 @@ namespace TrenchBroom {
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::GroupClassname));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeGroup));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupName, group->name()));
+            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupId, groupId(group)));
             return attrs;
+        }
+
+        String NodeSerializer::layerId(const Model::Layer* layer) const {
+            LayerIds::iterator it = m_layerIds.find(layer);
+            if (it != m_layerIds.end())
+                return it->second;
+            const String newId = idToString(layerId());
+            m_layerIds.insert(std::make_pair(layer, newId));
+            return newId;
+        }
+        
+        String NodeSerializer::groupId(const Model::Group* group) const {
+            GroupIds::iterator it = m_groupIds.find(group);
+            if (it != m_groupIds.end())
+                return it->second;
+            const String newId = idToString(layerId());
+            m_groupIds.insert(std::make_pair(group, newId));
+            return newId;
+        }
+
+        Model::IdType NodeSerializer::groupId() const {
+            static Model::IdType currentId = 1;
+            return currentId++;
+        }
+        
+        Model::IdType NodeSerializer::layerId() const {
+            static Model::IdType currentId = 1;
+            return currentId++;
+        }
+
+        String NodeSerializer::idToString(const Model::IdType nodeId) const {
+            StringStream str;
+            str << nodeId;
+            return str.str();
         }
     }
 }

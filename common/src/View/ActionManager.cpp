@@ -160,8 +160,8 @@ namespace TrenchBroom {
             
             Menu* viewMenu = m_menuBar->addMenu("View");
             Menu* gridMenu = viewMenu->addMenu("Grid");
-            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, "Show Grid", KeyboardShortcut('G', WXK_CONTROL));
-            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleSnapToGrid, "Snap to Grid", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
+            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, "Show Grid", KeyboardShortcut('0', WXK_CONTROL));
+            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleSnapToGrid, "Snap to Grid", KeyboardShortcut('0', WXK_CONTROL, WXK_SHIFT));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewIncGridSize, "Increase Grid Size", KeyboardShortcut('+', WXK_CONTROL));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewDecGridSize, "Decrease Grid Size", KeyboardShortcut('-', WXK_CONTROL));
             gridMenu->addSeparator();
@@ -352,8 +352,13 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::CycleMapViews, "Cycle map view", true));
 
             createViewShortcut(KeyboardShortcut('B', WXK_CONTROL), ActionContext_FaceSelection | ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::CreateConvexHull, "Cycle brush from convex hull", true));
+                               Action(View::CommandIds::Actions::CreateConvexHull, "Create brush from convex hull", true));
             
+            createViewShortcut(KeyboardShortcut('G', WXK_CONTROL), ActionContext_NodeSelection,
+                               Action(View::CommandIds::Actions::GroupSelection, "Group selected objects", true));
+            createViewShortcut(KeyboardShortcut('G', WXK_CONTROL, WXK_ALT), ActionContext_NodeSelection,
+                               Action(View::CommandIds::Actions::UngroupSelection, "Ungroup selected objects", true));
+
             createViewShortcut(KeyboardShortcut(WXK_ESCAPE), ActionContext_Any,
                                Action(View::CommandIds::Actions::Cancel, "Cancel", true));
         }

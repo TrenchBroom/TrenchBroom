@@ -25,7 +25,10 @@ Polyhedron<T>::Polyhedron() {}
 
 template <typename T>
 Polyhedron<T>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) {
-    initializeTetrahedron(p1, p2, p3, p4);
+    addPoint(p1);
+    addPoint(p2);
+    addPoint(p3);
+    addPoint(p4);
 }
 
 template <typename T>

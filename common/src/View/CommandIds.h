@@ -155,6 +155,8 @@ namespace TrenchBroom {
                 const int CycleMapViews                      = Lowest +  52;
                 
                 const int CreateConvexHull                   = Lowest +  53;
+                const int GroupSelection                     = Lowest +  54;
+                const int UngroupSelection                   = Lowest +  55;
 
                 /*
                 const int CorrectVertices                    = Lowest +  82;

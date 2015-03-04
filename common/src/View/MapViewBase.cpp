@@ -525,6 +525,12 @@ namespace TrenchBroom {
             document->createBrushFromConvexHull();
         }
 
+        void MapViewBase::GroupSelectedObjects(wxCommandEvent& event) {
+        }
+        
+        void MapViewBase::UngroupSelectedObjects(wxCommandEvent& event) {
+        }
+
         void MapViewBase::OnSetFocus(wxFocusEvent& event) {
             updateAcceleratorTable(true);
             event.Skip();

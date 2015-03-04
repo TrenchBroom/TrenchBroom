@@ -32,6 +32,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        typedef size_t IdType;
+
         class Node;
         typedef std::set<Node*> NodeSet;
         typedef std::vector<Node*> NodeList;

@@ -155,6 +155,9 @@ namespace TrenchBroom {
             bool cancel();
         private: // create brush from convex hull
             void OnCreateBrushFromConvexHull(wxCommandEvent& event);
+        private: // group management
+            void GroupSelectedObjects(wxCommandEvent& event);
+            void UngroupSelectedObjects(wxCommandEvent& event);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
