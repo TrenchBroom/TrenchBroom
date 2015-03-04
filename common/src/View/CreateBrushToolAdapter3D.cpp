@@ -171,10 +171,11 @@ namespace TrenchBroom {
             bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
                 assert(m_dragFace != NULL);
 
+                // We don't really need a drag plane for this. The pick ray is good enough.
+                
                 const Vec3 normal = m_dragFace->normal();
-                const Vec3 dir = (curPoint - inputState.camera().position()).normalized();
-                const Ray3 ray = Ray3(inputState.camera().position(), dir);
-                const Ray3::LineDistance distance = ray.distanceToLine(m_initialPoint, normal);
+                const Ray3& pickRay = inputState.pickRay();
+                const Ray3::LineDistance distance = pickRay.distanceToLine(m_initialPoint, normal);
                 if (distance.parallel)
                     return true;
                 
