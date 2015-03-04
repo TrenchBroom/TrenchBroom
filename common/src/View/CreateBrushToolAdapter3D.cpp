@@ -163,7 +163,7 @@ namespace TrenchBroom {
                 m_dragFace = hit.face;
 
                 m_initialPoint = initialPoint = pickRay.pointAtDistance(hit.distance);
-                plane = verticalDragPlane(initialPoint, Vec3(inputState.camera().direction()));
+                plane = orthogonalDragPlane(m_initialPoint, pickRay.direction);
                 
                 return true;
             }
@@ -172,8 +172,18 @@ namespace TrenchBroom {
                 assert(m_dragFace != NULL);
 
                 const Vec3 normal = m_dragFace->normal();
-                const Vec3 delta = curPoint - m_initialPoint;
-                const FloatType distance = m_grid.snap(delta.dot(normal));
+                const Vec3 dir = (curPoint - inputState.camera().position()).normalized();
+                const Ray3 ray = Ray3(inputState.camera().position(), dir);
+                const Ray3::LineDistance distance = ray.distanceToLine(m_initialPoint, normal);
+                if (distance.parallel)
+                    return true;
+                
+                const FloatType normDistance = (distance.point - m_initialPoint).dot(normal);
+                
+                const Vec3& axis = normal.firstAxis();
+                const FloatType axisDistance = (normDistance * normal).dot(axis);
+                const FloatType snappedAxisDistance = m_grid.snap(axisDistance);
+                const FloatType snappedNormDistance = normDistance * snappedAxisDistance / axisDistance;
                 
                 Vec3::List points;
                 
@@ -181,7 +191,7 @@ namespace TrenchBroom {
                 Polyhedron3::HalfEdgeList::const_iterator it, end;
                 for (it = boundary.begin(), end = boundary.end(); it != end; ++it) {
                     const Polyhedron3::Vertex* vertex = it->origin();
-                    points.push_back(vertex->position() + distance * normal);
+                    points.push_back(vertex->position() + snappedNormDistance * normal);
                 }
                 
                 using std::swap;

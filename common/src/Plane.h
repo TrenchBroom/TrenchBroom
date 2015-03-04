@@ -238,27 +238,33 @@ bool setPlanePoints(Plane<T,3>& plane, const Vec<T,3>& point0, const Vec<T,3>& p
 }
 
 template <typename T>
-const Plane<T,3> horizontalDragPlane(const Vec<T,3>& position) {
+Plane<T,3> horizontalDragPlane(const Vec<T,3>& position) {
     return Plane<T,3>(position, Vec<T,3>::PosZ);
 }
 
 template <typename T>
-const Plane<T,3> verticalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
+Plane<T,3> verticalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
     if (direction.firstComponent() != Math::Axis::AZ)
         return Plane<T,3>(position, direction.firstAxis());
     return Plane<T,3>(position, direction.secondAxis());
 }
 
 template <typename T>
-const Plane<T,3> orthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
+Plane<T,3> orthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
     return Plane<T,3>(position, direction.normalized());
 }
 
 template <typename T>
-const Plane<T,3> alignedOrthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
+Plane<T,3> alignedOrthogonalDragPlane(const Vec<T,3>& position, const Vec<T,3>& direction) {
     return Plane<T,3>(position, direction.firstAxis());
 }
 
+template <typename T>
+Plane<T,3> containingDragPlane(const Vec<T,3>& position, const Vec<T,3>& normal, const Vec<T,3>& cameraPosition) {
+    const Vec<T,3> fromCamera = (position - cameraPosition).normalized();
+    const Vec<T,3> vertical = crossed(normal, fromCamera);
+    return Plane<T,3>(position, crossed(normal, vertical));
+}
 
 typedef Plane<float,3> Plane3f;
 
