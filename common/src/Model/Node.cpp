@@ -189,6 +189,7 @@ namespace TrenchBroom {
 
         void Node::setParent(Node* parent) {
             assert((m_parent == NULL) ^ (parent == NULL));
+            assert(parent != this);
             if (parent == m_parent)
                 return;
 

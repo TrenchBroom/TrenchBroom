@@ -71,9 +71,9 @@ namespace TrenchBroom {
         void WorldReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node) {
             if (logger() != NULL) {
                 if (parentInfo.layer())
-                    logger()->warn("Entity at line %u references missing layer '%s', adding to default layer", node->lineNumber(), parentInfo.name().c_str());
+                    logger()->warn("Entity at line %u references missing layer '%u', adding to default layer", node->lineNumber(), parentInfo.id());
                 else
-                    logger()->warn("Entity at line %u references missing group '%s', adding to default layer", node->lineNumber(), parentInfo.name().c_str());
+                    logger()->warn("Entity at line %u references missing group '%u', adding to default layer", node->lineNumber(), parentInfo.id());
             }
             m_world->defaultLayer()->addChild(node);
         }

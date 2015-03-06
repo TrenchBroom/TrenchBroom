@@ -42,16 +42,16 @@ namespace TrenchBroom {
                 } Type;
                 
                 Type m_type;
-                String m_name;
+                Model::IdType m_id;
             public:
-                static ParentInfo layer(const String& name);
-                static ParentInfo group(const String& name);
+                static ParentInfo layer(Model::IdType layerId);
+                static ParentInfo group(Model::IdType groupId);
             private:
-                ParentInfo(Type type, const String& name);
+                ParentInfo(Type type, Model::IdType id);
             public:
                 bool layer() const;
                 bool group() const;
-                const String& name() const;
+                Model::IdType id() const;
             };
         private:
             typedef enum {
@@ -61,8 +61,8 @@ namespace TrenchBroom {
                 EntityType_Default
             } EntityType;
             
-            typedef std::map<String, Model::Layer*> LayerMap;
-            typedef std::map<String, Model::Group*> GroupMap;
+            typedef std::map<Model::IdType, Model::Layer*> LayerMap;
+            typedef std::map<Model::IdType, Model::Group*> GroupMap;
             
             typedef std::pair<Model::Node*, ParentInfo> NodeParentPair;
             typedef std::vector<NodeParentPair> NodeParentList;

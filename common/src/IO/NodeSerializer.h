@@ -36,11 +36,36 @@ namespace TrenchBroom {
         protected:
             static const int FloatPrecision = 17;
         private:
-            typedef std::map<const Model::Layer*, String> LayerIds;
-            typedef std::map<const Model::Group*, String> GroupIds;
-
-            mutable LayerIds m_layerIds;
-            mutable GroupIds m_groupIds;
+            template <typename T>
+            class IdManager {
+            private:
+                typedef std::map<T, String> IdMap;
+                mutable IdMap m_ids;
+            public:
+                const String& getId(const T& t) const {
+                    typename IdMap::iterator it = m_ids.find(t);
+                    if (it == m_ids.end())
+                        it = m_ids.insert(std::make_pair(t, idToString(makeId()))).first;
+                    return it->second;
+                }
+            private:
+                Model::IdType makeId() const {
+                    static Model::IdType currentId = 1;
+                    return currentId++;
+                }
+                
+                String idToString(const Model::IdType nodeId) const {
+                    StringStream str;
+                    str << nodeId;
+                    return str.str();
+                }
+            };
+            
+            typedef IdManager<const Model::Layer*> LayerIds;
+            typedef IdManager<const Model::Group*> GroupIds;
+            
+            LayerIds m_layerIds;
+            GroupIds m_groupIds;
         public:
             typedef std::auto_ptr<NodeSerializer> Ptr;
             
@@ -69,17 +94,13 @@ namespace TrenchBroom {
             void brushFaces(const Model::BrushFaceList& faces);
         private:
             void brushFace(Model::BrushFace* face);
+        private:
+            class GetParentAttributes;
         public:
             Model::EntityAttribute::List parentAttributes(const Model::Node* node);
         private:
             Model::EntityAttribute::List layerAttributes(const Model::Layer* layer);
             Model::EntityAttribute::List groupAttributes(const Model::Group* group);
-            
-            String layerId(const Model::Layer* layer) const;
-            String groupId(const Model::Group* group) const;
-            Model::IdType groupId() const;
-            Model::IdType layerId() const;
-            String idToString(Model::IdType nodeId) const;
         private:
             virtual void doBeginEntity(const Model::Node* node) = 0;
             virtual void doEndEntity(Model::Node* node) = 0;

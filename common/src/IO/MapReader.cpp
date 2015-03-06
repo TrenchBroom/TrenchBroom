@@ -31,17 +31,17 @@
 
 namespace TrenchBroom {
     namespace IO {
-        MapReader::ParentInfo MapReader::ParentInfo::layer(const String& name) {
-            return ParentInfo(Type_Layer, name);
+        MapReader::ParentInfo MapReader::ParentInfo::layer(const Model::IdType layerId) {
+            return ParentInfo(Type_Layer, layerId);
         }
         
-        MapReader::ParentInfo MapReader::ParentInfo::group(const String& name) {
-            return ParentInfo(Type_Group, name);
+        MapReader::ParentInfo MapReader::ParentInfo::group(const Model::IdType groupId) {
+            return ParentInfo(Type_Group, groupId);
         }
 
-        MapReader::ParentInfo::ParentInfo(Type type, const String& name) :
+        MapReader::ParentInfo::ParentInfo(const Type type, const Model::IdType id) :
         m_type(type),
-        m_name(name) {}
+        m_id(id) {}
 
         bool MapReader::ParentInfo::layer() const {
             return m_type == Type_Layer;
@@ -51,8 +51,8 @@ namespace TrenchBroom {
             return m_type == Type_Group;
         }
         
-        const String& MapReader::ParentInfo::name() const {
-            return m_name;
+        Model::IdType MapReader::ParentInfo::id() const {
+            return m_id;
         }
 
         MapReader::MapReader(const char* begin, const char* end, Logger* logger) :
@@ -137,40 +137,78 @@ namespace TrenchBroom {
             const String& name = findAttribute(attributes, Model::AttributeNames::LayerName);
             if (StringUtils::isBlank(name)) {
                 if (logger() != NULL)
-                    logger()->warn("Skipping layer entity at line %u: name is blank", static_cast<unsigned int>(line));
-            } else if (m_layers.count(name) > 0) {
-                if (logger() != NULL)
-                    logger()->warn("Skipping layer entity at line %u: a layer with name '%s' already exists", static_cast<unsigned int>(line), name.c_str());
-            } else {
-                Model::Layer* layer = m_factory->createLayer(name);
-                setExtraAttributes(layer, extraAttributes);
-                m_layers.insert(std::make_pair(name, layer));
-
-                onLayer(layer);
-
-                m_currentNode = layer;
-                m_brushParent = layer;
+                    logger()->warn("Skipping layer entity at line %u: missing name", static_cast<unsigned int>(line));
+                return;
             }
+            
+            const String& idStr = findAttribute(attributes, Model::AttributeNames::LayerId);
+            if (StringUtils::isBlank(idStr)) {
+                if (logger() != NULL)
+                    logger()->warn("Skipping layer entity at line %u: missing id", static_cast<unsigned int>(line));
+                return;
+            }
+            
+            const long rawId = std::atol(idStr.c_str());
+            if (rawId <= 0) {
+                if (logger() != NULL)
+                    logger()->warn("Skipping layer entity at line %u: invalid id", static_cast<unsigned int>(line), name.c_str());
+                return;
+            }
+            
+            const Model::IdType layerId = static_cast<Model::IdType>(rawId);
+            if (m_layers.count(layerId) > 0) {
+                if (logger() != NULL)
+                    logger()->warn("Skipping layer entity at line %u: a layer with id '%s' already exists", static_cast<unsigned int>(line), idStr.c_str());
+                return;
+            }
+            
+            Model::Layer* layer = m_factory->createLayer(name);
+            setExtraAttributes(layer, extraAttributes);
+            m_layers.insert(std::make_pair(layerId, layer));
+            
+            onLayer(layer);
+            
+            m_currentNode = layer;
+            m_brushParent = layer;
         }
         
         void MapReader::createGroup(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
             const String& name = findAttribute(attributes, Model::AttributeNames::GroupName);
             if (StringUtils::isBlank(name)) {
                 if (logger() != NULL)
-                    logger()->warn("Skipping group entity at line %u: name is blank", static_cast<unsigned int>(line));
-            } else if (m_layers.count(name) > 0) {
-                if (logger() != NULL)
-                    logger()->warn("Skipping group entity at line %u: a group with name '%s' already exists", static_cast<unsigned int>(line), name.c_str());
-            } else {
-                Model::Group* group = m_factory->createGroup(name);
-                setExtraAttributes(group, extraAttributes);
-
-                storeNode(group, attributes);
-                m_groups.insert(std::make_pair(name, group));
-                
-                m_currentNode = group;
-                m_brushParent = group;
+                    logger()->warn("Skipping group entity at line %u: missing name", static_cast<unsigned int>(line));
+                return;
             }
+            
+            const String& idStr = findAttribute(attributes, Model::AttributeNames::GroupId);
+            if (StringUtils::isBlank(idStr)) {
+                if (logger() != NULL)
+                    logger()->warn("Skipping group entity at line %u: missing id", static_cast<unsigned int>(line));
+                return;
+            }
+            
+            const long rawId = std::atol(idStr.c_str());
+            if (rawId <= 0) {
+                if (logger() != NULL)
+                    logger()->warn("Skipping group entity at line %u: invalid id", static_cast<unsigned int>(line), name.c_str());
+                return;
+            }
+            
+            const Model::IdType groupId = static_cast<Model::IdType>(rawId);
+            if (m_groups.count(groupId) > 0) {
+                if (logger() != NULL)
+                    logger()->warn("Skipping group entity at line %u: a group with id '%s' already exists", static_cast<unsigned int>(line), idStr.c_str());
+                return;
+            }
+            
+            Model::Group* group = m_factory->createGroup(name);
+            setExtraAttributes(group, extraAttributes);
+            
+            storeNode(group, attributes);
+            m_groups.insert(std::make_pair(groupId, group));
+            
+            m_currentNode = group;
+            m_brushParent = group;
         }
 
         void MapReader::createEntity(const size_t line, const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) {
@@ -204,30 +242,44 @@ namespace TrenchBroom {
         }
 
         MapReader::ParentInfo::Type MapReader::storeNode(Model::Node* node, const Model::EntityAttribute::List& attributes) {
-            const String& groupName = findAttribute(attributes, Model::AttributeNames::Group);
-            if (!groupName.empty()) {
-                Model::Group* group = MapUtils::find(m_groups, groupName, static_cast<Model::Group*>(NULL));
-                if (group != NULL)
-                    onNode(group, node);
-                else
-                    m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::group(groupName)));
-                return ParentInfo::Type_Group;
-            }
-
-            const String& layerName = findAttribute(attributes, Model::AttributeNames::Layer);
-            if (!layerName.empty()) {
-                Model::Layer* layer = MapUtils::find(m_layers, layerName, static_cast<Model::Layer*>(NULL));
-                if (layer != NULL)
-                    onNode(layer, node);
-                else
-                    m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::layer(layerName)));
-                return ParentInfo::Type_Layer;
+            const String& layerIdStr = findAttribute(attributes, Model::AttributeNames::Layer);
+            if (!StringUtils::isBlank(layerIdStr)) {
+                const long rawId = std::atol(layerIdStr.c_str());
+                if (rawId > 0) {
+                    const Model::IdType layerId = static_cast<Model::IdType>(rawId);
+                    Model::Layer* layer = MapUtils::find(m_layers, layerId, static_cast<Model::Layer*>(NULL));
+                    if (layer != NULL)
+                        onNode(layer, node);
+                    else
+                        m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::layer(layerId)));
+                    return ParentInfo::Type_Layer;
+                }
+                
+                if (logger() != NULL)
+                    logger()->warn("Entity at line %u has invalid parent id", static_cast<unsigned int>(node->lineNumber()), layerIdStr.c_str());
+            } else {
+                const String& groupIdStr = findAttribute(attributes, Model::AttributeNames::Group);
+                if (!StringUtils::isBlank(groupIdStr)) {
+                    const long rawId = std::atol(groupIdStr.c_str());
+                    if (rawId > 0) {
+                        const Model::IdType groupId = static_cast<Model::IdType>(rawId);
+                        Model::Group* group = MapUtils::find(m_groups, groupId, static_cast<Model::Group*>(NULL));
+                        if (group != NULL)
+                            onNode(group, node);
+                        else
+                            m_unresolvedNodes.push_back(std::make_pair(node, ParentInfo::group(groupId)));
+                        return ParentInfo::Type_Group;
+                    }
+                    
+                    if (logger() != NULL)
+                        logger()->warn("Entity at line %u has invalid parent id", static_cast<unsigned int>(node->lineNumber()), groupIdStr.c_str());
+                }
             }
             
             onNode(NULL, node);
             return ParentInfo::Type_None;
         }
-        
+
         void MapReader::stripParentAttributes(Model::AttributableNode* attributable, const ParentInfo::Type parentType) {
             switch (parentType) {
                 case ParentInfo::Type_Layer:
@@ -257,11 +309,11 @@ namespace TrenchBroom {
 
         Model::Node* MapReader::resolveParent(const ParentInfo& parentInfo) const {
             if (parentInfo.layer()) {
-                const String& layerName = parentInfo.name();
-                return MapUtils::find(m_layers, layerName, static_cast<Model::Layer*>(NULL));
+                const Model::IdType layerId = parentInfo.id();
+                return MapUtils::find(m_layers, layerId, static_cast<Model::Layer*>(NULL));
             }
-            const String& groupName = parentInfo.name();
-            return MapUtils::find(m_groups, groupName, static_cast<Model::Group*>(NULL));
+            const Model::IdType groupId = parentInfo.id();
+            return MapUtils::find(m_groups, groupId, static_cast<Model::Group*>(NULL));
         }
 
         MapReader::EntityType MapReader::entityType(const Model::EntityAttribute::List& attributes) const {
