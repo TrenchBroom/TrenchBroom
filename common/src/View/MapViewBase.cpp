@@ -237,6 +237,9 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapViewBase::OnCancel,                       this, CommandIds::Actions::Cancel);
             
+            Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::Actions::GroupSelection);
+            Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::Actions::UngroupSelection);
+            
             Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushFromConvexHull,    this, CommandIds::Actions::CreateConvexHull);
 
             Bind(wxEVT_MENU, &MapViewBase::OnPopupReparentBrushes,         this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
@@ -525,10 +528,23 @@ namespace TrenchBroom {
             document->createBrushFromConvexHull();
         }
 
-        void MapViewBase::GroupSelectedObjects(wxCommandEvent& event) {
+        void MapViewBase::OnGroupSelectedObjects(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedNodes()) {
+                wxTextEntryDialog dialog(this, "Enter a name for the new group", "New Group Name", "Unnamed");
+                dialog.CentreOnParent();
+                dialog.SetTextValidator(wxFILTER_EMPTY);
+                if (dialog.ShowModal() == wxID_OK) {
+                    const String name = dialog.GetValue().ToStdString();
+                    document->groupSelection(name);
+                }
+            }
         }
         
-        void MapViewBase::UngroupSelectedObjects(wxCommandEvent& event) {
+        void MapViewBase::OnUngroupSelectedObjects(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedNodes() && document->selectedNodes().hasOnlyGroups())
+                document->ungroupSelection();
         }
 
         void MapViewBase::OnSetFocus(wxFocusEvent& event) {

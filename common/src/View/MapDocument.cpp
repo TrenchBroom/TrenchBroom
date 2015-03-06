@@ -47,8 +47,10 @@
 #include "Model/Entity.h"
 #include "Model/EntityLinkSourceIssueGenerator.h"
 #include "Model/EntityLinkTargetIssueGenerator.h"
+#include "Model/FindLayerVisitor.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "Model/Group.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/MissingEntityClassnameIssueGenerator.h"
 #include "Model/MissingEntityDefinitionIssueGenerator.h"
@@ -592,6 +594,40 @@ namespace TrenchBroom {
             deselectAll();
             addNode(brush, currentLayer());
             return true;
+        }
+
+        void MapDocument::groupSelection(const String& name) {
+            if (!hasSelectedNodes())
+                return;
+            
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
+            Model::Group* group = new Model::Group(name);
+            
+            const Transaction transaction(this, "Group Selected Objects");
+            addNode(group, currentLayer());
+            reparentNodes(group, nodes);
+            deselectAll();
+            select(group);
+        }
+        
+        void MapDocument::ungroupSelection() {
+            if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
+                return;
+            
+            const Model::NodeList groups = m_selectedNodes.nodes();
+            
+            const Transaction transaction(this, "Ungroup");
+            deselectAll();
+            
+            Model::NodeList::const_iterator it, end;
+            for (it = groups.begin(), end = groups.end(); it != end; ++it) {
+                Model::Node* group = *it;
+                Model::Layer* layer = Model::findLayer(group);
+                const Model::NodeList& children = group->children();
+                reparentNodes(layer, children);
+            }
+            
+            removeNodes(groups);
         }
 
         void MapDocument::setLayerHidden(Model::Layer* layer, const bool hidden) {
