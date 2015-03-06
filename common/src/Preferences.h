@@ -49,6 +49,8 @@ namespace TrenchBroom {
         
         extern Preference<Color> CameraFrustumColor;
         
+        extern Preference<Color> DefaultGroupColor;
+        
         extern Preference<Color> FaceColor;
         extern Preference<Color> SelectedFaceColor;
         extern Preference<Color> LockedFaceColor;

@@ -82,6 +82,14 @@ namespace TrenchBroom {
             return true;
         }
 
+        void Group::doDescendantWasAdded(Node* node) {
+            invalidateBounds();
+        }
+        
+        void Group::doDescendantWasRemoved(Node* oldParent, Node* node) {
+            invalidateBounds();
+        }
+
         void Group::doDescendantDidChange(Node* node) {
             invalidateBounds();
         }

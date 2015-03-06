@@ -17,26 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityRenderer__
-#define __TrenchBroom__EntityRenderer__
+#ifndef __TrenchBroom__GroupRenderer__
+#define __TrenchBroom__GroupRenderer__
 
 #include "AttrString.h"
 #include "Color.h"
 #include "Model/ModelTypes.h"
 #include "Renderer/EdgeRenderer.h"
-#include "Renderer/EntityModelRenderer.h"
-#include "Renderer/FontDescriptor.h"
-#include "Renderer/Renderable.h"
-#include "Renderer/TriangleRenderer.h"
-#include "Renderer/Vbo.h"
-
-#include <map>
 
 namespace TrenchBroom {
-    namespace Assets {
-        class EntityModelManager;
-    }
-    
     namespace Model {
         class EditorContext;
     }
@@ -44,63 +33,52 @@ namespace TrenchBroom {
     namespace Renderer {
         class RenderBatch;
         class RenderContext;
-        
-        class EntityRenderer {
-        private:
-            class EntityClassnameAnchor;
 
+        class GroupRenderer {
+        private:
+            class GroupNameAnchor;
+            
             const Model::EditorContext& m_editorContext;
-            Model::EntitySet m_entities;
+            Model::GroupSet m_groups;
             
-            EdgeRenderer m_wireframeBoundsRenderer;
-            TriangleRenderer m_solidBoundsRenderer;
-            EntityModelRenderer m_modelRenderer;
+            EdgeRenderer m_boundsRenderer;
             bool m_boundsValid;
-            
+
             Color m_overlayTextColor;
             Color m_overlayBackgroundColor;
             bool m_showOccludedOverlays;
-            bool m_tint;
-            Color m_tintColor;
             bool m_overrideBoundsColor;
             Color m_boundsColor;
             bool m_showOccludedBounds;
             Color m_occludedBoundsColor;
-            bool m_showAngles;
-            Color m_angleColor;
-            bool m_showHiddenEntities;
-            
-            Vbo m_vbo;
         public:
-            EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
-            ~EntityRenderer();
-
-            void addEntity(Model::Entity* entity);
-            void updateEntity(Model::Entity* entity);
-            void removeEntity(Model::Entity* entity);
+            GroupRenderer(const Model::EditorContext& editorContext);
+            
+            void addGroup(Model::Group* group);
+            void updateGroup(Model::Group* group);
+            void removeGroup(Model::Group* group);
             void invalidate();
             void clear();
-            void reloadModels();
 
             template <typename Iter>
-            void addEntities(Iter cur, const Iter end) {
+            void addGroups(Iter cur, const Iter end) {
                 while (cur != end) {
-                    addEntity(*cur);
+                    addGroup(*cur);
                     ++cur;
                 }
             }
             template <typename Iter>
-            void updateEntities(Iter cur, const Iter end) {
+            void updateGroups(Iter cur, const Iter end) {
                 while (cur != end) {
-                    updateEntity(*cur);
+                    updateGroup(*cur);
                     ++cur;
                 }
             }
             
             template <typename Iter>
-            void removeEntities(Iter cur, const Iter end) {
+            void removeGroups(Iter cur, const Iter end) {
                 while (cur != end) {
-                    removeEntity(*cur);
+                    removeGroup(*cur);
                     ++cur;
                 }
             }
@@ -108,42 +86,28 @@ namespace TrenchBroom {
             void setOverlayTextColor(const Color& overlayTextColor);
             void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
             void setShowOccludedOverlays(bool showOccludedOverlays);
-            
-            void setTint(bool tint);
-            void setTintColor(const Color& tintColor);
-            
+
             void setOverrideBoundsColor(bool overrideBoundsColor);
             void setBoundsColor(const Color& boundsColor);
             
             void setShowOccludedBounds(bool showOccludedBounds);
             void setOccludedBoundsColor(const Color& occludedBoundsColor);
-            
-            void setShowAngles(bool showAngles);
-            void setAngleColor(const Color& angleColor);
-            
-            void setShowHiddenEntities(bool showHiddenEntities);
         public: // rendering
             void render(RenderContext& renderContext, RenderBatch& renderBatch);
         private:
             void renderBounds(RenderContext& renderContext, RenderBatch& renderBatch);
-            void renderWireframeBounds(RenderBatch& renderBatch);
-            void renderSolidBounds(RenderBatch& renderBatch);
-            void renderModels(RenderContext& renderContext, RenderBatch& renderBatch);
-            void renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch);
-            void renderAngles(RenderContext& renderContext, RenderBatch& renderBatch);
-            Vec3f::List arrowHead(float length, float width) const;
+            void renderNames(RenderContext& renderContext, RenderBatch& renderBatch);
             
-            struct BuildColoredSolidBoundsVertices;
-            struct BuildColoredWireframeBoundsVertices;
-            struct BuildWireframeBoundsVertices;
+            struct BuildColoredBoundsVertices;
+            struct BuildBoundsVertices;
 
             void invalidateBounds();
             void validateBounds();
-            
-            AttrString entityString(const Model::Entity* entity) const;
-            const Color& boundsColor(const Model::Entity* entity) const;
+
+            AttrString groupString(const Model::Group* group) const;
+            const Color& boundsColor(const Model::Group* group) const;
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__EntityRenderer__) */
+#endif /* defined(__TrenchBroom__GroupRenderer__) */

@@ -195,7 +195,8 @@ namespace TrenchBroom {
             renderer->setOverlayBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
             renderer->setTint(false);
             renderer->setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
-            
+
+            renderer->setGroupBoundsColor(pref(Preferences::DefaultGroupColor));
             renderer->setEntityBoundsColor(pref(Preferences::UndefinedEntityColor));
             
             renderer->setBrushFaceColor(pref(Preferences::FaceColor));
@@ -210,6 +211,9 @@ namespace TrenchBroom {
             renderer->setTint(true);
             renderer->setTintColor(pref(Preferences::SelectedFaceColor));
 
+            renderer->setOverrideGroupBoundsColor(true);
+            renderer->setGroupBoundsColor(pref(Preferences::SelectedEdgeColor));
+            
             renderer->setOverrideEntityBoundsColor(true);
             renderer->setEntityBoundsColor(pref(Preferences::SelectedEdgeColor));
             renderer->setShowEntityAngles(true);

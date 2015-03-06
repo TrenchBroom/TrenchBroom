@@ -60,6 +60,7 @@ namespace TrenchBroom {
         class Group;
         typedef std::vector<Group*> GroupList;
         static const GroupList EmptyGroupList(0);
+        typedef std::set<Group*> GroupSet;
         
         class Entity;
         typedef std::vector<Entity*> EntityList;

@@ -27,64 +27,70 @@ namespace TrenchBroom {
     namespace Renderer {
         class AddNodeToObjectRenderer : public Model::NodeVisitor {
         private:
+            GroupRenderer& m_groupRenderer;
             EntityRenderer& m_entityRenderer;
             BrushRenderer& m_brushRenderer;
         public:
-            AddNodeToObjectRenderer(EntityRenderer& entityRenderer, BrushRenderer& brushRenderer) :
+            AddNodeToObjectRenderer(GroupRenderer& groupRenderer, EntityRenderer& entityRenderer, BrushRenderer& brushRenderer) :
+            m_groupRenderer(groupRenderer),
             m_entityRenderer(entityRenderer),
             m_brushRenderer(brushRenderer) {}
         private:
             virtual void doVisit(Model::World* world)   {}
             virtual void doVisit(Model::Layer* layer)   {}
-            virtual void doVisit(Model::Group* group)   {}
+            virtual void doVisit(Model::Group* group)   { m_groupRenderer.addGroup(group); }
             virtual void doVisit(Model::Entity* entity) { m_entityRenderer.addEntity(entity); }
             virtual void doVisit(Model::Brush* brush)   { m_brushRenderer.addBrush(brush); }
         };
         
         void ObjectRenderer::addObjects(const Model::NodeList& nodes) {
-            AddNodeToObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
+            AddNodeToObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
             Model::Node::accept(nodes.begin(), nodes.end(), visitor);
         }
 
         void ObjectRenderer::addObject(Model::Node* object) {
             assert(object != NULL);
-            AddNodeToObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
+            AddNodeToObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
             object->accept(visitor);
         }
         
         class RemoveNodeFromObjectRenderer : public Model::NodeVisitor {
         private:
+            GroupRenderer& m_groupRenderer;
             EntityRenderer& m_entityRenderer;
             BrushRenderer& m_brushRenderer;
         public:
-            RemoveNodeFromObjectRenderer(EntityRenderer& entityRenderer, BrushRenderer& brushRenderer) :
+            RemoveNodeFromObjectRenderer(GroupRenderer& groupRenderer, EntityRenderer& entityRenderer, BrushRenderer& brushRenderer) :
+            m_groupRenderer(groupRenderer),
             m_entityRenderer(entityRenderer),
             m_brushRenderer(brushRenderer) {}
         private:
             virtual void doVisit(Model::World* world)   {}
             virtual void doVisit(Model::Layer* layer)   {}
-            virtual void doVisit(Model::Group* group)   {}
+            virtual void doVisit(Model::Group* group)   { m_groupRenderer.removeGroup(group); }
             virtual void doVisit(Model::Entity* entity) { m_entityRenderer.removeEntity(entity); }
             virtual void doVisit(Model::Brush* brush)   { m_brushRenderer.removeBrush(brush); }
         };
 
         void ObjectRenderer::removeObjects(const Model::NodeList& nodes) {
-            RemoveNodeFromObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
+            RemoveNodeFromObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
             Model::Node::accept(nodes.begin(), nodes.end(), visitor);
         }
 
         void ObjectRenderer::removeObject(Model::Node* object) {
             assert(object != NULL);
-            RemoveNodeFromObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
+            RemoveNodeFromObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
             object->accept(visitor);
         }
 
         class UpdateNodesInObjectRenderer : public Model::NodeVisitor {
         private:
+            GroupRenderer& m_groupRenderer;
             EntityRenderer& m_entityRenderer;
             BrushRenderer& m_brushRenderer;
         public:
-            UpdateNodesInObjectRenderer(EntityRenderer& entityRenderer, BrushRenderer& brushRenderer) :
+            UpdateNodesInObjectRenderer(GroupRenderer& groupRenderer, EntityRenderer& entityRenderer, BrushRenderer& brushRenderer) :
+            m_groupRenderer(groupRenderer),
             m_entityRenderer(entityRenderer),
             m_brushRenderer(brushRenderer) {}
         private:
@@ -94,9 +100,10 @@ namespace TrenchBroom {
             virtual void doVisit(Model::Group* group)   {
                 const Model::NodeList& children = group->children();
                 if (!children.empty()) {
-                    UpdateNodesInObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
+                    UpdateNodesInObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
                     Model::Node::accept(children.begin(), children.end(), visitor);
                 }
+                m_groupRenderer.updateGroup(group);
             }
             
             virtual void doVisit(Model::Entity* entity) { m_entityRenderer.updateEntity(entity); }
@@ -104,13 +111,13 @@ namespace TrenchBroom {
         };
         
         void ObjectRenderer::updateObjects(const Model::NodeList& nodes) {
-            UpdateNodesInObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
+            UpdateNodesInObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
             Model::Node::accept(nodes.begin(), nodes.end(), visitor);
         }
         
         void ObjectRenderer::updateObject(Model::Node* object) {
             assert(object != NULL);
-            UpdateNodesInObjectRenderer visitor(m_entityRenderer, m_brushRenderer);
+            UpdateNodesInObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
             object->accept(visitor);
         }
 
@@ -119,20 +126,24 @@ namespace TrenchBroom {
         }
 
         void ObjectRenderer::invalidate() {
-            m_brushRenderer.invalidate();
+            m_groupRenderer.invalidate();
             m_entityRenderer.invalidate();
+            m_brushRenderer.invalidate();
         }
 
         void ObjectRenderer::clear() {
-            m_brushRenderer.clear();
+            m_groupRenderer.clear();
             m_entityRenderer.clear();
+            m_brushRenderer.clear();
         }
         
         void ObjectRenderer::setOverlayTextColor(const Color& overlayTextColor) {
+            m_groupRenderer.setOverlayTextColor(overlayTextColor);
             m_entityRenderer.setOverlayTextColor(overlayTextColor);
         }
     
         void ObjectRenderer::setOverlayBackgroundColor(const Color& overlayBackgroundColor) {
+            m_groupRenderer.setOverlayBackgroundColor(overlayBackgroundColor);
             m_entityRenderer.setOverlayBackgroundColor(overlayBackgroundColor);
         }
         
@@ -147,12 +158,15 @@ namespace TrenchBroom {
         }
         
         void ObjectRenderer::setShowOccludedObjects(const bool showOccludedObjects) {
+            m_groupRenderer.setShowOccludedBounds(showOccludedObjects);
+            m_groupRenderer.setShowOccludedOverlays(true);
             m_entityRenderer.setShowOccludedBounds(showOccludedObjects);
             m_entityRenderer.setShowOccludedOverlays(true);
             m_brushRenderer.setShowOccludedEdges(true);
         }
         
         void ObjectRenderer::setOccludedEdgeColor(const Color& occludedEdgeColor) {
+            m_groupRenderer.setOccludedBoundsColor(occludedEdgeColor);
             m_entityRenderer.setOccludedBoundsColor(occludedEdgeColor);
             m_brushRenderer.setOccludedEdgeColor(occludedEdgeColor);
         }
@@ -169,6 +183,14 @@ namespace TrenchBroom {
             m_entityRenderer.setAngleColor(color);
         }
         
+        void ObjectRenderer::setOverrideGroupBoundsColor(const bool overrideGroupBoundsColor) {
+            m_groupRenderer.setOverrideBoundsColor(overrideGroupBoundsColor);
+        }
+
+        void ObjectRenderer::setGroupBoundsColor(const Color& color) {
+            m_groupRenderer.setBoundsColor(color);
+        }
+
         void ObjectRenderer::setOverrideEntityBoundsColor(const bool overrideEntityBoundsColor) {
             m_entityRenderer.setOverrideBoundsColor(overrideEntityBoundsColor);
         }
@@ -193,6 +215,7 @@ namespace TrenchBroom {
         void ObjectRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
             m_brushRenderer.render(renderContext, renderBatch);
             m_entityRenderer.render(renderContext, renderBatch);
+            m_groupRenderer.render(renderContext, renderBatch);
         }
     }
 }
