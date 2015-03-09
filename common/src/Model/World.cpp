@@ -217,7 +217,7 @@ namespace TrenchBroom {
             node->acceptAndRecurse(addToPicker);
         }
         
-        void World::doDescendantWasRemoved(Node* oldParent, Node* node) {
+        void World::doDescendantWillBeRemoved(Node* node) {
             RemoveNodeFromPicker visitor(m_picker);
             node->acceptAndRecurse(visitor);
         }

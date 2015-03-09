@@ -343,14 +343,15 @@ namespace TrenchBroom {
         movedNodes(i_movedNodes),
         removedNodes(i_removedNodes) {}
 
-        MapDocumentCommandFacade::ReparentResult MapDocumentCommandFacade::performReparentNodes(const Model::ParentChildrenMap& nodes) {
+        MapDocumentCommandFacade::ReparentResult MapDocumentCommandFacade::performReparentNodes(const Model::ParentChildrenMap& nodes, const EmptyNodePolicy emptyNodePolicy) {
+            const Model::NodeList emptyParents = emptyNodePolicy == RemoveEmptyNodes ? findRemovableEmptyParentNodes(nodes) : Model::EmptyNodeList;
+            
             const Model::NodeList nodesToNotify = Model::collectChildren(nodes);
-            const Model::NodeList parentsToNotify = Model::collectParents(nodes);
+            const Model::NodeList parentsToNotify = VectorUtils::eraseAll(Model::collectParents(nodes), emptyParents);
             
             NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parentsToNotify);
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodesToNotify);
 
-            Model::NodeList emptyParents;
             Model::ParentChildrenMap movedNodes;
             
             Model::ParentChildrenMap::const_iterator pcIt, pcEnd;
@@ -368,14 +369,39 @@ namespace TrenchBroom {
                     movedNodes[oldParent].push_back(child);
                     oldParent->removeChild(child);
                     newParent->addChild(child);
-                    
-                    if (oldParent->removeIfEmpty() && !oldParent->hasChildren())
-                        emptyParents.push_back(oldParent);
                 }
             }
             
             const Model::ParentChildrenMap removedNodes = performRemoveNodes(emptyParents);
             return ReparentResult(movedNodes, removedNodes);
+        }
+
+        Model::NodeList MapDocumentCommandFacade::findRemovableEmptyParentNodes(const Model::ParentChildrenMap& nodes) const {
+            Model::NodeList emptyParents;
+            
+            typedef std::map<Model::Node*, size_t> RemoveCounts;
+            RemoveCounts counts;
+
+            Model::ParentChildrenMap::const_iterator pcIt, pcEnd;
+            Model::NodeList::const_iterator nIt, nEnd;
+            
+            for (pcIt = nodes.begin(), pcEnd = nodes.end(); pcIt != pcEnd; ++pcIt) {
+                const Model::NodeList& children = pcIt->second;
+                
+                for (nIt = children.begin(), nEnd = children.end(); nIt != nEnd; ++nIt) {
+                    Model::Node* child = *nIt;
+                    Model::Node* oldParent = child->parent();
+                    assert(oldParent != NULL);
+
+                    const size_t count = MapUtils::find(counts, oldParent, size_t(0)) + 1;
+                    MapUtils::insertOrReplace(counts, oldParent, count);
+
+                    if (oldParent->childCount() == count)
+                        emptyParents.push_back(oldParent);
+                }
+            }
+            
+            return emptyParents;
         }
 
         void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {

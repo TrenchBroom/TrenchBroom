@@ -605,12 +605,8 @@ namespace TrenchBroom {
             
             const Transaction transaction(this, "Group Selected Objects");
             deselectAll();
-            
             addNode(group, currentLayer());
-            select(group);
-            
             reparentNodes(group, nodes);
-            deselectAll();
             select(group);
         }
         

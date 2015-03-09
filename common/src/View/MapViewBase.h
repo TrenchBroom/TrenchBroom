@@ -187,6 +187,8 @@ namespace TrenchBroom {
             void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent);
             Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
 
+            void OnPopupRenameGroups(wxCommandEvent& event);
+            
             void OnPopupMoveBrushesToWorld(wxCommandEvent& event);
             void OnPopupCreatePointEntity(wxCommandEvent& event);
             void OnPopupCreateBrushEntity(wxCommandEvent& event);
@@ -196,6 +198,9 @@ namespace TrenchBroom {
             void createBrushEntity(const Assets::BrushEntityDefinition* definition);
 
             void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
+            void updateGroupObjectsMenuItem(wxUpdateUIEvent& event) const;
+            void updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const;
+            void updateRenameGroupsMenuItem(wxUpdateUIEvent& event) const;
             void updateReparentBrushesMenuItem(wxUpdateUIEvent& event) const;
             void updateMoveBrushesToWorldMenuItem(wxUpdateUIEvent& event) const;
         private: // subclassing interface

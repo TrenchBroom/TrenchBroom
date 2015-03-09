@@ -116,6 +116,7 @@ namespace TrenchBroom {
             void clearChildren();
             
             void descendantWasAdded(Node* node);
+            void descendantWillBeRemoved(Node* node);
             void descendantWasRemoved(Node* oldParent, Node* node);
             
             void incDescendantCount(size_t delta);
@@ -328,6 +329,7 @@ namespace TrenchBroom {
             virtual bool doRemoveIfEmpty() const = 0;
             
             virtual void doDescendantWasAdded(Node* node);
+            virtual void doDescendantWillBeRemoved(Node* node);
             virtual void doDescendantWasRemoved(Node* oldParent, Node* node);
 
             virtual void doParentWillChange();
