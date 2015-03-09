@@ -516,21 +516,35 @@ namespace TrenchBroom {
         }
 
         void Brush::doPick(const Ray3& ray, PickResult& pickResult) const {
+            const BrushFaceHit hit = findFaceHit(ray);
+            if (hit.face != NULL) {
+                assert(!Math::isnan(hit.distance));
+                const Vec3 hitPoint = ray.pointAtDistance(hit.distance);
+                pickResult.addHit(Hit(BrushHit, hit.distance, hitPoint, hit.face));
+            }
+        }
+        
+        FloatType Brush::doIntersectWithRay(const Ray3& ray) const {
+            const BrushFaceHit hit = findFaceHit(ray);
+            return hit.distance;
+        }
+
+        Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
+
+        Brush::BrushFaceHit Brush::findFaceHit(const Ray3& ray) const {
             if (Math::isnan(bounds().intersectWithRay(ray)))
-                return;
+                return BrushFaceHit();
             
             BrushFaceList::const_iterator it, end;
             for (it = m_faces.begin(), end = m_faces.end(); it != end; ++it) {
                 BrushFace* face = *it;
                 const FloatType distance = face->intersectWithRay(ray);
-                if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    pickResult.addHit(Hit(BrushHit, distance, hitPoint, face));
-                    break;
-                }
+                if (!Math::isnan(distance))
+                    return BrushFaceHit(face, distance);
             }
+            return BrushFaceHit();
         }
-        
+
         Node* Brush::doGetContainer() const {
             FindContainerVisitor visitor;
             escalate(visitor);
@@ -544,7 +558,7 @@ namespace TrenchBroom {
         }
         
         Group* Brush::doGetGroup() const {
-            FindGroupVisitor visitor;
+            FindGroupVisitor visitor(false);
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : NULL;
         }

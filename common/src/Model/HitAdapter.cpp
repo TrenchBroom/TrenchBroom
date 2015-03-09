@@ -27,6 +27,8 @@
 namespace TrenchBroom {
     namespace Model {
         Node* hitToNode(const Hit& hit) {
+            if (hit.type() == Group::GroupHit)
+                return hit.target<Node*>();
             if (hit.type() == Entity::EntityHit)
                 return hit.target<Node*>();
             if (hit.type() == Brush::BrushHit) {
@@ -37,6 +39,8 @@ namespace TrenchBroom {
         }
         
         Object* hitToObject(const Hit& hit) {
+            if (hit.type() == Group::GroupHit)
+                return hit.target<Object*>();
             if (hit.type() == Entity::EntityHit)
                 return hit.target<Object*>();
             if (hit.type() == Brush::BrushHit) {

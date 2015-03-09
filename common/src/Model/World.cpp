@@ -165,11 +165,24 @@ namespace TrenchBroom {
             AddNodeToPicker(Picker& picker) :
             m_picker(picker) {}
         private:
-            void doVisit(World* world)   { }
-            void doVisit(Layer* layer)   { }
-            void doVisit(Group* group)   { m_picker.addObject(group); }
-            void doVisit(Entity* entity) { m_picker.addObject(entity); }
-            void doVisit(Brush* brush)   { m_picker.addObject(brush); }
+            void doVisit(World* world)   {}
+            void doVisit(Layer* layer)   {}
+            
+            void doVisit(Group* group)   {
+                if (group->group() == NULL)
+                    m_picker.addObject(group);
+                stopRecursion();
+            }
+            
+            void doVisit(Entity* entity) {
+                if (entity->group() == NULL)
+                    m_picker.addObject(entity);
+            }
+            
+            void doVisit(Brush* brush)   {
+                if (brush->group() == NULL)
+                    m_picker.addObject(brush);
+            }
         };
         
         class RemoveNodeFromPicker : public NodeVisitor {
@@ -179,11 +192,24 @@ namespace TrenchBroom {
             RemoveNodeFromPicker(Picker& picker) :
             m_picker(picker) {}
         private:
-            void doVisit(World* world)   { }
-            void doVisit(Layer* layer)   { }
-            void doVisit(Group* group)   { m_picker.removeObject(group); }
-            void doVisit(Entity* entity) { m_picker.removeObject(entity); }
-            void doVisit(Brush* brush)   { m_picker.removeObject(brush); }
+            void doVisit(World* world)   {}
+            void doVisit(Layer* layer)   {}
+            
+            void doVisit(Group* group) {
+                if (group->group() == NULL)
+                    m_picker.removeObject(group);
+                stopRecursion();
+            }
+            
+            void doVisit(Entity* entity) {
+                if (entity->group() == NULL)
+                    m_picker.removeObject(entity);
+            }
+            
+            void doVisit(Brush* brush) {
+                if (brush->group() == NULL)
+                    m_picker.removeObject(brush);
+            }
         };
         
         void World::doDescendantWasAdded(Node* node) {

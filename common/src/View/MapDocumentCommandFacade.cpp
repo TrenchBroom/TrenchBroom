@@ -26,6 +26,7 @@
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
+#include "Model/CollectRecursivelySelectedNodesVisitor.h"
 #include "Model/CollectSelectableBrushFacesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -97,19 +98,22 @@ namespace TrenchBroom {
             Model::NodeList selected;
             selected.reserve(nodes.size());
             
-            Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
+            Model::CollectNodesWithDescendantSelectionCountVisitor ancestors(0);
+            Model::CollectRecursivelySelectedNodesVisitor descendants(false);
 
             Model::NodeList::const_iterator it, end;
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
                 Model::Node* node = *it;
                 if (!node->selected() && m_editorContext->selectable(node)) {
-                    node->escalate(visitor);
+                    node->escalate(ancestors);
+                    node->recurse(descendants);
                     node->select();
                     selected.push_back(node);
                 }
             }
 
-            const Model::NodeList& partiallySelected = visitor.nodes();
+            const Model::NodeList& partiallySelected = ancestors.nodes();
+            const Model::NodeList& recursivelySelected = descendants.nodes();
             
             m_selectedNodes.addNodes(selected);
             m_partiallySelectedNodes.addNodes(partiallySelected);
@@ -117,6 +121,7 @@ namespace TrenchBroom {
             Selection selection;
             selection.addSelectedNodes(selected);
             selection.addPartiallySelectedNodes(partiallySelected);
+            selection.addRecursivelySelectedNodes(recursivelySelected);
             
             selectionDidChangeNotifier(selection);
             invalidateSelectionBounds();
@@ -183,7 +188,8 @@ namespace TrenchBroom {
             Model::NodeList deselected;
             deselected.reserve(nodes.size());
             
-            Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
+            Model::CollectNodesWithDescendantSelectionCountVisitor ancestors(0);
+            Model::CollectRecursivelySelectedNodesVisitor descendants(false);
             
             Model::NodeList::const_iterator it, end;
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
@@ -191,11 +197,13 @@ namespace TrenchBroom {
                 if (node->selected()) {
                     node->deselect();
                     deselected.push_back(node);
-                    node->escalate(visitor);
+                    node->escalate(ancestors);
+                    node->recurse(descendants);
                 }
             }
             
-            const Model::NodeList& partiallyDeselected = visitor.nodes();
+            const Model::NodeList& partiallyDeselected = ancestors.nodes();
+            const Model::NodeList& recursivelyDeselected = descendants.nodes();
             
             m_selectedNodes.removeNodes(deselected);
             m_partiallySelectedNodes.removeNodes(partiallyDeselected);
@@ -203,6 +211,7 @@ namespace TrenchBroom {
             Selection selection;
             selection.addDeselectedNodes(deselected);
             selection.addPartiallyDeselectedNodes(partiallyDeselected);
+            selection.addRecursivelyDeselectedNodes(recursivelyDeselected);
             
             selectionDidChangeNotifier(selection);
             invalidateSelectionBounds();
@@ -249,15 +258,19 @@ namespace TrenchBroom {
             selectionWillChangeNotifier();
             updateLastSelectionBounds();
 
+            Model::CollectRecursivelySelectedNodesVisitor descendants(false);
+
             Model::NodeList::const_iterator it, end;
             for (it = m_selectedNodes.begin(), end = m_selectedNodes.end(); it != end; ++it) {
                 Model::Node* node = *it;
                 node->deselect();
+                node->recurse(descendants);
             }
             
             Selection selection;
             selection.addDeselectedNodes(m_selectedNodes.nodes());
             selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes.nodes());
+            selection.addRecursivelyDeselectedNodes(descendants.nodes());
 
             m_selectedNodes.clear();
             m_partiallySelectedNodes.clear();

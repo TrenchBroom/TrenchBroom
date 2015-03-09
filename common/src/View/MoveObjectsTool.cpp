@@ -22,6 +22,7 @@
 #include "Model/Brush.h"
 #include "Model/ComputeNodeBoundsVisitor.h"
 #include "Model/Entity.h"
+#include "Model/Group.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
@@ -67,7 +68,7 @@ namespace TrenchBroom {
 
         const Model::Hit& MoveObjectsTool::findHit(const InputState& inputState) const {
             const Model::PickResult& pickResult = inputState.pickResult();
-            return pickResult.query().pickable().type(Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().selected().first();
+            return pickResult.query().pickable().type(Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit).occluded().selected().first();
         }
 
         String MoveObjectsTool::doGetActionName(const InputState& inputState) const {

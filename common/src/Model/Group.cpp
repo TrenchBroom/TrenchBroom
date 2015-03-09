@@ -19,6 +19,7 @@
 
 #include "Group.h"
 
+#include "Hit.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
@@ -28,6 +29,7 @@
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupSnapshot.h"
+#include "Model/IntersectNodeWithRayVisitor.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
@@ -117,16 +119,25 @@ namespace TrenchBroom {
         }
 
         void Group::doPick(const Ray3& ray, PickResult& pickResult) const {
-            const BBox3& myBounds = bounds();
-            if (!myBounds.contains(ray.origin)) {
-                const FloatType distance = myBounds.intersectWithRay(ray);
-                if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
-                }
+            const FloatType distance = intersectWithRay(ray);
+            if (!Math::isnan(distance)) {
+                const Vec3 hitPoint = ray.pointAtDistance(distance);
+                pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
             }
         }
         
+        FloatType Group::doIntersectWithRay(const Ray3& ray) const {
+            const BBox3& myBounds = bounds();
+            if (!myBounds.contains(ray.origin) && Math::isnan(myBounds.intersectWithRay(ray)))
+                return Math::nan<FloatType>();
+            
+            IntersectNodeWithRayVisitor visitor(ray);
+            iterate(visitor);
+            if (!visitor.hasResult())
+                return Math::nan<FloatType>();
+            return visitor.result();
+        }
+
         Node* Group::doGetContainer() const {
             FindContainerVisitor visitor;
             escalate(visitor);
@@ -140,7 +151,7 @@ namespace TrenchBroom {
         }
         
         Group* Group::doGetGroup() const {
-            FindGroupVisitor visitor;
+            FindGroupVisitor visitor(false);
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : NULL;
         }

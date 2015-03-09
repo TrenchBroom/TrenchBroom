@@ -190,16 +190,20 @@ namespace TrenchBroom {
         }
         
         void Entity::doPick(const Ray3& ray, PickResult& pickResult) const {
-            const BBox3& myBounds = bounds();
-            if (!myBounds.contains(ray.origin)) {
-                const FloatType distance = myBounds.intersectWithRay(ray);
-                if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
-                }
+            const FloatType distance = intersectWithRay(ray);
+            if (!Math::isnan(distance)) {
+                const Vec3 hitPoint = ray.pointAtDistance(distance);
+                pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
             }
         }
         
+        FloatType Entity::doIntersectWithRay(const Ray3& ray) const {
+            const BBox3& myBounds = bounds();
+            if (!myBounds.contains(ray.origin))
+                return myBounds.intersectWithRay(ray);
+            return Math::nan<FloatType>();
+        }
+
         Node* Entity::doGetContainer() const {
             FindContainerVisitor visitor;
             escalate(visitor);
@@ -213,7 +217,7 @@ namespace TrenchBroom {
         }
         
         Group* Entity::doGetGroup() const {
-            FindGroupVisitor visitor;
+            FindGroupVisitor visitor(false);
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : NULL;
         }

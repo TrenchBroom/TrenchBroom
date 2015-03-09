@@ -147,6 +147,8 @@ namespace TrenchBroom {
             void select();
             void deselect();
 
+            bool parentSelected() const;
+            
             bool childSelected() const;
             size_t childSelectionCount() const;
             

@@ -17,30 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FindGroupVisitor__
-#define __TrenchBroom__FindGroupVisitor__
+#include "CollectRecursivelySelectedNodesVisitor.h"
 
-#include "Model/ModelTypes.h"
-#include "Model/NodeVisitor.h"
+#include "Model/Brush.h"
+#include "Model/Entity.h"
+#include "Model/Group.h"
+#include "Model/Layer.h"
+#include "Model/World.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class FindGroupVisitor : public NodeVisitor, public NodeQuery<Group*> {
-        private:
-            bool m_findTopGroup;
-        public:
-            FindGroupVisitor(bool findTopGroup);
-        private:
-            void doVisit(World* world);
-            void doVisit(Layer* layer);
-            void doVisit(Group* group);
-            void doVisit(Entity* entity);
-            void doVisit(Brush* brush);
-        };
+        MatchRecursivelySelectedNodes::MatchRecursivelySelectedNodes(const bool selected) :
+        m_selected(selected) {}
         
-        Model::Group* findGroup(Model::Node* node);
-        Model::Group* findTopGroup(Model::Node* node);
+        bool MatchRecursivelySelectedNodes::operator()(const Node* node) const {
+            return node->parentSelected() == m_selected;
+        }
+        
+        CollectRecursivelySelectedNodesVisitor::CollectRecursivelySelectedNodesVisitor(const bool selected) :
+        CollectMatchingNodesVisitor(MatchRecursivelySelectedNodes(selected)) {}
     }
 }
-
-#endif /* defined(__TrenchBroom__FindGroupVisitor__) */

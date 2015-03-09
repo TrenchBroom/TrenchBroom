@@ -303,7 +303,7 @@ namespace TrenchBroom {
                 ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
                 assert(layerRenderer != NULL);
                 
-                if (group->selected() || group->descendantSelected()) {
+                if (group->selected() || group->descendantSelected() || group->parentSelected()) {
                     layerRenderer->removeObject(group);
                     m_selectionRenderer->addObject(group);
                 } else {
@@ -318,7 +318,7 @@ namespace TrenchBroom {
                 ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
                 assert(layerRenderer != NULL);
                 
-                if (entity->selected() || entity->descendantSelected()) {
+                if (entity->selected() || entity->descendantSelected() || entity->parentSelected()) {
                     layerRenderer->removeObject(entity);
                     m_selectionRenderer->addObject(entity);
                 } else {
@@ -333,11 +333,11 @@ namespace TrenchBroom {
                 ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
                 assert(layerRenderer != NULL);
                 
-                if (brush->selected())
+                if (brush->selected() || brush->parentSelected())
                     layerRenderer->removeObject(brush);
                 else
                     layerRenderer->addObject(brush);
-                if (brush->selected() || brush->descendantSelected())
+                if (brush->selected() || brush->descendantSelected() || brush->parentSelected())
                     m_selectionRenderer->addObject(brush);
                 else
                     m_selectionRenderer->removeObject(brush);
@@ -471,9 +471,9 @@ namespace TrenchBroom {
                 ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
                 assert(layerRenderer != NULL);
                 
-                if (node->selected() || node->descendantSelected())
+                if (node->selected() || node->descendantSelected() || node->parentSelected())
                     m_selectionRenderer->updateObject(node);
-                if (!node->selected())
+                else
                     layerRenderer->updateObject(node);
             }
         };
@@ -482,6 +482,8 @@ namespace TrenchBroom {
             HandleSelectedNode handleSelectedNode(m_layerRenderers, m_selectionRenderer);
             Model::Node::accept(selection.partiallySelectedNodes().begin(), selection.partiallySelectedNodes().end(), handleSelectedNode);
             Model::Node::accept(selection.partiallyDeselectedNodes().begin(), selection.partiallyDeselectedNodes().end(), handleSelectedNode);
+            Model::Node::accept(selection.recursivelySelectedNodes().begin(), selection.recursivelySelectedNodes().end(), handleSelectedNode);
+            Model::Node::accept(selection.recursivelyDeselectedNodes().begin(), selection.recursivelyDeselectedNodes().end(), handleSelectedNode);
             Model::Node::accept(selection.selectedNodes().begin(), selection.selectedNodes().end(), handleSelectedNode);
             Model::Node::accept(selection.deselectedNodes().begin(), selection.deselectedNodes().end(), handleSelectedNode);
 

@@ -17,30 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__FindGroupVisitor__
-#define __TrenchBroom__FindGroupVisitor__
+#ifndef __TrenchBroom__IntersectNodeWithRayVisitor__
+#define __TrenchBroom__IntersectNodeWithRayVisitor__
 
-#include "Model/ModelTypes.h"
+#include "TrenchBroom.h"
+#include "Ray.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class FindGroupVisitor : public NodeVisitor, public NodeQuery<Group*> {
+        class IntersectNodeWithRayVisitor : public NodeVisitor, public NodeQuery<FloatType> {
         private:
-            bool m_findTopGroup;
+            const Ray3& m_ray;
         public:
-            FindGroupVisitor(bool findTopGroup);
+            IntersectNodeWithRayVisitor(const Ray3& ray);
         private:
             void doVisit(World* world);
             void doVisit(Layer* layer);
             void doVisit(Group* group);
             void doVisit(Entity* entity);
             void doVisit(Brush* brush);
+        private:
+            FloatType doCombineResults(FloatType oldDistance, FloatType newDistance) const;
         };
-        
-        Model::Group* findGroup(Model::Node* node);
-        Model::Group* findTopGroup(Model::Node* node);
     }
 }
 
-#endif /* defined(__TrenchBroom__FindGroupVisitor__) */
+#endif /* defined(__TrenchBroom__IntersectNodeWithRayVisitor__) */

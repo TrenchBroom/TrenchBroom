@@ -128,6 +128,12 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::visible(const Model::Group* group) const {
+            if (group->selected())
+                return true;
+            const Model::Layer* layer = group->layer();
+            assert(layer != NULL);
+            if (layer->hidden())
+                return false;
             return true;
         }
         
@@ -146,6 +152,8 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::visible(const Model::Brush* brush) const {
+            if (brush->selected())
+                return true;
             if (!m_showBrushes)
                 return false;
             if (brush->hasContentType(m_hiddenBrushContentTypes))
@@ -228,11 +236,11 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::pickable(const Model::Entity* entity) const {
-            return visible(entity) && !entity->hasChildren();
+            return !entity->hasChildren() && entity->group() == NULL && visible(entity);
         }
         
         bool EditorContext::pickable(const Model::Brush* brush) const {
-            return visible(brush);
+            return brush->group() == NULL && visible(brush);
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {

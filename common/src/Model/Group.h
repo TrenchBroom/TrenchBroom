@@ -65,6 +65,7 @@ namespace TrenchBroom {
         private: // implement methods inherited from Object
             const BBox3& doGetBounds() const;
             void doPick(const Ray3& ray, PickResult& pickResult) const;
+            FloatType doIntersectWithRay(const Ray3& ray) const;
 
             Node* doGetContainer() const;
             Layer* doGetLayer() const;

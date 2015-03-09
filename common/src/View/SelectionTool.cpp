@@ -23,6 +23,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Model/Group.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/Node.h"
@@ -78,7 +79,7 @@ namespace TrenchBroom {
                     document->deselectAll();
                 }
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     Model::Node* node = Model::hitToNode(hit);
                     if (isMultiClick(inputState)) {

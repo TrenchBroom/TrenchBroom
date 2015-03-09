@@ -137,9 +137,11 @@ namespace TrenchBroom {
             assert(child->parent() == NULL);
             assert(canAddChild(child));
 
+            nodeWillChange();
             m_children.push_back(child);
             child->setParent(this);
             descendantWasAdded(child);
+            nodeDidChange();
         }
 
         void Node::doRemoveChild(Node* child) {
@@ -147,9 +149,11 @@ namespace TrenchBroom {
             assert(child->parent() == this);
             assert(canRemoveChild(child));
 
+            nodeWillChange();
             child->setParent(NULL);
             VectorUtils::erase(m_children, child);
             descendantWasRemoved(this, child);
+            nodeDidChange();
         }
         
         void Node::clearChildren() {
@@ -294,6 +298,14 @@ namespace TrenchBroom {
             m_selected = false;
             if (m_parent != NULL)
                 m_parent->childWasDeselected();
+        }
+
+        bool Node::parentSelected() const {
+            if (m_parent == NULL)
+                return false;
+            if (m_parent->selected())
+                return true;
+            return m_parent->parentSelected();
         }
 
         bool Node::childSelected() const {

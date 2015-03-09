@@ -611,7 +611,7 @@ namespace TrenchBroom {
             
             reparentNodes(group, nodes);
             deselectAll();
-            select(nodes);
+            select(group);
         }
         
         void MapDocument::ungroupSelection() {
@@ -619,6 +619,7 @@ namespace TrenchBroom {
                 return;
             
             const Model::NodeList groups = m_selectedNodes.nodes();
+            Model::NodeList allChildren;
             
             const Transaction transaction(this, "Ungroup");
             deselectAll();
@@ -629,7 +630,10 @@ namespace TrenchBroom {
                 Model::Layer* layer = Model::findLayer(group);
                 const Model::NodeList& children = group->children();
                 reparentNodes(layer, children);
+                VectorUtils::append(allChildren, children);
             }
+            
+            select(allChildren);
         }
 
         void MapDocument::setLayerHidden(Model::Layer* layer, const bool hidden) {
