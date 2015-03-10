@@ -36,7 +36,8 @@ namespace TrenchBroom {
         m_showBrushes(true),
         m_hiddenBrushContentTypes(0),
         m_entityLinkMode(EntityLinkMode_Direct),
-        m_textureLock(false) {}
+        m_textureLock(false),
+        m_currentGroup(NULL) {}
         
         bool EditorContext::showPointEntities() const {
             return m_showPointEntities;
@@ -104,6 +105,21 @@ namespace TrenchBroom {
             editorContextDidChangeNotifier();
         }
 
+        Model::Group* EditorContext::currentGroup() const {
+            return m_currentGroup;
+        }
+
+        void EditorContext::pushGroup(Model::Group* group) {
+            assert(group != NULL);
+            assert(m_currentGroup == NULL || group->group() == m_currentGroup);
+            m_currentGroup = group;
+        }
+        
+        void EditorContext::popGroup() {
+            assert(m_currentGroup != NULL);
+            m_currentGroup = m_currentGroup->group();
+        }
+        
         class NodeVisible : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
         private:
             const EditorContext& m_this;

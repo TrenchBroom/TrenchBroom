@@ -46,6 +46,8 @@ namespace TrenchBroom {
             EntityLinkMode m_entityLinkMode;
             
             bool m_textureLock;
+            
+            Model::Group* m_currentGroup;
         public:
             Notifier0 editorContextDidChangeNotifier;
         public:
@@ -68,6 +70,10 @@ namespace TrenchBroom {
             
             bool textureLock() const;
             void setTextureLock(bool textureLock);
+        public:
+            Model::Group* currentGroup() const;
+            void pushGroup(Model::Group* group);
+            void popGroup();
         public:
             bool visible(const Model::Node* node) const;
             bool visible(const Model::Layer* layer) const;
