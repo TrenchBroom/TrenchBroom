@@ -203,12 +203,8 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::OnAddLayer(wxCommandEvent& event) {
-            wxTextEntryDialog dialog(this, "Enter a name for the new layer", "New Layer Name", "Unnamed");
-            dialog.CentreOnParent();
-            dialog.SetTextValidator(wxFILTER_EMPTY);
-            if (dialog.ShowModal() == wxID_OK) {
-                const String name = dialog.GetValue().ToStdString();
-
+            const String name = queryLayerName();
+            if (!name.empty()) {
                 MapDocumentSPtr document = lock(m_document);
                 Model::World* world = document->world();
                 Model::Layer* layer = world->createLayer(name);
@@ -221,6 +217,26 @@ namespace TrenchBroom {
             }
         }
         
+        String LayerEditor::queryLayerName() {
+            while (true) {
+                wxTextEntryDialog dialog(this, "Enter a name", "Layer Name", "Unnamed");
+                dialog.CentreOnParent();
+                if (dialog.ShowModal() != wxID_OK)
+                    return "";
+                
+                const String name = dialog.GetValue().ToStdString();
+                if (StringUtils::isBlank(name)) {
+                    if (wxMessageBox("Layer names cannot be blank.", "Error", wxOK | wxCANCEL | wxCENTRE, this) != wxOK)
+                        return "";
+                } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
+                    if (wxMessageBox("Layer names cannot contain double quotes.", "Error", wxOK | wxCANCEL | wxCENTRE, this) != wxOK)
+                        return "";
+                } else {
+                    return name;
+                }
+            }
+        }
+
         void LayerEditor::OnRemoveLayer(wxCommandEvent& event) {
             Model::Layer* layer = m_layerList->selectedLayer();
             assert(layer != NULL);
@@ -258,9 +274,9 @@ namespace TrenchBroom {
             const Model::NodeList moveNodes = visitor.moveNodes();
             if (!moveNodes.empty()) {
                 const Model::NodeList selectNodes = visitor.selectNodes();
-                document->deselectAll();
-                document->select(visitor.selectNodes());
+                // document->deselectAll();
                 document->reparentNodes(layer, visitor.moveNodes());
+                document->select(visitor.selectNodes());
             }
         }
 

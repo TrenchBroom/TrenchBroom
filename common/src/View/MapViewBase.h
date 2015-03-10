@@ -158,6 +158,24 @@ namespace TrenchBroom {
         private: // group management
             void OnGroupSelectedObjects(wxCommandEvent& event);
             void OnUngroupSelectedObjects(wxCommandEvent& event);
+            void OnRenameGroups(wxCommandEvent& event);
+        private:
+            String queryGroupName();
+        private: // reparenting objects
+            void OnReparentBrushes(wxCommandEvent& event);
+            Model::Node* findNewNodeParent(const Model::NodeList& nodes) const;
+            
+            bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+            void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent);
+            Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
+            
+            void OnMoveBrushesToWorld(wxCommandEvent& event);
+            void OnCreatePointEntity(wxCommandEvent& event);
+            void OnCreateBrushEntity(wxCommandEvent& event);
+            
+            Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
+            void createPointEntity(const Assets::PointEntityDefinition* definition);
+            void createBrushEntity(const Assets::BrushEntityDefinition* definition);
         private: // other events
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
@@ -179,24 +197,6 @@ namespace TrenchBroom {
             void doShowPopupMenu();
             wxMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
             
-            // Popup menu events
-            void OnPopupReparentBrushes(wxCommandEvent& event);
-            Model::Node* findNewNodeParent(const Model::NodeList& nodes) const;
-            
-            bool canReparentNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
-            void reparentNodes(const Model::NodeList& nodes, Model::Node* newParent);
-            Model::NodeList collectReparentableNodes(const Model::NodeList& nodes, const Model::Node* newParent) const;
-
-            void OnPopupRenameGroups(wxCommandEvent& event);
-            
-            void OnPopupMoveBrushesToWorld(wxCommandEvent& event);
-            void OnPopupCreatePointEntity(wxCommandEvent& event);
-            void OnPopupCreateBrushEntity(wxCommandEvent& event);
-            
-            Assets::EntityDefinition* findEntityDefinition(Assets::EntityDefinition::Type type, size_t index) const;
-            void createPointEntity(const Assets::PointEntityDefinition* definition);
-            void createBrushEntity(const Assets::BrushEntityDefinition* definition);
-
             void OnUpdatePopupMenuItem(wxUpdateUIEvent& event);
             void updateGroupObjectsMenuItem(wxUpdateUIEvent& event) const;
             void updateUngroupObjectsMenuItem(wxUpdateUIEvent& event) const;

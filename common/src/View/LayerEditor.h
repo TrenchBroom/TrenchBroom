@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__LayerEditor__
 #define __TrenchBroom__LayerEditor__
 
+#include "StringUtils.h"
 #include "Model/ModelTypes.h"
 #include "View/ViewTypes.h"
 
@@ -59,8 +60,12 @@ namespace TrenchBroom {
             void toggleLayerLocked(Model::Layer* layer);
 
             void OnSelectAllInLayer(wxCommandEvent& event);
+            
             void OnAddLayer(wxCommandEvent& event);
+            String queryLayerName();
+            
             void OnRemoveLayer(wxCommandEvent& event);
+            
             void OnUpdateRemoveLayerUI(wxUpdateUIEvent& event);
         private:
             void moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer);

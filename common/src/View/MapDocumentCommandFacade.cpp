@@ -403,6 +403,64 @@ namespace TrenchBroom {
             
             return emptyParents;
         }
+        
+        class MapDocumentCommandFacade::RenameGroupsVisitor : public Model::NodeVisitor {
+        private:
+            const String& m_newName;
+            Model::GroupNameMap m_oldNames;
+        public:
+            RenameGroupsVisitor(const String& newName) : m_newName(newName) {}
+            const Model::GroupNameMap& oldNames() const { return m_oldNames; }
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   {
+                m_oldNames[group] = group->name();
+                group->setName(m_newName);
+            }
+            void doVisit(Model::Entity* entity) {}
+            void doVisit(Model::Brush* brush)   {}
+        };
+
+        class MapDocumentCommandFacade::UndoRenameGroupsVisitor : public Model::NodeVisitor {
+        private:
+            const Model::GroupNameMap& m_newNames;
+        public:
+            UndoRenameGroupsVisitor(const Model::GroupNameMap& newNames) : m_newNames(newNames) {}
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   {
+                assert(m_newNames.count(group) == 1);
+                const String& newName = MapUtils::find(m_newNames, group, group->name());
+                group->setName(newName);
+            }
+            void doVisit(Model::Entity* entity) {}
+            void doVisit(Model::Brush* brush)   {}
+        };
+        
+        Model::GroupNameMap MapDocumentCommandFacade::performRenameGroups(const String& newName) {
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            RenameGroupsVisitor visitor(newName);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+            return visitor.oldNames();
+        }
+
+        void MapDocumentCommandFacade::performUndoRenameGroups(const Model::GroupNameMap& newNames) {
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
+            UndoRenameGroupsVisitor visitor(newNames);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+        }
 
         void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();

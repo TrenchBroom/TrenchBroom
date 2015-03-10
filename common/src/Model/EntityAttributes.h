@@ -35,6 +35,8 @@ namespace TrenchBroom {
     }
     
     namespace Model {
+        extern const String AttributeEscapeChars;
+        
         namespace AttributeNames {
             extern const AttributeName Classname;
             extern const AttributeName Origin;

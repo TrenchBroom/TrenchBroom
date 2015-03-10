@@ -24,6 +24,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        const String AttributeEscapeChars = "\"\n\\";
+        
         namespace AttributeNames {
             const AttributeName Classname         = "classname";
             const AttributeName Origin            = "origin";

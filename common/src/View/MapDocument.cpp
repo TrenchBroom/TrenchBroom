@@ -75,6 +75,7 @@
 #include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
+#include "View/RenameGroupsCommand.h"
 #include "View/ReparentNodesCommand.h"
 #include "View/ResizeBrushesCommand.h"
 #include "View/RotateTexturesCommand.h"
@@ -630,6 +631,10 @@ namespace TrenchBroom {
             }
             
             select(allChildren);
+        }
+
+        void MapDocument::renameGroups(const String& name) {
+            submit(RenameGroupsCommand::rename(name));
         }
 
         void MapDocument::setLayerHidden(Model::Layer* layer, const bool hidden) {

@@ -224,6 +224,7 @@ namespace TrenchBroom {
         public: // group management
             void groupSelection(const String& name);
             void ungroupSelection();
+            void renameGroups(const String& name);
         public: // modifying transient layer attributes, declared in MapFacade interface
             void setLayerHidden(Model::Layer* layer, bool hidden);
             void setLayerLocked(Model::Layer* layer, bool locked);

@@ -75,6 +75,12 @@ namespace TrenchBroom {
             ReparentResult performReparentNodes(const Model::ParentChildrenMap& nodes, EmptyNodePolicy emptyNodePolicy);
         private:
             Model::NodeList findRemovableEmptyParentNodes(const Model::ParentChildrenMap& nodes) const;
+        private:  // groups
+            class RenameGroupsVisitor;
+            class UndoRenameGroupsVisitor;
+        public:
+            Model::GroupNameMap performRenameGroups(const String& newName);
+            void performUndoRenameGroups(const Model::GroupNameMap& newNames);
         public: // transformation
             void performTransform(const Mat4x4& transform, bool lockTextures);
         public: // entity attributes

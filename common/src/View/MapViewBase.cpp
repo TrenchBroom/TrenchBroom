@@ -244,11 +244,11 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::MapViewPopupMenu::UngroupObjects);
-            Bind(wxEVT_MENU, &MapViewBase::OnPopupRenameGroups,            this, CommandIds::MapViewPopupMenu::RenameGroups);
-            Bind(wxEVT_MENU, &MapViewBase::OnPopupReparentBrushes,         this, CommandIds::MapViewPopupMenu::ReparentBrushes);
-            Bind(wxEVT_MENU, &MapViewBase::OnPopupMoveBrushesToWorld,      this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_MENU, &MapViewBase::OnPopupCreatePointEntity,       this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_MENU, &MapViewBase::OnPopupCreateBrushEntity,       this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
+            Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                 this, CommandIds::MapViewPopupMenu::RenameGroups);
+            Bind(wxEVT_MENU, &MapViewBase::OnReparentBrushes,              this, CommandIds::MapViewPopupMenu::ReparentBrushes);
+            Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesToWorld,           this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
+            Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
+            Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
             
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::UngroupObjects);
@@ -537,13 +537,9 @@ namespace TrenchBroom {
         void MapViewBase::OnGroupSelectedObjects(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedNodes()) {
-                wxTextEntryDialog dialog(this, "Enter a name for the new group", "New Group Name", "Unnamed");
-                dialog.CentreOnParent();
-                dialog.SetTextValidator(wxFILTER_EMPTY);
-                if (dialog.ShowModal() == wxID_OK) {
-                    const String name = dialog.GetValue().ToStdString();
+                const String name = queryGroupName();
+                if (!name.empty())
                     document->groupSelection(name);
-                }
             }
         }
         
@@ -553,6 +549,124 @@ namespace TrenchBroom {
                 document->ungroupSelection();
         }
 
+        void MapViewBase::OnRenameGroups(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            assert(document->selectedNodes().hasOnlyGroups());
+            const String name = queryGroupName();
+            if (!name.empty())
+                document->renameGroups(name);
+        }
+        
+        String MapViewBase::queryGroupName() {
+            while (true) {
+                wxTextEntryDialog dialog(this, "Enter a name", "Group Name", "Unnamed");
+                dialog.CentreOnParent();
+                if (dialog.ShowModal() != wxID_OK)
+                    return "";
+                
+                const String name = dialog.GetValue().ToStdString();
+                if (StringUtils::isBlank(name)) {
+                    if (wxMessageBox("Group names cannot be blank.", "Error", wxOK | wxCANCEL | wxCENTRE, this) != wxOK)
+                        return "";
+                } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
+                    if (wxMessageBox("Group names cannot contain double quotes.", "Error", wxOK | wxCANCEL | wxCENTRE, this) != wxOK)
+                        return "";
+                } else {
+                    return name;
+                }
+            }
+        }
+        
+        void MapViewBase::OnMoveBrushesToWorld(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            reparentNodes(nodes, document->currentLayer());
+        }
+        
+        void MapViewBase::OnCreatePointEntity(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestPointEntityItem);
+            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_PointEntity, index);
+            assert(definition != NULL);
+            assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
+            createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
+        }
+        
+        void MapViewBase::OnCreateBrushEntity(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestBrushEntityItem);
+            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_BrushEntity, index);
+            assert(definition != NULL);
+            assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
+            createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
+        }
+        
+        Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
+            size_t count = 0;
+            const Assets::EntityDefinitionGroup::List& groups = lock(m_document)->entityDefinitionManager().groups();
+            Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
+            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
+                const Assets::EntityDefinitionGroup& group = *groupIt;
+                const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
+                if (index < count + definitions.size())
+                    return definitions[index - count];
+                count += definitions.size();
+            }
+            return NULL;
+        }
+        
+        void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definition) {
+            assert(definition != NULL);
+            
+            MapDocumentSPtr document = lock(m_document);
+            Model::Entity* entity = document->world()->createEntity();
+            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+            
+            StringStream name;
+            name << "Create " << definition->name();
+            
+            const Vec3 delta = doComputePointEntityPosition(definition->bounds());
+            
+            const Transaction transaction(document, name.str());
+            document->deselectAll();
+            document->addNode(entity, document->currentLayer());
+            document->select(entity);
+            document->translateObjects(delta);
+        }
+        
+        void MapViewBase::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
+            assert(definition != NULL);
+            
+            MapDocumentSPtr document = lock(m_document);
+            
+            const Model::BrushList brushes = document->selectedNodes().brushes();
+            assert(!brushes.empty());
+            
+            // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
+            Model::BrushList::const_iterator it = brushes.begin();
+            Model::BrushList::const_iterator end = brushes.end();
+            Model::AttributableNode* entityTemplate = (*it++)->entity();
+            while (it != end && entityTemplate != NULL)
+                if ((*it++)->parent() != entityTemplate)
+                    entityTemplate = NULL;
+            
+            Model::Entity* entity = document->world()->createEntity();
+            if (entityTemplate != NULL && entityTemplate != document->world())
+                entity->setAttributes(entityTemplate->attributes());
+            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
+            
+            StringStream name;
+            name << "Create " << definition->name();
+            
+            const Model::NodeList nodes(brushes.begin(), brushes.end());
+            
+            const Transaction transaction(document, name.str());
+            document->deselectAll();
+            document->addNode(entity, document->currentLayer());
+            document->reparentNodes(entity, nodes);
+            document->select(nodes);
+        }
+        
         void MapViewBase::OnSetFocus(wxFocusEvent& event) {
             updateAcceleratorTable(true);
             event.Skip();
@@ -725,7 +839,7 @@ namespace TrenchBroom {
             return menu;
         }
 
-        void MapViewBase::OnPopupReparentBrushes(wxCommandEvent& event) {
+        void MapViewBase::OnReparentBrushes(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
             Model::Node* newParent = findNewNodeParent(nodes);
@@ -791,100 +905,6 @@ namespace TrenchBroom {
                     result.push_back(node);
             }
             return result;
-        }
-
-        void MapViewBase::OnPopupRenameGroups(wxCommandEvent& event) {
-            
-        }
-
-        void MapViewBase::OnPopupMoveBrushesToWorld(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            const Model::NodeList& nodes = document->selectedNodes().nodes();
-            reparentNodes(nodes, document->currentLayer());
-        }
-        
-        void MapViewBase::OnPopupCreatePointEntity(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestPointEntityItem);
-            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_PointEntity, index);
-            assert(definition != NULL);
-            assert(definition->type() == Assets::EntityDefinition::Type_PointEntity);
-            createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
-        }
-        
-        void MapViewBase::OnPopupCreateBrushEntity(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            const size_t index = static_cast<size_t>(event.GetId() - CommandIds::MapViewPopupMenu::LowestBrushEntityItem);
-            const Assets::EntityDefinition* definition = findEntityDefinition(Assets::EntityDefinition::Type_BrushEntity, index);
-            assert(definition != NULL);
-            assert(definition->type() == Assets::EntityDefinition::Type_BrushEntity);
-            createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
-        }
- 
-        Assets::EntityDefinition* MapViewBase::findEntityDefinition(const Assets::EntityDefinition::Type type, const size_t index) const {
-            size_t count = 0;
-            const Assets::EntityDefinitionGroup::List& groups = lock(m_document)->entityDefinitionManager().groups();
-            Assets::EntityDefinitionGroup::List::const_iterator groupIt, groupEnd;
-            for (groupIt = groups.begin(), groupEnd = groups.end(); groupIt != groupEnd; ++groupIt) {
-                const Assets::EntityDefinitionGroup& group = *groupIt;
-                const Assets::EntityDefinitionList definitions = group.definitions(type, Assets::EntityDefinition::Name);
-                if (index < count + definitions.size())
-                    return definitions[index - count];
-                count += definitions.size();
-            }
-            return NULL;
-        }
-        
-        void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definition) {
-            assert(definition != NULL);
-            
-            MapDocumentSPtr document = lock(m_document);
-            Model::Entity* entity = document->world()->createEntity();
-            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
-            
-            StringStream name;
-            name << "Create " << definition->name();
-            
-            const Vec3 delta = doComputePointEntityPosition(definition->bounds());
-            
-            const Transaction transaction(document, name.str());
-            document->deselectAll();
-            document->addNode(entity, document->currentLayer());
-            document->select(entity);
-            document->translateObjects(delta);
-        }
-        
-        void MapViewBase::createBrushEntity(const Assets::BrushEntityDefinition* definition) {
-            assert(definition != NULL);
-            
-            MapDocumentSPtr document = lock(m_document);
-            
-            const Model::BrushList brushes = document->selectedNodes().brushes();
-            assert(!brushes.empty());
-            
-            // if all brushes belong to the same entity, and that entity is not worldspawn, copy its properties
-            Model::BrushList::const_iterator it = brushes.begin();
-            Model::BrushList::const_iterator end = brushes.end();
-            Model::AttributableNode* entityTemplate = (*it++)->entity();
-            while (it != end && entityTemplate != NULL)
-                if ((*it++)->parent() != entityTemplate)
-                    entityTemplate = NULL;
-            
-            Model::Entity* entity = document->world()->createEntity();
-            if (entityTemplate != NULL && entityTemplate != document->world())
-                entity->setAttributes(entityTemplate->attributes());
-            entity->addOrUpdateAttribute(Model::AttributeNames::Classname, definition->name());
-            
-            StringStream name;
-            name << "Create " << definition->name();
-            
-            const Model::NodeList nodes(brushes.begin(), brushes.end());
-            
-            const Transaction transaction(document, name.str());
-            document->deselectAll();
-            document->addNode(entity, document->currentLayer());
-            document->reparentNodes(entity, nodes);
-            document->select(nodes);
         }
 
         void MapViewBase::OnUpdatePopupMenuItem(wxUpdateUIEvent& event) {
