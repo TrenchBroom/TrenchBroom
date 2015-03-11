@@ -119,8 +119,11 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
-                if (hit.isMatch()) {
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit);
+                if (hit.type() == Model::Group::GroupHit) {
+                    Model::Group* group = Model::hitToGroup(hit);
+                    
+                } else if (hit.type() == Model::Brush::BrushHit) {
                     const Model::Brush* brush = Model::hitToBrush(hit);
                     const Model::Node* container = brush->container();
                     const Model::NodeList& siblings = container->children();
