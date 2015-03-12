@@ -38,6 +38,8 @@ namespace TrenchBroom {
         m_factory(mapFormat, brushContentTypeBuilder),
         m_defaultLayer(NULL),
         m_picker(BBox3(32768.0)) {
+            setVisiblityState(Visibility_Shown);
+            setLockState(Lock_Unlocked);
             createDefaultLayer();
         }
 

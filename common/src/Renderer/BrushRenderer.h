@@ -64,8 +64,8 @@ namespace TrenchBroom {
                 bool visible(const Model::Brush* brush) const;
                 bool visible(const Model::BrushFace* face) const;
                 
-                bool locked(const Model::Brush* brush) const;
-                bool locked(const Model::BrushFace* face) const;
+                bool editable(const Model::Brush* brush) const;
+                bool editable(const Model::BrushFace* face) const;
                 
                 bool selected(const Model::Brush* brush) const;
                 bool selected(const Model::BrushFace* face) const;

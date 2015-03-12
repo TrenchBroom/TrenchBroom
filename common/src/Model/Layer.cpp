@@ -25,28 +25,10 @@
 namespace TrenchBroom {
     namespace Model {
         Layer::Layer(const String& name) :
-        m_name(name),
-        m_hidden(false),
-        m_locked(false) {}
+        m_name(name) {}
         
         void Layer::setName(const String& name) {
             m_name = name;
-        }
-
-        bool Layer::hidden() const {
-            return m_hidden;
-        }
-        
-        void Layer::setHidden(const bool hidden) {
-            m_hidden = hidden;
-        }
-
-        bool Layer::locked() const {
-            return m_locked;
-        }
-        
-        void Layer::setLocked(const bool locked) {
-            m_locked = locked;
         }
 
         const String& Layer::doGetName() const {

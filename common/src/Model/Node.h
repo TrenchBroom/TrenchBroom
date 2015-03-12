@@ -27,6 +27,18 @@ namespace TrenchBroom {
         class IssueGeneratorRegistry;
 
         class Node {
+        public:
+            typedef enum {
+                Visibility_Inherited,
+                Visibility_Hidden,
+                Visibility_Shown
+            } VisibilityState;
+            
+            typedef enum {
+                Lock_Inherited,
+                Lock_Locked,
+                Lock_Unlocked
+            } LockState;
         private:
             Node* m_parent;
             NodeList m_children;
@@ -36,6 +48,9 @@ namespace TrenchBroom {
             size_t m_childSelectionCount;
             size_t m_descendantSelectionCount;
 
+            VisibilityState m_visibilityState;
+            LockState m_lockState;
+            
             size_t m_lineNumber;
             size_t m_lineCount;
 
@@ -76,7 +91,7 @@ namespace TrenchBroom {
             const NodeList& children() const;
             size_t descendantCount() const;
             size_t familySize() const;
-            
+        public:
             void addChildren(const NodeList& children);
             
             template <typename I>
@@ -166,6 +181,14 @@ namespace TrenchBroom {
             void decDescendantSelectionCount(size_t delta);
         private:
             bool selectable() const;
+        public:
+            bool visible() const;
+            bool hidden() const;
+            bool setVisiblityState(VisibilityState visibility);
+            
+            bool editable() const;
+            bool locked() const;
+            bool setLockState(LockState lockState);
         public: // file position
             size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);

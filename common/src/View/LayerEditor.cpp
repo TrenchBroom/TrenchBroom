@@ -87,7 +87,10 @@ namespace TrenchBroom {
         void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
             assert(layer != NULL);
             MapDocumentSPtr document = lock(m_document);
-            document->setLayerHidden(layer, !layer->hidden());
+            if (layer->visible())
+                document->hide(Model::NodeList(1, layer));
+            else
+                document->resetVisibility(Model::NodeList(1, layer));
         }
 
         void LayerEditor::OnToggleLayerLockedFromMenu(wxCommandEvent& event) {
@@ -101,7 +104,10 @@ namespace TrenchBroom {
         void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
             assert(layer != NULL);
             MapDocumentSPtr document = lock(m_document);
-            document->setLayerLocked(layer, !layer->locked());
+            if (layer->editable())
+                document->lock(Model::NodeList(1, layer));
+            else
+                document->resetLock(Model::NodeList(1, layer));
         }
 
         class LayerEditor::CollectMoveableNodes : public Model::NodeVisitor {

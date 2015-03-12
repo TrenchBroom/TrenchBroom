@@ -88,6 +88,8 @@ namespace TrenchBroom {
             document->nodesWereAddedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
             document->nodesWereRemovedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
             document->nodesDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
+            document->nodeVisibilityDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
+            document->nodeLockingDidChangeNotifier.addObserver(this, &MapViewBase::nodesDidChange);
             document->commandDoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
             document->commandUndoneNotifier.addObserver(this, &MapViewBase::commandProcessed);
             document->selectionDidChangeNotifier.addObserver(this, &MapViewBase::selectionDidChange);
@@ -113,6 +115,8 @@ namespace TrenchBroom {
                 document->nodesWereAddedNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
                 document->nodesWereRemovedNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
                 document->nodesDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
+                document->nodeVisibilityDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
+                document->nodeLockingDidChangeNotifier.removeObserver(this, &MapViewBase::nodesDidChange);
                 document->commandDoneNotifier.removeObserver(this, &MapViewBase::commandProcessed);
                 document->commandUndoneNotifier.removeObserver(this, &MapViewBase::commandProcessed);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapViewBase::selectionDidChange);

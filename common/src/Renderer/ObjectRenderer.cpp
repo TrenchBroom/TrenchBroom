@@ -159,10 +159,10 @@ namespace TrenchBroom {
         
         void ObjectRenderer::setShowOccludedObjects(const bool showOccludedObjects) {
             m_groupRenderer.setShowOccludedBounds(showOccludedObjects);
-            m_groupRenderer.setShowOccludedOverlays(true);
+            m_groupRenderer.setShowOccludedOverlays(showOccludedObjects);
             m_entityRenderer.setShowOccludedBounds(showOccludedObjects);
-            m_entityRenderer.setShowOccludedOverlays(true);
-            m_brushRenderer.setShowOccludedEdges(true);
+            m_entityRenderer.setShowOccludedOverlays(showOccludedObjects);
+            m_brushRenderer.setShowOccludedEdges(showOccludedObjects);
         }
         
         void ObjectRenderer::setOccludedEdgeColor(const Color& occludedEdgeColor) {

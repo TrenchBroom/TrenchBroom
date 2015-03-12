@@ -74,9 +74,14 @@ namespace TrenchBroom {
             virtual void reparentNodes(const ParentChildrenMap& nodes) = 0;
             virtual bool deleteObjects() = 0;
             virtual bool duplicateObjects() = 0;
-        public: // modifying transient layer attributes
-            virtual void setLayerHidden(Layer* layer, bool hidden) = 0;
-            virtual void setLayerLocked(Layer* layer, bool locked) = 0;
+        public: // modifying transient node attributes
+            virtual void hide(const Model::NodeList& nodes) = 0;
+            virtual void show(const Model::NodeList& nodes) = 0;
+            virtual void resetVisibility(const Model::NodeList& nodes) = 0;
+            
+            virtual void lock(const Model::NodeList& nodes) = 0;
+            virtual void unlock(const Model::NodeList& nodes) = 0;
+            virtual void resetLock(const Model::NodeList& nodes) = 0;
         public: // modifying objects
             virtual bool translateObjects(const Vec3& delta) = 0;
             virtual bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle) = 0;

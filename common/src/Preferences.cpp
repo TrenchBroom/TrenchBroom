@@ -68,6 +68,8 @@ namespace TrenchBroom {
         Preference<Color> InfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.6f));
         Preference<Color> SelectedInfoOverlayTextColor(IO::Path("Renderer/Colors/Selected info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> SelectedInfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Selected info overlay background"), Color(1.0f, 0.0f, 0.0f, 0.6f));
+        Preference<Color> LockedInfoOverlayTextColor(IO::Path("Renderer/Colors/Locked info overlay text"), Color(0.35f, 0.35f, 0.6f,  1.0f));
+        Preference<Color> LockedInfoOverlayBackgroundColor(IO::Path("Renderer/Colors/Locked info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.6f));
         
         Preference<float> HandleRadius(IO::Path("Controls/Handle radius"), 3.0f);
         Preference<float> MaximumHandleDistance(IO::Path("Controls/Maximum handle distance"), 1000.0f);

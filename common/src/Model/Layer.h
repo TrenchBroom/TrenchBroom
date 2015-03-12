@@ -29,18 +29,10 @@ namespace TrenchBroom {
         class Layer : public Node {
         private:
             String m_name;
-            bool m_hidden;
-            bool m_locked;
         public:
             Layer(const String& name);
             
             void setName(const String& name);
-            
-            bool hidden() const;
-            void setHidden(bool hidden);
-            
-            bool locked() const;
-            void setLocked(bool locked);
         private: // implement Node interface
             const String& doGetName() const;
             

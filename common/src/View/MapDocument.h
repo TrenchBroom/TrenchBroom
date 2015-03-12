@@ -30,6 +30,7 @@
 #include "Model/MapFacade.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
+#include "Model/Node.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
 #include "View/ViewTypes.h"
@@ -116,6 +117,9 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&> nodesWereRemovedNotifier;
             Notifier1<const Model::NodeList&> nodesWillChangeNotifier;
             Notifier1<const Model::NodeList&> nodesDidChangeNotifier;
+            
+            Notifier1<const Model::NodeList&> nodeVisibilityDidChangeNotifier;
+            Notifier1<const Model::NodeList&> nodeLockingDidChangeNotifier;
             
             Notifier1<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
             
@@ -226,8 +230,16 @@ namespace TrenchBroom {
             void ungroupSelection();
             void renameGroups(const String& name);
         public: // modifying transient layer attributes, declared in MapFacade interface
-            void setLayerHidden(Model::Layer* layer, bool hidden);
-            void setLayerLocked(Model::Layer* layer, bool locked);
+            void hide(const Model::NodeList& nodes);
+            void show(const Model::NodeList& nodes);
+            void resetVisibility(const Model::NodeList& nodes);
+            
+            void lock(const Model::NodeList& nodes);
+            void unlock(const Model::NodeList& nodes);
+            void resetLock(const Model::NodeList& nodes);
+        private:
+            void setVisibilityState(const Model::NodeList& nodes, Model::Node::VisibilityState visibilityState);
+            void setLockState(const Model::NodeList& nodes, Model::Node::LockState lockState);
         public: // modifying objects, declared in MapFacade interface
             bool translateObjects(const Vec3& delta);
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);

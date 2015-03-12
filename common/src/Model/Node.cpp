@@ -34,6 +34,8 @@ namespace TrenchBroom {
         m_selected(false),
         m_childSelectionCount(0),
         m_descendantSelectionCount(0),
+        m_visibilityState(Visibility_Inherited),
+        m_lockState(Lock_Inherited),
         m_lineNumber(0),
         m_lineCount(0),
         m_issuesValid(false),
@@ -374,6 +376,53 @@ namespace TrenchBroom {
         
         bool Node::selectable() const {
             return doSelectable();
+        }
+        
+        bool Node::visible() const {
+            switch (m_visibilityState) {
+                case Visibility_Inherited:
+                    return m_parent == NULL || m_parent->visible();
+                case Visibility_Hidden:
+                    return false;
+                case Visibility_Shown:
+                    return true;
+            }
+        }
+        
+        bool Node::hidden() const {
+            return !visible();
+        }
+        
+        bool Node::setVisiblityState(const VisibilityState visibility) {
+            if (visibility != m_visibilityState) {
+                m_visibilityState = visibility;
+                return true;
+            }
+            return false;
+        }
+
+        bool Node::editable() const {
+            switch (m_lockState) {
+                case Lock_Inherited:
+                    return m_parent == NULL || m_parent->editable();
+                case Lock_Locked:
+                    return false;
+                case Lock_Unlocked:
+                    return true;
+            }
+        }
+        
+        bool Node::locked() const {
+            return !editable();
+        }
+
+        bool Node::setLockState(const LockState lockState) {
+            if (lockState != m_lockState) {
+                m_lockState = lockState;
+                return true;
+            }
+            return false;
+            
         }
 
         size_t Node::lineNumber() const {
