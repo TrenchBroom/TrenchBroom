@@ -404,6 +404,76 @@ namespace TrenchBroom {
             return emptyParents;
         }
         
+        Model::VisibilityMap MapDocumentCommandFacade::setVisibilityState(const Model::NodeList& nodes, const Model::VisibilityState visibilityState) {
+            Model::VisibilityMap result;
+            
+            Model::NodeList changedNodes;
+            changedNodes.reserve(nodes.size());
+            
+            Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                const Model::VisibilityState oldState = node->visibilityState();
+                if (node->setVisiblityState(visibilityState)) {
+                    changedNodes.push_back(node);
+                    result[node] = oldState;
+                }
+            }
+            
+            nodeVisibilityDidChangeNotifier(changedNodes);
+            return result;
+        }
+        
+        void MapDocumentCommandFacade::restoreVisibilityState(const Model::VisibilityMap& nodes) {
+            Model::NodeList changedNodes;
+            changedNodes.reserve(nodes.size());
+            
+            Model::VisibilityMap::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = it->first;
+                const Model::VisibilityState state = it->second;
+                if (node->setVisiblityState(state))
+                    changedNodes.push_back(node);
+            }
+
+            nodeVisibilityDidChangeNotifier(changedNodes);
+        }
+
+        Model::LockStateMap MapDocumentCommandFacade::setLockState(const Model::NodeList& nodes, const Model::LockState lockState) {
+            Model::LockStateMap result;
+            
+            Model::NodeList changedNodes;
+            changedNodes.reserve(nodes.size());
+            
+            Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                const Model::LockState oldState = node->lockState();
+                if (node->setLockState(lockState)) {
+                    changedNodes.push_back(node);
+                    result[node] = oldState;
+                }
+            }
+            
+            nodeLockingDidChangeNotifier(changedNodes);
+            return result;
+        }
+        
+        void MapDocumentCommandFacade::restoreLockState(const Model::LockStateMap& nodes) {
+            Model::NodeList changedNodes;
+            changedNodes.reserve(nodes.size());
+            
+            Model::LockStateMap::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = it->first;
+                const Model::LockState state = it->second;
+                if (node->setLockState(state))
+                    changedNodes.push_back(node);
+            }
+            
+            nodeLockingDidChangeNotifier(changedNodes);
+        }
+        
         class MapDocumentCommandFacade::RenameGroupsVisitor : public Model::NodeVisitor {
         private:
             const String& m_newName;

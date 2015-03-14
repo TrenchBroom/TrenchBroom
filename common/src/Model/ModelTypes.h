@@ -42,6 +42,21 @@ namespace TrenchBroom {
         typedef std::map<Node*, Node*> NodeMap;
         typedef std::map<Node*, NodeList> ParentChildrenMap;
         
+        typedef enum {
+            Visibility_Inherited,
+            Visibility_Hidden,
+            Visibility_Shown
+        } VisibilityState;
+        
+        typedef enum {
+            Lock_Inherited,
+            Lock_Locked,
+            Lock_Unlocked
+        } LockState;
+
+        typedef std::map<Node*, VisibilityState> VisibilityMap;
+        typedef std::map<Node*, LockState> LockStateMap;
+
         class NodeVisitor;
         class ConstNodeVisitor;
         

@@ -393,6 +393,10 @@ namespace TrenchBroom {
             return !visible();
         }
         
+        VisibilityState Node::visibilityState() const {
+            return m_visibilityState;
+        }
+
         bool Node::setVisiblityState(const VisibilityState visibility) {
             if (visibility != m_visibilityState) {
                 m_visibilityState = visibility;
@@ -414,6 +418,10 @@ namespace TrenchBroom {
         
         bool Node::locked() const {
             return !editable();
+        }
+
+        LockState Node::lockState() const {
+            return m_lockState;
         }
 
         bool Node::setLockState(const LockState lockState) {

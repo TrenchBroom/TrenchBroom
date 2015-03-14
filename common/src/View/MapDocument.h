@@ -30,7 +30,6 @@
 #include "Model/MapFacade.h"
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
-#include "Model/Node.h"
 #include "Model/NodeCollection.h"
 #include "View/CachingLogger.h"
 #include "View/ViewTypes.h"
@@ -237,9 +236,6 @@ namespace TrenchBroom {
             void lock(const Model::NodeList& nodes);
             void unlock(const Model::NodeList& nodes);
             void resetLock(const Model::NodeList& nodes);
-        private:
-            void setVisibilityState(const Model::NodeList& nodes, Model::Node::VisibilityState visibilityState);
-            void setLockState(const Model::NodeList& nodes, Model::Node::LockState lockState);
         public: // modifying objects, declared in MapFacade interface
             bool translateObjects(const Vec3& delta);
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);

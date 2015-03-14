@@ -55,6 +55,7 @@
 #include "Model/MissingEntityClassnameIssueGenerator.h"
 #include "Model/MissingEntityDefinitionIssueGenerator.h"
 #include "Model/MixedBrushContentsIssueGenerator.h"
+#include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "Model/NonIntegerPlanePointsIssueGenerator.h"
 #include "Model/NonIntegerVerticesIssueGenerator.h"
@@ -80,7 +81,9 @@
 #include "View/ResizeBrushesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
+#include "View/SetLockStateCommand.h"
 #include "View/SetModsCommand.h"
+#include "View/SetVisibilityCommand.h"
 #include "View/ShearTexturesCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
@@ -638,55 +641,27 @@ namespace TrenchBroom {
         }
 
         void MapDocument::hide(const Model::NodeList& nodes) {
-            setVisibilityState(nodes, Model::Node::Visibility_Hidden);
+            submit(SetVisibilityCommand::hide(nodes));
         }
         
         void MapDocument::show(const Model::NodeList& nodes) {
-            setVisibilityState(nodes, Model::Node::Visibility_Shown);
+            submit(SetVisibilityCommand::show(nodes));
         }
         
         void MapDocument::resetVisibility(const Model::NodeList& nodes) {
-            setVisibilityState(nodes, Model::Node::Visibility_Inherited);
+            submit(SetVisibilityCommand::reset(nodes));
         }
         
         void MapDocument::lock(const Model::NodeList& nodes) {
-            setLockState(nodes, Model::Node::Lock_Locked);
+            submit(SetLockStateCommand::lock(nodes));
         }
         
         void MapDocument::unlock(const Model::NodeList& nodes) {
-            setLockState(nodes, Model::Node::Lock_Unlocked);
+            submit(SetLockStateCommand::unlock(nodes));
         }
         
         void MapDocument::resetLock(const Model::NodeList& nodes) {
-            setLockState(nodes, Model::Node::Lock_Inherited);
-        }
-
-        void MapDocument::setVisibilityState(const Model::NodeList& nodes, const Model::Node::VisibilityState visibilityState) {
-            Model::NodeList changedNodes;
-            changedNodes.reserve(nodes.size());
-            
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
-                if (node->setVisiblityState(visibilityState))
-                    changedNodes.push_back(node);
-            }
-            
-            nodeVisibilityDidChangeNotifier(changedNodes);
-        }
-        
-        void MapDocument::setLockState(const Model::NodeList& nodes, const Model::Node::LockState lockState) {
-            Model::NodeList changedNodes;
-            changedNodes.reserve(nodes.size());
-            
-            Model::NodeList::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
-                if (node->setLockState(lockState))
-                    changedNodes.push_back(node);
-            }
-            
-            nodeLockingDidChangeNotifier(changedNodes);
+            submit(SetLockStateCommand::reset(nodes));
         }
 
         bool MapDocument::translateObjects(const Vec3& delta) {
