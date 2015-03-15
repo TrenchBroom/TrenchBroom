@@ -112,12 +112,19 @@ namespace TrenchBroom {
         void EditorContext::pushGroup(Model::Group* group) {
             assert(group != NULL);
             assert(m_currentGroup == NULL || group->group() == m_currentGroup);
+            
+            if (m_currentGroup != NULL)
+                m_currentGroup->close();
             m_currentGroup = group;
+            m_currentGroup->open();
         }
         
         void EditorContext::popGroup() {
             assert(m_currentGroup != NULL);
+            m_currentGroup->close();
             m_currentGroup = m_currentGroup->group();
+            if (m_currentGroup != NULL)
+                m_currentGroup->open();
         }
         
         class NodeVisible : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
@@ -217,15 +224,18 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::pickable(const Model::Group* group) const {
-            return visible(group);
+            Model::Group* containingGroup = group->group();
+            return (containingGroup == NULL || containingGroup->opened()) && visible(group);
         }
         
         bool EditorContext::pickable(const Model::Entity* entity) const {
-            return !entity->hasChildren() && entity->group() == NULL && visible(entity);
+            Model::Group* containingGroup = entity->group();
+            return (containingGroup == NULL || containingGroup->opened()) && !entity->hasChildren() && visible(entity);
         }
         
         bool EditorContext::pickable(const Model::Brush* brush) const {
-            return brush->group() == NULL && visible(brush);
+            Model::Group* containingGroup = brush->group();
+            return (containingGroup == NULL || containingGroup->opened()) && visible(brush);
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {

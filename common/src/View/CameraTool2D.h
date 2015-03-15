@@ -21,7 +21,6 @@
 #define __TrenchBroom__CameraTool2D__
 
 #include "VecMath.h"
-#include "Model/Picker.h"
 #include "View/Tool.h"
 #include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"

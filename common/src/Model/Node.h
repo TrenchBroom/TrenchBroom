@@ -25,6 +25,7 @@
 namespace TrenchBroom {
     namespace Model {
         class IssueGeneratorRegistry;
+        class PickResult;
 
         class Node {
         private:
@@ -69,6 +70,7 @@ namespace TrenchBroom {
                 }
             }
         public: // tree management
+            size_t depth() const;
             Node* parent() const;
             bool isAncestorOf(const Node* node) const;
             bool isDescendantOf(const Node* node) const;
@@ -117,6 +119,10 @@ namespace TrenchBroom {
             void doAddChild(Node* child);
             void doRemoveChild(Node* child);
             void clearChildren();
+            
+            void childWasAdded(Node* node);
+            void childWillBeRemoved(Node* node);
+            void childWasRemoved(Node* node);
             
             void descendantWasAdded(Node* node);
             void descendantWillBeRemoved(Node* node);
@@ -169,7 +175,7 @@ namespace TrenchBroom {
             void decDescendantSelectionCount(size_t delta);
         private:
             bool selectable() const;
-        public:
+        public: // visibility, locking
             bool visible() const;
             bool hidden() const;
             VisibilityState visibilityState() const;
@@ -179,6 +185,9 @@ namespace TrenchBroom {
             bool locked() const;
             LockState lockState() const;
             bool setLockState(LockState lockState);
+        public: // picking
+            void pick(const Ray3& ray, PickResult& result) const;
+            FloatType intersectWithRay(const Ray3& ray) const;
         public: // file position
             size_t lineNumber() const;
             void setFilePosition(size_t lineNumber, size_t lineCount);
@@ -341,6 +350,10 @@ namespace TrenchBroom {
             virtual bool doCanRemoveChild(const Node* child) const = 0;
             virtual bool doRemoveIfEmpty() const = 0;
             
+            virtual void doChildWasAdded(Node* node);
+            virtual void doChildWillBeRemoved(Node* node);
+            virtual void doChildWasRemoved(Node* node);
+            
             virtual void doDescendantWasAdded(Node* node);
             virtual void doDescendantWillBeRemoved(Node* node);
             virtual void doDescendantWasRemoved(Node* oldParent, Node* node);
@@ -356,6 +369,9 @@ namespace TrenchBroom {
             virtual void doDescendantDidChange(Node* node);
             
             virtual bool doSelectable() const = 0;
+            
+            virtual void doPick(const Ray3& ray, PickResult& pickResult) const = 0;
+            virtual FloatType doIntersectWithRay(const Ray3& ray) const = 0;
             
             virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) = 0;
             

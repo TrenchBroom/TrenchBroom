@@ -213,7 +213,7 @@ namespace TrenchBroom {
             if (!name.empty()) {
                 MapDocumentSPtr document = lock(m_document);
                 Model::World* world = document->world();
-                Model::Layer* layer = world->createLayer(name);
+                Model::Layer* layer = world->createLayer(name, document->worldBounds());
                 
                 Transaction transaction(document, "Create Layer " + layer->name());
                 document->addNode(layer, world);

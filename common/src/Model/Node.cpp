@@ -65,6 +65,12 @@ namespace TrenchBroom {
             return clones;
         }
 
+        size_t Node::depth() const {
+            if (m_parent == NULL)
+                return 0;
+            return m_parent->depth() + 1;
+        }
+
         Node* Node::parent() const {
             return m_parent;
         }
@@ -142,7 +148,7 @@ namespace TrenchBroom {
             nodeWillChange();
             m_children.push_back(child);
             child->setParent(this);
-            descendantWasAdded(child);
+            childWasAdded(child);
             nodeDidChange();
         }
 
@@ -151,17 +157,33 @@ namespace TrenchBroom {
             assert(child->parent() == this);
             assert(canRemoveChild(child));
 
-            descendantWillBeRemoved(child);
+            childWillBeRemoved(child);
             nodeWillChange();
             child->setParent(NULL);
             VectorUtils::erase(m_children, child);
-            descendantWasRemoved(this, child);
+            childWasRemoved(child);
             nodeDidChange();
         }
         
         void Node::clearChildren() {
             VectorUtils::clearAndDelete(m_children);
         }
+
+        void Node::childWasAdded(Node* node) {
+            doChildWasAdded(node);
+            descendantWasAdded(node);
+        }
+        
+        void Node::childWillBeRemoved(Node* node) {
+            doChildWillBeRemoved(node);
+            descendantWillBeRemoved(node);
+        }
+        
+        void Node::childWasRemoved(Node* node) {
+            doChildWasRemoved(node);
+            descendantWasRemoved(this, node);
+        }
+        
 
         void Node::descendantWasAdded(Node* node) {
             doDescendantWasAdded(node);
@@ -433,6 +455,14 @@ namespace TrenchBroom {
             
         }
 
+        void Node::pick(const Ray3& ray, PickResult& pickResult) const {
+            doPick(ray, pickResult);
+        }
+        
+        FloatType Node::intersectWithRay(const Ray3& ray) const {
+            return doIntersectWithRay(ray);
+        }
+
         size_t Node::lineNumber() const {
             return m_lineNumber;
         }
@@ -501,6 +531,10 @@ namespace TrenchBroom {
         NodeSnapshot* Node::doTakeSnapshot() {
             return NULL;
         }
+
+        void Node::doChildWasAdded(Node* node) {}
+        void Node::doChildWillBeRemoved(Node* node) {}
+        void Node::doChildWasRemoved(Node* node) {}
 
         void Node::doDescendantWasAdded(Node* node) {}
         void Node::doDescendantWillBeRemoved(Node* node) {}

@@ -584,7 +584,7 @@ namespace TrenchBroom {
         void MapViewBase::OnMoveBrushesToWorld(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();
-            reparentNodes(nodes, document->currentLayer());
+            reparentNodes(nodes, document->currentParent());
         }
         
         void MapViewBase::OnCreatePointEntity(wxCommandEvent& event) {
@@ -633,7 +633,7 @@ namespace TrenchBroom {
             
             const Transaction transaction(document, name.str());
             document->deselectAll();
-            document->addNode(entity, document->currentLayer());
+            document->addNode(entity, document->currentParent());
             document->select(entity);
             document->translateObjects(delta);
         }
@@ -666,7 +666,7 @@ namespace TrenchBroom {
             
             const Transaction transaction(document, name.str());
             document->deselectAll();
-            document->addNode(entity, document->currentLayer());
+            document->addNode(entity, document->currentParent());
             document->reparentNodes(entity, nodes);
             document->select(nodes);
         }

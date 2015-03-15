@@ -58,7 +58,7 @@ namespace TrenchBroom {
             void setGamePath(const IO::Path& gamePath);
             void setAdditionalSearchPaths(const IO::Path::List& searchPaths);
         public: // loading and writing map files
-            World* newMap(MapFormat::Type format) const;
+            World* newMap(MapFormat::Type format, const BBox3& worldBounds) const;
             World* loadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void writeMap(World* world, const IO::Path& path) const;
         public: // parsing and serializing objects
@@ -92,7 +92,7 @@ namespace TrenchBroom {
             virtual void doSetGamePath(const IO::Path& gamePath) = 0;
             virtual void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths) = 0;
             
-            virtual World* doNewMap(MapFormat::Type format) const = 0;
+            virtual World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const = 0;
             virtual World* doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const = 0;
             virtual void doWriteMap(World* world, const IO::Path& path) const = 0;
             

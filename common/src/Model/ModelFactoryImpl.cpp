@@ -47,14 +47,14 @@ namespace TrenchBroom {
             return m_format;
         }
 
-        World* ModelFactoryImpl::doCreateWorld() const {
+        World* ModelFactoryImpl::doCreateWorld(const BBox3& worldBounds) const {
             assert(m_format != MapFormat::Unknown);
-            return new World(m_format, m_brushContentTypeBuilder);
+            return new World(m_format, m_brushContentTypeBuilder, worldBounds);
         }
 
-        Layer* ModelFactoryImpl::doCreateLayer(const String& name) const {
+        Layer* ModelFactoryImpl::doCreateLayer(const String& name, const BBox3& worldBounds) const {
             assert(m_format != MapFormat::Unknown);
-            return new Layer(name);
+            return new Layer(name, worldBounds);
         }
         
         Group* ModelFactoryImpl::doCreateGroup(const String& name) const {

@@ -122,7 +122,7 @@ namespace TrenchBroom {
                 const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit);
                 if (hit.type() == Model::Group::GroupHit) {
                     Model::Group* group = Model::hitToGroup(hit);
-                    
+                    document->openGroup(group);
                 } else if (hit.type() == Model::Brush::BrushHit) {
                     const Model::Brush* brush = Model::hitToBrush(hit);
                     const Model::Node* container = brush->container();
@@ -134,6 +134,8 @@ namespace TrenchBroom {
                         document->deselectAll();
                         document->select(siblings);
                     }
+                } else if (document->currentGroup() != NULL) {
+                    document->closeGroup();
                 }
             }
             
@@ -234,6 +236,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelection()) {
                 document->deselectAll();
+                return true;
+            } else if (document->currentGroup() != NULL) {
+                document->closeGroup();
                 return true;
             }
             return false;

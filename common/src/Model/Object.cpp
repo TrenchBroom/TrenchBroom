@@ -28,14 +28,6 @@ namespace TrenchBroom {
             return doGetBounds();
         }
 
-        void Object::pick(const Ray3& ray, PickResult& pickResult) const {
-            doPick(ray, pickResult);
-        }
-
-        FloatType Object::intersectWithRay(const Ray3& ray) const {
-            return doIntersectWithRay(ray);
-        }
-
         Node* Object::container() const {
             return doGetContainer();
         }

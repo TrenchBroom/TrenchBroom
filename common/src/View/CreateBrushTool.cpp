@@ -42,7 +42,7 @@ namespace TrenchBroom {
                 
                 const Transaction transaction(document, "Create brush");
                 document->deselectAll();
-                document->addNode(brush, document->currentLayer());
+                document->addNode(brush, document->currentParent());
             }
         }
 

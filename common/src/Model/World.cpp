@@ -28,19 +28,17 @@
 #include "Model/IssueGenerator.h"
 #include "Model/Layer.h"
 #include "Model/NodeVisitor.h"
-#include "Model/Picker.h"
 
 #include <cassert>
 
 namespace TrenchBroom {
     namespace Model {
-        World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder) :
+        World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds) :
         m_factory(mapFormat, brushContentTypeBuilder),
-        m_defaultLayer(NULL),
-        m_picker(BBox3(32768.0)) {
+        m_defaultLayer(NULL) {
             setVisiblityState(Visibility_Shown);
             setLockState(Lock_Unlocked);
-            createDefaultLayer();
+            createDefaultLayer(worldBounds);
         }
 
         Layer* World::defaultLayer() const {
@@ -61,8 +59,8 @@ namespace TrenchBroom {
             return visitor.layers();
         }
 
-        void World::createDefaultLayer() {
-            m_defaultLayer = createLayer("Default Layer");
+        void World::createDefaultLayer(const BBox3& worldBounds) {
+            m_defaultLayer = createLayer("Default Layer", worldBounds);
             addChild(m_defaultLayer);
         }
 
@@ -100,15 +98,11 @@ namespace TrenchBroom {
             acceptAndRecurse(visitor);
         }
 
-        void World::pick(const Ray3& ray, PickResult& pickResult) const {
-            m_picker.pick(ray, pickResult);
-        }
-
         Node* World::doClone(const BBox3& worldBounds) const {
             const NodeList& myChildren = children();
             assert(myChildren[0] == m_defaultLayer);
 
-            World* world = m_factory.createWorld();
+            World* world = m_factory.createWorld(worldBounds);
             world->defaultLayer()->addChildren(clone(worldBounds, m_defaultLayer->children()));
             
             if (myChildren.size() > 1) {
@@ -160,82 +154,21 @@ namespace TrenchBroom {
             return false;
         }
 
-        class AddNodeToPicker : public NodeVisitor {
-        private:
-            Picker& m_picker;
-        public:
-            AddNodeToPicker(Picker& picker) :
-            m_picker(picker) {}
-        private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            
-            void doVisit(Group* group)   {
-                if (group->group() == NULL)
-                    m_picker.addObject(group);
-                stopRecursion();
-            }
-            
-            void doVisit(Entity* entity) {
-                if (entity->group() == NULL)
-                    m_picker.addObject(entity);
-            }
-            
-            void doVisit(Brush* brush)   {
-                if (brush->group() == NULL)
-                    m_picker.addObject(brush);
-            }
-        };
-        
-        class RemoveNodeFromPicker : public NodeVisitor {
-        private:
-            Picker& m_picker;
-        public:
-            RemoveNodeFromPicker(Picker& picker) :
-            m_picker(picker) {}
-        private:
-            void doVisit(World* world)   {}
-            void doVisit(Layer* layer)   {}
-            
-            void doVisit(Group* group) {
-                if (group->group() == NULL)
-                    m_picker.removeObject(group);
-                stopRecursion();
-            }
-            
-            void doVisit(Entity* entity) {
-                if (entity->group() == NULL)
-                    m_picker.removeObject(entity);
-            }
-            
-            void doVisit(Brush* brush) {
-                if (brush->group() == NULL)
-                    m_picker.removeObject(brush);
-            }
-        };
-        
-        void World::doDescendantWasAdded(Node* node) {
-            AddNodeToPicker addToPicker(m_picker);
-            node->acceptAndRecurse(addToPicker);
-        }
-        
-        void World::doDescendantWillBeRemoved(Node* node) {
-            RemoveNodeFromPicker visitor(m_picker);
-            node->acceptAndRecurse(visitor);
-        }
-
-        void World::doDescendantWillChange(Node* node) {
-            RemoveNodeFromPicker visitor(m_picker);
-            node->accept(visitor);
-        }
-        
-        void World::doDescendantDidChange(Node* node) {
-            AddNodeToPicker visitor(m_picker);
-            node->accept(visitor);
-        }
-
         bool World::doSelectable() const {
             return false;
+        }
+
+        void World::doPick(const Ray3& ray, PickResult& pickResult) const {
+            const NodeList& children = Node::children();
+            NodeList::const_iterator it, end;
+            for (it = children.begin(), end = children.end(); it != end; ++it) {
+                const Node* child = *it;
+                child->pick(ray, pickResult);
+            }
+        }
+        
+        FloatType World::doIntersectWithRay(const Ray3& ray) const {
+            return Math::nan<FloatType>();
         }
 
         void World::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
@@ -306,12 +239,12 @@ namespace TrenchBroom {
             return m_factory.format();
         }
 
-        World* World::doCreateWorld() const {
-            return m_factory.createWorld();
+        World* World::doCreateWorld(const BBox3& worldBounds) const {
+            return m_factory.createWorld(worldBounds);
         }
         
-        Layer* World::doCreateLayer(const String& name) const {
-            return m_factory.createLayer(name);
+        Layer* World::doCreateLayer(const String& name, const BBox3& worldBounds) const {
+            return m_factory.createLayer(name, worldBounds);
         }
         
         Group* World::doCreateGroup(const String& name) const {

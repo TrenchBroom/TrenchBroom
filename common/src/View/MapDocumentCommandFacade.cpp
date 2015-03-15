@@ -532,6 +532,14 @@ namespace TrenchBroom {
             Model::Node::accept(nodes.begin(), nodes.end(), visitor);
         }
 
+        void MapDocumentCommandFacade::performPushGroup(Model::Group* group) {
+            m_editorContext->pushGroup(group);
+        }
+        
+        void MapDocumentCommandFacade::performPopGroup() {
+            m_editorContext->popGroup();
+        }
+
         void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {
             const Model::NodeList& nodes = m_selectedNodes.nodes();
             const Model::NodeList parents = collectParents(nodes);

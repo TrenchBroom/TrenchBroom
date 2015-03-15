@@ -41,9 +41,9 @@ namespace TrenchBroom {
             return m_world;
         }
 
-        Model::ModelFactory* WorldReader::initialize(const Model::MapFormat::Type format) {
+        Model::ModelFactory* WorldReader::initialize(const Model::MapFormat::Type format, const BBox3& worldBounds) {
             assert(m_world == NULL);
-            m_world = new Model::World(format, m_brushContentTypeBuilder);
+            m_world = new Model::World(format, m_brushContentTypeBuilder, worldBounds);
             return m_world;
         }
         

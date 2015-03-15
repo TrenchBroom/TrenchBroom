@@ -67,6 +67,7 @@
 #include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/ChangeEntityAttributesCommand.h"
 #include "View/ConvertEntityColorCommand.h"
+#include "View/CurrentGroupCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/EntityDefinitionFileCommand.h"
 #include "View/FindPlanePointsCommand.h"
@@ -158,6 +159,17 @@ namespace TrenchBroom {
         
         void MapDocument::setCurrentLayer(Model::Layer* currentLayer) {
             m_currentLayer = currentLayer != NULL ? currentLayer : m_world->defaultLayer();
+        }
+
+        Model::Group* MapDocument::currentGroup() const {
+            return m_editorContext->currentGroup();
+        }
+        
+        Model::Node* MapDocument::currentParent() const {
+            Model::Node* result = currentGroup();
+            if (result == NULL)
+                result = currentLayer();
+            return result;
         }
 
         Model::EditorContext& MapDocument::editorContext() const {
@@ -596,7 +608,7 @@ namespace TrenchBroom {
             
             const Transaction transaction(this, "Create brush");
             deselectAll();
-            addNode(brush, currentLayer());
+            addNode(brush, currentParent());
             return true;
         }
 
@@ -609,7 +621,7 @@ namespace TrenchBroom {
             
             const Transaction transaction(this, "Group Selected Objects");
             deselectAll();
-            addNode(group, currentLayer());
+            addNode(group, currentParent());
             reparentNodes(group, nodes);
             select(group);
         }
@@ -638,6 +650,32 @@ namespace TrenchBroom {
 
         void MapDocument::renameGroups(const String& name) {
             submit(RenameGroupsCommand::rename(name));
+        }
+
+        void MapDocument::openGroup(Model::Group* group) {
+            const Transaction transaction(this, "Open Group");
+            
+            deselectAll();
+            Model::Group* previousGroup = m_editorContext->currentGroup();
+            if (submit(CurrentGroupCommand::push(group))) {
+                if (previousGroup == NULL)
+                    lock(Model::NodeList(1, m_world));
+                else
+                    resetLock(Model::NodeList(1, previousGroup));
+                unlock(Model::NodeList(1, group));
+            }
+        }
+        
+        void MapDocument::closeGroup() {
+            const Transaction transaction(this, "Close Group");
+
+            deselectAll();
+            Model::Group* previousGroup = m_editorContext->currentGroup();
+            if (submit(CurrentGroupCommand::pop())) {
+                resetLock(Model::NodeList(1, previousGroup));
+                if (m_editorContext->currentGroup() == NULL)
+                    unlock(Model::NodeList(1, m_world));
+            }
         }
 
         void MapDocument::hide(const Model::NodeList& nodes) {
@@ -845,7 +883,7 @@ namespace TrenchBroom {
         void MapDocument::createWorld(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             m_worldBounds = worldBounds;
             m_game = game;
-            m_world = m_game->newMap(mapFormat);
+            m_world = m_game->newMap(mapFormat, m_worldBounds);
             m_currentLayer = m_world->defaultLayer();
             
             updateGameSearchPaths();

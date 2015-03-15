@@ -86,6 +86,9 @@ namespace TrenchBroom {
         public:
             Model::GroupNameMap performRenameGroups(const String& newName);
             void performUndoRenameGroups(const Model::GroupNameMap& newNames);
+            
+            void performPushGroup(Model::Group* group);
+            void performPopGroup();
         public: // transformation
             void performTransform(const Mat4x4& transform, bool lockTextures);
         public: // entity attributes

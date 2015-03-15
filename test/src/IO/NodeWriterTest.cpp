@@ -31,7 +31,9 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(NodeWriterTest, writeEmptyMap) {
-            Model::World map(Model::MapFormat::Standard, NULL);
+            const BBox3 worldBounds(8192.0);
+            
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             
             StringStream str;
             NodeWriter writer(&map, str);
@@ -42,7 +44,9 @@ namespace TrenchBroom {
         }
 
         TEST(NodeWriterTest, writeWorldspawn) {
-            Model::World map(Model::MapFormat::Standard, NULL);
+            const BBox3 worldBounds(8192.0);
+            
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "holy damn");
             
@@ -60,7 +64,7 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeWorldspawnWithBrushInDefaultLayer) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             
             Model::BrushBuilder builder(&map, worldBounds);
@@ -88,10 +92,10 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeWorldspawnWithBrushInCustomLayer) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             
-            Model::Layer* layer = map.createLayer("Custom Layer");
+            Model::Layer* layer = map.createLayer("Custom Layer", worldBounds);
             map.addChild(layer);
             
             Model::BrushBuilder builder(&map, worldBounds);
@@ -126,7 +130,7 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeMapWithGroupInDefaultLayer) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             
             Model::Group* group = map.createGroup("Group");
@@ -164,10 +168,10 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeMapWithGroupInCustomLayer) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             
-            Model::Layer* layer = map.createLayer("Custom Layer");
+            Model::Layer* layer = map.createLayer("Custom Layer", worldBounds);
             map.addChild(layer);
             
             Model::Group* group = map.createGroup("Group");
@@ -212,10 +216,10 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeMapWithNestedGroupInCustomLayer) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             
-            Model::Layer* layer = map.createLayer("Custom Layer");
+            Model::Layer* layer = map.createLayer("Custom Layer", worldBounds);
             map.addChild(layer);
             
             Model::Group* outer = map.createGroup("Outer Group");
@@ -270,7 +274,7 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeNodesWithNestedGroup) {
             const BBox3 worldBounds(8192.0);
 
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::BrushBuilder builder(&map, worldBounds);
@@ -325,7 +329,7 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeFaces) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             Model::BrushBuilder builder(&map, worldBounds);
             Model::Brush* brush = builder.createCube(64.0, "none");
             

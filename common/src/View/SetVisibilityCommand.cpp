@@ -18,7 +18,6 @@
  */
 
 #include "SetVisibilityCommand.h"
-
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {

@@ -88,7 +88,7 @@ namespace TrenchBroom {
         }
 
         void MapReader::onFormatSet(const Model::MapFormat::Type format) {
-            m_factory = initialize(format);
+            m_factory = initialize(format, m_worldBounds);
             assert(m_factory != NULL);
         }
         
@@ -162,7 +162,7 @@ namespace TrenchBroom {
                 return;
             }
             
-            Model::Layer* layer = m_factory->createLayer(name);
+            Model::Layer* layer = m_factory->createLayer(name, m_worldBounds);
             setExtraAttributes(layer, extraAttributes);
             m_layers.insert(std::make_pair(layerId, layer));
             

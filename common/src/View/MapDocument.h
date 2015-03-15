@@ -142,6 +142,9 @@ namespace TrenchBroom {
             Model::Layer* currentLayer() const;
             void setCurrentLayer(Model::Layer* currentLayer);
             
+            Model::Group* currentGroup() const;
+            Model::Node* currentParent() const;
+            
             Model::EditorContext& editorContext() const;
             bool textureLock();
             void setTextureLock(bool textureLock);
@@ -228,6 +231,9 @@ namespace TrenchBroom {
             void groupSelection(const String& name);
             void ungroupSelection();
             void renameGroups(const String& name);
+            
+            void openGroup(Model::Group* group);
+            void closeGroup();
         public: // modifying transient layer attributes, declared in MapFacade interface
             void hide(const Model::NodeList& nodes);
             void show(const Model::NodeList& nodes);
