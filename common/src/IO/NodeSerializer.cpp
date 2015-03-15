@@ -39,7 +39,7 @@ namespace TrenchBroom {
             void doVisit(Model::Entity* entity) {}
             void doVisit(Model::Brush* brush)   { m_serializer.brush(brush); }
         };
-        
+
         NodeSerializer::~NodeSerializer() {}
         
         void NodeSerializer::defaultLayer(Model::World* world) {
@@ -123,17 +123,23 @@ namespace TrenchBroom {
             doBrushFace(face);
         }
         
-        class GetParentAttributes : public Model::ConstNodeVisitor {
+        class NodeSerializer::GetParentAttributes : public Model::ConstNodeVisitor {
         private:
+            const LayerIds& m_layerIds;
+            const GroupIds& m_groupIds;
             Model::EntityAttribute::List m_attributes;
         public:
+            GetParentAttributes(const LayerIds& layerIds, const GroupIds& groupIds) :
+            m_layerIds(layerIds),
+            m_groupIds(groupIds) {}
+            
             const Model::EntityAttribute::List& attributes() const {
                 return m_attributes;
             }
         private:
             void doVisit(const Model::World* world)   {}
-            void doVisit(const Model::Layer* layer)   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, layer->name()));}
-            void doVisit(const Model::Group* group)   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, group->name())); }
+            void doVisit(const Model::Layer* layer)   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Layer, m_layerIds.getId(layer)));}
+            void doVisit(const Model::Group* group)   { m_attributes.push_back(Model::EntityAttribute(Model::AttributeNames::Group, m_groupIds.getId(group))); }
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush)   {}
         };
@@ -142,7 +148,7 @@ namespace TrenchBroom {
             if (node == NULL)
                 return Model::EntityAttribute::List(0);
             
-            GetParentAttributes visitor;
+            GetParentAttributes visitor(m_layerIds, m_groupIds);
             node->accept(visitor);
             return visitor.attributes();
         }
@@ -152,6 +158,7 @@ namespace TrenchBroom {
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::LayerClassname));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeLayer));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerName, layer->name()));
+            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::LayerId, m_layerIds.getId(layer)));
             return attrs;
         }
         
@@ -160,6 +167,7 @@ namespace TrenchBroom {
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::Classname, Model::AttributeValues::GroupClassname));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupType, Model::AttributeValues::GroupTypeGroup));
             attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupName, group->name()));
+            attrs.push_back(Model::EntityAttribute(Model::AttributeNames::GroupId, m_groupIds.getId(group)));
             return attrs;
         }
     }

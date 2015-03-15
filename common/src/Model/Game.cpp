@@ -53,8 +53,8 @@ namespace TrenchBroom {
             doSetAdditionalSearchPaths(searchPaths);
         }
 
-        World* Game::newMap(const MapFormat::Type format) const {
-            return doNewMap(format);
+        World* Game::newMap(const MapFormat::Type format, const BBox3& worldBounds) const {
+            return doNewMap(format, worldBounds);
         }
         
         World* Game::loadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {

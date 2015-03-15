@@ -354,6 +354,13 @@ namespace VectorUtils {
     }
     
     template <typename T>
+    std::vector<T*> eraseAll(const std::vector<T*>& vec, const std::vector<T*>& items) {
+        std::vector<T*> result(vec);
+        result.erase(CollectionUtils::removeAll(result.begin(), result.end(), items.begin(), items.end()), result.end());
+        return result;
+    }
+    
+    template <typename T>
     bool eraseAndDelete(std::vector<T*>& vec, const T* item) {
         if (!erase(vec, item))
             return false;
@@ -835,7 +842,7 @@ namespace MapUtils {
     }
 
     template <typename K, typename V>
-    bool insertOrReplace(std::map<K, V>& map, const K& key, V& value) {
+    bool insertOrReplace(std::map<K, V>& map, const K& key, const V& value) {
         typedef std::map<K, V> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);

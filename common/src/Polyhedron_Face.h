@@ -97,7 +97,7 @@ public:
     
     T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const {
         const Plane<T,3> plane(origin(), normal());
-        const FloatType dot = plane.normal.dot(ray.direction);
+        const T dot = plane.normal.dot(ray.direction);
         if (Math::zero(dot))
             return Math::nan<T>();
         if (side != Math::Side_Both) {

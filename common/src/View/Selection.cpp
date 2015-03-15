@@ -31,6 +31,14 @@ namespace TrenchBroom {
             return m_partiallyDeselectedNodes;
         }
         
+        const Model::NodeList& Selection::recursivelySelectedNodes() const {
+            return m_recursivelySelectedNodes;
+        }
+        
+        const Model::NodeList& Selection::recursivelyDeselectedNodes() const {
+            return m_recursivelyDeselectedNodes;
+        }
+        
         const Model::NodeList& Selection::selectedNodes() const {
             return m_selectedNodes;
         }
@@ -53,6 +61,14 @@ namespace TrenchBroom {
         
         void Selection::addPartiallyDeselectedNodes(const Model::NodeList& nodes) {
             VectorUtils::append(m_partiallyDeselectedNodes, nodes);
+        }
+        
+        void Selection::addRecursivelySelectedNodes(const Model::NodeList& nodes) {
+            VectorUtils::append(m_recursivelySelectedNodes, nodes);
+        }
+        
+        void Selection::addRecursivelyDeselectedNodes(const Model::NodeList& nodes) {
+            VectorUtils::append(m_recursivelyDeselectedNodes, nodes);
         }
         
         void Selection::addSelectedNodes(const Model::NodeList& nodes) {

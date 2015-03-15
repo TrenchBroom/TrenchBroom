@@ -155,6 +155,8 @@ namespace TrenchBroom {
                 const int CycleMapViews                      = Lowest +  52;
                 
                 const int CreateConvexHull                   = Lowest +  53;
+                const int GroupSelection                     = Lowest +  54;
+                const int UngroupSelection                   = Lowest +  55;
 
                 /*
                 const int CorrectVertices                    = Lowest +  82;
@@ -163,13 +165,17 @@ namespace TrenchBroom {
                 const int Highest                            = Lowest + 200;
             }
 
-            namespace CreateEntityPopupMenu {
+            namespace MapViewPopupMenu {
                 static const int LowestPointEntityItem              = wxID_HIGHEST + 2000;
                 static const int HighestPointEntityItem             = LowestPointEntityItem + 999;
                 static const int LowestBrushEntityItem              = HighestPointEntityItem + 1;
                 static const int HighestBrushEntityItem             = LowestBrushEntityItem + 999;
-                static const int ReparentBrushes                    = HighestBrushEntityItem + 1;
-                static const int MoveBrushesToWorld                 = HighestBrushEntityItem + 2;
+                static const int Lowest                             = HighestBrushEntityItem + 1;
+                static const int ReparentBrushes                    = Lowest + 0;
+                static const int MoveBrushesToWorld                 = Lowest + 1;
+                static const int GroupObjects                       = Lowest + 2;
+                static const int UngroupObjects                     = Lowest + 3;
+                static const int RenameGroups                       = Lowest + 4;
             }
         }
     }

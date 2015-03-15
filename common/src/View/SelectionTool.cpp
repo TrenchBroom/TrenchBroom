@@ -23,6 +23,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Model/Group.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/Node.h"
@@ -78,7 +79,7 @@ namespace TrenchBroom {
                     document->deselectAll();
                 }
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     Model::Node* node = Model::hitToNode(hit);
                     if (isMultiClick(inputState)) {
@@ -118,8 +119,11 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
-                if (hit.isMatch()) {
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit);
+                if (hit.type() == Model::Group::GroupHit) {
+                    Model::Group* group = Model::hitToGroup(hit);
+                    document->openGroup(group);
+                } else if (hit.type() == Model::Brush::BrushHit) {
                     const Model::Brush* brush = Model::hitToBrush(hit);
                     const Model::Node* container = brush->container();
                     const Model::NodeList& siblings = container->children();
@@ -130,6 +134,8 @@ namespace TrenchBroom {
                         document->deselectAll();
                         document->select(siblings);
                     }
+                } else if (document->currentGroup() != NULL) {
+                    document->closeGroup();
                 }
             }
             
@@ -172,7 +178,7 @@ namespace TrenchBroom {
                 
                 return true;
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (!hit.isMatch())
                     return false;
                 
@@ -199,7 +205,7 @@ namespace TrenchBroom {
                 }
             } else {
                 assert(document->hasSelectedNodes());
-                const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     Model::Node* node = Model::hitToNode(hit);
                     if (!node->selected())
@@ -221,7 +227,7 @@ namespace TrenchBroom {
 
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+            const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
             if (hit.isMatch() && Model::hitToNode(hit)->selected())
                 renderContext.setShowSelectionGuide();
         }
@@ -230,6 +236,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelection()) {
                 document->deselectAll();
+                return true;
+            } else if (document->currentGroup() != NULL) {
+                document->closeGroup();
                 return true;
             }
             return false;

@@ -26,6 +26,7 @@
 #include "Model/BrushFace.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectNodesWithDescendantSelectionCountVisitor.h"
+#include "Model/CollectRecursivelySelectedNodesVisitor.h"
 #include "Model/CollectSelectableBrushFacesVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/EditorContext.h"
@@ -97,19 +98,22 @@ namespace TrenchBroom {
             Model::NodeList selected;
             selected.reserve(nodes.size());
             
-            Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
+            Model::CollectNodesWithDescendantSelectionCountVisitor ancestors(0);
+            Model::CollectRecursivelySelectedNodesVisitor descendants(false);
 
             Model::NodeList::const_iterator it, end;
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
                 Model::Node* node = *it;
                 if (!node->selected() && m_editorContext->selectable(node)) {
-                    node->escalate(visitor);
+                    node->escalate(ancestors);
+                    node->recurse(descendants);
                     node->select();
                     selected.push_back(node);
                 }
             }
 
-            const Model::NodeList& partiallySelected = visitor.nodes();
+            const Model::NodeList& partiallySelected = ancestors.nodes();
+            const Model::NodeList& recursivelySelected = descendants.nodes();
             
             m_selectedNodes.addNodes(selected);
             m_partiallySelectedNodes.addNodes(partiallySelected);
@@ -117,6 +121,7 @@ namespace TrenchBroom {
             Selection selection;
             selection.addSelectedNodes(selected);
             selection.addPartiallySelectedNodes(partiallySelected);
+            selection.addRecursivelySelectedNodes(recursivelySelected);
             
             selectionDidChangeNotifier(selection);
             invalidateSelectionBounds();
@@ -183,7 +188,8 @@ namespace TrenchBroom {
             Model::NodeList deselected;
             deselected.reserve(nodes.size());
             
-            Model::CollectNodesWithDescendantSelectionCountVisitor visitor(0);
+            Model::CollectNodesWithDescendantSelectionCountVisitor ancestors(0);
+            Model::CollectRecursivelySelectedNodesVisitor descendants(false);
             
             Model::NodeList::const_iterator it, end;
             for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
@@ -191,11 +197,13 @@ namespace TrenchBroom {
                 if (node->selected()) {
                     node->deselect();
                     deselected.push_back(node);
-                    node->escalate(visitor);
+                    node->escalate(ancestors);
+                    node->recurse(descendants);
                 }
             }
             
-            const Model::NodeList& partiallyDeselected = visitor.nodes();
+            const Model::NodeList& partiallyDeselected = ancestors.nodes();
+            const Model::NodeList& recursivelyDeselected = descendants.nodes();
             
             m_selectedNodes.removeNodes(deselected);
             m_partiallySelectedNodes.removeNodes(partiallyDeselected);
@@ -203,6 +211,7 @@ namespace TrenchBroom {
             Selection selection;
             selection.addDeselectedNodes(deselected);
             selection.addPartiallyDeselectedNodes(partiallyDeselected);
+            selection.addRecursivelyDeselectedNodes(recursivelyDeselected);
             
             selectionDidChangeNotifier(selection);
             invalidateSelectionBounds();
@@ -249,15 +258,19 @@ namespace TrenchBroom {
             selectionWillChangeNotifier();
             updateLastSelectionBounds();
 
+            Model::CollectRecursivelySelectedNodesVisitor descendants(false);
+
             Model::NodeList::const_iterator it, end;
             for (it = m_selectedNodes.begin(), end = m_selectedNodes.end(); it != end; ++it) {
                 Model::Node* node = *it;
                 node->deselect();
+                node->recurse(descendants);
             }
             
             Selection selection;
             selection.addDeselectedNodes(m_selectedNodes.nodes());
             selection.addPartiallyDeselectedNodes(m_partiallySelectedNodes.nodes());
+            selection.addRecursivelyDeselectedNodes(descendants.nodes());
 
             m_selectedNodes.clear();
             m_partiallySelectedNodes.clear();
@@ -330,14 +343,15 @@ namespace TrenchBroom {
         movedNodes(i_movedNodes),
         removedNodes(i_removedNodes) {}
 
-        MapDocumentCommandFacade::ReparentResult MapDocumentCommandFacade::performReparentNodes(const Model::ParentChildrenMap& nodes) {
+        MapDocumentCommandFacade::ReparentResult MapDocumentCommandFacade::performReparentNodes(const Model::ParentChildrenMap& nodes, const EmptyNodePolicy emptyNodePolicy) {
+            const Model::NodeList emptyParents = emptyNodePolicy == RemoveEmptyNodes ? findRemovableEmptyParentNodes(nodes) : Model::EmptyNodeList;
+            
             const Model::NodeList nodesToNotify = Model::collectChildren(nodes);
-            const Model::NodeList parentsToNotify = Model::collectParents(nodes);
+            const Model::NodeList parentsToNotify = VectorUtils::eraseAll(Model::collectParents(nodes), emptyParents);
             
             NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parentsToNotify);
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodesToNotify);
 
-            Model::NodeList emptyParents;
             Model::ParentChildrenMap movedNodes;
             
             Model::ParentChildrenMap::const_iterator pcIt, pcEnd;
@@ -355,14 +369,175 @@ namespace TrenchBroom {
                     movedNodes[oldParent].push_back(child);
                     oldParent->removeChild(child);
                     newParent->addChild(child);
-                    
-                    if (oldParent->removeIfEmpty() && !oldParent->hasChildren())
-                        emptyParents.push_back(oldParent);
                 }
             }
             
             const Model::ParentChildrenMap removedNodes = performRemoveNodes(emptyParents);
             return ReparentResult(movedNodes, removedNodes);
+        }
+
+        Model::NodeList MapDocumentCommandFacade::findRemovableEmptyParentNodes(const Model::ParentChildrenMap& nodes) const {
+            Model::NodeList emptyParents;
+            
+            typedef std::map<Model::Node*, size_t> RemoveCounts;
+            RemoveCounts counts;
+
+            Model::ParentChildrenMap::const_iterator pcIt, pcEnd;
+            Model::NodeList::const_iterator nIt, nEnd;
+            
+            for (pcIt = nodes.begin(), pcEnd = nodes.end(); pcIt != pcEnd; ++pcIt) {
+                const Model::NodeList& children = pcIt->second;
+                
+                for (nIt = children.begin(), nEnd = children.end(); nIt != nEnd; ++nIt) {
+                    Model::Node* child = *nIt;
+                    Model::Node* oldParent = child->parent();
+                    assert(oldParent != NULL);
+
+                    const size_t count = MapUtils::find(counts, oldParent, size_t(0)) + 1;
+                    MapUtils::insertOrReplace(counts, oldParent, count);
+
+                    if (oldParent->childCount() == count)
+                        emptyParents.push_back(oldParent);
+                }
+            }
+            
+            return emptyParents;
+        }
+        
+        Model::VisibilityMap MapDocumentCommandFacade::setVisibilityState(const Model::NodeList& nodes, const Model::VisibilityState visibilityState) {
+            Model::VisibilityMap result;
+            
+            Model::NodeList changedNodes;
+            changedNodes.reserve(nodes.size());
+            
+            Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                const Model::VisibilityState oldState = node->visibilityState();
+                if (node->setVisiblityState(visibilityState)) {
+                    changedNodes.push_back(node);
+                    result[node] = oldState;
+                }
+            }
+            
+            nodeVisibilityDidChangeNotifier(changedNodes);
+            return result;
+        }
+        
+        void MapDocumentCommandFacade::restoreVisibilityState(const Model::VisibilityMap& nodes) {
+            Model::NodeList changedNodes;
+            changedNodes.reserve(nodes.size());
+            
+            Model::VisibilityMap::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = it->first;
+                const Model::VisibilityState state = it->second;
+                if (node->setVisiblityState(state))
+                    changedNodes.push_back(node);
+            }
+
+            nodeVisibilityDidChangeNotifier(changedNodes);
+        }
+
+        Model::LockStateMap MapDocumentCommandFacade::setLockState(const Model::NodeList& nodes, const Model::LockState lockState) {
+            Model::LockStateMap result;
+            
+            Model::NodeList changedNodes;
+            changedNodes.reserve(nodes.size());
+            
+            Model::NodeList::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                const Model::LockState oldState = node->lockState();
+                if (node->setLockState(lockState)) {
+                    changedNodes.push_back(node);
+                    result[node] = oldState;
+                }
+            }
+            
+            nodeLockingDidChangeNotifier(changedNodes);
+            return result;
+        }
+        
+        void MapDocumentCommandFacade::restoreLockState(const Model::LockStateMap& nodes) {
+            Model::NodeList changedNodes;
+            changedNodes.reserve(nodes.size());
+            
+            Model::LockStateMap::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = it->first;
+                const Model::LockState state = it->second;
+                if (node->setLockState(state))
+                    changedNodes.push_back(node);
+            }
+            
+            nodeLockingDidChangeNotifier(changedNodes);
+        }
+        
+        class MapDocumentCommandFacade::RenameGroupsVisitor : public Model::NodeVisitor {
+        private:
+            const String& m_newName;
+            Model::GroupNameMap m_oldNames;
+        public:
+            RenameGroupsVisitor(const String& newName) : m_newName(newName) {}
+            const Model::GroupNameMap& oldNames() const { return m_oldNames; }
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   {
+                m_oldNames[group] = group->name();
+                group->setName(m_newName);
+            }
+            void doVisit(Model::Entity* entity) {}
+            void doVisit(Model::Brush* brush)   {}
+        };
+
+        class MapDocumentCommandFacade::UndoRenameGroupsVisitor : public Model::NodeVisitor {
+        private:
+            const Model::GroupNameMap& m_newNames;
+        public:
+            UndoRenameGroupsVisitor(const Model::GroupNameMap& newNames) : m_newNames(newNames) {}
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            void doVisit(Model::Group* group)   {
+                assert(m_newNames.count(group) == 1);
+                const String& newName = MapUtils::find(m_newNames, group, group->name());
+                group->setName(newName);
+            }
+            void doVisit(Model::Entity* entity) {}
+            void doVisit(Model::Brush* brush)   {}
+        };
+        
+        Model::GroupNameMap MapDocumentCommandFacade::performRenameGroups(const String& newName) {
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
+            RenameGroupsVisitor visitor(newName);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+            return visitor.oldNames();
+        }
+
+        void MapDocumentCommandFacade::performUndoRenameGroups(const Model::GroupNameMap& newNames) {
+            const Model::NodeList& nodes = m_selectedNodes.nodes();
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
+            UndoRenameGroupsVisitor visitor(newNames);
+            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+        }
+
+        void MapDocumentCommandFacade::performPushGroup(Model::Group* group) {
+            m_editorContext->pushGroup(group);
+        }
+        
+        void MapDocumentCommandFacade::performPopGroup() {
+            m_editorContext->popGroup();
         }
 
         void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {

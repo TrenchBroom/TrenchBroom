@@ -193,6 +193,47 @@ namespace StringUtils {
 
     bool isBlank(const String& str);
     
+    bool matchesPattern(const String& str, const String& pattern);
+    
+    template <typename I>
+    bool matchesPattern(I strCur, I strEnd, I patCur, I patEnd) {
+        if (strCur == strEnd && patCur == patEnd)
+            return true;
+
+        // Handle escaped characters in pattern.
+        if (*patCur == '\\' && (patCur + 1) != patEnd) {
+            if (strCur == strEnd)
+                return false;
+            
+            if (*(patCur + 1) == '*' ||
+                *(patCur + 1) == '?' ||
+                *(patCur + 1) == '\\') {
+                if (*strCur != *(patCur + 1))
+                    return false;
+                return matchesPattern(strCur + 1, strEnd, patCur + 2, patEnd);
+            } else {
+                return false; // Invalid escape sequence.
+            }
+        }
+        
+        // Make sure that the characters after '*' are present in the string.
+        // This function assumes that the pattern will not contain two consecutive '*'
+        if (*patCur == '*' && (patCur + 1) != patEnd && strCur == strEnd)
+            return false;
+
+        // If the pattern contains '?', or current characters of both strings match
+        if (*patCur == '?' || *patCur == *strCur)
+            return matchesPattern(strCur + 1, strEnd, patCur + 1, patEnd);
+        
+        // If there is * in the pattern, then there are two possibilities
+        // a) We consider the current character of the string
+        // b) We ignore the current character of the string.
+        if (*patCur == '*')
+            return (matchesPattern(strCur,     strEnd, patCur + 1, patEnd) ||
+                    matchesPattern(strCur + 1, strEnd, patCur,     patEnd));
+        return false;
+    }
+    
     long makeHash(const String& str);
     String toLower(const String& str);
     String replaceChars(const String& str, const String& needles, const String& replacements);

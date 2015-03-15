@@ -81,8 +81,8 @@ namespace TrenchBroom {
                                       m_additionalSearchPaths);
         }
 
-        World* GameImpl::doNewMap(const MapFormat::Type format) const {
-            return new World(format, brushContentTypeBuilder());
+        World* GameImpl::doNewMap(const MapFormat::Type format, const BBox3& worldBounds) const {
+            return new World(format, brushContentTypeBuilder(), worldBounds);
         }
         
         World* GameImpl::doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const {

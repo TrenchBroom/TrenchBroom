@@ -36,7 +36,8 @@ namespace TrenchBroom {
         m_showBrushes(true),
         m_hiddenBrushContentTypes(0),
         m_entityLinkMode(EntityLinkMode_Direct),
-        m_textureLock(false) {}
+        m_textureLock(false),
+        m_currentGroup(NULL) {}
         
         bool EditorContext::showPointEntities() const {
             return m_showPointEntities;
@@ -104,6 +105,28 @@ namespace TrenchBroom {
             editorContextDidChangeNotifier();
         }
 
+        Model::Group* EditorContext::currentGroup() const {
+            return m_currentGroup;
+        }
+
+        void EditorContext::pushGroup(Model::Group* group) {
+            assert(group != NULL);
+            assert(m_currentGroup == NULL || group->group() == m_currentGroup);
+            
+            if (m_currentGroup != NULL)
+                m_currentGroup->close();
+            m_currentGroup = group;
+            m_currentGroup->open();
+        }
+        
+        void EditorContext::popGroup() {
+            assert(m_currentGroup != NULL);
+            m_currentGroup->close();
+            m_currentGroup = m_currentGroup->group();
+            if (m_currentGroup != NULL)
+                m_currentGroup->open();
+        }
+        
         class NodeVisible : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
         private:
             const EditorContext& m_this;
@@ -128,6 +151,12 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::visible(const Model::Group* group) const {
+            if (group->selected())
+                return true;
+            const Model::Layer* layer = group->layer();
+            assert(layer != NULL);
+            if (layer->hidden())
+                return false;
             return true;
         }
         
@@ -146,6 +175,8 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::visible(const Model::Brush* brush) const {
+            if (brush->selected())
+                return true;
             if (!m_showBrushes)
                 return false;
             if (brush->hasContentType(m_hiddenBrushContentTypes))
@@ -161,43 +192,12 @@ namespace TrenchBroom {
             return visible(face->brush());
         }
 
-        class NodeLocked : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
-        private:
-            const EditorContext& m_this;
-        public:
-            NodeLocked(const EditorContext& i_this) : m_this(i_this) {}
-        private:
-            void doVisit(const Model::World* world)   { setResult(false); }
-            void doVisit(const Model::Layer* layer)   { setResult(m_this.locked(layer)); }
-            void doVisit(const Model::Group* group)   { setResult(m_this.locked(group)); }
-            void doVisit(const Model::Entity* entity) { setResult(m_this.locked(entity)); }
-            void doVisit(const Model::Brush* brush)   { setResult(m_this.locked(brush)); }
-        };
-        
-        bool EditorContext::locked(const Model::Node* node) const {
-            NodeLocked visitor(*this);
-            node->accept(visitor);
-            return visitor.result();
+        bool EditorContext::editable(const Model::Node* node) const {
+            return node->editable();
         }
         
-        bool EditorContext::locked(const Model::Layer* layer) const {
-            return layer->locked();
-        }
-        
-        bool EditorContext::locked(const Model::Group* group) const {
-            return locked(group->layer());
-        }
-        
-        bool EditorContext::locked(const Model::Entity* entity) const {
-            return locked(entity->layer());
-        }
-        
-        bool EditorContext::locked(const Model::Brush* brush) const {
-            return locked(brush->layer());
-        }
-        
-        bool EditorContext::locked(const Model::BrushFace* face) const {
-            return locked(face->brush()->layer());
+        bool EditorContext::editable(const Model::BrushFace* face) const {
+            return editable(face->brush());
         }
 
         class NodePickable : public Model::ConstNodeVisitor, public Model::NodeQuery<bool> {
@@ -224,15 +224,18 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::pickable(const Model::Group* group) const {
-            return visible(group);
+            Model::Group* containingGroup = group->group();
+            return (containingGroup == NULL || containingGroup->opened()) && visible(group);
         }
         
         bool EditorContext::pickable(const Model::Entity* entity) const {
-            return visible(entity) && !entity->hasChildren();
+            Model::Group* containingGroup = entity->group();
+            return (containingGroup == NULL || containingGroup->opened()) && !entity->hasChildren() && visible(entity);
         }
         
         bool EditorContext::pickable(const Model::Brush* brush) const {
-            return visible(brush);
+            Model::Group* containingGroup = brush->group();
+            return (containingGroup == NULL || containingGroup->opened()) && visible(brush);
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {
@@ -263,19 +266,19 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::selectable(const Model::Group* group) const {
-            return pickable(group) && !locked(group);
+            return editable(group) && pickable(group);
         }
         
         bool EditorContext::selectable(const Model::Entity* entity) const {
-            return pickable(entity) && !locked(entity);
+            return editable(entity) && pickable(entity);
         }
         
         bool EditorContext::selectable(const Model::Brush* brush) const {
-            return pickable(brush) && !locked(brush);
+            return editable(brush) && pickable(brush);
         }
 
         bool EditorContext::selectable(const Model::BrushFace* face) const {
-            return pickable(face) && !locked(face);
+            return editable(face) && pickable(face);
         }
     }
 }

@@ -46,6 +46,8 @@ namespace TrenchBroom {
             EntityLinkMode m_entityLinkMode;
             
             bool m_textureLock;
+            
+            Model::Group* m_currentGroup;
         public:
             Notifier0 editorContextDidChangeNotifier;
         public:
@@ -69,6 +71,10 @@ namespace TrenchBroom {
             bool textureLock() const;
             void setTextureLock(bool textureLock);
         public:
+            Model::Group* currentGroup() const;
+            void pushGroup(Model::Group* group);
+            void popGroup();
+        public:
             bool visible(const Model::Node* node) const;
             bool visible(const Model::Layer* layer) const;
             bool visible(const Model::Group* group) const;
@@ -76,12 +82,8 @@ namespace TrenchBroom {
             bool visible(const Model::Brush* brush) const;
             bool visible(const Model::BrushFace* face) const;
             
-            bool locked(const Model::Node* node) const;
-            bool locked(const Model::Layer* layer) const;
-            bool locked(const Model::Group* group) const;
-            bool locked(const Model::Entity* entity) const;
-            bool locked(const Model::Brush* brush) const;
-            bool locked(const Model::BrushFace* face) const;
+            bool editable(const Model::Node* node) const;
+            bool editable(const Model::BrushFace* face) const;
 
             bool pickable(const Model::Node* node) const;
             bool pickable(const Model::Layer* layer) const;

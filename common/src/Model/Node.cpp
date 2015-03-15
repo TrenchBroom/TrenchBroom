@@ -34,6 +34,8 @@ namespace TrenchBroom {
         m_selected(false),
         m_childSelectionCount(0),
         m_descendantSelectionCount(0),
+        m_visibilityState(Visibility_Inherited),
+        m_lockState(Lock_Inherited),
         m_lineNumber(0),
         m_lineCount(0),
         m_issuesValid(false),
@@ -61,6 +63,12 @@ namespace TrenchBroom {
             clones.reserve(nodes.size());
             clone(worldBounds, nodes.begin(), nodes.end(), std::back_inserter(clones));
             return clones;
+        }
+
+        size_t Node::depth() const {
+            if (m_parent == NULL)
+                return 0;
+            return m_parent->depth() + 1;
         }
 
         Node* Node::parent() const {
@@ -137,9 +145,11 @@ namespace TrenchBroom {
             assert(child->parent() == NULL);
             assert(canAddChild(child));
 
+            nodeWillChange();
             m_children.push_back(child);
             child->setParent(this);
-            descendantWasAdded(child);
+            childWasAdded(child);
+            nodeDidChange();
         }
 
         void Node::doRemoveChild(Node* child) {
@@ -147,14 +157,33 @@ namespace TrenchBroom {
             assert(child->parent() == this);
             assert(canRemoveChild(child));
 
+            childWillBeRemoved(child);
+            nodeWillChange();
             child->setParent(NULL);
             VectorUtils::erase(m_children, child);
-            descendantWasRemoved(this, child);
+            childWasRemoved(child);
+            nodeDidChange();
         }
         
         void Node::clearChildren() {
             VectorUtils::clearAndDelete(m_children);
         }
+
+        void Node::childWasAdded(Node* node) {
+            doChildWasAdded(node);
+            descendantWasAdded(node);
+        }
+        
+        void Node::childWillBeRemoved(Node* node) {
+            doChildWillBeRemoved(node);
+            descendantWillBeRemoved(node);
+        }
+        
+        void Node::childWasRemoved(Node* node) {
+            doChildWasRemoved(node);
+            descendantWasRemoved(this, node);
+        }
+        
 
         void Node::descendantWasAdded(Node* node) {
             doDescendantWasAdded(node);
@@ -163,6 +192,12 @@ namespace TrenchBroom {
             invalidateIssues();
         }
         
+        void Node::descendantWillBeRemoved(Node* node) {
+            doDescendantWillBeRemoved(node);
+            if (m_parent != NULL)
+                m_parent->descendantWillBeRemoved(node);
+        }
+
         void Node::descendantWasRemoved(Node* oldParent, Node* node) {
             doDescendantWasRemoved(oldParent, node);
             if (m_parent != NULL)
@@ -189,6 +224,7 @@ namespace TrenchBroom {
 
         void Node::setParent(Node* parent) {
             assert((m_parent == NULL) ^ (parent == NULL));
+            assert(parent != this);
             if (parent == m_parent)
                 return;
 
@@ -295,6 +331,14 @@ namespace TrenchBroom {
                 m_parent->childWasDeselected();
         }
 
+        bool Node::parentSelected() const {
+            if (m_parent == NULL)
+                return false;
+            if (m_parent->selected())
+                return true;
+            return m_parent->parentSelected();
+        }
+
         bool Node::childSelected() const {
             return m_childSelectionCount > 0;
         }
@@ -354,6 +398,69 @@ namespace TrenchBroom {
         
         bool Node::selectable() const {
             return doSelectable();
+        }
+        
+        bool Node::visible() const {
+            switch (m_visibilityState) {
+                case Visibility_Inherited:
+                    return m_parent == NULL || m_parent->visible();
+                case Visibility_Hidden:
+                    return false;
+                case Visibility_Shown:
+                    return true;
+            }
+        }
+        
+        bool Node::hidden() const {
+            return !visible();
+        }
+        
+        VisibilityState Node::visibilityState() const {
+            return m_visibilityState;
+        }
+
+        bool Node::setVisiblityState(const VisibilityState visibility) {
+            if (visibility != m_visibilityState) {
+                m_visibilityState = visibility;
+                return true;
+            }
+            return false;
+        }
+
+        bool Node::editable() const {
+            switch (m_lockState) {
+                case Lock_Inherited:
+                    return m_parent == NULL || m_parent->editable();
+                case Lock_Locked:
+                    return false;
+                case Lock_Unlocked:
+                    return true;
+            }
+        }
+        
+        bool Node::locked() const {
+            return !editable();
+        }
+
+        LockState Node::lockState() const {
+            return m_lockState;
+        }
+
+        bool Node::setLockState(const LockState lockState) {
+            if (lockState != m_lockState) {
+                m_lockState = lockState;
+                return true;
+            }
+            return false;
+            
+        }
+
+        void Node::pick(const Ray3& ray, PickResult& pickResult) const {
+            doPick(ray, pickResult);
+        }
+        
+        FloatType Node::intersectWithRay(const Ray3& ray) const {
+            return doIntersectWithRay(ray);
         }
 
         size_t Node::lineNumber() const {
@@ -425,7 +532,12 @@ namespace TrenchBroom {
             return NULL;
         }
 
+        void Node::doChildWasAdded(Node* node) {}
+        void Node::doChildWillBeRemoved(Node* node) {}
+        void Node::doChildWasRemoved(Node* node) {}
+
         void Node::doDescendantWasAdded(Node* node) {}
+        void Node::doDescendantWillBeRemoved(Node* node) {}
         void Node::doDescendantWasRemoved(Node* oldParent, Node* node) {}
 
         void Node::doParentWillChange() {}

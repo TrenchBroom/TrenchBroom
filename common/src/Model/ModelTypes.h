@@ -32,6 +32,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        typedef size_t IdType;
+
         class Node;
         typedef std::set<Node*> NodeSet;
         typedef std::vector<Node*> NodeList;
@@ -40,6 +42,21 @@ namespace TrenchBroom {
         typedef std::map<Node*, Node*> NodeMap;
         typedef std::map<Node*, NodeList> ParentChildrenMap;
         
+        typedef enum {
+            Visibility_Inherited,
+            Visibility_Hidden,
+            Visibility_Shown
+        } VisibilityState;
+        
+        typedef enum {
+            Lock_Inherited,
+            Lock_Locked,
+            Lock_Unlocked
+        } LockState;
+
+        typedef std::map<Node*, VisibilityState> VisibilityMap;
+        typedef std::map<Node*, LockState> LockStateMap;
+
         class NodeVisitor;
         class ConstNodeVisitor;
         
@@ -58,6 +75,8 @@ namespace TrenchBroom {
         class Group;
         typedef std::vector<Group*> GroupList;
         static const GroupList EmptyGroupList(0);
+        typedef std::set<Group*> GroupSet;
+        typedef std::map<Group*, String> GroupNameMap;
         
         class Entity;
         typedef std::vector<Entity*> EntityList;

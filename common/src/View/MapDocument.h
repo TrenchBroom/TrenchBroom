@@ -117,6 +117,9 @@ namespace TrenchBroom {
             Notifier1<const Model::NodeList&> nodesWillChangeNotifier;
             Notifier1<const Model::NodeList&> nodesDidChangeNotifier;
             
+            Notifier1<const Model::NodeList&> nodeVisibilityDidChangeNotifier;
+            Notifier1<const Model::NodeList&> nodeLockingDidChangeNotifier;
+            
             Notifier1<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
             
             Notifier0 textureCollectionsDidChangeNotifier;
@@ -138,6 +141,9 @@ namespace TrenchBroom {
             
             Model::Layer* currentLayer() const;
             void setCurrentLayer(Model::Layer* currentLayer);
+            
+            Model::Group* currentGroup() const;
+            Model::Node* currentParent() const;
             
             Model::EditorContext& editorContext() const;
             bool textureLock();
@@ -221,9 +227,21 @@ namespace TrenchBroom {
             bool duplicateObjects();
         public: // creating new brushes from convex hull of selection
             bool createBrushFromConvexHull();
+        public: // group management
+            void groupSelection(const String& name);
+            void ungroupSelection();
+            void renameGroups(const String& name);
+            
+            void openGroup(Model::Group* group);
+            void closeGroup();
         public: // modifying transient layer attributes, declared in MapFacade interface
-            void setLayerHidden(Model::Layer* layer, bool hidden);
-            void setLayerLocked(Model::Layer* layer, bool locked);
+            void hide(const Model::NodeList& nodes);
+            void show(const Model::NodeList& nodes);
+            void resetVisibility(const Model::NodeList& nodes);
+            
+            void lock(const Model::NodeList& nodes);
+            void unlock(const Model::NodeList& nodes);
+            void resetLock(const Model::NodeList& nodes);
         public: // modifying objects, declared in MapFacade interface
             bool translateObjects(const Vec3& delta);
             bool rotateObjects(const Vec3& center, const Vec3& axis, FloatType angle);

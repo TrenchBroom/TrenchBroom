@@ -403,9 +403,9 @@ namespace TrenchBroom {
         }
         
         TEST(BrushTest, moveVertex) {
-            World world(MapFormat::Standard, NULL);
-            
             const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+            
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "asdf");
 
@@ -422,9 +422,9 @@ namespace TrenchBroom {
         }
         
         TEST(BrushTest, moveEdge) {
-            World world(MapFormat::Standard, NULL);
-            
             const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "asdf");
             
@@ -441,9 +441,9 @@ namespace TrenchBroom {
         }
         
         TEST(BrushTest, splitEdge) {
-            World world(MapFormat::Standard, NULL);
-            
             const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "asdf");
 
@@ -458,9 +458,9 @@ namespace TrenchBroom {
         }
         
         TEST(BrushTest, moveFace) {
-            World world(MapFormat::Standard, NULL);
-            
             const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "asdf");
             
@@ -489,9 +489,9 @@ namespace TrenchBroom {
         }
 
         TEST(BrushTest, splitFace) {
-            World world(MapFormat::Standard, NULL);
-            
             const BBox3 worldBounds(4096.0);
+            World world(MapFormat::Standard, NULL, worldBounds);
+
             BrushBuilder builder(&world, worldBounds);
             Brush* brush = builder.createCube(64.0, "asdf");
             

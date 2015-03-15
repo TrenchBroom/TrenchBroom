@@ -35,6 +35,8 @@ namespace TrenchBroom {
     }
     
     namespace Model {
+        extern const String AttributeEscapeChars;
+        
         namespace AttributeNames {
             extern const AttributeName Classname;
             extern const AttributeName Origin;
@@ -50,8 +52,10 @@ namespace TrenchBroom {
             extern const AttributeName Targetname;
             extern const AttributeName Killtarget;
             extern const AttributeName GroupType;
+            extern const AttributeName LayerId;
             extern const AttributeName LayerName;
             extern const AttributeName Layer;
+            extern const AttributeName GroupId;
             extern const AttributeName GroupName;
             extern const AttributeName Group;
         }

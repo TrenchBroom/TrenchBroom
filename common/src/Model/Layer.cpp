@@ -19,34 +19,20 @@
 
 #include "Layer.h"
 
+#include "Model/Brush.h"
+#include "Model/Group.h"
+#include "Model/Entity.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 
 namespace TrenchBroom {
     namespace Model {
-        Layer::Layer(const String& name) :
+        Layer::Layer(const String& name, const BBox3& worldBounds) :
         m_name(name),
-        m_hidden(false),
-        m_locked(false) {}
+        m_octree(worldBounds, static_cast<FloatType>(64.0f)) {}
         
         void Layer::setName(const String& name) {
             m_name = name;
-        }
-
-        bool Layer::hidden() const {
-            return m_hidden;
-        }
-        
-        void Layer::setHidden(const bool hidden) {
-            m_hidden = hidden;
-        }
-
-        bool Layer::locked() const {
-            return m_locked;
-        }
-        
-        void Layer::setLocked(const bool locked) {
-            m_locked = locked;
         }
 
         const String& Layer::doGetName() const {
@@ -54,7 +40,7 @@ namespace TrenchBroom {
         }
 
         Node* Layer::doClone(const BBox3& worldBounds) const {
-            Layer* layer = new Layer(m_name);
+            Layer* layer = new Layer(m_name, worldBounds);
             layer->addChildren(clone(worldBounds, children()));
             return layer;
         }
@@ -82,6 +68,54 @@ namespace TrenchBroom {
             return false;
         }
 
+        class Layer::AddNodeToOctree : public NodeVisitor {
+        private:
+            NodeTree& m_octree;
+        public:
+            AddNodeToOctree(NodeTree& octree) :
+            m_octree(octree) {}
+        private:
+            void doVisit(World* world)   {}
+            void doVisit(Layer* layer)   {}
+            void doVisit(Group* group)   { m_octree.addObject(group->bounds(), group); }
+            void doVisit(Entity* entity) { m_octree.addObject(entity->bounds(), entity); }
+            void doVisit(Brush* brush)   { m_octree.addObject(brush->bounds(), brush); }
+        };
+        
+        class Layer::RemoveNodeFromOctree : public NodeVisitor {
+        private:
+            NodeTree& m_octree;
+        public:
+            RemoveNodeFromOctree(NodeTree& octree) :
+            m_octree(octree) {}
+        private:
+            void doVisit(World* world)   {}
+            void doVisit(Layer* layer)   {}
+            void doVisit(Group* group)   { m_octree.removeObject(group); }
+            void doVisit(Entity* entity) { m_octree.removeObject(entity); }
+            void doVisit(Brush* brush)   { m_octree.removeObject(brush); }
+        };
+        
+        void Layer::doChildWasAdded(Node* node) {
+            AddNodeToOctree visitor(m_octree);
+            node->accept(visitor);
+        }
+        
+        void Layer::doChildWillBeRemoved(Node* node) {
+            RemoveNodeFromOctree visitor(m_octree);
+            node->accept(visitor);
+        }
+        
+        void Layer::doChildWillChange(Node* node) {
+            RemoveNodeFromOctree visitor(m_octree);
+            node->accept(visitor);
+        }
+        
+        void Layer::doChildDidChange(Node* node) {
+            AddNodeToOctree visitor(m_octree);
+            node->accept(visitor);
+        }
+
         bool Layer::doSelectable() const {
             return false;
         }
@@ -96,6 +130,19 @@ namespace TrenchBroom {
         
         void Layer::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
+        }
+
+        void Layer::doPick(const Ray3& ray, PickResult& pickResult) const {
+            const Model::NodeList candidates = m_octree.findObjects(ray);
+            NodeList::const_iterator it, end;
+            for (it = candidates.begin(), end = candidates.end(); it != end; ++it) {
+                const Node* node = *it;
+                node->pick(ray, pickResult);
+            }
+        }
+        
+        FloatType Layer::doIntersectWithRay(const Ray3& ray) const {
+            return Math::nan<FloatType>();
         }
     }
 }

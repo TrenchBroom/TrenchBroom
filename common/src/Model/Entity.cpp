@@ -27,6 +27,7 @@
 #include "Model/FindContainerVisitor.h"
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
+#include "Model/IntersectNodeWithRayVisitor.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
@@ -149,6 +150,45 @@ namespace TrenchBroom {
             return !hasChildren();
         }
 
+        void Entity::doPick(const Ray3& ray, PickResult& pickResult) const {
+            if (hasChildren()) {
+                const NodeList& children = Node::children();
+                NodeList::const_iterator it, end;
+                for (it = children.begin(), end = children.end(); it != end; ++it) {
+                    const Node* child = *it;
+                    child->pick(ray, pickResult);
+                }
+            } else {
+                const BBox3& myBounds = bounds();
+                if (!myBounds.contains(ray.origin)) {
+                    const FloatType distance = myBounds.intersectWithRay(ray);
+                    if (!Math::isnan(distance)) {
+                        const Vec3 hitPoint = ray.pointAtDistance(distance);
+                        pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
+                    }
+                }
+            }
+        }
+        
+        FloatType Entity::doIntersectWithRay(const Ray3& ray) const {
+            if (hasChildren()) {
+                const BBox3& myBounds = bounds();
+                if (!myBounds.contains(ray.origin) && Math::isnan(myBounds.intersectWithRay(ray)))
+                    return Math::nan<FloatType>();
+                
+                IntersectNodeWithRayVisitor visitor(ray);
+                iterate(visitor);
+                if (!visitor.hasResult())
+                    return Math::nan<FloatType>();
+                return visitor.result();
+            } else {
+                const BBox3& myBounds = bounds();
+                if (!myBounds.contains(ray.origin))
+                    return myBounds.intersectWithRay(ray);
+                return Math::nan<FloatType>();
+            }
+        }
+
         void Entity::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
             generator->generate(this, issues);
         }
@@ -188,18 +228,7 @@ namespace TrenchBroom {
                 validateBounds();
             return m_bounds;
         }
-        
-        void Entity::doPick(const Ray3& ray, PickResult& pickResult) const {
-            const BBox3& myBounds = bounds();
-            if (!myBounds.contains(ray.origin)) {
-                const FloatType distance = myBounds.intersectWithRay(ray);
-                if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    pickResult.addHit(Hit(EntityHit, distance, hitPoint, this));
-                }
-            }
-        }
-        
+
         Node* Entity::doGetContainer() const {
             FindContainerVisitor visitor;
             escalate(visitor);
@@ -213,7 +242,7 @@ namespace TrenchBroom {
         }
         
         Group* Entity::doGetGroup() const {
-            FindGroupVisitor visitor;
+            FindGroupVisitor visitor(false);
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : NULL;
         }

@@ -42,16 +42,16 @@ namespace TrenchBroom {
                 } Type;
                 
                 Type m_type;
-                String m_name;
+                Model::IdType m_id;
             public:
-                static ParentInfo layer(const String& name);
-                static ParentInfo group(const String& name);
+                static ParentInfo layer(Model::IdType layerId);
+                static ParentInfo group(Model::IdType groupId);
             private:
-                ParentInfo(Type type, const String& name);
+                ParentInfo(Type type, Model::IdType id);
             public:
                 bool layer() const;
                 bool group() const;
-                const String& name() const;
+                Model::IdType id() const;
             };
         private:
             typedef enum {
@@ -61,8 +61,8 @@ namespace TrenchBroom {
                 EntityType_Default
             } EntityType;
             
-            typedef std::map<String, Model::Layer*> LayerMap;
-            typedef std::map<String, Model::Group*> GroupMap;
+            typedef std::map<Model::IdType, Model::Layer*> LayerMap;
+            typedef std::map<Model::IdType, Model::Group*> GroupMap;
             
             typedef std::pair<Model::Node*, ParentInfo> NodeParentPair;
             typedef std::vector<NodeParentPair> NodeParentList;
@@ -111,7 +111,7 @@ namespace TrenchBroom {
         protected:
             void setExtraAttributes(Model::Node* node, const ExtraAttributes& extraAttributes);
         private: // subclassing interface
-            virtual Model::ModelFactory* initialize(Model::MapFormat::Type format) = 0;
+            virtual Model::ModelFactory* initialize(Model::MapFormat::Type format, const BBox3& worldBounds) = 0;
             virtual Model::Node* onWorldspawn(const Model::EntityAttribute::List& attributes, const ExtraAttributes& extraAttributes) = 0;
             virtual void onWorldspawnFilePosition(size_t startLine, size_t lineCount) = 0;
             virtual void onLayer(Model::Layer* layer) = 0;

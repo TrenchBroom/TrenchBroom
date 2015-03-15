@@ -24,7 +24,6 @@
 #include "Model/BrushVertex.h"
 #include "Model/HitAdapter.h"
 #include "Model/NodeVisitor.h"
-#include "Model/Picker.h"
 #include "Model/Object.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"

@@ -17,30 +17,27 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__Picker__
-#define __TrenchBroom__Picker__
+#ifndef __TrenchBroom__CollectRecursivelySelectedNodesVisitor__
+#define __TrenchBroom__CollectRecursivelySelectedNodesVisitor__
 
-#include "TrenchBroom.h"
-#include "VecMath.h"
-#include "Model/Octree.h"
+#include "Model/CollectMatchingNodesVisitor.h"
+#include "Model/NodePredicates.h"
 
 namespace TrenchBroom {
     namespace Model {
-        class Pickable;
-        class PickResult;
-        
-        class Picker {
+        class MatchRecursivelySelectedNodes {
         private:
-            Octree<FloatType, Pickable*> m_octree;
+            bool m_selected;
         public:
-            Picker(const BBox<FloatType, 3>& worldBounds);
-            
-            void addObject(Pickable* object);
-            void removeObject(Pickable* object);
-            
-            void pick(const Ray3& ray, PickResult& pickResult) const;
+            MatchRecursivelySelectedNodes(bool selected);
+            bool operator()(const Node* node) const;
+        };
+        
+        class CollectRecursivelySelectedNodesVisitor : public CollectMatchingNodesVisitor<MatchRecursivelySelectedNodes, UniqueNodeCollectionStrategy> {
+        public:
+            CollectRecursivelySelectedNodesVisitor(bool selected);
         };
     }
 }
 
-#endif /* defined(__TrenchBroom__Picker__) */
+#endif /* defined(__TrenchBroom__CollectRecursivelySelectedNodesVisitor__) */

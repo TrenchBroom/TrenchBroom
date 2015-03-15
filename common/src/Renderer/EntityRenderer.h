@@ -42,10 +42,8 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class FontManager;
         class RenderBatch;
         class RenderContext;
-        class Vbo;
         
         class EntityRenderer {
         private:
@@ -134,11 +132,16 @@ namespace TrenchBroom {
             void renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderAngles(RenderContext& renderContext, RenderBatch& renderBatch);
             Vec3f::List arrowHead(float length, float width) const;
+            
+            struct BuildColoredSolidBoundsVertices;
+            struct BuildColoredWireframeBoundsVertices;
+            struct BuildWireframeBoundsVertices;
+
             void invalidateBounds();
             void validateBounds();
             
             AttrString entityString(const Model::Entity* entity) const;
-            const Color& boundsColor(const Model::Entity& entity) const;
+            const Color& boundsColor(const Model::Entity* entity) const;
         };
     }
 }

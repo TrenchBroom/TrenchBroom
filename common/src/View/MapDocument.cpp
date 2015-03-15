@@ -47,12 +47,15 @@
 #include "Model/Entity.h"
 #include "Model/EntityLinkSourceIssueGenerator.h"
 #include "Model/EntityLinkTargetIssueGenerator.h"
+#include "Model/FindLayerVisitor.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "Model/Group.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/MissingEntityClassnameIssueGenerator.h"
 #include "Model/MissingEntityDefinitionIssueGenerator.h"
 #include "Model/MixedBrushContentsIssueGenerator.h"
+#include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "Model/NonIntegerPlanePointsIssueGenerator.h"
 #include "Model/NonIntegerVerticesIssueGenerator.h"
@@ -64,6 +67,7 @@
 #include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/ChangeEntityAttributesCommand.h"
 #include "View/ConvertEntityColorCommand.h"
+#include "View/CurrentGroupCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/EntityDefinitionFileCommand.h"
 #include "View/FindPlanePointsCommand.h"
@@ -73,11 +77,14 @@
 #include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
+#include "View/RenameGroupsCommand.h"
 #include "View/ReparentNodesCommand.h"
 #include "View/ResizeBrushesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
+#include "View/SetLockStateCommand.h"
 #include "View/SetModsCommand.h"
+#include "View/SetVisibilityCommand.h"
 #include "View/ShearTexturesCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
@@ -152,6 +159,17 @@ namespace TrenchBroom {
         
         void MapDocument::setCurrentLayer(Model::Layer* currentLayer) {
             m_currentLayer = currentLayer != NULL ? currentLayer : m_world->defaultLayer();
+        }
+
+        Model::Group* MapDocument::currentGroup() const {
+            return m_editorContext->currentGroup();
+        }
+        
+        Model::Node* MapDocument::currentParent() const {
+            Model::Node* result = currentGroup();
+            if (result == NULL)
+                result = currentLayer();
+            return result;
         }
 
         Model::EditorContext& MapDocument::editorContext() const {
@@ -590,24 +608,98 @@ namespace TrenchBroom {
             
             const Transaction transaction(this, "Create brush");
             deselectAll();
-            addNode(brush, currentLayer());
+            addNode(brush, currentParent());
             return true;
         }
 
-        void MapDocument::setLayerHidden(Model::Layer* layer, const bool hidden) {
-            assert(layer != NULL);
-            if (layer->hidden() != hidden) {
-                layer->setHidden(hidden);
-                nodesDidChangeNotifier(Model::NodeList(1, layer));
+        void MapDocument::groupSelection(const String& name) {
+            if (!hasSelectedNodes())
+                return;
+            
+            const Model::NodeList nodes = m_selectedNodes.nodes();
+            Model::Group* group = new Model::Group(name);
+            
+            const Transaction transaction(this, "Group Selected Objects");
+            deselectAll();
+            addNode(group, currentParent());
+            reparentNodes(group, nodes);
+            select(group);
+        }
+        
+        void MapDocument::ungroupSelection() {
+            if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
+                return;
+            
+            const Model::NodeList groups = m_selectedNodes.nodes();
+            Model::NodeList allChildren;
+            
+            const Transaction transaction(this, "Ungroup");
+            deselectAll();
+            
+            Model::NodeList::const_iterator it, end;
+            for (it = groups.begin(), end = groups.end(); it != end; ++it) {
+                Model::Node* group = *it;
+                Model::Layer* layer = Model::findLayer(group);
+                const Model::NodeList& children = group->children();
+                reparentNodes(layer, children);
+                VectorUtils::append(allChildren, children);
+            }
+            
+            select(allChildren);
+        }
+
+        void MapDocument::renameGroups(const String& name) {
+            submit(RenameGroupsCommand::rename(name));
+        }
+
+        void MapDocument::openGroup(Model::Group* group) {
+            const Transaction transaction(this, "Open Group");
+            
+            deselectAll();
+            Model::Group* previousGroup = m_editorContext->currentGroup();
+            if (submit(CurrentGroupCommand::push(group))) {
+                if (previousGroup == NULL)
+                    lock(Model::NodeList(1, m_world));
+                else
+                    resetLock(Model::NodeList(1, previousGroup));
+                unlock(Model::NodeList(1, group));
             }
         }
         
-        void MapDocument::setLayerLocked(Model::Layer* layer, const bool locked) {
-            assert(layer != NULL);
-            if (layer->locked() != locked) {
-                layer->setLocked(locked);
-                nodesDidChangeNotifier(Model::NodeList(1, layer));
+        void MapDocument::closeGroup() {
+            const Transaction transaction(this, "Close Group");
+
+            deselectAll();
+            Model::Group* previousGroup = m_editorContext->currentGroup();
+            if (submit(CurrentGroupCommand::pop())) {
+                resetLock(Model::NodeList(1, previousGroup));
+                if (m_editorContext->currentGroup() == NULL)
+                    unlock(Model::NodeList(1, m_world));
             }
+        }
+
+        void MapDocument::hide(const Model::NodeList& nodes) {
+            submit(SetVisibilityCommand::hide(nodes));
+        }
+        
+        void MapDocument::show(const Model::NodeList& nodes) {
+            submit(SetVisibilityCommand::show(nodes));
+        }
+        
+        void MapDocument::resetVisibility(const Model::NodeList& nodes) {
+            submit(SetVisibilityCommand::reset(nodes));
+        }
+        
+        void MapDocument::lock(const Model::NodeList& nodes) {
+            submit(SetLockStateCommand::lock(nodes));
+        }
+        
+        void MapDocument::unlock(const Model::NodeList& nodes) {
+            submit(SetLockStateCommand::unlock(nodes));
+        }
+        
+        void MapDocument::resetLock(const Model::NodeList& nodes) {
+            submit(SetLockStateCommand::reset(nodes));
         }
 
         bool MapDocument::translateObjects(const Vec3& delta) {
@@ -791,7 +883,7 @@ namespace TrenchBroom {
         void MapDocument::createWorld(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             m_worldBounds = worldBounds;
             m_game = game;
-            m_world = m_game->newMap(mapFormat);
+            m_world = m_game->newMap(mapFormat, m_worldBounds);
             m_currentLayer = m_world->defaultLayer();
             
             updateGameSearchPaths();

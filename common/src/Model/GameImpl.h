@@ -53,7 +53,7 @@ namespace TrenchBroom {
             void doSetGamePath(const IO::Path& gamePath);
             void doSetAdditionalSearchPaths(const IO::Path::List& searchPaths);
 
-            World* doNewMap(MapFormat::Type format) const;
+            World* doNewMap(MapFormat::Type format, const BBox3& worldBounds) const;
             World* doLoadMap(const BBox3& worldBounds, const IO::Path& path, Logger* logger) const;
             void doWriteMap(World* world, const IO::Path& path) const;
 

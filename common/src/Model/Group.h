@@ -37,12 +37,17 @@ namespace TrenchBroom {
             static const Hit::HitType GroupHit;
         private:
             String m_name;
+            bool m_open;
             mutable BBox3 m_bounds;
             mutable bool m_boundsValid;
         public:
             Group(const String& name);
             
             void setName(const String& name);
+            
+            bool opened() const;
+            void open();
+            void close();
         private: // implement methods inherited from Node
             const String& doGetName() const;
             
@@ -53,16 +58,20 @@ namespace TrenchBroom {
             bool doCanRemoveChild(const Node* child) const;
             bool doRemoveIfEmpty() const;
 
+            void doDescendantWasAdded(Node* node);
+            void doDescendantWasRemoved(Node* oldParent, Node* node);
             void doDescendantDidChange(Node* node);
             
             bool doSelectable() const;
             
+            void doPick(const Ray3& ray, PickResult& pickResult) const;
+            FloatType doIntersectWithRay(const Ray3& ray) const;
+
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement methods inherited from Object
             const BBox3& doGetBounds() const;
-            void doPick(const Ray3& ray, PickResult& pickResult) const;
 
             Node* doGetContainer() const;
             Layer* doGetLayer() const;

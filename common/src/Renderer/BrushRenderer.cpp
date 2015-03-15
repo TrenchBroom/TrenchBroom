@@ -47,10 +47,10 @@ namespace TrenchBroom {
         bool BrushRenderer::DefaultFilter::visible(const Model::Brush* brush) const { return m_context.visible(brush); }
         bool BrushRenderer::DefaultFilter::visible(const Model::BrushFace* face) const { return m_context.visible(face); }
         
-        bool BrushRenderer::DefaultFilter::locked(const Model::Brush* brush) const { return m_context.locked(brush); }
-        bool BrushRenderer::DefaultFilter::locked(const Model::BrushFace* face) const { return m_context.locked(face); }
+        bool BrushRenderer::DefaultFilter::editable(const Model::Brush* brush) const { return m_context.editable(brush); }
+        bool BrushRenderer::DefaultFilter::editable(const Model::BrushFace* face) const { return m_context.editable(face); }
         
-        bool BrushRenderer::DefaultFilter::selected(const Model::Brush* brush) const { return brush->selected(); }
+        bool BrushRenderer::DefaultFilter::selected(const Model::Brush* brush) const { return brush->selected() || brush->parentSelected(); }
         bool BrushRenderer::DefaultFilter::selected(const Model::BrushFace* face) const { return face->selected(); }
         bool BrushRenderer::DefaultFilter::selected(const Model::BrushEdge* edge) const {
             const Model::BrushFace* left = edge->left->face;

@@ -190,9 +190,15 @@ namespace TrenchBroom {
             }
         protected:
             void setResult(T result) {
-                m_result = result;
-                m_hasResult = true;
+                if (!m_hasResult) {
+                    m_result = result;
+                    m_hasResult = true;
+                } else {
+                    m_result = doCombineResults(m_result, result);
+                }
             }
+        private:
+            virtual T doCombineResults(T oldResult, T newResult) const { return newResult; }
         };
     }
 }

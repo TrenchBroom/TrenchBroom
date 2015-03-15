@@ -24,6 +24,7 @@
 #include "Model/ModelTypes.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityRenderer.h"
+#include "Renderer/GroupRenderer.h"
 
 namespace TrenchBroom {
     namespace Assets {
@@ -36,11 +37,13 @@ namespace TrenchBroom {
         
         class ObjectRenderer {
         private:
+            GroupRenderer m_groupRenderer;
             EntityRenderer m_entityRenderer;
             BrushRenderer m_brushRenderer;
         public:
             template <typename BrushFilterT>
             ObjectRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext, const BrushFilterT& brushFilter) :
+            m_groupRenderer(editorContext),
             m_entityRenderer(entityModelManager, editorContext),
             m_brushRenderer(brushFilter) {}
         public: // object management
@@ -72,6 +75,9 @@ namespace TrenchBroom {
             void setShowEntityAngles(bool showAngles);
             void setEntityAngleColor(const Color& color);
 
+            void setOverrideGroupBoundsColor(bool overrideGroupBoundsColor);
+            void setGroupBoundsColor(const Color& color);
+            
             void setOverrideEntityBoundsColor(bool overrideEntityBoundsColor);
             void setEntityBoundsColor(const Color& color);
             

@@ -23,6 +23,7 @@
 #include "Model/BrushFace.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
+#include "Model/Group.h"
 #include "Model/HitAdapter.h"
 
 #include <cassert>
@@ -78,6 +79,8 @@ namespace TrenchBroom {
         }
 
         bool SelectionHitFilter::doMatches(const Hit& hit) const {
+            if (hit.type() == Group::GroupHit)
+                return hitToGroup(hit)->selected();
             if (hit.type() == Entity::EntityHit)
                 return hitToEntity(hit)->selected();
             if (hit.type() == Brush::BrushHit)
@@ -89,6 +92,8 @@ namespace TrenchBroom {
         m_context(context) {}
         
         bool ContextHitFilter::doMatches(const Hit& hit) const {
+            if (hit.type() == Group::GroupHit)
+                return m_context.pickable(hitToGroup(hit));
             if (hit.type() == Entity::EntityHit)
                 return m_context.pickable(hitToEntity(hit));
             if (hit.type() == Brush::BrushHit)

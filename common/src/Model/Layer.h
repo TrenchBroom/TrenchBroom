@@ -23,24 +23,20 @@
 #include "StringUtils.h"
 #include "Model/ModelTypes.h"
 #include "Model/Node.h"
+#include "Model/Octree.h"
 
 namespace TrenchBroom {
     namespace Model {
         class Layer : public Node {
         private:
             String m_name;
-            bool m_hidden;
-            bool m_locked;
+            
+            typedef Octree<FloatType, Node*> NodeTree;
+            NodeTree m_octree;
         public:
-            Layer(const String& name);
+            Layer(const String& name, const BBox3& worldBounds);
             
             void setName(const String& name);
-            
-            bool hidden() const;
-            void setHidden(bool hidden);
-            
-            bool locked() const;
-            void setLocked(bool locked);
         private: // implement Node interface
             const String& doGetName() const;
             
@@ -48,11 +44,23 @@ namespace TrenchBroom {
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
             bool doRemoveIfEmpty() const;
+            
+            class AddNodeToOctree;
+            class RemoveNodeFromOctree;
+            
+            void doChildWasAdded(Node* node);
+            void doChildWillBeRemoved(Node* node);
+            void doChildWillChange(Node* node);
+            void doChildDidChange(Node* node);
+            
             bool doSelectable() const;
             
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
+
+            void doPick(const Ray3& ray, PickResult& pickResult) const;
+            FloatType doIntersectWithRay(const Ray3& ray) const;
         private:
             Layer(const Layer&);
             Layer& operator=(const Layer&);
