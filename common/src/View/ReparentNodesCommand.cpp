@@ -51,7 +51,7 @@ namespace TrenchBroom {
         }
 
         bool ReparentNodesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const MapDocumentCommandFacade::ReparentResult result = document->performReparentNodes(m_nodes);
+            const MapDocumentCommandFacade::ReparentResult result = document->performReparentNodes(m_nodes, MapDocumentCommandFacade::RemoveEmptyNodes);
             m_nodes = result.movedNodes;
             m_removedNodes = result.removedNodes;
             return true;
@@ -60,7 +60,7 @@ namespace TrenchBroom {
         bool ReparentNodesCommand::doPerformUndo(MapDocumentCommandFacade* document) {
             document->addNodes(m_removedNodes);
             
-            const MapDocumentCommandFacade::ReparentResult result = document->performReparentNodes(m_nodes);
+            const MapDocumentCommandFacade::ReparentResult result = document->performReparentNodes(m_nodes, MapDocumentCommandFacade::KeepEmptyNodes);
             m_nodes = result.movedNodes;
             m_removedNodes = result.removedNodes;
             assert(m_removedNodes.empty());

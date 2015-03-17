@@ -19,6 +19,7 @@
 
 #include "Group.h"
 
+#include "Hit.h"
 #include "Model/BoundsContainsNodeVisitor.h"
 #include "Model/BoundsIntersectsNodeVisitor.h"
 #include "Model/Brush.h"
@@ -28,6 +29,7 @@
 #include "Model/FindGroupVisitor.h"
 #include "Model/FindLayerVisitor.h"
 #include "Model/GroupSnapshot.h"
+#include "Model/IntersectNodeWithRayVisitor.h"
 #include "Model/IssueGenerator.h"
 #include "Model/NodeVisitor.h"
 #include "Model/PickResult.h"
@@ -39,12 +41,27 @@ namespace TrenchBroom {
 
         Group::Group(const String& name) :
         m_name(name),
+        m_open(false),
         m_boundsValid(false) {}
         
         void Group::setName(const String& name) {
             m_name = name;
         }
         
+        bool Group::opened() const {
+            return m_open;
+        }
+        
+        void Group::open() {
+            assert(!opened());
+            m_open = true;
+        }
+        
+        void Group::close() {
+            assert(opened());
+            m_open = false;
+        }
+
         const String& Group::doGetName() const {
             return m_name;
         }
@@ -82,6 +99,14 @@ namespace TrenchBroom {
             return true;
         }
 
+        void Group::doDescendantWasAdded(Node* node) {
+            invalidateBounds();
+        }
+        
+        void Group::doDescendantWasRemoved(Node* oldParent, Node* node) {
+            invalidateBounds();
+        }
+
         void Group::doDescendantDidChange(Node* node) {
             invalidateBounds();
         }
@@ -90,6 +115,35 @@ namespace TrenchBroom {
             return true;
         }
 
+        void Group::doPick(const Ray3& ray, PickResult& pickResult) const {
+            if (opened()) {
+                const NodeList& children = Node::children();
+                NodeList::const_iterator it, end;
+                for (it = children.begin(), end = children.end(); it != end; ++it) {
+                    const Node* child = *it;
+                    child->pick(ray, pickResult);
+                }
+            } else {
+                const FloatType distance = intersectWithRay(ray);
+                if (!Math::isnan(distance)) {
+                    const Vec3 hitPoint = ray.pointAtDistance(distance);
+                    pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
+                }
+            }
+        }
+        
+        FloatType Group::doIntersectWithRay(const Ray3& ray) const {
+            const BBox3& myBounds = bounds();
+            if (!myBounds.contains(ray.origin) && Math::isnan(myBounds.intersectWithRay(ray)))
+                return Math::nan<FloatType>();
+            
+            IntersectNodeWithRayVisitor visitor(ray);
+            iterate(visitor);
+            if (!visitor.hasResult())
+                return Math::nan<FloatType>();
+            return visitor.result();
+        }
+        
         void Group::doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {
             generator->generate(this, issues);
         }
@@ -108,17 +162,6 @@ namespace TrenchBroom {
             return m_bounds;
         }
 
-        void Group::doPick(const Ray3& ray, PickResult& pickResult) const {
-            const BBox3& myBounds = bounds();
-            if (!myBounds.contains(ray.origin)) {
-                const FloatType distance = myBounds.intersectWithRay(ray);
-                if (!Math::isnan(distance)) {
-                    const Vec3 hitPoint = ray.pointAtDistance(distance);
-                    pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
-                }
-            }
-        }
-        
         Node* Group::doGetContainer() const {
             FindContainerVisitor visitor;
             escalate(visitor);
@@ -132,7 +175,7 @@ namespace TrenchBroom {
         }
         
         Group* Group::doGetGroup() const {
-            FindGroupVisitor visitor;
+            FindGroupVisitor visitor(false);
             escalate(visitor);
             return visitor.hasResult() ? visitor.result() : NULL;
         }

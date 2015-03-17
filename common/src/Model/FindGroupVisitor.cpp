@@ -23,15 +23,31 @@
 
 namespace TrenchBroom {
     namespace Model {
+        FindGroupVisitor::FindGroupVisitor(const bool findTopGroup) :
+        m_findTopGroup(findTopGroup) {}
+
         void FindGroupVisitor::doVisit(World* world) {}
         void FindGroupVisitor::doVisit(Layer* layer) {}
         
         void FindGroupVisitor::doVisit(Group* group) {
             setResult(group);
-            cancel();
+            if (!m_findTopGroup)
+                cancel();
         }
         
         void FindGroupVisitor::doVisit(Entity* entity) {}
         void FindGroupVisitor::doVisit(Brush* brush) {}
+
+        Model::Group* findGroup(Model::Node* node) {
+            FindGroupVisitor visitor(false);
+            node->escalate(visitor);
+            return visitor.result();
+        }
+
+        Model::Group* findTopGroup(Model::Node* node) {
+            FindGroupVisitor visitor(true);
+            node->escalate(visitor);
+            return visitor.result();
+        }
     }
 }

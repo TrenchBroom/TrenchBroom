@@ -231,17 +231,18 @@ namespace TrenchBroom {
         void EntityRenderer::renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (renderContext.showEntityClassnames()) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(m_overlayTextColor);
+                renderService.setBackgroundColor(m_overlayBackgroundColor);
                 
                 Model::EntitySet::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     const Model::Entity* entity = *it;
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
                         const EntityClassnameAnchor anchor(entity);
-                        if (m_showOccludedOverlays) {
-                            renderService.renderStringOnTop(m_overlayTextColor, m_overlayBackgroundColor, entityString(entity), anchor);
-                        } else {
-                            renderService.renderString(m_overlayTextColor, m_overlayBackgroundColor, entityString(entity), anchor);
-                        }
+                        if (m_showOccludedOverlays)
+                            renderService.renderStringOnTop(entityString(entity), anchor);
+                        else
+                            renderService.renderString(entityString(entity), anchor);
                     }
                 }
             }
@@ -316,7 +317,7 @@ namespace TrenchBroom {
             return result;
         }
 
-        struct BuildColoredSolidBoundsVertices {
+        struct EntityRenderer::BuildColoredSolidBoundsVertices {
             VertexSpecs::P3NC4::Vertex::List& vertices;
             Color color;
             
@@ -334,7 +335,7 @@ namespace TrenchBroom {
             }
         };
 
-        struct BuildColoredWireframeBoundsVertices {
+        struct EntityRenderer::BuildColoredWireframeBoundsVertices {
             VertexSpecs::P3C4::Vertex::List& vertices;
             Color color;
             
@@ -348,7 +349,7 @@ namespace TrenchBroom {
             }
         };
         
-        struct BuildWireframeBoundsVertices {
+        struct EntityRenderer::BuildWireframeBoundsVertices {
             VertexSpecs::P3::Vertex::List& vertices;
             
             BuildWireframeBoundsVertices(VertexSpecs::P3::Vertex::List& i_vertices) :
@@ -379,7 +380,7 @@ namespace TrenchBroom {
                     if (m_editorContext.visible(entity)) {
                         eachBBoxEdge(entity->bounds(), wireframeBoundsBuilder);
                         if (!entity->hasChildren() && entity->model() == NULL) {
-                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(*entity));
+                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
                             eachBBoxFace(entity->bounds(), solidBoundsBuilder);
                         }
                     }
@@ -395,10 +396,10 @@ namespace TrenchBroom {
                     const Model::Entity* entity = *it;
                     if (m_editorContext.visible(entity)) {
                         if (!entity->hasChildren() && entity->model() == NULL) {
-                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(*entity));
+                            BuildColoredSolidBoundsVertices solidBoundsBuilder(solidVertices, boundsColor(entity));
                             eachBBoxFace(entity->bounds(), solidBoundsBuilder);
                         } else {
-                            BuildColoredWireframeBoundsVertices wireframeBoundsBuilder(wireframeVertices, boundsColor(*entity));
+                            BuildColoredWireframeBoundsVertices wireframeBoundsBuilder(wireframeVertices, boundsColor(entity));
                             eachBBoxEdge(entity->bounds(), wireframeBoundsBuilder);
                         }
                     }
@@ -422,8 +423,8 @@ namespace TrenchBroom {
             return str;
         }
 
-        const Color& EntityRenderer::boundsColor(const Model::Entity& entity) const {
-            const Assets::EntityDefinition* definition = entity.definition();
+        const Color& EntityRenderer::boundsColor(const Model::Entity* entity) const {
+            const Assets::EntityDefinition* definition = entity->definition();
             if (definition == NULL)
                 return m_boundsColor;
             return definition->color();

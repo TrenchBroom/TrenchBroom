@@ -135,12 +135,14 @@ namespace TrenchBroom {
             const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
             Renderer::RenderService renderService(renderContext, renderBatch);
             
-            const Color& color = pref(Preferences::axisColor(camera.direction().firstComponent()));
-            renderService.renderCircle(color, m_position, camera.direction().firstComponent(), 64, radius);
+            renderService.setForegroundColor(pref(Preferences::axisColor(camera.direction().firstComponent())));
+            renderService.renderCircle(m_position, camera.direction().firstComponent(), 64, radius);
             
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
             renderService.renderPointHandle(m_position);
             renderService.renderPointHandle(m_position + radius * camera.right());
 
+            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
             switch (highlight) {
                 case RotateObjectsHandle::HitArea_Center:
                     renderService.renderPointHandleHighlight(m_position);
@@ -165,25 +167,32 @@ namespace TrenchBroom {
             Renderer::RenderService renderService(renderContext, renderBatch);
             
             renderService.renderCoordinateSystem(BBox3f(radius).translated(m_position));
-            renderService.renderCircle(pref(Preferences::XAxisColor), m_position, Math::Axis::AX, 64, radius, zAxis, yAxis);
-            renderService.renderCircle(pref(Preferences::YAxisColor), m_position, Math::Axis::AY, 64, radius, xAxis, zAxis);
-            renderService.renderCircle(pref(Preferences::ZAxisColor), m_position, Math::Axis::AZ, 64, radius, xAxis, yAxis);
+            
+            renderService.setForegroundColor(pref(Preferences::XAxisColor));
+            renderService.renderCircle(m_position, Math::Axis::AX, 64, radius, zAxis, yAxis);
+            renderService.setForegroundColor(pref(Preferences::YAxisColor));
+            renderService.renderCircle(m_position, Math::Axis::AY, 64, radius, xAxis, zAxis);
+            renderService.setForegroundColor(pref(Preferences::ZAxisColor));
+            renderService.renderCircle(m_position, Math::Axis::AZ, 64, radius, xAxis, yAxis);
 
-            renderService.renderCircle(pref(Preferences::HandleColor), m_position, Math::Axis::AX, 8, radius,
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
+            renderService.renderCircle(m_position, Math::Axis::AX, 8, radius,
                                        Quatf(Vec3f::PosX, Math::radians(+15.0f)) * yAxis,
                                        Quatf(Vec3f::PosX, Math::radians(-15.0f)) * yAxis);
-            renderService.renderCircle(pref(Preferences::HandleColor), m_position, Math::Axis::AY, 8, radius,
+            renderService.renderCircle(m_position, Math::Axis::AY, 8, radius,
                                        Quatf(Vec3f::PosY, Math::radians(+15.0f)) * zAxis,
                                        Quatf(Vec3f::PosY, Math::radians(-15.0f)) * zAxis);
-            renderService.renderCircle(pref(Preferences::HandleColor), m_position, Math::Axis::AZ, 8, radius,
+            renderService.renderCircle(m_position, Math::Axis::AZ, 8, radius,
                                        Quatf(Vec3f::PosZ, Math::radians(+15.0f)) * xAxis,
                                        Quatf(Vec3f::PosZ, Math::radians(-15.0f)) * xAxis);
 
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
             renderService.renderPointHandle(m_position);
             renderService.renderPointHandle(m_position + radius * xAxis);
             renderService.renderPointHandle(m_position + radius * yAxis);
             renderService.renderPointHandle(m_position + radius * zAxis);
 
+            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
             switch (highlight) {
                 case RotateObjectsHandle::HitArea_Center:
                     renderService.renderPointHandleHighlight(m_position);

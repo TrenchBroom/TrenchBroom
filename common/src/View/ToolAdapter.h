@@ -114,7 +114,6 @@ namespace TrenchBroom {
 
             void resetPlane(const InputState& inputState);
         private: // subclassing interface
-            // doStartPlaneDrag(in inputState:const InputState&, in plane:Plane3&, in initialPoint:Vec3&): bool
             virtual bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
             virtual bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
             virtual void doEndPlaneDrag(const InputState& inputState) = 0;

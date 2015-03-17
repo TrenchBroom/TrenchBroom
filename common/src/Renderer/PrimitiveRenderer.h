@@ -41,25 +41,29 @@ namespace TrenchBroom {
         class PrimitiveRenderer : public Renderable {
         private:
             typedef VertexSpecs::P3C4::Vertex Vertex;
-
-            LineMesh<Vertex::Spec> m_lineMesh;
+            typedef std::map<float, LineMesh<Vertex::Spec> > LineMeshMap;
+            typedef std::map<float, LineMeshRenderer> LineRendererMap;
+            
+            LineMeshMap m_lineMeshes;
             TriangleMesh<Vertex::Spec> m_triangleMesh;
 
-            LineMeshRenderer m_lineRenderer;
+            LineRendererMap m_lineRenderers;
             SimpleTriangleMeshRenderer m_triangleRenderer;
         public:
-            void renderLine(const Color& color, const Vec3f& start, const Vec3f& end);
-            void renderLines(const Color& color, const Vec3f::List& positions);
-            void renderCoordinateSystem(const BBox3f& bounds, const Color& x, const Color& y, const Color& z);
+            void renderLine(const Color& color, float lineWidth, const Vec3f& start, const Vec3f& end);
+            void renderLines(const Color& color, float lineWidth, const Vec3f::List& positions);
+            void renderCoordinateSystem(const Color& x, const Color& y, const Color& z, float lineWidth, const BBox3f& bounds);
             
-            void renderCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
-            void renderCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
+            void renderCircle(const Color& color, float lineWidth, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
+            void renderCircle(const Color& color, float lineWidth, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
             
             void renderFilledCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
             void renderFilledCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
         private:
             void doPrepare(Vbo& vbo);
             void doRender(RenderContext& renderContext);
+            void renderLines(RenderContext& renderContext);
+            void renderTriangles(RenderContext& renderContext);
         };
     }
 }

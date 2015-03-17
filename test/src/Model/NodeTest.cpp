@@ -23,6 +23,7 @@
 #include "CollectionUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
+#include "Model/PickResult.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -69,6 +70,14 @@ namespace TrenchBroom {
                 mockDoAncestorDidChange();
             }
             
+            void doPick(const Ray3& ray, PickResult& pickResult) const {
+                mockDoPick(ray, pickResult);
+            }
+            
+            FloatType doIntersectWithRay(const Ray3& ray) const {
+                return mockDoIntersectWithRay(ray);
+            }
+
             void doAccept(NodeVisitor& visitor) {
                 mockDoAccept(visitor);
             }
@@ -87,6 +96,9 @@ namespace TrenchBroom {
             MOCK_METHOD0(mockDoParentDidChange, void());
             MOCK_METHOD0(mockDoAncestorWillChange, void());
             MOCK_METHOD0(mockDoAncestorDidChange, void());
+            
+            MOCK_CONST_METHOD2(mockDoPick, void(const Ray3&, PickResult&));
+            MOCK_CONST_METHOD1(mockDoIntersectWithRay, FloatType(const Ray3&));
             
             MOCK_METHOD1(mockDoAccept, void(NodeVisitor&));
             MOCK_CONST_METHOD1(mockDoAccept, void(ConstNodeVisitor&));
@@ -123,6 +135,10 @@ namespace TrenchBroom {
             virtual void doParentDidChange() {}
             virtual void doAncestorWillChange() {}
             virtual void doAncestorDidChange() {}
+            
+            virtual void doPick(const Ray3& ray, PickResult& pickResult) const {}
+            virtual FloatType doIntersectWithRay(const Ray3& ray) const { return Math::nan<FloatType>(); }
+
             virtual void doAccept(NodeVisitor& visitor) {}
             virtual void doAccept(ConstNodeVisitor& visitor) const {}
             virtual void doGenerateIssues(const IssueGenerator* generator, IssueList& issues) {}
@@ -161,7 +177,9 @@ namespace TrenchBroom {
             MockNode* grandChild1 = new MockNode();
             MockNode* grandChild2 = new MockNode();
             
+#ifndef NDEBUG
             EXPECT_CALL(*child, mockDoCanAddChild(grandChild1)).WillOnce(Return(true));
+#endif
             EXPECT_CALL(*grandChild1, mockDoParentWillChange());
             EXPECT_CALL(*grandChild1, mockDoAncestorWillChange());
             EXPECT_CALL(*grandChild1, mockDoParentDidChange());
@@ -172,7 +190,9 @@ namespace TrenchBroom {
             ASSERT_EQ(child, grandChild1->parent());
             ASSERT_TRUE(VectorUtils::contains(child->children(), grandChild1));
             
+#ifndef NDEBUG
             EXPECT_CALL(root, mockDoCanAddChild(child)).WillOnce(Return(true));
+#endif
             EXPECT_CALL(*child, mockDoParentWillChange());
             EXPECT_CALL(*child, mockDoAncestorWillChange());
             EXPECT_CALL(*child, mockDoParentDidChange());
@@ -186,7 +206,9 @@ namespace TrenchBroom {
             ASSERT_EQ(&root, child->parent());
             ASSERT_TRUE(VectorUtils::contains(root.children(), child));
             
+#ifndef NDEBUG
             EXPECT_CALL(*child, mockDoCanAddChild(grandChild2)).WillOnce(Return(true));
+#endif
             EXPECT_CALL(*grandChild2, mockDoParentWillChange());
             EXPECT_CALL(*grandChild2, mockDoAncestorWillChange());
             EXPECT_CALL(*grandChild2, mockDoParentDidChange());
@@ -199,7 +221,9 @@ namespace TrenchBroom {
             ASSERT_EQ(child, grandChild2->parent());
             ASSERT_TRUE(VectorUtils::contains(child->children(), grandChild2));
             
+#ifndef NDEBUG
             EXPECT_CALL(root, mockDoCanRemoveChild(child)).WillOnce(Return(true));
+#endif
             EXPECT_CALL(*child, mockDoParentWillChange());
             EXPECT_CALL(*child, mockDoAncestorWillChange());
             EXPECT_CALL(*child, mockDoParentDidChange());
@@ -217,7 +241,9 @@ namespace TrenchBroom {
             ASSERT_EQ(2u, child->childCount());
             ASSERT_EQ(3u, child->familySize());
             
+#ifndef NDEBUG
             EXPECT_CALL(root, mockDoCanAddChild(child)).WillOnce(Return(true));
+#endif
             EXPECT_CALL(*child, mockDoParentWillChange());
             EXPECT_CALL(*child, mockDoAncestorWillChange());
             EXPECT_CALL(*child, mockDoParentDidChange());

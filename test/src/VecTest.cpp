@@ -333,3 +333,67 @@ TEST(VecTest, angleBetween) {
     ASSERT_FLOAT_EQ(angleBetween(Vec3f::NegX, Vec3f::PosX, Vec3f::PosZ), Math::Cf::pi());
     ASSERT_FLOAT_EQ(angleBetween(Vec3f::NegY, Vec3f::PosX, Vec3f::PosZ), 3.0f * Math::Cf::piOverTwo());
 }
+
+TEST(VecTest, convexHull2dSimple) {
+    const Vec3d p1(0.0, 0.0, 0.0);
+    const Vec3d p2(8.0, 8.0, 0.0);
+    const Vec3d p3(8.0, 0.0, 0.0);
+    const Vec3d p4(0.0, 8.0, 0.0);
+    
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
+    
+    const Vec3d::List hull = convexHull2D<double>(points);
+    ASSERT_EQ(4u, hull.size());
+    ASSERT_VEC_EQ(p3, hull[0]);
+    ASSERT_VEC_EQ(p2, hull[1]);
+    ASSERT_VEC_EQ(p4, hull[2]);
+    ASSERT_VEC_EQ(p1, hull[3]);
+}
+
+TEST(VecTest, convexHull2dSimpleWithInternalPoint) {
+    const Vec3d p1(0.0, 0.0, 0.0);
+    const Vec3d p2(8.0, 8.0, 0.0);
+    const Vec3d p3(8.0, 0.0, 0.0);
+    const Vec3d p4(0.0, 8.0, 0.0);
+    const Vec3d p5(4.0, 4.0, 0.0);
+    
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
+    points.push_back(p5);
+    
+    const Vec3d::List hull = convexHull2D<double>(points);
+    ASSERT_EQ(4u, hull.size());
+    ASSERT_VEC_EQ(p3, hull[0]);
+    ASSERT_VEC_EQ(p2, hull[1]);
+    ASSERT_VEC_EQ(p4, hull[2]);
+    ASSERT_VEC_EQ(p1, hull[3]);
+}
+
+TEST(VecTest, convexHull2dSimpleWithPointOnLine) {
+    const Vec3d p1(0.0, 0.0, 0.0);
+    const Vec3d p2(8.0, 8.0, 0.0);
+    const Vec3d p3(8.0, 0.0, 0.0);
+    const Vec3d p4(0.0, 8.0, 0.0);
+    const Vec3d p5(4.0, 0.0, 0.0);
+    
+    Vec3d::List points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
+    points.push_back(p5);
+    
+    const Vec3d::List hull = convexHull2D<double>(points);
+    ASSERT_EQ(4u, hull.size());
+    ASSERT_VEC_EQ(p3, hull[0]);
+    ASSERT_VEC_EQ(p2, hull[1]);
+    ASSERT_VEC_EQ(p4, hull[2]);
+    ASSERT_VEC_EQ(p1, hull[3]);
+}

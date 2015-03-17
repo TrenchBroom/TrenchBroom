@@ -44,17 +44,24 @@ namespace TrenchBroom {
         
         class MapRenderer {
         private:
+            class SelectedBrushRendererFilter;
+            class LockedBrushRendererFilter;
+            class UnselectedBrushRendererFilter;
+            
             typedef std::map<Model::Layer*, ObjectRenderer*> RendererMap;
             
             View::MapDocumentWPtr m_document;
             
             RendererMap m_layerRenderers;
             ObjectRenderer* m_selectionRenderer;
+            ObjectRenderer* m_lockedRenderer;
             EntityLinkRenderer* m_entityLinkRenderer;
             
             class HandleSelectedNode;
             class UpdateSelectedNode;
             class UpdateNode;
+            class UpdateVisibility;
+            class UpdateLocking;
             class AddNode;
             class RemoveNode;
         public:
@@ -62,6 +69,7 @@ namespace TrenchBroom {
             ~MapRenderer();
         private:
             static ObjectRenderer* createSelectionRenderer(View::MapDocumentWPtr document);
+            static ObjectRenderer* createLockRenderer(View::MapDocumentWPtr document);
             void clear();
         public: // color config
             void overrideSelectionColors(const Color& color, float mix);
@@ -73,16 +81,19 @@ namespace TrenchBroom {
             void setupGL(RenderBatch& renderBatch);
             void renderLayers(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderSelection(RenderContext& renderContext, RenderBatch& renderBatch);
+            void renderLocked(RenderContext& renderContext, RenderBatch& renderBatch);
             void renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch);
             
             void setupRenderers();
             void setupLayerRenderers();
             void setupLayerRenderer(ObjectRenderer* renderer);
             void setupSelectionRenderer(ObjectRenderer* renderer);
+            void setupLockedRenderer(ObjectRenderer* renderer);
             void setupEntityLinkRenderer();
 
             void invalidateLayerRenderers();
             void invalidateSelectionRenderer();
+            void invalidateLockedRenderer();
             void invalidateEntityLinkRenderer();
         private: // notification
             void bindObservers();
@@ -94,6 +105,9 @@ namespace TrenchBroom {
             void nodesWereAdded(const Model::NodeList& nodes);
             void nodesWillBeRemoved(const Model::NodeList& nodes);
             void nodesDidChange(const Model::NodeList& nodes);
+            
+            void nodeVisibilityDidChange(const Model::NodeList& nodes);
+            void nodeLockingDidChange(const Model::NodeList& nodes);
             
             void brushFacesDidChange(const Model::BrushFaceList& faces);
             

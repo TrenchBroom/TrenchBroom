@@ -149,6 +149,10 @@ namespace StringUtils {
         return str.find_first_not_of(" \t\n\r") == String::npos;
     }
 
+    bool matchesPattern(const String& str, const String& pattern) {
+        return matchesPattern(str.begin(), str.end(), pattern.begin(), pattern.end());
+    }
+
     long makeHash(const String& str) {
         long hash = 0;
         String::const_iterator it, end;

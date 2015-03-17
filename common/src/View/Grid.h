@@ -53,40 +53,15 @@ namespace TrenchBroom {
             void toggleSnap();
             
             template <typename T>
-            T snap(const T f) const {
-                if (!snap())
-                    return f;
-                const size_t actSize = actualSize();
-                return actSize * Math::round(f / actSize);
-            }
-            
-            template <typename T>
             T snapAngle(const T a) const {
                 if (!snap())
                     return a;
                 return angle() * Math::round(a / angle());
             }
-            
+        public: // Snap scalars.
             template <typename T>
-            T snapUp(const T f, const bool skip) const {
-                if (!snap())
-                    return f;
-                const size_t actSize = actualSize();
-                const T s = actSize * std::ceil(f / actSize);
-                if (skip && s == f)
-                    return s + actualSize();
-                return s;
-            }
-            
-            template <typename T>
-            T snapDown(const T f, const bool skip) const {
-                if (!snap())
-                    return f;
-                const size_t actSize = actualSize();
-                const T s = actSize * std::floor(f / actSize);
-                if (skip && s == f)
-                    return s - actualSize();
-                return s;
+            T snap(const T f) const {
+                return snap(f, SnapDir_None);
             }
             
             template <typename T>
@@ -96,36 +71,74 @@ namespace TrenchBroom {
                 return f - snap(f);
             }
             
+            template <typename T>
+            T snapUp(const T f, const bool skip) const {
+                return snap(f, SnapDir_Up, skip);
+            }
+            
+            template <typename T>
+            T snapDown(const T f, const bool skip) const {
+                return snap(f, SnapDir_Down, skip);
+            }
+        private:
+            typedef enum {
+                SnapDir_None,
+                SnapDir_Up,
+                SnapDir_Down
+            } SnapDir;
+            
+            template <typename T>
+            T snap(const T f, const SnapDir snapDir, const bool skip = false) const {
+                if (!snap())
+                    return f;
+
+                const size_t actSize = actualSize();
+                switch (snapDir) {
+                    case SnapDir_None:
+                        return actSize * Math::round(f / actSize);
+                    case SnapDir_Up: {
+                        const T s = actSize * std::ceil(f / actSize);
+                        return (skip && s == f) ? s + actualSize() : s;
+                    }
+                    case SnapDir_Down: {
+                        const T s = actSize * std::floor(f / actSize);
+                        return (skip && s == f) ? s - actualSize() : s;
+                    }
+                }
+            }
+        public: // Snap vectors.
             template <typename T, size_t S>
             Vec<T,S> snap(const Vec<T,S>& p) const {
+                return snap(p, SnapDir_None);
+            }
+            
+            template <typename T, size_t S>
+            Vec<T,S> offset(const Vec<T,S>& p) const {
                 if (!snap())
-                    return p;
-                Vec<T,S> result;
-                for (size_t i = 0; i < S; ++i)
-                    result[i] = snap(p[i]);
-                return result;
+                    return Vec<T,S>::Null;
+                return p - snap(p);
             }
             
             template <typename T, size_t S>
             Vec<T,S> snapUp(const Vec<T,S>& p, const bool skip = false) const {
-                if (!snap())
-                    return p;
-                Vec<T,S> result;
-                for (size_t i = 0; i < S; ++i)
-                    result[i] = snapUp(p[i], skip);
-                return result;
+                return snap(p, SnapDir_Up, skip);
             }
             
             template <typename T, size_t S>
             Vec<T,S> snapDown(const Vec<T,S>& p, const bool skip = false) const {
+                return snap(p, SnapDir_Down, skip);
+            }
+        private:
+            template <typename T, size_t S>
+            Vec<T,S> snap(const Vec<T,S>& p, const SnapDir snapDir, const bool skip = false) const {
                 if (!snap())
                     return p;
                 Vec<T,S> result;
                 for (size_t i = 0; i < S; ++i)
-                    result[i] = snapDown(p[i], skip);
+                    result[i] = snap(p[i], snapDir, skip);
                 return result;
             }
-
+        public: // Snap towards an arbitrary direction.
             template <typename T, size_t S>
             Vec<T,S> snapTowards(const Vec<T,S>& p, const Vec<T,S>& d, const bool skip = false) const {
                 if (!snap())
@@ -138,16 +151,45 @@ namespace TrenchBroom {
                 }
                 return result;
             }
-            
-            template <typename T, size_t S>
-            Vec<T,S> offset(const Vec<T,S>& p) const {
-                if (!snap())
-                    return Vec<T,S>::Null;
-                return p - snap(p);
+        public: // Snapping on a plane! Surprise, motherfucker!
+            template <typename T>
+            Vec<T,3> snap(const Vec<T,3>& p, const Plane<T,3>& onPlane) const {
+                return snap(p, onPlane, SnapDir_None, false);
             }
-
-            Vec3 snap(const Vec3& p, const Plane3& onPlane) const;
             
+            template <typename T>
+            Vec<T,3> snapUp(const Vec<T,3>& p, const Plane<T,3>& onPlane, const bool skip = false) const {
+                return snap(p, onPlane, SnapDir_Up, skip);
+            }
+            
+            template <typename T>
+            Vec<T,3> snapDown(const Vec<T,3>& p, const Plane<T,3>& onPlane, const bool skip = false) const {
+                return snap(p, onPlane, SnapDir_Down, skip);
+            }
+        private:
+            template <typename T>
+            Vec<T,3> snap(const Vec<T,3>& p, const Plane<T,3>& onPlane, const SnapDir snapDir, const bool skip = false) const {
+                Vec<T,3> result;
+                switch(onPlane.normal.firstComponent()) {
+                    case Math::Axis::AX:
+                        result[1] = snap(p.y(), snapDir, skip);
+                        result[2] = snap(p.z(), snapDir, skip);
+                        result[0] = onPlane.xAt(result.yz());
+                        break;
+                    case Math::Axis::AY:
+                        result[0] = snap(p.x(), snapDir, skip);
+                        result[2] = snap(p.z(), snapDir, skip);
+                        result[1] = onPlane.yAt(result.xz());
+                        break;
+                    case Math::Axis::AZ:
+                        result[0] = snap(p.x(), snapDir, skip);
+                        result[1] = snap(p.y(), snapDir, skip);
+                        result[2] = onPlane.zAt(result.xy());
+                        break;
+                }
+                return result;
+            }
+        public:
             FloatType intersectWithRay(const Ray3& ray, const size_t skip) const;
             
             Vec3 moveDeltaForPoint(const Vec3& point, const BBox3& worldBounds, const Vec3& delta) const;

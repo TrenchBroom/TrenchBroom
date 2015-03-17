@@ -32,7 +32,6 @@
 #include "Model/Hit.h"
 #include "Model/HitQuery.h"
 #include "Model/Layer.h"
-#include "Model/Picker.h"
 #include "Model/PickResult.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
@@ -66,7 +65,7 @@ namespace TrenchBroom {
             
             document->beginTransaction("Create " + definition->name());
             document->deselectAll();
-            document->addNode(m_entity, document->currentLayer());
+            document->addNode(m_entity, document->currentParent());
             document->select(m_entity);
             
             return true;

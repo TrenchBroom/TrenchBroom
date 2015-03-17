@@ -42,7 +42,7 @@ namespace TrenchBroom {
             return Model::EmptyBrushFaceList;
         }
         
-        Model::ModelFactory* BrushFaceReader::initialize(const Model::MapFormat::Type format) {
+        Model::ModelFactory* BrushFaceReader::initialize(const Model::MapFormat::Type format, const BBox3& worldBounds) {
             assert(format == m_factory->format());
             return m_factory;
         }

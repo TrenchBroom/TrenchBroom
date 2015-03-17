@@ -27,12 +27,19 @@ namespace TrenchBroom {
     namespace Model {
         class FindGroupVisitor : public NodeVisitor, public NodeQuery<Group*> {
         private:
+            bool m_findTopGroup;
+        public:
+            FindGroupVisitor(bool findTopGroup);
+        private:
             void doVisit(World* world);
             void doVisit(Layer* layer);
             void doVisit(Group* group);
             void doVisit(Entity* entity);
             void doVisit(Brush* brush);
         };
+        
+        Model::Group* findGroup(Model::Node* node);
+        Model::Group* findTopGroup(Model::Node* node);
     }
 }
 

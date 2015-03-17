@@ -183,6 +183,24 @@ namespace StringUtils {
         ASSERT_FALSE(caseSensitiveSuffix("asdf", "asdF"));
     }
     
+    TEST(StringUtilsTest, matchesPattern) {
+        ASSERT_TRUE(matchesPattern("", ""));
+        ASSERT_TRUE(matchesPattern("", "*"));
+        ASSERT_FALSE(matchesPattern("", "?"));
+        ASSERT_TRUE(matchesPattern("asdf", "asdf"));
+        ASSERT_TRUE(matchesPattern("asdf", "*"));
+        ASSERT_TRUE(matchesPattern("asdf", "a??f"));
+        ASSERT_FALSE(matchesPattern("asdf", "a?f"));
+        ASSERT_TRUE(matchesPattern("asdf", "*f"));
+        ASSERT_TRUE(matchesPattern("asdf", "a*f"));
+        ASSERT_TRUE(matchesPattern("asdf", "?s?f"));
+        ASSERT_TRUE(matchesPattern("asdfjkl", "a*f*l"));
+        ASSERT_TRUE(matchesPattern("asdfjkl", "*a*f*l*"));
+        ASSERT_TRUE(matchesPattern("asd*fjkl", "*a*f*l*"));
+        ASSERT_TRUE(matchesPattern("asd*fjkl", "asd\\*fjkl"));
+        ASSERT_TRUE(matchesPattern("asd*?fj\\kl", "asd\\*\\?fj\\\\kl"));
+    }
+    
     TEST(StringUtilsTest, escape) {
         ASSERT_EQ(String(""), StringUtils::escape("", ""));
         ASSERT_EQ(String(""), StringUtils::escape("", ";"));

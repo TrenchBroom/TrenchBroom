@@ -68,6 +68,9 @@ namespace TrenchBroom {
 
             bool doSelectable() const;
             
+            void doPick(const Ray3& ray, PickResult& pickResult) const;
+            FloatType doIntersectWithRay(const Ray3& ray) const;
+
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
@@ -79,7 +82,6 @@ namespace TrenchBroom {
             Vec3 doGetLinkTargetAnchor() const;
         private: // implement Object interface
             const BBox3& doGetBounds() const;
-            void doPick(const Ray3& ray, PickResult& pickResult) const;
 
             Node* doGetContainer() const;
             Layer* doGetLayer() const;

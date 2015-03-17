@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 
+#include "StringUtils.h"
 #include "IO/NodeWriter.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -30,7 +31,9 @@
 namespace TrenchBroom {
     namespace IO {
         TEST(NodeWriterTest, writeEmptyMap) {
-            Model::World map(Model::MapFormat::Standard, NULL);
+            const BBox3 worldBounds(8192.0);
+            
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             
             StringStream str;
             NodeWriter writer(&map, str);
@@ -41,7 +44,9 @@ namespace TrenchBroom {
         }
 
         TEST(NodeWriterTest, writeWorldspawn) {
-            Model::World map(Model::MapFormat::Standard, NULL);
+            const BBox3 worldBounds(8192.0);
+            
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             map.addOrUpdateAttribute("message", "holy damn");
             
@@ -59,7 +64,7 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeWorldspawnWithBrushInDefaultLayer) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             
             Model::BrushBuilder builder(&map, worldBounds);
@@ -87,10 +92,10 @@ namespace TrenchBroom {
         TEST(NodeWriterTest, writeWorldspawnWithBrushInCustomLayer) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             
-            Model::Layer* layer = map.createLayer("Custom Layer");
+            Model::Layer* layer = map.createLayer("Custom Layer", worldBounds);
             map.addChild(layer);
             
             Model::BrushBuilder builder(&map, worldBounds);
@@ -101,29 +106,31 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            const String result = str.str();
-            ASSERT_STREQ("{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n"
-                         "{\n"
-                         "\"classname\" \"func_group\"\n"
-                         "\"_tb_type\" \"_tb_layer\"\n"
-                         "\"_tb_name\" \"Custom Layer\"\n"
-                         "{\n"
-                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                         "}\n"
-                         "}\n", result.c_str());
+            ASSERT_TRUE(StringUtils::matchesPattern(str.str(),
+                                                    "{\n"
+                                                    "\"classname\" \"worldspawn\"\n"
+                                                    "}\n"
+                                                    "{\n"
+                                                    "\"classname\" \"func_group\"\n"
+                                                    "\"_tb_type\" \"_tb_layer\"\n"
+                                                    "\"_tb_name\" \"Custom Layer\"\n"
+                                                    "\"_tb_id\" \"*\"\n"
+                                                    "{\n"
+                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                                                    "}\n"
+                                                    "}\n"
+                                                    ));
         }
         
         TEST(NodeWriterTest, writeMapWithGroupInDefaultLayer) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             
             Model::Group* group = map.createGroup("Group");
@@ -137,32 +144,34 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            const String result = str.str();
-            ASSERT_STREQ("{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n"
-                         "{\n"
-                         "\"classname\" \"func_group\"\n"
-                         "\"_tb_type\" \"_tb_group\"\n"
-                         "\"_tb_name\" \"Group\"\n"
-                         "{\n"
-                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                         "}\n"
-                         "}\n", result.c_str());
+            ASSERT_TRUE(StringUtils::matchesPattern(str.str(),
+                                                    "{\n"
+                                                    "\"classname\" \"worldspawn\"\n"
+                                                    "}\n"
+                                                    "{\n"
+                                                    "\"classname\" \"func_group\"\n"
+                                                    "\"_tb_type\" \"_tb_group\"\n"
+                                                    "\"_tb_name\" \"Group\"\n"
+                                                    "\"_tb_id\" \"*\"\n"
+                                                    "{\n"
+                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                                                    "}\n"
+                                                    "}\n"
+                                                    ));
         }
         
         TEST(NodeWriterTest, writeMapWithGroupInCustomLayer) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             
-            Model::Layer* layer = map.createLayer("Custom Layer");
+            Model::Layer* layer = map.createLayer("Custom Layer", worldBounds);
             map.addChild(layer);
             
             Model::Group* group = map.createGroup("Group");
@@ -176,38 +185,41 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            const String result = str.str();
-            ASSERT_STREQ("{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n"
-                         "{\n"
-                         "\"classname\" \"func_group\"\n"
-                         "\"_tb_type\" \"_tb_layer\"\n"
-                         "\"_tb_name\" \"Custom Layer\"\n"
-                         "}\n"
-                         "{\n"
-                         "\"classname\" \"func_group\"\n"
-                         "\"_tb_type\" \"_tb_group\"\n"
-                         "\"_tb_name\" \"Group\"\n"
-                         "\"_tb_layer\" \"Custom Layer\"\n"
-                         "{\n"
-                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                         "}\n"
-                         "}\n", result.c_str());
+            ASSERT_TRUE(StringUtils::matchesPattern(str.str(),
+                                                    "{\n"
+                                                    "\"classname\" \"worldspawn\"\n"
+                                                    "}\n"
+                                                    "{\n"
+                                                    "\"classname\" \"func_group\"\n"
+                                                    "\"_tb_type\" \"_tb_layer\"\n"
+                                                    "\"_tb_name\" \"Custom Layer\"\n"
+                                                    "\"_tb_id\" \"*\"\n"
+                                                    "}\n"
+                                                    "{\n"
+                                                    "\"classname\" \"func_group\"\n"
+                                                    "\"_tb_type\" \"_tb_group\"\n"
+                                                    "\"_tb_name\" \"Group\"\n"
+                                                    "\"_tb_id\" \"*\"\n"
+                                                    "\"_tb_layer\" \"*\"\n"
+                                                    "{\n"
+                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                                                    "}\n"
+                                                    "}\n"
+                                                    ));
         }
         
         TEST(NodeWriterTest, writeMapWithNestedGroupInCustomLayer) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
             
-            Model::Layer* layer = map.createLayer("Custom Layer");
+            Model::Layer* layer = map.createLayer("Custom Layer", worldBounds);
             map.addChild(layer);
             
             Model::Group* outer = map.createGroup("Outer Group");
@@ -224,41 +236,45 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeMap();
             
-            const String result = str.str();
-            ASSERT_STREQ("{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "}\n"
-                         "{\n"
-                         "\"classname\" \"func_group\"\n"
-                         "\"_tb_type\" \"_tb_layer\"\n"
-                         "\"_tb_name\" \"Custom Layer\"\n"
-                         "}\n"
-                         "{\n"
-                         "\"classname\" \"func_group\"\n"
-                         "\"_tb_type\" \"_tb_group\"\n"
-                         "\"_tb_name\" \"Outer Group\"\n"
-                         "\"_tb_layer\" \"Custom Layer\"\n"
-                         "}\n"
-                         "{\n"
-                         "\"classname\" \"func_group\"\n"
-                         "\"_tb_type\" \"_tb_group\"\n"
-                         "\"_tb_name\" \"Inner Group\"\n"
-                         "\"_tb_group\" \"Outer Group\"\n"
-                         "{\n"
-                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                         "}\n"
-                         "}\n", result.c_str());
+            ASSERT_TRUE(StringUtils::matchesPattern(str.str(),
+                                                    "{\n"
+                                                    "\"classname\" \"worldspawn\"\n"
+                                                    "}\n"
+                                                    "{\n"
+                                                    "\"classname\" \"func_group\"\n"
+                                                    "\"_tb_type\" \"_tb_layer\"\n"
+                                                    "\"_tb_name\" \"Custom Layer\"\n"
+                                                    "\"_tb_id\" \"*\"\n"
+                                                    "}\n"
+                                                    "{\n"
+                                                    "\"classname\" \"func_group\"\n"
+                                                    "\"_tb_type\" \"_tb_group\"\n"
+                                                    "\"_tb_name\" \"Outer Group\"\n"
+                                                    "\"_tb_id\" \"*\"\n"
+                                                    "\"_tb_layer\" \"*\"\n"
+                                                    "}\n"
+                                                    "{\n"
+                                                    "\"classname\" \"func_group\"\n"
+                                                    "\"_tb_type\" \"_tb_group\"\n"
+                                                    "\"_tb_name\" \"Inner Group\"\n"
+                                                    "\"_tb_id\" \"*\"\n"
+                                                    "\"_tb_group\" \"*\"\n"
+                                                    "{\n"
+                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                                                    "}\n"
+                                                    "}\n"
+                                                    ));
         }
         
         TEST(NodeWriterTest, writeNodesWithNestedGroup) {
             const BBox3 worldBounds(8192.0);
 
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             map.addOrUpdateAttribute("classname", "worldspawn");
 
             Model::BrushBuilder builder(&map, worldBounds);
@@ -281,37 +297,39 @@ namespace TrenchBroom {
             NodeWriter writer(&map, str);
             writer.writeNodes(nodes);
             
-            const String result = str.str();
-            ASSERT_STREQ("{\n"
-                         "\"classname\" \"worldspawn\"\n"
-                         "{\n"
-                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1\n"
-                         "}\n"
-                         "}\n"
-                         "{\n"
-                         "\"classname\" \"func_group\"\n"
-                         "\"_tb_type\" \"_tb_group\"\n"
-                         "\"_tb_name\" \"Inner Group\"\n"
-                         "{\n"
-                         "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
-                         "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
-                         "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
-                         "}\n"
-                         "}\n", result.c_str());
+            ASSERT_TRUE(StringUtils::matchesPattern(str.str(),
+                                                    "{\n"
+                                                    "\"classname\" \"worldspawn\"\n"
+                                                    "{\n"
+                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) some 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) some 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) some 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) some 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) some 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) some 0 0 0 1 1\n"
+                                                    "}\n"
+                                                    "}\n"
+                                                    "{\n"
+                                                    "\"classname\" \"func_group\"\n"
+                                                    "\"_tb_type\" \"_tb_group\"\n"
+                                                    "\"_tb_name\" \"Inner Group\"\n"
+                                                    "\"_tb_id\" \"*\"\n"
+                                                    "{\n"
+                                                    "( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) none 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) none 0 0 0 1 1\n"
+                                                    "( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) none 0 0 0 1 1\n"
+                                                    "( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) none 0 0 0 1 1\n"
+                                                    "}\n"
+                                                    "}\n"
+                                                    ));
         }
 
         TEST(NodeWriterTest, writeFaces) {
             const BBox3 worldBounds(8192.0);
             
-            Model::World map(Model::MapFormat::Standard, NULL);
+            Model::World map(Model::MapFormat::Standard, NULL, worldBounds);
             Model::BrushBuilder builder(&map, worldBounds);
             Model::Brush* brush = builder.createCube(64.0, "none");
             

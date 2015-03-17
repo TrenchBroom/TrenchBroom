@@ -37,6 +37,7 @@
 #include "View/CameraTool3D.h"
 #include "View/ClipToolAdapter.h"
 #include "View/CommandIds.h"
+#include "View/CreateBrushToolAdapter3D.h"
 #include "View/CreateEntityToolAdapter.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/FlyModeHelper.h"
@@ -60,6 +61,7 @@ namespace TrenchBroom {
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_compass(new Renderer::Compass(m_movementRestriction)),
         m_clipToolAdapter(NULL),
+        m_createBrushToolAdapter(NULL),
         m_createEntityToolAdapter(NULL),
         m_moveObjectsToolAdapter(NULL),
         m_resizeBrushesToolAdapter(NULL),
@@ -75,22 +77,12 @@ namespace TrenchBroom {
 
         MapView3D::~MapView3D() {
             unbindObservers();
-            
-            delete m_flyModeHelper;
-            delete m_cameraTool;
-            delete m_vertexToolAdapter;
-            delete m_setBrushFaceAttributesTool;
-            delete m_rotateObjectsToolAdapter;
-            delete m_resizeBrushesToolAdapter;
-            delete m_moveObjectsToolAdapter;
-            delete m_createEntityToolAdapter;
-            delete m_clipToolAdapter;
-            delete m_compass;
         }
         
         void MapView3D::initializeToolChain(MapViewToolBox& toolBox) {
             const Grid& grid = lock(m_document)->grid();
             m_clipToolAdapter = new ClipToolAdapter3D(toolBox.clipTool(), grid);
+            m_createBrushToolAdapter = new CreateBrushToolAdapter3D(toolBox.createBrushTool(), grid);
             m_createEntityToolAdapter = new CreateEntityToolAdapter3D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter3D(toolBox.moveObjectsTool(), m_movementRestriction);
             m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter3D(toolBox.resizeBrushesTool());
@@ -100,14 +92,29 @@ namespace TrenchBroom {
             m_cameraTool = new CameraTool3D(m_document, m_camera);
             
             addTool(m_cameraTool);
-            addTool(m_clipToolAdapter);
-            addTool(m_rotateObjectsToolAdapter);
-            addTool(m_vertexToolAdapter);
             addTool(m_moveObjectsToolAdapter);
+            addTool(m_rotateObjectsToolAdapter);
             addTool(m_resizeBrushesToolAdapter);
+            addTool(m_createBrushToolAdapter);
+            addTool(m_clipToolAdapter);
+            addTool(m_vertexToolAdapter);
             addTool(m_createEntityToolAdapter);
             addTool(m_setBrushFaceAttributesTool);
             addTool(toolBox.selectionTool());
+        }
+
+        void MapView3D::destroyToolChain() {
+            delete m_flyModeHelper;
+            delete m_cameraTool;
+            delete m_vertexToolAdapter;
+            delete m_setBrushFaceAttributesTool;
+            delete m_rotateObjectsToolAdapter;
+            delete m_resizeBrushesToolAdapter;
+            delete m_moveObjectsToolAdapter;
+            delete m_createEntityToolAdapter;
+            delete m_createBrushToolAdapter;
+            delete m_clipToolAdapter;
+            delete m_compass;
         }
 
         bool MapView3D::cameraFlyModeActive() const {
@@ -145,7 +152,8 @@ namespace TrenchBroom {
             Bind(wxEVT_KILL_FOCUS, &MapView3D::OnKillFocus, this);
             
             Bind(wxEVT_MENU, &MapView3D::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
-            
+            Bind(wxEVT_MENU, &MapView3D::OnPerformCreateBrush,           this, CommandIds::Actions::PerformCreateBrush);
+
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesUp,               this, CommandIds::Actions::MoveTexturesUp);
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesDown,             this, CommandIds::Actions::MoveTexturesDown);
             Bind(wxEVT_MENU, &MapView3D::OnMoveTexturesLeft,             this, CommandIds::Actions::MoveTexturesLeft);
@@ -169,6 +177,11 @@ namespace TrenchBroom {
         void MapView3D::OnToggleMovementRestriction(wxCommandEvent& event) {
             m_movementRestriction.toggleHorizontalRestriction(m_camera);
             Refresh();
+        }
+
+        void MapView3D::OnPerformCreateBrush(wxCommandEvent& event) {
+            if (m_toolBox.createBrushToolActive())
+                m_createBrushToolAdapter->performCreateBrush();
         }
 
         void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {
@@ -488,6 +501,8 @@ namespace TrenchBroom {
         Renderer::RenderContext MapView3D::doCreateRenderContext() {
             return Renderer::RenderContext(Renderer::RenderContext::RenderMode_3D, m_camera, fontManager(), shaderManager());
         }
+
+        void MapView3D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
 
         void MapView3D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);

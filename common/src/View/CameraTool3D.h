@@ -21,7 +21,6 @@
 #define __TrenchBroom__CameraTool3D__
 
 #include "VecMath.h"
-#include "Model/Picker.h"
 #include "View/Tool.h"
 #include "View/ToolAdapter.h"
 #include "View/ViewTypes.h"
@@ -59,7 +58,7 @@ namespace TrenchBroom {
             float lookSpeedV() const;
             float panSpeedH() const;
             float panSpeedV() const;
-            float moveSpeed(const bool altMode) const;
+            float moveSpeed(const bool slow, const bool altMode) const;
             
             bool doCancel();
         };

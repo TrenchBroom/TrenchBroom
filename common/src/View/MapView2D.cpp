@@ -31,6 +31,7 @@
 #include "View/CameraTool2D.h"
 #include "View/ClipToolAdapter.h"
 #include "View/CommandIds.h"
+#include "View/CreateBrushToolAdapter2D.h"
 #include "View/CreateEntityToolAdapter.h"
 #include "View/FlashSelectionAnimation.h"
 #include "View/GLContextManager.h"
@@ -51,6 +52,7 @@ namespace TrenchBroom {
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
         m_camera(),
         m_clipToolAdapter(NULL),
+        m_createBrushToolAdapter(NULL),
         m_createEntityToolAdapter(NULL),
         m_moveObjectsToolAdapter(NULL),
         m_resizeBrushesToolAdapter(NULL),
@@ -65,13 +67,7 @@ namespace TrenchBroom {
 
         MapView2D::~MapView2D() {
             unbindObservers();
-            delete m_cameraTool;
-            delete m_vertexToolAdapter;
-            delete m_resizeBrushesToolAdapter;
-            delete m_rotateObjectsToolAdapter;
-            delete m_moveObjectsToolAdapter;
-            delete m_createEntityToolAdapter;
-            delete m_clipToolAdapter;
+            destroyToolChain();
         }
         
         void MapView2D::initializeCamera(const ViewPlane viewPlane) {
@@ -97,6 +93,7 @@ namespace TrenchBroom {
         void MapView2D::initializeToolChain(MapViewToolBox& toolBox) {
             const Grid& grid = lock(m_document)->grid();
             m_clipToolAdapter = new ClipToolAdapter2D(toolBox.clipTool(), grid);
+            m_createBrushToolAdapter = new CreateBrushToolAdapter2D(toolBox.createBrushTool(), m_document);
             m_createEntityToolAdapter = new CreateEntityToolAdapter2D(toolBox.createEntityTool());
             m_moveObjectsToolAdapter = new MoveObjectsToolAdapter2D(toolBox.moveObjectsTool());
             m_resizeBrushesToolAdapter = new ResizeBrushesToolAdapter2D(toolBox.resizeBrushesTool());
@@ -105,13 +102,25 @@ namespace TrenchBroom {
             m_cameraTool = new CameraTool2D(m_camera);
             
             addTool(m_cameraTool);
-            addTool(m_clipToolAdapter);
-            addTool(m_rotateObjectsToolAdapter);
-            addTool(m_vertexToolAdapter);
             addTool(m_moveObjectsToolAdapter);
+            addTool(m_rotateObjectsToolAdapter);
             addTool(m_resizeBrushesToolAdapter);
+            addTool(m_createBrushToolAdapter);
+            addTool(m_clipToolAdapter);
+            addTool(m_vertexToolAdapter);
             addTool(m_createEntityToolAdapter);
             addTool(toolBox.selectionTool());
+        }
+
+        void MapView2D::destroyToolChain() {
+            delete m_cameraTool;
+            delete m_vertexToolAdapter;
+            delete m_resizeBrushesToolAdapter;
+            delete m_rotateObjectsToolAdapter;
+            delete m_moveObjectsToolAdapter;
+            delete m_createEntityToolAdapter;
+            delete m_createBrushToolAdapter;
+            delete m_clipToolAdapter;
         }
 
         void MapView2D::bindObservers() {
@@ -133,15 +142,15 @@ namespace TrenchBroom {
             */
             
             /*
-            Bind(wxEVT_MENU, &MapView2D::OnPopupReparentBrushes,         this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
-            Bind(wxEVT_MENU, &MapView2D::OnPopupMoveBrushesToWorld,      this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_MENU, &MapView2D::OnPopupCreatePointEntity,       this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_MENU, &MapView2D::OnPopupCreateBrushEntity,       this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
+            Bind(wxEVT_MENU, &MapView2D::OnPopupReparentBrushes,         this, CommandIds::MapViewPopupMenu::ReparentBrushes);
+            Bind(wxEVT_MENU, &MapView2D::OnPopupMoveBrushesToWorld,      this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
+            Bind(wxEVT_MENU, &MapView2D::OnPopupCreatePointEntity,       this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
+            Bind(wxEVT_MENU, &MapView2D::OnPopupCreateBrushEntity,       this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
             
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::ReparentBrushes);
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::MoveBrushesToWorld);
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestPointEntityItem, CommandIds::CreateEntityPopupMenu::HighestPointEntityItem);
-            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::CreateEntityPopupMenu::LowestBrushEntityItem, CommandIds::CreateEntityPopupMenu::HighestBrushEntityItem);
+            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::ReparentBrushes);
+            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
+            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
+            Bind(wxEVT_UPDATE_UI, &MapView2D::OnUpdatePopupMenuItem, this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
             */
         }
 
@@ -253,6 +262,11 @@ namespace TrenchBroom {
         Renderer::RenderContext MapView2D::doCreateRenderContext() {
             return Renderer::RenderContext(Renderer::RenderContext::RenderMode_2D, m_camera, fontManager(), shaderManager());
         }
+        
+        void MapView2D::doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            MapDocumentSPtr document = lock(m_document);
+            renderBatch.addOneShot(new Renderer::GridRenderer(m_camera, document->worldBounds()));
+        }
 
         void MapView2D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);
@@ -262,9 +276,7 @@ namespace TrenchBroom {
             renderTools(renderContext, renderBatch);
         }
         
-        void MapView2D::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            renderBatch.addOneShot(new Renderer::GridRenderer(m_camera));
-        }
+        void MapView2D::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
         
         void MapView2D::doLinkCamera(CameraLinkHelper& helper) {
             helper.addCamera(&m_camera);

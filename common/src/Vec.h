@@ -567,7 +567,7 @@ public:
         return true;
     }
 
-    static bool colinear(const Vec<T,S>::List& points) {
+    static bool colinear(const typename Vec<T,S>::List& points) {
         assert(points.size() == 3);
         return colinear(points[0], points[1], points[2]);
     }
@@ -732,8 +732,17 @@ public:
         return *this;
     }
     
-    const Vec<T,S> rounded() const {
+    Vec<T,S> rounded() const {
         return Vec<T,S>(*this).round();
+    }
+    
+    Vec<T,S>& mix(const Vec<T,S>& vec, const Vec<T,S>& factor) {
+        *this = *this * (Vec<T,S>::One - factor) + vec * factor;
+        return *this;
+    }
+    
+    Vec<T,S> mixed(const Vec<T,S>& vec, const Vec<T,S>& factor) const {
+        return Vec<T,S>(*this).mix(vec, factor);
     }
     
     bool isInteger(const T epsilon = Math::Constants<T>::almostZero()) const {
@@ -799,6 +808,12 @@ public:
         for (size_t i = 0; i < vecs.size(); ++i)
             sum += vecs[i];
         return sum / static_cast<T>(vecs.size());
+    }
+
+    bool containedWithinSegment(const Vec<T,S>& start, const Vec<T,S>& end) const {
+        const Vec<T,S> dir = end - start;
+        const T d = (*this - start).dot(dir);
+        return Math::between(d, static_cast<T>(0.0), static_cast<T>(1.0));
     }
 };
 
@@ -929,7 +944,7 @@ T angleBetween(const Vec<T,3>& vec, const Vec<T,3>& axis, const Vec<T,3>& up) {
 template <typename T>
 bool commonPlane(const Vec<T,3>& p1, const Vec<T,3>& p2, const Vec<T,3>& p3, const Vec<T,3>& p4, const T epsilon = Math::Constants<T>::almostZero()) {
     assert(!p1.colinear(p2, p3, epsilon));
-    const Vec<T,3> normal = crossed(p3 - p1, p2 - p1);
+    const Vec<T,3> normal = crossed(p3 - p1, p2 - p1).normalized();
     const T offset = p1.dot(normal);
     const T dist = p4.dot(normal) - offset;
     return Math::abs(dist) < epsilon;

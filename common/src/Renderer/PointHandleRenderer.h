@@ -26,6 +26,8 @@
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
 
+#include <map>
+
 namespace TrenchBroom {
     namespace Renderer {
         class ActiveShader;
@@ -34,20 +36,22 @@ namespace TrenchBroom {
         
         class PointHandleRenderer : public Renderable {
         private:
-            Vec3f::List m_points;
-            Vec3f::List m_selectedPoints;
-            Vec3f::List m_highlights;
+            typedef std::map<Color, Vec3f::List> HandleMap;
+            
+            HandleMap m_pointHandles;
+            HandleMap m_highlights;
+
             Circle m_handle;
             Circle m_highlight;
         public:
             PointHandleRenderer();
             
-            void addPoint(const Vec3f& position);
-            void addSelectedPoint(const Vec3f& position);
-            void addHighlight(const Vec3f& position);
+            void addPoint(const Color& color, const Vec3f& position);
+            void addHighlight(const Color& color, const Vec3f& position);
         private:
             void doPrepare(Vbo& vbo);
             void doRender(RenderContext& renderContext);
+            void renderHandles(RenderContext& renderContext, const HandleMap& map, Circle& circle);
             
             void clear();
         };

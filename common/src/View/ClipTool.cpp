@@ -287,14 +287,18 @@ namespace TrenchBroom {
         
         void ClipTool::renderClipPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
             
             if (m_numClipPoints > 1) {
-                renderService.renderLine(pref(Preferences::HandleColor), m_clipPoints[0], m_clipPoints[1]);
+                renderService.renderLine(m_clipPoints[0], m_clipPoints[1]);
                 if (m_numClipPoints > 2) {
-                    renderService.renderLine(pref(Preferences::HandleColor), m_clipPoints[1], m_clipPoints[2]);
-                    renderService.renderLine(pref(Preferences::HandleColor), m_clipPoints[2], m_clipPoints[0]);
+                    renderService.renderLine(m_clipPoints[1], m_clipPoints[2]);
+                    renderService.renderLine(m_clipPoints[2], m_clipPoints[0]);
                 }
             }
+            
+            renderService.setForegroundColor(pref(Preferences::HandleColor));
+            renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
             
             for (size_t i = 0; i < m_numClipPoints; ++i) {
                 const Vec3& point = m_clipPoints[i];
@@ -304,7 +308,7 @@ namespace TrenchBroom {
                 str << (i+1) << ": " << point.asString();
                 
                 const Renderer::SimpleTextAnchor anchor(point, Renderer::TextAlignment::Bottom, Vec2f(0.0f, 10.0f));
-                renderService.renderStringOnTop(pref(Preferences::HandleColor), pref(Preferences::InfoOverlayBackgroundColor), str.str(), anchor);
+                renderService.renderStringOnTop(str.str(), anchor);
             }
         }
         
@@ -324,6 +328,7 @@ namespace TrenchBroom {
             assert(index < m_numClipPoints);
             
             Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
             renderService.renderPointHandleHighlight(m_clipPoints[index]);
         }
         

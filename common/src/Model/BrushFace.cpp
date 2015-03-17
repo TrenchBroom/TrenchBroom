@@ -566,65 +566,7 @@ namespace TrenchBroom {
             const FloatType dot = m_boundary.normal.dot(ray.direction);
             if (!Math::neg(dot))
                 return Math::nan<FloatType>();
-
-            const FloatType dist = m_boundary.intersectWithRay(ray);
-            if (Math::isnan(dist))
-                return Math::nan<FloatType>();
-
-            const size_t axis = m_boundary.normal.firstComponent();
-            const Vec3 hit = ray.pointAtDistance(dist);
-            const Vec3 projectedHit = swizzle(hit, axis);
-
-            const BrushVertex* vertex = m_side->vertices.back();
-            Vec3 v0 = swizzle(vertex->position, axis) - projectedHit;
-
-            int c = 0;
-            for (size_t i = 0; i < m_side->vertices.size(); i++) {
-                vertex = m_side->vertices[i];
-                const Vec3 v1 = swizzle(vertex->position, axis) - projectedHit;
-
-                if ((Math::zero(v0.x()) && Math::zero(v0.y())) ||
-                    (Math::zero(v1.x()) && Math::zero(v1.y()))) {
-                    // the point is identical to a polygon vertex, cancel search
-                    c = 1;
-                    break;
-                }
-
-                /*
-                 * A polygon edge intersects with the positive X axis if the
-                 * following conditions are met: The Y coordinates of its
-                 * vertices must have different signs (we assign a negative sign
-                 * to 0 here in order to count it as a negative number) and one
-                 * of the following two conditions must be met: Either the X
-                 * coordinates of the vertices are both positive or the X
-                 * coordinates of the edge have different signs (again, we
-                 * assign a negative sign to 0 here). In the latter case, we
-                 * must calculate the point of intersection between the edge and
-                 * the X axis and determine whether its X coordinate is positive
-                 * or zero.
-                 */
-
-                // do the Y coordinates have different signs?
-                if ((v0.y() > 0.0 && v1.y() <= 0.0) || (v0.y() <= 0.0 && v1.y() > 0.0)) {
-                    // Is segment entirely on the positive side of the X axis?
-                    if (v0.x() > 0.0 && v1.x() > 0.0) {
-                        c += 1; // edge intersects with the X axis
-                        // if not, do the X coordinates have different signs?
-                    } else if ((v0.x() > 0.0 && v1.x() <= 0.0) || (v0.x() <= 0.0 && v1.x() > 0.0)) {
-                        // calculate the point of intersection between the edge
-                        // and the X axis
-                        const FloatType x = -v0.y() * (v1.x() - v0.x()) / (v1.y() - v0.y()) + v0.x();
-                        if (x >= 0.0)
-                            c += 1; // edge intersects with the X axis
-                    }
-                }
-
-                v0 = v1;
-            }
-
-            if (c % 2 == 0)
-                return Math::nan<FloatType>();
-            return dist;
+            return intersectPolygonWithRay(ray, m_boundary, m_side->vertices.begin(), m_side->vertices.end(), BrushVertex::GetPosition());
         }
 
         void BrushFace::setPoints(const Vec3& point0, const Vec3& point1, const Vec3& point2) {

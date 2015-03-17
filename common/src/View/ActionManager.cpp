@@ -160,8 +160,8 @@ namespace TrenchBroom {
             
             Menu* viewMenu = m_menuBar->addMenu("View");
             Menu* gridMenu = viewMenu->addMenu("Grid");
-            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, "Show Grid", KeyboardShortcut('G', WXK_CONTROL));
-            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleSnapToGrid, "Snap to Grid", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
+            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, "Show Grid", KeyboardShortcut('0', WXK_CONTROL));
+            gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleSnapToGrid, "Snap to Grid", KeyboardShortcut('0', WXK_CONTROL, WXK_SHIFT));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewIncGridSize, "Increase Grid Size", KeyboardShortcut('+', WXK_CONTROL));
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewDecGridSize, "Decrease Grid Size", KeyboardShortcut('-', WXK_CONTROL));
             gridMenu->addSeparator();
@@ -209,6 +209,11 @@ namespace TrenchBroom {
         }
 
         void ActionManager::createViewShortcuts() {
+            createViewShortcut(KeyboardShortcut('B'), ActionContext_Any,
+                               Action(View::CommandIds::Actions::ToggleCreateBrushTool, "Toggle create brush tool", true));
+            createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_CreateBrushTool,
+                               Action(View::CommandIds::Actions::Nothing, "", false),
+                               Action(View::CommandIds::Actions::PerformCreateBrush, "Create brush", true));
             createViewShortcut(KeyboardShortcut('C'), ActionContext_NodeSelection | ActionContext_AnyTool,
                                Action(View::CommandIds::Actions::ToggleClipTool, "Toggle clip tool", true));
             createViewShortcut(KeyboardShortcut(WXK_RETURN, WXK_CONTROL), ActionContext_ClipTool,
@@ -345,6 +350,17 @@ namespace TrenchBroom {
             
             createViewShortcut(KeyboardShortcut(WXK_TAB), ActionContext_Any,
                                Action(View::CommandIds::Actions::CycleMapViews, "Cycle map view", true));
+
+            createViewShortcut(KeyboardShortcut('B', WXK_CONTROL), ActionContext_FaceSelection | ActionContext_NodeSelection,
+                               Action(View::CommandIds::Actions::CreateConvexHull, "Create brush from convex hull", true));
+            
+            createViewShortcut(KeyboardShortcut('G', WXK_CONTROL), ActionContext_NodeSelection,
+                               Action(View::CommandIds::Actions::GroupSelection, "Group selected objects", true));
+            createViewShortcut(KeyboardShortcut('G', WXK_CONTROL, WXK_ALT), ActionContext_NodeSelection,
+                               Action(View::CommandIds::Actions::UngroupSelection, "Ungroup selected objects", true));
+
+            createViewShortcut(KeyboardShortcut(WXK_ESCAPE), ActionContext_Any,
+                               Action(View::CommandIds::Actions::Cancel, "Cancel", true));
         }
 
         void ActionManager::createViewShortcut(const KeyboardShortcut& shortcut, const int context, const Action& action2D, const Action& action3D) {

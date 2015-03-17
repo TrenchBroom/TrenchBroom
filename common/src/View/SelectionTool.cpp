@@ -23,6 +23,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Model/Group.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
 #include "Model/Node.h"
@@ -78,7 +79,7 @@ namespace TrenchBroom {
                     document->deselectAll();
                 }
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
                 if (hit.isMatch()) {
                     Model::Node* node = Model::hitToNode(hit);
                     if (isMultiClick(inputState)) {
@@ -118,8 +119,11 @@ namespace TrenchBroom {
                     }
                 }
             } else {
-                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
-                if (hit.isMatch()) {
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Brush::BrushHit);
+                if (hit.type() == Model::Group::GroupHit) {
+                    Model::Group* group = Model::hitToGroup(hit);
+                    document->openGroup(group);
+                } else if (hit.type() == Model::Brush::BrushHit) {
                     const Model::Brush* brush = Model::hitToBrush(hit);
                     const Model::Node* container = brush->container();
                     const Model::NodeList& siblings = container->children();
@@ -130,6 +134,8 @@ namespace TrenchBroom {
                         document->deselectAll();
                         document->select(siblings);
                     }
+                } else if (document->currentGroup() != NULL) {
+                    document->closeGroup();
                 }
             }
             
@@ -153,25 +159,88 @@ namespace TrenchBroom {
         }
 
         bool SelectionTool::doStartMouseDrag(const InputState& inputState) {
-            return false;
+            if (!handleClick(inputState) || !isMultiClick(inputState))
+                return false;
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (isFaceClick(inputState)) {
+                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
+                if (!hit.isMatch())
+                    return false;
+                
+                document->beginTransaction("Drag select faces");
+                if (document->hasSelection() && !document->hasSelectedBrushFaces())
+                    document->deselectAll();
+                
+                Model::BrushFace* face = Model::hitToFace(hit);
+                if (!face->selected())
+                    document->select(face);
+                
+                return true;
+            } else {
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
+                if (!hit.isMatch())
+                    return false;
+                
+                document->beginTransaction("Drag select objects");
+                if (document->hasSelection() && !document->hasSelectedNodes())
+                    document->deselectAll();
+                
+                Model::Node* node = Model::hitToNode(hit);
+                if (!node->selected())
+                    document->select(node);
+                
+                return true;
+            }
         }
         
         bool SelectionTool::doMouseDrag(const InputState& inputState) {
-            return false;
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedBrushFaces()) {
+                const Model::Hit& hit = firstHit(inputState, Model::Brush::BrushHit);
+                if (hit.isMatch()) {
+                    Model::BrushFace* face = Model::hitToFace(hit);
+                    if (!face->selected())
+                        document->select(face);
+                }
+            } else {
+                assert(document->hasSelectedNodes());
+                const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
+                if (hit.isMatch()) {
+                    Model::Node* node = Model::hitToNode(hit);
+                    if (!node->selected())
+                        document->select(node);
+                }
+            }
+            return true;
         }
         
-        void SelectionTool::doEndMouseDrag(const InputState& inputState) {}
+        void SelectionTool::doEndMouseDrag(const InputState& inputState) {
+            MapDocumentSPtr document = lock(m_document);
+            document->commitTransaction();
+        }
         
-        void SelectionTool::doCancelMouseDrag() {}
+        void SelectionTool::doCancelMouseDrag() {
+            MapDocumentSPtr document = lock(m_document);
+            document->cancelTransaction();
+        }
 
         void SelectionTool::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {
             MapDocumentSPtr document = lock(m_document);
-            const Model::Hit& hit = firstHit(inputState, Model::Entity::EntityHit | Model::Brush::BrushHit);
+            const Model::Hit& hit = firstHit(inputState, Model::Group::GroupHit | Model::Entity::EntityHit | Model::Brush::BrushHit);
             if (hit.isMatch() && Model::hitToNode(hit)->selected())
                 renderContext.setShowSelectionGuide();
         }
 
         bool SelectionTool::doCancel() {
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelection()) {
+                document->deselectAll();
+                return true;
+            } else if (document->currentGroup() != NULL) {
+                document->closeGroup();
+                return true;
+            }
             return false;
         }
     }

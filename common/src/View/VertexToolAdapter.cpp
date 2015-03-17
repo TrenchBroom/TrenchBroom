@@ -95,7 +95,8 @@ namespace TrenchBroom {
         
         bool VertexToolAdapter::doStartMove(const InputState& inputState) {
             const Model::Hit& hit = firstHit(inputState.pickResult());
-            assert(hit.isMatch());
+            if (!hit.isMatch())
+                return false;
             return m_tool->beginMove(hit);
         }
         

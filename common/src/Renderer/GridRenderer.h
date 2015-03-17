@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__GridRenderer__
 #define __TrenchBroom__GridRenderer__
 
+#include "TrenchBroom.h"
+#include "VecMath.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
@@ -35,9 +37,9 @@ namespace TrenchBroom {
             typedef VertexSpecs::P3::Vertex Vertex;
             VertexArray m_vertexArray;
         public:
-            GridRenderer(const OrthographicCamera& camera);
+            GridRenderer(const OrthographicCamera& camera, const BBox3& worldBounds);
         private:
-            static Vertex::List vertices(const OrthographicCamera& camera);
+            static Vertex::List vertices(const OrthographicCamera& camera, const BBox3& worldBounds);
             
             void doPrepare(Vbo& vbo);
             void doRender(RenderContext& renderContext);

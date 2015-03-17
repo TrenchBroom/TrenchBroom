@@ -23,8 +23,7 @@
 #include "AttrString.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
-
-class Color;
+#include "Color.h"
 
 namespace TrenchBroom {
     
@@ -45,28 +44,36 @@ namespace TrenchBroom {
             TextRenderer* m_textRenderer;
             PointHandleRenderer* m_pointHandleRenderer;
             PrimitiveRenderer* m_primitiveRenderer;
+            
+            Color m_foregroundColor;
+            Color m_backgroundColor;
+            float m_lineWidth;
         public:
             RenderService(RenderContext& renderContext, RenderBatch& renderBatch);
             ~RenderService();
 
-            void renderString(const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
-            void renderStringOnTop(const Color& textColor, const Color& backgroundColor, const AttrString& string, const TextAnchor& position);
+            void setForegroundColor(const Color& foregroundColor);
+            void setBackgroundColor(const Color& backgroundColor);
+            void setLineWidth(float lineWidth);
+            
+            void renderString(const AttrString& string, const TextAnchor& position);
+            void renderStringOnTop(const AttrString& string, const TextAnchor& position);
             
             void renderPointHandles(const Vec3f::List& positions);
             void renderPointHandle(const Vec3f& position);
-            void renderSelectedPointHandles(const Vec3f::List& positions);
-            void renderSelectedPointHandle(const Vec3f& position);
             void renderPointHandleHighlight(const Vec3f& position);
             
-            void renderLine(const Color& color, const Vec3f& start, const Vec3f& end);
-            void renderLines(const Color& color, const Vec3f::List& positions);
+            void renderLine(const Vec3f& start, const Vec3f& end);
+            void renderLines(const Vec3f::List& positions);
             void renderCoordinateSystem(const BBox3f& bounds);
             
-            void renderCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
-            void renderCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
+            void renderBounds(const BBox3f& bounds);
             
-            void renderFilledCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
-            void renderFilledCircle(const Color& color, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
+            void renderCircle(const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
+            void renderCircle(const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
+            
+            void renderFilledCircle(const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
+            void renderFilledCircle(const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
         private:
             void flush();
         };

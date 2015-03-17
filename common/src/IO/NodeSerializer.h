@@ -23,6 +23,7 @@
 #include "Model/EntityAttributes.h"
 #include "Model/ModelTypes.h"
 
+#include <map>
 #include <memory>
 
 namespace TrenchBroom {
@@ -34,6 +35,37 @@ namespace TrenchBroom {
             class BrushSerializer;
         protected:
             static const int FloatPrecision = 17;
+        private:
+            template <typename T>
+            class IdManager {
+            private:
+                typedef std::map<T, String> IdMap;
+                mutable IdMap m_ids;
+            public:
+                const String& getId(const T& t) const {
+                    typename IdMap::iterator it = m_ids.find(t);
+                    if (it == m_ids.end())
+                        it = m_ids.insert(std::make_pair(t, idToString(makeId()))).first;
+                    return it->second;
+                }
+            private:
+                Model::IdType makeId() const {
+                    static Model::IdType currentId = 1;
+                    return currentId++;
+                }
+                
+                String idToString(const Model::IdType nodeId) const {
+                    StringStream str;
+                    str << nodeId;
+                    return str.str();
+                }
+            };
+            
+            typedef IdManager<const Model::Layer*> LayerIds;
+            typedef IdManager<const Model::Group*> GroupIds;
+            
+            LayerIds m_layerIds;
+            GroupIds m_groupIds;
         public:
             typedef std::auto_ptr<NodeSerializer> Ptr;
             
@@ -62,6 +94,8 @@ namespace TrenchBroom {
             void brushFaces(const Model::BrushFaceList& faces);
         private:
             void brushFace(Model::BrushFace* face);
+        private:
+            class GetParentAttributes;
         public:
             Model::EntityAttribute::List parentAttributes(const Model::Node* node);
         private:

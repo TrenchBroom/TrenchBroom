@@ -29,7 +29,6 @@
 #include "Model/ModelFactory.h"
 #include "Model/ModelFactoryImpl.h"
 #include "Model/Node.h"
-#include "Model/Picker.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -40,18 +39,17 @@ namespace TrenchBroom {
         private:
             ModelFactoryImpl m_factory;
             Layer* m_defaultLayer;
-            Picker m_picker;
             AttributableNodeIndex m_attributableIndex;
             IssueGeneratorRegistry m_issueGeneratorRegistry;
             bool m_issuesMustBeValidated;
         public:
-            World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder);
+            World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds);
         public: // layer management
             Layer* defaultLayer() const;
             LayerList allLayers() const;
             LayerList customLayers() const;
         private:
-            void createDefaultLayer();
+            void createDefaultLayer(const BBox3& worldBounds);
         public: // selection
             // issue generator registration
             const IssueGeneratorList& registeredIssueGenerators() const;
@@ -61,18 +59,14 @@ namespace TrenchBroom {
         private:
             class InvalidateAllIssuesVisitor;
             void invalidateAllIssues();
-        public: // picking
-            void pick(const Ray3& ray, PickResult& pickResult) const;
         private: // implement Node interface
             Node* doClone(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
             bool doRemoveIfEmpty() const;
-            void doDescendantWasAdded(Node* node);
-            void doDescendantWasRemoved(Node* oldParent, Node* node);
-            void doDescendantWillChange(Node* node);
-            void doDescendantDidChange(Node* node);
             bool doSelectable() const;
+            void doPick(const Ray3& ray, PickResult& pickResult) const;
+            FloatType doIntersectWithRay(const Ray3& ray) const;
             void doGenerateIssues(const IssueGenerator* generator, IssueList& issues);
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
@@ -88,8 +82,8 @@ namespace TrenchBroom {
             Vec3 doGetLinkTargetAnchor() const;
         private: // implement ModelFactory interface
             MapFormat::Type doGetFormat() const;
-            World* doCreateWorld() const;
-            Layer* doCreateLayer(const String& name) const;
+            World* doCreateWorld(const BBox3& worldBounds) const;
+            Layer* doCreateLayer(const String& name, const BBox3& worldBounds) const;
             Group* doCreateGroup(const String& name) const;
             Entity* doCreateEntity() const;
             Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;

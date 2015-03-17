@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Polyhedron.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/TextureCollectionSpec.h"
@@ -29,7 +30,9 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/SystemPaths.h"
 #include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushVertex.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectAttributableNodesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
@@ -44,12 +47,15 @@
 #include "Model/Entity.h"
 #include "Model/EntityLinkSourceIssueGenerator.h"
 #include "Model/EntityLinkTargetIssueGenerator.h"
+#include "Model/FindLayerVisitor.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
+#include "Model/Group.h"
 #include "Model/MergeNodesIntoWorldVisitor.h"
 #include "Model/MissingEntityClassnameIssueGenerator.h"
 #include "Model/MissingEntityDefinitionIssueGenerator.h"
 #include "Model/MixedBrushContentsIssueGenerator.h"
+#include "Model/Node.h"
 #include "Model/NodeVisitor.h"
 #include "Model/NonIntegerPlanePointsIssueGenerator.h"
 #include "Model/NonIntegerVerticesIssueGenerator.h"
@@ -61,6 +67,7 @@
 #include "View/ChangeBrushFaceAttributesCommand.h"
 #include "View/ChangeEntityAttributesCommand.h"
 #include "View/ConvertEntityColorCommand.h"
+#include "View/CurrentGroupCommand.h"
 #include "View/DuplicateNodesCommand.h"
 #include "View/EntityDefinitionFileCommand.h"
 #include "View/FindPlanePointsCommand.h"
@@ -70,11 +77,14 @@
 #include "View/MoveBrushFacesCommand.h"
 #include "View/MoveBrushVerticesCommand.h"
 #include "View/MoveTexturesCommand.h"
+#include "View/RenameGroupsCommand.h"
 #include "View/ReparentNodesCommand.h"
 #include "View/ResizeBrushesCommand.h"
 #include "View/RotateTexturesCommand.h"
 #include "View/SelectionCommand.h"
+#include "View/SetLockStateCommand.h"
 #include "View/SetModsCommand.h"
+#include "View/SetVisibilityCommand.h"
 #include "View/ShearTexturesCommand.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
@@ -106,6 +116,7 @@ namespace TrenchBroom {
         m_lastSaveModificationCount(0),
         m_modificationCount(0),
         m_currentTextureName(Model::BrushFace::NoTextureName),
+        m_lastSelectionBounds(0.0, 32.0),
         m_selectionBoundsValid(true) {
             bindObservers();
         }
@@ -148,6 +159,17 @@ namespace TrenchBroom {
         
         void MapDocument::setCurrentLayer(Model::Layer* currentLayer) {
             m_currentLayer = currentLayer != NULL ? currentLayer : m_world->defaultLayer();
+        }
+
+        Model::Group* MapDocument::currentGroup() const {
+            return m_editorContext->currentGroup();
+        }
+        
+        Model::Node* MapDocument::currentParent() const {
+            Model::Node* result = currentGroup();
+            if (result == NULL)
+                result = currentLayer();
+            return result;
         }
 
         Model::EditorContext& MapDocument::editorContext() const {
@@ -482,8 +504,11 @@ namespace TrenchBroom {
             submit(SelectionCommand::deselect(Model::BrushFaceList(1, face)));
         }
 
-        void MapDocument::invalidateSelectionBounds() {
+        void MapDocument::updateLastSelectionBounds() {
             m_lastSelectionBounds = selectionBounds();
+        }
+
+        void MapDocument::invalidateSelectionBounds() {
             m_selectionBoundsValid = false;
         }
 
@@ -544,20 +569,137 @@ namespace TrenchBroom {
             return submit(DuplicateNodesCommand::duplicate());
         }
 
-        void MapDocument::setLayerHidden(Model::Layer* layer, const bool hidden) {
-            assert(layer != NULL);
-            if (layer->hidden() != hidden) {
-                layer->setHidden(hidden);
-                nodesDidChangeNotifier(Model::NodeList(1, layer));
+        bool MapDocument::createBrushFromConvexHull() {
+            if (!hasSelectedBrushFaces() && !selectedNodes().hasOnlyBrushes())
+                return false;
+            
+            Polyhedron3 polyhedron;
+            if (hasSelectedBrushFaces()) {
+                const Model::BrushFaceList& faces = selectedBrushFaces();
+                Model::BrushFaceList::const_iterator fIt, fEnd;
+                for (fIt = faces.begin(), fEnd = faces.end(); fIt != fEnd; ++fIt) {
+                    const Model::BrushFace* face = *fIt;
+                    const Model::BrushVertexList& vertices = face->vertices();
+                    Model::BrushVertexList::const_iterator vIt, vEnd;
+                    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                        const Model::BrushVertex* vertex = *vIt;
+                        polyhedron.addPoint(vertex->position);
+                    }
+                }
+            } else if (selectedNodes().hasOnlyBrushes()) {
+                const Model::BrushList& brushes = selectedNodes().brushes();
+                Model::BrushList::const_iterator bIt, bEnd;
+                for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
+                    const Model::Brush* brush = *bIt;
+                    const Model::BrushVertexList& vertices = brush->vertices();
+                    Model::BrushVertexList::const_iterator vIt, vEnd;
+                    for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
+                        const Model::BrushVertex* vertex = *vIt;
+                        polyhedron.addPoint(vertex->position);
+                    }
+                }
+            }
+            
+            if (!polyhedron.polyhedron() || !polyhedron.closed())
+                return false;
+            
+            const Model::BrushBuilder builder(m_world, m_worldBounds);
+            Model::Brush* brush = builder.createBrush(polyhedron, currentTextureName());
+            
+            const Transaction transaction(this, "Create brush");
+            deselectAll();
+            addNode(brush, currentParent());
+            return true;
+        }
+
+        void MapDocument::groupSelection(const String& name) {
+            if (!hasSelectedNodes())
+                return;
+            
+            const Model::NodeList nodes = m_selectedNodes.nodes();
+            Model::Group* group = new Model::Group(name);
+            
+            const Transaction transaction(this, "Group Selected Objects");
+            deselectAll();
+            addNode(group, currentParent());
+            reparentNodes(group, nodes);
+            select(group);
+        }
+        
+        void MapDocument::ungroupSelection() {
+            if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
+                return;
+            
+            const Model::NodeList groups = m_selectedNodes.nodes();
+            Model::NodeList allChildren;
+            
+            const Transaction transaction(this, "Ungroup");
+            deselectAll();
+            
+            Model::NodeList::const_iterator it, end;
+            for (it = groups.begin(), end = groups.end(); it != end; ++it) {
+                Model::Node* group = *it;
+                Model::Layer* layer = Model::findLayer(group);
+                const Model::NodeList& children = group->children();
+                reparentNodes(layer, children);
+                VectorUtils::append(allChildren, children);
+            }
+            
+            select(allChildren);
+        }
+
+        void MapDocument::renameGroups(const String& name) {
+            submit(RenameGroupsCommand::rename(name));
+        }
+
+        void MapDocument::openGroup(Model::Group* group) {
+            const Transaction transaction(this, "Open Group");
+            
+            deselectAll();
+            Model::Group* previousGroup = m_editorContext->currentGroup();
+            if (submit(CurrentGroupCommand::push(group))) {
+                if (previousGroup == NULL)
+                    lock(Model::NodeList(1, m_world));
+                else
+                    resetLock(Model::NodeList(1, previousGroup));
+                unlock(Model::NodeList(1, group));
             }
         }
         
-        void MapDocument::setLayerLocked(Model::Layer* layer, const bool locked) {
-            assert(layer != NULL);
-            if (layer->locked() != locked) {
-                layer->setLocked(locked);
-                nodesDidChangeNotifier(Model::NodeList(1, layer));
+        void MapDocument::closeGroup() {
+            const Transaction transaction(this, "Close Group");
+
+            deselectAll();
+            Model::Group* previousGroup = m_editorContext->currentGroup();
+            if (submit(CurrentGroupCommand::pop())) {
+                resetLock(Model::NodeList(1, previousGroup));
+                if (m_editorContext->currentGroup() == NULL)
+                    unlock(Model::NodeList(1, m_world));
             }
+        }
+
+        void MapDocument::hide(const Model::NodeList& nodes) {
+            submit(SetVisibilityCommand::hide(nodes));
+        }
+        
+        void MapDocument::show(const Model::NodeList& nodes) {
+            submit(SetVisibilityCommand::show(nodes));
+        }
+        
+        void MapDocument::resetVisibility(const Model::NodeList& nodes) {
+            submit(SetVisibilityCommand::reset(nodes));
+        }
+        
+        void MapDocument::lock(const Model::NodeList& nodes) {
+            submit(SetLockStateCommand::lock(nodes));
+        }
+        
+        void MapDocument::unlock(const Model::NodeList& nodes) {
+            submit(SetLockStateCommand::unlock(nodes));
+        }
+        
+        void MapDocument::resetLock(const Model::NodeList& nodes) {
+            submit(SetLockStateCommand::reset(nodes));
         }
 
         bool MapDocument::translateObjects(const Vec3& delta) {
@@ -593,11 +735,16 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::setTexture(Assets::Texture* texture) {
-            Model::ChangeBrushFaceAttributesRequest request;
-            request.setTexture(texture);
-            if (submit(ChangeBrushFaceAttributesCommand::command(request))) {
-                if (texture != NULL)
-                    m_currentTextureName = texture->name();
+            if (hasSelectedBrushFaces()) {
+                Model::ChangeBrushFaceAttributesRequest request;
+                request.setTexture(texture);
+                if (submit(ChangeBrushFaceAttributesCommand::command(request))) {
+                    if (texture != NULL)
+                        m_currentTextureName = texture->name();
+                    return true;
+                }
+            } else if (texture != NULL) {
+                m_currentTextureName = texture->name();
                 return true;
             }
             return false;
@@ -736,7 +883,7 @@ namespace TrenchBroom {
         void MapDocument::createWorld(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
             m_worldBounds = worldBounds;
             m_game = game;
-            m_world = m_game->newMap(mapFormat);
+            m_world = m_game->newMap(mapFormat, m_worldBounds);
             m_currentLayer = m_world->defaultLayer();
             
             updateGameSearchPaths();

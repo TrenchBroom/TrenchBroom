@@ -88,39 +88,41 @@ namespace TrenchBroom {
             namespace Actions {
                 const int Lowest                             = Menu::Highest + 1;
                 const int Nothing                            = wxID_NONE;
-                const int ToggleClipTool                     = Lowest +   1;
-                const int ToggleClipSide                     = Lowest +   2;
-                const int PerformClip                        = Lowest +   3;
-                const int DeleteLastClipPoint                = Lowest +   4;
+                const int ToggleCreateBrushTool              = Lowest +   1;
+                const int PerformCreateBrush                 = Lowest +   2;
+                const int ToggleClipTool                     = Lowest +   3;
+                const int ToggleClipSide                     = Lowest +   4;
+                const int PerformClip                        = Lowest +   5;
+                const int DeleteLastClipPoint                = Lowest +   6;
 
-                const int ToggleVertexTool                   = Lowest +   5;
-                const int MoveVerticesForward                = Lowest +   6;
-                const int MoveVerticesBackward               = Lowest +   7;
-                const int MoveVerticesLeft                   = Lowest +   8;
-                const int MoveVerticesRight                  = Lowest +   9;
-                const int MoveVerticesUp                     = Lowest +  10;
-                const int MoveVerticesDown                   = Lowest +  11;
+                const int ToggleVertexTool                   = Lowest +   7;
+                const int MoveVerticesForward                = Lowest +   8;
+                const int MoveVerticesBackward               = Lowest +   9;
+                const int MoveVerticesLeft                   = Lowest +  10;
+                const int MoveVerticesRight                  = Lowest +  11;
+                const int MoveVerticesUp                     = Lowest +  12;
+                const int MoveVerticesDown                   = Lowest +  13;
 
-                const int ToggleRotateObjectsTool            = Lowest +  12;
-                const int ToggleFlyMode                      = Lowest +  13;
+                const int ToggleRotateObjectsTool            = Lowest +  14;
+                const int ToggleFlyMode                      = Lowest +  15;
                 
-                const int ToggleMovementRestriction          = Lowest +  14;
+                const int ToggleMovementRestriction          = Lowest +  16;
 
-                const int DeleteObjects                      = Lowest +  15;
+                const int DeleteObjects                      = Lowest +  17;
                 
-                const int MoveObjectsForward                 = Lowest +  16;
-                const int MoveObjectsRight                   = Lowest +  17;
-                const int MoveObjectsBackward                = Lowest +  18;
-                const int MoveObjectsLeft                    = Lowest +  19;
-                const int MoveObjectsUp                      = Lowest +  20;
-                const int MoveObjectsDown                    = Lowest +  21;
+                const int MoveObjectsForward                 = Lowest +  18;
+                const int MoveObjectsRight                   = Lowest +  19;
+                const int MoveObjectsBackward                = Lowest +  20;
+                const int MoveObjectsLeft                    = Lowest +  21;
+                const int MoveObjectsUp                      = Lowest +  22;
+                const int MoveObjectsDown                    = Lowest +  23;
                 
-                const int RollObjectsCW                      = Lowest +  22;
-                const int RollObjectsCCW                     = Lowest +  23;
-                const int PitchObjectsCW                     = Lowest +  24;
-                const int PitchObjectsCCW                    = Lowest +  25;
-                const int YawObjectsCW                       = Lowest +  26;
-                const int YawObjectsCCW                      = Lowest +  27;
+                const int RollObjectsCW                      = Lowest +  24;
+                const int RollObjectsCCW                     = Lowest +  25;
+                const int PitchObjectsCW                     = Lowest +  26;
+                const int PitchObjectsCCW                    = Lowest +  27;
+                const int YawObjectsCW                       = Lowest +  28;
+                const int YawObjectsCCW                      = Lowest +  29;
                 
                 const int FlipObjectsHorizontally            = Lowest +  30;
                 const int FlipObjectsVertically              = Lowest +  31;
@@ -151,6 +153,10 @@ namespace TrenchBroom {
                 const int MoveRotationCenterDown             = Lowest +  51;
 
                 const int CycleMapViews                      = Lowest +  52;
+                
+                const int CreateConvexHull                   = Lowest +  53;
+                const int GroupSelection                     = Lowest +  54;
+                const int UngroupSelection                   = Lowest +  55;
 
                 /*
                 const int CorrectVertices                    = Lowest +  82;
@@ -159,13 +165,17 @@ namespace TrenchBroom {
                 const int Highest                            = Lowest + 200;
             }
 
-            namespace CreateEntityPopupMenu {
+            namespace MapViewPopupMenu {
                 static const int LowestPointEntityItem              = wxID_HIGHEST + 2000;
                 static const int HighestPointEntityItem             = LowestPointEntityItem + 999;
                 static const int LowestBrushEntityItem              = HighestPointEntityItem + 1;
                 static const int HighestBrushEntityItem             = LowestBrushEntityItem + 999;
-                static const int ReparentBrushes                    = HighestBrushEntityItem + 1;
-                static const int MoveBrushesToWorld                 = HighestBrushEntityItem + 2;
+                static const int Lowest                             = HighestBrushEntityItem + 1;
+                static const int ReparentBrushes                    = Lowest + 0;
+                static const int MoveBrushesToWorld                 = Lowest + 1;
+                static const int GroupObjects                       = Lowest + 2;
+                static const int UngroupObjects                     = Lowest + 3;
+                static const int RenameGroups                       = Lowest + 4;
             }
         }
     }
