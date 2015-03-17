@@ -338,6 +338,39 @@ namespace TrenchBroom {
             
             return removedNodes;
         }
+        
+        void MapDocumentCommandFacade::addEmptyNodes(Model::ParentChildrenMap& nodes) const {
+            Model::NodeList emptyNodes = collectEmptyNodes(nodes);
+            while (!emptyNodes.empty()) {
+                removeEmptyNodes(nodes, emptyNodes);
+                emptyNodes = collectEmptyNodes(nodes);
+            }
+        }
+        
+        Model::NodeList MapDocumentCommandFacade::collectEmptyNodes(const Model::ParentChildrenMap& nodes) const {
+            Model::NodeList result;
+            
+            Model::ParentChildrenMap::const_iterator it, end;
+            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
+                Model::Node* node = it->first;
+                const Model::NodeList& children = it->second;
+                if (node->removeIfEmpty() && node->childCount() == children.size())
+                    result.push_back(node);
+            }
+            
+            return result;
+        }
+        
+        void MapDocumentCommandFacade::removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const {
+            Model::NodeList::const_iterator it, end;
+            for (it = emptyNodes.begin(), end = emptyNodes.end(); it != end; ++it) {
+                Model::Node* node = *it;
+                Model::Node* parent = node->parent();
+                nodes.erase(node);
+                assert(!VectorUtils::contains(nodes[parent], node));
+                nodes[parent].push_back(node);
+            }
+        }
 
         MapDocumentCommandFacade::ReparentResult::ReparentResult(const Model::ParentChildrenMap& i_movedNodes, const Model::ParentChildrenMap& i_removedNodes) :
         movedNodes(i_movedNodes),
@@ -396,7 +429,7 @@ namespace TrenchBroom {
                     const size_t count = MapUtils::find(counts, oldParent, size_t(0)) + 1;
                     MapUtils::insertOrReplace(counts, oldParent, count);
 
-                    if (oldParent->childCount() == count)
+                    if (oldParent->removeIfEmpty() && oldParent->childCount() == count)
                         emptyParents.push_back(oldParent);
                 }
             }
@@ -955,39 +988,6 @@ namespace TrenchBroom {
             m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
             setEntityDefinitions();
             modsDidChangeNotifier();
-        }
-
-        void MapDocumentCommandFacade::addEmptyNodes(Model::ParentChildrenMap& nodes) const {
-            Model::NodeList emptyNodes = collectEmptyNodes(nodes);
-            while (!emptyNodes.empty()) {
-                removeEmptyNodes(nodes, emptyNodes);
-                emptyNodes = collectEmptyNodes(nodes);
-            }
-        }
-
-        Model::NodeList MapDocumentCommandFacade::collectEmptyNodes(const Model::ParentChildrenMap& nodes) const {
-            Model::NodeList result;
-            
-            Model::ParentChildrenMap::const_iterator it, end;
-            for (it = nodes.begin(), end = nodes.end(); it != end; ++it) {
-                Model::Node* node = it->first;
-                const Model::NodeList& children = it->second;
-                if (node->removeIfEmpty() && node->childCount() == children.size())
-                    result.push_back(node);
-            }
-            
-            return result;
-        }
-
-        void MapDocumentCommandFacade::removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const {
-            Model::NodeList::const_iterator it, end;
-            for (it = emptyNodes.begin(), end = emptyNodes.end(); it != end; ++it) {
-                Model::Node* node = *it;
-                Model::Node* parent = node->parent();
-                nodes.erase(node);
-                assert(!VectorUtils::contains(nodes[parent], node));
-                nodes[parent].push_back(node);
-            }
         }
 
         void MapDocumentCommandFacade::doSetIssueHidden(Model::Issue* issue, const bool hidden) {

@@ -60,7 +60,11 @@ namespace TrenchBroom {
         public: // adding and removing nodes
             Model::NodeList performAddNodes(const Model::ParentChildrenMap& nodes);
             Model::ParentChildrenMap performRemoveNodes(const Model::NodeList& nodes);
-            
+        private:
+            void addEmptyNodes(Model::ParentChildrenMap& nodes) const;
+            Model::NodeList collectEmptyNodes(const Model::ParentChildrenMap& nodes) const;
+            void removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const;
+        public: // reparenting nodes
             struct ReparentResult {
                 Model::ParentChildrenMap movedNodes;
                 Model::ParentChildrenMap removedNodes;
@@ -125,10 +129,6 @@ namespace TrenchBroom {
             void performMoveExternalTextureCollectionDown(const String& name);
         public: // mods management
             void performSetMods(const StringList& mods);
-        private: // helper methods
-            void addEmptyNodes(Model::ParentChildrenMap& nodes) const;
-            Model::NodeList collectEmptyNodes(const Model::ParentChildrenMap& nodes) const;
-            void removeEmptyNodes(Model::ParentChildrenMap& nodes, const Model::NodeList& emptyNodes) const;
         private:
             void doSetIssueHidden(Model::Issue* issue, bool hidden);
         public: // modification count
