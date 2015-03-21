@@ -103,15 +103,7 @@ Notes
 Build environment
 1. Get Xcode from the App Store
 
-2. Mac OS X SDKs
-- Get the Mac OS X 10.6 SDK (from an older Xcode version such as Xcode 3)
-- Copy it to /Developer/SDKs (or some other folder of your choosing)
-- Create a symbolic link inside /Applications/XCode.app:
-  - If you copied the 10.6 SDK to /Developer/SDKs:
-  - sudo ln -s /Developer/SDKs/MacOSX10.6.sdk/ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.6.sdk
-  - You may have to repeat this step whenever Xcode is updated.
-
-3. Dependencies
+2. Dependencies
 - Install FreeImage. The easiest way is to use macports (macports.org)
   sudo port install freeimage +universal
 
@@ -124,10 +116,10 @@ Build environment
 - Change into wxwidgets/build-release
 - Run 
   - If you copied the 10.6 SDK to /Developer/SDKs
-  ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --with-macosx-version-min=10.6
+  ../configure --with-osx_cocoa --disable-shared --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6
 - Run make, then sudo make install
 - Change into wxwidgets/build-debug
 - Run 
   - If you copied the 10.6 SDK to /Developer/SDKs
-  ../configure --enable-debug --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --with-macosx-version-min=10.6
+  ../configure --enable-debug --with-osx_cocoa --with-opengl --enable-universal-binary=i386,x86_64 --with-macosx-version-min=10.6
 - Run make, then sudo make install
