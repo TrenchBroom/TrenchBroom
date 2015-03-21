@@ -158,6 +158,10 @@ namespace TrenchBroom {
                 const int GroupSelection                     = Lowest +  54;
                 const int UngroupSelection                   = Lowest +  55;
 
+                const int HideSelection                      = Lowest +  56;
+                const int IsolateSelection                   = Lowest +  57;
+                const int ShowAll                            = Lowest +  58;
+                
                 /*
                 const int CorrectVertices                    = Lowest +  82;
                  */

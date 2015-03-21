@@ -28,6 +28,7 @@
 #include "Model/Layer.h"
 #include "Model/Node.h"
 #include "Model/NodeVisitor.h"
+#include "Model/World.h"
 
 namespace TrenchBroom {
     namespace Model {
@@ -133,7 +134,7 @@ namespace TrenchBroom {
         public:
             NodeVisible(const EditorContext& i_this) : m_this(i_this) {}
         private:
-            void doVisit(const Model::World* world)   { setResult(true); }
+            void doVisit(const Model::World* world)   { setResult(m_this.visible(world)); }
             void doVisit(const Model::Layer* layer)   { setResult(m_this.visible(layer)); }
             void doVisit(const Model::Group* group)   { setResult(m_this.visible(group)); }
             void doVisit(const Model::Entity* entity) { setResult(m_this.visible(entity)); }
@@ -146,26 +147,24 @@ namespace TrenchBroom {
             return visitor.result();
         }
         
+        bool EditorContext::visible(const Model::World* world) const {
+            return world->visible();
+        }
+
         bool EditorContext::visible(const Model::Layer* layer) const {
-            return !layer->hidden();
+            return layer->visible();
         }
         
         bool EditorContext::visible(const Model::Group* group) const {
             if (group->selected())
                 return true;
-            const Model::Layer* layer = group->layer();
-            assert(layer != NULL);
-            if (layer->hidden())
-                return false;
-            return true;
+            return group->visible();
         }
         
         bool EditorContext::visible(const Model::Entity* entity) const {
             if (entity->selected())
                 return true;
-            const Model::Layer* layer = entity->layer();
-            assert(layer != NULL);
-            if (layer->hidden())
+            if (!entity->visible())
                 return false;
             if (entity->pointEntity() && !m_showPointEntities)
                 return false;
@@ -181,11 +180,7 @@ namespace TrenchBroom {
                 return false;
             if (brush->hasContentType(m_hiddenBrushContentTypes))
                 return false;
-            const Model::Layer* layer = brush->layer();
-            assert(layer != NULL);
-            if (layer->hidden())
-                return false;
-            return visible(brush->entity());
+            return brush->visible();
         }
         
         bool EditorContext::visible(const Model::BrushFace* face) const {

@@ -31,6 +31,7 @@ namespace TrenchBroom {
         class Node;
         class Object;
         class World;
+        
         namespace NodePredicates {
             struct True {
                 bool operator()(const Node* node) const;
@@ -38,6 +39,26 @@ namespace TrenchBroom {
             
             struct False {
                 bool operator()(const Node* node) const;
+            };
+            
+            template <typename P>
+            class Id {
+            private:
+                P m_p;
+            public:
+                Id(const P& p) :
+                m_p(p) {}
+                
+                bool operator()(const World* world) const   { return m_p(world);  }
+                bool operator()(World* world) const         { return m_p(world);  }
+                bool operator()(const Layer* layer) const   { return m_p(layer);  }
+                bool operator()(Layer* layer) const         { return m_p(layer);  }
+                bool operator()(const Group* group) const   { return m_p(group);  }
+                bool operator()(Group* group) const         { return m_p(group);  }
+                bool operator()(const Entity* entity) const { return m_p(entity); }
+                bool operator()(Entity* entity) const       { return m_p(entity); }
+                bool operator()(const Brush* brush) const   { return m_p(brush);  }
+                bool operator()(Brush* brush) const         { return m_p(brush);  }
             };
             
             template <typename P>

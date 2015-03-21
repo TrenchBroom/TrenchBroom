@@ -37,6 +37,7 @@
 #include "Model/CollectAttributableNodesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
 #include "Model/CollectMatchingBrushFacesVisitor.h"
+#include "Model/CollectNodesByVisibilityVisitor.h"
 #include "Model/CollectSelectableNodesVisitor.h"
 #include "Model/CollectSelectableNodesWithFilePositionVisitor.h"
 #include "Model/CollectTouchingNodesVisitor.h"
@@ -678,14 +679,36 @@ namespace TrenchBroom {
             }
         }
 
+        void MapDocument::isolate(const Model::NodeList& nodes) {
+            Model::CollectNodesWithoutVisibilityVisitor collect(Model::Visibility_Inherited);
+            m_world->acceptAndRecurse(collect);
+
+            const Transaction transaction(this, "Isolate Selected Objects");
+            resetVisibility(collect.nodes());
+            hide(Model::NodeList(1, m_world));
+            show(nodes);
+        }
+
         void MapDocument::hide(const Model::NodeList& nodes) {
             submit(SetVisibilityCommand::hide(nodes));
         }
         
+        void MapDocument::hideSelection() {
+            const Transaction transaction(this, "Hide Selected Objects");
+            hide(m_selectedNodes.nodes());
+            deselectAll();
+        }
+
         void MapDocument::show(const Model::NodeList& nodes) {
             submit(SetVisibilityCommand::show(nodes));
         }
         
+        void MapDocument::showAll() {
+            Model::CollectNodesWithoutVisibilityVisitor collect(Model::Visibility_Inherited);
+            m_world->acceptAndRecurse(collect);
+            resetVisibility(collect.nodes());
+        }
+
         void MapDocument::resetVisibility(const Model::NodeList& nodes) {
             submit(SetVisibilityCommand::reset(nodes));
         }

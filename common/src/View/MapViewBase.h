@@ -159,8 +159,12 @@ namespace TrenchBroom {
             void OnGroupSelectedObjects(wxCommandEvent& event);
             void OnUngroupSelectedObjects(wxCommandEvent& event);
             void OnRenameGroups(wxCommandEvent& event);
-        private:
+
             String queryGroupName();
+        private: // hide and show objects
+            void OnHideSelectedObjects(wxCommandEvent& event);
+            void OnIsolateSelectedObjects(wxCommandEvent& event);
+            void OnShowHiddenObjects(wxCommandEvent& event);
         private: // reparenting objects
             void OnReparentBrushes(wxCommandEvent& event);
             Model::Node* findNewNodeParent(const Model::NodeList& nodes) const;

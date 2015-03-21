@@ -76,6 +76,7 @@ namespace TrenchBroom {
             void popGroup();
         public:
             bool visible(const Model::Node* node) const;
+            bool visible(const Model::World* world) const;
             bool visible(const Model::Layer* layer) const;
             bool visible(const Model::Group* group) const;
             bool visible(const Model::Entity* entity) const;

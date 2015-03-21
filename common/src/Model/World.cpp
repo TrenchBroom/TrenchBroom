@@ -36,8 +36,6 @@ namespace TrenchBroom {
         World::World(MapFormat::Type mapFormat, const BrushContentTypeBuilder* brushContentTypeBuilder, const BBox3& worldBounds) :
         m_factory(mapFormat, brushContentTypeBuilder),
         m_defaultLayer(NULL) {
-            setVisiblityState(Visibility_Shown);
-            setLockState(Lock_Unlocked);
             createDefaultLayer(worldBounds);
         }
 

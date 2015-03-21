@@ -254,6 +254,10 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
             
+            Bind(wxEVT_MENU, &MapViewBase::OnHideSelectedObjects,          this, CommandIds::Actions::HideSelection);
+            Bind(wxEVT_MENU, &MapViewBase::OnIsolateSelectedObjects,       this, CommandIds::Actions::IsolateSelection);
+            Bind(wxEVT_MENU, &MapViewBase::OnShowHiddenObjects,            this, CommandIds::Actions::ShowAll);
+            
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::UngroupObjects);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::RenameGroups);
@@ -581,6 +585,23 @@ namespace TrenchBroom {
             }
         }
         
+        void MapViewBase::OnHideSelectedObjects(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedNodes())
+                document->hideSelection();
+        }
+        
+        void MapViewBase::OnIsolateSelectedObjects(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedNodes())
+                document->isolate(document->selectedNodes().nodes());
+        }
+        
+        void MapViewBase::OnShowHiddenObjects(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            document->showAll();
+        }
+
         void MapViewBase::OnMoveBrushesToWorld(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             const Model::NodeList& nodes = document->selectedNodes().nodes();

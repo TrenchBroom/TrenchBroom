@@ -147,17 +147,6 @@ namespace TrenchBroom {
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSnapVertices, "Snap Vertices", KeyboardShortcut('V', WXK_SHIFT, WXK_ALT));
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
 
-            /*
-             editMenu->addModifiableActionItem(CommandIds::Menu::EditHideSelected, "Hide Selected", KeyboardShortcut('H', WXK_CONTROL));
-             editMenu->addModifiableActionItem(CommandIds::Menu::EditHideUnselected, "Hide Unselected", KeyboardShortcut('H', WXK_CONTROL, WXK_ALT));
-             editMenu->addModifiableActionItem(CommandIds::Menu::EditUnhideAll, "Unhide All", KeyboardShortcut('H', WXK_CONTROL, WXK_SHIFT));
-             editMenu->addSeparator();
-             editMenu->addModifiableActionItem(CommandIds::Menu::EditLockSelected, "Lock Selected", KeyboardShortcut('L', WXK_CONTROL));
-             editMenu->addModifiableActionItem(CommandIds::Menu::EditLockUnselected, "Lock Unselected", KeyboardShortcut('L', WXK_CONTROL, WXK_ALT));
-             editMenu->addModifiableActionItem(CommandIds::Menu::EditUnlockAll, "Unlock All", KeyboardShortcut('L', WXK_CONTROL, WXK_SHIFT));
-             editMenu->addSeparator();
-             */
-            
             Menu* viewMenu = m_menuBar->addMenu("View");
             Menu* gridMenu = viewMenu->addMenu("Grid");
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, "Show Grid", KeyboardShortcut('0', WXK_CONTROL));
@@ -358,6 +347,13 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::GroupSelection, "Group selected objects", true));
             createViewShortcut(KeyboardShortcut('G', WXK_CONTROL, WXK_ALT), ActionContext_NodeSelection,
                                Action(View::CommandIds::Actions::UngroupSelection, "Ungroup selected objects", true));
+
+            createViewShortcut(KeyboardShortcut('H', WXK_CONTROL), ActionContext_NodeSelection,
+                               Action(View::CommandIds::Actions::HideSelection, "Hide selected objects", true));
+            createViewShortcut(KeyboardShortcut('I', WXK_CONTROL), ActionContext_NodeSelection,
+                               Action(View::CommandIds::Actions::IsolateSelection, "Isolate selected objects", true));
+            createViewShortcut(KeyboardShortcut('H', WXK_CONTROL, WXK_SHIFT), ActionContext_Any,
+                               Action(View::CommandIds::Actions::ShowAll, "Show hidden objects", true));
 
             createViewShortcut(KeyboardShortcut(WXK_ESCAPE), ActionContext_Any,
                                Action(View::CommandIds::Actions::Cancel, "Cancel", true));

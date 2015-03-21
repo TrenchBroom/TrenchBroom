@@ -187,14 +187,10 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderLayers(RenderContext& renderContext, RenderBatch& renderBatch) {
-            const Model::EditorContext& editorContext = lock(m_document)->editorContext();
             RendererMap::iterator it, end;
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
-                const Model::Layer* layer = it->first;
-                if (editorContext.visible(layer)) {
-                    ObjectRenderer* renderer = it->second;
-                    renderer->render(renderContext, renderBatch);
-                }
+                ObjectRenderer* renderer = it->second;
+                renderer->render(renderContext, renderBatch);
             }
         }
         
