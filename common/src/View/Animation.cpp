@@ -95,6 +95,7 @@ namespace TrenchBroom {
         
         void AnimationManager::Notify() {
             const wxLongLong elapsed = wxGetLocalTimeMillis() - m_lastTime;
+            
             Animation::List updateAnimations;
             if (!m_animations.empty()) {
                 AnimationMap::iterator mapIt = m_animations.begin();
@@ -118,9 +119,11 @@ namespace TrenchBroom {
             }
             m_lastTime += elapsed;
             
-            ExecutableEvent::Executable::Ptr executable(new ExecutableAnimation(updateAnimations));
-            if (wxTheApp != NULL)
-                wxTheApp->QueueEvent(new ExecutableEvent(executable));
+            if (wxTheApp != NULL && !updateAnimations.empty()) {
+                ExecutableEvent::Executable::Ptr executable(new ExecutableAnimation(updateAnimations));
+                ExecutableEvent* event = new ExecutableEvent(executable);
+                wxTheApp->QueueEvent(event);
+            }
         }
     }
 }

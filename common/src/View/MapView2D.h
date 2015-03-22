@@ -93,7 +93,7 @@ namespace TrenchBroom {
             void doCenterCameraOnSelection();
             
             void doMoveCameraToPosition(const Vec3& position);
-            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = 150);
+            void animateCamera(const Vec3f& position, const Vec3f& direction, const Vec3f& up, const wxLongLong duration = DefaultCameraAnimationDuration);
             
             void doMoveCameraToCurrentTracePoint();
         private: // implement MapViewBase interface

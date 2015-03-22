@@ -58,6 +58,8 @@ namespace TrenchBroom {
         
         class MapViewBase : public MapView, public RenderView, public ToolBoxConnector, public CameraLinkableView {
         protected:
+            static const wxLongLong DefaultCameraAnimationDuration;
+            
             Logger* m_logger;
             MapDocumentWPtr m_document;
             MapViewToolBox& m_toolBox;

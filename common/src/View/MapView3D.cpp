@@ -323,92 +323,128 @@ namespace TrenchBroom {
         
         void MapView3D::doCenterCameraOnSelection() {
             MapDocumentSPtr document = lock(m_document);
-            const Model::EntityList& entities = document->selectedNodes().entities();
-            const Model::BrushList& brushes = document->selectedNodes().brushes();
-            assert(!entities.empty() || !brushes.empty());
+            const Model::NodeList& nodes = document->selectedNodes().nodes();
+            assert(!nodes.empty());
             
-            const Vec3 newPosition = centerCameraOnObjectsPosition(entities, brushes);
+            const Vec3 newPosition = centerCameraOnObjectsPosition(nodes);
             moveCameraToPosition(newPosition);
         }
         
-        Vec3f MapView3D::centerCameraOnObjectsPosition(const Model::EntityList& entities, const Model::BrushList& brushes) {
-            Model::EntityList::const_iterator entityIt, entityEnd;
-            Model::BrushList::const_iterator brushIt, brushEnd;
+        class MapView3D::ComputeCameraCenterPositionVisitor : public Model::ConstNodeVisitor {
+        private:
+            const Vec3 m_cameraPosition;
+            const Vec3 m_cameraDirection;
+            FloatType m_minDist;
+            Vec3 m_center;
+            size_t m_count;
+        public:
+            ComputeCameraCenterPositionVisitor(const Vec3& cameraPosition, const Vec3& cameraDirection) :
+            m_cameraPosition(cameraPosition),
+            m_cameraDirection(cameraDirection),
+            m_minDist(std::numeric_limits<FloatType>::max()),
+            m_count(0) {}
             
-            float minDist = std::numeric_limits<float>::max();
-            Vec3 center;
-            size_t count = 0;
+            Vec3 position() const {
+                return m_center / static_cast<FloatType>(m_count);
+            }
+        private:
+            void doVisit(const Model::World* world)   {}
+            void doVisit(const Model::Layer* layer)   {}
+            void doVisit(const Model::Group* group)   {}
             
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity* entity = *entityIt;
+            void doVisit(const Model::Entity* entity) {
+                if (!entity->hasChildren()) {
+                    const Vec3::List vertices = bBoxVertices(entity->bounds());
+                    for (size_t i = 0; i < vertices.size(); ++i)
+                        addPoint(vertices[i]);
+                }
+            }
+            
+            void doVisit(const Model::Brush* brush)   {
+                const Model::BrushVertexList& vertices = brush->vertices();
+                for (size_t i = 0; i < vertices.size(); ++i) {
+                    const Model::BrushVertex* vertex = vertices[i];
+                    addPoint(vertex->position);
+                }
+            }
+            
+            void addPoint(const Vec3& point) {
+                const Vec3 toPosition = point - m_cameraPosition;
+                m_minDist = std::min(m_minDist, toPosition.dot(m_cameraDirection));
+                m_center += point;
+                ++m_count;
+            }
+        };
+
+        class MapView3D::ComputeCameraCenterOffsetVisitor : public Model::ConstNodeVisitor {
+        private:
+            const Vec3f m_cameraPosition;
+            const Vec3f m_cameraDirection;
+            Plane3f m_frustumPlanes[4];
+            float m_offset;
+        public:
+            ComputeCameraCenterOffsetVisitor(const Vec3f& cameraPosition, const Vec3f& cameraDirection, const Plane3f frustumPlanes[4]) :
+            m_cameraPosition(cameraPosition),
+            m_cameraDirection(cameraDirection),
+            m_offset(std::numeric_limits<float>::min()) {
+                for (size_t i = 0; i < 4; ++i)
+                    m_frustumPlanes[i] = frustumPlanes[i];
+            }
+            
+            float offset() const {
+                return m_offset;
+            }
+        private:
+            void doVisit(const Model::World* world)   {}
+            void doVisit(const Model::Layer* layer)   {}
+            void doVisit(const Model::Group* group)   {}
+            
+            void doVisit(const Model::Entity* entity) {
                 if (!entity->hasChildren()) {
                     const Vec3::List vertices = bBoxVertices(entity->bounds());
                     for (size_t i = 0; i < vertices.size(); ++i) {
-                        const Vec3f vertex(vertices[i]);
-                        const Vec3f toPosition = vertex - m_camera.position();
-                        minDist = std::min(minDist, toPosition.dot(m_camera.direction()));
-                        center += vertices[i];
-                        ++count;
+                        for (size_t j = 0; j < 4; ++j)
+                            addPoint(vertices[i], m_frustumPlanes[j]);
                     }
                 }
             }
             
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush* brush = *brushIt;
+            void doVisit(const Model::Brush* brush)   {
                 const Model::BrushVertexList& vertices = brush->vertices();
                 for (size_t i = 0; i < vertices.size(); ++i) {
-                    const Model::BrushVertex* vertex = vertices[i];
-                    const Vec3f toPosition = Vec3f(vertex->position) - m_camera.position();
-                    minDist = std::min(minDist, toPosition.dot(m_camera.direction()));
-                    center += vertex->position;
-                    ++count;
+                    for (size_t j = 0; j < 4; ++j)
+                        addPoint(vertices[i]->position, m_frustumPlanes[j]);
                 }
             }
             
-            center /= static_cast<FloatType>(count);
+            void addPoint(const Vec3f point, const Plane3f& plane) {
+                const Ray3f ray(m_cameraPosition, -m_cameraDirection);
+                const Plane3f newPlane(point + 64.0f * plane.normal, plane.normal);
+                const float dist = newPlane.intersectWithRay(ray);
+                if (!Math::isnan(dist) && dist > 0.0f)
+                    m_offset = std::max(m_offset, dist);
+            }
+        };
+
+        Vec3f MapView3D::centerCameraOnObjectsPosition(const Model::NodeList& nodes) {
+            ComputeCameraCenterPositionVisitor center(m_camera.position(), m_camera.direction());
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), center);
+
+            const Vec3 newPosition = center.position();
             
             // act as if the camera were there already:
             const Vec3f oldPosition = m_camera.position();
-            m_camera.moveTo(Vec3f(center));
-            
-            float offset = std::numeric_limits<float>::max();
+            m_camera.moveTo(Vec3f(newPosition));
             
             Plane3f frustumPlanes[4];
             m_camera.frustumPlanes(frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
-            
-            for (entityIt = entities.begin(), entityEnd = entities.end(); entityIt != entityEnd; ++entityIt) {
-                const Model::Entity* entity = *entityIt;
-                if (!entity->hasChildren()) {
-                    const Vec3::List vertices = bBoxVertices(entity->bounds());
-                    for (size_t i = 0; i < vertices.size(); ++i) {
-                        const Vec3f vertex(vertices[i]);
-                        
-                        for (size_t j = 0; j < 4; ++j) {
-                            const Plane3f& plane = frustumPlanes[j];
-                            const float dist = (vertex - m_camera.position()).dot(plane.normal) - 8.0f; // adds a bit of a border
-                            offset = std::min(offset, -dist / m_camera.direction().dot(plane.normal));
-                        }
-                    }
-                }
-            }
-            
-            for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
-                const Model::Brush* brush = *brushIt;
-                const Model::BrushVertexList& vertices = brush->vertices();
-                for (size_t i = 0; i < vertices.size(); ++i) {
-                    const Model::BrushVertex* vertex = vertices[i];
-                    
-                    for (size_t j = 0; j < 4; ++j) {
-                        const Plane3f& plane = frustumPlanes[j];
-                        const float dist = (Vec3f(vertex->position) - m_camera.position()).dot(plane.normal) - 8.0f; // adds a bit of a border
-                        offset = std::min(offset, -dist / m_camera.direction().dot(plane.normal));
-                    }
-                }
-            }
+
+            ComputeCameraCenterOffsetVisitor offset(m_camera.position(), m_camera.direction(), frustumPlanes);
+            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), offset);
             
             // jump back
             m_camera.moveTo(oldPosition);
-            return center + m_camera.direction() * offset;
+            return newPosition - m_camera.direction() * offset.offset();
         }
         
         void MapView3D::doMoveCameraToPosition(const Vec3& position) {

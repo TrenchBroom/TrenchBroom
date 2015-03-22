@@ -55,6 +55,8 @@
 
 namespace TrenchBroom {
     namespace View {
+        const wxLongLong MapViewBase::DefaultCameraAnimationDuration = 250;
+
         MapViewBase::MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         RenderView(parent, contextManager, buildAttribs()),
         ToolBoxConnector(this),
