@@ -160,8 +160,8 @@ namespace TrenchBroom {
             commitPendingChanges();
             setupGL(renderBatch);
             renderLayers(renderContext, renderBatch);
-            renderSelection(renderContext, renderBatch);
             renderLocked(renderContext, renderBatch);
+            renderSelection(renderContext, renderBatch);
             renderEntityLinks(renderContext, renderBatch);
         }
         
