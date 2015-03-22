@@ -365,7 +365,10 @@ namespace TrenchBroom {
                 assert(layerRenderer != NULL);
                 
                 if (group->selected() || group->descendantSelected() || group->parentSelected()) {
-                    layerRenderer->removeObject(group);
+                    if (group->locked())
+                        m_lockedRenderer->removeObject(group);
+                    else
+                        layerRenderer->removeObject(group);
                     m_selectionRenderer->addObject(group);
                 } else {
                     m_selectionRenderer->removeObject(group);
