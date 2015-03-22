@@ -36,8 +36,14 @@ namespace TrenchBroom {
         public:
             static const Hit::HitType GroupHit;
         private:
+            typedef enum {
+                Edit_Open,
+                Edit_Closed,
+                Edit_DescendantOpen
+            } EditState;
+            
             String m_name;
-            bool m_open;
+            EditState m_editState;
             mutable BBox3 m_bounds;
             mutable bool m_boundsValid;
         public:
@@ -48,6 +54,14 @@ namespace TrenchBroom {
             bool opened() const;
             void open();
             void close();
+        private:
+            void setEditState(EditState editState);
+            
+            class SetEditStateVisitor;
+            void openAncestors();
+            void closeAncestors();
+            
+            bool hasOpenedDescendant() const;
         private: // implement methods inherited from Node
             const String& doGetName() const;
             

@@ -674,7 +674,10 @@ namespace TrenchBroom {
             Model::Group* previousGroup = m_editorContext->currentGroup();
             if (submit(CurrentGroupCommand::pop())) {
                 resetLock(Model::NodeList(1, previousGroup));
-                if (m_editorContext->currentGroup() == NULL)
+                Model::Group* currentGroup = m_editorContext->currentGroup();
+                if (currentGroup != NULL)
+                    unlock(Model::NodeList(1, currentGroup));
+                else
                     unlock(Model::NodeList(1, m_world));
             }
         }
