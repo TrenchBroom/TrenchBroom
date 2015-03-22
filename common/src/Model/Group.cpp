@@ -41,7 +41,7 @@ namespace TrenchBroom {
 
         Group::Group(const String& name) :
         m_name(name),
-        m_open(false),
+        m_editState(Edit_Closed),
         m_boundsValid(false) {}
         
         void Group::setName(const String& name) {
@@ -49,17 +49,50 @@ namespace TrenchBroom {
         }
         
         bool Group::opened() const {
-            return m_open;
+            return m_editState == Edit_Open;
         }
         
         void Group::open() {
-            assert(!opened());
-            m_open = true;
+            assert(m_editState == Edit_Closed);
+            setEditState(Edit_Open);
+            openAncestors();
         }
         
         void Group::close() {
-            assert(opened());
-            m_open = false;
+            assert(m_editState == Edit_Open);
+            setEditState(Edit_Closed);
+            closeAncestors();
+        }
+
+        void Group::setEditState(const EditState editState) {
+            m_editState = editState;
+        }
+
+        class Group::SetEditStateVisitor : public NodeVisitor {
+        private:
+            EditState m_editState;
+        public:
+            SetEditStateVisitor(const EditState editState) : m_editState(editState) {}
+        private:
+            void doVisit(World* world)   {}
+            void doVisit(Layer* layer)   {}
+            void doVisit(Group* group)   { group->setEditState(m_editState); }
+            void doVisit(Entity* entity) {}
+            void doVisit(Brush* brush)   {}
+        };
+        
+        void Group::openAncestors() {
+            SetEditStateVisitor visitor(Edit_DescendantOpen);
+            escalate(visitor);
+        }
+        
+        void Group::closeAncestors() {
+            SetEditStateVisitor visitor(Edit_Closed);
+            escalate(visitor);
+        }
+
+        bool Group::hasOpenedDescendant() const {
+            return m_editState == Edit_DescendantOpen;
         }
 
         const String& Group::doGetName() const {
@@ -116,7 +149,7 @@ namespace TrenchBroom {
         }
 
         void Group::doPick(const Ray3& ray, PickResult& pickResult) const {
-            if (opened()) {
+            if (opened() || hasOpenedDescendant()) {
                 const NodeList& children = Node::children();
                 NodeList::const_iterator it, end;
                 for (it = children.begin(), end = children.end(); it != end; ++it) {
