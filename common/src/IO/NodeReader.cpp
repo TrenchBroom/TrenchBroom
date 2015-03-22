@@ -75,6 +75,11 @@ namespace TrenchBroom {
         }
         
         void NodeReader::onUnresolvedNode(const ParentInfo& parentInfo, Model::Node* node) {
+            if (parentInfo.layer()) {
+                logger()->warn("Could not resolve parent layer for object at line %u, adding to default layer", static_cast<unsigned int>(node->lineNumber()));
+            } else if (parentInfo.group()) {
+                logger()->warn("Could not resolve parent group for object at line %u, adding to default layer", static_cast<unsigned int>(node->lineNumber()));
+            }
             m_nodes.push_back(node);
         }
         
