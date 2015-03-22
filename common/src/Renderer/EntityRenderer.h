@@ -57,6 +57,7 @@ namespace TrenchBroom {
             EntityModelRenderer m_modelRenderer;
             bool m_boundsValid;
             
+            bool m_showOverlays;
             Color m_overlayTextColor;
             Color m_overlayBackgroundColor;
             bool m_showOccludedOverlays;
@@ -105,6 +106,7 @@ namespace TrenchBroom {
                 }
             }
             
+            void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);
             void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
             void setShowOccludedOverlays(bool showOccludedOverlays);

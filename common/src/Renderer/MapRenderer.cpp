@@ -190,6 +190,7 @@ namespace TrenchBroom {
             RendererMap::iterator it, end;
             for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
                 ObjectRenderer* renderer = it->second;
+                renderer->setShowOverlays(renderContext.render3D());
                 renderer->render(renderContext, renderBatch);
             }
         }
@@ -200,6 +201,7 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::renderLocked(RenderContext& renderContext, RenderBatch& renderBatch) {
+            m_lockedRenderer->setShowOverlays(renderContext.render3D());
             m_lockedRenderer->render(renderContext, renderBatch);
         }
 

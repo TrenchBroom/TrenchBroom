@@ -137,6 +137,11 @@ namespace TrenchBroom {
             m_brushRenderer.clear();
         }
         
+        void ObjectRenderer::setShowOverlays(const bool showOverlays) {
+            m_groupRenderer.setShowOverlays(showOverlays);
+            m_entityRenderer.setShowOverlays(showOverlays);
+        }
+
         void ObjectRenderer::setOverlayTextColor(const Color& overlayTextColor) {
             m_groupRenderer.setOverlayTextColor(overlayTextColor);
             m_entityRenderer.setOverlayTextColor(overlayTextColor);

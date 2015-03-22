@@ -61,6 +61,7 @@ namespace TrenchBroom {
             void invalidate();
             void clear();
         public: // configuration
+            void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);
             void setOverlayBackgroundColor(const Color& overlayBackgroundColor);
             

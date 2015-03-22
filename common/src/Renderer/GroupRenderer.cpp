@@ -48,10 +48,11 @@ namespace TrenchBroom {
                 return TextAlignment::Bottom;
             }
         };
-
+        
         GroupRenderer::GroupRenderer(const Model::EditorContext& editorContext) :
         m_editorContext(editorContext),
         m_boundsValid(false),
+        m_showOverlays(true),
         m_showOccludedOverlays(false),
         m_overrideBoundsColor(false),
         m_showOccludedBounds(false) {}
@@ -86,7 +87,11 @@ namespace TrenchBroom {
             m_groups.clear();
             m_boundsRenderer = EdgeRenderer();
         }
-
+        
+        void GroupRenderer::setShowOverlays(const bool showOverlays) {
+            m_showOverlays = showOverlays;
+        }
+        
         void GroupRenderer::setOverlayTextColor(const Color& overlayTextColor) {
             m_overlayTextColor = overlayTextColor;
         }
@@ -98,7 +103,7 @@ namespace TrenchBroom {
         void GroupRenderer::setShowOccludedOverlays(const bool showOccludedOverlays) {
             m_showOccludedOverlays = showOccludedOverlays;
         }
-
+        
         void GroupRenderer::setOverrideBoundsColor(const bool overrideBoundsColor) {
             m_overrideBoundsColor = overrideBoundsColor;
         }
@@ -114,14 +119,14 @@ namespace TrenchBroom {
         void GroupRenderer::setOccludedBoundsColor(const Color& occludedBoundsColor) {
             m_occludedBoundsColor = occludedBoundsColor;
         }
-
+        
         void GroupRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_groups.empty()) {
                 renderBounds(renderContext, renderBatch);
                 renderNames(renderContext, renderBatch);
             }
         }
-
+        
         void GroupRenderer::renderBounds(RenderContext& renderContext, RenderBatch& renderBatch) {
             if (!m_boundsValid)
                 validateBounds();
@@ -141,19 +146,21 @@ namespace TrenchBroom {
         }
         
         void GroupRenderer::renderNames(RenderContext& renderContext, RenderBatch& renderBatch) {
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(m_overlayTextColor);
-            renderService.setBackgroundColor(m_overlayBackgroundColor);
-            
-            Model::GroupSet::const_iterator it, end;
-            for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
-                const Model::Group* group = *it;
-                if (m_editorContext.visible(group)) {
-                    const GroupNameAnchor anchor(group);
-                    if (m_showOccludedOverlays)
-                        renderService.renderStringOnTop(groupString(group), anchor);
-                    else
-                        renderService.renderString(groupString(group), anchor);
+            if (m_showOverlays) {
+                Renderer::RenderService renderService(renderContext, renderBatch);
+                renderService.setForegroundColor(m_overlayTextColor);
+                renderService.setBackgroundColor(m_overlayBackgroundColor);
+                
+                Model::GroupSet::const_iterator it, end;
+                for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
+                    const Model::Group* group = *it;
+                    if (m_editorContext.visible(group)) {
+                        const GroupNameAnchor anchor(group);
+                        if (m_showOccludedOverlays)
+                            renderService.renderStringOnTop(groupString(group), anchor);
+                        else
+                            renderService.renderString(groupString(group), anchor);
+                    }
                 }
             }
         }
@@ -187,7 +194,7 @@ namespace TrenchBroom {
                 vertices.push_back(VertexSpecs::P3::Vertex(v2));
             }
         };
-
+        
         void GroupRenderer::validateBounds() {
             if (m_overrideBoundsColor) {
                 VertexSpecs::P3::Vertex::List vertices;
@@ -221,7 +228,7 @@ namespace TrenchBroom {
             
             m_boundsValid = true;
         }
-
+        
         AttrString GroupRenderer::groupString(const Model::Group* group) const {
             return group->name();
         }

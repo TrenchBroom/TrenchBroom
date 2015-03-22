@@ -73,6 +73,7 @@ namespace TrenchBroom {
         m_editorContext(editorContext),
         m_modelRenderer(entityModelManager, m_editorContext),
         m_boundsValid(false),
+        m_showOverlays(true),
         m_showOccludedOverlays(false),
         m_tint(false),
         m_overrideBoundsColor(false),
@@ -128,6 +129,10 @@ namespace TrenchBroom {
         void EntityRenderer::reloadModels() {
             m_modelRenderer.clear();
             m_modelRenderer.addEntities(m_entities.begin(), m_entities.end());
+        }
+
+        void EntityRenderer::setShowOverlays(const bool showOverlays) {
+            m_showOverlays = showOverlays;
         }
 
         void EntityRenderer::setOverlayTextColor(const Color& overlayTextColor) {
@@ -229,7 +234,7 @@ namespace TrenchBroom {
         }
         
         void EntityRenderer::renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch) {
-            if (renderContext.showEntityClassnames()) {
+            if (m_showOverlays && renderContext.showEntityClassnames()) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
                 renderService.setForegroundColor(m_overlayTextColor);
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
