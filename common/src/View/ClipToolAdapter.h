@@ -66,6 +66,8 @@ namespace TrenchBroom {
                 if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                     !inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
                     return false;
+                if (inputState.modifierKeysPressed(ModifierKeys::MKShift))
+                    return doSetClipPlane(inputState);
                 return doAddClipPoint(inputState);
             }
 
@@ -100,6 +102,7 @@ namespace TrenchBroom {
             }
         private: // subclassing interface
             virtual bool doAddClipPoint(const InputState& inputState) = 0;
+            virtual bool doSetClipPlane(const InputState& inputState) = 0;
         };
         
         class ClipToolAdapter2D : public ClipToolAdapter<PlaneDragPolicy> {
@@ -117,6 +120,7 @@ namespace TrenchBroom {
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             
             bool doAddClipPoint(const InputState& inputState);
+            bool doSetClipPlane(const InputState& inputState);
         };
         
         class ClipToolAdapter3D : public ClipToolAdapter<MouseDragPolicy> {
@@ -131,6 +135,7 @@ namespace TrenchBroom {
             void doCancelMouseDrag();
             
             bool doAddClipPoint(const InputState& inputState);
+            bool doSetClipPlane(const InputState& inputState);
         };
     }
 }

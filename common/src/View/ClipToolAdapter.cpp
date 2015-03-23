@@ -109,6 +109,10 @@ namespace TrenchBroom {
             return m_tool->addClipPoint(hitPoint, snapper, factory);
         }
 
+        bool ClipToolAdapter2D::doSetClipPlane(const InputState& inputState) {
+            return false;
+        }
+
         ClipToolAdapter3D::ClipToolAdapter3D(ClipTool* tool, const Grid& grid) :
         ClipToolAdapter(tool, grid) {}
 
@@ -156,6 +160,10 @@ namespace TrenchBroom {
             
             const ClipPointSnapper snapper(face);
             return m_tool->addClipPoint(point, snapper);
+        }
+
+        bool ClipToolAdapter3D::doSetClipPlane(const InputState& inputState) {
+            return false;
         }
     }
 }

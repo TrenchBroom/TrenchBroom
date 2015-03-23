@@ -109,6 +109,7 @@ namespace TrenchBroom {
             Vec3 defaultClipPointPos() const;
             
             bool addClipPoint(const Vec3& point, const ClipPointSnapper& snapper, const ClipPointStrategyFactory& factory = NullClipPointStrategyFactory());
+            bool setClipPlane(const Plane3& plane);
         public:
             bool beginDragClipPoint(const Model::PickResult& pickResult);
             Vec3 draggedPointPosition() const;
