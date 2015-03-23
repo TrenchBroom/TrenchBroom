@@ -34,7 +34,7 @@
 namespace TrenchBroom {
     namespace View {
         TwoPaneMapView::TwoPaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
-        MapViewContainer(parent),
+        MultiMapView(parent),
         m_logger(logger),
         m_document(document),
         m_mapView3D(NULL),
@@ -54,6 +54,9 @@ namespace TrenchBroom {
             m_mapView3D->linkCamera(m_linkHelper);
             m_mapView2D->linkCamera(m_linkHelper);
             
+            addMapView(m_mapView3D);
+            addMapView(m_mapView2D);
+            
             splitter->splitVertically(m_mapView3D, m_mapView2D, wxSize(100, 100), wxSize(100, 100));
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -62,40 +65,6 @@ namespace TrenchBroom {
             SetSizer(sizer);
 
             wxPersistenceManager::Get().RegisterAndRestore(splitter);
-        }
-        
-        MapView* TwoPaneMapView::currentMapView() const {
-            if (m_mapView2D->HasFocus())
-                return m_mapView2D;
-            return m_mapView3D;
-        }
-
-        void TwoPaneMapView::doSetToolBoxDropTarget() {
-            m_mapView3D->setToolBoxDropTarget();
-            m_mapView2D->setToolBoxDropTarget();
-        }
-        
-        void TwoPaneMapView::doClearDropTarget() {
-            m_mapView3D->clearDropTarget();
-            m_mapView2D->clearDropTarget();
-        }
-
-        Vec3 TwoPaneMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
-            return currentMapView()->pasteObjectsDelta(bounds);
-        }
-        
-        void TwoPaneMapView::doCenterCameraOnSelection() {
-            m_mapView3D->centerCameraOnSelection();
-            m_mapView2D->centerCameraOnSelection();
-        }
-        
-        void TwoPaneMapView::doMoveCameraToPosition(const Vec3& position) {
-            currentMapView()->moveCameraToPosition(position);
-        }
-        
-        void TwoPaneMapView::doMoveCameraToCurrentTracePoint() {
-            m_mapView3D->moveCameraToCurrentTracePoint();
-            m_mapView2D->moveCameraToCurrentTracePoint();
         }
     }
 }

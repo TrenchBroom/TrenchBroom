@@ -30,12 +30,6 @@ namespace TrenchBroom {
         public:
             MapViewContainer(wxWindow* parent);
             virtual ~MapViewContainer();
-
-            void setToolBoxDropTarget();
-            void clearDropTarget();
-        private:
-            virtual void doSetToolBoxDropTarget() = 0;
-            virtual void doClearDropTarget() = 0;
         };
     }
 }

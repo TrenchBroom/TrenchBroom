@@ -29,6 +29,7 @@
 #include "View/FourPaneMapView.h"
 #include "View/GLContextManager.h"
 #include "View/MapDocument.h"
+#include "View/MapViewContainer.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
 

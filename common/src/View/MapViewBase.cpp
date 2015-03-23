@@ -77,14 +77,6 @@ namespace TrenchBroom {
             delete m_animationManager;
         }
 
-        void MapViewBase::setToolBoxDropTarget() {
-            SetDropTarget(new ToolBoxDropTarget(this));
-        }
-
-        void MapViewBase::clearDropTarget() {
-            SetDropTarget(NULL);
-        }
-
         void MapViewBase::bindObservers() {
             MapDocumentSPtr document = lock(m_document);
             document->nodesWereAddedNotifier.addObserver(this, &MapViewBase::nodesDidChange);
@@ -748,6 +740,18 @@ namespace TrenchBroom {
         void MapViewBase::flashSelection() {
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, *this, 180);
             m_animationManager->runAnimation(animation, true);
+        }
+
+        bool MapViewBase::doGetIsCurrent() const {
+            return HasFocus();
+        }
+        
+        void MapViewBase::doSetToolBoxDropTarget() {
+            SetDropTarget(new ToolBoxDropTarget(this));
+        }
+        
+        void MapViewBase::doClearDropTarget() {
+            SetDropTarget(NULL);
         }
 
         void MapViewBase::doInitializeGL(const bool firstInitialization) {

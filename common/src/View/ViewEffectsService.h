@@ -17,14 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapViewContainer.h"
+#ifndef __TrenchBroom__ViewEffectsService__
+#define __TrenchBroom__ViewEffectsService__
+
+#include <stdio.h>
 
 namespace TrenchBroom {
     namespace View {
-        MapViewContainer::MapViewContainer(wxWindow* parent) :
-        wxPanel(parent),
-        MapView() {}
-        
-        MapViewContainer::~MapViewContainer() {}
+        class ViewEffectsService {
+        public:
+            virtual ~ViewEffectsService();
+            void flashSelection();
+        private:
+            virtual void doFlashSelection() = 0;
+        };
     }
 }
+
+#endif /* defined(__TrenchBroom__ViewEffectsService__) */

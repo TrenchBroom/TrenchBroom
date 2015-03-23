@@ -42,8 +42,8 @@ namespace TrenchBroom {
     
     namespace View {
         class GLContextManager;
-        class MapViewBar;
         class MapViewContainer;
+        class MapViewBar;
         class MapViewToolBox;
         class Tool;
         

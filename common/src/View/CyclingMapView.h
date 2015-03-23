@@ -69,10 +69,12 @@ namespace TrenchBroom {
             void OnCycleMapView(wxCommandEvent& event);
         private:
             void switchToMapView(MapViewBase* mapView);
-        private: // implement MapViewContainer interface
+        private: // implement MapView interface
+            bool doGetIsCurrent() const;
+            
             void doSetToolBoxDropTarget();
             void doClearDropTarget();
-        private: // implement MapView interface
+            
             Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
             
             void doCenterCameraOnSelection();

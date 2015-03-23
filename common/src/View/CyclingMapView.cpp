@@ -83,6 +83,10 @@ namespace TrenchBroom {
             m_currentMapView->SetFocus();
         }
 
+        bool CyclingMapView::doGetIsCurrent() const {
+            return m_currentMapView->isCurrent();
+        }
+
         void CyclingMapView::doSetToolBoxDropTarget() {
             for (size_t i = 0; i < m_mapViews.size(); ++i)
                 m_mapViews[i]->setToolBoxDropTarget();

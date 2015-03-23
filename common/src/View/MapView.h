@@ -22,6 +22,7 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "View/ViewEffectsService.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -31,6 +32,10 @@ namespace TrenchBroom {
         public:
             virtual ~MapView();
 
+            bool isCurrent() const;
+            void setToolBoxDropTarget();
+            void clearDropTarget();
+
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
             
             void centerCameraOnSelection();
@@ -38,6 +43,11 @@ namespace TrenchBroom {
             
             void moveCameraToCurrentTracePoint();
         private:
+            virtual bool doGetIsCurrent() const = 0;
+            
+            virtual void doSetToolBoxDropTarget() = 0;
+            virtual void doClearDropTarget() = 0;
+
             virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const = 0;
 
             virtual void doCenterCameraOnSelection() = 0;
