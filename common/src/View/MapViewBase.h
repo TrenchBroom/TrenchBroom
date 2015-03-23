@@ -71,9 +71,6 @@ namespace TrenchBroom {
             MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
         public:
             virtual ~MapViewBase();
-        public: // drop targets
-            void setToolBoxDropTarget();
-            void clearDropTarget();
         private:
             void bindObservers();
             void unbindObservers();
@@ -191,8 +188,12 @@ namespace TrenchBroom {
         private:
             void updateAcceleratorTable(bool hasFocus);
             ActionContext actionContext() const;
-        private: // misc
-            void flashSelection();
+        private: // implement ViewEffectsService interface
+            void doFlashSelection();
+        private: // implement MapView interface
+            bool doGetIsCurrent() const;
+            void doSetToolBoxDropTarget();
+            void doClearDropTarget();
         private: // implement RenderView interface
             void doInitializeGL(bool firstInitialization);
             bool doShouldRenderFocusIndicator() const;

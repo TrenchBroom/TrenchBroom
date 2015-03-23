@@ -35,7 +35,7 @@
 namespace TrenchBroom {
     namespace View {
         ThreePaneMapView::ThreePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
-        MapViewContainer(parent),
+        MultiMapView(parent),
         m_logger(logger),
         m_document(document),
         m_mapView3D(NULL),
@@ -62,6 +62,10 @@ namespace TrenchBroom {
             m_mapViewXY->linkCamera(m_linkHelper);
             m_mapViewZZ->linkCamera(m_linkHelper);
             
+            addMapView(m_mapView3D);
+            addMapView(m_mapViewXY);
+            addMapView(m_mapViewZZ);
+            
             vSplitter->splitHorizontally(m_mapViewXY, m_mapViewZZ, wxSize(100, 100), wxSize(100, 100));
             hSplitter->splitVertically(m_mapView3D, vSplitter, wxSize(100, 100), wxSize(100, 100));
             
@@ -72,46 +76,6 @@ namespace TrenchBroom {
 
             wxPersistenceManager::Get().RegisterAndRestore(hSplitter);
             wxPersistenceManager::Get().RegisterAndRestore(vSplitter);
-        }
-        
-        MapView* ThreePaneMapView::currentMapView() const {
-            if (m_mapViewXY->HasFocus())
-                return m_mapViewXY;
-            if (m_mapViewZZ->HasFocus())
-                return m_mapViewZZ;
-            return m_mapView3D;
-        }
-
-        void ThreePaneMapView::doSetToolBoxDropTarget() {
-            m_mapView3D->setToolBoxDropTarget();
-            m_mapViewXY->setToolBoxDropTarget();
-            m_mapViewZZ->setToolBoxDropTarget();
-        }
-        
-        void ThreePaneMapView::doClearDropTarget() {
-            m_mapView3D->clearDropTarget();
-            m_mapViewXY->clearDropTarget();
-            m_mapViewZZ->clearDropTarget();
-        }
-
-        Vec3 ThreePaneMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
-            return currentMapView()->pasteObjectsDelta(bounds);
-        }
-        
-        void ThreePaneMapView::doCenterCameraOnSelection() {
-            m_mapView3D->centerCameraOnSelection();
-            m_mapViewXY->centerCameraOnSelection();
-            m_mapViewZZ->centerCameraOnSelection();
-        }
-        
-        void ThreePaneMapView::doMoveCameraToPosition(const Vec3& position) {
-            currentMapView()->moveCameraToPosition(position);
-        }
-        
-        void ThreePaneMapView::doMoveCameraToCurrentTracePoint() {
-            m_mapView3D->moveCameraToCurrentTracePoint();
-            m_mapViewXY->moveCameraToCurrentTracePoint();
-            m_mapViewZZ->moveCameraToCurrentTracePoint();
         }
     }
 }

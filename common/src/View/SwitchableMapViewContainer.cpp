@@ -29,6 +29,7 @@
 #include "View/FourPaneMapView.h"
 #include "View/GLContextManager.h"
 #include "View/MapDocument.h"
+#include "View/MapViewContainer.h"
 #include "View/MapViewBar.h"
 #include "View/MapViewToolBox.h"
 
@@ -171,6 +172,10 @@ namespace TrenchBroom {
 
         void SwitchableMapViewContainer::refreshViews(Tool* tool) {
             m_mapView->Refresh();
+        }
+
+        void SwitchableMapViewContainer::doFlashSelection() {
+            m_mapView->flashSelection();
         }
     }
 }

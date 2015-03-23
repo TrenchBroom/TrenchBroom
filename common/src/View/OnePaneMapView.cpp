@@ -31,7 +31,7 @@
 namespace TrenchBroom {
     namespace View {
         OnePaneMapView::OnePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) :
-        MapViewContainer(parent),
+        MultiMapView(parent),
         m_logger(logger),
         m_document(document),
         m_mapView(NULL) {
@@ -42,35 +42,12 @@ namespace TrenchBroom {
             
             m_mapView = new CyclingMapView(this, m_logger, m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ALL);
             m_mapView->linkCamera(m_linkHelper);
+            addMapView(m_mapView);
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
             sizer->Add(m_mapView, 1, wxEXPAND);
             
             SetSizer(sizer);
-        }
-        
-        void OnePaneMapView::doSetToolBoxDropTarget() {
-            m_mapView->setToolBoxDropTarget();
-        }
-        
-        void OnePaneMapView::doClearDropTarget() {
-            m_mapView->clearDropTarget();
-        }
-        
-        Vec3 OnePaneMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
-            return m_mapView->pasteObjectsDelta(bounds);
-        }
-        
-        void OnePaneMapView::doCenterCameraOnSelection() {
-            m_mapView->centerCameraOnSelection();
-        }
-        
-        void OnePaneMapView::doMoveCameraToPosition(const Vec3& position) {
-            m_mapView->moveCameraToPosition(position);
-        }
-        
-        void OnePaneMapView::doMoveCameraToCurrentTracePoint() {
-            m_mapView->moveCameraToCurrentTracePoint();
         }
     }
 }

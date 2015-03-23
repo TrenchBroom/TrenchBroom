@@ -25,6 +25,18 @@ namespace TrenchBroom {
     namespace View {
         MapView::~MapView() {}
         
+        bool MapView::isCurrent() const {
+            return doGetIsCurrent();
+        }
+
+        void MapView::setToolBoxDropTarget() {
+            doSetToolBoxDropTarget();
+        }
+        
+        void MapView::clearDropTarget() {
+            doClearDropTarget();
+        }
+
         Vec3 MapView::pasteObjectsDelta(const BBox3& bounds) const {
             return doGetPasteObjectsDelta(bounds);
         }

@@ -21,10 +21,10 @@
 #define __TrenchBroom__OnePaneMapView__
 
 #include "View/CameraLinkHelper.h"
-#include "View/MapViewContainer.h"
+#include "View/MultiMapView.h"
 #include "View/ViewTypes.h"
 
-#include <wx/panel.h>
+class wxWindow;
 
 namespace TrenchBroom {
     class Logger;
@@ -41,7 +41,7 @@ namespace TrenchBroom {
         class MapView3D;
         class MapViewToolBox;
         
-        class OnePaneMapView : public MapViewContainer {
+        class OnePaneMapView : public MultiMapView {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -52,16 +52,6 @@ namespace TrenchBroom {
             OnePaneMapView(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
         private:
             void createGui(MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
-        private: // implement MapViewContainer interface
-            void doSetToolBoxDropTarget();
-            void doClearDropTarget();
-        private: // implement MapView interface
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
-            
-            void doCenterCameraOnSelection();
-            void doMoveCameraToPosition(const Vec3& position);
-            
-            void doMoveCameraToCurrentTracePoint();
         };
     }
 }

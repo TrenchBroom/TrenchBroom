@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "View/MapViewLayout.h"
+#include "View/ViewEffectsService.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -42,12 +43,12 @@ namespace TrenchBroom {
     
     namespace View {
         class GLContextManager;
-        class MapViewBar;
         class MapViewContainer;
+        class MapViewBar;
         class MapViewToolBox;
         class Tool;
         
-        class SwitchableMapViewContainer : public wxPanel {
+        class SwitchableMapViewContainer : public wxPanel, public ViewEffectsService {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -82,6 +83,8 @@ namespace TrenchBroom {
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
             void refreshViews(Tool* tool);
+        private: // implement ViewEffectsService interface
+            void doFlashSelection();
         };
     }
 }
