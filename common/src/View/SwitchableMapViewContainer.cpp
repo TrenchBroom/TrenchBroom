@@ -173,5 +173,9 @@ namespace TrenchBroom {
         void SwitchableMapViewContainer::refreshViews(Tool* tool) {
             m_mapView->Refresh();
         }
+
+        void SwitchableMapViewContainer::doFlashSelection() {
+            m_mapView->flashSelection();
+        }
     }
 }

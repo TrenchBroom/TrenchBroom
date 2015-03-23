@@ -90,6 +90,7 @@ namespace TrenchBroom {
             createMenuBar();
 
             m_document->setParentLogger(logger());
+            m_document->setViewEffectsService(m_mapView);
 
             m_autosaveTimer = new wxTimer(this);
             m_autosaveTimer->Start(1000);
@@ -113,6 +114,7 @@ namespace TrenchBroom {
             // The order of deletion here is important because both the document and the children
             // need the context manager (and its embedded VBO) to clean up their resources.
 
+            m_document->setViewEffectsService(NULL);
             m_document.reset();
             DestroyChildren();
 

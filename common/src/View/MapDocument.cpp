@@ -93,6 +93,7 @@
 #include "View/TextureCollectionCommand.h"
 #include "View/TransformObjectsCommand.h"
 #include "View/VertexHandleManager.h"
+#include "View/ViewEffectsService.h"
 
 #include <cassert>
 
@@ -118,7 +119,8 @@ namespace TrenchBroom {
         m_modificationCount(0),
         m_currentTextureName(Model::BrushFace::NoTextureName),
         m_lastSelectionBounds(0.0, 32.0),
-        m_selectionBoundsValid(true) {
+        m_selectionBoundsValid(true),
+        m_viewEffectsService(NULL) {
             bindObservers();
         }
 
@@ -207,6 +209,10 @@ namespace TrenchBroom {
 
         Model::PointFile* MapDocument::pointFile() const {
             return m_pointFile;
+        }
+
+        void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService) {
+            m_viewEffectsService = viewEffectsService;
         }
 
         void MapDocument::newDocument(const BBox3& worldBounds, Model::GamePtr game, const Model::MapFormat::Type mapFormat) {
@@ -567,7 +573,11 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::duplicateObjects() {
-            return submit(DuplicateNodesCommand::duplicate());
+            if (submit(DuplicateNodesCommand::duplicate())) {
+                m_viewEffectsService->flashSelection();
+                return true;
+            }
+            return false;
         }
 
         bool MapDocument::createBrushFromConvexHull() {

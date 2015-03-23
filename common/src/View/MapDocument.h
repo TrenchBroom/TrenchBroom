@@ -57,6 +57,7 @@ namespace TrenchBroom {
         class Selection;
         class UndoableCommand;
         class VertexHandleManager;
+        class ViewEffectsService;
         
         class MapDocument : public Model::MapFacade, public CachingLogger {
         public:
@@ -90,6 +91,8 @@ namespace TrenchBroom {
             BBox3 m_lastSelectionBounds;
             mutable BBox3 m_selectionBounds;
             mutable bool m_selectionBoundsValid;
+            
+            ViewEffectsService* m_viewEffectsService;
         public: // notification
             Notifier1<Command*> commandDoNotifier;
             Notifier1<Command*> commandDoneNotifier;
@@ -157,6 +160,8 @@ namespace TrenchBroom {
             Grid& grid() const;
             
             Model::PointFile* pointFile() const;
+            
+            void setViewEffectsService(ViewEffectsService* viewEffectsService);
         public: // new, load, save document
             void newDocument(const BBox3& worldBounds, Model::GamePtr game, Model::MapFormat::Type mapFormat);
             void loadDocument(const BBox3& worldBounds, Model::GamePtr game, const IO::Path& path);

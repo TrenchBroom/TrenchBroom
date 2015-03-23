@@ -366,7 +366,6 @@ namespace TrenchBroom {
                 return;
 
             document->duplicateObjects();
-            flashSelection();
         }
 
         void MapViewBase::moveObjects(const Math::Direction direction) {
