@@ -69,6 +69,8 @@ namespace TrenchBroom {
             void OnCycleMapView(wxCommandEvent& event);
         private:
             void switchToMapView(MapViewBase* mapView);
+        private: // implement ViewEffectsService interface
+            void doFlashSelection();
         private: // implement MapView interface
             bool doGetIsCurrent() const;
             

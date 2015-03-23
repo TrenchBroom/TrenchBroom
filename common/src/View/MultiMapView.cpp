@@ -35,6 +35,14 @@ namespace TrenchBroom {
             m_mapViews.push_back(mapView);
         }
 
+        void MultiMapView::doFlashSelection() {
+            MapViewList::const_iterator it, end;
+            for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
+                MapView* mapView = *it;
+                mapView->flashSelection();
+            }
+        }
+
         bool MultiMapView::doGetIsCurrent() const {
             MapViewList::const_iterator it, end;
             for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {

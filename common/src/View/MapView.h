@@ -28,7 +28,7 @@ namespace TrenchBroom {
     namespace View {
         class CameraLinkHelper;
         
-        class MapView {
+        class MapView : public ViewEffectsService {
         public:
             virtual ~MapView();
 

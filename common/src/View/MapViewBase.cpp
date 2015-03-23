@@ -737,7 +737,7 @@ namespace TrenchBroom {
             return ActionContext_Default;
         }
 
-        void MapViewBase::flashSelection() {
+        void MapViewBase::doFlashSelection() {
             FlashSelectionAnimation* animation = new FlashSelectionAnimation(m_renderer, *this, 180);
             m_animationManager->runAnimation(animation, true);
         }

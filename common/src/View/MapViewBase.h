@@ -188,8 +188,8 @@ namespace TrenchBroom {
         private:
             void updateAcceleratorTable(bool hasFocus);
             ActionContext actionContext() const;
-        private: // misc
-            void flashSelection();
+        private: // implement ViewEffectsService interface
+            void doFlashSelection();
         private: // implement MapView interface
             bool doGetIsCurrent() const;
             void doSetToolBoxDropTarget();

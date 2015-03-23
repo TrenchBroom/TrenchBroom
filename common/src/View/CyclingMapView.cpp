@@ -83,6 +83,10 @@ namespace TrenchBroom {
             m_currentMapView->SetFocus();
         }
 
+        void CyclingMapView::doFlashSelection() {
+            m_currentMapView->flashSelection();
+        }
+
         bool CyclingMapView::doGetIsCurrent() const {
             return m_currentMapView->isCurrent();
         }

@@ -40,6 +40,8 @@ namespace TrenchBroom {
             virtual ~MultiMapView();
         protected:
             void addMapView(MapView* mapView);
+        private: // implement ViewEffectsService interface
+            void doFlashSelection();
         private: // implement MapView interface
             bool doGetIsCurrent() const;
 
