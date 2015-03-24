@@ -37,8 +37,6 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/TextAnchor.h"
-#include "Renderer/Vbo.h"
-#include "Renderer/VboBlock.h"
 #include "Renderer/VertexSpec.h"
 
 namespace TrenchBroom {
