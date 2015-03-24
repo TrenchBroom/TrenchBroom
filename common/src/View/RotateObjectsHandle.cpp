@@ -174,7 +174,7 @@ namespace TrenchBroom {
             renderService.setForegroundColor(pref(Preferences::ZAxisColor));
             renderService.renderCircle(m_position, Math::Axis::AZ, 64, radius, xAxis, yAxis);
 
-            renderService.setForegroundColor(pref(Preferences::HandleColor));
+            /*
             renderService.renderCircle(m_position, Math::Axis::AX, 8, radius,
                                        Quatf(Vec3f::PosX, Math::radians(+15.0f)) * yAxis,
                                        Quatf(Vec3f::PosX, Math::radians(-15.0f)) * yAxis);
@@ -185,10 +185,17 @@ namespace TrenchBroom {
                                        Quatf(Vec3f::PosZ, Math::radians(+15.0f)) * xAxis,
                                        Quatf(Vec3f::PosZ, Math::radians(-15.0f)) * xAxis);
 
+             */
             renderService.setForegroundColor(pref(Preferences::HandleColor));
             renderService.renderPointHandle(m_position);
+
+            renderService.setForegroundColor(pref(Preferences::ZAxisColor));
             renderService.renderPointHandle(m_position + radius * xAxis);
+
+            renderService.setForegroundColor(pref(Preferences::XAxisColor));
             renderService.renderPointHandle(m_position + radius * yAxis);
+
+            renderService.setForegroundColor(pref(Preferences::YAxisColor));
             renderService.renderPointHandle(m_position + radius * zAxis);
 
             renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
