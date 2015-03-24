@@ -21,6 +21,7 @@
 #include "View/AnimationCurve.h"
 
 #include <cassert>
+#include <algorithm>
 
 #include <wx/app.h>
 #include <wx/timer.h>
