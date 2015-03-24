@@ -130,7 +130,6 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsHandle::renderHandle2D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const HitArea highlight) {
-            
             const Renderer::Camera& camera = renderContext.camera();
             const float radius = static_cast<float>(pref(Preferences::RotateHandleRadius));
             Renderer::RenderService renderService(renderContext, renderBatch);

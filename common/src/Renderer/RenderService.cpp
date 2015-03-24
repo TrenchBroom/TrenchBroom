@@ -41,7 +41,8 @@ namespace TrenchBroom {
         m_pointHandleRenderer(new PointHandleRenderer()),
         m_primitiveRenderer(new PrimitiveRenderer()),
         m_foregroundColor(1.0f, 1.0f, 1.0f, 1.0f),
-        m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f) {}
+        m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f),
+        m_lineWidth(1.0f) {}
         
         RenderService::~RenderService() {
             flush();
