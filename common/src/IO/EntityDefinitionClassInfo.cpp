@@ -157,7 +157,7 @@ namespace TrenchBroom {
                         Assets::AttributeDefinitionMap::iterator classAttributeIt = m_attributes.find(baseAttribute->name());
                         if (classAttributeIt != m_attributes.end()) {
                             // the class already has a definition for this attribute, attempt merging them
-                            mergeProperties(baseAttribute.get(), classAttributeIt->second.get());
+                            mergeProperties(classAttributeIt->second.get(), baseAttribute.get());
                         } else {
                             // the class doesn't have a definition for this attribute, add the base class attribute
                             addAttributeDefinition(baseAttribute);
@@ -184,7 +184,7 @@ namespace TrenchBroom {
                 const Assets::FlagsAttributeDefinition* baseclassFlags = static_cast<const Assets::FlagsAttributeDefinition*>(baseclassAttribute);
                 Assets::FlagsAttributeDefinition* classFlags = static_cast<Assets::FlagsAttributeDefinition*>(classAttribute);
                 
-                for (int i = 0; i < 24; i++) {
+                for (int i = 0; i < 24; ++i) {
                     const Assets::FlagsAttributeOption* baseclassFlag = baseclassFlags->option(static_cast<int>(1 << i));
                     const Assets::FlagsAttributeOption* classFlag = classFlags->option(static_cast<int>(1 << i));
                     
