@@ -77,37 +77,57 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::OnToggleLayerVisibleFromMenu(wxCommandEvent& event) {
-            toggleLayerVisible(m_layerList->selectedLayer());
+            toggleLayerVisible(m_layerList->selectedLayer(), false);
         }
         
         void LayerEditor::OnToggleLayerVisibleFromList(LayerCommand& event) {
-            toggleLayerVisible(event.layer());
+            toggleLayerVisible(event.layer(), event.inverted());
         }
 
-        void LayerEditor::toggleLayerVisible(Model::Layer* layer) {
+        void LayerEditor::toggleLayerVisible(Model::Layer* layer, const bool inverted) {
             assert(layer != NULL);
             MapDocumentSPtr document = lock(m_document);
-            if (layer->visible())
-                document->hide(Model::NodeList(1, layer));
-            else
-                document->resetVisibility(Model::NodeList(1, layer));
+            if (inverted) {
+                Model::LayerList others = document->world()->allLayers();
+                VectorUtils::erase(others, layer);
+                
+                Transaction transaction(document, "Hide All But Current Layer");
+                document->hide(Model::NodeList(others.begin(), others.end()));
+                if (!layer->visible())
+                    document->resetVisibility(Model::NodeList(1, layer));
+            } else {
+                if (layer->visible())
+                    document->hide(Model::NodeList(1, layer));
+                else
+                    document->resetVisibility(Model::NodeList(1, layer));
+            }
         }
 
         void LayerEditor::OnToggleLayerLockedFromMenu(wxCommandEvent& event) {
-            toggleLayerLocked(m_layerList->selectedLayer());
+            toggleLayerLocked(m_layerList->selectedLayer(), false);
         }
         
         void LayerEditor::OnToggleLayerLockedFromList(LayerCommand& event) {
-            toggleLayerLocked(event.layer());
+            toggleLayerLocked(event.layer(), event.inverted());
         }
 
-        void LayerEditor::toggleLayerLocked(Model::Layer* layer) {
+        void LayerEditor::toggleLayerLocked(Model::Layer* layer, const bool inverted) {
             assert(layer != NULL);
             MapDocumentSPtr document = lock(m_document);
-            if (layer->editable())
-                document->lock(Model::NodeList(1, layer));
-            else
-                document->resetLock(Model::NodeList(1, layer));
+            if (inverted) {
+                Model::LayerList others = document->world()->allLayers();
+                VectorUtils::erase(others, layer);
+
+                Transaction transaction(document, "Lock All But Current Layer");
+                document->lock(Model::NodeList(others.begin(), others.end()));
+                if (!layer->editable())
+                    document->resetLock(Model::NodeList(1, layer));
+            } else {
+                if (layer->editable())
+                    document->lock(Model::NodeList(1, layer));
+                else
+                    document->resetLock(Model::NodeList(1, layer));
+            }
         }
 
         class LayerEditor::CollectMoveableNodes : public Model::NodeVisitor {
@@ -271,6 +291,12 @@ namespace TrenchBroom {
             event.Enable(layer != document->world()->defaultLayer());
         }
 
+        void LayerEditor::OnShowAllLayers(wxCommandEvent& event) {
+            MapDocumentSPtr document = lock(m_document);
+            const Model::LayerList& layers = document->world()->allLayers();
+            document->resetVisibility(Model::NodeList(layers.begin(), layers.end()));
+        }
+
         void LayerEditor::moveSelectedNodesToLayer(MapDocumentSPtr document, Model::Layer* layer) {
             const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
             
@@ -297,14 +323,17 @@ namespace TrenchBroom {
 
             wxWindow* addLayerButton = createBitmapButton(this, "Add.png", "Add a new layer from the current selection");
             wxWindow* removeLayerButton = createBitmapButton(this, "Remove.png", "Remove the selected layer and move its objects to the default layer");
+            wxWindow* showAllLayersButton = createBitmapButton(this, "Visible.png", "Show all layers");
             
             addLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnAddLayer, this);
             removeLayerButton->Bind(wxEVT_BUTTON, &LayerEditor::OnRemoveLayer, this);
             removeLayerButton->Bind(wxEVT_UPDATE_UI, &LayerEditor::OnUpdateRemoveLayerUI, this);
+            showAllLayersButton->Bind(wxEVT_BUTTON, &LayerEditor::OnShowAllLayers, this);
             
             wxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
             buttonSizer->Add(addLayerButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->Add(removeLayerButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
+            buttonSizer->Add(showAllLayersButton, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxBOTTOM, LayoutConstants::NarrowVMargin);
             buttonSizer->AddStretchSpacer();
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
