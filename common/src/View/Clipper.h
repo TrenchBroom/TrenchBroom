@@ -34,16 +34,51 @@ namespace TrenchBroom {
     
     namespace View {
         class Clipper {
+        public:
+            class PointSnapper {
+            public:
+                virtual ~PointSnapper();
+                bool snap(const Vec3& point, Vec3& result) const;
+            private:
+                virtual bool doSnap(const Vec3& point, Vec3& result) const = 0;
+            };
+            
+            class PointStrategy {
+            public:
+                virtual ~PointStrategy();
+                bool computeThirdPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const;
+            private:
+                virtual bool doComputeThirdPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const = 0;
+            };
+            
+            class PointStrategyFactory {
+            public:
+                virtual ~PointStrategyFactory();
+                PointStrategy* createStrategy() const;
+            private:
+                virtual PointStrategy* doCreateStrategy() const = 0;
+            };
+
+            class DefaultPointStrategyFactory : public PointStrategyFactory {
+            private:
+                PointStrategy* doCreateStrategy() const;
+            };
         private:
             enum ClipSide {
                 ClipSide_Front,
                 ClipSide_Both,
                 ClipSide_Back
             };
+
+            class ClipStrategy;
+            class PointClipStrategy;
+            class FaceClipStrategy;
         private:
             MapDocumentWPtr m_document;
             
             ClipSide m_clipSide;
+            ClipStrategy* m_strategy;
+
             Model::ParentChildrenMap m_frontBrushes;
             Model::ParentChildrenMap m_backBrushes;
             
@@ -51,13 +86,31 @@ namespace TrenchBroom {
             Renderer::BrushRenderer* m_clippedBrushRenderer;
         public:
             Clipper(MapDocumentWPtr document);
-        protected:
-            void update();
+            ~Clipper();
+            
+            void toggleSide();
+            void resetSide();
+            
+            bool canClip() const;
+            Model::ParentChildrenMap clip();
+            
+            bool canAddPoint(const Vec3& point, const PointSnapper& snapper) const;
+            void addPoint(const Vec3& point, const PointSnapper& snapper, const PointStrategyFactory& factory = DefaultPointStrategyFactory());
+            void removeLastPoint();
+            
+            bool beginDragPoint(const Vec3& position);
+            Vec3 draggedPoint() const;
+            bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper);
+            
+            void reset();
         private:
+            void resetStrategy();
+            
+            void update();
+
             void clearBrushes();
             void clipBrushes(const Vec3& point1, const Vec3& point2, const Vec3& point3);
             
-            bool canClip() const;
             void setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const;
             
             void clearRenderers();
@@ -68,9 +121,6 @@ namespace TrenchBroom {
             
             bool keepFrontBrushes() const;
             bool keepBackBrushes() const;
-        private:
-            bool doCanClip() const;
-            bool doGetPoints(Vec3& point1, Vec3& point2, Vec3& point3) const;
         };
     }
 }
