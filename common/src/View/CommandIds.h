@@ -93,7 +93,7 @@ namespace TrenchBroom {
                 const int ToggleClipTool                     = Lowest +   3;
                 const int ToggleClipSide                     = Lowest +   4;
                 const int PerformClip                        = Lowest +   5;
-                const int DeleteLastClipPoint                = Lowest +   6;
+                const int RemoveLastClipPoint                = Lowest +   6;
 
                 const int ToggleVertexTool                   = Lowest +   7;
                 const int MoveVerticesForward                = Lowest +   8;

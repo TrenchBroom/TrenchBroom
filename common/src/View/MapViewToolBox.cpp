@@ -97,7 +97,7 @@ namespace TrenchBroom {
         
         void MapViewToolBox::toggleClipSide() {
             assert(clipToolActive());
-            m_clipTool->toggleClipSide();
+            m_clipTool->toggleSide();
         }
             
         void MapViewToolBox::performClip() {
@@ -105,9 +105,9 @@ namespace TrenchBroom {
             m_clipTool->performClip();
         }
         
-        void MapViewToolBox::deleteLastClipPoint() {
+        void MapViewToolBox::removeLastClipPoint() {
             assert(clipToolActive());
-            m_clipTool->deleteLastClipPoint();
+            m_clipTool->removeLastPoint();
         }
 
         void MapViewToolBox::toggleRotateObjectsTool() {

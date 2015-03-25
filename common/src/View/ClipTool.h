@@ -28,10 +28,6 @@
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        class PickResult;
-    }
-    
     namespace Renderer {
         class BrushRenderer;
         class Camera;
@@ -39,41 +35,45 @@ namespace TrenchBroom {
         class RenderContext;
     }
     
+    namespace Model {
+        class ModelFactory;
+        class PickResult;
+    }
+    
     namespace View {
-        class Grid;
         class Selection;
-
+        
         class ClipTool : public Tool {
         public:
-            static const Model::Hit::HitType ClipPointHit;
+            static const Model::Hit::HitType PointHit;
 
-            class ClipPointSnapper {
+            class PointSnapper {
             public:
-                virtual ~ClipPointSnapper();
-                bool snapClipPoint(const Grid& grid, const Vec3& point, Vec3& snapped) const;
+                virtual ~PointSnapper();
+                bool snap(const Vec3& point, Vec3& result) const;
             private:
-                virtual bool doSnapClipPoint(const Grid& grid, const Vec3& point, Vec3& snapped) const = 0;
+                virtual bool doSnap(const Vec3& point, Vec3& result) const = 0;
             };
             
-            class ClipPointStrategy {
+            class PointStrategy {
             public:
-                virtual ~ClipPointStrategy();
-                bool computeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const;
+                virtual ~PointStrategy();
+                bool computeThirdPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const;
             private:
-                virtual bool doComputeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const = 0;
+                virtual bool doComputeThirdPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const = 0;
             };
             
-            class ClipPointStrategyFactory {
+            class PointStrategyFactory {
             public:
-                virtual ~ClipPointStrategyFactory();
-                const ClipPointStrategy* createStrategy() const;
+                virtual ~PointStrategyFactory();
+                PointStrategy* createStrategy() const;
             private:
-                virtual ClipPointStrategy* doCreateStrategy() const = 0;
+                virtual PointStrategy* doCreateStrategy() const = 0;
             };
-            
-            class NullClipPointStrategyFactory : public ClipPointStrategyFactory {
+
+            class DefaultPointStrategyFactory : public PointStrategyFactory {
             private:
-                ClipPointStrategy* doCreateStrategy() const;
+                PointStrategy* doCreateStrategy() const;
             };
         private:
             enum ClipSide {
@@ -81,18 +81,46 @@ namespace TrenchBroom {
                 ClipSide_Both,
                 ClipSide_Back
             };
+
+            class ClipStrategy {
+            public:
+                virtual ~ClipStrategy();
+                void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+                void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
+                bool canClip() const;
+                bool canAddPoint(const Vec3& point, const PointSnapper& snapper) const;
+                void addPoint(const Vec3& point, const PointSnapper& snapper, const PointStrategyFactory& factory);
+                void removeLastPoint();
+                bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
+                bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, Vec3& snappedPosition);
+                bool setFace(const Model::BrushFace* face);
+                void reset();
+                size_t getPoints(Vec3& point1, Vec3& point2, Vec3& point3) const;
+            private:
+                virtual void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
+                virtual void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) = 0;
+                virtual bool doCanClip() const = 0;
+                virtual bool doCanAddPoint(const Vec3& point, const PointSnapper& snapper) const = 0;
+                virtual void doAddPoint(const Vec3& point, const PointSnapper& snapper, const PointStrategyFactory& factory) = 0;
+                virtual void doRemoveLastPoint() = 0;
+                virtual bool doBeginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) = 0;
+                virtual bool doDragPoint(const Vec3& newPosition, const PointSnapper& snapper, Vec3& snappedPosition) = 0;
+                virtual bool doSetFace(const Model::BrushFace* face) = 0;
+                virtual void doReset() = 0;
+                virtual size_t doGetPoints(Vec3& point1, Vec3& point2, Vec3& point3) const = 0;
+            };
+            
+            class PointClipStrategy;
+            class FaceClipStrategy;
         private:
             MapDocumentWPtr m_document;
-            Vec3 m_clipPoints[3];
-            size_t m_numClipPoints;
-            size_t m_dragIndex;
+            
             ClipSide m_clipSide;
-            
-            const ClipPointStrategy* m_clipPointStrategy;
-            
+            ClipStrategy* m_strategy;
+
             Model::ParentChildrenMap m_frontBrushes;
             Model::ParentChildrenMap m_backBrushes;
-
+            
             Renderer::BrushRenderer* m_remainingBrushRenderer;
             Renderer::BrushRenderer* m_clippedBrushRenderer;
             
@@ -101,38 +129,50 @@ namespace TrenchBroom {
             ClipTool(MapDocumentWPtr document);
             ~ClipTool();
             
-            void toggleClipSide();
-            void performClip();
-
+            void toggleSide();
+            void resetSide();
+            
             void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
             
-            Vec3 defaultClipPointPos() const;
-            
-            bool addClipPoint(const Vec3& point, const ClipPointSnapper& snapper, const ClipPointStrategyFactory& factory = NullClipPointStrategyFactory());
-            bool setClipPlane(const Plane3& plane);
-        public:
-            bool beginDragClipPoint(const Model::PickResult& pickResult);
-            Vec3 draggedPointPosition() const;
-            bool dragClipPoint(const Vec3& newPosition, const ClipPointSnapper& snapper);
-
-            bool hasClipPoints() const;
-            void deleteLastClipPoint();
-            
-            void reset();
+            void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
         private:
-            void resetClipPoints();
-            void resetClipSide();
-            void resetClipPointStrategy();
-            
-            bool canClip() const;
-            Vec3 clipPoint(size_t index) const;
-            bool virtualClipPoint(Vec3& point) const;
-        public:
             void renderBrushes(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderClipPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void renderHighlight(bool dragging, const Model::PickResult& pickResult, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderStrategy(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
+        public:
+            bool canClip() const;
+            void performClip();
         private:
-            void renderHighlight(size_t index, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            Model::ParentChildrenMap clipBrushes();
+        public:
+            Vec3 defaultClipPointPos() const;
+
+            bool canAddPoint(const Vec3& point, const PointSnapper& snapper) const;
+            void addPoint(const Vec3& point, const PointSnapper& snapper, const PointStrategyFactory& factory = DefaultPointStrategyFactory());
+            void removeLastPoint();
+            
+            bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
+            bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, Vec3& snappedPosition);
+            
+            void setFace(const Model::BrushFace* face);
+            bool reset();
+        private:
+            void resetStrategy();
+            
+            void update();
+
+            void clearBrushes();
+            void updateBrushes();
+            
+            void setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const;
+            
+            void clearRenderers();
+            void updateRenderers();
+            
+            class AddBrushesToRendererVisitor;
+            void addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer);
+            
+            bool keepFrontBrushes() const;
+            bool keepBackBrushes() const;
         private:
             bool doActivate();
             bool doDeactivate();
@@ -142,21 +182,6 @@ namespace TrenchBroom {
             void selectionDidChange(const Selection& selection);
             void nodesWillChange(const Model::NodeList& nodes);
             void nodesDidChange(const Model::NodeList& nodes);
-            
-            void update();
-            
-            void updateBrushes();
-            void clipBrushes();
-            void deleteBrushes();
-            void setFaceAttributes(const Model::BrushFaceList& faces, Model::BrushFace* frontFace, Model::BrushFace* backFace) const;
-            
-            void clearRenderers();
-            void updateRenderers();
-            bool keepFrontBrushes() const;
-            bool keepBackBrushes() const;
-
-            class AddBrushesToRendererVisitor;
-            void addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer);
         };
     }
 }

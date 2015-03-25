@@ -41,7 +41,8 @@ namespace TrenchBroom {
         m_pointHandleRenderer(new PointHandleRenderer()),
         m_primitiveRenderer(new PrimitiveRenderer()),
         m_foregroundColor(1.0f, 1.0f, 1.0f, 1.0f),
-        m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f) {}
+        m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f),
+        m_lineWidth(1.0f) {}
         
         RenderService::~RenderService() {
             flush();
@@ -93,6 +94,10 @@ namespace TrenchBroom {
             m_primitiveRenderer->renderCoordinateSystem(pref(Preferences::XAxisColor), pref(Preferences::YAxisColor), pref(Preferences::ZAxisColor), m_lineWidth, bounds);
         }
         
+        void RenderService::renderPolygonOutline(const Vec3f::List& positions) {
+            m_primitiveRenderer->renderPolygon(m_foregroundColor, m_lineWidth, positions);
+        }
+
         void RenderService::renderBounds(const BBox3f& bounds) {
             const Vec3f p1(bounds.min.x(), bounds.min.y(), bounds.min.z());
             const Vec3f p2(bounds.min.x(), bounds.min.y(), bounds.max.z());

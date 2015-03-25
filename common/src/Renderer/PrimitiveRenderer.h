@@ -54,6 +54,8 @@ namespace TrenchBroom {
             void renderLines(const Color& color, float lineWidth, const Vec3f::List& positions);
             void renderCoordinateSystem(const Color& x, const Color& y, const Color& z, float lineWidth, const BBox3f& bounds);
             
+            void renderPolygon(const Color& color, float lineWidth, const Vec3f::List& positions);
+            
             void renderCircle(const Color& color, float lineWidth, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);
             void renderCircle(const Color& color, float lineWidth, const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, float startAngle = 0.0f, float angleLength = Math::Cf::twoPi());
             

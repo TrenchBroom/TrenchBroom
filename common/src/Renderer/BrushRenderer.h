@@ -93,6 +93,7 @@ namespace TrenchBroom {
             bool m_valid;
             
             Color m_faceColor;
+            bool m_showEdges;
             Color m_edgeColor;
             bool m_grayscale;
             bool m_tint;
@@ -107,6 +108,7 @@ namespace TrenchBroom {
             BrushRenderer(const FilterT& filter) :
             m_filter(new FilterT(filter)),
             m_valid(false),
+            m_showEdges(true),
             m_grayscale(false),
             m_tint(false),
             m_showOccludedEdges(false),
@@ -146,11 +148,12 @@ namespace TrenchBroom {
             void clear();
             
             void setFaceColor(const Color& faceColor);
+            void setShowEdges(bool showEdges);
             void setEdgeColor(const Color& edgeColor);
             void setGrayscale(bool grayscale);
             void setTint(bool tint);
             void setTintColor(const Color& tintColor);
-            void setShowOccludedEdges(bool renderOccludedEdges);
+            void setShowOccludedEdges(bool showOccludedEdges);
             void setOccludedEdgeColor(const Color& occludedEdgeColor);
             void setTransparencyAlpha(float transparencyAlpha);
             void setShowHiddenBrushes(bool showHiddenBrushes);
