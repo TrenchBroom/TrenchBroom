@@ -76,6 +76,8 @@ namespace TrenchBroom {
         }
 
         MapView3D::~MapView3D() {
+            m_flyModeHelper->Delete();
+            destroyToolChain();
             unbindObservers();
         }
         
@@ -104,7 +106,6 @@ namespace TrenchBroom {
         }
 
         void MapView3D::destroyToolChain() {
-            delete m_flyModeHelper;
             delete m_cameraTool;
             delete m_vertexToolAdapter;
             delete m_setBrushFaceAttributesTool;

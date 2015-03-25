@@ -74,7 +74,7 @@ namespace TrenchBroom {
 
         MapViewBase::~MapViewBase() {
             unbindObservers();
-            delete m_animationManager;
+            m_animationManager->Delete();
         }
 
         void MapViewBase::bindObservers() {

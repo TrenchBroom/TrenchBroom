@@ -24,6 +24,7 @@
 
 #include <iostream>
 
+#include <wx/thread.h>
 #include <wx/wx.h>
 
 namespace TrenchBroom {
@@ -32,7 +33,7 @@ namespace TrenchBroom {
     }
     
     namespace View {
-        class FlyModeHelper : public wxTimer {
+        class FlyModeHelper : public wxThread {
         private:
             wxWindow* m_window;
             Renderer::Camera& m_camera;
@@ -46,6 +47,8 @@ namespace TrenchBroom {
             
             wxPoint m_originalMousePos;
             wxLongLong m_lastPollTime;
+            
+            class CameraEvent;
         public:
             FlyModeHelper(wxWindow* window, Renderer::Camera& camera);
             ~FlyModeHelper();
@@ -58,7 +61,7 @@ namespace TrenchBroom {
             void lockMouse();
             void unlockMouse();
 
-            void Notify();
+            ExitCode Entry();
             Vec3f moveDelta(float time) const;
             Vec2f lookDelta(wxPoint mouseDelta) const;
             Vec2f lookSpeed() const;

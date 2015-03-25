@@ -22,6 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
+#include "View/ExecutableEvent.h"
 #include "View/KeyboardShortcut.h"
 
 #ifdef __APPLE__
@@ -32,6 +33,32 @@
 
 namespace TrenchBroom {
     namespace View {
+        class FlyModeHelper::CameraEvent : public ExecutableEvent::Executable {
+        private:
+            wxWindow* m_window;
+            Renderer::Camera& m_camera;
+            Vec3f m_moveDelta;
+            Vec2f m_rotateAngles;
+        public:
+            CameraEvent(wxWindow* window, Renderer::Camera& camera) :
+            m_window(window),
+            m_camera(camera) {}
+            
+            void setMoveDelta(const Vec3f& moveDelta) {
+                m_moveDelta = moveDelta;
+            }
+            
+            void setRotateAngles(const Vec2f& rotateAngles) {
+                m_rotateAngles = rotateAngles;
+            }
+        private:
+            void execute() {
+                m_camera.moveBy(m_moveDelta);
+                m_camera.rotate(m_rotateAngles.x(), m_rotateAngles.y());
+                m_window->Refresh();
+            }
+        };
+        
         FlyModeHelper::FlyModeHelper(wxWindow* window, Renderer::Camera& camera) :
         m_window(window),
         m_camera(camera),
@@ -41,16 +68,17 @@ namespace TrenchBroom {
 
             m_forward = m_backward = m_left = m_right = false;
             m_lastPollTime = ::wxGetLocalTimeMillis();
-            Start(20);
+            Run();
         }
         
         FlyModeHelper::~FlyModeHelper() {
-            Stop();
+            /* Since the window is already deleted when this destructor is called, we omit the cleanup.
             m_window->Unbind(wxEVT_KEY_DOWN, &FlyModeHelper::OnKeyDown, this);
             m_window->Unbind(wxEVT_KEY_UP, &FlyModeHelper::OnKeyUp, this);
 
             if (enabled())
                 disable();
+             */
         }
         
         void FlyModeHelper::enable() {
@@ -91,16 +119,25 @@ namespace TrenchBroom {
             m_window->SetCursor(wxNullCursor);
         }
         
-        void FlyModeHelper::Notify() {
-            const Vec3f delta = moveDelta(pollTime());
-            m_camera.moveBy(delta);
-
-            if (m_enabled) {
-                const Vec2f angles = lookDelta(pollMouseDelta());
-                m_camera.rotate(angles.x(), angles.y());
+        wxThread::ExitCode FlyModeHelper::Entry() {
+            while (!TestDestroy()) {
+                const Vec3f delta = moveDelta(pollTime());
+                const Vec2f angles = m_enabled ? lookDelta(pollMouseDelta()) : Vec2f::Null;
+                
+                if (!delta.null() || !angles.null()) {
+                    CameraEvent* event = new CameraEvent(m_window, m_camera);
+                    event->setMoveDelta(delta);
+                    event->setRotateAngles(angles);
+                    
+                    if (!TestDestroy() && wxTheApp != NULL)
+                        wxTheApp->QueueEvent(new ExecutableEvent(event));
+                }
+                
+                Sleep(20);
             }
+            return static_cast<ExitCode>(0);
         }
-        
+
         Vec3f FlyModeHelper::moveDelta(const float time) const {
             const float dist = moveSpeed() * time;
 
@@ -140,6 +177,7 @@ namespace TrenchBroom {
             const wxLongLong currentTime = ::wxGetLocalTimeMillis();
             const float time = static_cast<float>((currentTime - m_lastPollTime).ToLong());
             m_lastPollTime = currentTime;
+            
             return time;
         }
 

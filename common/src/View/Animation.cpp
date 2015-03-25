@@ -82,7 +82,7 @@ namespace TrenchBroom {
         
         AnimationManager::AnimationManager() :
         m_lastTime(wxGetLocalTimeMillis()) {
-            Start(20);
+            Run();
         }
         
         void AnimationManager::runAnimation(Animation* animation, const bool replace) {
@@ -94,37 +94,43 @@ namespace TrenchBroom {
             list.push_back(Animation::Ptr(animation));
         }
         
-        void AnimationManager::Notify() {
-            const wxLongLong elapsed = wxGetLocalTimeMillis() - m_lastTime;
-            
-            Animation::List updateAnimations;
-            if (!m_animations.empty()) {
-                AnimationMap::iterator mapIt = m_animations.begin();
-                while (mapIt != m_animations.end()) {
-                    Animation::List& list = mapIt->second;
-                    Animation::List::iterator listIt = list.begin();
-                    while (listIt != list.end()) {
-                        Animation::Ptr animation = *listIt;
-                        if (animation->step(elapsed))
-                            listIt = list.erase(listIt);
-                        updateAnimations.push_back(animation);
-                        if (listIt != list.end())
-                            ++listIt;
+        wxThread::ExitCode AnimationManager::Entry() {
+            while (!TestDestroy()) {
+                const wxLongLong elapsed = wxGetLocalTimeMillis() - m_lastTime;
+                
+                Animation::List updateAnimations;
+                if (!m_animations.empty()) {
+                    AnimationMap::iterator mapIt = m_animations.begin();
+                    while (mapIt != m_animations.end()) {
+                        Animation::List& list = mapIt->second;
+                        Animation::List::iterator listIt = list.begin();
+                        while (listIt != list.end()) {
+                            Animation::Ptr animation = *listIt;
+                            if (animation->step(elapsed))
+                                listIt = list.erase(listIt);
+                            updateAnimations.push_back(animation);
+                            if (listIt != list.end())
+                                ++listIt;
+                        }
+                        
+                        if (list.empty())
+                            m_animations.erase(mapIt++);
+                        else
+                            ++mapIt;
                     }
-                    
-                    if (list.empty())
-                        m_animations.erase(mapIt++);
-                    else
-                        ++mapIt;
                 }
+                m_lastTime += elapsed;
+                
+                if (!TestDestroy() && wxTheApp != NULL && !updateAnimations.empty()) {
+                    ExecutableEvent::Executable::Ptr executable(new ExecutableAnimation(updateAnimations));
+                    ExecutableEvent* event = new ExecutableEvent(executable);
+                    wxTheApp->QueueEvent(event);
+                }
+                
+                Sleep(20);
             }
-            m_lastTime += elapsed;
             
-            if (wxTheApp != NULL && !updateAnimations.empty()) {
-                ExecutableEvent::Executable::Ptr executable(new ExecutableAnimation(updateAnimations));
-                ExecutableEvent* event = new ExecutableEvent(executable);
-                wxTheApp->QueueEvent(event);
-            }
+            return static_cast<ExitCode>(0);
         }
     }
 }
