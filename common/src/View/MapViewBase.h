@@ -139,7 +139,7 @@ namespace TrenchBroom {
             void OnToggleClipTool(wxCommandEvent& event);
             void OnToggleClipSide(wxCommandEvent& event);
             void OnPerformClip(wxCommandEvent& event);
-            void OnDeleteLastClipPoint(wxCommandEvent& event);
+            void OnRemoveLastClipPoint(wxCommandEvent& event);
             
             void OnToggleVertexTool(wxCommandEvent& event);
             void OnMoveVerticesForward(wxCommandEvent& event);

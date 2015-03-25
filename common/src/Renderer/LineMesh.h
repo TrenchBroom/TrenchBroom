@@ -138,7 +138,7 @@ namespace TrenchBroom {
                 m_lineLoops.addVertices(vertices);
             }
             
-            void addLineLooop(const typename VertexSpec::Vertex::List& vertices) {
+            void addLineLoop(const typename VertexSpec::Vertex::List& vertices) {
                 assert(m_currentType == LineType_Loop);
                 m_lineLoops.addPrimitive(vertices);
             }

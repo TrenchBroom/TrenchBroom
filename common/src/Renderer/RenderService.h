@@ -67,6 +67,8 @@ namespace TrenchBroom {
             void renderLines(const Vec3f::List& positions);
             void renderCoordinateSystem(const BBox3f& bounds);
             
+            void renderPolygonOutline(const Vec3f::List& positions);
+            
             void renderBounds(const BBox3f& bounds);
             
             void renderCircle(const Vec3f& position, Math::Axis::Type normal, size_t segments, float radius, const Vec3f& startAxis, const Vec3f& endAxis);

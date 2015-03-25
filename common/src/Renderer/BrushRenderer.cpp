@@ -70,6 +70,7 @@ namespace TrenchBroom {
         BrushRenderer::BrushRenderer(const bool transparent) :
         m_filter(new NoFilter(transparent)),
         m_valid(false),
+        m_showEdges(true),
         m_grayscale(false),
         m_tint(false),
         m_showOccludedEdges(false),
@@ -106,6 +107,10 @@ namespace TrenchBroom {
 
         void BrushRenderer::setFaceColor(const Color& faceColor) {
             m_faceColor = faceColor;
+        }
+        
+        void BrushRenderer::setShowEdges(const bool showEdges) {
+            m_showEdges = showEdges;
         }
         
         void BrushRenderer::setEdgeColor(const Color& edgeColor) {
@@ -149,7 +154,7 @@ namespace TrenchBroom {
                     validate();
                 if (renderContext.showFaces())
                     renderFaces(renderBatch);
-                if (renderContext.showEdges())
+                if (renderContext.showEdges() && m_showEdges)
                     renderEdges(renderBatch);
             }
         }

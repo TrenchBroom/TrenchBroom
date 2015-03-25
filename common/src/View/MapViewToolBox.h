@@ -70,7 +70,7 @@ namespace TrenchBroom {
             bool clipToolActive() const;
             void toggleClipSide();
             void performClip();
-            void deleteLastClipPoint();
+            void removeLastClipPoint();
             
             void toggleRotateObjectsTool();
             bool rotateObjectsToolActive() const;

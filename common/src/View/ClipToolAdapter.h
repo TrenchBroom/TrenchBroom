@@ -66,6 +66,8 @@ namespace TrenchBroom {
                 if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
                     !inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
                     return false;
+                if (inputState.modifierKeysPressed(ModifierKeys::MKShift))
+                    return doSetClipPlane(inputState);
                 return doAddClipPoint(inputState);
             }
 
@@ -79,36 +81,31 @@ namespace TrenchBroom {
             }
             
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                m_tool->renderBrushes(renderContext, renderBatch);
-                m_tool->renderClipPoints(renderContext, renderBatch);
-                m_tool->renderHighlight(Super::dragging(), inputState.pickResult(), renderContext, renderBatch);
+                m_tool->render(renderContext, renderBatch, inputState.pickResult());
             }
             
             bool doCancel() {
-                if (m_tool->hasClipPoints()) {
-                    m_tool->reset();
-                    return true;
-                }
-                return false;
+                return m_tool->reset();
             }
         protected:
             bool startDrag(const InputState& inputState) {
                 if (inputState.mouseButtons() != MouseButtons::MBLeft ||
                     inputState.modifierKeys() != ModifierKeys::MKNone)
                     return false;
-                return m_tool->beginDragClipPoint(inputState.pickResult());
+                return true;
             }
         private: // subclassing interface
             virtual bool doAddClipPoint(const InputState& inputState) = 0;
+            virtual bool doSetClipPlane(const InputState& inputState) = 0;
         };
         
         class ClipToolAdapter2D : public ClipToolAdapter<PlaneDragPolicy> {
         public:
             ClipToolAdapter2D(ClipTool* tool, const Grid& grid);
         private:
-            class ClipPointSnapper;
-            class ClipPointStrategy;
-            class ClipPointStrategyFactory;
+            class PointSnapper;
+            class PointStrategy;
+            class PointStrategyFactory;
 
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
@@ -117,13 +114,14 @@ namespace TrenchBroom {
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             
             bool doAddClipPoint(const InputState& inputState);
+            bool doSetClipPlane(const InputState& inputState);
         };
         
         class ClipToolAdapter3D : public ClipToolAdapter<MouseDragPolicy> {
         public:
             ClipToolAdapter3D(ClipTool* tool, const Grid& grid);
         private:
-            class ClipPointSnapper;
+            class PointSnapper;
             
             bool doStartMouseDrag(const InputState& inputState);
             bool doMouseDrag(const InputState& inputState);
@@ -131,6 +129,7 @@ namespace TrenchBroom {
             void doCancelMouseDrag();
             
             bool doAddClipPoint(const InputState& inputState);
+            bool doSetClipPlane(const InputState& inputState);
         };
     }
 }

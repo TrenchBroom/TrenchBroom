@@ -37,36 +37,38 @@ namespace TrenchBroom {
         ClipToolAdapter2D::ClipToolAdapter2D(ClipTool* tool, const Grid& grid) :
         ClipToolAdapter(tool, grid) {}
         
-        class ClipToolAdapter2D::ClipPointSnapper : public ClipTool::ClipPointSnapper {
-        public:
-            ClipPointSnapper() {}
+        class ClipToolAdapter2D::PointSnapper : public ClipTool::PointSnapper {
         private:
-            bool doSnapClipPoint(const Grid& grid, const Vec3& point, Vec3& snappedPoint) const {
-                snappedPoint = grid.snap(point);
+            const Grid& m_grid;
+        public:
+            PointSnapper(const Grid& grid) : m_grid(grid) {}
+        private:
+            bool doSnap(const Vec3& point, Vec3& snappedPoint) const {
+                snappedPoint = m_grid.snap(point);
                 return true;
             }
         };
 
-        class ClipToolAdapter2D::ClipPointStrategy : public ClipTool::ClipPointStrategy {
+        class ClipToolAdapter2D::PointStrategy : public ClipTool::PointStrategy {
         private:
             const Vec3 m_viewDirection;
         public:
-            ClipPointStrategy(const Vec3& viewDirection) : m_viewDirection(viewDirection) {}
+            PointStrategy(const Vec3& viewDirection) : m_viewDirection(viewDirection) {}
         private:
-            bool doComputeThirdClipPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const {
+            bool doComputeThirdPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const {
                 point3 = point2 + 128.0 * m_viewDirection;
                 return !linearlyDependent(point1, point2, point3);
             }
         };
 
-        class ClipToolAdapter2D::ClipPointStrategyFactory : public ClipTool::ClipPointStrategyFactory {
+        class ClipToolAdapter2D::PointStrategyFactory : public ClipTool::PointStrategyFactory {
         private:
             const Vec3 m_viewDirection;
         public:
-            ClipPointStrategyFactory(const Vec3& viewDirection) : m_viewDirection(viewDirection) {}
+            PointStrategyFactory(const Vec3& viewDirection) : m_viewDirection(viewDirection) {}
         private:
-            ClipTool::ClipPointStrategy* doCreateStrategy() const {
-                return new ClipPointStrategy(m_viewDirection);
+            ClipTool::PointStrategy* doCreateStrategy() const {
+                return new PointStrategy(m_viewDirection);
             }
         };
 
@@ -74,16 +76,19 @@ namespace TrenchBroom {
             if (!startDrag(inputState))
                 return false;
             
-            initialPoint = m_tool->draggedPointPosition();
+            if (!m_tool->beginDragPoint(inputState.pickResult(), initialPoint))
+                return false;
+            
             plane = Plane3(initialPoint, inputState.camera().direction().firstAxis());
             return true;
         }
         
         bool ClipToolAdapter2D::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
             
-            const ClipPointSnapper snapper;
-            if (m_tool->dragClipPoint(curPoint, snapper))
-                refPoint = m_tool->draggedPointPosition();
+            const PointSnapper snapper(m_grid);
+            Vec3 snapped;
+            if (m_tool->dragPoint(curPoint, snapper, snapped))
+                refPoint = snapped;
             return true;
         }
         
@@ -102,26 +107,35 @@ namespace TrenchBroom {
                 return false;
             
             const Vec3 hitPoint = pickRay.pointAtDistance(distance);
+            const PointSnapper snapper(m_grid);
+            if (!m_tool->canAddPoint(hitPoint, snapper))
+                return false;
             
-            
-            const ClipPointSnapper snapper;
-            const ClipPointStrategyFactory factory(viewDir);
-            return m_tool->addClipPoint(hitPoint, snapper, factory);
+            const PointStrategyFactory factory(viewDir);
+            m_tool->addPoint(hitPoint, snapper, factory);
+            return true;
+        }
+
+        bool ClipToolAdapter2D::doSetClipPlane(const InputState& inputState) {
+            return false;
         }
 
         ClipToolAdapter3D::ClipToolAdapter3D(ClipTool* tool, const Grid& grid) :
         ClipToolAdapter(tool, grid) {}
 
-        class ClipToolAdapter3D::ClipPointSnapper : public ClipTool::ClipPointSnapper {
+        class ClipToolAdapter3D::PointSnapper : public ClipTool::PointSnapper {
+        private:
+            const Grid& m_grid;
             const Model::BrushFace* m_currentFace;
         public:
-            ClipPointSnapper(const Model::BrushFace* currentFace) :
+            PointSnapper(const Grid& grid, const Model::BrushFace* currentFace) :
+            m_grid(grid),
             m_currentFace(currentFace) {
                 assert(m_currentFace != NULL);
             }
         private:
-            bool doSnapClipPoint(const Grid& grid, const Vec3& point, Vec3& snappedPoint) const {
-                const Vec3 snapAttempt = grid.snap(point, m_currentFace->boundary());
+            bool doSnap(const Vec3& point, Vec3& snappedPoint) const {
+                const Vec3 snapAttempt = m_grid.snap(point, m_currentFace->boundary());
                 if (!m_currentFace->containsPoint(snapAttempt))
                     return false;
                 
@@ -131,14 +145,19 @@ namespace TrenchBroom {
         };
         
         bool ClipToolAdapter3D::doStartMouseDrag(const InputState& inputState) {
-            return startDrag(inputState);
+            if (!startDrag(inputState))
+                return false;
+            Vec3 initialPosition;
+            return m_tool->beginDragPoint(inputState.pickResult(), initialPosition);
         }
         
         bool ClipToolAdapter3D::doMouseDrag(const InputState& inputState) {
             const Model::Hit& hit = inputState.pickResult().query().type(Model::Brush::BrushHit).occluded().first();
             if (hit.isMatch()) {
-                const ClipPointSnapper snapper(Model::hitToFace(hit));
-                m_tool->dragClipPoint(hit.hitPoint(), snapper);
+                const PointSnapper snapper(m_grid, Model::hitToFace(hit));
+                Vec3 snapped;
+                
+                m_tool->dragPoint(hit.hitPoint(), snapper, snapped);
             }
             return true;
         }
@@ -154,8 +173,20 @@ namespace TrenchBroom {
             const Vec3& point = hit.hitPoint();
             const Model::BrushFace* face = hit.target<Model::BrushFace*>();
             
-            const ClipPointSnapper snapper(face);
-            return m_tool->addClipPoint(point, snapper);
+            const PointSnapper snapper(m_grid, face);
+            if (!m_tool->canAddPoint(point, snapper))
+                return false;
+            m_tool->addPoint(point, snapper);
+            return true;
+        }
+
+        bool ClipToolAdapter3D::doSetClipPlane(const InputState& inputState) {
+            const Model::Hit& hit = inputState.pickResult().query().pickable().type(Model::Brush::BrushHit).occluded().first();
+            if (!hit.isMatch())
+                return false;
+            const Model::BrushFace* face = Model::hitToFace(hit);
+            m_tool->setFace(face);
+            return true;
         }
     }
 }
