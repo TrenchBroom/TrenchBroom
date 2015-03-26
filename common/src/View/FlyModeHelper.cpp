@@ -21,6 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "SetBool.h"
 #include "Renderer/Camera.h"
 #include "View/ExecutableEvent.h"
 #include "View/KeyboardShortcut.h"
@@ -62,7 +63,8 @@ namespace TrenchBroom {
         FlyModeHelper::FlyModeHelper(wxWindow* window, Renderer::Camera& camera) :
         m_window(window),
         m_camera(camera),
-        m_enabled(false) {
+        m_enabled(false),
+        m_ignoreMotionEvents(false) {
             m_window->Bind(wxEVT_KEY_DOWN, &FlyModeHelper::OnKeyDown, this);
             m_window->Bind(wxEVT_KEY_UP, &FlyModeHelper::OnKeyUp, this);
 
@@ -82,12 +84,14 @@ namespace TrenchBroom {
         }
         
         void FlyModeHelper::enable() {
+            wxCriticalSectionLocker lock(m_critical);
             assert(!enabled());
             lockMouse();
             m_enabled = true;
         }
         
         void FlyModeHelper::disable() {
+            wxCriticalSectionLocker lock(m_critical);
             assert(enabled());
             unlockMouse();
             m_enabled = false;
@@ -98,31 +102,27 @@ namespace TrenchBroom {
         }
 
         void FlyModeHelper::lockMouse() {
+            wxCriticalSectionLocker lock(m_critical);
+            
+            m_window->Bind(wxEVT_MOTION, &FlyModeHelper::OnMouseMotion, this);
             m_window->SetCursor(wxCursor(wxCURSOR_BLANK));
             
-#ifdef __APPLE__
-            CGAssociateMouseAndMouseCursorPosition(false);
-            int32_t dx, dy;
-            CGGetLastMouseDelta(&dx, &dy);
-#else
             m_originalMousePos = m_window->ScreenToClient(::wxGetMousePosition());
             resetMouse();
-#endif
         }
         
         void FlyModeHelper::unlockMouse() {
-#ifdef __APPLE__
-            CGAssociateMouseAndMouseCursorPosition(true);
-#else
+            wxCriticalSectionLocker lock(m_critical);
+            
+            m_window->Unbind(wxEVT_MOTION, &FlyModeHelper::OnMouseMotion, this);
             m_window->WarpPointer(m_originalMousePos.x, m_originalMousePos.y);
-#endif
             m_window->SetCursor(wxNullCursor);
         }
         
         wxThread::ExitCode FlyModeHelper::Entry() {
             while (!TestDestroy()) {
-                const Vec3f delta = moveDelta(pollTime());
-                const Vec2f angles = m_enabled ? lookDelta(pollMouseDelta()) : Vec2f::Null;
+                const Vec3f delta = moveDelta();
+                const Vec2f angles = lookDelta();
                 
                 if (!delta.null() || !angles.null()) {
                     CameraEvent* event = new CameraEvent(m_window, m_camera);
@@ -138,7 +138,13 @@ namespace TrenchBroom {
             return static_cast<ExitCode>(0);
         }
 
-        Vec3f FlyModeHelper::moveDelta(const float time) const {
+        Vec3f FlyModeHelper::moveDelta() {
+            wxCriticalSectionLocker lock(m_critical);
+
+            const wxLongLong currentTime = ::wxGetLocalTimeMillis();
+            const float time = static_cast<float>((currentTime - m_lastPollTime).ToLong());
+            m_lastPollTime = currentTime;
+
             const float dist = moveSpeed() * time;
 
             Vec3f delta;
@@ -153,10 +159,16 @@ namespace TrenchBroom {
             return delta;
         }
 
-        Vec2f FlyModeHelper::lookDelta(const wxPoint mouseDelta) const {
+        Vec2f FlyModeHelper::lookDelta() {
+            if (!m_enabled)
+                return Vec2f::Null;
+            
+            wxCriticalSectionLocker lock(m_critical);
+
             const Vec2f speed = lookSpeed();
-            const float hAngle = static_cast<float>(mouseDelta.x) * speed.x();
-            const float vAngle = static_cast<float>(mouseDelta.y) * speed.y();
+            const float hAngle = static_cast<float>(m_currentMouseDelta.x) * speed.x();
+            const float vAngle = static_cast<float>(m_currentMouseDelta.y) * speed.y();
+            m_currentMouseDelta.x = m_currentMouseDelta.y = 0;
             return Vec2f(hAngle, vAngle);
         }
 
@@ -171,39 +183,6 @@ namespace TrenchBroom {
         
         float FlyModeHelper::moveSpeed() const {
             return 256.0f / 1000.0f;
-        }
-
-        float FlyModeHelper::pollTime() {
-            const wxLongLong currentTime = ::wxGetLocalTimeMillis();
-            const float time = static_cast<float>((currentTime - m_lastPollTime).ToLong());
-            m_lastPollTime = currentTime;
-            
-            return time;
-        }
-
-        wxPoint FlyModeHelper::pollMouseDelta() {
-#ifndef __APPLE__
-            const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
-            const wxPoint delta = currentMousePos - windowCenter();
-            resetMouse();
-            return delta;
-#else
-            int32_t dx, dy;
-            CGGetLastMouseDelta(&dx, &dy);
-            return wxPoint(dx, dy);
-#endif
-        }
-        
-        void FlyModeHelper::resetMouse() {
-#ifndef __APPLE__
-            const wxPoint center = windowCenter();
-            m_window->WarpPointer(center.x, center.y);
-#endif
-        }
-
-        wxPoint FlyModeHelper::windowCenter() const {
-            const wxSize size = m_window->GetSize();
-            return wxPoint(size.x / 2, size.y / 2);
         }
 
         void FlyModeHelper::OnKeyDown(wxKeyEvent& event) {
@@ -221,6 +200,8 @@ namespace TrenchBroom {
             const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
             const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
             
+            wxCriticalSectionLocker lock(m_critical);
+
             if (forward.matches(event))
                 m_forward = down;
             else if (backward.matches(event))
@@ -231,6 +212,28 @@ namespace TrenchBroom {
                 m_right = down;
             else
                 event.Skip();
+        }
+
+        void FlyModeHelper::OnMouseMotion(wxMouseEvent& event) {
+            if (!m_ignoreMotionEvents) {
+                const SetBool ignoreMotion(m_ignoreMotionEvents);
+                wxCriticalSectionLocker lock(m_critical);
+                
+                const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
+                const wxPoint delta = currentMousePos - windowCenter();
+                resetMouse();
+                m_currentMouseDelta += delta;
+            }
+        }
+
+        void FlyModeHelper::resetMouse() {
+            const wxPoint center = windowCenter();
+            m_window->WarpPointer(center.x, center.y);
+        }
+        
+        wxPoint FlyModeHelper::windowCenter() const {
+            const wxSize size = m_window->GetSize();
+            return wxPoint(size.x / 2, size.y / 2);
         }
     }
 }

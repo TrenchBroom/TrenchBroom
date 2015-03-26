@@ -38,6 +38,7 @@ namespace TrenchBroom {
             wxWindow* m_window;
             Renderer::Camera& m_camera;
             
+            wxCriticalSection m_critical;
             bool m_forward;
             bool m_backward;
             bool m_left;
@@ -46,6 +47,9 @@ namespace TrenchBroom {
             bool m_enabled;
             
             wxPoint m_originalMousePos;
+            wxPoint m_currentMouseDelta;
+            bool m_ignoreMotionEvents;
+            
             wxLongLong m_lastPollTime;
             
             class CameraEvent;
@@ -62,20 +66,18 @@ namespace TrenchBroom {
             void unlockMouse();
 
             ExitCode Entry();
-            Vec3f moveDelta(float time) const;
-            Vec2f lookDelta(wxPoint mouseDelta) const;
+            Vec3f moveDelta();
+            Vec2f lookDelta();
             Vec2f lookSpeed() const;
             float moveSpeed() const;
-            
-            float pollTime();
-            wxPoint pollMouseDelta();
-            void resetMouse();
-            
-            wxPoint windowCenter() const;
             
             void OnKeyDown(wxKeyEvent& event);
             void OnKeyUp(wxKeyEvent& event);
             void onKey(wxKeyEvent& event, bool down);
+            void OnMouseMotion(wxMouseEvent& event);
+            
+            void resetMouse();
+            wxPoint windowCenter() const;
         };
     }
 }
