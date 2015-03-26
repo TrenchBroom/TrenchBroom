@@ -543,12 +543,17 @@ namespace TrenchBroom {
                 if (!node->selected() && !node->descendantSelected()) {
                     ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
                     assert(layerRenderer != NULL);
-                    if (node->hidden())
-                        layerRenderer->removeObject(node);
-                    else if (node->locked())
-                        m_lockedRenderer->addObject(node);
-                    else
-                        layerRenderer->addObject(node);
+                    if (node->hidden()) {
+                        if (node->locked())
+                            m_lockedRenderer->removeObject(node);
+                        else
+                            layerRenderer->removeObject(node);
+                    } else {
+                        if (node->locked())
+                            m_lockedRenderer->addObject(node);
+                        else
+                            layerRenderer->addObject(node);
+                    }
                 }
             }
         };
@@ -579,12 +584,14 @@ namespace TrenchBroom {
                 if (!node->selected() && !node->descendantSelected()) {
                     ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
                     assert(layerRenderer != NULL);
-                    if (node->locked()) {
-                        layerRenderer->removeObject(node);
-                        m_lockedRenderer->addObject(node);
-                    } else {
-                        m_lockedRenderer->removeObject(node);
-                        layerRenderer->addObject(node);
+                    if (!node->hidden()) {
+                        if (node->locked()) {
+                            layerRenderer->removeObject(node);
+                            m_lockedRenderer->addObject(node);
+                        } else {
+                            m_lockedRenderer->removeObject(node);
+                            layerRenderer->addObject(node);
+                        }
                     }
                 }
             }
