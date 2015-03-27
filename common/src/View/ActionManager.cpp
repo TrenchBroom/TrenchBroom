@@ -325,17 +325,41 @@ namespace TrenchBroom {
 
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_FaceSelection, Action(),
                                Action(View::CommandIds::Actions::MoveTexturesUp, "Move textures up", true));
+            createViewShortcut(KeyboardShortcut(WXK_UP, WXK_CONTROL), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::MoveTexturesUp, "Move textures up (fine)", true));
+            createViewShortcut(KeyboardShortcut(WXK_UP, WXK_SHIFT), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::MoveTexturesUp, "Move textures up (coarse)", true));
             createViewShortcut(KeyboardShortcut(WXK_DOWN), ActionContext_FaceSelection, Action(),
                                Action(View::CommandIds::Actions::MoveTexturesDown, "Move textures down", true));
+            createViewShortcut(KeyboardShortcut(WXK_DOWN, WXK_CONTROL), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::MoveTexturesDown, "Move textures down (fine)", true));
+            createViewShortcut(KeyboardShortcut(WXK_DOWN, WXK_SHIFT), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::MoveTexturesDown, "Move textures down (coarse)", true));
             createViewShortcut(KeyboardShortcut(WXK_LEFT), ActionContext_FaceSelection, Action(),
                                Action(View::CommandIds::Actions::MoveTexturesLeft, "Move textures left", true));
+            createViewShortcut(KeyboardShortcut(WXK_LEFT, WXK_CONTROL), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::MoveTexturesLeft, "Move textures left (fine)", true));
+            createViewShortcut(KeyboardShortcut(WXK_LEFT, WXK_SHIFT), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::MoveTexturesLeft, "Move textures left (coarse)", true));
             createViewShortcut(KeyboardShortcut(WXK_RIGHT), ActionContext_FaceSelection, Action(),
                                Action(View::CommandIds::Actions::MoveTexturesRight, "Move textures right", true));
+            createViewShortcut(KeyboardShortcut(WXK_RIGHT, WXK_CONTROL), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::MoveTexturesRight, "Move textures right (fine)", true));
+            createViewShortcut(KeyboardShortcut(WXK_RIGHT, WXK_SHIFT), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::MoveTexturesRight, "Move textures right (coarse)", true));
 
             createViewShortcut(KeyboardShortcut(WXK_PAGEUP), ActionContext_FaceSelection, Action(),
                                Action(View::CommandIds::Actions::RotateTexturesCW, "Rotate textures clockwise", true));
+            createViewShortcut(KeyboardShortcut(WXK_PAGEUP, WXK_CONTROL), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::RotateTexturesCW, "Rotate textures clockwise (fine)", true));
+            createViewShortcut(KeyboardShortcut(WXK_PAGEUP, WXK_SHIFT), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::RotateTexturesCW, "Rotate textures clockwise (coarse)", true));
             createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN), ActionContext_FaceSelection, Action(),
                                Action(View::CommandIds::Actions::RotateTexturesCCW, "Rotate textures counter-clockwise", true));
+            createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN, WXK_CONTROL), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::RotateTexturesCCW, "Rotate textures counter-clockwise (fine)", true));
+            createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT), ActionContext_FaceSelection, Action(),
+                               Action(View::CommandIds::Actions::RotateTexturesCCW, "Rotate textures counter-clockwise (coarse)", true));
             
             createViewShortcut(KeyboardShortcut(WXK_TAB), ActionContext_Any,
                                Action(View::CommandIds::Actions::CycleMapViews, "Cycle map view", true));
