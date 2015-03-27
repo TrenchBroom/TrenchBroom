@@ -27,9 +27,12 @@
 #include "View/KeyboardShortcut.h"
 
 #ifdef __APPLE__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-macros"
 // Don't include Quickdraw - we don't need it and it leads to symbol redefinition errrors
 #define __QUICKDRAWAPI__
 #include <ApplicationServices/ApplicationServices.h>
+#pragma clang diagnostic pop
 #endif
 
 namespace TrenchBroom {

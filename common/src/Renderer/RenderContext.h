@@ -75,7 +75,6 @@ namespace TrenchBroom {
             bool m_tintSelection;
             
             ShowSelectionGuide m_showSelectionGuide;
-            bool m_showMouseIndicators;
         public:
             RenderContext(RenderMode renderMode, const Camera& camera, FontManager& fontManager, ShaderManager& shaderManager);
 
@@ -131,9 +130,6 @@ namespace TrenchBroom {
             void setHideSelectionGuide();
             void setForceShowSelectionGuide();
             void setForceHideSelectionGuide();
-            
-            bool showMouseIndicators() const;
-            void setHideMouseIndicators();
         private:
             void setShowSelectionGuide(ShowSelectionGuide showSelectionGuide);
         };

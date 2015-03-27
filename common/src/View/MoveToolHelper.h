@@ -23,7 +23,6 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Renderer/EdgeRenderer.h"
-#include "Renderer/MoveIndicatorRenderer.h"
 #include "View/ToolAdapter.h"
 
 namespace TrenchBroom {
@@ -83,13 +82,10 @@ namespace TrenchBroom {
         private:
             Plane3 dragPlane(const InputState& inputState, const Vec3& initialPoint) const;
             void addTracePoint(const Vec3& point);
-            
-            void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             virtual Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const = 0;
             virtual Vec3 doGetDelta(const Vec3& delta) const = 0;
-            virtual void doRenderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
         };
         
         class MoveToolHelper2D : public MoveToolHelper {
@@ -98,7 +94,6 @@ namespace TrenchBroom {
         private:
             Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const;
             Vec3 doGetDelta(const Vec3& delta) const;
-            void doRenderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
 
         class MoveToolHelper3D : public MoveToolHelper {
@@ -109,8 +104,6 @@ namespace TrenchBroom {
         private:
             Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const;
             Vec3 doGetDelta(const Vec3& delta) const;
-            void doRenderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            Renderer::MoveIndicatorRenderer::Direction getDirection() const;
         };
     }
 }

@@ -42,8 +42,7 @@ namespace TrenchBroom {
         m_gridSize(4),
         m_hideSelection(false),
         m_tintSelection(true),
-        m_showSelectionGuide(ShowSelectionGuide_Hide),
-        m_showMouseIndicators(true) {}
+        m_showSelectionGuide(ShowSelectionGuide_Hide) {}
         
         bool RenderContext::render2D() const {
             return m_renderMode == RenderMode_2D;
@@ -191,14 +190,6 @@ namespace TrenchBroom {
 
         void RenderContext::setForceHideSelectionGuide() {
             setShowSelectionGuide(ShowSelectionGuide_ForceHide);
-        }
-
-        bool RenderContext::showMouseIndicators() const {
-            return m_showMouseIndicators;
-        }
-        
-        void RenderContext::setHideMouseIndicators() {
-            m_showMouseIndicators = false;
         }
         
         void RenderContext::setShowSelectionGuide(const ShowSelectionGuide showSelectionGuide) {

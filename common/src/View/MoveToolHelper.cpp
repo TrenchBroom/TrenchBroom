@@ -117,7 +117,6 @@ namespace TrenchBroom {
         }
         
         void MoveToolHelper::render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            renderMoveIndicator(inputState, renderContext, renderBatch);
             renderMoveTrace(renderContext, renderBatch);
         }
 
@@ -142,11 +141,6 @@ namespace TrenchBroom {
                     m_trace.push_back(point);
                 }
             }
-        }
-
-        void MoveToolHelper::renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (renderContext.showMouseIndicators())
-                doRenderMoveIndicator(inputState, renderContext, renderBatch);
         }
 
         void MoveToolHelper::renderMoveTrace(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
@@ -177,12 +171,6 @@ namespace TrenchBroom {
         Vec3 MoveToolHelper2D::doGetDelta(const Vec3& delta) const {
             return delta;
         }
-
-        void MoveToolHelper2D::doRenderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
-            const Renderer::MoveIndicatorRenderer::Direction direction = Renderer::MoveIndicatorRenderer::Direction_XY;
-            renderBatch.addOneShot(new Renderer::MoveIndicatorRenderer(position, direction));
-        }
         
         MoveToolHelper3D::MoveToolHelper3D(MoveToolDelegate* delegate, MovementRestriction& movementRestriction) :
         MoveToolHelper(delegate),
@@ -200,22 +188,6 @@ namespace TrenchBroom {
         
         Vec3 MoveToolHelper3D::doGetDelta(const Vec3& delta) const {
             return m_movementRestriction.apply(delta);
-        }
-
-        void MoveToolHelper3D::doRenderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            const Vec3f position = renderContext.camera().defaultPoint(inputState.mouseX() + 20, inputState.mouseY() + 20);
-            const Renderer::MoveIndicatorRenderer::Direction direction = getDirection();
-            renderBatch.addOneShot(new Renderer::MoveIndicatorRenderer(position, direction));
-        }
-        
-        Renderer::MoveIndicatorRenderer::Direction MoveToolHelper3D::getDirection() const {
-            if (m_movementRestriction.isRestricted(Math::Axis::AZ))
-                return Renderer::MoveIndicatorRenderer::Direction_Z;
-            if (m_movementRestriction.isRestricted(Math::Axis::AX))
-                return Renderer::MoveIndicatorRenderer::Direction_X;
-            if (m_movementRestriction.isRestricted(Math::Axis::AY))
-                return Renderer::MoveIndicatorRenderer::Direction_Y;
-            return Renderer::MoveIndicatorRenderer::Direction_XY;
         }
     }
 }
