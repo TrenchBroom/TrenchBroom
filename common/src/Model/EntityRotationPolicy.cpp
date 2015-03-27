@@ -92,18 +92,17 @@ namespace TrenchBroom {
                 case RotationType_Euler: {
                     FloatType zAngle, xAngle;
                     
-                    if (Math::eq(std::abs(direction.z()), 1.0))
+                    if (Math::zero(direction.z())) {
                         zAngle = 0.0;
-                    else
-                        zAngle = getAngle(direction);
+                    } else {
+                        const Vec3 xyDirection(direction.z(), direction.x(), direction.y());
+                        zAngle = getAngle(xyDirection);
+                    }
                     
-                    if (Math::eq(std::abs(direction.y()), 1.0)) {
+                    if (Math::zero(direction.y())) {
                         xAngle = 0.0;
                     } else {
-                        Vec3 xzDirection = direction;
-                        using std::swap;
-                        swap(xzDirection[1], xzDirection[2]);
-                        xAngle = getAngle(xzDirection);
+                        xAngle = getAngle(direction);
                     }
                     
                     entity->addOrUpdateAttribute(info.attribute, Vec3(zAngle, xAngle, 0.0).round());
