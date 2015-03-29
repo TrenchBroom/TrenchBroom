@@ -771,7 +771,7 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::setTexture(Assets::Texture* texture) {
-            if (hasSelectedBrushFaces()) {
+            if (hasSelectedBrushFaces() || m_selectedNodes.hasOnlyBrushes()) {
                 Model::ChangeBrushFaceAttributesRequest request;
                 request.setTexture(texture);
                 if (submit(ChangeBrushFaceAttributesCommand::command(request))) {
