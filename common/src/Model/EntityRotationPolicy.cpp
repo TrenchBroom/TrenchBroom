@@ -58,10 +58,11 @@ namespace TrenchBroom {
                     const Vec3 angles = angleValue.empty() ? Vec3::Null : Vec3::parse(angleValue);
                     
                     // pitch / yaw / roll
-                    const Quat3 pitch(  Vec3::PosY, Math::radians(angles.x()));
-                    const Quat3 yaw(    Vec3::PosZ, Math::radians(angles.y()));
-                    const Quat3 roll(   Vec3::PosX, Math::radians(angles.z()));
-                    return pitch * yaw * roll;
+                    // pitch is applied with an inverted sign
+                    const Quat3 pitch(  Vec3::PosY, Math::radians(-angles.x()));
+                    const Quat3 yaw(    Vec3::PosZ, Math::radians(+angles.y()));
+                    const Quat3 roll(   Vec3::PosX, Math::radians(+angles.z()));
+                    return yaw * pitch * roll;
                 }
                 case RotationType_None:
                     return Quat3(Vec3::PosZ, 0.0);
