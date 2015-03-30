@@ -803,6 +803,12 @@ TEST(MatTest, invertedMatrix) {
     ASSERT_TRUE(invertible);
 }
 
+TEST(MatTest, rotationMatrixWithEulerAngles) {
+    ASSERT_MAT_EQ(Mat4x4d::Rot90XCCW, rotationMatrix(Math::radians(90.0), 0.0, 0.0));
+    ASSERT_MAT_EQ(Mat4x4d::Rot90YCCW, rotationMatrix(0.0, Math::radians(90.0), 0.0));
+    ASSERT_MAT_EQ(Mat4x4d::Rot90ZCCW, rotationMatrix(0.0, 0.0, Math::radians(90.0)));
+}
+
 TEST(MatTest, rotationMatrixWithAngleAndAxis) {
     ASSERT_MAT_EQ(Mat4x4d::Rot90XCCW, rotationMatrix(Vec3d::PosX, Math::radians(90.0)));
     ASSERT_MAT_EQ(Mat4x4d::Rot90YCCW, rotationMatrix(Vec3d::PosY, Math::radians(90.0)));
@@ -825,6 +831,17 @@ TEST(MatTest, rotationMatrixWithQuaternion) {
         const double angle = (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX))*2.0*Math::Cd::pi();
         ASSERT_MAT_EQ(rotationMatrix(axis, angle), rotationMatrix(Quatd(axis, angle)));
     }
+}
+
+TEST(MatTest, eulerAngles) {
+    const Vec3d a1(Math::radians(90.0), 0.0, 0.0);
+    ASSERT_VEC_EQ(a1, eulerAngles(rotationMatrix(a1)));
+
+    const Vec3d a2(0.0, Math::radians(90.0), 0.0);
+    ASSERT_VEC_EQ(a2, eulerAngles(rotationMatrix(a2)));
+    
+    const Vec3d a3(0.0, 0.0, Math::radians(90.0));
+    ASSERT_VEC_EQ(a3, eulerAngles(rotationMatrix(a3)));
 }
 
 TEST(MatTest, translationMatrix) {
