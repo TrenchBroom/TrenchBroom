@@ -603,11 +603,18 @@ Mat<T,4,4> rotationMatrix(const Quat<T>& quat) {
     return rotation;
 }
 
+// Extracts euler angles from the given rotation matrix.
+// The angles are returned as a vector of the roll, pitch, and yaw angles.
+// Note that the pitch angle is clamped between -PI/2 and +PI/2.
+// See https://d3cw3dd2w32x2b.cloudfront.net/wp-content/uploads/2012/07/euler-angles1.pdf
 template <typename T>
 Vec<T,3> eulerAngles(const Mat<T,4,4> mat) {
     const T roll  = -std::atan2(+mat[2][1], mat[2][2]);
     const T pitch = -std::atan2(-mat[2][0], std::sqrt(mat[2][1] * mat[2][1] + mat[2][2] * mat[2][2]));
-    const T yaw   = -std::atan2(+mat[1][0], mat[0][0]);
+    const T sin   = +std::sin(roll);
+    const T cos   = +std::cos(roll);
+    const T yaw   = -std::atan2(sin * mat[0][2] - cos * mat[0][1], cos * mat[1][1] - sin * mat[2][1]);
+    // const T yaw   = -std::atan2(+mat[1][0], mat[0][0]);
     return Vec<T,3>(roll, pitch, yaw);
 }
 

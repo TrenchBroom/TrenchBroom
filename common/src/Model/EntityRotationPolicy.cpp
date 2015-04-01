@@ -94,22 +94,18 @@ namespace TrenchBroom {
                         setAngle(entity, info.attribute, direction);
                     break;
                 case RotationType_Euler: {
-                    FloatType zAngle, xAngle;
+                    const AttributeValue angleValue = entity->attribute(info.attribute);
+                    const Vec3 oldAngles = angleValue.empty() ? Vec3::Null : Vec3::parse(angleValue);
+
+                    const Mat4x4 oldRotation = rotationMatrix(Math::radians(oldAngles.x()), Math::radians(oldAngles.y()), Math::radians(oldAngles.z()));
+                    const Mat4x4 newRotation = oldRotation * transformation;
                     
-                    if (Math::zero(direction.z())) {
-                        zAngle = 0.0;
-                    } else {
-                        const Vec3 xyDirection(direction.z(), direction.x(), direction.y());
-                        zAngle = getAngle(xyDirection);
-                    }
+                    const Vec3 newAngles = eulerAngles(newRotation).normalizeRadians();
+                    const FloatType roll  = Math::degrees(newAngles.x());
+                    const FloatType pitch = Math::degrees(newAngles.y());
+                    const FloatType yaw   = Math::degrees(newAngles.z());
                     
-                    if (Math::zero(direction.y())) {
-                        xAngle = 0.0;
-                    } else {
-                        xAngle = getAngle(direction);
-                    }
-                    
-                    entity->addOrUpdateAttribute(info.attribute, Vec3(zAngle, xAngle, 0.0).round());
+                    entity->addOrUpdateAttribute(info.attribute, Vec3(roll, pitch, yaw).round());
                     break;
                 }
                 case RotationType_None:
