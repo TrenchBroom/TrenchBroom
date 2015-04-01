@@ -87,7 +87,7 @@ namespace TrenchBroom {
             
             void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
             
-            void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            void render(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 if (dragging) {
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::HandleColor));
@@ -214,7 +214,7 @@ namespace TrenchBroom {
             
             void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
             
-            void render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            void render(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 if (dragging) {
                     Renderer::RenderService renderService(renderContext, renderBatch);
                     renderService.setForegroundColor(pref(Preferences::HandleColor));

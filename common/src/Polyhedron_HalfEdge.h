@@ -51,7 +51,16 @@ private:
     m_origin(origin),
     m_edge(NULL),
     m_face(NULL),
-    m_link(this) {
+#ifdef _MSC_VER
+		// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
+#pragma warning(push)
+#pragma warning(disable : 4355)
+	m_link(this)
+#pragma warning(pop)
+#else
+	m_link(this)
+#endif
+	{
         assert(m_origin != NULL);
         setAsLeaving();
     }

@@ -43,7 +43,16 @@ private:
     Edge(HalfEdge* first, HalfEdge* second) :
     m_first(first),
     m_second(second),
-    m_link(this) {
+#ifdef _MSC_VER
+		// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
+#pragma warning(push)
+#pragma warning(disable : 4355)
+	m_link(this)
+#pragma warning(pop)
+#else
+	m_link(this)
+#endif
+	{
         assert(m_first != NULL);
         assert(m_second != NULL);
         m_first->setEdge(this);
@@ -53,7 +62,16 @@ private:
     Edge(HalfEdge* first) :
     m_first(first),
     m_second(NULL),
-    m_link(this) {
+#ifdef _MSC_VER
+		// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
+#pragma warning(push)
+#pragma warning(disable : 4355)
+	m_link(this)
+#pragma warning(pop)
+#else
+	m_link(this)
+#endif
+	{
         assert(m_first != NULL);
         m_first->setEdge(this);
     }

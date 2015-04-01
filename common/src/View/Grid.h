@@ -20,6 +20,7 @@
 #ifndef __TrenchBroom__Grid__
 #define __TrenchBroom__Grid__
 
+#include "Macros.h"
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Notifier.h"
@@ -104,6 +105,7 @@ namespace TrenchBroom {
                         const T s = actSize * std::floor(f / actSize);
                         return (skip && s == f) ? s - actualSize() : s;
                     }
+					DEFAULT_SWITCH()
                 }
             }
         public: // Snap vectors.

@@ -529,6 +529,8 @@ namespace TrenchBroom {
             return hit.distance;
         }
 
+		Brush::BrushFaceHit::BrushFaceHit() : face(NULL), distance(Math::nan<FloatType>()) {}
+
         Brush::BrushFaceHit::BrushFaceHit(BrushFace* i_face, const FloatType i_distance) : face(i_face), distance(i_distance) {}
 
         Brush::BrushFaceHit Brush::findFaceHit(const Ray3& ray) const {

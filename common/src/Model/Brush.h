@@ -164,7 +164,8 @@ namespace TrenchBroom {
             struct BrushFaceHit {
                 BrushFace* face;
                 FloatType distance;
-                BrushFaceHit(BrushFace* i_face = NULL, FloatType i_distance = Math::nan<FloatType>());
+				BrushFaceHit();
+                BrushFaceHit(BrushFace* i_face, FloatType i_distance);
             };
 
             BrushFaceHit findFaceHit(const Ray3& ray) const;
