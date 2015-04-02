@@ -18,7 +18,7 @@
  */
 
 #include "SetLockStateCommand.h"
-
+#include "Macros.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
@@ -50,6 +50,7 @@ namespace TrenchBroom {
                     return "Lock Objects";
                 case Model::Lock_Unlocked:
                     return "Unlock Objects";
+		DEFAULT_SWITCH()
             }
         }
         

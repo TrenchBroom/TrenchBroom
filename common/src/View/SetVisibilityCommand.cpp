@@ -18,6 +18,7 @@
  */
 
 #include "SetVisibilityCommand.h"
+#include "Macros.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom {
@@ -49,6 +50,7 @@ namespace TrenchBroom {
                     return "Hide Objects";
                 case Model::Visibility_Shown:
                     return "Show Objects";
+		DEFAULT_SWITCH()
             }
         }
         

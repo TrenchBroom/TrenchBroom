@@ -408,6 +408,7 @@ namespace TrenchBroom {
                     return false;
                 case Visibility_Shown:
                     return true;
+		DEFAULT_SWITCH()
             }
         }
         
@@ -435,6 +436,7 @@ namespace TrenchBroom {
                     return false;
                 case Lock_Unlocked:
                     return true;
+		DEFAULT_SWITCH()
             }
         }
         
