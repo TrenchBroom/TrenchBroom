@@ -613,7 +613,7 @@ Vec<T,3> eulerAngles(const Mat<T,4,4> mat) {
     const T pitch = -std::atan2(-mat[2][0], std::sqrt(mat[2][1] * mat[2][1] + mat[2][2] * mat[2][2]));
     const T sin   = +std::sin(roll);
     const T cos   = +std::cos(roll);
-    const T yaw   = -std::atan2(sin * mat[0][2] - cos * mat[0][1], cos * mat[1][1] - sin * mat[2][1]);
+    const T yaw   = -std::atan2(sin * mat[0][2] - cos * mat[0][1], cos * mat[1][1] - sin * mat[1][2]);
     // const T yaw   = -std::atan2(+mat[1][0], mat[0][0]);
     return Vec<T,3>(roll, pitch, yaw);
 }

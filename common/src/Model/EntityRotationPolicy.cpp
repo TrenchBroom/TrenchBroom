@@ -76,16 +76,15 @@ namespace TrenchBroom {
         void EntityRotationPolicy::applyRotation(Entity* entity, const Mat4x4& transformation) {
             const RotationInfo info = rotationInfo(entity);
             const Mat4x4 rotation = getRotation(entity);
-
-            Vec3 direction = rotation * Vec3::PosX;
-            direction = transformation * direction;
-            direction.normalize();
             
             switch (info.type) {
-                case RotationType_Angle:
+                case RotationType_Angle: {
+                    const Vec3 direction = (transformation * rotation * Vec3::PosX).normalized();
                     setAngle(entity, info.attribute, direction);
                     break;
-                case RotationType_AngleUpDown:
+                }
+                case RotationType_AngleUpDown: {
+                    const Vec3 direction = (transformation * rotation * Vec3::PosX).normalized();
                     if (direction.z() > 0.9)
                         entity->addOrUpdateAttribute(info.attribute, 1.0);
                     else if (direction.z() < -0.9)
@@ -93,13 +92,52 @@ namespace TrenchBroom {
                     else
                         setAngle(entity, info.attribute, direction);
                     break;
+                }
                 case RotationType_Euler: {
-                    const Vec3 newAngles = eulerAngles(transformation * rotation).normalizeRadians();
-                    const FloatType roll  = Math::degrees(newAngles.x());
-                    const FloatType pitch = Math::degrees(newAngles.y());
-                    const FloatType yaw   = Math::degrees(newAngles.z());
+                    FloatType yaw = 0.0, pitch = 0.0, roll = 0.0;
+                    Vec3 newX, newY, newZ;
                     
-                    entity->addOrUpdateAttribute(info.attribute, Vec3(-pitch, yaw, roll).round());
+                    newX = transformation * rotation * Vec3::PosX;
+                    newY = transformation * rotation * Vec3::PosY;
+
+                    if (std::abs(newX.z()) < std::abs(newY.z())) {
+                        newX = Vec3(newX.x(), newX.y(), 0.0).normalized();
+                        yaw = angleBetween(newX, Vec3::PosX, Vec3::PosZ); // CCW yaw angle in radians
+                    } else {
+                        newY = Vec3(newY.x(), newY.y(), 0.0).normalized();
+                        yaw = angleBetween(newY, Vec3::PosY, Vec3::PosZ);
+                    }
+                    
+                    // Now we know the yaw rotation angle. We have to correct for it to get the pitch angle.
+                    const Mat4x4 invYaw = rotationMatrix(Vec3::PosZ, -yaw);
+                    newX = invYaw * transformation * rotation * Vec3::PosX;
+                    newZ = invYaw * transformation * rotation * Vec3::PosZ;
+                    
+                    if (std::abs(newX.y()) < std::abs(newZ.y())) {
+                        newX = Vec3(newX.x(), 0.0, newX.z()).normalized();
+                        pitch = angleBetween(newX, Vec3::PosX, Vec3::PosY);
+                    } else {
+                        newZ = Vec3(newZ.x(), 0.0, newZ.z()).normalized();
+                        pitch = angleBetween(newZ, Vec3::PosZ, Vec3::PosY);
+                    }
+                    
+                    // Now we know the pitch rotation angle. We have to correct for it to get the roll angle.
+                    const Mat4x4 invPitch = rotationMatrix(Vec3::PosY, -pitch);
+                    newY = invPitch * invYaw * transformation * rotation * Vec3::PosY;
+                    newZ = invPitch * invYaw * transformation * rotation * Vec3::PosZ;
+                    
+                    if (std::abs(newY.x()) < std::abs(newY.x())) {
+                        newY = Vec3(0.0, newY.y(), newY.z()).normalized();
+                        roll = angleBetween(newY, Vec3::PosY, Vec3::PosX);
+                    } else {
+                        newZ = Vec3(0.0, newZ.y(), newZ.z()).normalized();
+                        roll = angleBetween(newZ, Vec3::PosZ, Vec3::PosX);
+                    }
+                    
+                    const Vec3 newAngles(Math::degrees(-pitch),
+                                         Math::degrees(yaw),
+                                         Math::degrees(roll));
+                    entity->addOrUpdateAttribute(info.attribute, newAngles.rounded());
                     break;
                 }
                 case RotationType_None:
