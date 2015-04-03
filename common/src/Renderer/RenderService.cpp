@@ -25,6 +25,7 @@
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
+#include "Renderer/TextAnchor.h"
 #include "Renderer/TextRenderer.h"
 
 namespace TrenchBroom {
@@ -60,10 +61,18 @@ namespace TrenchBroom {
             m_lineWidth = lineWidth;
         }
 
+        void RenderService::renderString(const AttrString& string, const Vec3f& position) {
+            renderString(string, SimpleTextAnchor(position, TextAlignment::Bottom, Vec2f(0.0f, 16.0f)));
+        }
+
         void RenderService::renderString(const AttrString& string, const TextAnchor& position) {
             m_textRenderer->renderString(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
         }
         
+        void RenderService::renderStringOnTop(const AttrString& string, const Vec3f& position) {
+            renderStringOnTop(string, SimpleTextAnchor(position, TextAlignment::Bottom, Vec2f(0.0f, 16.0f)));
+        }
+
         void RenderService::renderStringOnTop(const AttrString& string, const TextAnchor& position) {
             m_textRenderer->renderStringOnTop(m_renderContext, m_foregroundColor, m_backgroundColor, string, position);
         }

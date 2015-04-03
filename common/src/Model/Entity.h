@@ -45,7 +45,7 @@ namespace TrenchBroom {
             
             bool pointEntity() const;
             Vec3 origin() const;
-            Quat3 rotation() const;
+            Mat4x4 rotation() const;
             FloatType area(Math::Axis::Type axis) const;
         private:
             void setOrigin(const Vec3& origin);

@@ -539,6 +539,20 @@ public:
         return equals(normalized());
     }
     
+    Vec<T,S> normalizeRadians() const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = Math::normalizeRadians(v[i]);
+        return result;
+    }
+    
+    Vec<T,S> normalizeDegrees() const {
+        Vec<T,S> result;
+        for (size_t i = 0; i < S; ++i)
+            result[i] = Math::normalizeDegrees(v[i]);
+        return result;
+    }
+    
     bool equals(const Vec<T,S>& other, const T epsilon = Math::Constants<T>::almostZero()) const {
         for (size_t i = 0; i < S; ++i)
             if (std::abs(v[i] - other[i]) > epsilon)

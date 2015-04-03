@@ -29,7 +29,6 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/ShaderManager.h"
-#include "Renderer/TextAnchor.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/Vbo.h"
 #include "View/InputState.h"
@@ -164,12 +163,9 @@ namespace TrenchBroom {
         void RotateToolHelper::renderText(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             Renderer::RenderService renderService(renderContext, renderBatch);
             
-            const AttrString string(angleString(Math::degrees(m_lastAngle)));
-            const Renderer::SimpleTextAnchor anchor(m_center, Renderer::TextAlignment::Bottom | Renderer::TextAlignment::Center, Vec2f(0.0f, 10.0f));
-            
             renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
             renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-            renderService.renderStringOnTop(string, anchor);
+            renderService.renderStringOnTop(angleString(Math::degrees(m_lastAngle)), m_center);
         }
 
         String RotateToolHelper::angleString(const FloatType angle) const {

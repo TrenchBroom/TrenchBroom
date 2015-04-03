@@ -40,7 +40,9 @@ namespace TrenchBroom {
             writer.writeMap();
             
             const String result = str.str();
-            ASSERT_STREQ("{\n}\n", result.c_str());
+            ASSERT_STREQ("{\n"
+                         "\"classname\" \"worldspawn\"\n"
+                         "}\n", result.c_str());
         }
 
         TEST(NodeWriterTest, writeWorldspawn) {

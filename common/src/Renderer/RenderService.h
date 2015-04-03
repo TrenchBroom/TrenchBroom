@@ -56,7 +56,9 @@ namespace TrenchBroom {
             void setBackgroundColor(const Color& backgroundColor);
             void setLineWidth(float lineWidth);
             
+            void renderString(const AttrString& string, const Vec3f& position);
             void renderString(const AttrString& string, const TextAnchor& position);
+            void renderStringOnTop(const AttrString& string, const Vec3f& position);
             void renderStringOnTop(const AttrString& string, const TextAnchor& position);
             
             void renderPointHandles(const Vec3f::List& positions);

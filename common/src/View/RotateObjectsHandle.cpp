@@ -202,6 +202,9 @@ namespace TrenchBroom {
             switch (highlight) {
                 case RotateObjectsHandle::HitArea_Center:
                     renderService.renderPointHandleHighlight(m_position);
+                    renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
+                    renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
+                    renderService.renderStringOnTop(m_position.asString(), m_position);
                     break;
                 case RotateObjectsHandle::HitArea_XAxis:
                     renderService.renderPointHandleHighlight(m_position + radius * xAxis);

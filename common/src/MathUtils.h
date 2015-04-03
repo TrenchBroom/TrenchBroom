@@ -302,6 +302,20 @@ namespace Math {
         return n;
     }
     
+    template <typename T>
+    T normalizeRadians(T angle) {
+        while (angle < 0.0)
+            angle += Constants<T>::twoPi();
+        return mod(angle, Constants<T>::twoPi());
+    }
+    
+    template <typename T>
+    T normalizeDegrees(T angle) {
+        while (angle < 0.0)
+            angle += 360.0;
+        return mod(angle, 360.0);
+    }
+    
     template <typename T, bool Abs>
     struct Cmp {
         Cmp() {}

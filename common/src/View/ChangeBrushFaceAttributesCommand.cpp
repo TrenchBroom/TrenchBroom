@@ -42,7 +42,7 @@ namespace TrenchBroom {
         }
 
         bool ChangeBrushFaceAttributesCommand::doPerformDo(MapDocumentCommandFacade* document) {
-            const Model::BrushFaceList& faces = document->selectedBrushFaces();
+            const Model::BrushFaceList faces = document->allSelectedBrushFaces();
             assert(!faces.empty());
             
             assert(m_snapshot == NULL);

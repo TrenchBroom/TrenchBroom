@@ -40,7 +40,7 @@ namespace TrenchBroom {
             };
         protected:
             EntityRotationPolicy();
-            static Quat3 getRotation(const Entity* entity);
+            static Mat4x4 getRotation(const Entity* entity);
             static void applyRotation(Entity* entity, const Mat4x4& transformation);
             static AttributeName getAttribute(const Entity* entity);
         private:

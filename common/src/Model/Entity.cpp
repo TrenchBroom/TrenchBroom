@@ -53,7 +53,7 @@ namespace TrenchBroom {
             return Vec3::parse(attribute(AttributeNames::Origin));
         }
 
-        Quat3 Entity::rotation() const {
+        Mat4x4 Entity::rotation() const {
             return EntityRotationPolicy::getRotation(this);
         }
 

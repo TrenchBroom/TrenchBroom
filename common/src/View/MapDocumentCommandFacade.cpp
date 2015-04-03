@@ -749,7 +749,7 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performChangeBrushFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) {
-            const Model::BrushFaceList& faces = selectedBrushFaces();
+            const Model::BrushFaceList& faces = allSelectedBrushFaces();
             request.evaluate(faces);
             setTextures(faces);
             brushFacesDidChangeNotifier(faces);
@@ -919,9 +919,12 @@ namespace TrenchBroom {
                 snapshot->restoreNodes(m_worldBounds);
                 
                 invalidateSelectionBounds();
-            } else if (!m_selectedBrushFaces.empty()) {
+            }
+            
+            const Model::BrushFaceList brushFaces = allSelectedBrushFaces();
+            if (!brushFaces.empty()) {
                 snapshot->restoreBrushFaces();
-                brushFacesDidChangeNotifier(m_selectedBrushFaces);
+                brushFacesDidChangeNotifier(brushFaces);
             }
         }
 
