@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
@@ -229,6 +230,7 @@ namespace TrenchBroom {
                         return 3;
                     default:
                         assert(false);
+                        return 0;
                 }
             }
         private:
@@ -533,6 +535,7 @@ namespace TrenchBroom {
             if (canClip()) {
                 Vec3 point1, point2, point3;
                 const size_t numPoints = m_strategy->getPoints(point1, point2, point3);
+                _UNUSED(numPoints);
                 assert(numPoints == 3);
                 
                 Model::World* world = document->world();
