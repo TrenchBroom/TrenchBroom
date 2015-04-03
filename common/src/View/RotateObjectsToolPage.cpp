@@ -39,6 +39,7 @@ namespace TrenchBroom {
         m_document(document),
         m_tool(tool) {
             createGui();
+            m_angle->SetValue(Math::degrees(m_tool->angle()));
         }
         
         void RotateObjectsToolPage::setAxis(const Math::Axis::Type axis) {
@@ -94,13 +95,10 @@ namespace TrenchBroom {
         void RotateObjectsToolPage::OnIdle(wxIdleEvent& event) {
             const Grid& grid = lock(m_document)->grid();
             m_angle->SetIncrements(Math::degrees(grid.angle()), 90.0, 1.0);
-            
-            if (!Math::eq(m_tool->angle(), Math::degrees(m_angle->GetValue())))
-                m_angle->SetValue(Math::degrees(m_tool->angle()));
         }
 
         void RotateObjectsToolPage::OnAngleChanged(SpinControlEvent& event) {
-            m_tool->setAngle(Math::radians(event.GetValue()));
+            m_tool->setAngle(Math::radians(m_angle->GetValue() + event.GetValue()));
         }
 
         void RotateObjectsToolPage::OnUpdateRotateButton(wxUpdateUIEvent& event) {
