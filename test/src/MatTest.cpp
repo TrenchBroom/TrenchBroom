@@ -833,35 +833,6 @@ TEST(MatTest, rotationMatrixWithQuaternion) {
     }
 }
 
-template <typename T>
-void testEulerAngles(const T roll, const T pitch, const T yaw) {
-    const Vec3d angles(Math::radians(roll),
-                       Math::radians(pitch),
-                       Math::radians(yaw));
-    ASSERT_VEC_EQ(angles.normalizeRadians(), eulerAngles(rotationMatrix(angles)).normalizeRadians());
-}
-
-TEST(MatTest, eulerAngles) {
-    testEulerAngles(90.0, 0.0, 0.0);
-    testEulerAngles(-90.0, 0.0, 0.0);
-    testEulerAngles(180.0, 0.0, 0.0);
-    testEulerAngles(235.0, 0.0, 0.0);
-    testEulerAngles(360.0, 0.0, 0.0);
-    testEulerAngles(380.0, 0.0, 0.0);
-    
-    testEulerAngles(0.0, 90.0, 0.0);
-    testEulerAngles(0.0, -90.0, 0.0);
-    testEulerAngles(0.0, 45.0, 0.0);
-    testEulerAngles(0.0, -45.0, 0.0);
-    
-    testEulerAngles(0.0, 0.0, 90.0);
-    testEulerAngles(0.0, 0.0, -90.0);
-    testEulerAngles(0.0, 0.0, 180.0);
-    testEulerAngles(0.0, 0.0, 235.0);
-    testEulerAngles(0.0, 0.0, 360.0);
-    testEulerAngles(0.0, 0.0, 380.0);
-}
-
 TEST(MatTest, translationMatrix) {
     const Vec3d v(2.0, 3.0, 4.0);
     const Mat4x4d t = translationMatrix(v);

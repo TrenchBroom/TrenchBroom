@@ -5,7 +5,7 @@ INCLUDE(cmake/Utils.cmake)
 # Mac OS X specific configuration, must be done before the PROJECT directive
 IF(APPLE)
 	SET(CMAKE_OSX_DEPLOYMENT_TARGET "10.6")
-#	SET(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.6.sdk/")
+	SET(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.6.sdk/")
 	SET(CMAKE_OSX_ARCHITECTURES "i386;x86_64")
 ENDIF()
 
