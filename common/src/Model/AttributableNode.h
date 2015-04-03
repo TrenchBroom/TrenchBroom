@@ -43,6 +43,9 @@ namespace TrenchBroom {
             AttributableNodeList m_linkTargets;
             AttributableNodeList m_killSources;
             AttributableNodeList m_killTargets;
+
+            // cache the classname for faster access
+            AttributeValue m_classname;
         public:
             virtual ~AttributableNode();
             
@@ -105,6 +108,8 @@ namespace TrenchBroom {
             
             void attributesWillChange();
             void attributesDidChange();
+            
+            void updateClassname();
         private: // search index management
             void addAttributesToIndex();
             void removeAttributesFromIndex();

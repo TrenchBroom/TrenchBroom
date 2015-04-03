@@ -147,7 +147,7 @@ namespace TrenchBroom {
         }
 
         const AttributeValue& AttributableNode::classname(const AttributeValue& defaultClassname) const {
-            return attribute(AttributeNames::Classname, defaultClassname);
+            return m_classname.empty() ? defaultClassname : m_classname;
         }
 
         EntityAttributeSnapshot AttributableNode::attributeSnapshot(const AttributeName& name) const {
@@ -235,7 +235,12 @@ namespace TrenchBroom {
         void AttributableNode::attributesWillChange() {}
 
         void AttributableNode::attributesDidChange() {
+            updateClassname();
             doAttributesDidChange();
+        }
+
+        void AttributableNode::updateClassname() {
+            m_classname = attribute(AttributeNames::Classname);
         }
 
         void AttributableNode::addAttributesToIndex() {

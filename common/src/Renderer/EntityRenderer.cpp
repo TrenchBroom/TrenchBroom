@@ -417,12 +417,12 @@ namespace TrenchBroom {
 
         AttrString EntityRenderer::entityString(const Model::Entity* entity) const {
             const Model::AttributeValue& classname = entity->classname();
-            const Model::AttributeValue& targetname = entity->attribute(Model::AttributeNames::Targetname);
+            // const Model::AttributeValue& targetname = entity->attribute(Model::AttributeNames::Targetname);
             
             AttrString str;
             str.appendCentered(classname);
-            if (!targetname.empty())
-                str.appendCentered(targetname);
+            // if (!targetname.empty())
+               // str.appendCentered(targetname);
             return str;
         }
 
