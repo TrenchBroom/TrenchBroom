@@ -40,7 +40,7 @@ namespace TrenchBroom {
             // static const size_t PalLength             = 256;
             static const size_t TexWidthOffset        = 16;
             // static const size_t TexDataOffset         = 24;
-            static const size_t MaxTextureSize        = 512;
+            static const size_t MaxTextureSize        = 1024;
         }
 
         WadEntry::WadEntry(const String& name, const char type, const size_t address, const size_t size) :

@@ -1055,7 +1055,7 @@ namespace TrenchBroom {
                 if (m_textureManager->addExternalTextureCollection(spec))
                     info("Loaded external texture collection '" + name +  "'");
                 else
-                    warn("External texture collection not found: '" + name +  "'");
+                    warn("Could not load external texture collection: '" + name +  "'");
             }
         }
         
