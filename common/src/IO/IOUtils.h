@@ -23,8 +23,10 @@
 #include "VecMath.h"
 #include "Exceptions.h"
 #include "ByteBuffer.h"
+#include "StringUtils.h"
 
 #include <cassert>
+#include <cstdio>
 #include <cstring>
 #include <iostream>
 #include <limits>
@@ -38,6 +40,21 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class Path;
+        
+        class OpenFile {
+        private:
+            FILE* m_file;
+        public:
+            OpenFile(const Path& path, bool write);
+            ~OpenFile();
+            
+            FILE* file() const;
+        };
+        
+        String readGameComment(FILE* stream);
+        void writeGameComment(FILE* stream, const String& gameName);
+        
         template <typename T>
         void advance(const char*& cursor, const size_t i = 1) {
             cursor += (i * sizeof(T));

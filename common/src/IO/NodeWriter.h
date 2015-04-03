@@ -24,6 +24,8 @@
 #include "Model/MapFormat.h"
 #include "Model/ModelTypes.h"
 
+#include <cstdio>
+
 namespace TrenchBroom {
     namespace IO {
         class Path;
@@ -38,7 +40,7 @@ namespace TrenchBroom {
             Model::World* m_world;
             NodeSerializer::Ptr m_serializer;
         public:
-            NodeWriter(Model::World* world, const Path& path, bool overwrite);
+            NodeWriter(Model::World* world, FILE* stream);
             NodeWriter(Model::World* world, std::ostream& stream);
             
             void writeMap();

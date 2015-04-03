@@ -30,8 +30,8 @@ namespace TrenchBroom {
             bool m_longFormat;
             String FaceFormat;
         public:
-            StandardFileSerializer(const IO::Path& path, const bool longFormat) :
-            MapFileSerializer(path),
+            StandardFileSerializer(FILE* stream, const bool longFormat) :
+            MapFileSerializer(stream),
             m_longFormat(longFormat) {
                 StringStream str;
                 str <<
@@ -101,8 +101,8 @@ namespace TrenchBroom {
         private:
             String FaceFormat;
         public:
-            Hexen2FileSerializer(const IO::Path& path) :
-            MapFileSerializer(path) {
+            Hexen2FileSerializer(FILE* stream) :
+            MapFileSerializer(stream) {
                 StringStream str;
                 str <<
                 "( %." << FloatPrecision << "g " <<
@@ -147,8 +147,8 @@ namespace TrenchBroom {
         private:
             String FaceFormat;
         public:
-            ValveFileSerializer(const IO::Path& path) :
-            MapFileSerializer(path) {
+            ValveFileSerializer(FILE* stream) :
+            MapFileSerializer(stream) {
                 StringStream str;
                 str <<
                 "( %." << FloatPrecision << "g " <<
@@ -204,40 +204,25 @@ namespace TrenchBroom {
             }
         };
 
-        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat::Type format, const IO::Path& path, bool overwrite) {
-            if (IO::Disk::fileExists(IO::Disk::fixPath(path)) && !overwrite)
-                throw FileSystemException("File already exists: " + path.asString());
-
+        NodeSerializer::Ptr MapFileSerializer::create(const Model::MapFormat::Type format, FILE* stream) {
             switch (format) {
                 case Model::MapFormat::Standard:
-                    return NodeSerializer::Ptr(new StandardFileSerializer(path, false));
+                    return NodeSerializer::Ptr(new StandardFileSerializer(stream, false));
                 case Model::MapFormat::Quake2:
-                    return NodeSerializer::Ptr(new StandardFileSerializer(path, true));
+                    return NodeSerializer::Ptr(new StandardFileSerializer(stream, true));
                 case Model::MapFormat::Valve:
-                    return NodeSerializer::Ptr(new ValveFileSerializer(path));
+                    return NodeSerializer::Ptr(new ValveFileSerializer(stream));
                 case Model::MapFormat::Hexen2:
-                    return NodeSerializer::Ptr(new Hexen2FileSerializer(path));
+                    return NodeSerializer::Ptr(new Hexen2FileSerializer(stream));
                 case Model::MapFormat::Unknown:
                 default:
                     throw new FileFormatException("Unknown map file format");
             }
         }
         
-        MapFileSerializer::MapFileSerializer(const IO::Path& path) :
-        m_line(1) {
-            // ensure that the directory actually exists or is created if it doesn't
-            const Path directoryPath = path.deleteLastComponent();
-            WritableDiskFileSystem fs(directoryPath, true);
-            
-            m_stream = fopen(path.asString().c_str(), "w");
-            if (m_stream == NULL)
-                throw FileSystemException("Cannot open file: " + path.asString());
-        }
-        
-        MapFileSerializer::~MapFileSerializer() {
-            if (m_stream != NULL)
-                fclose(m_stream);
-        }
+        MapFileSerializer::MapFileSerializer(FILE* stream) :
+        m_line(1),
+        m_stream(stream) {}
         
         void MapFileSerializer::doBeginEntity(const Model::Node* node) {
             m_startLineStack.push_back(m_line);

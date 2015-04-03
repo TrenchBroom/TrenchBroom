@@ -27,6 +27,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/FgdParser.h"
 #include "IO/FileSystem.h"
+#include "IO/IOUtils.h"
 #include "IO/MapParser.h"
 #include "IO/MdlParser.h"
 #include "IO/Md2Parser.h"
@@ -40,6 +41,8 @@
 #include "Model/World.h"
 
 #include "Exceptions.h"
+
+#include <cstdio>
 
 namespace TrenchBroom {
     namespace Model {
@@ -92,7 +95,11 @@ namespace TrenchBroom {
         }
         
         void GameImpl::doWriteMap(World* world, const IO::Path& path) const {
-            IO::NodeWriter writer(world, path, true);
+            IO::OpenFile openFile(path, true);
+            FILE* stream = openFile.file();
+            IO::writeGameComment(stream, gameName());
+            
+            IO::NodeWriter writer(world, stream);
             writer.writeMap();
         }
 

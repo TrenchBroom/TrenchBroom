@@ -19,8 +19,48 @@
 
 #include "IOUtils.h"
 
+#include "IO/Path.h"
+
 namespace TrenchBroom {
     namespace IO {
+        OpenFile::OpenFile(const Path& path, const bool write) {
+            m_file = fopen(path.asString().c_str(), write ? "w" : "r");
+            if (m_file == NULL)
+                throw FileSystemException("Cannot open file: " + path.asString());
+        }
+        
+        OpenFile::~OpenFile() {
+            if (m_file != NULL)
+                fclose(m_file);
+        }
+        
+        FILE* OpenFile::file() const {
+            return m_file;
+        }
+
+        String readGameComment(FILE* stream) {
+            static const size_t MaxChars = 64;
+            static const size_t HeaderChars = 9;
+            char buf[MaxChars];
+            
+            const size_t numRead = std::fread(buf, 1, MaxChars, stream);
+            if (numRead < HeaderChars)
+                return "";
+            
+            const String header(buf, buf + HeaderChars);
+            if (header != "// Game: ")
+                return "";
+            
+            size_t i = HeaderChars;
+            while (i < MaxChars && buf[i] != '\n') ++i;
+            
+            return String(buf + HeaderChars, buf + i);
+        }
+
+        void writeGameComment(FILE* stream, const String& gameName) {
+            std::fprintf(stream, "// Game: %s\n", gameName.c_str());
+        }
+
         Vec3f readVec3f(const char*& cursor) {
             Vec3f value;
             for (size_t i = 0; i < 3; i++)

@@ -98,9 +98,9 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush)   { stopRecursion();  }
         };
         
-        NodeWriter::NodeWriter(Model::World* world, const Path& path, const bool overwrite) :
+        NodeWriter::NodeWriter(Model::World* world, FILE* stream) :
         m_world(world),
-        m_serializer(MapFileSerializer::create(m_world->format(), path, overwrite)) {}
+        m_serializer(MapFileSerializer::create(m_world->format(), stream)) {}
         
         NodeWriter::NodeWriter(Model::World* world, std::ostream& stream) :
         m_world(world),
