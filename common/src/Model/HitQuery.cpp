@@ -62,6 +62,11 @@ namespace TrenchBroom {
             return *this;
         }
         
+        HitQuery& HitQuery::minDistance(const FloatType minDistance) {
+            m_include = new HitFilterChain(new Model::MinDistanceHitFilter(minDistance), m_include);
+            return *this;
+        }
+        
         const Hit& HitQuery::first() const {
             if (!m_hits.empty()) {
                 Hit::List::const_iterator it = m_hits.begin();

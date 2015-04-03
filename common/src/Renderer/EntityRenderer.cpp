@@ -266,9 +266,9 @@ namespace TrenchBroom {
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
                     continue;
                 
-                const Quatf rotation = Quatf(entity->rotation());
+                const Mat4x4f rotation(entity->rotation());
                 const Vec3f direction = rotation * Vec3f::PosX;
-                const Vec3f center = Vec3f(entity->bounds().center());
+                const Vec3f center(entity->bounds().center());
                 
                 const Vec3f toCam = renderContext.camera().position() - center;
                 if (toCam.squaredLength() > maxDistance2)
@@ -282,7 +282,7 @@ namespace TrenchBroom {
                 
                 const Vec3f rotZ = rotation * Vec3f::PosZ;
                 const float angle = -angleBetween(rotZ, onPlane, direction);
-                const Mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotationMatrix(rotation) * translationMatrix(16.0f * Vec3f::PosX);
+                const Mat4x4f matrix = translationMatrix(center) * rotationMatrix(direction, angle) * rotation * translationMatrix(16.0f * Vec3f::PosX);
                 
                 for (size_t i = 0; i < 3; ++i)
                     vertices.push_back(Vertex(matrix * arrow[i]));

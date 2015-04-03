@@ -32,7 +32,6 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
-#include "Renderer/TextAnchor.h"
 #include "Renderer/VertexArray.h"
 #include "Renderer/VertexSpec.h"
 
@@ -565,12 +564,9 @@ namespace TrenchBroom {
             m_guideRenderer.setColor(pref(Preferences::HandleColor));
             renderBatch.add(&m_guideRenderer);
 
-            const AttrString string(position.asString());
-            const Renderer::SimpleTextAnchor anchor(position, Renderer::TextAlignment::Bottom, Vec2f(0.0f, 16.0f));
-            
             renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
             renderService.setBackgroundColor(pref(Preferences::SelectedInfoOverlayBackgroundColor));
-            renderService.renderStringOnTop(string, anchor);
+            renderService.renderStringOnTop(position.asString(), position);
         }
 
         Vec3::List VertexHandleManager::findVertexHandlePositions(const Model::BrushList& brushes, const Vec3& query, const FloatType maxDistance) {

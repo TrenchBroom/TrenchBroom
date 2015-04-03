@@ -64,6 +64,15 @@ namespace TrenchBroom {
             bool doMatches(const Hit& hit) const;
         };
         
+        class MinDistanceHitFilter : public HitFilter {
+        private:
+            FloatType m_minDistance;
+        public:
+            MinDistanceHitFilter(FloatType minDistance);
+        private:
+            bool doMatches(const Hit& hit) const;
+        };
+        
         class EditorContext;
 
         class ContextHitFilter : public HitFilter {

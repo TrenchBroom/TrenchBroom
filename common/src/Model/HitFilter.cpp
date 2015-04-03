@@ -88,6 +88,13 @@ namespace TrenchBroom {
             return false;
         }
         
+        MinDistanceHitFilter::MinDistanceHitFilter(const FloatType minDistance) :
+        m_minDistance(minDistance) {}
+
+        bool MinDistanceHitFilter::doMatches(const Hit& hit) const {
+            return hit.distance() >= m_minDistance;
+        }
+
         ContextHitFilter::ContextHitFilter(const EditorContext& context) :
         m_context(context) {}
         

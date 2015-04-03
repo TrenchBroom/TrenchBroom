@@ -30,7 +30,6 @@
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
-#include "Renderer/TextAnchor.h"
 #include "View/MapDocument.h"
 #include "View/Selection.h"
 
@@ -260,8 +259,7 @@ namespace TrenchBroom {
                     StringStream str;
                     str << (i+1) << ": " << point.asString();
                     
-                    const Renderer::SimpleTextAnchor anchor(point, Renderer::TextAlignment::Bottom, Vec2f(0.0f, 10.0f));
-                    renderService.renderStringOnTop(str.str(), anchor);
+                    renderService.renderStringOnTop(str.str(), point);
                 }
             }
             
