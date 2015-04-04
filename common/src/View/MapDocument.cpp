@@ -109,7 +109,7 @@ namespace TrenchBroom {
         m_pointFile(NULL),
         m_editorContext(new Model::EditorContext()),
         m_entityDefinitionManager(new Assets::EntityDefinitionManager()),
-        m_entityModelManager(new Assets::EntityModelManager(this)),
+        m_entityModelManager(new Assets::EntityModelManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
         m_textureManager(new Assets::TextureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
         m_mapViewConfig(new MapViewConfig(*m_editorContext)),
         m_grid(new Grid(4)),
@@ -1327,6 +1327,7 @@ namespace TrenchBroom {
                 //reloadIssues();
             } else if (path == Preferences::TextureMinFilter.path() ||
                        path == Preferences::TextureMagFilter.path()) {
+                m_entityModelManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
                 m_textureManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
             }
         }

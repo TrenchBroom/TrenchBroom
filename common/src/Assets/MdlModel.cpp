@@ -45,6 +45,10 @@ namespace TrenchBroom {
             m_textures.prepare(minFilter, magFilter);
         }
 
+        void MdlSkin::setTextureMode(const int minFilter, const int magFilter) {
+            m_textures.setTextureMode(minFilter, magFilter);
+        }
+
         const Texture* MdlSkin::firstPicture() const {
             return m_textures.textures().front();
         }
@@ -154,9 +158,14 @@ namespace TrenchBroom {
         }
 
         
-        void MdlModel::doPrepare() {
+        void MdlModel::doPrepare(const int minFilter, const int magFilter) {
             for (size_t i = 0; i < m_skins.size(); ++i)
-                m_skins[i]->prepare(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+                m_skins[i]->prepare(minFilter, magFilter);
+        }
+
+        void MdlModel::doSetTextureMode(const int minFilter, const int magFilter) {
+            for (size_t i = 0; i < m_skins.size(); ++i)
+                m_skins[i]->setTextureMode(minFilter, magFilter);
         }
     }
 }

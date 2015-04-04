@@ -40,12 +40,14 @@ namespace TrenchBroom {
             BBox3f transformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const;
             
             bool prepared() const;
-            void prepare();
+            void prepare(int minFilter, int magFilter);
+            void setTextureMode(int minFilter, int magFilter);
         private:
             virtual Renderer::TexturedTriangleMeshRenderer* doBuildRenderer(const size_t skinIndex, const size_t frameIndex) const = 0;
             virtual BBox3f doGetBounds(const size_t skinIndex, const size_t frameIndex) const = 0;
             virtual BBox3f doGetTransformedBounds(const size_t skinIndex, const size_t frameIndex, const Mat4x4f& transformation) const = 0;
-            virtual void doPrepare() = 0;
+            virtual void doPrepare(int minFilter, int magFilter) = 0;
+            virtual void doSetTextureMode(int minFilter, int magFilter) = 0;
         };
     }
 }

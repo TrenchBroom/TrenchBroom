@@ -130,8 +130,12 @@ namespace TrenchBroom {
             return model.transformedBounds(transformation);
         }
 
-        void Bsp29Model::doPrepare() {
-            m_textureCollection->prepare(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+        void Bsp29Model::doPrepare(const int minFilter, const int magFilter) {
+            m_textureCollection->prepare(minFilter, magFilter);
+        }
+
+        void Bsp29Model::doSetTextureMode(const int minFilter, const int magFilter) {
+            m_textureCollection->setTextureMode(minFilter, magFilter);
         }
     }
 }

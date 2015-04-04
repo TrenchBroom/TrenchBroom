@@ -56,6 +56,10 @@ namespace TrenchBroom {
             Logger* m_logger;
             const IO::EntityModelLoader* m_loader;
 
+            int m_minFilter;
+            int m_magFilter;
+            bool m_resetTextureMode;
+
             mutable ModelCache m_models;
             mutable ModelMismatches m_modelMismatches;
             mutable RendererCache m_renderers;
@@ -64,10 +68,12 @@ namespace TrenchBroom {
             mutable ModelList m_unpreparedModels;
             mutable RendererList m_unpreparedRenderers;
         public:
-            EntityModelManager(Logger* logger);
+            EntityModelManager(Logger* logger, int minFilter, int magFilter);
             ~EntityModelManager();
             
             void clear();
+
+            void setTextureMode(int minFilter, int magFilter);
             void setLoader(const IO::EntityModelLoader* loader);
             
             EntityModel* model(const IO::Path& path) const;
@@ -77,6 +83,7 @@ namespace TrenchBroom {
         public:
             void prepare(Renderer::Vbo& vbo);
         private:
+            void resetTextureMode();
             void prepareModels();
             void prepareRenderers(Renderer::Vbo& vbo);
         };

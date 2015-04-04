@@ -124,9 +124,12 @@ namespace TrenchBroom {
             return frame->transformedBounds(transformation);
         }
 
-        
-        void Md2Model::doPrepare() {
-            m_skins->prepare(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+        void Md2Model::doPrepare(const int minFilter, const int magFilter) {
+            m_skins->prepare(minFilter, magFilter);
+        }
+
+        void Md2Model::doSetTextureMode(const int minFilter, const int magFilter) {
+            m_skins->setTextureMode(minFilter, magFilter);
         }
     }
 }

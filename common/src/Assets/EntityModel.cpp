@@ -42,11 +42,15 @@ namespace TrenchBroom {
             return m_prepared;
         }
 
-        void EntityModel::prepare() {
+        void EntityModel::prepare(const int minFilter, const int magFilter) {
             if (!m_prepared) {
-                doPrepare();
+                doPrepare(minFilter, magFilter);
                 m_prepared = true;
             }
+        }
+
+        void EntityModel::setTextureMode(const int minFilter, const int magFilter) {
+            doSetTextureMode(minFilter, magFilter);
         }
     }
 }
