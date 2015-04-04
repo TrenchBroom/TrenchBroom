@@ -53,7 +53,7 @@ namespace TrenchBroom {
             sizer->Add(new BorderLine(this, BorderLine::Direction_Horizontal), 0, wxEXPAND);
             sizer->Add(m_smartEditorManager, 0, wxEXPAND);
             sizer->SetItemMinSize(m_attributeGrid, 100, 200);
-            sizer->SetItemMinSize(m_smartEditorManager, 100, 120);
+            sizer->SetItemMinSize(m_smartEditorManager, 100, 160);
             SetSizer(sizer);
             
             m_attributeGrid->Bind(ENTITY_ATTRIBUTE_SELECTED_EVENT, &EntityAttributeEditor::OnEntityAttributeSelected, this);
