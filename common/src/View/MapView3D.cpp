@@ -31,6 +31,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/SelectionBoundsRenderer.h"
 #include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
@@ -543,6 +544,13 @@ namespace TrenchBroom {
 
         void MapView3D::doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderer.render(renderContext, renderBatch);
+
+            MapDocumentSPtr document = lock(m_document);
+            if (document->hasSelectedNodes()) {
+                const BBox3& bounds = document->selectionBounds();
+                Renderer::SelectionBoundsRenderer boundsRenderer(bounds);
+                boundsRenderer.render(renderContext, renderBatch);
+            }
         }
         
         void MapView3D::doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

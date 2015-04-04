@@ -61,8 +61,11 @@ namespace TrenchBroom {
         extern Preference<Color> LockedEdgeColor;
         extern Preference<Color> UndefinedEntityColor;
         
+        extern Preference<Color> SelectionBoundsColor;
+        
         extern Preference<Color> InfoOverlayTextColor;
         extern Preference<Color> InfoOverlayBackgroundColor;
+        extern Preference<Color> WeakInfoOverlayBackgroundColor;
         extern Preference<Color> SelectedInfoOverlayTextColor;
         extern Preference<Color> SelectedInfoOverlayBackgroundColor;
         extern Preference<Color> LockedInfoOverlayTextColor;
