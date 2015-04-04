@@ -54,7 +54,7 @@ namespace TrenchBroom {
                 return TextAlignment::Right;
             }
             
-            Vec2f extraOffsets(const TextAlignment::Type alignment, const Vec2f& size) const {
+            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const {
                 Vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;
@@ -164,7 +164,7 @@ namespace TrenchBroom {
                 return TextAlignment::Bottom;
             }
             
-            Vec2f extraOffsets(const TextAlignment::Type alignment, const Vec2f& size) const {
+            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const {
                 Vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;
@@ -211,7 +211,7 @@ namespace TrenchBroom {
                 return TextAlignment::Bottom | TextAlignment::Right;
             }
             
-            Vec2f extraOffsets(const TextAlignment::Type alignment, const Vec2f& size) const {
+            Vec2f extraOffsets(TextAlignment::Type alignment, const Vec2f& size) const {
                 Vec2f result;
                 if (alignment & TextAlignment::Top)
                     result[1] -= 8.0f;
