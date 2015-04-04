@@ -74,16 +74,18 @@ namespace TrenchBroom {
             _UNUSED(success);
             
             const size_t rowIndex = static_cast<size_t>(row);
-            const int requiredModifiers = m_entries[rowIndex]->requiredModifiers();
-            const int suppliedModifiers = modifier1 | modifier2 | modifier3;
-            if ((requiredModifiers & suppliedModifiers) != requiredModifiers) {
-                wxString msg;
-                msg << "Shortcuts for menu items must include the ";
-                msg << KeyboardShortcut::modifierDisplayString(WXK_CONTROL);
-                msg << " key.";
-                
-                wxMessageBox(msg, "Error", wxOK, GetView());
-                return;
+            if (key != WXK_NONE) {
+                const int requiredModifiers = m_entries[rowIndex]->requiredModifiers();
+                const int suppliedModifiers = modifier1 | modifier2 | modifier3;
+                if ((requiredModifiers & suppliedModifiers) != requiredModifiers) {
+                    wxString msg;
+                    msg << "Shortcuts for menu items must include the ";
+                    msg << KeyboardShortcut::modifierDisplayString(WXK_CONTROL);
+                    msg << " key.";
+                    
+                    wxMessageBox(msg, "Error", wxOK, GetView());
+                    return;
+                }
             }
             
             m_entries[rowIndex]->updateShortcut(KeyboardShortcut(key, modifier1, modifier2, modifier3));
