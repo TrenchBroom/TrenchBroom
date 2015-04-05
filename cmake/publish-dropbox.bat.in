@@ -1,7 +1,7 @@
 @ECHO OFF
 
 if "%~1"=="" (
-  ECHO "You must supply the git commit id of the last published build for this platform."
+  ECHO You must supply the git commit id of the last published build for this platform.
   EXIT /B 1
 )
 
@@ -20,7 +20,7 @@ call generate-changelog.bat %1
 GOTO end
 
 :error
-ECHO "Unit tests failed, aborting build."
+ECHO Unit tests failed, aborting build.
 EXIT /B 1
 
 :end
