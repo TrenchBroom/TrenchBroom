@@ -1,5 +1,10 @@
 @ECHO OFF
 
+if "%~1"=="" (
+  ECHO "You must supply the git commit id of the last published build for this platform."
+  EXIT /B 1
+)
+
 cmake -G "@CMAKE_GENERATOR@" "@CMAKE_SOURCE_DIR@"
 cmake --build . --config Release
 
@@ -10,6 +15,7 @@ cd ..
 
 cmake --build . --config Release --target package
 cmake --build . --config Release --target publish
+call generate-changelog.bat %1
 
 GOTO end
 

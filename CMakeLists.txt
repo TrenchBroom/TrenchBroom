@@ -78,4 +78,3 @@ ENDIF()
 
 INCLUDE(cmake/TrenchBroomApp.cmake)
 INCLUDE(cmake/TrenchBroomTest.cmake)
-

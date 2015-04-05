@@ -1,7 +1,12 @@
 #!/bin/bash
 
+if [ $# -eq 0 ] || [ -z "$1" ] ; then
+    echo "You must supply the git commit id of the last published build for this platform."
+    exit 1
+fi
+
 cmake -G "@CMAKE_GENERATOR@" "@CMAKE_SOURCE_DIR@"
-cmake --build . --config Release -- $1 $2 $3 $4 $5
+cmake --build . --config Release -- $2 $3 $4 $5 $6
 
 ./TrenchBroom-Test
 if [ $? -ne 0 ]; then
@@ -9,5 +14,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cmake --build . --config Release --target package -- $1 $2 $3 $4 $5
-cmake --build . --config Release --target publish -- $1 $2 $3 $4 $5
+cmake --build . --config Release --target package -- $2 $3 $4 $5 $6
+cmake --build . --config Release --target publish -- $2 $3 $4 $5 $6
+generate-changelog.sh $1
