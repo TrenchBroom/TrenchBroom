@@ -244,10 +244,8 @@ namespace TrenchBroom {
             wxMenuBar* oldMenuBar = GetMenuBar();
             removeRecentDocumentsMenu(oldMenuBar);
 
-            SetMenuBar(NULL);
-            delete oldMenuBar;
-
             createMenuBar();
+            delete oldMenuBar;
         }
 
         void MapFrame::createMenuBar() {
