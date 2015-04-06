@@ -64,6 +64,7 @@ namespace TrenchBroom {
             SwitchableMapViewContainer(wxWindow* parent, Logger* logger, MapDocumentWPtr document, GLContextManager& contextManager);
             ~SwitchableMapViewContainer();
             
+            bool viewportHasFocus() const;
             void switchToMapView(MapViewLayout viewId);
             
             void setToolBoxDropTarget();

@@ -231,6 +231,13 @@ namespace TrenchBroom {
             SetRepresentedFilename(m_document->path().asString());
         }
 
+        void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
+            if (m_mapView->viewportHasFocus())
+                m_document->info("Map view was focused");
+            else
+                m_document->info("Other window was focused");
+        }
+
         void MapFrame::rebuildMenuBar() {
             wxMenuBar* oldMenuBar = GetMenuBar();
             removeRecentDocumentsMenu(oldMenuBar);
@@ -384,6 +391,7 @@ namespace TrenchBroom {
 
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
+            Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
         }
 
         void MapFrame::OnFileSave(wxCommandEvent& event) {

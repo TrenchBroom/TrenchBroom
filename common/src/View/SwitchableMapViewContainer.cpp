@@ -63,6 +63,10 @@ namespace TrenchBroom {
             m_mapRenderer = NULL;
         }
 
+        bool SwitchableMapViewContainer::viewportHasFocus() const {
+            return m_mapView->isCurrent();
+        }
+
         void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
             if (m_mapView != NULL) {
                 m_mapView->Destroy();
