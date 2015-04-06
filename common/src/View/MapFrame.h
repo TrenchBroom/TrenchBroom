@@ -125,6 +125,8 @@ namespace TrenchBroom {
             void OnEditReplaceTexture(wxCommandEvent& event);
 
             void OnEditToggleTextureLock(wxCommandEvent& event);
+            
+            void OnEditSnapVertices(wxCommandEvent& event);
 
             void OnViewToggleShowGrid(wxCommandEvent& event);
             void OnViewToggleSnapToGrid(wxCommandEvent& event);

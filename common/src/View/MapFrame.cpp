@@ -358,8 +358,8 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
 
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
-
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
+            Bind(wxEVT_MENU, &MapFrame::OnEditSnapVertices, this, CommandIds::Menu::EditSnapVertices);
 
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleShowGrid, this, CommandIds::Menu::ViewToggleShowGrid);
             Bind(wxEVT_MENU, &MapFrame::OnViewToggleSnapToGrid, this, CommandIds::Menu::ViewToggleSnapToGrid);
@@ -535,6 +535,10 @@ namespace TrenchBroom {
             m_document->setTextureLock(!m_document->textureLock());
         }
 
+        void MapFrame::OnEditSnapVertices(wxCommandEvent& event) {
+            m_document->snapVertices();
+        }
+
         void MapFrame::OnViewToggleShowGrid(wxCommandEvent& event) {
             m_document->grid().toggleVisible();
         }
@@ -650,11 +654,9 @@ namespace TrenchBroom {
                 case CommandIds::Menu::EditSelectNone:
                     event.Enable(m_document->hasSelection());
                     break;
-                    /*
                 case CommandIds::Menu::EditSnapVertices:
-                    event.Enable(m_mapView->canSnapVertices());
+                    event.Enable(m_document->selectedNodes().hasOnlyBrushes());
                     break;
-                     */
                 case CommandIds::Menu::EditReplaceTexture:
                     event.Enable(true);
                     break;

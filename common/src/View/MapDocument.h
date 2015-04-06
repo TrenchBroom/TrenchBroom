@@ -271,6 +271,8 @@ namespace TrenchBroom {
             bool shearTextures(const Vec2f& factors);
         public: // modifying vertices, declared in MapFacade interface
             void rebuildBrushGeometry(const Model::BrushList& brushes);
+            
+            using MapFacade::snapVertices;
             bool snapVertices(const Model::VertexToBrushesMap& vertices, size_t snapTo);
             bool findPlanePoints();
             
