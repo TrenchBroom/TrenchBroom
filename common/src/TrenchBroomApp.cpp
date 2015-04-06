@@ -226,6 +226,9 @@ namespace TrenchBroom {
 
         int TrenchBroomApp::OnRun() {
             const int result = wxApp::OnRun();
+            wxConfigBase* config = wxConfig::Get(false);
+            if (config != NULL)
+                config->Flush();
             DeletePendingObjects();
             return result;
         }
