@@ -44,12 +44,12 @@ namespace TrenchBroom {
             return m_parent;
         }
         
-        void MenuItem::appendToMenu(wxMenu* menu) const {
-            doAppendToMenu(menu);
+        void MenuItem::appendToMenu(wxMenu* menu, const bool withShortcuts) const {
+            doAppendToMenu(menu, withShortcuts);
         }
         
-        void MenuItem::appendToMenu(wxMenuBar* menu) const {
-            doAppendToMenu(menu);
+        void MenuItem::appendToMenu(wxMenuBar* menu, const bool withShortcuts) const {
+            doAppendToMenu(menu, withShortcuts);
         }
         
         const ActionMenuItem* MenuItem::findActionMenuItem(const int id) const {
@@ -64,7 +64,7 @@ namespace TrenchBroom {
             doResetShortcuts();
         }
 
-        void MenuItem::doAppendToMenu(wxMenuBar* menu) const {}
+        void MenuItem::doAppendToMenu(wxMenuBar* menu, const bool withShortcuts) const {}
 
         const ActionMenuItem* MenuItem::doFindActionMenuItem(const int id) const {
             return NULL;
@@ -77,7 +77,7 @@ namespace TrenchBroom {
         SeparatorItem::SeparatorItem(MenuItemParent* parent) :
         MenuItem(Type_Separator, parent) {}
         
-        void SeparatorItem::doAppendToMenu(wxMenu* menu) const {
+        void SeparatorItem::doAppendToMenu(wxMenu* menu, const bool withShortcuts) const {
             menu->AppendSeparator();
         }
 
@@ -103,12 +103,15 @@ namespace TrenchBroom {
         
         ActionMenuItem::~ActionMenuItem() {}
 
-        wxString ActionMenuItem::menuString(const wxString& suffix) const {
+        wxString ActionMenuItem::menuString(const wxString& suffix, const bool withShortcuts) const {
             wxString caption;
             caption << label();
             if (!suffix.empty())
                 caption << " " << suffix;
-            return shortcut().shortcutMenuItemString(caption);
+            if (withShortcuts)
+                return shortcut().shortcutMenuItemString(caption);
+            else
+                return caption;
         }
 
         const KeyboardShortcut& ActionMenuItem::shortcut() const {
@@ -129,11 +132,11 @@ namespace TrenchBroom {
             return path;
         }
 
-        void ActionMenuItem::doAppendToMenu(wxMenu* menu) const {
+        void ActionMenuItem::doAppendToMenu(wxMenu* menu, const bool withShortcuts) const {
             if (type() == Type_Action)
-                menu->Append(id(), menuString());
+                menu->Append(id(), menuString("", withShortcuts));
             else
-                menu->AppendCheckItem(id(), menuString());
+                menu->AppendCheckItem(id(), menuString("", withShortcuts));
         }
         
         const ActionMenuItem* ActionMenuItem::doFindActionMenuItem(int id) const {
@@ -207,26 +210,26 @@ namespace TrenchBroom {
             return m_items;
         }
         
-        void MenuItemParent::doAppendToMenu(wxMenu* menu) const {
-            wxMenu* subMenu = buildMenu();
+        void MenuItemParent::doAppendToMenu(wxMenu* menu, const bool withShortcuts) const {
+            wxMenu* subMenu = buildMenu(withShortcuts);
 
             wxMenuItem* subMenuItem = new wxMenuItem(subMenu, id(), label());
             subMenuItem->SetSubMenu(subMenu);
             menu->Append(subMenuItem);
         }
         
-        void MenuItemParent::doAppendToMenu(wxMenuBar* menu) const {
-            wxMenu* subMenu = buildMenu();
+        void MenuItemParent::doAppendToMenu(wxMenuBar* menu, const bool withShortcuts) const {
+            wxMenu* subMenu = buildMenu(withShortcuts);
             menu->Append(subMenu, label());
         }
 
-        wxMenu* MenuItemParent::buildMenu() const {
+        wxMenu* MenuItemParent::buildMenu(const bool withShortcuts) const {
             wxMenu* subMenu = new wxMenu();
             
             MenuItem::List::const_iterator it, end;
             for (it = m_items.begin(), end = m_items.end(); it != end; ++it) {
                 const MenuItem* item = *it;
-                item->appendToMenu(subMenu);
+                item->appendToMenu(subMenu, withShortcuts);
             }
             
             return subMenu;
@@ -348,12 +351,12 @@ namespace TrenchBroom {
             return menu;
         }
         
-        wxMenuBar* MenuBar::createMenuBar() {
+        wxMenuBar* MenuBar::createMenuBar(const bool withShortcuts) {
             wxMenuBar* menuBar = new wxMenuBar();
             MenuList::const_iterator it, end;
             for (it = m_menus.begin(), end = m_menus.end(); it != end; ++it) {
                 const Menu* menu = *it;
-                menu->appendToMenu(menuBar);
+                menu->appendToMenu(menuBar, withShortcuts);
             }
             return menuBar;
         }

@@ -232,10 +232,12 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
-            if (m_mapView->viewportHasFocus())
+            if (m_mapView->viewportHasFocus()) {
                 m_document->info("Map view was focused");
-            else
+            } else {
                 m_document->info("Other window was focused");
+            }
+            rebuildMenuBar();
         }
 
         void MapFrame::rebuildMenuBar() {
@@ -250,7 +252,7 @@ namespace TrenchBroom {
 
         void MapFrame::createMenuBar() {
             const ActionManager& actionManager = ActionManager::instance();
-            wxMenuBar* menuBar = actionManager.createMenuBar();
+            wxMenuBar* menuBar = actionManager.createMenuBar(m_mapView->viewportHasFocus());
             SetMenuBar(menuBar);
             addRecentDocumentsMenu(menuBar);
         }
@@ -611,10 +613,10 @@ namespace TrenchBroom {
                     assert(item != NULL);
                     if (m_document->canUndoLastCommand()) {
                         event.Enable(true);
-                        event.SetText(item->menuString(m_document->lastCommandName()));
+                        event.SetText(item->menuString(m_document->lastCommandName(), m_mapView->viewportHasFocus()));
                     } else {
                         event.Enable(false);
-                        event.SetText(item->menuString());
+                        event.SetText(item->menuString("", m_mapView->viewportHasFocus()));
                     }
                     break;
                 }
@@ -622,10 +624,10 @@ namespace TrenchBroom {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_REDO);
                     if (m_document->canRedoNextCommand()) {
                         event.Enable(true);
-                        event.SetText(item->menuString(m_document->nextCommandName()));
+                        event.SetText(item->menuString(m_document->nextCommandName(), m_mapView->viewportHasFocus()));
                     } else {
                         event.Enable(false);
-                        event.SetText(item->menuString());
+                        event.SetText(item->menuString("", m_mapView->viewportHasFocus()));
                     }
                     break;
                 }

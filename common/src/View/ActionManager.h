@@ -53,7 +53,7 @@ namespace TrenchBroom {
             
             void getShortcutEntries(ShortcutEntryList& entries);
 
-            wxMenuBar* createMenuBar() const;
+            wxMenuBar* createMenuBar(bool withShortcuts) const;
             bool isMenuShortcutPreference(const IO::Path& path) const;
 
             wxAcceleratorTable createViewAcceleratorTable(ActionContext context, ActionView view) const;

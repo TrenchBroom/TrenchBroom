@@ -66,8 +66,8 @@ namespace TrenchBroom {
             }
         }
 
-        wxMenuBar* ActionManager::createMenuBar() const {
-            return m_menuBar->createMenuBar();
+        wxMenuBar* ActionManager::createMenuBar(const bool withShortcuts) const {
+            return m_menuBar->createMenuBar(withShortcuts);
         }
 
         bool ActionManager::isMenuShortcutPreference(const IO::Path& path) const {
