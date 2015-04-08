@@ -133,6 +133,12 @@ namespace TrenchBroom {
             editMenu->addModifiableActionItem(wxID_COPY, "Copy", KeyboardShortcut('C', WXK_CONTROL));
             editMenu->addModifiableActionItem(wxID_PASTE, "Paste", KeyboardShortcut('V', WXK_CONTROL));
             editMenu->addModifiableActionItem(CommandIds::Menu::EditPasteAtOriginalPosition, "Paste at Original Position", KeyboardShortcut('V', WXK_CONTROL, WXK_SHIFT));
+            editMenu->addModifiableActionItem(wxID_DUPLICATE, "Duplicate", KeyboardShortcut('D', WXK_CONTROL));
+#ifdef __APPLE__
+            editMenu->addModifiableActionItem(wxID_DELETE, "Delete", KeyboardShortcut(WXK_BACK));
+#else
+            editMenu->addModifiableActionItem(wxID_DELETE, "Delete", KeyboardShortcut(WXK_DELETE));
+#endif
             
             editMenu->addSeparator();
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSelectAll, "Select All", KeyboardShortcut('A', WXK_CONTROL));
@@ -142,11 +148,28 @@ namespace TrenchBroom {
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSelectByFilePosition, "Select by Line Number");
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSelectNone, "Select None", KeyboardShortcut('A', WXK_CONTROL, WXK_SHIFT));
             editMenu->addSeparator();
+            
+            editMenu->addModifiableActionItem(CommandIds::Menu::EditGroupSelection, "Group", KeyboardShortcut('G', WXK_CONTROL));
+            editMenu->addModifiableActionItem(CommandIds::Menu::EditUngroupSelection, "Ungroup", KeyboardShortcut('G', WXK_CONTROL, WXK_SHIFT));
+            editMenu->addSeparator();
+            editMenu->addModifiableActionItem(CommandIds::Menu::EditHideSelection, "Hide", KeyboardShortcut('H', WXK_CONTROL));
+            editMenu->addModifiableActionItem(CommandIds::Menu::EditIsolateSelection, "Isolate", KeyboardShortcut('I', WXK_CONTROL));
+            editMenu->addModifiableActionItem(CommandIds::Menu::EditUnhideAll, "Show All", KeyboardShortcut('H', WXK_CONTROL, WXK_SHIFT));
+            editMenu->addSeparator();
+            
+            Menu* toolMenu = editMenu->addMenu("Tools");
+            toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleCreateBrushTool, "Brush Tool", KeyboardShortcut('B'));
+            toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleClipTool, "Clip Tool", KeyboardShortcut('C'));
+            toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", KeyboardShortcut('R'));
+            toolMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", KeyboardShortcut('V'));
+            
+            editMenu->addSeparator();
             editMenu->addModifiableCheckItem(CommandIds::Menu::EditToggleTextureLock, "Texture Lock");
             editMenu->addSeparator();
             editMenu->addModifiableActionItem(CommandIds::Menu::EditSnapVertices, "Snap Vertices", KeyboardShortcut('V', WXK_SHIFT, WXK_ALT));
             editMenu->addModifiableActionItem(CommandIds::Menu::EditReplaceTexture, "Replace Texture...");
 
+            
             Menu* viewMenu = m_menuBar->addMenu("View");
             Menu* gridMenu = viewMenu->addMenu("Grid");
             gridMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleShowGrid, "Show Grid", KeyboardShortcut('0', WXK_CONTROL));
@@ -169,12 +192,8 @@ namespace TrenchBroom {
             cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPreviousPoint, "Move to Previous Point", KeyboardShortcut('-', WXK_SHIFT, WXK_CONTROL));
             cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewCenterCameraOnSelection, "Center on Selection", KeyboardShortcut('C', WXK_CONTROL, WXK_SHIFT));
             cameraMenu->addModifiableActionItem(CommandIds::Menu::ViewMoveCameraToPosition, "Move Camera to...");
-            
-            /*
-             cameraMenu->addSeparator();
-             cameraMenu->addModifiableCheckItem(CommandIds::Menu::ViewToggleCameraFlyMode, "Fly Mode", KeyboardShortcut('F'));
-             */
-            
+            cameraMenu->addSeparator();
+
             viewMenu->addSeparator();
             viewMenu->addModifiableActionItem(CommandIds::Menu::ViewSwitchToMapInspector, "Switch to Map Inspector", KeyboardShortcut('1', WXK_SHIFT, WXK_ALT));
             viewMenu->addModifiableActionItem(CommandIds::Menu::ViewSwitchToEntityInspector, "Switch to Entity Inspector", KeyboardShortcut('2', WXK_SHIFT, WXK_ALT));
@@ -198,27 +217,22 @@ namespace TrenchBroom {
         }
 
         void ActionManager::createViewShortcuts() {
-            createViewShortcut(KeyboardShortcut('B'), ActionContext_Any,
-                               Action(View::CommandIds::Actions::ToggleCreateBrushTool, "Toggle create brush tool", true));
             createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_CreateBrushTool,
                                Action(View::CommandIds::Actions::Nothing, "", false),
                                Action(View::CommandIds::Actions::PerformCreateBrush, "Create brush", true));
-            createViewShortcut(KeyboardShortcut('C'), ActionContext_NodeSelection | ActionContext_AnyTool,
-                               Action(View::CommandIds::Actions::ToggleClipTool, "Toggle clip tool", true));
+            
             createViewShortcut(KeyboardShortcut(WXK_RETURN, WXK_CONTROL), ActionContext_ClipTool,
                                Action(View::CommandIds::Actions::ToggleClipSide, "Toggle clip side", true));
             createViewShortcut(KeyboardShortcut(WXK_RETURN), ActionContext_ClipTool,
                                Action(View::CommandIds::Actions::PerformClip, "Perform clip", true));
 #ifdef __APPLE__
-            createViewShortcut(KeyboardShortcut(WXK_BACK), ActionContext_ClipTool,
+            createViewShortcut(KeyboardShortcut(WXK_BACK, WXK_CONTROL), ActionContext_ClipTool,
                                Action(View::CommandIds::Actions::RemoveLastClipPoint, "Delete last clip point", true));
 #else
-            createViewShortcut(KeyboardShortcut(WXK_DELETE), ActionContext_ClipTool,
+            createViewShortcut(KeyboardShortcut(WXK_DELETE, WXK_CONTROL), ActionContext_ClipTool,
                                Action(View::CommandIds::Actions::RemoveLastClipPoint, "Delete last clip point", true));
 #endif
 
-            createViewShortcut(KeyboardShortcut('V'), ActionContext_NodeSelection | ActionContext_AnyTool,
-                               Action(View::CommandIds::Actions::ToggleVertexTool, "Toggle vertex tool", true));
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_VertexTool,
                                Action(View::CommandIds::Actions::MoveVerticesUp, "Move vertices up", true),
                                Action(View::CommandIds::Actions::MoveVerticesForward, "Move vertices forward", true));
@@ -236,8 +250,6 @@ namespace TrenchBroom {
                                Action(View::CommandIds::Actions::MoveVerticesBackward, "Move vertices backward", true),
                                Action(View::CommandIds::Actions::MoveVerticesDown, "Move vertices down", true));
 
-            createViewShortcut(KeyboardShortcut('R'), ActionContext_NodeSelection | ActionContext_AnyTool,
-                               Action(View::CommandIds::Actions::ToggleRotateObjectsTool, "Toggle rotate tool", true));
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_RotateTool,
                                Action(View::CommandIds::Actions::MoveRotationCenterUp, "Move rotation center up", true),
                                Action(View::CommandIds::Actions::MoveRotationCenterForward, "Move rotation center forward", true));
@@ -257,17 +269,9 @@ namespace TrenchBroom {
 
             createViewShortcut(KeyboardShortcut('F'), ActionContext_Any, Action(),
                                Action(View::CommandIds::Actions::ToggleFlyMode, "Toggle fly mode", true));
-            
+
             createViewShortcut(KeyboardShortcut('X'), ActionContext_Any, Action(),
                                Action(View::CommandIds::Actions::ToggleMovementRestriction, "Toggle movement axis", true));
-
-#ifdef __APPLE__
-            createViewShortcut(KeyboardShortcut(WXK_BACK), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::DeleteObjects, "Delete objects", true));
-#else
-            createViewShortcut(KeyboardShortcut(WXK_DELETE), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::DeleteObjects, "Delete objects", true));
-#endif
 
             createViewShortcut(KeyboardShortcut(WXK_UP), ActionContext_NodeSelection,
                                Action(View::CommandIds::Actions::MoveObjectsUp, "Move objects up", true),
@@ -304,8 +308,6 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut('F', WXK_CONTROL, WXK_ALT), ActionContext_NodeSelection,
                                Action(View::CommandIds::Actions::FlipObjectsVertically, "Flip objects vertically", true));
 
-            createViewShortcut(KeyboardShortcut('D', WXK_CONTROL), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::DuplicateObjects, "Duplicate objects", true));
             createViewShortcut(KeyboardShortcut(WXK_UP, WXK_CONTROL), ActionContext_NodeSelection,
                                Action(View::CommandIds::Actions::DuplicateObjectsUp, "Duplicate and move objects up", true),
                                Action(View::CommandIds::Actions::DuplicateObjectsForward, "Duplicate and move objects forward", true));
@@ -361,23 +363,8 @@ namespace TrenchBroom {
             createViewShortcut(KeyboardShortcut(WXK_PAGEDOWN, WXK_SHIFT), ActionContext_FaceSelection, Action(),
                                Action(View::CommandIds::Actions::RotateTexturesCCW, "Rotate textures counter-clockwise (coarse)", true));
             
-            createViewShortcut(KeyboardShortcut(WXK_TAB), ActionContext_Any,
+            createViewShortcut(KeyboardShortcut(WXK_SPACE), ActionContext_Any,
                                Action(View::CommandIds::Actions::CycleMapViews, "Cycle map view", true));
-
-            createViewShortcut(KeyboardShortcut('B', WXK_CONTROL), ActionContext_FaceSelection | ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::CreateConvexHull, "Create brush from convex hull", true));
-            
-            createViewShortcut(KeyboardShortcut('G', WXK_CONTROL), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::GroupSelection, "Group selected objects", true));
-            createViewShortcut(KeyboardShortcut('G', WXK_CONTROL, WXK_ALT), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::UngroupSelection, "Ungroup selected objects", true));
-
-            createViewShortcut(KeyboardShortcut('H', WXK_CONTROL), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::HideSelection, "Hide selected objects", true));
-            createViewShortcut(KeyboardShortcut('I', WXK_CONTROL), ActionContext_NodeSelection,
-                               Action(View::CommandIds::Actions::IsolateSelection, "Isolate selected objects", true));
-            createViewShortcut(KeyboardShortcut('H', WXK_CONTROL, WXK_SHIFT), ActionContext_Any,
-                               Action(View::CommandIds::Actions::ShowAll, "Show hidden objects", true));
 
             createViewShortcut(KeyboardShortcut(WXK_ESCAPE), ActionContext_Any,
                                Action(View::CommandIds::Actions::Cancel, "Cancel", true));

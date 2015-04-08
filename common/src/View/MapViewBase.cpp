@@ -51,6 +51,7 @@
 #include "View/MapViewConfig.h"
 #include "View/MapViewToolBox.h"
 #include "View/ToolBoxDropTarget.h"
+#include "View/ViewUtils.h"
 #include "View/wxUtils.h"
 
 namespace TrenchBroom {
@@ -183,14 +184,10 @@ namespace TrenchBroom {
             Bind(wxEVT_SET_FOCUS, &MapViewBase::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapViewBase::OnKillFocus, this);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleCreateBrushTool,        this, CommandIds::Actions::ToggleCreateBrushTool);
-
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleClipTool,               this, CommandIds::Actions::ToggleClipTool);
             Bind(wxEVT_MENU, &MapViewBase::OnToggleClipSide,               this, CommandIds::Actions::ToggleClipSide);
             Bind(wxEVT_MENU, &MapViewBase::OnPerformClip,                  this, CommandIds::Actions::PerformClip);
             Bind(wxEVT_MENU, &MapViewBase::OnRemoveLastClipPoint,          this, CommandIds::Actions::RemoveLastClipPoint);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleVertexTool,             this, CommandIds::Actions::ToggleVertexTool);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesForward,          this, CommandIds::Actions::MoveVerticesForward);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesBackward,         this, CommandIds::Actions::MoveVerticesBackward);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesLeft,             this, CommandIds::Actions::MoveVerticesLeft);
@@ -198,8 +195,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesUp,               this, CommandIds::Actions::MoveVerticesUp);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveVerticesDown,             this, CommandIds::Actions::MoveVerticesDown);
             
-            Bind(wxEVT_MENU, &MapViewBase::OnDeleteObjects,                this, CommandIds::Actions::DeleteObjects);
-
             Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsForward,           this, CommandIds::Actions::MoveObjectsForward);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsBackward,          this, CommandIds::Actions::MoveObjectsBackward);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsLeft,              this, CommandIds::Actions::MoveObjectsLeft);
@@ -207,7 +202,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsUp,                this, CommandIds::Actions::MoveObjectsUp);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveObjectsDown,              this, CommandIds::Actions::MoveObjectsDown);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjects,             this, CommandIds::Actions::DuplicateObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsForward,      this, CommandIds::Actions::DuplicateObjectsForward);
             Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsBackward,     this, CommandIds::Actions::DuplicateObjectsBackward);
             Bind(wxEVT_MENU, &MapViewBase::OnDuplicateObjectsLeft,         this, CommandIds::Actions::DuplicateObjectsLeft);
@@ -225,7 +219,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsH,                 this, CommandIds::Actions::FlipObjectsHorizontally);
             Bind(wxEVT_MENU, &MapViewBase::OnFlipObjectsV,                 this, CommandIds::Actions::FlipObjectsVertically);
 
-            Bind(wxEVT_MENU, &MapViewBase::OnToggleRotateObjectsTool,      this, CommandIds::Actions::ToggleRotateObjectsTool);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterForward,    this, CommandIds::Actions::MoveRotationCenterForward);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterBackward,   this, CommandIds::Actions::MoveRotationCenterBackward);
             Bind(wxEVT_MENU, &MapViewBase::OnMoveRotationCenterLeft,       this, CommandIds::Actions::MoveRotationCenterLeft);
@@ -235,11 +228,6 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapViewBase::OnCancel,                       this, CommandIds::Actions::Cancel);
             
-            Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::Actions::GroupSelection);
-            Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::Actions::UngroupSelection);
-            
-            Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushFromConvexHull,    this, CommandIds::Actions::CreateConvexHull);
-
             Bind(wxEVT_MENU, &MapViewBase::OnGroupSelectedObjects,         this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnUngroupSelectedObjects,       this, CommandIds::MapViewPopupMenu::UngroupObjects);
             Bind(wxEVT_MENU, &MapViewBase::OnRenameGroups,                 this, CommandIds::MapViewPopupMenu::RenameGroups);
@@ -247,10 +235,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapViewBase::OnMoveBrushesToWorld,           this, CommandIds::MapViewPopupMenu::MoveBrushesToWorld);
             Bind(wxEVT_MENU, &MapViewBase::OnCreatePointEntity,            this, CommandIds::MapViewPopupMenu::LowestPointEntityItem, CommandIds::MapViewPopupMenu::HighestPointEntityItem);
             Bind(wxEVT_MENU, &MapViewBase::OnCreateBrushEntity,            this, CommandIds::MapViewPopupMenu::LowestBrushEntityItem, CommandIds::MapViewPopupMenu::HighestBrushEntityItem);
-            
-            Bind(wxEVT_MENU, &MapViewBase::OnHideSelectedObjects,          this, CommandIds::Actions::HideSelection);
-            Bind(wxEVT_MENU, &MapViewBase::OnIsolateSelectedObjects,       this, CommandIds::Actions::IsolateSelection);
-            Bind(wxEVT_MENU, &MapViewBase::OnShowHiddenObjects,            this, CommandIds::Actions::ShowAll);
             
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::GroupObjects);
             Bind(wxEVT_UPDATE_UI, &MapViewBase::OnUpdatePopupMenuItem,     this, CommandIds::MapViewPopupMenu::UngroupObjects);
@@ -262,12 +246,6 @@ namespace TrenchBroom {
 
             wxFrame* frame = findFrame(this);
             frame->Bind(wxEVT_ACTIVATE, &MapViewBase::OnActivateFrame, this);
-        }
-
-        void MapViewBase::OnDeleteObjects(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelectedNodes())
-                document->deleteObjects();
         }
 
         void MapViewBase::OnMoveObjectsForward(wxCommandEvent& event) {
@@ -292,10 +270,6 @@ namespace TrenchBroom {
 
         void MapViewBase::OnMoveObjectsDown(wxCommandEvent& event) {
             moveObjects(Math::Direction_Down);
-        }
-
-        void MapViewBase::OnDuplicateObjects(wxCommandEvent& event) {
-            duplicateObjects();
         }
 
         void MapViewBase::OnDuplicateObjectsForward(wxCommandEvent& event) {
@@ -464,14 +438,6 @@ namespace TrenchBroom {
             Refresh();
         }
 
-        void MapViewBase::OnToggleCreateBrushTool(wxCommandEvent& event) {
-            m_toolBox.toggleCreateBrushTool();
-        }
-
-        void MapViewBase::OnToggleClipTool(wxCommandEvent& event) {
-            m_toolBox.toggleClipTool();
-        }
-
         void MapViewBase::OnToggleClipSide(wxCommandEvent& event) {
             m_toolBox.toggleClipSide();
         }
@@ -482,10 +448,6 @@ namespace TrenchBroom {
 
         void MapViewBase::OnRemoveLastClipPoint(wxCommandEvent& event) {
             m_toolBox.removeLastClipPoint();
-        }
-
-        void MapViewBase::OnToggleVertexTool(wxCommandEvent& event) {
-            m_toolBox.toggleVertexTool();
         }
 
         void MapViewBase::OnMoveVerticesForward(wxCommandEvent& event) {
@@ -530,15 +492,10 @@ namespace TrenchBroom {
             return doCancel();
         }
 
-        void MapViewBase::OnCreateBrushFromConvexHull(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            document->createBrushFromConvexHull();
-        }
-
         void MapViewBase::OnGroupSelectedObjects(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             if (document->hasSelectedNodes()) {
-                const String name = queryGroupName();
+                const String name = queryGroupName(this);
                 if (!name.empty())
                     document->groupSelection(name);
             }
@@ -553,46 +510,9 @@ namespace TrenchBroom {
         void MapViewBase::OnRenameGroups(wxCommandEvent& event) {
             MapDocumentSPtr document = lock(m_document);
             assert(document->selectedNodes().hasOnlyGroups());
-            const String name = queryGroupName();
+            const String name = queryGroupName(this);
             if (!name.empty())
                 document->renameGroups(name);
-        }
-        
-        String MapViewBase::queryGroupName() {
-            while (true) {
-                wxTextEntryDialog dialog(this, "Enter a name", "Group Name", "Unnamed");
-                dialog.CentreOnParent();
-                if (dialog.ShowModal() != wxID_OK)
-                    return "";
-                
-                const String name = dialog.GetValue().ToStdString();
-                if (StringUtils::isBlank(name)) {
-                    if (wxMessageBox("Group names cannot be blank.", "Error", wxOK | wxCANCEL | wxCENTRE, this) != wxOK)
-                        return "";
-                } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
-                    if (wxMessageBox("Group names cannot contain double quotes.", "Error", wxOK | wxCANCEL | wxCENTRE, this) != wxOK)
-                        return "";
-                } else {
-                    return name;
-                }
-            }
-        }
-        
-        void MapViewBase::OnHideSelectedObjects(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelectedNodes())
-                document->hideSelection();
-        }
-        
-        void MapViewBase::OnIsolateSelectedObjects(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            if (document->hasSelectedNodes())
-                document->isolate(document->selectedNodes().nodes());
-        }
-        
-        void MapViewBase::OnShowHiddenObjects(wxCommandEvent& event) {
-            MapDocumentSPtr document = lock(m_document);
-            document->showAll();
         }
 
         void MapViewBase::OnMoveBrushesToWorld(wxCommandEvent& event) {
@@ -826,9 +746,9 @@ namespace TrenchBroom {
         void MapViewBase::doShowPopupMenu() {
             wxMenu menu;
             menu.SetEventHandler(this);
-            menu.Append(CommandIds::MapViewPopupMenu::GroupObjects, "Group Objects...");
-            menu.Append(CommandIds::MapViewPopupMenu::UngroupObjects, "Ungroup Objects");
-            menu.Append(CommandIds::MapViewPopupMenu::RenameGroups, "Rename Groups...");
+            menu.Append(CommandIds::MapViewPopupMenu::GroupObjects, "Group");
+            menu.Append(CommandIds::MapViewPopupMenu::UngroupObjects, "Ungroup");
+            menu.Append(CommandIds::MapViewPopupMenu::RenameGroups, "Rename");
             menu.AppendSeparator();
             menu.Append(CommandIds::MapViewPopupMenu::ReparentBrushes, "Move Brushes to...");
             menu.Append(CommandIds::MapViewPopupMenu::MoveBrushesToWorld, "Move Brushes to World");

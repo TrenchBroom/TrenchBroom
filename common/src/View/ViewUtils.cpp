@@ -169,5 +169,25 @@ namespace TrenchBroom {
             
             return wxPaths.size();
         }
+
+        String queryGroupName(wxWindow* parent) {
+            while (true) {
+                wxTextEntryDialog dialog(parent, "Enter a name", "Group Name", "Unnamed");
+                dialog.CentreOnParent();
+                if (dialog.ShowModal() != wxID_OK)
+                    return "";
+                
+                const String name = dialog.GetValue().ToStdString();
+                if (StringUtils::isBlank(name)) {
+                    if (wxMessageBox("Group names cannot be blank.", "Error", wxOK | wxCANCEL | wxCENTRE, parent) != wxOK)
+                        return "";
+                } else if (StringUtils::containsCaseInsensitive(name, "\"")) {
+                    if (wxMessageBox("Group names cannot contain double quotes.", "Error", wxOK | wxCANCEL | wxCENTRE, parent) != wxOK)
+                        return "";
+                } else {
+                    return name;
+                }
+            }
+        }
     }
 }

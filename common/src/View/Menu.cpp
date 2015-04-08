@@ -134,9 +134,9 @@ namespace TrenchBroom {
 
         void ActionMenuItem::doAppendToMenu(wxMenu* menu, const bool withShortcuts) const {
             if (type() == Type_Action)
-                menu->Append(id(), menuString("", withShortcuts));
+                menu->Append(id(), menuString("", !m_action.modifiable() || withShortcuts));
             else
-                menu->AppendCheckItem(id(), menuString("", withShortcuts));
+                menu->AppendCheckItem(id(), menuString("", !m_action.modifiable() || withShortcuts));
         }
         
         const ActionMenuItem* ActionMenuItem::doFindActionMenuItem(int id) const {
@@ -168,10 +168,6 @@ namespace TrenchBroom {
 
         bool ActionMenuItem::doGetModifiable() const {
             return m_action.modifiable();
-        }
-
-        int ActionMenuItem::doGetRequiredModifiers() const {
-            return WXK_CONTROL;
         }
 
         wxString ActionMenuItem::doGetActionDescription() const {

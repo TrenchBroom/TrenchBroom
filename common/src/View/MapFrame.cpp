@@ -41,6 +41,7 @@
 #include "View/ReplaceTextureFrame.h"
 #include "View/SplitterWindow2.h"
 #include "View/SwitchableMapViewContainer.h"
+#include "View/ViewUtils.h"
 
 #include <wx/clipbrd.h>
 #include <wx/display.h>
@@ -351,7 +352,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditCopy, this, wxID_COPY);
             Bind(wxEVT_MENU, &MapFrame::OnEditPaste, this, wxID_PASTE);
             Bind(wxEVT_MENU, &MapFrame::OnEditPasteAtOriginalPosition, this, CommandIds::Menu::EditPasteAtOriginalPosition);
-
+            Bind(wxEVT_MENU, &MapFrame::OnEditDuplicate, this, wxID_DUPLICATE);
+            Bind(wxEVT_MENU, &MapFrame::OnEditDelete, this, wxID_DELETE);
+            
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectAll, this, CommandIds::Menu::EditSelectAll);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectSiblings, this, CommandIds::Menu::EditSelectSiblings);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectTouching, this, CommandIds::Menu::EditSelectTouching);
@@ -359,6 +362,19 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectByLineNumber, this, CommandIds::Menu::EditSelectByFilePosition);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectNone, this, CommandIds::Menu::EditSelectNone);
 
+            Bind(wxEVT_MENU, &MapFrame::OnEditGroupSelectedObjects, this, CommandIds::Menu::EditGroupSelection);
+            Bind(wxEVT_MENU, &MapFrame::OnEditUngroupSelectedObjects, this, CommandIds::Menu::EditUngroupSelection);
+            
+            Bind(wxEVT_MENU, &MapFrame::OnEditHideSelectedObjects, this, CommandIds::Menu::EditHideSelection);
+            Bind(wxEVT_MENU, &MapFrame::OnEditIsolateSelectedObjects, this, CommandIds::Menu::EditIsolateSelection);
+            Bind(wxEVT_MENU, &MapFrame::OnEditShowHiddenObjects, this, CommandIds::Menu::EditUnhideAll);
+            
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleCreateBrushTool, this, CommandIds::Menu::EditToggleCreateBrushTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
+            Bind(wxEVT_MENU, &MapFrame::OnEditToggleVertexTool, this, CommandIds::Menu::EditToggleVertexTool);
+
+            Bind(wxEVT_MENU, &MapFrame::OnEditCreateBrushFromConvexHull, this, CommandIds::Menu::EditCreateConvexHull);
             Bind(wxEVT_MENU, &MapFrame::OnEditReplaceTexture, this, CommandIds::Menu::EditReplaceTexture);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleTextureLock, this, CommandIds::Menu::EditToggleTextureLock);
             Bind(wxEVT_MENU, &MapFrame::OnEditSnapVertices, this, CommandIds::Menu::EditSnapVertices);
@@ -374,6 +390,10 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewCenterCameraOnSelection, this, CommandIds::Menu::ViewCenterCameraOnSelection);
             Bind(wxEVT_MENU, &MapFrame::OnViewMoveCameraToPosition, this, CommandIds::Menu::ViewMoveCameraToPosition);
 
+            Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToMapInspector, this, CommandIds::Menu::ViewSwitchToMapInspector);
+            Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToEntityInspector, this, CommandIds::Menu::ViewSwitchToEntityInspector);
+            Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToFaceInspector, this, CommandIds::Menu::ViewSwitchToFaceInspector);
+            
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CLOSE);
@@ -490,6 +510,16 @@ namespace TrenchBroom {
             return m_document->paste(text);
         }
 
+        void MapFrame::OnEditDelete(wxCommandEvent& event) {
+            assert(m_document->hasSelectedNodes());
+            m_document->deleteObjects();
+        }
+        
+        void MapFrame::OnEditDuplicate(wxCommandEvent& event) {
+            assert(m_document->hasSelectedNodes());
+            m_document->duplicateObjects();
+        }
+
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
             m_document->selectAllNodes();
         }
@@ -528,10 +558,57 @@ namespace TrenchBroom {
             m_document->deselectAll();
         }
 
+        void MapFrame::OnEditGroupSelectedObjects(wxCommandEvent& event) {
+            assert(m_document->hasSelectedNodes());
+            const String name = queryGroupName(this);
+            if (!name.empty())
+                m_document->groupSelection(name);
+        }
+        
+        void MapFrame::OnEditUngroupSelectedObjects(wxCommandEvent& event) {
+            assert(m_document->selectedNodes().hasOnlyGroups());
+            m_document->ungroupSelection();
+        }
+
+        void MapFrame::OnEditHideSelectedObjects(wxCommandEvent& event) {
+            assert(m_document->hasSelectedNodes());
+            m_document->hideSelection();
+        }
+        
+        void MapFrame::OnEditIsolateSelectedObjects(wxCommandEvent& event) {
+            assert(m_document->hasSelectedNodes());
+            m_document->isolate(m_document->selectedNodes().nodes());
+        }
+        
+        void MapFrame::OnEditShowHiddenObjects(wxCommandEvent& event) {
+            m_document->showAll();
+        }
+
         void MapFrame::OnEditReplaceTexture(wxCommandEvent& event) {
             ReplaceTextureFrame* frame = new ReplaceTextureFrame(this, m_document, *m_contextManager);
             frame->CenterOnParent();
             frame->Show();
+        }
+
+        void MapFrame::OnEditToggleCreateBrushTool(wxCommandEvent& event) {
+            m_mapView->toggleCreateBrushTool();
+        }
+        
+        void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
+            m_mapView->toggleClipTool();
+        }
+        
+        void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
+            m_mapView->toggleRotateObjectsTool();
+        }
+        
+        void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
+            m_mapView->toggleVertexTool();
+        }
+
+        void MapFrame::OnEditCreateBrushFromConvexHull(wxCommandEvent& event) {
+            assert(m_document->hasSelectedBrushFaces() || m_document->selectedNodes().hasOnlyBrushes());
+            m_document->createBrushFromConvexHull();
         }
 
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
@@ -583,6 +660,18 @@ namespace TrenchBroom {
                 const Vec3 position = Vec3::parse(str.ToStdString());
                 m_mapView->moveCameraToPosition(position);
             }
+        }
+
+        void MapFrame::OnViewSwitchToMapInspector(wxCommandEvent& event) {
+            m_inspector->switchToPage(Inspector::InspectorPage_Map);
+        }
+        
+        void MapFrame::OnViewSwitchToEntityInspector(wxCommandEvent& event) {
+            m_inspector->switchToPage(Inspector::InspectorPage_Entity);
+        }
+        
+        void MapFrame::OnViewSwitchToFaceInspector(wxCommandEvent& event) {
+            m_inspector->switchToPage(Inspector::InspectorPage_Face);
         }
 
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
@@ -641,6 +730,12 @@ namespace TrenchBroom {
                     event.Enable(wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT));
                     break;
                 }
+                case wxID_DUPLICATE:
+                    event.Enable(m_document->hasSelectedNodes());
+                    break;
+                case wxID_DELETE:
+                    event.Enable(m_document->hasSelectedNodes());
+                    break;
                 case CommandIds::Menu::EditSelectAll:
                     event.Enable(true);
                     break;
@@ -656,6 +751,28 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::EditSelectNone:
                     event.Enable(m_document->hasSelection());
+                    break;
+                case CommandIds::Menu::EditGroupSelection:
+                    event.Enable(m_document->hasSelectedNodes());
+                    break;
+                case CommandIds::Menu::EditUngroupSelection:
+                    event.Enable(m_document->selectedNodes().hasOnlyGroups());
+                    break;
+                case CommandIds::Menu::EditHideSelection:
+                case CommandIds::Menu::EditIsolateSelection:
+                    event.Enable(m_document->hasSelectedNodes());
+                    break;
+                case CommandIds::Menu::EditUnhideAll:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditToggleCreateBrushTool:
+                case CommandIds::Menu::EditToggleClipTool:
+                case CommandIds::Menu::EditToggleRotateObjectsTool:
+                case CommandIds::Menu::EditToggleVertexTool:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditCreateConvexHull:
+                    event.Enable(m_document->hasSelectedBrushFaces() || m_document->selectedNodes().hasOnlyBrushes());
                     break;
                 case CommandIds::Menu::EditSnapVertices:
                     event.Enable(m_document->selectedNodes().hasOnlyBrushes());
@@ -729,7 +846,6 @@ namespace TrenchBroom {
                 case CommandIds::Menu::ViewMoveCameraToPosition:
                     event.Enable(true);
                     break;
-                    /*
                 case CommandIds::Menu::ViewSwitchToMapInspector:
                 case CommandIds::Menu::ViewSwitchToEntityInspector:
                 case CommandIds::Menu::ViewSwitchToFaceInspector:
@@ -738,7 +854,6 @@ namespace TrenchBroom {
                 case CommandIds::Menu::FileOpenRecent:
                     event.Enable(true);
                     break;
-                 */
                 default:
                     if (event.GetId() >= CommandIds::Menu::FileRecentDocuments &&
                         event.GetId() < CommandIds::Menu::FileRecentDocuments + 10)

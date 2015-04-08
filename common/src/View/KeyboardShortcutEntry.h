@@ -38,7 +38,6 @@ namespace TrenchBroom {
             virtual ~KeyboardShortcutEntry();
             
             bool modifiable() const;
-            int requiredModifiers() const;
             
             bool hasConflicts() const;
             void resetConflicts();
@@ -57,7 +56,6 @@ namespace TrenchBroom {
         private:
             virtual int doGetActionContext() const = 0;
             virtual bool doGetModifiable() const = 0;
-            virtual int doGetRequiredModifiers() const = 0;
             virtual wxString doGetActionDescription() const = 0;
             virtual const KeyboardShortcut& doGetShortcut() const = 0;
             virtual void doUpdateShortcut(const KeyboardShortcut& shortcut) = 0;

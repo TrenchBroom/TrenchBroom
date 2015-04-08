@@ -32,10 +32,6 @@ namespace TrenchBroom {
             return doGetModifiable();
         }
 
-        int KeyboardShortcutEntry::requiredModifiers() const {
-            return doGetRequiredModifiers();
-        }
-
         bool KeyboardShortcutEntry::hasConflicts() const {
             return m_hasConflicts;
         }

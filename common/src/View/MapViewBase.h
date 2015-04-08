@@ -89,16 +89,12 @@ namespace TrenchBroom {
         private: // interaction events
             void bindEvents();
             
-            void OnDeleteObjects(wxCommandEvent& event);
-            
             void OnMoveObjectsForward(wxCommandEvent& event);
             void OnMoveObjectsBackward(wxCommandEvent& event);
             void OnMoveObjectsLeft(wxCommandEvent& event);
             void OnMoveObjectsRight(wxCommandEvent& event);
             void OnMoveObjectsUp(wxCommandEvent& event);
             void OnMoveObjectsDown(wxCommandEvent& event);
-            
-            void OnDuplicateObjects(wxCommandEvent& event);
             
             void OnDuplicateObjectsForward(wxCommandEvent& event);
             void OnDuplicateObjectsBackward(wxCommandEvent& event);
@@ -134,14 +130,10 @@ namespace TrenchBroom {
             void OnMoveRotationCenterDown(wxCommandEvent& event);
             void moveRotationCenter(Math::Direction direction);
             
-            void OnToggleCreateBrushTool(wxCommandEvent& event);
-            
-            void OnToggleClipTool(wxCommandEvent& event);
             void OnToggleClipSide(wxCommandEvent& event);
             void OnPerformClip(wxCommandEvent& event);
             void OnRemoveLastClipPoint(wxCommandEvent& event);
             
-            void OnToggleVertexTool(wxCommandEvent& event);
             void OnMoveVerticesForward(wxCommandEvent& event);
             void OnMoveVerticesBackward(wxCommandEvent& event);
             void OnMoveVerticesLeft(wxCommandEvent& event);
@@ -152,18 +144,10 @@ namespace TrenchBroom {
             
             void OnCancel(wxCommandEvent& event);
             bool cancel();
-        private: // create brush from convex hull
-            void OnCreateBrushFromConvexHull(wxCommandEvent& event);
         private: // group management
             void OnGroupSelectedObjects(wxCommandEvent& event);
             void OnUngroupSelectedObjects(wxCommandEvent& event);
             void OnRenameGroups(wxCommandEvent& event);
-
-            String queryGroupName();
-        private: // hide and show objects
-            void OnHideSelectedObjects(wxCommandEvent& event);
-            void OnIsolateSelectedObjects(wxCommandEvent& event);
-            void OnShowHiddenObjects(wxCommandEvent& event);
         private: // reparenting objects
             void OnReparentBrushes(wxCommandEvent& event);
             Model::Node* findNewNodeParent(const Model::NodeList& nodes) const;

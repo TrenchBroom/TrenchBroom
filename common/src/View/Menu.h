@@ -114,7 +114,6 @@ namespace TrenchBroom {
         private: // implement KeyboardShortcutEntry interface
             int doGetActionContext() const;
             bool doGetModifiable() const;
-            int doGetRequiredModifiers() const;
             wxString doGetActionDescription() const;
             const KeyboardShortcut& doGetShortcut() const;
             void doUpdateShortcut(const KeyboardShortcut& shortcut);
