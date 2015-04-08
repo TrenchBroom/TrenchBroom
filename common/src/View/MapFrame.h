@@ -79,6 +79,7 @@ namespace TrenchBroom {
         private: // title bar contents
             void updateTitle();
         private: // menu bar
+            void OnChildFocus(wxChildFocusEvent& event);
             void rebuildMenuBar();
             void createMenuBar();
             void addRecentDocumentsMenu(wxMenuBar* menuBar);
@@ -114,13 +115,30 @@ namespace TrenchBroom {
             void OnEditPaste(wxCommandEvent& event);
             void OnEditPasteAtOriginalPosition(wxCommandEvent& event);
             bool paste();
-             
+            
+            void OnEditDelete(wxCommandEvent& event);
+            void OnEditDuplicate(wxCommandEvent& event);
+            
             void OnEditSelectAll(wxCommandEvent& event);
             void OnEditSelectSiblings(wxCommandEvent& event);
             void OnEditSelectTouching(wxCommandEvent& event);
             void OnEditSelectInside(wxCommandEvent& event);
             void OnEditSelectByLineNumber(wxCommandEvent& event);
             void OnEditSelectNone(wxCommandEvent& event);
+
+            void OnEditGroupSelectedObjects(wxCommandEvent& event);
+            void OnEditUngroupSelectedObjects(wxCommandEvent& event);
+
+            void OnEditHideSelectedObjects(wxCommandEvent& event);
+            void OnEditIsolateSelectedObjects(wxCommandEvent& event);
+            void OnEditShowHiddenObjects(wxCommandEvent& event);
+
+            void OnEditToggleCreateBrushTool(wxCommandEvent& event);
+            void OnEditToggleClipTool(wxCommandEvent& event);
+            void OnEditToggleRotateObjectsTool(wxCommandEvent& event);
+            void OnEditToggleVertexTool(wxCommandEvent& event);
+            
+            void OnEditCreateBrushFromConvexHull(wxCommandEvent& event);
 
             void OnEditReplaceTexture(wxCommandEvent& event);
 
@@ -139,6 +157,10 @@ namespace TrenchBroom {
             void OnViewCenterCameraOnSelection(wxCommandEvent& event);
             void OnViewMoveCameraToPosition(wxCommandEvent& event);
 
+            void OnViewSwitchToMapInspector(wxCommandEvent& event);
+            void OnViewSwitchToEntityInspector(wxCommandEvent& event);
+            void OnViewSwitchToFaceInspector(wxCommandEvent& event);
+            
             void OnUpdateUI(wxUpdateUIEvent& event);
         private: // other event handlers
             void OnClose(wxCloseEvent& event);

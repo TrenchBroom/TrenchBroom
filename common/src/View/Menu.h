@@ -58,15 +58,15 @@ namespace TrenchBroom {
             Type type() const;
             const MenuItemParent* parent() const;
             
-            void appendToMenu(wxMenu* menu) const;
-            void appendToMenu(wxMenuBar* menu) const;
+            void appendToMenu(wxMenu* menu, bool withShortcuts) const;
+            void appendToMenu(wxMenuBar* menu, bool withShortcuts) const;
             const ActionMenuItem* findActionMenuItem(int id) const;
             void getShortcutEntries(KeyboardShortcutEntry::List& entries);
             
             void resetShortcuts();
         private:
-            virtual void doAppendToMenu(wxMenu* menu) const = 0;
-            virtual void doAppendToMenu(wxMenuBar* menu) const;
+            virtual void doAppendToMenu(wxMenu* menu, bool withShortcuts) const = 0;
+            virtual void doAppendToMenu(wxMenuBar* menu, bool withShortcuts) const;
             virtual const ActionMenuItem* doFindActionMenuItem(int id) const;
             virtual void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
             virtual void doResetShortcuts();
@@ -76,7 +76,7 @@ namespace TrenchBroom {
         public:
             SeparatorItem(MenuItemParent* parent);
         private:
-            void doAppendToMenu(wxMenu* menu) const;
+            void doAppendToMenu(wxMenu* menu, bool withShortcuts) const;
         };
         
         class LabeledMenuItem : public MenuItem {
@@ -99,12 +99,12 @@ namespace TrenchBroom {
             ActionMenuItem(Type type, MenuItemParent* parent, int id, const String& label, const KeyboardShortcut& defaultShortcut, bool modifiable);
             virtual ~ActionMenuItem();
 
-            wxString menuString(const wxString& suffix = "") const;
+            wxString menuString(const wxString& suffix, bool withShortcuts) const;
         private:
             const KeyboardShortcut& shortcut() const;
             IO::Path path(const String& text) const;
         private: // implement LabeledMenuItem interface
-            void doAppendToMenu(wxMenu* menu) const;
+            void doAppendToMenu(wxMenu* menu, bool withShortcuts) const;
             const ActionMenuItem* doFindActionMenuItem(int id) const;
             void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
             void doResetShortcuts();
@@ -114,7 +114,6 @@ namespace TrenchBroom {
         private: // implement KeyboardShortcutEntry interface
             int doGetActionContext() const;
             bool doGetModifiable() const;
-            int doGetRequiredModifiers() const;
             wxString doGetActionDescription() const;
             const KeyboardShortcut& doGetShortcut() const;
             void doUpdateShortcut(const KeyboardShortcut& shortcut);
@@ -136,9 +135,9 @@ namespace TrenchBroom {
             const List& items() const;
             List& items();
         private:
-            void doAppendToMenu(wxMenu* menu) const;
-            void doAppendToMenu(wxMenuBar* menu) const;
-            wxMenu* buildMenu() const;
+            void doAppendToMenu(wxMenu* menu, bool withShortcuts) const;
+            void doAppendToMenu(wxMenuBar* menu, bool withShortcuts) const;
+            wxMenu* buildMenu(bool withShortcuts) const;
 
             const ActionMenuItem* doFindActionMenuItem(int id) const;
             void doGetShortcutEntries(KeyboardShortcutEntry::List& entries);
@@ -180,7 +179,7 @@ namespace TrenchBroom {
             void resetShortcuts();
 
             Menu* addMenu(const String& label);
-            wxMenuBar* createMenuBar();
+            wxMenuBar* createMenuBar(bool withShortcuts);
 
             void getShortcutEntries(KeyboardShortcutEntry::List& entries) const;
         };

@@ -71,7 +71,7 @@ namespace TrenchBroom {
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
             const ActionManager& actionManager = ActionManager::instance();
-            wxMenuBar* menuBar = actionManager.createMenuBar();
+            wxMenuBar* menuBar = actionManager.createMenuBar(false);
             wxMenuBar::MacSetCommonMenuBar(menuBar);
             
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
@@ -226,6 +226,9 @@ namespace TrenchBroom {
 
         int TrenchBroomApp::OnRun() {
             const int result = wxApp::OnRun();
+            wxConfigBase* config = wxConfig::Get(false);
+            if (config != NULL)
+                config->Flush();
             DeletePendingObjects();
             return result;
         }

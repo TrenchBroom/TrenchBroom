@@ -21,6 +21,7 @@
 #define __TrenchBroom__ViewUtils__
 
 #include "View/ViewTypes.h"
+#include "StringUtils.h"
 
 #include <wx/wx.h>
 
@@ -46,6 +47,8 @@ namespace TrenchBroom {
         bool loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxString& wxPath);
         bool containsLoadableEntityDefinitionFile(MapDocumentWPtr document, const wxArrayString& wxPaths);
         size_t loadEntityDefinitionFile(MapDocumentWPtr document, wxWindow* parent, const wxArrayString& wxPaths);
+        
+        String queryGroupName(wxWindow* parent);
     }
 }
 

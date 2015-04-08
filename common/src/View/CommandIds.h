@@ -31,12 +31,6 @@ namespace TrenchBroom {
                 const int EditSelectSiblings                 = Lowest +   3;
                 const int EditSelectTouching                 = Lowest +   4;
                 const int EditSelectNone                     = Lowest +   5;
-                const int EditHideSelected                   = Lowest +   6;
-                const int EditHideUnselected                 = Lowest +   7;
-                const int EditUnhideAll                      = Lowest +   8;
-                const int EditLockSelected                   = Lowest +   9;
-                const int EditLockUnselected                 = Lowest +  10;
-                const int EditUnlockAll                      = Lowest +  11;
                 const int EditSnapVertices                   = Lowest +  12;
                 const int EditToggleTextureLock              = Lowest +  42;
                 const int ViewToggleShowGrid                 = Lowest +  43;
@@ -70,16 +64,25 @@ namespace TrenchBroom {
                 const int ViewSwitchToMapInspector           = Lowest +  86;
                 const int ViewSwitchToEntityInspector        = Lowest +  87;
                 const int ViewSwitchToFaceInspector          = Lowest +  88;
-                const int EditNavigateUp                     = Lowest +  95;
                 const int FileOpenRecent                     = Lowest +  96;
                 const int EditPrintFilePositions             = Lowest + 101;
                 const int EditSelectInside                   = Lowest + 103;
-                const int ViewToggleCameraFlyMode            = Lowest + 106;
                 const int EditRepeat                         = Lowest + 107;
                 const int EditClearRepeat                    = Lowest + 108;
                 const int ViewMoveCameraToPosition           = Lowest + 109;
                 const int EditReplaceTexture                 = Lowest + 110;
 
+                const int EditToggleCreateBrushTool          = Lowest + 111;
+                const int EditToggleVertexTool               = Lowest + 112;
+                const int EditToggleRotateObjectsTool        = Lowest + 113;
+                const int EditCreateConvexHull               = Lowest + 116;
+                const int EditGroupSelection                 = Lowest + 117;
+                const int EditUngroupSelection               = Lowest + 118;
+                const int EditHideSelection                  = Lowest + 119;
+                const int EditIsolateSelection               = Lowest + 120;
+                const int EditUnhideAll                      = Lowest + 121;
+                const int EditToggleClipTool                 = Lowest + 122;
+                
                 const int FileRecentDocuments                = Lowest + 190;
 
                 const int Highest                            = Lowest + 200;
@@ -88,14 +91,12 @@ namespace TrenchBroom {
             namespace Actions {
                 const int Lowest                             = Menu::Highest + 1;
                 const int Nothing                            = wxID_NONE;
-                const int ToggleCreateBrushTool              = Lowest +   1;
                 const int PerformCreateBrush                 = Lowest +   2;
                 const int ToggleClipTool                     = Lowest +   3;
                 const int ToggleClipSide                     = Lowest +   4;
                 const int PerformClip                        = Lowest +   5;
                 const int RemoveLastClipPoint                = Lowest +   6;
 
-                const int ToggleVertexTool                   = Lowest +   7;
                 const int MoveVerticesForward                = Lowest +   8;
                 const int MoveVerticesBackward               = Lowest +   9;
                 const int MoveVerticesLeft                   = Lowest +  10;
@@ -103,13 +104,8 @@ namespace TrenchBroom {
                 const int MoveVerticesUp                     = Lowest +  12;
                 const int MoveVerticesDown                   = Lowest +  13;
 
-                const int ToggleRotateObjectsTool            = Lowest +  14;
-                const int ToggleFlyMode                      = Lowest +  15;
-                
                 const int ToggleMovementRestriction          = Lowest +  16;
 
-                const int DeleteObjects                      = Lowest +  17;
-                
                 const int MoveObjectsForward                 = Lowest +  18;
                 const int MoveObjectsRight                   = Lowest +  19;
                 const int MoveObjectsBackward                = Lowest +  20;
@@ -134,8 +130,6 @@ namespace TrenchBroom {
                 const int DuplicateObjectsUp                 = Lowest +  36;
                 const int DuplicateObjectsDown               = Lowest +  37;
             
-                const int DuplicateObjects                   = Lowest +  38;
-
                 const int MoveTexturesUp                     = Lowest +  39;
                 const int MoveTexturesRight                  = Lowest +  40;
                 const int MoveTexturesDown                   = Lowest +  41;
@@ -154,14 +148,7 @@ namespace TrenchBroom {
 
                 const int CycleMapViews                      = Lowest +  52;
                 
-                const int CreateConvexHull                   = Lowest +  53;
-                const int GroupSelection                     = Lowest +  54;
-                const int UngroupSelection                   = Lowest +  55;
-
-                const int HideSelection                      = Lowest +  56;
-                const int IsolateSelection                   = Lowest +  57;
-                const int ShowAll                            = Lowest +  58;
-                
+                const int ToggleFlyMode                      = Lowest +  53;
                 /*
                 const int CorrectVertices                    = Lowest +  82;
                  */

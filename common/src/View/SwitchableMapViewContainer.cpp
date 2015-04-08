@@ -63,6 +63,10 @@ namespace TrenchBroom {
             m_mapRenderer = NULL;
         }
 
+        bool SwitchableMapViewContainer::viewportHasFocus() const {
+            return m_mapView->isCurrent();
+        }
+
         void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId) {
             if (m_mapView != NULL) {
                 m_mapView->Destroy();
@@ -91,6 +95,22 @@ namespace TrenchBroom {
             Layout();
             
             m_mapView->SetFocus();
+        }
+
+        void SwitchableMapViewContainer::toggleCreateBrushTool() {
+            m_toolBox->toggleCreateBrushTool();
+        }
+        
+        void SwitchableMapViewContainer::toggleClipTool() {
+            m_toolBox->toggleClipTool();
+        }
+        
+        void SwitchableMapViewContainer::toggleRotateObjectsTool() {
+            m_toolBox->toggleRotateObjectsTool();
+        }
+        
+        void SwitchableMapViewContainer::toggleVertexTool() {
+            m_toolBox->toggleVertexTool();
         }
 
         void SwitchableMapViewContainer::setToolBoxDropTarget() {

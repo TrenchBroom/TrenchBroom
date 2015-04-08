@@ -59,10 +59,6 @@ namespace TrenchBroom {
         bool ViewShortcut::doGetModifiable() const {
             return true;
         }
-        
-        int ViewShortcut::doGetRequiredModifiers() const {
-            return 0;
-        }
 
         wxString ViewShortcut::doGetActionDescription() const {
             return buildDescription(m_actions[ActionView_Map2D], m_actions[ActionView_Map3D]);
