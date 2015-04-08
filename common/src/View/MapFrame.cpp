@@ -232,11 +232,6 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
-            if (m_mapView->viewportHasFocus()) {
-                m_document->info("Map view was focused");
-            } else {
-                m_document->info("Other window was focused");
-            }
             rebuildMenuBar();
         }
 
