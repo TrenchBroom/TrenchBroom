@@ -766,9 +766,19 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::EditToggleCreateBrushTool:
+                    event.Check(m_mapView->createBrushToolActive());
+                    event.Enable(true);
+                    break;
                 case CommandIds::Menu::EditToggleClipTool:
+                    event.Check(m_mapView->clipToolActive());
+                    event.Enable(true);
+                    break;
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
+                    event.Check(m_mapView->rotateObjectsToolActive());
+                    event.Enable(true);
+                    break;
                 case CommandIds::Menu::EditToggleVertexTool:
+                    event.Check(m_mapView->vertexToolActive());
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::EditCreateConvexHull:

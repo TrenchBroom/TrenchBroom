@@ -67,9 +67,13 @@ namespace TrenchBroom {
             bool viewportHasFocus() const;
             void switchToMapView(MapViewLayout viewId);
             
+            bool createBrushToolActive() const;
             void toggleCreateBrushTool();
+            bool clipToolActive() const;
             void toggleClipTool();
+            bool rotateObjectsToolActive() const;
             void toggleRotateObjectsTool();
+            bool vertexToolActive() const;
             void toggleVertexTool();
             
             void setToolBoxDropTarget();
