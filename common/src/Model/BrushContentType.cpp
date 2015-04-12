@@ -25,7 +25,7 @@
 
 namespace TrenchBroom {
     namespace Model {
-        const BrushContentType::List BrushContentType::EmptyList = BrushContentType::EmptyList;
+        const BrushContentType::List BrushContentType::EmptyList = BrushContentType::List();
         
         BrushContentType::BrushContentType(const String& name, const bool transparent, const FlagType flagValue, BrushContentTypeEvaluator* evaluator) :
         m_name(name),
