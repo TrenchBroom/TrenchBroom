@@ -37,6 +37,8 @@
 #include <wx/choicdlg.h>
 #include <wx/cmdline.h>
 #include <wx/filedlg.h>
+#include <wx/platinfo.h>
+#include <wx/utils.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -50,6 +52,8 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_recentDocuments(NULL),
         m_lastActivation(0) {
+            detectAndSetupUbuntu();
+        
             // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
             std::setlocale(LC_NUMERIC, "C");
             
@@ -114,6 +118,18 @@ namespace TrenchBroom {
             m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
             delete m_recentDocuments;
             m_recentDocuments = NULL;
+        }
+
+        void TrenchBroomApp::detectAndSetupUbuntu() {
+            // detect Ubuntu Linux and set the UBUNTU_MENUPROXY environment variable if necessary
+#ifdef __linux__
+            static const wxString varName("UBUNTU_MENUPROXY");
+            if (!wxGetEnv(varName, NULL)) {
+                const wxLinuxDistributionInfo distr = wxGetLinuxDistributionInfo();
+                if (distr.Id.Lower().Find("ubuntu") != wxNOT_FOUND)
+                    wxSetEnv(varName, "1");
+            }
+#endif
         }
 
         FrameManager* TrenchBroomApp::frameManager() {
