@@ -1,18 +1,18 @@
 /*
  Copyright (C) 2010-2014 Kristian Duske
- 
+
  This file is part of TrenchBroom.
- 
+
  TrenchBroom is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  TrenchBroom is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,22 +38,24 @@ namespace TrenchBroom {
             CameraEvent(wxWindow* window, Renderer::Camera& camera) :
             m_window(window),
             m_camera(camera) {}
-            
+
             void setMoveDelta(const Vec3f& moveDelta) {
                 m_moveDelta = moveDelta;
             }
-            
+
             void setRotateAngles(const Vec2f& rotateAngles) {
                 m_rotateAngles = rotateAngles;
             }
         private:
             void execute() {
+                std::cout << "Executing fly event" << std::endl;
                 m_camera.moveBy(m_moveDelta);
                 m_camera.rotate(m_rotateAngles.x(), m_rotateAngles.y());
                 m_window->Refresh();
+                std::cout << "Executed fly event" << std::endl;
             }
         };
-        
+
         FlyModeHelper::FlyModeHelper(wxWindow* window, Renderer::Camera& camera) :
         m_window(window),
         m_camera(camera),
@@ -66,7 +68,7 @@ namespace TrenchBroom {
             m_lastPollTime = ::wxGetLocalTimeMillis();
             Run();
         }
-        
+
         FlyModeHelper::~FlyModeHelper() {
             /* Since the window is already deleted when this destructor is called, we omit the cleanup.
             m_window->Unbind(wxEVT_KEY_DOWN, &FlyModeHelper::OnKeyDown, this);
@@ -76,57 +78,55 @@ namespace TrenchBroom {
                 disable();
              */
         }
-        
+
         void FlyModeHelper::enable() {
             wxCriticalSectionLocker lock(m_critical);
             assert(!enabled());
             lockMouse();
             m_enabled = true;
         }
-        
+
         void FlyModeHelper::disable() {
             wxCriticalSectionLocker lock(m_critical);
             assert(enabled());
             unlockMouse();
             m_enabled = false;
         }
-        
+
         bool FlyModeHelper::enabled() const {
             return m_enabled;
         }
 
         void FlyModeHelper::lockMouse() {
-            wxCriticalSectionLocker lock(m_critical);
-            
             m_window->Bind(wxEVT_MOTION, &FlyModeHelper::OnMouseMotion, this);
             m_window->SetCursor(wxCursor(wxCURSOR_BLANK));
-            
+
             m_originalMousePos = m_window->ScreenToClient(::wxGetMousePosition());
             resetMouse();
         }
-        
+
         void FlyModeHelper::unlockMouse() {
-            wxCriticalSectionLocker lock(m_critical);
-            
             m_window->Unbind(wxEVT_MOTION, &FlyModeHelper::OnMouseMotion, this);
             m_window->WarpPointer(m_originalMousePos.x, m_originalMousePos.y);
             m_window->SetCursor(wxNullCursor);
         }
-        
+
         wxThread::ExitCode FlyModeHelper::Entry() {
             while (!TestDestroy()) {
                 const Vec3f delta = moveDelta();
                 const Vec2f angles = lookDelta();
-                
+
                 if (!delta.null() || !angles.null()) {
-                    CameraEvent* event = new CameraEvent(m_window, m_camera);
-                    event->setMoveDelta(delta);
-                    event->setRotateAngles(angles);
-                    
-                    if (!TestDestroy() && wxTheApp != NULL)
-                        wxTheApp->QueueEvent(new ExecutableEvent(event));
+                    if (!TestDestroy() && wxTheApp != NULL) {
+                        CameraEvent* event = new CameraEvent(m_window, m_camera);
+                        event->setMoveDelta(delta);
+                        event->setRotateAngles(angles);
+
+                        wxTheApp->QueueEvent(ExecutableEvent(event).Clone());
+                        std::cout << "Queue fly event" << std::endl;
+                    }
                 }
-                
+
                 Sleep(20);
             }
             return static_cast<ExitCode>(0);
@@ -156,7 +156,7 @@ namespace TrenchBroom {
         Vec2f FlyModeHelper::lookDelta() {
             if (!m_enabled)
                 return Vec2f::Null;
-            
+
             wxCriticalSectionLocker lock(m_critical);
 
             const Vec2f speed = lookSpeed();
@@ -174,7 +174,7 @@ namespace TrenchBroom {
                 speed[1] *= -1.0f;
             return speed;
         }
-        
+
         float FlyModeHelper::moveSpeed() const {
             return 256.0f / 1000.0f;
         }
@@ -182,7 +182,7 @@ namespace TrenchBroom {
         void FlyModeHelper::OnKeyDown(wxKeyEvent& event) {
             onKey(event, true);
         }
-        
+
         void FlyModeHelper::OnKeyUp(wxKeyEvent& event) {
             onKey(event, false);
         }
@@ -193,7 +193,7 @@ namespace TrenchBroom {
             const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
             const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
             const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
-            
+
             wxCriticalSectionLocker lock(m_critical);
 
             if (forward.matches(event))
@@ -212,19 +212,21 @@ namespace TrenchBroom {
             if (!m_ignoreMotionEvents) {
                 const SetBool ignoreMotion(m_ignoreMotionEvents);
                 wxCriticalSectionLocker lock(m_critical);
-                
+
                 const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
                 const wxPoint delta = currentMousePos - windowCenter();
                 resetMouse();
                 m_currentMouseDelta += delta;
             }
+
+            event.Skip();
         }
 
         void FlyModeHelper::resetMouse() {
             const wxPoint center = windowCenter();
             m_window->WarpPointer(center.x, center.y);
         }
-        
+
         wxPoint FlyModeHelper::windowCenter() const {
             const wxSize size = m_window->GetSize();
             return wxPoint(size.x / 2, size.y / 2);
