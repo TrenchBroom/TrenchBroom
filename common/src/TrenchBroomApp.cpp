@@ -37,6 +37,8 @@
 #include <wx/choicdlg.h>
 #include <wx/cmdline.h>
 #include <wx/filedlg.h>
+#include <wx/platinfo.h>
+#include <wx/utils.h>
 
 namespace TrenchBroom {
     namespace View {
@@ -50,9 +52,11 @@ namespace TrenchBroom {
         m_frameManager(NULL),
         m_recentDocuments(NULL),
         m_lastActivation(0) {
+            detectAndSetupUbuntu();
+
             // always set this locale so that we can properly parse floats from text files regardless of the platforms locale
             std::setlocale(LC_NUMERIC, "C");
-            
+
             // load image handlers
             wxImage::AddHandler(new wxPNGHandler());
 
@@ -60,26 +64,26 @@ namespace TrenchBroom {
             SetAppDisplayName("TrenchBroom");
             SetVendorDisplayName("Kristian Duske");
             SetVendorName("Kristian Duske");
-            
+
             initGLFunctions();
-            
+
             // these must be initialized here and not earlier
             m_frameManager = new FrameManager(useSDI());
             m_recentDocuments = new RecentDocuments<TrenchBroomApp>(CommandIds::Menu::FileRecentDocuments, 10);
             m_recentDocuments->setHandler(this, &TrenchBroomApp::OnFileOpenRecent);
-            
+
 #ifdef __APPLE__
             SetExitOnFrameDelete(false);
             const ActionManager& actionManager = ActionManager::instance();
             wxMenuBar* menuBar = actionManager.createMenuBar(false);
             wxMenuBar::MacSetCommonMenuBar(menuBar);
-            
+
             wxMenu* recentDocumentsMenu = actionManager.findRecentDocumentsMenu(menuBar);
             assert(recentDocumentsMenu != NULL);
             addRecentDocumentMenu(recentDocumentsMenu);
-            
+
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileExit, this, wxID_EXIT);
-            
+
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_NEW);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_OPEN);
             Bind(wxEVT_UPDATE_UI, &TrenchBroomApp::OnUpdateUI, this, wxID_SAVE);
@@ -99,9 +103,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &TrenchBroomApp::OnFileOpen, this, wxID_OPEN);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenPreferences, this, wxID_PREFERENCES);
             Bind(wxEVT_MENU, &TrenchBroomApp::OnOpenAbout, this, wxID_ABOUT);
-            
+
             Bind(EXECUTABLE_EVENT, &TrenchBroomApp::OnExecutableEvent, this);
-            
+
             m_recentDocuments->didChangeNotifier.addObserver(recentDocumentsDidChangeNotifier);
         }
 
@@ -110,10 +114,22 @@ namespace TrenchBroom {
 
             delete m_frameManager;
             m_frameManager = NULL;
-            
+
             m_recentDocuments->didChangeNotifier.removeObserver(recentDocumentsDidChangeNotifier);
             delete m_recentDocuments;
             m_recentDocuments = NULL;
+        }
+
+        void TrenchBroomApp::detectAndSetupUbuntu() {
+            // detect Ubuntu Linux and set the UBUNTU_MENUPROXY environment variable if necessary
+#ifdef __linux__
+            static const wxString varName("UBUNTU_MENUPROXY");
+            if (!wxGetEnv(varName, NULL)) {
+                const wxLinuxDistributionInfo distr = wxGetLinuxDistributionInfo();
+                if (distr.Id.Lower().Find("ubuntu") != wxNOT_FOUND)
+                    wxSetEnv(varName, "1");
+            }
+#endif
         }
 
         FrameManager* TrenchBroomApp::frameManager() {
@@ -188,7 +204,7 @@ namespace TrenchBroom {
             PreferenceDialog dialog;
             dialog.ShowModal();
         }
-        
+
         void TrenchBroomApp::openAbout() {
             AboutFrame::showAboutFrame();
         }
@@ -196,12 +212,12 @@ namespace TrenchBroom {
         bool TrenchBroomApp::OnInit() {
             if (!wxApp::OnInit())
                 return false;
-            
+
             SetAppName("TrenchBroom");
             SetAppDisplayName("TrenchBroom");
             SetVendorDisplayName("Kristian Duske");
             SetVendorName("Kristian Duske");
-            
+
             return true;
         }
 
@@ -247,7 +263,7 @@ namespace TrenchBroom {
             const wxVariant* object = static_cast<wxVariant*>(event.m_callbackUserData); // this must be changed in 2.9.5 to event.GetEventUserData()
             assert(object != NULL);
             const wxString data = object->GetString();
-            
+
             openDocument(data.ToStdString());
         }
 
@@ -324,11 +340,11 @@ namespace TrenchBroom {
                 { wxCMD_LINE_PARAM,  NULL, NULL, "input file", wxCMD_LINE_VAL_STRING, useSDI() ? wxCMD_LINE_PARAM_OPTIONAL : (wxCMD_LINE_PARAM_OPTIONAL | wxCMD_LINE_PARAM_MULTIPLE) },
                 { wxCMD_LINE_NONE, NULL, NULL, NULL, wxCMD_LINE_VAL_NONE, wxCMD_LINE_PARAM_OPTIONAL }
             };
-            
+
             parser.SetDesc(cmdLineDesc);
             parser.SetSwitchChars("-");
         }
-        
+
         bool TrenchBroomApp::OnCmdLineParsed(wxCmdLineParser& parser) {
             if (parser.GetParamCount() > 0) {
                 if (useSDI()) {

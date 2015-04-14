@@ -20,6 +20,8 @@
 #ifndef __TrenchBroom__KeyboardShortcutEntry__
 #define __TrenchBroom__KeyboardShortcutEntry__
 
+#include "View/ActionContext.h"
+
 #include <wx/wx.h>
 
 #include <vector>
@@ -46,6 +48,7 @@ namespace TrenchBroom {
             bool conflictsWith(const KeyboardShortcutEntry* entry) const;
         public:
             int actionContext() const;
+            bool appliesToContext(int context) const;
             wxString actionContextDescription() const;
             
             wxString actionDescription() const;
@@ -53,12 +56,15 @@ namespace TrenchBroom {
             
             bool equals(const KeyboardShortcut& shortcut) const;
             void updateShortcut(const KeyboardShortcut& shortcut);
+
+            wxAcceleratorEntry acceleratorEntry(ActionView view) const;
         private:
             virtual int doGetActionContext() const = 0;
             virtual bool doGetModifiable() const = 0;
             virtual wxString doGetActionDescription() const = 0;
             virtual const KeyboardShortcut& doGetShortcut() const = 0;
             virtual void doUpdateShortcut(const KeyboardShortcut& shortcut) = 0;
+            virtual wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const = 0;
         };
     }
 }

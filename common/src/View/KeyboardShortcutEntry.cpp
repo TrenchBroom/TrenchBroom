@@ -63,6 +63,10 @@ namespace TrenchBroom {
             return doGetActionContext();
         }
 
+        bool KeyboardShortcutEntry::appliesToContext(const int context) const {
+            return (actionContext() & context) != 0;
+        }
+        
         wxString KeyboardShortcutEntry::actionContextDescription() const {
             return actionContextName(actionContext());
         }
@@ -81,6 +85,10 @@ namespace TrenchBroom {
         
         void KeyboardShortcutEntry::updateShortcut(const KeyboardShortcut& shortcut) {
             doUpdateShortcut(shortcut);
+        }
+
+        wxAcceleratorEntry KeyboardShortcutEntry::acceleratorEntry(const ActionView view) const {
+            return doGetAcceleratorEntry(view);
         }
     }
 }

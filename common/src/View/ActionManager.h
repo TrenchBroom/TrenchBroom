@@ -41,6 +41,8 @@ namespace TrenchBroom {
         public:
             typedef std::vector<KeyboardShortcutEntry*> ShortcutEntryList;
         private:
+            typedef std::vector<wxAcceleratorEntry> AcceleratorEntryList;
+
             MenuBar* m_menuBar;
             ViewShortcut::List m_viewShortcuts;
         public:
@@ -57,7 +59,10 @@ namespace TrenchBroom {
             bool isMenuShortcutPreference(const IO::Path& path) const;
 
             wxAcceleratorTable createViewAcceleratorTable(ActionContext context, ActionView view) const;
-            
+        private:
+            void addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const;
+            void addMenuActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const;
+        public:
             void resetShortcutsToDefaults();
         private:
             ActionManager();

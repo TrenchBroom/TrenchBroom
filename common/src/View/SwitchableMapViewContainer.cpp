@@ -97,18 +97,34 @@ namespace TrenchBroom {
             m_mapView->SetFocus();
         }
 
+        bool SwitchableMapViewContainer::createBrushToolActive() const {
+            return m_toolBox->createBrushToolActive();
+        }
+
         void SwitchableMapViewContainer::toggleCreateBrushTool() {
             m_toolBox->toggleCreateBrushTool();
         }
         
+        bool SwitchableMapViewContainer::clipToolActive() const {
+            return m_toolBox->clipToolActive();
+        }
+
         void SwitchableMapViewContainer::toggleClipTool() {
             m_toolBox->toggleClipTool();
         }
         
+        bool SwitchableMapViewContainer::rotateObjectsToolActive() const {
+            return m_toolBox->rotateObjectsToolActive();
+        }
+
         void SwitchableMapViewContainer::toggleRotateObjectsTool() {
             m_toolBox->toggleRotateObjectsTool();
         }
         
+        bool SwitchableMapViewContainer::vertexToolActive() const {
+            return m_toolBox->vertexToolActive();
+        }
+
         void SwitchableMapViewContainer::toggleVertexTool() {
             m_toolBox->toggleVertexTool();
         }

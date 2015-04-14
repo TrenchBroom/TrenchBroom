@@ -46,6 +46,8 @@ namespace TrenchBroom {
             TrenchBroomApp();
             ~TrenchBroomApp();
             
+            void detectAndSetupUbuntu();
+            
             FrameManager* frameManager();
             
             const IO::Path::List& recentDocuments() const;

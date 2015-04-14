@@ -63,7 +63,8 @@ namespace TrenchBroom {
         m_contextManager(NULL),
         m_mapView(NULL),
         m_console(NULL),
-        m_inspector(NULL) {}
+        m_inspector(NULL),
+        m_lastFocus(NULL) {}
 
         MapFrame::MapFrame(FrameManager* frameManager, MapDocumentSPtr document) :
         wxFrame(NULL, wxID_ANY, "MapFrame"),
@@ -73,7 +74,8 @@ namespace TrenchBroom {
         m_contextManager(NULL),
         m_mapView(NULL),
         m_console(NULL),
-        m_inspector(NULL)  {
+        m_inspector(NULL),
+        m_lastFocus(NULL)  {
             Create(frameManager, document);
         }
 
@@ -233,7 +235,11 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
-            rebuildMenuBar();
+            wxWindow* focus = FindFocus();
+            if (focus != m_lastFocus) {
+                rebuildMenuBar();
+                m_lastFocus = focus;
+            }
         }
 
         void MapFrame::rebuildMenuBar() {
@@ -354,7 +360,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditPasteAtOriginalPosition, this, CommandIds::Menu::EditPasteAtOriginalPosition);
             Bind(wxEVT_MENU, &MapFrame::OnEditDuplicate, this, wxID_DUPLICATE);
             Bind(wxEVT_MENU, &MapFrame::OnEditDelete, this, wxID_DELETE);
-            
+
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectAll, this, CommandIds::Menu::EditSelectAll);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectSiblings, this, CommandIds::Menu::EditSelectSiblings);
             Bind(wxEVT_MENU, &MapFrame::OnEditSelectTouching, this, CommandIds::Menu::EditSelectTouching);
@@ -364,11 +370,11 @@ namespace TrenchBroom {
 
             Bind(wxEVT_MENU, &MapFrame::OnEditGroupSelectedObjects, this, CommandIds::Menu::EditGroupSelection);
             Bind(wxEVT_MENU, &MapFrame::OnEditUngroupSelectedObjects, this, CommandIds::Menu::EditUngroupSelection);
-            
+
             Bind(wxEVT_MENU, &MapFrame::OnEditHideSelectedObjects, this, CommandIds::Menu::EditHideSelection);
             Bind(wxEVT_MENU, &MapFrame::OnEditIsolateSelectedObjects, this, CommandIds::Menu::EditIsolateSelection);
             Bind(wxEVT_MENU, &MapFrame::OnEditShowHiddenObjects, this, CommandIds::Menu::EditUnhideAll);
-            
+
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleCreateBrushTool, this, CommandIds::Menu::EditToggleCreateBrushTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
@@ -393,7 +399,7 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToMapInspector, this, CommandIds::Menu::ViewSwitchToMapInspector);
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToEntityInspector, this, CommandIds::Menu::ViewSwitchToEntityInspector);
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToFaceInspector, this, CommandIds::Menu::ViewSwitchToFaceInspector);
-            
+
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CLOSE);
@@ -514,7 +520,7 @@ namespace TrenchBroom {
             assert(m_document->hasSelectedNodes());
             m_document->deleteObjects();
         }
-        
+
         void MapFrame::OnEditDuplicate(wxCommandEvent& event) {
             assert(m_document->hasSelectedNodes());
             m_document->duplicateObjects();
@@ -564,7 +570,7 @@ namespace TrenchBroom {
             if (!name.empty())
                 m_document->groupSelection(name);
         }
-        
+
         void MapFrame::OnEditUngroupSelectedObjects(wxCommandEvent& event) {
             assert(m_document->selectedNodes().hasOnlyGroups());
             m_document->ungroupSelection();
@@ -574,12 +580,12 @@ namespace TrenchBroom {
             assert(m_document->hasSelectedNodes());
             m_document->hideSelection();
         }
-        
+
         void MapFrame::OnEditIsolateSelectedObjects(wxCommandEvent& event) {
             assert(m_document->hasSelectedNodes());
             m_document->isolate(m_document->selectedNodes().nodes());
         }
-        
+
         void MapFrame::OnEditShowHiddenObjects(wxCommandEvent& event) {
             m_document->showAll();
         }
@@ -593,15 +599,15 @@ namespace TrenchBroom {
         void MapFrame::OnEditToggleCreateBrushTool(wxCommandEvent& event) {
             m_mapView->toggleCreateBrushTool();
         }
-        
+
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
             m_mapView->toggleClipTool();
         }
-        
+
         void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
             m_mapView->toggleRotateObjectsTool();
         }
-        
+
         void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
             m_mapView->toggleVertexTool();
         }
@@ -665,11 +671,11 @@ namespace TrenchBroom {
         void MapFrame::OnViewSwitchToMapInspector(wxCommandEvent& event) {
             m_inspector->switchToPage(Inspector::InspectorPage_Map);
         }
-        
+
         void MapFrame::OnViewSwitchToEntityInspector(wxCommandEvent& event) {
             m_inspector->switchToPage(Inspector::InspectorPage_Entity);
         }
-        
+
         void MapFrame::OnViewSwitchToFaceInspector(wxCommandEvent& event) {
             m_inspector->switchToPage(Inspector::InspectorPage_Face);
         }
@@ -766,9 +772,19 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::EditToggleCreateBrushTool:
+                    event.Check(m_mapView->createBrushToolActive());
+                    event.Enable(true);
+                    break;
                 case CommandIds::Menu::EditToggleClipTool:
+                    event.Check(m_mapView->clipToolActive());
+                    event.Enable(true);
+                    break;
                 case CommandIds::Menu::EditToggleRotateObjectsTool:
+                    event.Check(m_mapView->rotateObjectsToolActive());
+                    event.Enable(true);
+                    break;
                 case CommandIds::Menu::EditToggleVertexTool:
+                    event.Check(m_mapView->vertexToolActive());
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::EditCreateConvexHull:

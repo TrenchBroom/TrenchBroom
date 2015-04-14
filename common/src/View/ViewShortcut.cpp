@@ -40,15 +40,6 @@ namespace TrenchBroom {
             m_actions[ActionView_Map3D] = action;
         }
 
-        wxAcceleratorEntry ViewShortcut::acceleratorEntry(const ActionView view) const {
-            const Action& action = m_actions[view];
-            return shortcut().acceleratorEntry(action.id());
-        }
-        
-        bool ViewShortcut::appliesToContext(const int context) const {
-            return (context & m_context) != 0;
-        }
-
         void ViewShortcut::resetShortcut() {
         }
 
@@ -73,6 +64,11 @@ namespace TrenchBroom {
             prefs.set(m_preference, shortcut);
         }
 
+        wxAcceleratorEntry ViewShortcut::doGetAcceleratorEntry(const ActionView view) const {
+            const Action& action = m_actions[view];
+            return shortcut().acceleratorEntry(action.id());
+        }
+        
         const KeyboardShortcut& ViewShortcut::shortcut() const {
             PreferenceManager& prefs = PreferenceManager::instance();
             return prefs.get(m_preference);
