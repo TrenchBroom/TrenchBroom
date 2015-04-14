@@ -48,11 +48,9 @@ namespace TrenchBroom {
             }
         private:
             void execute() {
-                std::cout << "Executing fly event" << std::endl;
                 m_camera.moveBy(m_moveDelta);
                 m_camera.rotate(m_rotateAngles.x(), m_rotateAngles.y());
                 m_window->Refresh();
-                std::cout << "Executed fly event" << std::endl;
             }
         };
 
@@ -125,7 +123,6 @@ namespace TrenchBroom {
 
                         ExecutableEvent* executable = new ExecutableEvent(event);
                         wxTheApp->QueueEvent(executable);
-                        std::cout << "Queue fly event" << std::endl;
                     }
                 }
 
