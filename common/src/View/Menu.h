@@ -117,6 +117,7 @@ namespace TrenchBroom {
             wxString doGetActionDescription() const;
             const KeyboardShortcut& doGetShortcut() const;
             void doUpdateShortcut(const KeyboardShortcut& shortcut);
+            wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const;
         };
         
         class Menu;

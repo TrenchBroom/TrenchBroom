@@ -43,9 +43,6 @@ namespace TrenchBroom {
             ViewShortcut(const KeyboardShortcut& shortcut, int context, const Action& action2D, const Action& action3D);
             ViewShortcut(const KeyboardShortcut& shortcut, int context, const Action& action);
             
-            wxAcceleratorEntry acceleratorEntry(ActionView view) const;
-            bool appliesToContext(int context) const;
-            
             void resetShortcut();
         private: // implement KeyboardShortcutEntry interface
             int doGetActionContext() const;
@@ -53,6 +50,7 @@ namespace TrenchBroom {
             wxString doGetActionDescription() const;
             const KeyboardShortcut& doGetShortcut() const;
             void doUpdateShortcut(const KeyboardShortcut& shortcut);
+            wxAcceleratorEntry doGetAcceleratorEntry(ActionView view) const;
         private:
             const KeyboardShortcut& shortcut() const;
             

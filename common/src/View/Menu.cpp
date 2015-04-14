@@ -185,6 +185,10 @@ namespace TrenchBroom {
             prefs.set(m_preference, shortcut);
         }
 
+        wxAcceleratorEntry ActionMenuItem::doGetAcceleratorEntry(const ActionView view) const {
+            return shortcut().acceleratorEntry(id());
+        }
+
         MenuItemParent::MenuItemParent(const Type type, MenuItemParent* parent, const int id, const String& label) :
         LabeledMenuItem(type, parent),
         m_id(id),

@@ -75,17 +75,30 @@ namespace TrenchBroom {
         }
         
         wxAcceleratorTable ActionManager::createViewAcceleratorTable(const ActionContext context, const ActionView view) const {
-            typedef std::vector<wxAcceleratorEntry> EntryList;
-            EntryList tableEntries;
-            
+            AcceleratorEntryList tableEntries;
+            addViewActions(context, view, tableEntries);
+            addMenuActions(context, view, tableEntries);
+            return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
+        }
+
+        void ActionManager::addViewActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
             ViewShortcut::List::const_iterator it, end;
             for (it = m_viewShortcuts.begin(), end = m_viewShortcuts.end(); it != end; ++it) {
                 const ViewShortcut& shortcut = *it;
                 if (shortcut.appliesToContext(context))
-                    tableEntries.push_back(shortcut.acceleratorEntry(view));
+                    accelerators.push_back(shortcut.acceleratorEntry(view));
             }
-            
-            return wxAcceleratorTable(static_cast<int>(tableEntries.size()), &tableEntries.front());
+        }
+        
+        void ActionManager::addMenuActions(ActionContext context, ActionView view, AcceleratorEntryList& accelerators) const {
+            ShortcutEntryList menuShortcuts;
+            m_menuBar->getShortcutEntries(menuShortcuts);
+            ShortcutEntryList::const_iterator it, end;
+            for (it = menuShortcuts.begin(), end = menuShortcuts.end(); it != end; ++it) {
+                const KeyboardShortcutEntry* entry = *it;
+                if (entry->appliesToContext(context))
+                    accelerators.push_back(entry->acceleratorEntry(view));
+            }
         }
 
         void ActionManager::resetShortcutsToDefaults() {
