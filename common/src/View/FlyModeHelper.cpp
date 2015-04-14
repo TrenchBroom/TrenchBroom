@@ -66,6 +66,7 @@ namespace TrenchBroom {
 
             m_forward = m_backward = m_left = m_right = false;
             m_lastPollTime = ::wxGetLocalTimeMillis();
+
             Run();
         }
 
@@ -122,7 +123,8 @@ namespace TrenchBroom {
                         event->setMoveDelta(delta);
                         event->setRotateAngles(angles);
 
-                        wxTheApp->QueueEvent(ExecutableEvent(event).Clone());
+                        ExecutableEvent* executable = new ExecutableEvent(event);
+                        wxTheApp->QueueEvent(executable);
                         std::cout << "Queue fly event" << std::endl;
                     }
                 }
