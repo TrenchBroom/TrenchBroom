@@ -116,9 +116,9 @@ namespace TrenchBroom {
             const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
             const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
             const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
-            
+
             wxCriticalSectionLocker lock(m_critical);
-            
+
             if (forward.matches(event)) {
                 m_forward = down;
                 return true;
@@ -137,27 +137,25 @@ namespace TrenchBroom {
             }
             return false;
         }
-        
+
         void FlyModeHelper::motion(wxMouseEvent& event) {
+            wxCriticalSectionLocker lock(m_critical);
             if (m_enabled && !m_ignoreMotionEvents) {
-                wxCriticalSectionLocker lock(m_critical);
-                
                 const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
                 const wxPoint delta = currentMousePos - m_lastMousePos;
                 m_currentMouseDelta += delta;
                 m_lastMousePos = currentMousePos;
             }
         }
-        
+
         void FlyModeHelper::resetMouse() {
             wxCriticalSectionLocker lock(m_critical);
             const SetBool ignoreMotion(m_ignoreMotionEvents);
 
-            const wxPoint center = windowCenter();
-            m_window->WarpPointer(center.x, center.y);
-            m_lastMousePos = center;
+            m_lastMousePos = windowCenter();
+            m_window->WarpPointer(m_lastMousePos.x, m_lastMousePos.y);
         }
-        
+
         wxPoint FlyModeHelper::windowCenter() const {
             const wxSize size = m_window->GetSize();
             return wxPoint(size.x / 2, size.y / 2);
