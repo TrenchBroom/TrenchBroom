@@ -47,6 +47,7 @@ namespace TrenchBroom {
             bool m_enabled;
             
             wxPoint m_originalMousePos;
+            wxPoint m_lastMousePos;
             wxPoint m_currentMouseDelta;
             bool m_ignoreMotionEvents;
             
