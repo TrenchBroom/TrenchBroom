@@ -64,20 +64,22 @@ namespace TrenchBroom {
         private:
             void lockMouse();
             void unlockMouse();
-
+        public:
+            bool keyDown(wxKeyEvent& event);
+            bool keyUp(wxKeyEvent& event);
+        private:
+            bool key(wxKeyEvent& event, bool down);
+        public:
+            void motion(wxMouseEvent& event);
+        private:
+            void resetMouse();
+            wxPoint windowCenter() const;
+        private:
             ExitCode Entry();
             Vec3f moveDelta();
             Vec2f lookDelta();
             Vec2f lookSpeed() const;
             float moveSpeed() const;
-            
-            void OnKeyDown(wxKeyEvent& event);
-            void OnKeyUp(wxKeyEvent& event);
-            void onKey(wxKeyEvent& event, bool down);
-            void OnMouseMotion(wxMouseEvent& event);
-            
-            void resetMouse();
-            wxPoint windowCenter() const;
         };
     }
 }

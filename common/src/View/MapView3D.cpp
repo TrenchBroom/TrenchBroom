@@ -148,8 +148,9 @@ namespace TrenchBroom {
         }
         
         void MapView3D::bindEvents() {
-            Bind(wxEVT_KEY_DOWN, &MapView3D::OnKey, this);
-            Bind(wxEVT_KEY_UP, &MapView3D::OnKey, this);
+            Bind(wxEVT_KEY_DOWN, &MapView3D::OnKeyDown, this);
+            Bind(wxEVT_KEY_UP, &MapView3D::OnKeyUp, this);
+            Bind(wxEVT_MOTION, &MapView3D::OnMouseMotion, this);
             
             Bind(wxEVT_KILL_FOCUS, &MapView3D::OnKillFocus, this);
             
@@ -170,12 +171,27 @@ namespace TrenchBroom {
             frame->Bind(wxEVT_ACTIVATE, &MapView3D::OnActivateFrame, this);
         }
         
-        void MapView3D::OnKey(wxKeyEvent& event) {
+        void MapView3D::OnKeyDown(wxKeyEvent& event) {
+            if (!m_flyModeHelper->keyDown(event))
+                key(event);
+        }
+        
+        void MapView3D::OnKeyUp(wxKeyEvent& event) {
+            if (!m_flyModeHelper->keyUp(event))
+                key(event);
+        }
+        
+        void MapView3D::key(wxKeyEvent& event) {
             m_movementRestriction.setVerticalRestriction(event.AltDown());
             Refresh();
             event.Skip();
         }
-        
+
+        void MapView3D::OnMouseMotion(wxMouseEvent& event) {
+            m_flyModeHelper->motion(event);
+            event.Skip();
+        }
+
         void MapView3D::OnToggleMovementRestriction(wxCommandEvent& event) {
             m_movementRestriction.toggleHorizontalRestriction(m_camera);
             Refresh();

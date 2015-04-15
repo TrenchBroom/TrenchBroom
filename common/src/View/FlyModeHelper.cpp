@@ -59,9 +59,6 @@ namespace TrenchBroom {
         m_camera(camera),
         m_enabled(false),
         m_ignoreMotionEvents(false) {
-            m_window->Bind(wxEVT_KEY_DOWN, &FlyModeHelper::OnKeyDown, this);
-            m_window->Bind(wxEVT_KEY_UP, &FlyModeHelper::OnKeyUp, this);
-
             m_forward = m_backward = m_left = m_right = false;
             m_lastPollTime = ::wxGetLocalTimeMillis();
 
@@ -97,7 +94,6 @@ namespace TrenchBroom {
         }
 
         void FlyModeHelper::lockMouse() {
-            m_window->Bind(wxEVT_MOTION, &FlyModeHelper::OnMouseMotion, this);
             m_window->SetCursor(wxCursor(wxCURSOR_BLANK));
 
             m_originalMousePos = m_window->ScreenToClient(::wxGetMousePosition());
@@ -105,9 +101,66 @@ namespace TrenchBroom {
         }
 
         void FlyModeHelper::unlockMouse() {
-            m_window->Unbind(wxEVT_MOTION, &FlyModeHelper::OnMouseMotion, this);
             m_window->WarpPointer(m_originalMousePos.x, m_originalMousePos.y);
             m_window->SetCursor(wxNullCursor);
+        }
+
+        bool FlyModeHelper::keyDown(wxKeyEvent& event) {
+            return key(event, true);
+        }
+
+        bool FlyModeHelper::keyUp(wxKeyEvent& event) {
+            return key(event, false);
+        }
+
+        bool FlyModeHelper::key(wxKeyEvent& event, const bool down) {
+            PreferenceManager& prefs = PreferenceManager::instance();
+            const KeyboardShortcut& forward = prefs.get(Preferences::CameraFlyForward);
+            const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
+            const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
+            const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
+            
+            wxCriticalSectionLocker lock(m_critical);
+            
+            if (forward.matches(event)) {
+                m_forward = down;
+                return true;
+            }
+            if (backward.matches(event)) {
+                m_backward = down;
+                return true;
+            }
+            if (left.matches(event)) {
+                m_left = down;
+                return true;
+            }
+            if (right.matches(event)) {
+                m_right = down;
+                return true;
+            }
+            return false;
+        }
+        
+        void FlyModeHelper::motion(wxMouseEvent& event) {
+            if (m_enabled && !m_ignoreMotionEvents) {
+                const SetBool ignoreMotion(m_ignoreMotionEvents);
+                wxCriticalSectionLocker lock(m_critical);
+                
+                const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
+                const wxPoint delta = currentMousePos - windowCenter();
+                m_currentMouseDelta += delta;
+                resetMouse();
+            }
+        }
+        
+        void FlyModeHelper::resetMouse() {
+            const wxPoint center = windowCenter();
+            m_window->WarpPointer(center.x, center.y);
+        }
+        
+        wxPoint FlyModeHelper::windowCenter() const {
+            const wxSize size = m_window->GetSize();
+            return wxPoint(size.x / 2, size.y / 2);
         }
 
         wxThread::ExitCode FlyModeHelper::Entry() {
@@ -176,59 +229,6 @@ namespace TrenchBroom {
 
         float FlyModeHelper::moveSpeed() const {
             return 256.0f / 1000.0f;
-        }
-
-        void FlyModeHelper::OnKeyDown(wxKeyEvent& event) {
-            onKey(event, true);
-        }
-
-        void FlyModeHelper::OnKeyUp(wxKeyEvent& event) {
-            onKey(event, false);
-        }
-
-        void FlyModeHelper::onKey(wxKeyEvent& event, const bool down) {
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const KeyboardShortcut& forward = prefs.get(Preferences::CameraFlyForward);
-            const KeyboardShortcut& backward = prefs.get(Preferences::CameraFlyBackward);
-            const KeyboardShortcut& left = prefs.get(Preferences::CameraFlyLeft);
-            const KeyboardShortcut& right = prefs.get(Preferences::CameraFlyRight);
-
-            wxCriticalSectionLocker lock(m_critical);
-
-            if (forward.matches(event))
-                m_forward = down;
-            else if (backward.matches(event))
-                m_backward = down;
-            else if (left.matches(event))
-                m_left = down;
-            else if (right.matches(event))
-                m_right = down;
-            else
-                event.Skip();
-        }
-
-        void FlyModeHelper::OnMouseMotion(wxMouseEvent& event) {
-            if (!m_ignoreMotionEvents) {
-                const SetBool ignoreMotion(m_ignoreMotionEvents);
-                wxCriticalSectionLocker lock(m_critical);
-
-                const wxPoint currentMousePos = m_window->ScreenToClient(::wxGetMousePosition());
-                const wxPoint delta = currentMousePos - windowCenter();
-                resetMouse();
-                m_currentMouseDelta += delta;
-            }
-
-            event.Skip();
-        }
-
-        void FlyModeHelper::resetMouse() {
-            const wxPoint center = windowCenter();
-            m_window->WarpPointer(center.x, center.y);
-        }
-
-        wxPoint FlyModeHelper::windowCenter() const {
-            const wxSize size = m_window->GetSize();
-            return wxPoint(size.x / 2, size.y / 2);
         }
     }
 }

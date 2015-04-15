@@ -88,9 +88,14 @@ namespace TrenchBroom {
         private: // interaction events
             void bindEvents();
             
-            void OnKey(wxKeyEvent& event);
-            void OnToggleMovementRestriction(wxCommandEvent& event);
+            void OnKeyDown(wxKeyEvent& event);
+            void OnKeyUp(wxKeyEvent& event);
+            void key(wxKeyEvent& event);
 
+            void OnMouseMotion(wxMouseEvent& event);
+            
+            void OnToggleMovementRestriction(wxCommandEvent& event);
+            
             void OnPerformCreateBrush(wxCommandEvent& event);
 
             void OnMoveTexturesUp(wxCommandEvent& event);
