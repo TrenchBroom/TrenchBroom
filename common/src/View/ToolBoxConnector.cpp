@@ -177,23 +177,24 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnKey(wxKeyEvent& event) {
             assert(m_toolBox != NULL);
 
+            event.Skip();
+
             if (updateModifierKeys()) {
                 updatePickResult();
                 m_toolBox->modifierKeyChange(m_toolChain, m_inputState);
             }
             m_window->Refresh();
-
-            event.Skip();
         }
 
         void ToolBoxConnector::OnMouseButton(wxMouseEvent& event) {
             assert(m_toolBox != NULL);
 
+            event.Skip();
+
             const MouseButtonState button = mouseButton(event);
             if (m_toolBox->ignoreNextClick() && button == MouseButtons::MBLeft) {
                 if (event.ButtonUp())
                     m_toolBox->clearIgnoreNextClick();
-                event.Skip();
                 return;
             }
 
@@ -242,6 +243,8 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnMouseDoubleClick(wxMouseEvent& event) {
             assert(m_toolBox != NULL);
 
+            event.Skip();
+
             const MouseButtonState button = mouseButton(event);
             updateModifierKeys();
 
@@ -257,6 +260,8 @@ namespace TrenchBroom {
 
         void ToolBoxConnector::OnMouseMotion(wxMouseEvent& event) {
             assert(m_toolBox != NULL);
+
+            event.Skip();
 
             updateModifierKeys();
             if (m_toolBox->dragging()) {
@@ -290,6 +295,8 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnMouseWheel(wxMouseEvent& event) {
             assert(m_toolBox != NULL);
 
+            event.Skip();
+
             updateModifierKeys();
             const float delta = static_cast<float>(event.GetWheelRotation()) / event.GetWheelDelta() * event.GetLinesPerAction();
             if (event.GetWheelAxis() == wxMOUSE_WHEEL_HORIZONTAL)
@@ -306,32 +313,34 @@ namespace TrenchBroom {
         void ToolBoxConnector::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
             assert(m_toolBox != NULL);
 
+            event.Skip();
+            
             cancelDrag();
             m_window->Refresh();
-            event.Skip();
         }
 
         void ToolBoxConnector::OnSetFocus(wxFocusEvent& event) {
             assert(m_toolBox != NULL);
+            
+            event.Skip();
 
             if (updateModifierKeys())
                 m_toolBox->modifierKeyChange(m_toolChain, m_inputState);
             m_window->Refresh();
 
             mouseMoved(m_window->ScreenToClient(wxGetMousePosition()));
-
-            event.Skip();
         }
 
         void ToolBoxConnector::OnKillFocus(wxFocusEvent& event) {
             assert(m_toolBox != NULL);
 
+            event.Skip();
+            
             cancelDrag();
             releaseMouse();
             if (clearModifierKeys())
                 m_toolBox->modifierKeyChange(m_toolChain, m_inputState);
             m_window->Refresh();
-            event.Skip();
         }
 
         bool ToolBoxConnector::isWithinClickDistance(const wxPoint& pos) const {
