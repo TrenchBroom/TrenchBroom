@@ -68,16 +68,18 @@ namespace TrenchBroom {
         }
         
         void GridRenderer::doRender(RenderContext& renderContext) {
-            const Camera& camera = renderContext.camera();
-            
-            ActiveShader shader(renderContext.shaderManager(), Shaders::Grid2DShader);
-            shader.set("Normal", -camera.direction());
-            shader.set("RenderGrid", renderContext.showGrid());
-            shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
-            shader.set("GridAlpha", pref(Preferences::GridAlpha));
-            shader.set("CameraZoom", renderContext.camera().zoom());
-            
-            m_vertexArray.render();
+            if (renderContext.showGrid()) {
+                const Camera& camera = renderContext.camera();
+                
+                ActiveShader shader(renderContext.shaderManager(), Shaders::Grid2DShader);
+                shader.set("Normal", -camera.direction());
+                shader.set("RenderGrid", renderContext.showGrid());
+                shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
+                shader.set("GridAlpha", pref(Preferences::GridAlpha));
+                shader.set("CameraZoom", renderContext.camera().zoom());
+                
+                m_vertexArray.render();
+            }
         }
     }
 }
