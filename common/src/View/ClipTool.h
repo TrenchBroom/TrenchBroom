@@ -67,15 +67,15 @@ namespace TrenchBroom {
                 void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
                 void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
                 
-                Vec3 helpVector() const;
                 bool computeThirdPoint(Vec3& point) const;
 
                 bool canClip() const;
                 bool canAddPoint(const Vec3& point, const PointSnapper& snapper) const;
-                void addPoint(const Vec3& point, const PointSnapper& snapper, const Vec3& helpVector);
+                void addPoint(const Vec3& point, const PointSnapper& snapper, const Vec3::List& helpVectors);
                 void removeLastPoint();
                 bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
-                bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3& helpVector, Vec3& snappedPosition);
+                bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3::List& helpVectors, Vec3& snappedPosition);
+                void endDragPoint();
                 bool setFace(const Model::BrushFace* face);
                 void reset();
                 size_t getPoints(Vec3& point1, Vec3& point2, Vec3& point3) const;
@@ -83,15 +83,15 @@ namespace TrenchBroom {
                 virtual void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
                 virtual void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) = 0;
 
-                virtual Vec3 doGetHelpVector() const = 0;
                 virtual bool doComputeThirdPoint(Vec3& point) const = 0;
 
                 virtual bool doCanClip() const = 0;
                 virtual bool doCanAddPoint(const Vec3& point, const PointSnapper& snapper) const = 0;
-                virtual void doAddPoint(const Vec3& point, const PointSnapper& snapper, const Vec3& helpVector) = 0;
+                virtual void doAddPoint(const Vec3& point, const PointSnapper& snapper, const Vec3::List& helpVectors) = 0;
                 virtual void doRemoveLastPoint() = 0;
                 virtual bool doBeginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) = 0;
-                virtual bool doDragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3& helpVector, Vec3& snappedPosition) = 0;
+                virtual bool doDragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3::List& helpVectors, Vec3& snappedPosition) = 0;
+                virtual void doEndDragPoint() = 0;
                 virtual bool doSetFace(const Model::BrushFace* face) = 0;
                 virtual void doReset() = 0;
                 virtual size_t doGetPoints(Vec3& point1, Vec3& point2, Vec3& point3) const = 0;
@@ -132,14 +132,14 @@ namespace TrenchBroom {
             Model::ParentChildrenMap clipBrushes();
         public:
             Vec3 defaultClipPointPos() const;
-            Vec3 helpVector() const;
 
             bool canAddPoint(const Vec3& point, const PointSnapper& snapper) const;
-            void addPoint(const Vec3& point, const PointSnapper& snapper, const Vec3& helpVector);
+            void addPoint(const Vec3& point, const PointSnapper& snapper, const Vec3::List& helpVectors);
             void removeLastPoint();
             
             bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
-            bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3& helpVector, Vec3& snappedPosition);
+            bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3::List& helpVectors, Vec3& snappedPosition);
+            void endDragPoint();
             
             void setFace(const Model::BrushFace* face);
             bool reset();

@@ -129,7 +129,7 @@ namespace TrenchBroom {
             bool doAddClipPoint(const InputState& inputState);
             bool doSetClipPlane(const InputState& inputState);
         private:
-            Vec3 selectHelpVector(Model::BrushFace* face, const Vec3& hitPoint) const;
+            Vec3::List selectHelpVectors(Model::BrushFace* face, const Vec3& hitPoint) const;
             Model::BrushFaceList selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint) const;
         };
     }
