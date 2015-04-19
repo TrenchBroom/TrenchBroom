@@ -54,27 +54,6 @@ namespace TrenchBroom {
             private:
                 virtual bool doSnap(const Vec3& point, Vec3& result) const = 0;
             };
-            
-            class PointStrategy {
-            public:
-                virtual ~PointStrategy();
-                bool computeThirdPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const;
-            private:
-                virtual bool doComputeThirdPoint(const Vec3& point1, const Vec3& point2, Vec3& point3) const = 0;
-            };
-            
-            class PointStrategyFactory {
-            public:
-                virtual ~PointStrategyFactory();
-                PointStrategy* createStrategy() const;
-            private:
-                virtual PointStrategy* doCreateStrategy() const = 0;
-            };
-
-            class DefaultPointStrategyFactory : public PointStrategyFactory {
-            private:
-                PointStrategy* doCreateStrategy() const;
-            };
         private:
             enum ClipSide {
                 ClipSide_Front,
@@ -87,24 +66,32 @@ namespace TrenchBroom {
                 virtual ~ClipStrategy();
                 void pick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
                 void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult);
+                
+                Vec3 helpVector() const;
+                bool computeThirdPoint(Vec3& point) const;
+
                 bool canClip() const;
                 bool canAddPoint(const Vec3& point, const PointSnapper& snapper) const;
-                void addPoint(const Vec3& point, const PointSnapper& snapper, const PointStrategyFactory& factory);
+                void addPoint(const Vec3& point, const PointSnapper& snapper, const Vec3& helpVector);
                 void removeLastPoint();
                 bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
-                bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, Vec3& snappedPosition);
+                bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3& helpVector, Vec3& snappedPosition);
                 bool setFace(const Model::BrushFace* face);
                 void reset();
                 size_t getPoints(Vec3& point1, Vec3& point2, Vec3& point3) const;
             private:
                 virtual void doPick(const Ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const = 0;
                 virtual void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) = 0;
+
+                virtual Vec3 doGetHelpVector() const = 0;
+                virtual bool doComputeThirdPoint(Vec3& point) const = 0;
+
                 virtual bool doCanClip() const = 0;
                 virtual bool doCanAddPoint(const Vec3& point, const PointSnapper& snapper) const = 0;
-                virtual void doAddPoint(const Vec3& point, const PointSnapper& snapper, const PointStrategyFactory& factory) = 0;
+                virtual void doAddPoint(const Vec3& point, const PointSnapper& snapper, const Vec3& helpVector) = 0;
                 virtual void doRemoveLastPoint() = 0;
                 virtual bool doBeginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition) = 0;
-                virtual bool doDragPoint(const Vec3& newPosition, const PointSnapper& snapper, Vec3& snappedPosition) = 0;
+                virtual bool doDragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3& helpVector, Vec3& snappedPosition) = 0;
                 virtual bool doSetFace(const Model::BrushFace* face) = 0;
                 virtual void doReset() = 0;
                 virtual size_t doGetPoints(Vec3& point1, Vec3& point2, Vec3& point3) const = 0;
@@ -145,19 +132,19 @@ namespace TrenchBroom {
             Model::ParentChildrenMap clipBrushes();
         public:
             Vec3 defaultClipPointPos() const;
+            Vec3 helpVector() const;
 
             bool canAddPoint(const Vec3& point, const PointSnapper& snapper) const;
-            void addPoint(const Vec3& point, const PointSnapper& snapper, const PointStrategyFactory& factory = DefaultPointStrategyFactory());
+            void addPoint(const Vec3& point, const PointSnapper& snapper, const Vec3& helpVector);
             void removeLastPoint();
             
             bool beginDragPoint(const Model::PickResult& pickResult, Vec3& initialPosition);
-            bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, Vec3& snappedPosition);
+            bool dragPoint(const Vec3& newPosition, const PointSnapper& snapper, const Vec3& helpVector, Vec3& snappedPosition);
             
             void setFace(const Model::BrushFace* face);
             bool reset();
         private:
             void resetStrategy();
-            
             void update();
 
             void clearBrushes();

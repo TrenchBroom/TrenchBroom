@@ -104,8 +104,6 @@ namespace TrenchBroom {
             ClipToolAdapter2D(ClipTool* tool, const Grid& grid);
         private:
             class PointSnapper;
-            class PointStrategy;
-            class PointStrategyFactory;
 
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
@@ -130,6 +128,9 @@ namespace TrenchBroom {
             
             bool doAddClipPoint(const InputState& inputState);
             bool doSetClipPlane(const InputState& inputState);
+        private:
+            Vec3 selectHelpVector(Model::BrushFace* face, const Vec3& hitPoint) const;
+            Model::BrushFaceList selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint) const;
         };
     }
 }
