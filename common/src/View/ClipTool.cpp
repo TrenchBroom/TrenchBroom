@@ -190,6 +190,9 @@ namespace TrenchBroom {
             }
             
             bool doCanAddPoint(const Vec3& point, const PointSnapper& snapper) const {
+                if (m_numPoints == 3)
+                    return false;
+                
                 Vec3 snapped;
                 if (!snapper.snap(point, snapped))
                     return false;
