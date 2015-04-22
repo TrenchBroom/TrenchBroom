@@ -150,10 +150,11 @@ namespace TrenchBroom {
 
         void FlyModeHelper::resetMouse() {
             wxCriticalSectionLocker lock(m_critical);
-            const SetBool ignoreMotion(m_ignoreMotionEvents);
-
-            m_lastMousePos = windowCenter();
-            m_window->WarpPointer(m_lastMousePos.x, m_lastMousePos.y);
+            if (m_enabled) {
+                const SetBool ignoreMotion(m_ignoreMotionEvents);
+                m_lastMousePos = windowCenter();
+                m_window->WarpPointer(m_lastMousePos.x, m_lastMousePos.y);
+            }
         }
 
         wxPoint FlyModeHelper::windowCenter() const {
