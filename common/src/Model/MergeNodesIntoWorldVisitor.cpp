@@ -39,6 +39,8 @@ namespace TrenchBroom {
         }
 
         const ParentChildrenMap& MergeNodesIntoWorldVisitor::result() const {
+            detachNodes();
+            deleteNodes();
             return m_result;
         }
 
@@ -76,13 +78,28 @@ namespace TrenchBroom {
 
         void MergeNodesIntoWorldVisitor::deleteNode(Node* node) {
             detachNode(node);
-            delete node;
+            m_nodesToDelete.push_back(node);
         }
 
         void MergeNodesIntoWorldVisitor::detachNode(Node* node) {
             Node* parent = node->parent();
             if (parent != NULL)
+                m_nodesToDetach.push_back(node);
+        }
+
+        void MergeNodesIntoWorldVisitor::deleteNodes() const {
+            VectorUtils::clearAndDelete(m_nodesToDelete);
+        }
+        
+        void MergeNodesIntoWorldVisitor::detachNodes() const {
+            NodeList::const_iterator it, end;
+            for (it = m_nodesToDetach.begin(), end = m_nodesToDetach.end(); it != end; ++it) {
+                Node* node = *it;
+                Node* parent = node->parent();
+                assert(parent != NULL);
                 parent->removeChild(node);
+            }
+            m_nodesToDetach.clear();
         }
     }
 }
