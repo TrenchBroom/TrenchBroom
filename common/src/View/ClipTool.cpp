@@ -478,7 +478,7 @@ namespace TrenchBroom {
             Model::ParentChildrenMap result;
             if (!m_frontBrushes.empty()) {
                 if (keepFrontBrushes()) {
-                    result.insert(m_frontBrushes.begin(), m_frontBrushes.end());
+                    MapUtils::merge(result, m_frontBrushes);
                     m_frontBrushes.clear();
                 } else {
                     MapUtils::clearAndDelete(m_frontBrushes);
@@ -487,7 +487,7 @@ namespace TrenchBroom {
             
             if (!m_backBrushes.empty()) {
                 if (keepBackBrushes()) {
-                    result.insert(m_backBrushes.begin(), m_backBrushes.end());
+                    MapUtils::merge(result, m_backBrushes);
                     m_backBrushes.clear();
                 } else {
                     MapUtils::clearAndDelete(m_backBrushes);

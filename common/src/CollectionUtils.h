@@ -899,6 +899,21 @@ namespace MapUtils {
     }
     
     template <typename K, typename V>
+    void merge(std::map<K, std::vector<V> >& map1, const std::map<K, std::vector<V> >& map2) {
+        typedef std::vector<V> Vector;
+        typedef std::map<K, Vector> Map;
+        
+        typename Map::const_iterator it, end;
+        for (it = map2.begin(), end = map2.end(); it != end; ++it) {
+            const K& key = it->first;
+            const Vector& vector = it->second;
+            
+            Vector& into = map1[key];
+            VectorUtils::append(into, vector);
+        }
+    }
+    
+    template <typename K, typename V>
     void clearAndDelete(std::map<K, V*>& map) {
         Deleter<K,V> deleter; // need separate instance because for_each only allows modification of the items if the function is not const
         std::for_each(map.begin(), map.end(), deleter);
