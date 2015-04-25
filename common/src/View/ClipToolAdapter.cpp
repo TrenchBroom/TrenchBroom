@@ -116,11 +116,7 @@ namespace TrenchBroom {
             }
         private:
             bool doSnap(const Vec3& point, Vec3& snappedPoint) const {
-                const Vec3 snapAttempt = m_grid.snap(point, m_currentFace->boundary());
-                if (!m_currentFace->containsPoint(snapAttempt))
-                    return false;
-                
-                snappedPoint = snapAttempt;
+                snappedPoint = m_grid.snap(point, m_currentFace->boundary());
                 return true;
             }
         };

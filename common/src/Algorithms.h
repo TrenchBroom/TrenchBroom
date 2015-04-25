@@ -48,17 +48,19 @@ int handlePolygonEdgeIntersection(const Vec<T,3>& v0, const Vec<T,3>& v1) {
      */
     
     // do the Y coordinates have different signs?
-    if ((v0.y() > 0.0 && v1.y() <= 0.0) || (v0.y() <= 0.0 && v1.y() > 0.0)) {
+    if (( Math::pos(v0.y()) && !Math::pos(v1.y())) ||
+        (!Math::pos(v0.y()) &&  Math::pos(v1.y()))) {
         // Is segment entirely on the positive side of the X axis?
-        if (v0.x() > 0.0 && v1.x() > 0.0) {
+        if (Math::pos(v0.x()) && Math::pos(v1.x())) {
             return 1; // Edge intersects with the X axis.
         }
         
         // If not, do the X coordinates have different signs?
-        if ((v0.x() > 0.0 && v1.x() <= 0.0) || (v0.x() <= 0.0 && v1.x() > 0.0)) {
+        if (( Math::pos(v0.x()) && !Math::pos(v1.x())) ||
+            (!Math::pos(v0.x()) &&  Math::pos(v1.x()))) {
             // Calculate the point of intersection between the edge and the X axis.
             const T x = -v0.y() * (v1.x() - v0.x()) / (v1.y() - v0.y()) + v0.x();
-            if (x >= 0.0)
+            if (!Math::neg(x))
                 return 1; // Edge intersects with the X axis.
         }
     }
@@ -83,7 +85,7 @@ T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I 
         const Vec<T,3> c = swizzle(getPosition(*cur++), axis) - o; // The current vertex.
         const int s = handlePolygonEdgeIntersection(p, c);
         if (s == -1)
-            return Math::nan<T>();
+            return distance;
         d += s;
         p = c;
     }
@@ -91,7 +93,7 @@ T intersectPolygonWithRay(const Ray<T,3>& ray, const Plane<T,3> plane, I cur, I 
     // Handle the edge from the last to the first vertex.
     const int s = handlePolygonEdgeIntersection(p, f);
     if (s == -1)
-        return Math::nan<T>();
+        return distance;
     
     d += s;
     if (d % 2 == 0)
