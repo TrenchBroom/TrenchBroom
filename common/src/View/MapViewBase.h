@@ -67,8 +67,11 @@ namespace TrenchBroom {
             AnimationManager* m_animationManager;
         private:
             Renderer::MapRenderer& m_renderer;
+            Renderer::Compass* m_compass;
         protected:
             MapViewBase(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager);
+            
+            void setCompass(Renderer::Compass* compass);
         public:
             virtual ~MapViewBase();
         private:
@@ -184,6 +187,7 @@ namespace TrenchBroom {
             void doRender();
             Renderer::RenderContext createRenderContext();
             void setupGL(Renderer::RenderContext& renderContext);
+            void renderCompass(Renderer::RenderBatch& renderBatch);
         private: // implement ToolBoxConnector
             void doShowPopupMenu();
             wxMenu* makeEntityGroupsMenu(Assets::EntityDefinition::Type type, int id);
@@ -206,7 +210,7 @@ namespace TrenchBroom {
             virtual void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
             virtual void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
-            virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
+            virtual void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         };
     }
 }

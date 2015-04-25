@@ -27,10 +27,6 @@
 #include "Renderer/Renderable.h"
 
 namespace TrenchBroom {
-    namespace View {
-        class MovementRestriction;
-    }
-    
     namespace Renderer {
         class Camera;
         class RenderBatch;
@@ -45,8 +41,6 @@ namespace TrenchBroom {
             static const float m_headLength;
             static const float m_headRadius;
 
-            const View::MovementRestriction& m_restriction;
-            
             VertexArray m_strip;
             VertexArray m_set;
             VertexArray m_fans;
@@ -56,7 +50,9 @@ namespace TrenchBroom {
             
             bool m_prepared;
         public:
-            Compass(const View::MovementRestriction& restriction);
+            Compass();
+            virtual ~Compass();
+            
             void render(RenderBatch& renderBatch);
         private: // implement Renderable interface
             void doPrepare(Vbo& vbo);
@@ -66,10 +62,13 @@ namespace TrenchBroom {
             void makeBackground();
             
             Mat4x4f cameraRotationMatrix(const Camera& camera) const;
+        protected:
             void renderBackground(RenderContext& renderContext);
             void renderSolidAxis(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color);
             void renderAxisOutline(RenderContext& renderContext, const Mat4x4f& transformation, const Color& color);
             void renderAxis(RenderContext& renderContext, const Mat4x4f& transformation);
+        private:
+            virtual void doRenderCompass(RenderContext& renderContext, const Mat4x4f& cameraTransformation) = 0;
         };
     }
 }

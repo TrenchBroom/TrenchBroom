@@ -36,6 +36,7 @@
 #include "Model/PointFile.h"
 #include "Model/World.h"
 #include "Renderer/Camera.h"
+#include "Renderer/Compass.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
@@ -65,7 +66,8 @@ namespace TrenchBroom {
         m_document(document),
         m_toolBox(toolBox),
         m_animationManager(new AnimationManager()),
-        m_renderer(renderer) {
+        m_renderer(renderer),
+        m_compass(NULL) {
             setToolBox(toolBox);
             toolBox.addWindow(this);
             bindEvents();
@@ -73,9 +75,14 @@ namespace TrenchBroom {
             updateAcceleratorTable(HasFocus());
         }
 
+        void MapViewBase::setCompass(Renderer::Compass* compass) {
+            m_compass = compass;
+        }
+        
         MapViewBase::~MapViewBase() {
             unbindObservers();
             m_animationManager->Delete();
+            delete m_compass;
         }
 
         void MapViewBase::bindObservers() {
@@ -801,7 +808,8 @@ namespace TrenchBroom {
             doRenderMap(m_renderer, renderContext, renderBatch);
             doRenderTools(m_toolBox, renderContext, renderBatch);
             doRenderExtras(renderContext, renderBatch);
-
+            renderCompass(renderBatch);
+            
             renderBatch.render(renderContext);
         }
 
@@ -833,6 +841,11 @@ namespace TrenchBroom {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glShadeModel(GL_SMOOTH);
+        }
+
+        void MapViewBase::renderCompass(Renderer::RenderBatch& renderBatch) {
+            if (m_compass != NULL)
+                m_compass->render(renderBatch);
         }
 
         void MapViewBase::doShowPopupMenu() {
@@ -1024,5 +1037,7 @@ namespace TrenchBroom {
             event.Enable(canReparentNodes(nodes, layer));
             event.SetText(name.str());
         }
+
+        void MapViewBase::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
     }
 }

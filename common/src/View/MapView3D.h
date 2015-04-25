@@ -36,7 +36,6 @@ namespace TrenchBroom {
     }
     
     namespace Renderer {
-        class Compass;
         class MapRenderer;
         class RenderBatch;
         class RenderContext;
@@ -59,7 +58,6 @@ namespace TrenchBroom {
         private:
             MovementRestriction m_movementRestriction;
             Renderer::PerspectiveCamera m_camera;
-            Renderer::Compass* m_compass;
             
             ClipToolAdapter3D* m_clipToolAdapter;
             CreateBrushToolAdapter3D* m_createBrushToolAdapter;
@@ -144,7 +142,6 @@ namespace TrenchBroom {
             void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-            void doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private: // implement CameraLinkableView interface
             void doLinkCamera(CameraLinkHelper& linkHelper);
         };

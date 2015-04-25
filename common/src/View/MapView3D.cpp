@@ -27,7 +27,7 @@
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
 #include "Model/PointFile.h"
-#include "Renderer/Compass.h"
+#include "Renderer/Compass3D.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -60,7 +60,6 @@ namespace TrenchBroom {
     namespace View {
         MapView3D::MapView3D(wxWindow* parent, Logger* logger, MapDocumentWPtr document, MapViewToolBox& toolBox, Renderer::MapRenderer& renderer, GLContextManager& contextManager) :
         MapViewBase(parent, logger, document, toolBox, renderer, contextManager),
-        m_compass(new Renderer::Compass(m_movementRestriction)),
         m_clipToolAdapter(NULL),
         m_createBrushToolAdapter(NULL),
         m_createEntityToolAdapter(NULL),
@@ -74,6 +73,7 @@ namespace TrenchBroom {
             bindEvents();
             bindObservers();
             initializeToolChain(toolBox);
+            setCompass(new Renderer::Compass3D(m_movementRestriction));
         }
 
         MapView3D::~MapView3D() {
@@ -116,7 +116,6 @@ namespace TrenchBroom {
             delete m_createEntityToolAdapter;
             delete m_createBrushToolAdapter;
             delete m_clipToolAdapter;
-            delete m_compass;
         }
 
         bool MapView3D::cameraFlyModeActive() const {
@@ -599,10 +598,6 @@ namespace TrenchBroom {
         
         void MapView3D::doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderTools(renderContext, renderBatch);
-        }
-        
-        void MapView3D::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            m_compass->render(renderBatch);
         }
         
         void MapView3D::doLinkCamera(CameraLinkHelper& helper) {}

@@ -32,7 +32,6 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/Vertex.h"
 #include "Renderer/VertexSpec.h"
-#include "View/MovementRestriction.h"
 
 #include <cassert>
 
@@ -44,12 +43,13 @@ namespace TrenchBroom {
         const float Compass::m_headLength = 7.0f;
         const float Compass::m_headRadius = 3.5f;
 
-        Compass::Compass(const View::MovementRestriction& restriction) :
-        m_restriction(restriction),
+        Compass::Compass() :
         m_prepared(false) {
             makeArrows();
             makeBackground();
         }
+        
+        Compass::~Compass() {}
         
         void Compass::render(RenderBatch& renderBatch) {
             renderBatch.add(this);
@@ -67,9 +67,8 @@ namespace TrenchBroom {
         }
         
         void Compass::doRender(RenderContext& renderContext) {
-            glClear(GL_DEPTH_BUFFER_BIT);
-            
-            const Camera::Viewport& viewport = renderContext.camera().unzoomedViewport();
+            const Camera& camera = renderContext.camera();
+            const Camera::Viewport& viewport = camera.unzoomedViewport();
             const int viewWidth = viewport.width;
             const int viewHeight = viewport.height;
             
@@ -79,33 +78,12 @@ namespace TrenchBroom {
             
             const Mat4x4f compassTransformation = translationMatrix(Vec3f(-viewWidth / 2.0f + 55.0f, 0.0f, -viewHeight / 2.0f + 55.0f)) * scalingMatrix<4>(2.0f);
             const MultiplyModelMatrix compass(renderContext.transformation(), compassTransformation);
-            
-            PreferenceManager& prefs = PreferenceManager::instance();
-            const Mat4x4f cameraTransformation = cameraRotationMatrix(renderContext.camera());
-            
+            const Mat4x4f cameraTransformation = cameraRotationMatrix(camera);
+
+            glClear(GL_DEPTH_BUFFER_BIT);
             renderBackground(renderContext);
             glClear(GL_DEPTH_BUFFER_BIT);
-            
-            if (m_restriction.isRestricted(Math::Axis::AX)) {
-                renderSolidAxis(  renderContext, cameraTransformation, prefs.get(Preferences::ZAxisColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
-                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.get(Preferences::CompassAxisOutlineColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.get(Preferences::YAxisColor));
-            } else if (m_restriction.isRestricted(Math::Axis::AY)) {
-                renderSolidAxis(  renderContext, cameraTransformation, prefs.get(Preferences::ZAxisColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.get(Preferences::YAxisColor));
-                renderAxisOutline(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.get(Preferences::CompassAxisOutlineColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
-            } else if (m_restriction.isRestricted(Math::Axis::AZ)) {
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
-                renderSolidAxis(  renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.get(Preferences::YAxisColor));
-                renderAxisOutline(renderContext, cameraTransformation, prefs.get(Preferences::CompassAxisOutlineColor));
-                renderSolidAxis(  renderContext, cameraTransformation, prefs.get(Preferences::ZAxisColor));
-            } else {
-                renderSolidAxis(renderContext, cameraTransformation, prefs.get(Preferences::ZAxisColor));
-                renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90YCCW, prefs.get(Preferences::XAxisColor));
-                renderSolidAxis(renderContext, cameraTransformation * Mat4x4f::Rot90XCW, prefs.get(Preferences::YAxisColor));
-            }
+            doRenderCompass(renderContext, cameraTransformation);
         }
 
         void Compass::makeArrows() {

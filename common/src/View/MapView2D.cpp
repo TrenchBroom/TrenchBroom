@@ -21,6 +21,7 @@
 #include "Logger.h"
 #include "Model/CompareHits.h"
 #include "Model/PointFile.h"
+#include "Renderer/Compass2D.h"
 #include "Renderer/GridRenderer.h"
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderContext.h"
@@ -64,6 +65,7 @@ namespace TrenchBroom {
             bindObservers();
             initializeCamera(viewPlane);
             initializeToolChain(toolBox);
+            setCompass(new Renderer::Compass2D());
         }
 
         MapView2D::~MapView2D() {
