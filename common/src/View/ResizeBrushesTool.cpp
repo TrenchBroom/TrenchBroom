@@ -286,8 +286,7 @@ namespace TrenchBroom {
             // first ensure that the drag can be applied at all
             for (fIt = m_dragFaces.begin(), fEnd = m_dragFaces.end(); fIt != fEnd; ++fIt) {
                 const Model::BrushFace* face = *fIt;
-                const Model::Brush* brush = face->brush();
-                if (!brush->canMoveBoundary(worldBounds, face, delta))
+                if (!Math::pos(face->boundary().normal.dot(delta)))
                     return false;
             }
             
