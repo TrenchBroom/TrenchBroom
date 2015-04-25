@@ -102,6 +102,7 @@ namespace TrenchBroom {
             
             m_text->Bind(wxEVT_KEY_DOWN, &SpinControl::OnTextKeyDown, this);
             m_text->Bind(wxEVT_COMMAND_TEXT_ENTER, &SpinControl::OnTextEnter, this);
+            m_text->Bind(wxEVT_SET_FOCUS, &SpinControl::OnTextSetFocus, this);
             m_text->Bind(wxEVT_KILL_FOCUS, &SpinControl::OnTextKillFocus, this);
             m_spin->Bind(wxEVT_SPIN_UP, &SpinControl::OnSpinButtonUp, this);
             m_spin->Bind(wxEVT_SPIN_DOWN, &SpinControl::OnSpinButtonDown, this);
@@ -247,6 +248,12 @@ namespace TrenchBroom {
                 DoSendEvent(false, GetValue());
         }
         
+        void SpinControl::OnTextSetFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+            m_text->SelectAll();
+            event.Skip();
+        }
+
         void SpinControl::OnTextKillFocus(wxFocusEvent& event) {
             if (IsBeingDeleted()) return;
 

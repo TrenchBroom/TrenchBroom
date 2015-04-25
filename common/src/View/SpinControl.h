@@ -82,6 +82,7 @@ namespace TrenchBroom {
             
             void OnTextKeyDown(wxKeyEvent& event);
             void OnTextEnter(wxCommandEvent& event);
+            void OnTextSetFocus(wxFocusEvent& event);
             void OnTextKillFocus(wxFocusEvent& event);
             void OnSpinButtonUp(wxSpinEvent& event);
             void OnSpinButtonDown(wxSpinEvent& event);
