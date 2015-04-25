@@ -73,10 +73,14 @@ namespace TrenchBroom {
         }
 
         void IssueBrowser::OnShowHiddenIssuesChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_view->setShowHiddenIssues(m_showHiddenIssuesCheckBox->IsChecked());
         }
 
         void IssueBrowser::OnFilterChanged(FlagChangedCommand& command) {
+            if (IsBeingDeleted()) return;
+
             m_view->setHiddenGenerators(~command.flagSetValue());
         }
 

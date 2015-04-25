@@ -49,6 +49,8 @@ namespace TrenchBroom {
         }
         
         void FaceInspector::OnTextureSelected(TextureSelectedCommand& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             if (!document->setTexture(event.texture()))
                 event.Veto();

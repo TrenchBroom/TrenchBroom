@@ -93,20 +93,28 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsToolPage::OnIdle(wxIdleEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const Grid& grid = lock(m_document)->grid();
             m_angle->SetIncrements(Math::degrees(grid.angle()), 90.0, 1.0);
         }
 
         void RotateObjectsToolPage::OnAngleChanged(SpinControlEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_tool->setAngle(Math::radians(m_angle->GetValue() + event.GetValue()));
         }
 
         void RotateObjectsToolPage::OnUpdateRotateButton(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->hasSelectedNodes());
         }
         
         void RotateObjectsToolPage::OnRotate(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const Vec3 center = m_tool->rotationCenter();
             const Vec3 axis = getAxis();
             const FloatType angle = Math::radians(m_angle->GetValue());
@@ -116,6 +124,8 @@ namespace TrenchBroom {
         }
         
         void RotateObjectsToolPage::OnReset(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_tool->resetRotationCenter();
         }
 

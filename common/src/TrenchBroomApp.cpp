@@ -335,6 +335,8 @@ namespace TrenchBroom {
         }
 #else
         void TrenchBroomApp::OnInitCmdLine(wxCmdLineParser& parser) {
+            if (IsBeingDeleted()) return;
+
             static const wxCmdLineEntryDesc cmdLineDesc[] =
             {
                 { wxCMD_LINE_PARAM,  NULL, NULL, "input file", wxCMD_LINE_VAL_STRING, useSDI() ? wxCMD_LINE_PARAM_OPTIONAL : (wxCMD_LINE_PARAM_OPTIONAL | wxCMD_LINE_PARAM_MULTIPLE) },

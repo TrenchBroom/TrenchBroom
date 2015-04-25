@@ -66,12 +66,16 @@ namespace TrenchBroom {
         }
 
         void IssueBrowserView::OnSize(wxSizeEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const int newWidth = std::max(1, GetClientSize().x - GetColumnWidth(0));
             SetColumnWidth(1, newWidth);
             event.Skip();
         }
         
         void IssueBrowserView::OnItemRightClick(wxListEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (GetSelectedItemCount() == 0 || event.GetIndex() < 0)
                 return;
             
@@ -102,14 +106,20 @@ namespace TrenchBroom {
         }
         
         void IssueBrowserView::OnItemSelectionChanged(wxListEvent& event) {
+            if (IsBeingDeleted()) return;
+
             updateSelection();
         }
 
         void IssueBrowserView::OnShowIssues(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             setIssueVisibility(true);
         }
         
         void IssueBrowserView::OnHideIssues(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             setIssueVisibility(false);
         }
         
@@ -162,6 +172,8 @@ namespace TrenchBroom {
         }
 
         void IssueBrowserView::OnApplyQuickFix(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
             assert(data != NULL);
             

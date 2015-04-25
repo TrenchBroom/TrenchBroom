@@ -106,6 +106,8 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::OnPaint(wxPaintEvent& event) {
+            if (IsBeingDeleted()) return;
+
             /*
             if (HasFocus()) {
                 wxDelegateRendererNative renderer;
@@ -117,6 +119,8 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::OnSetFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_panel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
             m_label->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
             Refresh();
@@ -124,6 +128,8 @@ namespace TrenchBroom {
         }
         
         void KeyboardShortcutEditor::OnKillFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_panel->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOX));
             m_label->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
             Refresh();
@@ -131,6 +137,8 @@ namespace TrenchBroom {
         }
 
         void KeyboardShortcutEditor::OnKeyDown(wxKeyEvent& event) {
+            if (IsBeingDeleted()) return;
+
             bool wasReset = false;
             if (m_resetOnNextKey) {
                 wasReset = m_key != WXK_NONE || m_modifiers[0] != WXK_NONE || m_modifiers[1] != WXK_NONE || m_modifiers[2] != WXK_NONE;
@@ -171,6 +179,8 @@ namespace TrenchBroom {
         }
         
         void KeyboardShortcutEditor::OnKeyUp(wxKeyEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const int key = event.GetKeyCode();
             switch (key) {
                 case WXK_SHIFT:
@@ -190,6 +200,8 @@ namespace TrenchBroom {
         }
         
         void KeyboardShortcutEditor::OnMouseDown(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             SetFocus();
         }
 

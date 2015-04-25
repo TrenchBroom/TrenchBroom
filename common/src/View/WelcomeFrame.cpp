@@ -60,6 +60,8 @@ namespace TrenchBroom {
         }
 
         void WelcomeFrame::OnCreateNewDocumentClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
             try {
@@ -73,6 +75,8 @@ namespace TrenchBroom {
         }
         
         void WelcomeFrame::OnOpenOtherDocumentClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxString pathStr = ::wxLoadFileSelector("", "map", "", NULL);
             if (!pathStr.empty()) {
                 Hide();
@@ -89,6 +93,8 @@ namespace TrenchBroom {
         }
 
         void WelcomeFrame::OnRecentDocumentSelected(RecentDocumentSelectedCommand& event) {
+            if (IsBeingDeleted()) return;
+
             Hide();
             TrenchBroomApp& app = TrenchBroomApp::instance();
             try {

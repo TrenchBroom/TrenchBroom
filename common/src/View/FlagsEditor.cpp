@@ -123,6 +123,8 @@ namespace TrenchBroom {
         }
 
         void FlagsEditor::OnCheckBoxClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const size_t index = getIndexFromEvent(event);
             assert(index < m_checkBoxes.size());
             

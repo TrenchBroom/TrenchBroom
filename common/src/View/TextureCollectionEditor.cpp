@@ -48,6 +48,8 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::OnAddTextureCollectionsClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxString pathWxStr = ::wxFileSelector("Load Texture Collection", wxEmptyString, wxEmptyString, wxEmptyString, "", wxFD_OPEN);
             if (pathWxStr.empty())
                 return;
@@ -56,6 +58,8 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::OnRemoveTextureCollectionsClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             m_collections->GetSelections(selections);
             assert(!selections.empty());
@@ -75,6 +79,8 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::OnMoveTextureCollectionUpClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             m_collections->GetSelections(selections);
             assert(selections.size() == 1);
@@ -91,6 +97,8 @@ namespace TrenchBroom {
         }
         
         void TextureCollectionEditor::OnMoveTextureCollectionDownClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             m_collections->GetSelections(selections);
             assert(selections.size() == 1);
@@ -107,16 +115,22 @@ namespace TrenchBroom {
         }
 
         void TextureCollectionEditor::OnUpdateRemoveButtonUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
                 wxArrayInt selections;
                 event.Enable(m_collections->GetSelections(selections) > 0);
         }
         
         void TextureCollectionEditor::OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             event.Enable(m_collections->GetSelections(selections) == 1 && selections.front() > 0);
         }
         
         void TextureCollectionEditor::OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const int collectionCount = static_cast<int>(m_collections->GetCount());
             wxArrayInt selections;
             event.Enable(m_collections->GetSelections(selections) == 1 && selections.front() < collectionCount - 1);

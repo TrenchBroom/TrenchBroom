@@ -41,6 +41,8 @@ namespace TrenchBroom {
         }
 
         void UVEditor::OnResetTexture(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             request.setOffset(Vec2f::Null);
             request.setRotation(0.0f);
@@ -51,6 +53,8 @@ namespace TrenchBroom {
         }
         
         void UVEditor::OnFlipTextureH(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             request.mulXScale(-1.0f);
             
@@ -59,6 +63,8 @@ namespace TrenchBroom {
         }
         
         void UVEditor::OnFlipTextureV(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             request.mulYScale(-1.0f);
             
@@ -67,6 +73,8 @@ namespace TrenchBroom {
         }
         
         void UVEditor::OnRotateTextureCCW(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             request.addRotation(90.0f);
             
@@ -75,6 +83,8 @@ namespace TrenchBroom {
         }
         
         void UVEditor::OnRotateTextureCW(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             request.addRotation(-90.0f);
             
@@ -83,11 +93,15 @@ namespace TrenchBroom {
         }
         
         void UVEditor::OnUpdateButtonUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             event.Enable(!document->selectedBrushFaces().empty());
         }
 
         void UVEditor::OnSubDivisionChanged(wxSpinEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const int x = m_xSubDivisionEditor->GetValue();
             const int y = m_ySubDivisionEditor->GetValue();
             m_uvView->setSubDivisions(Vec2i(x, y));

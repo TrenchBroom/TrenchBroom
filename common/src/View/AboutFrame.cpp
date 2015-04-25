@@ -47,6 +47,8 @@ namespace TrenchBroom {
         }
 
         void AboutFrame::OnClickUrl(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxVariant* var = static_cast<wxVariant*>(event.GetEventUserData());
             const wxString url = var->GetString();
             ::wxLaunchDefaultBrowser(url);

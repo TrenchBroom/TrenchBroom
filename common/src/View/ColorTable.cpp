@@ -55,10 +55,14 @@ namespace TrenchBroom {
         }
 
         void ColorTable::OnSize(wxSizeEvent& event) {
+            if (IsBeingDeleted()) return;
+
             updateVirtualSize();
         }
 
         void ColorTable::OnPaint(wxPaintEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxSize virtualSize = GetVirtualSize();
             const int cols = computeCols(virtualSize.x);
             const int rows = computeRows(cols);
@@ -102,6 +106,8 @@ namespace TrenchBroom {
         }
         
         void ColorTable::OnMouseUp(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxSize virtualSize = GetVirtualSize();
             const int cols = computeCols(virtualSize.x);
 

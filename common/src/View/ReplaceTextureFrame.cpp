@@ -43,6 +43,8 @@ namespace TrenchBroom {
         }
         
         void ReplaceTextureFrame::OnReplace(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();
             assert(subject != NULL);
 
@@ -82,10 +84,14 @@ namespace TrenchBroom {
         }
 
         void ReplaceTextureFrame::OnClose(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Close();
         }
         
         void ReplaceTextureFrame::OnUpdateReplaceButton(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             const bool hasSelectedFaces = !document->allSelectedBrushFaces().empty();
             const Assets::Texture* subject = m_subjectBrowser->selectedTexture();

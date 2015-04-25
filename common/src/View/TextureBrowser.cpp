@@ -86,23 +86,33 @@ namespace TrenchBroom {
         }
 
         void TextureBrowser::OnSortOrderChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const Assets::TextureManager::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::TextureManager::SortOrder_Name : Assets::TextureManager::SortOrder_Usage;
             m_view->setSortOrder(sortOrder);
         }
         
         void TextureBrowser::OnGroupButtonToggled(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_view->setGroup(m_groupButton->GetValue());
         }
         
         void TextureBrowser::OnUsedButtonToggled(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_view->setHideUnused(m_usedButton->GetValue());
         }
         
         void TextureBrowser::OnFilterPatternChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_view->setFilterText(m_filterBox->GetValue().ToStdString());
         }
 
         void TextureBrowser::OnTextureSelected(TextureSelectedCommand& event) {
+            if (IsBeingDeleted()) return;
+
             // let the event bubble up to our own listeners
             event.SetEventObject(this);
             event.SetId(GetId());

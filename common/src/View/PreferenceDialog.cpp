@@ -62,11 +62,15 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnToolClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const PrefPane newPane = static_cast<PrefPane>(event.GetId());
             switchToPane(newPane);
         }
 
         void PreferenceDialog::OnOKClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (!currentPane()->validate())
                 return;
 
@@ -77,6 +81,8 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnApplyClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (!currentPane()->validate())
                 return;
 
@@ -86,6 +92,8 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnCancelClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             PreferenceManager& prefs = PreferenceManager::instance();
             if (!prefs.saveInstantly())
                 prefs.discardChanges();
@@ -93,6 +101,8 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnClose(wxCloseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (!currentPane()->validate() && event.CanVeto()) {
                 event.Veto();
                 return;
@@ -113,6 +123,8 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnFileClose(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (!currentPane()->validate()) {
                 event.Skip();
                 return;
@@ -124,11 +136,15 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::OnResetClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             assert(currentPane()->canResetToDefaults());
             currentPane()->resetToDefaults();
         }
         
         void PreferenceDialog::OnUpdateReset(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             event.Enable(currentPane()->canResetToDefaults());
         }
 

@@ -50,6 +50,8 @@ namespace TrenchBroom {
         }
 
         void RecentDocumentListBox::OnListBoxDoubleClick(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             const IO::Path::List& recentDocuments = app.recentDocuments();
 

@@ -48,6 +48,8 @@ namespace TrenchBroom {
         }
         
         void KeyboardPreferencePane::OnGridSize(wxSizeEvent& event) {
+            if (IsBeingDeleted()) return;
+
             int width = m_grid->GetClientSize().x;
             m_grid->AutoSizeColumn(0);
             m_grid->AutoSizeColumn(1);

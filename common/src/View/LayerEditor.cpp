@@ -49,11 +49,15 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::OnCurrentLayerSelected(LayerCommand& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             document->setCurrentLayer(event.layer());
         }
 
         void LayerEditor::OnLayerRightClick(LayerCommand& event) {
+            if (IsBeingDeleted()) return;
+
             const Model::Layer* layer = event.layer();
             
             wxMenu popupMenu;
@@ -77,10 +81,14 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::OnToggleLayerVisibleFromMenu(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             toggleLayerVisible(m_layerList->selectedLayer(), false);
         }
         
         void LayerEditor::OnToggleLayerVisibleFromList(LayerCommand& event) {
+            if (IsBeingDeleted()) return;
+
             toggleLayerVisible(event.layer(), event.inverted());
         }
 
@@ -104,10 +112,14 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::OnToggleLayerLockedFromMenu(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             toggleLayerLocked(m_layerList->selectedLayer(), false);
         }
         
         void LayerEditor::OnToggleLayerLockedFromList(LayerCommand& event) {
+            if (IsBeingDeleted()) return;
+
             toggleLayerLocked(event.layer(), event.inverted());
         }
 
@@ -179,6 +191,8 @@ namespace TrenchBroom {
         };
         
         void LayerEditor::OnMoveSelectionToLayer(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::Layer* layer = m_layerList->selectedLayer();
             assert(layer != NULL);
 
@@ -188,6 +202,8 @@ namespace TrenchBroom {
         }
         
         void LayerEditor::OnUpdateMoveSelectionToLayerUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const Model::Layer* layer = m_layerList->selectedLayer();
             if (layer == NULL) {
                 event.Enable(false);
@@ -215,6 +231,8 @@ namespace TrenchBroom {
         }
         
         void LayerEditor::OnSelectAllInLayer(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::Layer* layer = m_layerList->selectedLayer();
             assert(layer != NULL);
             
@@ -229,6 +247,8 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::OnAddLayer(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const String name = queryLayerName();
             if (!name.empty()) {
                 MapDocumentSPtr document = lock(m_document);
@@ -264,6 +284,8 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::OnRemoveLayer(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::Layer* layer = m_layerList->selectedLayer();
             assert(layer != NULL);
             
@@ -281,6 +303,8 @@ namespace TrenchBroom {
         }
         
         void LayerEditor::OnUpdateRemoveLayerUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const Model::Layer* layer = m_layerList->selectedLayer();
             if (layer == NULL) {
                 event.Enable(false);
@@ -292,6 +316,8 @@ namespace TrenchBroom {
         }
 
         void LayerEditor::OnShowAllLayers(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             const Model::LayerList& layers = document->world()->allLayers();
             document->resetVisibility(Model::NodeList(layers.begin(), layers.end()));

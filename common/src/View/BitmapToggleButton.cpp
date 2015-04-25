@@ -41,6 +41,8 @@ namespace TrenchBroom {
         }
         
         void BitmapToggleButton::OnPaint(wxPaintEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxSize size = GetClientSize();
             const wxSize bmpSize = bitmapSize();
             const wxSize delta = size - bmpSize;
@@ -51,6 +53,8 @@ namespace TrenchBroom {
         }
         
         void BitmapToggleButton::OnMouseDown(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (!IsEnabled())
                 return;
             

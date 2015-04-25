@@ -172,11 +172,15 @@ namespace TrenchBroom {
         }
         
         void MapView3D::OnKeyDown(wxKeyEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (!m_flyModeHelper->keyDown(event))
                 key(event);
         }
         
         void MapView3D::OnKeyUp(wxKeyEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (!m_flyModeHelper->keyUp(event))
                 key(event);
         }
@@ -188,41 +192,59 @@ namespace TrenchBroom {
         }
 
         void MapView3D::OnMouseMotion(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_flyModeHelper->motion(event);
             event.Skip();
         }
 
         void MapView3D::OnToggleMovementRestriction(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_movementRestriction.toggleHorizontalRestriction(m_camera);
             Refresh();
         }
 
         void MapView3D::OnPerformCreateBrush(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (m_toolBox.createBrushToolActive())
                 m_createBrushToolAdapter->performCreateBrush();
         }
 
         void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             moveTextures(Vec2f(0.0f, moveTextureDistance()));
         }
         
         void MapView3D::OnMoveTexturesDown(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             moveTextures(Vec2f(0.0f, -moveTextureDistance()));
         }
         
         void MapView3D::OnMoveTexturesLeft(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             moveTextures(Vec2f(-moveTextureDistance(), 0.0f));
         }
         
         void MapView3D::OnMoveTexturesRight(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             moveTextures(Vec2f(moveTextureDistance(), 0.0f));
         }
         
         void MapView3D::OnRotateTexturesCW(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             rotateTextures(rotateTextureAngle(true));
         }
         
         void MapView3D::OnRotateTexturesCCW(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             rotateTextures(rotateTextureAngle(false));
         }
         
@@ -275,16 +297,22 @@ namespace TrenchBroom {
         }
 
         void MapView3D::OnToggleFlyMode(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             toggleCameraFlyMode();
         }
 
         void MapView3D::OnKillFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
             event.Skip();
         }
 
         void MapView3D::OnActivateFrame(wxActivateEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
             event.Skip();

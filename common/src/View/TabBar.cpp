@@ -46,6 +46,8 @@ namespace TrenchBroom {
         }
 
         void TabBarButton::OnClick(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxCommandEvent commandEvent(wxEVT_BUTTON, GetId());
             commandEvent.SetEventObject(this);
             ProcessEvent(commandEvent);
@@ -99,6 +101,8 @@ namespace TrenchBroom {
         }
         
         void TabBar::OnButtonClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxWindow* button = static_cast<wxWindow*>(event.GetEventObject());
             const size_t index = findButtonIndex(button);
             assert(index < m_buttons.size());
@@ -106,6 +110,8 @@ namespace TrenchBroom {
         }
 
         void TabBar::OnTabBookPageChanged(wxBookCtrlEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const int oldIndex = event.GetOldSelection();
             const int newIndex = event.GetSelection();
             

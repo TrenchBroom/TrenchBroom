@@ -43,6 +43,8 @@ namespace TrenchBroom {
         
         
         void CameraPreferencePane::OnLookSpeedChanged(wxScrollEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const float value = m_lookSpeedSlider->GetValue() / 100.0f;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -50,6 +52,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnInvertLookHAxisChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -57,6 +61,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnInvertLookVAxisChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -64,6 +70,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnPanSpeedChanged(wxScrollEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const float value = m_panSpeedSlider->GetValue() / 100.0f;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -71,6 +79,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnInvertPanHAxisChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -78,6 +88,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnInvertPanVAxisChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -85,6 +97,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnMoveSpeedChanged(wxScrollEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const float value = m_moveSpeedSlider->GetValue() / 100.0f;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -92,6 +106,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnEnableAltMoveChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -99,6 +115,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnInvertAltMoveAxisChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -106,6 +124,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnMoveCameraInCursorDirChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -113,6 +133,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnFlySpeedChanged(wxScrollEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const float value = m_flySpeedSlider->GetValue() / 100.0f;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -120,6 +142,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnInvertFlyVAxisChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const bool value = event.GetInt() != 0;
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -127,6 +151,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnForwardKeyChanged(KeyboardShortcutEvent& event) {
+            if (IsBeingDeleted()) return;
+
             PreferenceManager& prefs = PreferenceManager::instance();
             
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
@@ -141,6 +167,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnBackwardKeyChanged(KeyboardShortcutEvent& event) {
+            if (IsBeingDeleted()) return;
+
             PreferenceManager& prefs = PreferenceManager::instance();
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
@@ -155,6 +183,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnLeftKeyChanged(KeyboardShortcutEvent& event) {
+            if (IsBeingDeleted()) return;
+
             PreferenceManager& prefs = PreferenceManager::instance();
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());
@@ -169,6 +199,8 @@ namespace TrenchBroom {
         }
         
         void CameraPreferencePane::OnRightKeyChanged(KeyboardShortcutEvent& event) {
+            if (IsBeingDeleted()) return;
+
             PreferenceManager& prefs = PreferenceManager::instance();
 
             const KeyboardShortcut shortcut(event.key(), event.modifier1(), event.modifier2(), event.modifier3());

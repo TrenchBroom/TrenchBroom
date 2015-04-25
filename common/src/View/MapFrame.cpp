@@ -236,6 +236,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnChildFocus(wxChildFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxWindow* focus = FindFocus();
             if (focus != m_lastFocus) {
                 rebuildMenuBar();
@@ -417,44 +419,64 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnFileSave(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             saveDocument();
         }
 
         void MapFrame::OnFileSaveAs(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             saveDocumentAs();
         }
 
         void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_document->loadPointFile();
         }
 
         void MapFrame::OnFileUnloadPointFile(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_document->unloadPointFile();
         }
 
         void MapFrame::OnFileClose(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Close();
         }
 
         void MapFrame::OnEditUndo(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canUndo())
                 m_document->undoLastCommand();
         }
 
         void MapFrame::OnEditRedo(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canRedo())
                 m_document->redoNextCommand();
         }
 
         void MapFrame::OnEditRepeat(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_document->repeatLastCommands();
         }
 
         void MapFrame::OnEditClearRepeat(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_document->clearRepeatableCommands();
         }
 
         void MapFrame::OnEditCut(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canCut()) {
                 copyToClipboard();
                 Transaction transaction(m_document, "Cut");
@@ -463,6 +485,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditCopy(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canCopy())
                 copyToClipboard();
         }
@@ -493,6 +517,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditPaste(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canPaste()) {
                 Transaction transaction(m_document);
                 if (paste() && m_document->hasSelectedNodes()) {
@@ -504,6 +530,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditPasteAtOriginalPosition(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canPaste())
                 paste();
         }
@@ -526,36 +554,50 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditDelete(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canDelete())
                 m_document->deleteObjects();
         }
 
         void MapFrame::OnEditDuplicate(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canDuplicate())
                 m_document->duplicateObjects();
         }
 
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canSelect())
                 m_document->selectAllNodes();
         }
 
         void MapFrame::OnEditSelectSiblings(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canSelectSiblings())
                 m_document->selectSiblings();
         }
 
         void MapFrame::OnEditSelectTouching(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canSelectByBrush())
                 m_document->selectTouching(true);
         }
 
         void MapFrame::OnEditSelectInside(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canSelectByBrush())
                 m_document->selectInside(true);
         }
         
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canSelect()) {
                 const wxString string = wxGetTextFromUser("Enter a comma- or space separated list of line numbers.", "Select by Line Numbers", "", this);
                 if (string.empty())
@@ -576,11 +618,15 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditSelectNone(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canDeselect())
                 m_document->deselectAll();
         }
 
         void MapFrame::OnEditGroupSelectedObjects(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canGroup()) {
                 const String name = queryGroupName(this);
                 if (!name.empty())
@@ -589,100 +635,142 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditUngroupSelectedObjects(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canUngroup())
                 m_document->ungroupSelection();
         }
 
         void MapFrame::OnEditHideSelectedObjects(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canHide())
                 m_document->hideSelection();
         }
 
         void MapFrame::OnEditIsolateSelectedObjects(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canIsolate())
                 m_document->isolate(m_document->selectedNodes().nodes());
         }
 
         void MapFrame::OnEditShowHiddenObjects(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_document->showAll();
         }
 
         void MapFrame::OnEditReplaceTexture(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             ReplaceTextureFrame* frame = new ReplaceTextureFrame(this, m_document, *m_contextManager);
             frame->CenterOnParent();
             frame->Show();
         }
 
         void MapFrame::OnEditToggleCreateBrushTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_mapView->toggleCreateBrushTool();
         }
 
         void MapFrame::OnEditToggleClipTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_mapView->toggleClipTool();
         }
 
         void MapFrame::OnEditToggleRotateObjectsTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_mapView->toggleRotateObjectsTool();
         }
 
         void MapFrame::OnEditToggleVertexTool(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_mapView->toggleVertexTool();
         }
 
         void MapFrame::OnEditCreateBrushFromConvexHull(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canCreateConvexHull())
                 m_document->createBrushFromConvexHull();
         }
 
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_document->setTextureLock(!m_document->textureLock());
         }
 
         void MapFrame::OnEditSnapVertices(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canSnapVertices())
                 m_document->snapVertices();
         }
 
         void MapFrame::OnViewToggleShowGrid(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_document->grid().toggleVisible();
         }
 
         void MapFrame::OnViewToggleSnapToGrid(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_document->grid().toggleSnap();
         }
 
         void MapFrame::OnViewIncGridSize(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canIncGridSize())
                 m_document->grid().incSize();
         }
 
         void MapFrame::OnViewDecGridSize(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canDecGridSize())
                 m_document->grid().decSize();
         }
 
         void MapFrame::OnViewSetGridSize(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const size_t size = static_cast<size_t>(event.GetId() - CommandIds::Menu::ViewSetGridSize1);
             assert(size < Grid::MaxSize);
             m_document->grid().setSize(size);
         }
 
         void MapFrame::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canMoveCameraToNextPoint())
                 m_mapView->moveCameraToNextTracePoint();
         }
 
         void MapFrame::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canMoveCameraToPreviousPoint())
                 m_mapView->moveCameraToPreviousTracePoint();
         }
 
         void MapFrame::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (canCenterCamera())
                 m_mapView->centerCameraOnSelection();
         }
 
         void MapFrame::OnViewMoveCameraToPosition(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxTextEntryDialog dialog(this, "Enter a position (x y z) for the camera.", "Move Camera", "0.0 0.0 0.0");
             if (dialog.ShowModal() == wxID_OK) {
                 const wxString str = dialog.GetValue();
@@ -692,18 +780,26 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnViewSwitchToMapInspector(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_inspector->switchToPage(Inspector::InspectorPage_Map);
         }
 
         void MapFrame::OnViewSwitchToEntityInspector(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_inspector->switchToPage(Inspector::InspectorPage_Entity);
         }
 
         void MapFrame::OnViewSwitchToFaceInspector(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_inspector->switchToPage(Inspector::InspectorPage_Face);
         }
 
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const ActionManager& actionManager = ActionManager::instance();
 
             switch (event.GetId()) {
@@ -1004,6 +1100,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnClose(wxCloseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (!IsBeingDeleted()) {
                 assert(m_frameManager != NULL);
                 if (event.CanVeto() && !confirmOrDiscardChanges())
@@ -1014,6 +1112,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnAutosaveTimer(wxTimerEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_autosaver->triggerAutosave(logger());
         }
     }

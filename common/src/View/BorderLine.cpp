@@ -42,6 +42,8 @@ namespace TrenchBroom {
         }
         
         void BorderLine::OnPaint(wxPaintEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxPaintDC dc(this);
             dc.SetPen(wxPen(GetForegroundColour()));
             dc.SetBrush(wxBrush(GetForegroundColour()));

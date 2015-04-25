@@ -49,6 +49,8 @@ namespace TrenchBroom {
         }
 
         void BorderPanel::OnPaint(wxPaintEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxPaintDC dc(this);
             dc.SetPen(wxPen(Colors::borderColor()));
             

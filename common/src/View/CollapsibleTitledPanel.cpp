@@ -50,6 +50,8 @@ namespace TrenchBroom {
         }
         
         void CollapsibleTitleBar::OnClick(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxCommandEvent newEvent(TITLE_BAR_CLICK, GetId());
             newEvent.SetEventObject(this);
             wxPostEvent(this, newEvent);
@@ -97,6 +99,8 @@ namespace TrenchBroom {
         }
         
         void CollapsibleTitledPanel::OnTitleBarClick(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             setExpanded(!m_expanded);
         }
 

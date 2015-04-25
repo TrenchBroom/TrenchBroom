@@ -68,6 +68,8 @@ namespace TrenchBroom {
 
 
         void ViewPreferencePane::OnLayoutChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const int selection = m_layoutChoice->GetSelection();
             assert(selection >= 0 && selection < static_cast<int>(NumFrameLayouts));
             
@@ -76,6 +78,8 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::OnBrightnessChanged(wxScrollEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const int value = m_brightnessSlider->GetValue();
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -83,6 +87,8 @@ namespace TrenchBroom {
         }
         
         void ViewPreferencePane::OnGridAlphaChanged(wxScrollEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const int value = m_gridAlphaSlider->GetValue();
             
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -92,6 +98,8 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::OnBackgroundColorChanged(wxColourPickerEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Color value = fromWxColor(event.GetColour());
             value[3] = 1.0f;
             PreferenceManager& prefs = PreferenceManager::instance();
@@ -99,6 +107,8 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::OnTextureModeChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const int selection = m_textureModeChoice->GetSelection();
             assert(selection >= 0);
             
@@ -113,6 +123,8 @@ namespace TrenchBroom {
         }
 
         void ViewPreferencePane::OnTextureBrowserIconSizeChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             PreferenceManager& prefs = PreferenceManager::instance();
 
             const int selection = m_textureBrowserIconSizeChoice->GetSelection();

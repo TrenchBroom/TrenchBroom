@@ -62,6 +62,8 @@ namespace TrenchBroom {
         }
 
         void CyclingMapView::OnCycleMapView(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             for (size_t i = 0; i < m_mapViews.size(); ++i) {
                 if (m_currentMapView == m_mapViews[i]) {
                     switchToMapView(m_mapViews[Math::succ(i, m_mapViews.size())]);

@@ -91,6 +91,8 @@ namespace TrenchBroom {
         }
 
         void FlagsPopupEditor::OnFlagChanged(FlagChangedCommand& event) {
+            if (IsBeingDeleted()) return;
+
             updateFlagsText();
             ProcessEvent(event);
         }

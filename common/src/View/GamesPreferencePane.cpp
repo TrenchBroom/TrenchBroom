@@ -44,10 +44,14 @@ namespace TrenchBroom {
         }
         
         void GamesPreferencePane::OnGameSelectionChanged(GameSelectionCommand& event) {
+            if (IsBeingDeleted()) return;
+
             updateControls();
         }
 
         void GamesPreferencePane::OnChooseGamePathClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxString pathStr = ::wxDirSelector("Choose game directory", wxEmptyString, wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
             if (!pathStr.empty()) {
                 const IO::Path gamePath(pathStr.ToStdString());

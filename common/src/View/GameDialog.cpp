@@ -47,19 +47,27 @@ namespace TrenchBroom {
         }
         
         void GameDialog::OnGameSelectionChanged(GameSelectionCommand& command) {
+            if (IsBeingDeleted()) return;
+
             gameSelectionChanged(command.gameName());
         }
         
         void GameDialog::OnGameSelected(GameSelectionCommand& command) {
+            if (IsBeingDeleted()) return;
+
             gameSelected(command.gameName());
         }
         
         void GameDialog::OnOpenPreferencesClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             TrenchBroomApp& app = TrenchBroomApp::instance();
             app.openPreferences();
         }
         
         void GameDialog::OnUpdateOkButton(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             event.Enable(isOkEnabled());
         }
 
@@ -171,6 +179,8 @@ namespace TrenchBroom {
         }
         
         void NewDocumentGameDialog::OnUpdateMapFormatChoice(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             event.Enable(m_mapFormatChoice->GetCount() > 1);
         }
 
