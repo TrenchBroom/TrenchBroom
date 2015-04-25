@@ -47,6 +47,8 @@ namespace TrenchBroom {
         }
         
         void RenderView::OnPaint(wxPaintEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (m_glContext->SetCurrent(this)) {
                 if (!m_initialized)
                     initializeGL();
@@ -58,16 +60,22 @@ namespace TrenchBroom {
         }
         
         void RenderView::OnSize(wxSizeEvent& event) {
+            if (IsBeingDeleted()) return;
+
             updateViewport();
             event.Skip();
         }
 
         void RenderView::OnSetFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Refresh();
             event.Skip();
         }
         
         void RenderView::OnKillFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Refresh();
             event.Skip();
         }

@@ -229,6 +229,8 @@ namespace TrenchBroom {
         }
 
         void LayerListView::OnMouseEntryDown(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
             assert(data != NULL);
 
@@ -246,6 +248,8 @@ namespace TrenchBroom {
         }
 
         void LayerListView::OnMouseEntryRightUp(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxVariant* data = static_cast<wxVariant*>(event.GetEventUserData());
             assert(data != NULL);
 
@@ -262,6 +266,8 @@ namespace TrenchBroom {
         }
 
         void LayerListView::OnMouseVoidDown(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             setSelectedLayer(NULL);
 
             LayerCommand* command = new LayerCommand(LAYER_SELECTED_EVENT);

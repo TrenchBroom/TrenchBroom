@@ -78,6 +78,8 @@ namespace TrenchBroom {
         }
         
         void EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
             const size_t groupIndex = static_cast<size_t>(variant->GetLong());
 
@@ -95,6 +97,8 @@ namespace TrenchBroom {
         }
         
         void EntityDefinitionCheckBoxList::OnDefCheckBoxChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxVariant* variant = static_cast<wxVariant*>(event.GetEventUserData());
             const Assets::EntityDefinition* definition = reinterpret_cast<const Assets::EntityDefinition*>(variant->GetVoidPtr());
             m_editorContext.setEntityDefinitionHidden(definition, !event.IsChecked());
@@ -102,10 +106,14 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionCheckBoxList::OnShowAllClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             hideAll(false);
         }
         
         void EntityDefinitionCheckBoxList::OnHideAllClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             hideAll(true);
         }
 
@@ -190,36 +198,48 @@ namespace TrenchBroom {
         }
         
         void ViewEditor::OnShowEntityClassnamesChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEntityClassnames(event.IsChecked());
         }
         
         void ViewEditor::OnShowEntityBoundsChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEntityBounds(event.IsChecked());
         }
         
         void ViewEditor::OnShowPointEntitiesChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowPointEntities(event.IsChecked());
         }
         
         void ViewEditor::OnShowPointEntityModelsChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowPointEntityModels(event.IsChecked());
         }
         
         void ViewEditor::OnShowBrushesChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             editorContext.setShowBrushes(event.IsChecked());
         }
         
         void ViewEditor::OnShowBrushContentTypeChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             Model::GamePtr game = document->game();
             
@@ -240,6 +260,8 @@ namespace TrenchBroom {
         }
         
         void ViewEditor::OnFaceRenderModeChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             
@@ -257,24 +279,32 @@ namespace TrenchBroom {
         }
         
         void ViewEditor::OnShadeFacesChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShadeFaces(event.IsChecked());
         }
         
         void ViewEditor::OnShowFogChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowFog(event.IsChecked());
         }
         
         void ViewEditor::OnShowEdgesChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             MapViewConfig& config = document->mapViewConfig();
             config.setShowEdges(event.IsChecked());
         }
         
         void ViewEditor::OnEntityLinkModeChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             Model::EditorContext& editorContext = document->editorContext();
             

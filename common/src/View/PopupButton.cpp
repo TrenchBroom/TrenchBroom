@@ -59,6 +59,8 @@ namespace TrenchBroom {
         }
 
         void PopupButton::OnButtonToggled(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (m_button->GetValue()) {
                 wxPoint position = GetScreenRect().GetRightBottom();
                 position.x -= 2*m_window->GetSize().x;
@@ -71,6 +73,8 @@ namespace TrenchBroom {
         }
 
         void PopupButton::OnPopupShow(wxShowEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (m_button->GetValue() != event.IsShown())
                 m_button->SetValue(event.IsShown());
             event.Skip();

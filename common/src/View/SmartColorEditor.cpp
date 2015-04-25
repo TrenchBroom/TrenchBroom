@@ -49,18 +49,22 @@ namespace TrenchBroom {
         m_colorHistory(NULL) {}
         
         void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
+            if (m_panel->IsBeingDeleted()) return;
             document()->convertEntityColorRange(name(), Model::ColorRange::Float);
         }
         
         void SmartColorEditor::OnByteRangeRadioButton(wxCommandEvent& event) {
+            if (m_panel->IsBeingDeleted()) return;
             document()->convertEntityColorRange(name(), Model::ColorRange::Byte);
         }
         
         void SmartColorEditor::OnColorPickerChanged(wxColourPickerEvent& event) {
+            if (m_panel->IsBeingDeleted()) return;
             setColor(event.GetColour());
         }
         
         void SmartColorEditor::OnColorTableSelected(ColorTableSelectedCommand& event) {
+            if (m_panel->IsBeingDeleted()) return;
             setColor(event.color());
         }
 

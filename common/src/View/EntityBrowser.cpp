@@ -53,19 +53,27 @@ namespace TrenchBroom {
         }
         
         void EntityBrowser::OnSortOrderChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const Assets::EntityDefinition::SortOrder sortOrder = event.GetSelection() == 0 ? Assets::EntityDefinition::Name : Assets::EntityDefinition::Usage;
             m_view->setSortOrder(sortOrder);
         }
         
         void EntityBrowser::OnGroupButtonToggled(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_view->setGroup(m_groupButton->GetValue());
         }
         
         void EntityBrowser::OnUsedButtonToggled(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_view->setHideUnused(m_usedButton->GetValue());
         }
         
         void EntityBrowser::OnFilterPatternChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             m_view->setFilterText(m_filterBox->GetValue().ToStdString());
         }
 

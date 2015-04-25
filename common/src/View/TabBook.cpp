@@ -67,6 +67,8 @@ namespace TrenchBroom {
         }
 
         void TabBook::OnTabBookPageChanged(wxBookCtrlEvent& event) {
+            if (IsBeingDeleted()) return;
+
             ProcessEvent(event);
             event.Skip();
         }

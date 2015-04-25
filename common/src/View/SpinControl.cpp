@@ -225,6 +225,8 @@ namespace TrenchBroom {
         }
         
         void SpinControl::OnTextKeyDown(wxKeyEvent& event) {
+            if (IsBeingDeleted()) return;
+
             switch (event.GetKeyCode()) {
                 case WXK_UP:
                     Spin(+1.0, event);
@@ -239,25 +241,35 @@ namespace TrenchBroom {
         }
         
         void SpinControl::OnTextEnter(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (SyncFromText())
                 DoSendEvent(false, GetValue());
         }
         
         void SpinControl::OnTextKillFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (SyncFromText())
                 DoSendEvent(false, GetValue());
             event.Skip();
         }
         
         void SpinControl::OnSpinButtonUp(wxSpinEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Spin(+1.0, wxGetMouseState());
         }
         
         void SpinControl::OnSpinButtonDown(wxSpinEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Spin(-1.0, wxGetMouseState());
         }
         
         void SpinControl::OnMouseWheel(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             double multiplier = event.GetWheelRotation() > 0 ? 1.0 : -1.0;
 #if defined __APPLE__
             if (event.ShiftDown())
@@ -287,6 +299,8 @@ namespace TrenchBroom {
         }
         
         void SpinControl::OnSetFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+
             // no idea why this is necessary, but it works
             SetFocus();
         }

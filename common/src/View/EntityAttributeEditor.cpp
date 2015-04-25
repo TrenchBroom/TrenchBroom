@@ -37,6 +37,8 @@ namespace TrenchBroom {
         }
 
         void EntityAttributeEditor::OnEntityAttributeSelected(EntityAttributeSelectedCommand& command) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
 
             const String& name = command.name();

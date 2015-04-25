@@ -59,6 +59,8 @@ namespace TrenchBroom {
         }
 
         void ModEditor::OnAddModClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             SetBool ignoreNotifier(m_ignoreNotifier);
 
             wxArrayInt selections;
@@ -84,6 +86,8 @@ namespace TrenchBroom {
         }
         
         void ModEditor::OnRemoveModClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             m_enabledModList->GetSelections(selections);
             assert(!selections.empty());
@@ -103,6 +107,8 @@ namespace TrenchBroom {
         }
         
         void ModEditor::OnMoveModUpClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             m_enabledModList->GetSelections(selections);
             assert(selections.size() == 1);
@@ -122,6 +128,8 @@ namespace TrenchBroom {
         }
         
         void ModEditor::OnMoveModDownClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             m_enabledModList->GetSelections(selections);
             assert(selections.size() == 1);
@@ -141,27 +149,37 @@ namespace TrenchBroom {
         }
 
         void ModEditor::OnUpdateAddButtonUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             event.Enable(m_availableModList->GetSelections(selections) > 0);
         }
         
         void ModEditor::OnUpdateRemoveButtonUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             event.Enable(m_enabledModList->GetSelections(selections) > 0);
         }
 
         void ModEditor::OnUpdateMoveUpButtonUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             wxArrayInt selections;
             event.Enable(m_enabledModList->GetSelections(selections) == 1 && selections.front() > 0);
         }
         
         void ModEditor::OnUpdateMoveDownButtonUI(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const int enabledModCount = static_cast<int>(m_enabledModList->GetCount());
             wxArrayInt selections;
             event.Enable(m_enabledModList->GetSelections(selections) == 1 && selections.front() < enabledModCount - 1);
         }
 
         void ModEditor::OnFilterBoxChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             updateMods();
         }
 

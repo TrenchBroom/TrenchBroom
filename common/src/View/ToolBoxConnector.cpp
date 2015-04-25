@@ -175,6 +175,8 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::OnKey(wxKeyEvent& event) {
+            if (m_window->IsBeingDeleted()) return;
+
             assert(m_toolBox != NULL);
 
             event.Skip();
@@ -187,6 +189,8 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::OnMouseButton(wxMouseEvent& event) {
+            if (m_window->IsBeingDeleted()) return;
+
             assert(m_toolBox != NULL);
 
             event.Skip();
@@ -241,6 +245,8 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::OnMouseDoubleClick(wxMouseEvent& event) {
+            if (m_window->IsBeingDeleted()) return;
+
             assert(m_toolBox != NULL);
 
             event.Skip();
@@ -259,6 +265,8 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::OnMouseMotion(wxMouseEvent& event) {
+            if (m_window->IsBeingDeleted()) return;
+
             assert(m_toolBox != NULL);
 
             event.Skip();
@@ -293,6 +301,8 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::OnMouseWheel(wxMouseEvent& event) {
+            if (m_window->IsBeingDeleted()) return;
+
             assert(m_toolBox != NULL);
 
             event.Skip();
@@ -311,6 +321,8 @@ namespace TrenchBroom {
 
 
         void ToolBoxConnector::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+            if (m_window->IsBeingDeleted()) return;
+
             assert(m_toolBox != NULL);
 
             event.Skip();
@@ -320,6 +332,8 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::OnSetFocus(wxFocusEvent& event) {
+            if (m_window->IsBeingDeleted()) return;
+
             assert(m_toolBox != NULL);
             
             event.Skip();
@@ -332,6 +346,8 @@ namespace TrenchBroom {
         }
 
         void ToolBoxConnector::OnKillFocus(wxFocusEvent& event) {
+            if (m_window->IsBeingDeleted()) return;
+
             assert(m_toolBox != NULL);
 
             event.Skip();

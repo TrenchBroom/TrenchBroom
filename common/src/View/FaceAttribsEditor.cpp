@@ -71,6 +71,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::OnXOffsetChanged(SpinControlEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             if (event.IsSpin())
                 request.addXOffset(static_cast<float>(event.GetValue()));
@@ -83,6 +85,8 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::OnYOffsetChanged(SpinControlEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             if (event.IsSpin())
                 request.addYOffset(static_cast<float>(event.GetValue()));
@@ -95,6 +99,8 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::OnRotationChanged(SpinControlEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             if (event.IsSpin())
                 request.addRotation(static_cast<float>(event.GetValue()));
@@ -107,6 +113,8 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::OnXScaleChanged(SpinControlEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             if (event.IsSpin())
                 request.addXScale(static_cast<float>(event.GetValue()));
@@ -119,6 +127,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::OnYScaleChanged(SpinControlEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             if (event.IsSpin())
                 request.addYScale(static_cast<float>(event.GetValue()));
@@ -131,6 +141,8 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::OnSurfaceFlagChanged(FlagChangedCommand& command) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             if (command.flagSet())
                 request.setSurfaceFlag(command.index());
@@ -143,6 +155,8 @@ namespace TrenchBroom {
         }
         
         void FaceAttribsEditor::OnContentFlagChanged(FlagChangedCommand& command) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             if (command.flagSet())
                 request.setContentFlag(command.index());
@@ -155,6 +169,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::OnSurfaceValueChanged(SpinControlEvent& event) {
+            if (IsBeingDeleted()) return;
+
             Model::ChangeBrushFaceAttributesRequest request;
             if (event.IsSpin())
                 request.addSurfaceValue(static_cast<float>(event.GetValue()));
@@ -167,6 +183,8 @@ namespace TrenchBroom {
         }
 
         void FaceAttribsEditor::OnIdle(wxIdleEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             Grid& grid = document->grid();
             

@@ -54,6 +54,8 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::OnBuiltinSelectionChanged(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             assert(m_builtin->GetSelection() != wxNOT_FOUND);
 
             MapDocumentSPtr document = lock(m_document);
@@ -69,6 +71,8 @@ namespace TrenchBroom {
         }
         
         void EntityDefinitionFileChooser::OnChooseExternalClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const wxString pathWxStr = ::wxFileSelector("Load Entity Definition File",
                                                         wxEmptyString, wxEmptyString, wxEmptyString,
                                                         "Worldcraft / Hammer files (*.fgd)|*.fgd|QuakeC files (*.def)|*.def",
@@ -80,12 +84,16 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionFileChooser::OnReloadExternalClicked(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             const Assets::EntityDefinitionFileSpec& spec = document->entityDefinitionFile();
             document->setEntityDefinitionFile(spec);
         }
         
         void EntityDefinitionFileChooser::OnUpdateReloadExternal(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             event.Enable(lock(m_document)->entityDefinitionFile().external());
         }
 

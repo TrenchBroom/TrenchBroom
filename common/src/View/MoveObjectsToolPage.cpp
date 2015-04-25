@@ -54,11 +54,15 @@ namespace TrenchBroom {
         }
 
         void MoveObjectsToolPage::OnUpdateButton(wxUpdateUIEvent& event) {
+            if (IsBeingDeleted()) return;
+
             MapDocumentSPtr document = lock(m_document);
             event.Enable(document->hasSelectedNodes());
         }
 
         void MoveObjectsToolPage::OnApply(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+
             const Vec3 delta = Vec3::parse(m_offset->GetValue().ToStdString());
 
             MapDocumentSPtr document = lock(m_document);

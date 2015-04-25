@@ -38,12 +38,16 @@ namespace TrenchBroom {
         m_comboBox(NULL) {}
 
         void SmartChoiceEditor::OnComboBox(wxCommandEvent& event) {
+            if (m_panel->IsBeingDeleted()) return;
+
             const String valueDescStr = m_comboBox->GetValue().ToStdString();
             const String valueStr = valueDescStr.substr(0, valueDescStr.find_first_of(':') - 1);
             document()->setAttribute(name(), valueStr);
         }
         
         void SmartChoiceEditor::OnTextEnter(wxCommandEvent& event) {
+            if (m_panel->IsBeingDeleted()) return;
+
             document()->setAttribute(name(), m_comboBox->GetValue().ToStdString());
         }
 

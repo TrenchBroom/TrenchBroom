@@ -78,6 +78,8 @@ namespace TrenchBroom {
         m_ignoreUpdates(false) {}
 
         void SmartSpawnflagsEditor::OnFlagChanged(FlagChangedCommand& event) {
+            if (m_scrolledWindow->IsBeingDeleted()) return;
+
             const Model::AttributableNodeList& toUpdate = attributables();
             if (toUpdate.empty())
                 return;

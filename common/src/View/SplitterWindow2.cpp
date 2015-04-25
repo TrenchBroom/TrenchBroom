@@ -112,14 +112,20 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow2::OnMouseEnter(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             setSashCursor();
         }
         
         void SplitterWindow2::OnMouseLeave(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             setSashCursor();
         }
         
         void SplitterWindow2::OnMouseButton(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             assert(m_splitMode != SplitMode_Unset);
             
             if (event.LeftDown())
@@ -131,6 +137,8 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow2::OnMouseMotion(wxMouseEvent& event) {
+            if (IsBeingDeleted()) return;
+
             assert(m_splitMode != SplitMode_Unset);
             
             const wxPoint screenPos = wxGetMousePosition();
@@ -144,6 +152,8 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow2::OnMouseCaptureLost(wxMouseCaptureLostEvent& event) {
+            if (IsBeingDeleted()) return;
+
             setSashCursor();
         }
         
@@ -171,6 +181,8 @@ namespace TrenchBroom {
         }
         
         void SplitterWindow2::OnIdle(wxIdleEvent& event) {
+            if (IsBeingDeleted()) return;
+
             if (IsShownOnScreen()) {
                 Unbind(wxEVT_IDLE, &SplitterWindow2::OnIdle, this);
                 
@@ -179,6 +191,8 @@ namespace TrenchBroom {
             }
         }
         void SplitterWindow2::OnSize(wxSizeEvent& event) {
+            if (IsBeingDeleted()) return;
+
             updateSashPosition(m_oldSize, event.GetSize());
             sizeWindows();
             m_oldSize = event.GetSize();
