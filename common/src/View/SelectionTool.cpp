@@ -22,6 +22,7 @@
 #include "CollectionUtils.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
+#include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 #include "Model/HitAdapter.h"
@@ -143,7 +144,13 @@ namespace TrenchBroom {
         }
         
         bool SelectionTool::handleClick(const InputState& inputState) const {
-            return inputState.mouseButtonsPressed(MouseButtons::MBLeft);
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+                return false;
+            
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->editorContext().canChangeSelection())
+                return false;
+            return true;
         }
         
         bool SelectionTool::isFaceClick(const InputState& inputState) const {

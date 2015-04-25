@@ -42,6 +42,7 @@ namespace TrenchBroom {
 
         class MapViewToolBox : public ToolBox {
         private:
+            MapDocumentWPtr m_document;
             ClipTool* m_clipTool;
             CreateBrushTool* m_createBrushTool;
             CreateEntityTool* m_createEntityTool;
@@ -89,6 +90,7 @@ namespace TrenchBroom {
             void unbindObservers();
             void toolActivated(Tool* tool);
             void toolDeactivated(Tool* tool);
+            void updateEditorContext();
         };
     }
 }

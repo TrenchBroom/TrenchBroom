@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "IO/DiskFileSystem.h"
+#include "Model/EditorContext.h"
 #include "Model/Node.h"
 #include "Model/NodeCollection.h"
 #include "Model/PointFile.h"
@@ -436,11 +437,13 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditUndo(wxCommandEvent& event) {
-            m_document->undoLastCommand();
+            if (canUndo())
+                m_document->undoLastCommand();
         }
 
         void MapFrame::OnEditRedo(wxCommandEvent& event) {
-            m_document->redoNextCommand();
+            if (canRedo())
+                m_document->redoNextCommand();
         }
 
         void MapFrame::OnEditRepeat(wxCommandEvent& event) {
@@ -452,13 +455,16 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditCut(wxCommandEvent& event) {
-            copyToClipboard();
-            Transaction transaction(m_document, "Cut");
-            m_document->deleteObjects();
+            if (canCut()) {
+                copyToClipboard();
+                Transaction transaction(m_document, "Cut");
+                m_document->deleteObjects();
+            }
         }
 
         void MapFrame::OnEditCopy(wxCommandEvent& event) {
-            copyToClipboard();
+            if (canCopy())
+                copyToClipboard();
         }
 
         class OpenClipboard {
@@ -487,16 +493,19 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditPaste(wxCommandEvent& event) {
-            Transaction transaction(m_document);
-            if (paste() && m_document->hasSelectedNodes()) {
-                const BBox3 bounds = m_document->selectionBounds();
-                const Vec3 delta = m_mapView->pasteObjectsDelta(bounds);
-                m_document->translateObjects(delta);
+            if (canPaste()) {
+                Transaction transaction(m_document);
+                if (paste() && m_document->hasSelectedNodes()) {
+                    const BBox3 bounds = m_document->selectionBounds();
+                    const Vec3 delta = m_mapView->pasteObjectsDelta(bounds);
+                    m_document->translateObjects(delta);
+                }
             }
         }
 
         void MapFrame::OnEditPasteAtOriginalPosition(wxCommandEvent& event) {
-            paste();
+            if (canPaste())
+                paste();
         }
 
         bool MapFrame::paste() {
@@ -517,73 +526,81 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditDelete(wxCommandEvent& event) {
-            assert(m_document->hasSelectedNodes());
-            m_document->deleteObjects();
+            if (canDelete())
+                m_document->deleteObjects();
         }
 
         void MapFrame::OnEditDuplicate(wxCommandEvent& event) {
-            assert(m_document->hasSelectedNodes());
-            m_document->duplicateObjects();
+            if (canDuplicate())
+                m_document->duplicateObjects();
         }
 
         void MapFrame::OnEditSelectAll(wxCommandEvent& event) {
-            m_document->selectAllNodes();
+            if (canSelect())
+                m_document->selectAllNodes();
         }
 
         void MapFrame::OnEditSelectSiblings(wxCommandEvent& event) {
-            m_document->selectSiblings();
+            if (canSelectSiblings())
+                m_document->selectSiblings();
         }
 
         void MapFrame::OnEditSelectTouching(wxCommandEvent& event) {
-            m_document->selectTouching(true);
+            if (canSelectByBrush())
+                m_document->selectTouching(true);
         }
 
         void MapFrame::OnEditSelectInside(wxCommandEvent& event) {
-            m_document->selectInside(true);
+            if (canSelectByBrush())
+                m_document->selectInside(true);
         }
-
+        
         void MapFrame::OnEditSelectByLineNumber(wxCommandEvent& event) {
-            const wxString string = wxGetTextFromUser("Enter a comma- or space separated list of line numbers.", "Select by Line Numbers", "", this);
-            if (string.empty())
-                return;
-
-            std::vector<size_t> positions;
-            wxStringTokenizer tokenizer(string, ", ");
-            while (tokenizer.HasMoreTokens()) {
-                const wxString token = tokenizer.NextToken();
-                long position;
-                if (token.ToLong(&position) && position > 0) {
-                    positions.push_back(static_cast<size_t>(position));
+            if (canSelect()) {
+                const wxString string = wxGetTextFromUser("Enter a comma- or space separated list of line numbers.", "Select by Line Numbers", "", this);
+                if (string.empty())
+                    return;
+                
+                std::vector<size_t> positions;
+                wxStringTokenizer tokenizer(string, ", ");
+                while (tokenizer.HasMoreTokens()) {
+                    const wxString token = tokenizer.NextToken();
+                    long position;
+                    if (token.ToLong(&position) && position > 0) {
+                        positions.push_back(static_cast<size_t>(position));
+                    }
                 }
+                
+                m_document->selectNodesWithFilePosition(positions);
             }
-
-            m_document->selectNodesWithFilePosition(positions);
         }
 
         void MapFrame::OnEditSelectNone(wxCommandEvent& event) {
-            m_document->deselectAll();
+            if (canDeselect())
+                m_document->deselectAll();
         }
 
         void MapFrame::OnEditGroupSelectedObjects(wxCommandEvent& event) {
-            assert(m_document->hasSelectedNodes());
-            const String name = queryGroupName(this);
-            if (!name.empty())
-                m_document->groupSelection(name);
+            if (canGroup()) {
+                const String name = queryGroupName(this);
+                if (!name.empty())
+                    m_document->groupSelection(name);
+            }
         }
 
         void MapFrame::OnEditUngroupSelectedObjects(wxCommandEvent& event) {
-            assert(m_document->selectedNodes().hasOnlyGroups());
-            m_document->ungroupSelection();
+            if (canUngroup())
+                m_document->ungroupSelection();
         }
 
         void MapFrame::OnEditHideSelectedObjects(wxCommandEvent& event) {
-            assert(m_document->hasSelectedNodes());
-            m_document->hideSelection();
+            if (canHide())
+                m_document->hideSelection();
         }
 
         void MapFrame::OnEditIsolateSelectedObjects(wxCommandEvent& event) {
-            assert(m_document->hasSelectedNodes());
-            m_document->isolate(m_document->selectedNodes().nodes());
+            if (canIsolate())
+                m_document->isolate(m_document->selectedNodes().nodes());
         }
 
         void MapFrame::OnEditShowHiddenObjects(wxCommandEvent& event) {
@@ -613,8 +630,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditCreateBrushFromConvexHull(wxCommandEvent& event) {
-            assert(m_document->hasSelectedBrushFaces() || m_document->selectedNodes().hasOnlyBrushes());
-            m_document->createBrushFromConvexHull();
+            if (canCreateConvexHull())
+                m_document->createBrushFromConvexHull();
         }
 
         void MapFrame::OnEditToggleTextureLock(wxCommandEvent& event) {
@@ -622,7 +639,8 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnEditSnapVertices(wxCommandEvent& event) {
-            m_document->snapVertices();
+            if (canSnapVertices())
+                m_document->snapVertices();
         }
 
         void MapFrame::OnViewToggleShowGrid(wxCommandEvent& event) {
@@ -634,11 +652,13 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnViewIncGridSize(wxCommandEvent& event) {
-            m_document->grid().incSize();
+            if (canIncGridSize())
+                m_document->grid().incSize();
         }
 
         void MapFrame::OnViewDecGridSize(wxCommandEvent& event) {
-            m_document->grid().decSize();
+            if (canDecGridSize())
+                m_document->grid().decSize();
         }
 
         void MapFrame::OnViewSetGridSize(wxCommandEvent& event) {
@@ -648,15 +668,18 @@ namespace TrenchBroom {
         }
 
         void MapFrame::OnViewMoveCameraToNextPoint(wxCommandEvent& event) {
-            m_mapView->moveCameraToNextTracePoint();
+            if (canMoveCameraToNextPoint())
+                m_mapView->moveCameraToNextTracePoint();
         }
 
         void MapFrame::OnViewMoveCameraToPreviousPoint(wxCommandEvent& event) {
-            m_mapView->moveCameraToPreviousTracePoint();
+            if (canMoveCameraToPreviousPoint())
+                m_mapView->moveCameraToPreviousTracePoint();
         }
 
         void MapFrame::OnViewCenterCameraOnSelection(wxCommandEvent& event) {
-            m_mapView->centerCameraOnSelection();
+            if (canCenterCamera())
+                m_mapView->centerCameraOnSelection();
         }
 
         void MapFrame::OnViewMoveCameraToPosition(wxCommandEvent& event) {
@@ -691,15 +714,15 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::FileLoadPointFile:
-                    event.Enable(m_document->canLoadPointFile());
+                    event.Enable(canLoadPointFile());
                     break;
                 case CommandIds::Menu::FileUnloadPointFile:
-                    event.Enable(m_document->isPointFileLoaded());
+                    event.Enable(canUnloadPointFile());
                     break;
                 case wxID_UNDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_UNDO);
                     assert(item != NULL);
-                    if (m_document->canUndoLastCommand()) {
+                    if (canUndo()) {
                         event.Enable(true);
                         event.SetText(item->menuString(m_document->lastCommandName(), m_mapView->viewportHasFocus()));
                     } else {
@@ -710,7 +733,7 @@ namespace TrenchBroom {
                 }
                 case wxID_REDO: {
                     const ActionMenuItem* item = actionManager.findMenuItem(wxID_REDO);
-                    if (m_document->canRedoNextCommand()) {
+                    if (canRedo()) {
                         event.Enable(true);
                         event.SetText(item->menuString(m_document->nextCommandName(), m_mapView->viewportHasFocus()));
                     } else {
@@ -724,49 +747,48 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case wxID_CUT:
-                    event.Enable(m_document->hasSelectedNodes());
+                    event.Enable(canCut());
                     break;
                 case wxID_COPY:
-                    event.Enable(m_document->hasSelectedNodes() ||
-                                 m_document->hasSelectedBrushFaces());
+                    event.Enable(canCopy());
                     break;
                 case wxID_PASTE:
-                case CommandIds::Menu::EditPasteAtOriginalPosition: {
-                    OpenClipboard openClipboard;
-                    event.Enable(wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT));
+                case CommandIds::Menu::EditPasteAtOriginalPosition:
+                    event.Enable(canPaste());
                     break;
-                }
                 case wxID_DUPLICATE:
-                    event.Enable(m_document->hasSelectedNodes());
+                    event.Enable(canDuplicate());
                     break;
                 case wxID_DELETE:
-                    event.Enable(m_document->hasSelectedNodes());
+                    event.Enable(canDelete());
                     break;
                 case CommandIds::Menu::EditSelectAll:
-                    event.Enable(true);
+                    event.Enable(canSelect());
                     break;
                 case CommandIds::Menu::EditSelectSiblings:
-                    event.Enable(m_document->hasSelectedNodes());
+                    event.Enable(canSelectSiblings());
                     break;
                 case CommandIds::Menu::EditSelectTouching:
                 case CommandIds::Menu::EditSelectInside:
-                    event.Enable(m_document->selectedNodes().hasOnlyBrushes());
+                    event.Enable(canSelectByBrush());
                     break;
                 case CommandIds::Menu::EditSelectByFilePosition:
-                    event.Enable(true);
+                    event.Enable(canSelect());
                     break;
                 case CommandIds::Menu::EditSelectNone:
-                    event.Enable(m_document->hasSelection());
+                    event.Enable(canDeselect());
                     break;
                 case CommandIds::Menu::EditGroupSelection:
-                    event.Enable(m_document->hasSelectedNodes());
+                    event.Enable(canGroup());
                     break;
                 case CommandIds::Menu::EditUngroupSelection:
-                    event.Enable(m_document->selectedNodes().hasOnlyGroups());
+                    event.Enable(canUngroup());
                     break;
                 case CommandIds::Menu::EditHideSelection:
+                    event.Enable(canHide());
+                    break;
                 case CommandIds::Menu::EditIsolateSelection:
-                    event.Enable(m_document->hasSelectedNodes());
+                    event.Enable(canIsolate());
                     break;
                 case CommandIds::Menu::EditUnhideAll:
                     event.Enable(true);
@@ -788,10 +810,10 @@ namespace TrenchBroom {
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::EditCreateConvexHull:
-                    event.Enable(m_document->hasSelectedBrushFaces() || m_document->selectedNodes().hasOnlyBrushes());
+                    event.Enable(canCreateConvexHull());
                     break;
                 case CommandIds::Menu::EditSnapVertices:
-                    event.Enable(m_document->selectedNodes().hasOnlyBrushes());
+                    event.Enable(canSnapVertices());
                     break;
                 case CommandIds::Menu::EditReplaceTexture:
                     event.Enable(true);
@@ -809,10 +831,10 @@ namespace TrenchBroom {
                     event.Check(m_document->grid().snap());
                     break;
                 case CommandIds::Menu::ViewIncGridSize:
-                    event.Enable(m_document->grid().size() < Grid::MaxSize);
+                    event.Enable(canIncGridSize());
                     break;
                 case CommandIds::Menu::ViewDecGridSize:
-                    event.Enable(m_document->grid().size() > 0);
+                    event.Enable(canDecGridSize());
                     break;
                 case CommandIds::Menu::ViewSetGridSize1:
                     event.Enable(true);
@@ -851,13 +873,13 @@ namespace TrenchBroom {
                     event.Check(m_document->grid().size() == 8);
                     break;
                 case CommandIds::Menu::ViewMoveCameraToNextPoint:
-                    event.Enable(m_mapView->canMoveCameraToNextTracePoint());
+                    event.Enable(canMoveCameraToNextPoint());
                     break;
                 case CommandIds::Menu::ViewMoveCameraToPreviousPoint:
-                    event.Enable(m_mapView->canMoveCameraToPreviousTracePoint());
+                    event.Enable(canMoveCameraToPreviousPoint());
                     break;
                 case CommandIds::Menu::ViewCenterCameraOnSelection:
-                    event.Enable(m_document->hasSelectedNodes());
+                    event.Enable(canCenterCamera());
                     break;
                 case CommandIds::Menu::ViewMoveCameraToPosition:
                     event.Enable(true);
@@ -878,6 +900,107 @@ namespace TrenchBroom {
                         event.Enable(false);
                     break;
             }
+        }
+
+        bool MapFrame::canLoadPointFile() const {
+            return m_document->canLoadPointFile();
+        }
+        
+        bool MapFrame::canUnloadPointFile() const {
+            return m_document->isPointFileLoaded();
+        }
+        
+        bool MapFrame::canUndo() const {
+            return m_document->canUndoLastCommand();
+        }
+        
+        bool MapFrame::canRedo() const {
+            return m_document->canRedoNextCommand();
+        }
+        
+        bool MapFrame::canCut() const {
+            return canDelete();
+        }
+        
+        bool MapFrame::canCopy() const {
+            return m_document->hasSelectedNodes() || m_document->hasSelectedBrushFaces();
+        }
+
+        bool MapFrame::canPaste() const {
+            OpenClipboard openClipboard;
+            return wxTheClipboard->IsOpened() && wxTheClipboard->IsSupported(wxDF_TEXT);
+        }
+
+        bool MapFrame::canDelete() const {
+            return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+        }
+        
+        bool MapFrame::canDuplicate() const {
+            return m_document->hasSelectedNodes() && !m_mapView->clipToolActive() && !m_mapView->vertexToolActive();
+        }
+        
+        bool MapFrame::canSelectSiblings() const {
+            return canChangeSelection() && m_document->hasSelectedNodes();
+        }
+        
+        bool MapFrame::canSelectByBrush() const {
+            return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes() ;
+        }
+
+        bool MapFrame::canSelect() const {
+            return canChangeSelection();
+        }
+        
+        bool MapFrame::canDeselect() const {
+            return canChangeSelection() && m_document->hasSelectedNodes();
+        }
+        
+        bool MapFrame::canChangeSelection() const {
+            return m_document->editorContext().canChangeSelection();
+        }
+
+        bool MapFrame::canGroup() const {
+            return m_document->hasSelectedNodes();
+        }
+        
+        bool MapFrame::canUngroup() const {
+            return m_document->selectedNodes().hasOnlyGroups();
+        }
+        
+        bool MapFrame::canHide() const {
+            return m_document->hasSelectedNodes();
+        }
+        
+        bool MapFrame::canIsolate() const {
+            return m_document->hasSelectedNodes();
+        }
+
+        bool MapFrame::canCreateConvexHull() const {
+            return m_document->hasSelectedBrushFaces() || m_document->selectedNodes().hasOnlyBrushes();
+        }
+        
+        bool MapFrame::canSnapVertices() const {
+            return m_document->selectedNodes().hasOnlyBrushes();
+        }
+        
+        bool MapFrame::canDecGridSize() const {
+            return m_document->grid().size() > 0;
+        }
+        
+        bool MapFrame::canIncGridSize() const {
+            return m_document->grid().size() < Grid::MaxSize;
+        }
+        
+        bool MapFrame::canMoveCameraToNextPoint() const {
+            return m_mapView->canMoveCameraToNextTracePoint();
+        }
+        
+        bool MapFrame::canMoveCameraToPreviousPoint() const {
+            return m_mapView->canMoveCameraToPreviousTracePoint();
+        }
+        
+        bool MapFrame::canCenterCamera() const {
+            return m_document->hasSelectedNodes();
         }
 
         void MapFrame::OnClose(wxCloseEvent& event) {

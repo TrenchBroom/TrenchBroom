@@ -46,6 +46,7 @@ namespace TrenchBroom {
             EntityLinkMode m_entityLinkMode;
             
             bool m_textureLock;
+            bool m_blockSelection;
             
             Model::Group* m_currentGroup;
         public:
@@ -70,6 +71,9 @@ namespace TrenchBroom {
             
             bool textureLock() const;
             void setTextureLock(bool textureLock);
+            
+            bool blockSelection() const;
+            void setBlockSelection(bool blockSelection);
         public:
             Model::Group* currentGroup() const;
             void pushGroup(Model::Group* group);
@@ -99,6 +103,8 @@ namespace TrenchBroom {
             bool selectable(const Model::Entity* entity) const;
             bool selectable(const Model::Brush* brush) const;
             bool selectable(const Model::BrushFace* face) const;
+            
+            bool canChangeSelection() const;
         private:
             EditorContext(const EditorContext&);
             EditorContext& operator=(const EditorContext&);

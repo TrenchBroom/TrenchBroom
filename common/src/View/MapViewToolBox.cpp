@@ -18,6 +18,7 @@
  */
 
 #include "MapViewToolBox.h"
+#include "Model/EditorContext.h"
 #include "View/ClipTool.h"
 #include "View/CreateBrushTool.h"
 #include "View/CreateEntityTool.h"
@@ -30,6 +31,7 @@
 namespace TrenchBroom {
     namespace View {
         MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
+        m_document(document),
         m_clipTool(NULL),
         m_createBrushTool(NULL),
         m_createEntityTool(NULL),
@@ -199,12 +201,20 @@ namespace TrenchBroom {
         }
         
         void MapViewToolBox::toolActivated(Tool* tool) {
+            updateEditorContext();
             if (tool == m_rotateObjectsTool)
                 m_rotateObjectsTool->showPage();
         }
         
         void MapViewToolBox::toolDeactivated(Tool* tool) {
+            updateEditorContext();
             m_moveObjectsTool->showPage();
+        }
+
+        void MapViewToolBox::updateEditorContext() {
+            MapDocumentSPtr document = lock(m_document);
+            Model::EditorContext& editorContext = document->editorContext();
+            editorContext.setBlockSelection(createBrushToolActive() || clipToolActive() || vertexToolActive());
         }
     }
 }

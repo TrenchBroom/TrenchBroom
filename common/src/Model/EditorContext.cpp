@@ -38,6 +38,7 @@ namespace TrenchBroom {
         m_hiddenBrushContentTypes(0),
         m_entityLinkMode(EntityLinkMode_Direct),
         m_textureLock(false),
+        m_blockSelection(false),
         m_currentGroup(NULL) {}
         
         bool EditorContext::showPointEntities() const {
@@ -103,6 +104,15 @@ namespace TrenchBroom {
         
         void EditorContext::setTextureLock(const bool textureLock) {
             m_textureLock = textureLock;
+            editorContextDidChangeNotifier();
+        }
+
+        bool EditorContext::blockSelection() const {
+            return m_blockSelection;
+        }
+        
+        void EditorContext::setBlockSelection(const bool blockSelection) {
+            m_blockSelection = blockSelection;
             editorContextDidChangeNotifier();
         }
 
@@ -274,6 +284,10 @@ namespace TrenchBroom {
 
         bool EditorContext::selectable(const Model::BrushFace* face) const {
             return editable(face) && pickable(face);
+        }
+
+        bool EditorContext::canChangeSelection() const {
+            return !m_blockSelection;
         }
     }
 }

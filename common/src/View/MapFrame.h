@@ -164,6 +164,32 @@ namespace TrenchBroom {
             void OnViewSwitchToFaceInspector(wxCommandEvent& event);
 
             void OnUpdateUI(wxUpdateUIEvent& event);
+        private:
+            bool canLoadPointFile() const;
+            bool canUnloadPointFile() const;
+            bool canUndo() const;
+            bool canRedo() const;
+            bool canCut() const;
+            bool canCopy() const;
+            bool canPaste() const;
+            bool canDelete() const;
+            bool canDuplicate() const;
+            bool canSelectSiblings() const;
+            bool canSelectByBrush() const;
+            bool canSelect() const;
+            bool canDeselect() const;
+            bool canChangeSelection() const;
+            bool canGroup() const;
+            bool canUngroup() const;
+            bool canHide() const;
+            bool canIsolate() const;
+            bool canCreateConvexHull() const;
+            bool canSnapVertices() const;
+            bool canDecGridSize() const;
+            bool canIncGridSize() const;
+            bool canMoveCameraToNextPoint() const;
+            bool canMoveCameraToPreviousPoint() const;
+            bool canCenterCamera() const;
         private: // other event handlers
             void OnClose(wxCloseEvent& event);
             void OnAutosaveTimer(wxTimerEvent& event);
