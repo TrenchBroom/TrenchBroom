@@ -48,7 +48,6 @@ namespace TrenchBroom {
 
         void MapViewBar::OnSearchPatternChanged(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-
         }
 
         void MapViewBar::createGui(MapDocumentWPtr document) {

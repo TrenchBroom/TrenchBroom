@@ -292,6 +292,8 @@ namespace TrenchBroom {
             m_mapView = new SwitchableMapViewContainer(vSplitter, m_console, m_document, *m_contextManager);
             m_inspector = new Inspector(hSplitter, m_document, *m_contextManager);
 
+            m_mapView->connectTopWidgets(m_inspector);
+            
             vSplitter->splitHorizontally(m_mapView, infoPanel, wxSize(100, 100), wxSize(100, 100));
             hSplitter->splitVertically(vSplitter, m_inspector, wxSize(100, 100), wxSize(350, 100));
 

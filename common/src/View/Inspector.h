@@ -50,9 +50,10 @@ namespace TrenchBroom {
             FaceInspector* m_faceInspector;
         public:
             Inspector(wxWindow* parent, MapDocumentWPtr document, GLContextManager& contextManager);
+            void connectTopWidgets(wxWindow* master);
             void switchToPage(InspectorPage page);
-            
-            void setTabBarHeight(int height);
+        private:
+            void OnTopWidgetSize(wxSizeEvent& event);
         };
     }
 }

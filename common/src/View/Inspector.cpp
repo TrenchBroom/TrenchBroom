@@ -51,12 +51,18 @@ namespace TrenchBroom {
             SetSizer(sizer);
         }
 
+        void Inspector::connectTopWidgets(wxWindow* master) {
+            master->Bind(wxEVT_SIZE, &Inspector::OnTopWidgetSize, this);
+        }
+
         void Inspector::switchToPage(const InspectorPage page) {
             m_tabBook->switchToPage(static_cast<size_t>(page));
         }
 
-        void Inspector::setTabBarHeight(const int height) {
-            m_tabBook->setTabBarHeight(height);
+        void Inspector::OnTopWidgetSize(wxSizeEvent& event) {
+            if (IsBeingDeleted()) return;
+            m_tabBook->setTabBarHeight(event.GetSize().y);
+            event.Skip();
         }
     }
 }

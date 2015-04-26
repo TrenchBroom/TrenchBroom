@@ -28,6 +28,7 @@
 #include "View/ThreePaneMapView.h"
 #include "View/FourPaneMapView.h"
 #include "View/GLContextManager.h"
+#include "View/Inspector.h"
 #include "View/MapDocument.h"
 #include "View/MapViewContainer.h"
 #include "View/MapViewBar.h"
@@ -61,6 +62,10 @@ namespace TrenchBroom {
             
             delete m_mapRenderer;
             m_mapRenderer = NULL;
+        }
+
+        void SwitchableMapViewContainer::connectTopWidgets(Inspector* inspector) {
+            inspector->connectTopWidgets(m_mapViewBar);
         }
 
         bool SwitchableMapViewContainer::viewportHasFocus() const {
