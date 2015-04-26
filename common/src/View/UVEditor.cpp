@@ -96,7 +96,7 @@ namespace TrenchBroom {
             if (IsBeingDeleted()) return;
 
             MapDocumentSPtr document = lock(m_document);
-            event.Enable(!document->selectedBrushFaces().empty());
+            event.Enable(!document->allSelectedBrushFaces().empty());
         }
 
         void UVEditor::OnSubDivisionChanged(wxSpinEvent& event) {
