@@ -24,6 +24,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/EditorContext.h"
 #include "Model/Game.h"
+#include "View/BorderLine.h"
 #include "View/BorderPanel.h"
 #include "View/MapDocument.h"
 #include "View/MapViewConfig.h"
@@ -131,6 +132,7 @@ namespace TrenchBroom {
 
         void EntityDefinitionCheckBoxList::createGui() {
             wxScrolledWindow* scrollWindow = new wxScrolledWindow(this);
+            int checkBoxHeight = 1;
             
             wxSizer* scrollWindowSizer = new wxBoxSizer(wxVERTICAL);
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
@@ -145,6 +147,7 @@ namespace TrenchBroom {
                 m_groupCheckBoxes.push_back(groupCB);
                 
                 scrollWindowSizer->Add(groupCB);
+                checkBoxHeight = groupCB->GetSize().y;
                 
                 Assets::EntityDefinitionList::const_iterator defIt, defEnd;
                 for (defIt = definitions.begin(), defEnd = definitions.end(); defIt != defEnd; ++defIt) {
@@ -160,7 +163,7 @@ namespace TrenchBroom {
             }
             
             scrollWindow->SetSizer(scrollWindowSizer);
-            scrollWindow->SetScrollRate(1, 1);
+            scrollWindow->SetScrollRate(1, checkBoxHeight);
             
             wxButton* showAllButton = new wxButton(this, wxID_ANY, "Show all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             showAllButton->SetFont(showAllButton->GetFont().Bold());
@@ -182,6 +185,7 @@ namespace TrenchBroom {
                             | wxTOP | wxRIGHT, 1
 #endif
                             );
+            outerSizer->Add(new BorderLine(this), 0, wxEXPAND);
             outerSizer->Add(buttonSizer, 0, wxTOP | wxBOTTOM, 1);
             
             SetSizer(outerSizer);
