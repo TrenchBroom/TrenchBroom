@@ -131,10 +131,14 @@ namespace TrenchBroom {
         }
 
         void EntityDefinitionCheckBoxList::createGui() {
-            wxScrolledWindow* scrollWindow = new wxScrolledWindow(this);
+            BorderPanel* border = new BorderPanel(this);
+            border->SetBackgroundColour(*wxWHITE);
+            
+            wxScrolledWindow* scrollWindow = new wxScrolledWindow(border);
             int checkBoxHeight = 1;
             
             wxSizer* scrollWindowSizer = new wxBoxSizer(wxVERTICAL);
+            scrollWindowSizer->AddSpacer(1);
             const Assets::EntityDefinitionGroup::List& groups = m_entityDefinitionManager.groups();
             for (size_t i = 0; i < groups.size(); ++i) {
                 const Assets::EntityDefinitionGroup& group = groups[i];
@@ -146,7 +150,7 @@ namespace TrenchBroom {
                 groupCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxList::OnGroupCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(static_cast<long>(i)));
                 m_groupCheckBoxes.push_back(groupCB);
                 
-                scrollWindowSizer->Add(groupCB);
+                scrollWindowSizer->Add(groupCB, 0, wxLEFT, 1);
                 checkBoxHeight = groupCB->GetSize().y;
                 
                 Assets::EntityDefinitionList::const_iterator defIt, defEnd;
@@ -158,12 +162,21 @@ namespace TrenchBroom {
                     defCB->Bind(wxEVT_CHECKBOX, &EntityDefinitionCheckBoxList::OnDefCheckBoxChanged, this, wxID_ANY, wxID_ANY, new wxVariant(reinterpret_cast<void*>(definition)));
                     
                     m_defCheckBoxes.push_back(defCB);
-                    scrollWindowSizer->Add(defCB, 0, wxLEFT, 10);
+                    scrollWindowSizer->Add(defCB, 0, wxLEFT, 11);
                 }
             }
             
+            scrollWindowSizer->AddSpacer(1);
             scrollWindow->SetSizer(scrollWindowSizer);
             scrollWindow->SetScrollRate(1, checkBoxHeight);
+            
+            wxSizer* borderSizer = new wxBoxSizer(wxVERTICAL);
+            borderSizer->Add(scrollWindow, 1, wxEXPAND
+#ifdef __APPLE__
+                             | wxTOP | wxRIGHT | wxBOTTOM, 1
+#endif
+                             );
+            border->SetSizer(borderSizer);
             
             wxButton* showAllButton = new wxButton(this, wxID_ANY, "Show all", wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
             showAllButton->SetFont(showAllButton->GetFont().Bold());
@@ -180,12 +193,7 @@ namespace TrenchBroom {
             buttonSizer->Add(hideAllButton);
             
             wxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-            outerSizer->Add(scrollWindow, 1, wxEXPAND
-#ifdef __APPLE__
-                            | wxTOP | wxRIGHT, 1
-#endif
-                            );
-            outerSizer->Add(new BorderLine(this), 0, wxEXPAND);
+            outerSizer->Add(border, 1, wxEXPAND);
             outerSizer->Add(buttonSizer, 0, wxTOP | wxBOTTOM, 1);
             
             SetSizer(outerSizer);
@@ -383,22 +391,15 @@ namespace TrenchBroom {
         wxWindow* ViewEditor::createEntityDefinitionsPanel() {
             TitledPanel* panel = new TitledPanel(this, "Entity Definitions", false);
             
-            BorderPanel* container = new BorderPanel(panel->getPanel(), wxALL);
-            container->SetBackgroundColour(*wxWHITE);
-            
             MapDocumentSPtr document = lock(m_document);
             Assets::EntityDefinitionManager& entityDefinitionManager = document->entityDefinitionManager();
             
             Model::EditorContext& editorContext = document->editorContext();
-            m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(container, entityDefinitionManager, editorContext);
-            
-            wxSizer* containerSizer = new wxBoxSizer(wxVERTICAL);
-            containerSizer->Add(m_entityDefinitionCheckBoxList, 1, wxEXPAND);
-            containerSizer->SetItemMinSize(m_entityDefinitionCheckBoxList, 200, wxDefaultCoord);
-            container->SetSizer(containerSizer);
+            m_entityDefinitionCheckBoxList = new EntityDefinitionCheckBoxList(panel->getPanel(), entityDefinitionManager, editorContext);
             
             wxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
-            panelSizer->Add(container, 1, wxEXPAND);
+            panelSizer->Add(m_entityDefinitionCheckBoxList, 1, wxEXPAND);
+            panelSizer->SetItemMinSize(m_entityDefinitionCheckBoxList, 200, wxDefaultCoord);
             
             panel->getPanel()->SetSizer(panelSizer);
             return panel;
