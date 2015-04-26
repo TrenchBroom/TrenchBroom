@@ -172,9 +172,7 @@ namespace TrenchBroom {
             
             wxSizer* borderSizer = new wxBoxSizer(wxVERTICAL);
             borderSizer->Add(scrollWindow, 1, wxEXPAND
-#ifdef __APPLE__
-                             | wxTOP | wxRIGHT | wxBOTTOM, 1
-#endif
+                             | wxALL, 1
                              );
             border->SetSizer(borderSizer);
             
