@@ -31,7 +31,6 @@ namespace TrenchBroom {
         class ParaxialTexCoordSystem : public TexCoordSystem {
         private:
             static const Vec3 BaseAxes[];
-            static const bool Orientations[];
             
             size_t m_index;
             Vec3 m_xAxis;
@@ -56,7 +55,6 @@ namespace TrenchBroom {
             
             void doSetRotation(const Vec3& normal, float oldAngle, float newAngle);
             void doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& invariant);
-            bool flipXAxis(size_t oldIndex, size_t newIndex) const;
             
             void doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs);
             
