@@ -32,15 +32,6 @@ namespace TrenchBroom {
             Vec3( 0.0,  1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
             Vec3( 0.0, -1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
         };
-        
-        const bool ParaxialTexCoordSystem::Orientations[] = {
-            true,  // 0
-            false, // 1
-            true,  // 2
-            false, // 3
-            false, // 4
-            true   // 5
-        };
 
         ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) :
         m_index(0) {
@@ -113,7 +104,6 @@ namespace TrenchBroom {
         }
 
         void ParaxialTexCoordSystem::doTransform(const Plane3& oldBoundary, const Mat4x4& transformation, BrushFaceAttributes& attribs, bool lockTexture, const Vec3& oldInvariant) {
-            
             const Vec3 offset     = transformation * Vec3::Null;
             const Vec3& oldNormal = oldBoundary.normal;
                   Vec3 newNormal  = transformation * oldNormal - offset;
@@ -135,10 +125,6 @@ namespace TrenchBroom {
             const Vec3 boundaryOffset     = oldBoundary.project(Vec3::Null, getZAxis());
             const Vec3 oldXAxisOnBoundary = oldBoundary.project(m_xAxis * attribs.xScale(), getZAxis()) - boundaryOffset;
             const Vec3 oldYAxisOnBoundary = oldBoundary.project(m_yAxis * attribs.yScale(), getZAxis()) - boundaryOffset;
-            /*
-            const Vec3 oldXAxisOnBoundary = oldBoundary.project(safeScaleAxis(m_xAxis, attribs.xScale()), getZAxis()) - boundaryOffset;
-            const Vec3 oldYAxisOnBoundary = oldBoundary.project(safeScaleAxis(m_yAxis, attribs.yScale()), getZAxis()) - boundaryOffset;
-             */
 
             // transform the projected texture axes and compensate the translational component
             const Vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;
@@ -158,7 +144,6 @@ namespace TrenchBroom {
             const size_t newIndex = planeNormalIndex(newNormal);
             axes(newIndex, newBaseXAxis, newBaseYAxis, newProjectionAxis);
 
-            const bool flipX = flipXAxis(m_index, newIndex);
             const Plane3 newTexturePlane(0.0, newProjectionAxis);
             
             // project the transformed texture axes onto the new texture projection plane
@@ -177,8 +162,6 @@ namespace TrenchBroom {
             assert(!Math::isnan(cosY));
 
             float radX = std::acos(cosX);
-            if (flipX)
-                radX -= Math::Cf::pi();
             if (crossed(newBaseXAxis, normalizedXAxis).dot(newProjectionAxis) < 0.0)
                 radX *= -1.0f;
             
@@ -194,22 +177,18 @@ namespace TrenchBroom {
             if (newIndex == 4)
                 rad *= -1.0f;
             
-            float newRotation = Math::degrees(rad);
-            newRotation = Math::correct(newRotation, 4);
-            
+            const float newRotation = Math::correct(Math::degrees(rad), 4);
             doSetRotation(newNormal, newRotation, newRotation);
             
             // finally compute the scaling factors
-            const Vec2f newScale = Vec2f(projectedTransformedXAxis.dot(m_xAxis),
-                                         projectedTransformedYAxis.dot(m_yAxis)).corrected(4);
+            Vec2f newScale = Vec2f(projectedTransformedXAxis.length(),
+                                   projectedTransformedYAxis.length()).corrected(4);
 
-            // the sign of the scaling factors depends on the angle between the new base axis and the new texture axis
-            /*
-            if (newBaseXAxis.dot(normalizedXAxis) < 0.0)
+            // the sign of the scaling factors depends on the angle between the new texture axis and the projected transformed axis
+            if (m_xAxis.dot(normalizedXAxis) < 0.0)
                 newScale[0] *= -1.0f;
-            if (newBaseYAxis.dot(normalizedYAxis) < 0.0)
+            if (m_yAxis.dot(normalizedYAxis) < 0.0)
                 newScale[1] *= -1.0f;
-             */
             
             // compute the parameters of the transformed texture coordinate system
             const Vec3 newInvariant = transformation * oldInvariant;
@@ -230,10 +209,6 @@ namespace TrenchBroom {
             attribs.setOffset(newOffset);
             attribs.setScale(newScale);
             attribs.setRotation(newRotation);
-        }
-        
-        bool ParaxialTexCoordSystem::flipXAxis(const size_t oldIndex, const size_t newIndex) const {
-            return Orientations[oldIndex] != Orientations[newIndex];
         }
 
         void ParaxialTexCoordSystem::doUpdateNormal(const Vec3& oldNormal, const Vec3& newNormal, const BrushFaceAttributes& attribs) {

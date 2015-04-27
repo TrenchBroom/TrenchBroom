@@ -49,5 +49,31 @@ namespace TrenchBroom {
             ASSERT_TC_EQ(oldTexCoords, newTexCoords);
             ASSERT_VEC_EQ(Vec2f(1.20616937, 1.0), attribs.scale());
         }
+        
+        TEST(ParaxialTexCoordSystemTest, transformWithNewAxesForTopFace) {
+            Assets::Texture texture("texture", 128, 128);
+            const FloatType oldDistance(151.42562584220411);
+            const Vec3 oldNormal(0.000000000000000021930331350620384,
+                                 0.50000000000000144,
+                                 0.86602540378443771);
+            const Plane3 oldBoundary(oldDistance, oldNormal);
+            ParaxialTexCoordSystem coordSystem(oldNormal);
+            
+            BrushFaceAttributes attribs("texture");
+            attribs.setTexture(&texture);
+            attribs.setOffset(Vec2f(-49.2198257f, 64.0f));
+            attribs.setScale(Vec2f(0.968245804f, 0.89442718f));
+            attribs.setRotation(26.565052f);
+
+            const Vec3 center(-64.0, 64.0, 64.0);
+            const Vec3 axis = Vec3::PosX;
+            const FloatType angle = -0.26179938779914941;
+            const Vec3 oldInvariant(-63.999999999999289, 95.999999999999091, 119.42562584220195);
+            
+            const Mat4x4 transform = translationMatrix(center) * rotationMatrix(axis, angle) * translationMatrix(-center);
+            
+            coordSystem.transform(oldBoundary, transform, attribs, true, oldInvariant);
+            
+        }
     }
 }

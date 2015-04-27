@@ -314,6 +314,7 @@ namespace TrenchBroom {
             setEntityDefinitions(addedNodes);
             setEntityModels(addedNodes);
             setTextures(addedNodes);
+            invalidateSelectionBounds();
 
             nodesWereAddedNotifier(addedNodes);
             return addedNodes;
@@ -336,6 +337,8 @@ namespace TrenchBroom {
                 parent->removeChildren(children.begin(), children.end());
             }
             
+            invalidateSelectionBounds();
+
             return removedNodes;
         }
         
@@ -718,6 +721,8 @@ namespace TrenchBroom {
                 brush->moveBoundary(m_worldBounds, face, delta, textureLock());
             }
             
+            invalidateSelectionBounds();
+
             return true;
         }
 
@@ -790,6 +795,8 @@ namespace TrenchBroom {
                 VectorUtils::append(newVertexPositions, newPositions);
             }
             
+            invalidateSelectionBounds();
+
             return newVertexPositions;
         }
 
@@ -809,6 +816,8 @@ namespace TrenchBroom {
                 VectorUtils::append(newVertexPositions, newPositions);
             }
             
+            invalidateSelectionBounds();
+
             return newVertexPositions;
         }
 
@@ -847,6 +856,8 @@ namespace TrenchBroom {
                 VectorUtils::append(newFacePositions, newPositions);
             }
             
+            invalidateSelectionBounds();
+
             return newFacePositions;
         }
 
@@ -869,6 +880,8 @@ namespace TrenchBroom {
                 }
             }
             
+            invalidateSelectionBounds();
+
             return newVertexPositions;
         }
 
@@ -891,6 +904,8 @@ namespace TrenchBroom {
                 }
             }
             
+            invalidateSelectionBounds();
+
             return newVertexPositions;
         }
 
@@ -906,6 +921,8 @@ namespace TrenchBroom {
                 Model::Brush* brush = *it;
                 brush->rebuildGeometry(m_worldBounds);
             }
+
+            invalidateSelectionBounds();
         }
 
         void MapDocumentCommandFacade::restoreSnapshot(Model::Snapshot* snapshot) {

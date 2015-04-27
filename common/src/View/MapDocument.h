@@ -77,7 +77,6 @@ namespace TrenchBroom {
             
             MapViewConfig* m_mapViewConfig;
             Grid* m_grid;
-            bool m_textureLock;
             
             IO::Path m_path;
             size_t m_lastSaveModificationCount;
