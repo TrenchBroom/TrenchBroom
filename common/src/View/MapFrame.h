@@ -86,6 +86,7 @@ namespace TrenchBroom {
             void createMenuBar();
             void addRecentDocumentsMenu(wxMenuBar* menuBar);
             void removeRecentDocumentsMenu(wxMenuBar* menuBar);
+            void updateRecentDocumentsMenu();
         private: // gui creation
             void createGui();
         private: // notification handlers

@@ -278,6 +278,11 @@ namespace TrenchBroom {
             app.removeRecentDocumentMenu(recentDocumentsMenu);
         }
 
+        void MapFrame::updateRecentDocumentsMenu() {
+            if (m_document->path().isAbsolute())
+                View::TrenchBroomApp::instance().updateRecentDocument(m_document->path());
+        }
+
         void MapFrame::createGui() {
             SplitterWindow2* hSplitter = new SplitterWindow2(this);
             hSplitter->setSashGravity(1.0f);
@@ -334,7 +339,7 @@ namespace TrenchBroom {
 
         void MapFrame::documentDidChange(View::MapDocument* document) {
             updateTitle();
-            View::TrenchBroomApp::instance().updateRecentDocument(m_document->path());
+            updateRecentDocumentsMenu();
         }
 
         void MapFrame::documentModificationStateDidChange() {
@@ -434,14 +439,14 @@ namespace TrenchBroom {
 
         void MapFrame::OnFileLoadPointFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-
-            m_document->loadPointFile();
+            if (canLoadPointFile())
+                m_document->loadPointFile();
         }
 
         void MapFrame::OnFileUnloadPointFile(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
-
-            m_document->unloadPointFile();
+            if (canUnloadPointFile())
+                m_document->unloadPointFile();
         }
 
         void MapFrame::OnFileClose(wxCommandEvent& event) {
