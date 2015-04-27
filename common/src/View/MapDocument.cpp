@@ -113,7 +113,6 @@ namespace TrenchBroom {
         m_textureManager(new Assets::TextureManager(this, pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))),
         m_mapViewConfig(new MapViewConfig(*m_editorContext)),
         m_grid(new Grid(4)),
-        m_textureLock(false),
         m_path(DefaultDocumentName),
         m_lastSaveModificationCount(0),
         m_modificationCount(0),
@@ -739,15 +738,15 @@ namespace TrenchBroom {
         }
 
         bool MapDocument::translateObjects(const Vec3& delta) {
-            return submit(TransformObjectsCommand::translate(delta, m_textureLock));
+            return submit(TransformObjectsCommand::translate(delta, textureLock()));
         }
 
         bool MapDocument::rotateObjects(const Vec3& center, const Vec3& axis, const FloatType angle) {
-            return submit(TransformObjectsCommand::rotate(center, axis, angle, m_textureLock));
+            return submit(TransformObjectsCommand::rotate(center, axis, angle, textureLock()));
         }
         
         bool MapDocument::flipObjects(const Vec3& center, const Math::Axis::Type axis) {
-            return submit(TransformObjectsCommand::flip(center, axis, m_textureLock));
+            return submit(TransformObjectsCommand::flip(center, axis, textureLock()));
         }
 
         bool MapDocument::setAttribute(const Model::AttributeName& name, const Model::AttributeValue& value) {
