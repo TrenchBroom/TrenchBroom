@@ -120,7 +120,7 @@ namespace TrenchBroom {
                         m_primitiveRenderer->renderCoordinateSystemXY(x, y, m_lineWidth, bounds);
                         break;
                 }
-            } else {q
+            } else {
                 m_primitiveRenderer->renderCoordinateSystem3D(x, y, z, m_lineWidth, bounds);
             }
         }
