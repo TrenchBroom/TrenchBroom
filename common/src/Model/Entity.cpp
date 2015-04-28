@@ -142,8 +142,9 @@ namespace TrenchBroom {
             invalidateBounds();
         }
 
-        void Entity::doDescendantDidChange(Node* node) {
+        bool Entity::doDescendantDidChange(Node* node) {
             invalidateBounds();
+            return true;
         }
 
         bool Entity::doSelectable() const {

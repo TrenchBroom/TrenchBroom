@@ -120,10 +120,12 @@ namespace TrenchBroom {
             void doRemoveChild(Node* child);
             void clearChildren();
             
+            void childWillBeAdded(Node* node);
             void childWasAdded(Node* node);
             void childWillBeRemoved(Node* node);
             void childWasRemoved(Node* node);
             
+            void descendantWillBeAdded(Node* newParent, Node* node);
             void descendantWasAdded(Node* node);
             void descendantWillBeRemoved(Node* node);
             void descendantWasRemoved(Node* oldParent, Node* node);
@@ -144,7 +146,8 @@ namespace TrenchBroom {
                 NotifyNodeChange(Node* node);
                 ~NotifyNodeChange();
             };
-        private: // call these methods via the NotifyNodeChange class, it's much safer
+            
+            // call these methods via the NotifyNodeChange class, it's much safer
             void nodeWillChange();
             void nodeDidChange();
         private:
@@ -350,10 +353,12 @@ namespace TrenchBroom {
             virtual bool doCanRemoveChild(const Node* child) const = 0;
             virtual bool doRemoveIfEmpty() const = 0;
             
+            virtual void doChildWillBeAdded(Node* node);
             virtual void doChildWasAdded(Node* node);
             virtual void doChildWillBeRemoved(Node* node);
             virtual void doChildWasRemoved(Node* node);
             
+            virtual void doDescendantWillBeAdded(Node* newParent, Node* node);
             virtual void doDescendantWasAdded(Node* node);
             virtual void doDescendantWillBeRemoved(Node* node);
             virtual void doDescendantWasRemoved(Node* oldParent, Node* node);
@@ -365,8 +370,8 @@ namespace TrenchBroom {
             
             virtual void doChildWillChange(Node* node);
             virtual void doChildDidChange(Node* node);
-            virtual void doDescendantWillChange(Node* node);
-            virtual void doDescendantDidChange(Node* node);
+            virtual bool doDescendantWillChange(Node* node);
+            virtual bool doDescendantDidChange(Node* node);
             
             virtual bool doSelectable() const = 0;
             
