@@ -67,8 +67,8 @@ namespace TrenchBroom {
         
         void GroupRenderer::updateGroup(Model::Group* group) {
             assert(group != NULL);
-            assert(m_groups.count(group) == 1);
-            invalidateBounds();
+            if (m_groups.count(group) > 0)
+                invalidateBounds();
         }
         
         void GroupRenderer::removeGroup(Model::Group* group) {

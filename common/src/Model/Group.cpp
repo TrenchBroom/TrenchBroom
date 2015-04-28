@@ -132,22 +132,26 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Group::doDescendantWillBeAdded(Node* newParent, Node* node) {
+        bool Group::doDescendantWillBeAdded(Node* newParent, Node* node) {
             nodeWillChange();
+            return false;
         }
 
-        void Group::doDescendantWasAdded(Node* node) {
+        bool Group::doDescendantWasAdded(Node* node) {
             invalidateBounds();
             nodeDidChange();
+            return false;
         }
         
-        void Group::doDescendantWillBeRemoved(Node* node) {
+        bool Group::doDescendantWillBeRemoved(Node* node) {
             nodeWillChange();
+            return false;
         }
 
-        void Group::doDescendantWasRemoved(Node* oldParent, Node* node) {
+        bool Group::doDescendantWasRemoved(Node* oldParent, Node* node) {
             invalidateBounds();
             nodeDidChange();
+            return false;
         }
 
         bool Group::doDescendantWillChange(Node* node) {

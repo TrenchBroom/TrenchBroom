@@ -511,7 +511,6 @@ namespace TrenchBroom {
             void doVisit(Model::Brush* brush)   { handleNode(brush); }
             
             void handleNode(Model::Node* node) {
-                // assert(node->selected() || node->descendantSelected());
                 if (node->selected() || node->descendantSelected())
                     m_selectionRenderer->updateObject(node);
             }

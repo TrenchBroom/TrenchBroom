@@ -358,10 +358,10 @@ namespace TrenchBroom {
             virtual void doChildWillBeRemoved(Node* node);
             virtual void doChildWasRemoved(Node* node);
             
-            virtual void doDescendantWillBeAdded(Node* newParent, Node* node);
-            virtual void doDescendantWasAdded(Node* node);
-            virtual void doDescendantWillBeRemoved(Node* node);
-            virtual void doDescendantWasRemoved(Node* oldParent, Node* node);
+            virtual bool doDescendantWillBeAdded(Node* newParent, Node* node);
+            virtual bool doDescendantWasAdded(Node* node);
+            virtual bool doDescendantWillBeRemoved(Node* node);
+            virtual bool doDescendantWasRemoved(Node* oldParent, Node* node);
 
             virtual void doParentWillChange();
             virtual void doParentDidChange();

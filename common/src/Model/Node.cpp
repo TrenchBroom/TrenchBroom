@@ -191,27 +191,23 @@ namespace TrenchBroom {
         }
         
         void Node::descendantWillBeAdded(Node* newParent, Node* node) {
-            doDescendantWillBeAdded(newParent, node);
-            if (m_parent != NULL)
+            if (doDescendantWillBeAdded(newParent, node) && m_parent != NULL)
                 m_parent->descendantWillBeAdded(newParent, node);
         }
 
         void Node::descendantWasAdded(Node* node) {
-            doDescendantWasAdded(node);
-            if (m_parent != NULL)
+            if (doDescendantWasAdded(node) && m_parent != NULL)
                 m_parent->descendantWasAdded(node);
             invalidateIssues();
         }
         
         void Node::descendantWillBeRemoved(Node* node) {
-            doDescendantWillBeRemoved(node);
-            if (m_parent != NULL)
+            if (doDescendantWillBeRemoved(node) && m_parent != NULL)
                 m_parent->descendantWillBeRemoved(node);
         }
 
         void Node::descendantWasRemoved(Node* oldParent, Node* node) {
-            doDescendantWasRemoved(oldParent, node);
-            if (m_parent != NULL)
+            if (doDescendantWasRemoved(oldParent, node) && m_parent != NULL)
                 m_parent->descendantWasRemoved(oldParent, node);
             invalidateIssues();
         }
@@ -548,10 +544,10 @@ namespace TrenchBroom {
         void Node::doChildWillBeRemoved(Node* node) {}
         void Node::doChildWasRemoved(Node* node) {}
 
-        void Node::doDescendantWillBeAdded(Node* newParent, Node* node) {}
-        void Node::doDescendantWasAdded(Node* node) {}
-        void Node::doDescendantWillBeRemoved(Node* node) {}
-        void Node::doDescendantWasRemoved(Node* oldParent, Node* node) {}
+        bool Node::doDescendantWillBeAdded(Node* newParent, Node* node) { return true; }
+        bool Node::doDescendantWasAdded(Node* node) { return true; }
+        bool Node::doDescendantWillBeRemoved(Node* node) { return true; }
+        bool Node::doDescendantWasRemoved(Node* oldParent, Node* node) { return true; }
 
         void Node::doParentWillChange() {}
         void Node::doParentDidChange() {}
