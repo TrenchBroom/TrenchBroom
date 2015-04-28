@@ -52,7 +52,10 @@ namespace TrenchBroom {
         public:
             void renderLine(const Color& color, float lineWidth, const Vec3f& start, const Vec3f& end);
             void renderLines(const Color& color, float lineWidth, const Vec3f::List& positions);
-            void renderCoordinateSystem(const Color& x, const Color& y, const Color& z, float lineWidth, const BBox3f& bounds);
+            void renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, const BBox3f& bounds);
+            void renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, const BBox3f& bounds);
+            void renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, const BBox3f& bounds);
+            void renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, float lineWidth, const BBox3f& bounds);
             
             void renderPolygon(const Color& color, float lineWidth, const Vec3f::List& positions);
             

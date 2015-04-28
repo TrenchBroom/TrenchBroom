@@ -33,20 +33,60 @@ namespace TrenchBroom {
             glDepthRange(EdgeOffset, 1.0f);
         }
         
-        VertexSpecs::P3C4::Vertex::List coordinateSystem(const BBox3f& bounds, const Color& x, const Color& y, const Color& z) {
+        BuildCoordinateSystem BuildCoordinateSystem::xy(const Color& x, const Color& y) {
+            return BuildCoordinateSystem(x, y, Color(), true, true, false);
+        }
+        
+        BuildCoordinateSystem BuildCoordinateSystem::xz(const Color& x, const Color& z) {
+            return BuildCoordinateSystem(x, Color(), z, true, false, true);
+        }
+        
+        BuildCoordinateSystem BuildCoordinateSystem::yz(const Color& y, const Color& z) {
+            return BuildCoordinateSystem(Color(), y, z, false, true, true);
+        }
+        
+        BuildCoordinateSystem BuildCoordinateSystem::xyz(const Color& x, const Color& y, const Color& z) {
+            return BuildCoordinateSystem(x, y, z, true, true, true);
+        }
+        
+        BuildCoordinateSystem::BuildCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor, const bool xAxis, const bool yAxis, const bool zAxis) {
+            m_colors[0] = xColor;
+            m_colors[1] = yColor;
+            m_colors[2] = zColor;
+            m_axes[0] = xAxis;
+            m_axes[1] = yAxis;
+            m_axes[2] = zAxis;
+        }
+
+        VertexSpecs::P3C4::Vertex::List BuildCoordinateSystem::vertices(const BBox3f& bounds) const {
             const Vec3f center = bounds.center();
             
             typedef VertexSpecs::P3C4::Vertex Vertex;
-            Vertex::List vertices(6);
-            
-            vertices[0] = Vertex(Vec3f(bounds.min.x(),     center.y(),     center.z()), x);
-            vertices[1] = Vertex(Vec3f(bounds.max.x(),     center.y(),     center.z()), x);
-            vertices[2] = Vertex(Vec3f(    center.x(), bounds.min.y(),     center.z()), y);
-            vertices[3] = Vertex(Vec3f(    center.x(), bounds.max.y(),     center.z()), y);
-            vertices[4] = Vertex(Vec3f(    center.x(),     center.y(), bounds.min.z()), z);
-            vertices[5] = Vertex(Vec3f(    center.x(),     center.y(), bounds.max.z()), z);
+            Vertex::List vertices(countVertices());
+
+            size_t i = 0;
+            if (m_axes[0]) {
+                vertices[i++] = Vertex(Vec3f(bounds.min.x(),     center.y(),     center.z()), m_colors[0]);
+                vertices[i++] = Vertex(Vec3f(bounds.max.x(),     center.y(),     center.z()), m_colors[0]);
+            }
+            if (m_axes[1]) {
+                vertices[i++] = Vertex(Vec3f(    center.x(), bounds.min.y(),     center.z()), m_colors[1]);
+                vertices[i++] = Vertex(Vec3f(    center.x(), bounds.max.y(),     center.z()), m_colors[1]);
+            }
+            if (m_axes[2]) {
+                vertices[i++] = Vertex(Vec3f(    center.x(),     center.y(), bounds.min.z()), m_colors[2]);
+                vertices[i++] = Vertex(Vec3f(    center.x(),     center.y(), bounds.max.z()), m_colors[2]);
+            }
 
             return vertices;
+        }
+
+        size_t BuildCoordinateSystem::countVertices() const {
+            size_t result = 0;
+            for (size_t i = 0; i < 3; ++i)
+                if (m_axes[i])
+                    result += 2;
+            return result;
         }
 
         Vec2f::List circle2D(const float radius, const size_t segments) {

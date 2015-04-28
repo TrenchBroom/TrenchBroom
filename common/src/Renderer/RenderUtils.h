@@ -34,7 +34,22 @@ namespace TrenchBroom {
         void glSetEdgeOffset(float f);
         void glResetEdgeOffset();
 
-        VertexSpecs::P3C4::Vertex::List coordinateSystem(const BBox3f& bounds, const Color& x, const Color& y, const Color& z);
+        class BuildCoordinateSystem {
+        private:
+            Color m_colors[3];
+            bool m_axes[3];
+        public:
+            static BuildCoordinateSystem xy(const Color& x, const Color& y);
+            static BuildCoordinateSystem xz(const Color& x, const Color& z);
+            static BuildCoordinateSystem yz(const Color& y, const Color& z);
+            static BuildCoordinateSystem xyz(const Color& x, const Color& y, const Color& z);
+        private:
+            BuildCoordinateSystem(const Color& xColor, const Color& yColor, const Color& zColor, bool xAxis, bool yAxis, bool zAxis);
+        public:
+            VertexSpecs::P3C4::Vertex::List vertices(const BBox3f& bounds) const;
+        private:
+            size_t countVertices() const;
+        };
         
         Vec2f::List circle2D(float radius, size_t segments);
         Vec2f::List circle2D(float radius, float startAngle, float angleLength, size_t segments);

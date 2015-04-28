@@ -35,8 +35,29 @@ namespace TrenchBroom {
             m_lineMeshes[lineWidth].endLines();
         }
 
-        void PrimitiveRenderer::renderCoordinateSystem(const Color& x, const Color& y, const Color& z, const float lineWidth, const BBox3f& bounds) {
-            const Vertex::List vertices = coordinateSystem(bounds, x, y, z);
+        void PrimitiveRenderer::renderCoordinateSystemXY(const Color& x, const Color& y, float lineWidth, const BBox3f& bounds) {
+            const Vertex::List vertices = BuildCoordinateSystem::xy(x, y).vertices(bounds);
+            m_lineMeshes[lineWidth].beginLines();
+            m_lineMeshes[lineWidth].addLines(vertices);
+            m_lineMeshes[lineWidth].endLines();
+        }
+        
+        void PrimitiveRenderer::renderCoordinateSystemXZ(const Color& x, const Color& z, float lineWidth, const BBox3f& bounds) {
+            const Vertex::List vertices = BuildCoordinateSystem::xz(x, z).vertices(bounds);
+            m_lineMeshes[lineWidth].beginLines();
+            m_lineMeshes[lineWidth].addLines(vertices);
+            m_lineMeshes[lineWidth].endLines();
+        }
+        
+        void PrimitiveRenderer::renderCoordinateSystemYZ(const Color& y, const Color& z, float lineWidth, const BBox3f& bounds) {
+            const Vertex::List vertices = BuildCoordinateSystem::yz(y, z).vertices(bounds);
+            m_lineMeshes[lineWidth].beginLines();
+            m_lineMeshes[lineWidth].addLines(vertices);
+            m_lineMeshes[lineWidth].endLines();
+        }
+
+        void PrimitiveRenderer::renderCoordinateSystem3D(const Color& x, const Color& y, const Color& z, const float lineWidth, const BBox3f& bounds) {
+            const Vertex::List vertices = BuildCoordinateSystem::xyz(x, y, z).vertices(bounds);
             m_lineMeshes[lineWidth].beginLines();
             m_lineMeshes[lineWidth].addLines(vertices);
             m_lineMeshes[lineWidth].endLines();

@@ -41,6 +41,7 @@
 #include "Renderer/MapRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderService.h"
 #include "View/ActionManager.h"
 #include "View/Animation.h"
 #include "View/CameraAnimation.h"
@@ -808,6 +809,7 @@ namespace TrenchBroom {
             doRenderMap(m_renderer, renderContext, renderBatch);
             doRenderTools(m_toolBox, renderContext, renderBatch);
             doRenderExtras(renderContext, renderBatch);
+            renderCoordinateSystem(renderContext, renderBatch);
             renderCompass(renderBatch);
             
             renderBatch.render(renderContext);
@@ -841,6 +843,14 @@ namespace TrenchBroom {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glShadeModel(GL_SMOOTH);
+        }
+
+        void MapViewBase::renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            MapDocumentSPtr document = lock(m_document);
+            const BBox3& worldBounds = document->worldBounds();
+            
+            Renderer::RenderService renderService(renderContext, renderBatch);
+            renderService.renderCoordinateSystem(worldBounds);
         }
 
         void MapViewBase::renderCompass(Renderer::RenderBatch& renderBatch) {

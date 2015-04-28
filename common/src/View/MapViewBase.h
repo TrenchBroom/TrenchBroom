@@ -187,6 +187,7 @@ namespace TrenchBroom {
             void doRender();
             Renderer::RenderContext createRenderContext();
             void setupGL(Renderer::RenderContext& renderContext);
+            void renderCoordinateSystem(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void renderCompass(Renderer::RenderBatch& renderBatch);
         private: // implement ToolBoxConnector
             void doShowPopupMenu();

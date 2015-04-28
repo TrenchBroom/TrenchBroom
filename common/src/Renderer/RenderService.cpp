@@ -21,10 +21,12 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/Camera.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
+#include "Renderer/RenderContext.h"
 #include "Renderer/TextAnchor.h"
 #include "Renderer/TextRenderer.h"
 
@@ -100,7 +102,27 @@ namespace TrenchBroom {
         }
 
         void RenderService::renderCoordinateSystem(const BBox3f& bounds) {
-            m_primitiveRenderer->renderCoordinateSystem(pref(Preferences::XAxisColor), pref(Preferences::YAxisColor), pref(Preferences::ZAxisColor), m_lineWidth, bounds);
+            const Color& x = pref(Preferences::XAxisColor);
+            const Color& y = pref(Preferences::YAxisColor);
+            const Color& z = pref(Preferences::ZAxisColor);
+            
+            if (m_renderContext.render2D()) {
+                const Camera& camera = m_renderContext.camera();
+                const Math::Axis::Type axis = camera.direction().firstComponent();
+                switch (axis) {
+                    case Math::Axis::AX:
+                        m_primitiveRenderer->renderCoordinateSystemYZ(y, z, m_lineWidth, bounds);
+                        break;
+                    case Math::Axis::AY:
+                        m_primitiveRenderer->renderCoordinateSystemXZ(x, z, m_lineWidth, bounds);
+                        break;
+                    default:
+                        m_primitiveRenderer->renderCoordinateSystemXY(x, y, m_lineWidth, bounds);
+                        break;
+                }
+            } else {q
+                m_primitiveRenderer->renderCoordinateSystem3D(x, y, z, m_lineWidth, bounds);
+            }
         }
         
         void RenderService::renderPolygonOutline(const Vec3f::List& positions) {
