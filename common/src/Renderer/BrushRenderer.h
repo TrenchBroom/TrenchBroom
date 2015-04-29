@@ -42,12 +42,10 @@ namespace TrenchBroom {
             public:
                 virtual ~Filter();
                 
-                bool show(const Model::Brush* brush) const;
                 bool show(const Model::BrushFace* face) const;
                 bool show(const Model::BrushEdge* edge) const;
                 bool transparent(const Model::Brush* brush) const;
             private:
-                virtual bool doShow(const Model::Brush* brush) const = 0;
                 virtual bool doShow(const Model::BrushFace* face) const = 0;
                 virtual bool doShow(const Model::BrushEdge* edge) const = 0;
                 virtual bool doIsTransparent(const Model::Brush* brush) const = 0;
@@ -79,14 +77,13 @@ namespace TrenchBroom {
             public:
                 NoFilter(bool transparent);
             private:
-                bool doShow(const Model::Brush* brush) const;
                 bool doShow(const Model::BrushFace* face) const;
                 bool doShow(const Model::BrushEdge* edge) const;
                 bool doIsTransparent(const Model::Brush* brush) const;
             };
         private:
             Filter* m_filter;
-            Model::BrushSet m_brushes;
+            Model::BrushList m_brushes;
             FaceRenderer m_opaqueFaceRenderer;
             FaceRenderer m_transparentFaceRenderer;
             EdgeRenderer m_edgeRenderer;
@@ -119,31 +116,7 @@ namespace TrenchBroom {
             
             ~BrushRenderer();
 
-            void addBrush(Model::Brush* brush);
-            void removeBrush(Model::Brush* brush);
-            void updateBrush(Model::Brush* brush);
-            
-            template <typename I>
-            void addBrushes(I cur, I end, const size_t count) {
-                // m_brushes.reserve(m_brushes.size() + count);
-                // m_brushes.insert(m_brushes.end(), cur, end);
-                m_brushes.insert(cur, end);
-                invalidate();
-            }
-            
-            template <typename I>
-            void removeBrushes(I cur, I end) {
-                // const Model::BrushList::iterator rem = VectorUtils::removeAll(m_brushes.begin(), m_brushes.end(), cur, end);
-                // m_brushes.erase(rem, m_brushes.end());
-                m_brushes.erase(cur, end);
-                invalidate();
-            }
-            
-            template <typename I>
-            void updateBrushes(I cur, I end) {
-                invalidate();
-            }
-            
+            void setBrushes(const Model::BrushList& brushes);
             void invalidate();
             void clear();
             

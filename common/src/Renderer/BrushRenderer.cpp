@@ -36,7 +36,6 @@ namespace TrenchBroom {
     namespace Renderer {
         BrushRenderer::Filter::~Filter() {}
         
-        bool BrushRenderer::Filter::show(const Model::Brush* brush) const         { return doShow(brush); }
         bool BrushRenderer::Filter::show(const Model::BrushFace* face) const      { return doShow(face);  }
         bool BrushRenderer::Filter::show(const Model::BrushEdge* edge) const      { return doShow(edge);  }
         bool BrushRenderer::Filter::transparent(const Model::Brush* brush) const  { return doIsTransparent(brush); }
@@ -62,7 +61,6 @@ namespace TrenchBroom {
 
         BrushRenderer::NoFilter::NoFilter(const bool transparent) : m_transparent(transparent) {}
 
-        bool BrushRenderer::NoFilter::doShow(const Model::Brush* brush) const { return true; }
         bool BrushRenderer::NoFilter::doShow(const Model::BrushFace* face) const { return true; }
         bool BrushRenderer::NoFilter::doShow(const Model::BrushEdge* edge) const { return true; }
         bool BrushRenderer::NoFilter::doIsTransparent(const Model::Brush* brush) const { return m_transparent; }
@@ -82,20 +80,11 @@ namespace TrenchBroom {
             m_filter = NULL;
         }
 
-        void BrushRenderer::addBrush(Model::Brush* brush) {
-            m_brushes.insert(brush);
-            invalidate();
-        }
-        
-        void BrushRenderer::removeBrush(Model::Brush* brush) {
-            m_brushes.erase(brush);
+        void BrushRenderer::setBrushes(const Model::BrushList& brushes) {
+            m_brushes = brushes;
             invalidate();
         }
 
-        void BrushRenderer::updateBrush(Model::Brush* brush) {
-            invalidate();
-        }
-        
         void BrushRenderer::invalidate() {
             m_valid = false;
         }
@@ -195,7 +184,6 @@ namespace TrenchBroom {
             m_filter(filter),
             m_showHiddenBrushes(showHiddenBrushes) {}
             
-            bool doShow(const Model::Brush* brush) const    { return m_showHiddenBrushes || m_filter.show(brush); }
             bool doShow(const Model::BrushFace* face) const { return m_showHiddenBrushes || m_filter.show(face); }
             bool doShow(const Model::BrushEdge* edge) const { return m_showHiddenBrushes || m_filter.show(edge); }
             bool doIsTransparent(const Model::Brush* brush) const { return m_filter.transparent(brush); }
@@ -218,10 +206,8 @@ namespace TrenchBroom {
             void doVisit(const Model::Group* group) {}
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
-                if (filter.show(brush)) {
-                    countMesh(brush);
-                    countEdges(brush);
-                }
+                countMesh(brush);
+                countEdges(brush);
             }
             
             void countMesh(const Model::Brush* brush) {
@@ -272,10 +258,8 @@ namespace TrenchBroom {
             void doVisit(const Model::Group* group) {}
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush) {
-                if (filter.show(brush)) {
-                    buildMesh(brush);
-                    buildEdges(brush);
-                }
+                buildMesh(brush);
+                buildEdges(brush);
             }
             
             void buildMesh(const Model::Brush* brush) {

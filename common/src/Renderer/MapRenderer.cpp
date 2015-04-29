@@ -47,10 +47,6 @@ namespace TrenchBroom {
             SelectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            bool doShow(const Model::Brush* brush) const {
-                return editable(brush) && (selected(brush) || hasSelectedFaces(brush)) && visible(brush);
-            }
-            
             bool doShow(const Model::BrushFace* face) const {
                 return editable(face) && (selected(face) || selected(face->brush())) && visible(face);
             }
@@ -69,10 +65,6 @@ namespace TrenchBroom {
             LockedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
             
-            bool doShow(const Model::Brush* brush) const {
-                return !editable(brush);
-            }
-            
             bool doShow(const Model::BrushFace* face) const {
                 return true;
             }
@@ -85,15 +77,11 @@ namespace TrenchBroom {
                 return brush->transparent();
             }
         };
-
+        
         class MapRenderer::UnselectedBrushRendererFilter : public BrushRenderer::DefaultFilter {
         public:
             UnselectedBrushRendererFilter(const Model::EditorContext& context) :
             DefaultFilter(context) {}
-            
-            bool doShow(const Model::Brush* brush) const {
-                return editable(brush) && !selected(brush) && visible(brush);
-            }
             
             bool doShow(const Model::BrushFace* face) const {
                 return editable(face) && !selected(face) && visible(face);
@@ -110,21 +98,29 @@ namespace TrenchBroom {
         
         MapRenderer::MapRenderer(View::MapDocumentWPtr document) :
         m_document(document),
+        m_defaultRenderer(createDefaultRenderer(m_document)),
         m_selectionRenderer(createSelectionRenderer(m_document)),
         m_lockedRenderer(createLockRenderer(m_document)),
         m_entityLinkRenderer(new EntityLinkRenderer(m_document)) {
             bindObservers();
             setupRenderers();
         }
-
+        
         MapRenderer::~MapRenderer() {
             unbindObservers();
             clear();
+            delete m_entityLinkRenderer;
             delete m_lockedRenderer;
             delete m_selectionRenderer;
-            delete m_entityLinkRenderer;
+            delete m_defaultRenderer;
         }
-
+        
+        ObjectRenderer* MapRenderer::createDefaultRenderer(View::MapDocumentWPtr document) {
+            return new ObjectRenderer(lock(document)->entityModelManager(),
+                                      lock(document)->editorContext(),
+                                      UnselectedBrushRendererFilter(lock(document)->editorContext()));
+        }
+        
         ObjectRenderer* MapRenderer::createSelectionRenderer(View::MapDocumentWPtr document) {
             return new ObjectRenderer(lock(document)->entityModelManager(),
                                       lock(document)->editorContext(),
@@ -136,11 +132,14 @@ namespace TrenchBroom {
                                       lock(document)->editorContext(),
                                       LockedBrushRendererFilter(lock(document)->editorContext()));
         }
-
+        
         void MapRenderer::clear() {
-            MapUtils::clearAndDelete(m_layerRenderers);
+            m_defaultRenderer->clear();
+            m_selectionRenderer->clear();
+            m_lockedRenderer->clear();
+            m_entityLinkRenderer->invalidate();
         }
-
+        
         void MapRenderer::overrideSelectionColors(const Color& color, const float mix) {
             const Color edgeColor = pref(Preferences::SelectedEdgeColor).mixed(color, mix);
             const Color occludedEdgeColor = pref(Preferences::SelectedFaceColor).mixed(color, mix);
@@ -155,11 +154,11 @@ namespace TrenchBroom {
         void MapRenderer::restoreSelectionColors() {
             setupSelectionRenderer(m_selectionRenderer);
         }
-
+        
         void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch) {
             commitPendingChanges();
             setupGL(renderBatch);
-            renderLayers(renderContext, renderBatch);
+            renderDefault(renderContext, renderBatch);
             renderLocked(renderContext, renderBatch);
             renderSelection(renderContext, renderBatch);
             renderEntityLinks(renderContext, renderBatch);
@@ -169,7 +168,7 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             document->commitPendingAssets();
         }
-
+        
         class SetupGL : public Renderable {
         private:
             void doPrepare(Vbo& vbo) {}
@@ -186,13 +185,9 @@ namespace TrenchBroom {
             renderBatch.addOneShot(new SetupGL());
         }
         
-        void MapRenderer::renderLayers(RenderContext& renderContext, RenderBatch& renderBatch) {
-            RendererMap::iterator it, end;
-            for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
-                ObjectRenderer* renderer = it->second;
-                renderer->setShowOverlays(renderContext.render3D());
-                renderer->render(renderContext, renderBatch);
-            }
+        void MapRenderer::renderDefault(RenderContext& renderContext, RenderBatch& renderBatch) {
+            m_defaultRenderer->setShowOverlays(renderContext.render3D());
+            m_defaultRenderer->render(renderContext, renderBatch);
         }
         
         void MapRenderer::renderSelection(RenderContext& renderContext, RenderBatch& renderBatch) {
@@ -204,32 +199,24 @@ namespace TrenchBroom {
             m_lockedRenderer->setShowOverlays(renderContext.render3D());
             m_lockedRenderer->render(renderContext, renderBatch);
         }
-
+        
         void MapRenderer::renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch) {
             m_entityLinkRenderer->render(renderContext, renderBatch);
         }
-
+        
         void MapRenderer::setupRenderers() {
-            setupLayerRenderers();
+            setupDefaultRenderer(m_defaultRenderer);
             setupSelectionRenderer(m_selectionRenderer);
             setupLockedRenderer(m_lockedRenderer);
             setupEntityLinkRenderer();
         }
-
-        void MapRenderer::setupLayerRenderers() {
-            RendererMap::iterator it, end;
-            for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
-                ObjectRenderer* renderer = it->second;
-                setupLayerRenderer(renderer);
-            }
-        }
-
-        void MapRenderer::setupLayerRenderer(ObjectRenderer* renderer) {
+        
+        void MapRenderer::setupDefaultRenderer(ObjectRenderer* renderer) {
             renderer->setOverlayTextColor(pref(Preferences::InfoOverlayTextColor));
             renderer->setOverlayBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
             renderer->setTint(false);
             renderer->setTransparencyAlpha(pref(Preferences::TransparentFaceAlpha));
-
+            
             renderer->setGroupBoundsColor(pref(Preferences::DefaultGroupColor));
             renderer->setEntityBoundsColor(pref(Preferences::UndefinedEntityColor));
             
@@ -244,7 +231,7 @@ namespace TrenchBroom {
             renderer->setOccludedEdgeColor(pref(Preferences::OccludedSelectedEdgeColor));
             renderer->setTint(true);
             renderer->setTintColor(pref(Preferences::SelectedFaceColor));
-
+            
             renderer->setOverrideGroupBoundsColor(true);
             renderer->setGroupBoundsColor(pref(Preferences::SelectedEdgeColor));
             
@@ -252,11 +239,11 @@ namespace TrenchBroom {
             renderer->setEntityBoundsColor(pref(Preferences::SelectedEdgeColor));
             renderer->setShowEntityAngles(true);
             renderer->setEntityAngleColor(pref(Preferences::AngleIndicatorColor));
-
+            
             renderer->setBrushFaceColor(pref(Preferences::FaceColor));
             renderer->setBrushEdgeColor(pref(Preferences::SelectedEdgeColor));
         }
-
+        
         void MapRenderer::setupLockedRenderer(ObjectRenderer* renderer) {
             renderer->setOverlayTextColor(pref(Preferences::LockedInfoOverlayTextColor));
             renderer->setOverlayBackgroundColor(pref(Preferences::LockedInfoOverlayBackgroundColor));
@@ -275,26 +262,100 @@ namespace TrenchBroom {
             renderer->setBrushFaceColor(pref(Preferences::FaceColor));
             renderer->setBrushEdgeColor(pref(Preferences::LockedEdgeColor));
         }
-
+        
         void MapRenderer::setupEntityLinkRenderer() {
         }
-
-        void MapRenderer::invalidateLayerRenderers() {
-            RendererMap::iterator it, end;
-            for (it = m_layerRenderers.begin(), end = m_layerRenderers.end(); it != end; ++it) {
-                ObjectRenderer* renderer = it->second;
-                renderer->invalidate();
+        
+        class MapRenderer::CollectRenderableNodes : public Model::NodeVisitor {
+        private:
+            Renderer m_renderers;
+            Model::NodeCollection m_defaultNodes;
+            Model::NodeCollection m_selectedNodes;
+            Model::NodeCollection m_lockedNodes;
+        public:
+            CollectRenderableNodes(const Renderer renderers) : m_renderers(renderers) {}
+            
+            const Model::NodeCollection& defaultNodes() const  { return m_defaultNodes;  }
+            const Model::NodeCollection& selectedNodes() const { return m_selectedNodes; }
+            const Model::NodeCollection& lockedNodes() const   { return m_lockedNodes;   }
+        private:
+            void doVisit(Model::World* world)   {}
+            void doVisit(Model::Layer* layer)   {}
+            
+            void doVisit(Model::Group* group)   {
+                if (group->locked()) {
+                    if (collectLocked()) m_lockedNodes.addNode(group);
+                } else if (selected(group) || group->opened()) {
+                    if (collectSelection()) m_selectedNodes.addNode(group);
+                } else {
+                    if (collectDefault()) m_defaultNodes.addNode(group);
+                }
             }
+            
+            void doVisit(Model::Entity* entity) {
+                if (entity->locked()) {
+                    if (collectLocked()) m_lockedNodes.addNode(entity);
+                } else if (selected(entity)) {
+                    if (collectSelection()) m_selectedNodes.addNode(entity);
+                } else {
+                    if (collectDefault()) m_defaultNodes.addNode(entity);
+                }
+            }
+            
+            void doVisit(Model::Brush* brush)   {
+                if (brush->locked()) {
+                    if (collectLocked()) m_lockedNodes.addNode(brush);
+                } else if (selected(brush)) {
+                    if (collectSelection()) m_selectedNodes.addNode(brush);
+                }
+                if (!brush->selected() && !brush->parentSelected() && !brush->locked()) {
+                    if (collectDefault()) m_defaultNodes.addNode(brush);
+                }
+            }
+            
+            bool collectLocked() const   { return (m_renderers & Renderer_Locked) != 0; }
+            bool collectSelection() const { return (m_renderers & Renderer_Selection) != 0; }
+            bool collectDefault() const  { return (m_renderers & Renderer_Default) != 0; }
+            
+            bool selected(const Model::Node* node) const {
+                return node->selected() || node->descendantSelected() || node->parentSelected();
+            }
+        };
+        
+        void MapRenderer::updateRenderers(const Renderer renderers) {
+            View::MapDocumentSPtr document = lock(m_document);
+            Model::World* world = document->world();
+            
+            CollectRenderableNodes collect(renderers);
+            world->acceptAndRecurse(collect);
+            
+            if ((renderers & Renderer_Default) != 0) {
+                m_defaultRenderer->setObjects(collect.defaultNodes().groups(),
+                                              collect.defaultNodes().entities(),
+                                              collect.defaultNodes().brushes());
+            }
+            if ((renderers & Renderer_Selection) != 0) {
+                m_selectionRenderer->setObjects(collect.selectedNodes().groups(),
+                                                collect.selectedNodes().entities(),
+                                                collect.selectedNodes().brushes());
+            }
+            if ((renderers& Renderer_Locked) != 0) {
+                m_lockedRenderer->setObjects(collect.lockedNodes().groups(),
+                                             collect.lockedNodes().entities(),
+                                             collect.lockedNodes().brushes());
+            }
+            invalidateEntityLinkRenderer();
         }
         
-        void MapRenderer::invalidateSelectionRenderer() {
-            m_selectionRenderer->invalidate();
+        void MapRenderer::invalidateRenderers(Renderer renderers) {
+            if ((renderers & Renderer_Default) != 0)
+                m_defaultRenderer->invalidate();
+            if ((renderers & Renderer_Selection) != 0)
+                m_selectionRenderer->invalidate();
+            if ((renderers& Renderer_Locked) != 0)
+                m_lockedRenderer->invalidate();
         }
-        
-        void MapRenderer::invalidateLockedRenderer() {
-            m_lockedRenderer->invalidate();
-        }
-        
+
         void MapRenderer::invalidateEntityLinkRenderer() {
             m_entityLinkRenderer->invalidate();
         }
@@ -306,7 +367,7 @@ namespace TrenchBroom {
             document->documentWasNewedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
             document->documentWasLoadedNotifier.addObserver(this, &MapRenderer::documentWasNewedOrLoaded);
             document->nodesWereAddedNotifier.addObserver(this, &MapRenderer::nodesWereAdded);
-            document->nodesWillBeRemovedNotifier.addObserver(this, &MapRenderer::nodesWillBeRemoved);
+            document->nodesWereRemovedNotifier.addObserver(this, &MapRenderer::nodesWereRemoved);
             document->nodesDidChangeNotifier.addObserver(this, &MapRenderer::nodesDidChange);
             document->nodeVisibilityDidChangeNotifier.addObserver(this, &MapRenderer::nodeVisibilityDidChange);
             document->nodeLockingDidChangeNotifier.addObserver(this, &MapRenderer::nodeLockingDidChange);
@@ -329,7 +390,7 @@ namespace TrenchBroom {
                 document->documentWasNewedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
                 document->documentWasLoadedNotifier.removeObserver(this, &MapRenderer::documentWasNewedOrLoaded);
                 document->nodesWereAddedNotifier.removeObserver(this, &MapRenderer::nodesWereAdded);
-                document->nodesWillBeRemovedNotifier.removeObserver(this, &MapRenderer::nodesWillBeRemoved);
+                document->nodesWereRemovedNotifier.removeObserver(this, &MapRenderer::nodesWereRemoved);
                 document->nodesDidChangeNotifier.removeObserver(this, &MapRenderer::nodesDidChange);
                 document->nodeVisibilityDidChangeNotifier.removeObserver(this, &MapRenderer::nodeVisibilityDidChange);
                 document->nodeLockingDidChangeNotifier.removeObserver(this, &MapRenderer::nodeLockingDidChange);
@@ -345,313 +406,44 @@ namespace TrenchBroom {
             PreferenceManager& prefs = PreferenceManager::instance();
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapRenderer::preferenceDidChange);
         }
-
-        class MapRenderer::HandleSelectedNode : public Model::NodeVisitor {
-        private:
-            RendererMap& m_layerRenderers;
-            ObjectRenderer* m_selectionRenderer;
-            ObjectRenderer* m_lockedRenderer;
-        public:
-            HandleSelectedNode(RendererMap& layerRenderers, ObjectRenderer* selectionRenderer, ObjectRenderer* lockedRenderer) :
-            m_layerRenderers(layerRenderers),
-            m_selectionRenderer(selectionRenderer),
-            m_lockedRenderer(lockedRenderer) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            
-            void doVisit(Model::Group* group) {
-                Model::Layer* layer = group->layer();
-                
-                ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
-                assert(layerRenderer != NULL);
-                
-                if (group->selected() || group->descendantSelected() || group->parentSelected()) {
-                    if (group->locked())
-                        m_lockedRenderer->removeObject(group);
-                    else
-                        layerRenderer->removeObject(group);
-                    m_selectionRenderer->addObject(group);
-                } else {
-                    m_selectionRenderer->removeObject(group);
-                    if (group->locked())
-                        m_lockedRenderer->addObject(group);
-                    else
-                        layerRenderer->addObject(group);
-                }
-            }
-            
-            void doVisit(Model::Entity* entity) {
-                Model::Layer* layer = entity->layer();
-                
-                ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
-                assert(layerRenderer != NULL);
-                
-                if (entity->selected() || entity->descendantSelected() || entity->parentSelected()) {
-                    layerRenderer->removeObject(entity);
-                    m_selectionRenderer->addObject(entity);
-                } else {
-                    m_selectionRenderer->removeObject(entity);
-                    if (entity->locked())
-                        m_lockedRenderer->addObject(entity);
-                    else
-                        layerRenderer->addObject(entity);
-                }
-            }
-            
-            void doVisit(Model::Brush* brush) {
-                Model::Layer* layer = brush->layer();
-                
-                ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
-                assert(layerRenderer != NULL);
-                
-                if (brush->selected() || brush->parentSelected())
-                    layerRenderer->removeObject(brush);
-                else if (brush->locked())
-                    m_lockedRenderer->addObject(brush);
-                else
-                    layerRenderer->addObject(brush);
-                
-                if (brush->selected() || brush->descendantSelected() || brush->parentSelected())
-                    m_selectionRenderer->addObject(brush);
-                else
-                    m_selectionRenderer->removeObject(brush);
-            }
-        };
-        
-        class MapRenderer::AddNode : public Model::NodeVisitor {
-        private:
-            Assets::EntityModelManager& m_modelManager;
-            const Model::EditorContext& m_editorContext;
-
-            RendererMap& m_layerRenderers;
-        public:
-            AddNode(Assets::EntityModelManager& modelManager, const Model::EditorContext& editorContext, RendererMap& layerRenderers) :
-            m_modelManager(modelManager),
-            m_editorContext(editorContext),
-            m_layerRenderers(layerRenderers) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {
-                ObjectRenderer* renderer = new ObjectRenderer(m_modelManager, m_editorContext, UnselectedBrushRendererFilter(m_editorContext));
-                MapUtils::insertOrFail(m_layerRenderers, layer, renderer);
-            }
-            void doVisit(Model::Group* group)   { handleNode(group, group->layer()); }
-            void doVisit(Model::Entity* entity) { handleNode(entity, entity->layer()); }
-            void doVisit(Model::Brush* brush)   { handleNode(brush, brush->layer()); }
-            
-            void handleNode(Model::Node* node, Model::Layer* layer) {
-                assert(layer != NULL);
-                ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
-                assert(layerRenderer != NULL);
-                layerRenderer->addObject(node);
-            }
-        };
         
         void MapRenderer::documentWasCleared(View::MapDocument* document) {
-            m_layerRenderers.clear();
-            invalidateEntityLinkRenderer();
+            clear();
         }
         
         void MapRenderer::documentWasNewedOrLoaded(View::MapDocument* document) {
-            Model::World* world = document->world();
-            AddNode visitor(document->entityModelManager(), document->editorContext(), m_layerRenderers);
-            world->acceptAndRecurse(visitor);
-            setupLayerRenderers();
-            invalidateEntityLinkRenderer();
+            clear();
+            updateRenderers(Renderer_All);
         }
         
         void MapRenderer::nodesWereAdded(const Model::NodeList& nodes) {
-            View::MapDocumentSPtr document = lock(m_document);
-            AddNode visitor(document->entityModelManager(), document->editorContext(), m_layerRenderers);
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
-            setupLayerRenderers();
-            invalidateEntityLinkRenderer();
+            updateRenderers(Renderer_Default);
         }
         
-        class MapRenderer::RemoveNode : public Model::NodeVisitor {
-        private:
-            RendererMap& m_layerRenderers;
-        public:
-            RemoveNode(RendererMap& layerRenderers) :
-            m_layerRenderers(layerRenderers) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   { CHECK_BOOL(MapUtils::removeAndDelete(m_layerRenderers, layer)); }
-            void doVisit(Model::Group* group)   { handleNode(group, group->layer()); }
-            void doVisit(Model::Entity* entity) { handleNode(entity, entity->layer()); }
-            void doVisit(Model::Brush* brush)   { handleNode(brush, brush->layer()); }
-            
-            void handleNode(Model::Node* node, Model::Layer* layer) {
-                assert(layer != NULL);
-                ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
-                assert(layerRenderer != NULL);
-                layerRenderer->removeObject(node);
-            }
-        };
-
-        void MapRenderer::nodesWillBeRemoved(const Model::NodeList& nodes) {
-            RemoveNode visitor(m_layerRenderers);
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
-            setupLayerRenderers();
-            invalidateEntityLinkRenderer();
+        void MapRenderer::nodesWereRemoved(const Model::NodeList& nodes) {
+            updateRenderers(Renderer_Default);
         }
-
-        class MapRenderer::UpdateNode : public Model::NodeVisitor {
-        private:
-            ObjectRenderer* m_selectionRenderer;
-        public:
-            UpdateNode(ObjectRenderer* selectionRenderer) :
-            m_selectionRenderer(selectionRenderer) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   { handleNode(group); }
-            void doVisit(Model::Entity* entity) { handleNode(entity); }
-            void doVisit(Model::Brush* brush)   { handleNode(brush); }
-            
-            void handleNode(Model::Node* node) {
-                if (node->selected() || node->descendantSelected())
-                    m_selectionRenderer->updateObject(node);
-            }
-        };
         
         void MapRenderer::nodesDidChange(const Model::NodeList& nodes) {
-            MapRenderer::UpdateNode visitor(m_selectionRenderer);
-            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
-            invalidateEntityLinkRenderer();
-        }
-
-        class MapRenderer::UpdateVisibility : public Model::NodeVisitor {
-        private:
-            RendererMap& m_layerRenderers;
-            ObjectRenderer* m_lockedRenderer;
-        public:
-            UpdateVisibility(RendererMap& layerRenderers, ObjectRenderer* lockedRenderer) :
-            m_layerRenderers(layerRenderers),
-            m_lockedRenderer(lockedRenderer) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   { handleNode(group, group->layer()); }
-            void doVisit(Model::Entity* entity) { handleNode(entity, entity->layer()); }
-            void doVisit(Model::Brush* brush)   { handleNode(brush, brush->layer()); }
-            
-            void handleNode(Model::Node* node, Model::Layer* layer) {
-                assert(layer != NULL);
-                if (!node->selected() && !node->descendantSelected()) {
-                    ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
-                    assert(layerRenderer != NULL);
-                    if (node->hidden()) {
-                        if (node->locked())
-                            m_lockedRenderer->removeObject(node);
-                        else
-                            layerRenderer->removeObject(node);
-                    } else {
-                        if (node->locked())
-                            m_lockedRenderer->addObject(node);
-                        else
-                            layerRenderer->addObject(node);
-                    }
-                }
-            }
-        };
-
-        void MapRenderer::nodeVisibilityDidChange(const Model::NodeList& nodes) {
-            MapRenderer::UpdateVisibility visitor(m_layerRenderers, m_lockedRenderer);
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
-            invalidateEntityLinkRenderer();
+            updateRenderers(Renderer_Selection);
         }
         
-        class MapRenderer::UpdateLocking : public Model::NodeVisitor {
-        private:
-            RendererMap& m_layerRenderers;
-            ObjectRenderer* m_lockedRenderer;
-        public:
-            UpdateLocking(RendererMap& layerRenderers, ObjectRenderer* lockedRenderer) :
-            m_layerRenderers(layerRenderers),
-            m_lockedRenderer(lockedRenderer) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   { handleNode(group, group->layer()); }
-            void doVisit(Model::Entity* entity) { handleNode(entity, entity->layer()); }
-            void doVisit(Model::Brush* brush)   { handleNode(brush, brush->layer()); }
-            
-            void handleNode(Model::Node* node, Model::Layer* layer) {
-                assert(layer != NULL);
-                if (!node->selected() && !node->descendantSelected()) {
-                    ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
-                    assert(layerRenderer != NULL);
-                    if (!node->hidden()) {
-                        if (node->locked()) {
-                            layerRenderer->removeObject(node);
-                            m_lockedRenderer->addObject(node);
-                        } else {
-                            m_lockedRenderer->removeObject(node);
-                            layerRenderer->addObject(node);
-                        }
-                    }
-                }
-            }
-        };
+        void MapRenderer::nodeVisibilityDidChange(const Model::NodeList& nodes) {
+            updateRenderers(Renderer_All);
+        }
         
         void MapRenderer::nodeLockingDidChange(const Model::NodeList& nodes) {
-            MapRenderer::UpdateLocking visitor(m_layerRenderers, m_lockedRenderer);
-            Model::Node::acceptAndRecurse(nodes.begin(), nodes.end(), visitor);
-            invalidateEntityLinkRenderer();
+            updateRenderers(Renderer_Default_Locked);
         }
-
+        
         void MapRenderer::brushFacesDidChange(const Model::BrushFaceList& faces) {
-            m_selectionRenderer->updateBrushFaces(faces);
+            updateRenderers(Renderer_Selection);
         }
-
-        class MapRenderer::UpdateSelectedNode : public Model::NodeVisitor {
-        private:
-            RendererMap& m_layerRenderers;
-            ObjectRenderer* m_selectionRenderer;
-        public:
-            UpdateSelectedNode(RendererMap& layerRenderers, ObjectRenderer* selectionRenderer) :
-            m_layerRenderers(layerRenderers),
-            m_selectionRenderer(selectionRenderer) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   { handleNode(group, group->layer()); }
-            void doVisit(Model::Entity* entity) { handleNode(entity, entity->layer()); }
-            void doVisit(Model::Brush* brush)   { handleNode(brush, brush->layer()); }
-            
-            void handleNode(Model::Node* node, Model::Layer* layer) {
-                ObjectRenderer* layerRenderer = MapUtils::find(m_layerRenderers, layer, static_cast<ObjectRenderer*>(NULL));
-                assert(layerRenderer != NULL);
-                
-                if (node->selected() || node->descendantSelected() || node->parentSelected())
-                    m_selectionRenderer->updateObject(node);
-                else
-                    layerRenderer->updateObject(node);
-            }
-        };
         
         void MapRenderer::selectionDidChange(const View::Selection& selection) {
-            HandleSelectedNode handleSelectedNode(m_layerRenderers, m_selectionRenderer, m_lockedRenderer);
-            Model::Node::accept(selection.partiallySelectedNodes().begin(), selection.partiallySelectedNodes().end(), handleSelectedNode);
-            Model::Node::accept(selection.partiallyDeselectedNodes().begin(), selection.partiallyDeselectedNodes().end(), handleSelectedNode);
-            Model::Node::accept(selection.recursivelySelectedNodes().begin(), selection.recursivelySelectedNodes().end(), handleSelectedNode);
-            Model::Node::accept(selection.recursivelyDeselectedNodes().begin(), selection.recursivelyDeselectedNodes().end(), handleSelectedNode);
-            Model::Node::accept(selection.selectedNodes().begin(), selection.selectedNodes().end(), handleSelectedNode);
-            Model::Node::accept(selection.deselectedNodes().begin(), selection.deselectedNodes().end(), handleSelectedNode);
-
-            UpdateSelectedNode updateNode(m_layerRenderers, m_selectionRenderer);
-            
-            const Model::BrushSet parentsOfSelectedFaces = collectBrushes(selection.selectedBrushFaces());
-            Model::Node::accept(parentsOfSelectedFaces.begin(), parentsOfSelectedFaces.end(), updateNode);
-
-            const Model::BrushSet parentsOfDeselectedFaces = collectBrushes(selection.deselectedBrushFaces());
-            Model::Node::accept(parentsOfDeselectedFaces.begin(), parentsOfDeselectedFaces.end(), updateNode);
-
-            invalidateEntityLinkRenderer();
+            updateRenderers(Renderer_Default_Selection);
         }
-
+        
         Model::BrushSet MapRenderer::collectBrushes(const Model::BrushFaceList& faces) {
             Model::BrushSet result;
             Model::BrushFaceList::const_iterator it, end;
@@ -662,34 +454,31 @@ namespace TrenchBroom {
             }
             return result;
         }
-
+        
         void MapRenderer::textureCollectionsDidChange() {
-            invalidateLayerRenderers();
-            invalidateSelectionRenderer();
+            invalidateRenderers(Renderer_All);
         }
         
         void MapRenderer::entityDefinitionsDidChange() {
-            invalidateLayerRenderers();
-            invalidateSelectionRenderer();
+            invalidateRenderers(Renderer_All);
             invalidateEntityLinkRenderer();
         }
         
         void MapRenderer::modsDidChange() {
-            invalidateLayerRenderers();
-            invalidateSelectionRenderer();
+            invalidateRenderers(Renderer_All);
             invalidateEntityLinkRenderer();
         }
-
+        
         void MapRenderer::editorContextDidChange() {
-            invalidateLayerRenderers();
+            invalidateRenderers(Renderer_All);
             invalidateEntityLinkRenderer();
         }
         
         void MapRenderer::mapViewConfigDidChange() {
-            invalidateLayerRenderers();
+            invalidateRenderers(Renderer_All);
             invalidateEntityLinkRenderer();
         }
-
+        
         void MapRenderer::preferenceDidChange(const IO::Path& path) {
             setupRenderers();
         }

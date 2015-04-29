@@ -25,104 +25,10 @@
 
 namespace TrenchBroom {
     namespace Renderer {
-        class AddNodeToObjectRenderer : public Model::NodeVisitor {
-        private:
-            GroupRenderer& m_groupRenderer;
-            EntityRenderer& m_entityRenderer;
-            BrushRenderer& m_brushRenderer;
-        public:
-            AddNodeToObjectRenderer(GroupRenderer& groupRenderer, EntityRenderer& entityRenderer, BrushRenderer& brushRenderer) :
-            m_groupRenderer(groupRenderer),
-            m_entityRenderer(entityRenderer),
-            m_brushRenderer(brushRenderer) {}
-        private:
-            virtual void doVisit(Model::World* world)   {}
-            virtual void doVisit(Model::Layer* layer)   {}
-            virtual void doVisit(Model::Group* group)   { m_groupRenderer.addGroup(group); }
-            virtual void doVisit(Model::Entity* entity) { m_entityRenderer.addEntity(entity); }
-            virtual void doVisit(Model::Brush* brush)   { m_brushRenderer.addBrush(brush); }
-        };
-        
-        void ObjectRenderer::addObjects(const Model::NodeList& nodes) {
-            AddNodeToObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
-            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
-        }
-
-        void ObjectRenderer::addObject(Model::Node* object) {
-            assert(object != NULL);
-            AddNodeToObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
-            object->accept(visitor);
-        }
-        
-        class RemoveNodeFromObjectRenderer : public Model::NodeVisitor {
-        private:
-            GroupRenderer& m_groupRenderer;
-            EntityRenderer& m_entityRenderer;
-            BrushRenderer& m_brushRenderer;
-        public:
-            RemoveNodeFromObjectRenderer(GroupRenderer& groupRenderer, EntityRenderer& entityRenderer, BrushRenderer& brushRenderer) :
-            m_groupRenderer(groupRenderer),
-            m_entityRenderer(entityRenderer),
-            m_brushRenderer(brushRenderer) {}
-        private:
-            virtual void doVisit(Model::World* world)   {}
-            virtual void doVisit(Model::Layer* layer)   {}
-            virtual void doVisit(Model::Group* group)   { m_groupRenderer.removeGroup(group); }
-            virtual void doVisit(Model::Entity* entity) { m_entityRenderer.removeEntity(entity); }
-            virtual void doVisit(Model::Brush* brush)   { m_brushRenderer.removeBrush(brush); }
-        };
-
-        void ObjectRenderer::removeObjects(const Model::NodeList& nodes) {
-            RemoveNodeFromObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
-            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
-        }
-
-        void ObjectRenderer::removeObject(Model::Node* object) {
-            assert(object != NULL);
-            RemoveNodeFromObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
-            object->accept(visitor);
-        }
-
-        class UpdateNodesInObjectRenderer : public Model::NodeVisitor {
-        private:
-            GroupRenderer& m_groupRenderer;
-            EntityRenderer& m_entityRenderer;
-            BrushRenderer& m_brushRenderer;
-        public:
-            UpdateNodesInObjectRenderer(GroupRenderer& groupRenderer, EntityRenderer& entityRenderer, BrushRenderer& brushRenderer) :
-            m_groupRenderer(groupRenderer),
-            m_entityRenderer(entityRenderer),
-            m_brushRenderer(brushRenderer) {}
-        private:
-            virtual void doVisit(Model::World* world)   {}
-            virtual void doVisit(Model::Layer* layer)   {}
-            
-            virtual void doVisit(Model::Group* group)   {
-                const Model::NodeList& children = group->children();
-                if (!children.empty()) {
-                    UpdateNodesInObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
-                    Model::Node::accept(children.begin(), children.end(), visitor);
-                }
-                m_groupRenderer.updateGroup(group);
-            }
-            
-            virtual void doVisit(Model::Entity* entity) { m_entityRenderer.updateEntity(entity); }
-            virtual void doVisit(Model::Brush* brush)   { m_brushRenderer.updateBrush(brush); }
-        };
-        
-        void ObjectRenderer::updateObjects(const Model::NodeList& nodes) {
-            UpdateNodesInObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
-            Model::Node::accept(nodes.begin(), nodes.end(), visitor);
-        }
-        
-        void ObjectRenderer::updateObject(Model::Node* object) {
-            assert(object != NULL);
-            UpdateNodesInObjectRenderer visitor(m_groupRenderer, m_entityRenderer, m_brushRenderer);
-            object->accept(visitor);
-        }
-
-        void ObjectRenderer::updateBrushFaces(const Model::BrushFaceList& faces) {
-            m_brushRenderer.invalidate();
+        void ObjectRenderer::setObjects(const Model::GroupList& groups, const Model::EntityList& entities, const Model::BrushList& brushes) {
+            m_groupRenderer.setGroups(groups);
+            m_entityRenderer.setEntities(entities);
+            m_brushRenderer.setBrushes(brushes);
         }
 
         void ObjectRenderer::invalidate() {

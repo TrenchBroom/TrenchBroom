@@ -103,6 +103,7 @@ namespace TrenchBroom {
         typedef AssortNodesVisitorT<CollectLayersStrategy, SkipGroupsStrategy,    SkipEntitiesStrategy,    SkipBrushesStrategy>    CollectLayersVisitor;
         typedef AssortNodesVisitorT<SkipLayersStrategy,    CollectGroupsStrategy, SkipEntitiesStrategy,    SkipBrushesStrategy>    CollectGroupsVisitor;
         typedef AssortNodesVisitorT<SkipLayersStrategy,    CollectGroupsStrategy, CollectEntitiesStrategy, CollectBrushesStrategy>    CollectObjectsVisitor;
+        typedef AssortNodesVisitorT<SkipLayersStrategy,    SkipGroupsStrategy,    SkipEntitiesStrategy,    CollectBrushesStrategy>    CollectBrushesVisitor;
     }
 }
 

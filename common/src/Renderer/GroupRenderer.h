@@ -39,7 +39,7 @@ namespace TrenchBroom {
             class GroupNameAnchor;
             
             const Model::EditorContext& m_editorContext;
-            Model::GroupSet m_groups;
+            Model::GroupList m_groups;
             
             EdgeRenderer m_boundsRenderer;
             bool m_boundsValid;
@@ -54,10 +54,8 @@ namespace TrenchBroom {
             Color m_occludedBoundsColor;
         public:
             GroupRenderer(const Model::EditorContext& editorContext);
-            
-            void addGroup(Model::Group* group);
-            void updateGroup(Model::Group* group);
-            void removeGroup(Model::Group* group);
+
+            void setGroups(const Model::GroupList& groups);
             void invalidate();
             void clear();
 

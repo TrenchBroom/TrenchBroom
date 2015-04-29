@@ -154,8 +154,6 @@ namespace TrenchBroom {
             
             void clearRenderers();
             void updateRenderers();
-            
-            class AddBrushesToRendererVisitor;
             void addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer);
             
             bool keepFrontBrushes() const;

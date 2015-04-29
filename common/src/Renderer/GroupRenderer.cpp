@@ -57,28 +57,11 @@ namespace TrenchBroom {
         m_overrideBoundsColor(false),
         m_showOccludedBounds(false) {}
         
-        void GroupRenderer::addGroup(Model::Group* group) {
-            assert(group != NULL);
-            assert(m_groups.count(group) == 0);
-            
-            m_groups.insert(group);
-            invalidateBounds();
+        void GroupRenderer::setGroups(const Model::GroupList& groups) {
+            m_groups = groups;
+            invalidate();
         }
-        
-        void GroupRenderer::updateGroup(Model::Group* group) {
-            assert(group != NULL);
-            if (m_groups.count(group) > 0)
-                invalidateBounds();
-        }
-        
-        void GroupRenderer::removeGroup(Model::Group* group) {
-            assert(group != NULL);
-            Model::GroupSet::iterator it = m_groups.find(group);
-            assert(it != m_groups.end());
-            m_groups.erase(it);
-            invalidateBounds();
-        }
-        
+
         void GroupRenderer::invalidate() {
             invalidateBounds();
         }
@@ -151,7 +134,7 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(m_overlayTextColor);
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
                 
-                Model::GroupSet::const_iterator it, end;
+                Model::GroupList::const_iterator it, end;
                 for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
                     const Model::Group* group = *it;
                     if (m_editorContext.visible(group)) {
@@ -201,7 +184,7 @@ namespace TrenchBroom {
                 vertices.reserve(24 * m_groups.size());
                 
                 BuildBoundsVertices boundsBuilder(vertices);
-                Model::GroupSet::const_iterator it, end;
+                Model::GroupList::const_iterator it, end;
                 for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
                     const Model::Group* group = *it;
                     if (m_editorContext.visible(group)) {
@@ -214,7 +197,7 @@ namespace TrenchBroom {
                 VertexSpecs::P3C4::Vertex::List vertices;
                 vertices.reserve(24 * m_groups.size());
                 
-                Model::GroupSet::const_iterator it, end;
+                Model::GroupList::const_iterator it, end;
                 for (it = m_groups.begin(), end = m_groups.end(); it != end; ++it) {
                     const Model::Group* group = *it;
                     if (m_editorContext.visible(group)) {

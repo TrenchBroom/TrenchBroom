@@ -23,6 +23,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Macros.h"
+#include "Model/AssortNodesVisitor.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushVertex.h"
@@ -669,28 +670,16 @@ namespace TrenchBroom {
                 addBrushesToRenderer(m_backBrushes, m_clippedBrushRenderer);
         }
         
-        
-        class ClipTool::AddBrushesToRendererVisitor : public Model::NodeVisitor {
-        private:
-            Renderer::BrushRenderer* m_renderer;
-        public:
-            AddBrushesToRendererVisitor(Renderer::BrushRenderer* renderer) : m_renderer(renderer) {}
-        private:
-            void doVisit(Model::World* world)   {}
-            void doVisit(Model::Layer* layer)   {}
-            void doVisit(Model::Group* group)   {}
-            void doVisit(Model::Entity* entity) {}
-            void doVisit(Model::Brush* brush)   { m_renderer->addBrush(brush); }
-        };
-        
         void ClipTool::addBrushesToRenderer(const Model::ParentChildrenMap& map, Renderer::BrushRenderer* renderer) {
-            AddBrushesToRendererVisitor visitor(renderer);
+            Model::CollectBrushesVisitor collect;
             
             Model::ParentChildrenMap::const_iterator it, end;
             for (it = map.begin(), end = map.end(); it != end; ++it) {
                 const Model::NodeList& brushes = it->second;
-                Model::Node::accept(brushes.begin(), brushes.end(), visitor);
+                Model::Node::accept(brushes.begin(), brushes.end(), collect);
             }
+            
+            m_clippedBrushRenderer->setBrushes(collect.brushes());
         }
         
         bool ClipTool::keepFrontBrushes() const {

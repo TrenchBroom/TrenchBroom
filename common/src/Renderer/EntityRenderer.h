@@ -50,7 +50,7 @@ namespace TrenchBroom {
             class EntityClassnameAnchor;
 
             const Model::EditorContext& m_editorContext;
-            Model::EntitySet m_entities;
+            Model::EntityList m_entities;
             
             EdgeRenderer m_wireframeBoundsRenderer;
             TriangleRenderer m_solidBoundsRenderer;
@@ -74,11 +74,8 @@ namespace TrenchBroom {
             Vbo m_vbo;
         public:
             EntityRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
-            ~EntityRenderer();
 
-            void addEntity(Model::Entity* entity);
-            void updateEntity(Model::Entity* entity);
-            void removeEntity(Model::Entity* entity);
+            void setEntities(const Model::EntityList& entities);
             void invalidate();
             void clear();
             void reloadModels();

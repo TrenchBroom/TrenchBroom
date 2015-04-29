@@ -55,7 +55,7 @@ namespace TrenchBroom {
             void addNode(Node* node);
         };
         
-        template <typename P, typename C, typename S = NeverStopRecursion>
+        template <typename P, typename C = StandardNodeCollectionStrategy, typename S = NeverStopRecursion>
         class CollectMatchingNodesVisitor : public C, public MatchingNodeVisitor<P,S> {
         public:
             CollectMatchingNodesVisitor(const P& p = P(), const S& s = S()) : MatchingNodeVisitor<P,S>(p, s) {}

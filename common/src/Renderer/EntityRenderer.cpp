@@ -80,39 +80,11 @@ namespace TrenchBroom {
         m_showHiddenEntities(false),
         m_vbo(0xFFF) {}
         
-        EntityRenderer::~EntityRenderer() {
-            clear();
+        void EntityRenderer::setEntities(const Model::EntityList& entities) {
+            m_entities = entities;
+            invalidate();
         }
-        
-        void EntityRenderer::addEntity(Model::Entity* entity) {
-            assert(entity != NULL);
 
-            assert(m_entities.count(entity) == 0);
-            m_entities.insert(entity);
-            m_modelRenderer.addEntity(entity);
-            
-            invalidateBounds();
-        }
-        
-        void EntityRenderer::updateEntity(Model::Entity* entity) {
-            assert(entity != NULL);
-            
-            assert(m_entities.count(entity) == 1);
-            m_modelRenderer.updateEntity(entity);
-            invalidateBounds();
-        }
-        
-        void EntityRenderer::removeEntity(Model::Entity* entity) {
-            assert(entity != NULL);
-            
-            Model::EntitySet::iterator it = m_entities.find(entity);
-            assert(it != m_entities.end());
-            m_entities.erase(it);
-            
-            m_modelRenderer.removeEntity(entity);
-            invalidateBounds();
-        }
-        
         void EntityRenderer::invalidate() {
             invalidateBounds();
         }
@@ -237,7 +209,7 @@ namespace TrenchBroom {
                 renderService.setForegroundColor(m_overlayTextColor);
                 renderService.setBackgroundColor(m_overlayBackgroundColor);
                 
-                Model::EntitySet::const_iterator it, end;
+                Model::EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     const Model::Entity* entity = *it;
                     if (m_showHiddenEntities || m_editorContext.visible(entity)) {
@@ -260,7 +232,7 @@ namespace TrenchBroom {
             const Vec3f::List arrow = arrowHead(9.0f, 6.0f);
             
             Vertex::List vertices;
-            Model::EntitySet::const_iterator it, end;
+            Model::EntityList::const_iterator it, end;
             for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                 const Model::Entity* entity = *it;
                 if (!m_showHiddenEntities && !m_editorContext.visible(entity))
@@ -377,7 +349,7 @@ namespace TrenchBroom {
                 wireframeVertices.reserve(24 * m_entities.size());
 
                 BuildWireframeBoundsVertices wireframeBoundsBuilder(wireframeVertices);
-                Model::EntitySet::const_iterator it, end;
+                Model::EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     const Model::Entity* entity = *it;
                     if (m_editorContext.visible(entity)) {
@@ -394,7 +366,7 @@ namespace TrenchBroom {
                 VertexSpecs::P3C4::Vertex::List wireframeVertices;
                 wireframeVertices.reserve(24 * m_entities.size());
 
-                Model::EntitySet::const_iterator it, end;
+                Model::EntityList::const_iterator it, end;
                 for (it = m_entities.begin(), end = m_entities.end(); it != end; ++it) {
                     const Model::Entity* entity = *it;
                     if (m_editorContext.visible(entity)) {

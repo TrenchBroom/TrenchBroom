@@ -569,10 +569,22 @@ namespace TrenchBroom {
         }
 
         void MapDocumentCommandFacade::performPushGroup(Model::Group* group) {
+            const Model::NodeList nodes(1, group);
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+
             m_editorContext->pushGroup(group);
         }
         
         void MapDocumentCommandFacade::performPopGroup() {
+            const Model::NodeList nodes(1, m_editorContext->currentGroup());
+            const Model::NodeList parents = collectParents(nodes);
+            
+            NodeChangeNotifier notifyParents(nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+            NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+            
             m_editorContext->popGroup();
         }
 
