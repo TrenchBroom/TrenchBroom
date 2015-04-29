@@ -129,6 +129,7 @@ namespace TrenchBroom {
             void descendantWasAdded(Node* node);
             void descendantWillBeRemoved(Node* node);
             void descendantWasRemoved(Node* oldParent, Node* node);
+            bool shouldPropagateDescendantEvents() const;
             
             void incDescendantCount(size_t delta);
             void decDescendantCount(size_t delta);
@@ -358,10 +359,11 @@ namespace TrenchBroom {
             virtual void doChildWillBeRemoved(Node* node);
             virtual void doChildWasRemoved(Node* node);
             
-            virtual bool doDescendantWillBeAdded(Node* newParent, Node* node);
-            virtual bool doDescendantWasAdded(Node* node);
-            virtual bool doDescendantWillBeRemoved(Node* node);
-            virtual bool doDescendantWasRemoved(Node* oldParent, Node* node);
+            virtual void doDescendantWillBeAdded(Node* newParent, Node* node);
+            virtual void doDescendantWasAdded(Node* node);
+            virtual void doDescendantWillBeRemoved(Node* node);
+            virtual void doDescendantWasRemoved(Node* oldParent, Node* node);
+            virtual bool doShouldPropagateDescendantEvents() const;
 
             virtual void doParentWillChange();
             virtual void doParentDidChange();
@@ -370,8 +372,8 @@ namespace TrenchBroom {
             
             virtual void doChildWillChange(Node* node);
             virtual void doChildDidChange(Node* node);
-            virtual bool doDescendantWillChange(Node* node);
-            virtual bool doDescendantDidChange(Node* node);
+            virtual void doDescendantWillChange(Node* node);
+            virtual void doDescendantDidChange(Node* node);
             
             virtual bool doSelectable() const = 0;
             

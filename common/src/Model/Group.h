@@ -72,12 +72,13 @@ namespace TrenchBroom {
             bool doCanRemoveChild(const Node* child) const;
             bool doRemoveIfEmpty() const;
 
-            bool doDescendantWillBeAdded(Node* newParent, Node* node);
-            bool doDescendantWasAdded(Node* node);
-            bool doDescendantWillBeRemoved(Node* node);
-            bool doDescendantWasRemoved(Node* oldParent, Node* node);
-            bool doDescendantWillChange(Node* node);
-            bool doDescendantDidChange(Node* node);
+            void doDescendantWillBeAdded(Node* newParent, Node* node);
+            void doDescendantWasAdded(Node* node);
+            void doDescendantWillBeRemoved(Node* node);
+            void doDescendantWasRemoved(Node* oldParent, Node* node);
+            void doDescendantWillChange(Node* node);
+            void doDescendantDidChange(Node* node);
+            bool doShouldPropagateDescendantEvents() const;
             
             bool doSelectable() const;
             

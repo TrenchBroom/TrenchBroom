@@ -134,19 +134,16 @@ namespace TrenchBroom {
             return true;
         }
 
-        bool Entity::doDescendantWasAdded(Node* node) {
+        void Entity::doDescendantWasAdded(Node* node) {
             invalidateBounds();
-            return true;
         }
         
-        bool Entity::doDescendantWasRemoved(Node* oldParent, Node* node) {
+        void Entity::doDescendantWasRemoved(Node* oldParent, Node* node) {
             invalidateBounds();
-            return true;
         }
 
-        bool Entity::doDescendantDidChange(Node* node) {
+        void Entity::doDescendantDidChange(Node* node) {
             invalidateBounds();
-            return true;
         }
 
         bool Entity::doSelectable() const {
