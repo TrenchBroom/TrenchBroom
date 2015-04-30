@@ -371,6 +371,8 @@ namespace TrenchBroom {
             document->nodesDidChangeNotifier.addObserver(this, &MapRenderer::nodesDidChange);
             document->nodeVisibilityDidChangeNotifier.addObserver(this, &MapRenderer::nodeVisibilityDidChange);
             document->nodeLockingDidChangeNotifier.addObserver(this, &MapRenderer::nodeLockingDidChange);
+            document->groupWasOpenedNotifier.addObserver(this, &MapRenderer::groupWasOpened);
+            document->groupWasClosedNotifier.addObserver(this, &MapRenderer::groupWasClosed);
             document->brushFacesDidChangeNotifier.addObserver(this, &MapRenderer::brushFacesDidChange);
             document->selectionDidChangeNotifier.addObserver(this, &MapRenderer::selectionDidChange);
             document->textureCollectionsDidChangeNotifier.addObserver(this, &MapRenderer::textureCollectionsDidChange);
@@ -394,6 +396,8 @@ namespace TrenchBroom {
                 document->nodesDidChangeNotifier.removeObserver(this, &MapRenderer::nodesDidChange);
                 document->nodeVisibilityDidChangeNotifier.removeObserver(this, &MapRenderer::nodeVisibilityDidChange);
                 document->nodeLockingDidChangeNotifier.removeObserver(this, &MapRenderer::nodeLockingDidChange);
+                document->groupWasOpenedNotifier.removeObserver(this, &MapRenderer::groupWasOpened);
+                document->groupWasClosedNotifier.removeObserver(this, &MapRenderer::groupWasClosed);
                 document->brushFacesDidChangeNotifier.removeObserver(this, &MapRenderer::brushFacesDidChange);
                 document->selectionDidChangeNotifier.removeObserver(this, &MapRenderer::selectionDidChange);
                 document->textureCollectionsDidChangeNotifier.removeObserver(this, &MapRenderer::textureCollectionsDidChange);
@@ -425,7 +429,7 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::nodesDidChange(const Model::NodeList& nodes) {
-            updateRenderers(Renderer_Selection);
+            invalidateRenderers(Renderer_Selection);
         }
         
         void MapRenderer::nodeVisibilityDidChange(const Model::NodeList& nodes) {
@@ -436,8 +440,16 @@ namespace TrenchBroom {
             updateRenderers(Renderer_Default_Locked);
         }
         
+        void MapRenderer::groupWasOpened(Model::Group* group) {
+            updateRenderers(Renderer_Default_Selection);
+        }
+        
+        void MapRenderer::groupWasClosed(Model::Group* group) {
+            updateRenderers(Renderer_Default_Selection);
+        }
+
         void MapRenderer::brushFacesDidChange(const Model::BrushFaceList& faces) {
-            updateRenderers(Renderer_Selection);
+            invalidateRenderers(Renderer_Selection);
         }
         
         void MapRenderer::selectionDidChange(const View::Selection& selection) {

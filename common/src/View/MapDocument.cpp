@@ -674,6 +674,8 @@ namespace TrenchBroom {
                     resetLock(Model::NodeList(1, previousGroup));
                 unlock(Model::NodeList(1, group));
             }
+            
+            groupWasOpenedNotifier(group);
         }
         
         void MapDocument::closeGroup() {
@@ -689,6 +691,8 @@ namespace TrenchBroom {
                 else
                     unlock(Model::NodeList(1, m_world));
             }
+            
+            groupWasClosedNotifier(previousGroup);
         }
 
         void MapDocument::isolate(const Model::NodeList& nodes) {

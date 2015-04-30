@@ -111,6 +111,9 @@ namespace TrenchBroom {
             void nodeVisibilityDidChange(const Model::NodeList& nodes);
             void nodeLockingDidChange(const Model::NodeList& nodes);
             
+            void groupWasOpened(Model::Group* group);
+            void groupWasClosed(Model::Group* group);
+            
             void brushFacesDidChange(const Model::BrushFaceList& faces);
             
             void selectionDidChange(const View::Selection& selection);

@@ -117,7 +117,7 @@ namespace TrenchBroom {
             if (m_showOccludedBounds) {
                 Renderer::RenderEdges* renderOccludedEdges = new Renderer::RenderEdges(Reference::ref(m_boundsRenderer));
                 if (m_overrideBoundsColor)
-                    renderOccludedEdges->setColor(m_boundsColor);
+                    renderOccludedEdges->setColor(m_occludedBoundsColor);
                 renderOccludedEdges->setRenderOccluded();
                 renderBatch.addOneShot(renderOccludedEdges);
             }

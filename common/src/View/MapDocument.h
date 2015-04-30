@@ -46,6 +46,7 @@ namespace TrenchBroom {
         class BrushFaceAttributes;
         class ChangeBrushFaceAttributesRequest;
         class EditorContext;
+        class Group;
         class PickResult;
         class PointFile;
     }
@@ -121,6 +122,9 @@ namespace TrenchBroom {
             
             Notifier1<const Model::NodeList&> nodeVisibilityDidChangeNotifier;
             Notifier1<const Model::NodeList&> nodeLockingDidChangeNotifier;
+            
+            Notifier1<Model::Group*> groupWasOpenedNotifier;
+            Notifier1<Model::Group*> groupWasClosedNotifier;
             
             Notifier1<const Model::BrushFaceList&> brushFacesDidChangeNotifier;
             
