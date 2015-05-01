@@ -800,6 +800,8 @@ namespace TrenchBroom {
             
             invalidateSelectionBounds();
 
+            info("Snapped %u vertices", static_cast<unsigned int>(newVertexPositions.size()));
+            
             return newVertexPositions;
         }
 
