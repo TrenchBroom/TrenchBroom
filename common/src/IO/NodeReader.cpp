@@ -37,10 +37,17 @@ namespace TrenchBroom {
         const Model::NodeList& NodeReader::read(const BBox3& worldBounds) {
             try {
                 readEntities(m_factory->format(), worldBounds);
-            } catch (const ParserException&) {}
-            try {
-                readBrushes(m_factory->format(), worldBounds);
-            } catch (const ParserException&) {}
+            } catch (const ParserException&) {
+                VectorUtils::clearAndDelete(m_nodes);
+
+                try {
+                    reset();
+                    readBrushes(m_factory->format(), worldBounds);
+                } catch (const ParserException&) {
+                    VectorUtils::clearAndDelete(m_nodes);
+                    throw;
+                }
+            }
             return m_nodes;
         }
         

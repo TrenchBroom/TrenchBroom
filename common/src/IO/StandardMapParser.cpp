@@ -207,6 +207,10 @@ namespace TrenchBroom {
             }
         }
 
+        void StandardMapParser::reset() {
+            m_tokenizer.reset();
+        }
+
         void StandardMapParser::setFormat(const Model::MapFormat::Type format) {
             assert(format != Model::MapFormat::Unknown);
             m_format = format;
