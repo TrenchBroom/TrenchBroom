@@ -70,6 +70,7 @@ namespace TrenchBroom {
             void renderCoordinateSystem(const BBox3f& bounds);
             
             void renderPolygonOutline(const Vec3f::List& positions);
+            void renderFilledPolygon(const Vec3f::List& positions);
             
             void renderBounds(const BBox3f& bounds);
             

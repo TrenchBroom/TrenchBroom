@@ -170,8 +170,8 @@ namespace TrenchBroom {
             return (point - m_position).dot(m_direction);
         }
 
-        Vec3f Camera::defaultPoint() const {
-            return m_position + DefaultPointDistance * direction();
+        Vec3f Camera::defaultPoint(const float distance) const {
+            return m_position + distance * direction();
         }
         
         Vec3f Camera::defaultPoint(const int x, const int y) const {

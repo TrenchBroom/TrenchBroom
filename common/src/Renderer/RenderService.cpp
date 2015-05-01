@@ -129,6 +129,10 @@ namespace TrenchBroom {
             m_primitiveRenderer->renderPolygon(m_foregroundColor, m_lineWidth, positions);
         }
 
+        void RenderService::renderFilledPolygon(const Vec3f::List& positions) {
+            m_primitiveRenderer->renderFilledPolygon(m_foregroundColor, positions);
+        }
+
         void RenderService::renderBounds(const BBox3f& bounds) {
             const Vec3f p1(bounds.min.x(), bounds.min.y(), bounds.min.z());
             const Vec3f p2(bounds.min.x(), bounds.min.y(), bounds.max.z());

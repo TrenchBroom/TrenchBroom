@@ -21,6 +21,7 @@
 
 #include "Logger.h"
 #include "Model/Brush.h"
+#include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/Layer.h"
 #include "Model/ModelFactory.h"
