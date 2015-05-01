@@ -667,15 +667,12 @@ namespace TrenchBroom {
             
             deselectAll();
             Model::Group* previousGroup = m_editorContext->currentGroup();
-            if (submit(CurrentGroupCommand::push(group))) {
-                if (previousGroup == NULL)
-                    lock(Model::NodeList(1, m_world));
-                else
-                    resetLock(Model::NodeList(1, previousGroup));
-                unlock(Model::NodeList(1, group));
-            }
-            
-            groupWasOpenedNotifier(group);
+            if (previousGroup == NULL)
+                lock(Model::NodeList(1, m_world));
+            else
+                resetLock(Model::NodeList(1, previousGroup));
+            unlock(Model::NodeList(1, group));
+            submit(CurrentGroupCommand::push(group));
         }
         
         void MapDocument::closeGroup() {
@@ -683,16 +680,13 @@ namespace TrenchBroom {
 
             deselectAll();
             Model::Group* previousGroup = m_editorContext->currentGroup();
-            if (submit(CurrentGroupCommand::pop())) {
-                resetLock(Model::NodeList(1, previousGroup));
-                Model::Group* currentGroup = m_editorContext->currentGroup();
-                if (currentGroup != NULL)
-                    unlock(Model::NodeList(1, currentGroup));
-                else
-                    unlock(Model::NodeList(1, m_world));
-            }
-            
-            groupWasClosedNotifier(previousGroup);
+            resetLock(Model::NodeList(1, previousGroup));
+            Model::Group* currentGroup = m_editorContext->currentGroup();
+            if (currentGroup != NULL)
+                unlock(Model::NodeList(1, currentGroup));
+            else
+                unlock(Model::NodeList(1, m_world));
+            submit(CurrentGroupCommand::pop());
         }
 
         void MapDocument::isolate(const Model::NodeList& nodes) {

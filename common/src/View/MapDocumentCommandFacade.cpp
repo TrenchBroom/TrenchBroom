@@ -570,10 +570,13 @@ namespace TrenchBroom {
 
         void MapDocumentCommandFacade::performPushGroup(Model::Group* group) {
             m_editorContext->pushGroup(group);
+            groupWasOpenedNotifier(group);
         }
         
         void MapDocumentCommandFacade::performPopGroup() {
+            Model::Group* previousGroup = m_editorContext->currentGroup();
             m_editorContext->popGroup();
+            groupWasClosedNotifier(previousGroup);
         }
 
         void MapDocumentCommandFacade::performTransform(const Mat4x4& transform, const bool lockTextures) {
