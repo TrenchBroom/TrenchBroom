@@ -82,6 +82,14 @@ namespace TrenchBroom {
             const Model::VertexToFacesMap& unselectedFaceHandles() const;
             const Model::VertexToFacesMap& selectedFaceHandles() const;
             
+            Vec3::List vertexHandlePositions() const;
+            Vec3::List edgeHandlePositions() const;
+            Vec3::List faceHandlePositions() const;
+            
+            Vec3::List unselectedVertexHandlePositions() const;
+            Vec3::List unselectedEdgeHandlePositions() const;
+            Vec3::List unselectedFaceHandlePositions() const;
+            
             Vec3::List selectedVertexHandlePositions() const;
             Vec3::List selectedEdgeHandlePositions() const;
             Vec3::List selectedFaceHandlePositions() const;
@@ -111,18 +119,24 @@ namespace TrenchBroom {
             
             void selectVertexHandle(const Vec3& position);
             void deselectVertexHandle(const Vec3& position);
+            void toggleVertexHandle(const Vec3& position);
             void selectVertexHandles(const Vec3::List& positions);
             void deselectAllVertexHandles();
+            void toggleVertexHandles(const Vec3::List& positions);
             
             void selectEdgeHandle(const Vec3& position);
             void deselectEdgeHandle(const Vec3& position);
+            void toggleEdgeHandle(const Vec3& position);
             void selectEdgeHandles(const Edge3::List& edges);
             void deselectAllEdgeHandles();
+            void toggleEdgeHandles(const Vec3::List& positions);
             
             void selectFaceHandle(const Vec3& position);
             void deselectFaceHandle(const Vec3& position);
+            void toggleFaceHandle(const Vec3& position);
             void selectFaceHandles(const Polygon3::List& faces);
             void deselectAllFaceHandles();
+            void toggleFaceHandles(const Vec3::List& positions);
             
             bool hasSelectedHandles() const;
             void deselectAllHandles();
@@ -174,16 +188,14 @@ namespace TrenchBroom {
             }
 
             template <typename T, typename O>
-            Vec3::List handlePositions(const std::map<Vec3, T, O>& handles) const {
-                Vec3::List result;
-                result.reserve(handles.size());
+            void handlePositions(const std::map<Vec3, T, O>& handles, Vec3::List& result) const {
+                result.reserve(result.size() + handles.size());
                 
                 typename std::map<Vec3, T, O>::const_iterator it, end;
                 for (it = handles.begin(), end = handles.end(); it != end; ++it) {
                     const Vec3& position = it->first;
                     result.push_back(position);
                 }
-                return result;
             }
 
             Vec3::List findVertexHandlePositions(const Model::BrushList& brushes, const Vec3& query, FloatType maxDistance);

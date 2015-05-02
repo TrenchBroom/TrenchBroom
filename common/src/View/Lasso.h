@@ -33,14 +33,23 @@ namespace TrenchBroom {
     namespace View {
         class Lasso {
         private:
+            const Renderer::Camera& m_camera;
+            const FloatType m_distance;
             const Mat4x4 m_transform;
             const Vec3 m_start;
             Vec3 m_cur;
         public:
             Lasso(const Renderer::Camera& camera, FloatType distance, const Vec3& point);
             void setPoint(const Vec3& point);
+            
+            Vec3::List containedPoints(const Vec3::List& points) const;
+            bool containsPoint(const Vec3& point) const;
+        private:
+            bool containsPoint(const Vec3& point, const Plane3& plane, const BBox2& box) const;
         public:
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
+        private:
+            BBox2 computeBox() const;
         };
     }
 }

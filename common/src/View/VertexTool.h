@@ -42,6 +42,7 @@ namespace TrenchBroom {
     
     namespace View {
         class InputState;
+        class Lasso;
         class MovementRestriction;
         class Selection;
         
@@ -69,6 +70,7 @@ namespace TrenchBroom {
             bool mergeVertices(const Model::Hit& hit);
             bool handleDoubleClicked(const Model::Hit& hit);
             bool select(const Model::Hit::List& hits, bool addToSelection);
+            void select(const Lasso& lasso, bool modifySelection);
 
             bool beginMove(const Model::Hit& hit);
             Vec3 snapMoveDelta(const Vec3& delta, const Model::Hit& hit, bool relative);

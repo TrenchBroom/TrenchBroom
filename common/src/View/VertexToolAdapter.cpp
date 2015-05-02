@@ -129,11 +129,14 @@ namespace TrenchBroom {
         }
         
         void VertexToolAdapter::endLasso(const InputState& inputState) {
+            assert(m_lasso != NULL);
+            m_tool->select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
             delete m_lasso;
             m_lasso = NULL;
         }
         
         void VertexToolAdapter::cancelLasso() {
+            assert(m_lasso != NULL);
             delete m_lasso;
             m_lasso = NULL;
         }

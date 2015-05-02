@@ -28,6 +28,7 @@
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"
 #include "View/Grid.h"
+#include "View/Lasso.h"
 #include "View/MapDocument.h"
 #include "View/MoveBrushEdgesCommand.h"
 #include "View/MoveBrushFacesCommand.h"
@@ -107,6 +108,22 @@ namespace TrenchBroom {
             return true;
         }
         
+        void VertexTool::select(const Lasso& lasso, const bool modifySelection) {
+            if (m_handleManager.selectedEdgeCount() > 0) {
+                const Vec3::List contained = lasso.containedPoints(m_handleManager.edgeHandlePositions());
+                if (!modifySelection) m_handleManager.deselectAllEdgeHandles();
+                m_handleManager.toggleEdgeHandles(contained);
+            } else if (m_handleManager.selectedFaceCount() > 0) {
+                const Vec3::List contained = lasso.containedPoints(m_handleManager.faceHandlePositions());
+                if (!modifySelection) m_handleManager.deselectAllFaceHandles();
+                m_handleManager.toggleFaceHandles(contained);
+            } else {
+                const Vec3::List contained = lasso.containedPoints(m_handleManager.vertexHandlePositions());
+                if (!modifySelection) m_handleManager.deselectAllVertexHandles();
+                m_handleManager.toggleVertexHandles(contained);
+            }
+        }
+
         bool VertexTool::beginMove(const Model::Hit& hit) {
             assert(hit.isMatch());
             

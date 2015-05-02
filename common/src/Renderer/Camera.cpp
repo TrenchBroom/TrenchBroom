@@ -155,7 +155,11 @@ namespace TrenchBroom {
         }
 
         Ray3f Camera::pickRay(const int x, const int y) const {
-            return doGetPickRay(x, y);
+            return doGetPickRay(unproject(static_cast<float>(x), static_cast<float>(y), 0.5f));
+        }
+
+        Ray3f Camera::pickRay(const Vec3f& point) const {
+            return doGetPickRay(point);
         }
 
         float Camera::distanceTo(const Vec3f& point) const {

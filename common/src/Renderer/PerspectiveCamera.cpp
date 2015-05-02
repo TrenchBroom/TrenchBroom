@@ -52,8 +52,8 @@ namespace TrenchBroom {
             cameraDidChangeNotifier(this);
         }
         
-        Ray3f PerspectiveCamera::doGetPickRay(const int x, const int y) const {
-            const Vec3f direction = (unproject(static_cast<float>(x), static_cast<float>(y), 0.5f) - position()).normalized();
+        Ray3f PerspectiveCamera::doGetPickRay(const Vec3f& point) const {
+            const Vec3f direction = (point - position()).normalized();
             return Ray3f(position(), direction);
         }
         
