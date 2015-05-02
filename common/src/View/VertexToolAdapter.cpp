@@ -19,8 +19,10 @@
 
 #include "VertexToolAdapter.h"
 
+#include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "View/InputState.h"
+#include "View/Lasso.h"
 #include "View/VertexTool.h"
 
 #include <cassert>
@@ -31,11 +33,14 @@ namespace TrenchBroom {
 
         VertexToolAdapter::VertexToolAdapter(VertexTool* tool, MoveToolHelper* helper) :
         MoveToolAdapter(helper),
-        m_tool(tool) {
+        m_tool(tool),
+        m_lasso(NULL) {
             assert(m_tool != NULL);
         }
 
-        VertexToolAdapter::~VertexToolAdapter() {}
+        VertexToolAdapter::~VertexToolAdapter() {
+            delete m_lasso;
+        }
 
         Tool* VertexToolAdapter::doGetTool() {
             return m_tool;
@@ -73,6 +78,67 @@ namespace TrenchBroom {
                       inputState.modifierKeysPressed(ModifierKeys::MKShift) ||
                       inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift) ||
                       inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd)));
+        }
+
+        typedef MoveToolAdapter<PickingPolicy, MousePolicy, RenderPolicy> MoveAdapter;
+        
+        bool VertexToolAdapter::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+            if (MoveAdapter::doStartPlaneDrag(inputState, plane, initialPoint))
+                return true;
+            return startLasso(inputState, plane, initialPoint);
+        }
+        
+        bool VertexToolAdapter::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+            if (m_lasso == NULL)
+                return MoveAdapter::doPlaneDrag(inputState, lastPoint, curPoint, refPoint);
+            return updateLasso(inputState, lastPoint, curPoint, refPoint);
+        }
+        
+        void VertexToolAdapter::doEndPlaneDrag(const InputState& inputState) {
+            if (m_lasso == NULL)
+                MoveAdapter::doEndPlaneDrag(inputState);
+            else
+                endLasso(inputState);
+        }
+        
+        void VertexToolAdapter::doCancelPlaneDrag() {
+            if (m_lasso == NULL)
+                MoveAdapter::doCancelPlaneDrag();
+            else
+                cancelLasso();
+        }
+        
+        bool VertexToolAdapter::startLasso(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+            if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
+                !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No))
+                return false;
+
+            const Renderer::Camera& camera = inputState.camera();
+            const FloatType distance = 64.0f;
+            plane = orthogonalDragPlane(camera.defaultPoint(distance), camera.direction());
+            initialPoint = inputState.pickRay().pointAtDistance(plane.intersectWithRay(inputState.pickRay()));
+            
+            m_lasso = new Lasso(camera, distance, initialPoint);
+            return true;
+        }
+        
+        bool VertexToolAdapter::updateLasso(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+            assert(m_lasso != NULL);
+            m_lasso->setPoint(curPoint);
+            return true;
+        }
+        
+        void VertexToolAdapter::endLasso(const InputState& inputState) {
+            assert(m_lasso != NULL);
+            m_tool->select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
+            delete m_lasso;
+            m_lasso = NULL;
+        }
+        
+        void VertexToolAdapter::cancelLasso() {
+            assert(m_lasso != NULL);
+            delete m_lasso;
+            m_lasso = NULL;
         }
 
         bool VertexToolAdapter::doHandleMove(const InputState& inputState) const {
@@ -125,7 +191,9 @@ namespace TrenchBroom {
         void VertexToolAdapter::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             m_tool->renderHandles(renderContext, renderBatch);
             
-            if (dragging()) {
+            if (m_lasso != NULL) {
+                m_lasso->render(renderContext, renderBatch);
+            } else if (dragging()) {
                 m_tool->renderHighlight(renderContext, renderBatch);
                 renderMoveIndicator(inputState, renderContext, renderBatch);
             } else {

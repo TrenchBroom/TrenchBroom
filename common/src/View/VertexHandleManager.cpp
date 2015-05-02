@@ -77,16 +77,64 @@ namespace TrenchBroom {
             return m_selectedFaceHandles;
         }
         
+        Vec3::List VertexHandleManager::vertexHandlePositions() const {
+            Vec3::List result;
+            result.reserve(m_selectedVertexHandles.size() + m_unselectedVertexHandlePositions.size());
+            handlePositions(m_unselectedVertexHandles, result);
+            handlePositions(m_selectedVertexHandles, result);
+            return result;
+        }
+        
+        Vec3::List VertexHandleManager::edgeHandlePositions() const {
+            Vec3::List result;
+            result.reserve(m_selectedEdgeHandles.size() + m_unselectedEdgeHandlePositions.size());
+            handlePositions(m_unselectedEdgeHandles, result);
+            handlePositions(m_selectedEdgeHandles, result);
+            return result;
+        }
+        
+        Vec3::List VertexHandleManager::faceHandlePositions() const {
+            Vec3::List result;
+            result.reserve(m_selectedFaceHandles.size() + m_unselectedFaceHandlePositions.size());
+            handlePositions(m_unselectedFaceHandles, result);
+            handlePositions(m_selectedFaceHandles, result);
+            return result;
+        }
+        
+        Vec3::List VertexHandleManager::unselectedVertexHandlePositions() const {
+            Vec3::List result;
+            handlePositions(m_unselectedVertexHandles, result);
+            return result;
+        }
+        
+        Vec3::List VertexHandleManager::unselectedEdgeHandlePositions() const {
+            Vec3::List result;
+            handlePositions(m_unselectedEdgeHandles, result);
+            return result;
+        }
+        
+        Vec3::List VertexHandleManager::unselectedFaceHandlePositions() const {
+            Vec3::List result;
+            handlePositions(m_unselectedFaceHandles, result);
+            return result;
+        }
+        
         Vec3::List VertexHandleManager::selectedVertexHandlePositions() const {
-            return handlePositions(m_selectedVertexHandles);
+            Vec3::List result;
+            handlePositions(m_selectedVertexHandles, result);
+            return result;
         }
         
         Vec3::List VertexHandleManager::selectedEdgeHandlePositions() const {
-            return handlePositions(m_selectedEdgeHandles);
+            Vec3::List result;
+            handlePositions(m_selectedEdgeHandles, result);
+            return result;
         }
         
         Vec3::List VertexHandleManager::selectedFaceHandlePositions() const {
-            return handlePositions(m_selectedFaceHandles);
+            Vec3::List result;
+            handlePositions(m_selectedFaceHandles, result);
+            return result;
         }
 
         bool VertexHandleManager::isHandleSelected(const Vec3& position) const {
@@ -337,6 +385,18 @@ namespace TrenchBroom {
             }
         }
         
+        void VertexHandleManager::toggleVertexHandle(const Vec3& position) {
+            size_t count = 0;
+            if ((count = moveHandle(position, m_unselectedVertexHandles, m_selectedVertexHandles)) > 0) {
+                m_selectedVertexCount += count;
+                m_renderStateValid = false;
+            } else if ((count = moveHandle(position, m_selectedVertexHandles, m_unselectedVertexHandles)) > 0) {
+                assert(m_selectedVertexCount >= count);
+                m_selectedVertexCount -= count;
+                m_renderStateValid = false;
+            }
+        }
+
         void VertexHandleManager::selectVertexHandles(const Vec3::List& positions) {
             Vec3::List::const_iterator it, end;
             for (it = positions.begin(), end = positions.end(); it != end; ++it)
@@ -356,6 +416,12 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
+        void VertexHandleManager::toggleVertexHandles(const Vec3::List& positions) {
+            Vec3::List::const_iterator it, end;
+            for (it = positions.begin(), end = positions.end(); it != end; ++it)
+                toggleVertexHandle(*it);
+        }
+        
         void VertexHandleManager::selectEdgeHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_unselectedEdgeHandles, m_selectedEdgeHandles)) > 0) {
@@ -373,6 +439,18 @@ namespace TrenchBroom {
             }
         }
         
+        void VertexHandleManager::toggleEdgeHandle(const Vec3& position) {
+            size_t count = 0;
+            if ((count = moveHandle(position, m_unselectedEdgeHandles, m_selectedEdgeHandles)) > 0) {
+                m_selectedEdgeCount += count;
+                m_renderStateValid = false;
+            } else if ((count = moveHandle(position, m_selectedEdgeHandles, m_unselectedEdgeHandles)) > 0) {
+                assert(m_selectedEdgeCount >= count);
+                m_selectedEdgeCount -= count;
+                m_renderStateValid = false;
+            }
+        }
+
         void VertexHandleManager::selectEdgeHandles(const Edge3::List& edges) {
             Edge3::List::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
@@ -394,6 +472,12 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
+        void VertexHandleManager::toggleEdgeHandles(const Vec3::List& positions) {
+            Vec3::List::const_iterator it, end;
+            for (it = positions.begin(), end = positions.end(); it != end; ++it)
+                toggleEdgeHandle(*it);
+        }
+
         void VertexHandleManager::selectFaceHandle(const Vec3& position) {
             size_t count = 0;
             if ((count = moveHandle(position, m_unselectedFaceHandles, m_selectedFaceHandles)) > 0) {
@@ -411,6 +495,18 @@ namespace TrenchBroom {
             }
         }
         
+        void VertexHandleManager::toggleFaceHandle(const Vec3& position) {
+            size_t count = 0;
+            if ((count = moveHandle(position, m_unselectedFaceHandles, m_selectedFaceHandles)) > 0) {
+                m_selectedFaceCount += count;
+                m_renderStateValid = false;
+            } else if ((count = moveHandle(position, m_selectedFaceHandles, m_unselectedFaceHandles)) > 0) {
+                assert(m_selectedFaceCount >= count);
+                m_selectedFaceCount -= count;
+                m_renderStateValid = false;
+            }
+        }
+
         void VertexHandleManager::selectFaceHandles(const Polygon3::List& faces) {
             Polygon3::List::const_iterator it, end;
             for (it = faces.begin(), end = faces.end(); it != end; ++it) {
@@ -432,6 +528,12 @@ namespace TrenchBroom {
             m_renderStateValid = false;
         }
         
+        void VertexHandleManager::toggleFaceHandles(const Vec3::List& positions) {
+            Vec3::List::const_iterator it, end;
+            for (it = positions.begin(), end = positions.end(); it != end; ++it)
+                toggleFaceHandle(*it);
+        }
+
         bool VertexHandleManager::hasSelectedHandles() const {
             return !m_selectedVertexHandles.empty() || !m_selectedEdgeHandles.empty() || !m_selectedFaceHandles.empty();
         }

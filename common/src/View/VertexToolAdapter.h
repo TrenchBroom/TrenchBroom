@@ -26,6 +26,7 @@
 
 namespace TrenchBroom {
     namespace View {
+        class Lasso;
         class InputState;
         class MovementRestriction;
         class VertexTool;
@@ -35,6 +36,8 @@ namespace TrenchBroom {
             static const FloatType MaxVertexDistance;
         protected:
             VertexTool* m_tool;
+        private:
+            Lasso* m_lasso;
         protected:
             VertexToolAdapter(VertexTool* tool, MoveToolHelper* helper);
         public:
@@ -46,6 +49,17 @@ namespace TrenchBroom {
             bool doMouseDoubleClick(const InputState& inputState);
             bool dismissClick(const InputState& inputState) const;
 
+            // For the lasso selection, we intercept the plane drag events here
+            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
+            void doEndPlaneDrag(const InputState& inputState);
+            void doCancelPlaneDrag();
+            
+            bool startLasso(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            bool updateLasso(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
+            void endLasso(const InputState& inputState);
+            void cancelLasso();
+            
             bool doHandleMove(const InputState& inputState) const;
             Vec3 doGetMoveOrigin(const InputState& inputState) const;
             bool doStartMove(const InputState& inputState);

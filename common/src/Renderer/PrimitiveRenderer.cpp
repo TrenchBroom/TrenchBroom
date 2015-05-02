@@ -69,6 +69,12 @@ namespace TrenchBroom {
             m_lineMeshes[lineWidth].endLineLoop();
         }
 
+        void PrimitiveRenderer::renderFilledPolygon(const Color& color, const Vec3f::List& positions) {
+            m_triangleMesh.beginTriangleFan();
+            m_triangleMesh.addTriangleFan(Vertex::fromLists(positions, Color::List(1, color), positions.size(), 0, 1, 0, 0));
+            m_triangleMesh.endTriangleFan();
+        }
+
         void PrimitiveRenderer::renderCircle(const Color& color, const float lineWidth, const Vec3f& position, const Math::Axis::Type normal, const size_t segments, const float radius, const Vec3f& startAxis, const Vec3f& endAxis) {
             const std::pair<float, float> angles = startAngleAndLength(normal, startAxis, endAxis);
             renderCircle(color, lineWidth, position, normal, segments, radius, angles.first, angles.second);

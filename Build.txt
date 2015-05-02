@@ -31,7 +31,7 @@
   - Create a new directory, e.g. "build", and change into it.
   - Run the following two commands
     cmake .. -DCMAKE_BUILD_TYPE=Release
-    cmake --build . --config Release
+    cmake --build . --config Release --target TrenchBroom
     You can replace "Release" with "Debug" if you want to create a debug build. This is also recommended if you want to work on the source in Visual Studio.
 - For MinGW 64
   - Download and install MinGW from http://mingw-w64.sourceforge.net/
@@ -91,7 +91,7 @@ Build TrenchBroom
 - Create a new directory, e.g. "build", and change into it.
 - Run the following two commands
   cmake .. -DCMAKE_BUILD_TYPE=Release
-  cmake --build .
+  cmake --build . --target TrenchBroom
   You can replace "Release" with "Debug" if you want to create a debug build.
 
 Notes

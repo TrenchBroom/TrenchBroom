@@ -103,10 +103,11 @@ namespace TrenchBroom {
             
             Ray3f viewRay() const;
             Ray3f pickRay(int x, int y) const;
+            Ray3f pickRay(const Vec3f& point) const;
             float distanceTo(const Vec3f& point) const;
             float squaredDistanceTo(const Vec3f& point) const;
             float perpendicularDistanceTo(const Vec3f& point) const;
-            Vec3f defaultPoint() const;
+            Vec3f defaultPoint(const float distance = DefaultPointDistance) const;
             Vec3f defaultPoint(int x, int y) const;
             
             template <typename T>
@@ -144,7 +145,7 @@ namespace TrenchBroom {
             virtual ProjectionType doGetProjectionType() const = 0;
             
             virtual void doValidateMatrices(Mat4x4f& projectionMatrix, Mat4x4f& viewMatrix) const = 0;
-            virtual Ray3f doGetPickRay(int x, int y) const = 0;
+            virtual Ray3f doGetPickRay(const Vec3f& point) const = 0;
             virtual void doComputeFrustumPlanes(Plane3f& topPlane, Plane3f& rightPlane, Plane3f& bottomPlane, Plane3f& leftPlane) const = 0;
             
             virtual void doRenderFrustum(RenderContext& renderContext, Vbo& vbo, float size, const Color& color) const = 0;

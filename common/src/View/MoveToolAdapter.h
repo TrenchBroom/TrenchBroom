@@ -55,7 +55,7 @@ namespace TrenchBroom {
             void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 m_helper->render(inputState, Super::dragging(), renderContext, renderBatch);
             }
-        private:
+        protected:
             void doModifierKeyChange(const InputState& inputState) {
                 if (!m_helper->handleMove(inputState))
                     return;
@@ -63,23 +63,23 @@ namespace TrenchBroom {
                     PlaneDragPolicy::resetPlane(inputState);
             }
 
-            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+            virtual bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
                 return m_helper->startPlaneDrag(inputState, plane, initialPoint);
             }
             
-            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+            virtual bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
                 return m_helper->planeDrag(inputState, lastPoint, curPoint, refPoint);
             }
             
-            void doEndPlaneDrag(const InputState& inputState) {
+            virtual void doEndPlaneDrag(const InputState& inputState) {
                 m_helper->endPlaneDrag(inputState);
             }
             
-            void doCancelPlaneDrag() {
+            virtual void doCancelPlaneDrag() {
                 m_helper->cancelPlaneDrag();
             }
             
-            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+            virtual void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
                 m_helper->resetPlane(inputState, plane, initialPoint);
             }
         };

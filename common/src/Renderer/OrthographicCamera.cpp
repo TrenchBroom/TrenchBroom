@@ -51,11 +51,10 @@ namespace TrenchBroom {
             viewMatrix = ::viewMatrix(direction(), up()) * translationMatrix(-position());
         }
         
-        Ray3f OrthographicCamera::doGetPickRay(const int x, const int y) const {
-            const Vec3f p = unproject(static_cast<float>(x), static_cast<float>(y), 0.5f);
-            const Vec3f v = p - position();
+        Ray3f OrthographicCamera::doGetPickRay(const Vec3f& point) const {
+            const Vec3f v = point - position();
             const float d = v.dot(direction());
-            const Vec3f o = p - d * direction();
+            const Vec3f o = point - d * direction();
             return Ray3f(o, direction());
         }
         
