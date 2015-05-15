@@ -56,15 +56,6 @@ namespace TrenchBroom {
             }
         }
         
-        void EntityModelRenderer::updateEntity(Model::Entity* entity) {
-            removeEntity(entity);
-            addEntity(entity);
-        }
-        
-        void EntityModelRenderer::removeEntity(Model::Entity* entity) {
-            m_entities.erase(entity);
-        }
-
         void EntityModelRenderer::clear() {
             m_entities.clear();
         }

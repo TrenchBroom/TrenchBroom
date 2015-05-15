@@ -82,6 +82,7 @@ namespace TrenchBroom {
         
         void EntityRenderer::setEntities(const Model::EntityList& entities) {
             m_entities = entities;
+            reloadModels();
             invalidate();
         }
 
@@ -97,8 +98,7 @@ namespace TrenchBroom {
         }
 
         void EntityRenderer::reloadModels() {
-            m_modelRenderer.clear();
-            m_modelRenderer.addEntities(m_entities.begin(), m_entities.end());
+            m_modelRenderer.setEntities(m_entities.begin(), m_entities.end());
         }
 
         void EntityRenderer::setShowOverlays(const bool showOverlays) {

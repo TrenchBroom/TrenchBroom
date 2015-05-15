@@ -61,9 +61,11 @@ namespace TrenchBroom {
             EntityModelRenderer(Assets::EntityModelManager& entityModelManager, const Model::EditorContext& editorContext);
             ~EntityModelRenderer();
             
-            void addEntity(Model::Entity* entity);
-            void updateEntity(Model::Entity* entity);
-            void removeEntity(Model::Entity* entity);
+            template <typename I>
+            void setEntities(I cur, I end) {
+                clear();
+                addEntities(cur, end);
+            }
             
             template <typename I>
             void addEntities(I cur, I end) {
@@ -73,22 +75,7 @@ namespace TrenchBroom {
                 }
             }
             
-            template <typename I>
-            void updateEntities(I cur, I end) {
-                while (cur != end) {
-                    updateEntity(*cur);
-                    ++cur;
-                }
-            }
-            
-            template <typename I>
-            void removeEntities(I cur, I end) {
-                while (cur != end) {
-                    removeEntity(*cur);
-                    ++cur;
-                }
-            }
-            
+            void addEntity(Model::Entity* entity);
             void clear();
             
             bool applyTinting() const;
