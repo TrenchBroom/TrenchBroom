@@ -258,12 +258,12 @@ namespace TrenchBroom {
             return m_factory.createBrush(worldBounds, faces);
         }
         
-        BrushFace* World::doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName) const {
-            return m_factory.createFace(point1, point2, point3, textureName);
+        BrushFace* World::doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const {
+            return m_factory.createFace(point1, point2, point3, attribs);
         }
         
-        BrushFace* World::doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY) const {
-            return m_factory.createFace(point1, point2, point3, textureName, texAxisX, texAxisY);
+        BrushFace* World::doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const {
+            return m_factory.createFace(point1, point2, point3, attribs, texAxisX, texAxisY);
         }
     }
 }

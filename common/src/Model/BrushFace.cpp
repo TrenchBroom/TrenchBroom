@@ -35,7 +35,7 @@ namespace TrenchBroom {
     namespace Model {
         const String BrushFace::NoTextureName = "__TB_empty";
 
-        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName, TexCoordSystem* texCoordSystem) :
+        BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem) :
         m_brush(NULL),
         m_lineNumber(0),
         m_lineCount(0),
@@ -43,17 +43,9 @@ namespace TrenchBroom {
         m_texCoordSystem(texCoordSystem),
         m_side(NULL),
         m_vertexCacheValid(false),
-        m_attribs(textureName) {
+        m_attribs(attribs) {
             assert(m_texCoordSystem != NULL);
             setPoints(point0, point1, point2);
-        }
-
-        BrushFace* BrushFace::createParaxial(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
-            return new BrushFace(point0, point1, point2, textureName, new ParaxialTexCoordSystem(point0, point1, point2));
-        }
-
-        BrushFace* BrushFace::createParallel(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
-            return new BrushFace(point0, point1, point2, textureName, new ParallelTexCoordSystem(point0, point1, point2));
         }
 
         class PlaneWeightOrder {
@@ -84,6 +76,16 @@ namespace TrenchBroom {
             }
         };
 
+        BrushFace* BrushFace::createParaxial(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
+            const BrushFaceAttributes attribs(textureName);
+            return new BrushFace(point0, point1, point2, attribs, new ParaxialTexCoordSystem(point0, point1, point2, attribs));
+        }
+        
+        BrushFace* BrushFace::createParallel(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName) {
+            const BrushFaceAttributes attribs(textureName);
+            return new BrushFace(point0, point1, point2, attribs, new ParallelTexCoordSystem(point0, point1, point2, attribs));
+        }
+        
         void BrushFace::sortFaces(BrushFaceList& faces) {
             std::sort(faces.begin(), faces.end(), FaceWeightOrder(PlaneWeightOrder(true)));
             std::sort(faces.begin(), faces.end(), FaceWeightOrder(PlaneWeightOrder(false)));
@@ -188,7 +190,7 @@ namespace TrenchBroom {
             return m_attribs;
         }
 
-        void BrushFace::setAttribs(const BrushFaceAttributes& attribs, bool isloading) {
+        void BrushFace::setAttribs(const BrushFaceAttributes& attribs) {
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->decUsageCount();
 
@@ -198,21 +200,11 @@ namespace TrenchBroom {
             if (m_attribs.texture() != NULL)
                 m_attribs.texture()->incUsageCount();
 
-            // don't rotate the texCoordSystem further when we're loading a valve220 map, the rotatation is already part of the texture vectors
-            if (!(dynamic_cast<ParallelTexCoordSystem *>(m_texCoordSystem) && isloading))
-                m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
+            m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attribs.rotation());
             invalidate();
 
             if (m_brush != NULL)
                 m_brush->faceDidChange();
-        }
-
-        void BrushFace::updateAttribs(const BrushFaceAttributes& attribs) {
-            setAttribs(attribs, false);
-        }
-
-        void BrushFace::initializeAttribs(const BrushFaceAttributes& attribs) {
-            setAttribs(attribs, true);
         }
 
         const String& BrushFace::textureName() const {

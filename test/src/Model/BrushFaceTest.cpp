@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "TestUtils.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceAttributes.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
 namespace TrenchBroom {
@@ -33,7 +34,8 @@ namespace TrenchBroom {
             const Vec3 p1(1.f,  0.0, 4.0);
             const Vec3 p2(0.0, -1.0, 4.0);
             
-            BrushFace face(p0, p1, p2, "", new ParaxialTexCoordSystem(p0, p1, p2));
+            const BrushFaceAttributes attribs("");
+            BrushFace face(p0, p1, p2, attribs, new ParaxialTexCoordSystem(p0, p1, p2, attribs));
             ASSERT_VEC_EQ(p0, face.points()[0]);
             ASSERT_VEC_EQ(p1, face.points()[1]);
             ASSERT_VEC_EQ(p2, face.points()[2]);
@@ -46,7 +48,8 @@ namespace TrenchBroom {
             const Vec3 p1(1.f, 0.0, 4.0);
             const Vec3 p2(2.0, 0.0, 4.0);
             
-            ASSERT_THROW(new BrushFace(p0, p1, p2, "", new ParaxialTexCoordSystem(p0, p1, p2)), GeometryException);
+            const BrushFaceAttributes attribs("");
+            ASSERT_THROW(new BrushFace(p0, p1, p2, attribs, new ParaxialTexCoordSystem(p0, p1, p2, attribs)), GeometryException);
         }
     }
 }

@@ -25,6 +25,8 @@
 
 namespace TrenchBroom {
     namespace Model {
+        class BrushFaceAttributes;
+        
         class ModelFactory {
         public:
             virtual ~ModelFactory();
@@ -35,8 +37,9 @@ namespace TrenchBroom {
             Group* createGroup(const String& name) const;
             Entity* createEntity() const;
             Brush* createBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
-            BrushFace* createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName) const;
-            BrushFace* createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY) const;
+            
+            BrushFace* createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const;
+            BrushFace* createFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const;
         private:
             virtual MapFormat::Type doGetFormat() const = 0;
             virtual World* doCreateWorld(const BBox3& worldBounds) const = 0;
@@ -44,8 +47,8 @@ namespace TrenchBroom {
             virtual Group* doCreateGroup(const String& name) const = 0;
             virtual Entity* doCreateEntity() const = 0;
             virtual Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const = 0;
-            virtual BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName) const = 0;
-            virtual BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY) const = 0;
+            virtual BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const = 0;
+            virtual BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const = 0;
         };
     }
 }

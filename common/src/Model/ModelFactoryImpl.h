@@ -30,6 +30,7 @@
 namespace TrenchBroom {
     namespace Model {
         class BrushContentTypeBuilder;
+        class BrushFaceAttributes;
         
         class ModelFactoryImpl : public ModelFactory {
         private:
@@ -45,8 +46,9 @@ namespace TrenchBroom {
             Group* doCreateGroup(const String& name) const;
             Entity* doCreateEntity() const;
             Brush* doCreateBrush(const BBox3& worldBounds, const BrushFaceList& faces) const;
-            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName) const;
-            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const String& textureName, const Vec3& texAxisX, const Vec3& texAxisY) const;
+            
+            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs) const;
+            BrushFace* doCreateFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const BrushFaceAttributes& attribs, const Vec3& texAxisX, const Vec3& texAxisY) const;
         };
     }
 }

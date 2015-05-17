@@ -48,6 +48,10 @@ namespace TrenchBroom {
             
             Vec3 xAxis() const;
             Vec3 yAxis() const;
+
+            void resetTextureAxes(const Vec3& normal);
+            void resetTextureAxesToParaxial(const Vec3& normal, float angle);
+            void resetTextureAxesToParallel(const Vec3& normal, float angle);
             
             Vec2f getTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const;
             
@@ -70,6 +74,10 @@ namespace TrenchBroom {
             virtual Vec3 getYAxis() const = 0;
             virtual Vec3 getZAxis() const = 0;
             
+            virtual void doResetTextureAxes(const Vec3& normal) = 0;
+            virtual void doResetTextureAxesToParaxial(const Vec3& normal, float angle) = 0;
+            virtual void doResetTextureAxesToParallel(const Vec3& normal, float angle) = 0;
+
             virtual bool isRotationInverted(const Vec3& normal) const = 0;
             virtual Vec2f doGetTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const = 0;
             

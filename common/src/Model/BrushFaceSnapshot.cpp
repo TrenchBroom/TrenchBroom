@@ -32,7 +32,7 @@ namespace TrenchBroom {
         }
 
         void BrushFaceSnapshot::restore() {
-            m_face->updateAttribs(m_attribs);
+            m_face->setAttribs(m_attribs);
             if (m_coordSystem != NULL)
                 m_coordSystem->restore();
         }

@@ -78,7 +78,7 @@ namespace TrenchBroom {
         protected:
             BrushFaceAttributes m_attribs;
         public:
-            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName, TexCoordSystem* texCoordSystem);
+            BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem);
             
             static BrushFace* createParaxial(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = "");
             static BrushFace* createParallel(const Vec3& point0, const Vec3& point1, const Vec3& point2, const String& textureName = "");
@@ -102,8 +102,7 @@ namespace TrenchBroom {
             FloatType area(Math::Axis::Type axis) const;
             
             const BrushFaceAttributes& attribs() const;
-            void updateAttribs(const BrushFaceAttributes& attribs);
-            void initializeAttribs(const BrushFaceAttributes& attribs);
+            void setAttribs(const BrushFaceAttributes& attribs);
             
             const String& textureName() const;
             Assets::Texture* texture() const;
@@ -182,7 +181,6 @@ namespace TrenchBroom {
             void correctPoints();
             void validateVertexCache() const;
             void invalidateVertexCache();
-            void setAttribs(const BrushFaceAttributes& attribs, bool isloading);
             
             BrushFace(const BrushFace& other);
             BrushFace& operator=(const BrushFace& other);

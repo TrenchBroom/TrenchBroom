@@ -33,15 +33,15 @@ namespace TrenchBroom {
             Vec3( 0.0, -1.0,  0.0), Vec3( 1.0,  0.0,  0.0), Vec3( 0.0,  0.0, -1.0),
         };
 
-        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2) :
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs) :
         m_index(0) {
             const Vec3 normal = crossed(point2 - point0, point1 - point0).normalized();
-            setRotation(normal, 0.0f, 0.0f);
+            setRotation(normal, 0.0f, attribs.rotation());
         }
 
-        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& normal) :
+        ParaxialTexCoordSystem::ParaxialTexCoordSystem(const Vec3& normal, const BrushFaceAttributes& attribs) :
         m_index(0) {
-            setRotation(normal, 0.0f, 0.0f);
+            setRotation(normal, 0.0f, attribs.rotation());
         }
         
         size_t ParaxialTexCoordSystem::planeNormalIndex(const Vec3& normal) {
@@ -88,6 +88,10 @@ namespace TrenchBroom {
             return BaseAxes[m_index * 3 + 0];
         }
         
+        void ParaxialTexCoordSystem::doResetTextureAxes(const Vec3& normal) {}
+        void ParaxialTexCoordSystem::doResetTextureAxesToParaxial(const Vec3& normal, const float angle) {}
+        void ParaxialTexCoordSystem::doResetTextureAxesToParallel(const Vec3& normal, const float angle) {}
+
         bool ParaxialTexCoordSystem::isRotationInverted(const Vec3& normal) const {
             const size_t index = planeNormalIndex(normal);
             return index % 2 == 0;

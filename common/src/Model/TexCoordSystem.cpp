@@ -48,6 +48,18 @@ namespace TrenchBroom {
             return getYAxis();
         }
 
+        void TexCoordSystem::resetTextureAxes(const Vec3& normal) {
+            doResetTextureAxes(normal);
+        }
+        
+        void TexCoordSystem::resetTextureAxesToParaxial(const Vec3& normal, const float angle) {
+            doResetTextureAxesToParaxial(normal, angle);
+        }
+        
+        void TexCoordSystem::resetTextureAxesToParallel(const Vec3& normal, const float angle) {
+            doResetTextureAxesToParaxial(normal, angle);
+        }
+        
         Vec2f TexCoordSystem::getTexCoords(const Vec3& point, const BrushFaceAttributes& attribs) const {
             return doGetTexCoords(point, attribs);
         }
