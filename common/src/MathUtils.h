@@ -192,6 +192,11 @@ namespace Math {
     }
 
     template <typename T>
+    bool one(const T v, const T epsilon = Constants<T>::almostZero()) {
+        return Math::abs(v - static_cast<T>(1.0)) <= epsilon;
+    }
+    
+    template <typename T>
     bool zero(const T v, const T epsilon = Constants<T>::almostZero()) {
         return abs(v) <= epsilon;
     }
@@ -304,16 +309,20 @@ namespace Math {
     
     template <typename T>
     T normalizeRadians(T angle) {
-        while (angle < 0.0)
-            angle += Constants<T>::twoPi();
-        return mod(angle, Constants<T>::twoPi());
+        static const T z = static_cast<T>(0.0);
+        static const T o = Constants<T>::twoPi();
+        while (angle < z)
+            angle += o;
+        return mod(angle, o);
     }
     
     template <typename T>
     T normalizeDegrees(T angle) {
-        while (angle < 0.0)
-            angle += 360.0;
-        return mod(angle, 360.0);
+        static const T z = static_cast<T>(0.0);
+        static const T o = static_cast<T>(360.0);
+        while (angle < z)
+            angle += o;
+        return mod(angle, o);
     }
     
     template <typename T, bool Abs>

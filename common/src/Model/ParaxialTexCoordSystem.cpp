@@ -181,7 +181,7 @@ namespace TrenchBroom {
             if (newIndex == 4)
                 rad *= -1.0f;
             
-            const float newRotation = Math::correct(Math::degrees(rad), 4);
+            const float newRotation = Math::correct(Math::normalizeDegrees(Math::degrees(rad)), 4);
             doSetRotation(newNormal, newRotation, newRotation);
             
             // finally compute the scaling factors
