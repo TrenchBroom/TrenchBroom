@@ -245,6 +245,18 @@ namespace TrenchBroom {
                 BrushFace* face = *it;
                 if (m_setTexture)
                     face->setTexture(m_texture);
+                
+                switch (m_axisOp) {
+                    case AxisOp_Reset:
+                        face->resetTextureAxes();
+                        break;
+                    case AxisOp_None:
+                    case AxisOp_ToParaxial:
+                    case AxisOp_ToParallel:
+                        break;
+                    DEFAULT_SWITCH()
+                }
+                
                 face->setXOffset(evaluateValueOp(face->xOffset(), m_xOffset, m_xOffsetOp));
                 face->setYOffset(evaluateValueOp(face->yOffset(), m_yOffset, m_yOffsetOp));
                 face->setRotation(evaluateValueOp(face->rotation(), m_rotation, m_rotationOp));

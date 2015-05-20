@@ -139,6 +139,7 @@ namespace TrenchBroom {
 
             Vec3 textureXAxis() const;
             Vec3 textureYAxis() const;
+            void resetTextureAxes();
             
             void moveTexture(const Vec3& up, const Vec3& right, const Vec2f& offset);
             void rotateTexture(float angle);

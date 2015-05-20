@@ -365,6 +365,10 @@ namespace TrenchBroom {
             return m_texCoordSystem->yAxis();
         }
 
+        void BrushFace::resetTextureAxes() {
+            m_texCoordSystem->resetTextureAxes(m_boundary.normal);
+        }
+
         void BrushFace::moveTexture(const Vec3& up, const Vec3& right, const Vec2f& offset) {
             m_texCoordSystem->moveTexture(m_boundary.normal, up, right, offset, m_attribs);
             invalidateVertexCache();
