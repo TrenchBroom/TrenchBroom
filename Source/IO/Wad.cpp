@@ -89,7 +89,7 @@ namespace TrenchBroom {
                 unsigned int entryAddress = readUnsignedInt<int32_t>(cursor);
                 unsigned int entryLength = readUnsignedInt<int32_t>(cursor);
                 
-                if (entryAddress + entryLength >= m_file->size())
+                if (entryAddress + entryLength > m_file->size())
                     throw IOException("Wad entry beyond end of file");
                 
                 cursor += WadLayout::DirEntryTypeOffset;

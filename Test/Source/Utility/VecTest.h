@@ -62,6 +62,8 @@ namespace TrenchBroom {
                 registerTestCase(&VecTest::testSubtractAndAssignVec3);
                 registerTestCase(&VecTest::testMultiplyAndAssignVec3WithScalar);
                 registerTestCase(&VecTest::testDivideAndAssignVec3ByScalar);
+                registerTestCase(&VecTest::testNotParallel);
+                registerTestCase(&VecTest::testParallel);
             }
         public:
             void testConstructFromValidString() {
@@ -212,6 +214,26 @@ namespace TrenchBroom {
             void testDivideAndAssignVec3ByScalar() {
                 Vec3f v(2.0f, 36.0f, 4.0f);
                 assert((v /= 2.0f) == Vec3f(1.0f, 18.0f, 2.0f));
+            }
+			
+            void testNotParallel() {
+                Vec3f v1(10, 0, -1);
+                Vec3f v2(0, 0, -35);
+                assert(!v1.parallelTo(v2));
+
+                Vec3f v3(0, 0, 16);
+                Vec3f v4(0, 64, 64);
+                assert(!v3.parallelTo(v4));
+            }
+
+            void testParallel() {
+                Vec3f v1(1, 1, 1);
+                Vec3f v2(20, 20, 20);
+                assert(v1.parallelTo(v2));
+
+                Vec3f v3(1, 1, 1);
+                Vec3f v4(20, 20, 23);
+                assert(v3.parallelTo(v4));
             }
         };
     }
