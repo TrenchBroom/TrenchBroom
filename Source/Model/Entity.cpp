@@ -503,9 +503,9 @@ namespace TrenchBroom {
         }
 
         void Entity::renameProperty(const PropertyKey& oldKey, const PropertyKey& newKey) {
-            const PropertyValue* value = propertyForKey(oldKey);
+            const PropertyValue value = *propertyForKey(oldKey);
             removeProperty(oldKey);
-            setProperty(newKey, *value);
+            setProperty(newKey, value);
         }
         
         void Entity::removeProperty(const PropertyKey& key) {

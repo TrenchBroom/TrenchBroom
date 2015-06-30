@@ -405,12 +405,11 @@ namespace TrenchBroom {
 
             Vec3f edgeVector1 = edges[0]->vector();
             Vec3f edgeVector2 = edges[1]->vector();
-
-            if (edgeVector1.parallelTo(edgeVector2)) {
                 Vec3f edgeVector3 = edges[2]->vector();
-                assert(edgeVector1.parallelTo(edgeVector3));
-                assert(edgeVector2.parallelTo(edgeVector3));
 
+            if (edgeVector1.parallelTo(edgeVector2) &&
+                edgeVector1.parallelTo(edgeVector3) &&
+                edgeVector2.parallelTo(edgeVector3)) {
                 float length1 = edgeVector1.lengthSquared();
                 float length2 = edgeVector2.lengthSquared();
                 float length3 = edgeVector3.lengthSquared();
@@ -428,10 +427,6 @@ namespace TrenchBroom {
                         return 2;
                 }
             } else {
-                Vec3f edgeVector3 = edges[2]->vector();
-                assert(!edgeVector1.parallelTo(edgeVector3));
-                assert(!edgeVector2.parallelTo(edgeVector3));
-
                 return edges.size();
             }
         }

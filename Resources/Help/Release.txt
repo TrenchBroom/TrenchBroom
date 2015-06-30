@@ -4,6 +4,8 @@
 
 3. Perform the following steps in any order:
 	- Windows/Release-Package.bat
+	  - You need 7z.exe and msbuild.exe in your path, e.g.:
+	    `set PATH="C:\Program Files (x86)\MSBuild\14.0\Bin";"C:\Program Files\7-Zip";%PATH%`
 	- Commit changes
 	- Mac/Release-Package.sh
 	- Commit changes
