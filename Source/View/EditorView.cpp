@@ -908,6 +908,11 @@ namespace TrenchBroom {
                                 if (hit != NULL) {
                                     const Vec3f snappedHitPoint = mapDocument().grid().snap(hit->hitPoint());
                                     delta = mapDocument().grid().moveDeltaForBounds(hit->face(), objectsBounds, mapDocument().map().worldBounds(), inputState.pickRay(), snappedHitPoint);
+                                    // HACK: snap the delta to grid to avoid fractional deltas.
+                                    // seems we can get fractional deltas here if the object bounds are non-integer.
+                                    // if we pass a fractional delta to pasteObjects() and force integer plane points is enabled,
+                                    // we get vertex drift.
+                                    delta = mapDocument().grid().snap(delta);
                                 } else {
                                     const Vec3f targetPosition = mapDocument().grid().snap(camera().defaultPoint(inputState.pickRay().direction));
                                     delta = targetPosition - objectsPosition;

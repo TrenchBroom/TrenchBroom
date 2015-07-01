@@ -231,6 +231,10 @@ namespace TrenchBroom {
         }
 
         bool InputController::mouseDown(int x, int y, MouseButtonState mouseButton) {
+            // Workaround for missing modifier key up events when
+            // a context menu is open (OS X, Windows)
+            resetModifierKeys();
+	    
             if (m_dragTool != NULL)
                 return false;
 
@@ -245,6 +249,10 @@ namespace TrenchBroom {
         }
 
         bool InputController::mouseUp(int x, int y, MouseButtonState mouseButton) {
+            // Workaround for missing modifier key up events when
+            // a context menu is open (OS X, Windows)
+            resetModifierKeys();
+	    
             m_inputState.mouseMove(x, y);
             if (m_discardNextMouseUp) {
                 m_discardNextMouseUp = false;

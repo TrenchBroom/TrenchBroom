@@ -155,6 +155,7 @@ namespace TrenchBroom {
                 static const int ShowHintBrushesCheckBoxId          = Lowest +  13;
                 static const int ShowLiquidBrushesCheckBoxId        = Lowest +  14;
                 static const int ShowTriggerBrushesCheckBoxId       = Lowest +  15;
+                static const int ShowDetailBrushesCheckBoxId        = Lowest +  16;
                 static const int Highest                            = Lowest +  99;
             }
             

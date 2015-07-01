@@ -125,11 +125,17 @@ namespace TrenchBroom {
                 if (!pattern.empty() ||
                     !m_viewOptions.showClipBrushes() || !m_viewOptions.showSkipBrushes() ||
                     !m_viewOptions.showHintBrushes() || !m_viewOptions.showLiquidBrushes() ||
-                    !m_viewOptions.showTriggerBrushes()) {
+                    !m_viewOptions.showTriggerBrushes() || !m_viewOptions.showDetailBrushes()) {
                     
                     if (!m_viewOptions.showTriggerBrushes()) {
                         Model::Entity* entity = brush.entity();
                         if (entity != NULL && Utility::startsWith(entity->safeClassname(), "trigger_"))
+                            return false;
+                    }
+                    
+                    if (!m_viewOptions.showDetailBrushes()) {
+                        Model::Entity* entity = brush.entity();
+                        if (entity != NULL && entity->safeClassname() == "func_detail")
                             return false;
                     }
                     

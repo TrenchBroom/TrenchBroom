@@ -36,6 +36,14 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - All help is appreciated!
 
 ## Changes
+### TrenchBroom 1.1.5
+- Fix crash during vertex manipulation (ericw)
+- Fix vertex drift issue when copy/pasting (ericw)
+- Fix for entity key/value corruption when renaming a key (ericw)
+- Add checkbox to filter detail brushes (ericw)
+- Work around modifier keys getting stuck (ericw)
+- Fix for some valid wad files being rejected (ericw)
+
 ### TrenchBroom 1.1.4
 - Fix crash when updating graphics resources (ericw)
 - Fix vertex drift issue leading to grid snapping problems (ericw)
