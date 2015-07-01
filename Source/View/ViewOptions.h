@@ -49,6 +49,7 @@ namespace TrenchBroom {
             bool m_showHintBrushes;
             bool m_showLiquidBrushes;
             bool m_showTriggerBrushes;
+            bool m_showDetailBrushes;
             FaceRenderMode m_faceRenderMode;
             bool m_renderEdges;
             bool m_renderSelection;
@@ -68,6 +69,7 @@ namespace TrenchBroom {
             m_showHintBrushes(true),
             m_showLiquidBrushes(true),
             m_showTriggerBrushes(true),
+            m_showDetailBrushes(true),
             m_faceRenderMode(Textured),
             m_renderEdges(true),
             m_renderSelection(true),
@@ -161,6 +163,14 @@ namespace TrenchBroom {
             
             inline void setShowTriggerBrushes(bool showTriggerBrushes) {
                 m_showTriggerBrushes = showTriggerBrushes;
+            }
+            
+            inline bool showDetailBrushes() const {
+                return m_showDetailBrushes;
+            }
+            
+            inline void setShowDetailBrushes(bool showDetailBrushes) {
+                m_showDetailBrushes = showDetailBrushes;
             }
             
             inline FaceRenderMode faceRenderMode() const {
