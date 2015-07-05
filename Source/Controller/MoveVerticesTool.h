@@ -66,6 +66,8 @@ namespace TrenchBroom {
             void snapDragDelta(InputState& inputState, Vec3f& delta);
             MoveResult performMove(const Vec3f& delta);
 
+            void rebuildBrushGeometry();
+            
             bool handleActivate(InputState& inputState);
             bool handleDeactivate(InputState& inputState);
             bool handleIsModal(InputState& inputState);
