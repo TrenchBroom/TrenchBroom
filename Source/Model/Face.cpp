@@ -74,7 +74,7 @@ namespace TrenchBroom {
         static float CheckPlaneError(const FacePoints& testPoints, const FacePoints& referencePoints) {
             Planef testPlane;
             if (!testPlane.setPoints(testPoints[0], testPoints[1], testPoints[2])) {
-                return INFINITY;
+                return std::numeric_limits<float>::max();
             }
             
             float error = 0;
