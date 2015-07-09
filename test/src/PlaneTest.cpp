@@ -23,6 +23,7 @@
 #include "Plane.h"
 #include "MathUtils.h"
 #include "TestUtils.h"
+#include "Model/PlanePointFinder.h"
 
 TEST(PlaneTest, constructDefault) {
     const Plane3f p;
@@ -192,4 +193,46 @@ TEST(PlaneTest, alignedOrthogonalDragPlane) {
     const Plane3f p = alignedOrthogonalDragPlane(position, direction);
     ASSERT_TRUE(p.pointStatus(position) == Math::PointStatus::PSInside);
     ASSERT_VEC_EQ(direction.firstAxis(), p.normal);
+}
+
+TEST(PlaneTest, planePointFinder) {
+	Plane3 plane;
+	const Vec3 points[3] = {Vec3(48, 16, 28), Vec3(16.0, 16.0, 27.9980487823486328125), Vec3(48, 18, 22)};
+	ASSERT_FALSE(points[1].isInteger());
+	ASSERT_TRUE(setPlanePoints(plane, points[0], points[1], points[2]));
+	
+	// Some verts that should lie (very close to) on the plane
+	std::vector<Vec3> verts;
+	verts.push_back(Vec3(48, 18, 22));
+	verts.push_back(Vec3(48, 16, 28));
+	verts.push_back(Vec3(16, 16, 28));
+	verts.push_back(Vec3(16, 18, 22));
+	
+	for (size_t i=0; i<verts.size(); i++) {
+		FloatType dist = Math::abs(plane.pointDistance(verts[i]));
+		ASSERT_LT(dist, 0.01);
+	}
+	
+	// Now find a similar plane with integer points
+	
+	Vec3 intpoints[3];
+	for (size_t i=0; i<3; i++)
+		intpoints[i] = points[i];
+	
+	TrenchBroom::Model::PlanePointFinder::findPoints(plane, intpoints, 3);
+
+	ASSERT_TRUE(intpoints[0].isInteger());
+	ASSERT_TRUE(intpoints[1].isInteger());
+	ASSERT_TRUE(intpoints[2].isInteger());
+	
+	Plane3 intplane;
+	ASSERT_TRUE(setPlanePoints(intplane, intpoints[0], intpoints[1], intpoints[2]));
+	ASSERT_FALSE(intplane.equals(plane));
+	
+	// Check that the verts are still close to the new integer plane
+	
+	for (size_t i=0; i<verts.size(); i++) {
+		FloatType dist = Math::abs(intplane.pointDistance(verts[i]));
+		ASSERT_LT(dist, 0.01);
+	}
 }
