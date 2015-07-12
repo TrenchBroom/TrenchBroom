@@ -225,7 +225,7 @@ namespace TrenchBroom {
                     AliasTimeList groupFrameTimes(groupFrameCount);
                     AliasSingleFrameList groupFrames(groupFrameCount);
                     for (unsigned int j = 0; j < groupFrameCount; j++) {
-                        groupFrameTimes[i] = readFloat<float>(timeCursor);
+                        groupFrameTimes[j] = readFloat<float>(timeCursor);
                         groupFrames[j] = readFrame(frameCursor, origin, scale, skinWidth, skinHeight, vertices, triangles);
                     }
 

@@ -127,7 +127,7 @@ namespace TrenchBroom {
                 return m_readBuffers->getImage();
             }
 
-            glBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, m_framebufferId);
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, m_framebufferId);
 
             glPixelStorei(GL_PACK_ALIGNMENT, 1);
             glPixelStorei(GL_PACK_ROW_LENGTH, 0);

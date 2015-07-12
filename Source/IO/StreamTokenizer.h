@@ -35,12 +35,13 @@ namespace TrenchBroom {
         class Token : public Utility::Allocator<Token> {
         protected:
             unsigned int m_type;
-            const char* m_begin;
-            const char* m_end;
             size_t m_position;
             size_t m_line;
             size_t m_column;
         public:
+            const char* m_begin;
+            const char* m_end;
+
             Token() :
             m_type(0),
             m_begin(NULL),
@@ -198,11 +199,12 @@ namespace TrenchBroom {
                 if (eof())
                     return "";
 
-                const char* startPos = m_cur;
-                const char* endPos = m_cur;
                 Token token = nextToken();
+                const char* startPos = token.m_begin;
+                const char* endPos = token.m_begin;
+                
                 while (token.type() != delimiterType && !eof()) {
-                    endPos = m_cur;
+                    endPos = token.m_end;
                     token = nextToken();
                 }
 

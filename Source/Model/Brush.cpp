@@ -34,6 +34,7 @@ namespace TrenchBroom {
             m_entity = NULL;
             setEditState(EditState::Default);
             m_selectedFaceCount = 0;
+            m_needsRebuild = false;
         }
 
         Brush::Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const FaceList& faces) :
@@ -376,6 +377,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
 
+            setNeedsRebuild(true);
+            
             return newVertexPositions;
         }
 
@@ -408,6 +411,8 @@ namespace TrenchBroom {
                 m_faces.push_back(face);
             }
 
+            setNeedsRebuild(true);
+            
             return newEdgeInfos;
         }
 
@@ -439,6 +444,8 @@ namespace TrenchBroom {
                 face->setBrush(this);
                 m_faces.push_back(face);
             }
+            
+            setNeedsRebuild(true);
 
             return newFaceInfos;
         }
@@ -471,6 +478,8 @@ namespace TrenchBroom {
                 face->setBrush(this);
                 m_faces.push_back(face);
             }
+            
+            setNeedsRebuild(true);
 
             return newVertexPosition;
         }
@@ -504,6 +513,8 @@ namespace TrenchBroom {
                 m_faces.push_back(newFace);
             }
 
+            setNeedsRebuild(true);
+            
             return newVertexPosition;
         }
 

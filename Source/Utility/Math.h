@@ -143,7 +143,14 @@ namespace TrenchBroom {
         template <typename T>
         const T Math<T>::PointStatusEpsilon   = static_cast<T>(0.01);
         template <typename T>
-        const T Math<T>::CorrectEpsilon       = static_cast<T>(0.001); // this is what QBSP uses
+
+        // CorrectEpsilon was 0.001 (this is what QBSP uses).
+        //
+        // Raising it to 0.01 to help with cases like https://github.com/kduske/TrenchBroom/issues/1033
+        // (TB2, which uses doubles everywhere, loads the map with all vertices
+        // within 0.001 of an integer. Because TB1 is using floats, enough
+        // error accumulates that 0.001 is too strict of an epsilon.)
+        const T Math<T>::CorrectEpsilon       = static_cast<T>(0.01);
         template <typename T>
         const T Math<T>::ColinearEpsilon      = static_cast<T>(0.01);
         template <typename T>
