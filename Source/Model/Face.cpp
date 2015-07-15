@@ -71,8 +71,48 @@ namespace TrenchBroom {
              */
         }
         
+        static float CheckPlaneError(const FacePoints& testPoints, const FacePoints& referencePoints) {
+            Planef testPlane;
+            if (!testPlane.setPoints(testPoints[0], testPoints[1], testPoints[2])) {
+                return std::numeric_limits<float>::max();
+            }
+            
+            float error = 0;
+            for (size_t i=0; i<3; i++)
+                error = std::max(error, std::abs(testPlane.pointDistance(referencePoints[i])));
+            return error;
+        }
+        
         inline void FindIntegerFacePoints::findPoints(const Planef& plane, FacePoints& points, size_t numPoints) const {
-            m_findPoints(plane, points, numPoints);
+            // Sometimes simply rounding each plane point seems to
+            // give better results in practice than FindIntegerPlanePoints,
+            // see https://github.com/kduske/TrenchBroom/issues/1033
+
+            // These are some of the face verts
+            const FacePoints refPoints = {points[0], points[1], points[2]};
+            
+            if (refPoints[0].isInteger()
+                && refPoints[1].isInteger()
+                && refPoints[2].isInteger())
+                return;
+            
+            // Run the search algorithm
+            FacePoints searchAlgoPoints = {refPoints[0], refPoints[1], refPoints[2]};
+            m_findPoints(plane, searchAlgoPoints, numPoints);
+            const float searchAlgoError = CheckPlaneError(searchAlgoPoints, refPoints);
+            
+            // Do the rounding approach
+            const FacePoints roundingAlgoPoints = {refPoints[0].rounded(), refPoints[1].rounded(), refPoints[2].rounded()};
+            const float roundingAlgoError = CheckPlaneError(roundingAlgoPoints, refPoints);
+            
+            // Return whichever has less error
+            for (size_t i=0; i<3; i++) {
+                if (searchAlgoError < roundingAlgoError) {
+                    points[i] = searchAlgoPoints[i];
+                } else {
+                    points[i] = roundingAlgoPoints[i];
+                }
+            }
         }
 
         const FindIntegerFacePoints FindIntegerFacePoints::Instance = FindIntegerFacePoints();

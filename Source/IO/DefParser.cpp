@@ -45,8 +45,8 @@ namespace TrenchBroom {
                             while (*tokenizer.nextChar() != '\n');
                             break;
                         }
-                        error(line, column, *c);
-                        break;
+                        // accept standalone / character in the description - used to be an error
+                        return Token(Word, c, c + 1, tokenizer.offset(c), line, column);
                     }
                     case '*': {
                         const char* begin = c;
@@ -54,8 +54,8 @@ namespace TrenchBroom {
                             tokenizer.nextChar();
                             return Token(CDefinition, begin, c, tokenizer.offset(begin), line, column);
                         }
-                        error(line, column, *c);
-                        break;
+                        // accept standalone * character in the description - used to be an error
+                        return Token(Word, c, c + 1, tokenizer.offset(c), line, column);
                     }
                     case '(':
                         return Token(OParenthesis, c, c + 1, tokenizer.offset(c), line, column);
@@ -186,7 +186,7 @@ namespace TrenchBroom {
                 color[i] = token.toFloat();
             }
             expect(CParenthesis, token = m_tokenizer.nextToken());
-            color[4] = 1.0f;
+            color[3] = 1.0f;
             return color;
         }
 

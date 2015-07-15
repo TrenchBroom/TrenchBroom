@@ -50,7 +50,10 @@ namespace TrenchBroom {
 
             const BBoxf& m_worldBounds;
             bool m_forceIntegerFacePoints;
-
+            
+            // set if touched during vertex manip, cleared in MoveVerticesTool::handleDeactivate
+            bool m_needsRebuild;
+            
             void init();
         public:
             Brush(const BBoxf& worldBounds, bool forceIntegerFacePoints, const FaceList& faces);
@@ -98,6 +101,14 @@ namespace TrenchBroom {
             }
             
             void setForceIntegerFacePoints(bool forceIntegerFacePoints);
+            
+            inline bool needsRebuild() const {
+                return m_needsRebuild;
+            }
+            
+            void setNeedsRebuild(bool needsRebuild) {
+                m_needsRebuild = needsRebuild;
+            }
             
             inline const Vec3f& center() const {
                 return m_geometry->center;

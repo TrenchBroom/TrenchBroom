@@ -85,11 +85,11 @@ namespace TrenchBroom {
 
         Vertex* Edge::split(const Planef& plane) {
             // Do exactly what QBSP is doing:
-            const float startDist = plane.pointDistance(start->position);
-            const float endDist = plane.pointDistance(end->position);
+            const double startDist = plane.pointDistance(start->position);
+            const double endDist = plane.pointDistance(end->position);
 
             assert(startDist != endDist);
-            const float dot = startDist / (startDist - endDist);
+            const double dot = startDist / (startDist - endDist);
 
             Vertex* newVertex = new Vertex();
             for (unsigned int i = 0; i < 3; i++) {
@@ -97,8 +97,11 @@ namespace TrenchBroom {
                     newVertex->position[i] = plane.distance;
                 else if (plane.normal[i] == -1.0f)
                     newVertex->position[i] = -plane.distance;
-                else
-                    newVertex->position[i] = start->position[i] + dot * (end->position[i] - start->position[i]);
+                else {
+                    const double startPos = start->position[i];
+                    const double endPos = end->position[i];
+                    newVertex->position[i] = static_cast<float>(startPos + dot * (endPos - startPos));
+                }
             }
 
             // cheat a little bit?, just like QBSP

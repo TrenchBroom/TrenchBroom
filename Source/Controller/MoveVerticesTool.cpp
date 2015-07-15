@@ -30,6 +30,7 @@
 #include "Controller/SplitFacesCommand.h"
 #include "Model/EditStateManager.h"
 #include "Model/MapDocument.h"
+#include "Model/Map.h"
 #include "Renderer/LinesRenderer.h"
 #include "Renderer/PointHandleHighlightFigure.h"
 #include "Renderer/PointGuideRenderer.h"
@@ -151,6 +152,37 @@ namespace TrenchBroom {
             return moveVertices(delta);
         }
         
+        void MoveVerticesTool::rebuildBrushGeometry() {
+            Model::BrushList brushesToRebuild;
+
+            // previouly, this was rebuilding document().editStateManager().selectedBrushes().
+            // this list was empty when exiting the vertex tool by clicking to deselect all
+            // (which is processed by the selection tool), which would lead to brushes
+            // not being rebuilt.
+            //
+            // now we flag brushes in Brush::moveVertices, Brush::moveEdges, Brush::moveFaces,
+            // Brush::splitEdge, Brush::splitFace, and rebuild all of them here.
+
+            Model::EntityList::const_iterator entityIt, entityEnd;
+            const Model::EntityList &mapEnts = document().map().entities();
+            for (entityIt = mapEnts.begin(), entityEnd = mapEnts.end(); entityIt != entityEnd; ++entityIt) {
+                Model::Entity& entity = **entityIt;
+                const Model::BrushList& brushes = entity.brushes();
+                Model::BrushList::const_iterator brushIt, brushEnd;
+                for (brushIt = brushes.begin(), brushEnd = brushes.end(); brushIt != brushEnd; ++brushIt) {
+                    Model::Brush *brush = *brushIt;
+                    if (brush->needsRebuild()) {
+                        brushesToRebuild.push_back(brush);
+                        brush->setNeedsRebuild(false);
+                    }
+                }
+            }
+
+            document().console().info("Rebuilding geometry for %d brushes\n", static_cast<int>(brushesToRebuild.size()));
+            RebuildBrushGeometryCommand* command = RebuildBrushGeometryCommand::rebuildGeometry(document(), brushesToRebuild, m_changeCount);
+            submitCommand(command);
+        }
+        
         bool MoveVerticesTool::handleActivate(InputState& inputState) {
             m_mode = VMMove;
             m_handleManager.clear();
@@ -158,14 +190,13 @@ namespace TrenchBroom {
             m_changeCount = 0;
             return true;
         }
-        
+
         bool MoveVerticesTool::handleDeactivate(InputState& inputState) {
             m_handleManager.clear();
             
             if (m_changeCount > 0) {
-                RebuildBrushGeometryCommand* command = RebuildBrushGeometryCommand::rebuildGeometry(document(), document().editStateManager().selectedBrushes(), m_changeCount);
-                submitCommand(command);
-        }
+                rebuildBrushGeometry();
+            }
         
             return true;
         }

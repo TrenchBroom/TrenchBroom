@@ -36,6 +36,13 @@ TrenchBroom is a modern cross-platform level editor for Quake.
 - All help is appreciated!
 
 ## Changes
+### TrenchBroom 1.1.6
+- Fix crash when dragging entities on some OpenGL drivers (ericw)
+- Fix some crashes when loading mdl and def files (ericw)
+- Fix for editor view getting out of sync when exiting vertex mode (ericw)
+- Improve floating-point precision for map loading, raise threshold for rounding coords (ericw)
+- Workaround "force integer plane points" mode sometimes choosing wrong coordinates (ericw)
+
 ### TrenchBroom 1.1.5
 - Fix crash during vertex manipulation (ericw)
 - Fix vertex drift issue when copy/pasting (ericw)
