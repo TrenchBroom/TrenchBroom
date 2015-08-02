@@ -199,7 +199,7 @@ namespace TrenchBroom {
                     if (rowIt != m_rows.end()) {
                         rowIt->merge(attribute.value(), nameMutable, valueMutable);
                     } else {
-                        const String& tooltip = attributeDefinition != NULL ? attributeDefinition->description() : EmptyString;
+                        const String tooltip = Assets::AttributeDefinition::safeFullDescription(attributeDefinition);
                         m_rows.push_back(AttributeRow(attribute.name(), attribute.value(),
                                                       nameMutable, valueMutable,
                                                       tooltip, false, attributables.size()));
@@ -224,7 +224,7 @@ namespace TrenchBroom {
                             continue;
                         
                         const String value = Assets::AttributeDefinition::defaultValue(*propertyDef);
-                        const String& tooltip = propertyDef->description();
+                        const String tooltip = Assets::AttributeDefinition::safeFullDescription(propertyDef.get());
                         m_rows.push_back(AttributeRow(name, value, false, true, tooltip, true, attributables.size()));
                         ++m_defaultRowCount;
                     }

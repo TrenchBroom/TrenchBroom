@@ -262,7 +262,7 @@ namespace TrenchBroom {
             bool renameAttribute(const Model::AttributeName& oldName, const Model::AttributeName& newName);
             bool removeAttribute(const Model::AttributeName& name);
             
-            bool convertEntityColorRange(const Model::AttributeName& name, Model::ColorRange::Type range);
+            bool convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range);
         public: // brush resizing, declared in MapFacade interface
             bool resizeBrushes(const Model::BrushFaceList& faces, const Vec3& delta);
         public: // modifying face attributes, declared in MapFacade interface
@@ -341,7 +341,7 @@ namespace TrenchBroom {
             
             void loadEntityDefinitions();
             void unloadEntityDefinitions();
-            
+            void reloadEntityDefinitions();
             
             void loadEntityModels();
             void unloadEntityModels();
@@ -351,6 +351,7 @@ namespace TrenchBroom {
             void loadBuiltinTextures();
             void loadExternalTextures();
             void unloadTextures();
+            void reloadTextures();
         protected:
             void addExternalTextureCollections(const StringList& names);
             void updateExternalTextureCollectionProperty();
@@ -394,6 +395,10 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
+
+            void textureCollectionsDidChange();
+            void entityDefinitionsDidChange();
+            void modsDidChange();
         };
 
         class Transaction {

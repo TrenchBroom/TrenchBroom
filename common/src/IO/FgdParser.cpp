@@ -354,41 +354,30 @@ namespace TrenchBroom {
             while (token.type() != FgdToken::CBracket) {
                 const String attributeKey = token.data();
                 
+                if (attributes.count(attributeKey) > 0)
+                    throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
+
                 expect(FgdToken::OParenthesis, token = m_tokenizer.nextToken());
                 expect(FgdToken::Word, token = m_tokenizer.nextToken());
                 const String typeName = token.data();
                 expect(FgdToken::CParenthesis, token = m_tokenizer.nextToken());
                 
                 if (StringUtils::caseInsensitiveEqual(typeName, "target_source")) {
-                    if (attributes.count(attributeKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
                     attributes[attributeKey] = parseTargetSourceAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "target_destination")) {
-                    if (attributes.count(attributeKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
                     attributes[attributeKey] = parseTargetDestinationAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "string")) {
-                    if (attributes.count(attributeKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
                     attributes[attributeKey] = parseStringAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "integer")) {
-                    if (attributes.count(attributeKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
                     attributes[attributeKey] = parseIntegerAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "float")) {
-                    if (attributes.count(attributeKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
                     attributes[attributeKey] = parseFloatAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "choices")) {
-                    if (attributes.count(attributeKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
                     attributes[attributeKey] = parseChoicesAttribute(attributeKey);
                 } else if (StringUtils::caseInsensitiveEqual(typeName, "flags")) {
-                    if (attributes.count(attributeKey) > 0)
-                        throw ParserException(token.line(), token.column(), "Multiple definitions for attribute '" + attributeKey + "'");
                     attributes[attributeKey] = parseFlagsAttribute(attributeKey);
                 } else {
-                    throw ParserException(token.line(), token.column(), "Unknown entity definition attribute '" + typeName + "'");
+                    attributes[attributeKey] = parseUnknownAttribute(attributeKey);
                 }
                 
                 expect(FgdToken::Word | FgdToken::CBracket, token = m_tokenizer.nextToken());
@@ -398,137 +387,60 @@ namespace TrenchBroom {
         }
         
         Assets::AttributeDefinitionPtr FgdParser::parseTargetSourceAttribute(const String& name) {
-            String description;
-            Token token = m_tokenizer.nextToken();
-            if (token.type() == FgdToken::Colon) {
-                expect(FgdToken::String, token = m_tokenizer.nextToken());
-                description = token.data();
-            } else {
-                m_tokenizer.pushToken(token);
-            }
-            return Assets::AttributeDefinitionPtr(new Assets::AttributeDefinition(name, Assets::AttributeDefinition::Type_TargetSourceAttribute, description));
+            const String shortDescription = parseAttributeDescription();
+            parseDefaultStringValue();
+            const String longDescription = parseAttributeDescription();
+            return Assets::AttributeDefinitionPtr(new Assets::AttributeDefinition(name, Assets::AttributeDefinition::Type_TargetSourceAttribute, shortDescription, longDescription));
         }
         
         Assets::AttributeDefinitionPtr FgdParser::parseTargetDestinationAttribute(const String& name) {
-            String description;
-            Token token = m_tokenizer.nextToken();
-            if (token.type() == FgdToken::Colon) {
-                expect(FgdToken::String, token = m_tokenizer.nextToken());
-                description = token.data();
-            } else {
-                m_tokenizer.pushToken(token);
-            }
-            return Assets::AttributeDefinitionPtr(new Assets::AttributeDefinition(name, Assets::AttributeDefinition::Type_TargetDestinationAttribute, description));
+            const String shortDescription = parseAttributeDescription();
+            parseDefaultStringValue();
+            const String longDescription = parseAttributeDescription();
+            return Assets::AttributeDefinitionPtr(new Assets::AttributeDefinition(name, Assets::AttributeDefinition::Type_TargetDestinationAttribute, shortDescription, longDescription));
         }
         
         Assets::AttributeDefinitionPtr FgdParser::parseStringAttribute(const String& name) {
-            String description;
-            String defaultValue;
-            bool hasDefaultValue = false;
-            
-            Token token = m_tokenizer.nextToken();
-            if (token.type() == FgdToken::Colon) {
-                expect(FgdToken::String, token = m_tokenizer.nextToken());
-                description = token.data();
-                
-                token = m_tokenizer.nextToken();
-                if (token.type() == FgdToken::Colon) {
-                    expect(FgdToken::String, token = m_tokenizer.nextToken());
-                    hasDefaultValue = true;
-                    defaultValue = token.data();
-                } else {
-                    m_tokenizer.pushToken(token);
-                }
-            } else {
-                m_tokenizer.pushToken(token);
-            }
-            
-            if (hasDefaultValue)
-                return Assets::AttributeDefinitionPtr(new Assets::StringAttributeDefinition(name, description, defaultValue));
-            return Assets::AttributeDefinitionPtr(new Assets::StringAttributeDefinition(name, description));
+            const String shortDescription = parseAttributeDescription();
+            const DefaultValue<String> defaultValue = parseDefaultStringValue();
+            const String longDescription = parseAttributeDescription();
+
+            if (defaultValue.present)
+                return Assets::AttributeDefinitionPtr(new Assets::StringAttributeDefinition(name, shortDescription, longDescription, defaultValue.value));
+            return Assets::AttributeDefinitionPtr(new Assets::StringAttributeDefinition(name, shortDescription, longDescription));
         }
         
         Assets::AttributeDefinitionPtr FgdParser::parseIntegerAttribute(const String& name) {
-            String description;
-            int defaultValue = 0;
-            bool hasDefaultValue = false;
-            
-            Token token = m_tokenizer.nextToken();
-            if (token.type() == FgdToken::Colon) {
-                expect(FgdToken::String, token = m_tokenizer.nextToken());
-                description = token.data();
-                
-                token = m_tokenizer.nextToken();
-                if (token.type() == FgdToken::Colon) {
-                    expect(FgdToken::Integer, token = m_tokenizer.nextToken());
-                    hasDefaultValue = true;
-                    defaultValue = token.toInteger<int>();
-                } else {
-                    m_tokenizer.pushToken(token);
-                }
-            } else {
-                m_tokenizer.pushToken(token);
-            }
-            
-            if (hasDefaultValue)
-                return Assets::AttributeDefinitionPtr(new Assets::IntegerAttributeDefinition(name, description, defaultValue));
-            return Assets::AttributeDefinitionPtr(new Assets::IntegerAttributeDefinition(name, description));
+            const String shortDescription = parseAttributeDescription();
+            const DefaultValue<int> defaultValue = parseDefaultIntegerValue();
+            const String longDescription = parseAttributeDescription();
+
+            if (defaultValue.present)
+                return Assets::AttributeDefinitionPtr(new Assets::IntegerAttributeDefinition(name, shortDescription, longDescription, defaultValue.value));
+            return Assets::AttributeDefinitionPtr(new Assets::IntegerAttributeDefinition(name, shortDescription, longDescription));
         }
         
         Assets::AttributeDefinitionPtr FgdParser::parseFloatAttribute(const String& name) {
-            String description;
-            float defaultValue = 0;
-            bool hasDefaultValue = false;
-            
-            Token token = m_tokenizer.nextToken();
-            if (token.type() == FgdToken::Colon) {
-                expect(FgdToken::String, token = m_tokenizer.nextToken());
-                description = token.data();
-                
-                token = m_tokenizer.nextToken();
-                if (token.type() == FgdToken::Colon) {
-                    // the default value must have quotes around it
-                    expect(FgdToken::String, token = m_tokenizer.nextToken());
-                    hasDefaultValue = true;
-                    defaultValue = token.toFloat<float>();
-                } else {
-                    m_tokenizer.pushToken(token);
-                }
-            } else {
-                m_tokenizer.pushToken(token);
-            }
-            
-            if (hasDefaultValue)
-                return Assets::AttributeDefinitionPtr(new Assets::FloatAttributeDefinition(name, description, defaultValue));
-            return Assets::AttributeDefinitionPtr(new Assets::FloatAttributeDefinition(name, description));
+            const String shortDescription = parseAttributeDescription();
+            const DefaultValue<float> defaultValue = parseDefaultFloatValue();
+            const String longDescription = parseAttributeDescription();
+
+            if (defaultValue.present)
+                return Assets::AttributeDefinitionPtr(new Assets::FloatAttributeDefinition(name, shortDescription, longDescription, defaultValue.value));
+            return Assets::AttributeDefinitionPtr(new Assets::FloatAttributeDefinition(name, shortDescription, longDescription));
         }
         
         Assets::AttributeDefinitionPtr FgdParser::parseChoicesAttribute(const String& name) {
-            String description;
-            size_t defaultValue = 0;
-            bool hasDefaultValue = false;
-            
+            const String shortDescription = parseAttributeDescription();
+            const DefaultValue<int> defaultValue = parseDefaultIntegerValue();
+            const String longDescription = parseAttributeDescription();
+
             Token token;
-            expect(FgdToken::Colon | FgdToken::Equality, token = m_tokenizer.nextToken());
-            if (token.type() == FgdToken::Colon) {
-                expect(FgdToken::String, token = m_tokenizer.nextToken());
-                description = token.data();
-                
-                expect(FgdToken::Colon | FgdToken::Equality, token = m_tokenizer.nextToken());
-                if (token.type() == FgdToken::Colon) {
-                    expect(FgdToken::Integer, token = m_tokenizer.nextToken());
-                    hasDefaultValue = true;
-                    defaultValue = token.toInteger<size_t>();
-                    expect(FgdToken::Equality, token = m_tokenizer.nextToken());
-                }
-            }
-            
-            assert(token.type() == FgdToken::Equality);
+            expect(FgdToken::Equality, token = m_tokenizer.nextToken());
             expect(FgdToken::OBracket, token = m_tokenizer.nextToken());
             expect(FgdToken::Integer | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
             
             Assets::ChoiceAttributeOption::List options;
-            
             while (token.type() != FgdToken::CBracket) {
                 const String value = token.data();
                 expect(FgdToken::Colon, token = m_tokenizer.nextToken());
@@ -538,25 +450,20 @@ namespace TrenchBroom {
                 expect(FgdToken::Integer | FgdToken::String | FgdToken::CBracket, token = m_tokenizer.nextToken());
             }
             
-            if (hasDefaultValue)
-                return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(name, description, options, defaultValue));
-            return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(name, description, options));
+            if (defaultValue.present)
+                return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(name, shortDescription, longDescription, options, static_cast<size_t>(defaultValue.value)));
+            return Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(name, shortDescription, longDescription, options));
         }
         
         Assets::AttributeDefinitionPtr FgdParser::parseFlagsAttribute(const String& name) {
-            String description;
+            // Flag attributes do not have descriptions or defaults, see https://developer.valvesoftware.com/wiki/FGD
             
             Token token;
-            expect(FgdToken::Colon | FgdToken::Equality, token = m_tokenizer.nextToken());
-            if (token.type() == FgdToken::Colon) {
-                expect(FgdToken::String, token = m_tokenizer.nextToken());
-                description = token.data();
-            }
-            
+            expect(FgdToken::Equality, token = m_tokenizer.nextToken());
             expect(FgdToken::OBracket, token = m_tokenizer.nextToken());
             expect(FgdToken::Integer | FgdToken::CBracket, token = m_tokenizer.nextToken());
             
-            Assets::FlagsAttributeDefinition* definition = new Assets::FlagsAttributeDefinition(name, description);
+            Assets::FlagsAttributeDefinition* definition = new Assets::FlagsAttributeDefinition(name);
             
             while (token.type() != FgdToken::CBracket) {
                 const int value = token.toInteger<int>();
@@ -579,6 +486,66 @@ namespace TrenchBroom {
             }
             
             return Assets::AttributeDefinitionPtr(definition);
+        }
+        
+        Assets::AttributeDefinitionPtr FgdParser::parseUnknownAttribute(const String& name) {
+            const String shortDescription = parseAttributeDescription();
+            const DefaultValue<String> defaultValue = parseDefaultStringValue();
+            const String longDescription = parseAttributeDescription();
+            
+            if (defaultValue.present)
+                return Assets::AttributeDefinitionPtr(new Assets::UnknownAttributeDefinition(name, shortDescription, longDescription, defaultValue.value));
+            return Assets::AttributeDefinitionPtr(new Assets::UnknownAttributeDefinition(name, shortDescription, longDescription));
+        }
+
+        String FgdParser::parseAttributeDescription() {
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == FgdToken::Colon) {
+                expect(FgdToken::String | FgdToken::Colon, token = m_tokenizer.nextToken());
+                if (token.type() == FgdToken::String)
+                    return token.data();
+            }
+            m_tokenizer.pushToken(token);
+            return EmptyString;
+        }
+
+        FgdParser::DefaultValue<String> FgdParser::parseDefaultStringValue() {
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == FgdToken::Colon) {
+                expect(FgdToken::String | FgdToken::Colon, token = m_tokenizer.nextToken());
+                if (token.type() == FgdToken::String)
+                    return DefaultValue<String>(token.data());
+            }
+            
+            m_tokenizer.pushToken(token);
+            return DefaultValue<String>();
+        }
+
+        FgdParser::DefaultValue<int> FgdParser::parseDefaultIntegerValue() {
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == FgdToken::Colon) {
+                expect(FgdToken::Integer | FgdToken::Decimal | FgdToken::Colon, token = m_tokenizer.nextToken());
+                if (token.type() == FgdToken::Integer)
+                    return DefaultValue<int>(token.toInteger<int>());
+                else if (token.type() == FgdToken::Decimal) // be graceful for DaZ
+                    return DefaultValue<int>(static_cast<int>(token.toFloat<float>()));
+            }
+            
+            m_tokenizer.pushToken(token);
+            return DefaultValue<int>();
+        }
+
+        FgdParser::DefaultValue<float> FgdParser::parseDefaultFloatValue() {
+            Token token = m_tokenizer.nextToken();
+            if (token.type() == FgdToken::Colon) {
+                // the default value should have quotes around it, but sometimes they're missing
+                expect(FgdToken::String | FgdToken::Decimal | FgdToken::Integer | FgdToken::Colon, token = m_tokenizer.nextToken());
+                if (token.type() != FgdToken::Colon)
+                    return DefaultValue<float>(token.toFloat<float>());
+            }
+
+            m_tokenizer.pushToken(token);
+            return DefaultValue<float>();
         }
         
         Vec3 FgdParser::parseVector() {

@@ -37,13 +37,13 @@ namespace TrenchBroom {
             static const CommandType Type;
         private:
             Model::AttributeName m_attributeName;
-            Model::ColorRange::Type m_colorRange;
+            Assets::ColorRange::Type m_colorRange;
             
             Model::EntityAttributeSnapshot::Map m_snapshots;
         public:
-            static ConvertEntityColorCommand* convert(const Model::AttributeName& attributeName, Model::ColorRange::Type colorRange);
+            static ConvertEntityColorCommand* convert(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
         private:
-            ConvertEntityColorCommand(const Model::AttributeName& attributeName, Model::ColorRange::Type colorRange);
+            ConvertEntityColorCommand(const Model::AttributeName& attributeName, Assets::ColorRange::Type colorRange);
             
             bool doPerformDo(MapDocumentCommandFacade* document);
             bool doPerformUndo(MapDocumentCommandFacade* document);

@@ -764,7 +764,7 @@ namespace TrenchBroom {
             return submit(ChangeEntityAttributesCommand::remove(name));
         }
         
-        bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, Model::ColorRange::Type range) {
+        bool MapDocument::convertEntityColorRange(const Model::AttributeName& name, Assets::ColorRange::Type range) {
             return submit(ConvertEntityColorCommand::convert(name, range));
         }
         
@@ -1003,6 +1003,12 @@ namespace TrenchBroom {
             m_entityDefinitionManager->clear();
         }
         
+        void MapDocument::reloadEntityDefinitions() {
+            unloadEntityDefinitions();
+            loadEntityDefinitions();
+            clearEntityModels();
+        }
+
         void MapDocument::loadEntityModels() {
             m_entityModelManager->setLoader(m_game.get());
         }
@@ -1044,6 +1050,12 @@ namespace TrenchBroom {
             m_textureManager->setLoader(NULL);
         }
         
+        void MapDocument::reloadTextures() {
+            unloadTextures();
+            loadTextures();
+            setTextures();
+        }
+
         void MapDocument::addExternalTextureCollections(const StringList& names) {
             const IO::Path::List searchPaths = externalSearchPaths();
             
@@ -1304,6 +1316,10 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.addObserver(editorContextDidChangeNotifier);
             m_mapViewConfig->mapViewConfigDidChangeNotifier.addObserver(mapViewConfigDidChangeNotifier);
+            
+            textureCollectionsDidChangeNotifier.addObserver(this, &MapDocument::textureCollectionsDidChange);
+            entityDefinitionsDidChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsDidChange);
+            modsDidChangeNotifier.addObserver(this, &MapDocument::modsDidChange);
         }
         
         void MapDocument::unbindObservers() {
@@ -1311,6 +1327,10 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.removeObserver(editorContextDidChangeNotifier);
             m_mapViewConfig->mapViewConfigDidChangeNotifier.removeObserver(mapViewConfigDidChangeNotifier);
+
+            textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsDidChange);
+            entityDefinitionsDidChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsDidChange);
+            modsDidChangeNotifier.removeObserver(this, &MapDocument::modsDidChange);
         }
         
         void MapDocument::preferenceDidChange(const IO::Path& path) {
@@ -1334,6 +1354,18 @@ namespace TrenchBroom {
             }
         }
         
+        void MapDocument::textureCollectionsDidChange() {
+            reloadTextures();
+        }
+        
+        void MapDocument::entityDefinitionsDidChange() {
+            reloadEntityDefinitions();
+        }
+        
+        void MapDocument::modsDidChange() {
+            clearEntityModels();
+        }
+
         Transaction::Transaction(MapDocumentWPtr document, const String& name) :
         m_document(lock(document).get()),
         m_cancelled(false) {

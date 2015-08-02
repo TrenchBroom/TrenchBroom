@@ -207,7 +207,7 @@ namespace TrenchBroom {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
-            "	targetname(target_source) : \"Source\" \n"
+            "	targetname(target_source) : \"Source\" : : \"A long description\" \n"
             "]\n";
             
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -228,7 +228,8 @@ namespace TrenchBroom {
             Assets::AttributeDefinitionPtr attribute = attributes[0];
             ASSERT_EQ(Assets::AttributeDefinition::Type_TargetSourceAttribute, attribute->type());
             ASSERT_EQ(String("targetname"), attribute->name());
-            ASSERT_EQ(String("Source"), attribute->description());
+            ASSERT_EQ(String("Source"), attribute->shortDescription());
+            ASSERT_EQ(String("A long description"), attribute->longDescription());
             
             VectorUtils::clearAndDelete(definitions);
         }
@@ -258,7 +259,8 @@ namespace TrenchBroom {
             Assets::AttributeDefinitionPtr attribute = attributes[0];
             ASSERT_EQ(Assets::AttributeDefinition::Type_TargetDestinationAttribute, attribute->type());
             ASSERT_EQ(String("target"), attribute->name());
-            ASSERT_EQ(String("Target"), attribute->description());
+            ASSERT_EQ(String("Target"), attribute->shortDescription());
+            ASSERT_EQ(String(""), attribute->longDescription());
             
             VectorUtils::clearAndDelete(definitions);
         }
@@ -267,8 +269,8 @@ namespace TrenchBroom {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
-            "   message(string) : \"Text on entering the world\"\n"
-            "   message2(string) : \"With a default value\" : \"DefaultValue\"\n"
+            "   message(string) : \"Text on entering the world\" : : \"Long description 1\"\n"
+            "   message2(string) : \"With a default value\" : \"DefaultValue\" : \"Long description 2\"\n"
             "]\n";
             
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -291,7 +293,8 @@ namespace TrenchBroom {
 
             const Assets::StringAttributeDefinition* stringAttribute1 = static_cast<const Assets::StringAttributeDefinition*>(attribute1);
             ASSERT_EQ(String("message"), stringAttribute1->name());
-            ASSERT_EQ(String("Text on entering the world"), stringAttribute1->description());
+            ASSERT_EQ(String("Text on entering the world"), stringAttribute1->shortDescription());
+            ASSERT_EQ(String("Long description 1"), stringAttribute1->longDescription());
             ASSERT_FALSE(stringAttribute1->hasDefaultValue());
             
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("message2");
@@ -300,7 +303,8 @@ namespace TrenchBroom {
             
             const Assets::StringAttributeDefinition* stringAttribute2 = static_cast<const Assets::StringAttributeDefinition*>(attribute2);
             ASSERT_EQ(String("message2"), stringAttribute2->name());
-            ASSERT_EQ(String("With a default value"), stringAttribute2->description());
+            ASSERT_EQ(String("With a default value"), stringAttribute2->shortDescription());
+            ASSERT_EQ(String("Long description 2"), stringAttribute2->longDescription());
             ASSERT_TRUE(stringAttribute2->hasDefaultValue());
             ASSERT_EQ(String("DefaultValue"), stringAttribute2->defaultValue());
             
@@ -311,8 +315,8 @@ namespace TrenchBroom {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
-            "   sounds(integer) : \"CD track to play\"\n"
-            "   sounds2(integer) : \"CD track to play with default\" : 2\n"
+            "   sounds(integer) : \"CD track to play\" : : \"Longer description\"\n"
+            "   sounds2(integer) : \"CD track to play with default\" : 2 : \"Longer description\"\n"
             "]\n";
             
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -335,7 +339,8 @@ namespace TrenchBroom {
             
             const Assets::IntegerAttributeDefinition* intAttribute1 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute1);
             ASSERT_EQ(String("sounds"), intAttribute1->name());
-            ASSERT_EQ(String("CD track to play"), intAttribute1->description());
+            ASSERT_EQ(String("CD track to play"), intAttribute1->shortDescription());
+            ASSERT_EQ(String("Longer description"), intAttribute1->longDescription());
             ASSERT_FALSE(intAttribute1->hasDefaultValue());
             
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("sounds2");
@@ -344,7 +349,8 @@ namespace TrenchBroom {
             
             const Assets::IntegerAttributeDefinition* intAttribute2 = static_cast<const Assets::IntegerAttributeDefinition*>(attribute2);
             ASSERT_EQ(String("sounds2"), intAttribute2->name());
-            ASSERT_EQ(String("CD track to play with default"), intAttribute2->description());
+            ASSERT_EQ(String("CD track to play with default"), intAttribute2->shortDescription());
+            ASSERT_EQ(String("Longer description"), intAttribute2->longDescription());
             ASSERT_TRUE(intAttribute2->hasDefaultValue());
             ASSERT_EQ(2, intAttribute2->defaultValue());
             
@@ -355,8 +361,8 @@ namespace TrenchBroom {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
-            "   test(float) : \"Some test attribute\"\n"
-            "   test2(float) : \"Some test attribute with default\" : \"2.7\"\n"
+            "   test(float) : \"Some test attribute\" : : \"Longer description 1\"\n"
+            "   test2(float) : \"Some test attribute with default\" : \"2.7\" : \"Longer description 2\"\n"
             "]\n";
             
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -379,7 +385,8 @@ namespace TrenchBroom {
             
             const Assets::FloatAttributeDefinition* floatAttribute1 = static_cast<const Assets::FloatAttributeDefinition*>(attribute1);
             ASSERT_EQ(String("test"), floatAttribute1->name());
-            ASSERT_EQ(String("Some test attribute"), floatAttribute1->description());
+            ASSERT_EQ(String("Some test attribute"), floatAttribute1->shortDescription());
+            ASSERT_EQ(String("Longer description 1"), floatAttribute1->longDescription());
             ASSERT_FALSE(floatAttribute1->hasDefaultValue());
             
             const Assets::AttributeDefinition* attribute2 = definition->attributeDefinition("test2");
@@ -388,7 +395,8 @@ namespace TrenchBroom {
             
             const Assets::FloatAttributeDefinition* floatAttribute2 = static_cast<const Assets::FloatAttributeDefinition*>(attribute2);
             ASSERT_EQ(String("test2"), floatAttribute2->name());
-            ASSERT_EQ(String("Some test attribute with default"), floatAttribute2->description());
+            ASSERT_EQ(String("Some test attribute with default"), floatAttribute2->shortDescription());
+            ASSERT_EQ(String("Longer description 2"), floatAttribute2->longDescription());
             ASSERT_TRUE(floatAttribute2->hasDefaultValue());
             ASSERT_FLOAT_EQ(2.7f, floatAttribute2->defaultValue());
             
@@ -399,13 +407,13 @@ namespace TrenchBroom {
             const String file =
             "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
             "[\n"
-            "   worldtype(choices) : \"Ambience\" =\n"
+            "   worldtype(choices) : \"Ambience\" : : \"Long description 1\" =\n"
             "   [\n"
             "       0 : \"Medieval\"\n"
             "       1 : \"Metal (runic)\"\n"
             "       2 : \"Base\"\n"
             "   ]\n"
-            "   worldtype2(choices) : \"Ambience with default\" : 1 =\n"
+            "   worldtype2(choices) : \"Ambience with default\" : 1 : \"Long description 2\" =\n"
             "   [\n"
             "       0 : \"Medieval\"\n"
             "       1 : \"Metal (runic)\"\n"
@@ -432,7 +440,8 @@ namespace TrenchBroom {
             
             const Assets::ChoiceAttributeDefinition* choiceAttribute1 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute1);
             ASSERT_EQ(String("worldtype"), choiceAttribute1->name());
-            ASSERT_EQ(String("Ambience"), choiceAttribute1->description());
+            ASSERT_EQ(String("Ambience"), choiceAttribute1->shortDescription());
+            ASSERT_EQ(String("Long description 1"), choiceAttribute1->longDescription());
             ASSERT_FALSE(choiceAttribute1->hasDefaultValue());
             
             const Assets::ChoiceAttributeOption::List& options1 = choiceAttribute1->options();
@@ -450,7 +459,8 @@ namespace TrenchBroom {
             
             const Assets::ChoiceAttributeDefinition* choiceAttribute2 = static_cast<const Assets::ChoiceAttributeDefinition*>(attribute2);
             ASSERT_EQ(String("worldtype2"), choiceAttribute2->name());
-            ASSERT_EQ(String("Ambience with default"), choiceAttribute2->description());
+            ASSERT_EQ(String("Ambience with default"), choiceAttribute2->shortDescription());
+            ASSERT_EQ(String("Long description 2"), choiceAttribute2->longDescription());
             ASSERT_TRUE(choiceAttribute2->hasDefaultValue());
             ASSERT_EQ(1u, choiceAttribute2->defaultValue());
             
@@ -497,7 +507,7 @@ namespace TrenchBroom {
             
             const Assets::FlagsAttributeDefinition* flagsAttribute = static_cast<const Assets::FlagsAttributeDefinition*>(attribute);
             ASSERT_EQ(String("spawnflags"), flagsAttribute->name());
-            ASSERT_EQ(String(""), flagsAttribute->description());
+            ASSERT_EQ(String(""), flagsAttribute->shortDescription());
             ASSERT_EQ(2560, flagsAttribute->defaultValue());
             
             const Assets::FlagsAttributeOption::List& options = flagsAttribute->options();

@@ -62,6 +62,15 @@ namespace TrenchBroom {
         private:
             typedef FgdTokenizer::Token Token;
             
+            template <typename T>
+            struct DefaultValue {
+                bool present;
+                T value;
+                
+                DefaultValue() : present(false) {}
+                DefaultValue(const T& i_value) : present(true), value(i_value) {}
+            };
+            
             Color m_defaultEntityColor;
             FgdTokenizer m_tokenizer;
             EntityDefinitionClassInfoMap m_baseClasses;
@@ -89,6 +98,12 @@ namespace TrenchBroom {
             Assets::AttributeDefinitionPtr parseFloatAttribute(const String& name);
             Assets::AttributeDefinitionPtr parseChoicesAttribute(const String& name);
             Assets::AttributeDefinitionPtr parseFlagsAttribute(const String& name);
+            Assets::AttributeDefinitionPtr parseUnknownAttribute(const String& name);
+            
+            String parseAttributeDescription();
+            DefaultValue<String> parseDefaultStringValue();
+            DefaultValue<int> parseDefaultIntegerValue();
+            DefaultValue<float> parseDefaultFloatValue();
             
             Vec3 parseVector();
             BBox3 parseSize();

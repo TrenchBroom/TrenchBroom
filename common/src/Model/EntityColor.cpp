@@ -28,17 +28,16 @@
 
 namespace TrenchBroom {
     namespace Model {
-        
         class DetectColorRangeVisitor : public ConstNodeVisitor {
         private:
             const AttributeName& m_name;
-            ColorRange::Type m_range;
+            Assets::ColorRange::Type m_range;
         public:
             DetectColorRangeVisitor(const AttributeName& name) :
             m_name(name),
-            m_range(ColorRange::Unset) {}
+            m_range(Assets::ColorRange::Unset) {}
             
-            ColorRange::Type result() const { return m_range; }
+            Assets::ColorRange::Type result() const { return m_range; }
         private:
             void doVisit(const World* world)   { visitAttributableNode(world); }
             void doVisit(const Layer* layer)   {}
@@ -50,55 +49,37 @@ namespace TrenchBroom {
                 static const AttributeValue NullValue("");
                 const AttributeValue& value = attributable->attribute(m_name, NullValue);
                 if (value != NullValue) {
-                    const ColorRange::Type attrRange = detectColorRange(value);
-                    if (m_range == ColorRange::Unset)
+                    const Assets::ColorRange::Type attrRange = Assets::detectColorRange(value);
+                    if (m_range == Assets::ColorRange::Unset)
                         m_range = attrRange;
                     else if (m_range != attrRange)
-                        m_range = ColorRange::Mixed;
+                        m_range = Assets::ColorRange::Mixed;
                 }
             }
         };
         
-        ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables) {
+        Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables) {
             DetectColorRangeVisitor visitor(name);
             Node::accept(attributables.begin(), attributables.end(), visitor);
             return visitor.result();
         }
         
-        ColorRange::Type detectColorRange(const StringList& components);
-        
-        ColorRange::Type detectColorRange(const String& str) {
-            return detectColorRange(StringUtils::splitAndTrim(str, " "));
-        }
-
-        ColorRange::Type detectColorRange(const StringList& components) {
-            if (components.size() != 3)
-                return ColorRange::Unset;
-            
-            ColorRange::Type range = ColorRange::Byte;
-            for (size_t i = 0; i < 3 && range == ColorRange::Byte; ++i)
-                if (components[i].find('.') != String::npos)
-                    range = ColorRange::Float;
-            
-            return range;
-        }
-
-        const String convertEntityColor(const String& str, const ColorRange::Type colorRange) {
+        const String convertEntityColor(const String& str, const Assets::ColorRange::Type colorRange) {
             const wxColor color = parseEntityColor(str);
             return entityColorAsString(color, colorRange);
         }
 
         wxColor parseEntityColor(const String& str) {
             const StringList components = StringUtils::splitAndTrim(str, " ");
-            const ColorRange::Type range = detectColorRange(components);
-            assert(range != ColorRange::Mixed);
+            const Assets::ColorRange::Type range = Assets::detectColorRange(components);
+            assert(range != Assets::ColorRange::Mixed);
 
             int r = 0, g = 0, b = 0;
-            if (range == ColorRange::Byte) {
+            if (range == Assets::ColorRange::Byte) {
                 r = std::atoi(components[0].c_str());
                 g = std::atoi(components[1].c_str());
                 b = std::atoi(components[2].c_str());
-            } else if (range == ColorRange::Float) {
+            } else if (range == Assets::ColorRange::Float) {
                 r = static_cast<int>(std::atof(components[0].c_str()) * 255.0);
                 g = static_cast<int>(std::atof(components[1].c_str()) * 255.0);
                 b = static_cast<int>(std::atof(components[2].c_str()) * 255.0);
@@ -107,11 +88,11 @@ namespace TrenchBroom {
             return wxColor(r, g, b);
         }
 
-        String entityColorAsString(const wxColor& color, const ColorRange::Type colorRange) {
+        String entityColorAsString(const wxColor& color, const Assets::ColorRange::Type colorRange) {
             StringStream result;
-            if (colorRange == ColorRange::Byte) {
+            if (colorRange == Assets::ColorRange::Byte) {
                 result << color.Red() << " " << color.Green() << " " << color.Blue();
-            } else if (colorRange == ColorRange::Float) {
+            } else if (colorRange == Assets::ColorRange::Float) {
                 result << float(color.Red()) / 255.0f << " " << float(color.Green()) / 255.0f << " "<< float(color.Blue()) / 255.0f;
             }
             return result.str();

@@ -50,12 +50,12 @@ namespace TrenchBroom {
         
         void SmartColorEditor::OnFloatRangeRadioButton(wxCommandEvent& event) {
             if (m_panel->IsBeingDeleted()) return;
-            document()->convertEntityColorRange(name(), Model::ColorRange::Float);
+            document()->convertEntityColorRange(name(), Assets::ColorRange::Float);
         }
         
         void SmartColorEditor::OnByteRangeRadioButton(wxCommandEvent& event) {
             if (m_panel->IsBeingDeleted()) return;
-            document()->convertEntityColorRange(name(), Model::ColorRange::Byte);
+            document()->convertEntityColorRange(name(), Assets::ColorRange::Byte);
         }
         
         void SmartColorEditor::OnColorPickerChanged(wxColourPickerEvent& event) {
@@ -137,11 +137,11 @@ namespace TrenchBroom {
         }
         
         void SmartColorEditor::updateColorRange(const Model::AttributableNodeList& attributables) {
-            const Model::ColorRange::Type range = detectColorRange(name(), attributables);
-            if (range == Model::ColorRange::Float) {
+            const Assets::ColorRange::Type range = detectColorRange(name(), attributables);
+            if (range == Assets::ColorRange::Float) {
                 m_floatRadio->SetValue(true);
                 m_byteRadio->SetValue(false);
-            } else if (range == Model::ColorRange::Byte) {
+            } else if (range == Assets::ColorRange::Byte) {
                 m_floatRadio->SetValue(false);
                 m_byteRadio->SetValue(true);
             } else {
@@ -219,7 +219,7 @@ namespace TrenchBroom {
         }
         
         void SmartColorEditor::setColor(const wxColor& color) const {
-            const Model::ColorRange::Type colorRange = m_floatRadio->GetValue() ? Model::ColorRange::Float : Model::ColorRange::Byte;
+            const Assets::ColorRange::Type colorRange = m_floatRadio->GetValue() ? Assets::ColorRange::Float : Assets::ColorRange::Byte;
             const Model::AttributeValue value = Model::entityColorAsString(color, colorRange);
             document()->setAttribute(name(), value);
         }

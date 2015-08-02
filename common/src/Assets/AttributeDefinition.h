@@ -41,14 +41,20 @@ namespace TrenchBroom {
         private:
             String m_name;
             Type m_type;
-            String m_description;
+            String m_shortDescription;
+            String m_longDescription;
         public:
-            AttributeDefinition(const String& name, const Type type, const String& description);
+            AttributeDefinition(const String& name, const Type type, const String& shortDescription, const String& longDescription);
             virtual ~AttributeDefinition();
             
             const String& name() const;
             Type type() const;
-            const String& description() const;
+            const String& shortDescription() const;
+            const String& longDescription() const;
+            String fullDescription() const;
+            
+            static String safeFullDescription(const AttributeDefinition* definition);
+            
             bool equals(const AttributeDefinition* other) const;
             
             static String defaultValue(const AttributeDefinition& definition);
@@ -72,32 +78,32 @@ namespace TrenchBroom {
                 return m_defaultValue;
             }
         protected:
-            AttributeDefinitionWithDefaultValue(const String& name, const Type type, const String& description) :
-            AttributeDefinition(name, type, description),
+            AttributeDefinitionWithDefaultValue(const String& name, const Type type, const String& shortDescription, const String& longDescription) :
+            AttributeDefinition(name, type, shortDescription, longDescription),
             m_hasDefaultValue(false) {}
             
-            AttributeDefinitionWithDefaultValue(const String& name, const Type type, const String& description, const T& defaultValue) :
-            AttributeDefinition(name, type, description),
+            AttributeDefinitionWithDefaultValue(const String& name, const Type type, const String& shortDescription, const String& longDescription, const T& defaultValue) :
+            AttributeDefinition(name, type, shortDescription, longDescription),
             m_hasDefaultValue(true),
             m_defaultValue(defaultValue) {}
         };
         
         class StringAttributeDefinition : public AttributeDefinitionWithDefaultValue<String> {
         public:
-            StringAttributeDefinition(const String& name, const String& description, const String& defaultValue);
-            StringAttributeDefinition(const String& name, const String& description);
+            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue);
+            StringAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription);
         };
         
         class IntegerAttributeDefinition : public AttributeDefinitionWithDefaultValue<int> {
         public:
-            IntegerAttributeDefinition(const String& name, const String& description, const int defaultValue);
-            IntegerAttributeDefinition(const String& name, const String& description);
+            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const int defaultValue);
+            IntegerAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription);
         };
         
         class FloatAttributeDefinition : public AttributeDefinitionWithDefaultValue<float> {
         public:
-            FloatAttributeDefinition(const String& name, const String& description, const float defaultValue);
-            FloatAttributeDefinition(const String& name, const String& description);
+            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const float defaultValue);
+            FloatAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription);
         };
         
         class ChoiceAttributeOption {
@@ -117,8 +123,8 @@ namespace TrenchBroom {
         private:
             ChoiceAttributeOption::List m_options;
         public:
-            ChoiceAttributeDefinition(const String& name, const String& description, const ChoiceAttributeOption::List& options, const size_t defaultValue);
-            ChoiceAttributeDefinition(const String& name, const String& description, const ChoiceAttributeOption::List& options);
+            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options, const size_t defaultValue);
+            ChoiceAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const ChoiceAttributeOption::List& options);
             const ChoiceAttributeOption::List& options() const;
         private:
             bool doEquals(const AttributeDefinition* other) const;
@@ -143,8 +149,8 @@ namespace TrenchBroom {
         private:
             FlagsAttributeOption::List m_options;
         public:
-            FlagsAttributeDefinition(const String& name, const String& description, const int defaultValue);
-            FlagsAttributeDefinition(const String& name, const String& description);
+            FlagsAttributeDefinition(const String& name, const int defaultValue);
+            FlagsAttributeDefinition(const String& name);
 
             int defaultValue() const;
             const FlagsAttributeOption::List& options() const;
@@ -152,6 +158,12 @@ namespace TrenchBroom {
             void addOption(const int value, const String& description, const bool isDefault);
         private:
             bool doEquals(const AttributeDefinition* other) const;
+        };
+        
+        class UnknownAttributeDefinition : public StringAttributeDefinition {
+        public:
+            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription, const String& defaultValue);
+            UnknownAttributeDefinition(const String& name, const String& shortDescription, const String& longDescription);
         };
     }
 }

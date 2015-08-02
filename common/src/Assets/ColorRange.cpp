@@ -17,23 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __TrenchBroom__EntityColor__
-#define __TrenchBroom__EntityColor__
-
-#include "StringUtils.h"
-#include "Assets/ColorRange.h"
-#include "Model/ModelTypes.h"
-
-#include <wx/colour.h>
+#include "ColorRange.h"
 
 namespace TrenchBroom {
-    namespace Model {
-        Assets::ColorRange::Type detectColorRange(const AttributeName& name, const AttributableNodeList& attributables);
+    namespace Assets {
+        ColorRange::Type detectColorRange(const StringList& components);
         
-        const String convertEntityColor(const String& str, Assets::ColorRange::Type colorRange);
-        wxColor parseEntityColor(const String& str);
-        String entityColorAsString(const wxColor& color, Assets::ColorRange::Type colorRange);
+        ColorRange::Type detectColorRange(const String& str) {
+            return detectColorRange(StringUtils::splitAndTrim(str, " "));
+        }
+        
+        ColorRange::Type detectColorRange(const StringList& components) {
+            if (components.size() != 3)
+                return ColorRange::Unset;
+            
+            ColorRange::Type range = ColorRange::Byte;
+            for (size_t i = 0; i < 3 && range == ColorRange::Byte; ++i)
+                if (components[i].find('.') != String::npos)
+                    range = ColorRange::Float;
+            
+            return range;
+        }
     }
 }
-
-#endif /* defined(__TrenchBroom__EntityColor__) */

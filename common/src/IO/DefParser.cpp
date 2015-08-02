@@ -221,7 +221,7 @@ namespace TrenchBroom {
         }
         
         Assets::AttributeDefinitionPtr DefParser::parseSpawnflags() {
-            Assets::FlagsAttributeDefinition* definition = new Assets::FlagsAttributeDefinition(Model::AttributeNames::Spawnflags, "Spawnflags");
+            Assets::FlagsAttributeDefinition* definition = new Assets::FlagsAttributeDefinition(Model::AttributeNames::Spawnflags);
             size_t numOptions = 0;
             
             try {
@@ -276,7 +276,7 @@ namespace TrenchBroom {
                 }
                 
                 expect(DefToken::CParenthesis, token);
-                attributes[attributeName] = Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", options));
+                attributes[attributeName] = Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", "", options));
             } else if (typeName == "model") {
                 expect(DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
                 expect(DefToken::QuotedString | DefToken::Word | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
