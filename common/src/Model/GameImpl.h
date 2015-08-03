@@ -70,7 +70,7 @@ namespace TrenchBroom {
             Assets::TextureCollection* doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const;
             
             bool doIsEntityDefinitionFile(const IO::Path& path) const;
-            Assets::EntityDefinitionList doLoadEntityDefinitions(const IO::Path& path) const;
+            Assets::EntityDefinitionList doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const;
             Assets::EntityDefinitionFileSpec::List doAllEntityDefinitionFiles() const;
             Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(const World* world) const;
             Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;

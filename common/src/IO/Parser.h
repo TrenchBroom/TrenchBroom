@@ -22,6 +22,7 @@
 
 #include "Exceptions.h"
 #include "StringUtils.h"
+#include "IO/ParserStatus.h"
 #include "IO/Token.h"
 
 #include <map>
@@ -45,6 +46,17 @@ namespace TrenchBroom {
                 }
             }
             
+            void expect(ParserStatus& status, const TokenType typeMask, const Token& token) const {
+                if ((token.type() & typeMask) == 0) {
+                    const String data(token.begin(), token.end());
+                    StringStream msg;
+                    msg << "Expected " << tokenName(typeMask) << ", but got '" << data << "'";
+                    const String msgStr = msg.str();
+                    status.error(token.line(), token.column(), msgStr);
+                    throw ParserException(token.line(), token.column(), msgStr);
+                }
+            }
+
             String tokenName(const TokenType typeMask) const {
                 if (m_tokenNames.empty())
                     m_tokenNames = tokenNames();

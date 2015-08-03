@@ -30,6 +30,7 @@
 namespace TrenchBroom {
     namespace IO {
         class EntityDefinitionLoader;
+        class ParserStatus;
         class Path;
     }
     
@@ -43,7 +44,7 @@ namespace TrenchBroom {
         public:
             ~EntityDefinitionManager();
 
-            void loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader);
+            void loadDefinitions(const IO::Path& path, const IO::EntityDefinitionLoader& loader, IO::ParserStatus& status);
             void clear();
             
             EntityDefinition* definition(const Model::AttributableNode* attributable) const;

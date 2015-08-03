@@ -109,6 +109,12 @@ namespace TrenchBroom {
             void reset() {
                 m_state = State(m_begin);
             }
+
+            double progress() const {
+                const double cur = static_cast<double>(offset(curPos()));
+                const double len = static_cast<double>(length());
+                return cur / len;
+            }
         protected:
             size_t line() const {
                 return m_state.line;

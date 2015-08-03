@@ -74,9 +74,7 @@ namespace TrenchBroom {
         ParserException() throw() {}
         ParserException(const String& str) throw() : ExceptionStream(str) {}
         ParserException(const size_t line, const size_t column, const String& str = "") throw() : ExceptionStream() {
-            *this << "Line " << line;
-            *this << ", column " << column;
-            *this << " - " << str;
+            *this << str << " (line " << line << ", column " << column << ")";
         }
         ~ParserException() throw() {}
     };

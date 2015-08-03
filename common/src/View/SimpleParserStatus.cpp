@@ -17,14 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityDefinitionParser.h"
+#include "SimpleParserStatus.h"
 
 namespace TrenchBroom {
-    namespace IO {
-        EntityDefinitionParser::~EntityDefinitionParser() {}
-        
-        Assets::EntityDefinitionList EntityDefinitionParser::parseDefinitions(ParserStatus& status) {
-            return doParseDefinitions(status);
-        }
+    namespace View {
+        SimpleParserStatus::SimpleParserStatus(Logger* logger) :
+        ParserStatus(logger) {}
+
+        void SimpleParserStatus::doProgress(const double progress) {}
     }
 }

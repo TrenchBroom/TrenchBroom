@@ -24,14 +24,15 @@
 
 namespace TrenchBroom {
     namespace IO {
+        class ParserStatus;
         class Path;
         
         class EntityDefinitionParser {
         public:
             virtual ~EntityDefinitionParser();
-            Assets::EntityDefinitionList parseDefinitions();
+            Assets::EntityDefinitionList parseDefinitions(ParserStatus& status);
         private:
-            virtual Assets::EntityDefinitionList doParseDefinitions() = 0;
+            virtual Assets::EntityDefinitionList doParseDefinitions(ParserStatus& status) = 0;
         };
     }
 }

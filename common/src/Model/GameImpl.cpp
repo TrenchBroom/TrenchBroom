@@ -184,19 +184,19 @@ namespace TrenchBroom {
             return false;
         }
 
-        Assets::EntityDefinitionList GameImpl::doLoadEntityDefinitions(const IO::Path& path) const {
+        Assets::EntityDefinitionList GameImpl::doLoadEntityDefinitions(IO::ParserStatus& status, const IO::Path& path) const {
             const String extension = path.extension();
             const Color& defaultColor = m_config.entityConfig().defaultColor;
             
             if (StringUtils::caseInsensitiveEqual("fgd", extension)) {
                 const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::FgdParser parser(file->begin(), file->end(), defaultColor);
-                return parser.parseDefinitions();
+                return parser.parseDefinitions(status);
             }
             if (StringUtils::caseInsensitiveEqual("def", extension)) {
                 const IO::MappedFile::Ptr file = IO::Disk::openFile(IO::Disk::fixPath(path));
                 IO::DefParser parser(file->begin(), file->end(), defaultColor);
-                return parser.parseDefinitions();
+                return parser.parseDefinitions(status);
             }
             throw GameException("Unknown entity definition format: '" + path.asString() + "'");
         }

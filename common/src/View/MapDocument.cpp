@@ -87,6 +87,7 @@
 #include "View/SetModsCommand.h"
 #include "View/SetVisibilityCommand.h"
 #include "View/ShearTexturesCommand.h"
+#include "View/SimpleParserStatus.h"
 #include "View/SnapBrushVerticesCommand.h"
 #include "View/SplitBrushEdgesCommand.h"
 #include "View/SplitBrushFacesCommand.h"
@@ -994,7 +995,9 @@ namespace TrenchBroom {
         void MapDocument::loadEntityDefinitions() {
             const Assets::EntityDefinitionFileSpec spec = entityDefinitionFile();
             const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
-            m_entityDefinitionManager->loadDefinitions(path, *m_game);
+            SimpleParserStatus status(this);
+            
+            m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
             info("Loaded entity definition file " + path.lastComponent().asString());
         }
         
