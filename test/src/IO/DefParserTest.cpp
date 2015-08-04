@@ -25,6 +25,7 @@
 #include "Model/ModelTypes.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/AttributeDefinition.h"
+#include "IO/TestParserStatus.h"
 #include "TestUtils.h"
 
 namespace TrenchBroom {
@@ -34,7 +35,8 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -44,7 +46,8 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -54,7 +57,8 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_TRUE(definitions.empty());
             VectorUtils::clearAndDelete(definitions);
         }
@@ -79,7 +83,8 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -106,7 +111,8 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -177,7 +183,8 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -219,7 +226,8 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];
@@ -247,7 +255,8 @@ namespace TrenchBroom {
             const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
             DefParser parser(file, defaultColor);
             
-            Assets::EntityDefinitionList definitions = parser.parseDefinitions();
+            TestParserStatus status;
+            Assets::EntityDefinitionList definitions = parser.parseDefinitions(status);
             ASSERT_EQ(1u, definitions.size());
             
             Assets::EntityDefinition* definition = definitions[0];

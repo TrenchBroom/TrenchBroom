@@ -111,6 +111,8 @@ namespace TrenchBroom {
             }
 
             double progress() const {
+                if (length() == 0)
+                    return 0.0;
                 const double cur = static_cast<double>(offset(curPos()));
                 const double len = static_cast<double>(length());
                 return cur / len;
