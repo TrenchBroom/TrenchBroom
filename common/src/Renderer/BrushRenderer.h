@@ -116,6 +116,7 @@ namespace TrenchBroom {
             
             ~BrushRenderer();
 
+            void addBrushes(const Model::BrushList& brushes);
             void setBrushes(const Model::BrushList& brushes);
             void invalidate();
             void clear();

@@ -679,7 +679,7 @@ namespace TrenchBroom {
                 Model::Node::accept(brushes.begin(), brushes.end(), collect);
             }
             
-            m_clippedBrushRenderer->setBrushes(collect.brushes());
+            renderer->addBrushes(collect.brushes());
         }
         
         bool ClipTool::keepFrontBrushes() const {
