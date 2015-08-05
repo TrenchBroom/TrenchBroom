@@ -341,7 +341,6 @@ namespace TrenchBroom {
             
             void loadEntityDefinitions();
             void unloadEntityDefinitions();
-            void reloadEntityDefinitions();
             
             void loadEntityModels();
             void unloadEntityModels();
@@ -359,6 +358,7 @@ namespace TrenchBroom {
             void setEntityDefinitions();
             void setEntityDefinitions(const Model::NodeList& nodes);
             void unsetEntityDefinitions();
+            void reloadEntityDefinitions();
             
             void setEntityModels();
             void setEntityModels(const Model::NodeList& nodes);
@@ -395,10 +395,6 @@ namespace TrenchBroom {
             void bindObservers();
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
-
-            void textureCollectionsDidChange();
-            void entityDefinitionsDidChange();
-            void modsDidChange();
         };
 
         class Transaction {

@@ -1006,12 +1006,6 @@ namespace TrenchBroom {
             m_entityDefinitionManager->clear();
         }
         
-        void MapDocument::reloadEntityDefinitions() {
-            unloadEntityDefinitions();
-            loadEntityDefinitions();
-            clearEntityModels();
-        }
-
         void MapDocument::loadEntityModels() {
             m_entityModelManager->setLoader(m_game.get());
         }
@@ -1120,6 +1114,12 @@ namespace TrenchBroom {
         void MapDocument::unsetEntityDefinitions() {
             UnsetEntityDefinition visitor;
             m_world->acceptAndRecurse(visitor);
+        }
+        
+        void MapDocument::reloadEntityDefinitions() {
+            unloadEntityDefinitions();
+            loadEntityDefinitions();
+            clearEntityModels();
         }
         
         class SetEntityModel : public Model::NodeVisitor {
@@ -1319,10 +1319,6 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.addObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.addObserver(editorContextDidChangeNotifier);
             m_mapViewConfig->mapViewConfigDidChangeNotifier.addObserver(mapViewConfigDidChangeNotifier);
-            
-            textureCollectionsDidChangeNotifier.addObserver(this, &MapDocument::textureCollectionsDidChange);
-            entityDefinitionsDidChangeNotifier.addObserver(this, &MapDocument::entityDefinitionsDidChange);
-            modsDidChangeNotifier.addObserver(this, &MapDocument::modsDidChange);
         }
         
         void MapDocument::unbindObservers() {
@@ -1330,10 +1326,6 @@ namespace TrenchBroom {
             prefs.preferenceDidChangeNotifier.removeObserver(this, &MapDocument::preferenceDidChange);
             m_editorContext->editorContextDidChangeNotifier.removeObserver(editorContextDidChangeNotifier);
             m_mapViewConfig->mapViewConfigDidChangeNotifier.removeObserver(mapViewConfigDidChangeNotifier);
-
-            textureCollectionsDidChangeNotifier.removeObserver(this, &MapDocument::textureCollectionsDidChange);
-            entityDefinitionsDidChangeNotifier.removeObserver(this, &MapDocument::entityDefinitionsDidChange);
-            modsDidChangeNotifier.removeObserver(this, &MapDocument::modsDidChange);
         }
         
         void MapDocument::preferenceDidChange(const IO::Path& path) {
@@ -1355,18 +1347,6 @@ namespace TrenchBroom {
                 m_entityModelManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
                 m_textureManager->setTextureMode(pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
             }
-        }
-        
-        void MapDocument::textureCollectionsDidChange() {
-            reloadTextures();
-        }
-        
-        void MapDocument::entityDefinitionsDidChange() {
-            reloadEntityDefinitions();
-        }
-        
-        void MapDocument::modsDidChange() {
-            clearEntityModels();
         }
 
         Transaction::Transaction(MapDocumentWPtr document, const String& name) :

@@ -133,6 +133,7 @@ namespace TrenchBroom {
             VectorUtils::clearAndDelete(m_builtinCollections);
             VectorUtils::clearAndDelete(m_externalCollections);
             MapUtils::clearAndDelete(m_toRemove);
+            MapUtils::clearAndDelete(m_toPrepare);
             
             m_builtinCollectionsByName.clear();
             m_externalCollectionsByName.clear();
