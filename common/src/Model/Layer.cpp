@@ -41,6 +41,7 @@ namespace TrenchBroom {
 
         Node* Layer::doClone(const BBox3& worldBounds) const {
             Layer* layer = new Layer(m_name, worldBounds);
+            cloneAttributes(layer);
             layer->addChildren(clone(worldBounds, children()));
             return layer;
         }

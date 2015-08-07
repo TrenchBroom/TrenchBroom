@@ -101,6 +101,7 @@ namespace TrenchBroom {
 
         Node* Group::doClone(const BBox3& worldBounds) const {
             Group* group = new Group(m_name);
+            cloneAttributes(group);
             group->addChildren(clone(worldBounds, children()));
             return group;
         }

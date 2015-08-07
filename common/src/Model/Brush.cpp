@@ -475,6 +475,7 @@ namespace TrenchBroom {
             
             Brush* brush = new Brush(worldBounds, faceClones);
             brush->setContentTypeBuilder(m_contentTypeBuilder);
+            cloneAttributes(brush);
             return brush;
         }
 

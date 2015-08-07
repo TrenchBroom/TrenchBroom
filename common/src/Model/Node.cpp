@@ -58,6 +58,11 @@ namespace TrenchBroom {
             return doTakeSnapshot();
         }
         
+        void Node::cloneAttributes(Node* node) const {
+            node->setVisiblityState(m_visibilityState);
+            node->setLockState(m_lockState);
+        }
+        
         NodeList Node::clone(const BBox3& worldBounds, const NodeList& nodes) {
             NodeList clones;
             clones.reserve(nodes.size());

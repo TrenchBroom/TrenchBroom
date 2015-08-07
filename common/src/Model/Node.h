@@ -59,6 +59,8 @@ namespace TrenchBroom {
             Node* clone(const BBox3& worldBounds) const;
             NodeSnapshot* takeSnapshot();
         protected:
+            void cloneAttributes(Node* node) const;
+            
             static NodeList clone(const BBox3& worldBounds, const NodeList& nodes);
             
             template <typename I, typename O>

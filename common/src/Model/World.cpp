@@ -102,6 +102,7 @@ namespace TrenchBroom {
             assert(myChildren[0] == m_defaultLayer);
 
             World* world = m_factory.createWorld(worldBounds);
+            cloneAttributes(world);
             world->defaultLayer()->addChildren(clone(worldBounds, m_defaultLayer->children()));
             
             if (myChildren.size() > 1) {

@@ -96,6 +96,7 @@ namespace TrenchBroom {
 
         Node* Entity::doClone(const BBox3& worldBounds) const {
             Entity* entity = new Entity();
+            cloneAttributes(entity);
             entity->setDefinition(definition());
             entity->setAttributes(attributes());
             entity->addChildren(clone(worldBounds, children()));
