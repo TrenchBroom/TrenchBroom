@@ -10,7 +10,7 @@ cmake --build . --config Release
 
 cd Release
 TrenchBroom-Test
-IF NOT ERRORLEVEL 0 GOTO error
+IF ERRORLEVEL 1 GOTO error
 cd ..
 
 cmake --build . --config Release --target package
