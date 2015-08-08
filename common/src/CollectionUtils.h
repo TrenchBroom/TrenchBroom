@@ -730,33 +730,44 @@ namespace VectorUtils {
 }
 
 namespace SetUtils {
-    template <typename T>
-    std::set<T> makeSet(const std::vector<T>& vec) {
-        std::set<T> result;
+    template <typename T, typename C = std::less<T> >
+    std::set<T, C> makeSet(const std::vector<T>& vec) {
+        std::set<T, C> result;
         result.insert(vec.begin(), vec.end());
         return result;
     }
     
-    template <typename T>
-    void minus(const std::set<T>& lhs, const std::set<T>& rhs, std::set<T>& result) {
-        std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T> >(result, result.end()));
+    template <typename T, typename C>
+    void minus(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
+        std::set_difference(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T, C> >(result, result.end()));
     }
     
-    template <typename T>
-    std::set<T> minus(const std::set<T>& lhs, const std::set<T>& rhs) {
-        std::set<T> result;
+    template <typename T, typename C>
+    std::set<T, C> minus(const std::set<T, C>& lhs, const std::set<T, C>& rhs) {
+        std::set<T, C> result;
         minus(lhs, rhs, result);
         return result;
     }
     
-    template <typename T>
-    void intersection(const std::set<T>& lhs, const std::set<T>& rhs, std::set<T>& result) {
-        std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T> >(result, result.end()));
+    template <typename T, typename C>
+    void intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::set<T, C>& result) {
+        std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::insert_iterator<std::set<T, C> >(result, result.end()));
     }
     
-    template <typename T>
-    void intersection(const std::set<T>& lhs, const std::set<T>& rhs, std::vector<T>& result) {
+    template <typename T, typename C>
+    void intersection(const std::set<T, C>& lhs, const std::set<T, C>& rhs, std::vector<T>& result) {
         std::set_intersection(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), std::back_inserter(result));
+    }
+
+    template <typename T, typename C>
+    void clearAndDelete(std::set<T*, C>& set) {
+        std::for_each(set.begin(), set.end(), Utils::Deleter<T>());
+        set.clear();
+    }
+    
+    template <typename T, typename C>
+    void deleteAll(const std::set<T*, C>& set) {
+        std::for_each(set.begin(), set.end(), Utils::Deleter<T>());
     }
 }
 
