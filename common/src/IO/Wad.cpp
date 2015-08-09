@@ -125,7 +125,7 @@ namespace TrenchBroom {
                 size_t entryAddress = readSize<int32_t>(cursor);
                 size_t entrySize = readSize<int32_t>(cursor);
                 
-                if (entryAddress + entrySize >= m_file->size())
+                if (entryAddress + entrySize > m_file->size())
                     throw AssetException("Wad entry beyond end of file");
                 
                 cursor += WadLayout::DirEntryTypeOffset;
