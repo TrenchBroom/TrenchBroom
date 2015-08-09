@@ -20,8 +20,10 @@
 #include "CompareHits.h"
 
 #include "Model/Hit.h"
+#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
+#include "Model/Group.h"
 #include "Model/HitAdapter.h"
 
 namespace TrenchBroom {
@@ -32,6 +34,37 @@ namespace TrenchBroom {
             return doCompare(lhs, rhs);
         }
         
+        CombineCompareHits::CombineCompareHits(CompareHits* first, CompareHits* second) :
+        m_first(first),
+        m_second(second) {
+            assert(m_first != NULL);
+            assert(m_second != NULL);
+        }
+
+        CombineCompareHits::~CombineCompareHits() {
+            delete m_first;
+            delete m_second;
+        }
+        
+        int CombineCompareHits::doCompare(const Hit& lhs, const Hit& rhs) const {
+            const int firstResult = m_first->compare(lhs, rhs);
+            if (firstResult == 0)
+                return m_second->compare(lhs, rhs);
+            return firstResult;
+        }
+
+        int CompareHitsByType::doCompare(const Hit& lhs, const Hit& rhs) const {
+            if (lhs.type() == Group::GroupHit)
+                return -1;
+            if (rhs.type() == Group::GroupHit)
+                return 1;
+            if (lhs.type() == Brush::BrushHit)
+                return -1;
+            if (rhs.type() == Brush::BrushHit)
+                return 1;
+            return 0;
+        }
+
         int CompareHitsByDistance::doCompare(const Hit& lhs, const Hit& rhs) const {
             if (lhs.distance() < rhs.distance())
                 return -1;

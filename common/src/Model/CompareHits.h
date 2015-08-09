@@ -35,11 +35,27 @@ namespace TrenchBroom {
             virtual int doCompare(const Hit& lhs, const Hit& rhs) const = 0;
         };
 
+        class CombineCompareHits : public CompareHits {
+        private:
+            CompareHits* m_first;
+            CompareHits* m_second;
+        public:
+            CombineCompareHits(CompareHits* first, CompareHits* second);
+            ~CombineCompareHits();
+        private:
+            int doCompare(const Hit& lhs, const Hit& rhs) const;
+        };
+        
+        class CompareHitsByType : public CompareHits {
+        private:
+            int doCompare(const Hit& lhs, const Hit& rhs) const;
+        };
+        
         class CompareHitsByDistance : public CompareHits {
         private:
             int doCompare(const Hit& lhs, const Hit& rhs) const;
         };
-
+        
         class CompareHitsBySize : public CompareHits {
         private:
             const Math::Axis::Type m_axis;

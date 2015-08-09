@@ -36,11 +36,13 @@ namespace TrenchBroom {
         m_compare(new CompareHitsByDistance()) {}
 
         PickResult PickResult::byDistance(const EditorContext& editorContext) {
-            return PickResult(editorContext, (CompareHitsByDistance()));
+            CompareHits* compare = new CombineCompareHits(new CompareHitsByDistance(),
+                                                          new CompareHitsByType());
+            return PickResult(editorContext, compare);
         }
 
         PickResult PickResult::bySize(const EditorContext& editorContext, const Math::Axis::Type axis) {
-            return PickResult(editorContext, CompareHitsBySize(axis));
+            return PickResult(editorContext, new CompareHitsBySize(axis));
         }
 
         bool PickResult::empty() const {

@@ -687,12 +687,13 @@ namespace TrenchBroom {
             deselectAll();
             Model::Group* previousGroup = m_editorContext->currentGroup();
             resetLock(Model::NodeList(1, previousGroup));
+            submit(CurrentGroupCommand::pop());
+
             Model::Group* currentGroup = m_editorContext->currentGroup();
             if (currentGroup != NULL)
                 unlock(Model::NodeList(1, currentGroup));
             else
                 unlock(Model::NodeList(1, m_world));
-            submit(CurrentGroupCommand::pop());
         }
         
         void MapDocument::isolate(const Model::NodeList& nodes) {

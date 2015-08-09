@@ -234,13 +234,21 @@ namespace TrenchBroom {
         }
         
         bool EditorContext::pickable(const Model::Entity* entity) const {
-            Model::Group* containingGroup = entity->group();
-            return (containingGroup == NULL || containingGroup->opened()) && !entity->hasChildren() && visible(entity);
+            // Removed the group check to allow brushes to be picked if they are within groups.
+            // This is necessary so that it is possible to draw new brushes onto grouped brushes.
+            // Might break other things though.
+            
+            // Model::Group* containingGroup = entity->group();
+            return /*(containingGroup == NULL || containingGroup->opened()) &&*/ !entity->hasChildren() && visible(entity);
         }
         
         bool EditorContext::pickable(const Model::Brush* brush) const {
-            Model::Group* containingGroup = brush->group();
-            return (containingGroup == NULL || containingGroup->opened()) && visible(brush);
+            // Removed the group check to allow brushes to be picked if they are within groups.
+            // This is necessary so that it is possible to draw new brushes onto grouped brushes.
+            // Might break other things though.
+            
+            // Model::Group* containingGroup = brush->group();
+            return /*(containingGroup == NULL || containingGroup->opened()) &&*/ visible(brush);
         }
         
         bool EditorContext::pickable(const Model::BrushFace* face) const {

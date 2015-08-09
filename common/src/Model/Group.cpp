@@ -169,19 +169,19 @@ namespace TrenchBroom {
         }
 
         void Group::doPick(const Ray3& ray, PickResult& pickResult) const {
-            if (opened() || hasOpenedDescendant()) {
-                const NodeList& children = Node::children();
-                NodeList::const_iterator it, end;
-                for (it = children.begin(), end = children.end(); it != end; ++it) {
-                    const Node* child = *it;
-                    child->pick(ray, pickResult);
-                }
-            } else {
+            if (!opened() && !hasOpenedDescendant()) {
                 const FloatType distance = intersectWithRay(ray);
                 if (!Math::isnan(distance)) {
                     const Vec3 hitPoint = ray.pointAtDistance(distance);
                     pickResult.addHit(Hit(GroupHit, distance, hitPoint, this));
                 }
+            }
+            
+            const NodeList& children = Node::children();
+            NodeList::const_iterator it, end;
+            for (it = children.begin(), end = children.end(); it != end; ++it) {
+                const Node* child = *it;
+                child->pick(ray, pickResult);
             }
         }
         

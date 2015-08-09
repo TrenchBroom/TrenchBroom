@@ -39,10 +39,9 @@ namespace TrenchBroom {
             ComparePtr m_compare;
             class CompareWrapper;
         public:
-            template <typename Cmp>
-            PickResult(const EditorContext& editorContext, const Cmp& compare) :
+            PickResult(const EditorContext& editorContext, CompareHits* compare) :
             m_editorContext(&editorContext),
-            m_compare(new Cmp(compare)) {}
+            m_compare(compare) {}
             
             PickResult();
             
