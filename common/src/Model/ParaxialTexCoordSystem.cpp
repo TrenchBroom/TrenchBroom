@@ -49,7 +49,7 @@ namespace TrenchBroom {
             FloatType bestDot = static_cast<FloatType>(0.0);
             for (size_t i = 0; i < 6; ++i) {
                 const FloatType dot = normal.dot(BaseAxes[i * 3]);
-                if (dot > bestDot) { // no need to use -altaxis for qbsp
+                if (dot > bestDot) { // no need to use -altaxis for qbsp, but -oldaxis is necessary
                     bestDot = dot;
                     bestIndex = i;
                 }
