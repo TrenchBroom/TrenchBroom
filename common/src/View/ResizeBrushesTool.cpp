@@ -221,7 +221,11 @@ namespace TrenchBroom {
             Model::BrushFace* dragFace = m_dragFaces.front();
             const Vec3& faceNormal = dragFace->boundary().normal;
             const FloatType rayPointDist = dragPlane.intersectWithRay(pickRay);
-            assert(!Math::isnan(rayPointDist));
+            
+            // Apparently this can happen when dragging a face that's almost orthogonal to the view vector:
+            // https://github.com/kduske/TrenchBroom/issues/1047
+            if (Math::isnan(rayPointDist))
+                return true;
             
             const Vec3 rayPoint = pickRay.pointAtDistance(rayPointDist);
             const Vec3 dragVector = rayPoint - m_dragOrigin;

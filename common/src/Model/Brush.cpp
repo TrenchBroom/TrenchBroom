@@ -178,7 +178,8 @@ namespace TrenchBroom {
             return (inWorldBounds &&
                     result.resultCode != AddFaceResult::Code_BrushNull &&
                     result.resultCode != AddFaceResult::Code_FaceRedundant &&
-                    result.droppedFaces.empty());
+                    result.droppedFaces.empty() &&
+                    testFaces.size() == result.addedFaces.size());
         }
         
         void Brush::moveBoundary(const BBox3& worldBounds, BrushFace* face, const Vec3& delta, const bool lockTexture) {
