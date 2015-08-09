@@ -187,8 +187,8 @@ namespace TrenchBroom {
             EntityAttribute::List::iterator it = findAttribute(name);
             if (it == m_attributes.end())
                 return;
-            m_attributes.erase(it);
             m_index.remove(name, it);
+            m_attributes.erase(it);
         }
 
         void EntityAttributes::updateDefinitions(const Assets::EntityDefinition* entityDefinition) {

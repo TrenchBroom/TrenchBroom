@@ -200,6 +200,9 @@ namespace StringUtils {
         if (strCur == strEnd && patCur == patEnd)
             return true;
 
+		if (patCur == patEnd)
+			return false;
+
         // Handle escaped characters in pattern.
         if (*patCur == '\\' && (patCur + 1) != patEnd) {
             if (strCur == strEnd)
@@ -216,8 +219,16 @@ namespace StringUtils {
             }
         }
         
+		// If the pattern is a star and the string is consumed
+		if (*patCur == '*' && strCur == strEnd)
+			return true;
+
+		// If the pattern is a '?' and the string is consumed
+		if (*patCur == '?' && strCur == strEnd)
+			return false;
+
         // Make sure that the characters after '*' are present in the string.
-        // This function assumes that the pattern will not contain two consecutive '*'
+        // This assumes that the pattern will not contain two consecutive '*'
         if (*patCur == '*' && (patCur + 1) != patEnd && strCur == strEnd)
             return false;
 
