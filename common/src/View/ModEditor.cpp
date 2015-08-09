@@ -65,7 +65,8 @@ namespace TrenchBroom {
 
             wxArrayInt selections;
             m_availableModList->GetSelections(selections);
-            assert(!selections.empty());
+            if (selections.empty())
+                return;
             
             MapDocumentSPtr document = lock(m_document);
 
@@ -90,7 +91,8 @@ namespace TrenchBroom {
 
             wxArrayInt selections;
             m_enabledModList->GetSelections(selections);
-            assert(!selections.empty());
+            if (selections.empty())
+                return;
             
             MapDocumentSPtr document = lock(m_document);
             StringList mods = document->mods();
@@ -214,6 +216,8 @@ namespace TrenchBroom {
             wxWindow* moveModUpButton = createBitmapButton(this, "Up.png", "Move the selected mod up");
             wxWindow* moveModDownButton = createBitmapButton(this, "Down.png", "Move the selected mod down");
             
+            m_availableModList->Bind(wxEVT_LISTBOX_DCLICK, &ModEditor::OnAddModClicked, this);
+            m_enabledModList->Bind(wxEVT_LISTBOX_DCLICK, &ModEditor::OnRemoveModClicked, this);
             m_filterBox->Bind(wxEVT_TEXT, &ModEditor::OnFilterBoxChanged, this);
             addModsButton->Bind(wxEVT_BUTTON, &ModEditor::OnAddModClicked, this);
             removeModsButton->Bind(wxEVT_BUTTON, &ModEditor::OnRemoveModClicked, this);

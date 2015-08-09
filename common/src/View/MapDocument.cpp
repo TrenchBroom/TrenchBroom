@@ -1015,11 +1015,6 @@ namespace TrenchBroom {
             m_entityModelManager->setLoader(NULL);
         }
         
-        void MapDocument::clearEntityModels() {
-            unsetEntityModels();
-            m_entityModelManager->clear();
-        }
-        
         void MapDocument::loadTextures() {
             m_textureManager->setLoader(m_game.get());
             loadBuiltinTextures();
@@ -1118,8 +1113,10 @@ namespace TrenchBroom {
         
         void MapDocument::reloadEntityDefinitions() {
             unloadEntityDefinitions();
-            loadEntityDefinitions();
             clearEntityModels();
+            loadEntityDefinitions();
+            setEntityDefinitions();
+            setEntityModels();
         }
         
         class SetEntityModel : public Model::NodeVisitor {
@@ -1168,6 +1165,11 @@ namespace TrenchBroom {
         void MapDocument::setEntityModels(const Model::NodeList& nodes) {
             SetEntityModel visitor(*m_entityModelManager, *this);
             Model::Node::accept(nodes.begin(), nodes.end(), visitor);
+        }
+        
+        void MapDocument::clearEntityModels() {
+            unsetEntityModels();
+            m_entityModelManager->clear();
         }
         
         void MapDocument::unsetEntityModels() {

@@ -257,147 +257,185 @@ namespace TrenchBroom {
             expect(status, DefToken::Word | DefToken::CBrace, token = nextTokenIgnoringNewlines());
             if (token.type() != DefToken::Word)
                 return false;
-            
+
             String typeName = token.data();
-            if (typeName == "choice") {
-                expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
-                const String attributeName = token.data();
-                
-                Assets::ChoiceAttributeOption::List options;
-                expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
-                token = nextTokenIgnoringNewlines();
-                while (token.type() == DefToken::OParenthesis) {
-                    expect(status, DefToken::Integer, token = nextTokenIgnoringNewlines());
-                    const String name = token.data();
-                    expect(status, DefToken::Comma, token = nextTokenIgnoringNewlines());
-                    expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
-                    const String value = token.data();
-                    options.push_back(Assets::ChoiceAttributeOption(name, value));
-                    
-                    expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-                    token = nextTokenIgnoringNewlines();
-                }
-                
-                expect(status, DefToken::CParenthesis, token);
-                attributes[attributeName] = Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", "", options));
-            } else if (typeName == "model") {
-                expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
-                expect(status, DefToken::QuotedString | DefToken::Word | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-                if (token.type() == DefToken::QuotedString) {
-                    const String modelPath = token.data();
-                    std::vector<size_t> indices;
-                    
-                    expect(status, DefToken::Integer | DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-                    if (token.type() == DefToken::Integer) {
-                        indices.push_back(token.toInteger<size_t>());
-                        expect(status, DefToken::Integer | DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-                        if (token.type() == DefToken::Integer) {
-                            indices.push_back(token.toInteger<size_t>());
-                            expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-                        }
-                    }
-                    
-                    size_t skinIndex = 0;
-                    size_t frameIndex = 0;
-                    if (!indices.empty()) {
-                        skinIndex = indices[0];
-                        if (indices.size() > 1)
-                            frameIndex = indices[1];
-                    }
-                    
-                    if (token.type() == DefToken::Word) { // parse attribute or flag
-                        const String attributeKey = token.data();
-                        
-                        expect(status, DefToken::Equality, token = nextTokenIgnoringNewlines());
-                        expect(status, DefToken::QuotedString | DefToken::Integer, token = nextTokenIgnoringNewlines());
-                        if (token.type() == DefToken::QuotedString) {
-                            const String attributeValue = token.data();
-                            modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(modelPath,
-                                                                                                                    skinIndex,
-                                                                                                                    frameIndex,
-                                                                                                                    attributeKey, attributeValue)));
-                        } else {
-                            const int flagValue = token.toInteger<int>();
-                            modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(modelPath,
-                                                                                                                    skinIndex,
-                                                                                                                    frameIndex,
-                                                                                                                    attributeKey, flagValue)));
-                        }
-                        expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-                    } else {
-                        modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(modelPath,
-                                                                                                                skinIndex,
-                                                                                                                frameIndex)));
-                    }
-                } else if (token.type() == DefToken::Word) {
-                    String pathKey, skinKey, frameKey;
-                    
-                    if (!StringUtils::caseInsensitiveEqual("pathKey", token.data())) {
-                        const String msg("Expected 'pathKey', but found '" + token.data() + "'");
-                        status.error(token.line(), token.column(), msg);
-                        throw ParserException(token.line(), token.column(), msg);
-                    }
-                    
-                    expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
-                    expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
-                    pathKey = token.data();
-                    
-                    expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-                    if (token.type() == DefToken::Word) {
-                        if (!StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
-                            const String msg("Expected 'skinKey', but found '" + token.data() + "'");
-                            status.error(token.line(), token.column(), msg);
-                            throw ParserException(token.line(), token.column(), msg);
-                        }
-                        
-                        expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
-                        expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
-                        skinKey = token.data();
-                        
-                        expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
-                        if (token.type() == DefToken::Word) {
-                            if (!StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
-                                const String msg("Expected 'frameKey', but found '" + token.data() + "'");
-                                status.error(token.line(), token.column(), msg);
-                                throw ParserException(token.line(), token.column(), msg);
-                            }
-                            
-                            expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
-                            expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
-                            frameKey = token.data();
-                        } else {
-                            m_tokenizer.pushToken(token);
-                        }
-                    } else {
-                        m_tokenizer.pushToken(token);
-                    }
-                    
-                    expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-                    modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::DynamicModelDefinition(pathKey, skinKey, frameKey)));
-                }
-            } else if (typeName == "default") {
-                expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
-                expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
-                const String attributeName = token.data();
-                expect(status, DefToken::Comma, token = nextTokenIgnoringNewlines());
-                expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
-                const String attributeValue = token.data();
-                expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-                
+            if (typeName == "default") {
                 // ignore these attributes
+                parseDefaultAttribute(status);
             } else if (typeName == "base") {
-                expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
-                expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
-                const String basename = token.data();
-                expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
-                
-                superClasses.push_back(basename);
+                parseBaseAttribute(status, superClasses);
+            } else if (typeName == "choice") {
+                parseChoiceAttribute(status, attributes);
+            } else if (typeName == "model") {
+                parseModelDefinitions(status, modelDefinitions);
             }
             
             expect(status, DefToken::Semicolon, token = nextTokenIgnoringNewlines());
             return true;
         }
         
+        void DefParser::parseDefaultAttribute(ParserStatus& status) {
+            Token token;
+            expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
+            expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
+            const String attributeName = token.data();
+            expect(status, DefToken::Comma, token = nextTokenIgnoringNewlines());
+            expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
+            const String attributeValue = token.data();
+            expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
+        }
+
+        void DefParser::parseBaseAttribute(ParserStatus& status, StringList& superClasses) {
+            Token token;
+            expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
+            expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
+            const String basename = token.data();
+            expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
+            
+            superClasses.push_back(basename);
+        }
+
+        void DefParser::parseChoiceAttribute(ParserStatus& status, Assets::AttributeDefinitionMap& attributes) {
+            Token token;
+            expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
+            const String attributeName = token.data();
+            
+            Assets::ChoiceAttributeOption::List options;
+            expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
+            token = nextTokenIgnoringNewlines();
+            while (token.type() == DefToken::OParenthesis) {
+                expect(status, DefToken::Integer, token = nextTokenIgnoringNewlines());
+                const String name = token.data();
+                expect(status, DefToken::Comma, token = nextTokenIgnoringNewlines());
+                expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
+                const String value = token.data();
+                options.push_back(Assets::ChoiceAttributeOption(name, value));
+                
+                expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
+                token = nextTokenIgnoringNewlines();
+            }
+            
+            expect(status, DefToken::CParenthesis, token);
+            
+            attributes[attributeName] = Assets::AttributeDefinitionPtr(new Assets::ChoiceAttributeDefinition(attributeName, "", "", options));
+        }
+
+        void DefParser::parseModelDefinitions(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions) {
+            Token token;
+            expect(status, DefToken::OParenthesis, token = nextTokenIgnoringNewlines());
+            expect(status, DefToken::QuotedString | DefToken::Word | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
+            if (token.type() == DefToken::QuotedString) {
+                m_tokenizer.pushToken(token);
+                parseStaticModelDefinition(status, modelDefinitions);
+            } else if (token.type() == DefToken::Word) {
+                m_tokenizer.pushToken(token);
+                parseDynamicModelDefinition(status, modelDefinitions);
+            }
+        }
+
+        void DefParser::parseStaticModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions) {
+            Token token;
+            expect(status, DefToken::QuotedString, token = nextTokenIgnoringNewlines());
+
+            const String pathStr = token.data();
+            const IO::Path path(!pathStr.empty() && pathStr[0] == ':' ? pathStr.substr(1) : pathStr);
+            
+            std::vector<size_t> indices;
+            
+            expect(status, DefToken::Integer | DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
+            if (token.type() == DefToken::Integer) {
+                indices.push_back(token.toInteger<size_t>());
+                expect(status, DefToken::Integer | DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
+                if (token.type() == DefToken::Integer) {
+                    indices.push_back(token.toInteger<size_t>());
+                    expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
+                }
+            }
+            
+            size_t skinIndex = 0;
+            size_t frameIndex = 0;
+            if (!indices.empty()) {
+                skinIndex = indices[0];
+                if (indices.size() > 1)
+                    frameIndex = indices[1];
+            }
+            
+            if (token.type() == DefToken::Word) { // parse attribute or flag
+                const String attributeKey = token.data();
+                
+                expect(status, DefToken::Equality, token = nextTokenIgnoringNewlines());
+                expect(status, DefToken::QuotedString | DefToken::Integer, token = nextTokenIgnoringNewlines());
+                if (token.type() == DefToken::QuotedString) {
+                    const String attributeValue = token.data();
+                    modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path,
+                                                                                                            skinIndex,
+                                                                                                            frameIndex,
+                                                                                                            attributeKey, attributeValue)));
+                } else {
+                    const int flagValue = token.toInteger<int>();
+                    modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path,
+                                                                                                            skinIndex,
+                                                                                                            frameIndex,
+                                                                                                            attributeKey, flagValue)));
+                }
+                expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
+            } else {
+                modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::StaticModelDefinition(path,
+                                                                                                        skinIndex,
+                                                                                                        frameIndex)));
+            }
+        }
+        
+        void DefParser::parseDynamicModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions) {
+            Token token;
+            expect(status, DefToken::Word, token = nextTokenIgnoringNewlines());
+
+            String pathKey, skinKey, frameKey;
+            
+            if (!StringUtils::caseInsensitiveEqual("pathKey", token.data())) {
+                const String msg("Expected 'pathKey', but found '" + token.data() + "'");
+                status.error(token.line(), token.column(), msg);
+                throw ParserException(token.line(), token.column(), msg);
+            }
+            
+            expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
+            expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
+            pathKey = token.data();
+            
+            expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
+            if (token.type() == DefToken::Word) {
+                if (!StringUtils::caseInsensitiveEqual("skinKey", token.data())) {
+                    const String msg("Expected 'skinKey', but found '" + token.data() + "'");
+                    status.error(token.line(), token.column(), msg);
+                    throw ParserException(token.line(), token.column(), msg);
+                }
+                
+                expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
+                expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
+                skinKey = token.data();
+                
+                expect(status, DefToken::Word | DefToken::Comma | DefToken::CParenthesis, token = m_tokenizer.nextToken());
+                if (token.type() == DefToken::Word) {
+                    if (!StringUtils::caseInsensitiveEqual("frameKey", token.data())) {
+                        const String msg("Expected 'frameKey', but found '" + token.data() + "'");
+                        status.error(token.line(), token.column(), msg);
+                        throw ParserException(token.line(), token.column(), msg);
+                    }
+                    
+                    expect(status, DefToken::Equality, token = m_tokenizer.nextToken());
+                    expect(status, DefToken::QuotedString, token = m_tokenizer.nextToken());
+                    frameKey = token.data();
+                } else {
+                    m_tokenizer.pushToken(token);
+                }
+            } else {
+                m_tokenizer.pushToken(token);
+            }
+            
+            expect(status, DefToken::CParenthesis, token = nextTokenIgnoringNewlines());
+            modelDefinitions.push_back(Assets::ModelDefinitionPtr(new Assets::DynamicModelDefinition(pathKey, skinKey, frameKey)));
+        }
+
         String DefParser::parseDescription() {
             Token token = m_tokenizer.peekToken();
             if (token.type() == DefToken::CDefinition)

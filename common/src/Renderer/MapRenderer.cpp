@@ -360,6 +360,12 @@ namespace TrenchBroom {
             m_entityLinkRenderer->invalidate();
         }
 
+        void MapRenderer::reloadEntityModels() {
+            m_defaultRenderer->reloadModels();
+            m_selectionRenderer->reloadModels();
+            m_lockedRenderer->reloadModels();
+        }
+
         void MapRenderer::bindObservers() {
             assert(!expired(m_document));
             View::MapDocumentSPtr document = lock(m_document);
@@ -472,12 +478,12 @@ namespace TrenchBroom {
         }
         
         void MapRenderer::entityDefinitionsDidChange() {
-            invalidateRenderers(Renderer_All);
+            reloadEntityModels();
             invalidateEntityLinkRenderer();
         }
         
         void MapRenderer::modsDidChange() {
-            invalidateRenderers(Renderer_All);
+            reloadEntityModels();
             invalidateEntityLinkRenderer();
         }
         

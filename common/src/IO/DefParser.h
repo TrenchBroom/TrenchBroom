@@ -80,6 +80,13 @@ namespace TrenchBroom {
             Assets::AttributeDefinitionPtr parseSpawnflags(ParserStatus& status);
             void parserAttributes(ParserStatus& status, Assets::AttributeDefinitionMap& attributes, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses);
             bool parseAttribute(ParserStatus& status, Assets::AttributeDefinitionMap& attributes, Assets::ModelDefinitionList& modelDefinitions, StringList& superClasses);
+            
+            void parseDefaultAttribute(ParserStatus& status);
+            void parseBaseAttribute(ParserStatus& status, StringList& superClasses);
+            void parseChoiceAttribute(ParserStatus& status, Assets::AttributeDefinitionMap& attributes);
+            void parseModelDefinitions(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
+            void parseStaticModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
+            void parseDynamicModelDefinition(ParserStatus& status, Assets::ModelDefinitionList& modelDefinitions);
             String parseDescription();
 
             Vec3 parseVector(ParserStatus& status);

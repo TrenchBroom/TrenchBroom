@@ -97,6 +97,7 @@ namespace TrenchBroom {
             void updateRenderers(Renderer renderers);
             void invalidateRenderers(Renderer renderers);
             void invalidateEntityLinkRenderer();
+            void reloadEntityModels();
         private: // notification
             void bindObservers();
             void unbindObservers();

@@ -50,6 +50,7 @@ namespace TrenchBroom {
             void setObjects(const Model::GroupList& groups, const Model::EntityList& entities, const Model::BrushList& brushes);
             void invalidate();
             void clear();
+            void reloadModels();
         public: // configuration
             void setShowOverlays(bool showOverlays);
             void setOverlayTextColor(const Color& overlayTextColor);

@@ -1011,8 +1011,11 @@ namespace TrenchBroom {
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
             unsetEntityDefinitions();
+            clearEntityModels();
             m_world->addOrUpdateAttribute(Model::AttributeNames::Mods, StringUtils::join(mods, ";"));
+            updateGameSearchPaths();
             setEntityDefinitions();
+            setEntityModels();
             modsDidChangeNotifier();
         }
 
