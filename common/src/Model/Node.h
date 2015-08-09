@@ -57,6 +57,7 @@ namespace TrenchBroom {
             const String& name() const;
         public: // cloning and snapshots
             Node* clone(const BBox3& worldBounds) const;
+            Node* cloneRecursively(const BBox3& worldBounds) const;
             NodeSnapshot* takeSnapshot();
         protected:
             void cloneAttributes(Node* node) const;
@@ -350,6 +351,7 @@ namespace TrenchBroom {
             virtual const String& doGetName() const = 0;
             
             virtual Node* doClone(const BBox3& worldBounds) const = 0;
+            virtual Node* doCloneRecursively(const BBox3& worldBounds) const;
             virtual NodeSnapshot* doTakeSnapshot();
             
             virtual bool doCanAddChild(const Node* child) const = 0;

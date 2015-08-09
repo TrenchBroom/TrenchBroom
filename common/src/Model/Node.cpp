@@ -54,6 +54,10 @@ namespace TrenchBroom {
             return doClone(worldBounds);
         }
 
+        Node* Node::cloneRecursively(const BBox3& worldBounds) const {
+            return doCloneRecursively(worldBounds);
+        }
+
         NodeSnapshot* Node::takeSnapshot() {
             return doTakeSnapshot();
         }
@@ -548,6 +552,12 @@ namespace TrenchBroom {
         
         void Node::removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value) {
             doRemoveFromIndex(attributable, name, value);
+        }
+
+        Node* Node::doCloneRecursively(const BBox3& worldBounds) const {
+            Node* clone = Node::clone(worldBounds);
+            clone->addChildren(Node::clone(worldBounds, children()));
+            return clone;
         }
 
         NodeSnapshot* Node::doTakeSnapshot() {

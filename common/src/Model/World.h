@@ -61,6 +61,7 @@ namespace TrenchBroom {
             void invalidateAllIssues();
         private: // implement Node interface
             Node* doClone(const BBox3& worldBounds) const;
+            Node* doCloneRecursively(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;
             bool doCanRemoveChild(const Node* child) const;
             bool doRemoveIfEmpty() const;

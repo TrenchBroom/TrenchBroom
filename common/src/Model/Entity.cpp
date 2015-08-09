@@ -99,7 +99,6 @@ namespace TrenchBroom {
             cloneAttributes(entity);
             entity->setDefinition(definition());
             entity->setAttributes(attributes());
-            entity->addChildren(clone(worldBounds, children()));
             return entity;
         }
 

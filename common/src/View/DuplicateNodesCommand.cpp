@@ -47,7 +47,7 @@ namespace TrenchBroom {
             Model::NodeList::const_iterator it, end;
             for (it = m_previouslySelectedNodes.begin(), end = m_previouslySelectedNodes.end(); it != end; ++it) {
                 const Model::Node* original = *it;
-                Model::Node* clone = original->clone(worldBounds);
+                Model::Node* clone = original->cloneRecursively(worldBounds);
 
                 Model::Node* parent = original->parent();
                 if (cloneParent(parent)) {
