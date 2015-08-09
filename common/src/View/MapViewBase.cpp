@@ -873,6 +873,8 @@ namespace TrenchBroom {
             
             menu.UpdateUI(this);
             PopupMenu(&menu);
+            
+            doAfterPopupMenu();
         }
 
         wxMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinition::Type type, int id) {
@@ -1049,5 +1051,7 @@ namespace TrenchBroom {
         }
 
         void MapViewBase::doRenderExtras(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {}
+
+        void MapViewBase::doAfterPopupMenu() {}
     }
 }

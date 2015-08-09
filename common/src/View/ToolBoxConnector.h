@@ -94,8 +94,10 @@ namespace TrenchBroom {
             void cancelDrag();
             
             ModifierKeyState modifierKeys();
-            bool updateModifierKeys();
+            bool setModifierKeys();
             bool clearModifierKeys();
+            void updateModifierKeys();
+            
             MouseButtonState mouseButton(wxMouseEvent& event);
             void mouseMoved(const wxPoint& position);
 

@@ -110,8 +110,11 @@ namespace TrenchBroom {
         private: // tool mode events
             void OnToggleFlyMode(wxCommandEvent& event);
         private: // other events
+            void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
             void OnActivateFrame(wxActivateEvent& event);
+        private:
+            void updateVerticalMovementRestriction(const wxKeyboardState& state);
         private: // implement ToolBoxConnector interface
             PickRequest doGetPickRequest(int x, int y) const;
             Model::PickResult doPick(const Ray3& pickRay) const;
@@ -142,6 +145,8 @@ namespace TrenchBroom {
             void doRenderGrid(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderMap(Renderer::MapRenderer& renderer, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             void doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+
+            void doAfterPopupMenu();
         private: // implement CameraLinkableView interface
             void doLinkCamera(CameraLinkHelper& linkHelper);
         };

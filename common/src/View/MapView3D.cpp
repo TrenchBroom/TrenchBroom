@@ -151,6 +151,7 @@ namespace TrenchBroom {
             Bind(wxEVT_KEY_UP, &MapView3D::OnKeyUp, this);
             Bind(wxEVT_MOTION, &MapView3D::OnMouseMotion, this);
             
+            Bind(wxEVT_SET_FOCUS, &MapView3D::OnSetFocus, this);
             Bind(wxEVT_KILL_FOCUS, &MapView3D::OnKillFocus, this);
             
             Bind(wxEVT_MENU, &MapView3D::OnToggleMovementRestriction,    this, CommandIds::Actions::ToggleMovementRestriction);
@@ -175,6 +176,7 @@ namespace TrenchBroom {
 
             if (!m_flyModeHelper->keyDown(event))
                 key(event);
+            event.Skip();
         }
         
         void MapView3D::OnKeyUp(wxKeyEvent& event) {
@@ -182,12 +184,11 @@ namespace TrenchBroom {
 
             if (!m_flyModeHelper->keyUp(event))
                 key(event);
+            event.Skip();
         }
         
         void MapView3D::key(wxKeyEvent& event) {
-            m_movementRestriction.setVerticalRestriction(event.AltDown());
-            Refresh();
-            event.Skip();
+            updateVerticalMovementRestriction(event);
         }
 
         void MapView3D::OnMouseMotion(wxMouseEvent& event) {
@@ -301,11 +302,19 @@ namespace TrenchBroom {
             toggleCameraFlyMode();
         }
 
+        void MapView3D::OnSetFocus(wxFocusEvent& event) {
+            if (IsBeingDeleted()) return;
+            
+            updateVerticalMovementRestriction(wxGetMouseState());
+            event.Skip();
+        }
+
         void MapView3D::OnKillFocus(wxFocusEvent& event) {
             if (IsBeingDeleted()) return;
 
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
+            updateVerticalMovementRestriction(wxGetMouseState());
             event.Skip();
         }
 
@@ -314,7 +323,13 @@ namespace TrenchBroom {
 
             if (cameraFlyModeActive())
                 toggleCameraFlyMode();
+            updateVerticalMovementRestriction(wxGetMouseState());
             event.Skip();
+        }
+
+        void MapView3D::updateVerticalMovementRestriction(const wxKeyboardState& state) {
+            m_movementRestriction.setVerticalRestriction(state.AltDown());
+            Refresh();
         }
 
         PickRequest MapView3D::doGetPickRequest(const int x, const int y) const {
@@ -598,6 +613,11 @@ namespace TrenchBroom {
         
         void MapView3D::doRenderTools(MapViewToolBox& toolBox, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderTools(renderContext, renderBatch);
+        }
+        
+        void MapView3D::doAfterPopupMenu() {
+            updateVerticalMovementRestriction(wxGetMouseState());
+            Refresh();
         }
         
         void MapView3D::doLinkCamera(CameraLinkHelper& helper) {}
