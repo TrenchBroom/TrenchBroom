@@ -163,7 +163,9 @@ namespace TrenchBroom {
                 return;
             
             const String value = StringUtils::join(collections, ';');
-            world->addOrUpdateAttribute(attribute, value);
+            // to avoid backslashes being misinterpreted as escape sequences
+            const String formatted = StringUtils::replaceAll(value, "\\", "/");
+            world->addOrUpdateAttribute(attribute, formatted);
         }
 
         Assets::TextureCollection* GameImpl::doLoadTextureCollection(const Assets::TextureCollectionSpec& spec) const {

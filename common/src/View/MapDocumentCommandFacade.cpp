@@ -954,7 +954,9 @@ namespace TrenchBroom {
             const Model::NodeList nodes(1, m_world);
             NodeChangeNotifier notifyNodes(nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
 
-            m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, spec.asString());
+            // to avoid backslashes being misinterpreted as escape sequences
+            const String formatted = StringUtils::replaceAll(spec.asString(), "\\", "/");
+            m_world->addOrUpdateAttribute(Model::AttributeNames::EntityDefinitions, formatted);
             reloadEntityDefinitions();
             entityDefinitionsDidChangeNotifier();
         }
