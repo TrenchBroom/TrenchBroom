@@ -22,11 +22,17 @@
 
 #include "Notifier.h"
 
+class wxBookCtrlBase;
+class wxWindow;
+
 namespace TrenchBroom {
     namespace View {
         class Tool {
         private:
             bool m_active;
+
+            wxBookCtrlBase* m_book;
+            size_t m_pageIndex;
         public:
             Notifier1<Tool*> toolActivatedNotifier;
             Notifier1<Tool*> toolDeactivatedNotifier;
@@ -41,9 +47,14 @@ namespace TrenchBroom {
             bool deactivate();
 
             void refreshViews();
+            
+            void createPage(wxBookCtrlBase* book);
+            void showPage();
         private:
             virtual bool doActivate();
             virtual bool doDeactivate();
+
+            virtual wxWindow* doCreatePage(wxWindow* parent);
         };
     }
 }

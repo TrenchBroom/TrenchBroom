@@ -86,6 +86,7 @@ namespace TrenchBroom {
             void createTools(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
             void destroyTools();
         private: // notification
+            void registerTool(Tool* tool, wxBookCtrlBase* bookCtrl);
             void bindObservers();
             void unbindObservers();
             void toolActivated(Tool* tool);

@@ -334,9 +334,6 @@ namespace TrenchBroom {
         }
 
         void ToolBox::deactivateTool(Tool* tool) {
-            tool->deactivate();
-            toolDeactivatedNotifier(tool);
-
             ToolMap::iterator mapIt = m_deactivateWhen.find(tool);
             if (mapIt != m_deactivateWhen.end()) {
                 const ToolList& slaves = mapIt->second;
@@ -348,6 +345,9 @@ namespace TrenchBroom {
                     toolActivatedNotifier(slave);
                 }
             }
+
+            tool->deactivate();
+            toolDeactivatedNotifier(tool);
         }
     }
 }

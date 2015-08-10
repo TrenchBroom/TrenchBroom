@@ -166,17 +166,14 @@ namespace TrenchBroom {
             deactivateWhen(m_clipTool, m_moveObjectsTool);
             deactivateWhen(m_clipTool, m_resizeBrushesTool);
             
-            m_moveObjectsTool->createPage(bookCtrl);
-            m_rotateObjectsTool->createPage(bookCtrl);
-            
-            addTool(m_moveObjectsTool);
-            addTool(m_rotateObjectsTool);
-            addTool(m_resizeBrushesTool);
-            addTool(m_createBrushTool);
-            addTool(m_clipTool);
-            addTool(m_vertexTool);
-            addTool(m_createEntityTool);
-            addTool(m_selectionTool);
+            registerTool(m_moveObjectsTool, bookCtrl);
+            registerTool(m_rotateObjectsTool, bookCtrl);
+            registerTool(m_resizeBrushesTool, bookCtrl);
+            registerTool(m_createBrushTool, bookCtrl);
+            registerTool(m_clipTool, bookCtrl);
+            registerTool(m_vertexTool, bookCtrl);
+            registerTool(m_createEntityTool, bookCtrl);
+            registerTool(m_selectionTool, bookCtrl);
         }
         
         void MapViewToolBox::destroyTools() {
@@ -190,6 +187,11 @@ namespace TrenchBroom {
             delete m_clipTool;
         }
         
+        void MapViewToolBox::registerTool(Tool* tool, wxBookCtrlBase* bookCtrl) {
+            tool->createPage(bookCtrl);
+            addTool(tool);
+        }
+
         void MapViewToolBox::bindObservers() {
             toolActivatedNotifier.addObserver(this, &MapViewToolBox::toolActivated);
             toolDeactivatedNotifier.addObserver(this, &MapViewToolBox::toolDeactivated);
@@ -202,8 +204,7 @@ namespace TrenchBroom {
         
         void MapViewToolBox::toolActivated(Tool* tool) {
             updateEditorContext();
-            if (tool == m_rotateObjectsTool)
-                m_rotateObjectsTool->showPage();
+            tool->showPage();
         }
         
         void MapViewToolBox::toolDeactivated(Tool* tool) {

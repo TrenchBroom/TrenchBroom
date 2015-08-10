@@ -22,7 +22,6 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
-#include "View/MapViewToolPage.h"
 #include "View/MoveToolHelper.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
@@ -35,7 +34,7 @@ namespace TrenchBroom {
     namespace View {
         class InputState;
         
-        class MoveObjectsTool : public Tool, public MoveToolDelegate, public MapViewToolPage {
+        class MoveObjectsTool : public Tool, public MoveToolDelegate {
         private:
             MapDocumentWPtr m_document;
             bool m_duplicateObjects;
