@@ -88,7 +88,7 @@ namespace TrenchBroom {
             }
             
             bool doShow(const Model::BrushEdge* edge) const {
-                return !selected(edge);
+                return !selected(edge) && visible(edge);
             }
             
             bool doIsTransparent(const Model::Brush* brush) const {

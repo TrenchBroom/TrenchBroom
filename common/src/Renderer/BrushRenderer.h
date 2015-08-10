@@ -61,6 +61,7 @@ namespace TrenchBroom {
                 
                 bool visible(const Model::Brush* brush) const;
                 bool visible(const Model::BrushFace* face) const;
+                bool visible(const Model::BrushEdge* edge) const;
                 
                 bool editable(const Model::Brush* brush) const;
                 bool editable(const Model::BrushFace* face) const;
