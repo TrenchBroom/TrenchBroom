@@ -148,7 +148,7 @@ namespace TrenchBroom {
                 counts[0] = counts[1] = counts[2] = 0;
                 
                 const Vec3::List helpVectors = combineHelpVectors();
-                for (size_t i = 0; i < m_numPoints; ++i) {
+                for (size_t i = 0; i < std::min(m_numPoints, helpVectors.size()); ++i) {
                     const Math::Axis::Type axis = helpVectors[i].firstComponent();
                     counts[axis]++;
                 }
