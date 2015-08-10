@@ -33,7 +33,7 @@ namespace TrenchBroom {
     namespace View {
         RecentDocumentListBox::RecentDocumentListBox(wxWindow* parent) :
         ImageListBox(parent, wxSize(32, 32), "No Recent Documents"),
-        m_documentIcon(IO::loadImageResource(IO::Path("images/DocIcon.png"))) {
+        m_documentIcon(IO::loadImageResource("DocIcon.png")) {
             assert(m_documentIcon.IsOk());
             TrenchBroomApp& app = View::TrenchBroomApp::instance();
             app.recentDocumentsDidChangeNotifier.addObserver(this, &RecentDocumentListBox::recentDocumentsDidChange);

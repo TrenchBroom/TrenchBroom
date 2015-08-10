@@ -43,6 +43,7 @@ namespace TrenchBroom {
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polyhedron3& polyhedron);
         private:
             bool doActivate();
+            String doGetIconName() const;
         };
     }
 }

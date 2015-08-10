@@ -75,6 +75,7 @@ namespace TrenchBroom {
             void renderHandle3D(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, RotateObjectsHandle::HitArea area);
         private:
             wxWindow* doCreatePage(wxWindow* parent);
+            String doGetIconName() const;
         };
     }
 }

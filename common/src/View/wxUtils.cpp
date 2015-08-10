@@ -80,7 +80,7 @@ namespace TrenchBroom {
         }
 
         wxWindow* createBitmapButton(wxWindow* parent, const String& image, const String& tooltip) {
-            wxBitmap bitmap = IO::loadImageResource(IO::Path("images") + IO::Path(image));
+            wxBitmap bitmap = IO::loadImageResource(image);
             assert(bitmap.IsOk());
 
             wxBitmapButton* button = new wxBitmapButton(parent, wxID_ANY, bitmap, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
@@ -90,10 +90,10 @@ namespace TrenchBroom {
         }
 
         wxWindow* createBitmapToggleButton(wxWindow* parent, const String& upImage, const String& downImage, const String& tooltip) {
-            wxBitmap upBitmap = IO::loadImageResource(IO::Path("images") + IO::Path(upImage));
+            wxBitmap upBitmap = IO::loadImageResource(upImage);
             assert(upBitmap.IsOk());
 
-            wxBitmap downBitmap = IO::loadImageResource(IO::Path("images") + IO::Path(downImage));
+            wxBitmap downBitmap = IO::loadImageResource(downImage);
             assert(downBitmap.IsOk());
 
             /*

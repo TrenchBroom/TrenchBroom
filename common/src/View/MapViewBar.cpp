@@ -27,6 +27,7 @@
 #include <wx/simplebook.h>
 #include <wx/sizer.h>
 #include <wx/srchctrl.h>
+#include <wx/statbmp.h>
 #include <wx/stattext.h>
 
 namespace TrenchBroom {
@@ -34,6 +35,7 @@ namespace TrenchBroom {
         MapViewBar::MapViewBar(wxWindow* parent, MapDocumentWPtr document) :
         ContainerBar(parent, wxBOTTOM),
         m_document(document),
+        m_toolIndicator(NULL),
         m_toolBook(NULL),
         m_viewEditor(NULL) {
 #if defined __APPLE__
@@ -42,6 +44,10 @@ namespace TrenchBroom {
             createGui(document);
         }
         
+        wxStaticBitmap* MapViewBar::toolIndicator() {
+            return m_toolIndicator;
+        }
+
         wxBookCtrlBase* MapViewBar::toolBook() {
             return m_toolBook;
         }
@@ -51,11 +57,15 @@ namespace TrenchBroom {
         }
 
         void MapViewBar::createGui(MapDocumentWPtr document) {
+            m_toolIndicator = new wxStaticBitmap(this, wxID_ANY, wxNullBitmap);
             m_toolBook = new wxSimplebook(this);
             m_viewEditor = new ViewPopupEditor(this, document);
             
             wxSizer* hSizer = new wxBoxSizer(wxHORIZONTAL);
             hSizer->AddSpacer(LayoutConstants::NarrowHMargin);
+            hSizer->Add(m_toolIndicator, 0, wxALIGN_CENTRE_VERTICAL);
+            hSizer->SetItemMinSize(m_toolIndicator, 16, 16);
+            hSizer->AddSpacer(LayoutConstants::MediumHMargin);
             hSizer->Add(m_toolBook, 1, wxEXPAND | wxALIGN_CENTRE_VERTICAL);
             hSizer->AddSpacer(LayoutConstants::MediumHMargin);
             hSizer->Add(m_viewEditor, 0, wxALIGN_CENTRE_VERTICAL);

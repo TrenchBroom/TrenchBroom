@@ -20,12 +20,13 @@
 #ifndef __TrenchBroom__ResourceUtils__
 #define __TrenchBroom__ResourceUtils__
 
+#include "StringUtils.h"
 #include <wx/bitmap.h>
 
 namespace TrenchBroom {
     namespace IO {
         class Path;
-        
+        wxBitmap loadImageResource(const String& name);
         wxBitmap loadImageResource(const IO::Path& imagePath);
     }
 }

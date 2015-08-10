@@ -26,9 +26,13 @@
 
 namespace TrenchBroom {
     namespace IO {
+        wxBitmap loadImageResource(const String& name) {
+            return loadImageResource(IO::Path(name));
+        }
+
         wxBitmap loadImageResource(const IO::Path& imagePath) {
             wxLogNull logNull; // need this to suppress errors when loading PNG files, see http://trac.wxwidgets.org/ticket/15331
-            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + imagePath;
+            const IO::Path fullPath = imagePath.isAbsolute() ? imagePath : IO::SystemPaths::resourceDirectory() + IO::Path("images") + imagePath;
             if (!::wxFileExists(fullPath.asString()))
                 return wxNullBitmap;
             return wxBitmap(fullPath.asString(), wxBITMAP_TYPE_PNG);

@@ -600,5 +600,10 @@ namespace TrenchBroom {
                 Model::Node::accept(nodes.begin(), nodes.end(), addVisitor);
             }
         }
+
+        
+        String VertexTool::doGetIconName() const {
+            return "VertexTool.png";
+        }
     }
 }

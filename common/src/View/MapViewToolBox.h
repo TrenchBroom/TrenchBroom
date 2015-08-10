@@ -24,6 +24,7 @@
 #include "View/ViewTypes.h"
 
 class wxBookCtrlBase;
+class wxStaticBitmap;
 
 namespace TrenchBroom {
     namespace Renderer {
@@ -43,6 +44,8 @@ namespace TrenchBroom {
         class MapViewToolBox : public ToolBox {
         private:
             MapDocumentWPtr m_document;
+            wxStaticBitmap* m_toolIndicator;
+            
             ClipTool* m_clipTool;
             CreateBrushTool* m_createBrushTool;
             CreateEntityTool* m_createEntityTool;
@@ -52,7 +55,7 @@ namespace TrenchBroom {
             SelectionTool* m_selectionTool;
             VertexTool* m_vertexTool;
         public:
-            MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl);
+            MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl, wxStaticBitmap* toolIndicator);
             ~MapViewToolBox();
         public: // tools
             ClipTool* clipTool();

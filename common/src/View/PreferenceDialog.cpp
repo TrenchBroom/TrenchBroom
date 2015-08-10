@@ -149,9 +149,9 @@ namespace TrenchBroom {
         }
 
         void PreferenceDialog::createGui() {
-            const wxBitmap gamesImage = IO::loadImageResource(IO::Path("images/GeneralPreferences.png"));
-            const wxBitmap generalImage = IO::loadImageResource(IO::Path("images/GeneralPreferences.png"));
-            const wxBitmap keyboardImage = IO::loadImageResource(IO::Path("images/KeyboardPreferences.png"));
+            const wxBitmap gamesImage = IO::loadImageResource("GeneralPreferences.png");
+            const wxBitmap generalImage = IO::loadImageResource("GeneralPreferences.png");
+            const wxBitmap keyboardImage = IO::loadImageResource("KeyboardPreferences.png");
             
             m_toolBar = new wxToolBar(this, wxID_ANY);
             m_toolBar->AddCheckTool(PrefPane_Games, "Games", gamesImage, wxNullBitmap);

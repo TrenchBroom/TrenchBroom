@@ -19,6 +19,8 @@
 
 #include "Tool.h"
 
+#include "IO/ResourceUtils.h"
+
 #include <wx/bookctrl.h>
 #include <wx/panel.h>
 
@@ -71,6 +73,10 @@ namespace TrenchBroom {
             m_book->SetSelection(m_pageIndex);
         }
 
+        wxBitmap Tool::icon() const {
+            return IO::loadImageResource(doGetIconName());
+        }
+
         bool Tool::doActivate() {
             return true;
         }
@@ -81,6 +87,10 @@ namespace TrenchBroom {
 
         wxWindow* Tool::doCreatePage(wxWindow* parent) {
             return new wxPanel(parent);
+        }
+
+        String Tool::doGetIconName() const {
+            return "NoTool.png";
         }
     }
 }

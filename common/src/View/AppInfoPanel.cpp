@@ -37,7 +37,7 @@ namespace TrenchBroom {
         }
 
         void AppInfoPanel::createGui() {
-            const wxBitmap appIconImage = IO::loadImageResource(IO::Path("images/AppIcon.png"));
+            const wxBitmap appIconImage = IO::loadImageResource("AppIcon.png");
             wxStaticBitmap* appIcon = new wxStaticBitmap(this, wxID_ANY, appIconImage);
             wxStaticText* appName = new wxStaticText(this, wxID_ANY, "TrenchBroom");
             appName->SetFont(appName->GetFont().Larger().Larger().Larger().Larger().Bold());

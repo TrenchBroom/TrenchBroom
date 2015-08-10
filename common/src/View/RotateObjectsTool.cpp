@@ -135,5 +135,9 @@ namespace TrenchBroom {
             m_toolPage = new RotateObjectsToolPage(parent, m_document, this);
             return m_toolPage;
         }
+
+        String RotateObjectsTool::doGetIconName() const {
+            return "RotateTool.png";
+        }
     }
 }
