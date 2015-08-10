@@ -82,7 +82,6 @@ namespace TrenchBroom {
                 const int EditIsolateSelection               = Lowest + 120;
                 const int EditUnhideAll                      = Lowest + 121;
                 const int EditToggleClipTool                 = Lowest + 122;
-                const int EditDeactivateTool                 = Lowest + 123;
                 
                 const int FileRecentDocuments                = Lowest + 190;
 

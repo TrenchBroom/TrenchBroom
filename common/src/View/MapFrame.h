@@ -136,7 +136,6 @@ namespace TrenchBroom {
             void OnEditIsolateSelectedObjects(wxCommandEvent& event);
             void OnEditShowHiddenObjects(wxCommandEvent& event);
 
-            void OnEditDeactivateTool(wxCommandEvent& event);
             void OnEditToggleCreateBrushTool(wxCommandEvent& event);
             void OnEditToggleClipTool(wxCommandEvent& event);
             void OnEditToggleRotateObjectsTool(wxCommandEvent& event);

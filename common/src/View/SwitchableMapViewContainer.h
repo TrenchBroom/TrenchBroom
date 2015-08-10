@@ -71,7 +71,6 @@ namespace TrenchBroom {
             void switchToMapView(MapViewLayout viewId);
             
             bool anyToolActive() const;
-            void deactivateTool();
             bool createBrushToolActive() const;
             void toggleCreateBrushTool();
             bool clipToolActive() const;

@@ -23,7 +23,6 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/ResourceUtils.h"
 #include "Model/EditorContext.h"
 #include "Model/Node.h"
 #include "Model/NodeCollection.h"
@@ -285,13 +284,6 @@ namespace TrenchBroom {
         }
 
         void MapFrame::createGui() {
-            wxToolBar* toolBar = CreateToolBar();
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"));
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"));
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"));
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"));
-            toolBar->Realize();
-            
             SplitterWindow2* hSplitter = new SplitterWindow2(this);
             hSplitter->setSashGravity(1.0f);
             hSplitter->SetName("MapFrameHSplitter");
@@ -393,7 +385,6 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnEditIsolateSelectedObjects, this, CommandIds::Menu::EditIsolateSelection);
             Bind(wxEVT_MENU, &MapFrame::OnEditShowHiddenObjects, this, CommandIds::Menu::EditUnhideAll);
 
-            Bind(wxEVT_MENU, &MapFrame::OnEditDeactivateTool, this, CommandIds::Menu::EditDeactivateTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleCreateBrushTool, this, CommandIds::Menu::EditToggleCreateBrushTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleClipTool, this, CommandIds::Menu::EditToggleClipTool);
             Bind(wxEVT_MENU, &MapFrame::OnEditToggleRotateObjectsTool, this, CommandIds::Menu::EditToggleRotateObjectsTool);
@@ -683,12 +674,6 @@ namespace TrenchBroom {
             ReplaceTextureFrame* frame = new ReplaceTextureFrame(this, m_document, *m_contextManager);
             frame->CenterOnParent();
             frame->Show();
-        }
-
-        void MapFrame::OnEditDeactivateTool(wxCommandEvent& event) {
-            if (IsBeingDeleted()) return;
-            
-            m_mapView->deactivateTool();
         }
 
         void MapFrame::OnEditToggleCreateBrushTool(wxCommandEvent& event) {
