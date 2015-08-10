@@ -106,6 +106,10 @@ namespace TrenchBroom {
             return createBrushToolActive() || clipToolActive() || rotateObjectsToolActive() || vertexToolActive();
         }
 
+        void SwitchableMapViewContainer::deactivateTool() {
+            m_toolBox->deactivateAllTools();
+        }
+
         bool SwitchableMapViewContainer::createBrushToolActive() const {
             return m_toolBox->createBrushToolActive();
         }
