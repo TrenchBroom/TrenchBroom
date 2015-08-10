@@ -76,6 +76,7 @@ namespace TrenchBroom {
                 shader.set("RenderGrid", renderContext.showGrid());
                 shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
                 shader.set("GridAlpha", pref(Preferences::GridAlpha));
+                shader.set("GridColor", pref(Preferences::GridColor2D));
                 shader.set("CameraZoom", renderContext.camera().zoom());
                 
                 m_vertexArray.render();

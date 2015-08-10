@@ -99,6 +99,7 @@ namespace TrenchBroom {
         
         extern Preference<float> Brightness;
         extern Preference<float> GridAlpha;
+        extern Preference<Color> GridColor2D;
         
         extern Preference<int> TextureMinFilter;
         extern Preference<int> TextureMagFilter;

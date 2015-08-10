@@ -27,7 +27,7 @@ namespace TrenchBroom {
     namespace Preferences {
         Preference<int> MapViewLayout(IO::Path("Views/Map view layout"), View::MapViewLayout_1Pane);
         
-        Preference<Color> BackgroundColor(IO::Path("Renderer/Colors/Background"), Color(255, 255, 255));
+        Preference<Color> BackgroundColor(IO::Path("Renderer/Colors/Background"), Color(38, 38, 38));
         Preference<float> AxisLength(IO::Path("Renderer/Axis length"), 128.0f);
         Preference<Color> XAxisColor(IO::Path("Renderer/Colors/X axis"), Color(0xFF, 0x3D, 0x00, 0.7f));
         Preference<Color> YAxisColor(IO::Path("Renderer/Colors/Y axis"), Color(0x4B, 0x95, 0x00, 0.7f));
@@ -58,7 +58,7 @@ namespace TrenchBroom {
         Preference<Color> SelectedFaceColor(IO::Path("Renderer/Colors/Selected faces"), Color(0.7f,  0.45f, 0.45f, 1.0f));
         Preference<Color> LockedFaceColor(IO::Path("Renderer/Colors/Locked faces"), Color(0.35f, 0.35f, 0.6f,  1.0f));
         Preference<float> TransparentFaceAlpha(IO::Path("Renderer/Colors/Transparent faces"), 0.4f);
-        Preference<Color> EdgeColor(IO::Path("Renderer/Colors/Edges"), Color(0.3f,  0.3f,  0.3f,  1.0f));
+        Preference<Color> EdgeColor(IO::Path("Renderer/Colors/Edges"), Color(0.9f,  0.9f,  0.9f,  1.0f));
         Preference<Color> SelectedEdgeColor(IO::Path("Renderer/Colors/Selected edges"), Color(1.0f,  0.0f,  0.0f,  1.0f));
         Preference<Color> OccludedSelectedEdgeColor(IO::Path("Renderer/Colors/Occluded selected edges"), Color(1.0f,  0.0f,  0.0f,  0.5f));
         Preference<Color> LockedEdgeColor(IO::Path("Renderer/Colors/Locked edges"), Color(0.13f, 0.3f,  1.0f,  1.0f));
@@ -76,19 +76,19 @@ namespace TrenchBroom {
         
         Preference<float> HandleRadius(IO::Path("Controls/Handle radius"), 3.0f);
         Preference<float> MaximumHandleDistance(IO::Path("Controls/Maximum handle distance"), 1000.0f);
-        Preference<Color> HandleColor(IO::Path("Renderer/Colors/Handle"), Color(1.0f, 1.0f, 1.0f, 1.0f));
-        Preference<Color> OccludedHandleColor(IO::Path("Renderer/Colors/Occluded handle"), Color(1.0f, 1.0f, 1.0f, 0.5f));
+        Preference<Color> HandleColor(IO::Path("Renderer/Colors/Handle"), Color(248, 230, 60, 1.0f));
+        Preference<Color> OccludedHandleColor(IO::Path("Renderer/Colors/Occluded handle"), Color(248, 230, 60, 0.5f));
         Preference<Color> SelectedHandleColor(IO::Path("Renderer/Colors/Selected handle"), Color(1.0f, 0.0f, 0.0f, 1.0f));
         Preference<Color> OccludedSelectedHandleColor(IO::Path("Renderer/Colors/Occluded selected handle"), Color(1.0f, 0.0f, 0.0f, 0.5f));
         
-        Preference<Color> ClipPlaneColor(IO::Path("Renderer/Colors/Clip plane"), Color(1.0f, 1.0f, 1.0f, 0.25f));
+        Preference<Color> ClipPlaneColor(IO::Path("Renderer/Colors/Clip plane"), Color(248, 230, 60, 0.25f));
         Preference<Color> ClipFaceColor(IO::Path("Renderer/Colors/Clip face"), Color(0.6f,  0.35f, 0.35f, 1.0f));
         Preference<Color> ClipEdgeColor(IO::Path("Renderer/Colors/Clip edge"), Color(1.0f,  0.0f,  0.0f,  1.0f));
         Preference<Color> ClipOccludedEdgeColor(IO::Path("Renderer/Colors/Clip edge"), Color(1.0f,  0.0f,  0.0f,  0.5f));
         
-        Preference<Color> ResizeHandleColor(IO::Path("Renderer/Colors/Resize handle"), Color(1.0f, 1.0f, 1.0f, 1.0f));
+        Preference<Color> ResizeHandleColor(IO::Path("Renderer/Colors/Resize handle"), Color(248, 230, 60, 1.0f));
         Preference<float> RotateHandleRadius(IO::Path("Controls/Rotate handle radius"), 64.0f);
-        Preference<Color> RotateHandleColor(IO::Path("Renderer/Colors/Rotate handle"), Color(1.0f, 1.0f, 1.0f, 1.0f));
+        Preference<Color> RotateHandleColor(IO::Path("Renderer/Colors/Rotate handle"), Color(248, 230, 60, 1.0f));
         
         Preference<Color> MoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 1.0f));
         Preference<Color> OccludedMoveTraceColor(IO::Path("Renderer/Colors/Move trace"), Color(0.0f, 1.0f, 1.0f, 0.6f));
@@ -102,6 +102,7 @@ namespace TrenchBroom {
 
         Preference<float> Brightness(IO::Path("Renderer/Brightness"), 1.4f);
         Preference<float> GridAlpha(IO::Path("Renderer/Grid/Alpha"), 0.5f);
+        Preference<Color> GridColor2D(IO::Path("Rendere/Grid/Color2D"), Color(0.8f, 0.8f, 0.8f, 0.8f));
 
         Preference<int> TextureMinFilter(IO::Path("Renderer/Texture mode min filter"), 0x2700);
         Preference<int> TextureMagFilter(IO::Path("Renderer/Texture mode mag filter"), 0x2600);

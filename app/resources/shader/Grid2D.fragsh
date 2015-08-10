@@ -20,6 +20,7 @@
  */
 
 uniform bool RenderGrid;
+uniform vec4 GridColor;
 uniform float GridSize;
 uniform float GridAlpha;
 uniform float CameraZoom;
@@ -35,6 +36,6 @@ void main() {
         float blendFactor = 1.0 - clamp((CameraZoom - 0.1) / 4.0, 0.0, 1.0);
         float lineWidthFactor = 1.0 / CameraZoom / 2.0;
         float gridValue = grid(modelCoordinates.xyz, Normal.xyz, GridSize, blendFactor, lineWidthFactor);
-        gl_FragColor = vec4(0.0, 0.0, 0.0, gridValue * GridAlpha);
+        gl_FragColor = vec4(GridColor.xyz, gridValue * GridAlpha);
 	}
 }
