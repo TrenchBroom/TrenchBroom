@@ -73,12 +73,16 @@ namespace TrenchBroom {
             bool anyToolActive() const;
             void deactivateTool();
             bool createBrushToolActive() const;
+            bool canToggleCreateBrushTool() const;
             void toggleCreateBrushTool();
             bool clipToolActive() const;
+            bool canToggleClipTool() const;
             void toggleClipTool();
             bool rotateObjectsToolActive() const;
+            bool canToggleRotateObjectsTool() const;
             void toggleRotateObjectsTool();
             bool vertexToolActive() const;
+            bool canToggleVertexTool() const;
             void toggleVertexTool();
             
             void setToolBoxDropTarget();
