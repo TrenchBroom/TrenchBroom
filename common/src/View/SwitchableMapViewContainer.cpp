@@ -110,12 +110,20 @@ namespace TrenchBroom {
             return m_toolBox->createBrushToolActive();
         }
 
+        bool SwitchableMapViewContainer::canToggleCreateBrushTool() const {
+            return true;
+        }
+
         void SwitchableMapViewContainer::toggleCreateBrushTool() {
             m_toolBox->toggleCreateBrushTool();
         }
         
         bool SwitchableMapViewContainer::clipToolActive() const {
             return m_toolBox->clipToolActive();
+        }
+
+        bool SwitchableMapViewContainer::canToggleClipTool() const {
+            return clipToolActive() || lock(m_document)->selectedNodes().hasOnlyBrushes();
         }
 
         void SwitchableMapViewContainer::toggleClipTool() {
@@ -126,12 +134,20 @@ namespace TrenchBroom {
             return m_toolBox->rotateObjectsToolActive();
         }
 
+        bool SwitchableMapViewContainer::canToggleRotateObjectsTool() const {
+            return rotateObjectsToolActive() || lock(m_document)->hasSelectedNodes();
+        }
+
         void SwitchableMapViewContainer::toggleRotateObjectsTool() {
             m_toolBox->toggleRotateObjectsTool();
         }
         
         bool SwitchableMapViewContainer::vertexToolActive() const {
             return m_toolBox->vertexToolActive();
+        }
+
+        bool SwitchableMapViewContainer::canToggleVertexTool() const {
+            return vertexToolActive() || lock(m_document)->selectedNodes().hasOnlyBrushes();
         }
 
         void SwitchableMapViewContainer::toggleVertexTool() {
