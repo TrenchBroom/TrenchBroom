@@ -60,8 +60,6 @@ namespace TrenchBroom {
         }
 
         void MapViewBar::createGui(MapDocumentWPtr document) {
-            SetBackgroundColour(toWxColor(pref(Preferences::BackgroundColor)));
-            
             m_toolIndicator = new wxStaticBitmap(this, wxID_ANY, wxNullBitmap);
             m_toolBook = new wxSimplebook(this);
             m_viewEditor = new ViewPopupEditor(this, document);
