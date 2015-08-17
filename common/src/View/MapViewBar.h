@@ -25,7 +25,6 @@
 
 class wxBookCtrlBase;
 class wxSearchCtrl;
-class wxStaticBitmap;
 class wxStaticText;
 
 namespace TrenchBroom {
@@ -35,13 +34,11 @@ namespace TrenchBroom {
         class MapViewBar : public ContainerBar {
         private:
             MapDocumentWPtr m_document;
-            wxStaticBitmap* m_toolIndicator;
             wxBookCtrlBase* m_toolBook;
             ViewPopupEditor* m_viewEditor;
         public:
             MapViewBar(wxWindow* parent, MapDocumentWPtr document);
             
-            wxStaticBitmap* toolIndicator();
             wxBookCtrlBase* toolBook();
             
             void OnSearchPatternChanged(wxCommandEvent& event);

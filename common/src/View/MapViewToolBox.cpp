@@ -28,13 +28,10 @@
 #include "View/SelectionTool.h"
 #include "View/VertexTool.h"
 
-#include <wx/statbmp.h>
-
 namespace TrenchBroom {
     namespace View {
-        MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl, wxStaticBitmap* toolIndicator) :
+        MapViewToolBox::MapViewToolBox(MapDocumentWPtr document, wxBookCtrlBase* bookCtrl) :
         m_document(document),
-        m_toolIndicator(toolIndicator),
         m_clipTool(NULL),
         m_createBrushTool(NULL),
         m_createEntityTool(NULL),
@@ -43,7 +40,6 @@ namespace TrenchBroom {
         m_rotateObjectsTool(NULL),
         m_selectionTool(NULL),
         m_vertexTool(NULL) {
-            assert(m_toolIndicator != NULL);
             createTools(document, bookCtrl);
             bindObservers();
         }
@@ -209,13 +205,11 @@ namespace TrenchBroom {
         void MapViewToolBox::toolActivated(Tool* tool) {
             updateEditorContext();
             tool->showPage();
-            m_toolIndicator->SetBitmap(tool->icon());
         }
         
         void MapViewToolBox::toolDeactivated(Tool* tool) {
             updateEditorContext();
             m_moveObjectsTool->showPage();
-            m_toolIndicator->SetBitmap(m_moveObjectsTool->icon());
         }
 
         void MapViewToolBox::updateEditorContext() {
