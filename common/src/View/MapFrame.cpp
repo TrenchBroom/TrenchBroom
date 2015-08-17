@@ -287,6 +287,7 @@ namespace TrenchBroom {
 
         void MapFrame::createGui() {
             wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE | wxTB_NODIVIDER);
+            toolBar->AddRadioTool(CommandIds::Menu::EditDeactivateTool, "Default Tool", IO::loadImageResource("NoTool.png"));
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"));
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"));
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"));
@@ -913,6 +914,10 @@ namespace TrenchBroom {
                     event.Enable(canIsolate());
                     break;
                 case CommandIds::Menu::EditUnhideAll:
+                    event.Enable(true);
+                    break;
+                case CommandIds::Menu::EditDeactivateTool:
+                    event.Check(!m_mapView->anyToolActive());
                     event.Enable(true);
                     break;
                 case CommandIds::Menu::EditToggleCreateBrushTool:
