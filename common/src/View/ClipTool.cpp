@@ -279,7 +279,7 @@ namespace TrenchBroom {
         private:
             void renderPoints(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
                 Renderer::RenderService renderService(renderContext, renderBatch);
-                renderService.setForegroundColor(pref(Preferences::HandleColor));
+                renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
                 
                 if (m_numPoints > 1) {
                     renderService.renderLine(m_points[0].point, m_points[1].point);
@@ -289,7 +289,7 @@ namespace TrenchBroom {
                     }
                 }
                 
-                renderService.setForegroundColor(pref(Preferences::HandleColor));
+                renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
                 renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
                 
                 for (size_t i = 0; i < m_numPoints; ++i) {
@@ -336,7 +336,6 @@ namespace TrenchBroom {
             void doRender(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Model::PickResult& pickResult) {
                 if (m_face != NULL) {
                     Renderer::RenderService renderService(renderContext, renderBatch);
-                    renderService.setForegroundColor(pref(Preferences::HandleColor));
                     
                     const Model::BrushVertexList& vertices = m_face->vertices();
                     
@@ -349,7 +348,11 @@ namespace TrenchBroom {
                         positions.push_back(vertex->position);
                     }
                     
+                    renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
                     renderService.renderPolygonOutline(positions);
+
+                    renderService.setForegroundColor(pref(Preferences::ClipFaceColor));
+                    renderService.renderFilledPolygon(positions);
                 }
             }
             

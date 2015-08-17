@@ -287,11 +287,11 @@ namespace TrenchBroom {
 
         void MapFrame::createGui() {
             wxToolBar* toolBar = CreateToolBar(wxTB_DEFAULT_STYLE | wxTB_NODIVIDER);
-            toolBar->AddRadioTool(CommandIds::Menu::EditDeactivateTool, "Default Tool", IO::loadImageResource("NoTool.png"));
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"));
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"));
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"));
-            toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"));
+            toolBar->AddRadioTool(CommandIds::Menu::EditDeactivateTool, "Default Tool", IO::loadImageResource("NoTool.png"), wxNullBitmap, "Disable Current Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleCreateBrushTool, "Brush Tool", IO::loadImageResource("BrushTool.png"), wxNullBitmap, "Brush Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"), wxNullBitmap, "Clip Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"), wxNullBitmap, "Vertex Tool");
+            toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
             toolBar->Realize();
             
             SplitterWindow2* hSplitter = new SplitterWindow2(this);

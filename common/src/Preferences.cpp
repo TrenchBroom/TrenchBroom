@@ -81,10 +81,8 @@ namespace TrenchBroom {
         Preference<Color> SelectedHandleColor(IO::Path("Renderer/Colors/Selected handle"), Color(1.0f, 0.0f, 0.0f, 1.0f));
         Preference<Color> OccludedSelectedHandleColor(IO::Path("Renderer/Colors/Occluded selected handle"), Color(1.0f, 0.0f, 0.0f, 0.5f));
         
-        Preference<Color> ClipPlaneColor(IO::Path("Renderer/Colors/Clip plane"), Color(248, 230, 60, 0.25f));
-        Preference<Color> ClipFaceColor(IO::Path("Renderer/Colors/Clip face"), Color(0.6f,  0.35f, 0.35f, 1.0f));
-        Preference<Color> ClipEdgeColor(IO::Path("Renderer/Colors/Clip edge"), Color(1.0f,  0.0f,  0.0f,  1.0f));
-        Preference<Color> ClipOccludedEdgeColor(IO::Path("Renderer/Colors/Clip edge"), Color(1.0f,  0.0f,  0.0f,  0.5f));
+        Preference<Color> ClipHandleColor(IO::Path("Renderer/Colors/Clip handle"), Color(1.0f, 0.5f, 0.0f, 1.0f));
+        Preference<Color> ClipFaceColor(IO::Path("Renderer/Colors/Clip face"), Color(0.6f,  0.4f, 0.0f, 0.35f));
         
         Preference<Color> ResizeHandleColor(IO::Path("Renderer/Colors/Resize handle"), Color(248, 230, 60, 1.0f));
         Preference<float> RotateHandleRadius(IO::Path("Controls/Rotate handle radius"), 64.0f);
