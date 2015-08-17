@@ -41,9 +41,7 @@ namespace TrenchBroom {
         m_toolIndicator(NULL),
         m_toolBook(NULL),
         m_viewEditor(NULL) {
-#if defined __APPLE__
             SetWindowVariant(wxWINDOW_VARIANT_SMALL);
-#endif
             createGui(document);
         }
         

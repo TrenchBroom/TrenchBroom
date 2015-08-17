@@ -312,7 +312,9 @@ namespace TrenchBroom {
             hSplitter->splitVertically(vSplitter, m_inspector, wxSize(100, 100), wxSize(350, 100));
 
             wxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
+#if !defined __APPLE__
             frameSizer->Add(new BorderLine(this), 1, wxEXPAND);
+#endif
             frameSizer->Add(hSplitter, 1, wxEXPAND);
 
             SetSizer(frameSizer);
