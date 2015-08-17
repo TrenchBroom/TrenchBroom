@@ -30,6 +30,7 @@
 #include "Model/PointFile.h"
 #include "View/ActionManager.h"
 #include "View/Autosaver.h"
+#include "View/BorderLine.h"
 #include "View/CachingLogger.h"
 #include "View/CommandIds.h"
 #include "View/Console.h"
@@ -311,6 +312,7 @@ namespace TrenchBroom {
             hSplitter->splitVertically(vSplitter, m_inspector, wxSize(100, 100), wxSize(350, 100));
 
             wxSizer* frameSizer = new wxBoxSizer(wxVERTICAL);
+            frameSizer->Add(new BorderLine(this), 1, wxEXPAND);
             frameSizer->Add(hSplitter, 1, wxEXPAND);
 
             SetSizer(frameSizer);
