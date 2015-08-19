@@ -294,6 +294,7 @@ namespace TrenchBroom {
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"), wxNullBitmap, "Vertex Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
             toolBar->AddSeparator();
+            toolBar->AddTool(wxID_DUPLICATE, "Duplicate Objects", IO::loadImageResource("DuplicateObjects.png"), wxNullBitmap, wxITEM_NORMAL, "Duplicate Objects");
             toolBar->AddTool(CommandIds::Actions::FlipObjectsHorizontally, "Flip Horizontally", IO::loadImageResource("FlipHorizontally.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Horizontally");
             toolBar->AddTool(CommandIds::Actions::FlipObjectsVertically, "Flip Vertically", IO::loadImageResource("FlipVertically.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Vertically");
             toolBar->Realize();
@@ -439,6 +440,7 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CUT);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_COPY);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_DUPLICATE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
 
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Actions::FlipObjectsHorizontally);
