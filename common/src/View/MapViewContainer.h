@@ -26,10 +26,21 @@
 
 namespace TrenchBroom {
     namespace View {
+        class MapViewBase;
+        
         class MapViewContainer : public wxPanel, public MapView {
         public:
             MapViewContainer(wxWindow* parent);
             virtual ~MapViewContainer();
+        private:
+            MapView* currentMapView() const;
+        private: // implement MapView interface
+            bool doCanFlipObjects() const;
+            void doFlipObjects(Math::Direction direction);
+
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
+        private: // subclassing interface
+            virtual MapView* doGetCurrentMapView() const = 0;
         };
     }
 }

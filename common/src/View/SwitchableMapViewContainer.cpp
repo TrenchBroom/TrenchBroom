@@ -158,26 +158,6 @@ namespace TrenchBroom {
             m_toolBox->toggleVertexTool();
         }
 
-        void SwitchableMapViewContainer::setToolBoxDropTarget() {
-            m_mapView->setToolBoxDropTarget();
-        }
-        
-        void SwitchableMapViewContainer::clearDropTarget() {
-            m_mapView->clearDropTarget();
-        }
-
-        Vec3 SwitchableMapViewContainer::pasteObjectsDelta(const BBox3& bounds) const {
-            return m_mapView->pasteObjectsDelta(bounds);
-        }
-        
-        void SwitchableMapViewContainer::centerCameraOnSelection() {
-            m_mapView->centerCameraOnSelection();
-        }
-        
-        void SwitchableMapViewContainer::moveCameraToPosition(const Vec3& position) {
-            m_mapView->moveCameraToPosition(position);
-        }
-    
         bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const {
             MapDocumentSPtr document = lock(m_document);
             if (!document->isPointFileLoaded())
@@ -237,6 +217,42 @@ namespace TrenchBroom {
 
         void SwitchableMapViewContainer::refreshViews(Tool* tool) {
             m_mapView->Refresh();
+        }
+
+        bool SwitchableMapViewContainer::doGetIsCurrent() const {
+            return m_mapView->isCurrent();
+        }
+        
+        void SwitchableMapViewContainer::doSetToolBoxDropTarget() {
+            m_mapView->setToolBoxDropTarget();
+        }
+        
+        void SwitchableMapViewContainer::doClearDropTarget() {
+            m_mapView->clearDropTarget();
+        }
+        
+        bool SwitchableMapViewContainer::doCanFlipObjects() const {
+            return m_mapView->canFlipObjects();
+        }
+        
+        void SwitchableMapViewContainer::doFlipObjects(const Math::Direction direction) {
+            m_mapView->flipObjects(direction);
+        }
+        
+        Vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(const BBox3& bounds) const {
+            return m_mapView->pasteObjectsDelta(bounds);
+        }
+        
+        void SwitchableMapViewContainer::doCenterCameraOnSelection() {
+            m_mapView->centerCameraOnSelection();
+        }
+        
+        void SwitchableMapViewContainer::doMoveCameraToPosition(const Vec3& position) {
+            m_mapView->moveCameraToPosition(position);
+        }
+        
+        void SwitchableMapViewContainer::doMoveCameraToCurrentTracePoint() {
+            m_mapView->moveCameraToCurrentTracePoint();
         }
 
         void SwitchableMapViewContainer::doFlashSelection() {

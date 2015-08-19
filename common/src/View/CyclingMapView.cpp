@@ -103,10 +103,6 @@ namespace TrenchBroom {
                 m_mapViews[i]->clearDropTarget();
         }
 
-        Vec3 CyclingMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
-            return m_currentMapView->pasteObjectsDelta(bounds);
-        }
-        
         void CyclingMapView::doCenterCameraOnSelection() {
             m_currentMapView->centerCameraOnSelection();
         }
@@ -118,6 +114,10 @@ namespace TrenchBroom {
         void CyclingMapView::doMoveCameraToCurrentTracePoint() {
             for (size_t i = 0; i < m_mapViews.size(); ++i)
                 m_mapViews[i]->moveCameraToCurrentTracePoint();
+        }
+
+        MapView* CyclingMapView::doGetCurrentMapView() const {
+            return m_currentMapView;
         }
 
         void CyclingMapView::doLinkCamera(CameraLinkHelper& helper) {

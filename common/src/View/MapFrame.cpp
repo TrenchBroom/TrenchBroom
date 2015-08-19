@@ -293,6 +293,9 @@ namespace TrenchBroom {
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleClipTool, "Clip Tool", IO::loadImageResource("ClipTool.png"), wxNullBitmap, "Clip Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleVertexTool, "Vertex Tool", IO::loadImageResource("VertexTool.png"), wxNullBitmap, "Vertex Tool");
             toolBar->AddRadioTool(CommandIds::Menu::EditToggleRotateObjectsTool, "Rotate Tool", IO::loadImageResource("RotateTool.png"), wxNullBitmap, "Rotate Tool");
+            toolBar->AddSeparator();
+            toolBar->AddTool(CommandIds::Actions::FlipObjectsHorizontally, "Flip Horizontally", IO::loadImageResource("FlipHorizontally.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Horizontally");
+            toolBar->AddTool(CommandIds::Actions::FlipObjectsVertically, "Flip Vertically", IO::loadImageResource("FlipVertically.png"), wxNullBitmap, wxITEM_NORMAL, "Flip Vertically");
             toolBar->Realize();
             
             SplitterWindow2* hSplitter = new SplitterWindow2(this);
@@ -425,6 +428,9 @@ namespace TrenchBroom {
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToEntityInspector, this, CommandIds::Menu::ViewSwitchToEntityInspector);
             Bind(wxEVT_MENU, &MapFrame::OnViewSwitchToFaceInspector, this, CommandIds::Menu::ViewSwitchToFaceInspector);
 
+            Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsHorizontally, this, CommandIds::Actions::FlipObjectsHorizontally);
+            Bind(wxEVT_MENU, &MapFrame::OnFlipObjectsVertically, this, CommandIds::Actions::FlipObjectsVertically);
+            
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_SAVEAS);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_CLOSE);
@@ -435,6 +441,9 @@ namespace TrenchBroom {
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, wxID_PASTE);
             Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Menu::Lowest, CommandIds::Menu::Highest);
 
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Actions::FlipObjectsHorizontally);
+            Bind(wxEVT_UPDATE_UI, &MapFrame::OnUpdateUI, this, CommandIds::Actions::FlipObjectsVertically);
+            
             Bind(wxEVT_CLOSE_WINDOW, &MapFrame::OnClose, this);
             Bind(wxEVT_TIMER, &MapFrame::OnAutosaveTimer, this);
             Bind(wxEVT_CHILD_FOCUS, &MapFrame::OnChildFocus, this);
@@ -825,6 +834,16 @@ namespace TrenchBroom {
             m_inspector->switchToPage(Inspector::InspectorPage_Face);
         }
 
+        void MapFrame::OnFlipObjectsHorizontally(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            m_mapView->flipObjects(Math::Direction_Left);
+        }
+        
+        void MapFrame::OnFlipObjectsVertically(wxCommandEvent& event) {
+            if (IsBeingDeleted()) return;
+            m_mapView->flipObjects(Math::Direction_Up);
+        }
+
         void MapFrame::OnUpdateUI(wxUpdateUIEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -1019,6 +1038,10 @@ namespace TrenchBroom {
                     break;
                 case CommandIds::Menu::FileOpenRecent:
                     event.Enable(true);
+                    break;
+                case CommandIds::Actions::FlipObjectsHorizontally:
+                case CommandIds::Actions::FlipObjectsVertically:
+                    event.Enable(m_mapView->canFlipObjects());
                     break;
                 default:
                     if (event.GetId() >= CommandIds::Menu::FileRecentDocuments &&

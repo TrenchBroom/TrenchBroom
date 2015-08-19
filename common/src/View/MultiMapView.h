@@ -48,14 +48,12 @@ namespace TrenchBroom {
             void doSetToolBoxDropTarget();
             void doClearDropTarget();
         
-            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
-            
             void doCenterCameraOnSelection();
             void doMoveCameraToPosition(const Vec3& position);
             
             void doMoveCameraToCurrentTracePoint();
-        private:
-            MapView* currentMapView() const;
+        private: // implement MapViewContainer interface
+            MapView* doGetCurrentMapView() const;
         };
     }
 }

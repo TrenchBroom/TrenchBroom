@@ -68,12 +68,6 @@ namespace TrenchBroom {
                 mapView->clearDropTarget();
             }
         }
-
-        Vec3 MultiMapView::doGetPasteObjectsDelta(const BBox3& bounds) const {
-            MapView* current = currentMapView();
-            assert(current != NULL);
-            return current->pasteObjectsDelta(bounds);
-        }
         
         void MultiMapView::doCenterCameraOnSelection() {
             MapViewList::const_iterator it, end;
@@ -99,7 +93,7 @@ namespace TrenchBroom {
             }
         }
 
-        MapView* MultiMapView::currentMapView() const {
+        MapView* MultiMapView::doGetCurrentMapView() const {
             MapViewList::const_iterator it, end;
             for (it = m_mapViews.begin(), end = m_mapViews.end(); it != end; ++it) {
                 MapView* mapView = *it;

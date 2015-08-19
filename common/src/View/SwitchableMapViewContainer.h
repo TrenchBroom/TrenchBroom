@@ -23,7 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "View/MapViewLayout.h"
-#include "View/ViewEffectsService.h"
+#include "View/MapView.h"
 #include "View/ViewTypes.h"
 
 #include <wx/panel.h>
@@ -49,7 +49,7 @@ namespace TrenchBroom {
         class MapViewToolBox;
         class Tool;
         
-        class SwitchableMapViewContainer : public wxPanel, public ViewEffectsService {
+        class SwitchableMapViewContainer : public wxPanel, public MapView {
         private:
             Logger* m_logger;
             MapDocumentWPtr m_document;
@@ -85,14 +85,6 @@ namespace TrenchBroom {
             bool canToggleVertexTool() const;
             void toggleVertexTool();
             
-            void setToolBoxDropTarget();
-            void clearDropTarget();
-
-            Vec3 pasteObjectsDelta(const BBox3& bounds) const;
-            
-            void centerCameraOnSelection();
-            void moveCameraToPosition(const Vec3& position);
-            
             bool canMoveCameraToNextTracePoint() const;
             bool canMoveCameraToPreviousTracePoint() const;
             void moveCameraToNextTracePoint();
@@ -102,6 +94,16 @@ namespace TrenchBroom {
             void unbindObservers();
             void preferenceDidChange(const IO::Path& path);
             void refreshViews(Tool* tool);
+        private: // implement MapView interface
+            bool doGetIsCurrent() const;
+            void doSetToolBoxDropTarget();
+            void doClearDropTarget();
+            bool doCanFlipObjects() const;
+            void doFlipObjects(Math::Direction direction);
+            Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const;
+            void doCenterCameraOnSelection();
+            void doMoveCameraToPosition(const Vec3& position);
+            void doMoveCameraToCurrentTracePoint();
         private: // implement ViewEffectsService interface
             void doFlashSelection();
         };

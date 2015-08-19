@@ -37,6 +37,15 @@ namespace TrenchBroom {
             doClearDropTarget();
         }
 
+        bool MapView::canFlipObjects() const {
+            return doCanFlipObjects();
+        }
+        
+        void MapView::flipObjects(const Math::Direction direction) {
+            assert(canFlipObjects());
+            doFlipObjects(direction);
+        }
+
         Vec3 MapView::pasteObjectsDelta(const BBox3& bounds) const {
             return doGetPasteObjectsDelta(bounds);
         }

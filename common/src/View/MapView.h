@@ -36,6 +36,9 @@ namespace TrenchBroom {
             void setToolBoxDropTarget();
             void clearDropTarget();
 
+            bool canFlipObjects() const;
+            void flipObjects(Math::Direction direction);
+            
             Vec3 pasteObjectsDelta(const BBox3& bounds) const;
             
             void centerCameraOnSelection();
@@ -48,6 +51,9 @@ namespace TrenchBroom {
             virtual void doSetToolBoxDropTarget() = 0;
             virtual void doClearDropTarget() = 0;
 
+            virtual bool doCanFlipObjects() const = 0;
+            virtual void doFlipObjects(Math::Direction direction) = 0;
+            
             virtual Vec3 doGetPasteObjectsDelta(const BBox3& bounds) const = 0;
 
             virtual void doCenterCameraOnSelection() = 0;

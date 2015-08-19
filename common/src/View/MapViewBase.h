@@ -122,7 +122,6 @@ namespace TrenchBroom {
             Vec3 moveDirection(Math::Direction direction) const;
             void rotateObjects(Math::RotationAxis axis, bool clockwise);
             Vec3 rotationAxis(Math::RotationAxis axis, bool clockwise) const;
-            void flipObjects(Math::Direction direction);
         private: // tool mode events
             void OnToggleRotateObjectsTool(wxCommandEvent& event);
             void OnMoveRotationCenterForward(wxCommandEvent& event);
@@ -181,6 +180,8 @@ namespace TrenchBroom {
             bool doGetIsCurrent() const;
             void doSetToolBoxDropTarget();
             void doClearDropTarget();
+            bool doCanFlipObjects() const;
+            void doFlipObjects(Math::Direction direction);
         private: // implement RenderView interface
             void doInitializeGL(bool firstInitialization);
             bool doShouldRenderFocusIndicator() const;

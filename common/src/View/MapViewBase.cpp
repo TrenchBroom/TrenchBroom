@@ -438,18 +438,6 @@ namespace TrenchBroom {
             return axis;
         }
 
-        void MapViewBase::flipObjects(const Math::Direction direction) {
-            MapDocumentSPtr document = lock(m_document);
-            if (!document->hasSelectedNodes())
-                return;
-
-            const Grid& grid = document->grid();
-            const Vec3 center = grid.referencePoint(document->selectionBounds());
-            const Math::Axis::Type axis = moveDirection(direction).firstComponent();
-
-            document->flipObjects(center, axis);
-        }
-
         void MapViewBase::OnToggleRotateObjectsTool(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
@@ -773,6 +761,23 @@ namespace TrenchBroom {
             SetDropTarget(NULL);
         }
 
+        bool MapViewBase::doCanFlipObjects() const {
+            MapDocumentSPtr document = lock(m_document);
+            return !m_toolBox.anyToolActive() && document->hasSelectedNodes();
+        }
+
+        void MapViewBase::doFlipObjects(const Math::Direction direction) {
+            MapDocumentSPtr document = lock(m_document);
+            if (!document->hasSelectedNodes())
+                return;
+            
+            const Grid& grid = document->grid();
+            const Vec3 center = grid.referencePoint(document->selectionBounds());
+            const Math::Axis::Type axis = moveDirection(direction).firstComponent();
+            
+            document->flipObjects(center, axis);
+        }
+        
         void MapViewBase::doInitializeGL(const bool firstInitialization) {
             if (firstInitialization) {
                 const wxString vendor   = wxString::FromUTF8(reinterpret_cast<const char*>(glGetString(GL_VENDOR)));

@@ -165,6 +165,9 @@ namespace TrenchBroom {
             void OnViewSwitchToEntityInspector(wxCommandEvent& event);
             void OnViewSwitchToFaceInspector(wxCommandEvent& event);
 
+            void OnFlipObjectsHorizontally(wxCommandEvent& event);
+            void OnFlipObjectsVertically(wxCommandEvent& event);
+            
             void OnUpdateUI(wxUpdateUIEvent& event);
         private:
             bool canLoadPointFile() const;
