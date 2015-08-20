@@ -24,6 +24,7 @@
 #include "VecMath.h"
 #include "Polyhedron.h"
 #include "View/ToolAdapter.h"
+#include "View/ViewTypes.h"
 
 #include <vector>
 
@@ -32,36 +33,29 @@ namespace TrenchBroom {
         class CreateBrushTool;
         class Grid;
 
-        class CreateBrushToolAdapter3D : public ToolAdapterBase<NoPickingPolicy, KeyPolicy, MousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
+        class CreateBrushToolAdapter3D : public ToolAdapterBase<NoPickingPolicy, KeyPolicy, NoMousePolicy, PlaneDragPolicy, RenderPolicy, NoDropPolicy> {
         private:
-            class CreatePolygonDragHelper;
-            class DuplicatePolygonDragHelper;
-            
             CreateBrushTool* m_tool;
-            const Grid& m_grid;
-            Polyhedron3 m_polyhedron;
+            MapDocumentWPtr m_document;
             
-            CreatePolygonDragHelper* m_createPolygonDragHelper;
-            DuplicatePolygonDragHelper* m_duplicatePolygonDragHelper;
-            PlaneDragHelper* m_dragHelper;
+            Vec3 m_initialPoint;
         public:
-            CreateBrushToolAdapter3D(CreateBrushTool* tool, const Grid& grid);
+            CreateBrushToolAdapter3D(CreateBrushTool* tool, MapDocumentWPtr document);
         public:
             virtual ~CreateBrushToolAdapter3D();
-        public:
-            void performCreateBrush();
         private:
             Tool* doGetTool();
 
             void doModifierKeyChange(const InputState& inputState);
-            bool doMouseClick(const InputState& inputState);
-
+            
             bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
             void doEndPlaneDrag(const InputState& inputState);
             void doCancelPlaneDrag();
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-
+        private:
+            void updateBounds(const Vec3& point);
+        private:
             void doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
             void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 

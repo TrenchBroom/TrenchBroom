@@ -22,11 +22,14 @@
 
 #include "TrenchBroom.h"
 #include "VecMath.h"
+#include "Polyhedron.h"
+#include "Model/ModelTypes.h"
 #include "View/Tool.h"
 #include "View/ViewTypes.h"
 
 namespace TrenchBroom {
     namespace Renderer {
+        class BrushRenderer;
         class RenderBatch;
         class RenderContext;
     }
@@ -35,12 +38,20 @@ namespace TrenchBroom {
         class CreateBrushTool : public Tool {
         private:
             MapDocumentWPtr m_document;
+            Polyhedron3 m_polyhedron;
+            Model::Brush* m_brush;
+            Renderer::BrushRenderer* m_brushRenderer;
         public:
             CreateBrushTool(MapDocumentWPtr document);
+            ~CreateBrushTool();
             
-            void createBrush(const Polyhedron3& polyhedron);
+            void updateBrush(const BBox3& bounds);
+            void createBrush();
             
-            void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch, const Polyhedron3& polyhedron);
+            void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        private:
+            void renderPolyhedron(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            void renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             bool doActivate();
             String doGetIconName() const;

@@ -68,7 +68,7 @@ namespace TrenchBroom {
         
         void CreateBrushToolAdapter2D::doEndPlaneDrag(const InputState& inputState) {
             if (!m_bounds.empty())
-                m_tool->createBrush(Polyhedron3(m_bounds));
+                m_tool->createBrush();
         }
         
         void CreateBrushToolAdapter2D::doCancelPlaneDrag() {}
@@ -78,8 +78,7 @@ namespace TrenchBroom {
         void CreateBrushToolAdapter2D::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
         
         void CreateBrushToolAdapter2D::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (dragging() && !m_bounds.empty())
-                m_tool->render(renderContext, renderBatch, Polyhedron3(m_bounds));
+            m_tool->render(renderContext, renderBatch);
         }
 
         bool CreateBrushToolAdapter2D::doCancel() {
@@ -96,6 +95,7 @@ namespace TrenchBroom {
             
             using std::swap;
             swap(m_bounds, bounds);
+            m_tool->updateBrush(m_bounds);
             
             return true;
         }
