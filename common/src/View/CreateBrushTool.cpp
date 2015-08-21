@@ -44,16 +44,20 @@ namespace TrenchBroom {
         }
         
         void CreateBrushTool::updateBrush(const BBox3& bounds) {
-            m_polyhedron = Polyhedron3(bounds);
-            delete m_brush;
-
-            if (m_polyhedron.closed()) {
-                MapDocumentSPtr document = lock(m_document);
-                const Model::BrushBuilder builder(document->world(), document->worldBounds());
-                m_brush = builder.createBrush(m_polyhedron, document->currentTextureName());
-            }
+            updateBrush(Polyhedron3(bounds));
         }
         
+        void CreateBrushTool::updateBrush(const Polyhedron3& polyhedron) {
+            delete m_brush;
+            m_brush = NULL;
+            
+            if (polyhedron.closed()) {
+                MapDocumentSPtr document = lock(m_document);
+                const Model::BrushBuilder builder(document->world(), document->worldBounds());
+                m_brush = builder.createBrush(polyhedron, document->currentTextureName());
+            }
+        }
+
         void CreateBrushTool::createBrush() {
             if (m_brush != NULL) {
                 MapDocumentSPtr document = lock(m_document);
@@ -63,38 +67,12 @@ namespace TrenchBroom {
                 document->select(m_brush);
                 m_brush = NULL;
             }
-            
-            m_polyhedron.clear();
         }
 
         void CreateBrushTool::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (m_brush != NULL)
                 renderBrush(renderContext, renderBatch);
-            else if (!m_polyhedron.empty())
-                renderPolyhedron(renderContext, renderBatch);
             
-        }
-
-        void CreateBrushTool::renderPolyhedron(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            assert(!m_polyhedron.empty());
-            
-            Renderer::RenderService renderService(renderContext, renderBatch);
-            renderService.setForegroundColor(pref(Preferences::HandleColor));
-            renderService.setLineWidth(2.0f);
-            
-            const Polyhedron3::EdgeList& edges = m_polyhedron.edges();
-            Polyhedron3::EdgeList::const_iterator eIt, eEnd;
-            for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
-                const Polyhedron3::Edge* edge = *eIt;
-                renderService.renderLine(edge->firstVertex()->position(), edge->secondVertex()->position());
-            }
-            
-            const Polyhedron3::VertexList& vertices = m_polyhedron.vertices();
-            Polyhedron3::VertexList::const_iterator vIt, vEnd;
-            for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
-                const Polyhedron3::Vertex* vertex = *vIt;
-                renderService.renderPointHandle(vertex->position());
-            }
         }
         
         void CreateBrushTool::renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {

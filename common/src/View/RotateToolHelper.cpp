@@ -68,11 +68,12 @@ namespace TrenchBroom {
         const size_t RotateToolHelper::SnapAngleKey = 1;
         const size_t RotateToolHelper::AngleKey = 2;
 
-        RotateToolHelper::RotateToolHelper(RotateToolDelegate& delegate) :
+        RotateToolHelper::RotateToolHelper(PlaneDragPolicy* policy, RotateToolDelegate& delegate) :
+        PlaneDragHelper(policy),
         m_delegate(delegate),
         m_lastAngle(0.0) {}
         
-        bool RotateToolHelper::startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        bool RotateToolHelper::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             if (!m_delegate.handleRotate(inputState))
@@ -91,7 +92,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool RotateToolHelper::planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+        bool RotateToolHelper::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
             const FloatType angle = m_delegate.getAngle(inputState, refPoint, curPoint, m_axis);
             if (angle == m_lastAngle)
                 return true;
@@ -102,20 +103,20 @@ namespace TrenchBroom {
             return true;
         }
         
-        void RotateToolHelper::endPlaneDrag(const InputState& inputState) {
+        void RotateToolHelper::doEndPlaneDrag(const InputState& inputState) {
             m_delegate.endRotate(inputState);
             m_lastAngle = 0.0;
         }
         
-        void RotateToolHelper::cancelPlaneDrag() {
+        void RotateToolHelper::doCancelPlaneDrag() {
             m_delegate.cancelRotate();
             m_lastAngle = 0.0;
         }
         
-        void RotateToolHelper::resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint){}
+        void RotateToolHelper::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
         
-        void RotateToolHelper::render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-            if (!dragging)
+        void RotateToolHelper::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            if (!dragging())
                 return;
             
             renderAngleIndicator(renderContext, renderBatch);

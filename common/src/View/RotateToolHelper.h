@@ -75,14 +75,14 @@ namespace TrenchBroom {
             
             class AngleIndicatorRenderer;
         public:
-            RotateToolHelper(RotateToolDelegate& delegate);
+            RotateToolHelper(PlaneDragPolicy* policy, RotateToolDelegate& delegate);
             
-            bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void endPlaneDrag(const InputState& inputState);
-            void cancelPlaneDrag();
-            void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            void render(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
+            void doEndPlaneDrag(const InputState& inputState);
+            void doCancelPlaneDrag();
+            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
             
         private:
             void renderAngleIndicator(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

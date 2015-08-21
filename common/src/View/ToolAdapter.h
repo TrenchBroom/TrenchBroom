@@ -104,7 +104,9 @@ namespace TrenchBroom {
             Plane3 m_plane;
             Vec3 m_lastPoint;
             Vec3 m_refPoint;
+            bool m_dragging;
         public:
+            PlaneDragPolicy();
             virtual ~PlaneDragPolicy();
         public:
             bool doStartMouseDrag(const InputState& inputState);
@@ -112,6 +114,7 @@ namespace TrenchBroom {
             void doEndMouseDrag(const InputState& inputState);
             void doCancelMouseDrag();
 
+            bool dragging() const;
             void resetPlane(const InputState& inputState);
         private: // subclassing interface
             virtual bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
@@ -122,15 +125,28 @@ namespace TrenchBroom {
         };
         
         class PlaneDragHelper {
+        private:
+            PlaneDragPolicy* m_policy;
         public:
+            PlaneDragHelper(PlaneDragPolicy* policy);
             virtual ~PlaneDragHelper();
             
-            virtual bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
-            virtual bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
-            virtual void endPlaneDrag(const InputState& inputState) = 0;
-            virtual void cancelPlaneDrag() = 0;
-            virtual void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
-            virtual void render(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
+            bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
+            void endPlaneDrag(const InputState& inputState);
+            void cancelPlaneDrag();
+            void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            void render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+        protected:
+            bool dragging() const;
+            void resetPlane(const InputState& inputState);
+        private:
+            virtual bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
+            virtual bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) = 0;
+            virtual void doEndPlaneDrag(const InputState& inputState) = 0;
+            virtual void doCancelPlaneDrag() = 0;
+            virtual void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) = 0;
+            virtual void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
         };
 
         class RenderPolicy {

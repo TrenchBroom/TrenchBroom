@@ -208,8 +208,8 @@ namespace TrenchBroom {
         void MapView3D::OnPerformCreateBrush(wxCommandEvent& event) {
             if (IsBeingDeleted()) return;
 
-            // if (m_toolBox.createBrushToolActive())
-                // m_createBrushToolAdapter->performCreateBrush();
+            if (m_toolBox.createBrushToolActive())
+                m_createBrushToolAdapter->performCreateBrush();
         }
 
         void MapView3D::OnMoveTexturesUp(wxCommandEvent& event) {

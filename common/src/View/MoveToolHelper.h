@@ -68,17 +68,17 @@ namespace TrenchBroom {
             Vec3f::List m_trace;
             Renderer::EdgeRenderer m_traceRenderer;
         protected:
-            MoveToolHelper(MoveToolDelegate* delegate);
+            MoveToolHelper(PlaneDragPolicy* policy, MoveToolDelegate* delegate);
         public:
             virtual ~MoveToolHelper();
             
             bool handleMove(const InputState& inputState) const;
-            bool startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            bool planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
-            void endPlaneDrag(const InputState& inputState);
-            void cancelPlaneDrag();
-            void resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
-            void render(const InputState& inputState, bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+            bool doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint);
+            void doEndPlaneDrag(const InputState& inputState);
+            void doCancelPlaneDrag();
+            void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint);
+            void doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
             Plane3 dragPlane(const InputState& inputState, const Vec3& initialPoint) const;
             void addTracePoint(const Vec3& point);
@@ -90,7 +90,7 @@ namespace TrenchBroom {
         
         class MoveToolHelper2D : public MoveToolHelper {
         public:
-            MoveToolHelper2D(MoveToolDelegate* delegate);
+            MoveToolHelper2D(PlaneDragPolicy* policy, MoveToolDelegate* delegate);
         private:
             Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const;
             Vec3 doGetDelta(const Vec3& delta) const;
@@ -100,7 +100,7 @@ namespace TrenchBroom {
         private:
             MovementRestriction& m_movementRestriction;
         public:
-            MoveToolHelper3D(MoveToolDelegate* delegate, MovementRestriction& movementRestriction);
+            MoveToolHelper3D(PlaneDragPolicy* policy, MoveToolDelegate* delegate, MovementRestriction& movementRestriction);
         private:
             Plane3 doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const;
             Vec3 doGetDelta(const Vec3& delta) const;

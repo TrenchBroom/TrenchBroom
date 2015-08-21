@@ -59,7 +59,8 @@ namespace TrenchBroom {
             doCancelMove();
         }
 
-        MoveToolHelper::MoveToolHelper(MoveToolDelegate* delegate) :
+        MoveToolHelper::MoveToolHelper(PlaneDragPolicy* policy, MoveToolDelegate* delegate) :
+        PlaneDragHelper(policy),
         m_delegate(delegate) {}
         
         MoveToolHelper::~MoveToolHelper() {}
@@ -68,7 +69,7 @@ namespace TrenchBroom {
             return m_delegate->handleMove(inputState);
         }
 
-        bool MoveToolHelper::startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        bool MoveToolHelper::doStartPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
                 return false;
             if (!handleMove(inputState))
@@ -83,7 +84,7 @@ namespace TrenchBroom {
             return true;
         }
         
-        bool MoveToolHelper::planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+        bool MoveToolHelper::doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
             const Vec3 delta = m_delegate->snapDelta(inputState, doGetDelta(curPoint - refPoint));
             if (delta.null())
                 return true;
@@ -98,17 +99,17 @@ namespace TrenchBroom {
             return true;
         }
         
-        void MoveToolHelper::endPlaneDrag(const InputState& inputState) {
+        void MoveToolHelper::doEndPlaneDrag(const InputState& inputState) {
             m_delegate->endMove(inputState);
             m_trace.clear();
         }
         
-        void MoveToolHelper::cancelPlaneDrag() {
+        void MoveToolHelper::doCancelPlaneDrag() {
             m_delegate->cancelMove();
             m_trace.clear();
         }
         
-        void MoveToolHelper::resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+        void MoveToolHelper::doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
             const FloatType distance = plane.intersectWithRay(inputState.pickRay());
             if (Math::isnan(distance))
                 return;
@@ -116,7 +117,7 @@ namespace TrenchBroom {
             plane = dragPlane(inputState, initialPoint);
         }
         
-        void MoveToolHelper::render(const InputState& inputState, const bool dragging, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+        void MoveToolHelper::doRender(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             renderMoveTrace(renderContext, renderBatch);
         }
 
@@ -159,8 +160,8 @@ namespace TrenchBroom {
             }
         }
 
-        MoveToolHelper2D::MoveToolHelper2D(MoveToolDelegate* delegate) :
-        MoveToolHelper(delegate) {}
+        MoveToolHelper2D::MoveToolHelper2D(PlaneDragPolicy* policy, MoveToolDelegate* delegate) :
+        MoveToolHelper(policy, delegate) {}
 
         Plane3 MoveToolHelper2D::doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const {
             const Renderer::Camera& camera = inputState.camera();
@@ -172,8 +173,8 @@ namespace TrenchBroom {
             return delta;
         }
         
-        MoveToolHelper3D::MoveToolHelper3D(MoveToolDelegate* delegate, MovementRestriction& movementRestriction) :
-        MoveToolHelper(delegate),
+        MoveToolHelper3D::MoveToolHelper3D(PlaneDragPolicy* policy, MoveToolDelegate* delegate, MovementRestriction& movementRestriction) :
+        MoveToolHelper(policy, delegate),
         m_movementRestriction(movementRestriction) {}
         
         Plane3 MoveToolHelper3D::doGetDragPlane(const InputState& inputState, const Vec3& initialPoint) const {

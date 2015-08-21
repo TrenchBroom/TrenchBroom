@@ -53,7 +53,7 @@ namespace TrenchBroom {
             }
         protected:
             void renderMoveIndicator(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
-                m_helper->render(inputState, Super::dragging(), renderContext, renderBatch);
+                m_helper->render(inputState, renderContext, renderBatch);
             }
         protected:
             void doModifierKeyChange(const InputState& inputState) {
