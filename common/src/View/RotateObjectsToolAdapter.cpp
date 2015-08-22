@@ -33,7 +33,7 @@ namespace TrenchBroom {
         ToolAdapterBase(),
         m_tool(tool),
         m_moveHelper(moveHelper),
-        m_rotateHelper(new RotateToolHelper(*this)),
+        m_rotateHelper(new RotateToolHelper(this, *this)),
         m_helper(NULL) {}
 
         RotateObjectsToolAdapter::~RotateObjectsToolAdapter() {
@@ -113,9 +113,9 @@ namespace TrenchBroom {
             doRenderHandle(renderContext, renderBatch, highlight);
             
             if (m_helper != NULL)
-                m_helper->render(inputState, dragging(), renderContext, renderBatch);
+                m_helper->render(inputState, renderContext, renderBatch);
             else if (highlight == RotateObjectsHandle::HitArea_Center)
-                m_moveHelper->render(inputState, dragging(), renderContext, renderBatch);
+                m_moveHelper->render(inputState, renderContext, renderBatch);
         }
         
         RotateObjectsHandle::HitArea RotateObjectsToolAdapter::highlightHandleArea(const InputState& inputState) const {
@@ -211,7 +211,7 @@ namespace TrenchBroom {
         }
 
         RotateObjectsToolAdapter2D::RotateObjectsToolAdapter2D(RotateObjectsTool* tool) :
-        RotateObjectsToolAdapter(tool, new MoveToolHelper2D(this)) {}
+        RotateObjectsToolAdapter(tool, new MoveToolHelper2D(this, this)) {}
 
         Model::Hit RotateObjectsToolAdapter2D::doPick(const InputState& inputState) {
             return m_tool->pick2D(inputState.pickRay(), inputState.camera());
@@ -230,7 +230,7 @@ namespace TrenchBroom {
         }
         
         RotateObjectsToolAdapter3D::RotateObjectsToolAdapter3D(RotateObjectsTool* tool, MovementRestriction& movementRestriction) :
-        RotateObjectsToolAdapter(tool, new MoveToolHelper3D(this, movementRestriction)) {}
+        RotateObjectsToolAdapter(tool, new MoveToolHelper3D(this, this, movementRestriction)) {}
         
         Model::Hit RotateObjectsToolAdapter3D::doPick(const InputState& inputState) {
             return m_tool->pick3D(inputState.pickRay(), inputState.camera());

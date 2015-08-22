@@ -64,11 +64,16 @@ namespace TrenchBroom {
             
             bool doMouseClick(const InputState& inputState) {
                 if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
-                    !inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
+                    !inputState.modifierKeysPressed(ModifierKeys::MKNone))
                     return false;
-                if (inputState.modifierKeysPressed(ModifierKeys::MKShift))
-                    return doSetClipPlane(inputState);
                 return doAddClipPoint(inputState);
+            }
+
+            bool doMouseDoubleClick(const InputState& inputState) {
+                if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft) ||
+                    !inputState.modifierKeysPressed(ModifierKeys::MKNone))
+                    return false;
+                return doSetClipPlane(inputState);
             }
 
             void doPick(const InputState& inputState, Model::PickResult& pickResult) {

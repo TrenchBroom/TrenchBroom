@@ -243,14 +243,14 @@ namespace TrenchBroom {
         }
 
         VertexToolAdapter2D::VertexToolAdapter2D(VertexTool* tool) :
-        VertexToolAdapter(tool, new MoveToolHelper2D(this)) {}
+        VertexToolAdapter(tool, new MoveToolHelper2D(this, this)) {}
         
         void VertexToolAdapter2D::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);
         }
 
         VertexToolAdapter3D::VertexToolAdapter3D(VertexTool* tool, MovementRestriction& movementRestriction) :
-        VertexToolAdapter(tool, new MoveToolHelper3D(this, movementRestriction)) {}
+        VertexToolAdapter(tool, new MoveToolHelper3D(this, this, movementRestriction)) {}
         
         void VertexToolAdapter3D::doPick(const InputState& inputState, Model::PickResult& pickResult) {
             m_tool->pick(inputState.pickRay(), inputState.camera(), pickResult);

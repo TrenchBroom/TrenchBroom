@@ -53,9 +53,9 @@ namespace TrenchBroom {
         }
         
         MoveObjectsToolAdapter2D::MoveObjectsToolAdapter2D(MoveObjectsTool* tool) :
-        MoveObjectsToolAdapter(tool, new MoveToolHelper2D(tool)) {}
+        MoveObjectsToolAdapter(tool, new MoveToolHelper2D(this, tool)) {}
         
         MoveObjectsToolAdapter3D::MoveObjectsToolAdapter3D(MoveObjectsTool* tool, MovementRestriction& movementRestriction) :
-        MoveObjectsToolAdapter(tool, new MoveToolHelper3D(tool, movementRestriction)) {}
+        MoveObjectsToolAdapter(tool, new MoveToolHelper3D(this, tool, movementRestriction)) {}
     }
 }

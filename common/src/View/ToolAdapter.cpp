@@ -52,10 +52,12 @@ namespace TrenchBroom {
         void NoMouseDragPolicy::doEndMouseDrag(const InputState& inputState) {}
         void NoMouseDragPolicy::doCancelMouseDrag() {}
         
+        PlaneDragPolicy::PlaneDragPolicy() : m_dragging(false) {}
         PlaneDragPolicy::~PlaneDragPolicy() {}
         
         bool PlaneDragPolicy::doStartMouseDrag(const InputState& inputState) {
             if (doStartPlaneDrag(inputState, m_plane, m_lastPoint)) {
+                m_dragging = true;
                 m_refPoint = m_lastPoint;
                 return true;
             }
@@ -78,17 +80,56 @@ namespace TrenchBroom {
         
         void PlaneDragPolicy::doEndMouseDrag(const InputState& inputState) {
             doEndPlaneDrag(inputState);
+            m_dragging = false;
         }
         
         void PlaneDragPolicy::doCancelMouseDrag() {
             doCancelPlaneDrag();
+            m_dragging = false;
         }
         
+        bool PlaneDragHelper::startPlaneDrag(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+            return doStartPlaneDrag(inputState, plane, initialPoint);
+        }
+        
+        bool PlaneDragHelper::planeDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
+            return doPlaneDrag(inputState, lastPoint, curPoint, refPoint);
+        }
+        
+        void PlaneDragHelper::endPlaneDrag(const InputState& inputState) {
+            doEndPlaneDrag(inputState);
+        }
+        
+        void PlaneDragHelper::cancelPlaneDrag() {
+            doCancelPlaneDrag();
+        }
+        
+        void PlaneDragHelper::resetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
+            doResetPlane(inputState, plane, initialPoint);
+        }
+        
+        void PlaneDragHelper::render(const InputState& inputState, Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
+            doRender(inputState, renderContext, renderBatch);
+        }
+
+        bool PlaneDragPolicy::dragging() const {
+            return m_dragging;
+        }
+
         void PlaneDragPolicy::resetPlane(const InputState& inputState) {
             doResetPlane(inputState, m_plane, m_lastPoint);
         }
 
+        PlaneDragHelper::PlaneDragHelper(PlaneDragPolicy* policy) : m_policy(policy) { assert(m_policy != NULL); }
         PlaneDragHelper::~PlaneDragHelper() {}
+
+        bool PlaneDragHelper::dragging() const {
+            return m_policy->dragging();
+        }
+        
+        void PlaneDragHelper::resetPlane(const InputState& inputState) {
+            m_policy->resetPlane(inputState);
+        }
 
         RenderPolicy::~RenderPolicy() {}
         void RenderPolicy::doSetRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const {}
