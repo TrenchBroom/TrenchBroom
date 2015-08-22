@@ -133,7 +133,9 @@ namespace TrenchBroom {
                 m_tool->createBrush();
             }
             
-            void doCancelPlaneDrag() {}
+            void doCancelPlaneDrag() {
+                m_tool->cancel();
+            }
             
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {
                 const FloatType distance = plane.intersectWithRay(inputState.pickRay());
@@ -261,7 +263,10 @@ namespace TrenchBroom {
             
             void doEndPlaneDrag(const InputState& inputState) {}
             
-            void doCancelPlaneDrag() {}
+            void doCancelPlaneDrag() {
+                m_polyhedron = m_oldPolyhedron;
+                m_tool->updateBrush(m_polyhedron);
+            }
             
             void doResetPlane(const InputState& inputState, Plane3& plane, Vec3& initialPoint) {}
             

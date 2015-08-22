@@ -48,6 +48,7 @@ namespace TrenchBroom {
             void updateBrush(const Polyhedron3& polyhedron);
         public:
             void createBrush();
+            void cancel();
             
             void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:

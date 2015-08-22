@@ -69,6 +69,11 @@ namespace TrenchBroom {
             }
         }
 
+        void CreateBrushTool::cancel() {
+            delete m_brush;
+            m_brush = NULL;
+        }
+
         void CreateBrushTool::render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) {
             if (m_brush != NULL)
                 renderBrush(renderContext, renderBatch);
