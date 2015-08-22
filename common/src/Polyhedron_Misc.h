@@ -20,6 +20,8 @@
 #ifndef TrenchBroom_Polyhedron_Misc_h
 #define TrenchBroom_Polyhedron_Misc_h
 
+#include <map>
+
 template <typename T>
 Polyhedron<T>::Polyhedron() {}
 
@@ -58,6 +60,114 @@ Polyhedron<T>::Polyhedron(typename V::List positions) {
 }
 
 template <typename T>
+class Polyhedron<T>::Copy {
+private:
+    typedef std::map<const Vertex*, Vertex*> VertexMap;
+    typedef typename VertexMap::value_type VertexMapEntry;
+
+    typedef std::map<const HalfEdge*, HalfEdge*> HalfEdgeMap;
+    typedef typename HalfEdgeMap::value_type HalfEdgeMapEntry;
+
+    VertexMap m_vertexMap;
+    HalfEdgeMap m_halfEdgeMap;
+    
+    VertexList m_vertices;
+    EdgeList m_edges;
+    FaceList m_faces;
+public:
+    Copy(const FaceList& originalFaces, const EdgeList& originalEdges) {
+        copyFaces(originalFaces);
+        copyEdges(originalEdges);
+    }
+    
+    ~Copy() {
+        m_faces.deleteAll();
+        m_edges.deleteAll();
+        m_vertices.deleteAll();
+    }
+    
+    void swapContents(VertexList& vertices, EdgeList& edges, FaceList& faces) {
+        using std::swap;
+        swap(m_vertices, vertices);
+        swap(m_edges, edges);
+        swap(m_faces, faces);
+    }
+private:
+    void copyFaces(const FaceList& originalFaces) {
+        typename FaceList::const_iterator fIt, fEnd;
+        for (fIt = originalFaces.begin(), fEnd = originalFaces.end(); fIt != fEnd; ++fIt) {
+            const Face* originalFace = *fIt;
+            copyFace(originalFace);
+        }
+    }
+    
+    void copyFace(const Face* originalFace) {
+        HalfEdgeList myBoundary;
+
+        typename HalfEdgeList::const_iterator hIt, hEnd;
+        for (hIt = originalFace->m_boundary.begin(), hEnd = originalFace->m_boundary.end(); hIt != hEnd; ++hIt) {
+            const HalfEdge* originalHalfEdge = *hIt;
+            myBoundary.append(copyHalfEdge(originalHalfEdge), 1);
+        }
+        
+        Face* copy = new Face(myBoundary);
+        m_faces.append(copy, 1);
+    }
+    
+    HalfEdge* copyHalfEdge(const HalfEdge* original) {
+        const Vertex* originalOrigin = original->origin();
+        
+        Vertex* myOrigin = findOrCopyVertex(originalOrigin);
+        HalfEdge* copy = new HalfEdge(myOrigin);
+        m_halfEdgeMap.insert(std::make_pair(original, copy));
+        return copy;
+    }
+
+    Vertex* findOrCopyVertex(const Vertex* original) {
+        typedef std::pair<bool, typename VertexMap::iterator> InsertPos;
+        
+        InsertPos insertPos = MapUtils::findInsertPos(m_vertexMap, original);
+        if (!insertPos.first) {
+            Vertex* copy = new Vertex(original->position());
+            m_vertices.append(copy, 1);
+            m_vertexMap.insert(insertPos.second, std::make_pair(original, copy));
+            return copy;
+        }
+        return insertPos.second->second;
+    }
+    
+    void copyEdges(const EdgeList& originalEdges) {
+        typename EdgeList::const_iterator eIt, eEnd;
+        for (eIt = originalEdges.begin(), eEnd = originalEdges.end(); eIt != eEnd; ++eIt) {
+            const Edge* originalEdge = *eIt;
+            Edge* copy = copyEdge(originalEdge);
+            m_edges.append(copy, 1);
+        }
+    }
+    
+    Edge* copyEdge(const Edge* original) const {
+        HalfEdge* myFirst = findHalfEdge(original->firstEdge());
+        if (!original->fullySpecified())
+            return new Edge(myFirst);
+
+        HalfEdge* mySecond = findHalfEdge(original->secondEdge());
+        return new Edge(myFirst, mySecond);
+    }
+    
+    HalfEdge* findHalfEdge(const HalfEdge* original) const {
+        HalfEdge* result = MapUtils::find(m_halfEdgeMap, original, static_cast<HalfEdge*>(NULL));
+        assert(result != NULL);
+        return result;
+    }
+};
+
+template <typename T>
+Polyhedron<T>::Polyhedron(const Polyhedron<T>& other) {
+    Copy copy(other.faces(), other.edges());
+    copy.swapContents(m_vertices, m_edges, m_faces);
+}
+
+template <typename T>
 Polyhedron<T>::Polyhedron(const VertexList& vertices, const EdgeList& edges, const FaceList& faces) :
 m_vertices(vertices),
 m_edges(edges),
@@ -66,6 +176,12 @@ m_faces(faces) {}
 template <typename T>
 Polyhedron<T>::~Polyhedron() {
     clear();
+}
+
+template <typename T>
+Polyhedron<T>& Polyhedron<T>::operator=(Polyhedron<T> other) {
+    swap(*this, other);
+    return *this;
 }
 
 template <typename T>

@@ -76,10 +76,22 @@ public: // Constructors
     Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4);
     Polyhedron(const BBox<T,3>& bounds);
     Polyhedron(typename V::List positions);
+    Polyhedron(const Polyhedron<T>& other);
 private:
+    class Copy;
+    
     Polyhedron(const VertexList& vertices, const EdgeList& edges, const FaceList& faces);
 public: // Destructor
     ~Polyhedron();
+public: // operators
+    Polyhedron<T>& operator=(Polyhedron<T> other);
+public: // swap function
+    friend void swap(Polyhedron<T>& first, Polyhedron<T>& second) {
+        using std::swap;
+        swap(first.m_vertices, second.m_vertices);
+        swap(first.m_edges, second.m_edges);
+        swap(first.m_faces, second.m_faces);
+    }
 public: // Accessors
     size_t vertexCount() const;
     const VertexList& vertices() const;

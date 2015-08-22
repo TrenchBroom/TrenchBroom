@@ -249,12 +249,12 @@ namespace TrenchBroom {
                 m_plane = plane = face->boundary();
                 m_oldPolyhedron = m_polyhedron;
                 
-                updatePoints(m_initialPoint);
+                updatePolyhedron(m_initialPoint);
                 return true;
             }
             
             bool doPlaneDrag(const InputState& inputState, const Vec3& lastPoint, const Vec3& curPoint, Vec3& refPoint) {
-                updatePoints(curPoint);
+                updatePolyhedron(curPoint);
                 refPoint = curPoint;
                 return true;
             }
@@ -298,7 +298,7 @@ namespace TrenchBroom {
                 return true;
             }
         private:
-            void updatePoints(const Vec3& current) {
+            void updatePolyhedron(const Vec3& current) {
                 const Math::Axis::Type axis = m_plane.normal.firstComponent();
                 const Plane3 swizzledPlane(swizzle(m_plane.anchor(), axis), swizzle(m_plane.normal, axis));
                 const Vec3 theMin = swizzle(m_grid.snapDown(min(m_initialPoint, current)), axis);
@@ -313,15 +313,13 @@ namespace TrenchBroom {
                 const Vec3    topRight3 = unswizzle(Vec3(topRight2,    swizzledPlane.zAt(topRight2)),    axis);
                 const Vec3  bottomLeft3 = unswizzle(Vec3(bottomLeft2,  swizzledPlane.zAt(bottomLeft2)),  axis);
                 const Vec3 bottomRight3 = unswizzle(Vec3(bottomRight2, swizzledPlane.zAt(bottomRight2)), axis);
-                
-                Vec3::List points;
-                points.push_back(topLeft3);
-                points.push_back(bottomLeft3);
-                points.push_back(bottomRight3);
-                points.push_back(topRight3);
 
                 m_polyhedron = m_oldPolyhedron;
-                m_polyhedron.addPoints(points.begin(), points.end());
+                m_polyhedron.addPoint(topLeft3);
+                m_polyhedron.addPoint(bottomLeft3);
+                m_polyhedron.addPoint(bottomRight3);
+                m_polyhedron.addPoint(topRight3);
+
                 m_tool->updateBrush(m_polyhedron);
             }
         };
