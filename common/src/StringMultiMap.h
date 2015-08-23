@@ -121,10 +121,10 @@ namespace TrenchBroom {
                         removeValue(value);
                     }
                     
-                    if (m_values.empty() && m_children.size() == 1)
+                    if (!m_key.empty() && m_values.empty() && m_children.size() == 1)
                         mergeNode();
                 }
-                return m_values.empty() && m_children.empty();
+                return !m_key.empty() && m_values.empty() && m_children.empty();
             }
             
             void queryExact(const String& key, ValueSet& result) const {

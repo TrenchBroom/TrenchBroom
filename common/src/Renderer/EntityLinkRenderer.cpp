@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 #include "Model/AttributableNode.h"
+#include "Model/CollectMatchingNodesVisitor.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/NodeVisitor.h"
@@ -92,6 +93,14 @@ namespace TrenchBroom {
             m_valid = true;
         }
         
+        class EntityLinkRenderer::MatchEntities {
+        public:
+            bool operator()(const Model::Entity* entity) { return true; }
+            bool operator()(const Model::Node* node) { return false; }
+        };
+        
+        class EntityLinkRenderer::CollectEntitiesVisitor : public Model::CollectMatchingNodesVisitor<MatchEntities, Model::UniqueNodeCollectionStrategy> {};
+
         class EntityLinkRenderer::CollectLinksVisitor : public Model::NodeVisitor {
         protected:
             const Model::EditorContext& m_editorContext;
@@ -248,11 +257,12 @@ namespace TrenchBroom {
             View::MapDocumentSPtr document = lock(m_document);
             const Model::EditorContext& editorContext = document->editorContext();
             
-            CollectAllLinksVisitor visitor(editorContext, m_defaultColor, m_selectedColor);
+            CollectAllLinksVisitor collectLinks(editorContext, m_defaultColor, m_selectedColor);
             
             Model::World* world = document->world();
-            world->acceptAndRecurse(visitor);
-            return visitor.vertices();
+            if (world != NULL)
+                world->acceptAndRecurse(collectLinks);
+            return collectLinks.vertices();
         }
         
         EntityLinkRenderer::Vertex::List EntityLinkRenderer::transitiveSelectedLinks() const {
@@ -260,10 +270,7 @@ namespace TrenchBroom {
             const Model::EditorContext& editorContext = document->editorContext();
             
             CollectTransitiveSelectedLinksVisitor visitor(editorContext, m_defaultColor, m_selectedColor);
-
-            const Model::EntityList& selectedEntities = document->selectedNodes().entities();
-            Model::Node::acceptAndRecurse(selectedEntities.begin(), selectedEntities.end(), visitor);
-            return visitor.vertices();
+            return collectSelectedLinks(visitor);
         }
         
         EntityLinkRenderer::Vertex::List EntityLinkRenderer::directSelectedLinks() const {
@@ -271,10 +278,20 @@ namespace TrenchBroom {
             const Model::EditorContext& editorContext = document->editorContext();
             
             CollectDirectSelectedLinksVisitor visitor(editorContext, m_defaultColor, m_selectedColor);
+            return collectSelectedLinks(visitor);
+        }
+
+        EntityLinkRenderer::Vertex::List EntityLinkRenderer::collectSelectedLinks(CollectLinksVisitor& collectLinks) const {
+            View::MapDocumentSPtr document = lock(m_document);
             
-            const Model::EntityList& selectedEntities = document->selectedNodes().entities();
-            Model::Node::acceptAndRecurse(selectedEntities.begin(), selectedEntities.end(), visitor);
-            return visitor.vertices();
+            const Model::NodeList& selectedNodes = document->selectedNodes().nodes();
+            CollectEntitiesVisitor collectEntities;
+            Model::Node::acceptAndEscalate(selectedNodes.begin(), selectedNodes.end(), collectEntities);
+            
+            const Model::NodeList& selectedEntities = collectEntities.nodes();
+            Model::Node::accept(selectedEntities.begin(), selectedEntities.end(), collectLinks);
+            
+            return collectLinks.vertices();
         }
     }
 }

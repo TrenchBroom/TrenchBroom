@@ -61,6 +61,9 @@ namespace TrenchBroom {
         private:
             void validate();
             
+            class MatchEntities;
+            class CollectEntitiesVisitor;
+            
             class CollectLinksVisitor;
             class CollectAllLinksVisitor;
             class CollectTransitiveSelectedLinksVisitor;
@@ -70,6 +73,7 @@ namespace TrenchBroom {
             Vertex::List allLinks() const;
             Vertex::List transitiveSelectedLinks() const;
             Vertex::List directSelectedLinks() const;
+            Vertex::List collectSelectedLinks(CollectLinksVisitor& collectLinks) const;
             
             EntityLinkRenderer(const EntityLinkRenderer& other);
             EntityLinkRenderer& operator=(const EntityLinkRenderer& other);

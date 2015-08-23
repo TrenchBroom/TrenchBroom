@@ -134,16 +134,31 @@ namespace TrenchBroom {
             return true;
         }
 
+        void Entity::doDescendantWillBeAdded(Node* newParent, Node* node) {
+            nodeWillChange();
+        }
+
         void Entity::doDescendantWasAdded(Node* node) {
             invalidateBounds();
+            nodeDidChange();
         }
         
+        void Entity::doDescendantWillBeRemoved(Node* node) {
+            nodeWillChange();
+        }
+
         void Entity::doDescendantWasRemoved(Node* oldParent, Node* node) {
             invalidateBounds();
+            nodeDidChange();
+        }
+
+        void Entity::doDescendantWillChange(Node* node) {
+            nodeWillChange();
         }
 
         void Entity::doDescendantDidChange(Node* node) {
             invalidateBounds();
+            nodeDidChange();
         }
 
         bool Entity::doSelectable() const {

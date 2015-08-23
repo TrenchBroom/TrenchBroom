@@ -436,6 +436,7 @@ namespace TrenchBroom {
         
         void MapRenderer::nodesDidChange(const Model::NodeList& nodes) {
             invalidateRenderers(Renderer_Selection);
+            invalidateEntityLinkRenderer();
         }
         
         void MapRenderer::nodeVisibilityDidChange(const Model::NodeList& nodes) {
