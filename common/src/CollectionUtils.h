@@ -875,7 +875,7 @@ namespace MapUtils {
     }
 
     template <typename K, typename V>
-    bool insertOrReplace(std::map<K, V*>& map, const K& key, V* value) {
+    bool insertOrReplaceAndDelete(std::map<K, V*>& map, const K& key, V* value) {
         typedef std::map<K, V*> Map;
         typename Map::key_compare compare = map.key_comp();
         typename Map::iterator insertPos = map.lower_bound(key);

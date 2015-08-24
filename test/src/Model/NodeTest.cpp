@@ -38,6 +38,11 @@ namespace TrenchBroom {
                 return name;
             }
             
+            const BBox3& doGetBounds() const {
+                static const BBox3 bounds;
+                return bounds;
+            }
+            
             bool doCanAddChild(const Node* child) const {
                 return mockDoCanAddChild(child);
             }
@@ -113,6 +118,11 @@ namespace TrenchBroom {
             virtual const String& doGetName() const {
                 static const String name("some name");
                 return name;
+            }
+            
+            virtual const BBox3& doGetBounds() const {
+                static const BBox3 bounds;
+                return bounds;
             }
             
             virtual bool doCanAddChild(const Node* child) const {

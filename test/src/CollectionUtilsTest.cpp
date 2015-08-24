@@ -598,7 +598,7 @@ TEST(CollectionUtilsTest, mapInsertOrReplaceCopy) {
     ASSERT_EQ(value2, testMap[key]);
 }
 
-TEST(CollectionUtilsTest, mapInsertOrReplacePointer) {
+TEST(CollectionUtilsTest, mapInsertOrReplaceAndDelete) {
     typedef std::map<std::string, TestObject*> TestMap;
     
     TestMap testMap;
@@ -608,12 +608,12 @@ TEST(CollectionUtilsTest, mapInsertOrReplacePointer) {
     TestObject* value1 = new TestObject(deleted1);
     TestObject* value2 = new TestObject(deleted2);
     
-    MapUtils::insertOrReplace(testMap, key, value1);
+    MapUtils::insertOrReplaceAndDelete(testMap, key, value1);
     ASSERT_EQ(1u, testMap.size());
     ASSERT_EQ(value1, testMap[key]);
     ASSERT_FALSE(deleted1);
     
-    MapUtils::insertOrReplace(testMap, key, value2);
+    MapUtils::insertOrReplaceAndDelete(testMap, key, value2);
     ASSERT_EQ(1u, testMap.size());
     ASSERT_EQ(value2, testMap[key]);
     ASSERT_TRUE(deleted1);

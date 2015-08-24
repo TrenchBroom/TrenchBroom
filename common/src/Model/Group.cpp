@@ -99,6 +99,12 @@ namespace TrenchBroom {
             return m_name;
         }
 
+        const BBox3& Group::doGetBounds() const {
+            if (!m_boundsValid)
+                validateBounds();
+            return m_bounds;
+        }
+        
         Node* Group::doClone(const BBox3& worldBounds) const {
             Group* group = new Group(m_name);
             cloneAttributes(group);
@@ -132,33 +138,22 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Group::doDescendantWillBeAdded(Node* newParent, Node* node) {
-            nodeWillChange();
-        }
-
-        void Group::doDescendantWasAdded(Node* node) {
-            invalidateBounds();
-            nodeDidChange();
+        void Group::doChildWasAdded(Node* node) {
+            nodeBoundsDidChange();
         }
         
-        void Group::doDescendantWillBeRemoved(Node* node) {
-            nodeWillChange();
+        void Group::doChildWasRemoved(Node* node) {
+            nodeBoundsDidChange();
         }
 
-        void Group::doDescendantWasRemoved(Node* oldParent, Node* node) {
+        void Group::doNodeBoundsDidChange() {
             invalidateBounds();
-            nodeDidChange();
-        }
-
-        void Group::doDescendantWillChange(Node* node) {
-            nodeWillChange();
-        }
-
-        void Group::doDescendantDidChange(Node* node) {
-            invalidateBounds();
-            nodeDidChange();
         }
         
+        void Group::doChildBoundsDidChange(Node* node) {
+            nodeBoundsDidChange();
+        }
+
         bool Group::doShouldPropagateDescendantEvents() const {
             return false;
         }
@@ -206,12 +201,6 @@ namespace TrenchBroom {
         
         void Group::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
-        }
-
-        const BBox3& Group::doGetBounds() const {
-            if (!m_boundsValid)
-                validateBounds();
-            return m_bounds;
         }
 
         Node* Group::doGetContainer() const {

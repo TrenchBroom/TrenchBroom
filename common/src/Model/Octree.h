@@ -38,12 +38,14 @@ namespace TrenchBroom {
             
             BBox<F,3> m_bounds;
             F m_minSize;
+            OctreeNode* m_parent;
             OctreeNode* m_children[8];
             List m_objects;
         public:
-            OctreeNode(const BBox<F,3>& bounds, const F minSize) :
+            OctreeNode(const BBox<F,3>& bounds, const F minSize, OctreeNode* parent) :
             m_bounds(bounds),
-            m_minSize(minSize) {
+            m_minSize(minSize),
+            m_parent(parent) {
                 for (size_t i = 0; i < 8; ++i)
                     m_children[i] = NULL;
             }
@@ -84,7 +86,7 @@ namespace TrenchBroom {
                         } else {
                             const BBox<F,3> childBounds = octant(i);
                             if (childBounds.contains(bounds)) {
-                                OctreeNode<F,T>* child = new OctreeNode<F,T>(childBounds, m_minSize);
+                                OctreeNode<F,T>* child = new OctreeNode<F,T>(childBounds, m_minSize, this);
                                 try {
                                     OctreeNode* result = child->addObject(bounds, object);
                                     m_children[i] = child;
@@ -111,6 +113,14 @@ namespace TrenchBroom {
                 return true;
             }
 
+            OctreeNode* findContaining(const BBox<F,3>& bounds) {
+                if (contains(bounds))
+                    return this;
+                if (m_parent == NULL)
+                    return NULL;
+                return m_parent->findContaining(bounds);
+            }
+            
             void findObjects(const Ray<F,3>& ray, List& result) const {
                 const F distance = m_bounds.intersectWithRay(ray);
                 if (Math::isnan(distance))
@@ -162,19 +172,27 @@ namespace TrenchBroom {
         public:
             typedef std::vector<T> List;
         private:
-            typedef std::tr1::shared_ptr<OctreeNode<F,T> > NodePtr;
             typedef std::map<T, OctreeNode<F,T>*> ObjectMap;
             BBox<F,3> m_bounds;
-            NodePtr m_root;
+            OctreeNode<F,T>* m_root;
             ObjectMap m_objectMap;
         public:
             Octree(const BBox<F,3>& bounds, const F minSize) :
             m_bounds(bounds),
-            m_root(new OctreeNode<F,T>(bounds, minSize)) {}
+            m_root(new OctreeNode<F,T>(bounds, minSize, NULL)) {}
+            
+            ~Octree() {
+                delete m_root;
+            }
+            
+            const BBox<F,3>& bounds() const {
+                return m_bounds;
+            }
             
             void addObject(const BBox<F,3>& bounds, T object) {
                 if (!m_root->contains(bounds))
                     throw OctreeException("Object is too large for this octree");
+                
                 OctreeNode<F,T>* node = m_root->addObject(bounds, object);
                 if (node == NULL)
                     throw OctreeException("Unknown error when inserting into octree");
@@ -185,10 +203,29 @@ namespace TrenchBroom {
                 typename ObjectMap::iterator it = m_objectMap.find(object);
                 if (it == m_objectMap.end())
                     throw OctreeException("Cannot find object in octree");
+                
                 OctreeNode<F,T>* node = it->second;
                 if (!node->removeObject(object))
                     throw OctreeException("Cannot find object in octree");
                 m_objectMap.erase(it);
+            }
+            
+            void updateObject(const BBox<F,3>& bounds, T object) {
+                typename ObjectMap::iterator it = m_objectMap.find(object);
+                if (it == m_objectMap.end())
+                    throw OctreeException("Cannot find object in octree");
+
+                OctreeNode<F,T>* oldNode = it->second;
+                if (!oldNode->removeObject(object))
+                    throw OctreeException("Cannot find object in octree");
+                
+                OctreeNode<F,T>* newAncestor = oldNode->findContaining(bounds);
+                if (newAncestor == NULL)
+                    throw OctreeException("Cannot find new ancestor node in octree");
+                OctreeNode<F,T>* newParent = newAncestor->addObject(bounds, object);
+                if (newParent == NULL)
+                    throw OctreeException("Unknown error when inserting into octree");
+                MapUtils::insertOrReplace(m_objectMap, object, newParent);
             }
             
             bool containsObject(const BBox<F,3>& bounds, T object) const {

@@ -141,6 +141,7 @@ namespace TrenchBroom {
             void validateContentType() const;
         private: // implement Node interface
             const String& doGetName() const;
+            const BBox3& doGetBounds() const;
             
             Node* doClone(const BBox3& worldBounds) const;
             NodeSnapshot* doTakeSnapshot();
@@ -157,7 +158,6 @@ namespace TrenchBroom {
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement Object interface
-            const BBox3& doGetBounds() const;
             void doPick(const Ray3& ray, PickResult& pickResult) const;
             FloatType doIntersectWithRay(const Ray3& ray) const;
 

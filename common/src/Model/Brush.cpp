@@ -253,6 +253,7 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             const MoveVerticesResult result = m_geometry->moveVertices(worldBounds, vertexPositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
+            nodeBoundsDidChange();
             
             return result.newVertexPositions;
         }
@@ -264,6 +265,7 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             const SnapVerticesResult result = m_geometry->snapVertices(vertexPositions, snapTo);
             processBrushAlgorithmResult(worldBounds, result);
+            nodeBoundsDidChange();
             
             return result.newVertexPositions;
         }
@@ -284,6 +286,7 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             const MoveEdgesResult result = m_geometry->moveEdges(worldBounds, edgePositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
+            nodeBoundsDidChange();
             
             return result.newEdgePositions;
         }
@@ -302,6 +305,7 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             const SplitResult result = m_geometry->splitEdge(worldBounds, edgePosition, delta);
             processBrushAlgorithmResult(worldBounds, result);
+            nodeBoundsDidChange();
             
             return result.newVertexPosition;
         }
@@ -322,6 +326,7 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             const MoveFacesResult result = m_geometry->moveFaces(worldBounds, facePositions, delta);
             processBrushAlgorithmResult(worldBounds, result);
+            nodeBoundsDidChange();
             
             return result.newFacePositions;
         }
@@ -340,6 +345,7 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             const SplitResult result = m_geometry->splitFace(worldBounds, facePosition, delta);
             processBrushAlgorithmResult(worldBounds, result);
+            nodeBoundsDidChange();
             
             return result.newVertexPosition;
         }
@@ -385,6 +391,7 @@ namespace TrenchBroom {
             }
 
             invalidateContentType();
+            nodeBoundsDidChange();
         }
 
         void Brush::findIntegerPlanePoints(const BBox3& worldBounds) {
@@ -464,6 +471,11 @@ namespace TrenchBroom {
             return name;
         }
 
+        const BBox3& Brush::doGetBounds() const {
+            assert(m_geometry != NULL);
+            return m_geometry->bounds;
+        }
+
         Node* Brush::doClone(const BBox3& worldBounds) const {
             BrushFaceList faceClones;
             faceClones.reserve(m_faces.size());
@@ -510,11 +522,6 @@ namespace TrenchBroom {
         
         void Brush::doAccept(ConstNodeVisitor& visitor) const {
             visitor.visit(this);
-        }
-
-        const BBox3& Brush::doGetBounds() const {
-            assert(m_geometry != NULL);
-            return m_geometry->bounds;
         }
 
         void Brush::doPick(const Ray3& ray, PickResult& pickResult) const {

@@ -50,6 +50,10 @@ namespace TrenchBroom {
             return doGetName();
         }
 
+        const BBox3& Node::bounds() const {
+            return doGetBounds();
+        }
+
         Node* Node::clone(const BBox3& worldBounds) const {
             return doClone(worldBounds);
         }
@@ -309,6 +313,12 @@ namespace TrenchBroom {
             m_node->nodeDidChange();
         }
 
+        void Node::nodeBoundsDidChange() {
+            doNodeBoundsDidChange();
+            if (m_parent != NULL)
+                m_parent->childBoundsDidChange(this);
+        }
+        
         void Node::childWillChange(Node* node) {
             doChildWillChange(node);
             descendantWillChange(node);
@@ -331,6 +341,10 @@ namespace TrenchBroom {
             if (shouldPropagateDescendantEvents() && m_parent != NULL)
                 m_parent->descendantDidChange(node);
             invalidateIssues();
+        }
+
+        void Node::childBoundsDidChange(Node* node) {
+            doChildBoundsDidChange(node);
         }
 
         bool Node::selected() const {
@@ -579,6 +593,9 @@ namespace TrenchBroom {
         void Node::doParentDidChange() {}
         void Node::doAncestorWillChange() {}
         void Node::doAncestorDidChange() {}
+
+        void Node::doNodeBoundsDidChange() {}
+        void Node::doChildBoundsDidChange(Node* node) {}
 
         void Node::doChildWillChange(Node* node) {}
         void Node::doChildDidChange(Node* node) {}

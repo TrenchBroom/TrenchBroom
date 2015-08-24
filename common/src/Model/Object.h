@@ -36,8 +36,6 @@ namespace TrenchBroom {
         public:
             virtual ~Object();
             
-            const BBox3& bounds() const;
-        
             Node* container() const;
             Layer* layer() const;
             Group* group() const;
@@ -46,8 +44,6 @@ namespace TrenchBroom {
             bool contains(const Node* object) const;
             bool intersects(const Node* object) const;
         private: // subclassing interface
-            virtual const BBox3& doGetBounds() const = 0;
-            
             virtual Node* doGetContainer() const = 0;
             virtual Layer* doGetLayer() const = 0;
             virtual Group* doGetGroup() const = 0;

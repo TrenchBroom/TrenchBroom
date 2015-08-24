@@ -94,6 +94,12 @@ namespace TrenchBroom {
             m_model = model;
         }
 
+        const BBox3& Entity::doGetBounds() const {
+            if (!m_boundsValid)
+                validateBounds();
+            return m_bounds;
+        }
+        
         Node* Entity::doClone(const BBox3& worldBounds) const {
             Entity* entity = new Entity();
             cloneAttributes(entity);
@@ -134,31 +140,20 @@ namespace TrenchBroom {
             return true;
         }
 
-        void Entity::doDescendantWillBeAdded(Node* newParent, Node* node) {
-            nodeWillChange();
-        }
-
-        void Entity::doDescendantWasAdded(Node* node) {
-            invalidateBounds();
-            nodeDidChange();
+        void Entity::doChildWasAdded(Node* node) {
+            nodeBoundsDidChange();
         }
         
-        void Entity::doDescendantWillBeRemoved(Node* node) {
-            nodeWillChange();
+        void Entity::doChildWasRemoved(Node* node) {
+            nodeBoundsDidChange();
         }
 
-        void Entity::doDescendantWasRemoved(Node* oldParent, Node* node) {
+        void Entity::doNodeBoundsDidChange() {
             invalidateBounds();
-            nodeDidChange();
         }
-
-        void Entity::doDescendantWillChange(Node* node) {
-            nodeWillChange();
-        }
-
-        void Entity::doDescendantDidChange(Node* node) {
-            invalidateBounds();
-            nodeDidChange();
+        
+        void Entity::doChildBoundsDidChange(Node* node) {
+            nodeBoundsDidChange();
         }
 
         bool Entity::doSelectable() const {
@@ -217,7 +212,7 @@ namespace TrenchBroom {
         }
 
         void Entity::doAttributesDidChange() {
-            invalidateBounds();
+            nodeBoundsDidChange();
         }
         
         bool Entity::doIsAttributeNameMutable(const AttributeName& name) const {
@@ -236,12 +231,6 @@ namespace TrenchBroom {
         
         Vec3 Entity::doGetLinkTargetAnchor() const {
             return bounds().center();
-        }
-
-        const BBox3& Entity::doGetBounds() const {
-            if (!m_boundsValid)
-                validateBounds();
-            return m_bounds;
         }
 
         Node* Entity::doGetContainer() const {

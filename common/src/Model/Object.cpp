@@ -23,10 +23,6 @@ namespace TrenchBroom {
     namespace Model {
         Object::Object() {}
         Object::~Object() {}
-        
-        const BBox3& Object::bounds() const {
-            return doGetBounds();
-        }
 
         Node* Object::container() const {
             return doGetContainer();

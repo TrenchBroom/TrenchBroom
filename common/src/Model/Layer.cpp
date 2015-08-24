@@ -39,6 +39,10 @@ namespace TrenchBroom {
             return m_name;
         }
 
+        const BBox3& Layer::doGetBounds() const {
+            return m_octree.bounds();
+        }
+
         Node* Layer::doClone(const BBox3& worldBounds) const {
             Layer* layer = new Layer(m_name, worldBounds);
             cloneAttributes(layer);
@@ -97,6 +101,20 @@ namespace TrenchBroom {
             void doVisit(Brush* brush)   { m_octree.removeObject(brush); }
         };
         
+        class Layer::UpdateNodeInOctree : public NodeVisitor {
+        private:
+            NodeTree& m_octree;
+        public:
+            UpdateNodeInOctree(NodeTree& octree) :
+            m_octree(octree) {}
+        private:
+            void doVisit(World* world)   {}
+            void doVisit(Layer* layer)   {}
+            void doVisit(Group* group)   { m_octree.updateObject(group->bounds(), group); }
+            void doVisit(Entity* entity) { m_octree.updateObject(entity->bounds(), entity); }
+            void doVisit(Brush* brush)   { m_octree.updateObject(brush->bounds(), brush); }
+        };
+
         void Layer::doChildWasAdded(Node* node) {
             AddNodeToOctree visitor(m_octree);
             node->accept(visitor);
@@ -107,13 +125,8 @@ namespace TrenchBroom {
             node->accept(visitor);
         }
         
-        void Layer::doChildWillChange(Node* node) {
-            RemoveNodeFromOctree visitor(m_octree);
-            node->accept(visitor);
-        }
-        
-        void Layer::doChildDidChange(Node* node) {
-            AddNodeToOctree visitor(m_octree);
+        void Layer::doChildBoundsDidChange(Node* node) {
+            UpdateNodeInOctree visitor(m_octree);
             node->accept(visitor);
         }
 

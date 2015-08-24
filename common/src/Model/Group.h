@@ -64,6 +64,7 @@ namespace TrenchBroom {
             bool hasOpenedDescendant() const;
         private: // implement methods inherited from Node
             const String& doGetName() const;
+            const BBox3& doGetBounds() const;
             
             Node* doClone(const BBox3& worldBounds) const;
             NodeSnapshot* doTakeSnapshot();
@@ -72,12 +73,11 @@ namespace TrenchBroom {
             bool doCanRemoveChild(const Node* child) const;
             bool doRemoveIfEmpty() const;
 
-            void doDescendantWillBeAdded(Node* newParent, Node* node);
-            void doDescendantWasAdded(Node* node);
-            void doDescendantWillBeRemoved(Node* node);
-            void doDescendantWasRemoved(Node* oldParent, Node* node);
-            void doDescendantWillChange(Node* node);
-            void doDescendantDidChange(Node* node);
+            void doChildWasAdded(Node* node);
+            void doChildWasRemoved(Node* node);
+
+            void doNodeBoundsDidChange();
+            void doChildBoundsDidChange(Node* node);
             bool doShouldPropagateDescendantEvents() const;
             
             bool doSelectable() const;
@@ -89,8 +89,6 @@ namespace TrenchBroom {
             void doAccept(NodeVisitor& visitor);
             void doAccept(ConstNodeVisitor& visitor) const;
         private: // implement methods inherited from Object
-            const BBox3& doGetBounds() const;
-
             Node* doGetContainer() const;
             Layer* doGetLayer() const;
             Group* doGetGroup() const;

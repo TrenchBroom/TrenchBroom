@@ -60,6 +60,7 @@ namespace TrenchBroom {
             class InvalidateAllIssuesVisitor;
             void invalidateAllIssues();
         private: // implement Node interface
+            const BBox3& doGetBounds() const;
             Node* doClone(const BBox3& worldBounds) const;
             Node* doCloneRecursively(const BBox3& worldBounds) const;
             bool doCanAddChild(const Node* child) const;

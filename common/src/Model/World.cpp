@@ -97,6 +97,12 @@ namespace TrenchBroom {
             acceptAndRecurse(visitor);
         }
 
+        const BBox3& World::doGetBounds() const {
+            // TODO: this should probably return the world bounds, as it does in Layer::doGetBounds
+            static const BBox3 bounds;
+            return bounds;
+        }
+
         Node* World::doClone(const BBox3& worldBounds) const {
             World* world = m_factory.createWorld(worldBounds);
             cloneAttributes(world);

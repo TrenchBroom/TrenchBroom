@@ -55,6 +55,8 @@ namespace TrenchBroom {
             Assets::EntityModel* model() const;
             void setModel(Assets::EntityModel* model);
         private: // implement Node interface
+            const BBox3& doGetBounds() const;
+
             Node* doClone(const BBox3& worldBounds) const;
             NodeSnapshot* doTakeSnapshot();
             
@@ -62,12 +64,11 @@ namespace TrenchBroom {
             bool doCanRemoveChild(const Node* child) const;
             bool doRemoveIfEmpty() const;
 
-            void doDescendantWillBeAdded(Node* newParent, Node* node);
-            void doDescendantWasAdded(Node* node);
-            void doDescendantWillBeRemoved(Node* node);
-            void doDescendantWasRemoved(Node* oldParent, Node* node);
-            void doDescendantWillChange(Node* node);
-            void doDescendantDidChange(Node* node);
+            void doChildWasAdded(Node* node);
+            void doChildWasRemoved(Node* node);
+
+            void doNodeBoundsDidChange();
+            void doChildBoundsDidChange(Node* node);
 
             bool doSelectable() const;
             
@@ -84,8 +85,6 @@ namespace TrenchBroom {
             Vec3 doGetLinkSourceAnchor() const;
             Vec3 doGetLinkTargetAnchor() const;
         private: // implement Object interface
-            const BBox3& doGetBounds() const;
-
             Node* doGetContainer() const;
             Layer* doGetLayer() const;
             Group* doGetGroup() const;

@@ -55,6 +55,7 @@ namespace TrenchBroom {
             virtual ~Node();
         public: // getters
             const String& name() const;
+            const BBox3& bounds() const;
         public: // cloning and snapshots
             Node* clone(const BBox3& worldBounds) const;
             Node* cloneRecursively(const BBox3& worldBounds) const;
@@ -154,11 +155,15 @@ namespace TrenchBroom {
             // call these methods via the NotifyNodeChange class, it's much safer
             void nodeWillChange();
             void nodeDidChange();
+            
+            void nodeBoundsDidChange();
         private:
             void childWillChange(Node* node);
             void childDidChange(Node* node);
             void descendantWillChange(Node* node);
             void descendantDidChange(Node* node);
+            
+            void childBoundsDidChange(Node* node);
         public: // selection
             bool selected() const;
             void select();
@@ -349,6 +354,7 @@ namespace TrenchBroom {
             void removeFromIndex(AttributableNode* attributable, const AttributeName& name, const AttributeValue& value);
         private: // subclassing interface
             virtual const String& doGetName() const = 0;
+            virtual const BBox3& doGetBounds() const = 0;
             
             virtual Node* doClone(const BBox3& worldBounds) const = 0;
             virtual Node* doCloneRecursively(const BBox3& worldBounds) const;
@@ -373,6 +379,9 @@ namespace TrenchBroom {
             virtual void doParentDidChange();
             virtual void doAncestorWillChange();
             virtual void doAncestorDidChange();
+            
+            virtual void doNodeBoundsDidChange();
+            virtual void doChildBoundsDidChange(Node* node);
             
             virtual void doChildWillChange(Node* node);
             virtual void doChildDidChange(Node* node);
