@@ -82,7 +82,13 @@ private:
     
     Polyhedron(const VertexList& vertices, const EdgeList& edges, const FaceList& faces);
 public: // Destructor
-    ~Polyhedron();
+    virtual ~Polyhedron();
+private: // factory methods
+    virtual Vertex* createVertex(const V& position) const;
+    virtual Edge* createEdge(HalfEdge* first, HalfEdge* second = NULL) const;
+    virtual HalfEdge* createHalfEdge(Vertex* origin) const;
+    virtual Face* createFace(const HalfEdgeList& boundary) const;
+    virtual Face* cloneFace(const Face* original, const HalfEdgeList& boundary) const;
 public: // operators
     Polyhedron<T>& operator=(Polyhedron<T> other);
 public: // swap function
@@ -122,8 +128,6 @@ private: // General purpose methods
     Vertex* findVertexByPosition(const V& position, T epsilon = Math::Constants<T>::almostZero()) const;
     Edge* findEdgeByPositions(const V& pos1, const V& pos2, T epsilon = Math::Constants<T>::almostZero()) const;
     Face* findFaceByPositions(const typename V::List& positions, T epsilon = Math::Constants<T>::almostZero()) const;
-    
-    Face* createTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3) const;
     
     bool checkInvariant() const;
     bool checkConvex() const;
@@ -190,6 +194,7 @@ private:
     Seam split(const SplittingCriterion& criterion);
     
     Vertex* weaveCap(const Seam& seam, const V& position);
+    Face* createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3) const;
 };
 
 

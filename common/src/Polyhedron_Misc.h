@@ -74,23 +74,19 @@ private:
     VertexList m_vertices;
     EdgeList m_edges;
     FaceList m_faces;
+    Polyhedron& m_destination;
 public:
-    Copy(const FaceList& originalFaces, const EdgeList& originalEdges) {
+    Copy(const FaceList& originalFaces, const EdgeList& originalEdges, Polyhedron& destination) :
+    m_destination(destination) {
         copyFaces(originalFaces);
         copyEdges(originalEdges);
+        swapContents();
     }
     
     ~Copy() {
         m_faces.deleteAll();
         m_edges.deleteAll();
         m_vertices.deleteAll();
-    }
-    
-    void swapContents(VertexList& vertices, EdgeList& edges, FaceList& faces) {
-        using std::swap;
-        swap(m_vertices, vertices);
-        swap(m_edges, edges);
-        swap(m_faces, faces);
     }
 private:
     void copyFaces(const FaceList& originalFaces) {
@@ -110,7 +106,7 @@ private:
             myBoundary.append(copyHalfEdge(originalHalfEdge), 1);
         }
         
-        Face* copy = new Face(myBoundary);
+        Face* copy = m_destination.createFace(myBoundary);
         m_faces.append(copy, 1);
     }
     
@@ -118,7 +114,7 @@ private:
         const Vertex* originalOrigin = original->origin();
         
         Vertex* myOrigin = findOrCopyVertex(originalOrigin);
-        HalfEdge* copy = new HalfEdge(myOrigin);
+        HalfEdge* copy = m_destination.createHalfEdge(myOrigin);
         m_halfEdgeMap.insert(std::make_pair(original, copy));
         return copy;
     }
@@ -128,7 +124,7 @@ private:
         
         InsertPos insertPos = MapUtils::findInsertPos(m_vertexMap, original);
         if (!insertPos.first) {
-            Vertex* copy = new Vertex(original->position());
+            Vertex* copy = m_destination.createVertex(original->position());
             m_vertices.append(copy, 1);
             m_vertexMap.insert(insertPos.second, std::make_pair(original, copy));
             return copy;
@@ -148,10 +144,10 @@ private:
     Edge* copyEdge(const Edge* original) const {
         HalfEdge* myFirst = findHalfEdge(original->firstEdge());
         if (!original->fullySpecified())
-            return new Edge(myFirst);
+            return m_destination.createEdge(myFirst);
 
         HalfEdge* mySecond = findHalfEdge(original->secondEdge());
-        return new Edge(myFirst, mySecond);
+        return m_destination.createEdge(myFirst, mySecond);
     }
     
     HalfEdge* findHalfEdge(const HalfEdge* original) const {
@@ -159,12 +155,18 @@ private:
         assert(result != NULL);
         return result;
     }
+
+    void swapContents() {
+        using std::swap;
+        swap(m_vertices, m_destination.m_vertices);
+        swap(m_edges, m_destination.m_edges);
+        swap(m_faces, m_destination.m_faces);
+    }
 };
 
 template <typename T>
 Polyhedron<T>::Polyhedron(const Polyhedron<T>& other) {
-    Copy copy(other.faces(), other.edges());
-    copy.swapContents(m_vertices, m_edges, m_faces);
+    Copy copy(other.faces(), other.edges(), *this);
 }
 
 template <typename T>
@@ -176,6 +178,31 @@ m_faces(faces) {}
 template <typename T>
 Polyhedron<T>::~Polyhedron() {
     clear();
+}
+
+template <typename T>
+typename Polyhedron<T>::Vertex* Polyhedron<T>::createVertex(const V& position) const {
+    return new Vertex(position);
+}
+
+template <typename T>
+typename Polyhedron<T>::Edge* Polyhedron<T>::createEdge(HalfEdge* first, HalfEdge* second) const {
+    return new Edge(first, second);
+}
+
+template <typename T>
+typename Polyhedron<T>::HalfEdge* Polyhedron<T>::createHalfEdge(Vertex* origin) const {
+    return new HalfEdge(origin);
+}
+
+template <typename T>
+typename Polyhedron<T>::Face* Polyhedron<T>::createFace(const HalfEdgeList& boundary) const {
+    return new Face(boundary);
+}
+
+template <typename T>
+typename Polyhedron<T>::Face* Polyhedron<T>::cloneFace(const Face* original, const HalfEdgeList& boundary) const {
+    return new Face(boundary);
 }
 
 template <typename T>
@@ -338,16 +365,6 @@ typename Polyhedron<T>::Face* Polyhedron<T>::findFaceByPositions(const typename 
             return face;
     }
     return NULL;
-}
-
-template <typename T>
-typename Polyhedron<T>::Face* Polyhedron<T>::createTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3) const {
-    HalfEdgeList boundary;
-    boundary.append(h1, 1);
-    boundary.append(h2, 1);
-    boundary.append(h3, 1);
-    
-    return new Face(boundary);
 }
 
 template <typename T>

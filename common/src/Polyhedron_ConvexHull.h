@@ -44,7 +44,7 @@ void Polyhedron<T>::addPoint(const V& position) {
 template <typename T>
 void Polyhedron<T>::addFirstPoint(const V& position) {
     assert(empty());
-    m_vertices.append(new Vertex(position), 1);
+    m_vertices.append(createVertex(position), 1);
 }
 
 // Adds the given point to a polyhedron that contains one point.
@@ -54,12 +54,12 @@ void Polyhedron<T>::addSecondPoint(const V& position) {
     
     Vertex* onlyVertex = *m_vertices.begin();
     if (position != onlyVertex->position()) {
-        Vertex* newVertex = new Vertex(position);
+        Vertex* newVertex = createVertex(position);
         m_vertices.append(newVertex, 1);
         
-        HalfEdge* halfEdge1 = new HalfEdge(onlyVertex);
-        HalfEdge* halfEdge2 = new HalfEdge(newVertex);
-        Edge* edge = new Edge(halfEdge1, halfEdge2);
+        HalfEdge* halfEdge1 = createHalfEdge(onlyVertex);
+        HalfEdge* halfEdge2 = createHalfEdge(newVertex);
+        Edge* edge = createEdge(halfEdge1, halfEdge2);
         m_edges.append(edge, 1);
     }
 }
@@ -145,16 +145,16 @@ void Polyhedron<T>::makePolygon(const typename V::List& positions) {
     HalfEdgeList boundary;
     for (size_t i = 0; i < positions.size(); ++i) {
         const V& p = positions[i];
-        Vertex* v = new Vertex(p);
-        HalfEdge* h = new HalfEdge(v);
-        Edge* e = new Edge(h);
+        Vertex* v = createVertex(p);
+        HalfEdge* h = createHalfEdge(v);
+        Edge* e = createEdge(h);
         
         m_vertices.append(v, 1);
         boundary.append(h, 1);
         m_edges.append(e, 1);
     }
     
-    Face* f = new Face(boundary);
+    Face* f = createFace(boundary);
     m_faces.append(f, 1);
 }
 
@@ -297,7 +297,7 @@ template <typename T>
 typename Polyhedron<T>::Vertex* Polyhedron<T>::weaveCap(const Seam& seam, const V& position) {
     assert(seam.size() >= 3);
     
-    Vertex* top = new Vertex(position);
+    Vertex* top = createVertex(position);
     
     HalfEdge* first = NULL;
     HalfEdge* last = NULL;
@@ -308,14 +308,14 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::weaveCap(const Seam& seam, const 
         Vertex* v1 = edge->secondVertex();
         Vertex* v2 = edge->firstVertex();
         
-        HalfEdge* h1 = new HalfEdge(top);
-        HalfEdge* h2 = new HalfEdge(v1);
-        HalfEdge* h3 = new HalfEdge(v2);
+        HalfEdge* h1 = createHalfEdge(top);
+        HalfEdge* h2 = createHalfEdge(v1);
+        HalfEdge* h3 = createHalfEdge(v2);
         
-        m_faces.append(createTriangle(h1, h2, h3), 1);
+        m_faces.append(createCapTriangle(h1, h2, h3), 1);
         
         if (last != NULL)
-            m_edges.append(new Edge(h1, last), 1);
+            m_edges.append(createEdge(h1, last), 1);
         edge->setSecondEdge(h2);
         
         if (first == NULL)
@@ -323,10 +323,20 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::weaveCap(const Seam& seam, const 
         last = h3;
     }
     
-    m_edges.append(new Edge(first, last), 1);
+    m_edges.append(createEdge(first, last), 1);
     m_vertices.append(top, 1);
     
     return top;
+}
+
+template <typename T>
+typename Polyhedron<T>::Face* Polyhedron<T>::createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3) const {
+    HalfEdgeList boundary;
+    boundary.append(h1, 1);
+    boundary.append(h2, 1);
+    boundary.append(h3, 1);
+    
+    return createFace(boundary);
 }
 
 template <typename T>

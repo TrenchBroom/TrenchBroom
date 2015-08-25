@@ -40,7 +40,7 @@ private:
     HalfEdge* m_second;
     EdgeLink m_link;
 private:
-    Edge(HalfEdge* first, HalfEdge* second) :
+    Edge(HalfEdge* first, HalfEdge* second = NULL) :
     m_first(first),
     m_second(second),
 #ifdef _MSC_VER
@@ -54,26 +54,9 @@ private:
 #endif
 	{
         assert(m_first != NULL);
-        assert(m_second != NULL);
         m_first->setEdge(this);
-        m_second->setEdge(this);
-    }
-    
-    Edge(HalfEdge* first) :
-    m_first(first),
-    m_second(NULL),
-#ifdef _MSC_VER
-		// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
-#pragma warning(push)
-#pragma warning(disable : 4355)
-	m_link(this)
-#pragma warning(pop)
-#else
-	m_link(this)
-#endif
-	{
-        assert(m_first != NULL);
-        m_first->setEdge(this);
+        if (m_second != NULL)
+            m_second->setEdge(this);
     }
 public:
     Vertex* firstVertex() const {

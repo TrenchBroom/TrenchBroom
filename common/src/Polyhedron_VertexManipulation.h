@@ -221,8 +221,8 @@ void Polyhedron<T>::chopFace(Face* face, HalfEdge* halfEdge) {
     HalfEdge* next = halfEdge;
     HalfEdge* previous = next->previous();
     
-    HalfEdge* newEdge1 = new HalfEdge(previous->origin());
-    HalfEdge* newEdge2 = new HalfEdge(next->destination());
+    HalfEdge* newEdge1 = createHalfEdge(previous->origin());
+    HalfEdge* newEdge2 = createHalfEdge(next->destination());
     
     face->replaceBoundary(previous, next, newEdge1);
     
@@ -233,8 +233,8 @@ void Polyhedron<T>::chopFace(Face* face, HalfEdge* halfEdge) {
     boundary.append(previous, 2);
     boundary.append(newEdge2, 1);
     
-    m_faces.append(new Face(boundary), 1);
-    m_edges.append(new Edge(newEdge1, newEdge2), 1);
+    m_faces.append(cloneFace(face, boundary), 1);
+    m_edges.append(createEdge(newEdge1, newEdge2), 1);
 }
 
 /*
@@ -545,6 +545,8 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::mergeIncidentFaces(Vertex* vertex
         // Now we iterate using the incident face count because we can't rely
         // on the curEdge's twin while we're deleting the edges we encounter.
         curEdge = firstEdge;
+        Face* original = curEdge->face();
+        
         for (size_t i = 0; i < incidentFaceCount; ++i) {
             Face* face = curEdge->face();
             Edge* edge = curEdge->edge();
@@ -563,13 +565,15 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::mergeIncidentFaces(Vertex* vertex
             
             m_faces.remove(face);
             m_edges.remove(edge);
-            
-            delete face;
+        
+            if (i > 0) // We want to keep one face around so that we can clone it.
+                delete face;
             delete edge;
         }
         
-        Face* face = new Face(boundary);
+        Face* face = cloneFace(original, boundary);
         m_faces.append(face, 1);
+        delete original;
         
         m_vertices.remove(vertex);
         delete vertex;
