@@ -99,10 +99,6 @@ namespace TrenchBroom {
             boundsRenderer.render(renderContext, renderBatch);
         }
 
-        bool CreateBrushTool::doActivate() {
-            return true;
-        }
-        
         String CreateBrushTool::doGetIconName() const {
             return "BrushTool.png";
         }
