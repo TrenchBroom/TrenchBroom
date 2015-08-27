@@ -76,6 +76,8 @@ namespace TrenchBroom {
         private:
             void OnSetFocus(wxFocusEvent& event);
             void OnKillFocus(wxFocusEvent& event);
+            void OnEnterWindow(wxMouseEvent& event);
+            void OnLeaveWindow(wxMouseEvent& event);
             void setFocusCursor();
             void clearFocusCursor();
         protected:

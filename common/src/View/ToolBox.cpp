@@ -44,6 +44,8 @@ namespace TrenchBroom {
 
             window->Bind(wxEVT_SET_FOCUS, &ToolBox::OnSetFocus, this);
             window->Bind(wxEVT_KILL_FOCUS, &ToolBox::OnKillFocus, this);
+            window->Bind(wxEVT_ENTER_WINDOW, &ToolBox::OnEnterWindow, this);
+            window->Bind(wxEVT_LEAVE_WINDOW, &ToolBox::OnLeaveWindow, this);
             m_focusGroup.push_back(window);
         }
 
@@ -52,19 +54,32 @@ namespace TrenchBroom {
                 m_ignoreNextClick = false;
             wxWindow* newFocus = static_cast<wxWindow*>(event.GetEventObject());
             newFocus->SetCursor(wxCursor(wxCURSOR_ARROW));
-            // clearFocusCursor();
+            clearFocusCursor();
+            event.Skip();
         }
 
         void ToolBox::OnKillFocus(wxFocusEvent& event) {
             if (m_clickToActivate) {
-                // const wxWindow* focusedWindow = event.GetWindow();
-                // if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
+                const wxWindow* focusedWindow = event.GetWindow();
+                if (!VectorUtils::contains(m_focusGroup, focusedWindow)) {
                     m_ignoreNextClick = true;
                     wxWindow* oldFocus = static_cast<wxWindow*>(event.GetEventObject());
                     oldFocus->SetCursor(wxCursor(wxCURSOR_HAND));
-                    // setFocusCursor();
-                // }
+                    setFocusCursor();
+                }
             }
+            event.Skip();
+        }
+
+        void ToolBox::OnEnterWindow(wxMouseEvent& event) {
+            wxWindow* newFocus = static_cast<wxWindow*>(event.GetEventObject());
+            wxWindow* currentFocus = newFocus->FindFocus();
+            if (VectorUtils::contains(m_focusGroup, currentFocus))
+                newFocus->SetFocus();
+            event.Skip();
+        }
+        
+        void ToolBox::OnLeaveWindow(wxMouseEvent& event) {
             event.Skip();
         }
 
