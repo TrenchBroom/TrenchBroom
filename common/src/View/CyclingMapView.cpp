@@ -73,16 +73,18 @@ namespace TrenchBroom {
         }
 
         void CyclingMapView::switchToMapView(MapViewBase* mapView) {
+            mapView->Show();
+            mapView->SetFocus();
+
             if (m_currentMapView != NULL)
                 m_currentMapView->Hide();
-            m_currentMapView = mapView;
-            m_currentMapView->Show();
             
             wxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-            sizer->Add(m_currentMapView, 1, wxEXPAND);
+            sizer->Add(mapView, 1, wxEXPAND);
             SetSizer(sizer);
             Layout();
-            m_currentMapView->SetFocus();
+
+            m_currentMapView = mapView;
         }
 
         void CyclingMapView::doFlashSelection() {

@@ -54,7 +54,6 @@ namespace TrenchBroom {
         private:
             void renderBrush(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
         private:
-            bool doActivate();
             String doGetIconName() const;
         };
     }

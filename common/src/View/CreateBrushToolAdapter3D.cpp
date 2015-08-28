@@ -344,6 +344,8 @@ namespace TrenchBroom {
         }
 
         void CreateBrushToolAdapter3D::performCreateBrush() {
+            m_currentHelper->performCreateBrush();
+            setCreateBrushMode();
         }
 
         Tool* CreateBrushToolAdapter3D::doGetTool() {
