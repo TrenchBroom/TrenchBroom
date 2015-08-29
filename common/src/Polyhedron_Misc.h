@@ -29,7 +29,13 @@ template <typename T>
 void Polyhedron<T>::Callback::faceWasCreated(Face* face) {}
 
 template <typename T>
-void Polyhedron<T>::Callback::faceWasCloned(Face* original, Face* clone) {}
+void Polyhedron<T>::Callback::faceWillBeDeleted(Face* face) {}
+
+template <typename T>
+void Polyhedron<T>::Callback::faceWasSplit(Face* original, Face* clone) {}
+
+template <typename T>
+void Polyhedron<T>::Callback::facesWillBeMerged(Face* remaining, Face* toDelete) {}
 
 template <typename T>
 Polyhedron<T>::Polyhedron() {}

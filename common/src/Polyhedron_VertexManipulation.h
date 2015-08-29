@@ -181,7 +181,7 @@ typename Polyhedron<T>::MoveVertexResult Polyhedron<T>::movePolyhedronVertex(Ver
                 assert(result.moved());
                 return MoveVertexResult(MoveVertexResult::Type_VertexUnchanged);
             }
-            mergeVertices(connectingEdge);
+            mergeVertices(connectingEdge, callback);
         }
         
         vertex->setPosition(newPosition);
@@ -240,7 +240,7 @@ void Polyhedron<T>::chopFace(Face* face, HalfEdge* halfEdge, C& callback) {
     boundary.append(newEdge2, 1);
     
     Face* newFace = new Face(boundary);
-    callback.faceWasCloned(face, newFace);
+    callback.faceWasSplit(face, newFace);
     
     m_faces.append(newFace, 1);
     m_edges.append(new Edge(newEdge1, newEdge2), 1);
@@ -379,8 +379,8 @@ T Polyhedron<T>::computeNextMergePointForPlane(const V& origin, const V& destina
 // deleting the edge, the destination vertex, and the faces incident to the connecting edge
 // and its twin.
 // Assumes that these incident faces are triangles.
-template <typename T>
-void Polyhedron<T>::mergeVertices(HalfEdge* connectingEdge) {
+template <typename T> template <typename C>
+void Polyhedron<T>::mergeVertices(HalfEdge* connectingEdge, C& callback) {
     HalfEdge* oppositeEdge = connectingEdge->twin();
     
     Vertex* origin = connectingEdge->origin();
@@ -390,8 +390,8 @@ void Polyhedron<T>::mergeVertices(HalfEdge* connectingEdge) {
     // We assume they are both triangles.
     assert(connectingEdge->face()->vertexCount() == 3);
     assert(oppositeEdge->face()->vertexCount() == 3);
-    mergeNeighbours(connectingEdge->previous());
-    mergeNeighbours(oppositeEdge->next());
+    mergeNeighbours(connectingEdge->previous(), callback);
+    mergeNeighbours(oppositeEdge->next(), callback);
     
     // Now we delete the destination of the connecting edge.
     // First we have to change the origin of all edges originating
@@ -431,7 +431,7 @@ void Polyhedron<T>::mergeVertices(HalfEdge* connectingEdge) {
 // Returns the given vertex or NULL if it was deleted.
 template <typename T> template <typename C>
 typename Polyhedron<T>::Vertex* Polyhedron<T>::cleanupAfterVertexMove(Vertex* vertex, C& callback) {
-    mergeLeavingEdges(vertex);
+    mergeLeavingEdges(vertex, callback);
     vertex = mergeIncidentFaces(vertex, callback);
     if (vertex != NULL)
         vertex = mergeIncomingAndLeavingEdges(vertex);
@@ -440,14 +440,14 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::cleanupAfterVertexMove(Vertex* ve
 }
 
 // Merges all leaving edges of the given vertex with their successors if they have become colinear.
-template <typename T>
-void Polyhedron<T>::mergeLeavingEdges(Vertex* vertex) {
+template <typename T> template <typename C>
+void Polyhedron<T>::mergeLeavingEdges(Vertex* vertex, C& callback) {
     HalfEdge* curEdge = vertex->leaving();
     do {
         Vertex* destination = curEdge->destination();
         HalfEdge* colinearEdge = destination->findColinearEdge(curEdge);
         if (colinearEdge != NULL) {
-            mergeNeighboursOfColinearEdges(curEdge, colinearEdge);
+            mergeNeighboursOfColinearEdges(curEdge, colinearEdge, callback);
             mergeColinearEdges(curEdge, colinearEdge);
         }
         curEdge = curEdge->nextIncident();
@@ -455,19 +455,19 @@ void Polyhedron<T>::mergeLeavingEdges(Vertex* vertex) {
 }
 
 // Merges the neighbours of the given successive colinear edges with their coplanar neighbours.
-template <typename T>
-void Polyhedron<T>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2) {
+template <typename T> template <typename C>
+void Polyhedron<T>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, C& callback) {
     assert(edge1->destination() == edge2->origin());
     
     if (edge1->face()->vertexCount() == 3 && edge1->next() == edge2) // the left side is a degenerate triangle now
-        mergeNeighbours(edge1->previous());
+        mergeNeighbours(edge1->previous(), callback);
     else if (edge1->next()->face() != edge2->face()) // the face might already have been merged previously
-        mergeNeighbours(edge1->next());
+        mergeNeighbours(edge1->next(), callback);
     
     if (edge1->twin()->face()->vertexCount() == 3 && edge1->twin()->previous() == edge2->twin())
-        mergeNeighbours(edge1->twin()->next());
+        mergeNeighbours(edge1->twin()->next(), callback);
     else if (edge1->twin()->face() != edge2->twin()->face())
-        mergeNeighbours(edge1->twin()->previous());
+        mergeNeighbours(edge1->twin()->previous(), callback);
 }
 
 // Merges all arriving edges of the given vertex with any colinear leaving edges.
@@ -554,7 +554,7 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::mergeIncidentFaces(Vertex* vertex
         // Now we iterate using the incident face count because we can't rely
         // on the curEdge's twin while we're deleting the edges we encounter.
         curEdge = firstEdge;
-        Face* original = curEdge->face();
+        Face* remaining = curEdge->face();
         
         for (size_t i = 0; i < incidentFaceCount; ++i) {
             Face* face = curEdge->face();
@@ -572,18 +572,17 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::mergeIncidentFaces(Vertex* vertex
             face->removeFromBoundary(outerBorder);
             boundary.append(outerBorder, 1);
             
-            m_faces.remove(face);
-            m_edges.remove(edge);
-        
-            if (i > 0) // We want to keep one face around so that we can clone it.
+            if (i > 0) { // We want to keep the original face around
+                callback.facesWillBeMerged(remaining, face);
+                m_faces.remove(face);
                 delete face;
+            }
+
+            m_edges.remove(edge);
             delete edge;
         }
         
-        Face* face = new Face(boundary);
-        callback.faceWasCloned(original, face);
-        m_faces.append(face, 1);
-        delete original;
+        remaining->replaceEntireBoundary(boundary);
         
         m_vertices.remove(vertex);
         delete vertex;
@@ -607,9 +606,9 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::mergeIncidentFaces(Vertex* vertex
                 // Ensure that we don't remove the first edge, otherwise we'll loop endlessly.
                 if (innerBorder->twin() == firstEdge)
                     firstEdge = firstEdge->nextIncident();
-                mergeNeighbours(innerBorder);
+                mergeNeighbours(innerBorder, callback);
             } else if (face->coplanar(outerNeighbour)) {
-                mergeNeighbours(outerBorder);
+                mergeNeighbours(outerBorder, callback);
                 curEdge = curEdge->nextIncident();
             } else {
                 curEdge = curEdge->nextIncident();
@@ -623,8 +622,8 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::mergeIncidentFaces(Vertex* vertex
 // the face incident to the given face's twin. The face incident to the border is deleted
 // while the neighbour consumes the boundary of the incident face.
 // Also handles the case where the border is longer than just one edge.
-template <typename T>
-void Polyhedron<T>::mergeNeighbours(HalfEdge* borderFirst) {
+template <typename T> template <typename C>
+void Polyhedron<T>::mergeNeighbours(HalfEdge* borderFirst, C& callback) {
     Face* face = borderFirst->face();
     Face* neighbour = borderFirst->twin()->face();
     
@@ -674,6 +673,8 @@ void Polyhedron<T>::mergeNeighbours(HalfEdge* borderFirst) {
         
         cur = next;
     } while (cur != borderFirst);
+    
+    callback.facesWillBeMerged(neighbour, face);
     
     m_faces.remove(face);
     delete face;

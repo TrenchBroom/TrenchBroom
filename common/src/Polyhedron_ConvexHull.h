@@ -201,7 +201,7 @@ void Polyhedron<T>::makePolyhedron(const V& position, C& callback) {
 template <typename T> template <typename C>
 void Polyhedron<T>::addFurtherPointToPolyhedron(const V& position, C& callback) {
     assert(polyhedron());
-    const Seam seam = split(SplitByVisibilityCriterion(position));
+    const Seam seam = split(SplitByVisibilityCriterion(position), callback);
     if (!seam.empty())
         addPointToPolyhedron(position, seam, callback);
 }
@@ -221,8 +221,8 @@ void Polyhedron<T>::addPointToPolyhedron(const V& position, const Seam& seam, C&
 // which do not match the given criterion, and returns the delimiting edges as the seam.
 // The delimiting edges all have the remaining half edge as their first edge, and the second
 // edge, which has been deleted by the split, is NULL.
-template <typename T>
-typename Polyhedron<T>::Seam Polyhedron<T>::split(const SplittingCriterion& criterion) {
+template <typename T> template <typename C>
+typename Polyhedron<T>::Seam Polyhedron<T>::split(const SplittingCriterion& criterion, C& callback) {
     VertexList vertices;
     EdgeList edges;
     FaceList faces;
@@ -296,6 +296,7 @@ typename Polyhedron<T>::Seam Polyhedron<T>::split(const SplittingCriterion& crit
         if (!criterion.matches(face)) {
             faceIt = m_faces.erase(faceIt);
             faces.append(face, 1);
+            callback.faceWillBeDeleted(face);
         } else {
             ++faceIt;
         }

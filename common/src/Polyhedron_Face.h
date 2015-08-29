@@ -52,12 +52,7 @@ private:
 #endif
 	{
         assert(m_boundary.size() >= 3);
-        
-        typename HalfEdgeList::iterator hIt, hEnd;
-        for (hIt = m_boundary.begin(), hEnd = m_boundary.end(); hIt != hEnd; ++hIt) {
-            HalfEdge* edge = *hIt;
-            edge->setFace(this);
-        }
+        updateBoundaryFaces();
     }
 public:
     ~Face() {
@@ -188,6 +183,12 @@ private:
         replaceBoundary(edge, edge, with);
     }
     
+    void replaceEntireBoundary(const HalfEdgeList& newBoundary) {
+        m_boundary.deleteAll();
+        m_boundary = newBoundary;
+        updateBoundaryFaces();
+    }
+    
     void replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
         assert(from != NULL);
         assert(to != NULL);
@@ -210,6 +211,14 @@ private:
             ++count;
         } while (cur != until);
         return count;
+    }
+    
+    void updateBoundaryFaces() {
+        typename HalfEdgeList::iterator hIt, hEnd;
+        for (hIt = m_boundary.begin(), hEnd = m_boundary.end(); hIt != hEnd; ++hIt) {
+            HalfEdge* edge = *hIt;
+            edge->setFace(this);
+        }
     }
 };
 

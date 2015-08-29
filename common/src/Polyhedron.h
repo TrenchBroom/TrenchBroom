@@ -73,7 +73,9 @@ public:
         virtual ~Callback();
     public: // factory methods
         virtual void faceWasCreated(Face* face);
-        virtual void faceWasCloned(Face* original, Face* clone);
+        virtual void faceWillBeDeleted(Face* face);
+        virtual void faceWasSplit(Face* original, Face* clone);
+        virtual void facesWillBeMerged(Face* remaining, Face* toDelete);
     };
 private:
     VertexList m_vertices;
@@ -165,18 +167,18 @@ private:
     T computeNextMergePointForOppositeNeighbour(HalfEdge* edge, const V& origin, const V& destination, T lastFrac) const;
     T computeNextMergePointForPlane(const V& origin, const V& destination, const Plane<T,3>& plane, T lastFrac) const;
     
-    void mergeVertices(HalfEdge* connectingEdge);
+    template <typename C> void mergeVertices(HalfEdge* connectingEdge, C& callback);
 
     template <typename C> Vertex* cleanupAfterVertexMove(Vertex* vertex, C& callback);
     
-    void mergeLeavingEdges(Vertex* vertex);
-    void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2);
+    template <typename C> void mergeLeavingEdges(Vertex* vertex, C& callback);
+    template <typename C> void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, C& callback);
     
     Vertex* mergeIncomingAndLeavingEdges(Vertex* vertex);
     void mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2);
 
     template <typename C> Vertex* mergeIncidentFaces(Vertex* vertex, C& callback);
-    void mergeNeighbours(HalfEdge* borderFirst);
+    template <typename C> void mergeNeighbours(HalfEdge* borderFirst, C& callback);
 public: // Convex hull and adding points
     template <typename I> void addPoints(I cur, I end);
     template <typename I, typename C> void addPoints(I cur, I end, C& callback);
@@ -191,11 +193,11 @@ private:
     template <typename C> void addThirdPoint(const V& position, C& callback);
     void addPointToEdge(const V& position);
     
-    template <typename C>void addFurtherPoint(const V& position, C& callback);
+    template <typename C> void addFurtherPoint(const V& position, C& callback);
     template <typename C> void addFurtherPointToPolygon(const V& position, C& callback);
     template <typename C> void addPointToPolygon(const V& position, C& callback);
     template <typename C> void makePolygon(const typename V::List& positions, C& callback);
-    template <typename C>void makePolyhedron(const V& position, C& callback);
+    template <typename C> void makePolyhedron(const V& position, C& callback);
     
     template <typename C> void addFurtherPointToPolyhedron(const V& position, C& callback);
     template <typename C> void addPointToPolyhedron(const V& position, const Seam& seam, C& callback);
@@ -204,7 +206,7 @@ private:
     class SplitByVisibilityCriterion;
     class SplitByNormalCriterion;
     
-    Seam split(const SplittingCriterion& criterion);
+    template <typename C> Seam split(const SplittingCriterion& criterion, C& callback);
     
     template <typename C> Vertex* weaveCap(const Seam& seam, const V& position, C& callback);
     template <typename C> Face* createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, C& callback) const;
