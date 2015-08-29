@@ -20,21 +20,20 @@
 #ifndef TrenchBroom_Polyhedron_Edge_h
 #define TrenchBroom_Polyhedron_Edge_h
 
-template <typename T>
-typename Polyhedron<T>::EdgeLink& Polyhedron<T>::EdgeList::doGetLink(Edge* edge) const {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::EdgeLink& Polyhedron<T,FP>::EdgeList::doGetLink(Edge* edge) const {
     return edge->m_link;
 }
 
-template <typename T>
-const typename Polyhedron<T>::EdgeLink& Polyhedron<T>::EdgeList::doGetLink(const Edge* edge) const {
+template <typename T, typename FP>
+const typename Polyhedron<T,FP>::EdgeLink& Polyhedron<T,FP>::EdgeList::doGetLink(const Edge* edge) const {
     return edge->m_link;
 }
 
-template <typename T>
-class Polyhedron<T>::Edge {
+template <typename T, typename FP>
+class Polyhedron<T,FP>::Edge {
 private:
-    friend class EdgeList;
-    friend class Polyhedron<T>;
+    friend class Polyhedron<T,FP>;
 private:
     HalfEdge* m_first;
     HalfEdge* m_second;

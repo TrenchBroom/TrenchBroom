@@ -20,27 +20,28 @@
 #ifndef TrenchBroom_Polyhedron_Face_h
 #define TrenchBroom_Polyhedron_Face_h
 
-template <typename T>
-typename Polyhedron<T>::FaceLink& Polyhedron<T>::FaceList::doGetLink(Face* face) const {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::FaceLink& Polyhedron<T,FP>::FaceList::doGetLink(Face* face) const {
     return face->m_link;
 }
 
-template <typename T>
-const typename Polyhedron<T>::FaceLink& Polyhedron<T>::FaceList::doGetLink(const Face* face) const {
+template <typename T, typename FP>
+const typename Polyhedron<T,FP>::FaceLink& Polyhedron<T,FP>::FaceList::doGetLink(const Face* face) const {
     return face->m_link;
 }
 
-template <typename T>
-class Polyhedron<T>::Face {
+template <typename T, typename FP> template <typename P>
+class Polyhedron<T,FP>::FaceT {
 private:
-    friend class FaceList;
-    friend class Polyhedron<T>;
+    friend class Polyhedron<T,FP>;
 private:
     HalfEdgeList m_boundary;
+    P* m_payload;
     FaceLink m_link;
 private:
-    Face(const HalfEdgeList& boundary) :
+    FaceT(const HalfEdgeList& boundary) :
     m_boundary(boundary),
+    m_payload(NULL),
 #ifdef _MSC_VER
 		// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
 #pragma warning(push)
@@ -55,7 +56,7 @@ private:
         updateBoundaryFaces();
     }
 public:
-    ~Face() {
+    ~FaceT() {
         m_boundary.deleteAll();
     }
     

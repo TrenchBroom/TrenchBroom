@@ -20,23 +20,20 @@
 #ifndef TrenchBroom_Polyhedron_HalfEdge_h
 #define TrenchBroom_Polyhedron_HalfEdge_h
 
-template <typename T>
-typename Polyhedron<T>::HalfEdgeLink& Polyhedron<T>::HalfEdgeList::doGetLink(HalfEdge* edge) const {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::HalfEdgeLink& Polyhedron<T,FP>::HalfEdgeList::doGetLink(HalfEdge* edge) const {
     return edge->m_link;
 }
 
-template <typename T>
-const typename Polyhedron<T>::HalfEdgeLink& Polyhedron<T>::HalfEdgeList::doGetLink(const HalfEdge* edge) const {
+template <typename T, typename FP>
+const typename Polyhedron<T,FP>::HalfEdgeLink& Polyhedron<T,FP>::HalfEdgeList::doGetLink(const HalfEdge* edge) const {
     return edge->m_link;
 }
 
-template <typename T>
-class Polyhedron<T>::HalfEdge {
+template <typename T, typename FP>
+class Polyhedron<T,FP>::HalfEdge {
 private:
-    friend class Edge;
-    friend class HalfEdgeList;
-    friend class Face;
-    friend class Polyhedron<T>;
+    friend class Polyhedron<T,FP>;
 public:
     struct GetOriginPosition {
         const V& operator()(const HalfEdge* edge) const { return edge->origin()->position(); }

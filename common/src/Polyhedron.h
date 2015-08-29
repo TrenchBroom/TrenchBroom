@@ -28,13 +28,15 @@
 #include <queue>
 #include <vector>
 
-template <typename T>
+template <typename T, typename FP>
 class Polyhedron {
+private:
+    template <typename P> class FaceT;
 public:
     class Vertex;
     class Edge;
     class HalfEdge;
-    class Face;
+    typedef FaceT<FP> Face;
 private:
     typedef Vec<T,3> V;
     typedef typename Vec<T,3>::List PosList;
@@ -93,7 +95,7 @@ public: // Constructors
     Polyhedron(typename V::List positions);
     template <typename C> Polyhedron(typename V::List positions, C& callback);
 
-    Polyhedron(const Polyhedron<T>& other);
+    Polyhedron(const Polyhedron<T,FP>& other);
 private: // Constructor helpers
     template <typename C> void addPoints(const V& p1, const V& p2, const V& p3, const V& p4, C& callback);
     template <typename C> void setBounds(const BBox<T,3>& bounds, C& callback);
@@ -103,9 +105,9 @@ private: // Copy constructor
 public: // Destructor
     virtual ~Polyhedron();
 public: // operators
-    Polyhedron<T>& operator=(Polyhedron<T> other);
+    Polyhedron<T,FP>& operator=(Polyhedron<T,FP> other);
 public: // swap function
-    friend void swap(Polyhedron<T>& first, Polyhedron<T>& second) {
+    friend void swap(Polyhedron<T,FP>& first, Polyhedron<T,FP>& second) {
         using std::swap;
         swap(first.m_vertices, second.m_vertices);
         swap(first.m_edges, second.m_edges);

@@ -20,27 +20,27 @@
 #ifndef TrenchBroom_Polyhedron_ConvexHull_h
 #define TrenchBroom_Polyhedron_ConvexHull_h
 
-template <typename T> template <typename I>
-void Polyhedron<T>::addPoints(I cur, I end) {
+template <typename T, typename FP> template <typename I>
+void Polyhedron<T,FP>::addPoints(I cur, I end) {
     Callback c;
     while (cur != end)
         addPoint(*cur++, c);
 }
 
-template <typename T> template <typename I, typename C>
-void Polyhedron<T>::addPoints(I cur, I end, C& callback) {
+template <typename T, typename FP> template <typename I, typename C>
+void Polyhedron<T,FP>::addPoints(I cur, I end, C& callback) {
     while (cur != end)
         addPoint(*cur++, callback);
 }
 
-template <typename T>
-void Polyhedron<T>::addPoint(const V& position) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::addPoint(const V& position) {
     Callback c;
     addPoint(position, c);
 }
 
-template <typename T> template <typename C>
-void Polyhedron<T>::addPoint(const V& position, C& callback) {
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::addPoint(const V& position, C& callback) {
     assert(checkInvariant());
     switch (vertexCount()) {
         case 0:
@@ -60,15 +60,15 @@ void Polyhedron<T>::addPoint(const V& position, C& callback) {
 }
 
 // Adds the given point to an empty polyhedron.
-template <typename T>
-void Polyhedron<T>::addFirstPoint(const V& position) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::addFirstPoint(const V& position) {
     assert(empty());
     m_vertices.append(new Vertex(position), 1);
 }
 
 // Adds the given point to a polyhedron that contains one point.
-template <typename T>
-void Polyhedron<T>::addSecondPoint(const V& position) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::addSecondPoint(const V& position) {
     assert(point());
     
     Vertex* onlyVertex = *m_vertices.begin();
@@ -84,8 +84,8 @@ void Polyhedron<T>::addSecondPoint(const V& position) {
 }
 
 // Adds the given point to a polyhedron that contains one edge.
-template <typename T> template <typename C>
-void Polyhedron<T>::addThirdPoint(const V& position, C& callback) {
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::addThirdPoint(const V& position, C& callback) {
     assert(edge());
     
     typename VertexList::iterator it = m_vertices.begin();
@@ -99,8 +99,8 @@ void Polyhedron<T>::addThirdPoint(const V& position, C& callback) {
 }
 
 // Adds a colinear third point to a polyhedron that contains one edge.
-template <typename T>
-void Polyhedron<T>::addPointToEdge(const V& position) {
+template <typename T, typename FP>
+void Polyhedron<T,FP>::addPointToEdge(const V& position) {
     assert(edge());
     
     typename VertexList::iterator it = m_vertices.begin();
@@ -113,8 +113,8 @@ void Polyhedron<T>::addPointToEdge(const V& position) {
 }
 
 // Adds the given point to a polyhedron that is either a polygon or a polyhedron.
-template <typename T> template <typename C>
-void Polyhedron<T>::addFurtherPoint(const V& position, C& callback) {
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::addFurtherPoint(const V& position, C& callback) {
     if (faceCount() == 1)
         addFurtherPointToPolygon(position, callback);
     else
@@ -124,8 +124,8 @@ void Polyhedron<T>::addFurtherPoint(const V& position, C& callback) {
 //Adds the given point to a polygon. The result is either a differen polygon if the
 // given point is coplanar to the already existing polygon, or a polyhedron if the
 // given point is not coplanar.
-template <typename T> template <typename C>
-void Polyhedron<T>::addFurtherPointToPolygon(const V& position, C& callback) {
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::addFurtherPointToPolygon(const V& position, C& callback) {
     Face* face = *m_faces.begin();
     const Math::PointStatus::Type status = face->pointStatus(position);
     switch (status) {
@@ -141,8 +141,8 @@ void Polyhedron<T>::addFurtherPointToPolygon(const V& position, C& callback) {
 }
 
 // Adds the given coplanar point to a polyhedron that is a polygon or an edge.
-template <typename T> template <typename C>
-void Polyhedron<T>::addPointToPolygon(const V& position, C& callback) {
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::addPointToPolygon(const V& position, C& callback) {
     typename V::List positions;
     positions.reserve(vertexCount() + 1);
     vertexPositions(positions);
@@ -156,8 +156,8 @@ void Polyhedron<T>::addPointToPolygon(const V& position, C& callback) {
 // Creates a new polygon from the given set of coplanar points. Assumes that
 // this polyhedron is empty and that the given point list contains at least three
 // non-colinear points.
-template <typename T> template <typename C>
-void Polyhedron<T>::makePolygon(const typename V::List& positions, C& callback) {
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::makePolygon(const typename V::List& positions, C& callback) {
     assert(empty());
     assert(positions.size() > 2);
     
@@ -180,8 +180,8 @@ void Polyhedron<T>::makePolygon(const typename V::List& positions, C& callback) 
 
 // Converts a coplanar polyhedron into a non-coplanar one by adding the given
 // point, which is assumed to be non-coplanar to the points in this polyhedron.
-template <typename T> template <typename C>
-void Polyhedron<T>::makePolyhedron(const V& position, C& callback) {
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::makePolyhedron(const V& position, C& callback) {
     assert(polygon());
     
     Seam seam;
@@ -198,8 +198,8 @@ void Polyhedron<T>::makePolyhedron(const V& position, C& callback) {
 }
 
 // Adds the given point to this polyhedron.
-template <typename T> template <typename C>
-void Polyhedron<T>::addFurtherPointToPolyhedron(const V& position, C& callback) {
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::addFurtherPointToPolyhedron(const V& position, C& callback) {
     assert(polyhedron());
     const Seam seam = split(SplitByVisibilityCriterion(position), callback);
     if (!seam.empty())
@@ -208,8 +208,8 @@ void Polyhedron<T>::addFurtherPointToPolyhedron(const V& position, C& callback) 
 
 // Adds the given point to this polyhedron by weaving a cap over the given seam.
 // Assumes that this polyhedron has been split by the given seam.
-template <typename T> template <typename C>
-void Polyhedron<T>::addPointToPolyhedron(const V& position, const Seam& seam, C& callback) {
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::addPointToPolyhedron(const V& position, const Seam& seam, C& callback) {
     assert(!seam.empty());
     Vertex* newVertex = weaveCap(seam, position, callback);
     cleanupAfterVertexMove(newVertex, callback);
@@ -221,8 +221,8 @@ void Polyhedron<T>::addPointToPolyhedron(const V& position, const Seam& seam, C&
 // which do not match the given criterion, and returns the delimiting edges as the seam.
 // The delimiting edges all have the remaining half edge as their first edge, and the second
 // edge, which has been deleted by the split, is NULL.
-template <typename T> template <typename C>
-typename Polyhedron<T>::Seam Polyhedron<T>::split(const SplittingCriterion& criterion, C& callback) {
+template <typename T, typename FP> template <typename C>
+typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::split(const SplittingCriterion& criterion, C& callback) {
     VertexList vertices;
     EdgeList edges;
     FaceList faces;
@@ -314,8 +314,8 @@ typename Polyhedron<T>::Seam Polyhedron<T>::split(const SplittingCriterion& crit
 
 // Weaves a new cap onto the given seam edges. The new cap will form a triangle fan (actually a cone) with a new vertex
 // at the location of the given point being shared by all the newly created triangles.
-template <typename T> template <typename C>
-typename Polyhedron<T>::Vertex* Polyhedron<T>::weaveCap(const Seam& seam, const V& position, C& callback) {
+template <typename T, typename FP> template <typename C>
+typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::weaveCap(const Seam& seam, const V& position, C& callback) {
     assert(seam.size() >= 3);
     
     Vertex* top = new Vertex(position);
@@ -350,8 +350,8 @@ typename Polyhedron<T>::Vertex* Polyhedron<T>::weaveCap(const Seam& seam, const 
     return top;
 }
 
-template <typename T> template <typename C>
-typename Polyhedron<T>::Face* Polyhedron<T>::createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, C& callback) const {
+template <typename T, typename FP> template <typename C>
+typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, C& callback) const {
     HalfEdgeList boundary;
     boundary.append(h1, 1);
     boundary.append(h2, 1);
@@ -362,8 +362,8 @@ typename Polyhedron<T>::Face* Polyhedron<T>::createCapTriangle(HalfEdge* h1, Hal
     return f;
 }
 
-template <typename T>
-class Polyhedron<T>::SplittingCriterion {
+template <typename T, typename FP>
+class Polyhedron<T,FP>::SplittingCriterion {
 private:
     typedef enum {
         MatchResult_First,
@@ -440,8 +440,8 @@ private:
     virtual bool doMatches(const Face* face) const = 0;
 };
 
-template <typename T>
-class Polyhedron<T>::SplitByVisibilityCriterion : public Polyhedron<T>::SplittingCriterion {
+template <typename T, typename FP>
+class Polyhedron<T,FP>::SplitByVisibilityCriterion : public Polyhedron<T,FP>::SplittingCriterion {
 private:
     V m_point;
 public:

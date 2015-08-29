@@ -20,22 +20,20 @@
 #ifndef TrenchBroom_Polyhedron_Vertex_h
 #define TrenchBroom_Polyhedron_Vertex_h
 
-template <typename T>
-typename Polyhedron<T>::VertexLink& Polyhedron<T>::VertexList::doGetLink(Vertex* vertex) const {
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::VertexLink& Polyhedron<T,FP>::VertexList::doGetLink(Vertex* vertex) const {
     return vertex->m_link;
 }
 
-template <typename T>
-const typename Polyhedron<T>::VertexLink& Polyhedron<T>::VertexList::doGetLink(const Vertex* vertex) const {
+template <typename T, typename FP>
+const typename Polyhedron<T,FP>::VertexLink& Polyhedron<T,FP>::VertexList::doGetLink(const Vertex* vertex) const {
     return vertex->m_link;
 }
 
-template <typename T>
-class Polyhedron<T>::Vertex {
+template <typename T, typename FP>
+class Polyhedron<T,FP>::Vertex {
 private:
-    friend class HalfEdge;
-    friend class VertexList;
-    friend class Polyhedron<T>;
+    friend class Polyhedron<T,FP>;
 private:
     V m_position;
     VertexLink m_link;
