@@ -590,6 +590,7 @@ namespace TrenchBroom {
                 return false;
             
             Polyhedron3 polyhedron;
+            
             if (hasSelectedBrushFaces()) {
                 const Model::BrushFaceList& faces = selectedBrushFaces();
                 Model::BrushFaceList::const_iterator fIt, fEnd;

@@ -208,6 +208,7 @@ namespace TrenchBroom {
                 
                 const Model::BrushFace* face = Model::hitToFace(hit);
                 const Vec3 snapped = m_grid.snap(hit.hitPoint(), face->boundary());
+                
                 m_polyhedron.addPoint(snapped);
                 m_tool->updateBrush(m_polyhedron);
                 

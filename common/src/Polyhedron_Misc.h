@@ -23,18 +23,60 @@
 #include <map>
 
 template <typename T>
+Polyhedron<T>::Callback::~Callback() {}
+
+template <typename T>
+void Polyhedron<T>::Callback::faceWasCreated(Face* face) {}
+
+template <typename T>
+void Polyhedron<T>::Callback::faceWasCloned(Face* original, Face* clone) {}
+
+template <typename T>
 Polyhedron<T>::Polyhedron() {}
 
 template <typename T>
 Polyhedron<T>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) {
-    addPoint(p1);
-    addPoint(p2);
-    addPoint(p3);
-    addPoint(p4);
+    Callback c;
+    addPoints(p1, p2, p3, p4, c);
+}
+
+template <typename T> template <typename C>
+Polyhedron<T>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4, C& callback) {
+    addPoints(p1, p2, p3, p4, callback);
 }
 
 template <typename T>
 Polyhedron<T>::Polyhedron(const BBox<T,3>& bounds) {
+    Callback c;
+    setBounds(bounds, c);
+}
+
+template <typename T> template <typename C>
+Polyhedron<T>::Polyhedron(const BBox<T,3>& bounds, C& callback) {
+    setBounds(bounds, callback);
+}
+
+template <typename T>
+Polyhedron<T>::Polyhedron(typename V::List positions) {
+    Callback c;
+    addPoints(positions.begin(), positions.end(), c);
+}
+
+template <typename T> template <typename C>
+Polyhedron<T>::Polyhedron(typename V::List positions, C& callback) {
+    addPoints(positions.begin(), positions.end(), callback);
+}
+
+template <typename T> template <typename C>
+void Polyhedron<T>::addPoints(const V& p1, const V& p2, const V& p3, const V& p4, C& callback) {
+    addPoint(p1, callback);
+    addPoint(p2, callback);
+    addPoint(p3, callback);
+    addPoint(p4, callback);
+}
+
+template <typename T> template <typename C>
+void Polyhedron<T>::setBounds(const BBox<T,3>& bounds, C& callback) {
     const V p1(bounds.min.x(), bounds.min.y(), bounds.min.z());
     const V p2(bounds.min.x(), bounds.min.y(), bounds.max.z());
     const V p3(bounds.min.x(), bounds.max.y(), bounds.min.z());
@@ -43,20 +85,15 @@ Polyhedron<T>::Polyhedron(const BBox<T,3>& bounds) {
     const V p6(bounds.max.x(), bounds.min.y(), bounds.max.z());
     const V p7(bounds.max.x(), bounds.max.y(), bounds.min.z());
     const V p8(bounds.max.x(), bounds.max.y(), bounds.max.z());
-
-    addPoint(p1);
-    addPoint(p2);
-    addPoint(p3);
-    addPoint(p4);
-    addPoint(p5);
-    addPoint(p6);
-    addPoint(p7);
-    addPoint(p8);
-}
-
-template <typename T>
-Polyhedron<T>::Polyhedron(typename V::List positions) {
-    addPoints(positions.begin(), positions.end());
+    
+    addPoint(p1, callback);
+    addPoint(p2, callback);
+    addPoint(p3, callback);
+    addPoint(p4, callback);
+    addPoint(p5, callback);
+    addPoint(p6, callback);
+    addPoint(p7, callback);
+    addPoint(p8, callback);
 }
 
 template <typename T>
@@ -106,7 +143,7 @@ private:
             myBoundary.append(copyHalfEdge(originalHalfEdge), 1);
         }
         
-        Face* copy = m_destination.createFace(myBoundary);
+        Face* copy = new Face(myBoundary);
         m_faces.append(copy, 1);
     }
     
@@ -114,7 +151,7 @@ private:
         const Vertex* originalOrigin = original->origin();
         
         Vertex* myOrigin = findOrCopyVertex(originalOrigin);
-        HalfEdge* copy = m_destination.createHalfEdge(myOrigin);
+        HalfEdge* copy = new HalfEdge(myOrigin);
         m_halfEdgeMap.insert(std::make_pair(original, copy));
         return copy;
     }
@@ -124,7 +161,7 @@ private:
         
         InsertPos insertPos = MapUtils::findInsertPos(m_vertexMap, original);
         if (!insertPos.first) {
-            Vertex* copy = m_destination.createVertex(original->position());
+            Vertex* copy = new Vertex(original->position());
             m_vertices.append(copy, 1);
             m_vertexMap.insert(insertPos.second, std::make_pair(original, copy));
             return copy;
@@ -144,10 +181,10 @@ private:
     Edge* copyEdge(const Edge* original) const {
         HalfEdge* myFirst = findHalfEdge(original->firstEdge());
         if (!original->fullySpecified())
-            return m_destination.createEdge(myFirst);
+            return new Edge(myFirst);
 
         HalfEdge* mySecond = findHalfEdge(original->secondEdge());
-        return m_destination.createEdge(myFirst, mySecond);
+        return new Edge(myFirst, mySecond);
     }
     
     HalfEdge* findHalfEdge(const HalfEdge* original) const {
@@ -178,31 +215,6 @@ m_faces(faces) {}
 template <typename T>
 Polyhedron<T>::~Polyhedron() {
     clear();
-}
-
-template <typename T>
-typename Polyhedron<T>::Vertex* Polyhedron<T>::createVertex(const V& position) const {
-    return new Vertex(position);
-}
-
-template <typename T>
-typename Polyhedron<T>::Edge* Polyhedron<T>::createEdge(HalfEdge* first, HalfEdge* second) const {
-    return new Edge(first, second);
-}
-
-template <typename T>
-typename Polyhedron<T>::HalfEdge* Polyhedron<T>::createHalfEdge(Vertex* origin) const {
-    return new HalfEdge(origin);
-}
-
-template <typename T>
-typename Polyhedron<T>::Face* Polyhedron<T>::createFace(const HalfEdgeList& boundary) const {
-    return new Face(boundary);
-}
-
-template <typename T>
-typename Polyhedron<T>::Face* Polyhedron<T>::cloneFace(const Face* original, const HalfEdgeList& boundary) const {
-    return new Face(boundary);
 }
 
 template <typename T>
