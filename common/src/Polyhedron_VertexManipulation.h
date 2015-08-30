@@ -582,7 +582,8 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* 
             delete edge;
         }
         
-        remaining->replaceEntireBoundary(boundary);
+        HalfEdgeList oldBoundary = remaining->replaceEntireBoundary(boundary);
+        oldBoundary.deleteAll();
         
         m_vertices.remove(vertex);
         delete vertex;

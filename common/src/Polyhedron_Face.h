@@ -21,20 +21,23 @@
 #define TrenchBroom_Polyhedron_Face_h
 
 template <typename T, typename FP>
-typename Polyhedron<T,FP>::FaceLink& Polyhedron<T,FP>::FaceList::doGetLink(Face* face) const {
-    return face->m_link;
-}
-
-template <typename T, typename FP>
-const typename Polyhedron<T,FP>::FaceLink& Polyhedron<T,FP>::FaceList::doGetLink(const Face* face) const {
-    return face->m_link;
-}
+class Polyhedron<T,FP>::GetFaceLink {
+public:
+    typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(Face* face) const {
+        return face->m_link;
+    }
+    
+    const typename DoublyLinkedList<Face, GetFaceLink>::Link& operator()(const Face* face) const {
+        return face->m_link;
+    }
+};
 
 template <typename T, typename FP> template <typename P>
 class Polyhedron<T,FP>::FaceT {
 private:
     friend class Polyhedron<T,FP>;
 private:
+    // Boundary is counter clockwise.
     HalfEdgeList m_boundary;
     P* m_payload;
     FaceLink m_link;
@@ -53,7 +56,7 @@ private:
 #endif
 	{
         assert(m_boundary.size() >= 3);
-        updateBoundaryFaces();
+        updateBoundaryFaces(this);
     }
 public:
     ~FaceT() {
@@ -166,31 +169,43 @@ private:
         m_boundary.reverse();
     }
     
-    void removeFromBoundary(HalfEdge* edge) {
-        removeFromBoundary(edge, edge);
+    void insertIntoBoundaryBefore(HalfEdge* before, HalfEdge* edge) {
+        assert(before != NULL);
+        assert(edge != NULL);
+        assert(before->face() == this);
+        assert(edge->face() == this);
+        
+        m_boundary.insertBefore(before, edge, 1);
+    }
+
+    void insertIntoBoundaryAfter(HalfEdge* after, HalfEdge* edge) {
+        assert(after != NULL);
+        assert(edge != NULL);
+        assert(after->face() == this);
+        assert(edge->face() == this);
+        
+        m_boundary.insertAfter(after, edge, 1);
     }
     
-    void removeFromBoundary(HalfEdge* from, HalfEdge* to) {
+    HalfEdgeList removeFromBoundary(HalfEdge* from, HalfEdge* to) {
         assert(from != NULL);
         assert(to != NULL);
         assert(from->face() == this);
         assert(to->face() == this);
         
         const size_t removeCount = countAndSetFace(from, to->next(), NULL);
-        m_boundary.remove(from, to, removeCount);
+        return m_boundary.remove(from, to, removeCount);
     }
     
-    void replaceBoundary(HalfEdge* edge, HalfEdge* with) {
-        replaceBoundary(edge, edge, with);
+    HalfEdgeList removeFromBoundary(HalfEdge* edge) {
+        return removeFromBoundary(edge, edge);
     }
     
-    void replaceEntireBoundary(const HalfEdgeList& newBoundary) {
-        m_boundary.deleteAll();
-        m_boundary = newBoundary;
-        updateBoundaryFaces();
+    HalfEdgeList replaceBoundary(HalfEdge* edge, HalfEdge* with) {
+        return replaceBoundary(edge, edge, with);
     }
     
-    void replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
+    HalfEdgeList replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
         assert(from != NULL);
         assert(to != NULL);
         assert(with != NULL);
@@ -200,9 +215,17 @@ private:
         
         const size_t removeCount = countAndSetFace(from, to->next(), NULL);
         const size_t insertCount = countAndSetFace(with, with, this);
-        m_boundary.replace(from, to, removeCount, with, insertCount);
+        return m_boundary.replace(from, to, removeCount, with, insertCount);
     }
     
+    HalfEdgeList replaceEntireBoundary(const HalfEdgeList& newBoundary) {
+        updateBoundaryFaces(NULL);
+        HalfEdgeList oldBoundary = m_boundary;
+        m_boundary = newBoundary;
+        updateBoundaryFaces(this);
+        return oldBoundary;
+    }
+
     size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face) {
         size_t count = 0;
         HalfEdge* cur = from;
@@ -214,11 +237,11 @@ private:
         return count;
     }
     
-    void updateBoundaryFaces() {
+    void updateBoundaryFaces(Face* face) {
         typename HalfEdgeList::iterator hIt, hEnd;
         for (hIt = m_boundary.begin(), hEnd = m_boundary.end(); hIt != hEnd; ++hIt) {
             HalfEdge* edge = *hIt;
-            edge->setFace(this);
+            edge->setFace(face);
         }
     }
 };

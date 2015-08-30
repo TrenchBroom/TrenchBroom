@@ -41,41 +41,29 @@ private:
     typedef Vec<T,3> V;
     typedef typename Vec<T,3>::List PosList;
     
-    typedef typename DoublyLinkedList<Vertex>::Link VertexLink;
-    typedef typename DoublyLinkedList<Edge>::Link EdgeLink;
-    typedef typename DoublyLinkedList<HalfEdge>::Link HalfEdgeLink;
-    typedef typename DoublyLinkedList<Face>::Link FaceLink;
+    class GetVertexLink;
+    class GetEdgeLink;
+    class GetHalfEdgeLink;
+    class GetFaceLink;
+
+    typedef typename DoublyLinkedList<Vertex, GetVertexLink>::Link VertexLink;
+    typedef typename DoublyLinkedList<Edge, GetEdgeLink>::Link EdgeLink;
+    typedef typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link HalfEdgeLink;
+    typedef typename DoublyLinkedList<Face, GetFaceLink>::Link FaceLink;
 public:
-    class VertexList : public DoublyLinkedList<Vertex> {
-    private:
-        VertexLink& doGetLink(Vertex* vertex) const;
-        const VertexLink& doGetLink(const Vertex* vertex) const;
-    };
-    
-    class EdgeList : public DoublyLinkedList<Edge> {
-    private:
-        EdgeLink& doGetLink(Edge* edge) const;
-        const EdgeLink& doGetLink(const Edge* edge) const;
-    };
-    
-    class HalfEdgeList : public DoublyLinkedList<HalfEdge> {
-    private:
-        HalfEdgeLink& doGetLink(HalfEdge* edge) const;
-        const HalfEdgeLink& doGetLink(const HalfEdge* edge) const;
-    };
-    
-    class FaceList : public DoublyLinkedList<Face> {
-    private:
-        FaceLink& doGetLink(Face* face) const;
-        const FaceLink& doGetLink(const Face* face) const;
-    };
+    typedef DoublyLinkedList<Vertex, GetVertexLink> VertexList;
+    typedef DoublyLinkedList<Edge, GetEdgeLink> EdgeList;
+    typedef DoublyLinkedList<HalfEdge, GetHalfEdgeLink> HalfEdgeList;
+    typedef DoublyLinkedList<Face, GetFaceLink> FaceList;
 public:
     class Callback {
     public:
         virtual ~Callback();
     public: // factory methods
+        virtual Plane<T,3> plane(const Face* face) const;
         virtual void faceWasCreated(Face* face);
         virtual void faceWillBeDeleted(Face* face);
+        virtual void faceDidChange(Face* face);
         virtual void faceWasSplit(Face* original, Face* clone);
         virtual void facesWillBeMerged(Face* remaining, Face* toDelete);
     };
@@ -210,12 +198,29 @@ private:
     
     template <typename C> Seam split(const SplittingCriterion& criterion, C& callback);
     
+    template <typename C> void weaveCap(const Seam& seam, C& callback);
     template <typename C> Vertex* weaveCap(const Seam& seam, const V& position, C& callback);
     template <typename C> Face* createCapTriangle(HalfEdge* h1, HalfEdge* h2, HalfEdge* h3, C& callback) const;
+private: // Clipping
+    class SplitByPlaneCriterion;
+public:
+    struct ClipResult;
+    ClipResult clip(const Plane<T,3>& plane);
+    template <typename C> ClipResult clip(const Plane<T,3>& plane, C& callback);
+private:
+    template <typename C> bool isCoplanarToAnyFace(const Plane<T,3>& plane, const C& callback) const;
+    ClipResult checkIntersects(const Plane<T,3>& plane) const;
+
+    template <typename C> void intersectWithPlane(const Plane<T,3>& plane, C& callback);
+    HalfEdge* findInitialIntersectingEdge(const Plane<T,3>& plane) const;
+    template <typename C> HalfEdge* intersectAndFindNextEdge(HalfEdge* firstBoundaryEdge, const Plane<T,3>& plane, C& callback);
+    template <typename C> void intersectWithPlane(HalfEdge* remainingFirst, HalfEdge* deletedFirst, C& callback);
+    
 };
 
 
 #include "Polyhedron_Misc.h"
+#include "Polyhedron_Clip.h"
 #include "Polyhedron_Vertex.h"
 #include "Polyhedron_Edge.h"
 #include "Polyhedron_HalfEdge.h"

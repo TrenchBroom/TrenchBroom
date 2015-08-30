@@ -26,10 +26,31 @@ template <typename T, typename FP>
 Polyhedron<T,FP>::Callback::~Callback() {}
 
 template <typename T, typename FP>
+Plane<T,3> Polyhedron<T,FP>::Callback::plane(const Face* face) const {
+    const HalfEdgeList& boundary = face->boundary();
+    assert(boundary.size() >= 3);
+    
+    const HalfEdge* e1 = boundary.front();
+    const HalfEdge* e2 = e1->next();
+    const HalfEdge* e3 = e2->next();
+    
+    const V& p1 = e1->origin()->position();
+    const V& p2 = e2->origin()->position();
+    const V& p3 = e3->origin()->position();
+
+    Plane<T,3> plane;
+    CHECK_BOOL(setPlanePoints(plane, p2, p1, p3));
+    return plane;
+}
+
+template <typename T, typename FP>
 void Polyhedron<T,FP>::Callback::faceWasCreated(Face* face) {}
 
 template <typename T, typename FP>
 void Polyhedron<T,FP>::Callback::faceWillBeDeleted(Face* face) {}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::Callback::faceDidChange(Face* face) {}
 
 template <typename T, typename FP>
 void Polyhedron<T,FP>::Callback::faceWasSplit(Face* original, Face* clone) {}

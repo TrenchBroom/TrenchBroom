@@ -311,6 +311,27 @@ typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::split(const SplittingCriterion
     return seam;
 }
 
+// Weaves a new cap onto the given seam edges. The new cap will be a single polygon, so we assume that all seam vertices lie
+// on a plane.
+template <typename T, typename FP> template <typename C>
+void Polyhedron<T,FP>::weaveCap(const Seam& seam, C& callback) {
+    assert(seam.size() >= 3);
+
+    HalfEdgeList boundary;
+    for (size_t i = 0; i < seam.size(); ++i) {
+        Edge* currentEdge = seam[i];
+        assert(!currentEdge->fullySpecified());
+        
+        Vertex* origin = currentEdge->secondVertex();
+        HalfEdge* boundaryEdge = new HalfEdge(origin);
+        boundary.append(boundaryEdge, 1);
+        currentEdge->setSecondEdge(boundaryEdge);
+    }
+
+    Face* face = new Face(boundary);
+    callback.faceWasCreated(face);
+    m_faces.append(face, 1);
+}
 
 // Weaves a new cap onto the given seam edges. The new cap will form a triangle fan (actually a cone) with a new vertex
 // at the location of the given point being shared by all the newly created triangles.
@@ -387,7 +408,7 @@ public:
                 case MatchResult_Both:
                 case MatchResult_Neither:
                     break;
-                    DEFAULT_SWITCH()
+                DEFAULT_SWITCH()
             }
         }
         return NULL;

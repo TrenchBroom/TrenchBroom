@@ -21,14 +21,16 @@
 #define TrenchBroom_Polyhedron_HalfEdge_h
 
 template <typename T, typename FP>
-typename Polyhedron<T,FP>::HalfEdgeLink& Polyhedron<T,FP>::HalfEdgeList::doGetLink(HalfEdge* edge) const {
-    return edge->m_link;
-}
-
-template <typename T, typename FP>
-const typename Polyhedron<T,FP>::HalfEdgeLink& Polyhedron<T,FP>::HalfEdgeList::doGetLink(const HalfEdge* edge) const {
-    return edge->m_link;
-}
+class Polyhedron<T,FP>::GetHalfEdgeLink {
+public:
+    typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link& operator()(HalfEdge* halfEdge) const {
+        return halfEdge->m_link;
+    }
+    
+    const typename DoublyLinkedList<HalfEdge, GetHalfEdgeLink>::Link& operator()(const HalfEdge* halfEdge) const {
+        return halfEdge->m_link;
+    }
+};
 
 template <typename T, typename FP>
 class Polyhedron<T,FP>::HalfEdge {
@@ -124,6 +126,17 @@ public:
             edge = edge->next();
         }
         return true;
+    }
+    
+    String asString() const {
+        StringStream str;
+        origin()->position().write(str);
+        str << " --> ";
+        if (destination() != NULL)
+            destination()->position().write(str);
+        else
+            str << "NULL";
+        return str.str();
     }
 private:
     bool isLeavingEdge() const {

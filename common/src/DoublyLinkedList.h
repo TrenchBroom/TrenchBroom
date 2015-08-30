@@ -22,12 +22,12 @@
 
 #include <iterator>
 
-template <typename Item>
+template <typename Item, typename GetLink>
 class DoublyLinkedList {
 public:
     class Link {
     private:
-        friend class DoublyLinkedList<Item>;
+        friend class DoublyLinkedList<Item, GetLink>;
     private:
         Item* m_previous;
         Item* m_next;
@@ -172,7 +172,7 @@ public:
     template <typename ListType, typename ItemType, typename LinkType>
     class iterator_base : public std::iterator<std::forward_iterator_tag, ItemType> {
     private:
-        friend class DoublyLinkedList<Item>;
+        friend class DoublyLinkedList<Item, GetLink>;
         
         typedef iterator_delegate_base<ListType, ItemType, LinkType> delegate;
         delegate* m_delegate;
@@ -230,16 +230,18 @@ public:
         }
     };
     
-    typedef iterator_base<DoublyLinkedList<Item>, Item*, Link> iterator;
-    typedef iterator_base<const DoublyLinkedList<Item>, Item*, const Link> const_iterator;
+    typedef iterator_base<DoublyLinkedList<Item, GetLink>, Item*, Link> iterator;
+    typedef iterator_base<const DoublyLinkedList<Item, GetLink>, Item*, const Link> const_iterator;
 private:
     friend class ListIterator;
     
+    GetLink m_getLink;
     Item* m_head;
     size_t m_size;
     size_t m_version;
 public:
     DoublyLinkedList() :
+    m_getLink(),
     m_head(NULL),
     m_size(0),
     m_version(0) {}
@@ -326,6 +328,15 @@ public:
         assert(check());
     }
     
+    void insertBefore(Item* succ, Item* items, const size_t count) {
+        assert(succ != NULL);
+        assert(items != NULL);
+        assert(m_head != NULL);
+        assert(contains(succ));
+        
+        insertAfter(succ->previous(), items, count);
+    }
+    
     void insertAfter(Item* pred, Item* items, const size_t count) {
         assert(pred != NULL);
         assert(items != NULL);
@@ -352,18 +363,18 @@ public:
         assert(check());
     }
     
-    void replace(Item* from, Item* to, const size_t removeCount, Item* with, const size_t insertCount) {
+    DoublyLinkedList<Item, GetLink> replace(Item* from, Item* to, const size_t removeCount, Item* with, const size_t insertCount) {
         insertAfter(to, with, insertCount);
-        remove(from, to, removeCount);
+        return remove(from, to, removeCount);
     }
     
-    void remove(Item* item) {
+    DoublyLinkedList<Item, GetLink> remove(Item* item) {
         assert(!empty());
         assert(contains(item));
-        remove(item, item, 1);
+        return remove(item, item, 1);
     }
     
-    void remove(Item* from, Item* to, const size_t count) {
+    DoublyLinkedList<Item, GetLink> remove(Item* from, Item* to, const size_t count) {
         assert(!empty());
         
         Link& fromLink = getLink(from);
@@ -390,6 +401,10 @@ public:
         ++m_version;
 
         assert(check());
+        
+        DoublyLinkedList<Item, GetLink> result;
+        result.append(from, count);
+        return result;
     }
     
     void reverse() {
@@ -442,12 +457,12 @@ private:
     
     Link& getLink(Item* item) const {
         assert(item != NULL);
-        return doGetLink(item);
+        return m_getLink(item);
     }
     
     const Link& getLink(const Item* item) const {
         assert(item != NULL);
-        return doGetLink(item);
+        return m_getLink(item);
     }
     
     bool check() const {
@@ -485,9 +500,6 @@ private:
         } while (item != m_head);
         return m_size == size;
     }
-    
-    virtual Link& doGetLink(Item* item) const = 0;
-    virtual const Link& doGetLink(const Item* item) const = 0;
 };
 
 #endif
