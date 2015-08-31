@@ -213,9 +213,9 @@ private:
 
     template <typename C> void intersectWithPlane(const Plane<T,3>& plane, C& callback);
     HalfEdge* findInitialIntersectingEdge(const Plane<T,3>& plane) const;
-    template <typename C> HalfEdge* intersectAndFindNextEdge(HalfEdge* firstBoundaryEdge, const Plane<T,3>& plane, C& callback);
+    template <typename C> HalfEdge* intersectWithPlane(HalfEdge* firstBoundaryEdge, const Plane<T,3>& plane, C& callback);
     template <typename C> void intersectWithPlane(HalfEdge* remainingFirst, HalfEdge* deletedFirst, C& callback);
-    
+    HalfEdge* findNextIntersectingEdge(HalfEdge* searchFrom, const Plane<T,3>& plane) const;
 };
 
 
