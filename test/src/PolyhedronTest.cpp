@@ -2151,6 +2151,46 @@ TEST(PolyhedronTest, clipCubeDiagonally) {
     ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
 };
 
+TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
+    Polyhedron3d p(BBox3d(64.0));
+    
+    const Plane3d plane(Vec3d(  0.0, -64.0, 0.0), Vec3d(2.0, 1.0, 0.0).normalized());
+    ASSERT_TRUE(p.clip(plane).success());
+    
+    const Vec3d  p1(-64.0, -64.0, -64.0);
+    const Vec3d  p2(-64.0, -64.0, +64.0);
+    const Vec3d  p3(-64.0, +64.0, -64.0);
+    const Vec3d  p4(-64.0, +64.0, +64.0);
+    const Vec3d  p5(  0.0, -64.0, -64.0);
+    const Vec3d  p6(  0.0, -64.0, +64.0);
+    
+    ASSERT_EQ(6u, p.vertexCount());
+    ASSERT_TRUE(p.hasVertex( p1));
+    ASSERT_TRUE(p.hasVertex( p2));
+    ASSERT_TRUE(p.hasVertex( p3));
+    ASSERT_TRUE(p.hasVertex( p4));
+    ASSERT_TRUE(p.hasVertex( p5));
+    ASSERT_TRUE(p.hasVertex( p6));
+    
+    ASSERT_EQ(9u, p.edgeCount());
+    ASSERT_TRUE(hasEdge(p, p1, p2));
+    ASSERT_TRUE(hasEdge(p, p1, p3));
+    ASSERT_TRUE(hasEdge(p, p1, p5));
+    ASSERT_TRUE(hasEdge(p, p2, p4));
+    ASSERT_TRUE(hasEdge(p, p2, p6));
+    ASSERT_TRUE(hasEdge(p, p3, p4));
+    ASSERT_TRUE(hasEdge(p, p3, p5));
+    ASSERT_TRUE(hasEdge(p, p4, p6));
+    ASSERT_TRUE(hasEdge(p, p5, p6));
+    
+    ASSERT_EQ(5u, p.faceCount());
+    ASSERT_TRUE(hasQuadOf(p, p1, p2, p4, p3));
+    ASSERT_TRUE(hasQuadOf(p, p1, p5, p6, p2));
+    ASSERT_TRUE(hasQuadOf(p, p3, p4, p6, p5));
+    ASSERT_TRUE(hasTriangleOf(p, p1, p3, p5));
+    ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
+};
+
 bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {
     return p.hasVertex(point);
 }
