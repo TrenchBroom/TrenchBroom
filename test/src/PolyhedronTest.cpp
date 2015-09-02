@@ -1887,6 +1887,20 @@ TEST(PolyhedronTest, moveVertexAndMergeColinearEdgesWithDeletingVertex) {
     ASSERT_TRUE(hasQuadOf(p, p5, p7, p8, p6));
 }
 
+class ClipCallback : public Polyhedron3d::Callback {
+private:
+    typedef std::set<Face*> FaceSet;
+    FaceSet m_originals;
+public:
+    void faceWillBeDeleted(Face* face) {
+        ASSERT_TRUE(m_originals.find(face) == m_originals.end());
+    }
+
+    void faceWasSplit(Face* original, Face* clone) {
+        m_originals.insert(original);
+    }
+};
+
 TEST(PolyhedronTest, clipCubeWithHorizontalPlane) {
     const Vec3d p1(-64.0, -64.0, -64.0);
     const Vec3d p2(-64.0, -64.0, +64.0);
@@ -1910,7 +1924,9 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlane) {
     Polyhedron3d p(positions);
     
     const Plane3d plane(Vec3d::Null, Vec3d::PosZ);
-    ASSERT_TRUE(p.clip(plane).success());
+    ClipCallback callback;
+    
+    ASSERT_TRUE(p.clip(plane, callback).success());
     
     const Vec3d d(0.0, 0.0, -64.0);
     ASSERT_EQ(12u, p.edgeCount());
@@ -1958,7 +1974,9 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtTop) {
     Polyhedron3d p(positions);
     
     const Plane3d plane(Vec3d(0.0, 0.0, 64.0), Vec3d::PosZ);
-    ASSERT_TRUE(p.clip(plane).unchanged());
+    ClipCallback callback;
+    
+    ASSERT_TRUE(p.clip(plane, callback).unchanged());
     
     ASSERT_EQ(12u, p.edgeCount());
     ASSERT_TRUE(hasEdge(p, p1, p2));
@@ -2005,7 +2023,9 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAboveTop) {
     Polyhedron3d p(positions);
     
     const Plane3d plane(Vec3d(0.0, 0.0, 72.0), Vec3d::PosZ);
-    ASSERT_TRUE(p.clip(plane).unchanged());
+    ClipCallback callback;
+    
+    ASSERT_TRUE(p.clip(plane, callback).unchanged());
     
     ASSERT_EQ(12u, p.edgeCount());
     ASSERT_TRUE(hasEdge(p, p1, p2));
@@ -2052,14 +2072,18 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtBottom) {
     Polyhedron3d p(positions);
     
     const Plane3d plane(Vec3d(0.0, 0.0, -64.0), Vec3d::PosZ);
-    ASSERT_TRUE(p.clip(plane).empty());
+    ClipCallback callback;
+
+    ASSERT_TRUE(p.clip(plane, callback).empty());
 };
 
 TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
     Polyhedron3d p(BBox3d(64.0));
     
     const Plane3d plane(Vec3d(64.0, 64.0, 0.0), Vec3d(1.0, 1.0, 1.0).normalized());
-    ASSERT_TRUE(p.clip(plane).success());
+    ClipCallback callback;
+    
+    ASSERT_TRUE(p.clip(plane, callback).success());
     
     const Vec3d  p1(-64.0, -64.0, -64.0);
     const Vec3d  p2(-64.0, -64.0, +64.0);
@@ -2115,7 +2139,9 @@ TEST(PolyhedronTest, clipCubeDiagonally) {
     Polyhedron3d p(BBox3d(64.0));
     
     const Plane3d plane(Vec3d::Null, Vec3d(1.0, 1.0, 0.0).normalized());
-    ASSERT_TRUE(p.clip(plane).success());
+    ClipCallback callback;
+
+    ASSERT_TRUE(p.clip(plane, callback).success());
     
     const Vec3d  p1(-64.0, -64.0, -64.0);
     const Vec3d  p2(-64.0, -64.0, +64.0);
@@ -2155,7 +2181,9 @@ TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
     Polyhedron3d p(BBox3d(64.0));
     
     const Plane3d plane(Vec3d(  0.0, -64.0, 0.0), Vec3d(2.0, 1.0, 0.0).normalized());
-    ASSERT_TRUE(p.clip(plane).success());
+    ClipCallback callback;
+
+    ASSERT_TRUE(p.clip(plane, callback).success());
     
     const Vec3d  p1(-64.0, -64.0, -64.0);
     const Vec3d  p2(-64.0, -64.0, +64.0);

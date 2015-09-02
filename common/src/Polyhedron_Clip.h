@@ -225,8 +225,14 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::intersectWithPlane(HalfEd
     
     // If the origin and the destination are not already connected by an edge, we must split the current face and insert an edge
     // between them.
-    if (seamOrigin->next() != seamDestination && seamDestination->next() != seamOrigin)
-        intersectWithPlane(seamOrigin, seamDestination, callback);
+    if (seamOrigin->next() != seamDestination && seamDestination->next() != seamOrigin) {
+        const Math::PointStatus::Type os = plane.pointStatus(seamOrigin->destination()->position());
+        assert(os != Math::PointStatus::PSInside);
+        if (os == Math::PointStatus::PSBelow)
+            intersectWithPlane(seamOrigin, seamDestination, callback);
+        else
+            intersectWithPlane(seamDestination, seamOrigin, callback);
+    }
 
     return seamDestination->previous();
 }
