@@ -228,9 +228,10 @@ namespace TrenchBroom {
 
                 const Model::BrushFace* face = Model::hitToFace(hit);
                 
-                const Model::BrushVertexList& vertices = face->vertices();
-                for (size_t i = 0; i < vertices.size(); ++i)
-                    m_polyhedron.addPoint(vertices[i]->position);
+                const Model::BrushFace::VertexList vertices = face->vertices();
+                Model::BrushFace::VertexList::const_iterator it, end;
+                for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
+                    m_polyhedron.addPoint((*it)->position);
                 m_tool->updateBrush(m_polyhedron);
                 
                 return true;

@@ -204,11 +204,13 @@ public:
         bool operator==(const iterator_base& other) const { return compare(other) == 0; }
         bool operator!=(const iterator_base& other) const { return compare(other) != 0; }
         
+        // prefix increment
         iterator_base& operator++() {
             m_delegate->increment();
             return *this;
         }
         
+        // postfix increment
         iterator_base operator++(int) {
             iterator_base result(*this);
             m_delegate->increment();
@@ -230,7 +232,7 @@ public:
         }
     };
     
-    typedef iterator_base<DoublyLinkedList<Item, GetLink>, Item*, Link> iterator;
+    typedef iterator_base<      DoublyLinkedList<Item, GetLink>, Item*,       Link> iterator;
     typedef iterator_base<const DoublyLinkedList<Item, GetLink>, Item*, const Link> const_iterator;
 private:
     friend class ListIterator;

@@ -267,10 +267,13 @@ namespace TrenchBroom {
             const Mat4x4 transform = coordinateSystemMatrix(m_camera.right(), m_camera.up(), -m_camera.direction(), m_camera.position());
 
             BBox3 result;
-            const Model::BrushVertexList& vertices = m_face->vertices();
-            result.min = result.max = transform * vertices[0]->position;
-            for (size_t i = 1; i < vertices.size(); ++i)
-                result.mergeWith(transform * vertices[i]->position);
+            const Model::BrushFace::VertexList vertices = m_face->vertices();
+            Model::BrushFace::VertexList::const_iterator it = vertices.begin();
+            Model::BrushFace::VertexList::const_iterator end = vertices.end();
+            
+            result.min = result.max = transform * (*it++)->position;
+            while (it != end)
+                result.mergeWith(transform * (*it++)->position);
             return result;
         }
     }

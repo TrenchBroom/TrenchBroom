@@ -179,11 +179,12 @@ namespace TrenchBroom {
             // now snap to the vertices
             // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of the vertices
             // instead, we must snap to the edges!
-            const Model::BrushVertexList& vertices = face->vertices();
-            Vec2f distanceInTexCoords = Vec2f::Max;
+            const Model::BrushFace::VertexList vertices = face->vertices();
+            Model::BrushFace::VertexList::const_iterator it, end;
             
-            for (size_t i = 0; i < vertices.size(); ++i)
-                distanceInTexCoords = absMin(distanceInTexCoords, newOriginInTexCoords - Vec2f(w2tTransform * vertices[i]->position));
+            Vec2f distanceInTexCoords = Vec2f::Max;
+            for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
+                distanceInTexCoords = absMin(distanceInTexCoords, newOriginInTexCoords - Vec2f(w2tTransform * (*it)->position));
             
             // and to the texture grid
             const Assets::Texture* texture = face->texture();

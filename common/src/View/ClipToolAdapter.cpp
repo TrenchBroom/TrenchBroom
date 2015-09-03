@@ -193,8 +193,8 @@ namespace TrenchBroom {
         }
 
         Model::BrushFaceList ClipToolAdapter3D::selectIncidentFaces(Model::BrushFace* face, const Vec3& hitPoint) const {
-            const Model::BrushVertexList& vertices = face->vertices();
-            Model::BrushVertexList::const_iterator vIt, vEnd;
+            const Model::BrushFace::VertexList vertices = face->vertices();
+            Model::BrushFace::VertexList::const_iterator vIt, vEnd;
             for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                 const Model::BrushVertex* vertex = *vIt;
                 if (vertex->position.equals(hitPoint)) {

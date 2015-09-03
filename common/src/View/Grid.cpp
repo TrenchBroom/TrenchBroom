@@ -184,7 +184,7 @@ namespace TrenchBroom {
             
             const Model::Brush* brush = face->brush();
             const Model::BrushEdgeList& brushEdges = brush->edges();
-            const Model::BrushVertexList& faceVertices = face->vertices();
+            const Model::BrushFace::VertexList faceVertices = face->vertices();
             
             // the edge rays indicate the direction into which each vertex of the given face moves if the face is dragged
             std::vector<Ray3> edgeRays;
@@ -195,8 +195,10 @@ namespace TrenchBroom {
 
                 bool startFound = false;
                 bool endFound = false;
-                for (size_t j = 0; j < faceVertices.size(); j++) {
-                    const Model::BrushVertex* vertex = faceVertices[j];
+                
+                Model::BrushFace::VertexList::const_iterator it, end;
+                for (it = faceVertices.begin(), end = faceVertices.end(); it != end; ++it) {
+                    const Model::BrushVertex* vertex = *it;
                     startFound |= (vertex->position == edge->start->position);
                     endFound |= (vertex->position == edge->end->position);
                     if (startFound && endFound)

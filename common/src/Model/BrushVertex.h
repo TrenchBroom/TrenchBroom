@@ -52,8 +52,31 @@ namespace TrenchBroom {
             BrushFaceGeometryList incidentSides(const BrushEdgeList& edges) const;
         };
         
-        Vec3 centerOfVertices(const BrushVertexList& vertices);
-        Vec3::List vertexPositions(const BrushVertexList& vertices);
+        template <typename C>
+        Vec3 centerOfVertices(const C& vertices) {
+            assert(!vertices.empty());
+            
+            typename C::const_iterator it = vertices.begin();
+            typename C::const_iterator end = vertices.end();
+            
+            Vec3 center = (*it++)->position;
+            while (it != end)
+                center += (*it++)->position;
+            
+            return center / static_cast<FloatType>(vertices.size());
+        }
+        
+        template <typename C>
+        Vec3::List vertexPositions(const C& vertices) {
+            Vec3::List result;
+            result.reserve(vertices.size());
+            
+            typename C::const_iterator it, end;
+            for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
+                result.push_back((*it)->position);
+            return result;
+        }
+        
         BrushVertexList::iterator findBrushVertex(BrushVertexList& vertices, const Vec3& position, FloatType epsilon = 0.0);
         BrushVertexList::const_iterator findBrushVertex(const BrushVertexList& vertices, const Vec3& position, FloatType epsilon = 0.0);
         Math::PointStatus::Type pointStatus(const Plane3& plane, const BrushVertexList& vertices);

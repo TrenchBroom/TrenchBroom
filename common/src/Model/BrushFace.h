@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Allocator.h"
+#include "ProjectingSequence.h"
 #include "SharedPointer.h"
 #include "StringUtils.h"
 #include "Assets/AssetTypes.h"
@@ -58,11 +59,19 @@ namespace TrenchBroom {
              * 0-----------2
              */
             typedef Vec3 Points[3];
-            
-            typedef Renderer::VertexSpecs::P3NT2 VertexSpec;
-            typedef VertexSpec::Vertex Vertex;
-            typedef Renderer::TriangleMesh<VertexSpec, const Assets::Texture*> Mesh;
+        private:
+            typedef Renderer::VertexSpecs::P3NT2 MeshVertexSpec;
+            typedef MeshVertexSpec::Vertex MeshVertex;
+        public:
+            typedef Renderer::TriangleMesh<MeshVertexSpec, const Assets::Texture*> Mesh;
             static const String NoTextureName;
+            
+        private:
+            struct ProjectToVertex : public ProjectingSequenceProjector<BrushVertex*, BrushVertex*> {
+                static BrushVertex* const& project(BrushVertex* const& vertex);
+            };
+        public:
+            typedef ProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
         private:
             Brush* m_brush;
             BrushFace::Points m_points;
@@ -73,7 +82,7 @@ namespace TrenchBroom {
             
             TexCoordSystem* m_texCoordSystem;
             BrushFaceGeometry* m_side;
-            mutable Vertex::List m_cachedVertices;
+            mutable MeshVertex::List m_cachedVertices;
             mutable bool m_vertexCacheValid;
         protected:
             BrushFaceAttributes m_attribs;
@@ -159,7 +168,7 @@ namespace TrenchBroom {
             
             size_t vertexCount() const;
             const BrushEdgeList& edges() const;
-            const BrushVertexList& vertices() const;
+            VertexList vertices() const;
             
             BrushFaceGeometry* side() const;
             void setSide(BrushFaceGeometry* side);

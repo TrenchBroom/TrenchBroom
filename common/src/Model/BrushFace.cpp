@@ -35,6 +35,10 @@ namespace TrenchBroom {
     namespace Model {
         const String BrushFace::NoTextureName = "__TB_empty";
 
+        BrushVertex* const& BrushFace::ProjectToVertex::project(BrushVertex* const& vertex) {
+            return vertex;
+        }
+
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem) :
         m_brush(NULL),
         m_lineNumber(0),
@@ -490,9 +494,9 @@ namespace TrenchBroom {
             return m_side->edges;
         }
 
-        const BrushVertexList& BrushFace::vertices() const {
+        BrushFace::VertexList BrushFace::vertices() const {
             assert(m_side != NULL);
-            return m_side->vertices;
+            return VertexList(m_side->vertices);
         }
 
         BrushFaceGeometry* BrushFace::side() const {
@@ -593,15 +597,15 @@ namespace TrenchBroom {
             m_cachedVertices.reserve(3 * (vertices.size() - 2));
 
             for (size_t i = 1; i < vertices.size() - 1; i++) {
-                m_cachedVertices.push_back(Vertex(vertices[0]->position,
-                                                  m_boundary.normal,
-                                                  textureCoords(vertices[0]->position)));
-                m_cachedVertices.push_back(Vertex(vertices[i]->position,
-                                                  m_boundary.normal,
-                                                  textureCoords(vertices[i]->position)));
-                m_cachedVertices.push_back(Vertex(vertices[i+1]->position,
-                                                  m_boundary.normal,
-                                                  textureCoords(vertices[i+1]->position)));
+                m_cachedVertices.push_back(MeshVertex(vertices[0]->position,
+                                                      m_boundary.normal,
+                                                      textureCoords(vertices[0]->position)));
+                m_cachedVertices.push_back(MeshVertex(vertices[i]->position,
+                                                      m_boundary.normal,
+                                                      textureCoords(vertices[i]->position)));
+                m_cachedVertices.push_back(MeshVertex(vertices[i+1]->position,
+                                                      m_boundary.normal,
+                                                      textureCoords(vertices[i+1]->position)));
             }
             m_vertexCacheValid = true;
         }

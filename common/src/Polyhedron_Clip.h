@@ -226,6 +226,8 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::intersectWithPlane(HalfEd
     // If the origin and the destination are not already connected by an edge, we must split the current face and insert an edge
     // between them.
     if (seamOrigin->next() != seamDestination && seamDestination->next() != seamOrigin) {
+        // The newly created faces are supposed to be above the given plane, so we have to consider whether the destination of the
+        // seam origin edge is above or below the plane.
         const Math::PointStatus::Type os = plane.pointStatus(seamOrigin->destination()->position());
         assert(os != Math::PointStatus::PSInside);
         if (os == Math::PointStatus::PSBelow)
@@ -239,7 +241,6 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::intersectWithPlane(HalfEd
 
 template <typename T, typename FP> template <typename C>
 void Polyhedron<T,FP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdge* newBoundaryFirst, C& callback) {
-    HalfEdge* oldBoundaryLast = newBoundaryFirst->previous();
     HalfEdge* newBoundaryLast = oldBoundaryFirst->previous();
     
     HalfEdge* oldBoundarySplitter = new HalfEdge(newBoundaryFirst->origin());
