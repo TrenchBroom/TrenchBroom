@@ -81,8 +81,8 @@ namespace TrenchBroom {
             void doVisit(const Model::Group* group)   {}
             void doVisit(const Model::Entity* entity) {}
             void doVisit(const Model::Brush* brush)   {
-                const Model::BrushEdgeList& edges = brush->edges();
-                Model::BrushEdgeList::const_iterator it, end;
+                const Model::Brush::EdgeList edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it)
                     visitEdge(*it);
             }

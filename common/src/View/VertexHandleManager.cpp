@@ -247,8 +247,8 @@ namespace TrenchBroom {
         void VertexHandleManager::addBrush(Model::Brush* brush) {
             assert(brush != NULL);
             
-            const Model::BrushVertexList& brushVertices = brush->vertices();
-            Model::BrushVertexList::const_iterator vIt, vEnd;
+            const Model::Brush::VertexList brushVertices = brush->vertices();
+            Model::Brush::VertexList::const_iterator vIt, vEnd;
             for (vIt = brushVertices.begin(), vEnd = brushVertices.end(); vIt != vEnd; ++vIt) {
                 const Model::BrushVertex* vertex = *vIt;
                 Model::VertexToBrushesMap::iterator mapIt = m_selectedVertexHandles.find(vertex->position);
@@ -261,8 +261,8 @@ namespace TrenchBroom {
             }
             m_totalVertexCount += brushVertices.size();
             
-            const Model::BrushEdgeList& brushEdges = brush->edges();
-            Model::BrushEdgeList::const_iterator eIt, eEnd;
+            const Model::Brush::EdgeList brushEdges = brush->edges();
+            Model::Brush::EdgeList::const_iterator eIt, eEnd;
             for (eIt = brushEdges.begin(), eEnd = brushEdges.end(); eIt != eEnd; ++eIt) {
                 Model::BrushEdge* edge = *eIt;
                 const Vec3 position = edge->center();
@@ -300,8 +300,8 @@ namespace TrenchBroom {
         }
         
         void VertexHandleManager::removeBrush(Model::Brush* brush) {
-            const Model::BrushVertexList& brushVertices = brush->vertices();
-            Model::BrushVertexList::const_iterator vIt, vEnd;
+            const Model::Brush::VertexList brushVertices = brush->vertices();
+            Model::Brush::VertexList::const_iterator vIt, vEnd;
             for (vIt = brushVertices.begin(), vEnd = brushVertices.end(); vIt != vEnd; ++vIt) {
                 const Model::BrushVertex* vertex = *vIt;
                 if (removeHandle(vertex->position, brush, m_selectedVertexHandles)) {
@@ -314,8 +314,8 @@ namespace TrenchBroom {
             assert(m_totalVertexCount >= brushVertices.size());
             m_totalVertexCount -= brushVertices.size();
             
-            const Model::BrushEdgeList& brushEdges = brush->edges();
-            Model::BrushEdgeList::const_iterator eIt, eEnd;
+            const Model::Brush::EdgeList brushEdges = brush->edges();
+            Model::Brush::EdgeList::const_iterator eIt, eEnd;
             for (eIt = brushEdges.begin(), eEnd = brushEdges.end(); eIt != eEnd; ++eIt) {
                 Model::BrushEdge* edge = *eIt;
                 const Vec3 position = edge->center();
@@ -674,11 +674,11 @@ namespace TrenchBroom {
         Vec3::List VertexHandleManager::findVertexHandlePositions(const Model::BrushList& brushes, const Vec3& query, const FloatType maxDistance) {
             Vec3::List result;
             Model::BrushList::const_iterator bIt, bEnd;
-            Model::BrushVertexList::const_iterator vIt, vEnd;
+            Model::Brush::VertexList::const_iterator vIt, vEnd;
             
             for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                 const Model::Brush* brush = *bIt;
-                const Model::BrushVertexList& vertices = brush->vertices();
+                const Model::Brush::VertexList vertices = brush->vertices();
                 for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                     const Model::BrushVertex* vertex = *vIt;
                     if (query.squaredDistanceTo(vertex->position) <= maxDistance * maxDistance)
@@ -692,11 +692,11 @@ namespace TrenchBroom {
         Vec3::List VertexHandleManager::findEdgeHandlePositions(const Model::BrushList& brushes, const Vec3& query, const FloatType maxDistance) {
             Vec3::List result;
             Model::BrushList::const_iterator bIt, bEnd;
-            Model::BrushEdgeList::const_iterator eIt, eEnd;
+            Model::Brush::EdgeList::const_iterator eIt, eEnd;
             
             for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                 const Model::Brush* brush = *bIt;
-                const Model::BrushEdgeList& edges = brush->edges();
+                const Model::Brush::EdgeList edges = brush->edges();
                 for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
                     const Model::BrushEdge* edge = *eIt;
                     const Vec3 center = edge->center();

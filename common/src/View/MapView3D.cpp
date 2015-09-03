@@ -421,11 +421,10 @@ namespace TrenchBroom {
             }
             
             void doVisit(const Model::Brush* brush)   {
-                const Model::BrushVertexList& vertices = brush->vertices();
-                for (size_t i = 0; i < vertices.size(); ++i) {
-                    const Model::BrushVertex* vertex = vertices[i];
-                    addPoint(vertex->position);
-                }
+                const Model::Brush::VertexList vertices = brush->vertices();
+                Model::Brush::VertexList::const_iterator it, end;
+                for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
+                    addPoint((*it)->position);
             }
             
             void addPoint(const Vec3& point) {
@@ -470,10 +469,12 @@ namespace TrenchBroom {
             }
             
             void doVisit(const Model::Brush* brush)   {
-                const Model::BrushVertexList& vertices = brush->vertices();
-                for (size_t i = 0; i < vertices.size(); ++i) {
+                const Model::Brush::VertexList vertices = brush->vertices();
+                Model::Brush::VertexList::const_iterator it, end;
+                for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
+                    const Model::BrushVertex* vertex = *it;
                     for (size_t j = 0; j < 4; ++j)
-                        addPoint(vertices[i]->position, m_frustumPlanes[j]);
+                        addPoint(vertex->position, m_frustumPlanes[j]);
                 }
             }
             

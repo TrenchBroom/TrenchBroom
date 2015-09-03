@@ -37,6 +37,14 @@
 namespace TrenchBroom {
     namespace Model {
         const Hit::HitType Brush::BrushHit = Hit::freeHitType();
+        
+        BrushVertex* const& Brush::ProjectToVertex::project(BrushVertex* const& vertex) {
+            return vertex;
+        }
+        
+        BrushEdge* const& Brush::ProjectToEdge::project(BrushEdge* const& edge) {
+            return edge;
+        }
 
         Brush::Brush(const BBox3& worldBounds, const BrushFaceList& faces) :
         m_geometry(NULL),
@@ -195,9 +203,9 @@ namespace TrenchBroom {
             return m_geometry->vertices.size();
         }
         
-        const BrushVertexList& Brush::vertices() const {
+        Brush::VertexList Brush::vertices() const {
             assert(m_geometry != NULL);
-            return m_geometry->vertices;
+            return VertexList(m_geometry->vertices);
         }
         
         size_t Brush::edgeCount() const {
@@ -205,9 +213,9 @@ namespace TrenchBroom {
             return m_geometry->edges.size();
         }
         
-        const BrushEdgeList& Brush::edges() const {
+        Brush::EdgeList Brush::edges() const {
             assert(m_geometry != NULL);
-            return m_geometry->edges;
+            return EdgeList(m_geometry->edges);
         }
         
         bool Brush::containsPoint(const Vec3& point) const {
@@ -612,7 +620,7 @@ namespace TrenchBroom {
             bool contains(const Brush* brush) const {
                 if (!m_this->bounds().contains(brush->bounds()))
                     return false;
-                const BrushVertexList& vertices = brush->vertices();
+                const BrushVertexList& vertices = brush->m_geometry->vertices;
                 for (size_t i = 0; i < vertices.size(); ++i) {
                     if (!m_this->containsPoint(vertices[i]->position))
                         return false;
@@ -661,7 +669,7 @@ namespace TrenchBroom {
                 
                 BrushFaceList::const_iterator faceIt, faceEnd;
                 
-                const BrushVertexList& myVertices = m_this->vertices();
+                const BrushVertexList& myVertices = m_this->m_geometry->vertices;
                 const BrushFaceList& theirFaces = brush->faces();
                 for (faceIt = theirFaces.begin(), faceEnd = theirFaces.end(); faceIt != faceEnd; ++faceIt) {
                     const BrushFace* theirFace = *faceIt;
@@ -669,7 +677,7 @@ namespace TrenchBroom {
                         return false;
                 }
                 
-                const BrushVertexList& theirVertices = brush->vertices();
+                const BrushVertexList& theirVertices = brush->m_geometry->vertices;
                 const BrushFaceList& myFaces = m_this->faces();
                 for (faceIt = myFaces.begin(), faceEnd = myFaces.end(); faceIt != faceEnd; ++faceIt) {
                     const BrushFace* myFace = *faceIt;
@@ -677,8 +685,8 @@ namespace TrenchBroom {
                         return false;
                 }
                 
-                const BrushEdgeList& myEdges = m_this->edges();
-                const BrushEdgeList& theirEdges = brush->edges();
+                const BrushEdgeList& myEdges = m_this->m_geometry->edges;
+                const BrushEdgeList& theirEdges = brush->m_geometry->edges;
                 BrushEdgeList::const_iterator myEdgeIt, myEdgeEnd, theirEdgeIt, theirEdgeEnd;
                 for (myEdgeIt = myEdges.begin(), myEdgeEnd = myEdges.end(); myEdgeIt != myEdgeEnd; ++myEdgeIt) {
                     const BrushEdge* myEdge = *myEdgeIt;

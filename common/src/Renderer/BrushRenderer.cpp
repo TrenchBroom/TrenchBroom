@@ -231,8 +231,8 @@ namespace TrenchBroom {
             }
             
             void countEdges(const Model::Brush* brush) {
-                const Model::BrushEdgeList edges = brush->edges();
-                Model::BrushEdgeList::const_iterator it, end;
+                const Model::Brush::EdgeList edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
                     if (filter.show(edge))
@@ -283,8 +283,8 @@ namespace TrenchBroom {
             }
             
             void buildEdges(const Model::Brush* brush) {
-                const Model::BrushEdgeList edges = brush->edges();
-                Model::BrushEdgeList::const_iterator it, end;
+                const Model::Brush::EdgeList edges = brush->edges();
+                Model::Brush::EdgeList::const_iterator it, end;
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
                     if (filter.show(edge)) {

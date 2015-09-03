@@ -23,6 +23,7 @@
 #include "TrenchBroom.h"
 #include "VecMath.h"
 #include "Hit.h"
+#include "ProjectingSequence.h"
 #include "Model/BrushContentType.h"
 #include "Model/BrushGeometryTypes.h"
 #include "Model/Node.h"
@@ -38,6 +39,17 @@ namespace TrenchBroom {
         class Brush : public Node, public Object {
         public:
             static const Hit::HitType BrushHit;
+        private:
+            struct ProjectToVertex : public ProjectingSequenceProjector<BrushVertex*, BrushVertex*> {
+                static BrushVertex* const& project(BrushVertex* const& vertex);
+            };
+            
+            struct ProjectToEdge : public ProjectingSequenceProjector<BrushEdge*, BrushEdge*> {
+                static BrushEdge* const& project(BrushEdge* const& edge);
+            };
+        public:
+            typedef ProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
+            typedef ProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
         private:
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
@@ -97,10 +109,10 @@ namespace TrenchBroom {
         public:
             // geometry access
             size_t vertexCount() const;
-            const BrushVertexList& vertices() const;
+            VertexList vertices() const;
             
             size_t edgeCount() const;
-            const BrushEdgeList& edges() const;
+            EdgeList edges() const;
             
             bool containsPoint(const Vec3& point) const;
             

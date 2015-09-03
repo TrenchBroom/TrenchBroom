@@ -44,11 +44,11 @@ namespace TrenchBroom {
             Vec3::List vertexPositions;
             
             Model::BrushList::const_iterator bIt, bEnd;
-            Model::BrushVertexList::const_iterator vIt, vEnd;
+            Model::Brush::VertexList::const_iterator vIt, vEnd;
             
             for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                 Model::Brush* brush = *bIt;
-                const Model::BrushVertexList& vertices = brush->vertices();
+                const Model::Brush::VertexList vertices = brush->vertices();
                 for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                     const Model::BrushVertex* vertex = *vIt;
                     brushVertices[brush].push_back(vertex->position);

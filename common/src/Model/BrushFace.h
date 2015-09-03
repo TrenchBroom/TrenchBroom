@@ -65,7 +65,6 @@ namespace TrenchBroom {
         public:
             typedef Renderer::TriangleMesh<MeshVertexSpec, const Assets::Texture*> Mesh;
             static const String NoTextureName;
-            
         private:
             struct ProjectToVertex : public ProjectingSequenceProjector<BrushVertex*, BrushVertex*> {
                 static BrushVertex* const& project(BrushVertex* const& vertex);

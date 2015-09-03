@@ -608,8 +608,8 @@ namespace TrenchBroom {
                 Model::BrushList::const_iterator bIt, bEnd;
                 for (bIt = brushes.begin(), bEnd = brushes.end(); bIt != bEnd; ++bIt) {
                     const Model::Brush* brush = *bIt;
-                    const Model::BrushVertexList& vertices = brush->vertices();
-                    Model::BrushVertexList::const_iterator vIt, vEnd;
+                    const Model::Brush::VertexList vertices = brush->vertices();
+                    Model::Brush::VertexList::const_iterator vIt, vEnd;
                     for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                         const Model::BrushVertex* vertex = *vIt;
                         polyhedron.addPoint(vertex->position);
