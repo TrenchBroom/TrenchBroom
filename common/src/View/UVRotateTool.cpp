@@ -167,8 +167,8 @@ namespace TrenchBroom {
             float minDelta = std::numeric_limits<float>::max();
             
             const Mat4x4 toFace = face->toTexCoordSystemMatrix(Vec2f::Null, Vec2f::One, true);
-            const Model::BrushEdgeList& edges = face->edges();
-            Model::BrushEdgeList::const_iterator it, end;
+            const Model::BrushFace::EdgeList edges = face->edges();
+            Model::BrushFace::EdgeList::const_iterator it, end;
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 const Model::BrushEdge* edge = *it;
                 

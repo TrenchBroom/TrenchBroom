@@ -203,8 +203,8 @@ namespace TrenchBroom {
                 }
             }
             
-            const Model::BrushEdgeList& edges = face->edges();
-            Model::BrushEdgeList::const_iterator eIt, eEnd;
+            const Model::BrushFace::EdgeList edges = face->edges();
+            Model::BrushFace::EdgeList::const_iterator eIt, eEnd;
             for (eIt = edges.begin(), eEnd = edges.end(); eIt != eEnd; ++eIt) {
                 Model::BrushEdge* edge = *eIt;
                 if (edge->contains(hitPoint)) {

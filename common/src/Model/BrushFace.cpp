@@ -39,6 +39,10 @@ namespace TrenchBroom {
             return vertex;
         }
 
+        BrushEdge* const& BrushFace::ProjectToEdge::project(BrushEdge* const& edge) {
+            return edge;
+        }
+
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem) :
         m_brush(NULL),
         m_lineNumber(0),
@@ -489,9 +493,9 @@ namespace TrenchBroom {
             return m_side->vertices.size();
         }
 
-        const BrushEdgeList& BrushFace::edges() const {
+        BrushFace::EdgeList BrushFace::edges() const {
             assert(m_side != NULL);
-            return m_side->edges;
+            return EdgeList(m_side->edges);
         }
 
         BrushFace::VertexList BrushFace::vertices() const {

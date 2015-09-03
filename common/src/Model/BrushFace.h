@@ -70,8 +70,13 @@ namespace TrenchBroom {
             struct ProjectToVertex : public ProjectingSequenceProjector<BrushVertex*, BrushVertex*> {
                 static BrushVertex* const& project(BrushVertex* const& vertex);
             };
+            
+            struct ProjectToEdge : public ProjectingSequenceProjector<BrushEdge*, BrushEdge*> {
+                static BrushEdge* const& project(BrushEdge* const& edge);
+            };
         public:
             typedef ProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
+            typedef ProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
         private:
             Brush* m_brush;
             BrushFace::Points m_points;
@@ -167,7 +172,7 @@ namespace TrenchBroom {
             float measureTextureAngle(const Vec2f& center, const Vec2f& point) const;
             
             size_t vertexCount() const;
-            const BrushEdgeList& edges() const;
+            EdgeList edges() const;
             VertexList vertices() const;
             
             BrushFaceGeometry* side() const;

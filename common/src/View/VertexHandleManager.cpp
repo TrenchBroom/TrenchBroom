@@ -797,9 +797,9 @@ namespace TrenchBroom {
                 Model::BrushFaceList::const_iterator faceIt, faceEnd;
                 for (faceIt = faces.begin(), faceEnd = faces.end(); faceIt != faceEnd; ++faceIt) {
                     const Model::BrushFace* face = *faceIt;
-                    const Model::BrushEdgeList& edges = face->edges();
+                    const Model::BrushFace::EdgeList edges = face->edges();
                     
-                    Model::BrushEdgeList::const_iterator edgeIt, edgeEnd;
+                    Model::BrushFace::EdgeList::const_iterator edgeIt, edgeEnd;
                     for (edgeIt = edges.begin(), edgeEnd = edges.end(); edgeIt != edgeEnd; ++edgeIt) {
                         const Model::BrushEdge* edge = *edgeIt;
                         m_edgeVertices.push_back(Vec3f(edge->start->position));
