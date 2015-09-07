@@ -45,15 +45,19 @@ void Polyhedron<T,FP>::addPoint(const V& position, C& callback) {
     switch (vertexCount()) {
         case 0:
             addFirstPoint(position);
+            m_bounds.min = m_bounds.max = position;
             break;
         case 1:
             addSecondPoint(position);
+            m_bounds.mergeWith(position);
             break;
         case 2:
             addThirdPoint(position, callback);
+            m_bounds.mergeWith(position);
             break;
         default:
             addFurtherPoint(position, callback);
+            m_bounds.mergeWith(position);
             break;
     }
     assert(checkInvariant());

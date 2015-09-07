@@ -20,13 +20,12 @@
 #ifndef TrenchBroom_ProjectingSequence_h
 #define TrenchBroom_ProjectingSequence_h
 
-template <typename R, typename T>
+template <typename T, typename R>
 struct ProjectingSequenceProjector {
     typedef R Type;
     typedef const R ConstType;
-
-    static const R& project(const T& vertex);
-    static R& project(T& vertex);
+    static Type project(T& vertex);
+    static ConstType projectConst(T& vertex);
 };
 
 template <typename C, typename P>
@@ -52,8 +51,8 @@ struct ProjectingSequenceIterators {
         iterator operator++(int) { iterator result(*this); ++m_iterator; return result; }
         iterator operator--(int) { iterator result(*this); --m_iterator; return result; }
         
-        typename P::Type& operator*()  const { return P::project(*m_iterator); }
-        typename P::Type  operator->() const { return P::project(*m_iterator); }
+        typename P::Type operator*()  const { return P::project(*m_iterator); }
+        typename P::Type operator->() const { return P::project(*m_iterator); }
     };
     
     class const_iterator {
@@ -77,8 +76,8 @@ struct ProjectingSequenceIterators {
         const_iterator operator++(int) { const_iterator result(*this); ++m_iterator; return result; }
         const_iterator operator--(int) { const_iterator result(*this); --m_iterator; return result; }
         
-        typename P::ConstType& operator*()  const { return P::project(*m_iterator); }
-        typename P::Type       operator->() const { return P::project(*m_iterator); }
+        typename P::Type operator*()  const { return P::project(*m_iterator); }
+        typename P::Type operator->() const { return P::project(*m_iterator); }
     };
 };
 
@@ -105,11 +104,11 @@ public:
     }
 
     const_iterator begin() const {
-        return const_iterator(m_container.begin());
+        return const_iterator(m_container.cbegin());
     }
     
     const_iterator end() const {
-        return const_iterator(m_container.end());
+        return const_iterator(m_container.cend());
     }
 };
 

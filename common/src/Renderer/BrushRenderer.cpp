@@ -22,10 +22,8 @@
 #include "Preferences.h"
 #include "PreferenceManager.h"
 #include "Model/Brush.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushFaceGeometry.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/EditorContext.h"
 #include "Model/NodeVisitor.h"
 #include "Renderer/RenderContext.h"
@@ -45,7 +43,7 @@ namespace TrenchBroom {
 
         bool BrushRenderer::DefaultFilter::visible(const Model::Brush* brush) const { return m_context.visible(brush); }
         bool BrushRenderer::DefaultFilter::visible(const Model::BrushFace* face) const { return m_context.visible(face); }
-        bool BrushRenderer::DefaultFilter::visible(const Model::BrushEdge* edge) const { return m_context.visible(edge->leftFace()) || m_context.visible(edge->rightFace()); }
+        bool BrushRenderer::DefaultFilter::visible(const Model::BrushEdge* edge) const { return m_context.visible(edge->firstFace()->payload()) || m_context.visible(edge->secondFace()->payload()); }
         
         bool BrushRenderer::DefaultFilter::editable(const Model::Brush* brush) const { return m_context.editable(brush); }
         bool BrushRenderer::DefaultFilter::editable(const Model::BrushFace* face) const { return m_context.editable(face); }
@@ -53,10 +51,11 @@ namespace TrenchBroom {
         bool BrushRenderer::DefaultFilter::selected(const Model::Brush* brush) const { return brush->selected() || brush->parentSelected(); }
         bool BrushRenderer::DefaultFilter::selected(const Model::BrushFace* face) const { return face->selected(); }
         bool BrushRenderer::DefaultFilter::selected(const Model::BrushEdge* edge) const {
-            const Model::BrushFace* left = edge->left->face;
-            const Model::BrushFace* right = edge->right->face;
-            const Model::Brush* brush = left->brush();
-            return selected(brush) || selected(left) || selected(right);
+            const Model::BrushFace* first = edge->firstFace()->payload();
+            const Model::BrushFace* second = edge->secondFace()->payload();
+            const Model::Brush* brush = first->brush();
+            assert(second->brush() == brush);
+            return selected(brush) || selected(first) || selected(second);
         }
         bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::Brush* brush) const { return brush->descendantSelected(); }
 
@@ -288,8 +287,8 @@ namespace TrenchBroom {
                 for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                     const Model::BrushEdge* edge = *it;
                     if (filter.show(edge)) {
-                        edgeVertices.push_back(VertexSpecs::P3::Vertex(edge->start->position));
-                        edgeVertices.push_back(VertexSpecs::P3::Vertex(edge->end->position));
+                        edgeVertices.push_back(VertexSpecs::P3::Vertex(edge->firstVertex()->position()));
+                        edgeVertices.push_back(VertexSpecs::P3::Vertex(edge->secondVertex()->position()));
                     }
                 }
             }

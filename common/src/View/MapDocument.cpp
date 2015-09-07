@@ -32,7 +32,7 @@
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/CollectAttributableNodesVisitor.h"
 #include "Model/CollectContainedNodesVisitor.h"
@@ -600,7 +600,7 @@ namespace TrenchBroom {
                     Model::BrushFace::VertexList::const_iterator vIt, vEnd;
                     for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                         const Model::BrushVertex* vertex = *vIt;
-                        polyhedron.addPoint(vertex->position);
+                        polyhedron.addPoint(vertex->position());
                     }
                 }
             } else if (selectedNodes().hasOnlyBrushes()) {
@@ -612,7 +612,7 @@ namespace TrenchBroom {
                     Model::Brush::VertexList::const_iterator vIt, vEnd;
                     for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                         const Model::BrushVertex* vertex = *vIt;
-                        polyhedron.addPoint(vertex->position);
+                        polyhedron.addPoint(vertex->position());
                     }
                 }
             }

@@ -25,7 +25,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
 #include "Model/EntityAttributes.h"
 #include "Model/FindLayerVisitor.h"

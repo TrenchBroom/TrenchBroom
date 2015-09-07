@@ -63,6 +63,22 @@ public:
         m_boundary.deleteAll();
     }
     
+    P* payload() const {
+        return m_payload;
+    }
+    
+    void setPayload(P* payload) {
+        m_payload = payload;
+    }
+    
+    Face* next() const {
+        return m_link.next();
+    }
+    
+    Face* previous() const {
+        return m_link.previous();
+    }
+
     size_t vertexCount() const {
         return m_boundary.size();
     }
@@ -90,17 +106,23 @@ public:
     }
     
     V normal() const {
-        typename HalfEdgeList::const_iterator it  = m_boundary.begin();
-        const HalfEdge* edge = *it++;
-        const V p1 = edge->origin()->position();
-        
-        edge = *it++;
-        const V p2 = edge->origin()->position();
-        
-        edge = *it++;
-        const V p3 = edge->origin()->position();
-        
-        return crossed(p2 - p1, p3 - p1).normalized();
+        const HalfEdge* first = m_boundary.front();
+        const HalfEdge* current = first;
+        V cross;
+        do {
+            const V& p1 = current->origin()->position();
+            const V& p2 = current->next()->origin()->position();
+            const V& p3 = current->next()->next()->origin()->position();
+            cross = crossed(p2 - p1, p3 - p1);
+            if (!cross.null())
+                return cross.normalized();
+            current = current->next();
+        } while (first != current);
+        return cross;
+    }
+    
+    V center() const {
+        return V::center(m_boundary.begin(), m_boundary.end(), GetVertexPosition());
     }
     
     T intersectWithRay(const Ray<T,3>& ray, const Math::Side side) const {

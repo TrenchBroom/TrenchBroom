@@ -98,6 +98,15 @@ public:
         return m_first;
     }
     
+    V vector() const {
+        return secondVertex()->position() - firstVertex()->position();
+    }
+    
+    V center() const {
+        assert(fullySpecified());
+        return (m_first->origin()->position() + m_second->origin()->position()) / static_cast<T>(2.0);
+    }
+    
     Face* firstFace() const {
         assert(m_first != NULL);
         return m_first->face();
@@ -140,7 +149,7 @@ public:
     }
     
     bool contains(const V& point, const T maxDistance = Math::Constants<T>::almostZero()) const {
-        return point.distanceToSegment(firstVertex()->position(), secondVertex()->position() < maxDistance);
+        return point.distanceToSegment(firstVertex()->position(), secondVertex()->position()).distance < maxDistance;
     }
 
     Edge* next() const {
@@ -173,7 +182,14 @@ private:
         
         // cheat a little bit?, just like QBSP
         position.correct();
+        return insertVertex(position);
+    }
 
+    Edge* splitAtCenter() {
+        return insertVertex(center());
+    }
+
+    Edge* insertVertex(const V& position) {
         Vertex* newVertex = new Vertex(position);
         HalfEdge* newFirstEdge = new HalfEdge(newVertex);
         HalfEdge* oldFirstEdge = firstEdge();
@@ -192,7 +208,7 @@ private:
         Edge* newEdge = new Edge(newFirstEdge, oldSecondEdge);
         return newEdge;
     }
-
+    
     void flip() {
         using std::swap;
         swap(m_first, m_second);

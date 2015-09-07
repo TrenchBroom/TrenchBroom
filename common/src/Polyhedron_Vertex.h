@@ -57,11 +57,19 @@ public:
     const V& position() const {
         return m_position;
     }
-private:
+
+    Vertex* next() const {
+        return m_link.next();
+    }
+    
+    Vertex* previous() const {
+        return m_link.previous();
+    }
+
     HalfEdge* leaving() const {
         return m_leaving;
     }
-    
+private:
     HalfEdge* findConnectingEdge(const Vertex* vertex) const {
         assert(vertex != NULL);
         assert(m_leaving != NULL);

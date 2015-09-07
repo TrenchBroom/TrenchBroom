@@ -21,7 +21,7 @@
 
 #include "SetBool.h"
 #include "Model/Brush.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/HitAdapter.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Object.h"
@@ -201,8 +201,8 @@ namespace TrenchBroom {
 
         bool VertexTool::handleBrushes(const Vec3& position, Model::BrushSet& brushes) const {
             bool newBrush = true;
-            const Model::BrushList& handleBrushes = m_handleManager.brushes(position);
-            Model::BrushList::const_iterator bIt, bEnd;
+            const Model::BrushSet& handleBrushes = m_handleManager.brushes(position);
+            Model::BrushSet::const_iterator bIt, bEnd;
             for (bIt = handleBrushes.begin(), bEnd = handleBrushes.end(); bIt != bEnd; ++bIt) {
                 Model::Brush* brush = *bIt;
                 newBrush &= brushes.insert(brush).second;
@@ -446,10 +446,11 @@ namespace TrenchBroom {
             const Vec3::List selectedEdgeHandles   = m_handleManager.selectedEdgeHandlePositions();
             const Vec3::List selectedFaceHandles   = m_handleManager.selectedFaceHandlePositions();
             
-            const Model::BrushList brushes = m_handleManager.selectedBrushes();
-            m_handleManager.removeBrushes(brushes);
-            document->rebuildBrushGeometry(brushes);
-            m_handleManager.addBrushes(brushes);
+            const Model::BrushSet brushes = m_handleManager.selectedBrushes();
+            
+            m_handleManager.removeBrushes(brushes.begin(), brushes.end());
+            document->rebuildBrushGeometry(Model::BrushList(brushes.begin(), brushes.end()));
+            m_handleManager.addBrushes(brushes.begin(), brushes.end());
 
             m_handleManager.reselectVertexHandles(brushes, selectedVertexHandles, 0.01);
             m_handleManager.reselectEdgeHandles(brushes, selectedEdgeHandles, 0.01);
@@ -460,7 +461,9 @@ namespace TrenchBroom {
             MapDocumentSPtr document = lock(m_document);
             m_mode = Mode_Move;
             m_handleManager.clear();
-            m_handleManager.addBrushes(document->selectedNodes().brushes());
+            
+            const Model::BrushList& selectedBrushes = document->selectedNodes().brushes();
+            m_handleManager.addBrushes(selectedBrushes.begin(), selectedBrushes.end());
             m_changeCount = 0;
             
             bindObservers();

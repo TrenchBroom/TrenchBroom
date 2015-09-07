@@ -20,9 +20,8 @@
 #include "ClipToolAdapter.h"
 
 #include "Model/Brush.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
@@ -197,7 +196,7 @@ namespace TrenchBroom {
             Model::BrushFace::VertexList::const_iterator vIt, vEnd;
             for (vIt = vertices.begin(), vEnd = vertices.end(); vIt != vEnd; ++vIt) {
                 const Model::BrushVertex* vertex = *vIt;
-                if (vertex->position.equals(hitPoint)) {
+                if (vertex->position().equals(hitPoint)) {
                     const Model::Brush* brush = face->brush();
                     return brush->incidentFaces(vertex);
                 }
@@ -209,8 +208,8 @@ namespace TrenchBroom {
                 Model::BrushEdge* edge = *eIt;
                 if (edge->contains(hitPoint)) {
                     Model::BrushFaceList result;
-                    result.push_back(edge->leftFace());
-                    result.push_back(edge->rightFace());
+                    result.push_back(edge->firstFace()->payload());
+                    result.push_back(edge->secondFace()->payload());
                     return result;
                 }
             }

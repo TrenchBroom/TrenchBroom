@@ -89,6 +89,14 @@ public:
             mergeWith(vertices[i]);
     }
     
+    template <typename I, typename G>
+    BBox(I cur, I end, G get) {
+        assert(cur != end);
+        min = max = get(*cur++);
+        while (cur != end)
+            mergeWith(get(*cur++));
+    }
+
     template <typename U>
     BBox(const BBox<U,S>& other) :
     min(other.min),

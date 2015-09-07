@@ -22,7 +22,7 @@
 #include "Preferences.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/HitQuery.h"
 #include "Model/ModelTypes.h"
 #include "Model/PickResult.h"
@@ -184,7 +184,7 @@ namespace TrenchBroom {
             
             Vec2f distanceInTexCoords = Vec2f::Max;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
-                distanceInTexCoords = absMin(distanceInTexCoords, newOriginInTexCoords - Vec2f(w2tTransform * (*it)->position));
+                distanceInTexCoords = absMin(distanceInTexCoords, newOriginInTexCoords - Vec2f(w2tTransform * (*it)->position()));
             
             // and to the texture grid
             const Assets::Texture* texture = face->texture();

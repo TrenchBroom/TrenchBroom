@@ -22,7 +22,7 @@
 #include "Preferences.h"
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/Renderable.h"
@@ -307,7 +307,7 @@ namespace TrenchBroom {
             
             Model::BrushFace::VertexList::const_iterator it, end;
             for (it = faceVertices.begin(), end = faceVertices.end(); it != end; ++it)
-                edgeVertices.push_back(Vertex((*it)->position));
+                edgeVertices.push_back(Vertex((*it)->position()));
             
             const Color edgeColor(1.0f, 1.0f, 1.0f, 0.8f); // TODO: make this a preference
             

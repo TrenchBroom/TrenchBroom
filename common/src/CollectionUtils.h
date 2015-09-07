@@ -795,6 +795,11 @@ namespace MapUtils {
             VectorUtils::clearAndDelete(entry.second);
         }
     };
+
+    template <typename K, typename V>
+    bool contains(const std::map<K, V>& map, const K& key) {
+        return map.find(key) != map.end();
+    }
     
     template <typename K, typename V, typename L>
     const V& find(const std::map<K, V>& map, const L& key, const V& defaultValue) {

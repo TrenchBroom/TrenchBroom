@@ -20,7 +20,7 @@
 #include "NonIntegerVerticesIssueGenerator.h"
 
 #include "Model/Brush.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
@@ -69,7 +69,7 @@ namespace TrenchBroom {
             Brush::VertexList::const_iterator it, end;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
                 const BrushVertex* vertex = *it;
-                if (!vertex->position.isInteger()) {
+                if (!vertex->position().isInteger()) {
                     issues.push_back(new NonIntegerVerticesIssue(brush));
                     return;
                 }

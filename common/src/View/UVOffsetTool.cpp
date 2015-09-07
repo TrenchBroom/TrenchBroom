@@ -20,7 +20,7 @@
 #include "UVOffsetTool.h"
 
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -110,10 +110,10 @@ namespace TrenchBroom {
             const Model::BrushFace::VertexList vertices = face->vertices();
             Model::BrushFace::VertexList::const_iterator it = vertices.begin();
             Model::BrushFace::VertexList::const_iterator end = vertices.end();
-            Vec2f distance = m_helper.computeDistanceFromTextureGrid(transform * (*it++)->position);
+            Vec2f distance = m_helper.computeDistanceFromTextureGrid(transform * (*it++)->position());
             
             while (it != end)
-                distance = absMin(distance, m_helper.computeDistanceFromTextureGrid(transform * (*it++)->position));
+                distance = absMin(distance, m_helper.computeDistanceFromTextureGrid(transform * (*it++)->position()));
             
             return m_helper.snapDelta(delta, distance);
         }

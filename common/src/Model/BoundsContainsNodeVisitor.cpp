@@ -19,7 +19,6 @@
 
 #include "BoundsContainsNodeVisitor.h"
 #include "Model/Brush.h"
-#include "Model/BrushVertex.h"
 #include "Model/Entity.h"
 #include "Model/Group.h"
 
@@ -37,7 +36,7 @@ namespace TrenchBroom {
             const Brush::VertexList vertices = brush->vertices();
             Brush::VertexList::const_iterator it, end;
             for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
-                if (!m_bounds.contains((*it)->position)) {
+                if (!m_bounds.contains((*it)->position())) {
                     setResult(false);
                     return;
                 }

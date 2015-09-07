@@ -21,7 +21,7 @@
 #include "Logger.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Entity.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitQuery.h"
@@ -424,7 +424,7 @@ namespace TrenchBroom {
                 const Model::Brush::VertexList vertices = brush->vertices();
                 Model::Brush::VertexList::const_iterator it, end;
                 for (it = vertices.begin(), end = vertices.end(); it != end; ++it)
-                    addPoint((*it)->position);
+                    addPoint((*it)->position());
             }
             
             void addPoint(const Vec3& point) {
@@ -474,7 +474,7 @@ namespace TrenchBroom {
                 for (it = vertices.begin(), end = vertices.end(); it != end; ++it) {
                     const Model::BrushVertex* vertex = *it;
                     for (size_t j = 0; j < 4; ++j)
-                        addPoint(vertex->position, m_frustumPlanes[j]);
+                        addPoint(vertex->position(), m_frustumPlanes[j]);
                 }
             }
             

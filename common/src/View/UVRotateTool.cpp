@@ -22,8 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushEdge.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/HitQuery.h"
 #include "Model/PickResult.h"
@@ -172,8 +171,8 @@ namespace TrenchBroom {
             for (it = edges.begin(), end = edges.end(); it != end; ++it) {
                 const Model::BrushEdge* edge = *it;
                 
-                const Vec3 startInFaceCoords = toFace * edge->start->position;
-                const Vec3 endInFaceCoords   = toFace * edge->end->position;
+                const Vec3 startInFaceCoords = toFace * edge->firstVertex()->position();
+                const Vec3 endInFaceCoords   = toFace * edge->secondVertex()->position();
                 const float edgeAngle        = Math::mod(face->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
                 
                 for (size_t i = 0; i < 4; ++i) {

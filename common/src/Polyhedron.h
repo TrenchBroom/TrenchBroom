@@ -56,6 +56,11 @@ public:
     typedef DoublyLinkedList<HalfEdge, GetHalfEdgeLink> HalfEdgeList;
     typedef DoublyLinkedList<Face, GetFaceLink> FaceList;
 public:
+    struct GetVertexPosition {
+        const V& operator()(const Vertex* vertex) const;
+        const V& operator()(const HalfEdge* halfEdge) const;
+    };
+
     class Callback {
     public:
         virtual ~Callback();
@@ -67,10 +72,11 @@ public:
         virtual void faceWasSplit(Face* original, Face* clone);
         virtual void facesWillBeMerged(Face* remaining, Face* toDelete);
     };
-private:
+protected:
     VertexList m_vertices;
     EdgeList m_edges;
     FaceList m_faces;
+    BBox<T,3> m_bounds;
 public: // Constructors
     Polyhedron();
     
@@ -116,6 +122,8 @@ public: // Accessors
     const FaceList& faces() const;
     bool hasFace(const typename V::List& positions) const;
     
+    const BBox<T,3>& bounds() const;
+    
     bool empty() const;
     bool point() const;
     bool edge() const;
@@ -137,9 +145,12 @@ private: // General purpose methods
     bool checkClosed() const;
     bool checkNoCoplanarFaces() const;
     bool checkNoDegenerateFaces() const;
+    
+    void updateBounds();
 public: // Moving vertices
-    typename V::List moveVertices(const typename V::List& positions, const V& delta);
-    template <typename C> typename V::List moveVertices(const typename V::List& positions, const V& delta, C& callback);
+    struct MoveVerticesResult;
+    MoveVerticesResult moveVertices(const typename V::List& positions, const V& delta, bool allowMergeIncidentVertices);
+    template <typename C> MoveVerticesResult moveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, C& callback);
 private:
     struct MoveVertexResult;
     template <typename C> MoveVertexResult moveVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, C& callback);
@@ -169,6 +180,14 @@ private:
 
     template <typename C> Vertex* mergeIncidentFaces(Vertex* vertex, C& callback);
     template <typename C> void mergeNeighbours(HalfEdge* borderFirst, C& callback);
+public: // Splitting edges and faces
+    struct SplitResult;
+    
+    SplitResult splitEdge(const V& v1, const V& v2);
+    template <typename C> SplitResult splitEdge(const V& v1, const V& v2, C& callback);
+    
+    SplitResult splitFace(const typename V::List& vertexPositions);
+    template <typename C> SplitResult splitFace(const typename V::List& vertexPositions, C& callback);
 public: // Convex hull and adding points
     template <typename I> void addPoints(I cur, I end);
     template <typename I, typename C> void addPoints(I cur, I end, C& callback);

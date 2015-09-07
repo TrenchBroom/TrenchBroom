@@ -23,6 +23,16 @@
 #include <map>
 
 template <typename T, typename FP>
+const typename Polyhedron<T,FP>::V& Polyhedron<T,FP>::GetVertexPosition::operator()(const Vertex* vertex) const {
+    return vertex->position();
+}
+
+template <typename T, typename FP>
+const typename Polyhedron<T,FP>::V& Polyhedron<T,FP>::GetVertexPosition::operator()(const HalfEdge* halfEdge) const {
+    return halfEdge->origin()->position();
+}
+
+template <typename T, typename FP>
 Polyhedron<T,FP>::Callback::~Callback() {}
 
 template <typename T, typename FP>
@@ -59,7 +69,9 @@ template <typename T, typename FP>
 void Polyhedron<T,FP>::Callback::facesWillBeMerged(Face* remaining, Face* toDelete) {}
 
 template <typename T, typename FP>
-Polyhedron<T,FP>::Polyhedron() {}
+Polyhedron<T,FP>::Polyhedron() {
+    updateBounds();
+}
 
 template <typename T, typename FP>
 Polyhedron<T,FP>::Polyhedron(const V& p1, const V& p2, const V& p3, const V& p4) {
@@ -225,6 +237,7 @@ private:
         swap(m_vertices, m_destination.m_vertices);
         swap(m_edges, m_destination.m_edges);
         swap(m_faces, m_destination.m_faces);
+        m_destination.updateBounds();
     }
 };
 
@@ -311,6 +324,11 @@ const typename Polyhedron<T,FP>::FaceList& Polyhedron<T,FP>::faces() const {
 template <typename T, typename FP>
 bool Polyhedron<T,FP>::hasFace(const typename V::List& positions) const {
     return findFaceByPositions(positions) != NULL;
+}
+
+template <typename T, typename FP>
+const BBox<T,3>& Polyhedron<T,FP>::bounds() const {
+    return m_bounds;
 }
 
 template <typename T, typename FP>
@@ -488,6 +506,14 @@ bool Polyhedron<T,FP>::checkNoDegenerateFaces() const {
         }
     }
     return true;
+}
+
+template <typename T, typename FP>
+void Polyhedron<T,FP>::updateBounds() {
+    if (m_vertices.size() == 0)
+        m_bounds.min = m_bounds.max = Vec<T,3>::NaN;
+    else
+        m_bounds = BBox<T,3>(m_vertices.begin(), m_vertices.end(), GetVertexPosition());
 }
 
 #endif

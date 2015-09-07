@@ -21,9 +21,8 @@
 
 #include "CollectionUtils.h"
 #include "Model/Brush.h"
-#include "Model/BrushEdge.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushVertex.h"
+#include "Model/BrushGeometry.h"
 
 namespace TrenchBroom {
     namespace View {
@@ -201,8 +200,8 @@ namespace TrenchBroom {
                 Model::BrushFace::VertexList::const_iterator fIt, fEnd;
                 for (fIt = faceVertices.begin(), fEnd = faceVertices.end(); fIt != fEnd; ++fIt) {
                     const Model::BrushVertex* vertex = *fIt;
-                    startFound |= (vertex->position == edge->start->position);
-                    endFound |= (vertex->position == edge->end->position);
+                    startFound |= (vertex->position() == edge->firstVertex()->position());
+                    endFound |= (vertex->position() == edge->secondVertex()->position());
                     if (startFound && endFound)
                         break;
                 }
@@ -217,10 +216,10 @@ namespace TrenchBroom {
                 if (c == 1) {
                     Ray3 ray;
                     if (originAtStart) {
-                        ray.origin = edge->start->position;
+                        ray.origin = edge->firstVertex()->position();
                         ray.direction = edge->vector().normalized();
                     } else {
-                        ray.origin = edge->end->position;
+                        ray.origin = edge->secondVertex()->position();
                         ray.direction = -edge->vector().normalized();
                     }
                     

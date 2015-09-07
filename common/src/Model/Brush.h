@@ -25,7 +25,7 @@
 #include "Hit.h"
 #include "ProjectingSequence.h"
 #include "Model/BrushContentType.h"
-#include "Model/BrushGeometryTypes.h"
+#include "Model/BrushGeometry.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
 
@@ -33,23 +33,29 @@ namespace TrenchBroom {
     namespace Model {
         struct BrushAlgorithmResult;
         class BrushContentTypeBuilder;
-        class BrushGeometry;
         class PickResult;
         
         class Brush : public Node, public Object {
+        private:
+            friend class SetTempFaceLinks;
         public:
             static const Hit::HitType BrushHit;
         private:
             struct ProjectToVertex : public ProjectingSequenceProjector<BrushVertex*, BrushVertex*> {
-                static BrushVertex* const& project(BrushVertex* const& vertex);
+                static BrushVertex*& project(BrushVertex*& vertex);
             };
             
             struct ProjectToEdge : public ProjectingSequenceProjector<BrushEdge*, BrushEdge*> {
-                static BrushEdge* const& project(BrushEdge* const& edge);
+                static BrushEdge*& project(BrushEdge*& edge);
             };
+            
+            class AddFaceToGeometryCallback;
+            class AddFacesToGeometry;
+            
+            class MoveVerticesCallback;
         public:
-            typedef ProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
-            typedef ProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
+            typedef ConstProjectingSequence<BrushVertexList, ProjectToVertex> VertexList;
+            typedef ConstProjectingSequence<BrushEdgeList, ProjectToEdge> EdgeList;
         private:
             BrushFaceList m_faces;
             BrushGeometry* m_geometry;
@@ -135,7 +141,7 @@ namespace TrenchBroom {
             bool canSplitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
             Vec3 splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta);
         private:
-            void processBrushAlgorithmResult(const BBox3& worldBounds, const BrushAlgorithmResult& result);
+            void updateBrushAfterVertexMove(const BBox3& worldBounds, const MoveVerticesCallback& result);
             void invalidateFaces();
         public: // brush geometry
             void rebuildGeometry(const BBox3& worldBounds);
