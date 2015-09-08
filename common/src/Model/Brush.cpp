@@ -82,7 +82,9 @@ namespace TrenchBroom {
             AddFacesToGeometry(BrushGeometry& geometry, const BrushFaceList& facesToAdd) :
             m_geometry(geometry),
             m_brushEmpty(false) {
+                BrushFaceSet addedFaceSet;
                 BrushFaceList::const_iterator it, end;
+                size_t droppedFaceCount = 0;
                 for (it = facesToAdd.begin(), end = facesToAdd.end(); it != end && !m_brushEmpty; ++it) {
                     BrushFace* face = *it;
                     AddFaceToGeometryCallback callback(face, m_droppedFaces);
@@ -92,8 +94,19 @@ namespace TrenchBroom {
                     else if (result.empty())
                         m_brushEmpty = true;
                     else
-                        m_addedFaces.push_back(face);
+                        addedFaceSet.insert(face);
+                    if (droppedFaceCount < m_droppedFaces.size()) {
+                        BrushFaceList::iterator dIt = m_droppedFaces.begin();
+                        BrushFaceList::iterator dEnd = m_droppedFaces.end();
+                        std::advance(dIt, droppedFaceCount);
+                        while (dIt != dEnd) {
+                            addedFaceSet.erase(*dIt);
+                            ++dIt;
+                        }
+                        droppedFaceCount = m_droppedFaces.size();
+                    }
                 }
+                m_addedFaces.insert(m_addedFaces.end(), addedFaceSet.begin(), addedFaceSet.end());
             }
             
             const BrushFaceList& addedFaces() const {
@@ -164,18 +177,37 @@ namespace TrenchBroom {
                 
                 BrushFace* clonedFace = originalFace->clone();
                 cloneGeometry->setPayload(clonedFace);
+                clonedFace->setGeometry(cloneGeometry);
 
                 m_clonedFaces[clonedFace] = originalFace;
             }
             
             void facesWillBeMerged(BrushFaceGeometry* remainingGeometry, BrushFaceGeometry* geometryToDelete) {
+                BrushFace* remainingFace = remainingGeometry->payload();
                 BrushFace* faceToDelete = geometryToDelete->payload();
+                assert(remainingFace != NULL);
                 assert(faceToDelete != NULL);
                 
-                // Is the face to be deleted an original face?
-                if (!MapUtils::contains(m_clonedFaces, faceToDelete))
-                    // Then we swap it with the remaining face:
-                    swapFaces(remainingGeometry, geometryToDelete);
+                ClonedFacesMap::iterator remainingFaceIt = m_clonedFaces.find(remainingFace);
+                ClonedFacesMap::iterator faceToDeleteIt = m_clonedFaces.find(faceToDelete);
+
+                if (faceToDeleteIt != m_clonedFaces.end()) {
+                    // If the face to delete is a clone, we just delete it:
+                    m_clonedFaces.erase(faceToDeleteIt);
+                    delete faceToDelete;
+                } else {
+                    // The face to delete is an original face.
+                    if (remainingFaceIt != m_clonedFaces.end()) {
+                        // If the remaining face is a clone, we swap them
+                        swapFaces(remainingGeometry, geometryToDelete);
+                        // and then we delete the remaining face
+                        m_clonedFaces.erase(remainingFaceIt);
+                        delete remainingFace;
+                    } else {
+                        // The remaining face is an original, too, we add the face to delete to the dropped faces:
+                        m_droppedFaces.push_back(faceToDelete);
+                    }
+                }
             }
             
             bool hasAddedFaces() const {
@@ -514,7 +546,7 @@ namespace TrenchBroom {
 
             const Vec3::List vertexPositions(1, splitResult.vertexPosition);
             const BrushGeometry::MoveVerticesResult moveResult = testGeometry.moveVertices(vertexPositions, delta, false);
-            return !moveResult.allVerticesMoved() && worldBounds.contains(testGeometry.bounds());
+            return moveResult.allVerticesMoved() && worldBounds.contains(testGeometry.bounds());
         }
         
         Vec3 Brush::splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta) {
