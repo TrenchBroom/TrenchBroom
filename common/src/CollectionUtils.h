@@ -353,6 +353,11 @@ namespace VectorUtils {
         vec.erase(CollectionUtils::removeAll(vec.begin(), vec.end(), items.begin(), items.end()), vec.end());
     }
     
+    template <typename T, typename I>
+    void eraseAll(std::vector<T*>& vec, I cur, I end) {
+        vec.erase(CollectionUtils::removeAll(vec.begin(), vec.end(), cur, end), vec.end());
+    }
+    
     template <typename T>
     std::vector<T*> eraseAll(const std::vector<T*>& vec, const std::vector<T*>& items) {
         std::vector<T*> result(vec);

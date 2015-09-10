@@ -82,7 +82,6 @@ namespace TrenchBroom {
             AddFacesToGeometry(BrushGeometry& geometry, const BrushFaceList& facesToAdd) :
             m_geometry(geometry),
             m_brushEmpty(false) {
-                BrushFaceSet addedFaceSet;
                 BrushFaceList::const_iterator it, end;
                 size_t droppedFaceCount = 0;
                 for (it = facesToAdd.begin(), end = facesToAdd.end(); it != end && !m_brushEmpty; ++it) {
@@ -94,19 +93,14 @@ namespace TrenchBroom {
                     else if (result.empty())
                         m_brushEmpty = true;
                     else
-                        addedFaceSet.insert(face);
+                        m_addedFaces.push_back(face);
                     if (droppedFaceCount < m_droppedFaces.size()) {
                         BrushFaceList::iterator dIt = m_droppedFaces.begin();
-                        BrushFaceList::iterator dEnd = m_droppedFaces.end();
                         std::advance(dIt, droppedFaceCount);
-                        while (dIt != dEnd) {
-                            addedFaceSet.erase(*dIt);
-                            ++dIt;
-                        }
+                        VectorUtils::eraseAll(m_addedFaces, dIt, m_droppedFaces.end());
                         droppedFaceCount = m_droppedFaces.size();
                     }
                 }
-                m_addedFaces.insert(m_addedFaces.end(), addedFaceSet.begin(), addedFaceSet.end());
             }
             
             const BrushFaceList& addedFaces() const {
@@ -540,13 +534,9 @@ namespace TrenchBroom {
             
             BrushGeometry testGeometry(*m_geometry);
             const SetTempFaceLinks setFaceLinks(this, testGeometry);
-            const BrushGeometry::SplitResult splitResult = testGeometry.splitEdge(edgePosition.start(), edgePosition.end());
-            if (!splitResult.success)
-                return false;
-
-            const Vec3::List vertexPositions(1, splitResult.vertexPosition);
-            const BrushGeometry::MoveVerticesResult moveResult = testGeometry.moveVertices(vertexPositions, delta, false);
-            return moveResult.allVerticesMoved() && worldBounds.contains(testGeometry.bounds());
+            
+            const BrushGeometry::MoveVerticesResult result = testGeometry.splitEdge(edgePosition.start(), edgePosition.end(), delta);
+            return result.allVerticesMoved() && worldBounds.contains(testGeometry.bounds());
         }
         
         Vec3 Brush::splitEdge(const BBox3& worldBounds, const Edge3& edgePosition, const Vec3& delta) {
@@ -556,17 +546,13 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
 
             MoveVerticesCallback callback;
-            const BrushGeometry::SplitResult splitResult = m_geometry->splitEdge(edgePosition.start(), edgePosition.end(), callback);
-            assert(splitResult.success);
+            const BrushGeometry::MoveVerticesResult result = m_geometry->splitEdge(edgePosition.start(), edgePosition.end(), delta, callback);
             
-            const Vec3::List vertexPositions(1, splitResult.vertexPosition);
-            const BrushGeometry::MoveVerticesResult moveResult = m_geometry->moveVertices(vertexPositions, delta, false, callback);
-            
-            assert(moveResult.allVerticesMoved());
+            assert(result.allVerticesMoved());
             updateBrushAfterVertexMove(worldBounds, callback);
             nodeBoundsDidChange();
             
-            return moveResult.newVertexPositions.front();
+            return result.newVertexPositions.front();
         }
 
         bool Brush::canMoveFaces(const BBox3& worldBounds, const Polygon3::List& facePositions, const Vec3& delta) {
@@ -616,13 +602,8 @@ namespace TrenchBroom {
             
             BrushGeometry testGeometry(*m_geometry);
             const SetTempFaceLinks setFaceLinks(this, testGeometry);
-            const BrushGeometry::SplitResult splitResult = testGeometry.splitFace(facePosition.vertices());
-            if (!splitResult.success)
-                return false;
-            
-            const Vec3::List vertexPositions(1, splitResult.vertexPosition);
-            const BrushGeometry::MoveVerticesResult moveResult = testGeometry.moveVertices(vertexPositions, delta, false);
-            return !moveResult.allVerticesMoved() && worldBounds.contains(testGeometry.bounds());
+            const BrushGeometry::MoveVerticesResult result = testGeometry.splitFace(facePosition.vertices(), delta);
+            return result.allVerticesMoved() && worldBounds.contains(testGeometry.bounds());
         }
         
         Vec3 Brush::splitFace(const BBox3& worldBounds, const Polygon3& facePosition, const Vec3& delta) {
@@ -632,17 +613,12 @@ namespace TrenchBroom {
             const NotifyNodeChange nodeChange(this);
             
             MoveVerticesCallback callback;
-            const BrushGeometry::SplitResult splitResult = m_geometry->splitFace(facePosition.vertices(), callback);
-            assert(splitResult.success);
-            
-            const Vec3::List vertexPositions(1, splitResult.vertexPosition);
-            const BrushGeometry::MoveVerticesResult moveResult = m_geometry->moveVertices(vertexPositions, delta, false, callback);
-            
-            assert(moveResult.allVerticesMoved());
+            const BrushGeometry::MoveVerticesResult result = m_geometry->splitFace(facePosition.vertices(), delta, callback);
+            assert(result.allVerticesMoved());
             updateBrushAfterVertexMove(worldBounds, callback);
             nodeBoundsDidChange();
             
-            return moveResult.newVertexPositions.front();
+            return result.newVertexPositions.front();
         }
 
         void Brush::updateBrushAfterVertexMove(const BBox3& worldBounds, const MoveVerticesCallback& result) {

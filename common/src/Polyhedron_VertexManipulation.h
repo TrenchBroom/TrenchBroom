@@ -55,7 +55,7 @@ struct Polyhedron<T,FP>::MoveVerticesResult {
     }
     
     bool allVerticesMoved() const {
-        return !hasDeletedVertices() && !hasUnchangedVertices() && unknownVertices.empty();
+        return !hasDeletedVertices() && !hasUnchangedVertices() && unknownVertices.empty() && !newVertexPositions.empty();
     }
     
     bool hasDeletedVertices() const {
@@ -80,10 +80,59 @@ typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::moveVertices(con
 template <typename T, typename FP> template <typename C>
 typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::moveVertices(typename V::List positions, const V& delta, const bool allowMergeIncidentVertices, C& callback) {
     assert(checkInvariant());
-
     if (delta.null())
         return MoveVerticesResult(positions);
+    const MoveVerticesResult result = doMoveVertices(positions, delta, allowMergeIncidentVertices, callback);
+    assert(checkInvariant());
+    return result;
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitEdge(const V& v1, const V& v2, const V& delta) {
+    Callback c;
+    return splitEdge(v1, v2, delta, c);
+}
+
+template <typename T, typename FP> template <typename C>
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitEdge(const V& v1, const V& v2, const V& delta, C& callback) {
+    assert(checkInvariant());
     
+    if (delta.null())
+        return MoveVerticesResult();
+    
+    const SplitResult splitResult = splitEdge(v1, v2, callback);
+    if (!splitResult.success)
+        return MoveVerticesResult();
+    
+    const MoveVerticesResult moveResult = doMoveVertices(typename V::List(1, splitResult.vertexPosition), delta, false, callback);
+    assert(checkInvariant());
+    return moveResult;
+}
+
+template <typename T, typename FP>
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitFace(const typename V::List& vertexPositions, const V& delta) {
+    Callback c;
+    return splitFace(vertexPositions, delta, c);
+}
+
+template <typename T, typename FP> template <typename C>
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::splitFace(const typename V::List& vertexPositions, const V& delta, C& callback) {
+    assert(checkInvariant());
+    
+    if (delta.null())
+        return MoveVerticesResult();
+    
+    const SplitResult splitResult = splitFace(vertexPositions, callback);
+    if (!splitResult.success)
+        return MoveVerticesResult();
+    
+    const MoveVerticesResult moveResult = doMoveVertices(typename V::List(1, splitResult.vertexPosition), delta, false, callback);
+    assert(checkInvariant());
+    return moveResult;
+}
+
+template <typename T, typename FP> template <typename C>
+typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::doMoveVertices(typename V::List positions, const V& delta, const bool allowMergeIncidentVertices, C& callback) {
     std::sort(positions.begin(), positions.end(), typename V::InverseDotOrder(delta));
     MoveVerticesResult totalResult;
     
@@ -99,8 +148,82 @@ typename Polyhedron<T,FP>::MoveVerticesResult Polyhedron<T,FP>::moveVertices(typ
     }
     
     updateBounds();
-    assert(checkInvariant());
     return totalResult;
+}
+
+template <typename T, typename FP>
+struct Polyhedron<T,FP>::SplitResult {
+    bool success;
+    V vertexPosition;
+    
+    SplitResult(bool i_success, const V& i_vertexPosition = V::Null) :
+    success(i_success),
+    vertexPosition(i_vertexPosition) {}
+};
+
+template <typename T, typename FP> template <typename C>
+typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitEdge(const V& v1, const V& v2, C& callback) {
+    Edge* edge = findEdgeByPositions(v1, v2);
+    if (edge == NULL)
+        return SplitResult(false);
+    
+    Edge* newEdge = edge->splitAtCenter();
+    m_edges.append(newEdge, 1);
+    
+    Vertex* newVertex = newEdge->firstVertex();
+    m_vertices.append(newVertex, 1);
+    
+    return SplitResult(true, newVertex->position());
+}
+
+template <typename T, typename FP> template <typename C>
+typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitFace(const typename V::List& vertexPositions, C& callback) {
+    Face* face = findFaceByPositions(vertexPositions);
+    if (face == NULL)
+        return SplitResult(false);
+    
+    Vertex* newVertex = new Vertex(face->center());
+    m_vertices.append(newVertex, 1);
+    
+    const size_t vertexCount = face->vertexCount();
+    HalfEdge* current = face->boundary().front();
+    
+    // First, create a new triangle that cuts into the face. The face will be convex until the following loop finishes.
+    {
+        HalfEdge* next = current->next();
+        
+        HalfEdge* fromCenter = new HalfEdge(newVertex);
+        HalfEdge* fromCenterTwin = new HalfEdge(current->origin());
+        HalfEdge* toCenter = new HalfEdge(current->destination());
+        HalfEdge* toCenterTwin = new HalfEdge(newVertex);
+        
+        HalfEdgeList boundaryReplacement;
+        boundaryReplacement.append(fromCenterTwin, 1);
+        boundaryReplacement.append(toCenterTwin, 1);
+        face->replaceBoundary(current, current, fromCenterTwin);
+        
+        HalfEdgeList newFaceBoundary;
+        newFaceBoundary.append(fromCenter, 1);
+        newFaceBoundary.append(current, 1);
+        newFaceBoundary.append(toCenter, 1);
+        
+        Face* newFace = new Face(newFaceBoundary);
+        m_faces.append(newFace, 1);
+        m_edges.append(new Edge(fromCenter, fromCenterTwin), 1);
+        m_edges.append(new Edge(toCenter, toCenterTwin), 1);
+        
+        callback.faceWasSplit(face, newFace);
+        current = next;
+    }
+    
+    // Now just chop off more triangles until only triangles remain.
+    for (size_t i = 0; i < vertexCount - 2; ++i) {
+        HalfEdge* next = current->next();
+        chopFace(face, current, callback);
+        current = next;
+    }
+    
+    return SplitResult(true, newVertex->position());
 }
 
 template <typename T, typename FP>
@@ -131,7 +254,6 @@ template <typename T, typename FP> template <typename C>
 typename Polyhedron<T,FP>::MoveVertexResult Polyhedron<T,FP>::moveVertex(Vertex* vertex, const V& destination, const bool allowMergeIncidentVertex, C& callback) {
     assert(vertex != NULL);
     assert(vertex->position() != destination);
-    assert(checkInvariant());
     
     if (point())
         return movePointVertex(vertex, destination);
@@ -494,7 +616,7 @@ typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::cleanupAfterVertexMove(Vert
     mergeLeavingEdges(vertex, callback);
     vertex = mergeIncidentFaces(vertex, callback);
     if (vertex != NULL)
-        vertex = mergeIncomingAndLeavingEdges(vertex);
+        vertex = mergeIncomingAndLeavingEdges(vertex, callback);
     assert(checkNoCoplanarFaces());
     return vertex;
 }
@@ -514,12 +636,29 @@ void Polyhedron<T,FP>::mergeLeavingEdges(Vertex* vertex, C& callback) {
     } while (curEdge != vertex->leaving());
 }
 
+// Merges all arriving edges of the given vertex with any colinear leaving edges.
+// Returns the given vertex or NULL if it was deleted.
+template <typename T, typename FP> template <typename C>
+typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::mergeIncomingAndLeavingEdges(Vertex* vertex, C& callback) {
+    HalfEdge* arriving = vertex->leaving()->twin();
+    do {
+        HalfEdge* colinearLeaving = vertex->findColinearEdge(arriving);
+        if (colinearLeaving != NULL) {
+            mergeNeighboursOfColinearEdges(arriving, colinearLeaving, callback);
+            mergeColinearEdges(arriving, colinearLeaving);
+            return NULL;
+        }
+        arriving = arriving->next()->twin();
+    } while (arriving != vertex->leaving()->twin());
+    return vertex;
+}
+
 // Merges the neighbours of the given successive colinear edges with their coplanar neighbours.
 template <typename T, typename FP> template <typename C>
 void Polyhedron<T,FP>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, C& callback) {
     assert(edge1->destination() == edge2->origin());
     
-    if (edge1->face()->vertexCount() == 3 && edge1->next() == edge2) // the left side is a degenerate triangle now
+    if (edge1->face()->vertexCount() == 3 && edge1->next() == edge2) // the right side is a degenerate triangle now
         mergeNeighbours(edge1->previous(), callback);
     else if (edge1->next()->face() != edge2->face()) // the face might already have been merged previously
         mergeNeighbours(edge1->next(), callback);
@@ -528,22 +667,6 @@ void Polyhedron<T,FP>::mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge*
         mergeNeighbours(edge1->twin()->next(), callback);
     else if (edge1->twin()->face() != edge2->twin()->face())
         mergeNeighbours(edge1->twin()->previous(), callback);
-}
-
-// Merges all arriving edges of the given vertex with any colinear leaving edges.
-// Returns the given vertex or NULL if it was deleted.
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::Vertex* Polyhedron<T,FP>::mergeIncomingAndLeavingEdges(Vertex* vertex) {
-    HalfEdge* arriving = vertex->leaving()->twin();
-    do {
-        HalfEdge* colinearLeaving = vertex->findColinearEdge(arriving);
-        if (colinearLeaving != NULL) {
-            mergeColinearEdges(arriving, colinearLeaving);
-            return NULL;
-        }
-        arriving = arriving->next()->twin();
-    } while (arriving != vertex->leaving()->twin());
-    return vertex;
 }
 
 // Merges the given successive colinear edges. As a result, the origin of the second
@@ -738,92 +861,6 @@ void Polyhedron<T,FP>::mergeNeighbours(HalfEdge* borderFirst, C& callback) {
     callback.facesWillBeMerged(neighbour, face);
     m_faces.remove(face);
     delete face;
-}
-
-template <typename T, typename FP>
-struct Polyhedron<T,FP>::SplitResult {
-    bool success;
-    V vertexPosition;
-    
-    SplitResult(bool i_success, const V& i_vertexPosition = V::Null) :
-    success(i_success),
-    vertexPosition(i_vertexPosition) {}
-};
-
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitEdge(const V& v1, const V& v2) {
-    Callback c;
-    return splitEdge(v1, v2, c);
-}
-
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitEdge(const V& v1, const V& v2, C& callback) {
-    Edge* edge = findEdgeByPositions(v1, v2);
-    if (edge == NULL)
-        return SplitResult(false);
-
-    Edge* newEdge = edge->splitAtCenter();
-    m_edges.append(newEdge, 1);
-    
-    Vertex* newVertex = newEdge->firstVertex();
-    m_vertices.append(newVertex, 1);
-    
-    return SplitResult(true, newVertex->position());
-}
-
-template <typename T, typename FP>
-typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitFace(const typename V::List& vertexPositions) {
-    Callback c;
-    return splitFace(vertexPositions, c);
-}
-
-template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::SplitResult Polyhedron<T,FP>::splitFace(const typename V::List& vertexPositions, C& callback) {
-    Face* face = findFaceByPositions(vertexPositions);
-    if (face == NULL)
-        return SplitResult(false);
-    
-    Vertex* newVertex = new Vertex(face->center());
-    
-    const size_t vertexCount = face->vertexCount();
-    HalfEdge* current = face->boundary().front();
-    
-    // First, create a new triangle that cuts into the face. The face will be convex until the following loop finishes.
-    {
-        HalfEdge* next = current->next();
-        
-        HalfEdge* fromCenter = new HalfEdge(newVertex);
-        HalfEdge* fromCenterTwin = new HalfEdge(current->origin());
-        HalfEdge* toCenter = new HalfEdge(current->destination());
-        HalfEdge* toCenterTwin = new HalfEdge(newVertex);
-        
-        HalfEdgeList boundaryReplacement;
-        boundaryReplacement.append(fromCenterTwin, 1);
-        boundaryReplacement.append(toCenterTwin, 1);
-        face->replaceBoundary(current, current, fromCenterTwin);
-        
-        HalfEdgeList newFaceBoundary;
-        newFaceBoundary.append(fromCenter, 1);
-        newFaceBoundary.append(current, 1);
-        newFaceBoundary.append(toCenter, 1);
-        
-        Face* newFace = new Face(newFaceBoundary);
-        m_faces.append(newFace, 1);
-        m_edges.append(new Edge(fromCenter, fromCenterTwin), 1);
-        m_edges.append(new Edge(toCenter, toCenterTwin), 1);
-        
-        callback.faceWasSplit(face, newFace);
-        current = next;
-    }
-
-    // Now just chop off more triangles until only triangles remain.
-    for (size_t i = 0; i < vertexCount - 2; ++i) {
-        HalfEdge* next = current->next();
-        chopFace(face, current, callback);
-        current = next;
-    }
-    
-    return SplitResult(true, newVertex->position());
 }
 
 #endif

@@ -361,24 +361,24 @@ namespace TrenchBroom {
             const BBox3 worldBounds(4096.0);
             
             // left and right a are slanted!
-            BrushFace* left = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
-                                                        Vec3(0.0, 1.0, 0.0),
-                                                        Vec3(1.0, 0.0, 1.0));
-            BrushFace* right = BrushFace::createParaxial(Vec3(16.0, 0.0, 0.0),
-                                                         Vec3(15.0, 0.0, 1.0),
-                                                         Vec3(16.0, 1.0, 0.0));
-            BrushFace* front = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
-                                                         Vec3(0.0, 0.0, 1.0),
-                                                         Vec3(1.0, 0.0, 0.0));
-            BrushFace* back = BrushFace::createParaxial(Vec3(0.0, 16.0, 0.0),
-                                                        Vec3(1.0, 16.0, 0.0),
-                                                        Vec3(0.0, 16.0, 1.0));
-            BrushFace* top = BrushFace::createParaxial(Vec3(0.0, 0.0, 6.0),
-                                                       Vec3(0.0, 1.0, 6.0),
-                                                       Vec3(1.0, 0.0, 6.0));
-            BrushFace* bottom = BrushFace::createParaxial(Vec3(0.0, 0.0, 0.0),
-                                                          Vec3(1.0, 0.0, 0.0),
-                                                          Vec3(0.0, 1.0, 0.0));
+            BrushFace* left   = BrushFace::createParaxial(Vec3( 0.0,  0.0, 0.0),
+                                                          Vec3( 0.0,  1.0, 0.0),
+                                                          Vec3( 1.0,  0.0, 1.0));
+            BrushFace* right  = BrushFace::createParaxial(Vec3(16.0,  0.0, 0.0),
+                                                          Vec3(15.0,  0.0, 1.0),
+                                                          Vec3(16.0,  1.0, 0.0));
+            BrushFace* front  = BrushFace::createParaxial(Vec3( 0.0,  0.0, 0.0),
+                                                          Vec3( 0.0,  0.0, 1.0),
+                                                          Vec3( 1.0,  0.0, 0.0));
+            BrushFace* back   = BrushFace::createParaxial(Vec3( 0.0, 16.0, 0.0),
+                                                          Vec3( 1.0, 16.0, 0.0),
+                                                          Vec3( 0.0, 16.0, 1.0));
+            BrushFace* top    = BrushFace::createParaxial(Vec3( 0.0,  0.0, 6.0),
+                                                          Vec3( 0.0,  1.0, 6.0),
+                                                          Vec3( 1.0,  0.0, 6.0));
+            BrushFace* bottom = BrushFace::createParaxial(Vec3( 0.0,  0.0, 0.0),
+                                                          Vec3( 1.0,  0.0, 0.0),
+                                                          Vec3( 0.0,  1.0, 0.0));
             BrushFaceList faces;
             faces.push_back(left);
             faces.push_back(right);
@@ -466,9 +466,9 @@ namespace TrenchBroom {
             
             Vec3::List vertexPositions(4);
             vertexPositions[0] = Vec3(-32.0, -32.0, +32.0);
-            vertexPositions[1] = Vec3(-32.0, +32.0, +32.0);
+            vertexPositions[1] = Vec3(+32.0, -32.0, +32.0);
             vertexPositions[2] = Vec3(+32.0, +32.0, +32.0);
-            vertexPositions[3] = Vec3(+32.0, -32.0, +32.0);
+            vertexPositions[3] = Vec3(-32.0, +32.0, +32.0);
             
             const Polygon3 face(vertexPositions);
             
@@ -497,9 +497,9 @@ namespace TrenchBroom {
             
             Vec3::List vertexPositions(4);
             vertexPositions[0] = Vec3(-32.0, -32.0, +32.0);
-            vertexPositions[1] = Vec3(-32.0, +32.0, +32.0);
+            vertexPositions[1] = Vec3(+32.0, -32.0, +32.0);
             vertexPositions[2] = Vec3(+32.0, +32.0, +32.0);
-            vertexPositions[3] = Vec3(+32.0, -32.0, +32.0);
+            vertexPositions[3] = Vec3(-32.0, +32.0, +32.0);
             
             const Polygon3 face(vertexPositions);
 

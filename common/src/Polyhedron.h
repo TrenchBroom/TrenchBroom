@@ -151,7 +151,19 @@ public: // Moving vertices
     struct MoveVerticesResult;
     MoveVerticesResult moveVertices(const typename V::List& positions, const V& delta, bool allowMergeIncidentVertices);
     template <typename C> MoveVerticesResult moveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, C& callback);
+    
+    MoveVerticesResult splitEdge(const V& v1, const V& v2, const V& delta);
+    template <typename C> MoveVerticesResult splitEdge(const V& v1, const V& v2, const V& delta, C& callback);
+    
+    MoveVerticesResult splitFace(const typename V::List& vertexPositions, const V& delta);
+    template <typename C> MoveVerticesResult splitFace(const typename V::List& vertexPositions, const V& delta, C& callback);
+private: // Splitting edges and faces
+    struct SplitResult;
+    template <typename C> SplitResult splitEdge(const V& v1, const V& v2, C& callback);
+    template <typename C> SplitResult splitFace(const typename V::List& vertexPositions, C& callback);
 private:
+    template <typename C> MoveVerticesResult doMoveVertices(typename V::List positions, const V& delta, bool allowMergeIncidentVertices, C& callback);
+
     struct MoveVertexResult;
     template <typename C> MoveVertexResult moveVertex(Vertex* vertex, const V& destination, bool allowMergeIncidentVertex, C& callback);
     MoveVertexResult movePointVertex(Vertex* vertex, const V& destination);
@@ -173,21 +185,12 @@ private:
     template <typename C> Vertex* cleanupAfterVertexMove(Vertex* vertex, C& callback);
     
     template <typename C> void mergeLeavingEdges(Vertex* vertex, C& callback);
+    template <typename C> Vertex* mergeIncomingAndLeavingEdges(Vertex* vertex, C& callback);
     template <typename C> void mergeNeighboursOfColinearEdges(HalfEdge* edge1, HalfEdge* edge2, C& callback);
-    
-    Vertex* mergeIncomingAndLeavingEdges(Vertex* vertex);
     void mergeColinearEdges(HalfEdge* edge1, HalfEdge* edge2);
 
     template <typename C> Vertex* mergeIncidentFaces(Vertex* vertex, C& callback);
     template <typename C> void mergeNeighbours(HalfEdge* borderFirst, C& callback);
-public: // Splitting edges and faces
-    struct SplitResult;
-    
-    SplitResult splitEdge(const V& v1, const V& v2);
-    template <typename C> SplitResult splitEdge(const V& v1, const V& v2, C& callback);
-    
-    SplitResult splitFace(const typename V::List& vertexPositions);
-    template <typename C> SplitResult splitFace(const typename V::List& vertexPositions, C& callback);
 public: // Convex hull and adding points
     template <typename I> void addPoints(I cur, I end);
     template <typename I, typename C> void addPoints(I cur, I end, C& callback);

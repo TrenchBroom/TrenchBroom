@@ -1015,7 +1015,7 @@ TEST(PolyhedronTest, moveEdgeVertexWithMerge) {
     p.addPoint(p2);
     
     const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p2 - p1, true);
-    ASSERT_TRUE(result.hasDeletedVertices());
+    ASSERT_TRUE(result.allVerticesMoved());
     ASSERT_EQ(1u, result.newVertexPositions.size());
     ASSERT_VEC_EQ(p2, result.newVertexPositions.front());
     
@@ -1034,9 +1034,9 @@ TEST(PolyhedronTest, movePolygonVertexToNonCoplanarPosition) {
     p.addPoint(p3);
     
     const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p4 - p1, true);
-    ASSERT_TRUE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p1, result.newVertexPositions.front());
+    ASSERT_TRUE(!result.allVerticesMoved());
+    ASSERT_EQ(1u, result.unchangedVertices.size());
+    ASSERT_VEC_EQ(p1, result.unchangedVertices.front());
     
     ASSERT_TRUE(p.polygon());
 }
@@ -1074,8 +1074,9 @@ TEST(PolyhedronTest, movePolygonVertexToNonIncidentVertex) {
     
     const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p3 - p1, true);
     ASSERT_FALSE(result.allVerticesMoved());
-    ASSERT_EQ(1u, result.newVertexPositions.size());
-    ASSERT_VEC_EQ(p1, result.newVertexPositions.front());
+    ASSERT_TRUE(result.newVertexPositions.empty());
+    ASSERT_EQ(1u, result.unchangedVertices.size());
+    ASSERT_VEC_EQ(p1, result.unchangedVertices.front());
     
     ASSERT_TRUE(p.polygon());
 }
@@ -1093,9 +1094,7 @@ TEST(PolyhedronTest, movePolygonVertexToIncidentVertex) {
     p.addPoint(p4);
     
     const Polyhedron3d::MoveVerticesResult result = p.moveVertices(Vec3d::List(1, p1), p2 - p1, true);
-    ASSERT_TRUE(result.hasDeletedVertices());
-    ASSERT_EQ(1u, result.deletedVertices.size());
-    ASSERT_VEC_EQ(p2, result.deletedVertices.front());
+    ASSERT_TRUE(result.allVerticesMoved());
     ASSERT_EQ(1u, result.newVertexPositions.size());
     ASSERT_VEC_EQ(p2, result.newVertexPositions.front());
 
