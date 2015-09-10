@@ -33,7 +33,7 @@ public:
 };
 
 template <typename T, typename FP>
-class Polyhedron<T,FP>::Edge {
+class Polyhedron<T,FP>::Edge : public Allocator<Edge> {
 private:
     friend class Polyhedron<T,FP>;
 private:

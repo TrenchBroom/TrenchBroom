@@ -170,9 +170,9 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::findInitialIntersectingEd
         HalfEdge* halfEdge = currentEdge->firstEdge();
         const Math::PointStatus::Type os = plane.pointStatus(halfEdge->origin()->position());
         const Math::PointStatus::Type ds = plane.pointStatus(halfEdge->destination()->position());
-        if ((os == Math::PointStatus::PSInside) ||
-            (os == Math::PointStatus::PSBelow && ds == Math::PointStatus::PSAbove) ||
-            (os == Math::PointStatus::PSAbove && ds == Math::PointStatus::PSBelow))
+        if ((os == Math::PointStatus::PSInside && ds == Math::PointStatus::PSInside) ||
+            (os == Math::PointStatus::PSBelow  && ds == Math::PointStatus::PSAbove) ||
+            (os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSBelow))
             return halfEdge;
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);

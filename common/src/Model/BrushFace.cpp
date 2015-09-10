@@ -629,7 +629,8 @@ namespace TrenchBroom {
             do {
                 const Vec3& v2 = current->origin()->position();
 
-                current = current->next();
+                // The boundary is in CCW order, but the renderer expects CW order:
+                current = current->previous();
                 const Vec3& v3 = current->origin()->position();
                 
                 m_cachedVertices.push_back(MeshVertex(v1, m_boundary.normal, textureCoords(v1)));
