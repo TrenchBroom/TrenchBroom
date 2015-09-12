@@ -116,6 +116,13 @@ void Polyhedron<T,FP>::addPoints(const V& p1, const V& p2, const V& p3, const V&
 
 template <typename T, typename FP> template <typename C>
 void Polyhedron<T,FP>::setBounds(const BBox<T,3>& bounds, C& callback) {
+    if (bounds.min == bounds.max) {
+        addPoint(bounds.min);
+        return;
+    }
+    
+    // Explicitely create the polyhedron for better performance when building brushes.
+    
     const V p1(bounds.min.x(), bounds.min.y(), bounds.min.z());
     const V p2(bounds.min.x(), bounds.min.y(), bounds.max.z());
     const V p3(bounds.min.x(), bounds.max.y(), bounds.min.z());
@@ -125,14 +132,108 @@ void Polyhedron<T,FP>::setBounds(const BBox<T,3>& bounds, C& callback) {
     const V p7(bounds.max.x(), bounds.max.y(), bounds.min.z());
     const V p8(bounds.max.x(), bounds.max.y(), bounds.max.z());
     
-    addPoint(p1, callback);
-    addPoint(p2, callback);
-    addPoint(p3, callback);
-    addPoint(p4, callback);
-    addPoint(p5, callback);
-    addPoint(p6, callback);
-    addPoint(p7, callback);
-    addPoint(p8, callback);
+    Vertex* v1 = new Vertex(p1);
+    Vertex* v2 = new Vertex(p2);
+    Vertex* v3 = new Vertex(p3);
+    Vertex* v4 = new Vertex(p4);
+    Vertex* v5 = new Vertex(p5);
+    Vertex* v6 = new Vertex(p6);
+    Vertex* v7 = new Vertex(p7);
+    Vertex* v8 = new Vertex(p8);
+
+    m_vertices.append(v1, 1);
+    m_vertices.append(v2, 1);
+    m_vertices.append(v3, 1);
+    m_vertices.append(v4, 1);
+    m_vertices.append(v5, 1);
+    m_vertices.append(v6, 1);
+    m_vertices.append(v7, 1);
+    m_vertices.append(v8, 1);
+    
+    // Front face
+    HalfEdge* f1h1 = new HalfEdge(v1);
+    HalfEdge* f1h2 = new HalfEdge(v5);
+    HalfEdge* f1h3 = new HalfEdge(v6);
+    HalfEdge* f1h4 = new HalfEdge(v2);
+    HalfEdgeList f1b;
+    f1b.append(f1h1, 1);
+    f1b.append(f1h2, 1);
+    f1b.append(f1h3, 1);
+    f1b.append(f1h4, 1);
+    m_faces.append(new Face(f1b), 1);
+    
+    // Left face
+    HalfEdge* f2h1 = new HalfEdge(v1);
+    HalfEdge* f2h2 = new HalfEdge(v2);
+    HalfEdge* f2h3 = new HalfEdge(v4);
+    HalfEdge* f2h4 = new HalfEdge(v3);
+    HalfEdgeList f2b;
+    f2b.append(f2h1, 1);
+    f2b.append(f2h2, 1);
+    f2b.append(f2h3, 1);
+    f2b.append(f2h4, 1);
+    m_faces.append(new Face(f2b), 1);
+    
+    // Bottom face
+    HalfEdge* f3h1 = new HalfEdge(v1);
+    HalfEdge* f3h2 = new HalfEdge(v3);
+    HalfEdge* f3h3 = new HalfEdge(v7);
+    HalfEdge* f3h4 = new HalfEdge(v5);
+    HalfEdgeList f3b;
+    f3b.append(f3h1, 1);
+    f3b.append(f3h2, 1);
+    f3b.append(f3h3, 1);
+    f3b.append(f3h4, 1);
+    m_faces.append(new Face(f3b), 1);
+    
+    // Top face
+    HalfEdge* f4h1 = new HalfEdge(v2);
+    HalfEdge* f4h2 = new HalfEdge(v6);
+    HalfEdge* f4h3 = new HalfEdge(v8);
+    HalfEdge* f4h4 = new HalfEdge(v4);
+    HalfEdgeList f4b;
+    f4b.append(f4h1, 1);
+    f4b.append(f4h2, 1);
+    f4b.append(f4h3, 1);
+    f4b.append(f4h4, 1);
+    m_faces.append(new Face(f4b), 1);
+    
+    // Back face
+    HalfEdge* f5h1 = new HalfEdge(v3);
+    HalfEdge* f5h2 = new HalfEdge(v4);
+    HalfEdge* f5h3 = new HalfEdge(v8);
+    HalfEdge* f5h4 = new HalfEdge(v7);
+    HalfEdgeList f5b;
+    f5b.append(f5h1, 1);
+    f5b.append(f5h2, 1);
+    f5b.append(f5h3, 1);
+    f5b.append(f5h4, 1);
+    m_faces.append(new Face(f5b), 1);
+    
+    // Right face
+    HalfEdge* f6h1 = new HalfEdge(v5);
+    HalfEdge* f6h2 = new HalfEdge(v7);
+    HalfEdge* f6h3 = new HalfEdge(v8);
+    HalfEdge* f6h4 = new HalfEdge(v6);
+    HalfEdgeList f6b;
+    f6b.append(f6h1, 1);
+    f6b.append(f6h2, 1);
+    f6b.append(f6h3, 1);
+    f6b.append(f6h4, 1);
+    m_faces.append(new Face(f6b), 1);
+    
+    m_edges.append(new Edge(f1h4, f2h1), 1); // v1, v2
+    m_edges.append(new Edge(f2h4, f3h1), 1); // v1, v3
+    m_edges.append(new Edge(f1h1, f3h4), 1); // v1, v5
+    m_edges.append(new Edge(f2h2, f4h4), 1); // v2, v4
+    m_edges.append(new Edge(f4h1, f1h3), 1); // v2, v6
+    m_edges.append(new Edge(f2h3, f5h1), 1); // v3, v4
+    m_edges.append(new Edge(f3h2, f5h4), 1); // v3, v7
+    m_edges.append(new Edge(f4h3, f5h2), 1); // v4, v8
+    m_edges.append(new Edge(f1h2, f6h4), 1); // v5, v6
+    m_edges.append(new Edge(f6h1, f3h3), 1); // v5, v7
+    m_edges.append(new Edge(f6h3, f4h2), 1); // v6, v8
+    m_edges.append(new Edge(f6h2, f5h3), 1); // v7, v8
 }
 
 template <typename T, typename FP>
