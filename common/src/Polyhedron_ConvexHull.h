@@ -189,14 +189,17 @@ void Polyhedron<T,FP>::makePolyhedron(const V& position, C& callback) {
     assert(polygon());
     
     Seam seam;
+    seam.reserve(16);
     Face* face = *m_faces.begin();
     const HalfEdgeList& boundary = face->boundary();
     typename HalfEdgeList::const_iterator hIt, hEnd;
     for (hIt = boundary.begin(), hEnd = boundary.end(); hIt != hEnd; ++hIt) {
         const HalfEdge* h = *hIt;
         Edge* e = h->edge();
-        seam.push_front(e); // ensure that the seam is in CCW order
+        seam.push_back(e);
     }
+    // ensure that the seam is in CCW order
+    std::reverse(seam.begin(), seam.end());
     
     addPointToPolyhedron(position, seam, callback);
 }
@@ -205,7 +208,9 @@ void Polyhedron<T,FP>::makePolyhedron(const V& position, C& callback) {
 template <typename T, typename FP> template <typename C>
 void Polyhedron<T,FP>::addFurtherPointToPolyhedron(const V& position, C& callback) {
     assert(polyhedron());
-    const Seam seam = split(SplitByVisibilityCriterion(position), callback);
+    Seam seam;
+    seam.reserve(16);
+    split(SplitByVisibilityCriterion(position), seam, callback);
     if (!seam.empty())
         addPointToPolyhedron(position, seam, callback);
 }
@@ -226,15 +231,14 @@ void Polyhedron<T,FP>::addPointToPolyhedron(const V& position, const Seam& seam,
 // The delimiting edges all have the remaining half edge as their first edge, and the second
 // edge, which has been deleted by the split, is NULL.
 template <typename T, typename FP> template <typename C>
-typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::split(const SplittingCriterion& criterion, C& callback) {
+void Polyhedron<T,FP>::split(const SplittingCriterion& criterion, Seam& seam, C& callback) {
     VertexList vertices;
     EdgeList edges;
     FaceList faces;
-    Seam seam;
     
     Edge* splittingEdge = criterion.findFirstSplittingEdge(m_edges);
     if (splittingEdge == NULL)
-        return Seam(0);
+        return;
     
     // First, go along the splitting seam and split the edges into two edges with one half edge each.
     // Both the resulting edges have their only half edge as their first edge.
@@ -250,6 +254,55 @@ typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::split(const SplittingCriterion
         splittingEdge = nextSplittingEdge;
     } while (splittingEdge != NULL);
     
+    
+    // Now handle the remaining faces, edge, and vertices by sorting them into the correct polyhedra.
+    Vertex* currentVertex = m_vertices.front();
+    for (size_t i = m_vertices.size(); i > 0; --i) {
+        HalfEdge* edge = currentVertex->leaving();
+        assert(edge != NULL);
+        
+        // As we have already handled the shared vertices, it holds that for each remaining vertex,
+        // either all adjacent faces match or not. There are no mixed vertices anymore at this point.
+        
+        Face* face = edge->face();
+        assert(face != NULL);
+        
+        Vertex* nextVertex = currentVertex->next();
+        if (!criterion.matches(face)) {
+            m_vertices.remove(currentVertex);
+            vertices.append(currentVertex, 1);
+        }
+        currentVertex = nextVertex;
+    }
+    
+    Edge* currentEdge = m_edges.front();
+    for (size_t i = m_edges.size(); i > 0; --i) {
+        Face* face = currentEdge->firstFace();
+        assert(face != NULL);
+        
+        // There are no mixed edges at this point anymore either, and all remaining edges have at least
+        // one edge, and that is their first edge.
+        
+        Edge* nextEdge = currentEdge->next();
+        if (!criterion.matches(face)) {
+            assert(currentEdge->secondFace() == NULL || !criterion.matches(currentEdge->secondFace()));
+            m_edges.remove(currentEdge);
+            edges.append(currentEdge, 1);
+        }
+        currentEdge = nextEdge;
+    }
+    
+    Face* currentFace = m_faces.front();
+    for (size_t i = m_faces.size(); i > 0; --i) {
+        Face* nextFace = currentFace->next();
+        if (!criterion.matches(currentFace)) {
+            m_faces.remove(currentFace);
+            faces.append(currentFace, 1);
+            callback.faceWillBeDeleted(currentFace);
+        }
+        currentFace = nextFace;
+    }
+
     typename VertexList::iterator vertexIt;
     typename EdgeList::iterator edgeIt;
     typename FaceList::iterator faceIt;
@@ -311,8 +364,6 @@ typename Polyhedron<T,FP>::Seam Polyhedron<T,FP>::split(const SplittingCriterion
     vertices.deleteAll();
     
     assert(checkConvex());
-    
-    return seam;
 }
 
 // Weaves a new cap onto the given seam edges. The new cap will be a single polygon, so we assume that all seam vertices lie

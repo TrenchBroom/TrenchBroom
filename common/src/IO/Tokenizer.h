@@ -173,7 +173,6 @@ namespace TrenchBroom {
             void retreat() {
                 if (curPos() == m_begin)
                     throw ParserException("Cannot retreat beyond beginning of file");
-                --m_state.cur;
                 if (curChar() == '\n') {
                     --m_state.line;
                     if (m_state.lastColumn > 0) {
@@ -190,6 +189,7 @@ namespace TrenchBroom {
                 } else {
                     --m_state.column;
                 }
+                --m_state.cur;
             }
             
             bool isDigit(const char c) const {

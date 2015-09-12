@@ -432,8 +432,10 @@ bool Polyhedron<T,FP>::checkInvariant() const {
         return false;
     if (polyhedron() && !checkNoDegenerateFaces())
         return false;
+    /* This check leads to false positive with almost coplanar faces.
     if (polyhedron() && !checkNoCoplanarFaces())
         return false;
+     */
     return true;
 }
 

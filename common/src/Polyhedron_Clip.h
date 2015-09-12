@@ -83,7 +83,9 @@ typename Polyhedron<T,FP>::ClipResult Polyhedron<T,FP>::clip(const Plane<T,3>& p
     // We construct a seam along those edges which are completely inside the plane and delete the half of the
     // polyhedron that is above the plane. The remaining half is an open polyhedron (one face is missing) which
     // is below the plane.
-    const Seam seam = split(SplitByPlaneCriterion(plane), callback);
+    Seam seam;
+    seam.reserve(16);
+    split(SplitByPlaneCriterion(plane), seam, callback);
     
     // We seal the polyhedron by creating a new face.
     weaveCap(seam, callback);
@@ -171,9 +173,13 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::findInitialIntersectingEd
         const Math::PointStatus::Type os = plane.pointStatus(halfEdge->origin()->position());
         const Math::PointStatus::Type ds = plane.pointStatus(halfEdge->destination()->position());
         if ((os == Math::PointStatus::PSInside && ds == Math::PointStatus::PSInside) ||
-            (os == Math::PointStatus::PSBelow  && ds == Math::PointStatus::PSAbove) ||
-            (os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSBelow))
+            (os == Math::PointStatus::PSInside && ds == Math::PointStatus::PSAbove) ||
+            (os == Math::PointStatus::PSBelow  && ds == Math::PointStatus::PSAbove))
             return halfEdge;
+        
+        if ((os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSInside) ||
+            (os == Math::PointStatus::PSAbove  && ds == Math::PointStatus::PSBelow))
+            return halfEdge->twin();
         currentEdge = currentEdge->next();
     } while (currentEdge != firstEdge);
     return NULL;
@@ -224,9 +230,11 @@ typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::intersectWithPlane(HalfEd
     } while (seamDestination == NULL && currentBoundaryEdge != firstBoundaryEdge);
     assert(seamOrigin != NULL && seamDestination != NULL);
     
-    // If the origin and the destination are not already connected by an edge, we must split the current face and insert an edge
-    // between them.
-    if (seamOrigin->next() != seamDestination && seamDestination->next() != seamOrigin) {
+    if (seamDestination->next() == seamOrigin) {
+        std::swap(seamOrigin, seamDestination);
+    } else if (seamOrigin->next() != seamDestination) {
+        // If the origin and the destination are not already connected by an edge, we must split the current face and insert an edge
+        // between them.
         // The newly created faces are supposed to be above the given plane, so we have to consider whether the destination of the
         // seam origin edge is above or below the plane.
         const Math::PointStatus::Type os = plane.pointStatus(seamOrigin->destination()->position());
@@ -265,20 +273,20 @@ void Polyhedron<T,FP>::intersectWithPlane(HalfEdge* oldBoundaryFirst, HalfEdge* 
 template <typename T, typename FP>
 typename Polyhedron<T,FP>::HalfEdge* Polyhedron<T,FP>::findNextIntersectingEdge(HalfEdge* searchFrom, const Plane<T,3>& plane) const {
     HalfEdge* currentEdge = searchFrom->next()->twin()->next();
-    const HalfEdge* stopEdge = searchFrom->twin();
+    const HalfEdge* stopEdge = searchFrom->next();
     do {
         // Select two vertices that form a triangle (of an adjacent face) together with seamDestination's origin vertex.
         // If either of the two vertices is inside the plane or if they lie on different sides of it, then we have found
         // the next face to handle.
         
-        Vertex* v1 = currentEdge->destination();
-        Vertex* v2 = currentEdge->previous()->origin();
-        const Math::PointStatus::Type s1 = plane.pointStatus(v1->position());
-        const Math::PointStatus::Type s2 = plane.pointStatus(v2->position());
+        Vertex* cd = currentEdge->destination();
+        Vertex* po = currentEdge->previous()->origin();
+        const Math::PointStatus::Type cds = plane.pointStatus(cd->position());
+        const Math::PointStatus::Type pos = plane.pointStatus(po->position());
         
-        if ((s1 == Math::PointStatus::PSInside) ||
-            (s1 == Math::PointStatus::PSBelow && s2 == Math::PointStatus::PSAbove) ||
-            (s1 == Math::PointStatus::PSAbove && s2 == Math::PointStatus::PSBelow))
+        if ((cds == Math::PointStatus::PSInside) ||
+            (cds == Math::PointStatus::PSBelow && pos == Math::PointStatus::PSAbove) ||
+            (cds == Math::PointStatus::PSAbove && pos == Math::PointStatus::PSBelow))
             return currentEdge;
         
         currentEdge = currentEdge->twin()->next();

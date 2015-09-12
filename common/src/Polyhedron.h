@@ -25,7 +25,6 @@
 #include "DoublyLinkedList.h"
 
 #include <cassert>
-#include <deque>
 #include <queue>
 #include <vector>
 
@@ -198,7 +197,7 @@ public: // Convex hull and adding points
     void addPoint(const V& position);
     template <typename C> void addPoint(const V& position, C& callback);
 private:
-    typedef std::deque<Edge*> Seam;
+    typedef std::vector<Edge*> Seam;
 
     void addFirstPoint(const V& position);
     void addSecondPoint(const V& position);
@@ -219,7 +218,7 @@ private:
     class SplitByVisibilityCriterion;
     class SplitByNormalCriterion;
     
-    template <typename C> Seam split(const SplittingCriterion& criterion, C& callback);
+    template <typename C> void split(const SplittingCriterion& criterion, Seam& seam, C& callback);
     
     template <typename C> void weaveCap(const Seam& seam, C& callback);
     template <typename C> Vertex* weaveCap(const Seam& seam, const V& position, C& callback);
