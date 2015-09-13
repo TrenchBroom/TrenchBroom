@@ -248,8 +248,20 @@ public:
     m_size(0),
     m_version(0) {}
     
-    virtual ~DoublyLinkedList() {}
+    virtual ~DoublyLinkedList() {
+        clear();
+    }
     
+    friend void swap(DoublyLinkedList& first, DoublyLinkedList& second) {
+        using std::swap;
+        swap(first.m_head, second.m_head);
+        swap(first.m_size, second.m_size);
+        swap(first.m_version, second.m_version);
+    }
+private:
+    DoublyLinkedList(const DoublyLinkedList& other) {}
+    DoublyLinkedList& operator=(const DoublyLinkedList& other) {}
+public:
     bool empty() const {
         return m_size == 0;
     }
@@ -365,18 +377,18 @@ public:
         assert(check());
     }
     
-    DoublyLinkedList<Item, GetLink> replace(Item* from, Item* to, const size_t removeCount, Item* with, const size_t insertCount) {
+    void replace(Item* from, Item* to, const size_t removeCount, Item* with, const size_t insertCount) {
         insertAfter(to, with, insertCount);
-        return remove(from, to, removeCount);
+        remove(from, to, removeCount);
     }
     
-    DoublyLinkedList<Item, GetLink> remove(Item* item) {
+    void remove(Item* item) {
         assert(!empty());
         assert(contains(item));
-        return remove(item, item, 1);
+        remove(item, item, 1);
     }
     
-    DoublyLinkedList<Item, GetLink> remove(Item* from, Item* to, const size_t count) {
+    void remove(Item* from, Item* to, const size_t count) {
         assert(!empty());
         
         Link& fromLink = getLink(from);
@@ -403,10 +415,6 @@ public:
         ++m_version;
 
         assert(check());
-        
-        DoublyLinkedList<Item, GetLink> result;
-        result.append(from, count);
-        return result;
     }
     
     void reverse() {
@@ -423,8 +431,8 @@ public:
         }
         assert(check());
     }
-    
-    void deleteAll() {
+
+    void clear() {
         if (m_head != NULL) {
             Item* item = m_head;
             while (item != m_head) {

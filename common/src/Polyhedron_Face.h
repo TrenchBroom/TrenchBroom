@@ -42,8 +42,7 @@ private:
     P* m_payload;
     FaceLink m_link;
 private:
-    FaceT(const HalfEdgeList& boundary) :
-    m_boundary(boundary),
+    FaceT(HalfEdgeList& boundary) :
     m_payload(NULL),
 #ifdef _MSC_VER
 		// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay because we just store the pointer there.
@@ -55,14 +54,13 @@ private:
 		m_link(this)
 #endif
 	{
+        using std::swap;
+        swap(m_boundary, boundary);
+        
         assert(m_boundary.size() >= 3);
         updateBoundaryFaces(this);
     }
 public:
-    ~FaceT() {
-        m_boundary.deleteAll();
-    }
-    
     P* payload() const {
         return m_payload;
     }
@@ -209,25 +207,27 @@ private:
         m_boundary.insertAfter(after, edge, 1);
     }
     
-    HalfEdgeList removeFromBoundary(HalfEdge* from, HalfEdge* to) {
+    size_t removeFromBoundary(HalfEdge* from, HalfEdge* to) {
         assert(from != NULL);
         assert(to != NULL);
         assert(from->face() == this);
         assert(to->face() == this);
         
         const size_t removeCount = countAndSetFace(from, to->next(), NULL);
-        return m_boundary.remove(from, to, removeCount);
+        m_boundary.remove(from, to, removeCount);
+        return removeCount;
     }
     
-    HalfEdgeList removeFromBoundary(HalfEdge* edge) {
-        return removeFromBoundary(edge, edge);
+    size_t removeFromBoundary(HalfEdge* edge) {
+        removeFromBoundary(edge, edge);
+        return 1;
     }
     
-    HalfEdgeList replaceBoundary(HalfEdge* edge, HalfEdge* with) {
+    size_t replaceBoundary(HalfEdge* edge, HalfEdge* with) {
         return replaceBoundary(edge, edge, with);
     }
     
-    HalfEdgeList replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
+    size_t replaceBoundary(HalfEdge* from, HalfEdge* to, HalfEdge* with) {
         assert(from != NULL);
         assert(to != NULL);
         assert(with != NULL);
@@ -237,15 +237,16 @@ private:
         
         const size_t removeCount = countAndSetFace(from, to->next(), NULL);
         const size_t insertCount = countAndSetFace(with, with, this);
-        return m_boundary.replace(from, to, removeCount, with, insertCount);
+        m_boundary.replace(from, to, removeCount, with, insertCount);
+        return removeCount;
     }
     
-    HalfEdgeList replaceEntireBoundary(const HalfEdgeList& newBoundary) {
+    void replaceEntireBoundary(HalfEdgeList& newBoundary) {
+        using std::swap;
+        
         updateBoundaryFaces(NULL);
-        HalfEdgeList oldBoundary = m_boundary;
-        m_boundary = newBoundary;
+        swap(m_boundary, newBoundary);
         updateBoundaryFaces(this);
-        return oldBoundary;
     }
 
     size_t countAndSetFace(HalfEdge* from, HalfEdge* until, Face* face) {

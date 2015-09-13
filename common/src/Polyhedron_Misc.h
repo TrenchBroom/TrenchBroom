@@ -259,12 +259,6 @@ public:
         copyEdges(originalEdges);
         swapContents();
     }
-    
-    ~Copy() {
-        m_faces.deleteAll();
-        m_edges.deleteAll();
-        m_vertices.deleteAll();
-    }
 private:
     void copyFaces(const FaceList& originalFaces) {
         typename FaceList::const_iterator fIt, fEnd;
@@ -464,9 +458,9 @@ bool Polyhedron<T,FP>::closed() const {
 
 template <typename T, typename FP>
 void Polyhedron<T,FP>::clear() {
-    m_faces.deleteAll();
-    m_edges.deleteAll();
-    m_vertices.deleteAll();
+    m_faces.clear();
+    m_edges.clear();
+    m_vertices.clear();
 }
 
 template <typename T, typename FP>

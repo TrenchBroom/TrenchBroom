@@ -809,9 +809,9 @@ typename Polyhedron<T,FP>::Face* Polyhedron<T,FP>::mergeIncidentFaces(Vertex* ve
             m_edges.remove(edge);
             delete edge;
         }
-        
-        HalfEdgeList oldBoundary = remainingFace->replaceEntireBoundary(boundary);
-        oldBoundary.deleteAll();
+
+        // also deletes the old boundary once the local boundary variable falls out of scope
+        remainingFace->replaceEntireBoundary(boundary);
         
         m_vertices.remove(vertex);
         delete vertex;

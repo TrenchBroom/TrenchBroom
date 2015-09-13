@@ -359,10 +359,6 @@ void Polyhedron<T,FP>::split(const SplittingCriterion& criterion, Seam& seam, C&
         }
     }
     
-    faces.deleteAll();
-    edges.deleteAll();
-    vertices.deleteAll();
-    
     assert(checkConvex());
 }
 
