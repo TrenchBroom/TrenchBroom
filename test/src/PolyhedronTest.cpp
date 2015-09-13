@@ -1975,7 +1975,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlane) {
     ASSERT_TRUE(hasQuadOf(p, p2 + d, p6 + d, p8 + d, p4 + d));
     ASSERT_TRUE(hasQuadOf(p, p3,     p4 + d, p8 + d, p7));
     ASSERT_TRUE(hasQuadOf(p, p5,     p7,     p8 + d, p6 + d));
-};
+}
 
 TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtTop) {
     const Vec3d p1(-64.0, -64.0, -64.0);
@@ -2024,7 +2024,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtTop) {
     ASSERT_TRUE(hasQuadOf(p, p2, p6, p8, p4));
     ASSERT_TRUE(hasQuadOf(p, p3, p4, p8, p7));
     ASSERT_TRUE(hasQuadOf(p, p5, p7, p8, p6));
-};
+}
 
 TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAboveTop) {
     const Vec3d p1(-64.0, -64.0, -64.0);
@@ -2073,7 +2073,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAboveTop) {
     ASSERT_TRUE(hasQuadOf(p, p2, p6, p8, p4));
     ASSERT_TRUE(hasQuadOf(p, p3, p4, p8, p7));
     ASSERT_TRUE(hasQuadOf(p, p5, p7, p8, p6));
-};
+}
 
 TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtBottom) {
     const Vec3d p1(-64.0, -64.0, -64.0);
@@ -2101,7 +2101,7 @@ TEST(PolyhedronTest, clipCubeWithHorizontalPlaneAtBottom) {
     ClipCallback callback;
 
     ASSERT_TRUE(p.clip(plane, callback).empty());
-};
+}
 
 TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
     Polyhedron3d p(BBox3d(64.0));
@@ -2159,7 +2159,7 @@ TEST(PolyhedronTest, clipCubeWithSlantedPlane) {
     ASSERT_TRUE(hasPolygonOf(p,  p3,  p4, p10, p11,  p7));
     ASSERT_TRUE(hasPolygonOf(p,  p5,  p7, p11,  p9,  p6));
     ASSERT_TRUE(hasTriangleOf(p, p9, p11, p10));
-};
+}
 
 TEST(PolyhedronTest, clipCubeDiagonally) {
     Polyhedron3d p(BBox3d(64.0));
@@ -2201,7 +2201,7 @@ TEST(PolyhedronTest, clipCubeDiagonally) {
     ASSERT_TRUE(hasQuadOf(p, p3, p4, p6, p5));
     ASSERT_TRUE(hasTriangleOf(p, p1, p3, p5));
     ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
-};
+}
 
 TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
     Polyhedron3d p(BBox3d(64.0));
@@ -2243,7 +2243,7 @@ TEST(PolyhedronTest, clipCubeWithVerticalSlantedPlane) {
     ASSERT_TRUE(hasQuadOf(p, p3, p4, p6, p5));
     ASSERT_TRUE(hasTriangleOf(p, p1, p3, p5));
     ASSERT_TRUE(hasTriangleOf(p, p2, p6, p4));
-};
+}
 
 bool hasVertex(const Polyhedron3d& p, const Vec3d& point) {
     return p.hasVertex(point);
