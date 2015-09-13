@@ -37,18 +37,10 @@ namespace TrenchBroom {
             return halfEdge->origin();
         }
 
-        BrushFace::ProjectToVertex::ConstType BrushFace::ProjectToVertex::projectConst(BrushHalfEdge* halfEdge) {
-            return halfEdge->origin();
-        }
-        
         BrushFace::ProjectToEdge::Type BrushFace::ProjectToEdge::project(BrushHalfEdge* halfEdge) {
             return halfEdge->edge();
         }
         
-        BrushFace::ProjectToEdge::ConstType BrushFace::ProjectToEdge::projectConst(BrushHalfEdge* halfEdge) {
-            return halfEdge->edge();
-        }
-
         BrushFace::BrushFace(const Vec3& point0, const Vec3& point1, const Vec3& point2, const BrushFaceAttributes& attribs, TexCoordSystem* texCoordSystem) :
         m_brush(NULL),
         m_lineNumber(0),

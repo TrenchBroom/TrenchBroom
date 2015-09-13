@@ -67,12 +67,10 @@ namespace TrenchBroom {
         private:
             struct ProjectToVertex : public ProjectingSequenceProjector<BrushHalfEdge*, BrushVertex*> {
                 static Type project(BrushHalfEdge* halfEdge);
-                static ConstType projectConst(BrushHalfEdge* halfEdge);
             };
             
             struct ProjectToEdge : public ProjectingSequenceProjector<BrushHalfEdge*, BrushEdge*> {
                 static Type project(BrushHalfEdge* halfEdge);
-                static ConstType projectConst(BrushHalfEdge* halfEdge);
             };
         public:
             typedef ConstProjectingSequence<BrushHalfEdgeList, ProjectToVertex> VertexList;
