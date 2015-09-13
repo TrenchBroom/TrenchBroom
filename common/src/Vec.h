@@ -843,8 +843,8 @@ public:
     }
     
     template <typename I, typename G>
-    static Vec<T,S>::List asList(I cur, I end, const G& get) {
-        Vec<T,S>::List result;
+    static typename Vec<T,S>::List asList(I cur, I end, const G& get) {
+        typename Vec<T,S>::List result;
         while (cur != end)
             result.push_back(get(*cur++));
         return result;
